@@ -15,6 +15,10 @@ interface ExtensionManifest {
   files?: string[];
   extensionPack?: string[];
   extensionDependencies?: string[];
+  contributes?: {
+    configurationDefaults?: Record<string, unknown>;
+    configuration?: { properties?: Record<string, { default?: unknown }> };
+  };
 }
 
 const openSourceExtensions = [
@@ -43,7 +47,7 @@ describe('PHP Companion manifests', () => {
     ]);
     for (const manifest of manifests) {
       expect(manifest.publisher).toBe('sohophp');
-      expect(manifest.version).toBe('0.1.1');
+      expect(manifest.version).toBe('0.1.2');
       expect(manifest.license).toBe('MIT');
       expect(manifest.repository).toEqual({
         type: 'git',
@@ -80,6 +84,7 @@ describe('PHP Companion manifests', () => {
     expect(`${manifest.publisher}.${manifest.name}`).toBe('sohophp.php-companion');
     expect(manifest.extensionDependencies).toEqual([]);
     expect(manifest.extensionPack).toEqual([]);
+    expect(manifest.contributes?.configuration?.properties?.['phpCompanion.indexing.onStartup']?.default).toBe(false);
   });
 
   it('keeps the open source pack language-server neutral', async () => {
@@ -99,5 +104,21 @@ describe('PHP Companion manifests', () => {
     ]);
     expect(new Set(manifest.extensionPack).size).toBe(openSourceExtensions.length + 1);
     expect(manifest.extensionPack).toContain('sohophp.twig-plus');
+  });
+
+  it('keeps bundled PHPStan manual by default', async () => {
+    const manifests = await Promise.all([
+      readManifest('packages/php-companion-extension-pack/package.json'),
+      readManifest('packages/php-companion-recommended-pack/package.json'),
+    ]);
+
+    for (const manifest of manifests) {
+      expect(manifest.contributes?.configurationDefaults).toMatchObject({
+        'phpCompanion.indexing.onStartup': false,
+        'phpstan.initialAnalysis': false,
+        'phpstan.fileWatcher': false,
+        'phpstan.configFileWatcher': false,
+      });
+    }
   });
 });

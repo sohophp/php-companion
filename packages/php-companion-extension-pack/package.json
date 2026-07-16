@@ -2,7 +2,7 @@
   "name": "php-companion-open-source-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -43,6 +43,14 @@
   ],
   "scripts": {
     "package": "vsce package"
+  },
+  "contributes": {
+    "configurationDefaults": {
+      "phpCompanion.indexing.onStartup": false,
+      "phpstan.initialAnalysis": false,
+      "phpstan.fileWatcher": false,
+      "phpstan.configFileWatcher": false
+    }
   },
   "extensionPack": [
     "sohophp.php-companion",

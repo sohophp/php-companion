@@ -18,17 +18,38 @@ export async function run(): Promise<void> {
 
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
-  await vscode.commands.executeCommand('phpCompanion.rebuildIndex');
   const uri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'UserController.php');
+  const serviceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'UserService.php');
+  const renamedServiceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'AccountService.php');
+  const originalController = await vscode.workspace.fs.readFile(uri);
+  const originalService = await vscode.workspace.fs.readFile(serviceUri);
   const document = await vscode.workspace.openTextDocument(uri);
-  const offset = document.getText().indexOf('UserService');
+  const serviceDocument = await vscode.workspace.openTextDocument(serviceUri);
+  const serviceEditor = await vscode.window.showTextDocument(serviceDocument);
+  assert.ok(await serviceEditor.edit((builder) => builder.insert(new vscode.Position(serviceDocument.lineCount, 0), "\n")), 'Could not make declaration document dirty');
+  assert.ok(serviceDocument.isDirty, 'Declaration document was expected to be dirty');
+  const offset = serviceDocument.getText().indexOf('UserService');
   assert.ok(offset >= 0);
   const edit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider',
-    uri,
-    document.positionAt(offset + 2),
+    serviceUri,
+    serviceDocument.positionAt(offset + 2),
     'AccountService',
   );
   assert.ok(edit, 'Rename provider returned no edit');
   assert.ok(edit.entries().length >= 2, 'Rename did not include cross-file edits');
+  try {
+    assert.ok(await vscode.workspace.applyEdit(edit), 'Rename failed to apply edits');
+    const updatedController = document.getText();
+    assert.ok(updatedController.includes('AccountService'), 'Cross-file reference was not updated');
+    await vscode.workspace.fs.stat(renamedServiceUri);
+  } finally {
+    try {
+      await vscode.workspace.fs.delete(renamedServiceUri);
+    } catch {
+      // The rename may have failed before creating the target file.
+    }
+    await vscode.workspace.fs.writeFile(serviceUri, originalService);
+    await vscode.workspace.fs.writeFile(uri, originalController);
+  }
 }

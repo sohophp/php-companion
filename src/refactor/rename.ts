@@ -1,4 +1,4 @@
-import { basename, dirname, join } from 'node:path';
+import { basename } from 'node:path';
 import * as vscode from 'vscode';
 import type { IndexedDeclaration, IndexedReference } from '../index/types.js';
 import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
@@ -62,9 +62,17 @@ export async function buildRenameEdit(
     if (file?.errors.length) throw new RenameError(t('syntaxError', vscode.Uri.parse(uri).fsPath));
   }
 
+  const declarationUri = vscode.Uri.parse(declaration.uri);
+  let targetUri: vscode.Uri | undefined;
+  if (options.syncFileName && basename(declarationUri.fsPath) === `${oldName}.php`) {
+    targetUri = vscode.Uri.joinPath(declarationUri, '..', `${newName}.php`);
+    if (await exists(targetUri)) throw new RenameError(t('conflict', targetUri.fsPath));
+  }
+
   const edit = new vscode.WorkspaceEdit();
   for (const file of index.getFiles()) {
-    const uri = vscode.Uri.parse(file.uri);
+    const sourceUri = vscode.Uri.parse(file.uri);
+    const uri = targetUri && file.uri === declaration.uri ? targetUri : sourceUri;
     for (const item of file.declarations.filter((candidate) => candidate.fqcn.toLowerCase() === fqcn.toLowerCase())) {
       edit.replace(uri, uriRange(uri, item.start, item.end, file.source), newName);
     }
@@ -90,10 +98,7 @@ export async function buildRenameEdit(
     }
   }
 
-  const declarationUri = vscode.Uri.parse(declaration.uri);
-  if (options.syncFileName && basename(declarationUri.fsPath) === `${oldName}.php`) {
-    const targetUri = vscode.Uri.file(join(dirname(declarationUri.fsPath), `${newName}.php`));
-    if (await exists(targetUri)) throw new RenameError(t('conflict', targetUri.fsPath));
+  if (targetUri) {
     edit.renameFile(declarationUri, targetUri, { overwrite: false }, {
       label: `Rename ${oldName}.php to ${newName}.php`,
       needsConfirmation: false,
@@ -120,6 +125,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
   constructor(
     private readonly index: WorkspaceSymbolIndex,
     private readonly versionForUri?: (uri: vscode.Uri) => PhpVersion | undefined,
+    private readonly ensureFullIndex?: () => Promise<void>,
   ) {}
 
   prepareRename(document: vscode.TextDocument, position: vscode.Position): vscode.Range | { range: vscode.Range; placeholder: string } | undefined {
@@ -134,6 +140,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
   }
 
   async provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string): Promise<vscode.WorkspaceEdit | undefined> {
+    await this.ensureFullIndex?.();
     const symbol = this.index.findSymbolAt(document.uri.toString(), document.offsetAt(position));
     if (!symbol) return undefined;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);

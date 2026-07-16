@@ -27,11 +27,10 @@ export class WorkspaceSymbolIndex {
   update(uri: string, source: string): void {
     const previous = this.pending.get(uri);
     const pending = { uri, source, parsed: this.parser.parse(source) };
-    this.pending.set(uri, pending);
+    this.replacePending(pending);
     const before = previous?.parsed.declarations.map((item) => item.fqcn.toLowerCase()).sort().join('|');
     const after = pending.parsed.declarations.map((item) => item.fqcn.toLowerCase()).sort().join('|');
     if (previous && before === after) {
-      this.rebuildDeclarations();
       this.resolveFile(pending);
       this.rebuildProblems();
     } else {
@@ -41,17 +40,30 @@ export class WorkspaceSymbolIndex {
 
   updateMany(entries: Iterable<{ uri: string; source: string }>): void {
     for (const entry of entries) {
-      this.pending.set(entry.uri, { ...entry, parsed: this.parser.parse(entry.source) });
+      this.replacePending({ ...entry, parsed: this.parser.parse(entry.source) });
     }
     this.rebuildResolvedIndex();
   }
 
+  async updateManyAsync(entries: Iterable<{ uri: string; source: string }>, batchSize = 1): Promise<void> {
+    batchSize = Math.max(1, batchSize);
+    let processed = 0;
+    for (const entry of entries) {
+      this.replacePending({ ...entry, parsed: this.parser.parse(entry.source) });
+      processed += 1;
+      if (processed % batchSize === 0) await this.yieldToEventLoop();
+    }
+    await this.rebuildResolvedIndexAsync(batchSize);
+  }
+
   remove(uri: string): void {
+    this.pending.get(uri)?.parsed.tree.delete();
     this.pending.delete(uri);
     this.rebuildResolvedIndex();
   }
 
   clear(): void {
+    for (const pending of this.pending.values()) pending.parsed.tree.delete();
     this.pending.clear();
     this.files.clear();
     this.declarations.clear();
@@ -78,6 +90,8 @@ export class WorkspaceSymbolIndex {
   findSymbolAt(uri: string, offset: number): IndexedDeclaration | IndexedReference | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
+    const imported = file.imports.find((item) => offset >= item.start && offset <= item.end);
+    if (imported) return { uri, fqcn: imported.fqcn, text: file.source.slice(imported.start, imported.end), start: imported.start, end: imported.end };
     return [...file.declarations, ...file.references].find((symbol) => offset >= symbol.start && offset <= symbol.end);
   }
 
@@ -90,11 +104,43 @@ export class WorkspaceSymbolIndex {
     return [...this.problems];
   }
 
+  getRelatedClasses(uri: string): string[] {
+    const parsed = this.pending.get(uri)?.parsed;
+    if (!parsed) return [];
+    const imports = new Map(parsed.imports.map((item) => [item.alias.toLowerCase(), item.fqcn]));
+    const candidates = [
+      ...parsed.imports.map((item) => item.fqcn),
+      ...parsed.rawNames.flatMap((item) => resolveName(item.text, parsed.namespace, imports)),
+    ];
+    return [...new Set(candidates.filter((fqcn) => /^[A-Z_\x80-\xff]/.test(fqcn.split('\\').at(-1) ?? '')))];
+  }
+
   private rebuildResolvedIndex(): void {
     this.files.clear();
     this.rebuildDeclarations();
     for (const pending of this.pending.values()) this.resolveFile(pending);
     this.rebuildProblems();
+  }
+
+  private async rebuildResolvedIndexAsync(batchSize: number): Promise<void> {
+    this.files.clear();
+    this.rebuildDeclarations();
+    let processed = 0;
+    for (const pending of this.pending.values()) {
+      this.resolveFile(pending);
+      processed += 1;
+      if (processed % batchSize === 0) await this.yieldToEventLoop();
+    }
+    this.rebuildProblems();
+  }
+
+  private replacePending(pending: PendingFile): void {
+    this.pending.get(pending.uri)?.parsed.tree.delete();
+    this.pending.set(pending.uri, pending);
+  }
+
+  private yieldToEventLoop(): Promise<void> {
+    return new Promise((resolve) => setImmediate(resolve));
   }
 
   private rebuildDeclarations(): void {

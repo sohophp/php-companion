@@ -2,7 +2,7 @@
   "name": "php-companion",
   "displayName": "PHP Companion: PhpStorm Workflows",
   "description": "PhpStorm-inspired PHP workflows for Visual Studio Code.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -98,18 +98,12 @@
         "category": "PHP Companion"
       }
     ],
-    "keybindings": [
-      {
-        "command": "phpCompanion.renameClassLike",
-        "key": "shift+f6",
-        "when": "editorLangId == php && editorTextFocus && config.phpCompanion.enablePhpStormKeybindings"
-      }
-    ],
     "configuration": {
       "title": "PHP Companion",
       "properties": {
         "phpCompanion.phpVersion": {
           "type": "string",
+          "scope": "resource",
           "enum": [
             "auto",
             "7.2",
@@ -131,15 +125,18 @@
             "null"
           ],
           "default": null,
+          "scope": "resource",
           "description": "%config.phpExecutablePath%"
         },
         "phpCompanion.composer.includeDevAutoload": {
           "type": "boolean",
+          "scope": "resource",
           "default": true,
           "description": "%config.includeDevAutoload%"
         },
         "phpCompanion.files.exclude": {
           "type": "array",
+          "scope": "resource",
           "items": {
             "type": "string"
           },
@@ -151,6 +148,11 @@
             "**/storage/framework/**"
           ],
           "description": "%config.filesExclude%"
+        },
+        "phpCompanion.indexing.onStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.indexingOnStartup%"
         },
         "phpCompanion.pasteImports.mode": {
           "type": "string",
@@ -164,6 +166,7 @@
         },
         "phpCompanion.rename.includeTextMatches": {
           "type": "string",
+          "scope": "resource",
           "enum": [
             "confirm",
             "never",
@@ -174,17 +177,13 @@
         },
         "phpCompanion.rename.syncFileName": {
           "type": "string",
+          "scope": "resource",
           "enum": [
             "whenMatched",
             "never"
           ],
           "default": "whenMatched",
           "description": "%config.syncFileName%"
-        },
-        "phpCompanion.enablePhpStormKeybindings": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.enablePhpStormKeybindings%"
         }
       }
     }

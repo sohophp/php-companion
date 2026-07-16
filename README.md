@@ -7,7 +7,7 @@ PHP Companion 为从 PhpStorm 迁移到 VS Code 的 PHP 开发者补充安全重
 - 按工作区设置、Composer platform/require 和 PHP 可执行文件自动判断 PHP 7.2–8.5。
 - 在状态栏查看检测来源并为每个工作区切换目标 PHP 版本。
 - 基于 Composer PSR-4 和 Tree-sitter PHP/WASM 的容错符号索引。
-- 使用 `Shift+F6` 重命名 class、interface、trait、enum，并同步语义引用和匹配文件名。
+- 通过命令面板或 VS Code Rename 重命名 class、interface、trait、enum，并同步语义引用和匹配文件名；扩展不占用 `Shift+F6`。
 - 复制和粘贴 PHP 代码时保留符号信息，补充缺少的 `use`。
 - 中文、英文命令和兼容性报告。
 
@@ -29,6 +29,8 @@ Open Source Pack 不捆绑语言服务器。不安装语言服务器时，PHP Co
 
 两个扩展包都包含 TwigPlus，用于提供接近 PhpStorm 的 Twig 补全、跳转、格式化和编辑体验。PHP Companion 主扩展的 `extensionDependencies` 始终为空。
 
+为避免大型项目启动时占满共享 Extension Host，PHP Companion 使用渐进式索引：打开 PHP 文件时自动索引该文件及 Composer PSR-4 可以定位的 Import；跨项目重命名等需要反向引用的操作会显示进度并自动补齐索引。`PHP Companion: Rebuild Symbol Index` 仅作为强制刷新入口，也可显式启用 `phpCompanion.indexing.onStartup` 恢复启动时完整索引。
+
 ## PHP 版本检测优先级
 
 1. `phpCompanion.phpVersion` 明确设置。
@@ -49,10 +51,10 @@ pnpm check
 `pnpm package:all` 会生成三个 VSIX。安装主扩展和其中一个扩展包：
 
 ```bash
-code --install-extension php-companion-0.1.1.vsix
-code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.1.vsix
+code --install-extension php-companion-0.1.2.vsix
+code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.2.vsix
 # 或：
-code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.1.vsix
+code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.2.vsix
 ```
 
 扩展宿主测试在 Linux 下运行：

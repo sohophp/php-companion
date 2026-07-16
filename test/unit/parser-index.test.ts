@@ -28,6 +28,10 @@ class UserController {
 `);
     expect(index.findDeclarations('App\\Service\\UserService')).toHaveLength(1);
     expect(index.findReferences('App\\Service\\UserService').length).toBeGreaterThanOrEqual(3);
+    const controller = index.getFile('file:///workspace/src/Controller/UserController.php');
+    const imported = controller?.imports[0];
+    expect(controller?.source.slice(imported?.pathStart, imported?.pathEnd)).toBe('App\\Service\\UserService');
+    expect(controller?.references.some((reference) => reference.text === 'App\\Service\\UserService')).toBe(false);
     expect(index.getProblems()).toHaveLength(0);
   });
 
@@ -36,14 +40,20 @@ class UserController {
     expect(parsed.declarations[0]?.name).toBe('User');
   });
 
-  it('batch indexes ten thousand PHP files', { timeout: 30_000 }, () => {
+  it('batch indexes ten thousand PHP files without starving the event loop', { timeout: 30_000 }, async () => {
     const index = new WorkspaceSymbolIndex(parser);
     const entries = Array.from({ length: 10_000 }, (_, number) => ({
       uri: `file:///workspace/src/Generated/Class${number}.php`,
       source: `<?php namespace App\\Generated; class Class${number} {}`,
     }));
-    index.updateMany(entries);
+    let eventLoopYielded = false;
+    setImmediate(() => {
+      eventLoopYielded = true;
+    });
+    await index.updateManyAsync(entries, 100);
+    expect(eventLoopYielded).toBe(true);
     expect(index.getFiles()).toHaveLength(10_000);
     expect(index.findDeclarations('App\\Generated\\Class9999')).toHaveLength(1);
+    index.clear();
   });
 });

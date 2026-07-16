@@ -17,6 +17,10 @@ export interface ParsedImport extends SourceRange {
   fqcn: string;
   alias: string;
   explicitAlias: boolean;
+  pathStart: number;
+  pathEnd: number;
+  statementStart: number;
+  statementEnd: number;
 }
 
 export interface RawName extends SourceRange {
@@ -90,6 +94,10 @@ function parseUseClause(text: string, start: number): ParsedImport[] {
       explicitAlias: match[2] !== undefined,
       start: start + relative + nameOffset,
       end: start + relative + nameOffset + importedName.length,
+      pathStart: start + relative,
+      pathEnd: start + relative + match[1]!.length,
+      statementStart: start,
+      statementEnd: start + text.length,
     });
   }
   return imports;
@@ -136,7 +144,8 @@ export class PhpSyntaxParser {
       }
     });
 
-    const excluded = [...protectedRanges, ...imports, ...declarations]
+    const importStatements = imports.map((item) => ({ start: item.statementStart, end: item.statementEnd }));
+    const excluded = [...protectedRanges, ...importStatements, ...declarations]
       .sort((a, b) => a.start - b.start);
     const rawNames: RawName[] = [];
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;

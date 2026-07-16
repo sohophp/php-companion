@@ -9,8 +9,8 @@
   "config.phpExecutablePath": "Optional PHP executable used for version detection.",
   "config.includeDevAutoload": "Include Composer autoload-dev PSR-4 mappings.",
   "config.filesExclude": "Glob patterns excluded from indexing.",
+  "config.indexingOnStartup": "Build the full workspace symbol index when the extension starts. Disabled by default because open files and their PSR-4 imports are indexed automatically, while operations such as rename complete the index on demand.",
   "config.pasteImportsMode": "Controls automatic import updates when PHP code is pasted.",
   "config.includeTextMatches": "Controls updates to class-name matches in strings and configuration files.",
-  "config.syncFileName": "Rename a matching PHP file together with its primary class-like declaration.",
-  "config.enablePhpStormKeybindings": "Enable PHP-specific PhpStorm keybindings such as Shift+F6."
+  "config.syncFileName": "Rename a matching PHP file together with its primary class-like declaration."
 }

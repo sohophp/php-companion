@@ -9,8 +9,8 @@
   "config.phpExecutablePath": "用于版本检测的可选 PHP 可执行文件。",
   "config.includeDevAutoload": "索引 Composer autoload-dev 的 PSR-4 映射。",
   "config.filesExclude": "从索引中排除的 Glob 模式。",
+  "config.indexingOnStartup": "扩展启动时构建完整工作区符号索引。默认关闭；打开的文件及其 PSR-4 Import 会自动索引，重命名等操作会按需补齐索引。",
   "config.pasteImportsMode": "控制粘贴 PHP 代码时自动更新 Import 的方式。",
   "config.includeTextMatches": "控制字符串和配置文件中的类名文本匹配。",
-  "config.syncFileName": "重命名主类声明时同步重命名匹配的 PHP 文件。",
-  "config.enablePhpStormKeybindings": "启用 Shift+F6 等 PHP 专属 PhpStorm 快捷键。"
+  "config.syncFileName": "重命名主类声明时同步重命名匹配的 PHP 文件。"
 }

@@ -1,5 +1,5 @@
 import { readFile, stat } from 'node:fs/promises';
-import { dirname, isAbsolute, join, parse, resolve } from 'node:path';
+import { dirname, extname, isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
 export interface Psr4Mapping {
   prefix: string;
@@ -16,6 +16,33 @@ export interface ComposerProject {
   requiredPhp?: string;
   psr4: Psr4Mapping[];
   warnings: string[];
+}
+
+export function resolvePsr4Class(fqcn: string, mappings: Psr4Mapping[]): string[] {
+  const normalized = fqcn.replace(/^\\+/, '');
+  return mappings
+    .filter((mapping) => normalized.startsWith(mapping.prefix))
+    .sort((left, right) => right.prefix.length - left.prefix.length)
+    .flatMap((mapping) => {
+      const relative = normalized.slice(mapping.prefix.length).replace(/\\/g, '/');
+      return mapping.directories.map((directory) => join(directory, `${relative}.php`));
+    });
+}
+
+export function resolvePsr4Namespace(filePath: string, mappings: Psr4Mapping[]): string | undefined {
+  if (extname(filePath).toLowerCase() !== '.php') return undefined;
+  const candidates = mappings.flatMap((mapping) => mapping.directories.map((directory) => ({ mapping, directory: resolve(directory) })))
+    .filter(({ directory }) => {
+      const path = relative(directory, resolve(filePath));
+      return path !== '' && path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path);
+    })
+    .sort((left, right) => right.directory.length - left.directory.length);
+  const candidate = candidates[0];
+  if (!candidate) return undefined;
+  const relativeDirectory = dirname(relative(candidate.directory, resolve(filePath)));
+  const suffix = relativeDirectory === '.' ? '' : relativeDirectory.split(sep).filter(Boolean).join('\\');
+  const prefix = candidate.mapping.prefix.replace(/^\\+|\\+$/g, '');
+  return [prefix, suffix].filter(Boolean).join('\\');
 }
 
 async function readJson(path: string): Promise<Record<string, any> | undefined> {
