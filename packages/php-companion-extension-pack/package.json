@@ -2,7 +2,7 @@
   "name": "php-companion-open-source-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,11 @@
   "homepage": "https://github.com/sohophp/php-companion/tree/main/packages/php-companion-extension-pack#readme",
   "bugs": {
     "url": "https://github.com/sohophp/php-companion/issues"
+  },
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#061A3D",
+    "theme": "dark"
   },
   "engines": {
     "vscode": "^1.100.0"
@@ -32,6 +37,7 @@
   "files": [
     "README.md",
     "LICENSE",
+    "resources/icon.png",
     "package.nls.json",
     "package.nls.zh-cn.json"
   ],

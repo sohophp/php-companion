@@ -4,7 +4,7 @@ import yauzl from 'yauzl';
 
 const artifacts = [
   {
-    path: 'php-companion-0.1.0.vsix',
+    path: 'php-companion-0.1.1.vsix',
     required: [
       'extension/package.json',
       'extension/dist/extension.js',
@@ -12,15 +12,26 @@ const artifacts = [
       'extension/dist/tree-sitter-php.wasm',
       'extension/package.nls.json',
       'extension/package.nls.zh-cn.json',
+      'extension/resources/icon.png',
     ],
   },
   {
-    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.0.vsix',
-    required: ['extension/package.json', 'extension/readme.md', 'extension/package.nls.zh-cn.json'],
+    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.1.vsix',
+    required: [
+      'extension/package.json',
+      'extension/readme.md',
+      'extension/package.nls.zh-cn.json',
+      'extension/resources/icon.png',
+    ],
   },
   {
-    path: 'packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix',
-    required: ['extension/package.json', 'extension/readme.md', 'extension/package.nls.zh-cn.json'],
+    path: 'packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.1.vsix',
+    required: [
+      'extension/package.json',
+      'extension/readme.md',
+      'extension/package.nls.zh-cn.json',
+      'extension/resources/icon.png',
+    ],
   },
 ];
 

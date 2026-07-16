@@ -21,8 +21,8 @@ PHP Companion 不依赖 Intelephense；卸载或禁用 Intelephense 后，PHP Co
 
 ```bash
 pnpm package:all
-code --install-extension php-companion-0.1.0.vsix
-code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix
+code --install-extension php-companion-0.1.1.vsix
+code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.1.vsix
 ```
 
 本地测试应先安装 PHP Companion VSIX。正式发布后，安装本扩展包会自动安装清单中的扩展。

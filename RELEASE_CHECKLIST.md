@@ -10,6 +10,7 @@
 - [ ] `pnpm test:extension`
 - [ ] `pnpm test:extension:intelephense`
 - [ ] `pnpm package:all && pnpm verify:vsix`
+- [ ] 在扩展侧栏的浅色和深色主题中检查三个图标，确认 16px、32px 和详情页尺寸下清晰且易区分。
 - [ ] Linux、Windows、macOS CI 全部通过
 
 ## Clean-profile smoke tests
@@ -19,21 +20,21 @@
 ```bash
 code --user-data-dir /tmp/php-companion-user \
   --extensions-dir /tmp/php-companion-extensions \
-  --install-extension php-companion-0.1.0.vsix
+  --install-extension php-companion-0.1.1.vsix
 
 code --user-data-dir /tmp/php-companion-user \
   --extensions-dir /tmp/php-companion-extensions \
-  --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.0.vsix
+  --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.1.vsix
 ```
 
-为 Recommended Pack 使用另一组空目录，并安装 `packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix`。验证状态栏版本、兼容性报告、重建索引、Shift+F6、Undo 和粘贴 import；确认没有重复诊断或重复补全。Open Source Pack 配置中不得出现 PHP Language Server。
+为 Recommended Pack 使用另一组空目录，并安装 `packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.1.vsix`。验证状态栏版本、兼容性报告、重建索引、Shift+F6、Undo 和粘贴 import；确认没有重复诊断或重复补全。Open Source Pack 配置中不得出现 PHP Language Server。
 
 ## Marketplace release
 
 - [ ] 确认 `sohophp` publisher 权限及 protected `marketplace` environment。
 - [ ] 使用 `pnpm exec vsce verify-pat sohophp` 验证新的 Marketplace PAT。
 - [ ] 将 `CHANGELOG.md` 中的 `Unreleased` 改为发布日期。
-- [ ] 创建并推送 `v0.1.0` 标签。
+- [ ] 创建并推送 `v0.1.1` 标签。
 - [ ] 先发布 `sohophp.php-companion`。
 - [ ] 再发布 `sohophp.php-companion-open-source-pack`。
 - [ ] 最后发布 `sohophp.php-companion-recommended-pack`。

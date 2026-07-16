@@ -2,7 +2,7 @@
   "name": "php-companion",
   "displayName": "PHP Companion: PhpStorm Workflows",
   "description": "PhpStorm-inspired PHP workflows for Visual Studio Code.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,11 @@
   "homepage": "https://github.com/sohophp/php-companion#readme",
   "bugs": {
     "url": "https://github.com/sohophp/php-companion/issues"
+  },
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#07183F",
+    "theme": "dark"
   },
   "engines": {
     "vscode": "^1.100.0"
@@ -34,6 +39,7 @@
   "main": "./dist/extension.js",
   "files": [
     "dist",
+    "resources/icon.png",
     "package.nls.json",
     "package.nls.zh-cn.json",
     "README.md",

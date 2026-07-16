@@ -10,6 +10,9 @@ interface ExtensionManifest {
   repository?: { type: string; url: string };
   homepage?: string;
   bugs?: { url: string };
+  icon?: string;
+  galleryBanner?: { color: string; theme: string };
+  files?: string[];
   extensionPack?: string[];
   extensionDependencies?: string[];
 }
@@ -40,7 +43,7 @@ describe('PHP Companion manifests', () => {
     ]);
     for (const manifest of manifests) {
       expect(manifest.publisher).toBe('sohophp');
-      expect(manifest.version).toBe('0.1.0');
+      expect(manifest.version).toBe('0.1.1');
       expect(manifest.license).toBe('MIT');
       expect(manifest.repository).toEqual({
         type: 'git',
@@ -48,6 +51,27 @@ describe('PHP Companion manifests', () => {
       });
       expect(manifest.homepage).toContain('https://github.com/sohophp/php-companion');
       expect(manifest.bugs?.url).toBe('https://github.com/sohophp/php-companion/issues');
+    }
+  });
+
+  it('ships a Marketplace icon and dark gallery banner for every extension', async () => {
+    const manifestPaths = [
+      'package.json',
+      'packages/php-companion-extension-pack/package.json',
+      'packages/php-companion-recommended-pack/package.json',
+    ];
+
+    for (const manifestPath of manifestPaths) {
+      const manifest = await readManifest(manifestPath);
+      expect(manifest.icon).toBe('resources/icon.png');
+      expect(manifest.files).toContain('resources/icon.png');
+      expect(manifest.galleryBanner?.theme).toBe('dark');
+
+      const iconPath = resolve(manifestPath, '..', manifest.icon ?? '');
+      const icon = await readFile(iconPath);
+      expect(icon.subarray(1, 4).toString('ascii')).toBe('PNG');
+      expect(icon.readUInt32BE(16)).toBe(256);
+      expect(icon.readUInt32BE(20)).toBe(256);
     }
   });
 

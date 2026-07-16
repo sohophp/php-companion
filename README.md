@@ -49,10 +49,10 @@ pnpm check
 `pnpm package:all` 会生成三个 VSIX。安装主扩展和其中一个扩展包：
 
 ```bash
-code --install-extension php-companion-0.1.0.vsix
-code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.0.vsix
+code --install-extension php-companion-0.1.1.vsix
+code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.1.vsix
 # 或：
-code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix
+code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.1.vsix
 ```
 
 扩展宿主测试在 Linux 下运行：
