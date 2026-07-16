@@ -31,6 +31,7 @@ code --user-data-dir /tmp/php-companion-user \
 ## Marketplace release
 
 - [ ] 确认 `sohophp` publisher 权限及 protected `marketplace` environment。
+- [ ] 使用 `pnpm exec vsce verify-pat sohophp` 验证新的 Marketplace PAT。
 - [ ] 将 `CHANGELOG.md` 中的 `Unreleased` 改为发布日期。
 - [ ] 创建并推送 `v0.1.0` 标签。
 - [ ] 先发布 `sohophp.php-companion`。

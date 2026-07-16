@@ -55,6 +55,10 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: php-companion-vsix
+      - name: Verify Marketplace credentials
+        run: pnpm exec vsce verify-pat sohophp
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish PHP Companion
         run: pnpm exec vsce publish --packagePath php-companion-0.1.0.vsix
         env:
