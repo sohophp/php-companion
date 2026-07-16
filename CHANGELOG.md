@@ -2,6 +2,14 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 的格式。
 
+## [0.1.3] - 2026-07-17
+
+### Changed
+
+- 暂停全部运行时功能，移除自动激活、命令、设置、语言 Provider、文件监听和工作区索引，避免持续占用 Extension Host 资源。
+- Open Source Pack 和 Recommended Pack 改为空占位包，不再为新用户安装其他扩展。
+- Marketplace 显示名称改为 `PHP Companion (Paused)`；保留原扩展 ID，让现有用户自动升级到安全占位版本。
+
 ## [0.1.2] - 2026-07-17
 
 ### Changed
@@ -31,4 +39,5 @@
 
 [0.1.0]: https://github.com/sohophp/php-companion/releases/tag/v0.1.0
 [0.1.1]: https://github.com/sohophp/php-companion/compare/v0.1.0...v0.1.1
-[0.1.2]: https://github.com/sohophp/php-companion/compare/v0.1.1...HEAD
+[0.1.2]: https://github.com/sohophp/php-companion/compare/v0.1.1...v0.1.2
+[0.1.3]: https://github.com/sohophp/php-companion/compare/v0.1.2...HEAD

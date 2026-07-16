@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion 开源扩展包",
-  "description": "为从 PhpStorm 迁移到 VS Code 的开发者整理、不捆绑 PHP 语言服务器的扩展组合。"
+  "displayName": "PHP Companion 开源扩展包（已暂停）",
+  "description": "重新设计期间不安装任何扩展的空占位包。"
 }

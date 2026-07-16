@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion 推荐扩展包",
-  "description": "为从 PhpStorm 迁移到 VS Code 的开发者准备，包含 Intelephense 的推荐 PHP 与 Twig 工具组合。"
+  "displayName": "PHP Companion 推荐扩展包（已暂停）",
+  "description": "重新设计期间不安装任何扩展的空占位包。"
 }

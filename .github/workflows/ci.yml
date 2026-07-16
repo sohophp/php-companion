@@ -34,9 +34,9 @@ jobs:
           name: php-companion-vsix
           if-no-files-found: error
           path: |
-            php-companion-0.1.2.vsix
-            packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.2.vsix
-            packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.2.vsix
+            php-companion-0.1.3.vsix
+            packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.3.vsix
+            packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.3.vsix
 
   php-integration:
     name: PHP ${{ matrix.php }} integration
