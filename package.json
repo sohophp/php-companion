@@ -1,0 +1,212 @@
+{
+  "name": "php-companion",
+  "displayName": "PHP Companion",
+  "description": "PhpStorm-inspired PHP workflows for Visual Studio Code.",
+  "version": "0.1.0",
+  "publisher": "sohophp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sohophp/php-companion.git"
+  },
+  "homepage": "https://github.com/sohophp/php-companion#readme",
+  "bugs": {
+    "url": "https://github.com/sohophp/php-companion/issues"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "php",
+    "phpstorm",
+    "refactor",
+    "composer",
+    "psr-4"
+  ],
+  "activationEvents": [
+    "onLanguage:php",
+    "workspaceContains:composer.json"
+  ],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist",
+    "package.nls.json",
+    "package.nls.zh-cn.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "build": "node esbuild.mjs --production",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test scripts esbuild.mjs vitest.config.ts vitest.integration.config.ts",
+    "test": "vitest run",
+    "test:integration:php": "vitest run --config vitest.integration.config.ts",
+    "test:watch": "vitest",
+    "test:extension": "pnpm build && xvfb-run -a node ./dist-test/runTest.js",
+    "test:extension:intelephense": "PHP_COMPANION_TEST_WITH_INTELEPHENSE=1 pnpm test:extension",
+    "pretest:extension": "tsc -p test/extension/tsconfig.json",
+    "package": "pnpm build && vsce package --no-dependencies",
+    "package:open-source-pack": "pnpm --dir packages/php-companion-extension-pack package",
+    "package:recommended-pack": "pnpm --dir packages/php-companion-recommended-pack package",
+    "package:all": "pnpm package && pnpm package:open-source-pack && pnpm package:recommended-pack",
+    "verify:vsix": "node scripts/verify-vsix.mjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "phpCompanion.selectPhpVersion",
+        "title": "%command.selectPhpVersion%",
+        "category": "PHP Companion"
+      },
+      {
+        "command": "phpCompanion.detectPhpVersions",
+        "title": "%command.detectPhpVersions%",
+        "category": "PHP Companion"
+      },
+      {
+        "command": "phpCompanion.showCompatibilityReport",
+        "title": "%command.showCompatibilityReport%",
+        "category": "PHP Companion"
+      },
+      {
+        "command": "phpCompanion.rebuildIndex",
+        "title": "%command.rebuildIndex%",
+        "category": "PHP Companion"
+      },
+      {
+        "command": "phpCompanion.renameClassLike",
+        "title": "%command.renameClassLike%",
+        "category": "PHP Companion"
+      },
+      {
+        "command": "phpCompanion.resolvePastedImports",
+        "title": "%command.resolvePastedImports%",
+        "category": "PHP Companion"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "phpCompanion.renameClassLike",
+        "key": "shift+f6",
+        "when": "editorLangId == php && editorTextFocus && config.phpCompanion.enablePhpStormKeybindings"
+      }
+    ],
+    "configuration": {
+      "title": "PHP Companion",
+      "properties": {
+        "phpCompanion.phpVersion": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "7.2",
+            "7.3",
+            "7.4",
+            "8.0",
+            "8.1",
+            "8.2",
+            "8.3",
+            "8.4",
+            "8.5"
+          ],
+          "default": "auto",
+          "description": "%config.phpVersion%"
+        },
+        "phpCompanion.phpExecutablePath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "%config.phpExecutablePath%"
+        },
+        "phpCompanion.composer.includeDevAutoload": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.includeDevAutoload%"
+        },
+        "phpCompanion.files.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/vendor/**",
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/var/cache/**",
+            "**/storage/framework/**"
+          ],
+          "description": "%config.filesExclude%"
+        },
+        "phpCompanion.pasteImports.mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "preview",
+            "off"
+          ],
+          "default": "preview",
+          "description": "%config.pasteImportsMode%"
+        },
+        "phpCompanion.rename.includeTextMatches": {
+          "type": "string",
+          "enum": [
+            "confirm",
+            "never",
+            "always"
+          ],
+          "default": "confirm",
+          "description": "%config.includeTextMatches%"
+        },
+        "phpCompanion.rename.syncFileName": {
+          "type": "string",
+          "enum": [
+            "whenMatched",
+            "never"
+          ],
+          "default": "whenMatched",
+          "description": "%config.syncFileName%"
+        },
+        "phpCompanion.enablePhpStormKeybindings": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.enablePhpStormKeybindings%"
+        }
+      }
+    }
+  },
+  "extensionDependencies": [],
+  "extensionPack": [],
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^22.15.0",
+    "@types/semver": "^7.7.1",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^3.9.2",
+    "@types/yauzl": "^2.10.3",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10",
+    "yauzl": "^3.2.0"
+  },
+  "dependencies": {
+    "minimatch": "^10.2.5",
+    "semver": "^7.8.5",
+    "tree-sitter-php": "^0.24.2",
+    "web-tree-sitter": "^0.26.11"
+  },
+  "packageManager": "pnpm@11.8.0+sha512.c1f5e7c4cb241c8f174b743851d82f42b802324afc8b0f116b96adb15aa06664948dde36960a3ba1079ba5b4b29dd0140135b94b5b5f5263592249d68e555f26"
+}

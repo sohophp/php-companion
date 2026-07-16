@@ -1,0 +1,16 @@
+{
+  "command.selectPhpVersion": "选择 PHP 版本",
+  "command.detectPhpVersions": "检测 PHP 版本",
+  "command.showCompatibilityReport": "显示兼容性报告",
+  "command.rebuildIndex": "重建符号索引",
+  "command.renameClassLike": "重命名类符号",
+  "command.resolvePastedImports": "解析粘贴代码的 Import",
+  "config.phpVersion": "目标 PHP 版本。自动模式会读取 Composer 约束或已安装的 PHP。",
+  "config.phpExecutablePath": "用于版本检测的可选 PHP 可执行文件。",
+  "config.includeDevAutoload": "索引 Composer autoload-dev 的 PSR-4 映射。",
+  "config.filesExclude": "从索引中排除的 Glob 模式。",
+  "config.pasteImportsMode": "控制粘贴 PHP 代码时自动更新 Import 的方式。",
+  "config.includeTextMatches": "控制字符串和配置文件中的类名文本匹配。",
+  "config.syncFileName": "重命名主类声明时同步重命名匹配的 PHP 文件。",
+  "config.enablePhpStormKeybindings": "启用 Shift+F6 等 PHP 专属 PhpStorm 快捷键。"
+}

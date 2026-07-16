@@ -1,0 +1,53 @@
+{
+  "name": "php-companion-open-source-pack",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.0",
+  "publisher": "sohophp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sohophp/php-companion.git"
+  },
+  "homepage": "https://github.com/sohophp/php-companion/tree/main/packages/php-companion-extension-pack#readme",
+  "bugs": {
+    "url": "https://github.com/sohophp/php-companion/issues"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Extension Packs"
+  ],
+  "keywords": [
+    "php",
+    "phpstorm",
+    "extension pack",
+    "composer",
+    "xdebug",
+    "phpunit",
+    "twig",
+    "open source"
+  ],
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.nls.json",
+    "package.nls.zh-cn.json"
+  ],
+  "scripts": {
+    "package": "vsce package"
+  },
+  "extensionPack": [
+    "sohophp.php-companion",
+    "sohophp.twig-plus",
+    "k--kato.intellij-idea-keybindings",
+    "neilbrayfield.php-docblocker",
+    "MehediDracula.php-namespace-resolver",
+    "everstorm.php-smart-files",
+    "xdebug.php-debug",
+    "recca0120.vscode-phpunit",
+    "junstyle.php-cs-fixer",
+    "swordev.phpstan"
+  ]
+}

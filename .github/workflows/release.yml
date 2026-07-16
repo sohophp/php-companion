@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified VSIX files to Visual Studio Marketplace
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.8.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm package:all
+      - run: pnpm verify:vsix
+      - uses: actions/upload-artifact@v4
+        with:
+          name: php-companion-vsix
+          if-no-files-found: error
+          path: |
+            php-companion-0.1.0.vsix
+            packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.0.vsix
+            packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix
+
+  publish-marketplace:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: build
+    runs-on: ubuntu-latest
+    environment: marketplace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.8.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: php-companion-vsix
+      - name: Publish PHP Companion
+        run: pnpm exec vsce publish --packagePath php-companion-0.1.0.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish Open Source Pack
+        run: pnpm exec vsce publish --packagePath packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.0.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish Recommended Pack
+        run: pnpm exec vsce publish --packagePath packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.0.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

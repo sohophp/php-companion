@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "k--kato.intellij-idea-keybindings",
+    "sohophp.twig-plus",
+    "neilbrayfield.php-docblocker",
+    "MehediDracula.php-namespace-resolver",
+    "everstorm.php-smart-files",
+    "xdebug.php-debug",
+    "recca0120.vscode-phpunit",
+    "junstyle.php-cs-fixer",
+    "swordev.phpstan"
+  ]
+}
