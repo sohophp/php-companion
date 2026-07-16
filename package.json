@@ -1,6 +1,6 @@
 {
   "name": "php-companion",
-  "displayName": "PHP Companion",
+  "displayName": "PHP Companion: PhpStorm Workflows",
   "description": "PhpStorm-inspired PHP workflows for Visual Studio Code.",
   "version": "0.1.0",
   "publisher": "sohophp",
