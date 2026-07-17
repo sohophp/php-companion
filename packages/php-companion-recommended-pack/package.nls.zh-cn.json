@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion 推荐扩展包（已暂停）",
-  "description": "重新设计期间不安装任何扩展的空占位包。"
+  "displayName": "PHP Companion 推荐扩展包",
+  "description": "推荐的 PHP 开发组合，包含 Intelephense 与精简的项目、Twig、调试、测试和格式化工具。"
 }

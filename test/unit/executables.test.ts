@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { discoverPhpExecutables, probePhp } from '../../src/php-version/executables.js';
+import { resolvePhpVersion } from '../../src/php-version/resolver.js';
 
 describe('PHP executable probing', () => {
   it.each([
@@ -33,5 +34,17 @@ describe('PHP executable probing', () => {
     );
     expect(results).toHaveLength(1);
     expect(results[0]?.minor).toBe('8.2');
+  });
+
+  it('does not start PHP when Composer already determines the target version', async () => {
+    let probes = 0;
+    const resolution = await resolvePhpVersion({
+      setting: 'auto',
+      composer: { root: '/project', composerPath: '/project/composer.json', requiredPhp: '^8.1', psr4: [], warnings: [] },
+      processRunner: async () => { probes += 1; return '8.5.0'; },
+      executableResolver: async (command) => `/usr/bin/${command}`,
+    });
+    expect(resolution.target).toBe('8.1');
+    expect(probes).toBe(0);
   });
 });

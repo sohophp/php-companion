@@ -4,7 +4,7 @@ import yauzl from 'yauzl';
 
 const artifacts = [
   {
-    path: 'php-companion-0.1.3.vsix',
+    path: 'php-companion-0.4.0.vsix',
     required: [
       'extension/package.json',
       'extension/dist/extension.js',
@@ -12,7 +12,7 @@ const artifacts = [
     ],
   },
   {
-    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.1.3.vsix',
+    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.0.vsix',
     required: [
       'extension/package.json',
       'extension/readme.md',
@@ -21,7 +21,7 @@ const artifacts = [
     ],
   },
   {
-    path: 'packages/php-companion-recommended-pack/php-companion-recommended-pack-0.1.3.vsix',
+    path: 'packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.0.vsix',
     required: [
       'extension/package.json',
       'extension/readme.md',

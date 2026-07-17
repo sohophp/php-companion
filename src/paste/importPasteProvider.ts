@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
 import { t } from '../extension/localize.js';
+import { importInsertionOffset, rankedImportCandidates } from '../imports/importWorkflows.js';
+import type { Psr4Mapping } from '../composer/project.js';
 
 const METADATA_MIME = 'application/vnd.php-companion.symbols+json';
 const PASTE_KIND = vscode.DocumentDropOrPasteEditKind.TextUpdateImports.append('php');
@@ -10,29 +12,11 @@ interface CopiedSymbol {
   alias: string;
 }
 
-function importInsertionOffset(source: string): number {
-  const usePattern = /^use\s+(?:(?:function|const)\s+)?[^;]+;\s*$/gm;
-  let lastUse: RegExpExecArray | undefined;
-  for (const match of source.matchAll(usePattern)) lastUse = match;
-  if (lastUse?.index !== undefined) return lastUse.index + lastUse[0].length;
-  const namespace = /^namespace\s+[^;{]+\s*([;{])/m.exec(source);
-  if (namespace?.index !== undefined) return namespace.index + namespace[0].length;
-  const openTag = /<\?php\s*/.exec(source);
-  return openTag?.index !== undefined ? openTag.index + openTag[0].length : 0;
-}
-
-function chooseAlias(fqcn: string, preferred: string, occupied: Map<string, string>): string {
-  if (!occupied.has(preferred.toLowerCase()) || occupied.get(preferred.toLowerCase()) === fqcn) return preferred;
-  let suffix = 2;
-  while (occupied.has(`${preferred}${suffix}`.toLowerCase())) suffix += 1;
-  return `${preferred}${suffix}`;
-}
-
 function buildImportEdit(
   document: vscode.TextDocument,
   symbols: CopiedSymbol[],
   index: WorkspaceSymbolIndex,
-): { insertTextReplacements: Map<string, string>; edit?: vscode.WorkspaceEdit } {
+): { insertTextReplacements: Map<string, string>; edit?: vscode.WorkspaceEdit; conflict?: CopiedSymbol } {
   const file = index.getFile(document.uri.toString());
   const source = document.getText();
   const namespace = file?.namespace ?? /^namespace\s+([^;{]+)/m.exec(source)?.[1]?.trim() ?? '';
@@ -46,7 +30,9 @@ function buildImportEdit(
     const symbolNamespace = parts.slice(0, -1).join('\\');
     if (symbolNamespace.toLowerCase() === namespace.toLowerCase() || existing.has(symbol.fqcn.toLowerCase())) continue;
     const preferred = symbol.alias || parts.at(-1)!;
-    const alias = chooseAlias(symbol.fqcn, preferred, occupied);
+    const conflict = occupied.get(preferred.toLowerCase());
+    if (conflict && conflict.toLowerCase() !== symbol.fqcn.toLowerCase()) return { insertTextReplacements: replacements, conflict: symbol };
+    const alias = preferred;
     occupied.set(alias.toLowerCase(), symbol.fqcn);
     existing.add(symbol.fqcn.toLowerCase());
     lines.push(`use ${symbol.fqcn}${alias !== parts.at(-1) ? ` as ${alias}` : ''};`);
@@ -72,7 +58,7 @@ function replaceAliases(text: string, replacements: Map<string, string>): string
 }
 
 export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider {
-  constructor(private readonly index: WorkspaceSymbolIndex) {}
+  constructor(private readonly index: WorkspaceSymbolIndex, private readonly mappingsForUri: (uri: vscode.Uri) => Psr4Mapping[] = () => []) {}
 
   prepareDocumentPaste(document: vscode.TextDocument, ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): void {
     const file = this.index.getFile(document.uri.toString());
@@ -92,7 +78,8 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
   }
 
   async provideDocumentPasteEdits(document: vscode.TextDocument, _ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): Promise<vscode.DocumentPasteEdit[] | undefined> {
-    const mode = vscode.workspace.getConfiguration('phpCompanion', document.uri).get<'auto' | 'preview' | 'off'>('pasteImports.mode', 'preview');
+    const configured = vscode.workspace.getConfiguration('phpCompanion', document.uri).get<'auto' | 'prompt' | 'off'>('imports.onPaste', 'prompt');
+    const mode: 'auto' | 'preview' | 'off' = configured === 'prompt' ? 'preview' : configured;
     if (mode === 'off') return undefined;
     const plain = dataTransfer.get('text/plain');
     if (!plain) return undefined;
@@ -105,27 +92,40 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
       const unique: CopiedSymbol[] = [];
       let ambiguity: { name: string; candidates: ReturnType<WorkspaceSymbolIndex['candidatesForShortName']> } | undefined;
       for (const name of names) {
-        const candidates = this.index.candidatesForShortName(name);
+        const candidates = rankedImportCandidates(this.index, this.index.getFile(document.uri.toString())!, name, this.mappingsForUri(document.uri));
         if (candidates.length === 1) unique.push({ fqcn: candidates[0]!.fqcn, alias: name });
         else if (candidates.length > 1 && !ambiguity) ambiguity = { name, candidates };
       }
       variants = ambiguity
         ? ambiguity.candidates.map((candidate) => [...unique, { fqcn: candidate.fqcn, alias: ambiguity.name }])
         : [unique];
+      if (mode === 'auto' && ambiguity) return undefined;
     } else {
       variants = [symbols];
     }
-    const edits = variants.flatMap((variant) => {
-      if (!variant.length) return [];
-      const built = buildImportEdit(document, variant, this.index);
-      if (!built.edit) return [];
+    const edits: vscode.DocumentPasteEdit[] = [];
+    for (let variant of variants) {
+      if (!variant.length) continue;
+      let built = buildImportEdit(document, variant, this.index);
+      if (built.conflict) {
+        if (mode === 'auto') continue;
+        const alias = await vscode.window.showInputBox({
+          prompt: `Choose an alias for ${built.conflict.fqcn}`,
+          value: built.conflict.alias,
+          validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : 'Enter a valid PHP identifier.',
+        });
+        if (!alias) continue;
+        variant = variant.map((item) => item === built.conflict ? { ...item, alias } : item);
+        built = buildImportEdit(document, variant, this.index);
+      }
+      if (!built.edit || built.conflict) continue;
       const selected = variant.at(-1)?.fqcn;
       const title = variants.length > 1 ? `${t('pasteImports')}: ${selected}` : t('pasteImports');
       const paste = new vscode.DocumentPasteEdit(replaceAliases(text, built.insertTextReplacements), title, PASTE_KIND);
       paste.additionalEdit = built.edit;
       if (mode === 'preview') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
-      return [paste];
-    });
+      edits.push(paste);
+    }
     return edits.length ? edits : undefined;
   }
 }

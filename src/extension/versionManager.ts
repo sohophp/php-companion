@@ -3,6 +3,7 @@ import { findComposerRoot, loadComposerProject, type ComposerProject } from '../
 import { resolvePhpVersion } from '../php-version/resolver.js';
 import { SUPPORTED_PHP_VERSIONS, type PhpVersionResolution, type PhpVersionSetting } from '../php-version/types.js';
 import { t } from './localize.js';
+import { isAbsolute, relative } from 'node:path';
 
 export interface FolderState {
   folder: vscode.WorkspaceFolder;
@@ -12,6 +13,9 @@ export interface FolderState {
 
 export class VersionManager implements vscode.Disposable {
   private readonly states = new Map<string, FolderState>();
+  private readonly projectStates = new Map<string, FolderState>();
+  private readonly watchedProjects = new Set<string>();
+  private readonly refreshTimers = new Map<string, NodeJS.Timeout>();
   private readonly disposables: vscode.Disposable[] = [];
   private activeFolder?: vscode.WorkspaceFolder;
 
@@ -34,7 +38,12 @@ export class VersionManager implements vscode.Disposable {
       const setting = configuration.get<PhpVersionSetting>('phpVersion', 'auto');
       const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
       const resolution = await resolvePhpVersion({ setting, configuredExecutable, composer });
-      this.states.set(workspaceFolder.uri.toString(), { folder: workspaceFolder, composer, resolution });
+      const state = { folder: workspaceFolder, composer, resolution };
+      this.states.set(workspaceFolder.uri.toString(), state);
+      if (composerRoot) {
+        this.projectStates.set(composerRoot, state);
+        this.watchComposerProject(composerRoot, workspaceFolder.uri);
+      }
     }));
     this.activeFolder ??= vscode.window.activeTextEditor
       ? vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)
@@ -42,13 +51,43 @@ export class VersionManager implements vscode.Disposable {
     this.render();
   }
 
+  async ensureForUri(uri: vscode.Uri): Promise<FolderState | undefined> {
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (!folder) return undefined;
+    const composerRoot = await findComposerRoot(uri.fsPath, folder.uri.fsPath);
+    if (!composerRoot) {
+      const existing = this.states.get(folder.uri.toString());
+      if (existing) return existing;
+      await this.refresh(folder);
+      return this.states.get(folder.uri.toString());
+    }
+    const cached = this.projectStates.get(composerRoot);
+    if (cached) return cached;
+    const configuration = vscode.workspace.getConfiguration('phpCompanion', uri);
+    const composer = await loadComposerProject(composerRoot, configuration.get<boolean>('composer.includeDevAutoload', true));
+    const resolution = await resolvePhpVersion({
+      setting: configuration.get<PhpVersionSetting>('phpVersion', 'auto'),
+      configuredExecutable: configuration.get<string | null>('phpExecutablePath') ?? undefined,
+      composer,
+    });
+    const state = { folder, composer, resolution };
+    this.projectStates.set(composerRoot, state);
+    this.watchComposerProject(composerRoot, uri);
+    this.states.set(folder.uri.toString(), state);
+    this.render();
+    return state;
+  }
+
   stateForUri(uri: vscode.Uri): FolderState | undefined {
     const folder = vscode.workspace.getWorkspaceFolder(uri);
-    return folder ? this.states.get(folder.uri.toString()) : undefined;
+    const nested = [...this.projectStates.entries()]
+      .filter(([root]) => { const path = relative(root, uri.fsPath); return path === '' || (!path.startsWith('..') && !isAbsolute(path)); })
+      .sort(([left], [right]) => right.length - left.length)[0]?.[1];
+    return nested ?? (folder ? this.states.get(folder.uri.toString()) : undefined);
   }
 
   allStates(): FolderState[] {
-    return [...this.states.values()];
+    return [...new Set([...this.states.values(), ...this.projectStates.values()])];
   }
 
   async selectVersion(): Promise<void> {
@@ -86,7 +125,24 @@ export class VersionManager implements vscode.Disposable {
     this.status.show();
   }
 
+  private watchComposerProject(root: string, uri: vscode.Uri): void {
+    if (this.watchedProjects.has(root)) return;
+    this.watchedProjects.add(root);
+    const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(root, '{composer.json,composer.lock}'));
+    const schedule = (): void => {
+      const pending = this.refreshTimers.get(root);
+      if (pending) clearTimeout(pending);
+      this.refreshTimers.set(root, setTimeout(() => {
+        this.refreshTimers.delete(root);
+        this.projectStates.delete(root);
+        void this.ensureForUri(uri);
+      }, 250));
+    };
+    this.disposables.push(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule));
+  }
+
   dispose(): void {
+    for (const timer of this.refreshTimers.values()) clearTimeout(timer);
     this.disposables.forEach((item) => item.dispose());
   }
 }

@@ -14,6 +14,7 @@ export interface ParsedDeclaration extends SourceRange {
 }
 
 export interface ParsedImport extends SourceRange {
+  kind: 'class' | 'function' | 'const';
   fqcn: string;
   alias: string;
   explicitAlias: boolean;
@@ -25,6 +26,7 @@ export interface ParsedImport extends SourceRange {
 
 export interface RawName extends SourceRange {
   text: string;
+  context: 'code' | 'phpdoc';
 }
 
 export interface ParsedPhpDocument {
@@ -33,7 +35,8 @@ export interface ParsedPhpDocument {
   imports: ParsedImport[];
   rawNames: RawName[];
   errors: SourceRange[];
-  textRanges: SourceRange[];
+  commentRanges: SourceRange[];
+  stringRanges: SourceRange[];
   tree: Tree;
 }
 
@@ -49,9 +52,8 @@ const DECLARATION_TYPES: Record<string, PhpSymbolKind> = {
   enum_declaration: 'enum',
 };
 
-const PROTECTED_TYPES = new Set([
-  'comment', 'string', 'encapsed_string', 'heredoc', 'nowdoc', 'shell_command_expression',
-]);
+const STRING_TYPES = new Set(['string', 'encapsed_string', 'heredoc', 'nowdoc', 'shell_command_expression']);
+const PHPDOC_TAG = /@(var|param|return|throws|extends|implements|mixin|property(?:-read|-write)?|method)\b([^\r\n]*)/gi;
 
 let parserInitialization: Promise<void> | undefined;
 
@@ -68,9 +70,27 @@ function walk(node: SyntaxNode, callback: (node: SyntaxNode) => void): void {
   for (const child of node.namedChildren) walk(child, callback);
 }
 
+function parsePhpDocNames(source: string, range: SourceRange): RawName[] {
+  const text = source.slice(range.start, range.end);
+  const names: RawName[] = [];
+  for (const annotation of text.matchAll(PHPDOC_TAG)) {
+    const body = annotation[2] ?? '';
+    const bodyOffset = range.start + annotation.index + annotation[0].indexOf(body);
+    const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
+    for (const match of body.matchAll(pattern)) {
+      const last = match[0].split('\\').at(-1) ?? '';
+      if (!/^[A-Z_\x80-\xff]/.test(last)) continue;
+      const start = bodyOffset + match.index;
+      names.push({ text: match[0], start, end: start + match[0].length, context: 'phpdoc' });
+    }
+  }
+  return names;
+}
+
 function parseUseClause(text: string, start: number): ParsedImport[] {
-  const prefixMatch = /^\s*use\s+(?:(?:function|const)\s+)?/i.exec(text);
-  if (!prefixMatch || /^(?:\s*use\s+)(?:function|const)\s+/i.test(text)) return [];
+  const prefixMatch = /^\s*use\s+(?:(function|const)\s+)?/i.exec(text);
+  if (!prefixMatch) return [];
+  const statementKind = (prefixMatch[1]?.toLowerCase() ?? 'class') as ParsedImport['kind'];
   const bodyStart = prefixMatch[0].length;
   const body = text.slice(bodyStart).replace(/;\s*$/, '').trim();
   const groupMatch = /^(.*?)\\\{([\s\S]*)\}$/.exec(body);
@@ -80,22 +100,24 @@ function parseUseClause(text: string, start: number): ParsedImport[] {
   let searchOffset = bodyStart;
   for (const part of parts) {
     const trimmed = part.trim();
-    const match = /^([^\s]+)(?:\s+as\s+([A-Za-z_][A-Za-z0-9_]*))?$/i.exec(trimmed);
+    const match = /^(?:(function|const)\s+)?([^\s]+)(?:\s+as\s+([A-Za-z_][A-Za-z0-9_]*))?$/i.exec(trimmed);
     if (!match) continue;
     const relative = text.indexOf(trimmed, searchOffset);
     searchOffset = relative + trimmed.length;
-    const fqcn = `${prefix}${match[1]}`.replace(/^\\+/, '');
-    const importedName = match[1]!.split('\\').at(-1)!;
-    const alias = match[2] ?? importedName;
+    const kind = (match[1]?.toLowerCase() ?? statementKind) as ParsedImport['kind'];
+    const fqcn = `${prefix}${match[2]}`.replace(/^\\+/, '');
+    const importedName = match[2]!.split('\\').at(-1)!;
+    const alias = match[3] ?? importedName;
     const nameOffset = trimmed.indexOf(importedName);
     imports.push({
       fqcn,
       alias,
-      explicitAlias: match[2] !== undefined,
+      kind,
+      explicitAlias: match[3] !== undefined,
       start: start + relative + nameOffset,
       end: start + relative + nameOffset + importedName.length,
-      pathStart: start + relative,
-      pathEnd: start + relative + match[1]!.length,
+      pathStart: start + relative + trimmed.indexOf(match[2]!),
+      pathEnd: start + relative + trimmed.indexOf(match[2]!) + match[2]!.length,
       statementStart: start,
       statementEnd: start + text.length,
     });
@@ -121,11 +143,13 @@ export class PhpSyntaxParser {
     const declarations: ParsedDeclaration[] = [];
     const imports: ParsedImport[] = [];
     const errors: SourceRange[] = [];
-    const protectedRanges: SourceRange[] = [];
+    const commentRanges: SourceRange[] = [];
+    const stringRanges: SourceRange[] = [];
     let namespace = '';
 
     walk(tree.rootNode, (node) => {
-      if (PROTECTED_TYPES.has(node.type)) protectedRanges.push(nodeRange(source, node));
+      if (node.type === 'comment') commentRanges.push(nodeRange(source, node));
+      if (STRING_TYPES.has(node.type)) stringRanges.push(nodeRange(source, node));
       if (node.isError || node.isMissing) errors.push(nodeRange(source, node));
       if (node.type === 'namespace_definition' && namespace === '') {
         namespace = node.childForFieldName('name')?.text.replace(/^\\+|\\+$/g, '') ?? '';
@@ -145,9 +169,9 @@ export class PhpSyntaxParser {
     });
 
     const importStatements = imports.map((item) => ({ start: item.statementStart, end: item.statementEnd }));
-    const excluded = [...protectedRanges, ...importStatements, ...declarations]
+    const excluded = [...commentRanges, ...stringRanges, ...importStatements, ...declarations]
       .sort((a, b) => a.start - b.start);
-    const rawNames: RawName[] = [];
+    const rawNames: RawName[] = commentRanges.flatMap((range) => parsePhpDocNames(source, range));
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
     for (const match of source.matchAll(pattern)) {
       const start = match.index;
@@ -155,10 +179,10 @@ export class PhpSyntaxParser {
       if (excluded.some((range) => start >= range.start && end <= range.end)) continue;
       const before = source.slice(Math.max(0, start - 16), start);
       if (/(?:->|::|\$|function\s+|const\s+)\s*$/.test(before)) continue;
-      rawNames.push({ text: match[0], start, end });
+      rawNames.push({ text: match[0], start, end, context: 'code' });
     }
 
-    return { namespace, declarations, imports, rawNames, errors, textRanges: protectedRanges, tree };
+    return { namespace, declarations, imports, rawNames, errors, commentRanges, stringRanges, tree };
   }
 
   dispose(): void {

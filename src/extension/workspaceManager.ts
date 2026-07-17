@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { minimatch } from 'minimatch';
-import { relative } from 'node:path';
+import { relative, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { resolvePsr4Class, type Psr4Mapping } from '../composer/project.js';
 import { PhpSyntaxParser } from '../parser/phpParser.js';
 import { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
@@ -12,7 +13,7 @@ export class WorkspaceManager implements vscode.Disposable {
   readonly index: WorkspaceSymbolIndex;
   private readonly disposables: vscode.Disposable[] = [];
   private fullIndexComplete = false;
-  private rebuildPromise?: Promise<void>;
+  private rebuildPromise?: Promise<boolean>;
 
   private constructor(
     private readonly parser: PhpSyntaxParser,
@@ -24,21 +25,29 @@ export class WorkspaceManager implements vscode.Disposable {
   static async create(
     context: vscode.ExtensionContext,
     mappingsForUri: (uri: vscode.Uri) => Psr4Mapping[] = () => [],
+    privateOutput?: vscode.LogOutputChannel,
   ): Promise<WorkspaceManager> {
     const parser = await PhpSyntaxParser.create({
       coreWasmPath: context.asAbsolutePath('dist/web-tree-sitter.wasm'),
       phpWasmPath: context.asAbsolutePath('dist/tree-sitter-php.wasm'),
     });
     const manager = new WorkspaceManager(parser, mappingsForUri);
-    manager.registerWatchers();
+    manager.output = privateOutput;
+    manager.registerOpenDocumentTracking();
     return manager;
   }
 
-  async rebuild(showMessage = false): Promise<void> {
-    if (this.rebuildPromise) return this.rebuildPromise;
-    this.rebuildPromise = this.rebuildInternal(showMessage);
+  private output?: vscode.LogOutputChannel;
+
+  async rebuild(showMessage = false, token?: vscode.CancellationToken): Promise<boolean> {
+    return this.runRebuild(showMessage, token);
+  }
+
+  private async runRebuild(showMessage: boolean, token?: vscode.CancellationToken, roots?: string[]): Promise<boolean> {
+    while (this.rebuildPromise) await this.rebuildPromise;
+    this.rebuildPromise = this.rebuildInternal(showMessage, token, roots);
     try {
-      await this.rebuildPromise;
+      return await this.rebuildPromise;
     } finally {
       this.rebuildPromise = undefined;
     }
@@ -47,9 +56,30 @@ export class WorkspaceManager implements vscode.Disposable {
   async ensureFullIndex(): Promise<void> {
     if (this.fullIndexComplete) return;
     await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'PHP Companion: Indexing workspace…' },
-      () => this.rebuild(),
+      { location: vscode.ProgressLocation.Notification, title: 'PHP Companion: Indexing workspace…', cancellable: true },
+      (_progress, token) => this.rebuild(false, token),
     );
+  }
+
+  async ensureProjectIndex(uri: vscode.Uri, token?: vscode.CancellationToken): Promise<boolean> {
+    return this.refreshProjectIndexes([uri], token);
+  }
+
+  async refreshProjectIndexes(uris: readonly vscode.Uri[], token?: vscode.CancellationToken): Promise<boolean> {
+    const roots = uris.flatMap((uri) => this.mappingsForUri(uri).flatMap((mapping) => mapping.directories));
+    const key = [...new Set(roots.map((root) => resolve(root)))].sort().join('|');
+    if (!key) throw new Error('The files are not covered by a Composer PSR-4 project.');
+    return vscode.window.withProgress(
+      { location: vscode.ProgressLocation.Notification, title: 'PHP Companion: Indexing Composer project…', cancellable: true },
+      (_progress, progressToken) => {
+        const combined = { get isCancellationRequested(): boolean { return Boolean(token?.isCancellationRequested || progressToken.isCancellationRequested); } } as vscode.CancellationToken;
+        return this.runRebuild(false, combined, roots);
+      },
+    );
+  }
+
+  indexDocument(document: vscode.TextDocument): void {
+    if (document.languageId === 'php' && !document.isUntitled) this.index.update(document.uri.toString(), document.getText());
   }
 
   async indexOpenDocuments(): Promise<void> {
@@ -58,23 +88,56 @@ export class WorkspaceManager implements vscode.Disposable {
     }
   }
 
-  private async rebuildInternal(showMessage: boolean): Promise<void> {
+  private async rebuildInternal(showMessage: boolean, token?: vscode.CancellationToken, roots?: string[]): Promise<boolean> {
     this.index.clear();
-    const uris = await vscode.workspace.findFiles('**/*.php', '**/{vendor,.git,node_modules}/**');
+    const configurationResource = roots?.[0]
+      ? vscode.Uri.file(roots[0])
+      : (vscode.workspace.workspaceFolders?.[0]?.uri ?? null);
+    const configuration = vscode.workspace.getConfiguration('phpCompanion', configurationResource);
+    const maxFiles = configuration.get<number>('indexing.maxFiles', 10_000);
+    const maxFileSize = configuration.get<number>('indexing.maxFileSizeKb', 512) * 1024;
+    const maxTotal = configuration.get<number>('indexing.maxTotalMb', 128) * 1024 * 1024;
+    const started = performance.now();
+    const uris = roots?.length
+      ? (await Promise.all([...new Set(roots)].map((root) => vscode.workspace.findFiles(new vscode.RelativePattern(vscode.Uri.file(root), '**/*.php'), '**/{vendor,.git,node_modules,var/cache,storage/framework}/**', maxFiles + 1)))).flat()
+      : await vscode.workspace.findFiles('**/*.php', '**/{vendor,.git,node_modules,var/cache,storage/framework}/**', maxFiles + 1);
+    const uniqueUris = [...new Map(uris.map((uri) => [uri.toString(), uri])).values()];
+    if (uniqueUris.length > maxFiles) throw new Error(`Index limit exceeded (${maxFiles} files). Narrow phpCompanion.files.exclude or raise indexing.maxFiles.`);
     const entries: Array<{ uri: string; source: string }> = [];
-    for (const uri of uris) {
+    let totalBytes = 0;
+    for (const uri of uniqueUris) {
+      if (token?.isCancellationRequested) {
+        this.index.clear();
+        this.output?.info('Indexing cancelled; parsed syntax trees were released.');
+        return false;
+      }
       if (this.isExcluded(uri)) continue;
       try {
+        const size = (await vscode.workspace.fs.stat(uri)).size;
+        if (size > maxFileSize) continue;
+        totalBytes += size;
+        if (totalBytes > maxTotal) {
+          this.index.clear();
+          throw new IndexLimitError(`Index size limit exceeded (${configuration.get<number>('indexing.maxTotalMb', 128)} MB).`);
+        }
         const openDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === uri.toString());
         const source = openDocument?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
         entries.push({ uri: uri.toString(), source });
       } catch (error) {
+        if (error instanceof IndexLimitError) throw error;
+        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') continue;
         console.warn(`PHP Companion failed to index ${uri.toString()}`, error);
       }
     }
-    await this.index.updateManyAsync(entries);
+    const complete = await this.index.updateManyAsync(entries, 50, () => !token?.isCancellationRequested);
+    if (!complete) {
+      this.output?.info('Indexing cancelled; parsed syntax trees were released.');
+      return false;
+    }
     this.fullIndexComplete = true;
+    this.output?.info(`Indexed ${entries.length} files (${(totalBytes / 1024 / 1024).toFixed(1)} MB) in ${(performance.now() - started).toFixed(0)} ms.`);
     if (showMessage) void vscode.window.showInformationMessage(t('indexed', String(this.index.getFiles().length)));
+    return true;
   }
 
   private async indexDocumentAndImports(document: vscode.TextDocument): Promise<void> {
@@ -114,23 +177,8 @@ export class WorkspaceManager implements vscode.Disposable {
     return patterns.some((pattern) => minimatch(path, pattern, { dot: true }));
   }
 
-  private registerWatchers(): void {
-    const watcher = vscode.workspace.createFileSystemWatcher('**/*.php');
-    const update = async (uri: vscode.Uri): Promise<void> => {
-      if (this.isExcluded(uri)) return;
-      try {
-        const openDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === uri.toString());
-        const source = openDocument?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8');
-        this.index.update(uri.toString(), source);
-      } catch {
-        this.index.remove(uri.toString());
-      }
-    };
+  private registerOpenDocumentTracking(): void {
     this.disposables.push(
-      watcher,
-      watcher.onDidCreate(update),
-      watcher.onDidChange(update),
-      watcher.onDidDelete((uri) => this.index.remove(uri.toString())),
       vscode.workspace.onDidChangeTextDocument((event) => {
         if (event.document.languageId === 'php' && !event.document.isUntitled) {
           this.index.update(event.document.uri.toString(), event.document.getText());
@@ -138,6 +186,9 @@ export class WorkspaceManager implements vscode.Disposable {
       }),
       vscode.workspace.onDidOpenTextDocument((document) => {
         if (document.languageId === 'php' && !document.isUntitled) void this.indexDocumentAndImports(document);
+      }),
+      vscode.workspace.onDidCloseTextDocument((document) => {
+        if (!this.fullIndexComplete) this.index.remove(document.uri.toString());
       }),
     );
   }
@@ -148,3 +199,5 @@ export class WorkspaceManager implements vscode.Disposable {
     this.parser.dispose();
   }
 }
+
+class IndexLimitError extends Error {}

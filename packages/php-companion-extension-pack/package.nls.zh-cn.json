@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion 开源扩展包（已暂停）",
-  "description": "重新设计期间不安装任何扩展的空占位包。"
+  "displayName": "PHP Companion 开源扩展包",
+  "description": "精简的开源 PHP 工具组合，包含 Companion、Twig、调试、测试、格式化和 EditorConfig。"
 }
