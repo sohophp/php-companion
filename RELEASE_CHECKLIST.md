@@ -6,12 +6,12 @@
 - [x] `pnpm typecheck`
 - [x] `pnpm lint`
 - [x] `pnpm test`
-- [ ] PHP 7.2–8.5 integration matrix passes
+- [x] PHP 7.2–8.5 integration matrix passes
 - [x] `pnpm test:extension`
 - [x] `pnpm test:extension:intelephense`
 - [x] `pnpm package:all && pnpm verify:vsix`
 - [ ] 在扩展侧栏的浅色和深色主题中检查三个图标，确认 16px、32px 和详情页尺寸下清晰且易区分。
-- [ ] Linux、Windows、macOS CI 全部通过
+- [x] Linux、Windows、macOS CI 全部通过
 
 ## Clean-profile smoke tests
 
