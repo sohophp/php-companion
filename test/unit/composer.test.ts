@@ -1,6 +1,6 @@
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, normalize } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { findComposerRoot, loadComposerProject, resolvePsr4Class, resolvePsr4Namespace } from '../../src/composer/project.js';
 
@@ -27,8 +27,8 @@ describe('Composer project discovery', () => {
       { prefix: 'App\\', directories: ['/project/src'], development: false },
       { prefix: 'App\\Feature\\', directories: ['/project/features'], development: false },
     ])).toEqual([
-      '/project/features/Service.php',
-      '/project/src/Feature/Service.php',
+      normalize('/project/features/Service.php'),
+      normalize('/project/src/Feature/Service.php'),
     ]);
   });
 
