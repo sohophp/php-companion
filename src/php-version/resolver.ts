@@ -17,38 +17,35 @@ export interface ResolvePhpVersionOptions {
 }
 
 export async function resolvePhpVersion(options: ResolvePhpVersionOptions): Promise<PhpVersionResolution> {
-  const discovered = await discoverPhpExecutables(
-    options.configuredExecutable,
-    options.env,
-    options.processRunner,
-    options.executableResolver,
-  );
   const warnings = [...(options.composer?.warnings ?? [])];
-  const base = { discovered, warnings };
+  const withoutProbe = { discovered: [], warnings };
 
   if (options.setting !== 'auto') {
-    return { ...base, target: options.setting, source: 'setting', sourceDetail: 'phpCompanion.phpVersion' };
+    return { ...withoutProbe, target: options.setting, source: 'setting', sourceDetail: 'phpCompanion.phpVersion' };
   }
 
   const platform = options.composer?.platformPhp;
   const platformMinor = platform ? toSupportedMinor(platform) : undefined;
   if (platformMinor) {
-    return { ...base, target: platformMinor, detectedVersion: platform, source: 'composer-platform', sourceDetail: 'composer.json config.platform.php' };
+    return { ...withoutProbe, target: platformMinor, detectedVersion: platform, source: 'composer-platform', sourceDetail: 'composer.json config.platform.php' };
   }
   if (platform) warnings.push(`composer.json config.platform.php is outside PHP 7.2–8.5 or invalid: ${platform}`);
 
   const lockPlatform = options.composer?.lockPlatformPhp;
   const lockMinor = lockPlatform ? toSupportedMinor(lockPlatform) : undefined;
   if (lockMinor) {
-    return { ...base, target: lockMinor, detectedVersion: lockPlatform, source: 'composer-lock-platform', sourceDetail: 'composer.lock platform-overrides.php' };
+    return { ...withoutProbe, target: lockMinor, detectedVersion: lockPlatform, source: 'composer-lock-platform', sourceDetail: 'composer.lock platform-overrides.php' };
   }
   if (lockPlatform) warnings.push(`composer.lock platform-overrides.php is outside PHP 7.2–8.5 or invalid: ${lockPlatform}`);
 
   const requirement = options.composer?.requiredPhp;
   const requiredMinor = requirement ? lowestSupportedVersion(requirement) : undefined;
   if (requiredMinor) {
-    return { ...base, target: requiredMinor, source: 'composer-require', sourceDetail: `composer.json require.php (${requirement})` };
+    return { ...withoutProbe, target: requiredMinor, source: 'composer-require', sourceDetail: `composer.json require.php (${requirement})` };
   }
+
+  const discovered = await discoverPhpExecutables(options.configuredExecutable, options.env, options.processRunner, options.executableResolver);
+  const base = { discovered, warnings };
 
   if (options.configuredExecutable) {
     const configured = discovered.find((item) => item.command === options.configuredExecutable);

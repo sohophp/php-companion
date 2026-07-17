@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion Recommended Pack (Paused)",
-  "description": "Inactive empty placeholder while the extension pack is being redesigned."
+  "displayName": "PHP Companion Recommended Pack",
+  "description": "The recommended PHP profile with Intelephense and focused project, Twig, debug, test, and formatting tools."
 }

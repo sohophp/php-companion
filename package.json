@@ -1,8 +1,8 @@
 {
   "name": "php-companion",
-  "displayName": "PHP Companion (Paused)",
-  "description": "Inactive placeholder release while PHP Companion is being redesigned.",
-  "version": "0.1.3",
+  "displayName": "PHP Companion: PhpStorm Workflows",
+  "description": "Stable, on-demand PhpStorm-inspired PHP project workflows for Visual Studio Code.",
+  "version": "0.4.0",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -32,11 +32,20 @@
     "composer",
     "psr-4"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:php",
+    "workspaceContains:composer.json",
+    "onCommand:phpCompanion.selectPhpVersion",
+    "onCommand:phpCompanion.new.class",
+    "onCommand:phpCompanion.importClass",
+    "onCommand:phpCompanion.optimizeImports"
+  ],
   "main": "./dist/extension.js",
   "files": [
-    "dist/extension.js",
+    "dist",
     "resources/icon.png",
+    "package.nls.json",
+    "package.nls.zh-cn.json",
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
@@ -59,6 +68,72 @@
     "package:all": "pnpm package && pnpm package:open-source-pack && pnpm package:recommended-pack",
     "verify:vsix": "node scripts/verify-vsix.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
+  },
+  "contributes": {
+    "commands": [
+      { "command": "phpCompanion.selectPhpVersion", "title": "Select PHP Version", "category": "PHP Companion" },
+      { "command": "phpCompanion.detectPhpVersions", "title": "Detect PHP Versions", "category": "PHP Companion" },
+      { "command": "phpCompanion.showCompatibilityReport", "title": "Show Diagnostics Report", "category": "PHP Companion" },
+      { "command": "phpCompanion.showPerformanceLog", "title": "Show Performance Log", "category": "PHP Companion" },
+      { "command": "phpCompanion.safeMove", "title": "Safe Move PHP File", "category": "PHP Companion" },
+      { "command": "phpCompanion.rebuildIndex", "title": "Rebuild Experimental Index", "category": "PHP Companion" },
+      { "command": "phpCompanion.importClass", "title": "Import Class", "category": "PHP Companion" },
+      { "command": "phpCompanion.resolvePastedImports", "title": "Resolve Imports", "category": "PHP Companion" },
+      { "command": "phpCompanion.optimizeImports", "title": "Optimize Imports", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.class", "title": "New PHP Class", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.abstractclass", "title": "New PHP Abstract Class", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.interface", "title": "New PHP Interface", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.trait", "title": "New PHP Trait", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.enum", "title": "New PHP Enum", "category": "PHP Companion" },
+      { "command": "phpCompanion.new.test", "title": "New PHPUnit Test", "category": "PHP Companion" },
+      { "command": "phpCompanion.copy.fqcn", "title": "Copy FQN", "category": "PHP Companion" },
+      { "command": "phpCompanion.copy.namespace", "title": "Copy Namespace", "category": "PHP Companion" },
+      { "command": "phpCompanion.copy.classReference", "title": "Copy Class Reference", "category": "PHP Companion" },
+      { "command": "phpCompanion.copy.relativePath", "title": "Copy Relative File Path", "category": "PHP Companion" },
+      { "command": "phpCompanion.goToDefinition", "title": "Go to Definition", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" },
+      { "command": "phpCompanion.goToImplementation", "title": "Go to Implementation", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" },
+      { "command": "phpCompanion.findReferences", "title": "Find References", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" }
+    ],
+    "menus": {
+      "explorer/context": [
+        { "command": "phpCompanion.safeMove", "when": "resourceExtname == .php && (resourceScheme == file || resourceScheme == vscode-remote)", "group": "phpCompanion@0" },
+        { "command": "phpCompanion.new.class", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@1" },
+        { "command": "phpCompanion.new.interface", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@2" },
+        { "command": "phpCompanion.new.trait", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@3" },
+        { "command": "phpCompanion.new.enum", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@4" },
+        { "command": "phpCompanion.new.test", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@5" }
+      ],
+      "editor/context": [
+        { "command": "phpCompanion.importClass", "when": "editorLangId == php", "group": "phpCompanion@0" },
+        { "command": "phpCompanion.copy.fqcn", "when": "editorLangId == php", "group": "phpCompanion@1" },
+        { "command": "phpCompanion.copy.namespace", "when": "editorLangId == php", "group": "phpCompanion@2" },
+        { "command": "phpCompanion.copy.classReference", "when": "editorLangId == php", "group": "phpCompanion@3" }
+      ]
+    },
+    "configuration": {
+      "title": "PHP Companion",
+      "properties": {
+        "phpCompanion.phpVersion": { "type": "string", "scope": "resource", "enum": ["auto", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"], "default": "auto", "description": "Target PHP version." },
+        "phpCompanion.phpExecutablePath": { "type": ["string", "null"], "scope": "resource", "default": null, "description": "Optional PHP executable used for version detection." },
+        "phpCompanion.composer.includeDevAutoload": { "type": "boolean", "scope": "resource", "default": true, "description": "Include Composer autoload-dev mappings." },
+        "phpCompanion.files.exclude": { "type": "array", "scope": "resource", "items": { "type": "string" }, "default": ["**/vendor/**", "**/.git/**", "**/node_modules/**", "**/var/cache/**", "**/storage/framework/**"] },
+        "phpCompanion.indexing.mode": { "type": "string", "scope": "resource", "enum": ["off", "onDemand", "experimental"], "default": "onDemand", "description": "Controls project indexing. Indexing is never performed during activation." },
+        "phpCompanion.indexing.maxFiles": { "type": "number", "scope": "resource", "minimum": 100, "default": 10000 },
+        "phpCompanion.indexing.maxFileSizeKb": { "type": "number", "scope": "resource", "minimum": 16, "default": 512 },
+        "phpCompanion.indexing.maxTotalMb": { "type": "number", "scope": "resource", "minimum": 1, "default": 128 },
+        "phpCompanion.indexing.onStartup": { "type": "boolean", "scope": "resource", "default": false, "deprecationMessage": "Use phpCompanion.indexing.mode. Startup indexing is no longer supported." },
+        "phpCompanion.imports.onPaste": { "type": "string", "scope": "resource", "enum": ["off", "prompt", "auto"], "default": "prompt" },
+        "phpCompanion.imports.optimize.preview": { "type": "boolean", "scope": "resource", "default": true, "description": "Show a Preview/Apply flow before optimizing imports." },
+        "phpCompanion.imports.sort": { "type": "string", "scope": "resource", "enum": ["grouped", "fqcn"], "default": "grouped", "description": "Sort imports by kind then FQN, or by FQN only." },
+        "phpCompanion.generation.strictTypes": { "type": "boolean", "scope": "resource", "default": true },
+        "phpCompanion.experimental.refactoring": { "type": "boolean", "scope": "resource", "default": false, "description": "Enable experimental project-wide indexing and refactoring." },
+        "phpCompanion.move.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "Update namespaces and semantic references when PHP files are moved within Composer PSR-4 paths." },
+        "phpCompanion.rename.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "Provide stable F2 Rename for PHP class-like declarations. Disable this when another PHP extension should own Rename." },
+        "phpCompanion.rename.file": { "type": "string", "scope": "resource", "enum": ["off", "preview", "always"], "default": "preview", "description": "Controls renaming a matching PSR-4 PHP file. Use Shift+Enter in the Rename input to inspect the ordered file and text edits in VS Code's standard preview." },
+        "phpCompanion.rename.phpDoc": { "type": "boolean", "scope": "resource", "default": true, "description": "Update semantic PHPDoc type references during Rename." },
+        "phpCompanion.rename.stringReferences": { "type": "boolean", "scope": "resource", "default": false, "description": "Reserved for future string-reference support. PHP Companion 0.3 never changes ordinary strings." }
+      }
+    }
   },
   "extensionDependencies": [],
   "extensionPack": [],

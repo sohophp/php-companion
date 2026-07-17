@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion Open Source Pack (Paused)",
-  "description": "Inactive empty placeholder while the extension pack is being redesigned."
+  "displayName": "PHP Companion Open Source Pack",
+  "description": "A focused open-source PHP toolkit with Companion, Twig, debugging, testing, formatting, and EditorConfig."
 }

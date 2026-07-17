@@ -45,15 +45,17 @@ export class WorkspaceSymbolIndex {
     this.rebuildResolvedIndex();
   }
 
-  async updateManyAsync(entries: Iterable<{ uri: string; source: string }>, batchSize = 1): Promise<void> {
+  async updateManyAsync(entries: Iterable<{ uri: string; source: string }>, batchSize = 1, shouldContinue: () => boolean = () => true): Promise<boolean> {
     batchSize = Math.max(1, batchSize);
     let processed = 0;
     for (const entry of entries) {
+      if (!shouldContinue()) { this.clear(); return false; }
       this.replacePending({ ...entry, parsed: this.parser.parse(entry.source) });
       processed += 1;
       if (processed % batchSize === 0) await this.yieldToEventLoop();
     }
-    await this.rebuildResolvedIndexAsync(batchSize);
+    if (!await this.rebuildResolvedIndexAsync(batchSize, shouldContinue)) { this.clear(); return false; }
+    return true;
   }
 
   remove(uri: string): void {
@@ -91,7 +93,7 @@ export class WorkspaceSymbolIndex {
     const file = this.files.get(uri);
     if (!file) return undefined;
     const imported = file.imports.find((item) => offset >= item.start && offset <= item.end);
-    if (imported) return { uri, fqcn: imported.fqcn, text: file.source.slice(imported.start, imported.end), start: imported.start, end: imported.end };
+    if (imported) return { uri, fqcn: imported.fqcn, text: file.source.slice(imported.start, imported.end), start: imported.start, end: imported.end, context: 'code' };
     return [...file.declarations, ...file.references].find((symbol) => offset >= symbol.start && offset <= symbol.end);
   }
 
@@ -122,16 +124,18 @@ export class WorkspaceSymbolIndex {
     this.rebuildProblems();
   }
 
-  private async rebuildResolvedIndexAsync(batchSize: number): Promise<void> {
+  private async rebuildResolvedIndexAsync(batchSize: number, shouldContinue: () => boolean): Promise<boolean> {
     this.files.clear();
     this.rebuildDeclarations();
     let processed = 0;
     for (const pending of this.pending.values()) {
+      if (!shouldContinue()) return false;
       this.resolveFile(pending);
       processed += 1;
       if (processed % batchSize === 0) await this.yieldToEventLoop();
     }
     this.rebuildProblems();
+    return true;
   }
 
   private replacePending(pending: PendingFile): void {
@@ -172,7 +176,8 @@ export class WorkspaceSymbolIndex {
       imports: pending.parsed.imports,
       references,
       errors: pending.parsed.errors,
-      textRanges: pending.parsed.textRanges,
+      commentRanges: pending.parsed.commentRanges,
+      stringRanges: pending.parsed.stringRanges,
     });
   }
 

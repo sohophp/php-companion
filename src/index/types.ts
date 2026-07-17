@@ -8,6 +8,7 @@ export interface IndexedReference extends SourceRange {
   uri: string;
   fqcn: string;
   text: string;
+  context: 'code' | 'phpdoc';
 }
 
 export interface IndexedFile {
@@ -18,7 +19,8 @@ export interface IndexedFile {
   imports: ParsedImport[];
   references: IndexedReference[];
   errors: SourceRange[];
-  textRanges: SourceRange[];
+  commentRanges: SourceRange[];
+  stringRanges: SourceRange[];
 }
 
 export interface IndexProblem {
