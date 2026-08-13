@@ -12,6 +12,7 @@
 | PHP Debug | Xdebug 断点、单步、变量和调用栈 |
 | PHPUnit & Pest Test Explorer | 测试发现、运行和调试 |
 | PHP CS Fixer | PHP 格式化和项目代码风格 |
+| Database Client | 数据库连接、查询和数据管理 |
 | EditorConfig | 项目级缩进、换行和字符集 |
 
 Intelephense 的基础功能可以免费使用，但其语言服务器不是开源软件，部分高级功能需要 Premium。PHP Companion 不强制依赖 Intelephense，禁用它后项目工作流仍可使用。
@@ -26,6 +27,6 @@ Intelephense 的基础功能可以免费使用，但其语言服务器不是开�
 
 ```bash
 pnpm package:all
-code --install-extension php-companion-0.4.0.vsix
-code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.0.vsix
+code --install-extension php-companion-0.4.1.vsix
+code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.1.vsix
 ```

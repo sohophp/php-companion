@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] - 2026-08-13
+
+### Added
+
+- Open Source Pack 和 Recommended Pack 现在都包含 Database Client，提供数据库连接、查询和数据管理工具。
+
 ## [0.4.0] - 2026-07-17
 
 ### Added
@@ -81,3 +87,4 @@
 [0.1.3]: https://github.com/sohophp/php-companion/compare/v0.1.2...v0.1.3
 [0.3.0]: https://github.com/sohophp/php-companion/compare/v0.1.3...v0.3.0
 [0.4.0]: https://github.com/sohophp/php-companion/compare/v0.3.0...v0.4.0
+[0.4.1]: https://github.com/sohophp/php-companion/compare/v0.4.0...v0.4.1

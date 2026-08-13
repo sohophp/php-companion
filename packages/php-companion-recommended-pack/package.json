@@ -2,7 +2,7 @@
   "name": "php-companion-recommended-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -60,6 +60,7 @@
     "xdebug.php-debug",
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
+    "cweijan.vscode-database-client2",
     "EditorConfig.EditorConfig"
   ]
 }

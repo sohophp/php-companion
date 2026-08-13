@@ -11,6 +11,7 @@
 | PHP Debug | Xdebug 断点、单步、变量和调用栈 |
 | PHPUnit & Pest Test Explorer | 测试发现、运行和调试 |
 | PHP CS Fixer | PHP 格式化和项目代码风格 |
+| Database Client | 数据库连接、查询和数据管理 |
 | EditorConfig | 项目级缩进、换行和字符集 |
 
 此 Pack 不安装 PHP Language Server。需要类型感知补全、悬停和完整语言诊断时，建议改用 **PHP Companion Recommended Pack**，或自行选择一个 PHP Language Server；不要同时启用多个 PHP Language Server。
@@ -28,6 +29,6 @@
 
 ```bash
 pnpm package:all
-code --install-extension php-companion-0.4.0.vsix
-code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.0.vsix
+code --install-extension php-companion-0.4.1.vsix
+code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.1.vsix
 ```

@@ -1,4 +1,4 @@
 {
   "displayName": "PHP Companion 开源扩展包",
-  "description": "精简的开源 PHP 工具组合，包含 Companion、Twig、调试、测试、格式化和 EditorConfig。"
+  "description": "精简的开源 PHP 工具组合，包含 Companion、Twig、调试、测试、格式化、数据库工具和 EditorConfig。"
 }

@@ -2,7 +2,7 @@
   "name": "php-companion",
   "displayName": "PHP Companion: PhpStorm Workflows",
   "description": "Stable, on-demand PhpStorm-inspired PHP project workflows for Visual Studio Code.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
