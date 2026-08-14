@@ -3,8 +3,9 @@ import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
 import { t } from '../extension/localize.js';
 import { importInsertionOffset, rankedImportCandidates } from '../imports/importWorkflows.js';
 import type { Psr4Mapping } from '../composer/project.js';
+import { potentialPhpTypeNames } from './pasteText.js';
 
-const METADATA_MIME = 'application/vnd.php-companion.symbols+json';
+export const PHP_IMPORT_METADATA_MIME = 'application/vnd.php-companion.symbols+json';
 const PASTE_KIND = vscode.DocumentDropOrPasteEditKind.TextUpdateImports.append('php');
 
 interface CopiedSymbol {
@@ -74,7 +75,7 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
         copied.set(fqcn.toLowerCase(), { fqcn, alias });
       }
     }
-    if (copied.size) dataTransfer.set(METADATA_MIME, new vscode.DataTransferItem([...copied.values()]));
+    if (copied.size) dataTransfer.set(PHP_IMPORT_METADATA_MIME, new vscode.DataTransferItem([...copied.values()]));
   }
 
   async provideDocumentPasteEdits(document: vscode.TextDocument, _ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): Promise<vscode.DocumentPasteEdit[] | undefined> {
@@ -83,12 +84,12 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
     if (mode === 'off') return undefined;
     const plain = dataTransfer.get('text/plain');
     if (!plain) return undefined;
-    const symbols = dataTransfer.get(METADATA_MIME)?.value as CopiedSymbol[] | undefined;
+    const symbols = dataTransfer.get(PHP_IMPORT_METADATA_MIME)?.value as CopiedSymbol[] | undefined;
     const text = await plain.asString();
     let variants: CopiedSymbol[][] = [];
 
     if (!symbols?.length) {
-      const names = new Set(text.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? []);
+      const names = potentialPhpTypeNames(text);
       const unique: CopiedSymbol[] = [];
       let ambiguity: { name: string; candidates: ReturnType<WorkspaceSymbolIndex['candidatesForShortName']> } | undefined;
       for (const name of names) {
@@ -153,7 +154,7 @@ export async function resolveDocumentImports(document: vscode.TextDocument, inde
 }
 
 export const phpPasteMetadata: vscode.DocumentPasteProviderMetadata = {
-  copyMimeTypes: [METADATA_MIME],
-  pasteMimeTypes: [METADATA_MIME, 'text/plain'],
+  copyMimeTypes: [PHP_IMPORT_METADATA_MIME],
+  pasteMimeTypes: [PHP_IMPORT_METADATA_MIME, 'text/plain'],
   providedPasteEditKinds: [PASTE_KIND],
 };

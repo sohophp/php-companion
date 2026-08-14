@@ -6,7 +6,8 @@ import { WorkspaceManager } from './workspaceManager.js';
 import { createPhpType, type PhpTypeKind } from '../generation/createType.js';
 import { copyIdentity, CurrentDocumentDiagnostics, NamespaceCodeActions } from '../editor/currentDocument.js';
 import { PhpRenameProvider } from '../refactor/rename.js';
-import { PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
+import { PHP_IMPORT_METADATA_MIME, PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
+import { mayNeedPhpImportResolution } from '../paste/pasteText.js';
 import {
   buildMoveEdits,
   buildMoveReconciliationEdits,
@@ -301,6 +302,10 @@ export function activate(context: vscode.ExtensionContext): void {
     provideDocumentPasteEdits: async (document, ranges, transfer) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
       if (configuration.get<string>('imports.onPaste', 'prompt') === 'off' || configuration.get<string>('indexing.mode', 'onDemand') === 'off') return undefined;
+      if (!transfer.get(PHP_IMPORT_METADATA_MIME)) {
+        const plain = transfer.get('text/plain');
+        if (!plain || !mayNeedPhpImportResolution(await plain.asString())) return undefined;
+      }
       await versions.ensureForUri(document.uri);
       const manager = await workspace();
       const version = document.version;

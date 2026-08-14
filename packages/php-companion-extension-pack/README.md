@@ -29,6 +29,6 @@
 
 ```bash
 pnpm package:all
-code --install-extension php-companion-0.4.1.vsix
-code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.1.vsix
+code --install-extension php-companion-0.4.2.vsix
+code --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.2.vsix
 ```

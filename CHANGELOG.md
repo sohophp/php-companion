@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.2] - 2026-08-14
+
+### Fixed
+
+- 粘贴纯数字、标量或不含 PHP 类型名的文本时不再启动项目索引，避免普通粘贴出现不必要的等待状态。
+
 ## [0.4.1] - 2026-08-13
 
 ### Added
@@ -88,3 +94,4 @@
 [0.3.0]: https://github.com/sohophp/php-companion/compare/v0.1.3...v0.3.0
 [0.4.0]: https://github.com/sohophp/php-companion/compare/v0.3.0...v0.4.0
 [0.4.1]: https://github.com/sohophp/php-companion/compare/v0.4.0...v0.4.1
+[0.4.2]: https://github.com/sohophp/php-companion/compare/v0.4.1...v0.4.2
