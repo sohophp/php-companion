@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.4] - 2026-09-01
+
+### Added
+
+- Open Source Pack 和 Recommended Pack 现在都包含 Markdown Preview Enhanced，提供增强的 Markdown 预览与导出能力。
+
 ## [0.4.3] - 2026-09-01
 
 ### Added
@@ -102,3 +108,4 @@
 [0.4.1]: https://github.com/sohophp/php-companion/compare/v0.4.0...v0.4.1
 [0.4.2]: https://github.com/sohophp/php-companion/compare/v0.4.1...v0.4.2
 [0.4.3]: https://github.com/sohophp/php-companion/compare/v0.4.2...v0.4.3
+[0.4.4]: https://github.com/sohophp/php-companion/compare/v0.4.3...v0.4.4

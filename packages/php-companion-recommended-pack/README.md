@@ -27,6 +27,6 @@ Intelephense 的基础功能可以免费使用，但其语言服务器不是开�
 
 ```bash
 pnpm package:all
-code --install-extension php-companion-0.4.3.vsix
-code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.3.vsix
+code --install-extension php-companion-0.4.4.vsix
+code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.4.vsix
 ```
