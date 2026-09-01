@@ -2,7 +2,7 @@
   "name": "php-companion-recommended-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -61,6 +61,7 @@
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
     "cweijan.vscode-database-client2",
+    "streetsidesoftware.code-spell-checker",
     "EditorConfig.EditorConfig"
   ]
 }

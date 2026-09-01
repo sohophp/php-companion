@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.3] - 2026-09-01
+
+### Added
+
+- Open Source Pack 和 Recommended Pack 现在都包含 Code Spell Checker，提供代码与文档拼写检查。
+
 ## [0.4.2] - 2026-08-14
 
 ### Fixed
@@ -95,3 +101,4 @@
 [0.4.0]: https://github.com/sohophp/php-companion/compare/v0.3.0...v0.4.0
 [0.4.1]: https://github.com/sohophp/php-companion/compare/v0.4.0...v0.4.1
 [0.4.2]: https://github.com/sohophp/php-companion/compare/v0.4.1...v0.4.2
+[0.4.3]: https://github.com/sohophp/php-companion/compare/v0.4.2...v0.4.3
