@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.5] - 2026-09-05
+
+### Added
+
+- Open Source Pack 和 Recommended Pack 现在都包含 CSS Peek，提供 CSS/SCSS/LESS 选择器定义跳转和内联预览。
+
 ## [0.4.4] - 2026-09-01
 
 ### Added
@@ -109,3 +115,4 @@
 [0.4.2]: https://github.com/sohophp/php-companion/compare/v0.4.1...v0.4.2
 [0.4.3]: https://github.com/sohophp/php-companion/compare/v0.4.2...v0.4.3
 [0.4.4]: https://github.com/sohophp/php-companion/compare/v0.4.3...v0.4.4
+[0.4.5]: https://github.com/sohophp/php-companion/compare/v0.4.4...v0.4.5

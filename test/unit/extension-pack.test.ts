@@ -32,11 +32,11 @@ async function manifest(path: string): Promise<ExtensionManifest> {
 }
 
 describe('PHP Companion manifests', () => {
-  it('publishes every extension as version 0.4.4', async () => {
+  it('publishes every extension as version 0.4.5', async () => {
     for (const path of ['package.json', 'packages/php-companion-extension-pack/package.json', 'packages/php-companion-recommended-pack/package.json']) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
-      expect(value.version).toBe('0.4.4');
+      expect(value.version).toBe('0.4.5');
       expect(value.icon).toBe('resources/icon.png');
     }
   });
