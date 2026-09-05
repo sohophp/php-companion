@@ -12,6 +12,7 @@
 | PHP Debug | Xdebug 断点、单步、变量和调用栈 |
 | PHPUnit & Pest Test Explorer | 测试发现、运行和调试 |
 | PHP CS Fixer | PHP 格式化和项目代码风格 |
+| [CSS Peek](https://marketplace.visualstudio.com/items?itemName=pranaygp.vscode-css-peek) | CSS/SCSS/LESS 选择器定义跳转和内联预览 |
 | Database Client | 数据库连接、查询和数据管理 |
 | EditorConfig | 项目级缩进、换行和字符集 |
 
