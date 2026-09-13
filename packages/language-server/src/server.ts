@@ -146,7 +146,7 @@ function pathForUri(uri: string): string | undefined {
   try {
     if (uri.startsWith('file:')) return fileURLToPath(uri);
     if (uri.startsWith('vscode-remote:')) {
-      const pathname = decodeURIComponent(new URL(uri).pathname);
+      const pathname = decodeURIComponent(new URL(uri).pathname).replaceAll('\\', '/');
       return process.platform === 'win32' && /^\/[A-Za-z]:\//.test(pathname)
         ? pathname.slice(1).replaceAll('/', '\\')
         : pathname;

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { mkdtemp, mkdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
@@ -981,7 +981,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await writeFile(servicePath, '<?php namespace App; class Service { public function oldMethod(): void {} }');
       const source = '<?php namespace App; function run(Service $service): void { $service->newM; }';
       await writeFile(consumerPath, source);
-      const remote = (path: string): string => { const uri = new URL('vscode-remote://test/'); uri.pathname = path; return uri.toString(); };
+      const remote = (path: string): string => { const uri = new URL('vscode-remote://test/'); uri.pathname = path.split(sep).join('/'); return uri.toString(); };
       const rootUri = remote(root); const serviceUri = remote(servicePath); const consumerUri = remote(consumerPath);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
