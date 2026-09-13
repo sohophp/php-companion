@@ -38,7 +38,7 @@ const visit = (name) => {
 for (const name of manifests.keys()) visit(name);
 
 try {
-  await run('pnpm', ['exec', 'changeset', 'status', '--output', changesetStatus], { cwd: root });
+  await run('pnpm', ['exec', 'changeset', 'status', '--since', 'origin/main', '--output', changesetStatus], { cwd: root });
   const releasePlan = JSON.parse(await readFile(changesetStatus, 'utf8'));
   if (!Array.isArray(releasePlan.changesets) || !Array.isArray(releasePlan.releases)) throw new Error('Changesets returned an invalid release plan.');
   await mkdir(tarballs);
