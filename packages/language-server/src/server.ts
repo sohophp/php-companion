@@ -145,9 +145,22 @@ function rootForUri(uri: string): string | undefined {
 function pathForUri(uri: string): string | undefined {
   try {
     if (uri.startsWith('file:')) return fileURLToPath(uri);
-    if (uri.startsWith('vscode-remote:')) return decodeURIComponent(new URL(uri).pathname);
+    if (uri.startsWith('vscode-remote:')) {
+      const pathname = decodeURIComponent(new URL(uri).pathname);
+      return process.platform === 'win32' && /^\/[A-Za-z]:\//.test(pathname)
+        ? pathname.slice(1).replaceAll('/', '\\')
+        : pathname;
+    }
   } catch { /* Malformed and unsupported URIs stay outside filesystem indexing. */ }
   return undefined;
+}
+
+function sameFilesystemPath(left: string | undefined, right: string): boolean {
+  if (!left) return false;
+  const normalizedLeft = resolve(left); const normalizedRight = resolve(right);
+  return process.platform === 'win32'
+    ? normalizedLeft.toLowerCase() === normalizedRight.toLowerCase()
+    : normalizedLeft === normalizedRight;
 }
 
 function indexedUriForPath(root: string, path: string): string {
@@ -282,7 +295,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     shouldContinue,
     uriForPath: (path) => indexedUriForPath(root, path),
     onSource: ({ uri, path, source }) => {
-      current.add(uri); const open = documents.all().find((document) => pathForUri(document.uri) === path); workspace.update(uri, open?.getText() ?? source, Boolean(open)); return workspace.snapshot(uri);
+      current.add(uri); const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); workspace.update(uri, open?.getText() ?? source, Boolean(open)); return workspace.snapshot(uri);
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
@@ -840,7 +853,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }): Promise<ControllerContextPayload | null> => {
   if (typeof params?.rootUri !== 'string') return null;
   const requestedPath = pathForUri(params.rootUri);
-  const root = requestedPath && workspaceRoots.find((candidate) => candidate === requestedPath);
+  const root = requestedPath && workspaceRoots.find((candidate) => sameFilesystemPath(candidate, requestedPath));
   if (!root || !completeRoots.has(root)) return null;
   const projectId = indexedUriForPath(root, root);
   const contexts = mergedInteropContexts(root);
@@ -1256,7 +1269,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
       }
       if (!info.isFile() || (attribute && !path.endsWith('.php')) || info.size > 1_000_000) return;
       const uri = indexedUriForPath(root, path);
-      const open = documents.all().find((document) => pathForUri(document.uri) === path);
+      const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
       const source = open?.getText() ?? await readFile(path, 'utf8');
       if (source.length > 1_000_000 || cancelled()) return;
       if (attribute) {

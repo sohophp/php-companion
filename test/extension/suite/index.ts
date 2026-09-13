@@ -268,13 +268,14 @@ export async function run(): Promise<void> {
     () => vscode.languages.getDiagnostics(brokenUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.syntax'),
     'Self-hosted language server did not publish coded syntax diagnostics',
   );
+  await waitForAsync(async () => await vscode.commands.executeCommand('phpCompanion.provideTwigInterop', workspace.uri) !== null,
+    'Self-hosted language server did not complete its initial project index', 120_000, 250);
   const controlFlowDiagnosticUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
   await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
   await waitFor(
     () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
       .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.control-flow.unreachable').length === 10,
     'Self-hosted language server did not publish a proven unreachable-statement diagnostic',
-    30_000,
   );
   const controlFlowDocument = await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
   assert.deepStrictEqual(vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
