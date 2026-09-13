@@ -16,6 +16,8 @@ async function waitForAsync(predicate: () => Promise<boolean>, message: string, 
   try { assert.ok(await predicate(), message); } catch (error) { assert.fail(`${message}: ${error instanceof Error ? error.message : String(error)}`); }
 }
 
+function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
+
 /** Restore fixtures through the editor so dirty buffers and filesystem versions stay coherent. */
 async function restoreTextFixture(uri: vscode.Uri, original: Uint8Array): Promise<void> {
   const document = await vscode.workspace.openTextDocument(uri);
@@ -63,7 +65,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   }, 'PHP CS Fixer did not provide edits through the project PHP 8.5 wrapper');
   const formatEdit = new vscode.WorkspaceEdit(); formatEdit.set(formatUri, formattingEdits);
   assert.ok(await vscode.workspace.applyEdit(formatEdit), 'PHP CS Fixer edits could not be applied');
-  assert.ok(formatDocument.getText().includes("class ProfileFormat\n{"), 'PHP CS Fixer did not apply PSR-12 class spacing');
+  assert.ok(normalizedNewlines(formatDocument.getText()).includes("class ProfileFormat\n{"), 'PHP CS Fixer did not apply PSR-12 class spacing');
   await vscode.commands.executeCommand('undo');
   assert.ok(formatDocument.getText().includes('class  ProfileFormat'), 'PHP formatting was not one Undo transaction');
 
@@ -1450,7 +1452,7 @@ export async function run(): Promise<void> {
     return Boolean(extractAction?.edit);
   }, 'Self-hosted language server did not offer Extract Variable for a whole assignment RHS');
   assert.ok(await vscode.workspace.applyEdit(extractAction!.edit!), 'Extract Variable edit could not be applied');
-  await waitFor(() => extractDocument.getText().includes('$extracted = new \\stdClass();\n    $result = $extracted;'), 'Extract Variable did not preserve indentation or replace the selected expression');
+  await waitFor(() => normalizedNewlines(extractDocument.getText()).includes('$extracted = new \\stdClass();\n    $result = $extracted;'), 'Extract Variable did not preserve indentation or replace the selected expression');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !extractDocument.getText().includes('$extracted ='), 'Extract Variable could not be undone as one editor operation');
   await vscode.commands.executeCommand('redo');
@@ -1583,7 +1585,7 @@ export async function run(): Promise<void> {
   }, 'Self-hosted language server did not offer the missing interface method action');
   await vscode.window.showTextDocument(missingRunner);
   assert.ok(await vscode.workspace.applyEdit(implementAction!.edit!), 'Implement interface methods edit could not be applied');
-  assert.ok(missingRunner.getText().includes("public function run(): void\n    {\n        throw new \\LogicException('Not implemented.');"), 'Generated interface method did not preserve the declared signature');
+  assert.ok(normalizedNewlines(missingRunner.getText()).includes("public function run(): void\n    {\n        throw new \\LogicException('Not implemented.');"), 'Generated interface method did not preserve the declared signature');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !missingRunner.getText().includes('LogicException'), 'Implement interface methods could not be undone as one editor operation');
 
@@ -1639,7 +1641,7 @@ export async function run(): Promise<void> {
   }, 'Self-hosted language server did not offer only the safe Override candidate');
   await vscode.window.showTextDocument(overrideDocument);
   assert.ok(await vscode.workspace.applyEdit(overrideAction!.edit!), 'Override edit could not be applied');
-  assert.ok(overrideDocument.getText().includes("public function label(string $prefix = ''): string\n    {\n        return parent::label($prefix);"), 'Override did not preserve and forward the parent signature');
+  assert.ok(normalizedNewlines(overrideDocument.getText()).includes("public function label(string $prefix = ''): string\n    {\n        return parent::label($prefix);"), 'Override did not preserve and forward the parent signature');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !overrideDocument.getText().includes('parent::label'), 'Override could not be undone as one editor operation');
 
