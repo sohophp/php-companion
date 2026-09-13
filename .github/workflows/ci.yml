@@ -17,6 +17,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
@@ -29,8 +31,7 @@ jobs:
       - run: pnpm verify:packages
       - name: Editing resilience benchmark
         run: node scripts/benchmark-editing.mjs 500 50 > editing-resilience-${{ runner.os }}-${{ runner.arch }}.json
-      - if: always()
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: editing-resilience-${{ runner.os }}-${{ runner.arch }}
           if-no-files-found: error
