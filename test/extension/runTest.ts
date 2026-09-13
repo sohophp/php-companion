@@ -1,4 +1,4 @@
-import { cp, mkdtemp, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { runTests, runVSCodeCommand } from '@vscode/test-electron';
@@ -10,6 +10,10 @@ async function main(): Promise<void> {
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
 
   if (withIntelephense) {
+    const settingsPath = join(fixture, '.vscode', 'settings.json');
+    const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
+    delete settings['phpCompanion.languageServer.enabled'];
+    await writeFile(settingsPath, JSON.stringify(settings, null, 2));
     await runVSCodeCommand([
       '--install-extension',
       'bmewburn.vscode-intelephense-client',

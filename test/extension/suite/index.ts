@@ -195,6 +195,15 @@ export async function run(): Promise<void> {
 
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
+  if (process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1') {
+    assert.ok(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), 'Intelephense compatibility profile did not install Intelephense');
+    const inspected = vscode.workspace.getConfiguration('phpCompanion', workspace.uri).inspect<boolean>('languageServer.enabled');
+    assert.strictEqual(inspected?.workspaceValue, undefined, 'Intelephense compatibility fixture must not explicitly enable the self-hosted language server');
+    assert.strictEqual(inspected?.workspaceFolderValue, undefined, 'Intelephense compatibility fixture must not enable the self-hosted language server for a folder');
+    assert.ok(!commands.includes('phpCompanion._testCrashLanguageServer'), 'PHP Companion started its language server without an explicit choice beside Intelephense');
+    assert.ok(!commands.includes('phpCompanion.provideTwigInterop'), 'PHP Companion exposed language-server interop while defaulting to Intelephense');
+    return;
+  }
   if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
     const languageServerConfiguration = vscode.workspace.getConfiguration('phpCompanion', workspace.uri);
     const inspected = languageServerConfiguration.inspect<boolean>('languageServer.enabled');
