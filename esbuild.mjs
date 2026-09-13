@@ -11,7 +11,7 @@ const options = {
   },
   bundle: true,
   outdir: 'dist',
-  external: ['vscode', 'web-tree-sitter'],
+  external: ['vscode'],
   format: 'cjs',
   platform: 'node',
   target: 'node20',

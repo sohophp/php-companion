@@ -1,8 +1,25 @@
 import { execFileSync } from 'node:child_process';
-import { chmod, cp, mkdtemp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { runTests } from '@vscode/test-electron';
+import { dirname, join, resolve } from 'node:path';
+import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
+
+async function macOSExecutablePath(): Promise<string | undefined> {
+  if (process.platform !== 'darwin') return undefined;
+  const expected = await downloadAndUnzipVSCode();
+  try {
+    await stat(expected);
+    return expected;
+  } catch {
+    const directory = dirname(expected);
+    const candidates = (await readdir(directory, { withFileTypes: true }))
+      .filter((entry) => entry.isFile())
+      .map((entry) => join(directory, entry.name))
+      .sort();
+    if (candidates.length === 1) return candidates[0];
+    throw new Error(`Unable to resolve the downloaded VS Code executable. Expected ${expected}; found ${candidates.join(', ') || 'no files'}.`);
+  }
+}
 
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
@@ -75,6 +92,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
     await mkdir(extracted, { recursive: true });
     execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
     await runTests({
+      vscodeExecutablePath: await macOSExecutablePath(),
       extensionDevelopmentPath: join(extracted, 'extension'),
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [

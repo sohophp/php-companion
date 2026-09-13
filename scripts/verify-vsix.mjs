@@ -88,6 +88,12 @@ for (const artifact of artifacts) {
     if (manifest.contributes?.configuration?.properties?.['phpCompanion.languageServer.enabled']?.default !== true) {
       throw new Error(`${artifact.path} must enable the self-hosted PHP language server by default.`);
     }
+    for (const entry of ['extension/dist/extension.js', 'extension/dist/language-server.js']) {
+      const bundle = await textEntry(artifact.path, entry);
+      if (/require\(["']web-tree-sitter["']\)/.test(bundle)) {
+        throw new Error(`${artifact.path} leaves web-tree-sitter as a runtime dependency in ${entry}.`);
+      }
+    }
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
