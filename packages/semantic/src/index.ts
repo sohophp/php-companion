@@ -2370,7 +2370,7 @@ export class SemanticWorkspace {
       if (access.dynamic === 'unknown') return [];
       const target = this.memberTarget(uri, access.end); if (!target || !this.hasCompleteHierarchy(target.fqcn)) return [];
       if (target.groups) return [];
-      const modes = access.kind === 'property' && !access.static ? this.propertyAccessModes(file, access) : { read: true, write: false };
+      const modes = access.kind === 'property' ? this.propertyAccessModes(file, access) : { read: true, write: false };
       const operation = modes.write ? 'write' : 'read';
       if (access.kind === 'property') {
         const member = this.members(target.fqcn, target.accessFrom, new Set(), true, target.typeArguments)
@@ -5660,7 +5660,8 @@ export class SemanticWorkspace {
     const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
     try {
       const member = deepestLocalSyntax((retainedTree ?? temporaryTree!).rootNode, access.start, access.end,
-        (node) => node.type === 'member_access_expression' && node.childForFieldName('name')?.startIndex === access.start
+        (node) => ['member_access_expression', 'scoped_property_access_expression'].includes(node.type)
+          && node.childForFieldName('name')?.startIndex === access.start
           && node.childForFieldName('name')?.endIndex === access.end);
       let expression = member;
       while (expression?.parent && ['subscript_expression', 'parenthesized_expression'].includes(expression.parent.type)

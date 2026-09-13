@@ -78,6 +78,7 @@ describe('PHP document analysis', () => {
       { feature: 'dynamic class constant access', minimum: '8.3' as const, source: "<?php class C { public const NAME = 'x'; } $name = 'NAME'; echo C::{$name};" },
       { feature: 'property hook', minimum: '8.4' as const, source: '<?php class C { public string $name { get => "name"; } }' },
       { feature: 'final property', minimum: '8.4' as const, source: '<?php class C { final public string $name; }' },
+      { feature: 'asymmetric property visibility', minimum: '8.5' as const, source: '<?php class C { public private(set) static string $name; }' },
       { feature: 'pipe operator', minimum: '8.5' as const, source: '<?php $result = "hello" |> strtoupper(...);' },
       { feature: 'clone with properties', minimum: '8.5' as const, source: "<?php $copy = clone($object, ['name' => 'new']);" },
       { feature: 'final promoted property', minimum: '8.5' as const, source: '<?php class C { public function __construct(public final string $name) {} }' },

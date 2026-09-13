@@ -805,6 +805,7 @@ class Child extends ParentBase implements Contract {
     const result = parser.parse(`<?php namespace App; class User {
       public readonly ?Profile $profile, $backup;
       protected static int $count = 1;
+      public private(set) static string $token = 'ready';
       public const string KIND = 'user';
       public function __construct(private Address $address, public final string $id) {}
     }`);
@@ -812,6 +813,7 @@ class Child extends ParentBase implements Contract {
       { name: 'profile', fqcn: 'App\\User::$profile', type: '?Profile', visibility: 'public', static: false, readonly: true, promoted: false },
       { name: 'backup', type: '?Profile' },
       { name: 'count', type: 'int', defaultValue: '1', visibility: 'protected', static: true },
+      { name: 'token', type: 'string', defaultValue: "'ready'", visibility: 'public', writeVisibility: 'private', static: true },
       { name: 'address', type: 'Address', defaultValue: undefined, visibility: 'private', promoted: true },
       { name: 'id', type: 'string', visibility: 'public', final: true, promoted: true },
     ]);

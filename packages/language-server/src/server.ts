@@ -496,7 +496,9 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.member.inaccessible',
       source: 'PHP Companion',
-      message: `Cannot access ${member.visibility} ${member.kind} ${member.ownerFqcn}::${member.name}.`,
+      message: member.kind === 'property' && member.operation
+        ? `Cannot ${member.operation} ${member.visibility} ${member.static ? 'static ' : ''}property ${member.ownerFqcn}::$${member.name}.`
+        : `Cannot access ${member.visibility} ${member.kind} ${member.ownerFqcn}::${member.name}.`,
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4')) result.diagnostics.push(...workspace.invalidPropertyOperations(document.uri).map((property) => ({
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },

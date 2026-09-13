@@ -397,6 +397,26 @@ describe('conservative semantic workspace', () => {
       { name: 'SECRET', ownerFqcn: 'Diagnostics\\Known', kind: 'constant', visibility: 'private' },
     ]);
   });
+  it('applies asymmetric write visibility to PHP 8.5 static property assignments', () => {
+    const source = `<?php namespace StaticVisibility;
+      class Manager {
+        public private(set) static int $calls = 0;
+        public static function record(): void { self::$calls++; }
+      }
+      class Child extends Manager {
+        public static function reset(): void { parent::$calls = 0; }
+      }
+      function consume(): int {
+        Manager::$calls = 1;
+        return Manager::$calls;
+      }
+    `;
+    workspace.update('file:///StaticVisibility.php', source);
+    expect(workspace.inaccessibleMemberAccesses('file:///StaticVisibility.php').map((item) => [item.name, item.operation, item.static])).toEqual([
+      ['calls', 'write', true],
+      ['calls', 'write', true],
+    ]);
+  });
   it('reports only proven direct dynamic property creation candidates', () => {
     workspace.update('file:///DynamicPropertyTypes.php', `<?php namespace DynamicProperties;
       class Plain {}
