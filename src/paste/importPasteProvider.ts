@@ -6,7 +6,7 @@ import type { Psr4Mapping } from '../composer/project.js';
 import { potentialPhpTypeNames } from './pasteText.js';
 
 export const PHP_IMPORT_METADATA_MIME = 'application/vnd.php-companion.symbols+json';
-const PASTE_KIND = vscode.DocumentDropOrPasteEditKind.TextUpdateImports.append('php');
+export const PHP_IMPORT_PASTE_KIND = vscode.DocumentDropOrPasteEditKind.TextUpdateImports.append('php');
 
 interface CopiedSymbol {
   fqcn: string;
@@ -122,7 +122,7 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
       if (!built.edit || built.conflict) continue;
       const selected = variant.at(-1)?.fqcn;
       const title = variants.length > 1 ? `${t('pasteImports')}: ${selected}` : t('pasteImports');
-      const paste = new vscode.DocumentPasteEdit(replaceAliases(text, built.insertTextReplacements), title, PASTE_KIND);
+      const paste = new vscode.DocumentPasteEdit(replaceAliases(text, built.insertTextReplacements), title, PHP_IMPORT_PASTE_KIND);
       paste.additionalEdit = built.edit;
       if (mode === 'preview') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
       edits.push(paste);
@@ -156,5 +156,5 @@ export async function resolveDocumentImports(document: vscode.TextDocument, inde
 export const phpPasteMetadata: vscode.DocumentPasteProviderMetadata = {
   copyMimeTypes: [PHP_IMPORT_METADATA_MIME],
   pasteMimeTypes: [PHP_IMPORT_METADATA_MIME, 'text/plain'],
-  providedPasteEditKinds: [PASTE_KIND],
+  providedPasteEditKinds: [PHP_IMPORT_PASTE_KIND],
 };

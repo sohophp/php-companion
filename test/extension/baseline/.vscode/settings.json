@@ -1,0 +1,5 @@
+{
+  "phpCompanion.languageServer.enabled": true,
+  "symfonyLsp.runtimeIndexing": false,
+  "symfonyLsp.releaseMetadata": false
+}

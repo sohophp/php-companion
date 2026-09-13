@@ -1,0 +1,45 @@
+{
+  "name": "@php-companion/semantic",
+  "version": "0.1.0-alpha.1",
+  "description": "Conservative PHP semantic queries for PHP Companion.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sohophp/php-companion.git",
+    "directory": "packages/semantic"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@php-companion/parser": "workspace:^",
+    "@php-companion/phpdoc": "workspace:^",
+    "@php-companion/semantic-provider": "workspace:^",
+    "@php-companion/type-system": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

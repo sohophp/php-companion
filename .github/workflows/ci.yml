@@ -26,6 +26,15 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm verify:packages
+      - name: Editing resilience benchmark
+        run: node scripts/benchmark-editing.mjs 500 50 > editing-resilience-${{ runner.os }}-${{ runner.arch }}.json
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: editing-resilience-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: editing-resilience-${{ runner.os }}-${{ runner.arch }}.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - if: runner.os == 'Linux'
@@ -62,8 +71,12 @@ jobs:
           PHP_COMPANION_TEST_PHP_BINARIES: '{"${{ matrix.php }}":"php"}'
 
   extension-host:
-    name: Extension host
-    runs-on: ubuntu-latest
+    name: Extension host (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -72,5 +85,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test:extension
-      - run: pnpm test:extension:intelephense
+      - run: pnpm test:extension:packaged
+      - if: runner.os == 'Linux'
+        run: pnpm test:extension
+      - if: runner.os == 'Linux'
+        run: pnpm test:extension:intelephense

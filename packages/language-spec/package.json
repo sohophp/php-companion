@@ -1,0 +1,44 @@
+{
+  "name": "@php-companion/language-spec",
+  "version": "0.1.0-alpha.1",
+  "description": "Versioned PHP language metadata and audited core stubs for PHP Companion.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sohophp/php-companion.git",
+    "directory": "packages/language-spec"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "SOURCES.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "semver": "^7.8.5"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.7.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -17,13 +17,11 @@ interface ExtensionManifest {
 const openSourceExtensions = [
   'sohophp.php-companion',
   'sohophp.twig-plus',
+  'symfony.language-tools',
+  'redhat.vscode-yaml',
   'xdebug.php-debug',
   'recca0120.vscode-phpunit',
   'junstyle.php-cs-fixer',
-  'pranaygp.vscode-css-peek',
-  'cweijan.vscode-database-client2',
-  'streetsidesoftware.code-spell-checker',
-  'shd101wyy.markdown-preview-enhanced',
   'EditorConfig.EditorConfig',
 ];
 
@@ -48,19 +46,22 @@ describe('PHP Companion manifests', () => {
     expect(value.contributes).toBeDefined();
     expect(value.extensionPack).toEqual([]);
     expect(value.main).toBe('./dist/extension.js');
+    const defaults = (value.contributes as { configuration?: { properties?: Record<string, { default?: unknown }> } }).configuration?.properties;
+    expect(defaults?.['phpCompanion.languageServer.enabled']?.default).toBe(true);
   });
 
-  it('ships focused packs and only adds Intelephense to the recommended profile', async () => {
+  it('ships both focused packs without another PHP language server', async () => {
     const openSource = await manifest('packages/php-companion-extension-pack/package.json');
     const recommended = await manifest('packages/php-companion-recommended-pack/package.json');
     expect(openSource.extensionPack).toEqual(openSourceExtensions);
-    expect(recommended.extensionPack).toEqual([
-      'sohophp.php-companion',
-      'sohophp.twig-plus',
-      'bmewburn.vscode-intelephense-client',
-      ...openSourceExtensions.slice(2),
-    ]);
+    expect(recommended.extensionPack).toEqual(openSourceExtensions);
+    expect(openSource.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
+    expect(recommended.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.contributes).toBeDefined();
     expect(recommended.contributes).toEqual(openSource.contributes);
+    const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
+    expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
+    expect(defaults?.['symfonyLsp.runtimeIndexing']).toBe(false);
+    expect(defaults?.['symfonyLsp.releaseMetadata']).toBe(false);
   });
 });

@@ -7,18 +7,9 @@ import { t } from '../extension/localize.js';
 import { isSyntaxAvailable } from '../php-version/constraints.js';
 import type { PhpVersion } from '../php-version/types.js';
 import { resolvePsr4Class, type Psr4Mapping } from '../composer/project.js';
+import { createEditPlan, isValidPhpIdentifier, type PlannedTextEdit } from '@php-companion/refactor';
 
 export class RenameError extends Error {}
-
-const RESERVED_NAMES = new Set([
-  'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class', 'clone', 'const', 'continue',
-  'declare', 'default', 'die', 'do', 'echo', 'else', 'elseif', 'empty', 'enddeclare', 'endfor', 'endforeach',
-  'endif', 'endswitch', 'endwhile', 'enum', 'eval', 'exit', 'extends', 'final', 'finally', 'fn', 'for', 'foreach',
-  'function', 'global', 'goto', 'if', 'implements', 'include', 'include_once', 'instanceof', 'insteadof', 'interface',
-  'isset', 'list', 'match', 'namespace', 'new', 'or', 'print', 'private', 'protected', 'public', 'readonly', 'require',
-  'require_once', 'return', 'static', 'switch', 'throw', 'trait', 'try', 'unset', 'use', 'var', 'while', 'xor', 'yield',
-  'bool', 'false', 'float', 'int', 'iterable', 'mixed', 'never', 'null', 'object', 'parent', 'resource', 'self', 'string', 'true', 'void',
-]);
 
 function uriRange(start: number, end: number, source: string): vscode.Range {
   const prefix = source.slice(0, start);
@@ -48,7 +39,7 @@ async function exists(uri: vscode.Uri): Promise<boolean> {
 }
 
 function validateName(name: string): void {
-  if (!/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name) || RESERVED_NAMES.has(name.toLowerCase())) {
+  if (!isValidPhpIdentifier(name)) {
     throw new RenameError(t('invalidName'));
   }
 }
@@ -101,34 +92,36 @@ export async function buildRenameEdit(
     if (!caseOnlyTarget && await exists(targetUri)) throw new RenameError(t('conflict', targetUri.fsPath));
   }
 
-  const edit = new vscode.WorkspaceEdit();
-  if (targetUri) {
-    // Refactor Preview preserves WorkspaceEdit construction order while direct
-    // workspace.applyEdit may normalize resource operations. Create the target
-    // URI before adding text edits that address it so both paths are valid.
-    edit.renameFile(declarationUri, targetUri, { overwrite: false }, {
-      label: `Rename ${oldName}.php to ${newName}.php`,
-      needsConfirmation: false,
-    });
-  }
+  const plannedEdits: Array<Omit<PlannedTextEdit, 'expectedVersion' | 'expectedLength' | 'expectedTextHash'>> = [];
+  const snapshots: Array<{ uri: string; version: null; length: number }> = [];
+  const sourceByUri = new Map<string, string>();
   for (const file of index.getFiles()) {
     const sourceUri = vscode.Uri.parse(file.uri);
     // VS Code applies resource operations before text edits even when renameFile is appended last.
     // Text edits for the declaration file must therefore address its post-rename URI.
     const uri = targetUri && file.uri === canonical.uri ? targetUri : sourceUri;
+    snapshots.push({ uri: uri.toString(), version: null, length: file.source.length }); sourceByUri.set(uri.toString(), file.source);
     for (const item of file.declarations.filter((candidate) => candidate.uri === canonical.uri && candidate.start === canonical.start)) {
-      edit.replace(uri, uriRange(item.start, item.end, file.source), newName);
+      plannedEdits.push({ uri: uri.toString(), start: item.start, end: item.end, newText: newName });
     }
     for (const item of file.imports.filter((candidate) => candidate.fqcn.toLowerCase() === canonical.fqcn.toLowerCase())) {
-      edit.replace(uri, uriRange(item.start, item.end, file.source), newName);
+      plannedEdits.push({ uri: uri.toString(), start: item.start, end: item.end, newText: newName });
     }
     for (const reference of file.references.filter((candidate) => candidate.fqcn.toLowerCase() === canonical.fqcn.toLowerCase())) {
       if (reference.context === 'phpdoc' && !options.includePhpDoc) continue;
       const replacement = referenceReplacement(reference, oldName, newName);
-      if (replacement) edit.replace(uri, uriRange(reference.start, reference.end, file.source), replacement);
+      if (replacement) plannedEdits.push({ uri: uri.toString(), start: reference.start, end: reference.end, newText: replacement });
     }
   }
-
+  const plan = createEditPlan(`Rename ${canonical.fqcn} to ${newName}`, snapshots, plannedEdits, targetUri ? [{ kind: 'rename', oldUri: declarationUri.toString(), newUri: targetUri.toString() }] : []);
+  const edit = new vscode.WorkspaceEdit();
+  for (const operation of plan.fileOperations) if (operation.kind === 'rename') edit.renameFile(vscode.Uri.parse(operation.oldUri), vscode.Uri.parse(operation.newUri), { overwrite: operation.overwrite ?? false }, {
+    label: `Rename ${oldName}.php to ${newName}.php`, needsConfirmation: false,
+  });
+  for (const planned of plan.textEdits) {
+    const source = sourceByUri.get(planned.uri); if (source === undefined) throw new RenameError(`Missing source snapshot for ${planned.uri}.`);
+    edit.replace(vscode.Uri.parse(planned.uri), uriRange(planned.start, planned.end, source), planned.newText);
+  }
   return edit;
 }
 
@@ -138,6 +131,7 @@ export interface PhpRenameProviderOptions {
   ensureProjectIndex: (uri: vscode.Uri, token: vscode.CancellationToken) => Promise<boolean>;
   mappingsForUri: (uri: vscode.Uri) => Psr4Mapping[];
   log?: (message: string) => void;
+  unsupportedReturnsUndefined?: boolean;
 }
 
 function configuredFileMode(configuration: vscode.WorkspaceConfiguration): 'off' | 'preview' | 'always' {
@@ -152,35 +146,64 @@ function configuredFileMode(configuration: vscode.WorkspaceConfiguration): 'off'
 export class PhpRenameProvider implements vscode.RenameProvider {
   constructor(private readonly options: PhpRenameProviderOptions) {}
 
-  prepareRename(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.Range | { range: vscode.Range; placeholder: string } {
+  async prepareRename(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.Range | { range: vscode.Range; placeholder: string } | undefined> {
     if (token.isCancellationRequested) throw new RenameError('Rename was cancelled.');
     const file = this.options.index.getFile(document.uri.toString());
     if (file?.errors.length) throw new RenameError('Cannot rename a type declared in a file with syntax errors.');
-    const symbol = this.options.index.findSymbolAt(document.uri.toString(), document.offsetAt(position));
-    if (!symbol || !('name' in symbol)) throw new RenameError('PHP Companion 0.3 supports Rename only from a type declaration name.');
+    const offset = document.offsetAt(position); const initialVersion = document.version;
+    let symbol = this.options.index.findSymbolAt(document.uri.toString(), offset);
+    if (!symbol) {
+      if (this.options.unsupportedReturnsUndefined) return undefined;
+      throw new RenameError('PHP Companion cannot resolve a type at this location.');
+    }
+    if (!('name' in symbol)) {
+      if (!await this.options.ensureProjectIndex(document.uri, token) || token.isCancellationRequested) throw new RenameError('Rename was cancelled before any changes were made.');
+      if (document.version !== initialVersion) throw new RenameError('The PHP document changed while references were being indexed. Run Rename again.');
+      symbol = this.options.index.findSymbolAt(document.uri.toString(), offset);
+      if (!symbol) return undefined;
+    }
     const declarations = canonicalDeclarations(this.options.index.findDeclarations(symbol.fqcn), symbol.fqcn, this.options.mappingsForUri(document.uri), symbol.uri);
     if (declarations.length !== 1) throw new RenameError(t('duplicate', symbol.fqcn));
-    if (declarations[0]?.uri !== symbol.uri) throw new RenameError(`The selected declaration is not the Composer PSR-4 declaration for ${symbol.fqcn}.`);
+    const declaration = declarations[0]!;
+    if ('name' in symbol && declaration.uri !== symbol.uri) throw new RenameError(`The selected declaration is not the Composer PSR-4 declaration for ${symbol.fqcn}.`);
+    const selectedText = 'name' in symbol ? symbol.name : symbol.text;
+    const selectedNameStart = symbol.end - declaration.name.length;
+    if (selectedNameStart < symbol.start || selectedText.slice(selectedText.length - declaration.name.length) !== declaration.name) {
+      if (this.options.unsupportedReturnsUndefined) return undefined;
+      throw new RenameError('Rename cannot start from an explicit type alias whose spelling will remain unchanged.');
+    }
     const target = this.options.versionForUri?.(document.uri);
-    if (symbol.kind === 'enum' && target && !isSyntaxAvailable(target, '8.1')) {
+    if (declaration.kind === 'enum' && target && !isSyntaxAvailable(target, '8.1')) {
       throw new RenameError(`Enums require PHP 8.1 or later (target: PHP ${target}).`);
     }
-    return { range: new vscode.Range(document.positionAt(symbol.start), document.positionAt(symbol.end)), placeholder: symbol.name };
+    return { range: new vscode.Range(document.positionAt(selectedNameStart), document.positionAt(symbol.end)), placeholder: declaration.name };
   }
 
-  async provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken): Promise<vscode.WorkspaceEdit> {
+  async provideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string, token: vscode.CancellationToken): Promise<vscode.WorkspaceEdit | undefined> {
     const started = performance.now();
     const initialVersion = document.version;
     const openVersions = new Map(vscode.workspace.textDocuments.map((item) => [item.uri.toString(), item.version]));
     const before = this.options.index.findSymbolAt(document.uri.toString(), document.offsetAt(position));
-    if (!before || !('name' in before)) throw new RenameError('PHP Companion 0.3 supports Rename only from a type declaration name.');
+    if (!before) {
+      if (this.options.unsupportedReturnsUndefined) return undefined;
+      throw new RenameError('PHP Companion cannot resolve a type at this location.');
+    }
     const fqcn = before.fqcn;
     if (!await this.options.ensureProjectIndex(document.uri, token) || token.isCancellationRequested) throw new RenameError('Rename was cancelled before any changes were made.');
     if (document.version !== initialVersion || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString()) && openVersions.get(item.uri.toString()) !== item.version)) {
       throw new RenameError('A PHP document changed while references were being indexed. Run Rename again.');
     }
-    const declaration = this.options.index.findDeclarations(fqcn).find((item) => item.uri === before.uri && item.start === before.start);
-    if (!declaration) throw new RenameError(`Declaration not found for ${fqcn}.`);
+    const declarations = canonicalDeclarations(this.options.index.findDeclarations(fqcn), fqcn, this.options.mappingsForUri(document.uri), 'name' in before ? before.uri : undefined);
+    if (declarations.length !== 1) throw new RenameError(t('duplicate', fqcn));
+    const declaration = declarations[0]!;
+    if ('name' in before && (declaration.uri !== before.uri || declaration.start !== before.start)) {
+      throw new RenameError(`The selected declaration is not the Composer PSR-4 declaration for ${fqcn}.`);
+    }
+    const selectedText = 'name' in before ? before.name : before.text;
+    if (selectedText.slice(selectedText.length - declaration.name.length) !== declaration.name) {
+      if (this.options.unsupportedReturnsUndefined) return undefined;
+      throw new RenameError('Rename cannot start from an explicit type alias whose spelling will remain unchanged.');
+    }
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     const edit = await buildRenameEdit(this.options.index, declaration, newName, {
       fileMode: configuredFileMode(configuration),

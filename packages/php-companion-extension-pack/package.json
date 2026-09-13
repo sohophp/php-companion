@@ -46,6 +46,9 @@
   },
   "contributes": {
     "configurationDefaults": {
+      "phpCompanion.languageServer.enabled": true,
+      "symfonyLsp.runtimeIndexing": false,
+      "symfonyLsp.releaseMetadata": false,
       "phpCompanion.indexing.mode": "onDemand",
       "phpCompanion.imports.onPaste": "prompt",
       "phpCompanion.experimental.refactoring": false,
@@ -58,13 +61,11 @@
   "extensionPack": [
     "sohophp.php-companion",
     "sohophp.twig-plus",
+    "symfony.language-tools",
+    "redhat.vscode-yaml",
     "xdebug.php-debug",
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
-    "pranaygp.vscode-css-peek",
-    "cweijan.vscode-database-client2",
-    "streetsidesoftware.code-spell-checker",
-    "shd101wyy.markdown-preview-enhanced",
     "EditorConfig.EditorConfig"
   ]
 }

@@ -1,0 +1,17 @@
+services:
+  _defaults:
+    autowire: true
+    public: false
+    bind:
+      'App\Contract\Mailer $bound': '@App\Service\Mailer'
+
+  App\:
+    resource: ../src/
+
+  App\Contract\Mailer:
+    alias: App\Service\Mailer
+
+  App\Contract\Traceable:
+    alias: App\Service\Mailer
+
+  'App\Contract\Mailer $audit': '@App\Service\Mailer'

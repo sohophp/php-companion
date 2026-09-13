@@ -5,15 +5,19 @@ import process from 'node:process';
 const watch = process.argv.includes('--watch');
 const production = process.argv.includes('--production');
 const options = {
-  entryPoints: ['src/extension/extension.ts'],
+  entryPoints: {
+    extension: 'src/extension/extension.ts',
+    'language-server': 'packages/language-server/src/server.ts',
+  },
   bundle: true,
-  outfile: 'dist/extension.js',
+  outdir: 'dist',
   external: ['vscode', 'web-tree-sitter'],
   format: 'cjs',
   platform: 'node',
   target: 'node20',
   sourcemap: !production,
   minify: production,
+  define: { 'import.meta.url': '__filename' },
   logLevel: 'info',
 };
 

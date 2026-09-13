@@ -1,4 +1,4 @@
 {
   "displayName": "PHP Companion Recommended Pack",
-  "description": "The recommended PHP profile with Intelephense and focused project, Twig, debug, test, formatting, and database tools."
+  "description": "The complete open-source PHP profile with PHP Companion, Twig, Symfony, YAML, debug, test, formatting, and EditorConfig tools."
 }

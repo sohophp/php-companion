@@ -1,0 +1,7 @@
+# @php-companion/framework-symfony
+
+Symfony 的静态框架事实组件。它从 PHP Controller 的 `$this->render('literal.html.twig', [...])` 提取模板变量、序列化 PHP 类型和 Controller 来源；也用 YAML 2 解析器读取标准或 legacy services.yaml 的显式 class、alias、public、autowire 与源码范围，并针对调用方提供的已索引 PHP class 展开确定性的目录/末尾星号 resource 和花括号 exclude。组件识别 `#[Autowire(service: '...')]` 字面量位置，为公开服务生成 PSR/Symfony Container 字面量 `get()` 返回事实，并解析已注册、启用 autowire 的服务构造参数与公开 `#[Required]` 方法参数、具名对象类型属性。选择顺序覆盖字面量 `#[Target]` 具名别名、匹配类型/参数名的 `_defaults.bind`/服务 bind/arguments、参数名具名别名、同名 service/alias，以及 resource 中唯一可赋值实现；绑定到非服务值时明确抑制。可完整解析的扁平对象 Union/Intersection 会按 Symfony 的类型排序和组合别名规则处理，只有组合别名存在，或每个成员都落到同一服务时才返回结果。PHP 8.2 DNF 只接受规范化完整 service/具名 alias，并验证实现满足至少一个完整交集分支；不做叶子级回退。Required 方法属性可沿已证明的非私有原型链继承；Required 成员位于抽象基类时，只有已注册具体子类都收敛到同一结果才返回；显式或无法静态解析的 YAML `calls`/`properties` 会抑制对应成员。
+
+组件还可把 Symfony `debug:container --show-hidden --format=xml` 一类开发调试容器 XML 当作只读数据，提取 bundle/编译器生成服务、别名、公开服务、`container.service_locator_context` 对应的可定位公开方法参数、直接构造参数和 `<call method>` 中的服务引用及参数位置，以及带 owner/property 名的直接 `<property>` 服务引用。调用方负责确认缓存新鲜度；解析器拒绝 DOCTYPE，不读取标量参数值，也不启动 Symfony Kernel、执行 Composer autoloader 或项目 PHP。errored 服务引用、嵌套集合、无法解析到 service class 的目标、factory、参数化 YAML class、复杂 glob、动态 Target/bind、非公开或复合类型 Required 属性，以及不能映射到明确 callable 和参数名的 locator 保持未知。
+
+当前只接受字面量模板名和字面量关联数组。参数、`$this`、`new` 与标量/null/数组字面量可确定类型；动态模板或动态 context 不猜测。多个 Controller 的同模板结果由 interop 合并器保留来源与 Union。

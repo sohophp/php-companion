@@ -1,0 +1,15 @@
+{
+  "name": "@php-companion/semantic-provider-host",
+  "version": "0.1.0-alpha.1",
+  "description": "Isolated process host for explicitly configured PHP Companion semantic providers.",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/semantic-provider-host" },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "scripts": { "build": "tsc -p tsconfig.json", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "vitest run" },
+  "dependencies": { "@php-companion/semantic-provider": "workspace:^" },
+  "devDependencies": { "@types/node": "^22.15.0", "typescript": "^5.9.3", "vitest": "^4.1.10" },
+  "publishConfig": { "access": "public" },
+  "engines": { "node": ">=20" }
+}

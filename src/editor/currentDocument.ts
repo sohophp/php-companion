@@ -34,7 +34,7 @@ export class CurrentDocumentDiagnostics implements vscode.Disposable {
   private readonly collection = vscode.languages.createDiagnosticCollection('phpCompanion');
   private readonly disposables: vscode.Disposable[];
 
-  constructor(private readonly versions: VersionManager) {
+  constructor(private readonly versions: VersionManager, private readonly languageServerEnabled = false) {
     this.disposables = [
       this.collection,
       vscode.workspace.onDidOpenTextDocument((document) => void this.update(document)),
@@ -50,7 +50,7 @@ export class CurrentDocumentDiagnostics implements vscode.Disposable {
     const identity = identityFromSource(document.getText());
     const diagnostics: vscode.Diagnostic[] = [];
     const match = NAMESPACE.exec(document.getText());
-    if (expectedNamespace !== undefined && identity.namespace !== expectedNamespace) {
+    if (!this.languageServerEnabled && expectedNamespace !== undefined && identity.namespace !== expectedNamespace) {
       const range = match ? new vscode.Range(document.positionAt(match.index), document.positionAt(match.index + match[0].length)) : new vscode.Range(0, 0, 0, 0);
       const diagnostic = new vscode.Diagnostic(range, `Namespace should be ${expectedNamespace || '(global)'} for this PSR-4 path.`, vscode.DiagnosticSeverity.Warning);
       diagnostic.source = 'phpCompanion';
@@ -58,7 +58,7 @@ export class CurrentDocumentDiagnostics implements vscode.Disposable {
       diagnostics.push(diagnostic);
     }
     const expectedName = basename(document.uri.fsPath, '.php');
-    if (identity.name && identity.name !== expectedName) {
+    if (!this.languageServerEnabled && identity.name && identity.name !== expectedName) {
       const offset = document.getText().indexOf(identity.name);
       const diagnostic = new vscode.Diagnostic(new vscode.Range(document.positionAt(offset), document.positionAt(offset + identity.name.length)), `Primary type name should match ${expectedName}.php.`, vscode.DiagnosticSeverity.Warning);
       diagnostic.source = 'phpCompanion';

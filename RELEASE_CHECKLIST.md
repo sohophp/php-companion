@@ -8,10 +8,12 @@
 - [x] `pnpm test`
 - [x] PHP 7.2–8.5 integration matrix passes
 - [x] `pnpm test:extension`
-- [x] `pnpm test:extension:intelephense`
+- [x] `pnpm test:extension:packaged`
+- [x] `pnpm test:extension:open-source-profile`（VS Code 1.136.1 / WSL 组合报告；其他发布平台仍须各自验证）
+- [x] `pnpm test:extension:intelephense`（仅验证手动启用的旧工作流兼容性）
 - [x] `pnpm package:all && pnpm verify:vsix`
 - [ ] 在扩展侧栏的浅色和深色主题中检查三个图标，确认 16px、32px 和详情页尺寸下清晰且易区分。
-- [x] Linux、Windows、macOS CI 全部通过
+- [ ] 当前候选的 Linux、Windows、macOS CI 全部通过；三系统 quality、组件 tarball、编辑恢复基准和打包 Extension Host 已配置，等待当前工作树进入 CI 后记录运行链接与产物。
 
 ## Clean-profile smoke tests
 
@@ -27,7 +29,7 @@ code --user-data-dir /tmp/php-companion-user \
   --install-extension packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
 ```
 
-为 Recommended Pack 使用另一组空目录，并安装 `packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.5.vsix`。确认主扩展仅在 PHP/Composer 工作区或命令触发时激活，激活时不扫描工作区；Open Source Pack 安装十个精简工具，Recommended Pack 只额外安装 Intelephense。
+为 Recommended Pack 使用另一组空目录，并安装 `packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.5.vsix`。确认主扩展仅在 PHP/Composer 工作区或命令触发时激活，激活时不扫描工作区；两个 Pack 均安装八项核心开源工具（含 YAML 与 Symfony Language Tools）、默认启用 PHP Companion 自研服务器，并且不安装 Intelephense 或其他通用 PHP Language Server。Recommended Pack 保留既有扩展 ID 供升级兼容。
 
 ## Marketplace release
 

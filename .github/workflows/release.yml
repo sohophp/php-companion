@@ -29,8 +29,16 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm verify:packages
+      - run: node scripts/benchmark-editing.mjs 1000 100 > editing-resilience-Linux-X64.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
+      - run: pnpm test:extension:packaged
+      - uses: actions/upload-artifact@v7
+        with:
+          name: editing-resilience-Linux-X64
+          if-no-files-found: error
+          path: editing-resilience-Linux-X64.json
       - uses: actions/upload-artifact@v7
         with:
           name: php-companion-vsix

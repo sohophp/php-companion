@@ -52,21 +52,28 @@
     "SECURITY.md"
   ],
   "scripts": {
-    "build": "node esbuild.mjs --production",
+    "build:packages": "pnpm --filter @php-companion/language-spec build && pnpm --filter @php-companion/phpdoc build && pnpm --filter @php-companion/parser build && pnpm --filter @php-companion/project build && pnpm --filter @php-companion/index build && pnpm --filter @php-companion/type-system build && pnpm --filter @php-companion/interop build && pnpm --filter @php-companion/semantic-provider build && pnpm --filter @php-companion/semantic-provider-host build && pnpm --filter @php-companion/framework-symfony build && pnpm --filter @php-companion/framework-doctrine build && pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/refactor build && pnpm --filter @php-companion/language-server build && pnpm --filter @php-companion/testkit build",
+    "build": "pnpm build:packages && node esbuild.mjs --production",
     "watch": "node esbuild.mjs --watch",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src test scripts esbuild.mjs vitest.config.ts vitest.integration.config.ts",
-    "test": "vitest run",
+    "typecheck": "pnpm build:packages && tsc --noEmit",
+    "lint": "eslint src test packages/*/src packages/*/test scripts esbuild.mjs vitest.config.ts vitest.integration.config.ts",
+    "test:packages": "pnpm build:packages && pnpm --filter @php-companion/language-spec test && pnpm --filter @php-companion/phpdoc test && pnpm --filter @php-companion/parser test && pnpm --filter @php-companion/project test && pnpm --filter @php-companion/index test && pnpm --filter @php-companion/type-system test && pnpm --filter @php-companion/interop test && pnpm --filter @php-companion/semantic-provider test && pnpm --filter @php-companion/semantic-provider-host test && pnpm --filter @php-companion/framework-symfony test && pnpm --filter @php-companion/framework-doctrine test && pnpm --filter @php-companion/semantic test && pnpm --filter @php-companion/refactor test && pnpm --filter @php-companion/language-server test && pnpm --filter @php-companion/testkit test",
+    "test": "pnpm test:packages && vitest run",
     "test:integration:php": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest",
-    "test:extension": "pnpm build && xvfb-run -a node ./dist-test/runTest.js",
+    "test:extension": "pnpm build && node scripts/run-extension-test.mjs ./dist-test/runTest.js",
     "test:extension:intelephense": "PHP_COMPANION_TEST_WITH_INTELEPHENSE=1 pnpm test:extension",
+    "test:extension:packaged": "pnpm package && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
+    "test:extension:open-source-profile": "pnpm package && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
     "pretest:extension": "tsc -p test/extension/tsconfig.json",
     "package": "pnpm build && vsce package --no-dependencies",
     "package:open-source-pack": "pnpm --dir packages/php-companion-extension-pack package",
     "package:recommended-pack": "pnpm --dir packages/php-companion-recommended-pack package",
     "package:all": "pnpm package && pnpm package:open-source-pack && pnpm package:recommended-pack",
     "verify:vsix": "node scripts/verify-vsix.mjs",
+    "verify:packages": "pnpm build:packages && node scripts/verify-package-tarballs.mjs",
+    "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
+    "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
   },
   "contributes": {
@@ -90,9 +97,9 @@
       { "command": "phpCompanion.copy.namespace", "title": "Copy Namespace", "category": "PHP Companion" },
       { "command": "phpCompanion.copy.classReference", "title": "Copy Class Reference", "category": "PHP Companion" },
       { "command": "phpCompanion.copy.relativePath", "title": "Copy Relative File Path", "category": "PHP Companion" },
-      { "command": "phpCompanion.goToDefinition", "title": "Go to Definition", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" },
-      { "command": "phpCompanion.goToImplementation", "title": "Go to Implementation", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" },
-      { "command": "phpCompanion.findReferences", "title": "Find References", "category": "PHP Companion", "enablement": "phpCompanion.hasIntelephense" }
+      { "command": "phpCompanion.goToDefinition", "title": "Go to Definition", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" },
+      { "command": "phpCompanion.goToImplementation", "title": "Go to Implementation", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" },
+      { "command": "phpCompanion.findReferences", "title": "Find References", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" }
     ],
     "menus": {
       "explorer/context": [
@@ -115,6 +122,10 @@
       "properties": {
         "phpCompanion.phpVersion": { "type": "string", "scope": "resource", "enum": ["auto", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"], "default": "auto", "description": "Target PHP version." },
         "phpCompanion.phpExecutablePath": { "type": ["string", "null"], "scope": "resource", "default": null, "description": "Optional PHP executable used for version detection." },
+        "phpCompanion.languageServer.enabled": { "type": "boolean", "scope": "window", "default": true, "description": "Enable the self-hosted PHP language server with precise diagnostics, type-aware completion, hover, signatures, navigation, references and safe refactoring. When this setting has no explicit value, PHP Companion stays disabled if Intelephense is installed." },
+        "phpCompanion.semanticProviders": { "type": "array", "scope": "window", "default": [], "description": "Trusted semantic provider executables to run in isolated one-shot processes. Providers are never discovered from project files; process isolation limits failures but is not a security sandbox.", "items": { "type": "object", "additionalProperties": false, "required": ["providerId", "command"], "properties": { "providerId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" }, "command": { "type": "string", "minLength": 1 }, "args": { "type": "array", "maxItems": 64, "items": { "type": "string" } }, "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 }, "maxOutputBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "default": 4194304 } } } },
+        "phpCompanion.diagnostics.disabledCodes": { "type": "array", "scope": "window", "items": { "type": "string" }, "uniqueItems": true, "default": [], "description": "Diagnostic codes that the self-hosted PHP language server must not publish. Configuration changes apply to open PHP documents immediately." },
+        "phpCompanion.diagnostics.severity": { "type": "object", "scope": "window", "additionalProperties": { "type": "string", "enum": ["error", "warning", "information", "hint", "off"] }, "default": {}, "description": "Severity overrides keyed by stable diagnostic code. Use off to suppress a code." },
         "phpCompanion.composer.includeDevAutoload": { "type": "boolean", "scope": "resource", "default": true, "description": "Include Composer autoload-dev mappings." },
         "phpCompanion.files.exclude": { "type": "array", "scope": "resource", "items": { "type": "string" }, "default": ["**/vendor/**", "**/.git/**", "**/node_modules/**", "**/var/cache/**", "**/storage/framework/**"] },
         "phpCompanion.indexing.mode": { "type": "string", "scope": "resource", "enum": ["off", "onDemand", "experimental"], "default": "onDemand", "description": "Controls project indexing. Indexing is never performed during activation." },
@@ -128,6 +139,7 @@
         "phpCompanion.generation.strictTypes": { "type": "boolean", "scope": "resource", "default": true },
         "phpCompanion.experimental.refactoring": { "type": "boolean", "scope": "resource", "default": false, "description": "Enable experimental project-wide indexing and refactoring." },
         "phpCompanion.move.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "Update namespaces and semantic references when PHP files are moved within Composer PSR-4 paths." },
+        "phpCompanion.move.preview": { "type": "boolean", "scope": "resource", "default": true, "description": "Preview namespace and proven reference changes before the Safe Move command applies one undoable workspace edit." },
         "phpCompanion.rename.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "Provide stable F2 Rename for PHP class-like declarations. Disable this when another PHP extension should own Rename." },
         "phpCompanion.rename.file": { "type": "string", "scope": "resource", "enum": ["off", "preview", "always"], "default": "preview", "description": "Controls renaming a matching PSR-4 PHP file. Use Shift+Enter in the Rename input to inspect the ordered file and text edits in VS Code's standard preview." },
         "phpCompanion.rename.phpDoc": { "type": "boolean", "scope": "resource", "default": true, "description": "Update semantic PHPDoc type references during Rename." },
@@ -137,10 +149,17 @@
   },
   "extensionDependencies": [],
   "extensionPack": [],
+  "dependencies": {
+    "@php-companion/parser": "workspace:*",
+    "@php-companion/project": "workspace:*",
+    "@php-companion/refactor": "workspace:*",
+    "@php-companion/language-spec": "workspace:*",
+    "vscode-languageclient": "^9.0.1"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@changesets/cli": "^2.29.7",
     "@types/node": "^22.15.0",
-    "@types/semver": "^7.7.1",
     "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
@@ -154,7 +173,6 @@
     "vitest": "^4.1.10",
     "yauzl": "^3.2.0",
     "minimatch": "^10.2.5",
-    "semver": "^7.8.5",
     "tree-sitter-php": "^0.24.2",
     "web-tree-sitter": "^0.26.11"
   },

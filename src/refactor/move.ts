@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import * as vscode from 'vscode';
+import { createEditPlan, type EditPlan, type PlannedTextEdit } from '@php-companion/refactor';
 import { resolvePsr4Class, resolvePsr4Namespace, type Psr4Mapping } from '../composer/project.js';
 import type { IndexedDeclaration, IndexedFile } from '../index/types.js';
 import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
@@ -31,7 +32,7 @@ function isDirty(uri: string): boolean {
 }
 
 function addReferenceEdits(
-  edit: vscode.WorkspaceEdit,
+  edits: Array<Omit<PlannedTextEdit, 'expectedVersion' | 'expectedLength' | 'expectedTextHash'>>,
   file: IndexedFile,
   oldFqcn: string,
   newFqcn: string,
@@ -43,16 +44,16 @@ function addReferenceEdits(
   const importsOldClass = file.imports.some((item) => item.kind === 'class' && item.fqcn.toLowerCase() === oldFqcn.toLowerCase());
   if (updateImports) {
     for (const item of file.imports.filter((candidate) => candidate.kind === 'class' && candidate.fqcn.toLowerCase() === oldFqcn.toLowerCase())) {
-      edit.replace(uri, range(file.source, item.pathStart, item.pathEnd), newFqcn);
+      edits.push({ uri: uri.toString(), start: item.pathStart, end: item.pathEnd, newText: newFqcn });
     }
   }
   for (const reference of file.references.filter((candidate) => candidate.fqcn.toLowerCase() === oldFqcn.toLowerCase())) {
     if (importsOldClass) continue;
     if (reference.text.includes('\\')) {
       const leadingSlash = reference.text.startsWith('\\') ? '\\' : '';
-      edit.replace(uri, range(file.source, reference.start, reference.end), `${leadingSlash}${newFqcn}`);
+      edits.push({ uri: uri.toString(), start: reference.start, end: reference.end, newText: `${leadingSlash}${newFqcn}` });
     } else if (file.uri !== movedUri && file.namespace.toLowerCase() === oldFqcn.slice(0, oldFqcn.lastIndexOf('\\')).toLowerCase()) {
-      edit.replace(uri, range(file.source, reference.start, reference.end), `\\${newFqcn}`);
+      edits.push({ uri: uri.toString(), start: reference.start, end: reference.end, newText: `\\${newFqcn}` });
     }
   }
 }
@@ -91,13 +92,23 @@ export function describeMoveReconciliation(
   });
 }
 
-function removableImportRange(file: IndexedFile, statementStart: number, statementEnd: number): vscode.Range | undefined {
+function removableImportRange(file: IndexedFile, statementStart: number, statementEnd: number): { start: number; end: number } | undefined {
   if (file.imports.filter((item) => item.statementStart === statementStart).length !== 1) return undefined;
   let end = statementEnd;
   while (end < file.source.length && (file.source[end] === ' ' || file.source[end] === '\t')) end += 1;
   if (file.source[end] === '\r') end += 1;
   if (file.source[end] === '\n') end += 1;
-  return range(file.source, statementStart, end);
+  return { start: statementStart, end };
+}
+
+function workspaceEditFromPlan(plan: EditPlan, sources: ReadonlyMap<string, string>): vscode.WorkspaceEdit {
+  const edit = new vscode.WorkspaceEdit();
+  for (const planned of plan.textEdits) {
+    const source = sources.get(planned.uri);
+    if (source === undefined) throw new MoveError(`Missing source snapshot for ${planned.uri}.`);
+    edit.replace(vscode.Uri.parse(planned.uri), range(source, planned.start, planned.end), planned.newText);
+  }
+  return edit;
 }
 
 /** Reconciles against post-move source, after all other file-operation participants. */
@@ -105,14 +116,15 @@ export function buildMoveReconciliationEdits(
   index: WorkspaceSymbolIndex,
   moves: readonly MoveReconciliation[],
 ): vscode.WorkspaceEdit {
-  const edit = new vscode.WorkspaceEdit();
+  const plannedEdits: Array<Omit<PlannedTextEdit, 'expectedVersion' | 'expectedLength' | 'expectedTextHash'>> = [];
+  const sources = new Map(index.getFiles().map((file) => [file.uri, file.source]));
   for (const move of moves) {
     const file = index.getFile(move.newUri.toString());
     if (!file || file.errors.length) throw new MoveError(`Cannot reconcile ${move.newUri.fsPath}: the moved file is missing or has syntax errors.`);
     if (file.namespace !== move.newNamespace) {
       const currentNamespace = namespaceRange(file.source);
       if (!currentNamespace) throw new MoveError(`Cannot reconcile ${move.newUri.fsPath}: global-namespace files are not supported yet.`);
-      edit.replace(move.newUri, range(file.source, currentNamespace.start, currentNamespace.end), move.newNamespace);
+      plannedEdits.push({ uri: move.newUri.toString(), start: currentNamespace.start, end: currentNamespace.end, newText: move.newNamespace });
     }
   }
 
@@ -128,21 +140,22 @@ export function buildMoveReconciliationEdits(
         for (const item of matching) {
           if (item === keptNew) continue;
           if (!keptNew && item.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) {
-            edit.replace(uri, range(file.source, item.pathStart, item.pathEnd), replacement.newFqcn);
+            plannedEdits.push({ uri: uri.toString(), start: item.pathStart, end: item.pathEnd, newText: replacement.newFqcn });
             keptNew = item;
             continue;
           }
           const removal = removableImportRange(file, item.statementStart, item.statementEnd);
-          if (removal) edit.delete(uri, removal);
+          if (removal) plannedEdits.push({ uri: uri.toString(), start: removal.start, end: removal.end, newText: '' });
           else if (item.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) {
-            edit.replace(uri, range(file.source, item.pathStart, item.pathEnd), replacement.newFqcn);
+            plannedEdits.push({ uri: uri.toString(), start: item.pathStart, end: item.pathEnd, newText: replacement.newFqcn });
           }
         }
-        addReferenceEdits(edit, file, replacement.oldFqcn, replacement.newFqcn, move.newUri.toString(), new Map(), false);
+        addReferenceEdits(plannedEdits, file, replacement.oldFqcn, replacement.newFqcn, move.newUri.toString(), new Map(), false);
       }
     }
   }
-  return edit;
+  const snapshots = [...sources].map(([uri, source]) => ({ uri, version: null as null, length: source.length }));
+  return workspaceEditFromPlan(createEditPlan('Reconcile moved PHP files', snapshots, plannedEdits), sources);
 }
 
 /**
@@ -200,14 +213,19 @@ export async function buildMoveEdits(
     }
   }
 
-  const edit = new vscode.WorkspaceEdit();
+  const plannedEdits: Array<Omit<PlannedTextEdit, 'expectedVersion' | 'expectedLength' | 'expectedTextHash'>> = [];
+  const sources = new Map<string, string>();
+  for (const file of index.getFiles()) {
+    const targetUri = renamedUris.get(file.uri)?.toString() ?? file.uri;
+    sources.set(targetUri, file.source);
+  }
   for (const plan of plans) {
     const targetUri = renamedUris.get(plan.indexed.uri) ?? vscode.Uri.parse(plan.indexed.uri);
-    edit.replace(targetUri, range(plan.indexed.source, plan.namespaceRange.start, plan.namespaceRange.end), plan.newNamespace);
+    plannedEdits.push({ uri: targetUri.toString(), start: plan.namespaceRange.start, end: plan.namespaceRange.end, newText: plan.newNamespace });
     for (const { declaration, newFqcn } of plan.declarations) {
       for (const file of index.getFiles()) {
         addReferenceEdits(
-          edit,
+          plannedEdits,
           file,
           declaration.fqcn,
           newFqcn,
@@ -217,5 +235,6 @@ export async function buildMoveEdits(
       }
     }
   }
-  return edit;
+  const snapshots = [...sources].map(([uri, source]) => ({ uri, version: null as null, length: source.length }));
+  return workspaceEditFromPlan(createEditPlan('Update namespaces and references for moved PHP files', snapshots, plannedEdits), sources);
 }

@@ -1,8 +1,7 @@
-export const SUPPORTED_PHP_VERSIONS = [
-  '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5',
-] as const;
+import { SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 
-export type PhpVersion = (typeof SUPPORTED_PHP_VERSIONS)[number];
+export { SUPPORTED_PHP_VERSIONS };
+export type PhpVersion = SupportedPhpVersion;
 export type PhpVersionSetting = PhpVersion | 'auto';
 
 export interface PhpExecutable {
