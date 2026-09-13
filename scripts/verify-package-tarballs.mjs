@@ -103,10 +103,8 @@ const doctrineFacts = analyzeDoctrineDocument(doctrineParser, 'file:///Entity.ph
 doctrineParser.dispose();
 if (doctrineFacts.entities[0]?.fqcn !== 'Entity') throw new Error('Doctrine framework tarball returned no entity fact.');
 
-const executable = fileURLToPath(process.platform === 'win32'
-  ? new URL('./node_modules/.bin/php-companion-language-server.cmd', import.meta.url)
-  : new URL('./node_modules/.bin/php-companion-language-server', import.meta.url));
-const child = spawn(executable, ['--stdio'], { stdio: ['pipe', 'pipe', 'pipe'] });
+const serverEntry = fileURLToPath(new URL('./node_modules/@php-companion/language-server/dist/server.js', import.meta.url));
+const child = spawn(process.execPath, [serverEntry, '--stdio'], { stdio: ['pipe', 'pipe', 'pipe'] });
 const decoder = new LspMessageDecoder(); const pending = new Map(); let nextId = 1;
 child.stdout.on('data', (chunk) => {
   for (const message of decoder.push(chunk)) {
