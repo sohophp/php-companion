@@ -166,7 +166,17 @@ function sameFilesystemPath(left: string | undefined, right: string): boolean {
 function indexedUriForPath(root: string, path: string): string {
   const location = workspaceFolderLocations.filter((candidate) => pathWithin(candidate.path, root))
     .sort((left, right) => right.path.length - left.path.length)[0];
-  if (!location || location.uri.startsWith('file:')) return pathToFileURL(path).toString();
+  if (!location) return pathToFileURL(path).toString();
+  if (location.uri.startsWith('file:')) {
+    const uri = pathToFileURL(path);
+    if (process.platform === 'win32') {
+      const rootUri = new URL(location.uri);
+      if (/^\/[A-Za-z]:/.test(rootUri.pathname) && /^\/[A-Za-z]:/.test(uri.pathname)) {
+        uri.pathname = `${rootUri.pathname.slice(0, 3)}${uri.pathname.slice(3)}`;
+      }
+    }
+    return uri.toString();
+  }
   const uri = new URL(location.uri); uri.pathname = path.split(sep).join('/'); uri.search = ''; uri.hash = '';
   return uri.toString();
 }
