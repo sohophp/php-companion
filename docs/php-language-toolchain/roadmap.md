@@ -30,7 +30,7 @@
 - [ ] 函数/方法/属性/常量/参数/变量、namespace、全部 use 类别及作用域。
 - [ ] 继承、接口、Trait alias/insteadof、匿名类、闭包、箭头函数、枚举和 Attribute。
 - [ ] 混合 PHP/HTML 区域、错误恢复、增量 Tree 编辑与无损编辑范围。
-- [ ] PHP 8.4/8.5 新语法逐项审计，旧版本语法边界按矩阵验证；7.3–8.5 每个次版本已有自动边界样例，PHP 8.0 `mixed`/`static` 返回类型与 PHP 8.2 `true`/独立 `false`/独立 `null` 已补齐；8.4 property hooks 的 backed/virtual、hook 作用域、读写能力、setter 类型、非对称写可见性、抽象/接口契约、读协变/写逆变、独立 hook 继承、final 属性/final hook，以及由 `&get` 控制的数组下标修改、直接引用、唯一按引用调用和属性/对象引用遍历已进入语义，动态或歧义引用目标保持 unknown；8.5 pipe 的可证明单参数 callable 链、clone-with 的简单可验证属性更新、final 提升属性、静态属性非对称可见性，以及常量表达式 Closure/first-class callable 的版本、约束和 Closure 类型语义已完成，其余项目继续逐项补齐。
+- [ ] PHP 8.4/8.5 新语法逐项审计，旧版本语法边界按矩阵验证；7.3–8.5 每个次版本已有自动边界样例，PHP 8.0 `mixed`/`static` 返回类型与 PHP 8.2 `true`/独立 `false`/独立 `null` 已补齐；8.4 property hooks 的 backed/virtual、hook 作用域、读写能力、setter 类型、非对称写可见性、抽象/接口契约、读协变/写逆变、独立 hook 继承、final 属性/final hook，以及由 `&get` 控制的数组下标修改、直接引用、唯一按引用调用和属性/对象引用遍历已进入语义，动态或歧义引用目标保持 unknown；8.5 pipe 的可证明单参数 callable 链、clone-with 的简单可验证属性更新、final 提升属性、静态属性非对称可见性、常量表达式 Closure/first-class callable，以及属性 `#[Override]` 的版本与完整层级契约已完成，其余项目继续逐项补齐。
 - [ ] 独立 PHPDoc AST，区分类型表达式、参数名和普通说明文本。
 
 产物：稳定 parser/phpdoc API 和语法版本报告。退出条件：局部错误不污染整文件，未完成成员/调用表达式仍可查询上下文；各目标版本的支持项与拒绝项有证据。

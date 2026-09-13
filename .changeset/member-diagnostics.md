@@ -120,6 +120,8 @@ Model PHP 8.5 final promoted properties through inheritance, enforce static-prop
 
 Accept PHP 8.5 static Closures and direct function/static-method first-class callables in constant expressions, reject the four forbidden callable shapes, and type first-class callable acquisition as Closure without treating it as a zero-argument invocation.
 
+Validate PHP 8.5 `#[Override]` property attributes across classes, interfaces, promoted properties, anonymous classes, and Trait composition, with exact PHP 8.4 target rejection and private-parent handling.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.

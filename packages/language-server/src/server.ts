@@ -681,6 +681,25 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       source: 'PHP Companion',
       message: `Cannot apply #[AllowDynamicProperties] to ${item.readonlyClass ? 'readonly class' : item.kind} ${item.typeFqcn}.`,
     })));
+    const overrideProperties = workspace.overridePropertyAttributes(document.uri);
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')
+      && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) < SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
+      result.diagnostics.push(...overrideProperties.filter((item) => !item.composedFromTrait).map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.version.unsupported',
+        source: 'PHP Companion',
+        message: `#[Override] on property ${item.property} requires PHP 8.5 or newer; the target is PHP ${targetPhpVersion}.`,
+      })));
+    } else if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
+      result.diagnostics.push(...overrideProperties.filter((item) => !item.declaredInTrait && !item.matchingParentProperty).map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.attribute.invalid-override-property',
+        source: 'PHP Companion',
+        message: `${item.property} has #[Override], but no matching non-private parent property exists.`,
+      })));
+    }
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1')) result.diagnostics.push(...workspace.invalidEnumInterfaces(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,

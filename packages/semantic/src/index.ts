@@ -138,6 +138,12 @@ export interface NullableMemberAccess extends SemanticLocation { name: string; o
 export interface DynamicPropertyCreation extends SemanticLocation { name: string; ownerFqcn: string; }
 export interface DynamicPropertyDeclaration { uri: string; name: string; ownerFqcn: string; insertOffset: number; type: string; }
 export interface InvalidAllowDynamicProperties extends SemanticLocation { typeFqcn: string; kind: ParsedDeclaration['kind']; readonlyClass: boolean; }
+export interface OverridePropertyAttribute extends SemanticLocation {
+  property: string;
+  declaredInTrait: boolean;
+  composedFromTrait: boolean;
+  matchingParentProperty?: string;
+}
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
@@ -1386,6 +1392,72 @@ export class SemanticWorkspace {
       if (attribute?.toLowerCase() !== 'allowdynamicproperties') return [];
       return [{ uri, start: reference.start, end: reference.end, typeFqcn: owner.fqcn, kind: owner.kind, readonlyClass: owner.readonlyClass }];
     });
+  }
+
+  overridePropertyAttributes(uri: string): OverridePropertyAttribute[] {
+    const file = this.files.get(uri); if (!file) return [];
+    const attributeFor = (candidateFile: SemanticFile, property: ParsedPropertyDeclaration): ParsedTypeReference | undefined => {
+      const namespace = property.containerFqcn.split('\\').slice(0, -1).join('\\');
+      return candidateFile.typeReferences.find((reference) => reference.context === 'attribute'
+        && reference.start >= property.declarationStart && reference.end <= property.declarationEnd
+        && this.resolveSourceType(candidateFile, candidateFile.source.slice(reference.start, reference.end), namespace, property.containerFqcn)?.toLowerCase() === 'override');
+    };
+    const inheritedProperties = (candidateFile: SemanticFile, declaration: ParsedDeclaration): MemberInfo[] | undefined => {
+      if (!this.hasCompleteHierarchy(declaration.fqcn)) return undefined;
+      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      const parents = [...declaration.extendsNames, ...declaration.implementsNames]
+        .map((name) => this.resolveSourceType(candidateFile, name, namespace, declaration.fqcn));
+      if (parents.some((parent) => !parent || !this.fileAndDeclaration(parent))) return undefined;
+      return parents.flatMap((parent) => this.members(parent!, declaration.fqcn, new Set(), true))
+        .filter((member) => member.kind === 'property' && member.visibility !== 'private');
+    };
+    const attributedTraitProperties = (traitFqcn: string, visited = new Set<string>()): Array<{
+      file: SemanticFile;
+      property: ParsedPropertyDeclaration;
+    }> => {
+      const key = traitFqcn.toLowerCase();
+      if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return [];
+      visited.add(key);
+      const owner = this.fileAndDeclaration(traitFqcn);
+      if (!owner || owner.declaration.kind !== 'trait') return [];
+      const own = owner.file.properties.filter((property) => property.containerFqcn.toLowerCase() === key && attributeFor(owner.file, property))
+        .map((property) => ({ file: owner.file, property }));
+      const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      const nested = owner.declaration.traitNames.flatMap((name) => {
+        const resolved = this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn);
+        return resolved ? attributedTraitProperties(resolved, new Set(visited)) : [];
+      });
+      return [...own, ...nested];
+    };
+    const results: OverridePropertyAttribute[] = [];
+    for (const declaration of file.declarations) {
+      const ownProperties = file.properties.filter((property) => property.containerFqcn.toLowerCase() === declaration.fqcn.toLowerCase());
+      const inherited = declaration.kind === 'trait' ? [] : inheritedProperties(file, declaration);
+      for (const property of ownProperties) {
+        const attribute = attributeFor(file, property); if (!attribute) continue;
+        if (declaration.kind !== 'trait' && inherited === undefined) continue;
+        const matching = inherited?.find((member) => member.name === property.name);
+        results.push({ uri, start: attribute.start, end: attribute.end, property: property.fqcn,
+          declaredInTrait: declaration.kind === 'trait', composedFromTrait: false, matchingParentProperty: matching?.fqcn });
+      }
+      if (declaration.kind !== 'class' || inherited === undefined) continue;
+      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      const traitReferences = file.typeReferences.filter((reference) => reference.context === 'trait'
+        && reference.start >= declaration.declarationStart && reference.end <= declaration.declarationEnd);
+      for (const reference of traitReferences) {
+        const traitFqcn = this.resolveSourceType(file, file.source.slice(reference.start, reference.end), namespace, declaration.fqcn);
+        if (!traitFqcn) continue;
+        for (const item of attributedTraitProperties(traitFqcn)) {
+          const matching = inherited.find((member) => member.name === item.property.name);
+          results.push({ uri, start: reference.start, end: reference.end, property: `${declaration.fqcn}::$${item.property.name}`,
+            declaredInTrait: false, composedFromTrait: true, matchingParentProperty: matching?.fqcn });
+        }
+      }
+    }
+    return [...new Map(results.map((item) => [
+      `${item.start}:${item.end}:${item.property}:${item.declaredInTrait}:${item.composedFromTrait}`,
+      item,
+    ])).values()];
   }
 
   invalidEnumInterfaces(uri: string): InvalidEnumInterface[] {

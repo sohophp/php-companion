@@ -607,6 +607,60 @@ describe('conservative semantic workspace', () => {
     workspace.remove('file:///IncompleteAllowDynamicProperties.php');
     workspace.remove('file:///AllowDynamicProperties.php');
   });
+  it('validates PHP 8.5 Override attributes on direct, promoted, interface, anonymous, and trait properties', () => {
+    const definitions = `<?php namespace OverrideProperties;
+      class Base { protected string $name; private int $secret; protected static int $count; }
+      interface Contract { public string $label { get; } }
+      trait MissingTrait { #[\\Override] public int $missingFromTrait; }
+      trait MatchingTrait { #[\\Override] protected string $name; }
+      trait NestedTrait { use MissingTrait; }
+    `;
+    workspace.update('file:///OverridePropertyDefinitions.php', definitions);
+    const source = `<?php namespace OverrideProperties;
+      use \\Override as BuiltinOverride;
+      class Valid extends Base implements Contract {
+        #[\\Override] protected string $name;
+        #[BuiltinOverride] protected static int $count;
+        #[\\Override] public string $label { get; }
+      }
+      class Promoted extends Base { public function __construct(#[\\Override] protected string $name) {} }
+      interface ChildContract extends Contract { #[\\Override] public string $label { get; } }
+      class Missing extends Base {
+        #[\\Override] public int $absent;
+        #[\\Override] private int $secret;
+        #[Override] public int $customAttribute;
+      }
+      trait Standalone { #[\\Override] public int $standalone; }
+      class TraitMissing extends Base { use MissingTrait; }
+      class TraitMatching extends Base { use MatchingTrait; }
+      class NestedTraitMissing extends Base { use NestedTrait; }
+      class Incomplete extends UnknownParent { #[\\Override] public int $unknown; }
+      $anonymous = new class extends Base { #[\\Override] protected string $name; };
+    `;
+    workspace.update('file:///OverrideProperties.php', source);
+    const attributes = workspace.overridePropertyAttributes('file:///OverrideProperties.php');
+    expect(attributes.map((item) => [item.property, item.declaredInTrait, item.composedFromTrait, item.matchingParentProperty])).toEqual([
+      ['OverrideProperties\\Valid::$name', false, false, 'OverrideProperties\\Base::$name'],
+      ['OverrideProperties\\Valid::$count', false, false, 'OverrideProperties\\Base::$count'],
+      ['OverrideProperties\\Valid::$label', false, false, 'OverrideProperties\\Contract::$label'],
+      ['OverrideProperties\\Promoted::$name', false, false, 'OverrideProperties\\Base::$name'],
+      ['OverrideProperties\\ChildContract::$label', false, false, 'OverrideProperties\\Contract::$label'],
+      ['OverrideProperties\\Missing::$absent', false, false, undefined],
+      ['OverrideProperties\\Missing::$secret', false, false, undefined],
+      ['OverrideProperties\\Standalone::$standalone', true, false, undefined],
+      ['OverrideProperties\\TraitMissing::$missingFromTrait', false, true, undefined],
+      ['OverrideProperties\\TraitMatching::$name', false, true, 'OverrideProperties\\Base::$name'],
+      ['OverrideProperties\\NestedTraitMissing::$missingFromTrait', false, true, undefined],
+      [expect.stringMatching(/^OverrideProperties\\@anonymous:/), false, false, 'OverrideProperties\\Base::$name'],
+    ]);
+    expect(attributes.some((item) => item.property.endsWith('::$customAttribute'))).toBe(false);
+    expect(attributes.some((item) => item.property.endsWith('::$unknown'))).toBe(false);
+    expect(attributes.filter((item) => item.composedFromTrait).map((item) => source.slice(item.start, item.end))).toEqual([
+      'MissingTrait', 'MatchingTrait', 'NestedTrait',
+    ]);
+    workspace.remove('file:///OverrideProperties.php');
+    workspace.remove('file:///OverridePropertyDefinitions.php');
+  });
   it('plans typed property declarations only from proven dynamic-property values', () => {
     const definitions = '<?php namespace DynamicFix; class Target {} class Result {}';
     workspace.update('file:///DynamicFixTypes.php', definitions);

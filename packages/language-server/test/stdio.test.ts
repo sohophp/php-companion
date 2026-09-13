@@ -1887,6 +1887,54 @@ class Example {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('enforces the PHP 8.5 Override property target and matching-parent contract', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-override-properties-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'OverrideProperties.php')).toString();
+      const source = `<?php namespace App;
+        use \\Override as BuiltinOverride;
+        class Base { protected string $name; private int $secret; }
+        trait MissingTrait { #[\\Override] public int $fromTrait; }
+        trait MatchingTrait { #[\\Override] protected string $name; }
+        class Direct extends Base {
+          #[\\Override] protected string $name;
+          #[BuiltinOverride] public int $missing;
+          #[\\Override] public int $secret;
+          #[Override] public int $customAttribute;
+        }
+        class UsesTraits extends Base { use MissingTrait, MatchingTrait; }
+      `;
+      await writeFile(join(root, 'OverrideProperties.php'), source);
+      for (const phpVersion of ['7.4', '8.4', '8.5'] as const) {
+        const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
+        const output = messagesFrom(running);
+        running.stdin.write(encode({ jsonrpc: '2.0', id: 42, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+        } }));
+        await output.waitFor((message) => message.id === 42);
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics;
+        const versionErrors = diagnostics.filter((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
+          && item.message?.includes('#[Override] on property'));
+        const matchingErrors = diagnostics.filter((item: { code?: string }) => item.code === 'php.attribute.invalid-override-property');
+        expect(versionErrors).toHaveLength(phpVersion === '8.4' ? 5 : 0);
+        expect(matchingErrors).toHaveLength(phpVersion === '8.5' ? 3 : 0);
+        if (phpVersion === '7.4') expect(diagnostics.some((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
+          && item.message?.includes('attribute requires PHP 8.0'))).toBe(true);
+        if (phpVersion === '8.5') expect(matchingErrors.map((item: { message: string }) => item.message)).toEqual([
+          'App\\Direct::$missing has #[Override], but no matching non-private parent property exists.',
+          'App\\Direct::$secret has #[Override], but no matching non-private parent property exists.',
+          'App\\UsesTraits::$fromTrait has #[Override], but no matching non-private parent property exists.',
+        ]);
+        expect(diagnostics.some((item: { message?: string }) => item.message?.includes('$customAttribute'))).toBe(false);
+        await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('generates exact missing interface method stubs without duplicating inherited methods', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-implement-methods-'));
     try {
