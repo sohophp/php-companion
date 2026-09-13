@@ -41,6 +41,33 @@ function helper(User $user): string { return $user->label(1); }
     ]);
     result.tree.delete();
   });
+  it('distinguishes discarded call results from expressions and PHP 8.5 void casts', () => {
+    const source = '<?php function run(): void { result(); $value = result(); (bool) result(); (void) result(); } result();';
+    const result = parser.parse(source);
+    expect(result.calls.filter((call) => source.slice(call.nameStart, call.nameEnd) === 'result')
+      .map((call) => ({ discarded: call.resultDiscarded, voidCast: call.intentionalVoidCast
+        ? source.slice(call.intentionalVoidCast.start, call.intentionalVoidCast.end) : undefined }))).toEqual([
+      { discarded: true, voidCast: undefined },
+      { discarded: false, voidCast: undefined },
+      { discarded: false, voidCast: undefined },
+      { discarded: false, voidCast: '(void)' },
+      { discarded: true, voidCast: undefined },
+    ]);
+    result.tree.delete();
+  });
+  it('tracks discarded results and void casts in for initializers and updates', () => {
+    const source = '<?php for (result(), (void) consumed(); condition(); result(), (void) consumed()) {}';
+    const result = parser.parse(source);
+    expect(result.calls.map((call) => ({ name: source.slice(call.nameStart, call.nameEnd), discarded: call.resultDiscarded,
+      voidCast: call.intentionalVoidCast ? source.slice(call.intentionalVoidCast.start, call.intentionalVoidCast.end) : undefined }))).toEqual([
+      { name: 'result', discarded: true, voidCast: undefined },
+      { name: 'consumed', discarded: false, voidCast: '(void)' },
+      { name: 'condition', discarded: false, voidCast: undefined },
+      { name: 'result', discarded: true, voidCast: undefined },
+      { name: 'consumed', discarded: false, voidCast: '(void)' },
+    ]);
+    result.tree.delete();
+  });
 
   it('assigns declarations to separate bracketed and unbracketed namespaces', () => {
     for (const source of [

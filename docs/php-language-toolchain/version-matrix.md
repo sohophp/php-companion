@@ -12,7 +12,7 @@
 | 8.2 | DNF 类型、readonly class、独立 `true`/`false`/`null` 类型 | 是 | DNF 进入类型代数、参数兼容、分支共同成员查询及 Symfony 注入 alias；readonly class 的普通/提升实例属性进入 readonly 成员及外部写入诊断 | 是；DNF、readonly class 及 Symfony alias 有正反语义/LSP 测试 |
 | 8.3 | Typed class constants、动态 class constant、`#[Override]`、Trait 方法 final adaptation | 是 | Typed class constant；动态 class constant 的精准名称、Definition 与 literal 类型传播；其余待补 | 是；typed 与 dynamic class constant 具备边界测试 |
 | 8.4 | Property hooks、final/abstract property、非对称属性可见性、无括号 `new` 链式访问 | 是 | hook 局部作用域、backed/virtual、get/set 能力、setter 写入类型、非对称写可见性、接口/抽象契约、读协变/写逆变、独立 hook 继承、final 边界，以及由 `&get` 控制的下标修改、直接引用、唯一按引用调用和属性/对象引用遍历已进入成员语义；动态或歧义调用保持 unknown | 是；版本、声明、继承及读写正反例具备测试 |
-| 8.5 | Pipe operator、clone-with、常量表达式 callable、静态属性非对称可见性、final 提升属性、属性 `#[Override]` | 是；clone-with 与 final 提升属性使用保守兼容层 | pipe callable 链与简单 clone-with 已进入返回传播；final 提升属性进入属性事实和继承覆写检查；静态属性按读写方向应用 set 可见性；常量表达式 callable 具备 Closure 类型与非法形状诊断；属性 Override 覆盖类、接口、提升属性、匿名类及 Trait 组合，并排除私有祖先属性 | 是；各项具备 8.4 拒绝、8.5 接受及语义正反例 |
+| 8.5 | Pipe operator、clone-with、常量表达式 callable、静态属性非对称可见性、final 提升属性、属性 `#[Override]`、`#[NoDiscard]` 与 `(void)` cast | 是；clone-with、final 提升属性与 `(void)` 使用保守兼容层 | pipe callable 链与简单 clone-with 已进入返回传播；final 提升属性进入属性事实和继承覆写检查；静态属性按读写方向应用 set 可见性；常量表达式 callable 具备 Closure 类型与非法形状诊断；属性 Override 覆盖类、接口、提升属性、匿名类及 Trait 组合，并排除私有祖先属性；NoDiscard 覆盖用户函数/方法、Trait 实际声明和已审计 DateTimeImmutable 原生方法，区分使用、普通 cast、`(void)` 与真正丢弃 | 是；各项具备 8.4 拒绝或无行为、8.5 接受及语义正反例 |
 
 ## 当前跨版本共同能力
 

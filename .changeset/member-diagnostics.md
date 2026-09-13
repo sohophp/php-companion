@@ -122,6 +122,8 @@ Accept PHP 8.5 static Closures and direct function/static-method first-class cal
 
 Validate PHP 8.5 `#[Override]` property attributes across classes, interfaces, promoted properties, anonymous classes, and Trait composition, with exact PHP 8.4 target rejection and private-parent handling.
 
+Report discarded PHP 8.5 `#[NoDiscard]` user and audited native return values, validate forbidden declarations, and support `(void)` suppression with its exact version boundary.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.

@@ -44,3 +44,5 @@ semantic 正反例覆盖普通、静态、提升、接口、匿名类、private 
 - `php-companion-0.4.5.vsix`：`f842d22469a6ec94ade545d4604e1894216a6a3a82aabbb3fa48d56ee23e1b76`
 - `php-companion-open-source-pack-0.4.5.vsix`：`c3e0071501754fef441d831d1ebc12e59ad1a9ea066eaff9ff3b60d038ff46a3`
 - `php-companion-recommended-pack-0.4.5.vsix`：`eacab0619981d9e0246a4151f8f1da10981b5fe6dfcdf1425c525d1407282fa0`
+
+提交 `1cd9781` 的 [CI 34786259869](https://github.com/sohophp/php-companion/actions/runs/34786259869) 已完成：Linux、Windows、macOS 的 quality 与打包 Extension Host、PHP 7.2–8.5 运行时矩阵全部通过。

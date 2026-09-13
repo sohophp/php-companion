@@ -142,6 +142,15 @@ describe('PHP document analysis', () => {
     const php85 = analyzePhpDocument(TextDocument.create('file:///ConstantCallableContexts.php', 'php', 1, contexts), parser, '8.5').diagnostics;
     expect(php85.filter((item) => item.code === 'php.version.unsupported' || item.code === 'php.constant-expression.invalid-callable')).toEqual([]);
   });
+  it('gates the intentional void cast at PHP 8.5 without rejecting ordinary casts', () => {
+    const document = TextDocument.create('file:///VoidCast.php', 'php', 1, '<?php function result(): int { return 1; } (void) result(); $value = (void) result(); foo((void) result()); for ((void) result();; (void) result()) {} (bool) result();');
+    const php84 = analyzePhpDocument(document, parser, '8.4').diagnostics.filter((item) => item.code === 'php.version.unsupported');
+    expect(php84).toHaveLength(5);
+    expect(php84.every((item) => item.message === '(void) cast requires PHP 8.5 or newer; the target is PHP 8.4.')).toBe(true);
+    expect(analyzePhpDocument(document, parser, '8.5').diagnostics.filter((item) => item.code === 'php.version.unsupported' || item.code === 'php.syntax')).toEqual([]);
+    const invalidCondition = TextDocument.create('file:///InvalidVoidCast.php', 'php', 1, '<?php for (; (void) result();) {}');
+    expect(analyzePhpDocument(invalidCondition, parser, '8.5').diagnostics.some((item) => item.code === 'php.syntax')).toBe(true);
+  });
   it('classifies structured declarations and precise symbol uses', () => {
     const document = TextDocument.create('file:///Tokens.php', 'php', 1, `<?php
 class Service {

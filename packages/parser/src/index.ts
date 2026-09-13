@@ -183,6 +183,10 @@ export interface ParsedCall extends SourceRange {
   firstClassCallable?: boolean;
   flat: boolean;
   standalone: boolean;
+  /** The call is the whole expression statement and its return value is unused. */
+  resultDiscarded?: boolean;
+  /** PHP 8.5 `(void)` marker that intentionally consumes this call result. */
+  intentionalVoidCast?: SourceRange;
   /** Whole expression that cannot complete when this call invokes native never. */
   terminatingExpression?: SourceRange;
   receiver?: { variable: string; nullsafe: boolean };
@@ -829,6 +833,32 @@ export class PhpSyntaxParser {
             const expression = statement?.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
             return expression ? nodeRange(source, expression) : undefined;
           };
+          const expressionStatement = node.parent?.type === 'expression_statement' ? node.parent : undefined;
+          const directExpressionStatement = Boolean(expressionStatement
+            && expressionStatement.namedChildren[0]?.startIndex === node.startIndex
+            && expressionStatement.namedChildren[0]?.endIndex === node.endIndex);
+          const statementSiblings = expressionStatement?.parent?.namedChildren ?? [];
+          const statementIndex = expressionStatement ? statementSiblings.findIndex((candidate) => candidate.id === expressionStatement.id) : -1;
+          const previousStatement = statementIndex > 0 ? statementSiblings[statementIndex - 1] : undefined;
+          const voidCastPrefix = directExpressionStatement && previousStatement?.type === 'expression_statement'
+            && /^\(\s*void\s*\)$/i.test(previousStatement.text)
+            && source.slice(previousStatement.endIndex, node.startIndex).trim() === ''
+            ? nodeRange(source, previousStatement) : undefined;
+          let forClauseRoot: SyntaxNode = node;
+          while (forClauseRoot.parent && forClauseRoot.parent.type !== 'for_statement'
+            && forClauseRoot.parent.type !== 'expression_statement') forClauseRoot = forClauseRoot.parent;
+          const forStatement = forClauseRoot.parent?.type === 'for_statement' ? forClauseRoot.parent : undefined;
+          const forInitialize = forStatement?.childForFieldName('initialize');
+          const forUpdate = forStatement?.childForFieldName('update');
+          const discardedForClause = Boolean(forStatement
+            && (forClauseRoot.id === forInitialize?.id || forClauseRoot.id === forUpdate?.id)
+            && (forClauseRoot.id === node.id || (forClauseRoot.type === 'sequence_expression' && node.parent?.id === forClauseRoot.id)));
+          const expressionSiblings = node.parent?.namedChildren ?? [];
+          const expressionIndex = expressionSiblings.findIndex((candidate) => candidate.id === node.id);
+          const inlinePrevious = expressionIndex > 0 ? expressionSiblings[expressionIndex - 1] : undefined;
+          const inlineVoidCastPrefix = inlinePrevious?.type === 'ERROR' && /^\(\s*void\s*\)$/i.test(inlinePrevious.text)
+            && source.slice(inlinePrevious.endIndex, node.startIndex).trim() === ''
+            ? nodeRange(source, inlinePrevious) : undefined;
           calls.push({
             ...nodeRange(source, node), nameStart: nameRange.start, nameEnd: nameRange.end,
             kind: node.type === 'function_call_expression' ? 'function'
@@ -850,11 +880,13 @@ export class PhpSyntaxParser {
             flat: arguments_.every((argument) => !nestedCall(argument)),
             standalone: node.parent?.type === 'expression_statement' && node.parent.parent?.type === 'compound_statement'
               && node.parent.namedChildren[0]?.startIndex === node.startIndex && node.parent.namedChildren[0]?.endIndex === node.endIndex,
+            resultDiscarded: (directExpressionStatement || discardedForClause) && !voidCastPrefix && !inlineVoidCastPrefix,
+            intentionalVoidCast: voidCastPrefix ?? inlineVoidCastPrefix,
             terminatingExpression: guaranteedExpression(),
             receiver: receiverNode?.type === 'variable_name'
               ? { variable: receiverNode.text, nullsafe: node.type === 'nullsafe_member_call_expression' } : undefined,
           });
-          const statement = node.parent?.type === 'expression_statement' ? node.parent : undefined;
+          const statement = expressionStatement;
           const block = statement?.parent?.type === 'compound_statement' ? statement.parent : undefined;
           const builtinName = node.type === 'function_call_expression' ? nameNode.text.replace(/^\\+/, '').toLowerCase() : '';
           if (builtinName === 'assert' && statement && block

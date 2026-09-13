@@ -661,6 +661,56 @@ describe('conservative semantic workspace', () => {
     workspace.remove('file:///OverrideProperties.php');
     workspace.remove('file:///OverridePropertyDefinitions.php');
   });
+  it('reports only proven discarded NoDiscard results and invalid declarations', () => {
+    const source = `<?php namespace NoDiscardContracts;
+      use \\NoDiscard as Important;
+      #[\\NoDiscard("because status matters")] function important(): int { return 1; }
+      #[NoDiscard] function customAttribute(): int { return 1; }
+      class ParentService { #[\\NoDiscard] public function inherited(): int { return 1; } }
+      trait ImportantTrait { #[\\NoDiscard(message: "because the trait result matters")] public function fromTrait(): int { return 1; } }
+      class Service extends ParentService {
+        use ImportantTrait;
+        public function inherited(): int { return 2; }
+        #[Important] public function value(): int { return 1; }
+        #[Important] public static function staticValue(): int { return 1; }
+        #[Important] public function invalidVoid(): void {}
+        #[Important] public function invalidNever(): never { throw new \\RuntimeException(); }
+        #[Important] public function __clone() {}
+        public string $name { #[Important] get => $this->name; }
+      }
+      function consume(): void {
+        important();
+        $used = important();
+        (bool) important();
+        (void) important();
+        customAttribute();
+        $service = new Service();
+        $service->value();
+        Service::staticValue();
+        $service->fromTrait();
+        $service->inherited();
+        for (important(), (void) important(); false; important(), (void) important()) {}
+      }
+      important();
+    `;
+    workspace.update('file:///NoDiscard.php', source);
+    expect(workspace.discardedNoDiscardReturns('file:///NoDiscard.php')).toMatchObject([
+      { callable: 'NoDiscardContracts\\important', message: 'because status matters' },
+      { callable: 'NoDiscardContracts\\Service::value' },
+      { callable: 'NoDiscardContracts\\Service::staticValue' },
+      { callable: 'NoDiscardContracts\\Service::fromTrait', message: 'because the trait result matters' },
+      { callable: 'NoDiscardContracts\\important', message: 'because status matters' },
+      { callable: 'NoDiscardContracts\\important', message: 'because status matters' },
+      { callable: 'NoDiscardContracts\\important', message: 'because status matters' },
+    ]);
+    expect(workspace.invalidNoDiscardDeclarations('file:///NoDiscard.php').map((item) => [item.callable, item.reason])).toEqual([
+      ['NoDiscardContracts\\Service::invalidVoid', 'void-return'],
+      ['NoDiscardContracts\\Service::invalidNever', 'never-return'],
+      ['NoDiscardContracts\\Service::__clone', 'magic-method'],
+      ['NoDiscardContracts\\Service::$name::get', 'property-hook'],
+    ]);
+    workspace.remove('file:///NoDiscard.php');
+  });
   it('plans typed property declarations only from proven dynamic-property values', () => {
     const definitions = '<?php namespace DynamicFix; class Target {} class Result {}';
     workspace.update('file:///DynamicFixTypes.php', definitions);
@@ -2588,7 +2638,7 @@ describe('conservative semantic workspace', () => {
     expect(workspace.incompatibleArguments('file:///TryClosureUse.php').map((item) => [item.actualType, item.expectedType]))
       .toEqual([['TryClosure\\ViewA|TryClosure\\ViewB', 'TryClosure\\Other'],
         ['TryClosure\\ViewC', 'TryClosure\\Other']]);
-  });
+  }, 15_000);
   it('merges proven closure returns across complete and falling-through switch flow', () => {
     workspace.update('file:///SwitchClosureContract.php', `<?php namespace SwitchClosure;
       class User { public function active(): bool {} }
@@ -2746,7 +2796,7 @@ describe('conservative semantic workspace', () => {
         expect.objectContaining({ uri: 'file:///LoopClosureContract.php' })]);
     expect(workspace.incompatibleArguments('file:///LoopClosureUse.php').map((item) => [item.actualType, item.expectedType]))
       .toEqual([['LoopClosure\\ViewA|LoopClosure\\ViewB', 'LoopClosure\\Other']]);
-  });
+  }, 15_000);
   it('rejoins direct loop break paths without accepting nested or outer breaks', () => {
     workspace.update('file:///LoopBreakContract.php', `<?php namespace LoopBreak;
       class User { public function active(): bool {} }

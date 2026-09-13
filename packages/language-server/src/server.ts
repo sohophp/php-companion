@@ -700,6 +700,28 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         message: `${item.property} has #[Override], but no matching non-private parent property exists.`,
       })));
     }
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
+      result.diagnostics.push(...workspace.discardedNoDiscardReturns(document.uri).map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Warning,
+        code: 'php.return-value.discarded',
+        source: 'PHP Companion',
+        message: `Return value of ${item.callable} must be used${item.message ? `, ${item.message}` : ''}; cast the call to (void) to intentionally discard it.`,
+      })));
+      const reasons = {
+        'void-return': 'a void function does not return a value',
+        'never-return': 'a never-returning function does not return a value',
+        'magic-method': 'this magic method cannot return a value',
+        'property-hook': 'property hooks cannot use #[NoDiscard]',
+      } as const;
+      result.diagnostics.push(...workspace.invalidNoDiscardDeclarations(document.uri).map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.attribute.invalid-no-discard',
+        source: 'PHP Companion',
+        message: `Cannot apply #[NoDiscard] to ${item.callable}: ${reasons[item.reason]}.`,
+      })));
+    }
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1')) result.diagnostics.push(...workspace.invalidEnumInterfaces(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,

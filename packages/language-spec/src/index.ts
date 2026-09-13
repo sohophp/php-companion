@@ -150,6 +150,9 @@ function auditedDateTimeStub(version: SupportedPhpVersion): string {
   const php82 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2');
   const php83 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.3');
   const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
+  const php85 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5');
+  const noDiscard = (method: string): string => php85
+    ? `#[\\NoDiscard("as DateTimeImmutable::${method}() does not modify the object itself")] ` : '';
   const lateStatic = php80 ? 'static' : 'DateTime';
   const lateImmutableStatic = php80 ? 'static' : 'DateTimeImmutable';
   const serialized = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4')
@@ -196,15 +199,15 @@ class DateTime implements DateTimeInterface {
 }
 class DateTimeImmutable implements DateTimeInterface {
   public function __construct(string $datetime = 'now', ?DateTimeZone $timezone = null) {}
-  public function add(DateInterval $interval): DateTimeImmutable {}
-  public function sub(DateInterval $interval): DateTimeImmutable {}
-  /** @return ${php83 ? 'DateTimeImmutable' : 'DateTimeImmutable|false'} */ public function modify(string $modifier) {}
-  public function setTimezone(DateTimeZone $timezone): DateTimeImmutable {}
-  public function setTime(int $hour, int $minute, int $second = 0, int $microsecond = 0): DateTimeImmutable {}
-  public function setDate(int $year, int $month, int $day): DateTimeImmutable {}
-  public function setISODate(int $year, int $week, int $dayOfWeek = 1): DateTimeImmutable {}
-  public function setTimestamp(int $timestamp): DateTimeImmutable {}
-  ${php84 ? 'public function setMicrosecond(int $microsecond): static {} public function getMicrosecond(): int {} public static function createFromTimestamp(int|float $timestamp): static {}' : ''}
+  ${noDiscard('add')}public function add(DateInterval $interval): DateTimeImmutable {}
+  ${noDiscard('sub')}public function sub(DateInterval $interval): DateTimeImmutable {}
+  /** @return ${php83 ? 'DateTimeImmutable' : 'DateTimeImmutable|false'} */ ${noDiscard('modify')}public function modify(string $modifier) {}
+  ${noDiscard('setTimezone')}public function setTimezone(DateTimeZone $timezone): DateTimeImmutable {}
+  ${noDiscard('setTime')}public function setTime(int $hour, int $minute, int $second = 0, int $microsecond = 0): DateTimeImmutable {}
+  ${noDiscard('setDate')}public function setDate(int $year, int $month, int $day): DateTimeImmutable {}
+  ${noDiscard('setISODate')}public function setISODate(int $year, int $week, int $dayOfWeek = 1): DateTimeImmutable {}
+  ${noDiscard('setTimestamp')}public function setTimestamp(int $timestamp): DateTimeImmutable {}
+  ${php84 ? `${noDiscard('setMicrosecond')}public function setMicrosecond(int $microsecond): static {} public function getMicrosecond(): int {} public static function createFromTimestamp(int|float $timestamp): static {}` : ''}
   /** @return DateTimeImmutable|false */ public static function createFromFormat(string $format, string $datetime, ?DateTimeZone $timezone = null) {}
   ${php82 ? '/** @return array|false */ public static function getLastErrors() {}' : 'public static function getLastErrors(): array {}'}
   public static function createFromMutable(DateTime $object): ${lateImmutableStatic} {}
@@ -254,6 +257,7 @@ function auditedVersionedCoreObjectStub(version: SupportedPhpVersion): string {
   const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php81 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
+  const php85 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5');
   return `/** @template-covariant TKey
  * @template-covariant TValue
  * @template TSend
@@ -289,6 +293,7 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate {
 }` : ''}
 ${php81 ? `interface UnitEnum { public static function cases(): array; }
 interface BackedEnum extends UnitEnum { public static function from(int|string $value): static; public static function tryFrom(int|string $value): ?static; }` : ''}
+${php85 ? 'final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }' : ''}
 ${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4') ? `enum RoundingMode {
   case HalfAwayFromZero; case HalfTowardsZero; case HalfEven; case HalfOdd;
   case TowardsZero; case AwayFromZero; case NegativeInfinity; case PositiveInfinity;
@@ -3093,7 +3098,18 @@ export function isSyntaxAvailable(target: SupportedPhpVersion, introduced: Suppo
 
 export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVersion): UnsupportedSyntax[] {
   const output: UnsupportedSyntax[] = [];
+  const reportedVoidCasts = new Set<string>();
   const visit = (node: SyntaxNodeLike): void => {
+    if (versionNumber(target) < versionNumber('8.5') && /^\(\s*void\s*\)$/i.test(node.text)) {
+      const key = `${node.startIndex}:${node.endIndex}`;
+      if (!reportedVoidCasts.has(key)) {
+        const suffix = root.text.slice(Math.max(0, node.endIndex - root.startIndex)).trimStart();
+        if (suffix.length > 0 && !/^[,;)}\]]/.test(suffix)) {
+          output.push({ feature: '(void) cast', minimumVersion: '8.5', start: node.startIndex, end: node.endIndex });
+          reportedVoidCasts.add(key);
+        }
+      }
+    }
     let rule = FEATURE_VERSIONS[node.type];
     let range = node;
     const fieldNode = (name: string): SyntaxNodeLike | null | undefined => syntaxField(node, name);

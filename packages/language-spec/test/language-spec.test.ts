@@ -353,6 +353,8 @@ describe('PHP language specification', () => {
     expect(builtinPhpStub('8.0')).toContain('interface Stringable');
     expect(builtinPhpStub('8.0')).toContain('class WeakMap');
     expect(builtinPhpStub('8.0')).not.toContain('interface UnitEnum');
+    expect(builtinPhpStub('8.4')).not.toContain('final class NoDiscard');
+    expect(builtinPhpStub('8.5')).toContain('final class NoDiscard { public readonly ?string $message;');
     expect(builtinPhpStub('7.2')).toContain('function is_iterable($value): bool');
     expect(builtinPhpStub('8.0')).toContain('function is_iterable(mixed $value): bool');
     expect(builtinPhpStub('8.1')).toContain('function iterator_to_array(Traversable $iterator, bool $preserve_keys = true): array');
@@ -679,6 +681,8 @@ describe('PHP language specification', () => {
     expect(builtinPhpStub('8.2')).toContain('public const INCLUDE_END_DATE = 2');
     expect(builtinPhpStub('8.2')).toContain('/** @return DateTime|false */ public function modify');
     expect(builtinPhpStub('8.3')).toContain('/** @return DateTime */ public function modify');
+    expect(builtinPhpStub('8.4')).not.toContain('#[\\NoDiscard("as DateTimeImmutable::modify()');
+    expect(builtinPhpStub('8.5')).toContain('#[\\NoDiscard("as DateTimeImmutable::modify() does not modify the object itself")] public function modify');
     expect(builtinPhpStub('8.2')).toContain('/** @return DateInterval|false */ public static function createFromDateString');
     expect(builtinPhpStub('8.3')).toContain('/** @return DateInterval */ public static function createFromDateString');
     expect(builtinPhpStub('8.2')).not.toContain('class DateMalformedStringException');

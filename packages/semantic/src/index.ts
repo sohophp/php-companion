@@ -144,6 +144,11 @@ export interface OverridePropertyAttribute extends SemanticLocation {
   composedFromTrait: boolean;
   matchingParentProperty?: string;
 }
+export interface DiscardedNoDiscardReturn extends SemanticLocation { callable: string; message?: string; }
+export interface InvalidNoDiscardDeclaration extends SemanticLocation {
+  callable: string;
+  reason: 'void-return' | 'never-return' | 'magic-method' | 'property-hook';
+}
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
@@ -1458,6 +1463,44 @@ export class SemanticWorkspace {
       `${item.start}:${item.end}:${item.property}:${item.declaredInTrait}:${item.composedFromTrait}`,
       item,
     ])).values()];
+  }
+
+  discardedNoDiscardReturns(uri: string): DiscardedNoDiscardReturn[] {
+    const file = this.files.get(uri); if (!file) return [];
+    return file.calls.flatMap((call): DiscardedNoDiscardReturn[] => {
+      if (!call.resultDiscarded || call.firstClassCallable || call.kind === 'constructor') return [];
+      const signature = this.completedCallSignature(file, call); if (!signature) return [];
+      const declarationFile = this.files.get(signature.uri); if (!declarationFile) return [];
+      const declaration = declarationFile.callables.find((candidate) => candidate.start === signature.start
+        && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
+      if (!declaration) return [];
+      const attribute = this.callableBuiltinAttribute(declarationFile, declaration, 'nodiscard');
+      const called = signature.kind === 'method' && signature.calledOnFqcn
+        ? `${signature.calledOnFqcn}::${signature.name}` : signature.fqcn;
+      return attribute ? [{ uri, start: call.nameStart, end: call.nameEnd, callable: called, message: attribute.message }] : [];
+    });
+  }
+
+  invalidNoDiscardDeclarations(uri: string): InvalidNoDiscardDeclaration[] {
+    const file = this.files.get(uri); if (!file) return [];
+    const magicWithoutReturn = new Set(['__construct', '__destruct', '__clone', '__set', '__unset', '__wakeup', '__unserialize']);
+    const results = file.callables.flatMap((callable): InvalidNoDiscardDeclaration[] => {
+      const attribute = this.callableBuiltinAttribute(file, callable, 'nodiscard'); if (!attribute) return [];
+      const nativeReturn = callable.nativeReturnType?.trim().toLowerCase();
+      const reason: InvalidNoDiscardDeclaration['reason'] | undefined = nativeReturn === 'void' ? 'void-return'
+        : nativeReturn === 'never' ? 'never-return'
+          : callable.kind === 'method' && magicWithoutReturn.has(callable.name.toLowerCase()) ? 'magic-method' : undefined;
+      return reason ? [{ uri, start: attribute.reference.start, end: attribute.reference.end, callable: callable.fqcn, reason }] : [];
+    });
+    for (const property of file.properties) for (const hook of property.hooks ?? []) {
+      const namespace = property.containerFqcn.split('\\').slice(0, -1).join('\\');
+      const attribute = file.typeReferences.find((reference) => reference.context === 'attribute'
+        && reference.start >= hook.declarationStart && reference.end <= hook.end
+        && this.resolveSourceType(file, file.source.slice(reference.start, reference.end), namespace, property.containerFqcn)?.toLowerCase() === 'nodiscard');
+      if (attribute) results.push({ uri, start: attribute.start, end: attribute.end,
+        callable: `${property.fqcn}::${hook.kind}`, reason: 'property-hook' });
+    }
+    return results;
   }
 
   invalidEnumInterfaces(uri: string): InvalidEnumInterface[] {
@@ -4741,6 +4784,20 @@ export class SemanticWorkspace {
     if (selected.length !== 1) return undefined;
     return candidates.find((candidate) => candidate.uri === selected[0]!.uri && candidate.start === selected[0]!.start
       && candidate.fqcn.toLowerCase() === selected[0]!.fqcn.toLowerCase());
+  }
+
+  private callableBuiltinAttribute(file: SemanticFile, callable: ParsedCallableDeclaration, attributeName: string): {
+    reference: ParsedTypeReference;
+    message?: string;
+  } | undefined {
+    const namespace = callable.containerFqcn?.split('\\').slice(0, -1).join('\\') ?? this.namespaceAt(file, callable.start);
+    const reference = file.typeReferences.find((candidate) => candidate.context === 'attribute'
+      && candidate.start >= callable.declarationStart && candidate.end <= callable.declarationEnd
+      && this.resolveSourceType(file, file.source.slice(candidate.start, candidate.end), namespace, callable.containerFqcn)?.toLowerCase() === attributeName.toLowerCase());
+    if (!reference) return undefined;
+    const suffix = file.source.slice(reference.end, callable.start);
+    const literal = /^\s*\(\s*(?:message\s*:\s*)?(["'])([^\\"']*)\1\s*\)/i.exec(suffix);
+    return { reference, message: literal?.[2] };
   }
 
   /** Guaranteed expressions containing a call proven to resolve uniquely to native `never`. */

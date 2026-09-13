@@ -1935,6 +1935,76 @@ class Example {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reports PHP 8.5 NoDiscard calls, declaration constraints, native methods, and void-cast suppression', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-no-discard-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'NoDiscard.php')).toString();
+      const source = `<?php namespace App;
+        use \\NoDiscard as Important;
+        #[\\NoDiscard("because status matters")] function important(): int { return 1; }
+        trait ImportantTrait { #[\\NoDiscard(message: "because the trait result matters")] public function traitValue(): int { return 1; } }
+        class ParentService { #[\\NoDiscard] public function inherited(): int { return 1; } }
+        class Service extends ParentService {
+          use ImportantTrait;
+          public function inherited(): int { return 2; }
+          #[Important] public function value(): int { return 1; }
+          #[Important] public function invalidVoid(): void {}
+          #[Important] public function invalidNever(): never { throw new \\RuntimeException(); }
+          #[Important] public function __clone() {}
+          public string $name { #[Important] get => $this->name; }
+        }
+        function run(): void {
+          important();
+          $used = important();
+          (bool) important();
+          (void) important();
+          $service = new Service();
+          $service->value();
+          $service->traitValue();
+          $service->inherited();
+          $date = new \\DateTimeImmutable();
+          $date->setDate(2026, 9, 14);
+        }
+        important();
+      `;
+      await writeFile(join(root, 'NoDiscard.php'), source);
+      for (const phpVersion of ['8.4', '8.5'] as const) {
+        const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
+        const output = messagesFrom(running);
+        running.stdin.write(encode({ jsonrpc: '2.0', id: 43, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+        } }));
+        await output.waitFor((message) => message.id === 43);
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics;
+        const discarded = diagnostics.filter((item: { code?: string }) => item.code === 'php.return-value.discarded');
+        const invalid = diagnostics.filter((item: { code?: string }) => item.code === 'php.attribute.invalid-no-discard');
+        const voidCast = diagnostics.filter((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
+          && item.message?.startsWith('(void) cast'));
+        expect(discarded).toHaveLength(phpVersion === '8.5' ? 5 : 0);
+        expect(invalid).toHaveLength(phpVersion === '8.5' ? 4 : 0);
+        expect(voidCast).toHaveLength(phpVersion === '8.4' ? 1 : 0);
+        if (phpVersion === '8.5') {
+          expect(discarded.map((item: { message: string }) => item.message)).toEqual(expect.arrayContaining([
+            expect.stringContaining('App\\important must be used, because status matters'),
+            expect.stringContaining('App\\Service::traitValue must be used, because the trait result matters'),
+            expect.stringContaining('DateTimeImmutable::setDate must be used, as DateTimeImmutable::setDate() does not modify the object itself'),
+          ]));
+          expect(invalid.map((item: { message: string }) => item.message)).toEqual(expect.arrayContaining([
+            expect.stringContaining('App\\Service::invalidVoid'),
+            expect.stringContaining('App\\Service::invalidNever'),
+            expect.stringContaining('App\\Service::__clone'),
+            expect.stringContaining('App\\Service::$name::get'),
+          ]));
+        }
+        await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('generates exact missing interface method stubs without duplicating inherited methods', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-implement-methods-'));
     try {

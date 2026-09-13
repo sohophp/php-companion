@@ -640,6 +640,21 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
   try {
     const source = document.getText();
     const grammarGapRanges = newestSyntaxGrammarGapRanges(source);
+    const grammarNodes = [parsed.tree.rootNode];
+    while (grammarNodes.length > 0) {
+      const node = grammarNodes.pop()!;
+      if (node.type === 'ERROR' && /^\(\s*void\s*\)$/i.test(node.text)) {
+        let forStatement = node.parent;
+        while (forStatement && forStatement.type !== 'for_statement') forStatement = forStatement.parent;
+        const belongsTo = (field: 'initialize' | 'update'): boolean => {
+          const clause = forStatement?.childForFieldName(field);
+          return Boolean(clause && ((node.startIndex >= clause.startIndex && node.endIndex <= clause.endIndex)
+            || (node.endIndex <= clause.startIndex && source.slice(node.endIndex, clause.startIndex).trim() === '')));
+        };
+        if (!forStatement || belongsTo('initialize') || belongsTo('update')) grammarGapRanges.push({ start: node.startIndex, end: node.endIndex });
+      }
+      grammarNodes.push(...node.namedChildren);
+    }
     const enumFqcns = new Set(parsed.declarations.filter((item) => item.kind === 'enum').map((item) => item.fqcn));
     const enumPropertyErrors = new Set<string>();
     const enumProperties = new Map<number, { start: number; end: number; containerFqcn: string; name: string }>();
