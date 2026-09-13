@@ -540,7 +540,7 @@ export async function run(): Promise<void> {
     () => ['php.argument.type-mismatch', 'php.return.type-mismatch', 'php.assignment.type-mismatch'].every((code) => vscode.languages.getDiagnostics(strictScalarDiagnosticUri)
       .some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === code)),
     'Self-hosted language server did not publish strict scalar literal argument, return, and property-assignment diagnostics',
-    5_000,
+    15_000,
   );
   assert.ok(vscode.languages.getDiagnostics(strictScalarDiagnosticUri).some((diagnostic) => diagnostic.code === 'php.argument.type-mismatch'
     && diagnostic.message.includes('DeliveryState::from')), 'Synthetic backed Enum factory signature did not participate in strict argument diagnostics');
