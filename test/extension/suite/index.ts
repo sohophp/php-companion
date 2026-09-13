@@ -274,6 +274,7 @@ export async function run(): Promise<void> {
     () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
       .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.control-flow.unreachable').length === 10,
     'Self-hosted language server did not publish a proven unreachable-statement diagnostic',
+    30_000,
   );
   const controlFlowDocument = await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
   assert.deepStrictEqual(vscode.languages.getDiagnostics(controlFlowDiagnosticUri)

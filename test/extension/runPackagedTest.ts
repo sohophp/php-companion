@@ -25,7 +25,10 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const vsix = join(repository, 'php-companion-0.4.5.vsix');
   await stat(vsix);
-  const temporary = await mkdtemp(join(tmpdir(), 'php-companion-packaged-'));
+  // macOS limits Unix-domain socket paths to roughly 104 bytes. GitHub's
+  // per-user tmpdir is already long enough that VS Code's profile socket can
+  // exceed that limit before the tests start.
+  const temporary = await mkdtemp(join(process.platform === 'darwin' ? '/tmp' : tmpdir(), 'php-companion-packaged-'));
   const fixture = join(temporary, 'workspace');
   const extracted = join(temporary, 'vsix');
   const profile = join(temporary, 'profile');
