@@ -180,7 +180,12 @@ export interface UnknownNamedArgument extends SemanticLocation { callable: strin
 export interface ArgumentOrderProblem extends SemanticLocation { kind: 'duplicate-named' | 'positional-after-named' | 'unpack-after-named'; name?: string; }
 export interface UnusedImport extends SemanticLocation { name: string; kind: ParsedImport['kind']; statementStart: number; statementEnd: number; }
 export interface IncompatibleMethodOverride extends SemanticLocation { method: string; inheritedMethod: string; reason: string; }
-export interface IncompatiblePropertyOverride extends SemanticLocation { property: string; inheritedProperty: string; reason: string; }
+export interface IncompatiblePropertyOverride extends SemanticLocation {
+  property: string;
+  inheritedProperty: string;
+  reason: string;
+  minimumPhpVersion?: '8.5';
+}
 export interface MissingPropertyImplementation extends SemanticLocation { classFqcn: string; property: string; inheritedProperty: string; reason: string; abstract: boolean; }
 export interface InvalidInheritance extends SemanticLocation { type: string; parent: string; reason: 'final-class' | 'readonly-mismatch'; readonly?: boolean; parentReadonly?: boolean; }
 export interface InvalidTypeRelation extends SemanticLocation {
@@ -1148,7 +1153,8 @@ export class SemanticWorkspace {
         const inheritedFqcn = parent.declaration.fqcn;
         if (parent.declaration.final || parent.declaration.writeVisibility === 'private') {
           results.push({ uri, start: property.start, end: property.end, property: property.fqcn,
-            inheritedProperty: inheritedFqcn, reason: 'a final property cannot be overridden' });
+            inheritedProperty: inheritedFqcn, reason: 'a final property cannot be overridden',
+            minimumPhpVersion: parent.declaration.promoted && parent.declaration.final ? '8.5' : undefined });
           continue;
         }
         const ownHookKinds = new Set(property.hooks?.map((hook) => hook.kind) ?? []);

@@ -1,6 +1,6 @@
 # PHP 7.2–8.5 支持矩阵
 
-最后核对：2026-09-13。`解析` 表示 Tree-sitter 能形成 CST；`事实/语义` 表示 parser 已输出并由 semantic/type-system 消费；`版本诊断` 表示会按目标版本接受或拒绝。不能由“解析成功”推断功能已支持。
+最后核对：2026-09-14。`解析` 表示 Tree-sitter 能形成 CST；`事实/语义` 表示 parser 已输出并由 semantic/type-system 消费；`版本诊断` 表示会按目标版本接受或拒绝。不能由“解析成功”推断功能已支持。
 
 | 版本 | 代表性语言边界 | 解析 | 当前事实/语义 | 版本诊断 |
 | --- | --- | --- | --- | --- |
@@ -12,7 +12,7 @@
 | 8.2 | DNF 类型、readonly class、独立 `true`/`false`/`null` 类型 | 是 | DNF 进入类型代数、参数兼容、分支共同成员查询及 Symfony 注入 alias；readonly class 的普通/提升实例属性进入 readonly 成员及外部写入诊断 | 是；DNF、readonly class 及 Symfony alias 有正反语义/LSP 测试 |
 | 8.3 | Typed class constants、动态 class constant、`#[Override]`、Trait 方法 final adaptation | 是 | Typed class constant；动态 class constant 的精准名称、Definition 与 literal 类型传播；其余待补 | 是；typed 与 dynamic class constant 具备边界测试 |
 | 8.4 | Property hooks、final/abstract property、非对称属性可见性、无括号 `new` 链式访问 | 是 | hook 局部作用域、backed/virtual、get/set 能力、setter 写入类型、非对称写可见性、接口/抽象契约、读协变/写逆变、独立 hook 继承、final 边界，以及由 `&get` 控制的下标修改、直接引用、唯一按引用调用和属性/对象引用遍历已进入成员语义；动态或歧义调用保持 unknown | 是；版本、声明、继承及读写正反例具备测试 |
-| 8.5 | Pipe operator、clone-with、常量表达式 callable、静态属性非对称可见性、final 提升属性 | 是；clone-with 与 final 提升属性使用保守兼容层 | pipe callable 链与简单 clone-with 已进入返回传播；其余表达式待补 | 是；代表项具备边界测试 |
+| 8.5 | Pipe operator、clone-with、常量表达式 callable、静态属性非对称可见性、final 提升属性 | 是；clone-with 与 final 提升属性使用保守兼容层 | pipe callable 链与简单 clone-with 已进入返回传播；final 提升属性进入属性事实和继承覆写检查；其余表达式待补 | 是；final 提升属性具备 8.4 拒绝、8.5 接受及覆写正反例 |
 
 ## 当前跨版本共同能力
 

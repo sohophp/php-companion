@@ -532,7 +532,11 @@ describe('conservative semantic workspace', () => {
         final public string $closed;
         public string $name { final get => 'base'; set => $value; }
       }
+      class PromotedFinalBase {
+        public function __construct(public final string $promotedClosed) {}
+      }
       class BadFinalProperty extends FinalBase { public string $closed; }
+      class BadPromotedFinalProperty extends PromotedFinalBase { public string $promotedClosed; }
       class BadFinalHook extends FinalBase { public string $name { get => 'child'; } }
       class LegalOtherHook extends FinalBase { public string $name { set => strtoupper($value); } }
       function useInheritedHooks(PartialChild $partial, LegalOtherHook $legal): void {
@@ -546,6 +550,7 @@ describe('conservative semantic workspace', () => {
       ['PropertyHookInheritance\\BadBoth::$both', 'set type is not contravariant with the inherited property type'],
       ['PropertyHookInheritance\\BadVisibility::$pet', 'get visibility cannot be more restrictive than public'],
       ['PropertyHookInheritance\\BadFinalProperty::$closed', 'a final property cannot be overridden'],
+      ['PropertyHookInheritance\\BadPromotedFinalProperty::$promotedClosed', 'a final property cannot be overridden'],
       ['PropertyHookInheritance\\BadFinalHook::$name', 'the final get hook cannot be overridden'],
     ]);
     expect(workspace.missingPropertyImplementations('file:///PropertyHookInheritance.php').map((item) => [item.classFqcn, item.property, item.reason])).toEqual([

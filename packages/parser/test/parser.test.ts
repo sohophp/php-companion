@@ -806,13 +806,14 @@ class Child extends ParentBase implements Contract {
       public readonly ?Profile $profile, $backup;
       protected static int $count = 1;
       public const string KIND = 'user';
-      public function __construct(private Address $address) {}
+      public function __construct(private Address $address, public final string $id) {}
     }`);
     expect(result.properties).toMatchObject([
       { name: 'profile', fqcn: 'App\\User::$profile', type: '?Profile', visibility: 'public', static: false, readonly: true, promoted: false },
       { name: 'backup', type: '?Profile' },
       { name: 'count', type: 'int', defaultValue: '1', visibility: 'protected', static: true },
       { name: 'address', type: 'Address', defaultValue: undefined, visibility: 'private', promoted: true },
+      { name: 'id', type: 'string', visibility: 'public', final: true, promoted: true },
     ]);
     expect(result.constants).toMatchObject([{ name: 'KIND', fqcn: 'App\\User::KIND', type: 'string', value: "'user'", visibility: 'public', global: false }]);
     result.tree.delete();

@@ -956,7 +956,10 @@ export class PhpSyntaxParser {
               visibility: (parameter.namedChildren.find((child) => child.type === 'visibility_modifier')?.text as ParsedPropertyDeclaration['visibility'] | undefined) ?? 'public',
               static: false,
               readonly: parameter.namedChildren.some((child) => child.type === 'readonly_modifier') || owner.readonlyClass,
-              final: parameter.namedChildren.some((child) => child.type === 'final_modifier'),
+              // tree-sitter-php 0.24 parses PHP 8.5 final promotion as a recoverable
+              // ERROR node. Preserve the semantic modifier until the grammar exposes
+              // it as final_modifier, while still accepting that future shape.
+              final: parameter.namedChildren.some((child) => child.type === 'final_modifier') || /\bfinal\b/i.test(parameter.text),
               abstract: false,
               promoted: true,
               declarationStart: parameter.startIndex,

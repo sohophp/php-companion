@@ -1646,6 +1646,8 @@ class Example {
         class BadInvariantProperty implements Both { public Dog $both; }
         class FinalPropertyBase { final public string $closed; }
         class BadFinalProperty extends FinalPropertyBase { public string $closed; }
+        class FinalPromotedPropertyBase { public function __construct(public final string $promotedClosed) {} }
+        class BadFinalPromotedProperty extends FinalPromotedPropertyBase { public string $promotedClosed; }
         class ReferenceIteration {
           public array $plain { get => $this->plain; }
           public array $allowed { &get { return $this->allowed; } }
@@ -1661,7 +1663,7 @@ class Example {
           foreach ($iteration as &$property) {}
         }`;
       await writeFile(join(root, 'Hooks.php'), source);
-      for (const phpVersion of ['8.3', '8.4'] as const) {
+      for (const phpVersion of ['8.3', '8.4', '8.5'] as const) {
         const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
         server = running;
         const output = messagesFrom(running);
@@ -1674,8 +1676,8 @@ class Example {
         running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
         const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
         const diagnostics = published.params.diagnostics as Array<{ code?: string; message?: string }>;
-        expect(diagnostics.filter((item) => item.code === 'php.property.unreadable' || item.code === 'php.property.unwritable')).toHaveLength(phpVersion === '8.4' ? 2 : 0);
-        if (phpVersion === '8.4') {
+        expect(diagnostics.filter((item) => item.code === 'php.property.unreadable' || item.code === 'php.property.unwritable')).toHaveLength(phpVersion === '8.3' ? 0 : 2);
+        if (phpVersion !== '8.3') {
           expect(diagnostics).toEqual(expect.arrayContaining([
             expect.objectContaining({ code: 'php.property.unwritable', message: 'Cannot write read-only hooked property App\\Hooks::$display.' }),
             expect.objectContaining({ code: 'php.property.unreadable', message: 'Cannot read write-only hooked property App\\Hooks::$sink.' }),
@@ -1689,6 +1691,11 @@ class Example {
             expect.objectContaining({ code: 'php.property.incompatible-override', message: 'App\\BadInvariantProperty::$both is incompatible with App\\Both::$both: set type is not contravariant with the inherited property type.' }),
             expect.objectContaining({ code: 'php.property.incompatible-override', message: 'App\\BadFinalProperty::$closed is incompatible with App\\FinalPropertyBase::$closed: a final property cannot be overridden.' }),
           ]));
+          const promotedOverride = diagnostics.filter((item) => item.code === 'php.property.incompatible-override'
+            && item.message?.includes('BadFinalPromotedProperty::$promotedClosed'));
+          expect(promotedOverride).toHaveLength(phpVersion === '8.5' ? 1 : 0);
+          expect(diagnostics.some((item) => item.code === 'php.version.unsupported'
+            && item.message?.includes('final promoted property'))).toBe(phpVersion === '8.4');
         } else {
           expect(diagnostics.some((item) => item.code === 'php.version.unsupported')).toBe(true);
           expect(diagnostics.some((item) => item.code === 'php.property.missing-implementation'

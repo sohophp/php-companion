@@ -616,7 +616,10 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       message: `${item.method} is incompatible with ${item.inheritedMethod}: ${item.reason}.`,
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4')) {
-      result.diagnostics.push(...workspace.incompatiblePropertyOverrides(document.uri).map((item) => ({
+      result.diagnostics.push(...workspace.incompatiblePropertyOverrides(document.uri)
+        .filter((item) => !item.minimumPhpVersion
+          || SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(item.minimumPhpVersion))
+        .map((item) => ({
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.property.incompatible-override',
