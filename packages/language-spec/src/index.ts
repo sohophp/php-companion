@@ -3005,6 +3005,7 @@ export function builtinPhpStub(version: SupportedPhpVersion): string {
 
 export interface SyntaxNodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: readonly SyntaxNodeLike[]; parent?: SyntaxNodeLike | null; }
 export interface UnsupportedSyntax { feature: string; minimumVersion: SupportedPhpVersion; start: number; end: number; }
+export interface InvalidConstantExpressionCallable { reason: 'arrow' | 'non-static' | 'capture' | 'dynamic-first-class'; start: number; end: number; }
 const FEATURE_VERSIONS: Record<string, { feature: string; version: SupportedPhpVersion }> = {
   arrow_function: { feature: 'arrow function', version: '7.4' },
   union_type: { feature: 'union type', version: '8.0' },
@@ -3021,6 +3022,51 @@ const FEATURE_VERSIONS: Record<string, { feature: string; version: SupportedPhpV
   bottom_type: { feature: 'never type', version: '8.1' },
 };
 const versionNumber = (version: SupportedPhpVersion): number => Number(version.replace('.', ''));
+
+const syntaxField = (node: SyntaxNodeLike, name: string): SyntaxNodeLike | null | undefined =>
+  (node as SyntaxNodeLike & { childForFieldName?: (field: string) => SyntaxNodeLike | null }).childForFieldName?.(name);
+
+function isWithinConstantExpression(node: SyntaxNodeLike): boolean {
+  for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
+    if (ancestor.type === 'attribute' || ancestor.type === 'const_element') return true;
+    if (['property_element', 'simple_parameter', 'property_promotion_parameter', 'static_variable_declaration'].includes(ancestor.type)) {
+      const value = syntaxField(ancestor, 'default_value');
+      if (value && node.startIndex >= value.startIndex && node.endIndex <= value.endIndex) return true;
+    }
+  }
+  return false;
+}
+
+export function invalidConstantExpressionCallables(root: SyntaxNodeLike): InvalidConstantExpressionCallable[] {
+  const output: InvalidConstantExpressionCallable[] = [];
+  const visit = (node: SyntaxNodeLike): void => {
+    if (isWithinConstantExpression(node)) {
+      if (node.type === 'arrow_function') output.push({ reason: 'arrow', start: node.startIndex, end: node.endIndex });
+      if (node.type === 'anonymous_function') {
+        if (!node.namedChildren.some((child) => child.type === 'static_modifier')) {
+          output.push({ reason: 'non-static', start: node.startIndex, end: node.endIndex });
+        } else if (node.namedChildren.some((child) => child.type === 'anonymous_function_use_clause')) {
+          output.push({ reason: 'capture', start: node.startIndex, end: node.endIndex });
+        }
+      }
+      if (node.type === 'variadic_placeholder') {
+        const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
+        const callable = call && (call.type === 'function_call_expression'
+          ? syntaxField(call, 'function') ?? syntaxField(call, 'name') ?? call.namedChildren[0]
+          : call.type === 'scoped_call_expression' ? syntaxField(call, 'name') : undefined);
+        const scope = call?.type === 'scoped_call_expression' ? syntaxField(call, 'scope') ?? call.namedChildren[0] : undefined;
+        const directFunction = call?.type === 'function_call_expression' && callable
+          && ['name', 'qualified_name', 'relative_name'].includes(callable.type);
+        const directStatic = call?.type === 'scoped_call_expression' && callable?.type === 'name' && scope
+          && ['name', 'qualified_name', 'relative_scope'].includes(scope.type);
+        if (!directFunction && !directStatic) output.push({ reason: 'dynamic-first-class', start: call?.startIndex ?? node.startIndex, end: call?.endIndex ?? node.endIndex });
+      }
+    }
+    for (const child of node.namedChildren) visit(child);
+  };
+  visit(root);
+  return output;
+}
 
 function normalizeComposerConstraint(input: string): string {
   return input
@@ -3050,7 +3096,7 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
   const visit = (node: SyntaxNodeLike): void => {
     let rule = FEATURE_VERSIONS[node.type];
     let range = node;
-    const fieldNode = (name: string): SyntaxNodeLike | null | undefined => (node as SyntaxNodeLike & { childForFieldName?: (field: string) => SyntaxNodeLike | null }).childForFieldName?.(name);
+    const fieldNode = (name: string): SyntaxNodeLike | null | undefined => syntaxField(node, name);
     if (node.type === 'argument') {
       const name = fieldNode('name');
       if (name) { rule = { feature: 'named argument', version: '8.0' }; range = name; }
@@ -3089,6 +3135,12 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
       rule = { feature: 'asymmetric property visibility', version: node.parent.namedChildren.some((child) => child.type === 'static_modifier') ? '8.5' : '8.4' };
     }
     if (node.type === 'property_promotion_parameter' && /\bfinal\b/i.test(node.text)) rule = { feature: 'final promoted property', version: '8.5' };
+    if (node.type === 'anonymous_function' && isWithinConstantExpression(node)) rule = { feature: 'closure in constant expression', version: '8.5' };
+    if (node.type === 'variadic_placeholder') {
+      const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
+      rule = { feature: isWithinConstantExpression(node) ? 'first-class callable in constant expression' : 'first-class callable', version: isWithinConstantExpression(node) ? '8.5' : '8.1' };
+      range = call ?? node;
+    }
     if (node.type === 'final_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'final property', version: '8.4' };
     if (node.type === 'abstract_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'abstract property', version: '8.4' };
     if (node.type === 'binary_expression' && node.text.includes('|>')) rule = { feature: 'pipe operator', version: '8.5' };

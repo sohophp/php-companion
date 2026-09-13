@@ -2502,6 +2502,7 @@ export class SemanticWorkspace {
   missingRequiredArguments(uri: string): MissingRequiredArguments[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.calls.flatMap((call): MissingRequiredArguments[] => {
+      if (call.firstClassCallable) return [];
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.signature(uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1)); if (!signature) return [];
       if (signature.kind === 'function') {
@@ -7671,6 +7672,7 @@ export class SemanticWorkspace {
 
   private callResultType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const call = file.calls.find((candidate) => candidate.start === start && candidate.end === end); if (!call) return undefined;
+    if (call.firstClassCallable) return named('Closure');
     const dynamicResult = this.dynamicCallResultType(file, call); if (dynamicResult) return dynamicResult;
     const signature = this.completedCallSignature(file, call); if (!signature || signature.synthetic) return undefined;
     const declarations = this.callableDeclarationsForSignature(signature);

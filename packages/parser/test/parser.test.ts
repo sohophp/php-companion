@@ -32,6 +32,15 @@ function helper(User $user): string { return $user->label(1); }
     ]);
     result.tree.delete();
   });
+  it('distinguishes first-class callable acquisition from invocation', () => {
+    const result = parser.parse('<?php $function = strlen(...); $static = Factory::make(...); $invoked = strlen("value");');
+    expect(result.calls.map((call) => ({ kind: call.kind, firstClassCallable: call.firstClassCallable, arguments: call.arguments.length }))).toEqual([
+      { kind: 'function', firstClassCallable: true, arguments: 0 },
+      { kind: 'static-method', firstClassCallable: true, arguments: 0 },
+      { kind: 'function', firstClassCallable: false, arguments: 1 },
+    ]);
+    result.tree.delete();
+  });
 
   it('assigns declarations to separate bracketed and unbracketed namespaces', () => {
     for (const source of [

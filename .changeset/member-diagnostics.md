@@ -116,6 +116,10 @@ Provide standard Organize Imports for contiguous imports, removing proven unused
 
 Enforce representative PHP 7.3 through 8.5 syntax boundaries, with conservative grammar compatibility for validated PHP 8.5 clone-with and final promoted properties. Keep malformed neighboring syntax visible.
 
+Model PHP 8.5 final promoted properties through inheritance, enforce static-property asymmetric set visibility by read/write direction, and suppress diagnostics that depend on syntax unavailable to the configured target version.
+
+Accept PHP 8.5 static Closures and direct function/static-method first-class callables in constant expressions, reject the four forbidden callable shapes, and type first-class callable acquisition as Closure without treating it as a zero-argument invocation.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.

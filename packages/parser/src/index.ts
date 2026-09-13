@@ -179,6 +179,8 @@ export interface ParsedCall extends SourceRange {
   argumentsStart: number;
   argumentsEnd: number;
   arguments: Array<SourceRange & { name?: string; nameStart?: number; nameEnd?: number; unpacked: boolean }>;
+  /** Acquires a Closure with `callable(...)`; it does not invoke the target. */
+  firstClassCallable?: boolean;
   flat: boolean;
   standalone: boolean;
   /** Whole expression that cannot complete when this call invokes native never. */
@@ -775,6 +777,7 @@ export class PhpSyntaxParser {
         const preciseDynamicName = nameNode && bracedCallName ? dynamicMemberName(nameNode) : undefined;
         if (argumentsNode && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name' || preciseDynamicName)) {
           const arguments_ = argumentsNode.namedChildren.filter((child) => child.type === 'argument');
+          const firstClassCallable = argumentsNode.namedChildren.some((child) => child.type === 'variadic_placeholder');
           const nestedCall = (candidate: SyntaxNode): boolean => candidate.namedChildren.some((child) => callTypes.has(child.type) || nestedCall(child));
           const nameRange = preciseDynamicName?.range ?? nodeRange(source, nameNode); const argumentsRange = nodeRange(source, argumentsNode);
           const receiverNode = node.type === 'member_call_expression' || node.type === 'nullsafe_member_call_expression'
@@ -832,6 +835,7 @@ export class PhpSyntaxParser {
               : node.type === 'object_creation_expression' ? 'constructor'
                 : node.type === 'scoped_call_expression' ? 'static-method' : 'method',
             argumentsStart: argumentsRange.start, argumentsEnd: argumentsRange.end,
+            firstClassCallable,
             arguments: arguments_.map((argument) => {
               const argumentName = argument.childForFieldName('name');
               const argumentNameRange = argumentName ? nodeRange(source, argumentName) : undefined;

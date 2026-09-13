@@ -1,7 +1,7 @@
 import type { ParsedParameter, PhpSyntaxParser, SourceRange } from '@php-companion/parser';
 import { DiagnosticSeverity, SymbolKind, type Diagnostic, type DocumentSymbol, type Range } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { isSyntaxAvailable, unsupportedSyntax, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { invalidConstantExpressionCallables, isSyntaxAvailable, unsupportedSyntax, type SupportedPhpVersion } from '@php-companion/language-spec';
 
 export interface PhpDocumentAnalysis {
   diagnostics: Diagnostic[];
@@ -701,6 +701,18 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       range: toRange(document, feature), severity: DiagnosticSeverity.Error, code: 'php.version.unsupported', source: 'PHP Companion',
       message: `${feature.feature} requires PHP ${feature.minimumVersion} or newer; the target is PHP ${targetVersion}.`,
     })));
+    if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.5')) {
+      const messages = {
+        arrow: 'Arrow functions cannot be used in constant expressions because they implicitly capture variables.',
+        'non-static': 'Closures in constant expressions must be static.',
+        capture: 'Closures in constant expressions cannot capture variables.',
+        'dynamic-first-class': 'First-class callables in constant expressions must directly name a function or static method.',
+      } as const;
+      diagnostics.push(...invalidConstantExpressionCallables(parsed.tree.rootNode).map((item): Diagnostic => ({
+        range: toRange(document, item), severity: DiagnosticSeverity.Error,
+        code: 'php.constant-expression.invalid-callable', source: 'PHP Companion', message: messages[item.reason],
+      })));
+    }
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.4')) {
       diagnostics.push(...implicitlyNullableParameters(parsed.tree.rootNode).map((parameter): Diagnostic => ({
         range: toRange(document, parameter), severity: DiagnosticSeverity.Warning,

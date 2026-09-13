@@ -1532,9 +1532,9 @@ class Example {
     try {
       await mkdir(join(root, 'src'), { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
-      await writeFile(join(root, 'src', 'Service.php'), '<?php namespace App; interface ServiceContract {} class PrivateTarget { private function __construct() {} } class StaticConfig { public private(set) static string $token = "ready"; } class Service { public function present(string $value): void {} private function hidden(): void {} }');
+      await writeFile(join(root, 'src', 'Service.php'), '<?php namespace App; interface ServiceContract {} class PrivateTarget { private function __construct() {} } class StaticConfig { public private(set) static string $token = "ready"; } class Service { public function present(string $value): void {} private function hidden(): void {} } function transform(string $value): int { return strlen($value); } function takesInt(int $value): void {}');
       const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
-      const source = '<?php namespace App; class InvalidRelation extends ServiceContract {} class SelfCycle extends SelfCycle {} function run(Service $service, mixed $unknown): void { new ServiceContract(); new PrivateTarget(); $service->present(); $service->hidden(); Service::present("x"); $service->present(other: "x"); $service->present(value: "x", value: "y"); $service->present(value: "x", "y"); $service->present(value: "x", ...$values); $service->missing(); $unknown->missing(); StaticConfig::$token = "changed"; echo StaticConfig::$token; }';
+      const source = '<?php namespace App; class InvalidRelation extends ServiceContract {} class SelfCycle extends SelfCycle {} function run(Service $service, mixed $unknown): void { new ServiceContract(); new PrivateTarget(); $service->present(); $service->hidden(); Service::present("x"); $service->present(other: "x"); $service->present(value: "x", value: "y"); $service->present(value: "x", "y"); $service->present(value: "x", ...$values); $service->missing(); $unknown->missing(); StaticConfig::$token = "changed"; echo StaticConfig::$token; $callback = transform(...); takesInt(transform(...)); }';
       await writeFile(join(root, 'src', 'Consumer.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -1553,6 +1553,12 @@ class Example {
       expect(disabled.params.diagnostics).toContainEqual(expect.objectContaining({ code: 'php.member.non-static-access', message: 'Cannot access non-static method App\\Service::present statically.' }));
       expect(disabled.params.diagnostics).toContainEqual(expect.objectContaining({ code: 'php.member.inaccessible', message: 'Cannot access private method App\\Service::hidden.' }));
       expect(disabled.params.diagnostics).toContainEqual(expect.objectContaining({ code: 'php.member.inaccessible', message: 'Cannot write private static property App\\StaticConfig::$token.' }));
+      expect(disabled.params.diagnostics.some((item: { code?: string; message?: string }) => item.code === 'php.argument.missing-required'
+        && item.message?.includes('transform'))).toBe(false);
+      expect(disabled.params.diagnostics).toContainEqual(expect.objectContaining({
+        code: 'php.argument.type-mismatch',
+        message: 'App\\takesInt expects $value to be int; proven argument type is Closure.',
+      }));
       expect(disabled.params.diagnostics).toContainEqual(expect.objectContaining({
         code: 'php.inheritance.invalid-type-kind',
         message: 'App\\InvalidRelation cannot extend App\\ServiceContract: expected class, found interface.',

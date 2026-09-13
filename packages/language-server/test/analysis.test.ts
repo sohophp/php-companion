@@ -68,6 +68,7 @@ describe('PHP document analysis', () => {
       { feature: 'mixed type', minimum: '8.0' as const, source: '<?php function accepts(mixed $value): void {}' },
       { feature: 'static return type', minimum: '8.0' as const, source: '<?php class Factory { public function make(): static { return new static(); } }' },
       { feature: 'never type', minimum: '8.1' as const, source: '<?php function stop(): never { throw new Exception(); }' },
+      { feature: 'first-class callable', minimum: '8.1' as const, source: '<?php $callback = strlen(...);' },
       { feature: 'DNF type', minimum: '8.2' as const, source: '<?php function run((A&B)|C $value): void {}' },
       { feature: 'standalone false type', minimum: '8.2' as const, source: '<?php function alwaysFalse(): false { return false; }' },
       { feature: 'standalone false and null types', minimum: '8.2' as const, source: '<?php function falseOrNull(): false|null { return null; }' },
@@ -79,6 +80,8 @@ describe('PHP document analysis', () => {
       { feature: 'property hook', minimum: '8.4' as const, source: '<?php class C { public string $name { get => "name"; } }' },
       { feature: 'final property', minimum: '8.4' as const, source: '<?php class C { final public string $name; }' },
       { feature: 'asymmetric property visibility', minimum: '8.5' as const, source: '<?php class C { public private(set) static string $name; }' },
+      { feature: 'closure in constant expression', minimum: '8.5' as const, source: '<?php const CALLBACK = static function (string $value): string { return $value; };' },
+      { feature: 'first-class callable in constant expression', minimum: '8.5' as const, source: '<?php const CALLBACK = strlen(...);' },
       { feature: 'pipe operator', minimum: '8.5' as const, source: '<?php $result = "hello" |> strtoupper(...);' },
       { feature: 'clone with properties', minimum: '8.5' as const, source: "<?php $copy = clone($object, ['name' => 'new']);" },
       { feature: 'final promoted property', minimum: '8.5' as const, source: '<?php class C { public function __construct(public final string $name) {} }' },
@@ -103,6 +106,41 @@ describe('PHP document analysis', () => {
       const document = TextDocument.create('file:///Invalid85.php', 'php', 1, source);
       expect(analyzePhpDocument(document, parser, '8.5').diagnostics.some((item) => item.code === 'php.syntax'), source).toBe(true);
     }
+  });
+  it('enforces PHP 8.5 constant-expression callable constraints', () => {
+    const cases = [
+      ['Arrow functions cannot be used in constant expressions because they implicitly capture variables.', '<?php const CALLBACK = fn(string $value): string => $value;'],
+      ['Closures in constant expressions must be static.', '<?php const CALLBACK = function (string $value): string { return $value; };'],
+      ['Closures in constant expressions cannot capture variables.', '<?php const CALLBACK = static function () use ($value) { return $value; };'],
+      ['First-class callables in constant expressions must directly name a function or static method.', "<?php const NAME = 'strlen'; const CALLBACK = (NAME)(...);"],
+    ] as const;
+    for (const [message, source] of cases) {
+      const document = TextDocument.create('file:///InvalidConstantCallable.php', 'php', 1, source);
+      expect(analyzePhpDocument(document, parser, '8.5').diagnostics).toContainEqual(expect.objectContaining({
+        code: 'php.constant-expression.invalid-callable', message,
+      }));
+    }
+    for (const source of [
+      '<?php const CALLBACK = static function (string $value): string { return $value; };',
+      '<?php const CALLBACK = strlen(...);',
+      '<?php class C { private static function normalize(string $value): string { return $value; } public const CALLBACK = self::normalize(...); }',
+    ]) {
+      const document = TextDocument.create('file:///ValidConstantCallable.php', 'php', 1, source);
+      expect(analyzePhpDocument(document, parser, '8.5').diagnostics.filter((item) => item.code === 'php.constant-expression.invalid-callable')).toEqual([]);
+    }
+    const contexts = `<?php
+      #[Attribute] class Handler { public function __construct(public Closure $callback) {} }
+      #[Handler(strtolower(...))]
+      class C {
+        public Closure $property = strtoupper(...);
+        public function run(Closure $callback = static function (string $value): string { return $value; }): void {}
+      }
+    `;
+    const php84 = analyzePhpDocument(TextDocument.create('file:///ConstantCallableContexts.php', 'php', 1, contexts), parser, '8.4').diagnostics;
+    expect(php84.filter((item) => item.code === 'php.version.unsupported'
+      && (item.message.includes('closure in constant expression') || item.message.includes('first-class callable in constant expression')))).toHaveLength(3);
+    const php85 = analyzePhpDocument(TextDocument.create('file:///ConstantCallableContexts.php', 'php', 1, contexts), parser, '8.5').diagnostics;
+    expect(php85.filter((item) => item.code === 'php.version.unsupported' || item.code === 'php.constant-expression.invalid-callable')).toEqual([]);
   });
   it('classifies structured declarations and precise symbol uses', () => {
     const document = TextDocument.create('file:///Tokens.php', 'php', 1, `<?php

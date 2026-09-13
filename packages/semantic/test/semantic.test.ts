@@ -655,6 +655,26 @@ describe('conservative semantic workspace', () => {
       { kind: 'unpack-after-named' },
     ]);
   });
+  it('types first-class callable acquisition as Closure without invoking its target', () => {
+    const source = `<?php namespace CallableAcquisition;
+      function transform(string $value): int { return strlen($value); }
+      function takesClosure(\\Closure $callback): void {}
+      function takesInt(int $value): void {}
+      function run(): void {
+        $callback = transform(...);
+        takesClosure(transform(...));
+        takesInt(transform(...));
+      }
+    `;
+    workspace.update('file:///CallableAcquisition.php', source);
+    expect(workspace.missingRequiredArguments('file:///CallableAcquisition.php')).toEqual([]);
+    expect(workspace.incompatibleArguments('file:///CallableAcquisition.php').map((item) => [item.callable, item.actualType, item.expectedType])).toEqual([
+      ['CallableAcquisition\\takesInt', 'Closure', 'int'],
+    ]);
+    const definition = workspace.definition('file:///CallableAcquisition.php', source.indexOf('transform(...)') + 2);
+    expect(definition).toHaveLength(1);
+    expect(source.slice(definition[0]!.start, definition[0]!.end)).toBe('transform');
+  });
   it('identifies only guaranteed expressions with a unique compatible native never call', () => {
     workspace.update('file:///NeverDeclarations.php', `<?php namespace NeverFlow;
       class Allowed {} class Rejected {}
