@@ -38,18 +38,18 @@ const visit = (name) => {
 for (const name of manifests.keys()) visit(name);
 
 try {
-  await run('pnpm', ['exec', 'changeset', 'status', '--since', 'origin/main', '--output', changesetStatus], { cwd: root });
+  await run('pnpm', ['exec', 'changeset', 'status', '--since', 'origin/main', '--output', changesetStatus], { cwd: root, shell: process.platform === 'win32' });
   const releasePlan = JSON.parse(await readFile(changesetStatus, 'utf8'));
   if (!Array.isArray(releasePlan.changesets) || !Array.isArray(releasePlan.releases)) throw new Error('Changesets returned an invalid release plan.');
   await mkdir(tarballs);
   await mkdir(consumer);
   for (const packageDirectory of packageDirectories) {
-    await run('pnpm', ['pack', '--pack-destination', tarballs], { cwd: join(root, packageDirectory) });
+    await run('pnpm', ['pack', '--pack-destination', tarballs], { cwd: join(root, packageDirectory), shell: process.platform === 'win32' });
   }
   const archives = (await readdir(tarballs)).filter((name) => name.endsWith('.tgz')).map((name) => join(tarballs, name));
   if (archives.length !== 15) throw new Error(`Expected fifteen package archives, found ${archives.length}.`);
   await writeFile(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module' }, null, 2));
-  await run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...archives], { cwd: consumer });
+  await run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...archives], { cwd: consumer, shell: process.platform === 'win32' });
   for (const [name] of manifests) {
     const installedRoot = join(consumer, 'node_modules', ...name.split('/'));
     const installed = JSON.parse(await readFile(join(installedRoot, 'package.json'), 'utf8'));
