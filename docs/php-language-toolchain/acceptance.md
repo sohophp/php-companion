@@ -11,8 +11,8 @@ R1 只以以下门槛交付；F01–F14 是 R4 长期门槛，不阻塞符合范
 - [x] S03：Composer/vendor/内建、未保存覆盖、取消和增量失效通过。
 - [x] S04：现有生成/import/类型 Rename/Move 回归通过；类型 Rename 可从唯一解析使用点发起并同步严格匹配的 PSR-4 文件，Safe Move 默认预览完整 namespace/引用编辑，命令以单个 WorkspaceEdit 提交并通过一次 Undo/Redo 往返。
 - [x] S05：只启用已验证诊断；冻结首发 corpus 为 TP=17、FP=0、FN=0，4/21 未知或不完整场景均正确抑制；统计边界见 R1 审计。
-- [x] S06：Twig/YAML/JSON、格式化、测试、调试在 VS Code 1.136.1 / Linux WSL 隔离 Profile 组成实际可操作闭环；插件所有权无冲突。其他平台仍属于 S07/F11–F12 矩阵范围。
-- [x] S07：首发声明的 Linux / WSL 环境达到冻结性能预算，实际 VSIX 安装通过；Windows 原生和 macOS 尚未宣称支持。
+- [x] S06：Twig/YAML/JSON、格式化、测试、调试在 VS Code 1.136.1 / Linux WSL 隔离 Profile 组成实际可操作闭环；插件所有权无冲突。当前主扩展已在 Windows x64、Linux x64 和 macOS arm64 的 VS Code 1.137.0 打包 Extension Host 通过，其他系统的完整插件组合仍属于 F11–F12 矩阵范围。
+- [x] S07：首发声明的 Linux / WSL 环境达到冻结性能预算，实际 VSIX 安装通过；当前候选另有 Windows x64 与 macOS arm64 自动质量、编辑恢复及打包宿主通过证据，但尚未把三系统完整第三方插件组合或 WSL Remote 自动矩阵声明为完成。
 - [x] S08：插件许可证/免费功能、实际版本、限制、安装回退和功能状态页齐备。
 
 R1 的完整核心组件还须通过 [K01–K06 独立安装验收](packaging.md)；新增成熟组件逐版执行同一门槛。
@@ -76,7 +76,7 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 基准命令为 `pnpm benchmark:index -- <文件数> <重复次数>`；它生成固定 Composer/PSR-4 语料、运行真实 parser/index/semantic 链路、输出 JSON，并在 1k/10k/50k 标准规模超预算时返回非零。Linux x64 的 [1k](reports/index-1000-linux-x64-2026-09-06.json)、[10k](reports/index-10000-linux-x64-2026-09-06.json)、[50k](reports/index-50000-linux-x64-2026-09-06.json) 报告中，冷索引 P95 分别为 1497.03/13463.54/64712.98 ms，首个可用结果 P95 为 32.79/96.68/426.11 ms，峰值 RSS 为 115.1/168/323.8 MiB，均满足对应冻结预算。结果不代表尚未实测的平台。
 
-连续编辑与恢复基准命令为 `pnpm benchmark:editing -- <测量次数> <预热次数>`。它通过真实 stdio Language Server 交替更新可区分的对象类型，逐次验证最新补全，测量更新到诊断、热补全、取消和 RSS，并破坏实际持久缓存后重启验证恢复。RSS 采样分别使用 Linux `/proc`、macOS `ps` 和 Windows PowerShell 的进程工作集。Linux x64 的 [1,000 次报告](reports/editing-resilience-linux-x64-2026-09-13.md)通过；CI 已配置在三个系统分别运行 500 次测量并上传原始 JSON，运行成功前不计作对应平台通过。
+连续编辑与恢复基准命令为 `pnpm benchmark:editing -- <测量次数> <预热次数>`。它通过真实 stdio Language Server 交替更新可区分的对象类型，逐次验证最新补全，测量更新到诊断、热补全、取消和 RSS，并破坏实际持久缓存后重启验证恢复。RSS 采样分别使用 Linux `/proc`、macOS `ps` 和 Windows PowerShell 的进程工作集。Linux x64 的 [1,000 次报告](reports/editing-resilience-linux-x64-2026-09-13.md)通过；当前候选还在 Linux x64、Windows x64 与 macOS arm64 分别完成 500 次 CI 测量并保存原始 JSON，见[跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)。
 
 ## 测试层次
 

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "iterations": 500,
+  "warmupIterations": 50,
+  "runtime": "v22.23.2",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+  "updateToDiagnosticsMs": {
+    "samples": 500,
+    "p50": 0.9055989999999383,
+    "p95": 1.4843880000000809,
+    "maximum": 4.911731000000145
+  },
+  "hotCompletionMs": {
+    "samples": 500,
+    "p50": 0.34232700000006844,
+    "p95": 0.4942029999999704,
+    "maximum": 2.321753999999828
+  },
+  "cancellationMs": 0.6150179999999636,
+  "cancellationOutcome": "cancelled",
+  "languageServerRssMb": {
+    "baseline": 167.8125,
+    "peak": 186.30078125,
+    "final": 170.94921875,
+    "retainedGrowth": 3.13671875
+  },
+  "persistentCache": {
+    "files": 1,
+    "corruptCacheRecovered": true,
+    "completionRecoveredAfterRestart": true
+  },
+  "staleCompletionFailures": 0,
+  "budgets": {
+    "hotCompletionP95Ms": 150,
+    "updateToDiagnosticsP95Ms": 500,
+    "cancellationMs": 100,
+    "retainedRssGrowthMb": 128
+  }
+}

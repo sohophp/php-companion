@@ -13,7 +13,7 @@
 - [x] `pnpm test:extension:intelephense`（仅验证手动启用的旧工作流兼容性）
 - [x] `pnpm package:all && pnpm verify:vsix`
 - [ ] 在扩展侧栏的浅色和深色主题中检查三个图标，确认 16px、32px 和详情页尺寸下清晰且易区分。
-- [ ] 当前候选的 Linux、Windows、macOS CI 全部通过；三系统 quality、组件 tarball、编辑恢复基准和打包 Extension Host 已配置，等待当前工作树进入 CI 后记录运行链接与产物。
+- [x] 当前候选的 Linux、Windows、macOS CI 全部通过；三系统 quality、十五个组件 tarball、500 次编辑恢复基准和 VS Code 1.137.0 打包 Extension Host 均通过，证据为 [CI 34771375887](https://github.com/sohophp/php-companion/actions/runs/34771375887)及[跨平台候选验收报告](docs/php-language-toolchain/reports/cross-platform-candidate-2026-09-14.md)。
 
 ## Clean-profile smoke tests
 

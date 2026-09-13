@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "iterations": 500,
+  "warmupIterations": 50,
+  "runtime": "v22.23.2",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "cpu": "Apple M1 (Virtual)",
+  "updateToDiagnosticsMs": {
+    "samples": 500,
+    "p50": 0.5453330000000278,
+    "p95": 0.9065000000000509,
+    "maximum": 4.931124999999838
+  },
+  "hotCompletionMs": {
+    "samples": 500,
+    "p50": 0.24099999999998545,
+    "p95": 0.33291699999995217,
+    "maximum": 5.515374999999949
+  },
+  "cancellationMs": 0.3392500000002201,
+  "cancellationOutcome": "cancelled",
+  "languageServerRssMb": {
+    "baseline": 163.671875,
+    "peak": 166.734375,
+    "final": 166.734375,
+    "retainedGrowth": 3.0625
+  },
+  "persistentCache": {
+    "files": 1,
+    "corruptCacheRecovered": true,
+    "completionRecoveredAfterRestart": true
+  },
+  "staleCompletionFailures": 0,
+  "budgets": {
+    "hotCompletionP95Ms": 150,
+    "updateToDiagnosticsP95Ms": 500,
+    "cancellationMs": 100,
+    "retainedRssGrowthMb": 128
+  }
+}

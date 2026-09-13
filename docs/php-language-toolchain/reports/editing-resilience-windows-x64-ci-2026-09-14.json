@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "iterations": 500,
+  "warmupIterations": 50,
+  "runtime": "v22.23.2",
+  "platform": "win32",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) 6973P-C",
+  "updateToDiagnosticsMs": {
+    "samples": 500,
+    "p50": 1.096799999999348,
+    "p95": 1.8297999999995227,
+    "maximum": 7.095699999999852
+  },
+  "hotCompletionMs": {
+    "samples": 500,
+    "p50": 0.493399999999383,
+    "p95": 0.7103000000006432,
+    "maximum": 4.1850999999987835
+  },
+  "cancellationMs": 52.79490000000078,
+  "cancellationOutcome": "completed-before-cancellation",
+  "languageServerRssMb": {
+    "baseline": 115.08203125,
+    "peak": 119.41796875,
+    "final": 116.91015625,
+    "retainedGrowth": 1.828125
+  },
+  "persistentCache": {
+    "files": 1,
+    "corruptCacheRecovered": true,
+    "completionRecoveredAfterRestart": true
+  },
+  "staleCompletionFailures": 0,
+  "budgets": {
+    "hotCompletionP95Ms": 150,
+    "updateToDiagnosticsP95Ms": 500,
+    "cancellationMs": 100,
+    "retainedRssGrowthMb": 128
+  }
+}

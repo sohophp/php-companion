@@ -29,4 +29,4 @@
 
 ## 边界
 
-本报告证明当前 Linux x64 机器上的 1,100 次连续编辑会话，不把有限样本扩大为任意时长绝不增长。脚本已实现 Linux `/proc`、macOS `ps` 和 Windows PowerShell 进程工作集采样，并接入三系统 CI；对应 CI 运行成功并保存原始 JSON 前仍不算平台证据。WSL Remote 及包含大型真实项目和全部外部 Provider 的多小时人工会话仍属于最终系统矩阵。因此本报告关闭 Linux x64 的 F13 自动门禁，不单独宣称整个跨平台 F13 完成。
+本报告证明当前 Linux x64 机器上的 1,100 次连续编辑会话，不把有限样本扩大为任意时长绝不增长。后续当前候选已在 Linux x64、Windows x64 与 macOS arm64 完成三系统 CI，证据见[跨平台候选验收报告](cross-platform-candidate-2026-09-14.md)。WSL Remote 及包含大型真实项目和全部外部 Provider 的多小时人工会话仍属于最终系统矩阵。因此本报告关闭 Linux x64 的 F13 自动门禁，不单独宣称整个跨平台 F13 完成。
