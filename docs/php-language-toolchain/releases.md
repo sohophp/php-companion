@@ -35,7 +35,7 @@ R0 不含自研 PHP LS 完成声明。只有临时 PHP 核心和整套工具闭�
 - [x] Hover、参数提示、定义跳转、文档/工作区符号。
 - [x] namespace/use、继承、接口、Trait、可见性和 self/parent/static 的常见路径。
 - [x] Composer 项目、vendor 与内建符号，未保存文档和增量索引。
-- [x] 基础引用查找；类型声明 Rename/Safe Move 延续已有范围，证明不足时拒绝。
+- [x] 基础引用查找；class/interface/trait/enum 可从声明执行 F2，以一次可撤销编辑同步规范 PSR-4 文件名、声明、跨文件引用和 PHPDoc，普通字符串保持不变；Safe Move 在证明不足时拒绝。
 - [x] 文件生成、导入和整理 imports，不退化当前可用工作流。
 - [x] 仅启用高置信度语法、namespace/PSR-4、重复声明等诊断。
 - [x] 简单赋值、调用返回值、可空值判断的基础推断；复杂泛型和动态类型显式降级。

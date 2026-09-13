@@ -70,6 +70,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       semanticProviders: configuration.get<unknown[]>('semanticProviders', []),
       symfonyRouteProviders: symfonyRouteProviders(),
       testMode: context.extensionMode === vscode.ExtensionMode.Test,
+      // PHP Companion stages declaration edits through onWillRenameFiles so a
+      // PSR-4 file rename and its text changes remain one undoable operation.
+      manualRenameProvider: true,
     }),
     synchronize: { configurationSection: 'phpCompanion' },
     errorHandler: ((): ErrorHandler => {

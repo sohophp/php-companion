@@ -104,9 +104,9 @@ describe('language server stdio', () => {
       } }));
       const edit = (await output.waitFor((message) => message.id === 103)).result;
       expect(edit.changes).toBeUndefined();
-      expect(edit.documentChanges[0]).toMatchObject({ kind: 'rename', oldUri: declarationUri, newUri: pathToFileURL(join(root, 'src', 'NewName.php')).toString() });
-      const textChanges = edit.documentChanges.slice(1);
-      expect(textChanges.find((change: { textDocument: { uri: string } }) => change.textDocument.uri.endsWith('/NewName.php'))?.edits).toHaveLength(1);
+      expect(edit.documentChanges.at(-1)).toMatchObject({ kind: 'rename', oldUri: declarationUri, newUri: pathToFileURL(join(root, 'src', 'NewName.php')).toString() });
+      const textChanges = edit.documentChanges.slice(0, -1);
+      expect(textChanges.find((change: { textDocument: { uri: string } }) => change.textDocument.uri === declarationUri)?.edits).toHaveLength(1);
       const useEdits = textChanges.find((change: { textDocument: { uri: string } }) => change.textDocument.uri === uri)?.edits;
       expect(useEdits).toHaveLength(3);
       expect(useEdits.every((item: { newText: string }) => item.newText === 'NewName')).toBe(true);

@@ -4219,26 +4219,29 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   await waitFor(() => moveConsumerDocument.getText().includes('use App\\Service\\MovableService;') && !moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;') && !moveConsumerDocument.isDirty, 'Reverse move did not reconcile and save imports');
   assert.strictEqual(moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length, 1, 'Reverse move left duplicate use statements');
 
-  const referenceOffset = controllerDocument.getText().lastIndexOf('UserService');
-  assert.ok(referenceOffset >= 0);
+  const declarationOffset = serviceDocument.getText().indexOf('UserService');
+  assert.ok(declarationOffset >= 0);
   const aliasUseOffset = aliasDocument.getText().indexOf('Service $service');
-  await assert.rejects(
-    Promise.resolve(vscode.commands.executeCommand(
+  let aliasRename: vscode.WorkspaceEdit | undefined;
+  try {
+    aliasRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
       'vscode.executeDocumentRenameProvider',
       aliasUri,
       aliasDocument.positionAt(aliasUseOffset + 2),
       'ShouldNotRename',
-    )),
-    /can't be renamed/,
-    'Type Rename unexpectedly started from an explicit alias use',
-  );
+    );
+  } catch (error) {
+    assert.match(error instanceof Error ? error.message : String(error), /No result|can't be renamed/, 'Alias Rename failed for an unexpected reason');
+  }
+  assert.strictEqual(aliasRename, undefined, 'Type Rename unexpectedly started from an explicit alias use');
+  assert.ok(aliasDocument.getText().includes('use App\\Service\\UserService as Service;'), 'Rejected alias Rename changed the document');
   const edit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider',
-    controllerUri,
-    controllerDocument.positionAt(referenceOffset + 2),
+    serviceUri,
+    serviceDocument.positionAt(declarationOffset + 2),
     'AccountService',
   );
-  assert.ok(edit, 'F2 RenameProvider returned no edit for the resolved constructor type use');
+  assert.ok(edit, 'F2 RenameProvider returned no edit for the class declaration');
   assert.ok(edit.entries().length >= 2, 'Rename did not include cross-file text edits');
   try {
     await vscode.window.showTextDocument(serviceDocument);
@@ -4254,6 +4257,8 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     const updatedAlias = aliasDocument.getText();
     assert.ok(updatedAlias.includes('use App\\Service\\AccountService as Service;'), 'Aliased import path was not renamed');
     assert.ok(updatedAlias.includes('consume(Service $service): Service'), 'Explicit alias was unexpectedly changed');
+    const renamedServiceDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === renamedServiceUri.toString());
+    assert.ok((renamedServiceDocument ?? serviceDocument).getText().includes('class AccountService'), 'Class declaration text was not updated with its PSR-4 file rename');
     const staleDuplicate = Buffer.from(await vscode.workspace.fs.readFile(staleDuplicateUri)).toString('utf8');
     assert.ok(staleDuplicate.includes('class UserService'), 'A non-canonical duplicate declaration was unexpectedly renamed');
     await vscode.commands.executeCommand('undo');
@@ -4284,5 +4289,107 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
       await restoreTextFixture(uri, original);
     }
   }
+
+  const verifyDeclarationRename = async (fixture: {
+    declarationUri: vscode.Uri;
+    consumerUri: vscode.Uri;
+    oldName: string;
+    newName: string;
+    declarationKind: 'interface' | 'trait' | 'enum';
+    renamedReferences: readonly string[];
+    ordinaryText: string;
+  }): Promise<void> => {
+    const renamedUri = vscode.Uri.joinPath(fixture.declarationUri, '..', `${fixture.newName}.php`);
+    const originalDeclaration = await vscode.workspace.fs.readFile(fixture.declarationUri);
+    const originalConsumer = await vscode.workspace.fs.readFile(fixture.consumerUri);
+    const declarationDocument = await vscode.workspace.openTextDocument(fixture.declarationUri);
+    const consumerDocument = await vscode.workspace.openTextDocument(fixture.consumerUri);
+    const offset = declarationDocument.getText().indexOf(`${fixture.declarationKind} ${fixture.oldName}`) + fixture.declarationKind.length + 1;
+    assert.ok(offset >= fixture.declarationKind.length + 1, `${fixture.declarationKind} declaration fixture is missing`);
+    await vscode.window.showTextDocument(declarationDocument);
+    const renameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+      'vscode.executeDocumentRenameProvider', fixture.declarationUri, declarationDocument.positionAt(offset + 1), fixture.newName,
+    );
+    assert.ok(renameEdit, `${fixture.declarationKind} declaration F2 returned no edit`);
+    assert.ok(renameEdit.entries().some(([uri, edits]) => uri.toString() === fixture.consumerUri.toString() && edits.length > 0),
+      `${fixture.declarationKind} declaration F2 omitted its consumer text edits`);
+    try {
+      assert.ok(await vscode.workspace.applyEdit(renameEdit), `${fixture.declarationKind} declaration F2 edit could not be applied`);
+      try {
+        await waitForAsync(async () => {
+          try {
+            await vscode.workspace.fs.stat(renamedUri);
+            const renamedDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === renamedUri.toString());
+            return (renamedDocument ?? declarationDocument).getText().includes(`${fixture.declarationKind} ${fixture.newName}`)
+              && fixture.renamedReferences.every((reference) => consumerDocument.getText().includes(reference));
+          } catch { return false; }
+        }, `${fixture.declarationKind} declaration F2 did not update its file and references`);
+      } catch (error) {
+        let renamedDeclaration = vscode.workspace.textDocuments.find((document) => document.uri.toString() === renamedUri.toString())?.getText() ?? '<not-open>';
+        let originalDeclarationState = '<missing>';
+        try { renamedDeclaration = Buffer.from(await vscode.workspace.fs.readFile(renamedUri)).toString('utf8'); } catch { /* Report a missing rename target. */ }
+        try { originalDeclarationState = Buffer.from(await vscode.workspace.fs.readFile(fixture.declarationUri)).toString('utf8'); } catch { /* Report a missing original. */ }
+        const missingReferences = fixture.renamedReferences.filter((reference) => !consumerDocument.getText().includes(reference));
+        throw new Error(`${error instanceof Error ? error.message : String(error)}; target=${JSON.stringify(renamedDeclaration)}; original=${JSON.stringify(originalDeclarationState)}; missing=${JSON.stringify(missingReferences)}; consumer=${JSON.stringify(consumerDocument.getText())}`);
+      }
+      assert.ok(consumerDocument.getText().includes(fixture.ordinaryText), `${fixture.declarationKind} declaration F2 changed ordinary string content`);
+      await vscode.commands.executeCommand('undo');
+      await waitForAsync(async () => {
+        try {
+          await vscode.workspace.fs.stat(fixture.declarationUri);
+          const restoredDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === fixture.declarationUri.toString());
+          return (restoredDocument ?? declarationDocument).getText().includes(`${fixture.declarationKind} ${fixture.oldName}`)
+            && consumerDocument.getText().includes(fixture.oldName);
+        } catch { return false; }
+      }, `${fixture.declarationKind} declaration F2 could not be undone as one editor operation`);
+      await vscode.commands.executeCommand('redo');
+      await waitForAsync(async () => {
+        try {
+          await vscode.workspace.fs.stat(renamedUri);
+          const renamedDocument = vscode.workspace.textDocuments.find((document) => document.uri.toString() === renamedUri.toString());
+          return (renamedDocument ?? declarationDocument).getText().includes(`${fixture.declarationKind} ${fixture.newName}`)
+            && fixture.renamedReferences.every((reference) => consumerDocument.getText().includes(reference));
+        } catch { return false; }
+      }, `${fixture.declarationKind} declaration F2 could not be redone as one editor operation`);
+    } finally {
+      try {
+        const renamedDocument = await vscode.workspace.openTextDocument(renamedUri);
+        if (renamedDocument.isDirty) assert.ok(await renamedDocument.save(), `Could not save renamed ${fixture.declarationKind} fixture`);
+        const restoreFile = new vscode.WorkspaceEdit();
+        restoreFile.renameFile(renamedUri, fixture.declarationUri);
+        assert.ok(await vscode.workspace.applyEdit(restoreFile), `Could not restore renamed ${fixture.declarationKind} fixture path`);
+      } catch { /* The rename may have failed before creating its target. */ }
+      await restoreTextFixture(fixture.declarationUri, originalDeclaration);
+      await restoreTextFixture(fixture.consumerUri, originalConsumer);
+    }
+  };
+
+  await verifyDeclarationRename({
+    declarationUri: vscode.Uri.joinPath(workspace.uri, 'src', 'Contract', 'ExportContract.php'),
+    consumerUri: vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ExportService.php'),
+    oldName: 'ExportContract',
+    newName: 'ReportContract',
+    declarationKind: 'interface',
+    renamedReferences: ['use App\\Contract\\ReportContract;', 'implements ReportContract', '@return ReportContract', 'contract(): ReportContract'],
+    ordinaryText: "'ExportContract'",
+  });
+  await verifyDeclarationRename({
+    declarationUri: vscode.Uri.joinPath(workspace.uri, 'src', 'Support', 'LogsActivity.php'),
+    consumerUri: vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ActivityService.php'),
+    oldName: 'LogsActivity',
+    newName: 'TracksActivity',
+    declarationKind: 'trait',
+    renamedReferences: ['use App\\Support\\TracksActivity;', 'use TracksActivity;', 'class-string<TracksActivity>', 'TracksActivity::class'],
+    ordinaryText: "'LogsActivity'",
+  });
+  await verifyDeclarationRename({
+    declarationUri: vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'DeliveryState.php'),
+    consumerUri: enumConsumerUri,
+    oldName: 'DeliveryState',
+    newName: 'ShipmentState',
+    declarationKind: 'enum',
+    renamedReferences: ['use App\\Service\\ShipmentState;', '@return ShipmentState', 'ShipmentState::Ready', 'ShipmentState::from'],
+    ordinaryText: "'DeliveryState'",
+  });
   if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') await verifyOpenSourceProfile(workspace);
 }

@@ -48,6 +48,7 @@ export interface BuildRenameOptions {
   fileMode: 'off' | 'preview' | 'always';
   includePhpDoc: boolean;
   psr4Mappings: Psr4Mapping[];
+  stageFileRename?: (oldUri: vscode.Uri, newUri: vscode.Uri, edit: vscode.WorkspaceEdit) => void;
 }
 
 function canonicalDeclarations(declarations: IndexedDeclaration[], fqcn: string, mappings: Psr4Mapping[], preferredUri?: string): IndexedDeclaration[] {
@@ -97,9 +98,10 @@ export async function buildRenameEdit(
   const sourceByUri = new Map<string, string>();
   for (const file of index.getFiles()) {
     const sourceUri = vscode.Uri.parse(file.uri);
-    // VS Code applies resource operations before text edits even when renameFile is appended last.
-    // Text edits for the declaration file must therefore address its post-rename URI.
-    const uri = targetUri && file.uri === canonical.uri ? targetUri : sourceUri;
+    // WorkspaceEdit applies text edits before resource operations. Keep edits
+    // for the declaration on its existing URI so they land before the file is
+    // renamed to its PSR-4 target.
+    const uri = sourceUri;
     snapshots.push({ uri: uri.toString(), version: null, length: file.source.length }); sourceByUri.set(uri.toString(), file.source);
     for (const item of file.declarations.filter((candidate) => candidate.uri === canonical.uri && candidate.start === canonical.start)) {
       plannedEdits.push({ uri: uri.toString(), start: item.start, end: item.end, newText: newName });
@@ -115,13 +117,16 @@ export async function buildRenameEdit(
   }
   const plan = createEditPlan(`Rename ${canonical.fqcn} to ${newName}`, snapshots, plannedEdits, targetUri ? [{ kind: 'rename', oldUri: declarationUri.toString(), newUri: targetUri.toString() }] : []);
   const edit = new vscode.WorkspaceEdit();
+  const staged = new vscode.WorkspaceEdit();
+  for (const planned of plan.textEdits) {
+    const source = sourceByUri.get(planned.uri); if (source === undefined) throw new RenameError(`Missing source snapshot for ${planned.uri}.`);
+    const target = targetUri && planned.uri === declarationUri.toString() && options.stageFileRename ? staged : edit;
+    target.replace(vscode.Uri.parse(planned.uri), uriRange(planned.start, planned.end, source), planned.newText);
+  }
+  if (targetUri && staged.entries().length) options.stageFileRename?.(declarationUri, targetUri, staged);
   for (const operation of plan.fileOperations) if (operation.kind === 'rename') edit.renameFile(vscode.Uri.parse(operation.oldUri), vscode.Uri.parse(operation.newUri), { overwrite: operation.overwrite ?? false }, {
     label: `Rename ${oldName}.php to ${newName}.php`, needsConfirmation: false,
   });
-  for (const planned of plan.textEdits) {
-    const source = sourceByUri.get(planned.uri); if (source === undefined) throw new RenameError(`Missing source snapshot for ${planned.uri}.`);
-    edit.replace(vscode.Uri.parse(planned.uri), uriRange(planned.start, planned.end, source), planned.newText);
-  }
   return edit;
 }
 
@@ -132,6 +137,7 @@ export interface PhpRenameProviderOptions {
   mappingsForUri: (uri: vscode.Uri) => Psr4Mapping[];
   log?: (message: string) => void;
   unsupportedReturnsUndefined?: boolean;
+  stageFileRename?: (oldUri: vscode.Uri, newUri: vscode.Uri, edit: vscode.WorkspaceEdit) => void;
 }
 
 function configuredFileMode(configuration: vscode.WorkspaceConfiguration): 'off' | 'preview' | 'always' {
@@ -209,6 +215,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
       fileMode: configuredFileMode(configuration),
       includePhpDoc: configuration.get<boolean>('rename.phpDoc', true),
       psr4Mappings: this.options.mappingsForUri(document.uri),
+      stageFileRename: this.options.stageFileRename,
     });
     this.options.log?.(`Rename ${fqcn}: ${this.options.index.getFiles().length} indexed files, ${edit.entries().length} affected files, ${(performance.now() - started).toFixed(0)} ms.`);
     return edit;

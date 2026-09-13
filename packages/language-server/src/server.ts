@@ -801,7 +801,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; testMode?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;
@@ -830,7 +830,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
     semanticTokensProvider: { legend: { tokenTypes: [...PHP_SEMANTIC_TOKEN_TYPES], tokenModifiers: [...PHP_SEMANTIC_TOKEN_MODIFIERS] }, full: true },
     inlayHintProvider: true,
     referencesProvider: true,
-    renameProvider: { prepareProvider: true },
+    ...(initialization?.manualRenameProvider === true ? {} : { renameProvider: { prepareProvider: true } }),
     signatureHelpProvider: { triggerCharacters: ['(', ','] },
     codeActionProvider: { codeActionKinds: [CodeActionKind.QuickFix, CodeActionKind.RefactorExtract, CodeActionKind.RefactorInline, CodeActionKind.RefactorRewrite, CodeActionKind.SourceOrganizeImports] },
   },
@@ -1560,14 +1560,16 @@ connection.onRenameRequest(async (params, token) => {
       fileRename = { oldUri: typeTarget.declarationUri, newUri: indexedUriForPath(root, targetPath) };
     }
   }
-  const plannedLocations = target.locations.map((location) => fileRename && location.uri === fileRename.oldUri
-    ? { ...location, uri: fileRename.newUri } : location);
-  const originalUri = (uri: string): string => fileRename?.newUri === uri ? fileRename.oldUri : uri;
+  // LSP documentChanges are applied in array order. Edit the existing
+  // declaration document before renaming its file; addressing the destination
+  // after RenameFile is not reliably representable by VS Code's WorkspaceEdit.
+  const plannedLocations = target.locations;
+  const originalUri = (uri: string): string => uri;
   const uris = [...new Set(plannedLocations.map((location) => location.uri))];
   const snapshots = uris.flatMap((uri) => {
     const sourceUri = originalUri(uri);
     const source = documents.get(sourceUri)?.getText() ?? workspace.source(sourceUri); if (source === undefined) return [];
-    return [{ uri, version: fileRename?.newUri === uri ? null : documents.get(uri)?.version ?? null, length: source.length }];
+    return [{ uri, version: documents.get(uri)?.version ?? null, length: source.length }];
   });
   if (snapshots.length !== uris.length) return null;
   const label = 'fqcn' in target ? `symbol ${target.fqcn}` : `local variable $${target.name}`;
@@ -1581,10 +1583,10 @@ connection.onRenameRequest(async (params, token) => {
   }
   if (!plan.fileOperations.length) return { changes };
   return { documentChanges: [
+    ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
     ...plan.fileOperations.map((operation) => operation.kind === 'rename'
       ? { kind: 'rename' as const, oldUri: operation.oldUri, newUri: operation.newUri, options: { overwrite: operation.overwrite ?? false } }
       : operation),
-    ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
   ] };
 });
 

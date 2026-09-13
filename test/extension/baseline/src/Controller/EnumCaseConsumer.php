@@ -6,8 +6,10 @@ use App\Service\DeliveryState;
 
 final class EnumCaseConsumer
 {
+    /** @return DeliveryState */
     public function state(): DeliveryState
     {
+        $label = 'DeliveryState';
         return DeliveryState::Ready;
     }
 

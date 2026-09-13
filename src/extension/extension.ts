@@ -44,6 +44,10 @@ type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; 
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
 
+function fileRenameKey(oldUri: vscode.Uri | string, newUri: vscode.Uri | string): string {
+  return `${oldUri.toString()}→${newUri.toString()}`;
+}
+
 function fromProtocolWorkspaceEdit(result: ProtocolWorkspaceEdit | null | undefined): vscode.WorkspaceEdit | undefined {
   if (!result) return undefined;
   const edit = new vscode.WorkspaceEdit();
@@ -55,6 +59,28 @@ function fromProtocolWorkspaceEdit(result: ProtocolWorkspaceEdit | null | undefi
     edit.replace(vscode.Uri.parse(uri), new vscode.Range(item.range.start.line, item.range.start.character, item.range.end.line, item.range.end.character), item.newText);
   }
   return edit;
+}
+
+function splitProtocolTypeRenameEdit(result: ProtocolWorkspaceEdit | null | undefined): {
+  edit?: vscode.WorkspaceEdit;
+  staged?: { key: string; edit: vscode.WorkspaceEdit };
+} {
+  if (!result) return {};
+  const renames = (result.documentChanges ?? []).filter((change): change is Extract<ProtocolDocumentChange, { kind: 'rename' }> => 'kind' in change);
+  if (renames.length !== 1) return { edit: fromProtocolWorkspaceEdit(result) };
+  const rename = renames[0]!;
+  const edit = new vscode.WorkspaceEdit();
+  const staged = new vscode.WorkspaceEdit();
+  for (const change of result.documentChanges ?? []) {
+    if ('kind' in change) continue;
+    const target = change.textDocument.uri === rename.oldUri ? staged : edit;
+    for (const item of change.edits) target.replace(vscode.Uri.parse(change.textDocument.uri), new vscode.Range(item.range.start.line, item.range.start.character, item.range.end.line, item.range.end.character), item.newText);
+  }
+  for (const [uri, edits] of Object.entries(result.changes ?? {})) for (const item of edits) {
+    edit.replace(vscode.Uri.parse(uri), new vscode.Range(item.range.start.line, item.range.start.character, item.range.end.line, item.range.end.character), item.newText);
+  }
+  edit.renameFile(vscode.Uri.parse(rename.oldUri), vscode.Uri.parse(rename.newUri), { overwrite: rename.options?.overwrite ?? false });
+  return { edit, staged: staged.entries().length ? { key: fileRenameKey(rename.oldUri, rename.newUri), edit: staged } : undefined };
 }
 
 function replacePasteAliases(source: string, replacements: Record<string, string>): string {
@@ -77,6 +103,7 @@ export function activate(context: vscode.ExtensionContext): void {
   type ServerMoveReconciliation = { oldUri: string; newUri: string; newNamespace: string; sourceUris: string[]; declarations: Array<{ oldFqcn: string; newFqcn: string }> };
   const pendingServerSafeMoves = new Map<string, ServerMoveReconciliation[]>();
   const pendingMovePlanning = new Map<string, Promise<void>>();
+  const pendingTypeRenameEdits = new Map<string, vscode.WorkspaceEdit>();
   let movePipeline: Promise<void> = Promise.resolve();
   let workspacePromise: Promise<WorkspaceManager> | undefined;
 
@@ -424,6 +451,7 @@ export function activate(context: vscode.ExtensionContext): void {
       mappingsForUri: (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? [],
       log: (message) => output.info(message),
       unsupportedReturnsUndefined: selfLanguageServer,
+      stageFileRename: (oldUri, newUri, edit) => pendingTypeRenameEdits.set(fileRenameKey(oldUri, newUri), edit),
     });
   };
   const lazyRename: vscode.RenameProvider = {
@@ -458,7 +486,14 @@ export function activate(context: vscode.ExtensionContext): void {
             },
           }, token,
         );
-        return fromProtocolWorkspaceEdit(result);
+        const converted = splitProtocolTypeRenameEdit(result);
+        if (converted.staged) {
+          pendingTypeRenameEdits.set(converted.staged.key, converted.staged.edit);
+          setTimeout(() => {
+            if (pendingTypeRenameEdits.get(converted.staged!.key) === converted.staged!.edit) pendingTypeRenameEdits.delete(converted.staged!.key);
+          }, 60_000);
+        }
+        return converted.edit;
       } catch (error) {
         output.warn(`Rename rejected: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
@@ -542,30 +577,42 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;
+      const typeRenameKey = files.length === 1 ? fileRenameKey(files[0]!.oldUri, files[0]!.newUri) : undefined;
+      const stagedTypeRename = typeRenameKey ? pendingTypeRenameEdits.get(typeRenameKey) : undefined;
+      if (typeRenameKey && stagedTypeRename) {
+        pendingTypeRenameEdits.delete(typeRenameKey);
+        event.waitUntil(Promise.resolve(stagedTypeRename));
+        return;
+      }
       if (files.every((file) => delegatedSafeMoves.has(`${file.oldUri.toString()}→${file.newUri.toString()}`))) return;
       if (!vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<boolean>('move.enabled', true)) return;
       const key = files.map((file) => `${file.oldUri}→${file.newUri}`).sort().join('|');
-      const sourceSnapshots = Promise.all(files.map(async (file) => {
-        const document = vscode.workspace.textDocuments.find((candidate) => candidate.uri.toString() === file.oldUri.toString());
-        if (document?.isDirty) throw new MoveError(`Cannot move PHP types: save related file ${file.oldUri.fsPath} first.`);
-        return { ...file, source: document?.getText() ?? new TextDecoder().decode(await vscode.workspace.fs.readFile(file.oldUri)) };
-      }));
       const planning = (async (): Promise<vscode.WorkspaceEdit> => {
         try {
-          const snapshottedFiles = await sourceSnapshots;
           await movePipeline;
           await Promise.all(files.flatMap((file) => [versions.ensureForUri(file.oldUri), versions.ensureForUri(file.newUri)]));
           // Explorer moves wholly outside PSR-4 have no namespace contract to reconcile.
-          // A move across the boundary still participates and must pass Safe Move checks.
-          const managedFiles = files.filter((file) => [file.oldUri, file.newUri].some((uri) =>
-            resolvePsr4Namespace(uri.fsPath, versions.stateForUri(uri)?.composer?.psr4 ?? []) !== undefined));
+          // A move across the boundary still participates and must pass Safe Move checks. A
+          // filename-only rename inside one namespace has no PHP namespace/reference work;
+          // the normal PSR-4 filename diagnostic remains responsible for any mismatch.
+          const managedFiles = files.filter((file) => {
+            const mappings = versions.stateForUri(file.oldUri)?.composer?.psr4
+              ?? versions.stateForUri(file.newUri)?.composer?.psr4 ?? [];
+            const oldNamespace = resolvePsr4Namespace(file.oldUri.fsPath, mappings);
+            const newNamespace = resolvePsr4Namespace(file.newUri.fsPath, mappings);
+            return oldNamespace !== newNamespace && (oldNamespace !== undefined || newNamespace !== undefined);
+          });
           if (!managedFiles.length) return new vscode.WorkspaceEdit();
+          const snapshottedFiles = await Promise.all(managedFiles.map(async (file) => {
+            const document = vscode.workspace.textDocuments.find((candidate) => candidate.uri.toString() === file.oldUri.toString());
+            if (document?.isDirty) throw new MoveError(`Cannot move PHP types: save related file ${file.oldUri.fsPath} first.`);
+            return { ...file, source: document?.getText() ?? new TextDecoder().decode(await vscode.workspace.fs.readFile(file.oldUri)) };
+          }));
           if (vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<string>('indexing.mode', 'onDemand') === 'off') {
             throw new MoveError('Safe Move requires phpCompanion.indexing.mode to be onDemand or experimental.');
           }
           if (selfLanguageServer) {
-            const managedUris = new Set(managedFiles.map((file) => file.oldUri.toString()));
-            const planned = await requestSafeMovePlan(snapshottedFiles.filter((file) => managedUris.has(file.oldUri.toString())), false);
+            const planned = await requestSafeMovePlan(snapshottedFiles, false);
             pendingServerSafeMoves.set(key, planned.reconciliation);
           } else {
             const manager = await workspace();
