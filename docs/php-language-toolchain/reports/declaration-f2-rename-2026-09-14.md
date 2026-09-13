@@ -1,6 +1,6 @@
 # 声明级 F2 类型重命名验收
 
-日期：2026-09-14。范围：在 PHP `class`、`interface`、`trait`、`enum` 声明上发起 F2，将类型名、Composer PSR-4 文件名及已证明引用作为一次可撤销编辑提交。
+日期：2026-09-14。源码：`aa7c2b6c0ba2b1a5bc71755b29ce44fcdb265be8`。自动化证据：[GitHub Actions CI 34778678115](https://github.com/sohophp/php-companion/actions/runs/34778678115)。范围：在 PHP `class`、`interface`、`trait`、`enum` 声明上发起 F2，将类型名、Composer PSR-4 文件名及已证明引用作为一次可撤销编辑提交。
 
 ## 已实现行为
 
@@ -40,6 +40,7 @@ PHP_COMPANION_TEST_LOG_DIR=/tmp/php-companion-f2-logs-20260914-0323 \
 - 十五个组件 tarball 从仓库外消费者安装、导入并运行通过。
 - 源码开发 Extension Host、安装 Intelephense 时的兼容 Extension Host，以及最终主 VSIX 的隔离打包 Extension Host 均以退出码 0 完成。
 - TypeScript、ESLint、三个 VSIX 构建和 VSIX 内容校验通过。
+- CI 的 Linux x64、Windows x64 与 macOS arm64 质量门禁及打包 Extension Host 全部通过；PHP 7.2–8.5 运行时矩阵全部通过。
 
 本地候选 SHA-256：
 
@@ -49,6 +50,14 @@ PHP_COMPANION_TEST_LOG_DIR=/tmp/php-companion-f2-logs-20260914-0323 \
 | `php-companion-open-source-pack-0.4.5.vsix` | `a6a204e16001d394baab7e326ee125e01ea4eb2bffb6cc62e4a03bb19c1c3d2f` |
 | `php-companion-recommended-pack-0.4.5.vsix` | `294d4bab43517286b78d15eb0b57351e9a72c7abf7cc1d36f991147e636b629c` |
 
+CI 上传的候选产物 SHA-256：
+
+| 产物 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `e080c9b4ad5cd78ec524a740aa39a7bbdc9d161b0872e349d8082e383dac3b25` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `7600d4c661f6da6ba8c88caa705fbb06949d0c4baab9e4fb6a2d5031ebdb210b` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `326022056d530072b323993f44c231f7381e47fd43ef17e1fdba6ce0ee09b014` |
+
 ## 边界
 
-以上新行为已在 Linux x64 本地宿主封板。最终提交仍须通过 Linux、Windows、macOS CI 后才能扩展为跨平台证据。公开 npm 和 VS Code Marketplace 发布没有执行。
+以上声明级 F2 行为已在 Linux x64、Windows x64 与 macOS arm64 的真实打包 Extension Host 封板。三系统完整第三方插件组合、WSL Remote 自动矩阵和 R4 其余功能仍按总路线执行。公开 npm 和 VS Code Marketplace 发布没有执行。

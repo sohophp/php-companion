@@ -36,7 +36,7 @@ code --user-data-dir /tmp/php-companion-user \
 - [ ] 确认 `sohophp` publisher 权限及 protected `marketplace` environment。
 - [ ] 使用 `pnpm exec vsce verify-pat sohophp` 验证新的 Marketplace PAT。
 - [x] 将 `CHANGELOG.md` 中的 `Unreleased` 改为发布日期。
-- [ ] 在 class/interface/trait/enum 声明上执行 F2，确认跨文件引用、PHPDoc 和文件预览正确，字符串与相关测试不变。
+- [x] 在 class/interface/trait/enum 声明上执行 F2，确认跨文件引用、PHPDoc 和文件预览正确，字符串与相关测试不变；证据见[声明级 F2 类型重命名验收](docs/php-language-toolchain/reports/declaration-f2-rename-2026-09-14.md)。
 - [ ] 创建并推送 `v0.4.5` 标签。
 - [ ] 先发布 `sohophp.php-companion`。
 - [ ] 再发布 `sohophp.php-companion-open-source-pack`。
