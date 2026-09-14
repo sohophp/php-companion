@@ -4278,9 +4278,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     const offset = declarationDocument.getText().indexOf(`${fixture.declarationKind} ${fixture.oldName}`) + fixture.declarationKind.length + 1;
     assert.ok(offset >= fixture.declarationKind.length + 1, `${fixture.declarationKind} declaration fixture is missing`);
     await vscode.window.showTextDocument(declarationDocument);
-    const renameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
-      'vscode.executeDocumentRenameProvider', fixture.declarationUri, declarationDocument.positionAt(offset + 1), fixture.newName,
-    );
+    let renameEdit: vscode.WorkspaceEdit | undefined;
+    await waitForAsync(async () => {
+      renameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+        'vscode.executeDocumentRenameProvider', fixture.declarationUri, declarationDocument.positionAt(offset + 1), fixture.newName,
+      );
+      return Boolean(renameEdit);
+    }, `${fixture.declarationKind} declaration Rename provider did not become ready`, 30_000, 100);
     assert.ok(renameEdit, `${fixture.declarationKind} declaration F2 returned no edit`);
     assert.ok(renameEdit.entries().some(([uri, edits]) => uri.toString() === fixture.consumerUri.toString() && edits.length > 0),
       `${fixture.declarationKind} declaration F2 omitted its consumer text edits`);

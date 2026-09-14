@@ -1,5 +1,6 @@
 - 新增 Open Source Profile 的机器可读精确版本清单、隔离 Marketplace 安装器和 Linux/Windows/macOS 完整组合 CI；Symfony Language Tools 0.20.2 会拒绝普通 PHP 声明 Rename，0.20.1 虽在本地组合通过，随后也在重复 Ubuntu CI 中产生相同拒绝。两个默认 Pack 和受支持 Profile 均移除该扩展，版本清单保留拒绝记录并阻止误装，等待上游提供可关闭的 Rename Provider 或稳定修复。
 - 提交 `4cd7530` 的三平台 CI 以 18/18 关闭冻结版本组合门禁：Linux、Windows、macOS 的 Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵全部通过。
+- 声明级 F2 的 Extension Host 验收在切换到刚打开的文档后，以有界重试等待 Language Client 完成 `didOpen` 同步，避免 Windows 快速机器把瞬时 `No result` 误判为 Rename 功能失败。
 - Open Source Profile 先用 `which`/`where.exe` 把各平台 PATH 中的固定 PHPUnit 版本解析为绝对入口，再通过隔离 PHP 代理脚本适配扩展的脚本路径契约，并为测试进程提供 30 秒启动窗口；CI 不再把 `phpunit` 命令名误当成工作区内的 PHP 文件。
 - Safe Move 移动后协调在成功前持续保留源文件快照和已生成的精确计划，`onDidRenameFiles` 与文件观察器共享同一个最多约 20 秒的有界任务；已规划移动的重复文件监控事件使用增量索引，快速反向移动会立即让出旧协调任务，较慢的文件系统或 Language Server 更新不再永久丢失 namespace 与引用修复。
 - 资源管理器 Safe Move 的 `onWillRenameFiles` 阶段冻结源文件、检查未保存内容，并只尝试复用已完成的索引，不再在 VS Code 文件事务中启动全项目索引；索引未就绪时，完整语义计划在移动后从冻结快照生成，始终无法形成精确计划则自动把文件移回原路径，避免留下路径与 namespace 不一致的文件。
