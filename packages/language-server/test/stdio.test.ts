@@ -65,6 +65,57 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
+    try {
+      const cacheDirectory = join(root, '.cache'); const sourceDirectory = join(root, 'src');
+      const configDirectory = join(root, 'config'); const containerDirectory = join(root, 'var', 'cache', 'dev');
+      await mkdir(sourceDirectory); await mkdir(configDirectory); await mkdir(containerDirectory, { recursive: true });
+      const source = `<?php namespace Psr\\Container { interface ContainerInterface { public function get(string $id): mixed; } }
+        namespace App { class Mailer { public function send(): void {} }
+        function run(\\Psr\\Container\\ContainerInterface $container): void { $container->get('app.mailer')->se; } }`;
+      const sourcePath = join(sourceDirectory, 'App.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/App.php'] } }));
+      await writeFile(join(root, 'composer.lock'), '{}');
+      await writeFile(sourcePath, source);
+      await writeFile(join(configDirectory, 'services.yaml'), 'services:\n  app.mailer:\n    class: App\\Mailer\n    public: true\n');
+      await writeFile(join(containerDirectory, 'App_KernelDevDebugContainer.xml'),
+        '<?xml version="1.0"?><container><services><service id="app.mailer" class="App\\Mailer" public="true"/></services></container>');
+      const rootUri = pathToFileURL(root).toString();
+      const start = async (id: number, expectedCached: number): Promise<ReturnType<typeof messagesFrom>> => {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri, initializationOptions: { cacheDirectory },
+        } }));
+        await output.waitFor((message) => message.id === id);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes(`Loaded Symfony facts from 2 sources (${expectedCached} cached)`));
+        return output;
+      };
+      const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === id);
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+      };
+
+      const cold = await start(220, 0); await stop(cold, 221);
+      const hot = await start(222, 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await hot.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      const offset = source.indexOf('->se') + 4;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 223, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
+      } }));
+      expect((await hot.waitFor((message) => message.id === 223)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
+      await stop(hot, 224);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('combines resource settings with explicit Composer platform extension exclusions and refreshes resource settings', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-extensions-'));
     try {

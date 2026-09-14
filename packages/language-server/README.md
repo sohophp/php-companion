@@ -6,6 +6,8 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 Composer 索引缓存使用 v44 校验封装：schema 72 的解析文件、引用候选与类型依赖，以及每个 PHP 文件的 Symfony Controller/Twig 上下文和 Doctrine repository/association 事实一并验证和恢复。单个缓存条目损坏时只重建对应文件；恢复后的反向继承图继续负责传递失效构造器摘要。已打开且内容不同的文档拒绝磁盘缓存，并且不会把未保存内容写入以磁盘时间戳为键的缓存。
 
+Symfony `services.yaml` 和新鲜 `var/cache/dev/*DebugContainer.xml` 使用独立的 `symfony-facts-v1` 有界缓存。恢复同时校验 Composer 根、来源路径、URI、稳定文件元数据、源内容 SHA-256、事实结构和事实 SHA-256；损坏或陈旧条目单独重建。热启动仍读取来源以验证内容，但不重新执行 YAML/XML 分析。缓存只保存未展开 YAML 事实，resource 服务每次都按当前 PHP 类型目录展开；文件监控明确报告变化时会绕过对应缓存条目。
+
 服务器可按 Composer 根选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter 内建符号。初始化和 `phpCompanion/phpExtensionAvailability` 通知接受 workspace folder/嵌套 Composer 根的禁用及已探测运行时快照，并与 Composer platform 明确为 `false` 的扩展合并；配置、运行时或 Composer 文件变化无需重启即可刷新。运行时载荷必须具有完整版本、SAPI、可执行文件与扩展目录，且 PHP 次版本必须等于服务器目标版本，否则整份运行时事实被拒绝。使用这些已审计扩展的类型、函数或常量时，服务器发布 `php.extension.unavailable`，并区分 workspace 设置、Composer platform 与实际运行时来源；未知扩展、未审计符号和项目 polyfill 保持静默。
 
 PHP 8.4 属性 hook 现在提供 backed/virtual 感知的 Hover/Definition 与直接赋值类型检查，并发布 get-only 写入、set-only 读取、`private(set)` 外部写入、数组间接修改、直接引用、唯一签名按引用调用、属性/对象按引用遍历、接口/抽象属性缺失、继承类型或可见性不兼容、final 覆盖，以及静态、readonly、非法抽象、虚拟默认值和 backed `&get`/`set` 声明诊断。低于 PHP 8.4 的目标版本只保留既有版本边界，不启用这些 hook 语义诊断。

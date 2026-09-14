@@ -38,6 +38,7 @@ import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerConte
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile, type ProjectPhpFileFacts } from './projectFacts.js';
+import { SymfonyFactCache } from './symfonyFactsCache.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -432,14 +433,20 @@ async function freshSymfonyContainerXml(root: string): Promise<string | undefine
   const mtimes = await Promise.all(dependencies.map(async (path) => { try { return (await stat(path)).mtimeMs; } catch { return Number.POSITIVE_INFINITY; } }));
   return mtimes.every((modified) => modified <= selected.modified) ? selected.path : undefined;
 }
-async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspace): Promise<void> {
+async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspace, bypassCachePaths = new Set<string>()): Promise<void> {
   const byFile = new Map<string, SymfonyLiteralMethodReturnFact[]>();
   const catalog = new Map<string, SymfonyServiceFact[]>();
+  const factsCache = cacheDirectory ? await SymfonyFactCache.open(cacheDirectory, root) : undefined;
+  let loadedSources = 0; let cachedSources = 0;
   const candidates = workspace.workspaceTypes().map(({ fqcn, kind, abstract, uri, start, end }) => ({ fqcn, kind, abstract, uri, start, end }));
   const compiledPath = await freshSymfonyContainerXml(root);
   if (compiledPath) {
     try {
-      const uri = indexedUriForPath(root, compiledPath); const compiled = analyzeSymfonyContainerXml(uri, await readFile(compiledPath, 'utf8'));
+      const uri = indexedUriForPath(root, compiledPath);
+      const loaded = factsCache
+        ? await factsCache.loadCompiledContainer(compiledPath, uri, (source) => analyzeSymfonyContainerXml(uri, source), bypassCachePaths.has(compiledPath))
+        : { facts: analyzeSymfonyContainerXml(uri, await readFile(compiledPath, 'utf8')), cached: false };
+      const compiled = loaded.facts; loadedSources += 1; if (loaded.cached) cachedSources += 1;
       if (compiled.complete) {
         catalog.set(uri, compiled.services); byFile.set(uri, symfonyContainerMethodReturnFacts(compiled.services));
         symfonyCompiledMethodArgumentsByRoot.set(root, compiled.methodArguments);
@@ -450,10 +457,18 @@ async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspac
   for (const relativePath of SYMFONY_SERVICE_CONFIGS) {
     const path = resolve(root, relativePath); const uri = indexedUriForPath(root, path);
     try {
-      const source = await readFile(path, 'utf8');
-      const services = expandSymfonyServiceResources(analyzeSymfonyServiceYaml(uri, source), candidates);
+      const loaded = factsCache
+        ? await factsCache.loadServiceYaml(path, uri, (source) => analyzeSymfonyServiceYaml(uri, source), bypassCachePaths.has(path))
+        : { facts: analyzeSymfonyServiceYaml(uri, await readFile(path, 'utf8')), cached: false };
+      loadedSources += 1; if (loaded.cached) cachedSources += 1;
+      const services = expandSymfonyServiceResources(loaded.facts, candidates);
       catalog.set(uri, services); byFile.set(uri, symfonyContainerMethodReturnFacts(services));
     } catch { /* Optional conventional service files may be absent. */ }
+  }
+  if (factsCache) {
+    try { await factsCache.commit(); }
+    catch { connection.console.warn('Persistent Symfony fact cache could not be written.'); }
+    connection.console.info(`Loaded Symfony facts from ${loadedSources} sources (${cachedSources} cached) in ${root}.`);
   }
   symfonyServiceCatalogByRoot.set(root, catalog);
   symfonyServicesByRoot.set(root, byFile); applySymfonyServiceFacts(root, workspace);
@@ -1430,7 +1445,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') { requiresReindex = true; continue; }
     const serviceRoot = rootForUri(change.uri);
     if (serviceRoot && (affectsSymfonyCompiledContainer(serviceRoot, path) || isSymfonyServiceConfig(serviceRoot, path))) {
-      await loadSymfonyServiceFacts(serviceRoot, await semanticForRoot(serviceRoot)); continue;
+      await loadSymfonyServiceFacts(serviceRoot, await semanticForRoot(serviceRoot), new Set([path])); continue;
     }
     if (!path.toLowerCase().endsWith('.php') || documents.get(change.uri)) continue;
     const root = rootForUri(change.uri); const workspace = await semanticForUri(change.uri);
