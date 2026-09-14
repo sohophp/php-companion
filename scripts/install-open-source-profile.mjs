@@ -13,7 +13,8 @@ const userDataDirectory = resolve(process.env.PHP_COMPANION_TEST_USER_DATA_DIR ?
 const vscodeVersion = process.env.PHP_COMPANION_TEST_VSCODE_VERSION ?? '1.137.0';
 const specifications = JSON.parse(await readFile(new URL('../test/extension/open-source-profile.extensions.json', import.meta.url), 'utf8'));
 if (!Array.isArray(specifications) || specifications.some((entry) => typeof entry?.id !== 'string' || typeof entry?.version !== 'string'
-  || (entry.defaultPack !== undefined && typeof entry.defaultPack !== 'boolean'))) {
+  || (entry.defaultPack !== undefined && typeof entry.defaultPack !== 'boolean')
+  || (entry.supportedProfile !== undefined && typeof entry.supportedProfile !== 'boolean'))) {
   throw new Error('Open Source Profile extension registry is invalid.');
 }
 
@@ -39,7 +40,8 @@ const installExtension = async (specification) => {
   }
   throw lastError;
 };
-for (const entry of specifications) {
+const supportedProfile = specifications.filter((entry) => entry.supportedProfile !== false);
+for (const entry of supportedProfile) {
   await installExtension(entry);
 }
 const { stdout } = await runVSCodeCommand([
@@ -48,9 +50,14 @@ const { stdout } = await runVSCodeCommand([
   '--list-extensions', '--show-versions',
 ], { version: vscodeVersion, spawn: { env: commandEnvironment } });
 const installed = new Set(stdout.split(/\r?\n/u).map((line) => line.trim().toLowerCase()).filter(Boolean));
-for (const entry of specifications) {
+for (const entry of supportedProfile) {
   const expected = `${entry.id}@${entry.version}`.toLowerCase();
   if (!installed.has(expected)) throw new Error(`Open Source Profile is missing ${expected}. Installed: ${[...installed].join(', ')}`);
+}
+for (const entry of specifications.filter((candidate) => candidate.supportedProfile === false)) {
+  if ([...installed].some((installedEntry) => installedEntry.startsWith(`${entry.id.toLowerCase()}@`))) {
+    throw new Error(`Open Source Profile contains rejected extension ${entry.id}.`);
+  }
 }
 if ([...installed].some((entry) => entry.startsWith('bmewburn.vscode-intelephense-client@'))) {
   throw new Error('Open Source Profile unexpectedly installed Intelephense.');

@@ -17,7 +17,7 @@
 
 JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code 内建语言服务。XML 由仍在维护的 Red Hat XML/LemMinX 负责，不采用长期未发布且依赖已废弃 `xmldom` 的 DotJoshJohnson XML Tools。
 
-Symfony Language Tools 暂不随 Pack 自动安装。0.20.1 已作为可选框架增强通过完整组合验证；0.20.2 会参与普通 PHP 声明 Rename 并返回拒绝，导致 F2 不可用，而 `extensionPack` 无法锁定依赖版本。需要该增强时可手动安装已验证的 0.20.1 并关闭自动升级，且工作区必须已安装 Composer 依赖。默认关闭 `symfonyLsp.runtimeIndexing` 与 `symfonyLsp.releaseMetadata`；通用 Twig 能力仍由 TwigPlus 提供。
+Symfony Language Tools 暂不随 Pack 自动安装，也不属于受支持组合。0.20.1 与 0.20.2 都在重复门禁中参与普通 PHP 声明 Rename 并返回拒绝，导致 F2 不可用；扩展当前没有关闭该 Provider 的设置。上游提供可关闭的 Rename Provider 或稳定修复并通过三平台门禁后再重新评估。通用 Twig 能力仍由 TwigPlus 提供，Symfony/Doctrine 精准能力由 PHP Companion 自研组件逐步覆盖。
 
 ## 默认行为
 

@@ -15,9 +15,9 @@
 目标：尽早形成可验证的免费工具组合，完成核心开发所需的精准基线。对应 P0、少量 P1 和外部工具集成。
 
 - [x] 验证默认组合成员的许可、实际免费功能、Linux/WSL 平台、PHP 版本、安装方式与维护状态；证据见 Open Source Profile 报告，Windows/macOS 留给 R4 平台矩阵。
-- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client、非核心扩展及存在 Provider 冲突的 Symfony Language Tools 0.20.2 已移出默认安装，八项默认成员已确定许可证与职责边界；Red Hat XML 与可选 Symfony 0.20.1 的隔离组合验收单独记录。
+- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client、非核心扩展及存在 Provider 冲突的 Symfony Language Tools 0.20.1/0.20.2 已移出默认安装和受支持 Profile，八项默认成员已确定许可证与职责边界；Red Hat XML 与 Symfony 历史隔离评估单独记录。
 - [x] 默认插件及职责边界已固定在 integrations.md；JSON/HTML/CSS/JS 使用 VS Code 内建服务。
-- [x] Symfony Language Tools 0.20.1 Linux x64 已在隔离 Extension Host 与 Companion/TwigPlus 同时激活；通用 Twig formatter 仍由 TwigPlus 提供，默认关闭 runtime indexing 与 release metadata。0.20.2 的普通 PHP Rename 冲突已由完整组合门禁捕获，因此当前只提供 0.20.1 可选安装，不随无法锁版本的 Pack 自动安装。静态模式缺少的路由候选由 Companion 在可证明源码范围内补齐。
+- [x] Symfony Language Tools 0.20.1 Linux x64 的静态索引能力已完成历史评估，但它与 0.20.2 都在重复组合门禁中干扰普通 PHP Rename，且没有关闭该 Provider 的设置；当前不提供自动或手动推荐安装。静态路由候选由 Companion 在可证明源码范围内补齐，上游修复后重新执行三平台门禁。
 - [x] 首发 PHP 高频样例、S01–S08 质量门槛及功能所有者表已经冻结并完成 Linux/WSL 审计。
 - [x] 自研核心已通过 R1，未引入临时 PHP LS；手动 Intelephense 旧工作流只保留兼容回归。
 

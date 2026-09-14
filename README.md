@@ -128,4 +128,4 @@ PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准
 - PHP Companion：Composer/PSR-4、文件生成、项目工作流和安全重构。
 
 Intelephense 只作为手动启用的旧工作流兼容路径，不属于任何默认组合。
-Symfony Language Tools 0.20.1 可作为手动安装的框架增强；0.20.2 与普通 PHP F2 Rename 存在 Provider 冲突，修复并通过组合门禁前不随 Pack 自动安装。
+Symfony Language Tools 0.20.1 与 0.20.2 都在重复组合门禁中干扰普通 PHP F2 Rename，而且目前没有关闭该 Provider 的设置，因此暂不建议与 PHP Companion 同时安装。首发 Symfony/Doctrine 精准能力由仓库内的自研组件提供；上游修复后再重新进入三平台组合门禁。

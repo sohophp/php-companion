@@ -41,7 +41,6 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   assert.ok(phpunitExecutable, 'Open Source Profile test requires PHP_COMPANION_PHPUNIT_EXECUTABLE');
   const extensionIds = [
     'sohophp.twig-plus',
-    'symfony.language-tools',
     'redhat.vscode-yaml',
     'redhat.vscode-xml',
     'xdebug.php-debug',
@@ -51,6 +50,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   ];
   for (const id of extensionIds) assert.ok(vscode.extensions.getExtension(id), `${id} is missing from the Open Source Profile`);
   assert.strictEqual(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), undefined, 'Open Source Profile unexpectedly contains Intelephense');
+  assert.strictEqual(vscode.extensions.getExtension('symfony.language-tools'), undefined, 'Open Source Profile contains the rejected Symfony Rename provider');
 
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('executablePath', formatterExecutable, vscode.ConfigurationTarget.Workspace);
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('autoFixByBracket', false, vscode.ConfigurationTarget.Workspace);
@@ -228,66 +228,6 @@ export async function run(): Promise<void> {
     assert.strictEqual(languageServerConfiguration.get('languageServer.enabled'), true, 'Packaged PHP Companion did not enable its self-hosted language server by default');
     assert.strictEqual(inspected?.workspaceValue, undefined, 'Packaged fixture must not explicitly enable the language server');
     assert.strictEqual(inspected?.workspaceFolderValue, undefined, 'Packaged fixture must not explicitly enable the language server for a folder');
-  }
-  if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') {
-    const symfonyExtension = vscode.extensions.getExtension('symfony.language-tools')!;
-    await symfonyExtension.activate();
-    assert.ok(symfonyExtension.isActive, 'Symfony Language Tools did not activate beside the self-hosted PHP language server');
-    const symfonyConfiguration = vscode.workspace.getConfiguration('symfonyLsp', workspace.uri);
-    assert.strictEqual(symfonyConfiguration.get('runtimeIndexing'), false, 'Symfony runtime indexing must stay disabled in the default profile');
-    assert.strictEqual(symfonyConfiguration.get('releaseMetadata'), false, 'Symfony release metadata requests must stay disabled in the default profile');
-
-    const routeUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'ProfileRoute.php');
-    const routeDocument = await vscode.workspace.openTextDocument(routeUri);
-    await vscode.window.showTextDocument(routeDocument);
-    const symfonyStatuses = await vscode.commands.executeCommand<Array<{ root: string; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus') ?? [];
-    const symfonyTracksSyntheticWorkspace = symfonyStatuses.some((status) => status.root === workspace.uri.fsPath && !status.runtimeEnabled);
-    const routePosition = routeDocument.positionAt(routeDocument.getText().indexOf('profile_route_attribute', routeDocument.getText().indexOf('generateUrl')) + 'profile_route_'.length);
-    await waitForAsync(async () => {
-      const locations = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, routePosition) ?? [];
-      return locations.some((location) => {
-        const uri = 'targetUri' in location ? location.targetUri : location.uri;
-        const range = 'targetUri' in location ? location.targetSelectionRange ?? location.targetRange : location.range;
-        return uri.toString() === routeUri.toString() && range.start.line === 4;
-      });
-    }, 'Symfony route definition did not navigate to the PHP Attribute declaration');
-    const yamlRoutePosition = routeDocument.positionAt(routeDocument.getText().indexOf('profile_route_home') + 'profile_route_'.length);
-    await waitForAsync(async () => {
-      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', routeUri, yamlRoutePosition);
-      const routes = result?.items.filter((item) => (typeof item.label === 'string' ? item.label : item.label.label).startsWith('profile_route_')) ?? [];
-      return routes.length === 3 && routes.some((item) => item.label === 'profile_route_home' && item.detail === '/profile/home (source declaration)')
-        && routes.some((item) => item.label === 'profile_route_attribute' && item.detail === '/profile/attribute (source declaration)')
-        && routes.some((item) => item.label === 'profile_route_app_mapped_implicit_index' && item.detail === '/profile/implicit (source declaration)');
-    }, 'Companion did not fill the static YAML route completion gap with the exact declared candidate');
-    const staticRouteItems = async (): Promise<vscode.CompletionItem[]> => {
-      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', routeUri, yamlRoutePosition);
-      return result?.items.filter((item) => item.detail === '/profile/home (source declaration)') ?? [];
-    };
-    const phpExecutable = process.env.PHP_COMPANION_PHP_EXECUTABLE;
-    assert.ok(phpExecutable, 'Provider switching requires the explicit fixture PHP runtime');
-    assert.deepStrictEqual(symfonyConfiguration.get('phpCommand'), [phpExecutable], 'Fixture PHP command must be configured before Symfony activation');
-    const methodPosition = routeDocument.positionAt(routeDocument.getText().indexOf('generateUrl(') + 2);
-    const methodDefinitions = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, methodPosition) ?? [];
-    assert.ok(methodDefinitions.some((location) => {
-      const uri = 'targetUri' in location ? location.targetUri : location.uri;
-      const range = 'targetUri' in location ? location.targetSelectionRange ?? location.targetRange : location.range;
-      return uri.toString() === routeUri.toString() && range.start.line === 9;
-    }), 'Ordinary PHP method navigation stopped beside Symfony Language Tools');
-    if (symfonyTracksSyntheticWorkspace) {
-      try {
-        await symfonyConfiguration.update('runtimeIndexing', true, vscode.ConfigurationTarget.Workspace);
-        await waitForAsync(async () => {
-          const statuses = await vscode.commands.executeCommand<Array<{ root: string; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus');
-          return statuses?.some((status) => status.root === workspace.uri.fsPath && status.runtimeEnabled) ?? false;
-        }, 'Symfony did not receive the runtime indexing ownership change', 30_000, 250);
-        await waitForAsync(async () => (await staticRouteItems()).length === 0, 'Companion continued providing static routes after external ownership was selected');
-      } finally {
-        await symfonyConfiguration.update('runtimeIndexing', false, vscode.ConfigurationTarget.Workspace);
-      }
-      await waitForAsync(async () => (await staticRouteItems()).length === 1, 'Companion did not restore static routes after external ownership was disabled');
-    }
-
-
   }
   const brokenUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Broken.php');
   await vscode.workspace.openTextDocument(brokenUri);

@@ -16,12 +16,12 @@ CI 新增 Linux、Windows 与 macOS 三个 Open Source Profile 任务。每个�
 
 本轮先以 Symfony Language Tools 0.20.2 执行完整组合。普通 alias Rename 的预期拒绝之后，接口声明 `ExportContract` 的 F2 Rename 返回 `The element can't be renamed.`，使整项 VS Code Rename 失败。该版本的客户端以 `file/php` DocumentSelector 注册 Rename，扩展设置中没有关闭该 Provider 的选项；VS Code 会聚合同分值提供者，因此 PHP Companion 无法用更具体的选择器可靠取得独占权。
 
-把唯一变量改为 Symfony Language Tools 0.20.1 后，相同主 VSIX、项目工具链和完整测试以退出码 0 完成。随后在新的临时扩展目录从 Marketplace 精确安装以下八项并再次通过：
+把唯一变量改为 Symfony Language Tools 0.20.1 后，相同主 VSIX、项目工具链和完整测试曾在本地以退出码 0 完成；但随后冻结 0.20.1 的 Ubuntu CI 仍在普通 PHP 声明 F2 上返回相同错误。这说明冲突具有环境或时序相关性，单次通过不足以支持首发。版本注册表保留该候选及拒绝状态，受支持 Profile 只安装其余七项：
 
 | 扩展 | 验证版本 | 默认 Pack |
 | --- | --- | --- |
 | TwigPlus | 1.3.7 | 是 |
-| Symfony Language Tools | 0.20.1 | 否，可选兼容版本 |
+| Symfony Language Tools | 0.20.1 | 否，受支持 Profile 也明确拒绝 |
 | Red Hat YAML | 1.24.0 | 是 |
 | Red Hat XML | 0.29.3 | 是 |
 | PHP Debug | 1.40.1 | 是 |
@@ -29,13 +29,13 @@ CI 新增 Linux、Windows 与 macOS 三个 Open Source Profile 任务。每个�
 | PHP CS Fixer | 0.3.21 | 是 |
 | EditorConfig | 0.18.2 | 是 |
 
-VS Code 的 `extensionPack` 只能声明 ID，不能固定成员版本。默认 Pack 如果继续声明 Symfony Language Tools，新安装会取得已知冲突的 0.20.2。因此两个 Pack 暂时移除该 ID；0.20.1 保留在完整兼容性 Profile 中，供明确锁版本并关闭自动升级的 Symfony 用户选择。上游版本修复后，必须先修改清单并通过三平台组合门禁，才能恢复默认安装。
+VS Code 的 `extensionPack` 只能声明 ID，不能固定成员版本，而 0.20.1 与 0.20.2 都不能稳定共存。因此两个 Pack 和受支持 Profile 均移除该 ID；安装器还会拒绝隔离目录中出现任何版本的 Symfony Language Tools。上游提供可关闭的 Rename Provider 或稳定修复后，必须先修改清单并通过三平台组合门禁，才能恢复推荐安装。
 
 ## 本地证据
 
 - `pnpm typecheck` 与 `pnpm lint` 通过。
 - 十六个组件 624 项测试通过；组合包 manifest 的 3 项聚焦测试通过。
-- 全新隔离目录精确列出八个目标扩展，没有 Intelephense；修正 Safe Move 时序后的纯净打包 Extension Host 与完整 Open Source Profile 打包 Extension Host 均以退出码 0 完成。
+- 诊断阶段的全新隔离目录精确列出八个目标扩展，没有 Intelephense；修正 Safe Move 时序后的纯净打包 Extension Host 与该诊断 Profile 均以退出码 0 完成。随后 CI 复现 Symfony 0.20.1 冲突，最终受支持 Profile 收缩为七项外部扩展，等待新的三平台任务关闭。
 - 本地测试使用 Winstar 的 `bin/php-runtime`、项目 PHP CS Fixer 包装器和 PHPUnit 9.6.36。该证据来自 WSL2/Linux Extension Host，不冒充 Windows 客户端连接 WSL Remote 的独立验收。
 
 ## 边界
