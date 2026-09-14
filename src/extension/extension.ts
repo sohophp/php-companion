@@ -44,16 +44,29 @@ type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; 
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
 
+function fileOperationUriKey(value: vscode.Uri | string): string {
+  const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
+  return uri.scheme === 'file' && process.platform === 'win32' ? uri.fsPath.toLowerCase() : uri.toString();
+}
+
 function fileRenameKey(oldUri: vscode.Uri | string, newUri: vscode.Uri | string): string {
-  const normalized = (value: vscode.Uri | string): string => {
-    const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
-    return uri.scheme === 'file' && process.platform === 'win32' ? uri.fsPath.toLowerCase() : uri.toString();
-  };
-  return `${normalized(oldUri)}→${normalized(newUri)}`;
+  return `${fileOperationUriKey(oldUri)}→${fileOperationUriKey(newUri)}`;
 }
 
 function fileRenamesKey(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[]): string {
   return files.map((file) => fileRenameKey(file.oldUri, file.newUri)).sort().join('|');
+}
+
+function beforeFileRenameEdit(
+  edit: vscode.WorkspaceEdit,
+  files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[],
+): vscode.WorkspaceEdit {
+  const result = new vscode.WorkspaceEdit();
+  for (const [uri, edits] of edit.entries()) {
+    const moved = files.find((file) => fileOperationUriKey(file.newUri) === fileOperationUriKey(uri));
+    result.set(moved?.oldUri ?? uri, edits);
+  }
+  return result;
 }
 
 function fromProtocolWorkspaceEdit(result: ProtocolWorkspaceEdit | null | undefined): vscode.WorkspaceEdit | undefined {
@@ -169,11 +182,14 @@ export function activate(context: vscode.ExtensionContext): void {
     return workspacePromise;
   };
 
-  const applyMoveReconciliation = async (edits: vscode.WorkspaceEdit): Promise<void> => {
+  const applyMoveReconciliation = async (edits: vscode.WorkspaceEdit, additionallyTouched: readonly vscode.Uri[] = []): Promise<void> => {
     if (edits.entries().length && !await vscode.workspace.applyEdit(edits)) throw new MoveError('VS Code could not update moved PHP namespaces and references.');
-    const touched = new Set(edits.entries().map(([uri]) => uri.toString()));
+    const touched = new Set([
+      ...edits.entries().map(([uri]) => fileOperationUriKey(uri)),
+      ...additionallyTouched.map(fileOperationUriKey),
+    ]);
     for (const document of vscode.workspace.textDocuments) {
-      if (!touched.has(document.uri.toString())) continue;
+      if (!touched.has(fileOperationUriKey(document.uri))) continue;
       if (document.isDirty && !await document.save()) throw new MoveError(`VS Code could not save ${document.uri.fsPath}.`);
     }
   };
@@ -622,6 +638,12 @@ export function activate(context: vscode.ExtensionContext): void {
           if (selfLanguageServer) {
             const planned = await requestSafeMovePlan(snapshottedFiles, false);
             pendingServerSafeMoves.set(key, planned.reconciliation);
+            // Participate in VS Code's file-operation transaction so the
+            // namespace and proven references cannot be stranded if an async
+            // did-rename listener is delayed or dropped on Windows. Edits for
+            // the destination are remapped to the source document because the
+            // will-rename edit is applied before the filesystem operation.
+            return beforeFileRenameEdit(planned.edit, managedFiles);
           } else {
             const manager = await workspace();
             // Rebuild from the current files before every Explorer move. A prior
@@ -631,9 +653,8 @@ export function activate(context: vscode.ExtensionContext): void {
             await buildMoveEdits(manager.index, managedFiles, (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
             pendingSafeMoves.set(key, describeMoveReconciliation(manager.index, managedFiles, (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []));
           }
-          // Other PHP extensions may also participate in the rename. Reconcile
-          // against their final result in onDidRenameFiles instead of applying
-          // stale, overlapping ranges from the pre-move document.
+          // The legacy in-process provider reconciles against the final result
+          // because another PHP extension can own the initial file edit.
           return new vscode.WorkspaceEdit();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
@@ -666,7 +687,9 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!serverReconciliation && !reconciliation) return;
       movePipeline = movePipeline.then(async () => {
         if (serverReconciliation) {
-          await applyMoveReconciliation(await requestMoveReconciliation(serverReconciliation));
+          const currentUri = new Map(serverReconciliation.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
+          const touched = serverReconciliation.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
+          await applyMoveReconciliation(await requestMoveReconciliation(serverReconciliation), touched);
           return;
         }
         const manager = await workspace();

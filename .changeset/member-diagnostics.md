@@ -132,7 +132,7 @@ Validate native `#[Deprecated]` targets, including PHP 8.5 Trait and global-cons
 
 Honor PHP 8.5 `#[DelayedTargetValidation]` when an otherwise invalid native Deprecated target is intentionally deferred.
 
-Match file-operation URIs by filesystem identity during Safe Move reconciliation so Windows drive-letter casing cannot strand moved namespaces or references.
+Apply proven Explorer Safe Move edits in the atomic will-rename transaction, then reconcile the final state by filesystem identity so Windows event timing and drive-letter casing cannot strand moved namespaces or references.
 
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
