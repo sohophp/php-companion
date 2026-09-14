@@ -1253,7 +1253,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
   let requiresReindex = false;
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
-    if (path.endsWith('/composer.json') || path.endsWith('/composer.lock')) { requiresReindex = true; continue; }
+    if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') { requiresReindex = true; continue; }
     const serviceRoot = rootForUri(change.uri);
     if (serviceRoot && (affectsSymfonyCompiledContainer(serviceRoot, path) || isSymfonyServiceConfig(serviceRoot, path))) {
       await loadSymfonyServiceFacts(serviceRoot, await semanticForRoot(serviceRoot)); continue;
