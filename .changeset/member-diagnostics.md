@@ -124,9 +124,15 @@ Validate PHP 8.5 `#[Override]` property attributes across classes, interfaces, p
 
 Report discarded PHP 8.5 `#[NoDiscard]` user and audited native return values, validate forbidden declarations, and support `(void)` suppression with its exact version boundary.
 
+Validate all native `#[NoDiscard]` targets, including closures and arrow functions, void/never anonymous functions, and PHP 8.5 `#[DelayedTargetValidation]` suppression.
+
 Surface proven user and builtin deprecations from PHPDoc and PHP 8.4–8.5 `#[Deprecated]`, including functions, methods, constructors, constants, enum cases, traits, and property hooks.
 
 Validate native `#[Deprecated]` targets, including PHP 8.5 Trait and global-constant boundaries, legal closures and property hooks, and forbidden type, property, parameter, and anonymous-class targets.
+
+Honor PHP 8.5 `#[DelayedTargetValidation]` when an otherwise invalid native Deprecated target is intentionally deferred.
+
+Match file-operation URIs by filesystem identity during Safe Move reconciliation so Windows drive-letter casing cannot strand moved namespaces or references.
 
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 

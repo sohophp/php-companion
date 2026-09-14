@@ -678,6 +678,20 @@ describe('conservative semantic workspace', () => {
         #[Important] public function __clone() {}
         public string $name { #[Important] get => $this->name; }
       }
+      #[\\NoDiscard] class InvalidClass {}
+      #[\\NoDiscard] interface InvalidInterface {}
+      #[\\NoDiscard] trait InvalidTrait {}
+      #[\\NoDiscard] enum InvalidEnum { #[\\NoDiscard] case OLD; }
+      class InvalidMembers {
+        #[\\NoDiscard] public const OLD = 1;
+        #[\\NoDiscard] public int $value;
+        public function parameter(#[\\NoDiscard] int $value): int { return $value; }
+        #[\\DelayedTargetValidation] #[\\NoDiscard] public string $delayed;
+      }
+      #[\\NoDiscard] const INVALID_GLOBAL = 1;
+      $invalidAnonymous = new #[\\NoDiscard] class {};
+      $invalidClosure = #[\\NoDiscard] function(): void {};
+      $invalidArrow = #[\\NoDiscard] fn(): never => throw new \\RuntimeException();
       function consume(): void {
         important();
         $used = important();
@@ -707,7 +721,22 @@ describe('conservative semantic workspace', () => {
       ['NoDiscardContracts\\Service::invalidVoid', 'void-return'],
       ['NoDiscardContracts\\Service::invalidNever', 'never-return'],
       ['NoDiscardContracts\\Service::__clone', 'magic-method'],
-      ['NoDiscardContracts\\Service::$name::get', 'property-hook'],
+      [expect.stringMatching(/^closure@/), 'void-return'],
+      [expect.stringMatching(/^arrow function@/), 'never-return'],
+    ]);
+    expect(workspace.invalidNoDiscardTargets('file:///NoDiscard.php').map((item) => [item.target, item.delayedValidation])).toEqual([
+      ['property-hook', false],
+      ['class', false],
+      ['interface', false],
+      ['trait', false],
+      ['enum', false],
+      ['enum-case', false],
+      ['class-constant', false],
+      ['property', false],
+      ['parameter', false],
+      ['property', true],
+      ['global-constant', false],
+      ['anonymous-class', false],
     ]);
     workspace.remove('file:///NoDiscard.php');
   });
@@ -780,6 +809,7 @@ describe('conservative semantic workspace', () => {
       #[\\Deprecated] class InvalidClass {}
       #[\\Deprecated] interface InvalidInterface {}
       #[\\Deprecated] enum InvalidEnum {}
+      #[\\DelayedTargetValidation] #[\\Deprecated] class DelayedInvalidClass {}
       $closure = #[\\Deprecated] function(): void {};
       $arrow = #[\\Deprecated] fn(): int => 1;
       $anonymous = new #[\\Deprecated] class {};
@@ -788,23 +818,24 @@ describe('conservative semantic workspace', () => {
     `;
     workspace.update('file:///DeprecatedTargets.php', source);
     expect(workspace.deprecatedAttributeTargets('file:///DeprecatedTargets.php').map((item) => [
-      item.target, item.valid, item.minimumPhpVersion,
+      item.target, item.valid, item.minimumPhpVersion, item.delayedValidation,
     ])).toEqual([
-      ['function', true, '8.4'],
-      ['method', true, '8.4'],
-      ['parameter', false, '8.4'],
-      ['class-constant', true, '8.4'],
-      ['property', false, '8.4'],
-      ['property-hook', true, '8.4'],
-      ['enum-case', true, '8.4'],
-      ['trait', true, '8.5'],
-      ['global-constant', true, '8.5'],
-      ['class', false, '8.4'],
-      ['interface', false, '8.4'],
-      ['enum', false, '8.4'],
-      ['closure', true, '8.4'],
-      ['closure', true, '8.4'],
-      ['anonymous-class', false, '8.4'],
+      ['function', true, '8.4', false],
+      ['method', true, '8.4', false],
+      ['parameter', false, '8.4', false],
+      ['class-constant', true, '8.4', false],
+      ['property', false, '8.4', false],
+      ['property-hook', true, '8.4', false],
+      ['enum-case', true, '8.4', false],
+      ['trait', true, '8.5', false],
+      ['global-constant', true, '8.5', false],
+      ['class', false, '8.4', false],
+      ['interface', false, '8.4', false],
+      ['enum', false, '8.4', false],
+      ['class', false, '8.4', true],
+      ['closure', true, '8.4', false],
+      ['closure', true, '8.4', false],
+      ['anonymous-class', false, '8.4', false],
     ]);
     workspace.remove('file:///DeprecatedTargets.php');
   });

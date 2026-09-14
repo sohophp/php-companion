@@ -1954,6 +1954,20 @@ class Example {
           #[Important] public function __clone() {}
           public string $name { #[Important] get => $this->name; }
         }
+        #[\\NoDiscard] class InvalidClass {}
+        #[\\NoDiscard] interface InvalidInterface {}
+        #[\\NoDiscard] trait InvalidTrait {}
+        #[\\NoDiscard] enum InvalidEnum { #[\\NoDiscard] case OLD; }
+        class InvalidMembers {
+          #[\\NoDiscard] public const OLD = 1;
+          #[\\NoDiscard] public int $property;
+          public function parameter(#[\\NoDiscard] int $value): int { return $value; }
+          #[\\DelayedTargetValidation] #[\\NoDiscard] public string $delayed;
+        }
+        #[\\NoDiscard] const INVALID_GLOBAL = 1;
+        $invalidAnonymous = new #[\\NoDiscard] class {};
+        $invalidClosure = #[\\NoDiscard] function(): void {};
+        $invalidArrow = #[\\NoDiscard] fn(): never => throw new \\RuntimeException();
         function run(): void {
           important();
           $used = important();
@@ -1982,10 +1996,12 @@ class Example {
         const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics;
         const discarded = diagnostics.filter((item: { code?: string }) => item.code === 'php.return-value.discarded');
         const invalid = diagnostics.filter((item: { code?: string }) => item.code === 'php.attribute.invalid-no-discard');
+        const invalidTargets = diagnostics.filter((item: { code?: string }) => item.code === 'php.attribute.invalid-no-discard-target');
         const voidCast = diagnostics.filter((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
           && item.message?.startsWith('(void) cast'));
         expect(discarded).toHaveLength(phpVersion === '8.5' ? 5 : 0);
-        expect(invalid).toHaveLength(phpVersion === '8.5' ? 4 : 0);
+        expect(invalid).toHaveLength(phpVersion === '8.5' ? 5 : 0);
+        expect(invalidTargets).toHaveLength(phpVersion === '8.5' ? 11 : 0);
         expect(voidCast).toHaveLength(phpVersion === '8.4' ? 1 : 0);
         if (phpVersion === '8.5') {
           expect(discarded.map((item: { message: string }) => item.message)).toEqual(expect.arrayContaining([
@@ -1997,7 +2013,21 @@ class Example {
             expect.stringContaining('App\\Service::invalidVoid'),
             expect.stringContaining('App\\Service::invalidNever'),
             expect.stringContaining('App\\Service::__clone'),
-            expect.stringContaining('App\\Service::$name::get'),
+            expect.stringContaining('closure@'),
+            expect.stringContaining('arrow function@'),
+          ]));
+          expect(invalidTargets.map((item: { message: string }) => item.message)).toEqual(expect.arrayContaining([
+            'Cannot apply #[NoDiscard] to a property hook.',
+            'Cannot apply #[NoDiscard] to a class.',
+            'Cannot apply #[NoDiscard] to an interface.',
+            'Cannot apply #[NoDiscard] to a trait.',
+            'Cannot apply #[NoDiscard] to an enum.',
+            'Cannot apply #[NoDiscard] to an enum case.',
+            'Cannot apply #[NoDiscard] to a class constant.',
+            'Cannot apply #[NoDiscard] to a property.',
+            'Cannot apply #[NoDiscard] to a parameter.',
+            'Cannot apply #[NoDiscard] to a global constant.',
+            'Cannot apply #[NoDiscard] to an anonymous class.',
           ]));
         }
         await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
@@ -2083,6 +2113,7 @@ class Example {
         #[\\Deprecated] class InvalidClass {}
         #[\\Deprecated] interface InvalidInterface {}
         #[\\Deprecated] enum InvalidEnum {}
+        #[\\DelayedTargetValidation] #[\\Deprecated] class DelayedInvalidClass {}
         $closure = #[\\Deprecated] function(): void {};
         $arrow = #[\\Deprecated] fn(): int => 1;
         $anonymous = new #[\\Deprecated] class {};
@@ -2091,7 +2122,7 @@ class Example {
       `;
       await writeFile(join(root, 'DeprecatedTargets.php'), source);
       for (const [phpVersion, expectedVersion, expectedInvalid] of [
-        ['7.4', 0, 0], ['8.3', 15, 0], ['8.4', 2, 6], ['8.5', 0, 6],
+        ['7.4', 0, 0], ['8.3', 16, 0], ['8.4', 2, 7], ['8.5', 0, 6],
       ] as const) {
         const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
         const output = messagesFrom(running);
@@ -2113,14 +2144,16 @@ class Example {
           .toBe(phpVersion === '8.3' || phpVersion === '8.4');
         expect(diagnostics.some((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
           && item.message?.startsWith('attribute requires PHP 8.0'))).toBe(phpVersion === '7.4');
-        expect(invalid.map((item: { message?: string }) => item.message).sort()).toEqual((phpVersion === '8.4' || phpVersion === '8.5' ? [
+        const expectedInvalidMessages = phpVersion === '8.4' || phpVersion === '8.5' ? [
           'Cannot apply #[Deprecated] to an anonymous class.',
           'Cannot apply #[Deprecated] to a class.',
           'Cannot apply #[Deprecated] to an enum.',
           'Cannot apply #[Deprecated] to an interface.',
           'Cannot apply #[Deprecated] to a parameter.',
           'Cannot apply #[Deprecated] to a property.',
-        ] : []).sort());
+        ] : [];
+        if (phpVersion === '8.4') expectedInvalidMessages.push('Cannot apply #[Deprecated] to a class.');
+        expect(invalid.map((item: { message?: string }) => item.message).sort()).toEqual(expectedInvalidMessages.sort());
         await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
       }
     } finally { await rm(root, { recursive: true, force: true }); }

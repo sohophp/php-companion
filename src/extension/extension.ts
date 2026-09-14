@@ -45,7 +45,15 @@ type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; 
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
 
 function fileRenameKey(oldUri: vscode.Uri | string, newUri: vscode.Uri | string): string {
-  return `${oldUri.toString()}→${newUri.toString()}`;
+  const normalized = (value: vscode.Uri | string): string => {
+    const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
+    return uri.scheme === 'file' && process.platform === 'win32' ? uri.fsPath.toLowerCase() : uri.toString();
+  };
+  return `${normalized(oldUri)}→${normalized(newUri)}`;
+}
+
+function fileRenamesKey(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[]): string {
+  return files.map((file) => fileRenameKey(file.oldUri, file.newUri)).sort().join('|');
 }
 
 function fromProtocolWorkspaceEdit(result: ProtocolWorkspaceEdit | null | undefined): vscode.WorkspaceEdit | undefined {
@@ -265,7 +273,7 @@ export function activate(context: vscode.ExtensionContext): void {
           if (await vscode.window.showInformationMessage('Apply the previewed Safe Move?', { modal: true }, 'Apply') !== 'Apply') return;
         }
       }
-      const key = `${source.toString()}→${target.toString()}`;
+      const key = fileRenameKey(source, target);
       delegatedSafeMoves.add(key);
       try {
         const edit = selfLanguageServer ? await requestSafeMove([{ oldUri: source, newUri: target }], true) : new vscode.WorkspaceEdit();
@@ -584,9 +592,9 @@ export function activate(context: vscode.ExtensionContext): void {
         event.waitUntil(Promise.resolve(stagedTypeRename));
         return;
       }
-      if (files.every((file) => delegatedSafeMoves.has(`${file.oldUri.toString()}→${file.newUri.toString()}`))) return;
+      if (files.every((file) => delegatedSafeMoves.has(fileRenameKey(file.oldUri, file.newUri)))) return;
       if (!vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<boolean>('move.enabled', true)) return;
-      const key = files.map((file) => `${file.oldUri}→${file.newUri}`).sort().join('|');
+      const key = fileRenamesKey(files);
       const planning = (async (): Promise<vscode.WorkspaceEdit> => {
         try {
           await movePipeline;
@@ -646,8 +654,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidRenameFiles(async (event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;
-      const key = files.map((file) => `${file.oldUri}→${file.newUri}`).sort().join('|');
-      if (files.every((file) => delegatedSafeMoves.has(`${file.oldUri.toString()}→${file.newUri.toString()}`))) return;
+      const key = fileRenamesKey(files);
+      if (files.every((file) => delegatedSafeMoves.has(fileRenameKey(file.oldUri, file.newUri)))) return;
       const planning = pendingMovePlanning.get(key);
       if (planning) await planning;
       pendingMovePlanning.delete(key);

@@ -147,7 +147,12 @@ export interface OverridePropertyAttribute extends SemanticLocation {
 export interface DiscardedNoDiscardReturn extends SemanticLocation { callable: string; message?: string; }
 export interface InvalidNoDiscardDeclaration extends SemanticLocation {
   callable: string;
-  reason: 'void-return' | 'never-return' | 'magic-method' | 'property-hook';
+  reason: 'void-return' | 'never-return' | 'magic-method';
+}
+export interface InvalidNoDiscardTarget extends SemanticLocation {
+  target: 'property-hook' | 'class-constant' | 'enum-case' | 'trait' | 'global-constant'
+    | 'class' | 'interface' | 'enum' | 'property' | 'parameter' | 'anonymous-class';
+  delayedValidation: boolean;
 }
 export interface DeprecatedSymbolUse extends SemanticLocation {
   symbol: string;
@@ -161,6 +166,7 @@ export interface DeprecatedAttributeTarget extends SemanticLocation {
     | 'class' | 'interface' | 'enum' | 'property' | 'parameter' | 'anonymous-class';
   valid: boolean;
   minimumPhpVersion: '8.4' | '8.5';
+  delayedValidation: boolean;
 }
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
@@ -1505,38 +1511,58 @@ export class SemanticWorkspace {
           : callable.kind === 'method' && magicWithoutReturn.has(callable.name.toLowerCase()) ? 'magic-method' : undefined;
       return reason ? [{ uri, start: attribute.reference.start, end: attribute.reference.end, callable: callable.fqcn, reason }] : [];
     });
-    for (const property of file.properties) for (const hook of property.hooks ?? []) {
-      const namespace = property.containerFqcn.split('\\').slice(0, -1).join('\\');
-      const attribute = file.typeReferences.find((reference) => reference.context === 'attribute'
-        && reference.start >= hook.declarationStart && reference.end <= hook.end
-        && this.resolveSourceType(file, file.source.slice(reference.start, reference.end), namespace, property.containerFqcn)?.toLowerCase() === 'nodiscard');
-      if (attribute) results.push({ uri, start: attribute.start, end: attribute.end,
-        callable: `${property.fqcn}::${hook.kind}`, reason: 'property-hook' });
+    for (const subject of this.builtinAttributeSubjects(file, 'nodiscard')) {
+      if (subject.subjectType !== 'anonymous_function' && subject.subjectType !== 'arrow_function') continue;
+      const returnType = subject.nativeReturnType?.trim().toLowerCase();
+      if (returnType === 'void' || returnType === 'never') results.push({
+        uri, start: subject.reference.start, end: subject.reference.end,
+        callable: `${subject.subjectType === 'arrow_function' ? 'arrow function' : 'closure'}@${subject.subjectStart}`,
+        reason: returnType === 'void' ? 'void-return' : 'never-return',
+      });
     }
     return results;
   }
 
+  invalidNoDiscardTargets(uri: string): InvalidNoDiscardTarget[] {
+    const file = this.files.get(uri); if (!file) return [];
+    return this.builtinAttributeSubjects(file, 'nodiscard').flatMap(({ reference, subjectType, delayedValidation }): InvalidNoDiscardTarget[] => {
+      const result = (target: InvalidNoDiscardTarget['target']): InvalidNoDiscardTarget[] => [{
+        uri, start: reference.start, end: reference.end, target, delayedValidation,
+      }];
+      switch (subjectType) {
+        case 'function_definition':
+        case 'method_declaration':
+        case 'anonymous_function':
+        case 'arrow_function': return [];
+        case 'property_hook': return result('property-hook');
+        case 'enum_case': return result('enum-case');
+        case 'trait_declaration': return result('trait');
+        case 'const_declaration': {
+          const declaration = file.constants.find((candidate) => reference.start >= candidate.declarationStart
+            && reference.end <= candidate.declarationEnd);
+          return result(declaration?.global ? 'global-constant' : 'class-constant');
+        }
+        case 'class_declaration': return result('class');
+        case 'interface_declaration': return result('interface');
+        case 'enum_declaration': return result('enum');
+        case 'anonymous_class': return result('anonymous-class');
+        case 'property_declaration': return result('property');
+        case 'simple_parameter':
+        case 'variadic_parameter':
+        case 'property_promotion_parameter': return result('parameter');
+        default: return [];
+      }
+    });
+  }
+
   deprecatedAttributeTargets(uri: string): DeprecatedAttributeTarget[] {
     const file = this.files.get(uri); if (!file) return [];
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
-    const root = (retainedTree ?? temporaryTree!).rootNode;
-    const classified = file.typeReferences.flatMap((reference): DeprecatedAttributeTarget[] => {
-      if (reference.context !== 'attribute') return [];
-      const containingType = file.declarations.filter((item) => reference.start >= item.declarationStart && reference.end <= item.declarationEnd)
-        .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
-      const ownerFqcn = this.containingCallable(file, reference.start)?.containerFqcn ?? containingType?.fqcn;
-      const resolved = this.resolveSourceType(file, file.source.slice(reference.start, reference.end),
-        this.namespaceAt(file, reference.start), ownerFqcn);
-      if (resolved?.toLowerCase() !== 'deprecated') return [];
-      let node = deepestLocalSyntax(root, reference.start, reference.end,
-        (candidate) => candidate.startIndex === reference.start && candidate.endIndex === reference.end);
-      while (node && node.type !== 'attribute_list') node = node.parent ?? undefined;
-      const subject = node?.parent; if (!subject) return [];
+    return this.builtinAttributeSubjects(file, 'deprecated').flatMap(({ reference, subjectType, delayedValidation }): DeprecatedAttributeTarget[] => {
       const result = (target: DeprecatedAttributeTarget['target'], valid: boolean,
         minimumPhpVersion: DeprecatedAttributeTarget['minimumPhpVersion'] = '8.4'): DeprecatedAttributeTarget[] => [{
-          uri, start: reference.start, end: reference.end, target, valid, minimumPhpVersion,
+          uri, start: reference.start, end: reference.end, target, valid, minimumPhpVersion, delayedValidation,
         }];
-      switch (subject.type) {
+      switch (subjectType) {
         case 'function_definition': return result('function', true);
         case 'method_declaration': return result('method', true);
         case 'anonymous_function':
@@ -1561,8 +1587,6 @@ export class SemanticWorkspace {
         default: return [];
       }
     });
-    temporaryTree?.delete();
-    return classified;
   }
 
   deprecatedSymbolUses(uri: string): DeprecatedSymbolUse[] {
@@ -4928,6 +4952,42 @@ export class SemanticWorkspace {
     const namespace = callable.containerFqcn?.split('\\').slice(0, -1).join('\\') ?? this.namespaceAt(file, callable.start);
     return this.builtinAttributeMetadata(file, callable.declarationStart, callable.declarationEnd, callable.start,
       namespace, callable.containerFqcn, attributeName);
+  }
+
+  private builtinAttributeSubjects(file: SemanticFile, attributeName: string): Array<{
+    reference: ParsedTypeReference;
+    subjectType: string;
+    subjectStart: number;
+    subjectEnd: number;
+    nativeReturnType?: string;
+    delayedValidation: boolean;
+  }> {
+    const retainedTree = this.trees.get(file.uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const root = (retainedTree ?? temporaryTree!).rootNode;
+    try {
+      const subjects = file.typeReferences.flatMap((reference) => {
+        if (reference.context !== 'attribute') return [];
+        const containingType = file.declarations.filter((item) => reference.start >= item.declarationStart && reference.end <= item.declarationEnd)
+          .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
+        const ownerFqcn = this.containingCallable(file, reference.start)?.containerFqcn ?? containingType?.fqcn;
+        const resolved = this.resolveSourceType(file, file.source.slice(reference.start, reference.end),
+          this.namespaceAt(file, reference.start), ownerFqcn)?.toLowerCase();
+        let node = deepestLocalSyntax(root, reference.start, reference.end,
+          (candidate) => candidate.startIndex === reference.start && candidate.endIndex === reference.end);
+        while (node && node.type !== 'attribute_list') node = node.parent ?? undefined;
+        const subject = node?.parent;
+        return subject ? [{ reference, resolved, subjectType: subject.type,
+          subjectStart: subject.startIndex, subjectEnd: subject.endIndex,
+          nativeReturnType: subject.childForFieldName('return_type')?.text }] : [];
+      });
+      return subjects.filter((item) => item.resolved === attributeName.toLowerCase()).map((item) => ({
+        reference: item.reference, subjectType: item.subjectType, subjectStart: item.subjectStart, subjectEnd: item.subjectEnd,
+        nativeReturnType: item.nativeReturnType,
+        delayedValidation: subjects.some((candidate) => candidate.resolved === 'delayedtargetvalidation'
+          && candidate.subjectType === item.subjectType && candidate.subjectStart === item.subjectStart && candidate.subjectEnd === item.subjectEnd),
+      }));
+    } finally { temporaryTree?.delete(); }
   }
 
   private builtinAttributeMetadata(file: SemanticFile, declarationStart: number, declarationEnd: number, subjectStart: number,

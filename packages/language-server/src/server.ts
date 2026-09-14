@@ -713,7 +713,6 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         'void-return': 'a void function does not return a value',
         'never-return': 'a never-returning function does not return a value',
         'magic-method': 'this magic method cannot return a value',
-        'property-hook': 'property hooks cannot use #[NoDiscard]',
       } as const;
       result.diagnostics.push(...workspace.invalidNoDiscardDeclarations(document.uri).map((item) => ({
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
@@ -721,6 +720,18 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         code: 'php.attribute.invalid-no-discard',
         source: 'PHP Companion',
         message: `Cannot apply #[NoDiscard] to ${item.callable}: ${reasons[item.reason]}.`,
+      })));
+      const noDiscardTargetLabels = {
+        'property-hook': 'property hook', 'class-constant': 'class constant', 'enum-case': 'enum case', trait: 'trait',
+        'global-constant': 'global constant', class: 'class', interface: 'interface', enum: 'enum', property: 'property',
+        parameter: 'parameter', 'anonymous-class': 'anonymous class',
+      } as const;
+      result.diagnostics.push(...workspace.invalidNoDiscardTargets(document.uri).filter((item) => !item.delayedValidation).map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.attribute.invalid-no-discard-target',
+        source: 'PHP Companion',
+        message: `Cannot apply #[NoDiscard] to ${['anonymous-class', 'enum', 'enum-case', 'interface'].includes(item.target) ? 'an' : 'a'} ${noDiscardTargetLabels[item.target]}.`,
       })));
     }
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) {
@@ -742,7 +753,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
           source: 'PHP Companion',
           message: `#[Deprecated] on ${deprecatedTargetArticle(item.target)} ${deprecatedTargetLabels[item.target]} requires PHP ${item.minimumPhpVersion} or newer; the target is PHP ${targetPhpVersion}.`,
         }];
-        return item.valid ? [] : [{
+        return item.valid || (item.delayedValidation
+          && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) ? [] : [{
           range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
           severity: DiagnosticSeverity.Error,
           code: 'php.attribute.invalid-deprecated-target',
@@ -1135,14 +1147,24 @@ connection.onRequest('phpCompanion/reconcileSafeMove', async (params: { moves?: 
   if (moves.length !== params.moves.length) return { error: 'Safe Move reconciliation received invalid declaration identities.' };
   const root = rootForUri(moves[0]!.newUri);
   if (!root || moves.some((move) => rootForUri(move.newUri) !== root)) return { error: 'Safe Move reconciliation requires one Composer project.' };
-  const workspace = await semanticForRoot(root); const renamedUris = new Map(moves.map((move) => [move.oldUri, move.newUri]));
-  for (const move of moves) workspace.remove(move.oldUri);
+  const workspace = await semanticForRoot(root);
+  const movedUri = (sourceUri: string): string | undefined => {
+    const sourcePath = pathForUri(sourceUri);
+    if (!sourcePath) return undefined;
+    return moves.find((move) => sameFilesystemPath(pathForUri(move.oldUri), sourcePath))?.newUri;
+  };
   const sourceUris = [...new Set(moves.flatMap((move) => move.sourceUris))];
+  // The drive-letter casing in VS Code file-operation URIs can differ from the
+  // URI produced while indexing on Windows. Match filesystem identities before
+  // removing and remapping the old semantic entry.
+  for (const sourceUri of sourceUris) if (movedUri(sourceUri)) workspace.remove(sourceUri);
+  for (const move of moves) workspace.remove(move.oldUri);
   for (const sourceUri of sourceUris) {
     if (token.isCancellationRequested) return { error: 'Safe Move reconciliation was cancelled.' };
-    const uri = renamedUris.get(sourceUri) ?? sourceUri; const path = pathForUri(uri);
+    const uri = movedUri(sourceUri) ?? sourceUri; const path = pathForUri(uri);
     if (!path) return { error: `Safe Move reconciliation cannot read ${uri}.` };
-    try { workspace.update(uri, documents.get(uri)?.getText() ?? await readFile(path, 'utf8'), Boolean(documents.get(uri))); }
+    const document = documents.all().find((candidate) => sameFilesystemPath(pathForUri(candidate.uri), path));
+    try { workspace.update(uri, document?.getText() ?? await readFile(path, 'utf8'), Boolean(document)); }
     catch { return { error: `Safe Move reconciliation cannot read ${path}.` }; }
   }
   const result = workspace.planTypeMoveReconciliation(moves);

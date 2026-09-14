@@ -295,7 +295,8 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate {
 ${php81 ? `interface UnitEnum { public static function cases(): array; }
 interface BackedEnum extends UnitEnum { public static function from(int|string $value): static; public static function tryFrom(int|string $value): ?static; }` : ''}
 ${php84 ? 'final class Deprecated { public readonly ?string $message; public readonly ?string $since; public function __construct(?string $message = null, ?string $since = null) {} }' : ''}
-${php85 ? 'final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }' : ''}
+${php85 ? `final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }
+final class DelayedTargetValidation {}` : ''}
 ${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4') ? `enum RoundingMode {
   case HalfAwayFromZero; case HalfTowardsZero; case HalfEven; case HalfOdd;
   case TowardsZero; case AwayFromZero; case NegativeInfinity; case PositiveInfinity;

@@ -356,7 +356,9 @@ describe('PHP language specification', () => {
     expect(builtinPhpStub('8.3')).not.toContain('final class Deprecated');
     expect(builtinPhpStub('8.4')).toContain('final class Deprecated { public readonly ?string $message; public readonly ?string $since;');
     expect(builtinPhpStub('8.4')).not.toContain('final class NoDiscard');
+    expect(builtinPhpStub('8.4')).not.toContain('final class DelayedTargetValidation');
     expect(builtinPhpStub('8.5')).toContain('final class NoDiscard { public readonly ?string $message;');
+    expect(builtinPhpStub('8.5')).toContain('final class DelayedTargetValidation');
     expect(builtinPhpStub('7.2')).toContain('function is_iterable($value): bool');
     expect(builtinPhpStub('8.0')).toContain('function is_iterable(mixed $value): bool');
     expect(builtinPhpStub('8.1')).toContain('function iterator_to_array(Traversable $iterator, bool $preserve_keys = true): array');
