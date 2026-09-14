@@ -723,6 +723,34 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         message: `Cannot apply #[NoDiscard] to ${item.callable}: ${reasons[item.reason]}.`,
       })));
     }
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) {
+      const deprecatedTargets = workspace.deprecatedAttributeTargets(document.uri);
+      const deprecatedTargetLabels = {
+        function: 'function', method: 'method', closure: 'closure', 'property-hook': 'property hook',
+        'class-constant': 'class constant', 'enum-case': 'enum case', trait: 'trait', 'global-constant': 'global constant',
+        class: 'class', interface: 'interface', enum: 'enum', property: 'property', parameter: 'parameter',
+        'anonymous-class': 'anonymous class',
+      } as const;
+      const deprecatedTargetArticle = (target: keyof typeof deprecatedTargetLabels): 'a' | 'an' =>
+        target === 'anonymous-class' || target === 'enum' || target === 'interface' ? 'an' : 'a';
+      result.diagnostics.push(...deprecatedTargets.flatMap((item) => {
+        const available = SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(item.minimumPhpVersion);
+        if (!available) return [{
+          range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+          severity: DiagnosticSeverity.Error,
+          code: 'php.version.unsupported',
+          source: 'PHP Companion',
+          message: `#[Deprecated] on ${deprecatedTargetArticle(item.target)} ${deprecatedTargetLabels[item.target]} requires PHP ${item.minimumPhpVersion} or newer; the target is PHP ${targetPhpVersion}.`,
+        }];
+        return item.valid ? [] : [{
+          range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+          severity: DiagnosticSeverity.Error,
+          code: 'php.attribute.invalid-deprecated-target',
+          source: 'PHP Companion',
+          message: `Cannot apply #[Deprecated] to ${deprecatedTargetArticle(item.target)} ${deprecatedTargetLabels[item.target]}.`,
+        }];
+      }));
+    }
     const deprecatedLabels = { function: 'Function', method: 'Method', constant: 'Constant', 'enum-case': 'Enum case', trait: 'Trait',
       'property-get': 'Property getter', 'property-set': 'Property setter' } as const;
     result.diagnostics.push(...workspace.deprecatedSymbolUses(document.uri)

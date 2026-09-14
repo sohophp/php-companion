@@ -126,6 +126,8 @@ Report discarded PHP 8.5 `#[NoDiscard]` user and audited native return values, v
 
 Surface proven user and builtin deprecations from PHPDoc and PHP 8.4–8.5 `#[Deprecated]`, including functions, methods, constructors, constants, enum cases, traits, and property hooks.
 
+Validate native `#[Deprecated]` targets, including PHP 8.5 Trait and global-constant boundaries, legal closures and property hooks, and forbidden type, property, parameter, and anonymous-class targets.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.

@@ -2064,6 +2064,68 @@ class Example {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('validates Deprecated attribute targets across PHP 7.4, 8.3, 8.4, and 8.5', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-deprecated-targets-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'DeprecatedTargets.php')).toString();
+      const source = `<?php namespace App;
+        #[\\Deprecated] function validFunction(): void {}
+        class Container {
+          #[\\Deprecated] public function validMethod(#[\\Deprecated] int $invalidParameter): void {}
+          #[\\Deprecated] public const VALID_CONSTANT = 1;
+          #[\\Deprecated] public string $invalidProperty;
+          public string $hooked { #[\\Deprecated] get => "value"; }
+        }
+        enum ValidEnum { #[\\Deprecated] case OLD; }
+        #[\\Deprecated] trait ValidTrait {}
+        #[\\Deprecated] const VALID_GLOBAL = 1;
+        #[\\Deprecated] class InvalidClass {}
+        #[\\Deprecated] interface InvalidInterface {}
+        #[\\Deprecated] enum InvalidEnum {}
+        $closure = #[\\Deprecated] function(): void {};
+        $arrow = #[\\Deprecated] fn(): int => 1;
+        $anonymous = new #[\\Deprecated] class {};
+        class Deprecated {}
+        #[Deprecated] class CustomAttributeTarget {}
+      `;
+      await writeFile(join(root, 'DeprecatedTargets.php'), source);
+      for (const [phpVersion, expectedVersion, expectedInvalid] of [
+        ['7.4', 0, 0], ['8.3', 15, 0], ['8.4', 2, 6], ['8.5', 0, 6],
+      ] as const) {
+        const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
+        const output = messagesFrom(running);
+        running.stdin.write(encode({ jsonrpc: '2.0', id: 45, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+        } }));
+        await output.waitFor((message) => message.id === 45);
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics;
+        const version = diagnostics.filter((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
+          && item.message?.includes('#[Deprecated]'));
+        const invalid = diagnostics.filter((item: { code?: string }) => item.code === 'php.attribute.invalid-deprecated-target');
+        expect(version).toHaveLength(expectedVersion);
+        expect(invalid).toHaveLength(expectedInvalid);
+        expect(diagnostics.some((item: { code?: string }) => item.code === 'php.syntax')).toBe(false);
+        expect(version.some((item: { message?: string }) => item.message?.includes('trait requires PHP 8.5')))
+          .toBe(phpVersion === '8.3' || phpVersion === '8.4');
+        expect(diagnostics.some((item: { code?: string; message?: string }) => item.code === 'php.version.unsupported'
+          && item.message?.startsWith('attribute requires PHP 8.0'))).toBe(phpVersion === '7.4');
+        expect(invalid.map((item: { message?: string }) => item.message).sort()).toEqual((phpVersion === '8.4' || phpVersion === '8.5' ? [
+          'Cannot apply #[Deprecated] to an anonymous class.',
+          'Cannot apply #[Deprecated] to a class.',
+          'Cannot apply #[Deprecated] to an enum.',
+          'Cannot apply #[Deprecated] to an interface.',
+          'Cannot apply #[Deprecated] to a parameter.',
+          'Cannot apply #[Deprecated] to a property.',
+        ] : []).sort());
+        await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('generates exact missing interface method stubs without duplicating inherited methods', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-implement-methods-'));
     try {

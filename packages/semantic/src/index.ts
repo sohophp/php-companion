@@ -156,6 +156,12 @@ export interface DeprecatedSymbolUse extends SemanticLocation {
   since?: string;
   attributeMinimumVersion?: '8.4' | '8.5';
 }
+export interface DeprecatedAttributeTarget extends SemanticLocation {
+  target: 'function' | 'method' | 'closure' | 'property-hook' | 'class-constant' | 'enum-case' | 'trait' | 'global-constant'
+    | 'class' | 'interface' | 'enum' | 'property' | 'parameter' | 'anonymous-class';
+  valid: boolean;
+  minimumPhpVersion: '8.4' | '8.5';
+}
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
@@ -1508,6 +1514,55 @@ export class SemanticWorkspace {
         callable: `${property.fqcn}::${hook.kind}`, reason: 'property-hook' });
     }
     return results;
+  }
+
+  deprecatedAttributeTargets(uri: string): DeprecatedAttributeTarget[] {
+    const file = this.files.get(uri); if (!file) return [];
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const root = (retainedTree ?? temporaryTree!).rootNode;
+    const classified = file.typeReferences.flatMap((reference): DeprecatedAttributeTarget[] => {
+      if (reference.context !== 'attribute') return [];
+      const containingType = file.declarations.filter((item) => reference.start >= item.declarationStart && reference.end <= item.declarationEnd)
+        .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
+      const ownerFqcn = this.containingCallable(file, reference.start)?.containerFqcn ?? containingType?.fqcn;
+      const resolved = this.resolveSourceType(file, file.source.slice(reference.start, reference.end),
+        this.namespaceAt(file, reference.start), ownerFqcn);
+      if (resolved?.toLowerCase() !== 'deprecated') return [];
+      let node = deepestLocalSyntax(root, reference.start, reference.end,
+        (candidate) => candidate.startIndex === reference.start && candidate.endIndex === reference.end);
+      while (node && node.type !== 'attribute_list') node = node.parent ?? undefined;
+      const subject = node?.parent; if (!subject) return [];
+      const result = (target: DeprecatedAttributeTarget['target'], valid: boolean,
+        minimumPhpVersion: DeprecatedAttributeTarget['minimumPhpVersion'] = '8.4'): DeprecatedAttributeTarget[] => [{
+          uri, start: reference.start, end: reference.end, target, valid, minimumPhpVersion,
+        }];
+      switch (subject.type) {
+        case 'function_definition': return result('function', true);
+        case 'method_declaration': return result('method', true);
+        case 'anonymous_function':
+        case 'arrow_function': return result('closure', true);
+        case 'property_hook': return result('property-hook', true);
+        case 'enum_case': return result('enum-case', true);
+        case 'trait_declaration': return result('trait', true, '8.5');
+        case 'const_declaration': {
+          const declaration = file.constants.find((candidate) => reference.start >= candidate.declarationStart
+            && reference.end <= candidate.declarationEnd);
+          return result(declaration?.global ? 'global-constant' : 'class-constant', true,
+            declaration?.global ? '8.5' : '8.4');
+        }
+        case 'class_declaration': return result('class', false);
+        case 'interface_declaration': return result('interface', false);
+        case 'enum_declaration': return result('enum', false);
+        case 'anonymous_class': return result('anonymous-class', false);
+        case 'property_declaration': return result('property', false);
+        case 'simple_parameter':
+        case 'variadic_parameter':
+        case 'property_promotion_parameter': return result('parameter', false);
+        default: return [];
+      }
+    });
+    temporaryTree?.delete();
+    return classified;
   }
 
   deprecatedSymbolUses(uri: string): DeprecatedSymbolUse[] {

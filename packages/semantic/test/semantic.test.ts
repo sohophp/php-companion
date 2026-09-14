@@ -765,6 +765,49 @@ describe('conservative semantic workspace', () => {
     ]);
     workspace.remove('file:///Deprecated.php');
   });
+  it('classifies exact native Deprecated targets and excludes custom namespaced attributes', () => {
+    const source = `<?php namespace DeprecatedTargets;
+      #[\\Deprecated] function validFunction(): void {}
+      class Container {
+        #[\\Deprecated] public function validMethod(#[\\Deprecated] int $invalidParameter): void {}
+        #[\\Deprecated] public const VALID_CONSTANT = 1;
+        #[\\Deprecated] public string $invalidProperty;
+        public string $hooked { #[\\Deprecated] get => "value"; }
+      }
+      enum ValidEnum { #[\\Deprecated] case OLD; }
+      #[\\Deprecated] trait ValidTrait {}
+      #[\\Deprecated] const VALID_GLOBAL = 1;
+      #[\\Deprecated] class InvalidClass {}
+      #[\\Deprecated] interface InvalidInterface {}
+      #[\\Deprecated] enum InvalidEnum {}
+      $closure = #[\\Deprecated] function(): void {};
+      $arrow = #[\\Deprecated] fn(): int => 1;
+      $anonymous = new #[\\Deprecated] class {};
+      class Deprecated {}
+      #[Deprecated] class CustomAttributeTarget {}
+    `;
+    workspace.update('file:///DeprecatedTargets.php', source);
+    expect(workspace.deprecatedAttributeTargets('file:///DeprecatedTargets.php').map((item) => [
+      item.target, item.valid, item.minimumPhpVersion,
+    ])).toEqual([
+      ['function', true, '8.4'],
+      ['method', true, '8.4'],
+      ['parameter', false, '8.4'],
+      ['class-constant', true, '8.4'],
+      ['property', false, '8.4'],
+      ['property-hook', true, '8.4'],
+      ['enum-case', true, '8.4'],
+      ['trait', true, '8.5'],
+      ['global-constant', true, '8.5'],
+      ['class', false, '8.4'],
+      ['interface', false, '8.4'],
+      ['enum', false, '8.4'],
+      ['closure', true, '8.4'],
+      ['closure', true, '8.4'],
+      ['anonymous-class', false, '8.4'],
+    ]);
+    workspace.remove('file:///DeprecatedTargets.php');
+  });
   it('plans typed property declarations only from proven dynamic-property values', () => {
     const definitions = '<?php namespace DynamicFix; class Target {} class Result {}';
     workspace.update('file:///DynamicFixTypes.php', definitions);
