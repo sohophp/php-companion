@@ -20,6 +20,12 @@
 - 三份 VSIX 内容验证通过。主 VSIX SHA-256：`b154d4f28a748e79cd8e4e77ffb796dec6a3e3d32307395e00c220bddc88791a`。
 - VS Code 1.137.0 隔离 Profile 从重新打包的 0.4.5 VSIX 完成 Safe Move 命令、Undo/Redo、Explorer 双向移动和其余 Extension Host 回归，退出码为 0。
 
-## 尚待门禁
+## 跨平台门禁
 
-Linux、Windows、macOS CI 将在提交候选后补入本报告。多扩展真实 Profile 与连续高频批量移动仍属于后续长会话验证范围。
+提交 `110fa24` 的 [GitHub Actions CI 34869259140](https://github.com/sohophp/php-companion/actions/runs/34869259140) 15/15 成功：
+
+- Linux x64、Windows x64 与 macOS arm64 的全部质量任务通过，包括 16 个组件和根扩展测试、仓库外 tarball 消费、连续编辑/持久缓存基准、三份 VSIX 构建与内容验证。
+- 三个平台的真实打包 Extension Host 均通过 Safe Move 命令、Undo/Redo、Explorer 双向移动及其余编辑器回归；上一轮暴露竞态的 macOS 反向移动本轮成功收敛。
+- PHP 7.2、7.3、7.4、8.0、8.1、8.2、8.3、8.4 与 8.5 运行时集成全部通过。
+
+多扩展真实 Profile 与连续高频批量移动仍属于后续长会话验证范围。
