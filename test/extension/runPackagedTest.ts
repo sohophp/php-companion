@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 
 async function macOSExecutablePath(): Promise<string | undefined> {
@@ -19,6 +19,14 @@ async function macOSExecutablePath(): Promise<string | undefined> {
     if (candidates.length === 1) return candidates[0];
     throw new Error(`Unable to resolve the downloaded VS Code executable. Expected ${expected}; found ${candidates.join(', ') || 'no files'}.`);
   }
+}
+
+function resolvePathCommand(command: string): string {
+  if (isAbsolute(command)) return command;
+  const locator = process.platform === 'win32' ? 'where.exe' : 'which';
+  const resolved = execFileSync(locator, [command], { encoding: 'utf8' }).split(/\r?\n/u).map((line) => line.trim()).find(Boolean);
+  if (!resolved) throw new Error(`Unable to resolve ${command} from PATH.`);
+  return resolved;
 }
 
 async function main(): Promise<void> {
@@ -45,7 +53,7 @@ async function main(): Promise<void> {
   if (externalExtensions && phpunitExecutable) {
     const proxy = join(profile, 'tools', 'phpunit-proxy.php');
     await mkdir(join(profile, 'tools'), { recursive: true });
-    const encodedCommand = Buffer.from(phpunitExecutable).toString('base64');
+    const encodedCommand = Buffer.from(resolvePathCommand(phpunitExecutable)).toString('base64');
     await writeFile(proxy, `<?php
 $command = base64_decode('${encodedCommand}');
 $arguments = array_map('escapeshellarg', array_slice($argv, 1));
