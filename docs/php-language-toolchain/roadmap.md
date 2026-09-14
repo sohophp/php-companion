@@ -17,7 +17,7 @@
 ## P1：组件提取与 LSP 闭环
 
 - [x] 建立 workspace 包、按依赖构建和打包资源检查。
-- [x] 建立公开 exports、声明输出、依赖边界与 Changesets；当前十五个组件执行 packaging.md 的仓库外 tarball 消费验收。
+- [x] 建立公开 exports、声明输出、依赖边界与 Changesets；当前十六个组件执行 packaging.md 的仓库外 tarball 消费验收。
 - [x] 提取 parser、project、版本规则，保留旧 API 兼容门面。
 - [x] 实现 initialize/shutdown、文档同步、取消、重启、日志与进度；请求取消、快速编辑版本保护、标准索引进度、有限重启策略和真实进程异常退出恢复均有协议或 Extension Host 证据。
 - [x] 实现快照和 UTF-16/字节映射、CRLF、Unicode、Remote URI；远程索引、Definition 与文件失效保持 `vscode-remote` URI，缓存跨 URI 模式时安全重建。
@@ -41,7 +41,7 @@
 
 - [x] PSR-4、PSR-0、classmap、files、exclude-from-classmap、autoload-dev。
 - [x] vendor、path repository、symlink、多根和嵌套 Composer 项目。
-- [ ] 目标 PHP 版本与扩展签名选择；首个精准子集已按 workspace folder 配置及 Composer `config.platform` / lock 中显式为 `false` 的 `ext-*` 选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter，配置变化和 Composer 更新会刷新内建符号；未声明 `require.ext-*` 不推断为缺失。标准 Strings 103 项 callable union、完整 mbstring 目录、libxml、SimpleXML、XML Parser、XMLReader、XMLWriter、经典 DOM 与 PHP 8.4–8.5 现代 `Dom\` 目录、SPL 15 项函数、`SplFileInfo`/`SplFileObject`/`SplTempFileObject`、四种 SPL 目录迭代器、完整泛型 `ArrayObject`/`ArrayIterator`、`SplObjectStorage`/`SplFixedArray`、`SplDoublyLinkedList`/`SplQueue`/`SplStack`、`SplHeap`/`SplMinHeap`/`SplMaxHeap`/`SplPriorityQueue`、十七种 SPL 适配/高级迭代器（含递归遍历、缓存、Regex 与 Tree）、`SplObserver`/`SplSubject`、标准异常树、Date/Time、JSON、序列化/编码/URL、文件/路径/流及元数据/权限/链接、Directory、Program Execution、PDO/PDOStatement、支持具体实例返回的泛型 Reflection 高频核心、Password Hashing、Hash/HMAC、安全随机数、Filter、PCRE 主 API与稳定常量、核心 Math 全函数与稳定常量、Variable Handling、Function Handling、Session Handling、Network 可调用目录与核心类型，以及 PHP Options/Info 的运行时符号/扩展自省、配置、环境、资源/进程、GC、CLI 与输出目录、Error Handling、Output Control 函数/常量目录、高频泛型数组函数、迭代函数、类与对象检查函数、迭代/集合契约、Closure、泛型 Generator、WeakReference/WeakMap、Stringable 与 Enum 接口已按 PHP 7.2–8.5 生成并记录官方来源；完整核心/扩展目录、启用扩展的版本约束及自动环境探测仍待完成。
+- [ ] 目标 PHP 版本与扩展签名选择；首个精准子集已按 workspace folder/嵌套 Composer 根配置、Composer `config.platform` / lock 中显式为 `false` 的 `ext-*`，以及与目标次版本一致的实际 PHP CLI 已加载扩展，选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter。配置、Composer 与成功探测的运行时变化会刷新内建符号；探测失败或版本不匹配保持 unknown，未声明 `require.ext-*` 不推断为缺失。标准 Strings 103 项 callable union、完整 mbstring 目录、libxml、SimpleXML、XML Parser、XMLReader、XMLWriter、经典 DOM 与 PHP 8.4–8.5 现代 `Dom\` 目录、SPL 15 项函数、`SplFileInfo`/`SplFileObject`/`SplTempFileObject`、四种 SPL 目录迭代器、完整泛型 `ArrayObject`/`ArrayIterator`、`SplObjectStorage`/`SplFixedArray`、`SplDoublyLinkedList`/`SplQueue`/`SplStack`、`SplHeap`/`SplMinHeap`/`SplMaxHeap`/`SplPriorityQueue`、十七种 SPL 适配/高级迭代器（含递归遍历、缓存、Regex 与 Tree）、`SplObserver`/`SplSubject`、标准异常树、Date/Time、JSON、序列化/编码/URL、文件/路径/流及元数据/权限/链接、Directory、Program Execution、PDO/PDOStatement、支持具体实例返回的泛型 Reflection 高频核心、Password Hashing、Hash/HMAC、安全随机数、Filter、PCRE 主 API与稳定常量、核心 Math 全函数与稳定常量、Variable Handling、Function Handling、Session Handling、Network 可调用目录与核心类型，以及 PHP Options/Info 的运行时符号/扩展自省、配置、环境、资源/进程、GC、CLI 与输出目录、Error Handling、Output Control 函数/常量目录、高频泛型数组函数、迭代函数、类与对象检查函数、迭代/集合契约、Closure、泛型 Generator、WeakReference/WeakMap、Stringable 与 Enum 接口已按 PHP 7.2–8.5 生成并记录官方来源；其余核心/扩展目录、启用扩展的版本约束及 Remote/容器完整环境矩阵仍待完成。
 - [ ] 声明与方法体分层索引，引用倒排表、派生依赖和持久缓存。
 - [ ] 文件增删改移、未保存覆盖、Composer 更新和缓存损坏恢复。
 - [ ] 索引完整性、资源上限、取消与进度可观察。

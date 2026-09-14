@@ -2,6 +2,8 @@
 
 最后更新：2026-09-14。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-14 最新增量：新增可独立发布的 `@php-companion/runtime-probe`，用参数数组直接启动目标 PHP CLI，在 3 秒和 128 KiB 边界内读取版本、SAPI、已加载扩展及 INI 来源，不执行 shell、项目 autoloader 或 Symfony Kernel。探测只在首次打开 PHP 文件或主动重新检测后发生；服务端再次验证载荷，并只接受与目标 PHP 次版本一致的结果。成功探测到缺少 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter 时，会按 workspace folder/嵌套 Composer 根裁剪内建符号并发布 `php.extension.unavailable`，诊断结构区分设置、Composer 和运行时来源；失败、超时、畸形输出、版本不匹配、项目/polyfill 定义继续保持 unknown。十六个组件 616 项、根扩展 33 项，共 649 项测试通过；本机六个 PHP 次版本、十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 打包宿主均通过。验证证据见[PHP 运行时扩展探测报告](reports/php-runtime-extension-probe-2026-09-14.md)。其余扩展目录和完整 P3 环境能力仍待逐项完成。
+
 PHP 8.4 Property Hook 继承与引用边界证据见 [PHP 8.4 Property Hook 继承与引用边界验收](reports/php84-property-hook-inheritance-2026-09-13.md)；基础读写模型见 [PHP 8.4 Property Hooks 验收报告](reports/php84-property-hooks-2026-09-13.md)。
 
 R4/F13 的 Linux x64 连续编辑、取消、重启与损坏缓存恢复证据见 [长时间编辑与恢复门禁](reports/editing-resilience-linux-x64-2026-09-13.md)；当前候选的 Linux、Windows 与 macOS CI 证据见 [跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)；class/interface/trait/enum 声明级 F2 证据见 [声明级 F2 类型重命名验收](reports/declaration-f2-rename-2026-09-14.md)。

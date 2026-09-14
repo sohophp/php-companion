@@ -1,3 +1,4 @@
+- 新增可独立发布的 `@php-companion/runtime-probe`：首次打开 PHP 文件或主动检测时，以无 shell、3 秒、128 KiB 边界读取目标 CLI 的版本、SAPI、已加载扩展与 INI 来源；仅在次版本一致时裁剪已审计扩展符号并发布带运行时来源的精准诊断。
 - Add a reproducible Language Server long-edit benchmark covering latest-version completion, update-to-diagnostics and hot-query latency, cancellation, retained RSS, process restart, and corrupt persistent-cache recovery.
 - Run component tarball verification, editing resilience, and packaged Extension Host gates across Linux, Windows, and macOS CI, using a platform-aware Electron launcher and RSS sampler.
 - PHP 8.4 hooked-property reference analysis now covers direct reference acquisition, forbidden reference assignment, uniquely resolved by-reference arguments, property iteration, and visible hooked properties during whole-object reference iteration. Effective `&get` implementations pass; dynamic and ambiguous calls stay unknown.

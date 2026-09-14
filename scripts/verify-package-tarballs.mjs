@@ -11,7 +11,7 @@ const temporary = await mkdtemp(join(tmpdir(), 'php-companion-pack-'));
 const tarballs = join(temporary, 'tarballs');
 const consumer = join(temporary, 'consumer');
 const changesetStatus = join(temporary, 'changeset-status.json');
-const packageDirectories = ['packages/language-spec', 'packages/phpdoc', 'packages/parser', 'packages/project', 'packages/index', 'packages/type-system', 'packages/interop', 'packages/semantic-provider', 'packages/semantic-provider-host', 'packages/framework-symfony', 'packages/framework-doctrine', 'packages/semantic', 'packages/refactor', 'packages/language-server', 'packages/testkit'];
+const packageDirectories = ['packages/runtime-probe', 'packages/language-spec', 'packages/phpdoc', 'packages/parser', 'packages/project', 'packages/index', 'packages/type-system', 'packages/interop', 'packages/semantic-provider', 'packages/semantic-provider-host', 'packages/framework-symfony', 'packages/framework-doctrine', 'packages/semantic', 'packages/refactor', 'packages/language-server', 'packages/testkit'];
 
 const manifests = new Map();
 for (const packageDirectory of packageDirectories) {
@@ -47,7 +47,7 @@ try {
     await run('pnpm', ['pack', '--pack-destination', tarballs], { cwd: join(root, packageDirectory), shell: process.platform === 'win32' });
   }
   const archives = (await readdir(tarballs)).filter((name) => name.endsWith('.tgz')).map((name) => join(tarballs, name));
-  if (archives.length !== 15) throw new Error(`Expected fifteen package archives, found ${archives.length}.`);
+  if (archives.length !== 16) throw new Error(`Expected sixteen package archives, found ${archives.length}.`);
   await writeFile(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module' }, null, 2));
   await run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...archives], { cwd: consumer, shell: process.platform === 'win32' });
   for (const [name] of manifests) {
@@ -77,6 +77,7 @@ import { isSemanticFactsContribution, semanticFacts } from '@php-companion/seman
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { analyzeSymfonyControllerContexts } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument } from '@php-companion/framework-doctrine';
+import { phpMinor } from '@php-companion/runtime-probe';
 
 const parser = await PhpSyntaxParser.createDefault();
 const parsed = parser.parse('<?php namespace Consumer; class Installed {}');
@@ -94,6 +95,7 @@ const hello = { protocolVersion: INTEROP_PROTOCOL_VERSION, providerId: 'consumer
 if (!negotiateInterop(hello, hello, ['controller-contexts']).compatible) throw new Error('Interop tarball could not negotiate a compatible protocol.');
 if (!isSemanticFactsContribution(semanticFacts('consumer', '1'))) throw new Error('Semantic provider tarball rejected a valid contribution.');
 if (typeof runSemanticProvider !== 'function') throw new Error('Semantic provider host tarball export is unavailable.');
+if (phpMinor('8.5.3') !== '8.5') throw new Error('Runtime-probe tarball returned the wrong PHP minor.');
 const frameworkParser = await PhpSyntaxParser.createDefault();
 const frameworkContexts = analyzeSymfonyControllerContexts(frameworkParser, { uri: 'file:///Controller.php', snapshotVersion: '1', source: "<?php class Controller { function show(User $user) { $this->render('page.html.twig', ['user' => $user]); } }" });
 frameworkParser.dispose();
@@ -130,7 +132,7 @@ await request('shutdown', null); notify('exit');
 await new Promise((resolveExit, reject) => { child.on('error', reject); child.on('exit', (code) => code === 0 ? resolveExit() : reject(new Error('Installed language server exited with ' + code + '.'))); });
 `);
   await run(process.execPath, ['smoke.mjs'], { cwd: consumer });
-  process.stdout.write('Verified fifteen PHP Companion component tarballs from an isolated consumer.\n');
+  process.stdout.write('Verified sixteen PHP Companion component tarballs from an isolated consumer.\n');
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }

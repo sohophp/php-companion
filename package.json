@@ -52,12 +52,12 @@
     "SECURITY.md"
   ],
   "scripts": {
-    "build:packages": "pnpm --filter @php-companion/language-spec build && pnpm --filter @php-companion/phpdoc build && pnpm --filter @php-companion/parser build && pnpm --filter @php-companion/project build && pnpm --filter @php-companion/index build && pnpm --filter @php-companion/type-system build && pnpm --filter @php-companion/interop build && pnpm --filter @php-companion/semantic-provider build && pnpm --filter @php-companion/semantic-provider-host build && pnpm --filter @php-companion/framework-symfony build && pnpm --filter @php-companion/framework-doctrine build && pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/refactor build && pnpm --filter @php-companion/language-server build && pnpm --filter @php-companion/testkit build",
+    "build:packages": "pnpm --filter @php-companion/runtime-probe build && pnpm --filter @php-companion/language-spec build && pnpm --filter @php-companion/phpdoc build && pnpm --filter @php-companion/parser build && pnpm --filter @php-companion/project build && pnpm --filter @php-companion/index build && pnpm --filter @php-companion/type-system build && pnpm --filter @php-companion/interop build && pnpm --filter @php-companion/semantic-provider build && pnpm --filter @php-companion/semantic-provider-host build && pnpm --filter @php-companion/framework-symfony build && pnpm --filter @php-companion/framework-doctrine build && pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/refactor build && pnpm --filter @php-companion/language-server build && pnpm --filter @php-companion/testkit build",
     "build": "pnpm build:packages && node esbuild.mjs --production",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "pnpm build:packages && tsc --noEmit",
     "lint": "eslint src test packages scripts esbuild.mjs vitest.config.ts vitest.integration.config.ts",
-    "test:packages": "pnpm build:packages && pnpm --filter @php-companion/language-spec test && pnpm --filter @php-companion/phpdoc test && pnpm --filter @php-companion/parser test && pnpm --filter @php-companion/project test && pnpm --filter @php-companion/index test && pnpm --filter @php-companion/type-system test && pnpm --filter @php-companion/interop test && pnpm --filter @php-companion/semantic-provider test && pnpm --filter @php-companion/semantic-provider-host test && pnpm --filter @php-companion/framework-symfony test && pnpm --filter @php-companion/framework-doctrine test && pnpm --filter @php-companion/semantic test && pnpm --filter @php-companion/refactor test && pnpm --filter @php-companion/language-server test && pnpm --filter @php-companion/testkit test",
+    "test:packages": "pnpm build:packages && pnpm --filter @php-companion/runtime-probe test && pnpm --filter @php-companion/language-spec test && pnpm --filter @php-companion/phpdoc test && pnpm --filter @php-companion/parser test && pnpm --filter @php-companion/project test && pnpm --filter @php-companion/index test && pnpm --filter @php-companion/type-system test && pnpm --filter @php-companion/interop test && pnpm --filter @php-companion/semantic-provider test && pnpm --filter @php-companion/semantic-provider-host test && pnpm --filter @php-companion/framework-symfony test && pnpm --filter @php-companion/framework-doctrine test && pnpm --filter @php-companion/semantic test && pnpm --filter @php-companion/refactor test && pnpm --filter @php-companion/language-server test && pnpm --filter @php-companion/testkit test",
     "test": "pnpm test:packages && vitest run",
     "pretest:integration:php": "pnpm --filter @php-companion/language-spec build",
     "test:integration:php": "vitest run --config vitest.integration.config.ts",
@@ -152,6 +152,7 @@
   "extensionDependencies": [],
   "extensionPack": [],
   "dependencies": {
+    "@php-companion/runtime-probe": "workspace:*",
     "@php-companion/parser": "workspace:*",
     "@php-companion/project": "workspace:*",
     "@php-companion/refactor": "workspace:*",

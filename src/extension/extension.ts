@@ -137,7 +137,7 @@ export function activate(context: vscode.ExtensionContext): void {
     },
   }));
 
-  const languageServer = startLanguageServer(context, output).then((client) => {
+  const languageServer = startLanguageServer(context, output, versions).then((client) => {
     return client;
   }).catch((error) => {
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);
@@ -245,7 +245,11 @@ export function activate(context: vscode.ExtensionContext): void {
     const editor = vscode.window.activeTextEditor;
     if (editor) await versions.ensureForUri(editor.document.uri);
     const lines = ['# PHP Companion diagnostics', '', `- Activation registration: ${(performance.now() - started).toFixed(1)} ms`, `- Experimental index loaded: ${workspacePromise ? 'yes' : 'no'}`];
-    for (const state of versions.allStates()) lines.push(`- ${state.folder.name}: PHP ${state.resolution.target} — ${state.resolution.sourceDetail}`, `  - PSR-4 mappings: ${state.composer?.psr4.length ?? 0}`);
+    for (const state of versions.allStates()) lines.push(
+      `- ${state.projectRoot ?? state.folder.name}: PHP ${state.resolution.target} — ${state.resolution.sourceDetail}`,
+      `  - Runtime: ${state.runtime ? `PHP ${state.runtime.version} ${state.runtime.sapi} via ${state.runtime.path}; ${state.runtime.loadedExtensions.length} loaded extensions` : 'unknown or target-version mismatch'}`,
+      `  - PSR-4 mappings: ${state.composer?.psr4.length ?? 0}`,
+    );
     const document = await vscode.workspace.openTextDocument({ language: 'markdown', content: lines.join('\n') });
     await vscode.window.showTextDocument(document, { preview: true });
   });

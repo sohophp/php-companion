@@ -67,7 +67,23 @@ let semanticProviders: SemanticProviderDescriptor[] = [];
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
-let configuredExtensionAvailability: Array<{ path: string; disabledExtensions: ConfigurablePhpExtension[] }> = [];
+interface DetectedPhpRuntime {
+  executable: string;
+  version: string;
+  versionId: number;
+  sapi: string;
+  loadedExtensions: string[];
+  loadedConfigurationFile?: string;
+  scannedConfigurationFiles: string[];
+}
+interface ConfiguredExtensionAvailability {
+  path: string;
+  disabledExtensions: ConfigurablePhpExtension[];
+  runtimeMissingExtensions: ConfigurablePhpExtension[];
+  runtime?: DetectedPhpRuntime;
+}
+type DiagnosticPhpRuntime = Pick<DetectedPhpRuntime, 'executable' | 'version' | 'versionId' | 'sapi' | 'loadedConfigurationFile'>;
+let configuredExtensionAvailability: ConfiguredExtensionAvailability[] = [];
 interface PhpExtensionSymbolCatalog {
   types: Map<string, Set<ConfigurablePhpExtension>>;
   functions: Map<string, Set<ConfigurablePhpExtension>>;
@@ -80,33 +96,83 @@ function knownDisabledExtensions(value: unknown): ConfigurablePhpExtension[] {
   return [...new Set((Array.isArray(value) ? value : []).filter((item): item is ConfigurablePhpExtension => typeof item === 'string' && known.has(item)))].sort();
 }
 
+function detectedPhpRuntime(value: unknown): DetectedPhpRuntime | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const candidate = value as Record<string, unknown>;
+  const loadedExtensions = Array.isArray(candidate.loadedExtensions) && candidate.loadedExtensions.every((item) => typeof item === 'string')
+    ? [...new Set(candidate.loadedExtensions.map((item) => item.toLowerCase()))].sort() : undefined;
+  const scannedConfigurationFiles = Array.isArray(candidate.scannedConfigurationFiles) && candidate.scannedConfigurationFiles.every((item) => typeof item === 'string')
+    ? [...new Set(candidate.scannedConfigurationFiles)] : undefined;
+  const version = typeof candidate.version === 'string' ? candidate.version : undefined;
+  const versionId = typeof candidate.versionId === 'number' ? candidate.versionId : undefined;
+  const versionMatch = version ? /^(\d+)\.(\d+)\.(\d+)/.exec(version) : null;
+  if (typeof candidate.executable !== 'string' || candidate.executable === '' || candidate.executable.length > 32_768
+    || !version || !versionMatch || version.length > 64 || !version.startsWith(`${targetPhpVersion}.`)
+    || versionId === undefined || !Number.isSafeInteger(versionId) || versionId < 1
+    || Math.floor(versionId / 10_000) !== Number(versionMatch[1])
+    || Math.floor(versionId / 100) % 100 !== Number(versionMatch[2])
+    || versionId % 100 !== Number(versionMatch[3])
+    || typeof candidate.sapi !== 'string' || candidate.sapi === '' || candidate.sapi.length > 128
+    || !loadedExtensions || loadedExtensions.length > 4_096 || !loadedExtensions.includes('core')
+    || loadedExtensions.some((extension) => extension === '' || extension.length > 256)
+    || !scannedConfigurationFiles || scannedConfigurationFiles.length > 4_096
+    || scannedConfigurationFiles.some((file) => file.length > 32_768)
+    || !(candidate.loadedConfigurationFile === undefined || typeof candidate.loadedConfigurationFile === 'string')
+    || (typeof candidate.loadedConfigurationFile === 'string' && candidate.loadedConfigurationFile.length > 32_768)) return undefined;
+  return {
+    executable: candidate.executable, version, versionId, sapi: candidate.sapi,
+    loadedExtensions, scannedConfigurationFiles,
+    ...(typeof candidate.loadedConfigurationFile === 'string' && candidate.loadedConfigurationFile ? { loadedConfigurationFile: candidate.loadedConfigurationFile } : {}),
+  };
+}
+
 function setConfiguredExtensionAvailability(value: unknown): void {
   if (!Array.isArray(value)) return;
   configuredExtensionAvailability = value.flatMap((entry: unknown) => {
     if (!entry || typeof entry !== 'object') return [];
-    const candidate = entry as { uri?: unknown; disabledExtensions?: unknown };
+    const candidate = entry as { uri?: unknown; disabledExtensions?: unknown; runtime?: unknown };
     const path = typeof candidate.uri === 'string' ? pathForUri(candidate.uri) : undefined;
-    return path ? [{ path, disabledExtensions: knownDisabledExtensions(candidate.disabledExtensions) }] : [];
+    if (!path) return [];
+    const runtime = detectedPhpRuntime(candidate.runtime);
+    const loaded = new Set(runtime?.loadedExtensions ?? []);
+    const runtimeMissingExtensions = runtime ? CONFIGURABLE_PHP_EXTENSIONS.filter((extension) => !loaded.has(extension)) : [];
+    return [{ path, disabledExtensions: knownDisabledExtensions(candidate.disabledExtensions), runtimeMissingExtensions, ...(runtime ? { runtime } : {}) }];
   });
 }
 
-function configuredDisabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
+function configuredExtensionEntryForRoot(root: string): ConfiguredExtensionAvailability | undefined {
   return configuredExtensionAvailability.filter((entry) => pathWithin(entry.path, root))
-    .sort((left, right) => right.path.length - left.path.length)[0]?.disabledExtensions ?? [];
+    .sort((left, right) => right.path.length - left.path.length)[0];
+}
+
+function configuredDisabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
+  return configuredExtensionEntryForRoot(root)?.disabledExtensions ?? [];
 }
 
 function disabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
-  const configured = configuredDisabledExtensionsForRoot(root);
-  return [...new Set([...configured, ...(composerDisabledExtensionsByRoot.get(root) ?? [])])].sort();
+  const configured = configuredExtensionEntryForRoot(root);
+  return [...new Set([...(configured?.disabledExtensions ?? []), ...(configured?.runtimeMissingExtensions ?? []), ...(composerDisabledExtensionsByRoot.get(root) ?? [])])].sort();
 }
 
-function disabledExtensionReason(root: string, extension: ConfigurablePhpExtension): { source: string; setting: boolean; composer: boolean } {
+function disabledExtensionReason(root: string, extension: ConfigurablePhpExtension): {
+  source: string; setting: boolean; composer: boolean; runtime: boolean; detectedRuntime?: DiagnosticPhpRuntime;
+} {
+  const configured = configuredExtensionEntryForRoot(root);
   const setting = configuredDisabledExtensionsForRoot(root).includes(extension);
   const composer = composerDisabledExtensionsByRoot.get(root)?.includes(extension) === true;
+  const runtime = configured?.runtimeMissingExtensions.includes(extension) === true;
+  const sources = [
+    ...(setting ? ['the phpCompanion.disabledExtensions workspace setting'] : []),
+    ...(composer ? ['Composer platform configuration'] : []),
+    ...(runtime && configured?.runtime ? [`the detected PHP ${configured.runtime.version} ${configured.runtime.sapi} runtime (${configured.runtime.executable})`] : []),
+  ];
   return {
-    source: setting && composer ? 'the workspace setting and Composer platform configuration'
-      : setting ? 'the phpCompanion.disabledExtensions workspace setting' : 'Composer platform configuration',
-    setting, composer,
+    source: sources.join(', '), setting, composer, runtime,
+    ...(runtime && configured?.runtime ? { detectedRuntime: {
+      executable: configured.runtime.executable, version: configured.runtime.version,
+      versionId: configured.runtime.versionId, sapi: configured.runtime.sapi,
+      ...(configured.runtime.loadedConfigurationFile ? { loadedConfigurationFile: configured.runtime.loadedConfigurationFile } : {}),
+    } } : {}),
   };
 }
 
@@ -602,7 +668,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         severity: DiagnosticSeverity.Error,
         code: 'php.extension.unavailable',
         source: 'PHP Companion',
-        message: `${use.kind[0]!.toUpperCase()}${use.kind.slice(1)} ${use.fqcn} requires PHP extension ${extensionNames}, which is disabled by ${source}.`,
+        message: `${use.kind[0]!.toUpperCase()}${use.kind.slice(1)} ${use.fqcn} requires PHP extension ${extensionNames}, which is unavailable according to ${source}.`,
         data: { kind: use.kind, fqcn: use.fqcn, extensions: reasons },
       };
     }));

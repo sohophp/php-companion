@@ -70,14 +70,18 @@ describe('language server stdio', () => {
     try {
       const rootUri = pathToFileURL(root).toString();
       const path = join(root, 'ExtensionConsumer.php'); const uri = pathToFileURL(path).toString();
-      const source = '<?php use DOMDocument as ImportedDocument; use function mb_strlen as mb_length; use const FILTER_VALIDATE_INT as FILTER_INT; $document = new DOMDocument(); $imported = new ImportedDocument(); mb_strlen("text"); mb_length("text"); filter_var("1", FILTER_VALIDATE_INT); filter_var("1", FILTER_INT); $pdo = new PDO("sqlite::memory:");';
+      const source = '<?php use DOMDocument as ImportedDocument; use function mb_strlen as mb_length; use const FILTER_VALIDATE_INT as FILTER_INT; $document = new DOMDocument(); $imported = new ImportedDocument(); mb_strlen("text"); mb_length("text"); filter_var("1", FILTER_VALIDATE_INT); filter_var("1", FILTER_INT); $reader = new XMLReader(); $pdo = new PDO("sqlite::memory:");';
       await writeFile(join(root, 'composer.json'), JSON.stringify({ config: { platform: { 'ext-mbstring': false } }, autoload: { files: ['ExtensionConsumer.php'] } }));
       await writeFile(path, source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 201, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri,
-        initializationOptions: { phpExtensionAvailability: [{ uri: rootUri, disabledExtensions: ['dom', 'filter', 'unknown-extension'] }] },
+        initializationOptions: { phpExtensionAvailability: [{
+          uri: rootUri, disabledExtensions: ['dom', 'filter', 'unknown-extension'],
+          runtime: { executable: '/usr/bin/php8.5', version: '8.5.3', versionId: 80503, sapi: 'cli',
+            loadedExtensions: ['core', 'dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlwriter'], scannedConfigurationFiles: [] },
+        }] },
       } }));
       await output.waitFor((message) => message.id === 201);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -87,10 +91,12 @@ describe('language server stdio', () => {
         && message.params.diagnostics.some((diagnostic: any) => diagnostic.code === 'php.extension.unavailable'));
       const unavailable = initialDiagnostics.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable');
       expect(unavailable.map((diagnostic: any) => source.slice(lspOffset(source, diagnostic.range.start), lspOffset(source, diagnostic.range.end))))
-        .toEqual(['DOMDocument', 'ImportedDocument', 'mb_strlen', 'mb_length', 'filter_var', 'filter_var', 'FILTER_VALIDATE_INT', 'FILTER_INT']);
+        .toEqual(['DOMDocument', 'ImportedDocument', 'XMLReader', 'mb_strlen', 'mb_length', 'filter_var', 'filter_var', 'FILTER_VALIDATE_INT', 'FILTER_INT']);
       expect(unavailable.map((diagnostic: any) => diagnostic.data.extensions)).toEqual([
         [expect.objectContaining({ extension: 'dom', setting: true, composer: false })],
         [expect.objectContaining({ extension: 'dom', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'xmlreader', setting: false, composer: false, runtime: true,
+          detectedRuntime: expect.objectContaining({ executable: '/usr/bin/php8.5', version: '8.5.3', sapi: 'cli' }) })],
         [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         [expect.objectContaining({ extension: 'filter', setting: true, composer: false })],
@@ -108,20 +114,44 @@ describe('language server stdio', () => {
       expect(await definition(203, 'mb_strlen')).toEqual([]);
       expect(await definition(204, 'PDO(')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
 
-      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{ uri: rootUri, disabledExtensions: [] }] } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{
+        uri: rootUri, disabledExtensions: [], runtime: { executable: '/usr/bin/php8.5', version: '8.5.3', versionId: 80503, sapi: 'cli',
+          loadedExtensions: ['core', 'dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlwriter'], scannedConfigurationFiles: [] },
+      }] } }));
       const refreshedDiagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
-        && message.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable').length === 2);
+        && message.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable').length === 3);
       expect(refreshedDiagnostics.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable')
         .map((diagnostic: any) => diagnostic.data.extensions))
         .toEqual([
+          [expect.objectContaining({ extension: 'xmlreader', setting: false, composer: false, runtime: true })],
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         ]);
       expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
       expect(await definition(206, 'mb_strlen')).toEqual([]);
+      expect(await definition(207, 'XMLReader')).toEqual([]);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
+  });
+
+  it('ignores runtime extension absence when the detected PHP minor differs from the target', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-runtime-mismatch-'));
+    try {
+      const rootUri = pathToFileURL(root).toString(); const path = join(root, 'RuntimeConsumer.php');
+      const uri = pathToFileURL(path).toString(); const source = '<?php $reader = new XMLReader();';
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['RuntimeConsumer.php'] } })); await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 208, method: 'initialize', params: { processId: null, capabilities: {}, rootUri,
+        initializationOptions: { phpVersion: '8.5', phpExtensionAvailability: [{ uri: rootUri, disabledExtensions: [], runtime: {
+          executable: '/usr/bin/php8.4', version: '8.4.12', versionId: 80412, sapi: 'cli', loadedExtensions: [], scannedConfigurationFiles: [],
+        } }] } } }));
+      await output.waitFor((message) => message.id === 208); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const diagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      expect(diagnostics.params.diagnostics.some((diagnostic: any) => diagnostic.code === 'php.extension.unavailable')).toBe(false);
+    } finally { await rm(root, { recursive: true, force: true }); }
   });
 
   it('refreshes Composer platform extension exclusions after a watched manifest change', async () => {

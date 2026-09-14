@@ -1,6 +1,16 @@
 import * as vscode from 'vscode';
 import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
+import type { FolderState, VersionManager } from './versionManager.js';
+
+interface PhpExtensionAvailabilityEntry {
+  uri: string;
+  disabledExtensions: string[];
+  runtime?: {
+    executable: string; version: string; versionId: number; sapi: string; loadedExtensions: string[];
+    loadedConfigurationFile?: string; scannedConfigurationFiles: string[];
+  };
+}
 
 function hasExplicitLanguageServerSetting(configuration: vscode.WorkspaceConfiguration): boolean {
   const inspected = configuration.inspect<boolean>('languageServer.enabled');
@@ -23,7 +33,7 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
   });
 }
 
-export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel): Promise<LanguageClient | undefined> {
+export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
   const activation = languageServerActivationDecision();
   if (!activation.start) {
@@ -59,11 +69,30 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       external: available && vscode.workspace.getConfiguration('symfonyLsp', folder.uri).get<boolean>('runtimeIndexing', true),
     }));
   };
-  const phpExtensionAvailability = (): Array<{ uri: string; disabledExtensions: string[] }> =>
-    (vscode.workspace.workspaceFolders ?? []).map((folder) => ({
+  const stateRootUri = (state: FolderState): vscode.Uri => state.projectRoot
+    ? state.folder.uri.scheme === 'file' ? vscode.Uri.file(state.projectRoot) : state.folder.uri.with({ path: state.projectRoot.replaceAll('\\', '/') })
+    : state.folder.uri;
+  const phpExtensionAvailability = (): PhpExtensionAvailabilityEntry[] => {
+    const entries = new Map<string, PhpExtensionAvailabilityEntry>();
+    for (const folder of vscode.workspace.workspaceFolders ?? []) entries.set(folder.uri.toString(), {
       uri: folder.uri.toString(),
       disabledExtensions: vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string[]>('disabledExtensions', []),
-    }));
+    });
+    for (const state of versions.allStates()) {
+      const uri = stateRootUri(state); const runtime = state.runtime;
+      entries.set(uri.toString(), {
+        uri: uri.toString(),
+        disabledExtensions: vscode.workspace.getConfiguration('phpCompanion', uri).get<string[]>('disabledExtensions', []),
+        ...(runtime ? { runtime: {
+          executable: runtime.path, version: runtime.version, versionId: runtime.versionId, sapi: runtime.sapi,
+          loadedExtensions: runtime.loadedExtensions,
+          ...(runtime.loadedConfigurationFile ? { loadedConfigurationFile: runtime.loadedConfigurationFile } : {}),
+          scannedConfigurationFiles: runtime.scannedConfigurationFiles,
+        } } : {}),
+      });
+    }
+    return [...entries.values()];
+  };
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
@@ -119,15 +148,22 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     });
   };
   context.subscriptions.push(
+    versions.onDidChangeState(updatePhpExtensionAvailability),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('symfonyLsp.runtimeIndexing')) updateRouteProviders();
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
+      if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
+        void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
+      }
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => { updateRouteProviders(); updatePhpExtensionAvailability(); }),
     vscode.extensions.onDidChange(updateRouteProviders),
   );
   updateRouteProviders();
   updatePhpExtensionAvailability();
+  for (const document of vscode.workspace.textDocuments) if (document.languageId === 'php' && !document.isUntitled) {
+    void versions.ensureForUri(document.uri).catch((error: unknown) => output.warn(`Unable to detect PHP runtime for ${document.uri.toString()}: ${String(error)}`));
+  }
 
   context.subscriptions.push(vscode.commands.registerCommand('phpCompanion.provideTwigInterop', async (root: vscode.Uri | string): Promise<unknown> => {
     const rootUri = typeof root === 'string' ? root : root?.toString();

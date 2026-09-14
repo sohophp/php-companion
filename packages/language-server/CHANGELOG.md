@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Accept validated per-root PHP runtime extension snapshots, reject mismatched target versions, and distinguish runtime absence from workspace and Composer exclusions in unavailable-extension diagnostics.
+
 - Publish stable PHP 8.4 diagnostics for hooked-property reference assignment, by-reference calls, property iteration, and whole-object reference iteration.
 - Yield before Workspace Symbol collection so an immediately queued cancellation can stop large builtin result construction within the frozen cancellation budget.
 

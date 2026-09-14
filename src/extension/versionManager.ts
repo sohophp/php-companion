@@ -4,11 +4,14 @@ import { resolvePhpVersion } from '../php-version/resolver.js';
 import { SUPPORTED_PHP_VERSIONS, type PhpVersionResolution, type PhpVersionSetting } from '../php-version/types.js';
 import { t } from './localize.js';
 import { isAbsolute, relative } from 'node:path';
+import { probePhpRuntime, type PhpRuntime } from '@php-companion/runtime-probe';
 
 export interface FolderState {
   folder: vscode.WorkspaceFolder;
+  projectRoot?: string;
   composer?: ComposerProject;
   resolution: PhpVersionResolution;
+  runtime?: PhpRuntime;
 }
 
 export class VersionManager implements vscode.Disposable {
@@ -17,7 +20,10 @@ export class VersionManager implements vscode.Disposable {
   private readonly watchedProjects = new Set<string>();
   private readonly refreshTimers = new Map<string, NodeJS.Timeout>();
   private readonly disposables: vscode.Disposable[] = [];
+  private readonly stateEmitter = new vscode.EventEmitter<FolderState>();
+  private readonly runtimeProbes = new Map<string, Promise<PhpRuntime | undefined>>();
   private activeFolder?: vscode.WorkspaceFolder;
+  readonly onDidChangeState = this.stateEmitter.event;
 
   constructor(private readonly status: vscode.StatusBarItem) {
     this.disposables.push(
@@ -30,6 +36,10 @@ export class VersionManager implements vscode.Disposable {
 
   async refresh(folder?: vscode.WorkspaceFolder): Promise<void> {
     const folders = folder ? [folder] : (vscode.workspace.workspaceFolders ?? []);
+    const folderUris = new Set(folders.map((item) => item.uri.toString()));
+    this.runtimeProbes.clear();
+    for (const key of folderUris) this.states.delete(key);
+    for (const [root, state] of this.projectStates) if (folderUris.has(state.folder.uri.toString())) this.projectStates.delete(root);
     await Promise.all(folders.map(async (workspaceFolder) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', workspaceFolder.uri);
       const composerRoot = await findComposerRoot(workspaceFolder.uri.fsPath, workspaceFolder.uri.fsPath);
@@ -38,16 +48,21 @@ export class VersionManager implements vscode.Disposable {
       const setting = configuration.get<PhpVersionSetting>('phpVersion', 'auto');
       const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
       const resolution = await resolvePhpVersion({ setting, configuredExecutable, composer });
-      const state = { folder: workspaceFolder, composer, resolution };
+      const runtime = await this.runtimeFor(resolution, configuredExecutable);
+      const state = { folder: workspaceFolder, ...(composerRoot ? { projectRoot: composerRoot } : {}), composer, resolution, ...(runtime ? { runtime } : {}) };
       this.states.set(workspaceFolder.uri.toString(), state);
       if (composerRoot) {
         this.projectStates.set(composerRoot, state);
         this.watchComposerProject(composerRoot, workspaceFolder.uri);
       }
+      this.stateEmitter.fire(state);
     }));
     this.activeFolder ??= vscode.window.activeTextEditor
       ? vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)
       : folders[0];
+    const openProjectDocuments = vscode.workspace.textDocuments.filter((document) => document.languageId === 'php' && !document.isUntitled
+      && folderUris.has(vscode.workspace.getWorkspaceFolder(document.uri)?.uri.toString() ?? ''));
+    await Promise.all(openProjectDocuments.map((document) => this.ensureForUri(document.uri)));
     this.render();
   }
 
@@ -70,10 +85,13 @@ export class VersionManager implements vscode.Disposable {
       configuredExecutable: configuration.get<string | null>('phpExecutablePath') ?? undefined,
       composer,
     });
-    const state = { folder, composer, resolution };
+    const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
+    const runtime = await this.runtimeFor(resolution, configuredExecutable);
+    const state = { folder, projectRoot: composerRoot, composer, resolution, ...(runtime ? { runtime } : {}) };
     this.projectStates.set(composerRoot, state);
     this.watchComposerProject(composerRoot, uri);
     this.states.set(folder.uri.toString(), state);
+    this.stateEmitter.fire(state);
     this.render();
     return state;
   }
@@ -120,9 +138,26 @@ export class VersionManager implements vscode.Disposable {
       return;
     }
     this.status.text = `$(symbol-property) PHP Companion: ${state.resolution.target}`;
-    this.status.tooltip = `${t('detectedFrom', state.resolution.sourceDetail)}\n${state.resolution.detectedVersion ?? ''}`.trim();
+    this.status.tooltip = `${t('detectedFrom', state.resolution.sourceDetail)}\n${state.resolution.detectedVersion ?? ''}\n${state.runtime
+      ? `CLI ${state.runtime.version} (${state.runtime.sapi}), ${state.runtime.loadedExtensions.length} extensions — ${state.runtime.path}`
+      : 'CLI runtime extensions: unknown or target-version mismatch'}`.trim();
     this.status.command = 'phpCompanion.selectPhpVersion';
     this.status.show();
+  }
+
+  private runtimeProbe(command: string): Promise<PhpRuntime | undefined> {
+    let probe = this.runtimeProbes.get(command);
+    if (!probe) { probe = probePhpRuntime(command); this.runtimeProbes.set(command, probe); }
+    return probe;
+  }
+
+  private async runtimeFor(resolution: PhpVersionResolution, configuredExecutable?: string): Promise<PhpRuntime | undefined> {
+    const compact = resolution.target.replace('.', '');
+    const commands = configuredExecutable ? [configuredExecutable]
+      : resolution.executable ? [resolution.executable.path]
+      : ['php', `php${compact}`, `php${resolution.target}`];
+    const runtimes = await Promise.all([...new Set(commands)].map((command) => this.runtimeProbe(command)));
+    return runtimes.find((runtime) => runtime?.minor === resolution.target);
   }
 
   private watchComposerProject(root: string, uri: vscode.Uri): void {
@@ -144,5 +179,6 @@ export class VersionManager implements vscode.Disposable {
   dispose(): void {
     for (const timer of this.refreshTimers.values()) clearTimeout(timer);
     this.disposables.forEach((item) => item.dispose());
+    this.stateEmitter.dispose();
   }
 }

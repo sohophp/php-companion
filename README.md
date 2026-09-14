@@ -33,9 +33,11 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 }
 ```
 
-`diagnostics.disabledCodes` 可按稳定代码关闭诊断；`diagnostics.severity` 可将单项覆盖为 `error`、`warning`、`information`、`hint` 或 `off`。修改后立即重新发布已打开 PHP 文档的诊断，无需重启服务器。已明确禁用的审计扩展符号会发布 `php.extension.unavailable`，消息会说明禁用来自 workspace 设置还是 Composer platform；未知扩展或可由项目 polyfill 提供的符号不猜测。Linux / WSL 的 R1 首发门槛已经通过；R4 完整功能和跨平台矩阵仍在实施。未知或动态类型会保守返回空结果；启用时不要同时启用另一个通用 PHP Language Server。
+`diagnostics.disabledCodes` 可按稳定代码关闭诊断；`diagnostics.severity` 可将单项覆盖为 `error`、`warning`、`information`、`hint` 或 `off`。修改后立即重新发布已打开 PHP 文档的诊断，无需重启服务器。已明确禁用或由目标 PHP CLI 成功证明未加载的审计扩展符号会发布 `php.extension.unavailable`，消息会区分 workspace 设置、Composer platform 与实际运行时；未知扩展或可由项目 polyfill 提供的符号不猜测。Linux / WSL 的 R1 首发门槛已经通过；R4 完整功能和跨平台矩阵仍在实施。未知或动态类型会保守返回空结果；启用时不要同时启用另一个通用 PHP Language Server。
 
 `disabledExtensions` 只用于明确声明项目不可用的 PHP 扩展，当前支持 `dom`、`filter`、`mbstring`、`pdo`、`simplexml`、`xml`、`xmlreader` 与 `xmlwriter`。Composer `config.platform` 中值为 `false` 的对应 `ext-*` 会自动合并；没有写进 Composer `require` 不代表缺失，因此不会据此裁剪内建符号。配置按 workspace folder 生效，变更后无需重启服务器。
+
+首次打开 PHP 文件或主动执行版本检测时，扩展在当前 Extension Host 所在环境中运行受限 PHP CLI 探测：直接执行所选可执行文件，不经过 shell，不加载项目 autoloader 或 Symfony Kernel。只有 PHP 次版本与项目目标一致、结构化结果完整返回时，已加载扩展列表才会参与内建符号选择；命令不存在、超时、输出异常或版本不匹配时保持 unknown。该规则使本地、WSL、SSH 与 Dev Container 分别使用各自实际运行环境，并避免把另一套 PHP 的缺失扩展误报到当前项目。
 
 `semanticProviders` 只接受用户显式配置的可信可执行文件，不从 Composer 或工作区元数据自动发现命令。每次索引以独立无 shell 子进程请求一份完整事实快照；超时、崩溃、输出超限或协议、身份、generation 校验失败时保留上一代事实。该机制隔离 Provider 故障，不是操作系统安全沙箱。
 

@@ -20,6 +20,9 @@ importers:
       '@php-companion/refactor':
         specifier: workspace:*
         version: link:packages/refactor
+      '@php-companion/runtime-probe':
+        specifier: workspace:*
+        version: link:packages/runtime-probe
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
@@ -262,6 +265,18 @@ importers:
 
   packages/refactor:
     devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
+
+  packages/runtime-probe:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

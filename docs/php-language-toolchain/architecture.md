@@ -8,7 +8,7 @@ TypeScript + Node.js 独立语言服务器进程；Tree-sitter/WASM 作为语法
 
 ## 渐进组件化
 
-首发先落地 parser、phpdoc、project、index、type-system、semantic、language-spec、refactor、language-server、testkit 与 vscode 的必要边界；refactor 已由接口方法生成实际消费，不是空包。其余框架与互操作包在真实需求出现时提取。框架插件、互操作和高级重构不阻塞 R1。扩展组合由 integrations.md 规定所有权。
+首发先落地 runtime-probe、parser、phpdoc、project、index、type-system、semantic、language-spec、refactor、language-server、testkit 与 vscode 的必要边界；refactor 已由接口方法生成实际消费，不是空包。其余框架与互操作包在真实需求出现时提取。框架插件、互操作和高级重构不阻塞 R1。扩展组合由 integrations.md 规定所有权。
 
 ## Workspace 包
 
@@ -18,6 +18,7 @@ TypeScript + Node.js 独立语言服务器进程；Tree-sitter/WASM 作为语法
 
 | 包 | 职责 | 禁止承担 |
 | --- | --- | --- |
+| runtime-probe | 有界 PHP CLI 发现、版本、SAPI、扩展和 INI 来源 | shell、项目 autoloader 或框架启动 |
 | language-spec | PHP 版本规则、内建符号快照、来源与许可 | 执行项目 PHP |
 | parser | CST、语义 AST、错误恢复、增量解析、范围映射 | 类型推断、编辑器 API |
 | phpdoc | 类型表达式、模板和注解 AST | 正则猜测完整类型语义 |
@@ -52,6 +53,7 @@ flowchart BT
   Semantic --> Server[language-server]
   Refactor --> Server
   Server --> Adapter[vscode]
+  Runtime[runtime-probe] --> Adapter
 ```
 
 箭头表示下层能力被上层使用。索引通过查询接口提供声明事实，语义分析产生的派生依赖通过明确写入接口保存；index 不反向导入 semantic。框架组件实现独立 `semantic-provider` 契约，由服务器组装并按 provider 身份原子替换；semantic 不导入具体框架包。
@@ -63,6 +65,7 @@ flowchart BT
 - `Declaration`：成员/函数签名、可见性、静态性、泛型、继承、源码范围与版本来源。
 - `Type`：标量、字面量、对象、泛型、Union/Intersection、数组形状、Callable、never；显式 mixed、未知和错误恢复分开表示。
 - `AnalysisResult`：文档/项目快照、结果、依赖、完整性和分析预算状态。
+- `PhpRuntime`：可执行文件、完整版本/版本 ID、SAPI、规范化扩展目录及 INI 来源；失败或目标次版本不一致不形成可用事实。
 - `SemanticFactsContribution`：schema、provider 身份、generation、完整性及带来源的方法/属性/字面量返回事实；同一 provider 每次提交完整快照。
 - `SemanticProviderRequest/Response`：一次请求对应一次 JSON 响应；服务器只执行用户显式配置的可信命令，并校验协议版本、请求 ID、provider 身份、generation 与完整性后提交。
 - `EditPlan`：带版本文本编辑、文件操作、依赖顺序、冲突、无法确认的引用、预览说明。
