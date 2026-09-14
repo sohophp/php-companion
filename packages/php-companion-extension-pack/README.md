@@ -8,7 +8,6 @@
 |---|---|
 | PHP Companion | Composer/PSR-4、类型创建、项目工作流和按需安全重构 |
 | TwigPlus | Twig 补全、导航、诊断和格式化 |
-| Symfony Language Tools | Symfony 路由、服务、配置与框架字符串增强；默认只做静态索引 |
 | YAML | YAML 语法、Schema、补全、诊断和格式化 |
 | XML | XML 语法、XSD/DTD、补全、诊断、导航、重命名和格式化 |
 | PHP Debug | Xdebug 断点、单步、变量和调用栈 |
@@ -16,9 +15,9 @@
 | PHP CS Fixer | PHP 格式化和项目代码风格 |
 | EditorConfig | 项目级缩进、换行和字符集 |
 
-JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code 内建语言服务，不重复安装基础语言扩展。XML 由仍在维护的 Red Hat XML/LemMinX 负责，不采用长期未发布且依赖已废弃 `xmldom` 的 DotJoshJohnson XML Tools。拼写检查、CSS Peek 和数据库客户端不是 PHP 编码闭环的必要能力，按需单独安装；其中 Database Client 当前发行版闭源且部分功能收费，不属于本开源包。Symfony Language Tools 只补充框架感知能力；通用 Twig 解析、变量、导航和格式化仍由 TwigPlus 负责。默认关闭 `symfonyLsp.runtimeIndexing` 与 `symfonyLsp.releaseMetadata`，不执行项目内核，也不请求版本元数据。
+JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code 内建语言服务，不重复安装基础语言扩展。XML 由仍在维护的 Red Hat XML/LemMinX 负责，不采用长期未发布且依赖已废弃 `xmldom` 的 DotJoshJohnson XML Tools。拼写检查、CSS Peek 和数据库客户端不是 PHP 编码闭环的必要能力，按需单独安装；其中 Database Client 当前发行版闭源且部分功能收费，不属于本开源包。
 
-Symfony Language Tools 的项目功能要求工作区已经安装 Composer 依赖。只有 `composer.json` 而没有 `vendor/` 的目录不属于已支持的 Symfony 验证环境；安装依赖后再检查其状态栏或 `Symfony Language Tools: Show Index Status`。PHP Companion 的通用 PHP 能力不依赖该插件成功发现 Symfony 应用。
+Symfony Language Tools 暂不随 Pack 自动安装。0.20.1 已作为可选框架增强通过完整组合验证；0.20.2 会参与普通 PHP 声明 Rename 并返回拒绝，导致 F2 不可用，而 `extensionPack` 无法锁定依赖版本。需要该增强时可手动安装已验证的 0.20.1 并关闭自动升级，且工作区必须已安装 Composer 依赖。默认关闭 `symfonyLsp.runtimeIndexing` 与 `symfonyLsp.releaseMetadata`；通用 Twig 能力仍由 TwigPlus 提供。
 
 此 Pack 不安装第三方 PHP Language Server，并通过扩展包默认设置启用 PHP Companion 自研语言服务器。若另外安装了 Intelephense 且没有显式选择，PHP Companion 会保留该现有提供者并保持自身服务器关闭；用户设置的 `phpCompanion.languageServer.enabled` 明确值始终优先。
 

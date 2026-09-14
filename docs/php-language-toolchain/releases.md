@@ -15,9 +15,9 @@
 目标：尽早形成可验证的免费工具组合，完成核心开发所需的精准基线。对应 P0、少量 P1 和外部工具集成。
 
 - [x] 验证默认组合成员的许可、实际免费功能、Linux/WSL 平台、PHP 版本、安装方式与维护状态；证据见 Open Source Profile 报告，Windows/macOS 留给 R4 平台矩阵。
-- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client 与非核心扩展已移出，九项核心成员已确定许可证与职责边界；新增 Red Hat XML 的隔离组合验收单独记录。
+- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client、非核心扩展及存在 Provider 冲突的 Symfony Language Tools 0.20.2 已移出默认安装，八项默认成员已确定许可证与职责边界；Red Hat XML 与可选 Symfony 0.20.1 的隔离组合验收单独记录。
 - [x] 默认插件及职责边界已固定在 integrations.md；JSON/HTML/CSS/JS 使用 VS Code 内建服务。
-- [x] Symfony Language Tools 0.19.0 Linux x64 已在隔离 Extension Host 与 Companion/TwigPlus 同时激活；通用 Twig formatter 仍由 TwigPlus 提供，默认关闭 runtime indexing 与 release metadata。静态模式缺少的路由候选已由 Companion 在可证明源码范围内补齐，并通过外部运行时提供者的所有权切换门禁；Windows/macOS 留给 R4 平台矩阵。
+- [x] Symfony Language Tools 0.20.1 Linux x64 已在隔离 Extension Host 与 Companion/TwigPlus 同时激活；通用 Twig formatter 仍由 TwigPlus 提供，默认关闭 runtime indexing 与 release metadata。0.20.2 的普通 PHP Rename 冲突已由完整组合门禁捕获，因此当前只提供 0.20.1 可选安装，不随无法锁版本的 Pack 自动安装。静态模式缺少的路由候选由 Companion 在可证明源码范围内补齐。
 - [x] 首发 PHP 高频样例、S01–S08 质量门槛及功能所有者表已经冻结并完成 Linux/WSL 审计。
 - [x] 自研核心已通过 R1，未引入临时 PHP LS；手动 Intelephense 旧工作流只保留兼容回归。
 
@@ -45,7 +45,7 @@ R0 不含自研 PHP LS 完成声明。只有临时 PHP 核心和整套工具闭�
 
 不作为首发阻塞项：完整控制流、高级泛型/条件类型、方法级跨层级 Rename、提取方法、修改签名、自研 Symfony/Doctrine 和跨 Twig 重构。这些进入 R2–R4。
 
-退出条件：acceptance.md 的 S01–S08 全部通过。没有准确性证据的功能不默认启用。R1 独立 Profile 不安装其他通用 PHP LS，可保留 Symfony 框架增强插件。 Linux/WSL 证据已记录；跨平台最终矩阵仍由 R4 完成。
+退出条件：acceptance.md 的 S01–S08 全部通过。没有准确性证据的功能不默认启用。R1 独立 Profile 不安装其他通用 PHP LS；Symfony 框架增强只在已验证版本下作为可选组件。Linux/WSL 证据已记录；跨平台最终矩阵仍由 R4 完成。
 
 ## R2：类型与导航逐步增强
 

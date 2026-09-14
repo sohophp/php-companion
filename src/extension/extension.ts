@@ -112,6 +112,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const pendingSafeMoves = new Map<string, MoveReconciliation[]>();
   type ServerMoveReconciliation = { oldUri: string; newUri: string; newNamespace: string; sourceUris: string[]; declarations: Array<{ oldFqcn: string; newFqcn: string }> };
   const pendingServerSafeMoves = new Map<string, ServerMoveReconciliation[]>();
+  const reconcilingServerSafeMoves = new Set<string>();
   const pendingMovePlanning = new Map<string, Promise<void>>();
   const pendingTypeRenameEdits = new Map<string, vscode.WorkspaceEdit>();
   let movePipeline: Promise<void> = Promise.resolve();
@@ -186,33 +187,39 @@ export function activate(context: vscode.ExtensionContext): void {
   const reconcileServerMove = async (moves: readonly ServerMoveReconciliation[]): Promise<void> => {
     const currentUri = new Map(moves.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
     const touched = moves.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
-    await withBoundedRetry(async () => {
-      // The will-rename participant has already applied its exact edits to open
-      // buffers. Save those edits before asking the server to inspect the
-      // post-move filesystem; otherwise a transient request failure can leave
-      // the moved file on disk with its old namespace.
-      await applyMoveReconciliation(new vscode.WorkspaceEdit(), touched);
-      await applyMoveReconciliation(await requestMoveReconciliation(moves), touched);
-      for (const move of moves) {
-        const uri = vscode.Uri.parse(move.newUri);
-        const source = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
-        const declared = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(source)?.[1]?.trim();
-        if (declared !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} declares ${declared ?? 'the global namespace'} instead of ${move.newNamespace}.`);
-      }
-      const remaining = await requestMoveReconciliation(moves);
-      if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
-    }, {
-      attempts: 3,
-      delayMs: 100,
-      onFailure: (error, attempt) => output.warn(`Safe Move reconciliation attempt ${attempt}/3 failed: ${error instanceof Error ? error.message : String(error)}`),
-    });
+    // Save open participants before asking the server to inspect the final
+    // filesystem. The caller retains the exact plan and retries this complete
+    // transaction until the move, language-server snapshot and disk converge.
+    await applyMoveReconciliation(new vscode.WorkspaceEdit(), touched);
+    await applyMoveReconciliation(await requestMoveReconciliation(moves), touched);
+    for (const move of moves) {
+      const uri = vscode.Uri.parse(move.newUri);
+      const source = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
+      const declared = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(source)?.[1]?.trim();
+      if (declared !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} declares ${declared ?? 'the global namespace'} instead of ${move.newNamespace}.`);
+    }
+    const remaining = await requestMoveReconciliation(moves);
+    if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
   };
 
   const queueServerMoveReconciliation = async (key: string): Promise<boolean> => {
     const reconciliation = pendingServerSafeMoves.get(key);
     if (!reconciliation) return false;
-    pendingServerSafeMoves.delete(key);
-    movePipeline = movePipeline.then(() => reconcileServerMove(reconciliation)).catch((error) => {
+    if (reconcilingServerSafeMoves.has(key)) { await movePipeline; return true; }
+    reconcilingServerSafeMoves.add(key);
+    movePipeline = movePipeline.then(async () => {
+      try {
+        await withBoundedRetry(() => reconcileServerMove(reconciliation), {
+          attempts: 13,
+          delayMs: 250,
+          onFailure: (error, attempt) => {
+            if (attempt === 1 || attempt === 5 || attempt === 10 || attempt === 13) output.warn(`Safe Move post-operation reconciliation attempt ${attempt}/13 failed: ${error instanceof Error ? error.message : String(error)}`);
+          },
+        });
+        pendingServerSafeMoves.delete(key);
+      } finally { reconcilingServerSafeMoves.delete(key); }
+    }).catch((error) => {
+      pendingServerSafeMoves.delete(key);
       const message = 'Safe Move completed the file operation, but could not reconcile namespace and references.';
       output.warn(`${message} ${error instanceof Error ? error.message : String(error)}`);
       void vscode.window.showWarningMessage(message);

@@ -12,7 +12,7 @@
 | JSON/JSONC | VS Code 内建 JSON | 不额外安装扩展；可贡献 schema，不重写语言服务 |
 | HTML/CSS/JS/TS | VS Code 内建语言服务 | PHP 混合文件适用范围实测；Twig 内嵌区域继续由 twig-plus 处理 |
 | Twig | `sohophp.twig-plus` | 长期唯一模板语言实现 |
-| Symfony/Doctrine 增强 | `Symfony.language-tools` | MIT；0.20.1 Linux x64 已在依赖完整的 Winstar 静态索引到 ready，默认关闭运行时索引和版本元数据请求 |
+| Symfony/Doctrine 增强 | `Symfony.language-tools` | MIT；0.20.1 为已验证的可选版本，依赖完整的 Winstar 静态索引到 ready；0.20.2 因普通 PHP Rename 冲突暂不进入默认 Pack |
 | PHP 格式化 | `junstyle.php-cs-fixer` | 已有组合继续验证，长期复用 |
 | 调试 | `xdebug.php-debug` | 验证现有组合、版本和运行时配置 |
 | PHPUnit | `recca0120.vscode-phpunit` | 现有候选，核验版本/许可和真实测试发现执行；Pest 非首发必需 |
@@ -22,7 +22,7 @@ Open Source Pack 已在 VS Code 1.136.1 / WSL 的隔离扩展目录完成实际�
 
 数据库、Markdown、拼写和 CSS Peek 不作为 PHP 首发必需依赖，已从 Open Source Pack 移除。VS Code 内建 Markdown/CSS 能力足够首发基线；当前 Database Client 发行版闭源且部分功能收费，只能作为用户自行选择的可选工具。
 
-Symfony Language Tools 官方定位是补充通用 PHP LS，覆盖 PHP、Twig 和 YAML 中的 Symfony 框架值；它不提供通用 Twig 语法高亮、格式化或内建符号补全。0.20.1 Linux x64 已在安装完整 Composer 依赖的 Winstar 中把源码索引推进到 `ready`。默认组合将 `symfonyLsp.runtimeIndexing` 和 `symfonyLsp.releaseMetadata` 设为 `false`：只使用静态索引，不启动项目内核，也不请求版本元数据。项目确需运行时增强时再显式启用并单独验证执行边界。官方要求应用 Composer 依赖已经安装；无 `vendor/` 的合成 fixture 不能作为其项目能力通过证据。
+Symfony Language Tools 官方定位是补充通用 PHP LS，覆盖 PHP、Twig 和 YAML 中的 Symfony 框架值；它不提供通用 Twig 语法高亮、格式化或内建符号补全。0.20.1 Linux x64 已在安装完整 Composer 依赖的 Winstar 中把源码索引推进到 `ready`，并与 Companion 的完整 F2/Safe Move 组合通过。0.20.2 会为普通 PHP 声明参与 Rename 并返回拒绝，使 VS Code 的聚合 Rename 失败；该扩展没有关闭 Rename 的配置，而 `extensionPack` 也不能锁定成员版本。因此它暂时从默认 Pack 移出，0.20.1 只作为手动安装并关闭自动升级的可选框架增强。启用时仍将 `symfonyLsp.runtimeIndexing` 和 `symfonyLsp.releaseMetadata` 设为 `false`。项目确需运行时增强时再显式启用并单独验证执行边界。官方要求应用 Composer 依赖已经安装；无 `vendor/` 的合成 fixture 不能作为其项目能力通过证据。
 
 Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat；Symfony 外部能力归 Symfony Language Tools，PHP 内的路由名称补全按文末规则切换；通用 Twig 解析、模板变量、导航和格式化归 TwigPlus；PHP 通用语义归 Companion。自研 Symfony/Doctrine 组件通过相同场景后，按能力组逐项替换框架插件。
 
@@ -30,7 +30,7 @@ Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat
 
 Phpactor 只作为提前交付组合的开源候选。官方明确披露性能/准确性局限；PHP 运行时要求、Windows/WSL 与目标 PHP 语法需实测，不承诺适合全部环境。没有合格临时核心时，R0 不宣称完整 PHP 编码可用，优先完成 R1。
 
-扩展包不会固定所有依赖扩展版本；发布报告记录实际验证版本，并对后续升级做组合冒烟与回退说明，不能把一次组合验收视为永久兼容。
+扩展包不能固定成员扩展版本；默认成员必须以 Marketplace 当前版本通过组合门禁。只能在指定版本下成立的组件保留为可选项，发布报告记录版本、升级门禁和回退说明，不能把一次组合验收视为永久兼容。
 
 ## Twig 唯一所有权
 

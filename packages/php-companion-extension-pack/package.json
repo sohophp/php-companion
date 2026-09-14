@@ -64,7 +64,6 @@
   "extensionPack": [
     "sohophp.php-companion",
     "sohophp.twig-plus",
-    "symfony.language-tools",
     "redhat.vscode-yaml",
     "redhat.vscode-xml",
     "xdebug.php-debug",

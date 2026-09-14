@@ -124,6 +124,8 @@ PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准
 - PHP CS Fixer：格式化。
 - PHPUnit/Pest Test Explorer：测试。
 - TwigPlus：Twig 编辑体验。
+- Red Hat YAML / XML：YAML Schema 与 XML/XSD/DTD 编辑能力。
 - PHP Companion：Composer/PSR-4、文件生成、项目工作流和安全重构。
 
 Intelephense 只作为手动启用的旧工作流兼容路径，不属于任何默认组合。
+Symfony Language Tools 0.20.1 可作为手动安装的框架增强；0.20.2 与普通 PHP F2 Rename 存在 Provider 冲突，修复并通过组合门禁前不随 Pack 自动安装。

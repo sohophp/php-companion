@@ -1,0 +1,43 @@
+# Open Source Profile 版本与 Provider 组合门禁
+
+日期：2026-09-15。候选基线：VS Code 1.137.0、PHP Companion 0.4.5。自动化入口为 `pnpm install:open-source-profile` 与 `pnpm test:extension:open-source-profile`。
+
+## 变更
+
+`test/extension/open-source-profile.extensions.json` 现在是第三方组合的唯一机器可读版本清单。安装脚本在全新扩展目录逐项安装精确 Marketplace 版本，再核对 `--list-extensions --show-versions`，并拒绝出现 Intelephense。源码 manifest 测试和最终 VSIX 检查从同一清单生成默认 Pack 成员，避免文档、测试与产物各自维护列表。
+
+CI 新增 Linux、Windows 与 macOS 三个 Open Source Profile 任务。每个平台都安装 PHP 8.5、PHPUnit 9.6.36、PHP CS Fixer 3.95.22 和冻结的外部扩展，再运行同一主 VSIX 的完整编辑器组合测试。它覆盖 PHP/Twig/YAML/XML/JSON 的提供者边界、PHP 格式化与 Undo、PHPUnit、Xdebug、声明级 F2、Safe Move 及既有精准语义断言。
+
+首次跨平台运行同时暴露了两个门禁实现问题。Marketplace 在 Linux/macOS 安装途中返回临时 503；安装器现只对 429、5xx 和明确网络中断执行最多五次有界重试。Windows 的合成 fixture 没有 `vendor/`，不再把 Symfony 源索引 ready 当作通过条件；组合矩阵验证插件激活、运行时关闭及 Provider 共存，依赖完整的真实项目 ready 仍由 Winstar 专项证据负责。
+
+同一次运行还复现 Windows/macOS 文件操作完成后 Language Server 状态传播较慢：旧实现第一次三轮短重试失败时已经删除 Safe Move 计划。协调任务现在成功前保留计划，事件和文件观察器复用同一个约 20 秒的有界重试；namespace、引用、保存和最终空计划断言没有放宽。
+
+## Symfony 版本结论
+
+本轮先以 Symfony Language Tools 0.20.2 执行完整组合。普通 alias Rename 的预期拒绝之后，接口声明 `ExportContract` 的 F2 Rename 返回 `The element can't be renamed.`，使整项 VS Code Rename 失败。该版本的客户端以 `file/php` DocumentSelector 注册 Rename，扩展设置中没有关闭该 Provider 的选项；VS Code 会聚合同分值提供者，因此 PHP Companion 无法用更具体的选择器可靠取得独占权。
+
+把唯一变量改为 Symfony Language Tools 0.20.1 后，相同主 VSIX、项目工具链和完整测试以退出码 0 完成。随后在新的临时扩展目录从 Marketplace 精确安装以下八项并再次通过：
+
+| 扩展 | 验证版本 | 默认 Pack |
+| --- | --- | --- |
+| TwigPlus | 1.3.7 | 是 |
+| Symfony Language Tools | 0.20.1 | 否，可选兼容版本 |
+| Red Hat YAML | 1.24.0 | 是 |
+| Red Hat XML | 0.29.3 | 是 |
+| PHP Debug | 1.40.1 | 是 |
+| PHPUnit & Pest Test Explorer | 3.9.40 | 是 |
+| PHP CS Fixer | 0.3.21 | 是 |
+| EditorConfig | 0.18.2 | 是 |
+
+VS Code 的 `extensionPack` 只能声明 ID，不能固定成员版本。默认 Pack 如果继续声明 Symfony Language Tools，新安装会取得已知冲突的 0.20.2。因此两个 Pack 暂时移除该 ID；0.20.1 保留在完整兼容性 Profile 中，供明确锁版本并关闭自动升级的 Symfony 用户选择。上游版本修复后，必须先修改清单并通过三平台组合门禁，才能恢复默认安装。
+
+## 本地证据
+
+- `pnpm typecheck` 与 `pnpm lint` 通过。
+- 十六个组件 624 项测试通过；组合包 manifest 的 3 项聚焦测试通过。
+- 全新隔离目录精确列出八个目标扩展，没有 Intelephense；完整 Open Source Profile 打包 Extension Host 退出码为 0。
+- 本地测试使用 Winstar 的 `bin/php-runtime`、项目 PHP CS Fixer 包装器和 PHPUnit 9.6.36。该证据来自 WSL2/Linux Extension Host，不冒充 Windows 客户端连接 WSL Remote 的独立验收。
+
+## 边界
+
+三平台 CI 只关闭冻结第三方组合在各宿主系统上的自动门禁。Windows 客户端连接 WSL Remote、依赖完整的大型项目多小时会话、Marketplace 发布后的干净安装和人工 UI 检查仍须单独完成。公开 npm 与 VS Code Marketplace 发布未执行。

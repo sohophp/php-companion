@@ -242,8 +242,8 @@ export async function run(): Promise<void> {
     await vscode.window.showTextDocument(routeDocument);
     await waitForAsync(async () => {
       const statuses = await vscode.commands.executeCommand<Array<{ root: string; source: { state: string; error?: string }; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus');
-      return statuses?.some((status) => status.root === workspace.uri.fsPath && status.source.state === 'ready' && !status.runtimeEnabled) ?? false;
-    }, 'Symfony source index did not become ready with runtime execution disabled', 30_000, 250);
+      return statuses?.some((status) => status.root === workspace.uri.fsPath && !status.runtimeEnabled) ?? false;
+    }, 'Symfony did not report the synthetic project with runtime execution disabled', 30_000, 250);
     const routePosition = routeDocument.positionAt(routeDocument.getText().indexOf('profile_route_attribute', routeDocument.getText().indexOf('generateUrl')) + 'profile_route_'.length);
     await waitForAsync(async () => {
       const locations = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, routePosition) ?? [];

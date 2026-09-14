@@ -100,11 +100,12 @@ for (const artifact of artifacts) {
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    const expectedExtensions = ['sohophp.php-companion', ...openSourceProfile.map((entry) => entry.id)].map((id) => id.toLowerCase()).sort();
+    const expectedExtensions = ['sohophp.php-companion', ...openSourceProfile.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)]
+      .map((id) => id.toLowerCase()).sort();
     const actualExtensions = Array.isArray(manifest.extensionPack)
       ? manifest.extensionPack.map((id) => String(id).toLowerCase()).sort() : [];
     if (JSON.stringify(actualExtensions) !== JSON.stringify(expectedExtensions)) {
-      throw new Error(`${artifact.path} must contain exactly the nine approved open-source extensions.`);
+      throw new Error(`${artifact.path} must contain exactly the approved default open-source extensions.`);
     }
     if (manifest.extensionPack?.includes('bmewburn.vscode-intelephense-client')) {
       throw new Error(`${artifact.path} must not install Intelephense.`);
