@@ -76,6 +76,7 @@
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
     "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
+    "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
   },

@@ -1,5 +1,7 @@
 # Changelog
 
+- Persist separately validated reference-candidate and type-dependency layers in semantic snapshot schema 72. Restore their indexes without reparsing, reject stale or corrupt derived layers, and use the reverse type graph for transitive constructor-summary invalidation.
+
 - Narrow type, global function, global constant, and static member References/Rename through an incrementally replaced candidate inverted index, then retain exact semantic resolution on the reduced file set. Oversized documents fall back conservatively.
 
 - Classify updates as declaration, implementation, or no semantic change; return affected callable/type identities and retain unrelated derived summaries across trivia-only or isolated body edits.

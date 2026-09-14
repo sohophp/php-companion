@@ -6,6 +6,8 @@ import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, p
 
 export { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS,
   type DocumentKeyIndexLimits, type DocumentKeyIndexStats } from './inverted.js';
+export { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS,
+  type DependencyNode, type DocumentDependencyGraphLimits, type DocumentDependencyGraphStats } from './dependency.js';
 
 export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number; maxTotalBytes: number; }
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "files": 10000,
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "cold": {
+    "durationMs": 16977.41,
+    "parsed": 10000,
+    "restored": 0
+  },
+  "warm": {
+    "durationMs": 4050.65,
+    "parsed": 0,
+    "restored": 10000
+  },
+  "warmToColdRatio": 0.2386,
+  "exactness": {
+    "transitiveDependencyRestored": true,
+    "derivedFactInvalidated": true,
+    "corruptLayerReparsedFiles": 1
+  }
+}

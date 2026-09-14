@@ -36,6 +36,13 @@ jobs:
           name: editing-resilience-${{ runner.os }}-${{ runner.arch }}
           if-no-files-found: error
           path: editing-resilience-${{ runner.os }}-${{ runner.arch }}.json
+      - name: Persistent semantic index benchmark
+        run: node scripts/benchmark-persistent-index.mjs 1000 > persistent-index-${{ runner.os }}-${{ runner.arch }}.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: persistent-index-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: persistent-index-${{ runner.os }}-${{ runner.arch }}.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - if: runner.os == 'Linux'

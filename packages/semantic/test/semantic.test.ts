@@ -373,7 +373,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 71, file: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 72, file: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -4904,7 +4904,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 71, file: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 72, file: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -5793,6 +5793,28 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.readonlyPropertyAssignments(consumerUri)).toHaveLength(1);
     workspace.remove(stateUri); workspace.remove(childUri); workspace.remove(consumerUri);
   });
+  it('restores transitive type dependencies before invalidating derived constructor summaries', () => {
+    const stateUri = 'file:///RestoredGraphState.php'; const middleUri = 'file:///RestoredGraphMiddle.php';
+    const childUri = 'file:///RestoredGraphChild.php'; const consumerUri = 'file:///RestoredGraphConsumer.php';
+    const state = (initialize: boolean): string => `<?php namespace RestoredGraph;
+      class State { public readonly int $body; public function __construct() { ${initialize ? '$this->body = 1;' : ''} } }`;
+    const middle = '<?php namespace RestoredGraph; class Middle extends State {}';
+    const child = '<?php namespace RestoredGraph; class Child extends Middle {}';
+    const consumer = '<?php namespace RestoredGraph; class Inspector { public function inspect(): void { $child = new Child(); foreach ($child as &$value) {} } }';
+    const original = new SemanticWorkspace(parser);
+    original.update(stateUri, state(true)); original.update(middleUri, middle); original.update(childUri, child); original.update(consumerUri, consumer);
+    const snapshots = [stateUri, middleUri, childUri, consumerUri].map((uri) => [uri, original.snapshot(uri)] as const);
+    original.dispose();
+
+    const restored = new SemanticWorkspace(parser);
+    for (const [uri, snapshot] of snapshots) expect(restored.restore(snapshot, uri)).toBe(true);
+    expect(restored.readonlyPropertyAssignments(consumerUri)).toMatchObject([{
+      operation: 'reference-iteration', ownerFqcn: 'RestoredGraph\\Child', propertyNames: ['body'],
+    }]);
+    restored.update(stateUri, state(false));
+    expect(restored.readonlyPropertyAssignments(consumerUri)).toEqual([]);
+    restored.dispose();
+  });
   it('propagates construction state only when every factory return path directly constructs one concrete type', () => {
     const declarations = `<?php namespace FactoryConstruction;
       class State { public readonly int $body; public function __construct(public readonly int $id) { $this->body = 1; } }
@@ -6075,7 +6097,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 71, file: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 72, file: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -6742,13 +6764,23 @@ class Worker {
     workspace.remove(uri); workspace.remove(declarationsUri);
   });
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
-    const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached { public function restored(): void {} }';
+    const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
+    expect(snapshot).toMatchObject({ schema: 72, layers: {
+      referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
+      typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },
+    } });
     expect(workspace.restore(snapshot, uri)).toBe(true);
     expect(workspace.workspaceSymbols('restored')).toMatchObject([{ uri, name: 'restored' }]);
     expect(workspace.restore({ schema: 3, file: snapshot!.file }, uri)).toBe(false);
     const invalid = structuredClone(snapshot!); invalid.file.scopes[0]!.captures = undefined as never;
     expect(workspace.restore(invalid, uri)).toBe(false);
+    const invalidLayers = structuredClone(snapshot!); invalidLayers.layers.typeDependencies.nodes[0]!.dependencies = [42 as never];
+    expect(workspace.restore(invalidLayers, uri)).toBe(false);
+    const staleReferences = structuredClone(snapshot!); staleReferences.layers.referenceCandidates.keys = ['raw-ci:other'];
+    expect(workspace.restore(staleReferences, uri)).toBe(false);
+    const staleDependencies = structuredClone(snapshot!); staleDependencies.layers.typeDependencies.nodes[0]!.dependencies = ['cache\\other'];
+    expect(workspace.restore(staleDependencies, uri)).toBe(false);
   });
   it('reuses an edited syntax tree while keeping semantic results equal to a clean parse', () => {
     const uri = 'file:///Incremental.php';

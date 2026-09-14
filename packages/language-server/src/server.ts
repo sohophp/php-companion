@@ -461,7 +461,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v42-php-${targetPhpVersion}`,
+      version: `semantic-v43-php-${targetPhpVersion}`,
       restore: (payload, { uri }): boolean => { current.add(uri); return workspace.restore(payload, uri); },
     } : undefined,
   });

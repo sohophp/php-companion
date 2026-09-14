@@ -1,5 +1,5 @@
 import { createIncrementalEdit, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
-import { DocumentKeyIndex } from '@php-companion/index';
+import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, type PhpDocTag, type PhpDocType } from '@php-companion/phpdoc';
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
 import { isSemanticFactsContribution, semanticFacts, type ExternalLiteralMethodReturnFact, type ExternalMethodFact, type ExternalPropertyFact, type SemanticFactsContribution } from '@php-companion/semantic-provider';
@@ -34,7 +34,14 @@ export interface SemanticFileSnapshot {
 export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: string; default?: string; variance: GenericVariance; }
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
-export interface SemanticSnapshot { schema: 71; file: SemanticFileSnapshot; }
+export interface SemanticSnapshot {
+  schema: 72;
+  layers: {
+    referenceCandidates: { indexed: boolean; keys: string[] };
+    typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
+  };
+  file: SemanticFileSnapshot;
+}
 type SemanticFile = SemanticFileSnapshot;
 interface ObjectClass { fqcn: string; nullable: boolean; typeArguments?: Record<string, string>; groups?: ObjectClass[][]; }
 interface MemberTarget { fqcn: string; member: string; accessFrom?: string; static: boolean; typeArguments?: Record<string, string>; groups?: ObjectClass[][]; }
@@ -543,6 +550,8 @@ export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
   private readonly referenceCandidates = new DocumentKeyIndex();
   private readonly unindexedReferenceCandidateUris = new Set<string>();
+  private readonly typeDependencies = new DocumentDependencyGraph();
+  private readonly unindexedTypeDependencyUris = new Set<string>();
   private readonly trees = new Map<string, SyntaxTree>();
   private readonly controlFlowAssignments = new Map<string, Set<number>>();
   private readonly externalFacts = new Map<string, SemanticFactsContribution>();
@@ -560,6 +569,21 @@ export class SemanticWorkspace {
     else this.unindexedReferenceCandidateUris.add(file.uri);
   }
 
+  private typeDependencyNodes(file: SemanticFile): DependencyNode[] {
+    return file.declarations.map((declaration) => {
+      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      const dependencies = [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames]
+        .map((name) => this.resolveSourceType(file, name, namespace, declaration.fqcn)?.toLowerCase())
+        .filter((name): name is string => Boolean(name));
+      return { key: declaration.fqcn.toLowerCase(), dependencies };
+    });
+  }
+
+  private replaceTypeDependencies(file: SemanticFile, nodes: Iterable<DependencyNode> = this.typeDependencyNodes(file)): void {
+    if (this.typeDependencies.replace(file.uri, nodes)) this.unindexedTypeDependencyUris.delete(file.uri);
+    else this.unindexedTypeDependencyUris.add(file.uri);
+  }
+
   private filesForReferenceKeys(...keys: string[]): SemanticFile[] {
     const uris = new Set(this.unindexedReferenceCandidateUris);
     for (const key of keys) for (const uri of this.referenceCandidates.documents(key)) uris.add(uri);
@@ -569,18 +593,17 @@ export class SemanticWorkspace {
   }
 
   private dependentTypeNames(seed: ReadonlySet<string>): Set<string> | undefined {
+    if (this.unindexedTypeDependencyUris.size) return undefined;
     const affected = new Set([...seed].map((name) => name.toLowerCase()));
+    let frontier = [...affected];
     for (let round = 0; round < MAX_SEMANTIC_GRAPH_DEPTH; round += 1) {
-      let changed = false;
-      for (const file of this.files.values()) for (const declaration of file.declarations) {
-        const key = declaration.fqcn.toLowerCase(); if (affected.has(key)) continue;
-        const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
-        const dependencies = [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames]
-          .map((name) => this.resolveSourceType(file, name, namespace, declaration.fqcn)?.toLowerCase());
-        if (!dependencies.some((name) => name && affected.has(name))) continue;
-        affected.add(key); changed = true;
+      const next = new Set<string>();
+      for (const dependency of frontier) for (const dependent of this.typeDependencies.directDependents(dependency)) {
+        if (!affected.has(dependent)) next.add(dependent);
       }
-      if (!changed) return affected;
+      if (!next.size) return affected;
+      for (const dependent of next) affected.add(dependent);
+      frontier = [...next];
     }
     return undefined;
   }
@@ -895,6 +918,7 @@ export class SemanticWorkspace {
       }
       this.files.set(uri, nextFile);
       this.replaceReferenceCandidates(nextFile);
+      this.replaceTypeDependencies(nextFile);
       this.assertedTargetInferenceCache.clear();
       this.controlFlowAssignments.set(uri, controlFlowAssignments);
       if (hasDerivedCaches && (affectedTypes.size > 0 || changedCallables.size > 0)) {
@@ -921,10 +945,11 @@ export class SemanticWorkspace {
       ? this.dependentTypeNames(affectedTypes)
       : new Set<string>();
     this.files.delete(uri); this.referenceCandidates.remove(uri); this.unindexedReferenceCandidateUris.delete(uri);
+    this.typeDependencies.remove(uri); this.unindexedTypeDependencyUris.delete(uri);
     this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     this.assertedTargetInferenceCache.clear();
@@ -956,14 +981,50 @@ export class SemanticWorkspace {
   }
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
   snapshot(uri: string): SemanticSnapshot | undefined {
-    const file = this.files.get(uri); return file ? { schema: 71, file: JSON.parse(JSON.stringify(file)) as SemanticFileSnapshot } : undefined;
+    const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
+    const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
+      schema: 72,
+      layers: {
+        referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
+        typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
+      },
+      file: JSON.parse(JSON.stringify(file)) as SemanticFileSnapshot,
+    } : undefined;
   }
   restore(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSnapshot> | null; const file = value?.file as Partial<SemanticFileSnapshot> | undefined;
-    if (value?.schema !== 71 || !file || typeof file.uri !== 'string' || typeof file.source !== 'string' || (expectedUri !== undefined && file.uri !== expectedUri)) return false;
+    const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
+    if (value?.schema !== 72 || !file || typeof file.uri !== 'string' || typeof file.source !== 'string' || (expectedUri !== undefined && file.uri !== expectedUri)
+      || !references || typeof references.indexed !== 'boolean' || !Array.isArray(references.keys)
+      || references.keys.length > 100_000 || !references.keys.every((key) => typeof key === 'string' && key.length > 0 && key.length <= 1_024)
+      || !dependencies || typeof dependencies.indexed !== 'boolean' || !Array.isArray(dependencies.nodes)
+      || dependencies.nodes.length > 10_000 || !dependencies.nodes.every((node) => node && typeof node === 'object'
+        && typeof node.key === 'string' && node.key.length > 0 && node.key.length <= 1_024
+        && Array.isArray(node.dependencies) && node.dependencies.length <= 10_000
+        && node.dependencies.every((dependency) => typeof dependency === 'string' && dependency.length > 0 && dependency.length <= 1_024))
+      || new Set(dependencies.nodes.map((node) => node.key)).size !== dependencies.nodes.length) return false;
     if (![file.declarations, file.callables, file.imports, file.typeReferences, file.assignments, file.properties, file.constants, file.rawNames, file.memberAccesses, file.calls, file.narrowings, file.variableReferences, file.returns, file.templates, file.genericParents, file.magicMembers, file.syntaxErrors, file.commentRanges, file.stringRanges].every(Array.isArray)) return false;
     if (!Array.isArray(file.scopes) || !file.scopes.every((scope) => Array.isArray(scope.captures))) return false;
-    this.files.set(file.uri, file as SemanticFileSnapshot); this.replaceReferenceCandidates(file as SemanticFileSnapshot);
+    const restoredFile = file as SemanticFileSnapshot;
+    const expectedReferenceKeys = [...referenceCandidateKeys(restoredFile)].sort();
+    const expectedDependencyNodes = this.typeDependencyNodes(restoredFile)
+      .map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() }))
+      .sort((left, right) => left.key.localeCompare(right.key));
+    if (references.indexed && JSON.stringify([...new Set(references.keys)].sort()) !== JSON.stringify(expectedReferenceKeys)
+      || !references.indexed && references.keys.length > 0
+      || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
+      || !dependencies.indexed && dependencies.nodes.length > 0) return false;
+    this.files.set(file.uri, restoredFile);
+    if (references.indexed) {
+      this.referenceCandidates.replace(file.uri, references.keys); this.unindexedReferenceCandidateUris.delete(file.uri);
+    } else {
+      this.replaceReferenceCandidates(restoredFile);
+    }
+    if (dependencies.indexed) {
+      this.typeDependencies.replace(file.uri, dependencies.nodes); this.unindexedTypeDependencyUris.delete(file.uri);
+    } else {
+      this.replaceTypeDependencies(restoredFile);
+    }
     this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); return true;
   }
 
