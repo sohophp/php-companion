@@ -10,6 +10,8 @@ CI 新增 Linux、Windows 与 macOS 三个 Open Source Profile 任务。每个�
 
 首次跨平台运行同时暴露了两个门禁实现问题。Marketplace 在 Linux/macOS 安装途中返回临时 503；安装器现只对 429、5xx 和明确网络中断执行最多五次有界重试。Windows 的合成 fixture 没有 `vendor/`，不再把 Symfony 源索引 ready 当作通过条件；组合矩阵验证插件激活、运行时关闭及 Provider 共存，依赖完整的真实项目 ready 仍由 Winstar 专项证据负责。
 
+移除 Symfony 后的 Ubuntu 门禁还暴露 PHPUnit 扩展把配置值作为 PHP 脚本路径调用，而 setup-php 提供的是 PATH 命令名。测试运行器现在在隔离 Profile 中生成 PHP 代理脚本，由同一个 PHP 8.5 可执行文件加载，再用逐参数 shell 转义转发到各平台固定的 PHPUnit 命令；测试进程启动与哨兵结果使用 30 秒窗口。
+
 同一次运行还复现 Windows/macOS 文件操作完成后 Language Server 状态传播较慢：旧实现第一次三轮短重试失败时已经删除 Safe Move 计划。协调任务现在成功前保留源文件快照和已生成的精确计划，事件和文件观察器复用同一个约 20 秒的有界重试。后续 Linux 组合门禁又证明 `onWillRenameFiles` 中启动完整索引可能超过 VS Code 文件事务窗口，而且该参与者报错并不保证 VS Code 取消文件移动；will 阶段因此冻结源文件、检查未保存内容，并只尝试复用已经完成的索引。索引未就绪时，完整语义计划在移动后从冻结快照生成；若重试后仍无法形成计划，扩展会在绕过自身处理器的受控事务中把文件移回原路径。Language Server 在短期窗口内重复识别已规划移动的旧、新路径，对监控事件执行精确增量更新；快速反向移动拥有独立计划，旧方向验证发现目标已经反向恢复时立即让出串行队列。计划一旦形成，则继续以 namespace、引用、保存和最终空计划断言完成协调。
 
 ## Symfony 版本结论

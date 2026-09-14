@@ -164,12 +164,12 @@ final class ProfileTest extends TestCase {
   await vscode.commands.executeCommand('phpunit.run-file', testUri);
   await waitForAsync(async () => {
     try { return Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8') === 'passed'; } catch { return false; }
-  }, 'PHPUnit extension did not execute the selected test file through the configured PHP runtime');
+  }, 'PHPUnit extension did not execute the selected test file through the configured PHP runtime', 30_000, 100);
   await vscode.workspace.fs.delete(testResultUri);
   await vscode.commands.executeCommand('phpunit.run-all');
   await waitForAsync(async () => {
     try { return Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8') === 'passed'; } catch { return false; }
-  }, 'PHPUnit extension did not discover and execute the configured test suite');
+  }, 'PHPUnit extension did not discover and execute the configured test suite', 30_000, 100);
   const movedTestUri = vscode.Uri.joinPath(workspace.uri, 'tests', 'MovedProfileTest.php');
   const testSourceUri = vscode.Uri.joinPath(workspace.uri, 'phpunit-source.txt');
   const verifyMovedSuite = async (expectedFile: string): Promise<void> => {
@@ -181,7 +181,7 @@ final class ProfileTest extends TestCase {
         return Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8') === 'passed'
           && Buffer.from(await vscode.workspace.fs.readFile(testSourceUri)).toString('utf8') === expectedFile;
       } catch { return false; }
-    }, `PHPUnit did not execute the suite from ${expectedFile}`);
+    }, `PHPUnit did not execute the suite from ${expectedFile}`, 30_000, 100);
   };
   await vscode.window.showTextDocument(testDocument);
   const moveTest = new vscode.WorkspaceEdit();

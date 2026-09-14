@@ -34,12 +34,25 @@ async function main(): Promise<void> {
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
+  let phpunitExecutable = process.env.PHP_COMPANION_PHPUNIT_EXECUTABLE;
   if (externalExtensions && !formatterExecutable && process.env.PHP_COMPANION_PHP_EXECUTABLE && process.env.PHP_COMPANION_PHP_CS_FIXER) {
     formatterExecutable = join(profile, 'tools', 'php-cs-fixer');
     await mkdir(join(profile, 'tools'), { recursive: true });
     const quote = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
     await writeFile(formatterExecutable, `#!/usr/bin/env bash\nexec ${quote(process.env.PHP_COMPANION_PHP_EXECUTABLE)} ${quote(process.env.PHP_COMPANION_PHP_CS_FIXER)} "$@"\n`);
     await chmod(formatterExecutable, 0o755);
+  }
+  if (externalExtensions && phpunitExecutable) {
+    const proxy = join(profile, 'tools', 'phpunit-proxy.php');
+    await mkdir(join(profile, 'tools'), { recursive: true });
+    const encodedCommand = Buffer.from(phpunitExecutable).toString('base64');
+    await writeFile(proxy, `<?php
+$command = base64_decode('${encodedCommand}');
+$arguments = array_map('escapeshellarg', array_slice($argv, 1));
+passthru(escapeshellarg($command) . ' ' . implode(' ', $arguments), $status);
+exit($status);
+`);
+    phpunitExecutable = proxy;
   }
   if (externalExtensions) await stat(externalExtensions);
   try {
@@ -115,7 +128,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
-        PHP_COMPANION_PHPUNIT_EXECUTABLE: process.env.PHP_COMPANION_PHPUNIT_EXECUTABLE,
+        PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunitExecutable,
       },
     });
     console.log(`Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
