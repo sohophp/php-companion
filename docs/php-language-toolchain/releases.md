@@ -15,7 +15,7 @@
 目标：尽早形成可验证的免费工具组合，完成核心开发所需的精准基线。对应 P0、少量 P1 和外部工具集成。
 
 - [x] 验证默认组合成员的许可、实际免费功能、Linux/WSL 平台、PHP 版本、安装方式与维护状态；证据见 Open Source Profile 报告，Windows/macOS 留给 R4 平台矩阵。
-- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client 与非核心扩展已移出，八项核心成员在隔离目录安装成功并记录实际版本、许可证及 formatter 内置 PHAR 限制。
+- [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client 与非核心扩展已移出，九项核心成员已确定许可证与职责边界；新增 Red Hat XML 的隔离组合验收单独记录。
 - [x] 默认插件及职责边界已固定在 integrations.md；JSON/HTML/CSS/JS 使用 VS Code 内建服务。
 - [x] Symfony Language Tools 0.19.0 Linux x64 已在隔离 Extension Host 与 Companion/TwigPlus 同时激活；通用 Twig formatter 仍由 TwigPlus 提供，默认关闭 runtime indexing 与 release metadata。静态模式缺少的路由候选已由 Companion 在可证明源码范围内补齐，并通过外部运行时提供者的所有权切换门禁；Windows/macOS 留给 R4 平台矩阵。
 - [x] 首发 PHP 高频样例、S01–S08 质量门槛及功能所有者表已经冻结并完成 Linux/WSL 审计。

@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | PHP 核心 | Companion 自研 | R1 接管；R0 提前上线时可验证 Phpactor 过渡，不能双核心同时注册 |
 | YAML | `redhat.vscode-yaml` | MIT，提供语法、schema、补全、格式化；长期复用 |
+| XML | `redhat.vscode-xml` | EPL-2.0，LemMinX 提供 XSD/DTD、补全、诊断、导航、重命名和格式化；长期复用 |
 | JSON/JSONC | VS Code 内建 JSON | 不额外安装扩展；可贡献 schema，不重写语言服务 |
 | HTML/CSS/JS/TS | VS Code 内建语言服务 | PHP 混合文件适用范围实测；Twig 内嵌区域继续由 twig-plus 处理 |
 | Twig | `sohophp.twig-plus` | 长期唯一模板语言实现 |
@@ -94,6 +95,8 @@ PHP Debug 负责 Xdebug，现有 PHPUnit/Pest 扩展负责测试执行。Compani
 以下资料于 2026-09-06 规划时核对；实现阶段锁定依赖版本后重新验证：
 
 - [Red Hat YAML 与 MIT 许可](https://github.com/redhat-developer/vscode-yaml)
+- [Red Hat XML、LemMinX 与 EPL-2.0 许可](https://github.com/redhat-developer/vscode-xml)
+- [DotJoshJohnson XML Tools](https://github.com/DotJoshJohnson/vscode-xml) 与 [xmldom 安全支持边界](https://github.com/xmldom/xmldom/security)
 - [VS Code 内建 JSON 支持](https://code.visualstudio.com/docs/languages/json)
 - [Symfony Language Tools：许可、能力和运行时索引](https://marketplace.visualstudio.com/items?itemName=Symfony.language-tools)
 - [Phpactor：开源 PHP LS 候选及已知限制](https://github.com/phpactor/phpactor)

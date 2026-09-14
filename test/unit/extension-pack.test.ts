@@ -19,6 +19,7 @@ const openSourceExtensions = [
   'sohophp.twig-plus',
   'symfony.language-tools',
   'redhat.vscode-yaml',
+  'redhat.vscode-xml',
   'xdebug.php-debug',
   'recca0120.vscode-phpunit',
   'junstyle.php-cs-fixer',
@@ -63,5 +64,6 @@ describe('PHP Companion manifests', () => {
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
     expect(defaults?.['symfonyLsp.runtimeIndexing']).toBe(false);
     expect(defaults?.['symfonyLsp.releaseMetadata']).toBe(false);
+    expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
   });
 });

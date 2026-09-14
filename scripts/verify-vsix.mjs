@@ -99,13 +99,13 @@ for (const artifact of artifacts) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
     const expectedExtensions = [
       'sohophp.php-companion', 'sohophp.twig-plus', 'symfony.language-tools',
-      'redhat.vscode-yaml', 'xdebug.php-debug', 'recca0120.vscode-phpunit',
+      'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug', 'recca0120.vscode-phpunit',
       'junstyle.php-cs-fixer', 'editorconfig.editorconfig',
     ].sort();
     const actualExtensions = Array.isArray(manifest.extensionPack)
       ? manifest.extensionPack.map((id) => String(id).toLowerCase()).sort() : [];
     if (JSON.stringify(actualExtensions) !== JSON.stringify(expectedExtensions)) {
-      throw new Error(`${artifact.path} must contain exactly the eight approved open-source extensions.`);
+      throw new Error(`${artifact.path} must contain exactly the nine approved open-source extensions.`);
     }
     if (manifest.extensionPack?.includes('bmewburn.vscode-intelephense-client')) {
       throw new Error(`${artifact.path} must not install Intelephense.`);
@@ -116,6 +116,9 @@ for (const artifact of artifacts) {
     if (manifest.contributes?.configurationDefaults?.['symfonyLsp.runtimeIndexing'] !== false
       || manifest.contributes?.configurationDefaults?.['symfonyLsp.releaseMetadata'] !== false) {
       throw new Error(`${artifact.path} must keep Symfony runtime execution and release metadata requests disabled.`);
+    }
+    if (manifest.contributes?.configurationDefaults?.['[xml]']?.['editor.defaultFormatter'] !== 'redhat.vscode-xml') {
+      throw new Error(`${artifact.path} must select Red Hat XML as the XML formatter.`);
     }
   }
   process.stdout.write(`Verified ${artifact.path}\n`);

@@ -43,6 +43,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'sohophp.twig-plus',
     'symfony.language-tools',
     'redhat.vscode-yaml',
+    'redhat.vscode-xml',
     'xdebug.php-debug',
     'recca0120.vscode-phpunit',
     'junstyle.php-cs-fixer',
@@ -79,13 +80,28 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   }, 'TwigPlus did not remain the Twig formatter in the Open Source Profile');
 
   const yamlUri = vscode.Uri.joinPath(workspace.uri, 'profile.yaml');
+  await vscode.extensions.getExtension('redhat.vscode-yaml')!.activate();
   await vscode.workspace.fs.writeFile(yamlUri, Buffer.from('name:   value\n'));
   const yamlDocument = await vscode.workspace.openTextDocument(yamlUri);
   await vscode.window.showTextDocument(yamlDocument);
   await waitForAsync(async () => {
     const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>('vscode.executeFormatDocumentProvider', yamlUri, { tabSize: 2, insertSpaces: true }) ?? [];
     return edits.length > 0;
-  }, 'Red Hat YAML did not provide YAML formatting in the Open Source Profile');
+  }, 'Red Hat YAML did not provide YAML formatting in the Open Source Profile', 30_000, 100);
+
+  const xmlUri = vscode.Uri.joinPath(workspace.uri, 'profile.xml');
+  await vscode.extensions.getExtension('redhat.vscode-xml')!.activate();
+  await vscode.workspace.fs.writeFile(xmlUri, Buffer.from('<?xml version="1.0"?><root><item id="1">value</item></root>\n'));
+  const xmlDocument = await vscode.workspace.openTextDocument(xmlUri);
+  await vscode.window.showTextDocument(xmlDocument);
+  let xmlFormattingEdits: vscode.TextEdit[] = [];
+  await waitForAsync(async () => {
+    xmlFormattingEdits = await vscode.commands.executeCommand<vscode.TextEdit[]>('vscode.executeFormatDocumentProvider', xmlUri, { tabSize: 2, insertSpaces: true }) ?? [];
+    return xmlFormattingEdits.length > 0;
+  }, 'Red Hat XML did not provide XML formatting in the Open Source Profile', 30_000, 100);
+  const xmlFormatEdit = new vscode.WorkspaceEdit(); xmlFormatEdit.set(xmlUri, xmlFormattingEdits);
+  assert.ok(await vscode.workspace.applyEdit(xmlFormatEdit), 'Red Hat XML formatting edits could not be applied');
+  assert.ok(normalizedNewlines(xmlDocument.getText()).includes('\n  <item id="1">value</item>\n'), 'Red Hat XML did not format nested XML content');
 
   const jsonUri = vscode.Uri.joinPath(workspace.uri, 'profile.json');
   await vscode.workspace.fs.writeFile(jsonUri, Buffer.from('{"name":"value","enabled":true}\n'));

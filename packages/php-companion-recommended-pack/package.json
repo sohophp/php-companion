@@ -53,6 +53,9 @@
       "phpCompanion.rename.enabled": true,
       "[php]": {
         "editor.defaultFormatter": "junstyle.php-cs-fixer"
+      },
+      "[xml]": {
+        "editor.defaultFormatter": "redhat.vscode-xml"
       }
     }
   },
@@ -61,6 +64,7 @@
     "sohophp.twig-plus",
     "symfony.language-tools",
     "redhat.vscode-yaml",
+    "redhat.vscode-xml",
     "xdebug.php-debug",
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
