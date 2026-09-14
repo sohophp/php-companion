@@ -8,6 +8,8 @@ R4/F13 的 Linux x64 连续编辑、取消、重启与损坏缓存恢复证据�
 
 XML 文档扩展已选用仍在维护的 `redhat.vscode-xml`，并加入 Open Source Pack 与 Recommended Pack；`DotJoshJohnson.xml` 因长期未发布且依赖已废弃、无法获得安全修复的 `xmldom` 而拒绝。依据与能力边界见 [XML 扩展选型](reports/xml-extension-selection-2026-09-14.md)。
 
+方法族 Rename 已覆盖接收者类型可完全证明的两元素数组 callable，并保持未知或复杂 callable 的整体拒绝门槛；证据见 [数组 callable 方法 Rename 验收](reports/array-callable-method-rename-2026-09-14.md)。
+
 PHP 8.5 final 提升属性的版本、解析和继承语义证据见 [PHP 8.5 final 提升属性验收](reports/php85-final-property-promotion-2026-09-14.md)；静态属性 set 可见性证据见 [PHP 8.5 静态属性非对称可见性验收](reports/php85-static-asymmetric-visibility-2026-09-14.md)。
 
 PHP 8.5 常量表达式 Closure 与 first-class callable 证据见 [PHP 8.5 常量表达式 callable 验收](reports/php85-constant-expression-callables-2026-09-14.md)。

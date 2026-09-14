@@ -1087,13 +1087,15 @@ export async function run(): Promise<void> {
   assert.ok(inheritedMethodEdit, 'Inherited public method Rename returned no edit');
   assert.strictEqual(inheritedMethodEdit.get(messageContractUri).length, 1, 'Public method Rename did not update the interface declaration exactly once');
   assert.strictEqual(inheritedMethodEdit.get(messageImplementationUri).length, 1, 'Public method Rename did not update the implementation declaration exactly once');
-  assert.strictEqual(inheritedMethodEdit.get(messageConsumerUri).length, 2, 'Public method Rename did not update both resolved calls');
+  assert.strictEqual(inheritedMethodEdit.get(messageConsumerUri).length, 3, 'Public method Rename did not update both direct calls and the proven array callable');
   assert.ok(await vscode.workspace.applyEdit(inheritedMethodEdit), 'Inherited public method Rename edit could not be applied');
   await waitFor(() => messageContract.getText().includes('function process') && messageImplementation.getText().includes('function process')
-    && (messageConsumer.getText().match(/->process/g)?.length ?? 0) === 2, 'Inherited public method Rename did not apply across the workspace');
+    && (messageConsumer.getText().match(/->process/g)?.length ?? 0) === 2 && messageConsumer.getText().includes("[$concrete, 'process']"),
+  'Inherited public method Rename did not apply across direct calls and the proven array callable');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => messageContract.getText().includes('function handle') && messageImplementation.getText().includes('function handle')
-    && (messageConsumer.getText().match(/->handle/g)?.length ?? 0) === 2, 'Inherited public method Rename could not be undone as one editor operation');
+    && (messageConsumer.getText().match(/->handle/g)?.length ?? 0) === 2 && messageConsumer.getText().includes("[$concrete, 'handle']"),
+  'Inherited public method Rename could not be undone as one editor operation');
   await vscode.commands.executeCommand('redo');
   await waitFor(() => messageContract.getText().includes('function process') && messageImplementation.getText().includes('function process'), 'Inherited public method Rename could not be redone as one editor operation');
   await vscode.commands.executeCommand('undo');

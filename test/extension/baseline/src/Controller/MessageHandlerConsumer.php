@@ -9,4 +9,5 @@ function dispatch(MessageHandler $handler, ConcreteMessageHandler $concrete): vo
 {
     $handler->handle(message: 'contract');
     $concrete->handle(payload: 'concrete');
+    $callback = [$concrete, 'handle'];
 }

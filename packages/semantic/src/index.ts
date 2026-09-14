@@ -4089,6 +4089,42 @@ export class SemanticWorkspace {
     return { uri: file.uri, start: aliasRange.start, end: aliasRange.end, name: adaptation.alias, fqcn: aliasFqcn, locations: unique };
   }
 
+  private callableArrayMethodRenameLocations(name: string, familyIds: ReadonlySet<string>): SemanticLocation[] | undefined {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const candidate = new RegExp(`\\[\\s*[^,\\]]+,\\s*(['"])${escaped}\\1\\s*\\]`, 'gi');
+    const exact = new RegExp(`^\\[\\s*(\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)\\s*,\\s*(['"])(${escaped})\\2\\s*\\]$`, 'i');
+    const locations: SemanticLocation[] = [];
+    for (const file of this.files.values()) {
+      const matches = [...file.source.matchAll(candidate)]; if (!matches.length) continue;
+      const retainedTree = this.trees.get(file.uri);
+      const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+      const tree = retainedTree ?? temporaryTree!;
+      try {
+        for (const match of matches) {
+          const parsed = exact.exec(match[0]); if (!parsed) return undefined;
+          const variableStart = match.index + match[0].indexOf(parsed[1]!);
+          const variableEnd = variableStart + parsed[1]!.length;
+          const methodStart = match.index + match[0].lastIndexOf(parsed[3]!);
+          const array = deepestLocalSyntax(tree.rootNode, match.index, match.index + match[0].length,
+            (node) => node.type === 'array_creation_expression' && node.startIndex === match.index && node.endIndex === match.index + match[0].length);
+          const variable = deepestLocalSyntax(tree.rootNode, variableStart, variableEnd,
+            (node) => node.type === 'variable_name' && node.startIndex === variableStart && node.endIndex === variableEnd);
+          if (!array || !variable) return undefined;
+          const receiver = this.provenArgumentType(file, variableStart, variableEnd);
+          const groups = receiver && this.objectGroups(receiver);
+          if (!groups || groups.nullable || !groups.groups.length) return undefined;
+          const accessFrom = this.containingCallable(file, match.index)?.containerFqcn;
+          const resolved = groups.groups.map((group) => group.flatMap((variant) => this.members(
+            variant.fqcn, accessFrom, new Set(), false, variant.typeArguments,
+          ).filter((member) => member.kind === 'method' && member.name.toLowerCase() === name.toLowerCase())));
+          if (resolved.some((members) => !members.length || members.some((member) => !familyIds.has(member.fqcn.toLowerCase())))) return undefined;
+          locations.push({ uri: file.uri, start: methodStart, end: methodStart + parsed[3]!.length });
+        }
+      } finally { temporaryTree?.delete(); }
+    }
+    return locations;
+  }
+
   methodRename(uri: string, offset: number, newName?: string): MethodRename | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
     const declared = file.callables.find((item) => item.kind === 'method' && item.containerFqcn && !item.name.startsWith('__')
@@ -4155,11 +4191,12 @@ export class SemanticWorkspace {
       if (collision) return undefined;
     }
     const escapedName = callable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const callableArray = new RegExp(`\\[\\s*[^,\\]]+,\\s*(['"])${escapedName}\\1\\s*\\]`, 'i');
     const staticCallable = new RegExp(`(['"])[^'"\\r\\n]*::${escapedName}\\1`, 'i');
-    if ([...this.files.values()].some((candidate) => callableArray.test(candidate.source) || staticCallable.test(candidate.source))) return undefined;
     const familyIds = new Set(members.map((member) => member.callable.fqcn.toLowerCase()));
+    const callableArrayLocations = this.callableArrayMethodRenameLocations(callable.name, familyIds);
+    if (!callableArrayLocations || [...this.files.values()].some((candidate) => staticCallable.test(candidate.source))) return undefined;
     const locations: SemanticLocation[] = members.map((member) => ({ uri: member.file.uri, start: member.callable.start, end: member.callable.end }));
+    locations.push(...callableArrayLocations);
     const dynamicLocations = this.dynamicMemberRenameLocations('method', callable.name,
       (member) => familyIds.has(member.fqcn.toLowerCase()));
     if (!dynamicLocations) return undefined;

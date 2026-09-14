@@ -6333,13 +6333,19 @@ use const Vendor\\ACTIVE;
     workspace.update('file:///MethodCollision.php', '<?php namespace MethodFamily; class Collision extends Second { public function execute(): void {} }');
     expect(workspace.methodRename('file:///MethodFamily.php', offset, 'execute')).toBeUndefined();
   });
-  it('limits public method rename to resolved calls and rejects dynamic callable coverage or incomplete hierarchies', () => {
+  it('renames proven array callables and rejects unresolved callable coverage or incomplete hierarchies', () => {
     const source = `<?php namespace UnsafeMethod; interface Contract { public function run(): void; } class Service implements Contract { public function run(): void {} }`;
     workspace.update('file:///UnsafeMethod.php', source);
     const offset = source.indexOf('run') + 1;
     workspace.update('file:///UnresolvedMethod.php', '<?php $unknown->run();');
     expect(workspace.methodRename('file:///UnsafeMethod.php', offset, 'execute')?.locations.some((item) => item.uri === 'file:///UnresolvedMethod.php')).toBe(false);
     workspace.remove('file:///UnresolvedMethod.php');
+    const provenCallable = `<?php namespace UnsafeMethod; function callback(Service $service): callable { return [$service, 'run']; }`;
+    workspace.update('file:///ProvenCallableMethod.php', provenCallable);
+    expect(workspace.methodRename('file:///UnsafeMethod.php', offset, 'execute')?.locations).toContainEqual({
+      uri: 'file:///ProvenCallableMethod.php', start: provenCallable.indexOf("'run'") + 1, end: provenCallable.indexOf("'run'") + 4,
+    });
+    workspace.remove('file:///ProvenCallableMethod.php');
     workspace.update('file:///DynamicMethod.php', '<?php function invoke(object $value, string $method): void { $value->$method(); }');
     expect(workspace.methodRename('file:///UnsafeMethod.php', offset, 'execute')).toBeUndefined();
     workspace.remove('file:///DynamicMethod.php');

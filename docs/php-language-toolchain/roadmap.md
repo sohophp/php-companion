@@ -96,7 +96,7 @@ Generator、抽象声明、未知调用和未支持路径保持静默。
 
 ## P7：可靠重构
 
-- [ ] 第一批：类型、函数、常量、局部变量/参数、方法、属性 Rename；继承链和命名参数调用。类型、唯一具名函数/命名空间常量、类与 Trait 常量、大小写敏感 Enum case、非魔术 private 方法、局部变量/参数和属性已在保守支持域内完成；类型、函数、常量、Enum case、方法与属性支持从唯一解析使用点发起，类型使用点复用 PSR-4 文件同步并保留显式 alias，public/protected 方法名与参数同步完整接口/父类/重写族，普通属性同步完整类层级，提升属性把构造参数作用域、PHPDoc、直接/继承构造命名实参及属性访问作为同一身份；Trait 方法/属性同步已证明消费层级，源方法 Rename 保留具名 alias，alias 也可独立 Rename，完整 `insteadof` precedence 会按唯一 winner 自动改写。动态/字符串引用和跨工作区引用仍待完成。
+- [ ] 第一批：类型、函数、常量、局部变量/参数、方法、属性 Rename；继承链和命名参数调用。类型、唯一具名函数/命名空间常量、类与 Trait 常量、大小写敏感 Enum case、非魔术 private 方法、局部变量/参数和属性已在保守支持域内完成；类型、函数、常量、Enum case、方法与属性支持从唯一解析使用点发起，类型使用点复用 PSR-4 文件同步并保留显式 alias，public/protected 方法名与参数同步完整接口/父类/重写族，普通属性同步完整类层级，提升属性把构造参数作用域、PHPDoc、直接/继承构造命名实参及属性访问作为同一身份；Trait 方法/属性同步已证明消费层级，源方法 Rename 保留具名 alias，alias 也可独立 Rename，完整 `insteadof` precedence 会按唯一 winner 自动改写。两元素数组 callable 在接收者变量类型完整、非 nullable，且每个 Union/Intersection 分支都解析到同一方法族时会同步方法名字符串；未知接收者、复杂 callable 与 `"Class::method"` 保持拒绝。其余动态/字符串引用和跨工作区引用仍待完成。
 - [ ] 第一批：迁移 PSR-4 Move、文件 Rename、PHPDoc 与 import 编辑。
 - [ ] 第二批：提取变量/方法、修改签名及调用点、内联局部变量；块级完整赋值 RHS/return 表达式的 Extract Variable、支持已证明输入与末条简单赋值单一输出的连续实例语句 Extract Method、声明后紧邻一次完整值使用的 Inline Variable，以及 private 未使用普通参数连同 PHPDoc/位置和命名实参删除的精准子集已完成，并通过真实应用与 Undo/Redo；多输出/控制流提取及通用修改签名仍待实现。
 - [ ] 第二批：限定可证明场景的提取接口、移动成员。

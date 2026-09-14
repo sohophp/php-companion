@@ -134,6 +134,8 @@ Honor PHP 8.5 `#[DelayedTargetValidation]` when an otherwise invalid native Depr
 
 Apply proven Explorer Safe Move edits in the atomic will-rename transaction, then reconcile the final state by filesystem identity so Windows event timing and drive-letter casing cannot strand moved namespaces or references.
 
+Include proven two-element array callables such as `[$service, 'run']` in public method-family Rename while rejecting unresolved receivers and complex callable expressions.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.
