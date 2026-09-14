@@ -4,7 +4,7 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 # @php-companion/language-server
 
-Composer 索引缓存使用 v43 分层语义快照：解析文件、引用候选与类型依赖分别验证和恢复。单个派生层损坏时只重建对应文件；恢复后的反向继承图继续负责传递失效构造器摘要，避免热启动后保留陈旧类型结果。
+Composer 索引缓存使用 v44 校验封装：schema 72 的解析文件、引用候选与类型依赖，以及每个 PHP 文件的 Symfony Controller/Twig 上下文和 Doctrine repository/association 事实一并验证和恢复。单个缓存条目损坏时只重建对应文件；恢复后的反向继承图继续负责传递失效构造器摘要。已打开且内容不同的文档拒绝磁盘缓存，并且不会把未保存内容写入以磁盘时间戳为键的缓存。
 
 服务器可按 Composer 根选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter 内建符号。初始化和 `phpCompanion/phpExtensionAvailability` 通知接受 workspace folder/嵌套 Composer 根的禁用及已探测运行时快照，并与 Composer platform 明确为 `false` 的扩展合并；配置、运行时或 Composer 文件变化无需重启即可刷新。运行时载荷必须具有完整版本、SAPI、可执行文件与扩展目录，且 PHP 次版本必须等于服务器目标版本，否则整份运行时事实被拒绝。使用这些已审计扩展的类型、函数或常量时，服务器发布 `php.extension.unavailable`，并区分 workspace 设置、Composer platform 与实际运行时来源；未知扩展、未审计符号和项目 polyfill 保持静默。
 

@@ -37,6 +37,7 @@ import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepo
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
+import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile, type ProjectPhpFileFacts } from './projectFacts.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -453,16 +454,34 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
   updateBuiltinForRoot(workspace, root);
   const current = new Set<string>();
+  const contextFiles = new Map<string, ControllerTemplateContext[]>();
+  const doctrineFiles = new Map<string, DoctrineRepositoryMethodFact[]>();
+  const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
+  const syntaxParser = await parser();
+  const acceptFacts = (uri: string, facts: ProjectPhpFileFacts): void => {
+    if (facts.controllerContexts.length) contextFiles.set(uri, facts.controllerContexts);
+    if (facts.doctrineMethods.length) doctrineFiles.set(uri, facts.doctrineMethods);
+    if (facts.doctrineProperties.length) doctrinePropertyFiles.set(uri, facts.doctrineProperties);
+  };
   const result = await indexComposerSources(root, {
     shouldContinue,
     uriForPath: (path) => indexedUriForPath(root, path),
     onSource: ({ uri, path, source }) => {
-      current.add(uri); const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); workspace.update(uri, open?.getText() ?? source, Boolean(open)); return workspace.snapshot(uri);
+      const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
+      current.add(uri); workspace.update(uri, effectiveSource, Boolean(open));
+      const facts = analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource, String(generation)); acceptFacts(uri, facts);
+      const snapshot = workspace.snapshot(uri);
+      return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts) : undefined;
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v43-php-${targetPhpVersion}`,
-      restore: (payload, { uri }): boolean => { current.add(uri); return workspace.restore(payload, uri); },
+      version: `semantic-v44-php-${targetPhpVersion}`,
+      restore: (payload, { uri, path }): boolean => {
+        const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
+        const restored = restoreCachedProjectPhpFile(payload, uri, String(generation), open?.getText());
+        if (!restored || !workspace.restore(restored.semantic, uri)) return false;
+        current.add(uri); acceptFacts(uri, restored.facts); return true;
+      },
     } : undefined,
   });
   if (result.projectComplete && shouldContinue()) {
@@ -470,18 +489,6 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
     indexedUrisByRoot.set(root, current);
     if (result.complete) completeRoots.add(root);
-    const contextFiles = new Map<string, ControllerTemplateContext[]>();
-    const doctrineFiles = new Map<string, DoctrineRepositoryMethodFact[]>();
-    const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
-    for (const uri of current) {
-      const source = workspace.source(uri);
-      if (source?.includes('render')) contextFiles.set(uri, analyzeSymfonyControllerContexts(await parser(), { uri, source, snapshotVersion: String(generation) }));
-      if (source?.includes('Doctrine') || source?.includes('ServiceEntityRepository')) {
-        const facts = analyzeDoctrineDocument(await parser(), uri, source);
-        doctrineFiles.set(uri, facts.repositories.flatMap(doctrineRepositoryMethodFacts));
-        doctrinePropertyFiles.set(uri, facts.entities.flatMap(doctrineAssociationPropertyFacts));
-      }
-    }
     interopContextsByRoot.set(root, contextFiles);
     doctrineMethodsByRoot.set(root, doctrineFiles);
     doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);

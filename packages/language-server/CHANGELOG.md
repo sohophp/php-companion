@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Advance persistent caches to v44 and restore checksummed per-file Symfony Controller/Twig contexts and Doctrine repository/association facts without rerunning their PHP analyzers. Reject cache entries when an open document differs from the saved source.
+
 - Advance persistent caches to v43 for layered semantic snapshot schema 72, restoring validated reference candidates and transitive type dependencies without reparsing unchanged files.
 
 - Serve References/Rename through the semantic workspace's incremental candidate index while preserving exact resolution and conservative oversized-document fallback.
