@@ -15,14 +15,14 @@ export type PhpDocType =
 export interface PhpDocShapeField extends SourceRange { key?: string; optional: boolean; type: PhpDocType; }
 export interface PhpDocCallableParameter extends SourceRange { type: PhpDocType; name?: string; optional: boolean; variadic: boolean; }
 export interface PhpDocMethodTemplate extends SourceRange { name: string; bound?: PhpDocType; defaultType?: PhpDocType; }
-export type PhpDocTagName = 'param' | 'return' | 'var' | 'throws' | 'template' | 'extends' | 'implements' | 'assert' | 'assert-if-true' | 'assert-if-false' | 'property' | 'property-read' | 'property-write' | 'method';
+export type PhpDocTagName = 'param' | 'return' | 'var' | 'throws' | 'template' | 'extends' | 'implements' | 'assert' | 'assert-if-true' | 'assert-if-false' | 'property' | 'property-read' | 'property-write' | 'method' | 'deprecated';
 export type PhpDocDialect = 'phpdoc' | 'phpstan' | 'psalm';
 export type PhpDocTemplateVariance = 'covariant' | 'contravariant' | 'invariant';
 export interface PhpDocTag extends SourceRange { name: PhpDocTagName; dialect: PhpDocDialect; type?: PhpDocType; variable?: string; propertyPath?: string[]; description: string; variance?: PhpDocTemplateVariance; parameters?: PhpDocCallableParameter[]; templates?: PhpDocMethodTemplate[]; static?: boolean; }
 export interface PhpDocError extends SourceRange { message: string; }
 export interface ParsedPhpDoc { tags: PhpDocTag[]; errors: PhpDocError[]; }
 
-const TAGS = new Set<PhpDocTagName>(['param', 'return', 'var', 'throws', 'template', 'extends', 'implements', 'assert', 'assert-if-true', 'assert-if-false', 'property', 'property-read', 'property-write', 'method']);
+const TAGS = new Set<PhpDocTagName>(['param', 'return', 'var', 'throws', 'template', 'extends', 'implements', 'assert', 'assert-if-true', 'assert-if-false', 'property', 'property-read', 'property-write', 'method', 'deprecated']);
 
 class TypeParser {
   position = 0;
@@ -149,7 +149,7 @@ export function parsePhpDocType(text: string, baseOffset = 0): { type?: PhpDocTy
 
 export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
   const tags: PhpDocTag[] = []; const errors: PhpDocError[] = [];
-  const pattern = /@(?:(phpstan|psalm)-)?(param|return|var|throws|property(?:-(?:read|write))?|method|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|template(?:-covariant|-contravariant)?)\b([^\r\n]*)/g;
+  const pattern = /@(?:(phpstan|psalm)-)?(param|return|var|throws|property(?:-(?:read|write))?|method|deprecated|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|template(?:-covariant|-contravariant)?)\b([^\r\n]*)/g;
   for (const match of source.matchAll(pattern)) {
     const dialect = (match[1]?.toLowerCase() ?? 'phpdoc') as PhpDocDialect;
     const rawName = match[2]!.toLowerCase();
@@ -161,6 +161,10 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
     const body = match[3] ?? ''; const leading = body.length - body.trimStart().length;
     const bodyStart = baseOffset + match.index + match[0].indexOf(body) + leading;
     const clean = body.trimStart().replace(/\s*\*\/\s*$/, '');
+    if (name === 'deprecated') {
+      tags.push({ name, dialect, description: clean, start: baseOffset + match.index, end: bodyStart + clean.length });
+      continue;
+    }
     if (name === 'property' || name === 'property-read' || name === 'property-write') {
       const parsed = parsePhpDocType(clean, bodyStart); errors.push(...parsed.errors);
       let rest = clean.slice(parsed.consumed).trimStart();

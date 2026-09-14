@@ -149,6 +149,13 @@ export interface InvalidNoDiscardDeclaration extends SemanticLocation {
   callable: string;
   reason: 'void-return' | 'never-return' | 'magic-method' | 'property-hook';
 }
+export interface DeprecatedSymbolUse extends SemanticLocation {
+  symbol: string;
+  kind: 'function' | 'method' | 'constant' | 'enum-case' | 'trait' | 'property-get' | 'property-set';
+  message?: string;
+  since?: string;
+  attributeMinimumVersion?: '8.4' | '8.5';
+}
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
@@ -1501,6 +1508,78 @@ export class SemanticWorkspace {
         callable: `${property.fqcn}::${hook.kind}`, reason: 'property-hook' });
     }
     return results;
+  }
+
+  deprecatedSymbolUses(uri: string): DeprecatedSymbolUse[] {
+    const file = this.files.get(uri); if (!file) return [];
+    const results: DeprecatedSymbolUse[] = [];
+    for (const call of file.calls) {
+      if (call.firstClassCallable) continue;
+      const signature = call.kind === 'function' ? this.functionAt(uri, call.nameStart + Math.min(1, call.nameEnd - call.nameStart))
+        : call.kind === 'constructor' ? this.completedCallSignature(file, call)
+          : this.memberAt(uri, call.nameStart + Math.min(1, call.nameEnd - call.nameStart));
+      if (!signature || (call.kind !== 'function' && signature.kind !== 'method')) continue;
+      const declarationFile = this.files.get(signature.uri); if (!declarationFile) continue;
+      const declaration = declarationFile.callables.find((candidate) => candidate.start === signature.start
+        && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
+      if (!declaration) continue;
+      const deprecated = this.declarationDeprecation(declarationFile, declaration.declarationStart, declaration.declarationEnd,
+        declaration.start, declaration.containerFqcn ?? declaration.fqcn, '8.4');
+      if (!deprecated) continue;
+      const symbol = declaration.fqcn;
+      results.push({ uri, start: call.nameStart, end: call.nameEnd, symbol,
+        kind: call.kind === 'function' ? 'function' : 'method', ...deprecated });
+    }
+    for (const access of file.memberAccesses.filter((candidate) => candidate.kind === 'constant')) {
+      const member = this.memberAt(uri, access.start + Math.min(1, access.end - access.start));
+      const declarationFile = member && this.files.get(member.uri);
+      const declaration = declarationFile?.constants.find((candidate) => candidate.start === member!.start && candidate.end === member!.end);
+      if (!member || !declarationFile || !declaration) continue;
+      const deprecated = this.declarationDeprecation(declarationFile, declaration.declarationStart, declaration.declarationEnd,
+        declaration.start, declaration.containerFqcn, '8.4');
+      if (deprecated) results.push({ uri, start: access.start, end: access.end, symbol: member.fqcn,
+        kind: declaration.kind === 'enum-case' ? 'enum-case' : 'constant', ...deprecated });
+    }
+    for (const access of file.memberAccesses.filter((candidate) => candidate.kind === 'property')) {
+      const member = this.memberAt(uri, access.start + Math.min(1, access.end - access.start));
+      const declarationFile = member && this.files.get(member.uri);
+      const declaration = declarationFile?.properties.find((candidate) => candidate.start === member!.start && candidate.end === member!.end);
+      if (!member || !declarationFile || !declaration?.hooks?.length) continue;
+      const modes = this.propertyAccessModes(file, access);
+      for (const hook of declaration.hooks.filter((candidate) => candidate.kind === 'get' ? modes.read : modes.write)) {
+        const deprecated = this.declarationDeprecation(declarationFile, hook.declarationStart, hook.declarationEnd,
+          hook.start, declaration.containerFqcn, '8.4');
+        if (deprecated) results.push({ uri, start: access.start, end: access.end,
+          symbol: `${declaration.fqcn}::${hook.kind}`, kind: hook.kind === 'get' ? 'property-get' : 'property-set', ...deprecated });
+      }
+    }
+    for (const range of this.semanticTokenConstantUses(uri)) {
+      if (file.constants.some((candidate) => range.start >= candidate.declarationStart && range.end <= candidate.declarationEnd)
+        || file.imports.some((candidate) => range.start >= candidate.statementStart && range.end <= candidate.statementEnd)) continue;
+      const member = this.constantAt(uri, range.start + Math.min(1, range.end - range.start));
+      const declarationFile = member && this.files.get(member.uri);
+      const declaration = declarationFile?.constants.find((candidate) => candidate.global
+        && candidate.start === member!.start && candidate.end === member!.end);
+      if (!member || !declarationFile || !declaration) continue;
+      const deprecated = this.declarationDeprecation(declarationFile, declaration.declarationStart, declaration.declarationEnd,
+        declaration.start, undefined, '8.5');
+      if (deprecated) results.push({ uri, start: range.start, end: range.end, symbol: member.fqcn, kind: 'constant', ...deprecated });
+    }
+    for (const reference of file.typeReferences.filter((candidate) => candidate.context === 'trait')) {
+      const scope = this.containingCallable(file, reference.start)?.containerFqcn;
+      const fqcn = this.resolveSourceType(file, file.source.slice(reference.start, reference.end), this.namespaceAt(file, reference.start), scope);
+      if (!fqcn) continue;
+      const declarations = [...this.files.values()].flatMap((candidate) => candidate.declarations
+        .filter((declaration) => declaration.kind === 'trait' && declaration.fqcn.toLowerCase() === fqcn.toLowerCase())
+        .map((declaration) => ({ file: candidate, declaration })));
+      if (declarations.length !== 1) continue;
+      const target = declarations[0]!;
+      const deprecated = this.declarationDeprecation(target.file, target.declaration.declarationStart, target.declaration.declarationEnd,
+        target.declaration.start, target.declaration.fqcn, '8.5');
+      if (deprecated) results.push({ uri, start: reference.start, end: reference.end, symbol: target.declaration.fqcn, kind: 'trait', ...deprecated });
+    }
+    return [...new Map(results.map((item) => [`${item.start}:${item.end}:${item.symbol}`, item])).values()]
+      .sort((left, right) => left.start - right.start || left.end - right.end);
   }
 
   invalidEnumInterfaces(uri: string): InvalidEnumInterface[] {
@@ -4789,15 +4868,60 @@ export class SemanticWorkspace {
   private callableBuiltinAttribute(file: SemanticFile, callable: ParsedCallableDeclaration, attributeName: string): {
     reference: ParsedTypeReference;
     message?: string;
+    since?: string;
   } | undefined {
     const namespace = callable.containerFqcn?.split('\\').slice(0, -1).join('\\') ?? this.namespaceAt(file, callable.start);
+    return this.builtinAttributeMetadata(file, callable.declarationStart, callable.declarationEnd, callable.start,
+      namespace, callable.containerFqcn, attributeName);
+  }
+
+  private builtinAttributeMetadata(file: SemanticFile, declarationStart: number, declarationEnd: number, subjectStart: number,
+    namespace: string, ownerFqcn: string | undefined, attributeName: string): {
+      reference: ParsedTypeReference;
+      message?: string;
+      since?: string;
+    } | undefined {
     const reference = file.typeReferences.find((candidate) => candidate.context === 'attribute'
-      && candidate.start >= callable.declarationStart && candidate.end <= callable.declarationEnd
-      && this.resolveSourceType(file, file.source.slice(candidate.start, candidate.end), namespace, callable.containerFqcn)?.toLowerCase() === attributeName.toLowerCase());
+      && candidate.start >= declarationStart && candidate.end <= declarationEnd
+      && this.resolveSourceType(file, file.source.slice(candidate.start, candidate.end), namespace, ownerFqcn)?.toLowerCase() === attributeName.toLowerCase());
     if (!reference) return undefined;
-    const suffix = file.source.slice(reference.end, callable.start);
-    const literal = /^\s*\(\s*(?:message\s*:\s*)?(["'])([^\\"']*)\1\s*\)/i.exec(suffix);
-    return { reference, message: literal?.[2] };
+    const suffix = file.source.slice(reference.end, subjectStart);
+    const opening = suffix.indexOf('('); let closing = -1;
+    if (opening >= 0 && suffix.slice(0, opening).trim() === '') {
+      let depth = 1; let quote = ''; let escaped = false;
+      for (let index = opening + 1; index < suffix.length && depth > 0; index += 1) {
+        const character = suffix[index]!;
+        if (quote) {
+          if (escaped) escaped = false;
+          else if (character === '\\') escaped = true;
+          else if (character === quote) quote = '';
+        } else if (character === "'" || character === '"') quote = character;
+        else if (character === '(') depth += 1;
+        else if (character === ')' && --depth === 0) closing = index;
+      }
+    }
+    const arguments_ = closing > opening ? suffix.slice(opening + 1, closing) : '';
+    let positional = 0; let message: string | undefined; let since: string | undefined;
+    for (const literal of arguments_.matchAll(/(?:(message|since)\s*:\s*)?(["'])([^\\"']*)\2/gi)) {
+      const name = literal[1]?.toLowerCase() ?? (positional++ === 0 ? 'message' : 'since');
+      if (name === 'message') message = literal[3];
+      if (name === 'since') since = literal[3];
+    }
+    return { reference, message, since };
+  }
+
+  private declarationDeprecation(file: SemanticFile, declarationStart: number, declarationEnd: number, subjectStart: number,
+    ownerFqcn: string | undefined, attributeMinimumVersion: '8.4' | '8.5'): {
+      message?: string;
+      since?: string;
+      attributeMinimumVersion?: '8.4' | '8.5';
+    } | undefined {
+    const namespace = ownerFqcn?.split('\\').slice(0, -1).join('\\') ?? this.namespaceAt(file, subjectStart);
+    const attribute = this.builtinAttributeMetadata(file, declarationStart, declarationEnd, subjectStart,
+      namespace, ownerFqcn, 'deprecated');
+    if (attribute) return { message: attribute.message, since: attribute.since, attributeMinimumVersion };
+    const tag = adjacentPhpDoc(file, declarationStart)?.tags.find((candidate) => candidate.name === 'deprecated');
+    return tag ? { message: tag.description || undefined } : undefined;
   }
 
   /** Guaranteed expressions containing a call proven to resolve uniquely to native `never`. */

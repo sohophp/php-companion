@@ -11,6 +11,7 @@ import {
   CodeActionKind,
   createConnection,
   DidChangeWatchedFilesNotification,
+  DiagnosticTag,
   FileChangeType,
   InlayHintKind,
   MarkupKind,
@@ -722,6 +723,19 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         message: `Cannot apply #[NoDiscard] to ${item.callable}: ${reasons[item.reason]}.`,
       })));
     }
+    const deprecatedLabels = { function: 'Function', method: 'Method', constant: 'Constant', 'enum-case': 'Enum case', trait: 'Trait',
+      'property-get': 'Property getter', 'property-set': 'Property setter' } as const;
+    result.diagnostics.push(...workspace.deprecatedSymbolUses(document.uri)
+      .filter((item) => !item.attributeMinimumVersion
+        || SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(item.attributeMinimumVersion))
+      .map((item) => ({
+        range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+        severity: DiagnosticSeverity.Warning,
+        tags: [DiagnosticTag.Deprecated],
+        code: 'php.symbol.deprecated',
+        source: 'PHP Companion',
+        message: `${deprecatedLabels[item.kind]} ${item.symbol} is deprecated${item.since ? ` since ${item.since}` : ''}${item.message ? `, ${item.message}` : ''}.`,
+      })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1')) result.diagnostics.push(...workspace.invalidEnumInterfaces(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,

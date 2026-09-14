@@ -124,6 +124,8 @@ Validate PHP 8.5 `#[Override]` property attributes across classes, interfaces, p
 
 Report discarded PHP 8.5 `#[NoDiscard]` user and audited native return values, validate forbidden declarations, and support `(void)` suppression with its exact version boundary.
 
+Surface proven user and builtin deprecations from PHPDoc and PHP 8.4–8.5 `#[Deprecated]`, including functions, methods, constructors, constants, enum cases, traits, and property hooks.
+
 Run the complete Extension Host suite from the packaged VSIX in isolated user and extension directories.
 
 Allow the packaged suite to run against an isolated Open Source Profile and verify that PHP, Twig, and YAML formatting providers retain their intended ownership without installing another PHP language server.

@@ -711,6 +711,60 @@ describe('conservative semantic workspace', () => {
     ]);
     workspace.remove('file:///NoDiscard.php');
   });
+  it('reports proven Deprecated attribute and PHPDoc symbol uses without inheriting method metadata', () => {
+    const source = `<?php namespace DeprecatedContracts;
+      #[\\Deprecated(message: "use replacement()", since: "1.2")] function oldFunction(): void {}
+      /** @deprecated use documentedReplacement() */ function documentedFunction(): void {}
+      class Deprecated {}
+      #[Deprecated] function customAttribute(): void {}
+      class ParentService { #[\\Deprecated("old parent method")] public function inherited(): void {} }
+      class Service extends ParentService {
+        #[\\Deprecated(message: "use create()", since: "2.0")] public function __construct() {}
+        #[\\Deprecated("use currentMethod()")] public function oldMethod(): void {}
+        public function inherited(): void {}
+        /** @deprecated use CURRENT */ public const OLD_DOC = 1;
+        #[\\Deprecated("use CURRENT")] public const OLD = 1;
+      }
+      enum Status { #[\\Deprecated("use CURRENT case")] case OLD; case CURRENT; }
+      class Hooked { public string $name { #[\\Deprecated("use readName()")] get => "name"; #[\\Deprecated("use writeName()")] set {} } }
+      /** @deprecated use CurrentTrait */ trait DocumentedTrait {}
+      #[\\Deprecated(message: "use CurrentTrait", since: "3.0")] trait OldTrait {}
+      class Consumer { use DocumentedTrait, OldTrait; }
+      #[\\Deprecated(message: "use CURRENT_GLOBAL", since: "4.0")] const OLD_GLOBAL = 1;
+      function consume(): void {
+        oldFunction(...);
+        oldFunction();
+        documentedFunction();
+        customAttribute();
+        $service = new Service();
+        $service->oldMethod();
+        $service->inherited();
+        Service::OLD_DOC;
+        Service::OLD;
+        Status::OLD;
+        OLD_GLOBAL;
+        $hooked = new Hooked(); $read = $hooked->name; $hooked->name = "value";
+      }
+    `;
+    workspace.update('file:///Deprecated.php', source);
+    expect(workspace.deprecatedSymbolUses('file:///Deprecated.php').map((item) => ({
+      symbol: item.symbol, kind: item.kind, message: item.message, since: item.since, minimum: item.attributeMinimumVersion,
+    }))).toEqual([
+      { symbol: 'DeprecatedContracts\\DocumentedTrait', kind: 'trait', message: 'use CurrentTrait', since: undefined, minimum: undefined },
+      { symbol: 'DeprecatedContracts\\OldTrait', kind: 'trait', message: 'use CurrentTrait', since: '3.0', minimum: '8.5' },
+      { symbol: 'DeprecatedContracts\\oldFunction', kind: 'function', message: 'use replacement()', since: '1.2', minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\documentedFunction', kind: 'function', message: 'use documentedReplacement()', since: undefined, minimum: undefined },
+      { symbol: 'DeprecatedContracts\\Service::__construct', kind: 'method', message: 'use create()', since: '2.0', minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\Service::oldMethod', kind: 'method', message: 'use currentMethod()', since: undefined, minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\Service::OLD_DOC', kind: 'constant', message: 'use CURRENT', since: undefined, minimum: undefined },
+      { symbol: 'DeprecatedContracts\\Service::OLD', kind: 'constant', message: 'use CURRENT', since: undefined, minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\Status::OLD', kind: 'enum-case', message: 'use CURRENT case', since: undefined, minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\OLD_GLOBAL', kind: 'constant', message: 'use CURRENT_GLOBAL', since: '4.0', minimum: '8.5' },
+      { symbol: 'DeprecatedContracts\\Hooked::$name::get', kind: 'property-get', message: 'use readName()', since: undefined, minimum: '8.4' },
+      { symbol: 'DeprecatedContracts\\Hooked::$name::set', kind: 'property-set', message: 'use writeName()', since: undefined, minimum: '8.4' },
+    ]);
+    workspace.remove('file:///Deprecated.php');
+  });
   it('plans typed property declarations only from proven dynamic-property values', () => {
     const definitions = '<?php namespace DynamicFix; class Target {} class Result {}';
     workspace.update('file:///DynamicFixTypes.php', definitions);

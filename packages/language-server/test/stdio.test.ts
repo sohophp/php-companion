@@ -2005,6 +2005,65 @@ class Example {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reports versioned Deprecated attribute and PHPDoc uses with the LSP deprecated tag', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-deprecated-symbols-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'Deprecated.php')).toString();
+      const source = `<?php namespace App;
+        #[\\Deprecated(message: "use replacement()", since: "1.2")] function oldFunction(): void {}
+        /** @deprecated use documentedReplacement() */ function documentedFunction(): void {}
+        class ParentService { #[\\Deprecated("old parent")] public function inherited(): void {} }
+        class Service extends ParentService {
+          #[\\Deprecated("use create()", since: "2.0")] public function __construct() {}
+          #[\\Deprecated("use currentMethod()")] public function oldMethod(): void {}
+          public function inherited(): void {}
+          /** @deprecated use CURRENT_DOC */ public const OLD_DOC = 1;
+          #[\\Deprecated("use CURRENT")] public const OLD = 1;
+        }
+        enum Status { #[\\Deprecated("use CURRENT case")] case OLD; case CURRENT; }
+        class Hooked { public string $name { #[\\Deprecated("use readName()")] get => "name"; #[\\Deprecated("use writeName()")] set {} } }
+        /** @deprecated use CurrentTrait */ trait DocumentedTrait {}
+        #[\\Deprecated("use CurrentTrait", since: "3.0")] trait OldTrait {}
+        class Consumer { use DocumentedTrait, OldTrait; }
+        #[\\Deprecated("use CURRENT_GLOBAL", since: "4.0")] const OLD_GLOBAL = 1;
+        function run(): void {
+          oldFunction(...);
+          oldFunction(); documentedFunction();
+          $service = new Service(); $service->oldMethod(); $service->inherited();
+          Service::OLD_DOC; Service::OLD; Status::OLD; OLD_GLOBAL;
+          $hooked = new Hooked(); $read = $hooked->name; $hooked->name = "value";
+          utf8_encode("legacy");
+          $storage = new \\SplObjectStorage(); $storage->attach(new \\stdClass());
+        }
+      `;
+      await writeFile(join(root, 'Deprecated.php'), source);
+      for (const [phpVersion, expected] of [['8.3', 4], ['8.4', 11], ['8.5', 14]] as const) {
+        const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
+        const output = messagesFrom(running);
+        running.stdin.write(encode({ jsonrpc: '2.0', id: 44, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+        } }));
+        await output.waitFor((message) => message.id === 44);
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics
+          .filter((item: { code?: string }) => item.code === 'php.symbol.deprecated');
+        expect(diagnostics).toHaveLength(expected);
+        expect(diagnostics.every((item: { severity?: number; tags?: number[] }) => item.severity === 2 && item.tags?.includes(2))).toBe(true);
+        expect(diagnostics.some((item: { message?: string }) => item.message === 'Function App\\oldFunction is deprecated since 1.2, use replacement().'))
+          .toBe(phpVersion !== '8.3');
+        expect(diagnostics.some((item: { message?: string }) => item.message === 'Function App\\documentedFunction is deprecated, use documentedReplacement().')).toBe(true);
+        expect(diagnostics.some((item: { message?: string }) => item.message?.startsWith('Trait App\\OldTrait is deprecated since 3.0'))).toBe(phpVersion === '8.5');
+        expect(diagnostics.some((item: { message?: string }) => item.message?.startsWith('Function utf8_encode is deprecated'))).toBe(true);
+        expect(diagnostics.some((item: { message?: string }) => item.message?.startsWith('Method SplObjectStorage::attach is deprecated'))).toBe(phpVersion === '8.5');
+        expect(diagnostics.some((item: { message?: string }) => item.message?.includes('inherited'))).toBe(false);
+        await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('generates exact missing interface method stubs without duplicating inherited methods', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-implement-methods-'));
     try {

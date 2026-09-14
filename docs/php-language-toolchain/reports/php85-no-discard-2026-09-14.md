@@ -49,3 +49,5 @@ parser 测试覆盖函数体、顶层与 `for` 初始化/更新列表中的丢�
 - `php-companion-0.4.5.vsix`：`d6eac73053beeda2e468c8f7bcc828a86a3532997fd90ac9a0fe29bd053add53`
 - `php-companion-open-source-pack-0.4.5.vsix`：`4ea08603c5973cb7a593c48bbcb08fcd9258c1857f9392a0b4d5ce8789ce7c1f`
 - `php-companion-recommended-pack-0.4.5.vsix`：`c57eed3ad9e61168ecb6641e7501cbde14476063fd4148f07bf98d3e243d7e56`
+
+提交 `e4a42a8` 的 [CI 34790640137](https://github.com/sohophp/php-companion/actions/runs/34790640137) 已通过 Linux、Windows、macOS 的质量与打包 Extension Host 门禁，以及 PHP 7.2–8.5 集成矩阵。

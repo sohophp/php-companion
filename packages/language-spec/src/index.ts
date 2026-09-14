@@ -257,6 +257,7 @@ function auditedVersionedCoreObjectStub(version: SupportedPhpVersion): string {
   const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php81 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
+  const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
   const php85 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5');
   return `/** @template-covariant TKey
  * @template-covariant TValue
@@ -293,6 +294,7 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate {
 }` : ''}
 ${php81 ? `interface UnitEnum { public static function cases(): array; }
 interface BackedEnum extends UnitEnum { public static function from(int|string $value): static; public static function tryFrom(int|string $value): ?static; }` : ''}
+${php84 ? 'final class Deprecated { public readonly ?string $message; public readonly ?string $since; public function __construct(?string $message = null, ?string $since = null) {} }' : ''}
 ${php85 ? 'final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }' : ''}
 ${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4') ? `enum RoundingMode {
   case HalfAwayFromZero; case HalfTowardsZero; case HalfEven; case HalfOdd;

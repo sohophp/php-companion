@@ -353,6 +353,8 @@ describe('PHP language specification', () => {
     expect(builtinPhpStub('8.0')).toContain('interface Stringable');
     expect(builtinPhpStub('8.0')).toContain('class WeakMap');
     expect(builtinPhpStub('8.0')).not.toContain('interface UnitEnum');
+    expect(builtinPhpStub('8.3')).not.toContain('final class Deprecated');
+    expect(builtinPhpStub('8.4')).toContain('final class Deprecated { public readonly ?string $message; public readonly ?string $since;');
     expect(builtinPhpStub('8.4')).not.toContain('final class NoDiscard');
     expect(builtinPhpStub('8.5')).toContain('final class NoDiscard { public readonly ?string $message;');
     expect(builtinPhpStub('7.2')).toContain('function is_iterable($value): bool');

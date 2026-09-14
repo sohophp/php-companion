@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType } from '../src/index.js';
 
 describe('PHPDoc parser', () => {
+  it('preserves deprecated descriptions without treating them as types', () => {
+    expect(parsePhpDoc('/** @deprecated 2.1 use replacement() */').tags).toMatchObject([
+      { name: 'deprecated', description: '2.1 use replacement()' },
+    ]);
+  });
   it('parses nested union, intersection, generic and array types', () => {
     const result = parsePhpDocType('array<string, (App\\User&Countable)[]>|null');
     expect(result.errors).toEqual([]);
