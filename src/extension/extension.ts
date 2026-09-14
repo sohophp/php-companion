@@ -18,6 +18,7 @@ import {
 } from '../refactor/move.js';
 import { buildAddImportEdit, buildOptimizeImportsEdit, rankedImportCandidates } from '../imports/importWorkflows.js';
 import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
+import { withBoundedRetry } from '../refactor/retry.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 
@@ -192,6 +193,26 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!touched.has(fileOperationUriKey(document.uri))) continue;
       if (document.isDirty && !await document.save()) throw new MoveError(`VS Code could not save ${document.uri.fsPath}.`);
     }
+  };
+
+  const reconcileServerMove = async (moves: readonly ServerMoveReconciliation[]): Promise<void> => {
+    const currentUri = new Map(moves.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
+    const touched = moves.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
+    await withBoundedRetry(async () => {
+      await applyMoveReconciliation(await requestMoveReconciliation(moves), touched);
+      for (const move of moves) {
+        const uri = vscode.Uri.parse(move.newUri);
+        const source = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
+        const declared = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(source)?.[1]?.trim();
+        if (declared !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} declares ${declared ?? 'the global namespace'} instead of ${move.newNamespace}.`);
+      }
+      const remaining = await requestMoveReconciliation(moves);
+      if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
+    }, {
+      attempts: 3,
+      delayMs: 100,
+      onFailure: (error, attempt) => output.warn(`Safe Move reconciliation attempt ${attempt}/3 failed: ${error instanceof Error ? error.message : String(error)}`),
+    });
   };
 
   const refreshMoveIndex = async (
@@ -691,9 +712,7 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!serverReconciliation && !reconciliation) return;
       movePipeline = movePipeline.then(async () => {
         if (serverReconciliation) {
-          const currentUri = new Map(serverReconciliation.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
-          const touched = serverReconciliation.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
-          await applyMoveReconciliation(await requestMoveReconciliation(serverReconciliation), touched);
+          await reconcileServerMove(serverReconciliation);
           return;
         }
         const manager = await workspace();
