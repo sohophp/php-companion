@@ -1,4 +1,5 @@
 - 工厂构造摘要新增有界 Callable 反向依赖图：唯一解析且返回表达式为直接函数或方法调用的工厂可传递复用下游构造结论；被调用方实现变化会失效全部传递调用者，无关 callable 与已移除的旧依赖边继续保留缓存。递归、歧义、动态调用及预算耗尽保持 unknown。
+- 提交 `72afd9a` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 - 新增 Open Source Profile 的机器可读精确版本清单、隔离 Marketplace 安装器和 Linux/Windows/macOS 完整组合 CI；Symfony Language Tools 0.20.2 会拒绝普通 PHP 声明 Rename，0.20.1 虽在本地组合通过，随后也在重复 Ubuntu CI 中产生相同拒绝。两个默认 Pack 和受支持 Profile 均移除该扩展，版本清单保留拒绝记录并阻止误装，等待上游提供可关闭的 Rename Provider 或稳定修复。
 - 提交 `4cd7530` 的三平台 CI 以 18/18 关闭冻结版本组合门禁：Linux、Windows、macOS 的 Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵全部通过。
 - 声明级 F2 的 Extension Host 验收在切换到刚打开的文档后，以有界重试等待 Language Client 完成 `didOpen` 同步，避免 Windows 快速机器把瞬时 `No result` 误判为 Rename 功能失败。
