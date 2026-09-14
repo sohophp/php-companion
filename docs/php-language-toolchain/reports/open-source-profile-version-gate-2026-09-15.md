@@ -37,8 +37,12 @@ VS Code 的 `extensionPack` 只能声明 ID，不能固定成员版本，而 0.2
 
 - `pnpm typecheck` 与 `pnpm lint` 通过。
 - 十六个组件 624 项测试通过；组合包 manifest 的 3 项聚焦测试通过。
-- 诊断阶段的全新隔离目录精确列出八个目标扩展，没有 Intelephense；修正 Safe Move 时序后的纯净打包 Extension Host 与该诊断 Profile 均以退出码 0 完成。随后 CI 复现 Symfony 0.20.1 冲突，最终受支持 Profile 收缩为七项外部扩展，等待新的三平台任务关闭。
+- 诊断阶段的全新隔离目录精确列出八个目标扩展，没有 Intelephense；修正 Safe Move 时序后的纯净打包 Extension Host 与该诊断 Profile 均以退出码 0 完成。随后 CI 复现 Symfony 0.20.1 冲突，最终受支持 Profile 收缩为七项外部扩展。
 - 本地测试使用 Winstar 的 `bin/php-runtime`、项目 PHP CS Fixer 包装器和 PHPUnit 9.6.36。该证据来自 WSL2/Linux Extension Host，不冒充 Windows 客户端连接 WSL Remote 的独立验收。
+
+## 跨平台证据
+
+提交 `4cd7530` 的 [CI 34894351400](https://github.com/sohophp/php-companion/actions/runs/34894351400) 共 18 个任务全部成功。Linux、Windows 与 macOS 均通过 Quality、打包 Extension Host 和安装七个冻结第三方扩展的完整 Open Source Profile；PHP 7.2–8.5 八个运行时集成任务也全部通过。该结果关闭本报告的冻结版本与 Provider 组合自动门禁。
 
 ## 边界
 
