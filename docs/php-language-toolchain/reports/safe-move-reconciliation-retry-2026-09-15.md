@@ -21,7 +21,7 @@
 - 三份 VSIX 内容验证通过。移除 will-rename 文本编辑后的本地主 VSIX SHA-256：`be6156f1b3396663b824b6bf6a990945b4eb4b151799d19bd9429985c8d2f973`。
 - VS Code 1.137.0 从同一重新打包的 0.4.5 VSIX 连续运行两个全新隔离 Profile；两轮均完成 Safe Move 命令、Undo/Redo、Explorer 双向移动和其余 Extension Host 回归，退出码为 0。
 
-## 中间跨平台证据
+## 跨平台门禁
 
 提交 `110fa24` 的 [GitHub Actions CI 34869259140](https://github.com/sohophp/php-companion/actions/runs/34869259140) 曾 15/15 成功：
 
@@ -29,4 +29,8 @@
 - 三个平台的真实打包 Extension Host 均通过 Safe Move 命令、Undo/Redo、Explorer 双向移动及其余编辑器回归。
 - PHP 7.2、7.3、7.4、8.0、8.1、8.2、8.3、8.4 与 8.5 运行时集成全部通过。
 
-后续 `971ab4a` 的 [CI 34870388550](https://github.com/sohophp/php-companion/actions/runs/34870388550) 再次复现 Ubuntu 文件事务失败，因此以上成功只作为中间证据，不作为当前解决方案封板。移除 will-rename 文本编辑后的新跨平台门禁待候选提交补入；多扩展真实 Profile 与连续高频批量移动仍属于后续长会话验证范围。
+后续 `971ab4a` 的 [CI 34870388550](https://github.com/sohophp/php-companion/actions/runs/34870388550) 再次复现 Ubuntu 文件事务失败，因此以上成功只作为中间证据，不作为当前解决方案封板。
+
+移除 will-rename 文本编辑并增加文件状态观察器的提交 `35773d5` 对应 [CI 34873469728](https://github.com/sohophp/php-companion/actions/runs/34873469728) 15/15 成功：Linux、Windows、macOS 的质量、tarball、性能、VSIX 与真实打包 Extension Host 门禁全部通过，PHP 7.2–8.5 运行时集成全部通过。Ubuntu 打包宿主已越过此前两次失败的 `Service → Contact` 路径并完成后续开发模式及 Intelephense 兼容宿主测试。
+
+多扩展真实 Profile 与连续高频批量移动仍属于后续长会话验证范围。
