@@ -32,7 +32,17 @@ pnpm benchmark:persistence -- 10000
 - VS Code 1.137.0 的隔离 Profile 从打包主 VSIX 启动 Extension Host，测试进程退出码为 0。
 - 主 VSIX SHA-256：`3b49330c482bdbc9055ea2eca9e5118185109c9c315fe379517c91114f7de1ce`。
 
-Linux、Windows 和 macOS 的 v44 CI 结果将在提交候选后补入本报告。
+## 跨平台 CI
+
+[CI 34861958814](https://github.com/sohophp/php-companion/actions/runs/34861958814) 的 15 个任务全部通过，包括三平台 Quality、Extension Host 与 PHP 7.2–8.5 集成矩阵。三平台 1,000 文件 v44 持久化结果如下：
+
+| 平台 | 冷索引 | 热恢复 | 热/冷比 | 恢复/解析 | 框架重分析 | 损坏条目重建 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| [Linux x64](persistent-framework-facts-1000-linux-x64-ci-2026-09-14.json) | 956.63 ms | 169.72 ms | 0.1774 | 1,000 / 0 | 0 | 1 |
+| [Windows x64](persistent-framework-facts-1000-windows-x64-ci-2026-09-14.json) | 1,151.04 ms | 270.53 ms | 0.2350 | 1,000 / 0 | 0 | 1 |
+| [macOS arm64](persistent-framework-facts-1000-macos-arm64-ci-2026-09-14.json) | 905.66 ms | 144.58 ms | 0.1596 | 1,000 / 0 | 0 | 1 |
+
+三份结果都确认 Symfony Controller/Twig 与 Doctrine PHP 事实恢复、传递依赖恢复、派生事实失效和单条缓存损坏恢复。
 
 ## 边界
 

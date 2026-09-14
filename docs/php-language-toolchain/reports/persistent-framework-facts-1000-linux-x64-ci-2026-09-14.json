@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "files": 1000,
+  "runtime": "v22.23.2",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "cold": {
+    "durationMs": 956.63,
+    "parsed": 1000,
+    "restored": 0,
+    "frameworkParsed": 2
+  },
+  "warm": {
+    "durationMs": 169.72,
+    "parsed": 0,
+    "restored": 1000,
+    "frameworkParsed": 0
+  },
+  "warmToColdRatio": 0.1774,
+  "exactness": {
+    "transitiveDependencyRestored": true,
+    "derivedFactInvalidated": true,
+    "frameworkFactsRestored": true,
+    "corruptLayerReparsedFiles": 1
+  }
+}
