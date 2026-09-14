@@ -66,6 +66,7 @@
     "test:extension:intelephense": "PHP_COMPANION_TEST_WITH_INTELEPHENSE=1 pnpm test:extension",
     "test:extension:packaged": "pnpm package && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
     "test:extension:open-source-profile": "pnpm package && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
+    "install:open-source-profile": "node scripts/install-open-source-profile.mjs",
     "pretest:extension": "tsc -p test/extension/tsconfig.json",
     "package": "pnpm build && vsce package --no-dependencies",
     "package:open-source-pack": "pnpm --dir packages/php-companion-extension-pack package",

@@ -1,7 +1,10 @@
-import { access } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import process from 'node:process';
+import { URL } from 'node:url';
 import yauzl from 'yauzl';
+
+const openSourceProfile = JSON.parse(await readFile(new URL('../test/extension/open-source-profile.extensions.json', import.meta.url), 'utf8'));
 
 const artifacts = [
   {
@@ -97,11 +100,7 @@ for (const artifact of artifacts) {
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    const expectedExtensions = [
-      'sohophp.php-companion', 'sohophp.twig-plus', 'symfony.language-tools',
-      'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug', 'recca0120.vscode-phpunit',
-      'junstyle.php-cs-fixer', 'editorconfig.editorconfig',
-    ].sort();
+    const expectedExtensions = ['sohophp.php-companion', ...openSourceProfile.map((entry) => entry.id)].map((id) => id.toLowerCase()).sort();
     const actualExtensions = Array.isArray(manifest.extensionPack)
       ? manifest.extensionPack.map((id) => String(id).toLowerCase()).sort() : [];
     if (JSON.stringify(actualExtensions) !== JSON.stringify(expectedExtensions)) {

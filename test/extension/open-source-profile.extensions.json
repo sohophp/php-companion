@@ -1,0 +1,10 @@
+[
+  { "id": "sohophp.twig-plus", "version": "1.3.7" },
+  { "id": "symfony.language-tools", "version": "0.20.1" },
+  { "id": "redhat.vscode-yaml", "version": "1.24.0" },
+  { "id": "redhat.vscode-xml", "version": "0.29.3" },
+  { "id": "xdebug.php-debug", "version": "1.40.1" },
+  { "id": "recca0120.vscode-phpunit", "version": "3.9.40" },
+  { "id": "junstyle.php-cs-fixer", "version": "0.3.21" },
+  { "id": "EditorConfig.EditorConfig", "version": "0.18.2" }
+]

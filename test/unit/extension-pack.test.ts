@@ -14,17 +14,10 @@ interface ExtensionManifest {
   icon?: string;
 }
 
-const openSourceExtensions = [
-  'sohophp.php-companion',
-  'sohophp.twig-plus',
-  'symfony.language-tools',
-  'redhat.vscode-yaml',
-  'redhat.vscode-xml',
-  'xdebug.php-debug',
-  'recca0120.vscode-phpunit',
-  'junstyle.php-cs-fixer',
-  'EditorConfig.EditorConfig',
-];
+async function openSourceExtensions(): Promise<string[]> {
+  const entries = JSON.parse(await readFile(resolve('test/extension/open-source-profile.extensions.json'), 'utf8')) as Array<{ id: string }>;
+  return ['sohophp.php-companion', ...entries.map((entry) => entry.id)];
+}
 
 async function manifest(path: string): Promise<ExtensionManifest> {
   return JSON.parse(await readFile(resolve(path), 'utf8')) as ExtensionManifest;
@@ -54,8 +47,9 @@ describe('PHP Companion manifests', () => {
   it('ships both focused packs without another PHP language server', async () => {
     const openSource = await manifest('packages/php-companion-extension-pack/package.json');
     const recommended = await manifest('packages/php-companion-recommended-pack/package.json');
-    expect(openSource.extensionPack).toEqual(openSourceExtensions);
-    expect(recommended.extensionPack).toEqual(openSourceExtensions);
+    const extensions = await openSourceExtensions();
+    expect(openSource.extensionPack).toEqual(extensions);
+    expect(recommended.extensionPack).toEqual(extensions);
     expect(openSource.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(recommended.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.contributes).toBeDefined();

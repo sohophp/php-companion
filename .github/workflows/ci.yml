@@ -98,3 +98,35 @@ jobs:
         run: pnpm test:extension
       - if: runner.os == 'Linux'
         run: pnpm test:extension:intelephense
+
+  open-source-profile:
+    name: Open Source Profile (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: phpunit:9.6.36, php-cs-fixer:3.95.22
+      - run: pnpm install --frozen-lockfile
+      - name: Install pinned Open Source Profile
+        run: pnpm install:open-source-profile
+        env:
+          PHP_COMPANION_TEST_EXTENSIONS_DIR: ${{ runner.temp }}/php-companion-open-source-extensions
+      - name: Run complete Open Source Profile
+        run: pnpm test:extension:open-source-profile
+        env:
+          PHP_COMPANION_TEST_EXTENSIONS_DIR: ${{ runner.temp }}/php-companion-open-source-extensions
+          PHP_COMPANION_PHP_EXECUTABLE: php
+          PHP_COMPANION_FORMATTER_EXECUTABLE: php-cs-fixer
+          PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunit
