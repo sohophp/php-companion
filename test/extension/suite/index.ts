@@ -4196,6 +4196,11 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     const document = await vscode.workspace.openTextDocument(uri);
     if (document.isDirty) assert.ok(await document.save(), `Could not save Safe Move edit before restoring its path: ${uri.path}`);
   }
+  await waitForAsync(async () => {
+    const reverse = await vscode.commands.executeCommand<vscode.WorkspaceEdit>('phpCompanion._testBuildMoveEdits', movedRunnerUri, runnerUri);
+    return reverse?.get(runnerUri)?.some((edit) => edit.newText === 'App\\Contract') === true
+      && reverse.get(runnerConsumerUri)?.some((edit) => edit.newText === 'App\\Contract\\Runner') === true;
+  }, 'Language Server did not settle on the redone Safe Move before planning its reversal', 30_000, 100);
   const restoreRunnerFile = new vscode.WorkspaceEdit();
   restoreRunnerFile.renameFile(movedRunnerUri, runnerUri);
   assert.ok(await vscode.workspace.applyEdit(restoreRunnerFile), 'Could not restore Safe Move fixture file');
