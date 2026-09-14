@@ -1,4 +1,4 @@
-- 加固资源管理器 Safe Move 的移动后协调：瞬时文件系统、Language Server 或工作区编辑失败会在有界次数内重新读取当前状态并重建编辑；只有目标 namespace 已落盘且语义协调计划为空时才视为完成，每次失败保留可诊断日志。
+- 加固资源管理器 Safe Move 的移动后协调：移动前只生成并保留精确计划，避免 VS Code 在同一文件事务中应用源文档文本编辑时偶发内部失败；移动后事件与有界文件状态观察器竞争一次性领取计划，即使 `onDidRenameFiles` 延迟或丢失也会恢复。瞬时文件系统、Language Server 或工作区编辑失败继续从当前状态重试，只有目标 namespace 已落盘且语义协调计划为空时才视为完成。
 - 新增可独立发布的 `@php-companion/runtime-probe`：首次打开 PHP 文件或主动检测时，以无 shell、3 秒、128 KiB 边界读取目标 CLI 的版本、SAPI、已加载扩展与 INI 来源；仅在次版本一致时裁剪已审计扩展符号并发布带运行时来源的精准诊断。
 - Add a reproducible Language Server long-edit benchmark covering latest-version completion, update-to-diagnostics and hot-query latency, cancellation, retained RSS, process restart, and corrupt persistent-cache recovery.
 - Run component tarball verification, editing resilience, and packaged Extension Host gates across Linux, Windows, and macOS CI, using a platform-aware Electron launcher and RSS sampler.

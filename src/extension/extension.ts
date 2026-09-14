@@ -58,18 +58,6 @@ function fileRenamesKey(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri
   return files.map((file) => fileRenameKey(file.oldUri, file.newUri)).sort().join('|');
 }
 
-function beforeFileRenameEdit(
-  edit: vscode.WorkspaceEdit,
-  files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[],
-): vscode.WorkspaceEdit {
-  const result = new vscode.WorkspaceEdit();
-  for (const [uri, edits] of edit.entries()) {
-    const moved = files.find((file) => fileOperationUriKey(file.newUri) === fileOperationUriKey(uri));
-    result.set(moved?.oldUri ?? uri, edits);
-  }
-  return result;
-}
-
 function fromProtocolWorkspaceEdit(result: ProtocolWorkspaceEdit | null | undefined): vscode.WorkspaceEdit | undefined {
   if (!result) return undefined;
   const edit = new vscode.WorkspaceEdit();
@@ -218,6 +206,35 @@ export function activate(context: vscode.ExtensionContext): void {
       delayMs: 100,
       onFailure: (error, attempt) => output.warn(`Safe Move reconciliation attempt ${attempt}/3 failed: ${error instanceof Error ? error.message : String(error)}`),
     });
+  };
+
+  const queueServerMoveReconciliation = async (key: string): Promise<boolean> => {
+    const reconciliation = pendingServerSafeMoves.get(key);
+    if (!reconciliation) return false;
+    pendingServerSafeMoves.delete(key);
+    movePipeline = movePipeline.then(() => reconcileServerMove(reconciliation)).catch((error) => {
+      const message = 'Safe Move completed the file operation, but could not reconcile namespace and references.';
+      output.warn(`${message} ${error instanceof Error ? error.message : String(error)}`);
+      void vscode.window.showWarningMessage(message);
+    });
+    await movePipeline;
+    return true;
+  };
+
+  const watchForServerMove = async (key: string, files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[]): Promise<void> => {
+    for (let attempt = 0; attempt < 120 && pendingServerSafeMoves.has(key); attempt += 1) {
+      const completed = await Promise.all(files.map(async (file) => {
+        try { await vscode.workspace.fs.stat(file.newUri); }
+        catch { return false; }
+        try { await vscode.workspace.fs.stat(file.oldUri); return false; }
+        catch { return true; }
+      }));
+      if (completed.every(Boolean)) {
+        await queueServerMoveReconciliation(key);
+        return;
+      }
+      await new Promise<void>((resolve) => setTimeout(resolve, 250));
+    }
   };
 
   const refreshMoveIndex = async (
@@ -668,12 +685,12 @@ export function activate(context: vscode.ExtensionContext): void {
           if (selfLanguageServer) {
             const planned = await requestSafeMovePlan(snapshottedFiles, false);
             pendingServerSafeMoves.set(key, planned.reconciliation);
-            // Participate in VS Code's file-operation transaction so the
-            // namespace and proven references cannot be stranded if an async
-            // did-rename listener is delayed or dropped on Windows. Edits for
-            // the destination are remapped to the source document because the
-            // will-rename edit is applied before the filesystem operation.
-            return beforeFileRenameEdit(planned.edit, managedFiles);
+            // VS Code can move the file while reporting an internal failure
+            // when a will-rename participant also edits the source document.
+            // Keep the exact plan for post-move reconciliation instead. The
+            // filesystem watcher below also covers a delayed or dropped
+            // onDidRenameFiles notification.
+            return new vscode.WorkspaceEdit();
           } else {
             const manager = await workspace();
             // Rebuild from the current files before every Explorer move. A prior
@@ -697,8 +714,14 @@ export function activate(context: vscode.ExtensionContext): void {
       })();
       const settledPlanning = planning.then(() => undefined, () => undefined);
       pendingMovePlanning.set(key, settledPlanning);
+      if (selfLanguageServer) void settledPlanning.then(() => watchForServerMove(key, files)).catch((error) => {
+        output.warn(`Safe Move post-operation watcher failed: ${error instanceof Error ? error.message : String(error)}`);
+      });
       void settledPlanning.then(() => setTimeout(() => {
-        if (pendingMovePlanning.get(key) === settledPlanning) pendingMovePlanning.delete(key);
+        if (pendingMovePlanning.get(key) === settledPlanning) {
+          pendingMovePlanning.delete(key);
+          pendingServerSafeMoves.delete(key);
+        }
       }, 60_000));
       event.waitUntil(planning);
     }),
@@ -710,16 +733,11 @@ export function activate(context: vscode.ExtensionContext): void {
       const planning = pendingMovePlanning.get(key);
       if (planning) await planning;
       pendingMovePlanning.delete(key);
-      const serverReconciliation = pendingServerSafeMoves.get(key);
-      pendingServerSafeMoves.delete(key);
+      if (await queueServerMoveReconciliation(key)) return;
       const reconciliation = pendingSafeMoves.get(key);
       pendingSafeMoves.delete(key);
-      if (!serverReconciliation && !reconciliation) return;
+      if (!reconciliation) return;
       movePipeline = movePipeline.then(async () => {
-        if (serverReconciliation) {
-          await reconcileServerMove(serverReconciliation);
-          return;
-        }
         const manager = await workspace();
         await manager.refreshProjectIndexes(files.map((file) => file.newUri));
         const edits = buildMoveReconciliationEdits(manager.index, reconciliation!);
