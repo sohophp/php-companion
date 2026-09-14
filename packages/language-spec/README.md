@@ -1,6 +1,6 @@
 # @php-companion/language-spec
 
-`CONFIGURABLE_PHP_EXTENSIONS` 导出当前可独立选择的审计扩展组；`builtinPhpStub(version, { disabledExtensions })` 可移除 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter。省略选项保持完整默认规格，libxml 作为 XML 共享基础保留。
+`CONFIGURABLE_PHP_EXTENSIONS` 导出当前可独立选择的审计扩展组；`builtinPhpStub(version, { disabledExtensions })` 可移除 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter。`builtinPhpExtensionStub(version, extension)` 从同一生成器返回单个扩展组，供符号所有权、诊断和独立组件消费；省略选项保持完整默认规格，libxml 作为 XML 共享基础保留。
 
 PHP 8.3 动态类常量访问具有独立的语法可用性规则；低于 8.3 的目标版本会在动态名称范围报告版本边界。
 

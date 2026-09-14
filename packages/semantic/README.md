@@ -1,5 +1,7 @@
 # @php-companion/semantic
 
+`workspaceTypes()`、`workspaceFunctions()` 和 `workspaceConstants()` 提供带完整身份与来源 URI 的全局声明目录。未解析函数和常量查询默认继续抑制未限定全局名称；调用方只有传入经过审计的全局目标白名单时，才可查询这些名称，用于扩展不可用等可证明诊断。项目或 polyfill 已声明同一符号时不会报告缺失。
+
 PHP 8.4 属性 hook 在 backed/virtual 状态可证明时分别暴露读写能力；短 setter 的独立写入类型参与直接赋值诊断，`private(set)` 等非对称可见性只约束写操作。完整已索引层级会合成未被覆盖的父 hook，并验证接口/抽象属性能力、可见性、读协变、写逆变、final 属性和 final 单 hook。数组下标修改、直接取引用、唯一签名按引用参数、属性按引用 `foreach` 及对象按引用遍历均要求有效 getter 为 `&get`；向 hooked property 绑定新引用始终拒绝。动态、歧义调用和跨层级生成保持 unknown。
 
 PHP 8.3 动态类常量访问只在名称可由字面量、未触碰局部字符串、唯一字符串常量或纯字符串拼接证明时解析；Definition 指向唯一可见声明，常量字面量值进入局部类型和参数诊断。动态、被修改或提前读取的名称，以及不可访问、歧义或无法静态求值的常量保持 unknown。包含动态访问的常量 Rename 继续保守拒绝。

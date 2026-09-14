@@ -824,6 +824,19 @@ export class SemanticWorkspace {
     })));
   }
 
+  workspaceFunctions(): FunctionCompletionInfo[] {
+    return [...this.files.values()].flatMap((file) => file.callables.filter((item) => item.kind === 'function').map((item) => ({
+      uri: file.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
+      parameters: item.parameters, returnType: item.returnType,
+    })));
+  }
+
+  workspaceConstants(): ConstantCompletionInfo[] {
+    return [...this.files.values()].flatMap((file) => file.constants.filter((item) => item.global).map((item) => ({
+      uri: file.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn, type: item.type, value: item.value,
+    })));
+  }
+
   constructorParameterAt(uri: string, offset: number): ConstructorParameterInfo | undefined {
     return this.injectableParameterAt(uri, offset, (callable) => callable.name.toLowerCase() === '__construct' ? { callableFqcn: callable.fqcn } : undefined);
   }
@@ -2397,7 +2410,7 @@ export class SemanticWorkspace {
     });
   }
 
-  unresolvedFunctions(uri: string): UnresolvedSymbolInfo[] {
+  unresolvedFunctions(uri: string, knownGlobalTargets: ReadonlySet<string> = new Set()): UnresolvedSymbolInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     const known = new Set([...this.files.values()].flatMap((candidate) => candidate.callables
       .filter((item) => item.kind === 'function').map((item) => item.fqcn.toLowerCase())));
@@ -2406,17 +2419,17 @@ export class SemanticWorkspace {
       const name = file.source.slice(call.nameStart, call.nameEnd);
       const imported = file.imports.some((item) => item.kind === 'function' && item.namespace === this.namespaceAt(file, call.nameStart)
         && item.alias.toLowerCase() === name.toLowerCase());
-      if (!name.includes('\\') && !imported) return [];
+      if (!name.includes('\\') && !imported && !knownGlobalTargets.has(name.toLowerCase())) return [];
       const fqcn = this.resolveFunction(file, name, this.namespaceAt(file, call.nameStart));
       // The audited builtin catalogue is deliberately incomplete. A global target
-      // may still be supplied by PHP or an extension, so only namespaced identities
-      // are eligible for an absence diagnostic.
-      if (!fqcn.includes('\\') || known.has(fqcn.toLowerCase())) return [];
+      // may still be supplied by PHP or an extension, so unqualified identities are
+      // eligible only when the caller supplies an explicit audited whitelist.
+      if ((!fqcn.includes('\\') && !knownGlobalTargets.has(fqcn.toLowerCase())) || known.has(fqcn.toLowerCase())) return [];
       return [{ uri, start: call.nameStart, end: call.nameEnd, kind: 'function', name, fqcn }];
     });
   }
 
-  unresolvedConstants(uri: string): UnresolvedSymbolInfo[] {
+  unresolvedConstants(uri: string, knownGlobalTargets: ReadonlySet<string> = new Set()): UnresolvedSymbolInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     const known = new Set([...this.files.values()].flatMap((candidate) => candidate.constants
       .filter((item) => item.global).map((item) => item.fqcn)));
@@ -2437,9 +2450,9 @@ export class SemanticWorkspace {
       if (/\bnamespace\s*$/i.test(file.source.slice(Math.max(0, raw.start - 32), raw.start))) return [];
       const namespace = this.namespaceAt(file, raw.start);
       const imported = file.imports.some((item) => item.kind === 'const' && item.namespace === namespace && item.alias === raw.text);
-      if (!raw.text.includes('\\') && !imported) return [];
+      if (!raw.text.includes('\\') && !imported && !knownGlobalTargets.has(raw.text)) return [];
       const fqcn = this.resolveConstant(file, raw.text, namespace);
-      if (!fqcn.includes('\\') || known.has(fqcn)) return [];
+      if ((!fqcn.includes('\\') && !knownGlobalTargets.has(fqcn)) || known.has(fqcn)) return [];
       return [{ uri, start: raw.start, end: raw.end, kind: 'constant', name: raw.text, fqcn }];
     });
   }

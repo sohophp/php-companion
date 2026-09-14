@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, lowestSupportedVersion, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
+import { builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, lowestSupportedVersion, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
 describe('PHP language specification', () => {
   it('removes only explicitly disabled, independently audited extension stubs', () => {
     const markers = new Map([
@@ -13,6 +13,7 @@ describe('PHP language specification', () => {
       const filtered = builtinPhpStub('8.5', { disabledExtensions: [extension] });
       expect(complete).toContain(markers.get(extension));
       expect(filtered).not.toContain(markers.get(extension));
+      expect(builtinPhpExtensionStub('8.5', extension)).toContain(markers.get(extension));
       for (const [other, marker] of markers) if (other !== extension) expect(filtered).toContain(marker);
     }
     expect(builtinPhpStub('8.5', { disabledExtensions: [...CONFIGURABLE_PHP_EXTENSIONS] })).toContain('function libxml_use_internal_errors');

@@ -28,7 +28,7 @@ import {
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { indexComposerSources } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
@@ -68,6 +68,12 @@ let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
 let configuredExtensionAvailability: Array<{ path: string; disabledExtensions: ConfigurablePhpExtension[] }> = [];
+interface PhpExtensionSymbolCatalog {
+  types: Map<string, Set<ConfigurablePhpExtension>>;
+  functions: Map<string, Set<ConfigurablePhpExtension>>;
+  constants: Map<string, Set<ConfigurablePhpExtension>>;
+}
+const phpExtensionSymbolCatalogs = new Map<SupportedPhpVersion, Promise<PhpExtensionSymbolCatalog>>();
 
 function knownDisabledExtensions(value: unknown): ConfigurablePhpExtension[] {
   const known = new Set<string>(CONFIGURABLE_PHP_EXTENSIONS);
@@ -84,10 +90,50 @@ function setConfiguredExtensionAvailability(value: unknown): void {
   });
 }
 
-function disabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
-  const configured = configuredExtensionAvailability.filter((entry) => pathWithin(entry.path, root))
+function configuredDisabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
+  return configuredExtensionAvailability.filter((entry) => pathWithin(entry.path, root))
     .sort((left, right) => right.path.length - left.path.length)[0]?.disabledExtensions ?? [];
+}
+
+function disabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
+  const configured = configuredDisabledExtensionsForRoot(root);
   return [...new Set([...configured, ...(composerDisabledExtensionsByRoot.get(root) ?? [])])].sort();
+}
+
+function disabledExtensionReason(root: string, extension: ConfigurablePhpExtension): { source: string; setting: boolean; composer: boolean } {
+  const setting = configuredDisabledExtensionsForRoot(root).includes(extension);
+  const composer = composerDisabledExtensionsByRoot.get(root)?.includes(extension) === true;
+  return {
+    source: setting && composer ? 'the workspace setting and Composer platform configuration'
+      : setting ? 'the phpCompanion.disabledExtensions workspace setting' : 'Composer platform configuration',
+    setting, composer,
+  };
+}
+
+function phpExtensionSymbolCatalog(version: SupportedPhpVersion): Promise<PhpExtensionSymbolCatalog> {
+  let catalog = phpExtensionSymbolCatalogs.get(version);
+  if (catalog) return catalog;
+  catalog = parser().then((syntaxParser) => {
+    const workspace = new SemanticWorkspace(syntaxParser);
+    const extensionByUri = new Map<string, ConfigurablePhpExtension>();
+    for (const extension of CONFIGURABLE_PHP_EXTENSIONS) {
+      const uri = `php-companion-extension:/${extension}.php`;
+      extensionByUri.set(uri, extension);
+      workspace.update(uri, `<?php\n${builtinPhpExtensionStub(version, extension)}`);
+    }
+    const result: PhpExtensionSymbolCatalog = { types: new Map(), functions: new Map(), constants: new Map() };
+    const add = (target: Map<string, Set<ConfigurablePhpExtension>>, key: string, uri: string): void => {
+      const extension = extensionByUri.get(uri); if (!extension) return;
+      const owners = target.get(key) ?? new Set<ConfigurablePhpExtension>(); owners.add(extension); target.set(key, owners);
+    };
+    for (const item of workspace.workspaceTypes()) add(result.types, item.fqcn.toLowerCase(), item.uri);
+    for (const item of workspace.workspaceFunctions()) add(result.functions, item.fqcn.toLowerCase(), item.uri);
+    for (const item of workspace.workspaceConstants()) add(result.constants, item.fqcn, item.uri);
+    workspace.dispose();
+    return result;
+  });
+  phpExtensionSymbolCatalogs.set(version, catalog);
+  return catalog;
 }
 
 async function refreshBuiltinForRoot(root: string): Promise<void> {
@@ -496,34 +542,70 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     message: `Variable $${variable.name} is definitely undefined at this point.`,
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && root && completeRoots.has(root)) {
-    result.diagnostics.push(...workspace.unresolvedNewTypes(document.uri).map((type) => ({
+    const disabledExtensions = new Set(disabledExtensionsForRoot(root));
+    const catalog = disabledExtensions.size ? await phpExtensionSymbolCatalog(targetPhpVersion) : undefined;
+    const disabledOwners = (owners: Set<ConfigurablePhpExtension> | undefined): ConfigurablePhpExtension[] => {
+      if (!owners?.size || [...owners].some((extension) => !disabledExtensions.has(extension))) return [];
+      return [...owners].sort();
+    };
+    const knownGlobalFunctions = new Set(catalog ? [...catalog.functions].filter(([fqcn, owners]) => !fqcn.includes('\\') && disabledOwners(owners).length).map(([fqcn]) => fqcn) : []);
+    const knownGlobalConstants = new Set(catalog ? [...catalog.constants].filter(([fqcn, owners]) => !fqcn.includes('\\') && disabledOwners(owners).length).map(([fqcn]) => fqcn) : []);
+    const unresolvedNewTypes = workspace.unresolvedNewTypes(document.uri);
+    const unresolvedTypes = workspace.unresolvedTypeReferences(document.uri);
+    const unresolvedFunctions = workspace.unresolvedFunctions(document.uri, knownGlobalFunctions);
+    const unresolvedConstants = workspace.unresolvedConstants(document.uri, knownGlobalConstants);
+    const unavailableUses = new Map<string, { start: number; end: number; kind: 'type' | 'function' | 'constant'; fqcn: string; extensions: ConfigurablePhpExtension[] }>();
+    const registerUnavailable = (kind: 'type' | 'function' | 'constant', item: { start: number; end: number; fqcn: string }, owners: Set<ConfigurablePhpExtension> | undefined): void => {
+      const extensions = disabledOwners(owners); if (!extensions.length) return;
+      unavailableUses.set(`${kind}:${item.start}:${item.end}`, { ...item, kind, extensions });
+    };
+    if (catalog) {
+      for (const item of [...unresolvedNewTypes, ...unresolvedTypes]) registerUnavailable('type', item, catalog.types.get(item.fqcn.toLowerCase()));
+      for (const item of unresolvedFunctions) registerUnavailable('function', item, catalog.functions.get(item.fqcn.toLowerCase()));
+      for (const item of unresolvedConstants) registerUnavailable('constant', item, catalog.constants.get(item.fqcn));
+    }
+    const unavailableKeys = new Set(unavailableUses.keys());
+    result.diagnostics.push(...unresolvedNewTypes.filter((type) => !unavailableKeys.has(`type:${type.start}:${type.end}`)).map((type) => ({
       range: { start: document.positionAt(type.start), end: document.positionAt(type.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
       source: 'PHP Companion',
       message: `Cannot resolve type ${type.fqcn}.`,
     })));
-    result.diagnostics.push(...workspace.unresolvedTypeReferences(document.uri).map((type) => ({
+    result.diagnostics.push(...unresolvedTypes.filter((type) => !unavailableKeys.has(`type:${type.start}:${type.end}`)).map((type) => ({
       range: { start: document.positionAt(type.start), end: document.positionAt(type.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
       source: 'PHP Companion',
       message: `Cannot resolve type ${type.fqcn}.`,
     })));
-    result.diagnostics.push(...workspace.unresolvedFunctions(document.uri).map((symbol) => ({
+    result.diagnostics.push(...unresolvedFunctions.filter((symbol) => !unavailableKeys.has(`function:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.function.unresolved',
       source: 'PHP Companion',
       message: `Cannot resolve function ${symbol.fqcn}.`,
     })));
-    result.diagnostics.push(...workspace.unresolvedConstants(document.uri).map((symbol) => ({
+    result.diagnostics.push(...unresolvedConstants.filter((symbol) => !unavailableKeys.has(`constant:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.constant.unresolved',
       source: 'PHP Companion',
       message: `Cannot resolve constant ${symbol.fqcn}.`,
     })));
+    result.diagnostics.push(...[...unavailableUses.values()].map((use) => {
+      const reasons = use.extensions.map((extension) => ({ extension, ...disabledExtensionReason(root, extension) }));
+      const source = [...new Set(reasons.map((reason) => reason.source))].join(' and ');
+      const extensionNames = use.extensions.join(', ');
+      return {
+        range: { start: document.positionAt(use.start), end: document.positionAt(use.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.extension.unavailable',
+        source: 'PHP Companion',
+        message: `${use.kind[0]!.toUpperCase()}${use.kind.slice(1)} ${use.fqcn} requires PHP extension ${extensionNames}, which is disabled by ${source}.`,
+        data: { kind: use.kind, fqcn: use.fqcn, extensions: reasons },
+      };
+    }));
     result.diagnostics.push(...workspace.unresolvedMembers(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,

@@ -237,8 +237,23 @@ describe('conservative semantic workspace', () => {
       { name: 'namespace\\MISSING_LOCAL', fqcn: 'Symbols\\MISSING_LOCAL' },
       { name: 'MISSING_ALIAS', fqcn: 'MissingVendor\\MISSING' },
     ]);
+    expect(workspace.unresolvedFunctions('file:///UnresolvedSymbols.php', new Set(['possiblyextensionfunction'])).map((item) => item.fqcn))
+      .toContain('possiblyExtensionFunction');
+    expect(workspace.unresolvedConstants('file:///UnresolvedSymbols.php', new Set(['POSSIBLY_EXTENSION_CONSTANT'])).map((item) => item.fqcn))
+      .toContain('POSSIBLY_EXTENSION_CONSTANT');
+    workspace.update('file:///GlobalPolyfill.php', '<?php function possiblyExtensionFunction(): void {} const POSSIBLY_EXTENSION_CONSTANT = 1;');
+    expect(workspace.unresolvedFunctions('file:///UnresolvedSymbols.php', new Set(['possiblyextensionfunction'])).map((item) => item.fqcn))
+      .not.toContain('possiblyExtensionFunction');
+    expect(workspace.unresolvedConstants('file:///UnresolvedSymbols.php', new Set(['POSSIBLY_EXTENSION_CONSTANT'])).map((item) => item.fqcn))
+      .not.toContain('POSSIBLY_EXTENSION_CONSTANT');
     workspace.update('file:///NestedNamespace.php', '<?php namespace Symbols\\Nested; function run(): void {}');
     expect(workspace.unresolvedConstants('file:///NestedNamespace.php')).toEqual([]);
+  });
+  it('enumerates global declaration identities for component-owned symbol catalogs', () => {
+    workspace.update('php-companion-extension:/sample.php', '<?php namespace Extension { class Type {} function helper(): void {} const VALUE = 1; }');
+    expect(workspace.workspaceTypes().filter((item) => item.uri.includes('extension:')).map((item) => item.fqcn)).toEqual(['Extension\\Type']);
+    expect(workspace.workspaceFunctions().filter((item) => item.uri.includes('extension:')).map((item) => item.fqcn)).toEqual(['Extension\\helper']);
+    expect(workspace.workspaceConstants().filter((item) => item.uri.includes('extension:')).map((item) => item.fqcn)).toEqual(['Extension\\VALUE']);
   });
   it('reports only definitely undefined variables in named callable scopes', () => {
     const source = `<?php namespace Variables;

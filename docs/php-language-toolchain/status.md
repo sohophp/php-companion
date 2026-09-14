@@ -14,6 +14,8 @@ PHP 扩展符号选择已落地首个精准子集：workspace folder 显式配�
 
 2026-09-14 PHP 扩展能力选择封板：首批八个独立审计扩展组已进入 `language-spec` 的机器可读选择契约，`project` 只接受 Composer platform 明确为 `false` 的禁用事实，VS Code adapter 按 workspace folder 向多根 Language Server 发送完整快照；设置切换与 Composer 文件更新通过真实 stdio 验证。通用配置变化不再无条件重建项目索引。十五个组件 610 项、根扩展 33 项、十五个隔离 tarball、三份 VSIX 内容检查及 VS Code 1.137.0 打包 Extension Host 均通过。完整边界与产物哈希见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
 
+2026-09-14 PHP 扩展不可用诊断封板：八组已审计扩展的类型、函数和常量在明确禁用时发布 `php.extension.unavailable`，支持直接名称与 `use` 别名，区分 workspace 设置和 Composer platform 来源；项目/polyfill 同身份、未知扩展、未审计符号和不完整索引保持静默。十五个组件 611 项、根扩展 33 项、十五个隔离 tarball、三份 VSIX 及 VS Code 1.137.0 打包 Extension Host 本地门禁通过。证据见 [PHP 扩展不可用诊断验收](reports/php-extension-unavailable-diagnostics-2026-09-14.md)。
+
 PHP 8.5 final 提升属性的版本、解析和继承语义证据见 [PHP 8.5 final 提升属性验收](reports/php85-final-property-promotion-2026-09-14.md)；静态属性 set 可见性证据见 [PHP 8.5 静态属性非对称可见性验收](reports/php85-static-asymmetric-visibility-2026-09-14.md)。
 
 PHP 8.5 常量表达式 Closure 与 first-class callable 证据见 [PHP 8.5 常量表达式 callable 验收](reports/php85-constant-expression-callables-2026-09-14.md)。

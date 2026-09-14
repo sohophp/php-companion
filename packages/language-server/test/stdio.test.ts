@@ -70,21 +70,38 @@ describe('language server stdio', () => {
     try {
       const rootUri = pathToFileURL(root).toString();
       const path = join(root, 'ExtensionConsumer.php'); const uri = pathToFileURL(path).toString();
-      const source = '<?php $document = new DOMDocument(); mb_strlen("text"); $pdo = new PDO("sqlite::memory:");';
+      const source = '<?php use DOMDocument as ImportedDocument; use function mb_strlen as mb_length; use const FILTER_VALIDATE_INT as FILTER_INT; $document = new DOMDocument(); $imported = new ImportedDocument(); mb_strlen("text"); mb_length("text"); filter_var("1", FILTER_VALIDATE_INT); filter_var("1", FILTER_INT); $pdo = new PDO("sqlite::memory:");';
       await writeFile(join(root, 'composer.json'), JSON.stringify({ config: { platform: { 'ext-mbstring': false } }, autoload: { files: ['ExtensionConsumer.php'] } }));
       await writeFile(path, source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 201, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri,
-        initializationOptions: { phpExtensionAvailability: [{ uri: rootUri, disabledExtensions: ['dom', 'unknown-extension'] }] },
+        initializationOptions: { phpExtensionAvailability: [{ uri: rootUri, disabledExtensions: ['dom', 'filter', 'unknown-extension'] }] },
       } }));
       await output.waitFor((message) => message.id === 201);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const initialDiagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
+        && message.params.diagnostics.some((diagnostic: any) => diagnostic.code === 'php.extension.unavailable'));
+      const unavailable = initialDiagnostics.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable');
+      expect(unavailable.map((diagnostic: any) => source.slice(lspOffset(source, diagnostic.range.start), lspOffset(source, diagnostic.range.end))))
+        .toEqual(['DOMDocument', 'ImportedDocument', 'mb_strlen', 'mb_length', 'filter_var', 'filter_var', 'FILTER_VALIDATE_INT', 'FILTER_INT']);
+      expect(unavailable.map((diagnostic: any) => diagnostic.data.extensions)).toEqual([
+        [expect.objectContaining({ extension: 'dom', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'dom', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
+        [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
+        [expect.objectContaining({ extension: 'filter', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'filter', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'filter', setting: true, composer: false })],
+        [expect.objectContaining({ extension: 'filter', setting: true, composer: false })],
+      ]);
+      expect(initialDiagnostics.params.diagnostics.some((diagnostic: any) => diagnostic.code === 'php.type.unresolved'
+        || diagnostic.code === 'php.function.unresolved' || diagnostic.code === 'php.constant.unresolved')).toBe(false);
       const definition = async (id: number, needle: string): Promise<any[]> => {
-        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf(needle) + 2) } }));
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, source.lastIndexOf(needle) + 2) } }));
         return (await output.waitFor((message) => message.id === id)).result;
       };
       expect(await definition(202, 'DOMDocument')).toEqual([]);
@@ -92,7 +109,14 @@ describe('language server stdio', () => {
       expect(await definition(204, 'PDO(')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
 
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{ uri: rootUri, disabledExtensions: [] }] } }));
-      await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      const refreshedDiagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
+        && message.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable').length === 2);
+      expect(refreshedDiagnostics.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.extension.unavailable')
+        .map((diagnostic: any) => diagnostic.data.extensions))
+        .toEqual([
+          [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
+          [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
+        ]);
       expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
       expect(await definition(206, 'mb_strlen')).toEqual([]);
     } finally {
@@ -114,6 +138,11 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const unavailableDiagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
+        && message.params.diagnostics.some((diagnostic: any) => diagnostic.code === 'php.extension.unavailable'));
+      expect(unavailableDiagnostics.params.diagnostics).toContainEqual(expect.objectContaining({
+        code: 'php.extension.unavailable', data: expect.objectContaining({ fqcn: 'mb_strlen' }),
+      }));
       const definition = async (id: number): Promise<any[]> => {
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf('mb_strlen') + 2) } }));
         return (await output.waitFor((message) => message.id === id)).result;
@@ -123,6 +152,8 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(composerPath).toString(), type: 2 }] } }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true')
         && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('complete=true')).length >= 2);
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
+        && message.params.diagnostics.every((diagnostic: any) => diagnostic.code !== 'php.extension.unavailable'));
       expect(await definition(213)).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
     } finally {
       await rm(root, { recursive: true, force: true });

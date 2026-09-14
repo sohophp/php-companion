@@ -33,7 +33,7 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 }
 ```
 
-`diagnostics.disabledCodes` 可按稳定代码关闭诊断；`diagnostics.severity` 可将单项覆盖为 `error`、`warning`、`information`、`hint` 或 `off`。修改后立即重新发布已打开 PHP 文档的诊断，无需重启服务器。Linux / WSL 的 R1 首发门槛已经通过；R4 完整功能和跨平台矩阵仍在实施。未知或动态类型会保守返回空结果；启用时不要同时启用另一个通用 PHP Language Server。
+`diagnostics.disabledCodes` 可按稳定代码关闭诊断；`diagnostics.severity` 可将单项覆盖为 `error`、`warning`、`information`、`hint` 或 `off`。修改后立即重新发布已打开 PHP 文档的诊断，无需重启服务器。已明确禁用的审计扩展符号会发布 `php.extension.unavailable`，消息会说明禁用来自 workspace 设置还是 Composer platform；未知扩展或可由项目 polyfill 提供的符号不猜测。Linux / WSL 的 R1 首发门槛已经通过；R4 完整功能和跨平台矩阵仍在实施。未知或动态类型会保守返回空结果；启用时不要同时启用另一个通用 PHP Language Server。
 
 `disabledExtensions` 只用于明确声明项目不可用的 PHP 扩展，当前支持 `dom`、`filter`、`mbstring`、`pdo`、`simplexml`、`xml`、`xmlreader` 与 `xmlwriter`。Composer `config.platform` 中值为 `false` 的对应 `ext-*` 会自动合并；没有写进 Composer `require` 不代表缺失，因此不会据此裁剪内建符号。配置按 workspace folder 生效，变更后无需重启服务器。
 

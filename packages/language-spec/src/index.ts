@@ -2994,6 +2994,20 @@ ${filterVar}
 `;
 }
 
+export function builtinPhpExtensionStub(version: SupportedPhpVersion, extension: ConfigurablePhpExtension): string {
+  if (!SUPPORTED_PHP_VERSIONS.includes(version)) throw new Error(`Unsupported PHP version: ${version as string}`);
+  switch (extension) {
+    case 'dom': return auditedClassicDomStub(version) + auditedModernDomStub(version);
+    case 'filter': return auditedFilterFunctionStub(version);
+    case 'mbstring': return auditedMbstringStub(version);
+    case 'pdo': return auditedPdoStub(version);
+    case 'simplexml': return auditedSimpleXmlStub(version);
+    case 'xml': return auditedXmlParserStub(version);
+    case 'xmlreader': return auditedXmlReaderStub(version);
+    case 'xmlwriter': return auditedXmlWriterStub(version);
+  }
+}
+
 export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
   if (!SUPPORTED_PHP_VERSIONS.includes(version)) throw new Error(`Unsupported PHP version: ${version as string}`);
   const disabled = new Set(options.disabledExtensions ?? []);
@@ -3007,10 +3021,10 @@ export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhp
     + auditedJsonFunctionStub(version) + auditedFilesystemFunctionStub(version) + auditedFilesystemStreamStub(version)
     + auditedFilesystemMetadataStub(version) + auditedDirectoryStub(version)
     + auditedProgramExecutionStub(version) + auditedEncodingFunctionStub(version)
-    + (disabled.has('pdo') ? '' : auditedPdoStub(version)) + auditedReflectionCoreStub(version) + (disabled.has('mbstring') ? '' : auditedMbstringStub(version))
-    + `\n${auditedLibxmlStub(version)}` + (disabled.has('simplexml') ? '' : auditedSimpleXmlStub(version)) + (disabled.has('xml') ? '' : auditedXmlParserStub(version))
-    + (disabled.has('xmlreader') ? '' : auditedXmlReaderStub(version)) + (disabled.has('xmlwriter') ? '' : auditedXmlWriterStub(version))
-    + (disabled.has('dom') ? '' : auditedClassicDomStub(version) + auditedModernDomStub(version)) + auditedSecurityFunctionStub(version) + (disabled.has('filter') ? '' : auditedFilterFunctionStub(version))
+    + (disabled.has('pdo') ? '' : builtinPhpExtensionStub(version, 'pdo')) + auditedReflectionCoreStub(version) + (disabled.has('mbstring') ? '' : builtinPhpExtensionStub(version, 'mbstring'))
+    + `\n${auditedLibxmlStub(version)}` + (disabled.has('simplexml') ? '' : builtinPhpExtensionStub(version, 'simplexml')) + (disabled.has('xml') ? '' : builtinPhpExtensionStub(version, 'xml'))
+    + (disabled.has('xmlreader') ? '' : builtinPhpExtensionStub(version, 'xmlreader')) + (disabled.has('xmlwriter') ? '' : builtinPhpExtensionStub(version, 'xmlwriter'))
+    + (disabled.has('dom') ? '' : builtinPhpExtensionStub(version, 'dom')) + auditedSecurityFunctionStub(version) + (disabled.has('filter') ? '' : builtinPhpExtensionStub(version, 'filter'))
     + auditedPcreFunctionStub(version) + auditedMathFunctionStub(version) + auditedVariableHandlingFunctionStub(version)
     + auditedRuntimeIntrospectionFunctionStub(version) + auditedRuntimeConfigurationFunctionStub(version)
     + auditedRuntimeEnvironmentFunctionStub(version) + auditedErrorHandlingFunctionStub(version)

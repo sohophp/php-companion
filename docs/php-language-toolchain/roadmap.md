@@ -90,7 +90,7 @@ Generator、抽象声明、未知调用和未支持路径保持静默。
 - [x] 实现接口、抽象方法、构造函数/访问器生成、Override 与命名参数补全；当前均已在保守支持域内完成并具备语义、stdio 或真实 Extension Host 证据。
 - [x] Implementation、Type Hierarchy、Inlay Hints、Semantic Tokens；Implementation、Type Hierarchy、已证明局部对象的类型提示、唯一扁平位置调用的参数名提示，以及声明、变量/参数/调用/成员/`new`、原生/PHPDoc 类型、继承/Trait/Attribute/`instanceof`/静态接收者、import/alias 和唯一全局/namespace 常量 Semantic Tokens 已完成；唯一类型声明会细分 class/interface/enum，重复、动态或未解析身份保持保守。
 - [x] Import/Optimize Imports 完整迁移：默认服务器路径的 Import Class、Paste/Resolve Imports 与 Optimize Imports 均由 semantic/LSP 提供；候选和复制身份按 Composer 规范声明收敛，冲突 alias 与使用文本原子处理。连续 use 块支持标准 Organize Imports，无注释 group use 会安全展开、删除未使用成员、去重并按 grouped/FQCN 排序；注释边界和多 namespace 保守拒绝。旧实现仅供关闭自研服务器的兼容模式使用。
-- [ ] 稳定诊断代码、严重性/关闭设置、未知和索引未完成时抑制策略；现有代码已支持动态关闭和逐代码严重性覆盖，剩余诊断仍待完成。
+- [ ] 稳定诊断代码、严重性/关闭设置、未知和索引未完成时抑制策略；现有代码已支持动态关闭和逐代码严重性覆盖。`php.extension.unavailable` 只对 workspace 设置或 Composer platform 明确禁用、且属于八组已审计扩展目录的类型、函数和常量发布，消息与 data 保留禁用来源；项目/polyfill 已声明同一身份、扩展状态未知、符号未审计或索引未完成时保持静默。剩余诊断仍待完成。
 
 产物：复杂类型项目 Beta。退出条件：每条诊断具备正例、合法反例和输入中间态；Quick Fix 通过真实编辑器文本、选区和撤销验证。
 
