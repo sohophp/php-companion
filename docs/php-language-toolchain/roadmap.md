@@ -121,7 +121,7 @@ Generator、抽象声明、未知调用和未支持路径保持静默。
 
 - [x] 完成 formatter、调试和测试入口集成；运行时与目标 PHP 版本分离。Winstar 项目版 PHP CS Fixer 3.95.22 已经 PHP 8.5 包装器完成 CLI 与真实格式化 Provider/Undo 验证；PHP Debug 经 PHP 8.5.9 / Xdebug 3.5.3 完成 launch，PHPUnit 扩展经项目 PHPUnit 9.6.36 执行真实测试。平台矩阵由后续独立条目继续验收。
 - [x] 移除独立推荐组合对 Intelephense 的依赖，保留明确的旧工作流兼容说明。Open Source Pack 与保留原扩展 ID 的 Recommended Pack 均只安装八项开源核心工具并默认启用自研 PHP Language Server；打包校验会直接读取 VSIX manifest，拒绝 Intelephense 依赖或未启用自研核心。手动安装 Intelephense 的旧路径继续由独立兼容回归覆盖。Symfony Language Tools 0.19.0 Linux x64 已与 Companion/TwigPlus 通过组合门禁，并以关闭运行时索引和版本元数据请求的静态模式进入默认 Pack。
-- [ ] 全量版本矩阵、系统矩阵、真实 VSIX 和真实项目基准通过。
+- [ ] 全量版本矩阵、系统矩阵、真实 VSIX 和真实项目基准通过；当前 VSIX 已通过 Linux/WSL 免费插件组合，Winstar PHP 8.5 与 CoreRepo PHP 7.2 的项目源码完整索引、抽样引用和项目 Oracle 已通过。Windows + WSL Remote、三系统完整插件组合及多小时真实项目会话仍待完成。
 - [x] 关闭默认启用路径中的旧语义实现，完成配置迁移及文档/本地化；类型 Rename、Import/Paste/Optimize Imports、Safe Move 命令、资源管理器移动协调，以及主类型/文件名诊断均迁入统一 semantic/Language Server。文件移动与 Rename 使用标准 LSP WorkspaceEdit/EditPlan，旧 WorkspaceManager Provider 只在关闭自研服务器或显式旧实验命令时保留。
 - [ ] 执行 acceptance.md 全部最终检查，记录原始报告与已知限制。
 - [ ] 形成最终交付报告：已完成、证据、支持范围、限制、安装和回退方法。

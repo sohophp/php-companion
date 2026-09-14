@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "memberQueries": [
+    {
+      "file": "App/Components/Http/Routing/CanonicalUrl.php",
+      "marker": "$language->getUrlCode()",
+      "occurrence": 1,
+      "cursorAfter": "$language->",
+      "member": "getUrlCode",
+      "definitionSuffix": "App/Components/Language/Language.php"
+    }
+  ]
+}

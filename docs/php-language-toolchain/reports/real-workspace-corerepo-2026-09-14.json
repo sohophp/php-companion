@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "root": "/var/www/php/7.2/CoreRepo",
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "index": {
+    "files": 10000,
+    "bytes": 29871175,
+    "cached": 0,
+    "complete": false,
+    "projectComplete": true,
+    "warnings": [
+      "Dependency index was truncated to fit the 10000-file budget after indexing 1137 project files."
+    ],
+    "durationMs": 68305.49,
+    "peakRssMb": 726.9
+  },
+  "catalog": {
+    "types": 10011,
+    "projectTypes": 1128,
+    "functions": 22,
+    "constants": 5
+  },
+  "sampledTypeReferences": {
+    "requested": 100,
+    "sampled": 100,
+    "resolvedDeclarations": 100,
+    "resolutionRatio": 1,
+    "crossFileReferences": 70,
+    "returnedLocations": 1561,
+    "durationMs": {
+      "samples": 100,
+      "p50": 0.7014879999915138,
+      "p95": 21.170247000001837,
+      "maximum": 59.733173000000534
+    }
+  },
+  "oracle": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/oracles/corerepo.json",
+    "memberQueries": [
+      {
+        "file": "App/Components/Http/Routing/CanonicalUrl.php",
+        "marker": "$language->getUrlCode()",
+        "occurrence": 1,
+        "completionMatched": true,
+        "definitionMatched": true,
+        "definitionUris": [
+          "file:///var/www/php/7.2/CoreRepo/App/Components/Language/Language.php"
+        ],
+        "passed": true
+      }
+    ],
+    "failures": 0
+  },
+  "gates": {
+    "projectComplete": true,
+    "minimumResolutionRatio": 0.9,
+    "hotReferenceP95Ms": 150,
+    "oracleFailures": 0
+  }
+}

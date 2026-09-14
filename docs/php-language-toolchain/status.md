@@ -2,6 +2,8 @@
 
 最后更新：2026-09-14。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-14 最新真实项目 Alpha 门禁：新增可重复的 `audit:workspace`，只读加载 Composer 项目与依赖，要求项目源码完整、确定性抽样类型声明至少 90% 可唯一解析、References P95 不超过 150 ms，并可用版本化 JSON Oracle 验证真实补全与 Definition。Winstar 当前 2,218 个项目 PHP 文件全部进入索引，100/100 个抽样声明解析成功，References P95 12.17 ms，`BlogPostsEntityRepository` 经原生 `assert` 后补全 `createQueryBuilder` 并跳到 Doctrine `EntityRepository.php`；CoreRepo 的 1,137 个 PHP 7.2 项目文件同样完整，100/100 成功，P95 21.17 ms，`Language::getUrlCode()` 精确跳到项目声明。两者依赖均按 10,000 文件预算截断，所以不据此声称全依赖完整。当前主 VSIX 另在无 Intelephense 的 Linux/WSL 隔离 Profile 中与 Symfony Language Tools 0.20.2、twig-plus 1.3.7、YAML、Red Hat XML、PHP CS Fixer、PHP Debug、PHPUnit 和 EditorConfig 共同通过，使用 Winstar PHP 8.5.9、项目 fixer 和 PHPUnit。证据见[真实项目 Alpha 门禁报告](reports/real-project-alpha-gate-2026-09-14.md)。Windows + WSL Remote、三系统完整插件组合及多小时真实项目会话仍待完成。
+
 2026-09-14 最新增量：`@php-companion/index` 新增有界、原子替换的文档键倒排表；`@php-companion/semantic` 为类型、全局函数、全局常量和静态成员维护声明及使用候选，并让 References/Rename 只在候选文件内执行原有精确语义解析。更新、删除、快照恢复均同步 postings，超限文档进入保守回退。10,000 文件、200 轮最终本机基准中，类型引用 P95 为 0.17 ms、成员引用 P95 为 0.57 ms，均低于 150 ms 热查询预算；无无关命中、替换后陈旧命中或恢复遗漏。十六个组件 619 项、根扩展 33 项，共 652 项测试通过；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 打包宿主均通过。证据见[增量引用候选索引报告](reports/incremental-reference-candidate-index-2026-09-14.md)。解析后引用事实持久化、完整派生依赖图和分层磁盘格式仍待完成，因此 P3 总项保持开放。
 
 2026-09-14 最新增量：`@php-companion/semantic` 的更新结果已形成声明/实现/无语义变化三层契约，并返回实际变化的 callable/type 身份。文件末尾 trivia 不再清除工厂摘要；单个函数体变化只失效对应 callable，构造器和 Property Hook 实现变化会沿受影响类型层级失效构造摘要，声明变化仍保守扩大到公开表面。Language Server 据此让控制器模板上下文跟随实现体更新，同时只在声明层变化时重建 Doctrine 与 Symfony service 声明事实。引用倒排表、完整派生依赖图和分层磁盘格式尚未完成，因此 P3 总项保持开放。证据见[分层语义更新报告](reports/layered-semantic-updates-2026-09-14.md)。

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "memberQueries": [
+    {
+      "file": "src/Modules/Blog/Entity/BlogDatasetEntity.php",
+      "marker": "$repo->createQueryBuilder('e')",
+      "occurrence": 1,
+      "cursorAfter": "$repo->",
+      "member": "createQueryBuilder",
+      "definitionSuffix": "vendor/doctrine/orm/src/EntityRepository.php"
+    }
+  ]
+}
