@@ -5762,6 +5762,63 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(factoryParses).toBeGreaterThan(0);
     isolated.dispose();
   });
+  it('invalidates transitive factory summaries through unique direct-call dependencies', () => {
+    const innerUri = 'file:///CallableDependencyInner.php';
+    const middleUri = 'file:///CallableDependencyMiddle.php';
+    const outerUri = 'file:///CallableDependencyOuter.php';
+    let outerParses = 0;
+    const countingParser = {
+      parse: (...arguments_: Parameters<PhpSyntaxParser['parse']>) => {
+        if (arguments_[2] === outerUri) outerParses += 1;
+        return parser.parse(...arguments_);
+      },
+    } as PhpSyntaxParser;
+    const isolated = new SemanticWorkspace(countingParser);
+    isolated.update(innerUri, `<?php namespace CallableDependency;
+      class State { public function __construct(public readonly int $id) {} }
+      function inner(): State { return new State(1); }
+    `);
+    isolated.update(middleUri, `<?php namespace CallableDependency;
+      function middle(): State { return inner(); }
+    `);
+    isolated.update(outerUri, `<?php namespace CallableDependency;
+      function outer(): State { return middle(); }
+    `);
+    const consumerUri = 'file:///CallableDependencyConsumer.php';
+    isolated.update(consumerUri, `<?php namespace CallableDependency;
+      class Consumer { public function consume(): void { $state = outer(); foreach ($state as &$value) {} } }
+    `);
+
+    outerParses = 0;
+    expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    expect(outerParses).toBeGreaterThan(0);
+
+    outerParses = 0;
+    isolated.update('file:///CallableDependencyUnrelated.php', '<?php namespace Other; function unrelated(): void {}');
+    expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    expect(outerParses).toBe(0);
+
+    isolated.update(innerUri, `<?php namespace CallableDependency;
+      class State { public function __construct(public readonly int $id) {} }
+      function inner(): State { return unresolved(new State(2)); }
+    `);
+    outerParses = 0;
+    expect(isolated.readonlyPropertyAssignments(consumerUri)).toEqual([]);
+    expect(outerParses).toBeGreaterThan(0);
+
+    isolated.update(outerUri, `<?php namespace CallableDependency;
+      function outer(): State { return new State(3); }
+    `);
+    expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    outerParses = 0;
+    isolated.update(innerUri, `<?php namespace CallableDependency;
+      class State { public function __construct(public readonly int $id) {} }
+      function inner(): State { return new State(4); }
+    `);
+    expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    expect(outerParses).toBe(0);
+    isolated.dispose();
+  });
   it('loads and invalidates constructor initialization summaries across indexed files', () => {
     const stateUri = 'file:///CrossFileState.php'; const childUri = 'file:///CrossFileChild.php'; const consumerUri = 'file:///CrossFileConsumer.php';
     const state = (initialize: boolean): string => `<?php namespace CrossFileIteration;

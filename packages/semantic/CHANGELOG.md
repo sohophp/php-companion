@@ -1,5 +1,7 @@
 # Changelog
 
+- Track unique direct factory calls in a bounded reverse callable graph. Propagate construction summaries through direct factory chains, invalidate transitive callers when a callee changes, and remove obsolete edges without evicting unrelated summaries.
+
 - Persist separately validated reference-candidate and type-dependency layers in semantic snapshot schema 72. Restore their indexes without reparsing, reject stale or corrupt derived layers, and use the reverse type graph for transitive constructor-summary invalidation.
 
 - Narrow type, global function, global constant, and static member References/Rename through an incrementally replaced candidate inverted index, then retain exact semantic resolution on the reduced file set. Oversized documents fall back conservatively.

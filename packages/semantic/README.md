@@ -6,6 +6,8 @@ References 与 Rename 使用随 `update()`、`remove()`、`restore()` 同步替�
 
 schema 72 快照把解析文件、引用候选和类型依赖分为三个可验证层。恢复时会校验候选键及依赖边确实可由解析文件推出，任何陈旧、损坏或超限层只使该文件重新解析。继承、接口和 Trait 的反向依赖图用于传递失效构造器摘要；图不完整时清空派生缓存，不发布可能过期的结果。
 
+工厂构造摘要会记录唯一解析的直接 Callable 调用边。`outer() -> middle() -> inner()` 可传递复用确定的直接构造结果；`inner()` 实现变化会沿有界反向图失效 `middle()` 和 `outer()`，而无关 callable 及调用边移除后的旧被调用方变化不会触发重算。递归、歧义、动态调用和预算耗尽保持 unknown。
+
 `workspaceTypes()`、`workspaceFunctions()` 和 `workspaceConstants()` 提供带完整身份与来源 URI 的全局声明目录。未解析函数和常量查询默认继续抑制未限定全局名称；调用方只有传入经过审计的全局目标白名单时，才可查询这些名称，用于扩展不可用等可证明诊断。项目或 polyfill 已声明同一符号时不会报告缺失。
 
 PHP 8.4 属性 hook 在 backed/virtual 状态可证明时分别暴露读写能力；短 setter 的独立写入类型参与直接赋值诊断，`private(set)` 等非对称可见性只约束写操作。完整已索引层级会合成未被覆盖的父 hook，并验证接口/抽象属性能力、可见性、读协变、写逆变、final 属性和 final 单 hook。数组下标修改、直接取引用、唯一签名按引用参数、属性按引用 `foreach` 及对象按引用遍历均要求有效 getter 为 `&get`；向 hooked property 绑定新引用始终拒绝。动态、歧义调用和跨层级生成保持 unknown。

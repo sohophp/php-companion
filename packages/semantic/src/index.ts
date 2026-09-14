@@ -552,6 +552,9 @@ export class SemanticWorkspace {
   private readonly unindexedReferenceCandidateUris = new Set<string>();
   private readonly typeDependencies = new DocumentDependencyGraph();
   private readonly unindexedTypeDependencyUris = new Set<string>();
+  private readonly callableDependencies = new DocumentDependencyGraph();
+  private readonly callableDependenciesByUri = new Map<string, Map<string, Set<string>>>();
+  private readonly unindexedCallableDependencyUris = new Set<string>();
   private readonly trees = new Map<string, SyntaxTree>();
   private readonly controlFlowAssignments = new Map<string, Set<number>>();
   private readonly externalFacts = new Map<string, SemanticFactsContribution>();
@@ -608,16 +611,67 @@ export class SemanticWorkspace {
     return undefined;
   }
 
+  private dependentCallableNames(seed: ReadonlySet<string>): Set<string> | undefined {
+    if (this.unindexedCallableDependencyUris.size) return undefined;
+    const affected = new Set([...seed].map((name) => name.toLowerCase()));
+    let frontier = [...affected];
+    for (let round = 0; round < MAX_SEMANTIC_GRAPH_DEPTH; round += 1) {
+      const next = new Set<string>();
+      for (const dependency of frontier) for (const dependent of this.callableDependencies.directDependents(dependency)) {
+        if (!affected.has(dependent)) next.add(dependent);
+      }
+      if (!next.size) return affected;
+      for (const dependent of next) affected.add(dependent);
+      frontier = [...next];
+    }
+    return undefined;
+  }
+
+  private replaceCallableDependency(uri: string, callable: string, dependencies: ReadonlySet<string>): void {
+    const document = this.callableDependenciesByUri.get(uri) ?? new Map<string, Set<string>>();
+    document.set(callable, new Set(dependencies));
+    this.callableDependenciesByUri.set(uri, document);
+    const nodes = [...document].map(([key, values]) => ({ key, dependencies: values }));
+    if (this.callableDependencies.replace(uri, nodes)) this.unindexedCallableDependencyUris.delete(uri);
+    else this.unindexedCallableDependencyUris.add(uri);
+  }
+
+  private removeCallableDependencyEntries(callables: ReadonlySet<string>): void {
+    const changedUris = new Set<string>();
+    for (const [uri, document] of this.callableDependenciesByUri) {
+      for (const callable of callables) if (document.delete(callable)) changedUris.add(uri);
+      if (!document.size) this.callableDependenciesByUri.delete(uri);
+    }
+    for (const uri of changedUris) {
+      const document = this.callableDependenciesByUri.get(uri);
+      const nodes = [...(document ?? new Map<string, Set<string>>())].map(([key, values]) => ({ key, dependencies: values }));
+      if (this.callableDependencies.replace(uri, nodes)) this.unindexedCallableDependencyUris.delete(uri);
+      else this.unindexedCallableDependencyUris.add(uri);
+    }
+  }
+
+  private clearFactoryConstructionCaches(): void {
+    this.factoryConstructionSummaries.clear();
+    this.callableDependencies.clear();
+    this.callableDependenciesByUri.clear();
+    this.unindexedCallableDependencyUris.clear();
+  }
+
   private invalidateFileDerivedCaches(affectedTypes: ReadonlySet<string>, changedCallables: ReadonlySet<string>,
     topologyChanged: boolean, oldDependents: Set<string> | undefined): void {
     const nextDependents = this.dependentTypeNames(affectedTypes);
     if (!oldDependents || !nextDependents) this.constructorInitializationSummaries.clear();
     else for (const name of new Set([...oldDependents, ...nextDependents])) this.constructorInitializationSummaries.delete(name);
 
+    const callableSeeds = new Set(changedCallables);
     for (const [key, result] of this.factoryConstructionSummaries) {
-      if (changedCallables.has(key) || (result !== null && affectedTypes.has(result.toLowerCase())) || (result === null && topologyChanged)) {
-        this.factoryConstructionSummaries.delete(key);
-      }
+      if ((result !== null && affectedTypes.has(result.toLowerCase())) || (result === null && topologyChanged)) callableSeeds.add(key);
+    }
+    const affectedCallables = this.dependentCallableNames(callableSeeds);
+    if (!affectedCallables) this.clearFactoryConstructionCaches();
+    else {
+      for (const key of affectedCallables) this.factoryConstructionSummaries.delete(key);
+      this.removeCallableDependencyEntries(affectedCallables);
     }
   }
 
@@ -949,7 +1003,7 @@ export class SemanticWorkspace {
     this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     this.assertedTargetInferenceCache.clear();
@@ -959,12 +1013,12 @@ export class SemanticWorkspace {
       properties: contribution.properties.map((fact) => ({ ...fact })),
       literalMethodReturns: contribution.literalMethodReturns.map((fact) => ({ ...fact })),
     }));
-    this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear();
+    this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches();
     return true;
   }
   removeExternalFacts(providerId: string): boolean {
     const removed = this.externalFacts.delete(providerId);
-    if (removed) { this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); }
+    if (removed) { this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); }
     return removed;
   }
   /** @deprecated Submit one atomic SemanticFactsContribution with replaceExternalFacts(). */
@@ -1025,7 +1079,7 @@ export class SemanticWorkspace {
     } else {
       this.replaceTypeDependencies(restoredFile);
     }
-    this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); return true;
+    this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); return true;
   }
 
   workspaceSymbols(query: string, limit = 100): WorkspaceSymbolInfo[] {
@@ -3362,22 +3416,19 @@ export class SemanticWorkspace {
         }
         return { initialized, reachable: true };
       };
-      const directFactoryConstruction = (assignment: SemanticFile['assignments'][number]): string | undefined => {
-        if (!assignment.sourceCall || assignment.sourceCall.kind === 'callable-variable') return undefined;
-        const call = file.calls.filter((candidate) => candidate.start >= assignment.start && candidate.end <= assignment.end)
-          .sort((left, right) => (right.end - right.start) - (left.end - left.start))[0];
-        const signature = call && this.signature(uri, call.argumentsStart + 1); if (!signature) return undefined;
-        const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables.map((callable) => ({ file: candidate, callable })))
-          .filter(({ callable }) => callable.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
-        if (declarations.length !== 1) return undefined;
-        const target = declarations[0]!;
-        if (target.file.uri !== signature.uri || target.callable.start !== signature.start) return undefined;
+      type FactoryTarget = { file: SemanticFile; callable: ParsedCallableDeclaration };
+      const factoryInProgress = new Set<string>();
+      const factoryConstruction = (target: FactoryTarget): string | undefined => {
         const cacheKey = target.callable.fqcn.toLowerCase();
         if (this.factoryConstructionSummaries.has(cacheKey)) return this.factoryConstructionSummaries.get(cacheKey) ?? undefined;
+        if (factoryInProgress.size >= MAX_SEMANTIC_GRAPH_DEPTH || factoryInProgress.has(cacheKey)) return undefined;
+        factoryInProgress.add(cacheKey);
+        const dependencies = new Set<string>();
         const retainedTargetTree = this.trees.get(target.file.uri);
         const temporaryTargetTree = retainedTargetTree ? undefined : this.parser.parse(target.file.source, undefined, target.file.uri).tree;
         const targetTree = retainedTargetTree ?? temporaryTargetTree!;
-        const resolvedConstruction = ((): string | undefined => {
+        try {
+          const resolvedConstruction = ((): string | undefined => {
           try {
             const callableNode = deepestLocalSyntax(targetTree.rootNode, target.callable.declarationStart, target.callable.declarationEnd,
               (candidate) => candidate.startIndex === target.callable.declarationStart && candidate.endIndex === target.callable.declarationEnd
@@ -3397,6 +3448,19 @@ export class SemanticWorkspace {
             const returnedTypes = (statement: SyntaxNode): Set<string> | undefined => {
               const returned = statement.namedChildren[0];
               const direct = constructedType(returned); if (direct) return new Set([direct]);
+              const delegatedCall = returned && target.file.calls.find((call) => !call.firstClassCallable
+                && call.start === returned.startIndex && call.end === returned.endIndex);
+              const delegatedSignature = delegatedCall && this.completedCallSignature(target.file, delegatedCall);
+              if (delegatedSignature) {
+                const declarations = this.callableDeclarationsForSignature(delegatedSignature);
+                const delegated = declarations.length === 1 ? declarations[0] : undefined;
+                if (delegated && delegated.file.uri === delegatedSignature.uri && delegated.item.start === delegatedSignature.start) {
+                  const dependency = delegated.item.fqcn.toLowerCase();
+                  dependencies.add(dependency);
+                  const inferred = factoryConstruction({ file: delegated.file, callable: delegated.item });
+                  if (inferred) return new Set([inferred]);
+                }
+              }
               if (returned?.type === 'variable_name' && statement.parent?.type === 'compound_statement') {
                 const siblings = statement.parent.namedChildren; const index = siblings.findIndex((candidate) => candidate.id === statement.id);
                 const previous = index > 0 ? siblings[index - 1] : undefined;
@@ -3543,9 +3607,24 @@ export class SemanticWorkspace {
             const flow = analyzeFactory(factoryBody);
             return flow.valid && !flow.fallsThrough && flow.constructedTypes.size === 1 ? [...flow.constructedTypes][0] : undefined;
           } finally { temporaryTargetTree?.delete(); }
-        })();
-        this.factoryConstructionSummaries.set(cacheKey, resolvedConstruction ?? null);
-        return resolvedConstruction;
+          })();
+          this.factoryConstructionSummaries.set(cacheKey, resolvedConstruction ?? null);
+          this.replaceCallableDependency(target.file.uri, cacheKey, dependencies);
+          return resolvedConstruction;
+        } finally {
+          factoryInProgress.delete(cacheKey);
+        }
+      };
+      const directFactoryConstruction = (assignment: SemanticFile['assignments'][number]): string | undefined => {
+        if (!assignment.sourceCall || assignment.sourceCall.kind === 'callable-variable') return undefined;
+        const call = file.calls.filter((candidate) => candidate.start >= assignment.start && candidate.end <= assignment.end)
+          .sort((left, right) => (right.end - right.start) - (left.end - left.start))[0];
+        const signature = call && this.signature(uri, call.argumentsStart + 1); if (!signature) return undefined;
+        const declarations = this.callableDeclarationsForSignature(signature);
+        if (declarations.length !== 1) return undefined;
+        const target = declarations[0]!;
+        if (target.file.uri !== signature.uri || target.item.start !== signature.start) return undefined;
+        return factoryConstruction({ file: target.file, callable: target.item });
       };
       const directProperty = (node: SyntaxNode): { name: SyntaxNode; member: MemberInfo } | undefined => {
         if (node.type !== 'assignment_expression') return undefined;
@@ -3900,7 +3979,7 @@ export class SemanticWorkspace {
     }
     if (localSyntaxIncomplete) {
       this.constructorInitializationSummaries.clear();
-      this.factoryConstructionSummaries.clear();
+      this.clearFactoryConstructionCaches();
       return [];
     }
     return results.sort((left, right) => left.start - right.start);
