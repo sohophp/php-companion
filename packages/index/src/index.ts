@@ -4,6 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '@php-companion/project';
 
+export { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS,
+  type DocumentKeyIndexLimits, type DocumentKeyIndexStats } from './inverted.js';
+
 export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number; maxTotalBytes: number; }
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; }

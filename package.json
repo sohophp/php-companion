@@ -75,6 +75,7 @@
     "verify:packages": "pnpm build:packages && node scripts/verify-package-tarballs.mjs",
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
     "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
+    "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
   },
   "contributes": {

@@ -286,6 +286,9 @@ importers:
 
   packages/semantic:
     dependencies:
+      '@php-companion/index':
+        specifier: workspace:^
+        version: link:../index
       '@php-companion/parser':
         specifier: workspace:^
         version: link:../parser

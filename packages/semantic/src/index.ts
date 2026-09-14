@@ -1,4 +1,5 @@
 import { createIncrementalEdit, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
+import { DocumentKeyIndex } from '@php-companion/index';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, type PhpDocTag, type PhpDocType } from '@php-companion/phpdoc';
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
 import { isSemanticFactsContribution, semanticFacts, type ExternalLiteralMethodReturnFact, type ExternalMethodFact, type ExternalPropertyFact, type SemanticFactsContribution } from '@php-companion/semantic-provider';
@@ -513,8 +514,35 @@ function changedMapKeys(left: ReadonlyMap<string, unknown>, right: ReadonlyMap<s
   return new Set([...keys].filter((key) => JSON.stringify(left.get(key)) !== JSON.stringify(right.get(key))));
 }
 
+function referenceNameTail(name: string): string {
+  return name.slice(name.lastIndexOf('\\') + 1);
+}
+
+function memberCandidateKey(kind: ParsedMemberAccess['kind'], name: string): string {
+  return `member:${kind}:${kind === 'method' ? name.toLowerCase() : name}`;
+}
+
+function referenceCandidateKeys(file: SemanticFile): Set<string> {
+  const keys = new Set<string>();
+  for (const declaration of file.declarations) keys.add(`declaration:type:${declaration.fqcn.toLowerCase()}`);
+  for (const callable of file.callables) if (callable.kind === 'function') keys.add(`declaration:function:${callable.fqcn.toLowerCase()}`);
+  for (const constant of file.constants) if (constant.global) keys.add(`declaration:constant:${constant.fqcn}`);
+  for (const raw of file.rawNames) {
+    const tail = referenceNameTail(raw.text); if (!tail) continue;
+    keys.add(`raw-ci:${tail.toLowerCase()}`); keys.add(`raw-cs:${tail}`);
+  }
+  for (const imported of file.imports) {
+    const identity = imported.kind === 'const' ? imported.fqcn : imported.fqcn.toLowerCase();
+    keys.add(`import:${imported.kind}:${identity}`);
+  }
+  for (const access of file.memberAccesses) if (!access.dynamic) keys.add(memberCandidateKey(access.kind, access.name));
+  return keys;
+}
+
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
+  private readonly referenceCandidates = new DocumentKeyIndex();
+  private readonly unindexedReferenceCandidateUris = new Set<string>();
   private readonly trees = new Map<string, SyntaxTree>();
   private readonly controlFlowAssignments = new Map<string, Set<number>>();
   private readonly externalFacts = new Map<string, SemanticFactsContribution>();
@@ -526,6 +554,19 @@ export class SemanticWorkspace {
   private readonly assertedTargetInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceCache = new Map<string, ObjectClass | null>();
   constructor(private readonly parser: PhpSyntaxParser) {}
+
+  private replaceReferenceCandidates(file: SemanticFile): void {
+    if (this.referenceCandidates.replace(file.uri, referenceCandidateKeys(file))) this.unindexedReferenceCandidateUris.delete(file.uri);
+    else this.unindexedReferenceCandidateUris.add(file.uri);
+  }
+
+  private filesForReferenceKeys(...keys: string[]): SemanticFile[] {
+    const uris = new Set(this.unindexedReferenceCandidateUris);
+    for (const key of keys) for (const uri of this.referenceCandidates.documents(key)) uris.add(uri);
+    return [...uris].sort().flatMap((uri) => {
+      const file = this.files.get(uri); return file ? [file] : [];
+    });
+  }
 
   private dependentTypeNames(seed: ReadonlySet<string>): Set<string> | undefined {
     const affected = new Set([...seed].map((name) => name.toLowerCase()));
@@ -853,6 +894,7 @@ export class SemanticWorkspace {
         for (const child of current.node.namedChildren) syntaxStack.push({ node: child, inControlFlow: childInControlFlow });
       }
       this.files.set(uri, nextFile);
+      this.replaceReferenceCandidates(nextFile);
       this.assertedTargetInferenceCache.clear();
       this.controlFlowAssignments.set(uri, controlFlowAssignments);
       if (hasDerivedCaches && (affectedTypes.size > 0 || changedCallables.size > 0)) {
@@ -878,10 +920,11 @@ export class SemanticWorkspace {
     const oldDependents = hasDerivedCaches
       ? this.dependentTypeNames(affectedTypes)
       : new Set<string>();
-    this.files.delete(uri); this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
+    this.files.delete(uri); this.referenceCandidates.remove(uri); this.unindexedReferenceCandidateUris.delete(uri);
+    this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     this.assertedTargetInferenceCache.clear();
@@ -920,7 +963,8 @@ export class SemanticWorkspace {
     if (value?.schema !== 71 || !file || typeof file.uri !== 'string' || typeof file.source !== 'string' || (expectedUri !== undefined && file.uri !== expectedUri)) return false;
     if (![file.declarations, file.callables, file.imports, file.typeReferences, file.assignments, file.properties, file.constants, file.rawNames, file.memberAccesses, file.calls, file.narrowings, file.variableReferences, file.returns, file.templates, file.genericParents, file.magicMembers, file.syntaxErrors, file.commentRanges, file.stringRanges].every(Array.isArray)) return false;
     if (!Array.isArray(file.scopes) || !file.scopes.every((scope) => Array.isArray(scope.captures))) return false;
-    this.files.set(file.uri, file as SemanticFileSnapshot); this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); return true;
+    this.files.set(file.uri, file as SemanticFileSnapshot); this.replaceReferenceCandidates(file as SemanticFileSnapshot);
+    this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); return true;
   }
 
   workspaceSymbols(query: string, limit = 100): WorkspaceSymbolInfo[] {
@@ -2467,10 +2511,11 @@ export class SemanticWorkspace {
       const before = file.source.slice(Math.max(0, (call?.nameStart ?? word!.start) - 16), call?.nameStart ?? word!.start);
       if (/(?:->|\?->|::|\bnew|\bfunction)\s*$/.test(before)) return undefined;
       const fqfn = this.resolveFunction(file, name, this.namespaceAt(file, offset));
-      callable = [...this.files.values()].flatMap((candidate) => candidate.callables).find((item) => item.kind === 'function' && item.fqcn.toLowerCase() === fqfn.toLowerCase());
+      callable = this.filesForReferenceKeys(`declaration:function:${fqfn.toLowerCase()}`)
+        .flatMap((candidate) => candidate.callables).find((item) => item.kind === 'function' && item.fqcn.toLowerCase() === fqfn.toLowerCase());
     }
     if (!callable) return undefined;
-    const owner = [...this.files.values()].find((candidate) => candidate.callables.includes(callable!));
+    const owner = this.filesForReferenceKeys(`declaration:function:${callable.fqcn.toLowerCase()}`).find((candidate) => candidate.callables.includes(callable!));
     return owner ? { kind: 'function', uri: owner.uri, start: callable.start, end: callable.end, name: callable.name, fqcn: callable.fqcn, parameters: callable.parameters, returnType: callable.returnType, visibility: 'public', static: false, typeScopeFqcn: callable.fqcn, calledOnFqcn: callable.fqcn } : undefined;
   }
 
@@ -2481,7 +2526,7 @@ export class SemanticWorkspace {
     const raw = file.rawNames.filter((item) => item.context === 'code' && offset >= item.start && offset <= item.end)
       .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
     const fqcn = declared?.fqcn ?? imported?.fqcn ?? this.resolveConstant(file, raw?.text ?? word.text, this.namespaceAt(file, offset));
-    const matches = [...this.files.values()].flatMap((candidate) => candidate.constants
+    const matches = this.filesForReferenceKeys(`declaration:constant:${fqcn}`).flatMap((candidate) => candidate.constants
       .filter((item) => item.global && item.fqcn === fqcn).map((constant) => ({ candidate, constant })));
     if (matches.length !== 1) return undefined;
     const { candidate, constant } = matches[0]!;
@@ -4334,7 +4379,7 @@ export class SemanticWorkspace {
       (member) => familyIds.has(member.fqcn.toLowerCase()));
     if (!dynamicLocations) return undefined;
     locations.push(...dynamicLocations);
-    for (const candidateFile of this.files.values()) {
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('method', callable.name))) {
       const directCall = new RegExp(`(?:->|\\?->|::)\\s*(${escapedName})\\s*\\(`, 'gi');
       for (const match of candidateFile.source.matchAll(directCall)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
@@ -4459,7 +4504,7 @@ export class SemanticWorkspace {
       }
     }
     const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    for (const candidateFile of this.files.values()) {
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
       const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
@@ -4493,7 +4538,7 @@ export class SemanticWorkspace {
     locations.push(...dynamicLocations);
     const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const relatedOwners = new Set([property.containerFqcn.toLowerCase(), ...consumers.map(({ declaration }) => declaration.fqcn.toLowerCase())]);
-    for (const candidateFile of this.files.values()) {
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
       const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
@@ -4553,7 +4598,7 @@ export class SemanticWorkspace {
       (member) => familyIds.has(member.fqcn.toLowerCase()));
     if (!dynamicLocations) return undefined;
     locations.push(...dynamicLocations);
-    for (const candidateFile of this.files.values()) {
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
       const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
@@ -4592,7 +4637,7 @@ export class SemanticWorkspace {
     const renamedFqcn = [namespace, newName].filter(Boolean).join('\\');
     if (newName && declarations.some((item) => item !== callable && item.fqcn.toLowerCase() === renamedFqcn.toLowerCase())) return undefined;
     const locations: SemanticLocation[] = [{ uri, start: callable.start, end: callable.end }];
-    for (const candidate of this.files.values()) {
+    for (const candidate of this.filesForReferenceKeys(`raw-ci:${callable.name.toLowerCase()}`, `import:function:${callable.fqcn.toLowerCase()}`)) {
       for (const imported of candidate.imports.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === callable.fqcn.toLowerCase())) {
         locations.push({ uri: candidate.uri, start: imported.pathEnd - callable.name.length, end: imported.pathEnd });
       }
@@ -4628,7 +4673,7 @@ export class SemanticWorkspace {
     const dynamicLookup = new RegExp(`\\bconstant\\s*\\(\\s*(['"])(?:[^'"\\r\\n]*(?:\\\\|::))?${escaped}\\1`, 'i');
     if ([...this.files.values()].some((candidate) => dynamicLookup.test(candidate.source))) return undefined;
     const locations: SemanticLocation[] = [{ uri: file.uri, start: constant.start, end: constant.end }];
-    for (const candidate of this.files.values()) {
+    for (const candidate of this.filesForReferenceKeys(`raw-cs:${constant.name}`, `import:const:${constant.fqcn}`)) {
       for (const imported of candidate.imports.filter((item) => item.kind === 'const' && item.fqcn === constant.fqcn)) {
         locations.push({ uri: candidate.uri, start: imported.pathEnd - constant.name.length, end: imported.pathEnd });
       }
@@ -4670,7 +4715,7 @@ export class SemanticWorkspace {
     const stringLookup = new RegExp(`(?:\\bconstant\\s*\\(\\s*|\\bgetConstant\\s*\\(\\s*)(['"])[^'"\\r\\n]*${escaped}\\1`, 'i');
     if ([...this.files.values()].some((candidate) => dynamicAccess.test(candidate.source) || stringLookup.test(candidate.source))) return undefined;
     const locations: SemanticLocation[] = [{ uri: file.uri, start: constant.start, end: constant.end }];
-    for (const candidateFile of this.files.values()) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('constant', constant.name))) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
       && item.name.toLowerCase() === constant.name.toLowerCase())) {
       const resolved = this.memberAt(candidateFile.uri, access.start + 1);
       if (resolved?.kind === 'constant' && resolved.fqcn === constant.fqcn) locations.push({ uri: candidateFile.uri, start: access.start, end: access.end });
@@ -4693,7 +4738,7 @@ export class SemanticWorkspace {
     const stringLookup = new RegExp(`\\b(?:constant|getCase)\\s*\\([^\\r\\n)]*(['"])[^'"\\r\\n]*${escaped}\\1`, 'i');
     if ([...this.files.values()].some((candidate) => dynamicAccess.test(candidate.source) || stringLookup.test(candidate.source))) return undefined;
     const locations: SemanticLocation[] = [{ uri: file.uri, start: constant.start, end: constant.end }];
-    for (const candidateFile of this.files.values()) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('constant', constant.name))) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
       && item.name === constant.name)) {
       const resolved = this.memberAt(candidateFile.uri, access.start + 1);
       if (resolved?.kind === 'constant' && resolved.fqcn === constant.fqcn) locations.push({ uri: candidateFile.uri, start: access.start, end: access.end });
@@ -4724,7 +4769,7 @@ export class SemanticWorkspace {
     const stringLookup = new RegExp(`(?:\\bconstant\\s*\\(\\s*|\\bgetConstant\\s*\\(\\s*)(['"])[^'"\\r\\n]*${escaped}\\1`, 'i');
     if ([...this.files.values()].some((candidate) => dynamicAccess.test(candidate.source) || stringLookup.test(candidate.source))) return undefined;
     const locations: SemanticLocation[] = [{ uri: file.uri, start: constant.start, end: constant.end }];
-    for (const candidateFile of this.files.values()) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('constant', constant.name))) for (const access of candidateFile.memberAccesses.filter((item) => item.kind === 'constant'
       && item.name === constant.name)) {
       const resolved = this.memberAt(candidateFile.uri, access.start + 1);
       if (resolved?.kind === 'constant' && resolved.fqcn === constant.fqcn) locations.push({ uri: candidateFile.uri, start: access.start, end: access.end });
@@ -4891,7 +4936,7 @@ export class SemanticWorkspace {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: target.uri, start: target.start, end: target.end }] : [];
       const marker = target.kind === 'property' && target.static ? '\\$?' : '';
       const pattern = new RegExp(`(?:->|::)\\s*${marker}(${target.name})\\b`, 'gi');
-      for (const file of this.files.values()) {
+      for (const file of this.filesForReferenceKeys(memberCandidateKey(target.kind === 'function' ? 'method' : target.kind, target.name))) {
         for (const match of file.source.matchAll(pattern)) {
           const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
           const resolved = this.memberAt(file.uri, start + 1);
@@ -4903,7 +4948,7 @@ export class SemanticWorkspace {
     const callable = this.functionAt(uri, offset);
     if (callable) {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: callable.uri, start: callable.start, end: callable.end }] : [];
-      for (const file of this.files.values()) {
+      for (const file of this.filesForReferenceKeys(`raw-ci:${callable.name.toLowerCase()}`, `import:function:${callable.fqcn.toLowerCase()}`)) {
         for (const imported of file.imports.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === callable.fqcn.toLowerCase())) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
         for (const match of file.source.matchAll(/([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(/g)) {
           const start = match.index; const resolved = this.functionAt(file.uri, start + 1);
@@ -4915,7 +4960,7 @@ export class SemanticWorkspace {
     const constant = this.constantAt(uri, offset);
     if (constant) {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: constant.uri, start: constant.start, end: constant.end }] : [];
-      for (const file of this.files.values()) {
+      for (const file of this.filesForReferenceKeys(`raw-cs:${constant.name}`, `import:const:${constant.fqcn}`)) {
         for (const imported of file.imports.filter((item) => item.kind === 'const' && item.fqcn === constant.fqcn)) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
         for (const raw of file.rawNames) {
           if (this.resolveConstant(file, raw.text, this.namespaceAt(file, raw.start)) === constant.fqcn) locations.push({ uri: file.uri, start: raw.start, end: raw.end });
@@ -4925,7 +4970,7 @@ export class SemanticWorkspace {
     }
     const type = this.typeAt(uri, offset); if (!type) return [];
     const locations: SemanticLocation[] = includeDeclaration ? [{ uri: type.uri, start: type.start, end: type.end }] : [];
-    for (const file of this.files.values()) {
+    for (const file of this.filesForReferenceKeys(`raw-ci:${type.name.toLowerCase()}`, `import:class:${type.fqcn.toLowerCase()}`)) {
       for (const imported of file.imports.filter((item) => item.kind === 'class' && item.fqcn.toLowerCase() === type.fqcn.toLowerCase())) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
       for (const raw of file.rawNames) {
         const namespace = this.namespaceAt(file, raw.start);
@@ -4975,7 +5020,7 @@ export class SemanticWorkspace {
     }
 
     const locations: SemanticLocation[] = [{ uri: target.uri, start: target.start, end: target.end }];
-    for (const candidate of this.files.values()) {
+    for (const candidate of this.filesForReferenceKeys(`raw-ci:${target.name.toLowerCase()}`, `import:class:${target.fqcn.toLowerCase()}`)) {
       for (const imported of candidate.imports.filter((item) => item.kind === 'class' && item.fqcn.toLowerCase() === target.fqcn.toLowerCase())) {
         const part = imported.fqcn.slice(imported.fqcn.lastIndexOf('\\') + 1);
         if (part.toLowerCase() === target.name.toLowerCase()) locations.push({ uri: candidate.uri, start: imported.pathEnd - part.length, end: imported.pathEnd });
@@ -5016,7 +5061,7 @@ export class SemanticWorkspace {
     const imported = file.imports.find((item) => offset >= item.pathStart && offset <= item.pathEnd);
     const fqcn = declared?.fqcn ?? imported?.fqcn ?? this.resolveSourceType(file, word.text, this.namespaceAt(file, offset), this.containingCallable(file, offset)?.containerFqcn);
     if (!fqcn) return [];
-    const matches = [...this.files.values()].flatMap((candidate) => candidate.declarations
+    const matches = this.filesForReferenceKeys(`declaration:type:${fqcn.toLowerCase()}`).flatMap((candidate) => candidate.declarations
       .filter((item) => !item.anonymous && item.fqcn.toLowerCase() === fqcn.toLowerCase()).map((declaration) => ({ candidate, declaration })));
     return matches.map(({ candidate, declaration }) => ({ uri: candidate.uri, start: declaration.start, end: declaration.end, name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind }));
   }
@@ -5370,7 +5415,8 @@ export class SemanticWorkspace {
     const imported = file.imports.find((item) => item.kind === 'function' && item.namespace === namespace && item.alias.toLowerCase() === normalized.toLowerCase());
     if (imported) return imported.fqcn;
     const namespaced = [namespace, normalized].filter(Boolean).join('\\');
-    return [...this.files.values()].some((candidate) => candidate.callables.some((item) => item.kind === 'function' && item.fqcn.toLowerCase() === namespaced.toLowerCase())) ? namespaced : normalized;
+    return this.filesForReferenceKeys(`declaration:function:${namespaced.toLowerCase()}`)
+      .some((candidate) => candidate.callables.some((item) => item.kind === 'function' && item.fqcn.toLowerCase() === namespaced.toLowerCase())) ? namespaced : normalized;
   }
 
   private resolveConstant(file: SemanticFile, name: string, namespace: string): string {
@@ -5386,11 +5432,14 @@ export class SemanticWorkspace {
     const imported = file.imports.find((item) => item.kind === 'const' && item.namespace === namespace && item.alias === normalized);
     if (imported) return imported.fqcn;
     const namespaced = [namespace, normalized].filter(Boolean).join('\\');
-    return [...this.files.values()].some((candidate) => candidate.constants.some((item) => item.global && item.fqcn === namespaced)) ? namespaced : normalized;
+    return this.filesForReferenceKeys(`declaration:constant:${namespaced}`)
+      .some((candidate) => candidate.constants.some((item) => item.global && item.fqcn === namespaced)) ? namespaced : normalized;
   }
 
   private fileAndDeclaration(fqcn: string): { file: SemanticFile; declaration: ParsedDeclaration } | undefined {
-    for (const file of this.files.values()) { const declaration = file.declarations.find((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()); if (declaration) return { file, declaration }; }
+    for (const file of this.filesForReferenceKeys(`declaration:type:${fqcn.toLowerCase()}`)) {
+      const declaration = file.declarations.find((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()); if (declaration) return { file, declaration };
+    }
     return undefined;
   }
 

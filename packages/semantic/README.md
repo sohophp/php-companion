@@ -2,6 +2,8 @@
 
 `SemanticWorkspace.update()` 返回 `none`、`implementation` 或 `declaration` 分层结果，以及实际变化的 lowercase callable/type 身份。声明层比较忽略源码范围，实现层按 callable/property-hook 的源码片段比较；文件末尾空白等无语义变化不会失效派生缓存。调用方可据此只刷新受影响的框架事实，具体函数体变化仍会精确清除对应工厂或构造器摘要。
 
+References 与 Rename 使用随 `update()`、`remove()`、`restore()` 同步替换的有界候选倒排表。类型、全局函数、全局常量和静态成员先按 PHP 大小写规则定位少量声明及使用文件，再在候选文件中执行既有语义解析；候选表不直接产出结果。单文档超过预算时进入保守全查询回退，避免为了性能牺牲完整性。
+
 `workspaceTypes()`、`workspaceFunctions()` 和 `workspaceConstants()` 提供带完整身份与来源 URI 的全局声明目录。未解析函数和常量查询默认继续抑制未限定全局名称；调用方只有传入经过审计的全局目标白名单时，才可查询这些名称，用于扩展不可用等可证明诊断。项目或 polyfill 已声明同一符号时不会报告缺失。
 
 PHP 8.4 属性 hook 在 backed/virtual 状态可证明时分别暴露读写能力；短 setter 的独立写入类型参与直接赋值诊断，`private(set)` 等非对称可见性只约束写操作。完整已索引层级会合成未被覆盖的父 hook，并验证接口/抽象属性能力、可见性、读协变、写逆变、final 属性和 final 单 hook。数组下标修改、直接取引用、唯一签名按引用参数、属性按引用 `foreach` 及对象按引用遍历均要求有效 getter 为 `&get`；向 hooked property 绑定新引用始终拒绝。动态、歧义调用和跨层级生成保持 unknown。

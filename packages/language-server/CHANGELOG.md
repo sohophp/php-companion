@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Serve References/Rename through the semantic workspace's incremental candidate index while preserving exact resolution and conservative oversized-document fallback.
+
 - Consume layered semantic updates so implementation edits refresh controller context without rebuilding declaration-only Doctrine and Symfony service facts; trivia-only changes keep both layers intact.
 
 - Accept validated per-root PHP runtime extension snapshots, reject mismatched target versions, and distinguish runtime absence from workspace and Composer exclusions in unavailable-extension diagnostics.

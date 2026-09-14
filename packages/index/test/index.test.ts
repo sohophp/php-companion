@@ -2,7 +2,33 @@ import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { indexComposerSources } from '../src/index.js';
+import { DocumentKeyIndex, indexComposerSources } from '../src/index.js';
+
+describe('incremental document-key inverted index', () => {
+  it('replaces and removes document postings without disturbing shared keys', () => {
+    const index = new DocumentKeyIndex();
+    expect(index.replace('file:///A.php', ['type:user', 'member:method:save', 'type:user'])).toBe(true);
+    expect(index.replace('file:///B.php', ['type:user', 'member:method:load'])).toBe(true);
+    expect(index.documents('type:user')).toEqual(['file:///A.php', 'file:///B.php']);
+    expect(index.stats()).toEqual({ documents: 2, keys: 3, postings: 4 });
+    expect(index.replace('file:///A.php', ['member:method:flush'])).toBe(true);
+    expect(index.documents('type:user')).toEqual(['file:///B.php']);
+    expect(index.documents('member:method:save')).toEqual([]);
+    expect(index.documentKeys('file:///A.php')).toEqual(['member:method:flush']);
+    expect(index.remove('file:///B.php')).toBe(true);
+    expect(index.stats()).toEqual({ documents: 1, keys: 1, postings: 1 });
+  });
+
+  it('rejects oversized replacement atomically and validates limits', () => {
+    const index = new DocumentKeyIndex({ maxKeysPerDocument: 2, maxKeyLength: 8 });
+    expect(index.replace('file:///A.php', ['one', 'two', 'two'])).toBe(true);
+    expect(index.replace('file:///A.php', ['one', 'two', 'three'])).toBe(false);
+    expect(index.documentKeys('file:///A.php')).toEqual(['one', 'two']);
+    expect(index.replace('file:///A.php', ['too-long-key'])).toBe(false);
+    expect(index.documentKeys('file:///A.php')).toEqual(['one', 'two']);
+    expect(() => new DocumentKeyIndex({ maxKeysPerDocument: 0, maxKeyLength: 1 })).toThrow(RangeError);
+  });
+});
 
 describe('bounded project source index', () => {
   let root: string | undefined;

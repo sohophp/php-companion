@@ -3235,6 +3235,30 @@ describe('conservative semantic workspace', () => {
     const references = workspace.references('file:///DomainUser.php', workspace.source('file:///DomainUser.php')!.indexOf('User') + 1);
     expect(references.filter((item) => item.uri === 'file:///TypeRefs.php')).toHaveLength(5);
   });
+  it('incrementally replaces, removes, and restores reference candidate postings without same-name leakage', () => {
+    const declarationUri = 'file:///IndexedReferenceTarget.php';
+    const declaration = '<?php namespace IndexedReference; class Target { public function act(): void {} }';
+    const useUri = 'file:///IndexedReferenceUse.php';
+    const use = `<?php namespace IndexedReferenceUse; use IndexedReference\\Target as Alias;
+      function consume(Alias $target): void { $target->act(); }`;
+    const noiseUri = 'file:///IndexedReferenceNoise.php';
+    const noise = '<?php namespace IndexedReferenceNoise; class Target { public function act(): void {} } function consume(Target $target): void { $target->act(); }';
+    workspace.update(declarationUri, declaration); workspace.update(useUri, use); workspace.update(noiseUri, noise);
+    const snapshot = workspace.snapshot(useUri)!;
+    const targetOffset = declaration.indexOf('Target') + 1; const methodOffset = declaration.indexOf('act') + 1;
+    expect(workspace.references(declarationUri, targetOffset).some((item) => item.uri === useUri)).toBe(true);
+    expect(workspace.references(declarationUri, targetOffset).some((item) => item.uri === noiseUri)).toBe(false);
+    expect(workspace.references(declarationUri, methodOffset).some((item) => item.uri === useUri)).toBe(true);
+    expect(workspace.references(declarationUri, methodOffset).some((item) => item.uri === noiseUri)).toBe(false);
+
+    workspace.update(useUri, '<?php namespace IndexedReferenceUse; function consume(): void {}');
+    expect(workspace.references(declarationUri, targetOffset).some((item) => item.uri === useUri)).toBe(false);
+    expect(workspace.references(declarationUri, methodOffset).some((item) => item.uri === useUri)).toBe(false);
+    workspace.remove(useUri); expect(workspace.restore(snapshot, useUri)).toBe(true);
+    expect(workspace.references(declarationUri, targetOffset).some((item) => item.uri === useUri)).toBe(true);
+    expect(workspace.references(declarationUri, methodOffset).some((item) => item.uri === useUri)).toBe(true);
+    workspace.remove(useUri); workspace.remove(noiseUri); workspace.remove(declarationUri);
+  });
   it('finds transitive type and method implementations through interfaces', () => {
     workspace.update('file:///ImplementationContract.php', '<?php namespace Navigation; interface Contract { public function run(): void; }');
     workspace.update('file:///ImplementationBase.php', '<?php namespace Navigation; abstract class Base implements Contract { abstract public function run(): void; }');

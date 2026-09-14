@@ -1,5 +1,7 @@
 # Changelog
 
+- Narrow type, global function, global constant, and static member References/Rename through an incrementally replaced candidate inverted index, then retain exact semantic resolution on the reduced file set. Oversized documents fall back conservatively.
+
 - Classify updates as declaration, implementation, or no semantic change; return affected callable/type identities and retain unrelated derived summaries across trivia-only or isolated body edits.
 
 - Diagnose direct reference acquisition, reference assignment, uniquely resolved by-reference arguments, property-reference iteration, and visible hooked properties during whole-object reference iteration according to the effective `&get` contract.

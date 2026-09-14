@@ -23,7 +23,7 @@ TypeScript + Node.js 独立语言服务器进程；Tree-sitter/WASM 作为语法
 | parser | CST、语义 AST、错误恢复、增量解析、范围映射 | 类型推断、编辑器 API |
 | phpdoc | 类型表达式、模板和注解 AST | 正则猜测完整类型语义 |
 | project | Composer、文件集合、目标版本、多根与依赖 | 加载 autoloader |
-| index | 声明/引用事实、依赖关系、缓存及失效 | UI、独立重复的类型规则 |
+| index | 有界文档键倒排表、声明/引用事实、依赖关系、缓存及失效 | PHP 名称解析、UI、独立重复的类型规则 |
 | type-system | 类型代数、兼容性、替换、合并与收窄运算 | 文件 IO、LSP、框架硬编码 |
 | semantic-provider | 版本化外部语义事实、来源位置、完整快照与运行时校验 | 解析 PHP、加载框架或执行语义查询 |
 | semantic-provider-host | 显式配置 Provider 的一次性子进程、JSON 协议、超时与输出限制 | 自动执行项目元数据、提供安全沙箱或产生语义事实 |

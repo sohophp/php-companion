@@ -27,6 +27,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@php-companion/index": "workspace:^",
     "@php-companion/parser": "workspace:^",
     "@php-companion/phpdoc": "workspace:^",
     "@php-companion/semantic-provider": "workspace:^",
