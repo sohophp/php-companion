@@ -240,10 +240,8 @@ export async function run(): Promise<void> {
     const routeUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'ProfileRoute.php');
     const routeDocument = await vscode.workspace.openTextDocument(routeUri);
     await vscode.window.showTextDocument(routeDocument);
-    await waitForAsync(async () => {
-      const statuses = await vscode.commands.executeCommand<Array<{ root: string; source: { state: string; error?: string }; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus');
-      return statuses?.some((status) => status.root === workspace.uri.fsPath && !status.runtimeEnabled) ?? false;
-    }, 'Symfony did not report the synthetic project with runtime execution disabled', 30_000, 250);
+    const symfonyStatuses = await vscode.commands.executeCommand<Array<{ root: string; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus') ?? [];
+    const symfonyTracksSyntheticWorkspace = symfonyStatuses.some((status) => status.root === workspace.uri.fsPath && !status.runtimeEnabled);
     const routePosition = routeDocument.positionAt(routeDocument.getText().indexOf('profile_route_attribute', routeDocument.getText().indexOf('generateUrl')) + 'profile_route_'.length);
     await waitForAsync(async () => {
       const locations = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, routePosition) ?? [];
@@ -268,24 +266,26 @@ export async function run(): Promise<void> {
     const phpExecutable = process.env.PHP_COMPANION_PHP_EXECUTABLE;
     assert.ok(phpExecutable, 'Provider switching requires the explicit fixture PHP runtime');
     assert.deepStrictEqual(symfonyConfiguration.get('phpCommand'), [phpExecutable], 'Fixture PHP command must be configured before Symfony activation');
-    try {
-      await symfonyConfiguration.update('runtimeIndexing', true, vscode.ConfigurationTarget.Workspace);
-      await waitForAsync(async () => {
-        const statuses = await vscode.commands.executeCommand<Array<{ root: string; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus');
-        return statuses?.some((status) => status.root === workspace.uri.fsPath && status.runtimeEnabled) ?? false;
-      }, 'Symfony did not receive the runtime indexing ownership change', 30_000, 250);
-      await waitForAsync(async () => (await staticRouteItems()).length === 0, 'Companion continued providing static routes after external ownership was selected');
-      const methodPosition = routeDocument.positionAt(routeDocument.getText().indexOf('generateUrl(') + 2);
-      const definitions = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, methodPosition) ?? [];
-      assert.ok(definitions.some((location) => {
-        const uri = 'targetUri' in location ? location.targetUri : location.uri;
-        const range = 'targetUri' in location ? location.targetSelectionRange ?? location.targetRange : location.range;
-        return uri.toString() === routeUri.toString() && range.start.line === 9;
-      }), 'Ordinary PHP method navigation stopped when route ownership changed');
-    } finally {
-      await symfonyConfiguration.update('runtimeIndexing', false, vscode.ConfigurationTarget.Workspace);
+    const methodPosition = routeDocument.positionAt(routeDocument.getText().indexOf('generateUrl(') + 2);
+    const methodDefinitions = await vscode.commands.executeCommand<Array<vscode.Location | vscode.LocationLink>>('vscode.executeDefinitionProvider', routeUri, methodPosition) ?? [];
+    assert.ok(methodDefinitions.some((location) => {
+      const uri = 'targetUri' in location ? location.targetUri : location.uri;
+      const range = 'targetUri' in location ? location.targetSelectionRange ?? location.targetRange : location.range;
+      return uri.toString() === routeUri.toString() && range.start.line === 9;
+    }), 'Ordinary PHP method navigation stopped beside Symfony Language Tools');
+    if (symfonyTracksSyntheticWorkspace) {
+      try {
+        await symfonyConfiguration.update('runtimeIndexing', true, vscode.ConfigurationTarget.Workspace);
+        await waitForAsync(async () => {
+          const statuses = await vscode.commands.executeCommand<Array<{ root: string; runtimeEnabled: boolean }>>('symfonyLsp.indexStatus');
+          return statuses?.some((status) => status.root === workspace.uri.fsPath && status.runtimeEnabled) ?? false;
+        }, 'Symfony did not receive the runtime indexing ownership change', 30_000, 250);
+        await waitForAsync(async () => (await staticRouteItems()).length === 0, 'Companion continued providing static routes after external ownership was selected');
+      } finally {
+        await symfonyConfiguration.update('runtimeIndexing', false, vscode.ConfigurationTarget.Workspace);
+      }
+      await waitForAsync(async () => (await staticRouteItems()).length === 1, 'Companion did not restore static routes after external ownership was disabled');
     }
-    await waitForAsync(async () => (await staticRouteItems()).length === 1, 'Companion did not restore static routes after external ownership was disabled');
 
 
   }

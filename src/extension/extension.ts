@@ -111,7 +111,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const delegatedSafeMoves = new Set<string>();
   const pendingSafeMoves = new Map<string, MoveReconciliation[]>();
   type ServerMoveReconciliation = { oldUri: string; newUri: string; newNamespace: string; sourceUris: string[]; declarations: Array<{ oldFqcn: string; newFqcn: string }> };
-  const pendingServerSafeMoves = new Map<string, ServerMoveReconciliation[]>();
+  type PendingServerSafeMove = {
+    files: Array<{ oldUri: vscode.Uri; newUri: vscode.Uri; source: string }>;
+    reconciliation?: ServerMoveReconciliation[];
+  };
+  const pendingServerSafeMoves = new Map<string, PendingServerSafeMove>();
   const reconcilingServerSafeMoves = new Set<string>();
   const pendingMovePlanning = new Map<string, Promise<void>>();
   const pendingTypeRenameEdits = new Map<string, vscode.WorkspaceEdit>();
@@ -144,11 +148,12 @@ export function activate(context: vscode.ExtensionContext): void {
       symbols: symbols.map((symbol) => ({ fqcn: symbol.fqcn, sourceAlias: symbol.alias, alias: symbol.selectedAlias })),
     });
   };
-  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
+  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
     const client = await languageServer;
     if (!client) throw new MoveError('PHP Companion Language Server is unavailable.');
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/planSafeMove', {
-      moves: files.map((file) => ({ oldUri: file.oldUri.toString(), newUri: file.newUri.toString(), ...(file.source === undefined ? {} : { source: file.source }) })), includeFileOperations,
+      moves: files.map((file) => ({ oldUri: file.oldUri.toString(), newUri: file.newUri.toString(), ...(file.source === undefined ? {} : { source: file.source }) })),
+      includeFileOperations, requireCompleteIndex,
     });
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
@@ -202,14 +207,59 @@ export function activate(context: vscode.ExtensionContext): void {
     if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
   };
 
+  const rollbackUnplannedServerMove = async (pending: PendingServerSafeMove): Promise<void> => {
+    for (const file of pending.files) {
+      try { await vscode.workspace.fs.stat(file.newUri); }
+      catch (error) {
+        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') throw new MoveError(`Cannot roll back Safe Move because ${file.newUri.fsPath} is unavailable.`);
+        throw error;
+      }
+      try {
+        await vscode.workspace.fs.stat(file.oldUri);
+        throw new MoveError(`Cannot roll back Safe Move because ${file.oldUri.fsPath} already exists.`);
+      } catch (error) {
+        if (error instanceof MoveError) throw error;
+        if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
+      }
+    }
+    const reverseKeys = pending.files.map((file) => fileRenameKey(file.newUri, file.oldUri));
+    for (const key of reverseKeys) delegatedSafeMoves.add(key);
+    try {
+      const edit = new vscode.WorkspaceEdit();
+      for (const file of pending.files) edit.renameFile(file.newUri, file.oldUri, { overwrite: false });
+      if (!await vscode.workspace.applyEdit(edit)) throw new MoveError('VS Code could not roll back the unplanned Safe Move.');
+    } finally {
+      for (const key of reverseKeys) delegatedSafeMoves.delete(key);
+    }
+  };
+
+  const serverMoveWasReversed = async (pending: PendingServerSafeMove): Promise<boolean> => {
+    const states = await Promise.all(pending.files.map(async (file) => {
+      let oldExists = false; let newExists = false;
+      try { await vscode.workspace.fs.stat(file.oldUri); oldExists = true; } catch { /* Missing is the expected reversed state. */ }
+      try { await vscode.workspace.fs.stat(file.newUri); newExists = true; } catch { /* Missing is the expected reversed state. */ }
+      return oldExists && !newExists;
+    }));
+    return states.every(Boolean);
+  };
+
   const queueServerMoveReconciliation = async (key: string): Promise<boolean> => {
-    const reconciliation = pendingServerSafeMoves.get(key);
-    if (!reconciliation) return false;
+    const pending = pendingServerSafeMoves.get(key);
+    if (!pending) return false;
     if (reconcilingServerSafeMoves.has(key)) { await movePipeline; return true; }
     reconcilingServerSafeMoves.add(key);
     movePipeline = movePipeline.then(async () => {
       try {
-        await withBoundedRetry(() => reconcileServerMove(reconciliation), {
+        await withBoundedRetry(async () => {
+          pending.reconciliation ??= (await requestSafeMovePlan(pending.files, false)).reconciliation;
+          if (!pending.reconciliation.length) throw new MoveError('PHP Companion Language Server did not retain a Safe Move reconciliation plan.');
+          try { await reconcileServerMove(pending.reconciliation); }
+          catch (error) {
+            // A rapid reverse Explorer operation has its own retained plan. Do
+            // not let verification of the superseded direction block that plan.
+            if (!await serverMoveWasReversed(pending)) throw error;
+          }
+        }, {
           attempts: 13,
           delayMs: 250,
           onFailure: (error, attempt) => {
@@ -218,9 +268,17 @@ export function activate(context: vscode.ExtensionContext): void {
         });
         pendingServerSafeMoves.delete(key);
       } finally { reconcilingServerSafeMoves.delete(key); }
-    }).catch((error) => {
+    }).catch(async (error) => {
       pendingServerSafeMoves.delete(key);
-      const message = 'Safe Move completed the file operation, but could not reconcile namespace and references.';
+      let message = 'Safe Move completed the file operation, but could not reconcile namespace and references.';
+      if (!pending.reconciliation) {
+        try {
+          await rollbackUnplannedServerMove(pending);
+          message = 'Safe Move could not produce a precise semantic plan, so the file operation was rolled back.';
+        } catch (rollbackError) {
+          output.warn(`Safe Move rollback failed: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`);
+        }
+      }
       output.warn(`${message} ${error instanceof Error ? error.message : String(error)}`);
       void vscode.window.showWarningMessage(message);
     });
@@ -667,7 +725,6 @@ export function activate(context: vscode.ExtensionContext): void {
       const key = fileRenamesKey(files);
       const planning = (async (): Promise<vscode.WorkspaceEdit> => {
         try {
-          await movePipeline;
           await Promise.all(files.flatMap((file) => [versions.ensureForUri(file.oldUri), versions.ensureForUri(file.newUri)]));
           // Explorer moves wholly outside PSR-4 have no namespace contract to reconcile.
           // A move across the boundary still participates and must pass Safe Move checks. A
@@ -690,13 +747,18 @@ export function activate(context: vscode.ExtensionContext): void {
             throw new MoveError('Safe Move requires phpCompanion.indexing.mode to be onDemand or experimental.');
           }
           if (selfLanguageServer) {
-            const planned = await requestSafeMovePlan(snapshottedFiles, false);
-            pendingServerSafeMoves.set(key, planned.reconciliation);
-            // VS Code can move the file while reporting an internal failure
-            // when a will-rename participant also edits the source document.
-            // Keep the exact plan for post-move reconciliation instead. The
-            // filesystem watcher below also covers a delayed or dropped
-            // onDidRenameFiles notification.
+            // Freeze the exact source while the old path still exists, but do
+            // not start an index inside VS Code's file-operation timeout. Reuse
+            // an already-complete index when available; otherwise the
+            // post-operation pipeline plans from this snapshot and rolls the
+            // file operation back if no precise plan can be produced.
+            try {
+              const planned = await requestSafeMovePlan(snapshottedFiles, false, true);
+              pendingServerSafeMoves.set(key, { files: snapshottedFiles, reconciliation: planned.reconciliation });
+            } catch (error) {
+              pendingServerSafeMoves.set(key, { files: snapshottedFiles });
+              output.info(`Safe Move deferred semantic planning until after the file operation: ${error instanceof Error ? error.message : String(error)}`);
+            }
             return new vscode.WorkspaceEdit();
           } else {
             const manager = await workspace();
@@ -714,8 +776,6 @@ export function activate(context: vscode.ExtensionContext): void {
           const message = error instanceof Error ? error.message : String(error);
           output.warn(`Safe Move rejected: ${message}`);
           void vscode.window.showWarningMessage(error instanceof MoveError ? message : `Safe Move failed: ${message}`);
-          // Rejecting the will-rename participant lets VS Code abort the Explorer
-          // operation instead of leaving a moved file with stale PHP references.
           throw error;
         }
       })();

@@ -53,6 +53,7 @@ const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
+const plannedSafeMovePaths = new Map<string, number>();
 const interopContextsByRoot = new Map<string, Map<string, ControllerTemplateContext[]>>();
 const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineRepositoryMethodFact[]>>();
 const doctrinePropertiesByRoot = new Map<string, Map<string, DoctrineAssociationPropertyFact[]>>();
@@ -317,6 +318,18 @@ function sameFilesystemPath(left: string | undefined, right: string): boolean {
   return process.platform === 'win32'
     ? normalizedLeft.toLowerCase() === normalizedRight.toLowerCase()
     : normalizedLeft === normalizedRight;
+}
+
+function filesystemPathKey(path: string): string {
+  const normalized = resolve(path);
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+}
+
+function isPlannedSafeMovePath(path: string): boolean {
+  const key = filesystemPathKey(path); const now = Date.now();
+  for (const [candidate, expiresAt] of plannedSafeMovePaths) if (expiresAt <= now) plannedSafeMovePaths.delete(candidate);
+  const expiresAt = plannedSafeMovePaths.get(key);
+  return Boolean(expiresAt && expiresAt > now);
 }
 
 function indexedUriForPath(root: string, path: string): string {
@@ -1239,7 +1252,7 @@ connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDo
   return workspace.unresolvedTypeNames(uri as string).map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
 });
 
-connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unknown; includeFileOperations?: unknown }, token) => {
+connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unknown; includeFileOperations?: unknown; requireCompleteIndex?: unknown }, token) => {
   if (!Array.isArray(params.moves) || !params.moves.length || params.moves.length > 128 || token.isCancellationRequested) return { error: 'Safe Move requires between 1 and 128 PHP files.' };
   const moves = params.moves.flatMap((move): Array<{ oldUri: string; newUri: string; source?: string }> => {
     if (!move || typeof move !== 'object' || !('oldUri' in move) || typeof move.oldUri !== 'string'
@@ -1275,6 +1288,7 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     }
     capturedMoves.push({ oldUri: move.oldUri, newUri: move.newUri, oldPath, newPath, source, open: Boolean(document) });
   }
+  if (params.requireCompleteIndex === true && !completeRoots.has(root)) return { error: 'Safe Move index is not ready yet.' };
   if (!await ensureCompleteRoot(root, () => token.isCancellationRequested) || token.isCancellationRequested) return { error: 'Safe Move could not complete the Composer project index.' };
   const workspace = await semanticForRoot(root); const mappings = projectMappingsByRoot.get(root) ?? [];
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
@@ -1325,6 +1339,11 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
         : operation),
       ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
     ] } : { changes };
+    const moveEventDeadline = Date.now() + 120_000;
+    for (const move of capturedMoves) {
+      plannedSafeMovePaths.set(filesystemPathKey(move.oldPath), moveEventDeadline);
+      plannedSafeMovePaths.set(filesystemPathKey(move.newPath), moveEventDeadline);
+    }
     return { edit, declarations: result.plan.declarations, reconciliation: semanticMoves.map((move) => ({
       oldUri: move.oldUri, newUri: move.newUri, newNamespace: move.newNamespace, sourceUris: result.plan!.touchedSourceUris,
       declarations: result.plan!.declarations.filter((item) => item.oldUri === move.oldUri).map(({ oldFqcn, newFqcn }) => ({ oldFqcn, newFqcn })),
@@ -1415,14 +1434,23 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     }
     if (!path.toLowerCase().endsWith('.php') || documents.get(change.uri)) continue;
     const root = rootForUri(change.uri); const workspace = await semanticForUri(change.uri);
+    const plannedMoveChange = semanticProviders.length === 0 && isPlannedSafeMovePath(path);
     if (change.type === FileChangeType.Deleted) {
-      workspace.remove(change.uri); interopContextsByRoot.get(root ?? '')?.delete(change.uri); if (root) removeDoctrineDocument(root, change.uri, workspace); requiresReindex = true; continue;
+      workspace.remove(change.uri); interopContextsByRoot.get(root ?? '')?.delete(change.uri);
+      if (root) {
+        removeDoctrineDocument(root, change.uri, workspace);
+        const indexed = indexedUrisByRoot.get(root);
+        for (const uri of indexed ?? []) if (sameFilesystemPath(pathForUri(uri), path)) indexed!.delete(uri);
+      }
+      if (!plannedMoveChange) requiresReindex = true;
+      continue;
     }
     const alreadyIndexed = root ? indexedUrisByRoot.get(root)?.has(change.uri) === true : false;
-    if (!alreadyIndexed) { requiresReindex = true; continue; }
+    if (!alreadyIndexed && !plannedMoveChange) { requiresReindex = true; continue; }
     try {
       const source = await readFile(path, 'utf8'); const update = workspace.update(change.uri, source);
       if (root) {
+        indexedUrisByRoot.get(root)?.add(change.uri);
         if (update.kind !== 'none') {
           const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
           byFile.set(change.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: change.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
