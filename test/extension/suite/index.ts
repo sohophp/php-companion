@@ -568,6 +568,7 @@ export async function run(): Promise<void> {
   await waitFor(
     () => vscode.languages.getDiagnostics(phpDocConflictUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.phpdoc.type-conflict'),
     'Self-hosted language server did not publish a proven PHPDoc/native type conflict',
+    15_000,
   );
   const phpDocConflict = vscode.languages.getDiagnostics(phpDocConflictUri).filter((diagnostic) => diagnostic.code === 'php.phpdoc.type-conflict');
   const phpDocConflictStart = phpDocConflictDocument.getText().indexOf('DocumentedParent $value');
