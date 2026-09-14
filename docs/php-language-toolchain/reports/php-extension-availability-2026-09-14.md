@@ -40,7 +40,7 @@ Composer 官方文档说明 `config.platform` 可模拟目标平台，并用 `{"
 - `@php-companion/language-spec` 正反例逐一验证八组单独移除不会删除其他七组，共享 libxml 保留，默认输出保持一致。
 - `@php-companion/project` 验证 composer/lock 中仅值为 `false` 的合法 `ext-*` 被归一化、去重和排序；require 项及平台版本字符串不产生禁用事实。
 - 真实 stdio Language Server 验证初始化时 DOM 配置禁用与 Composer mbstring 禁用同时生效、PDO 仍可 Definition；实时清空配置后 DOM 恢复而 mbstring 继续缺失；移除 Composer 覆盖并发送文件变化后 mbstring 恢复。
-- 十五个组件共 609 项、根扩展 33 项测试通过；其中 Language Server 159 项包含上述真实 stdio 生命周期。
+- 十五个组件共 610 项、根扩展 33 项测试通过；其中 Language Server 160 项将 workspace 配置刷新与 Composer manifest 刷新拆成独立、固定预算的真实 stdio 生命周期。
 - 全仓 TypeScript 与 ESLint 通过，十五个组件 tarball 均通过仓库外安装和消费。
 - 三份 VSIX 内容检查通过；主扩展 VSIX 在 VS Code 1.137.0 Linux x64 隔离 Profile 中以退出码 0 完成完整 Extension Host 用例。
 - 主扩展 `php-companion-0.4.5.vsix` SHA-256：`425ac3b3e0b0175cd4b40d224acae0bcda8f1c156142db8073090549a5568f93`。

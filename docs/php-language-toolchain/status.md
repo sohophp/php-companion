@@ -12,7 +12,7 @@ XML 文档扩展已选用仍在维护的 `redhat.vscode-xml`，并加入 Open So
 
 PHP 扩展符号选择已落地首个精准子集：workspace folder 显式配置与 Composer `config.platform` 中明确隐藏的扩展会共同裁剪 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter，配置和 Composer 文件变化可实时恢复或移除；缺少 `require.ext-*` 不作缺失推断。证据见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
 
-2026-09-14 PHP 扩展能力选择封板：首批八个独立审计扩展组已进入 `language-spec` 的机器可读选择契约，`project` 只接受 Composer platform 明确为 `false` 的禁用事实，VS Code adapter 按 workspace folder 向多根 Language Server 发送完整快照；设置切换与 Composer 文件更新通过真实 stdio 验证。通用配置变化不再无条件重建项目索引。十五个组件 609 项、根扩展 33 项、十五个隔离 tarball、三份 VSIX 内容检查及 VS Code 1.137.0 打包 Extension Host 均通过。完整边界与产物哈希见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
+2026-09-14 PHP 扩展能力选择封板：首批八个独立审计扩展组已进入 `language-spec` 的机器可读选择契约，`project` 只接受 Composer platform 明确为 `false` 的禁用事实，VS Code adapter 按 workspace folder 向多根 Language Server 发送完整快照；设置切换与 Composer 文件更新通过真实 stdio 验证。通用配置变化不再无条件重建项目索引。十五个组件 610 项、根扩展 33 项、十五个隔离 tarball、三份 VSIX 内容检查及 VS Code 1.137.0 打包 Extension Host 均通过。完整边界与产物哈希见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
 
 PHP 8.5 final 提升属性的版本、解析和继承语义证据见 [PHP 8.5 final 提升属性验收](reports/php85-final-property-promotion-2026-09-14.md)；静态属性 set 可见性证据见 [PHP 8.5 静态属性非对称可见性验收](reports/php85-static-asymmetric-visibility-2026-09-14.md)。
 
