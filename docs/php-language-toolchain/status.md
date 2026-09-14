@@ -2,7 +2,7 @@
 
 最后更新：2026-09-14。状态必须以源码和本页列出的验证命令为依据。
 
-2026-09-14 最新 P3 增量：`@php-companion/index` 新增按文档原子替换的有界反向依赖图；schema 72 语义快照把解析文件、引用候选和类型继承依赖作为独立层持久化，并在恢复前验证派生内容与解析文件一致。Language Server 缓存升级到 v43。10,000 文件 Linux x64 基准中，冷索引 16,977.41 ms，热启动 4,050.65 ms，全部 10,000 个文件从快照恢复且没有重新解析；篡改单个结构合法的引用层后只重建该 1 个文件。恢复三层继承图后修改祖先构造器的回归确认子类派生摘要会传递失效。Callable 调用依赖、框架派生事实和更细的声明/方法体磁盘拆分仍未完成，P3 总项保持开放。证据见[持久语义分层与派生依赖图验收](reports/persistent-semantic-layers-2026-09-14.md)。
+2026-09-14 最新 P3 增量：`@php-companion/index` 新增按文档原子替换的有界反向依赖图；schema 72 语义快照把解析文件、引用候选和类型继承依赖作为独立层持久化，并在恢复前验证派生内容与解析文件一致。Language Server 缓存升级到 v43。10,000 文件 Linux x64 基准中，冷索引 16,977.41 ms，热启动 4,050.65 ms，全部 10,000 个文件从快照恢复且没有重新解析；篡改单个结构合法的引用层后只重建该 1 个文件。Linux x64、Windows x64 和 macOS arm64 的 1,000 文件 CI 均恢复 1,000/1,000、重解析 0，并通过传递依赖失效与单文件损坏重建；对应提交的 15 个 CI 任务全部通过。Callable 调用依赖、框架派生事实和更细的声明/方法体磁盘拆分仍未完成，P3 总项保持开放。证据见[持久语义分层与派生依赖图验收](reports/persistent-semantic-layers-2026-09-14.md)。
 
 2026-09-14 最新真实项目 Alpha 门禁：新增可重复的 `audit:workspace`，只读加载 Composer 项目与依赖，要求项目源码完整、确定性抽样类型声明至少 90% 可唯一解析、References P95 不超过 150 ms，并可用版本化 JSON Oracle 验证真实补全与 Definition。Winstar 当前 2,218 个项目 PHP 文件全部进入索引，100/100 个抽样声明解析成功，References P95 12.17 ms，`BlogPostsEntityRepository` 经原生 `assert` 后补全 `createQueryBuilder` 并跳到 Doctrine `EntityRepository.php`；CoreRepo 的 1,137 个 PHP 7.2 项目文件同样完整，100/100 成功，P95 21.17 ms，`Language::getUrlCode()` 精确跳到项目声明。两者依赖均按 10,000 文件预算截断，所以不据此声称全依赖完整。当前主 VSIX 另在无 Intelephense 的 Linux/WSL 隔离 Profile 中与 Symfony Language Tools 0.20.2、twig-plus 1.3.7、YAML、Red Hat XML、PHP CS Fixer、PHP Debug、PHPUnit 和 EditorConfig 共同通过，使用 Winstar PHP 8.5.9、项目 fixer 和 PHPUnit。证据见[真实项目 Alpha 门禁报告](reports/real-project-alpha-gate-2026-09-14.md)。Windows + WSL Remote、三系统完整插件组合及多小时真实项目会话仍待完成。
 

@@ -28,8 +28,18 @@ pnpm benchmark:persistence -- 10000
 
 结果：冷索引 16,977.41 ms；热启动 4,050.65 ms；热/冷比 0.2386。热启动解析 0 个文件并恢复全部 10,000 个快照。机器可读结果见 [persistent-index-10000-linux-x64-2026-09-14.json](persistent-index-10000-linux-x64-2026-09-14.json)。
 
+## 跨平台 CI
+
+[CI 34856182829](https://github.com/sohophp/php-companion/actions/runs/34856182829) 的 15 个任务全部通过。三平台 1,000 文件持久化结果如下：
+
+| 平台 | 冷索引 | 热恢复 | 热/冷比 | 恢复/解析 | 损坏层重建 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| [Linux x64](persistent-index-1000-linux-x64-ci-2026-09-14.json) | 895.21 ms | 145.84 ms | 0.1629 | 1,000 / 0 | 1 |
+| [Windows x64](persistent-index-1000-windows-x64-ci-2026-09-14.json) | 1,161.34 ms | 228.41 ms | 0.1967 | 1,000 / 0 | 1 |
+| [macOS arm64](persistent-index-1000-macos-arm64-ci-2026-09-14.json) | 590.35 ms | 101.91 ms | 0.1726 | 1,000 / 0 | 1 |
+
+三份结果均确认传递依赖恢复和派生事实失效；同一 CI 还通过三平台 Quality、Extension Host 和 PHP 7.2–8.5 集成矩阵。
+
 ## 边界
 
-本增量完成引用候选和类型继承依赖的分层持久化。Callable 调用依赖、框架派生事实及更细的声明/方法体独立磁盘记录仍待实现，因此 P3 总项保持开放。该基准来自 Linux x64 本机，不代替 Windows、macOS、Remote 或真实项目长会话验收。
-
-CI 已加入三平台 1,000 文件持久化基准并上传各自 JSON；只有对应提交的 CI 完整通过后，才能把它记为跨平台通过证据。
+本增量完成引用候选和类型继承依赖的分层持久化。Callable 调用依赖、框架派生事实及更细的声明/方法体独立磁盘记录仍待实现，因此 P3 总项保持开放。三平台 CI 是合成 Composer 项目的进程级证据，不代替 Remote 或真实项目长会话验收。

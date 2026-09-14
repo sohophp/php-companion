@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "files": 1000,
+  "runtime": "v22.23.2",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "cpu": "Apple M1 (Virtual)",
+  "cold": {
+    "durationMs": 590.35,
+    "parsed": 1000,
+    "restored": 0
+  },
+  "warm": {
+    "durationMs": 101.91,
+    "parsed": 0,
+    "restored": 1000
+  },
+  "warmToColdRatio": 0.1726,
+  "exactness": {
+    "transitiveDependencyRestored": true,
+    "derivedFactInvalidated": true,
+    "corruptLayerReparsedFiles": 1
+  }
+}
