@@ -28,7 +28,7 @@ import {
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpStub, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { BUILTIN_DOCUMENT_URI, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { indexComposerSources } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
@@ -47,6 +47,8 @@ let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
 const indexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
+const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
+const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
@@ -65,6 +67,41 @@ let semanticProviders: SemanticProviderDescriptor[] = [];
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
+let configuredExtensionAvailability: Array<{ path: string; disabledExtensions: ConfigurablePhpExtension[] }> = [];
+
+function knownDisabledExtensions(value: unknown): ConfigurablePhpExtension[] {
+  const known = new Set<string>(CONFIGURABLE_PHP_EXTENSIONS);
+  return [...new Set((Array.isArray(value) ? value : []).filter((item): item is ConfigurablePhpExtension => typeof item === 'string' && known.has(item)))].sort();
+}
+
+function setConfiguredExtensionAvailability(value: unknown): void {
+  if (!Array.isArray(value)) return;
+  configuredExtensionAvailability = value.flatMap((entry: unknown) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const candidate = entry as { uri?: unknown; disabledExtensions?: unknown };
+    const path = typeof candidate.uri === 'string' ? pathForUri(candidate.uri) : undefined;
+    return path ? [{ path, disabledExtensions: knownDisabledExtensions(candidate.disabledExtensions) }] : [];
+  });
+}
+
+function disabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
+  const configured = configuredExtensionAvailability.filter((entry) => pathWithin(entry.path, root))
+    .sort((left, right) => right.path.length - left.path.length)[0]?.disabledExtensions ?? [];
+  return [...new Set([...configured, ...(composerDisabledExtensionsByRoot.get(root) ?? [])])].sort();
+}
+
+async function refreshBuiltinForRoot(root: string): Promise<void> {
+  const workspace = await semanticForRoot(root);
+  updateBuiltinForRoot(workspace, root);
+}
+
+function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
+  const disabledExtensions = disabledExtensionsForRoot(root);
+  const signature = disabledExtensions.join(',');
+  if (builtinExtensionSignatureByRoot.get(root) === signature) return;
+  workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(targetPhpVersion, { disabledExtensions }));
+  builtinExtensionSignatureByRoot.set(root, signature);
+}
 
 function setDisabledDiagnosticCodes(value: unknown): void {
   disabledDiagnosticCodes = new Set(Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
@@ -137,6 +174,11 @@ function externalSymfonyRoutes(uri: string): boolean {
     .sort((left, right) => right.path.length - left.path.length)[0]?.external === true : false;
 }
 connection.onNotification('phpCompanion/symfonyRouteProviders', (params: { providers?: unknown } | undefined) => setSymfonyRouteProviders(params?.providers));
+connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
+  setConfiguredExtensionAvailability(params?.roots);
+  await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+});
 
 function rootForUri(uri: string): string | undefined {
   const path = pathForUri(uri); if (!path) return undefined;
@@ -180,7 +222,9 @@ function semanticForKey(key: string): Promise<SemanticWorkspace> {
   if (workspace) return workspace;
   workspace = parser().then((value) => {
     const workspace = new SemanticWorkspace(value);
-    workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(targetPhpVersion));
+    const root = key.startsWith('root:') ? key.slice('root:'.length) : undefined;
+    if (root) updateBuiltinForRoot(workspace, root);
+    else workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(targetPhpVersion));
     return workspace;
   });
   semanticWorkspaces.set(key, workspace);
@@ -294,6 +338,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   projectCompleteRoots.delete(root);
   const project = await loadComposerProject(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
+  composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
+  updateBuiltinForRoot(workspace, root);
   const current = new Set<string>();
   const result = await indexComposerSources(root, {
     shouldContinue,
@@ -842,7 +888,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
       if (!key.startsWith('root:')) continue;
@@ -901,7 +947,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;
@@ -909,6 +955,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setDiagnosticSeverityOverrides(initialization?.diagnosticSeverity);
   setSemanticProviders(initialization?.semanticProviders);
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
+  setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);
@@ -1185,17 +1232,21 @@ connection.onRequest('phpCompanion/reconcileSafeMove', async (params: { moves?: 
 
 connection.onDidChangeConfiguration(async ({ settings }) => {
   const phpCompanion = (settings as { phpCompanion?: { diagnostics?: { disabledCodes?: unknown; severity?: unknown }; semanticProviders?: unknown } } | undefined)?.phpCompanion;
+  const previousDiagnostics = JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
+  const previousProviders = JSON.stringify(semanticProviders);
   setDisabledDiagnosticCodes(phpCompanion?.diagnostics?.disabledCodes);
   setDiagnosticSeverityOverrides(phpCompanion?.diagnostics?.severity);
   const previousProviderIds = new Map(semanticProviders.map((provider) => [provider.providerId.toLowerCase(), provider.providerId]));
   setSemanticProviders(phpCompanion?.semanticProviders);
   const currentProviderIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
   const removedProviderIds = [...previousProviderIds].filter(([key]) => !currentProviderIds.has(key)).map(([, providerId]) => providerId);
+  const diagnosticsChanged = previousDiagnostics !== JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
+  const providersChanged = previousProviders !== JSON.stringify(semanticProviders);
   if (removedProviderIds.length) for (const candidate of semanticWorkspaces.values()) {
     const workspace = await candidate; for (const providerId of removedProviderIds) workspace.removeExternalFacts(providerId);
   }
-  if (workspaceFolderRoots.length) await indexWorkspace(++indexingGeneration);
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  if (providersChanged && workspaceFolderRoots.length) await indexWorkspace(++indexingGeneration);
+  if (providersChanged || diagnosticsChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 });
 
 connection.onDidChangeWatchedFiles(async ({ changes }) => {

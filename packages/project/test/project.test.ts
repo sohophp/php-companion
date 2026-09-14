@@ -23,6 +23,19 @@ describe('Composer dependency discovery', () => {
     expect(project).toMatchObject({ psr0: [{ prefix: 'Legacy_' }], excludeFromClassmap: ['/models/generated/'] });
     expect(allAutoloadPaths(project!)).toEqual([join(root, 'legacy'), join(root, 'models'), join(root, 'bootstrap.php')]);
   });
+  it('reads only explicitly hidden Composer platform extensions as unavailable', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-project-platform-'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({
+      require: { php: '^8.2', 'ext-json': '*' },
+      config: { platform: { php: '8.2.12', 'ext-mbstring': false, 'ext-pdo': '8.2.12' } },
+    }));
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ 'platform-overrides': { php: '8.2.12', 'ext-dom': false, 'ext-mbstring': false } }));
+    expect(await loadComposerProject(root)).toMatchObject({
+      disabledExtensions: ['dom', 'mbstring'],
+      platformPhp: '8.2.12',
+      lockPlatformPhp: '8.2.12',
+    });
+  });
   it('matches rooted Composer classmap exclusions with single and recursive wildcards', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-project-excludes-'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, 'exclude-from-classmap': ['/src/Tests/', '/src/generated/*/Legacy.php', '/src/cache/**'] } }));

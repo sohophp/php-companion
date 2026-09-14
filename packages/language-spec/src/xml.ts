@@ -11,7 +11,7 @@ const LIBXML_COMPACT = 65536; const LIBXML_NOXMLDECL = 2; const LIBXML_PARSEHUGE
 const LIBXML_ERR_NONE = 0; const LIBXML_ERR_WARNING = 1; const LIBXML_ERR_ERROR = 2; const LIBXML_ERR_FATAL = 3;
 `;
 
-function libxmlStub(version: SupportedPhpVersion): string {
+export function auditedLibxmlStub(version: SupportedPhpVersion): string {
   const php80 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.0');
   const php81 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.1');
   const php82 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.2');
@@ -61,7 +61,7 @@ function simpleXmlMethods(version: SupportedPhpVersion, iteratorOnly = false): s
   ${php80 ? simpleXmlMethods(version, true) : ''}`;
 }
 
-function simpleXmlStub(version: SupportedPhpVersion): string {
+export function auditedSimpleXmlStub(version: SupportedPhpVersion): string {
   const php73 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('7.3');
   const php80 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.0');
   const php84 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.4');
@@ -95,7 +95,7 @@ const XML_OPTION_CASE_FOLDING = 1; const XML_OPTION_TARGET_ENCODING = 2; const X
 const XML_OPTION_SKIP_WHITE = 4; const XML_SAX_IMPL = '';
 `;
 
-function xmlParserStub(version: SupportedPhpVersion): string {
+export function auditedXmlParserStub(version: SupportedPhpVersion): string {
   const php80 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.0');
   const php81 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.1');
   const php82 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.2');
@@ -135,5 +135,5 @@ ${php80 ? 'final class XMLParser {}\n' : ''}`;
 }
 
 export function auditedXmlFoundationStub(version: SupportedPhpVersion): string {
-  return `\n${libxmlStub(version)}${simpleXmlStub(version)}${xmlParserStub(version)}`;
+  return `\n${auditedLibxmlStub(version)}${auditedSimpleXmlStub(version)}${auditedXmlParserStub(version)}`;
 }

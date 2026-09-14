@@ -40,7 +40,7 @@ describe('PHP executable probing', () => {
     let probes = 0;
     const resolution = await resolvePhpVersion({
       setting: 'auto',
-      composer: { root: '/project', composerPath: '/project/composer.json', requiredPhp: '^8.1', psr4: [], psr0: [], classmap: [], files: [], excludeFromClassmap: [], dependencies: [], warnings: [] },
+      composer: { root: '/project', composerPath: '/project/composer.json', requiredPhp: '^8.1', disabledExtensions: [], psr4: [], psr0: [], classmap: [], files: [], excludeFromClassmap: [], dependencies: [], warnings: [] },
       processRunner: async () => { probes += 1; return '8.5.0'; },
       executableResolver: async (command) => `/usr/bin/${command}`,
     });

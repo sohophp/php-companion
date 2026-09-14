@@ -4,6 +4,8 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 # @php-companion/language-server
 
+服务器可按 Composer 根选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter 内建符号。初始化和 `phpCompanion/phpExtensionAvailability` 通知接受 workspace folder 级禁用快照，并与 Composer platform 明确为 `false` 的扩展合并；配置或 Composer 文件变化无需重启即可刷新。
+
 PHP 8.4 属性 hook 现在提供 backed/virtual 感知的 Hover/Definition 与直接赋值类型检查，并发布 get-only 写入、set-only 读取、`private(set)` 外部写入、数组间接修改、直接引用、唯一签名按引用调用、属性/对象按引用遍历、接口/抽象属性缺失、继承类型或可见性不兼容、final 覆盖，以及静态、readonly、非法抽象、虚拟默认值和 backed `&get`/`set` 声明诊断。低于 PHP 8.4 的目标版本只保留既有版本边界，不启用这些 hook 语义诊断。
 
 PHP 8.3 动态类常量访问在名称与可见常量均唯一可证明时提供 Definition，并把字面量值传播到局部类型和参数诊断；其余动态场景保持静默。低于 PHP 8.3 的目标版本会收到明确版本诊断。

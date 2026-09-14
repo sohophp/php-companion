@@ -1,13 +1,16 @@
 import semver from 'semver';
 import { auditedReflectionCoreStub } from './reflection.js';
 import { auditedMbstringStub } from './mbstring.js';
-import { auditedXmlFoundationStub } from './xml.js';
-import { auditedXmlIoStub } from './xml-io.js';
+import { auditedLibxmlStub, auditedSimpleXmlStub, auditedXmlParserStub } from './xml.js';
+import { auditedXmlReaderStub, auditedXmlWriterStub } from './xml-io.js';
 import { auditedClassicDomStub } from './dom-classic.js';
 import { auditedModernDomStub } from './dom-modern.js';
 
 export const SUPPORTED_PHP_VERSIONS = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'] as const;
 export type SupportedPhpVersion = typeof SUPPORTED_PHP_VERSIONS[number];
+export const CONFIGURABLE_PHP_EXTENSIONS = ['dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlreader', 'xmlwriter'] as const;
+export type ConfigurablePhpExtension = typeof CONFIGURABLE_PHP_EXTENSIONS[number];
+export interface BuiltinPhpStubOptions { disabledExtensions?: readonly ConfigurablePhpExtension[]; }
 export const BUILTIN_DOCUMENT_URI = 'php-companion-builtin:/common-core.php';
 
 const COMMON_CORE_STUB = `<?php
@@ -2991,8 +2994,9 @@ ${filterVar}
 `;
 }
 
-export function builtinPhpStub(version: SupportedPhpVersion): string {
+export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
   if (!SUPPORTED_PHP_VERSIONS.includes(version)) throw new Error(`Unsupported PHP version: ${version as string}`);
+  const disabled = new Set(options.disabledExtensions ?? []);
   return COMMON_CORE_STUB + auditedIteratorInterfaceStub(version) + auditedExceptionStub(version) + auditedDateTimeStub(version) + auditedVersionedCoreObjectStub(version)
     + auditedReferenceFunctionStub(version) + auditedStringFunctionStub(version) + auditedStringCatalogStub(version) + auditedArrayFunctionStub(version)
     + auditedIteratorFunctionStub(version) + auditedSplFunctionStub(version) + auditedSplFileStub(version) + auditedSplDirectoryIteratorStub(version)
@@ -3003,7 +3007,10 @@ export function builtinPhpStub(version: SupportedPhpVersion): string {
     + auditedJsonFunctionStub(version) + auditedFilesystemFunctionStub(version) + auditedFilesystemStreamStub(version)
     + auditedFilesystemMetadataStub(version) + auditedDirectoryStub(version)
     + auditedProgramExecutionStub(version) + auditedEncodingFunctionStub(version)
-    + auditedPdoStub(version) + auditedReflectionCoreStub(version) + auditedMbstringStub(version) + auditedXmlFoundationStub(version) + auditedXmlIoStub(version) + auditedClassicDomStub(version) + auditedModernDomStub(version) + auditedSecurityFunctionStub(version) + auditedFilterFunctionStub(version)
+    + (disabled.has('pdo') ? '' : auditedPdoStub(version)) + auditedReflectionCoreStub(version) + (disabled.has('mbstring') ? '' : auditedMbstringStub(version))
+    + `\n${auditedLibxmlStub(version)}` + (disabled.has('simplexml') ? '' : auditedSimpleXmlStub(version)) + (disabled.has('xml') ? '' : auditedXmlParserStub(version))
+    + (disabled.has('xmlreader') ? '' : auditedXmlReaderStub(version)) + (disabled.has('xmlwriter') ? '' : auditedXmlWriterStub(version))
+    + (disabled.has('dom') ? '' : auditedClassicDomStub(version) + auditedModernDomStub(version)) + auditedSecurityFunctionStub(version) + (disabled.has('filter') ? '' : auditedFilterFunctionStub(version))
     + auditedPcreFunctionStub(version) + auditedMathFunctionStub(version) + auditedVariableHandlingFunctionStub(version)
     + auditedRuntimeIntrospectionFunctionStub(version) + auditedRuntimeConfigurationFunctionStub(version)
     + auditedRuntimeEnvironmentFunctionStub(version) + auditedErrorHandlingFunctionStub(version)

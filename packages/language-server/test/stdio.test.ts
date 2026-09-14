@@ -65,6 +65,47 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('combines resource settings with explicit Composer platform extension exclusions and refreshes them', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-extensions-'));
+    try {
+      const rootUri = pathToFileURL(root).toString();
+      const path = join(root, 'ExtensionConsumer.php'); const uri = pathToFileURL(path).toString();
+      const source = '<?php $document = new DOMDocument(); mb_strlen("text"); $pdo = new PDO("sqlite::memory:");';
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ config: { platform: { 'ext-mbstring': false } }, autoload: { files: ['ExtensionConsumer.php'] } }));
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 201, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { phpExtensionAvailability: [{ uri: rootUri, disabledExtensions: ['dom', 'unknown-extension'] }] },
+      } }));
+      await output.waitFor((message) => message.id === 201);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const definition = async (id: number, needle: string): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf(needle) + 2) } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect(await definition(202, 'DOMDocument')).toEqual([]);
+      expect(await definition(203, 'mb_strlen')).toEqual([]);
+      expect(await definition(204, 'PDO(')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{ uri: rootUri, disabledExtensions: [] }] } }));
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+      expect(await definition(206, 'mb_strlen')).toEqual([]);
+
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['ExtensionConsumer.php'] } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(join(root, 'composer.json')).toString(), type: 2 }] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true')
+        && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('complete=true')).length >= 2);
+      expect(await definition(207, 'mb_strlen')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('renames a unique type and its matching PSR-4 file through documentChanges', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-type-rename-'));
     try {

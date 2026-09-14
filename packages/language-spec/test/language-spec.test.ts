@@ -1,6 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { builtinPhpStub, isSyntaxAvailable, lowestSupportedVersion, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
+import { builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, lowestSupportedVersion, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
 describe('PHP language specification', () => {
+  it('removes only explicitly disabled, independently audited extension stubs', () => {
+    const markers = new Map([
+      ['dom', 'class DOMDocument'], ['filter', 'function filter_has_var'], ['mbstring', 'function mb_strlen'], ['pdo', 'class PDO '],
+      ['simplexml', 'class SimpleXMLElement'], ['xml', 'function xml_parser_create'], ['xmlreader', 'class XMLReader'], ['xmlwriter', 'class XMLWriter'],
+    ] as const);
+    const complete = builtinPhpStub('8.5');
+    expect(builtinPhpStub('8.5', { disabledExtensions: [] })).toBe(complete);
+    expect([...markers.keys()]).toEqual([...CONFIGURABLE_PHP_EXTENSIONS]);
+    for (const extension of CONFIGURABLE_PHP_EXTENSIONS) {
+      const filtered = builtinPhpStub('8.5', { disabledExtensions: [extension] });
+      expect(complete).toContain(markers.get(extension));
+      expect(filtered).not.toContain(markers.get(extension));
+      for (const [other, marker] of markers) if (other !== extension) expect(filtered).toContain(marker);
+    }
+    expect(builtinPhpStub('8.5', { disabledExtensions: [...CONFIGURABLE_PHP_EXTENSIONS] })).toContain('function libxml_use_internal_errors');
+  });
   it('declares the complete configured target-version set', () => { expect(SUPPORTED_PHP_VERSIONS).toEqual(['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']); });
   it('returns the audited core and versioned reference signatures for every target version', () => {
     for (const version of SUPPORTED_PHP_VERSIONS) {

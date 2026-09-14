@@ -10,6 +10,10 @@ XML 文档扩展已选用仍在维护的 `redhat.vscode-xml`，并加入 Open So
 
 方法族 Rename 已覆盖接收者类型可完全证明的两元素数组 callable，并保持未知或复杂 callable 的整体拒绝门槛；证据见 [数组 callable 方法 Rename 验收](reports/array-callable-method-rename-2026-09-14.md)。
 
+PHP 扩展符号选择已落地首个精准子集：workspace folder 显式配置与 Composer `config.platform` 中明确隐藏的扩展会共同裁剪 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter，配置和 Composer 文件变化可实时恢复或移除；缺少 `require.ext-*` 不作缺失推断。证据见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
+
+2026-09-14 PHP 扩展能力选择封板：首批八个独立审计扩展组已进入 `language-spec` 的机器可读选择契约，`project` 只接受 Composer platform 明确为 `false` 的禁用事实，VS Code adapter 按 workspace folder 向多根 Language Server 发送完整快照；设置切换与 Composer 文件更新通过真实 stdio 验证。通用配置变化不再无条件重建项目索引。十五个组件 609 项、根扩展 33 项、十五个隔离 tarball、三份 VSIX 内容检查及 VS Code 1.137.0 打包 Extension Host 均通过。完整边界与产物哈希见 [PHP 扩展能力选择验收](reports/php-extension-availability-2026-09-14.md)。
+
 PHP 8.5 final 提升属性的版本、解析和继承语义证据见 [PHP 8.5 final 提升属性验收](reports/php85-final-property-promotion-2026-09-14.md)；静态属性 set 可见性证据见 [PHP 8.5 静态属性非对称可见性验收](reports/php85-static-asymmetric-visibility-2026-09-14.md)。
 
 PHP 8.5 常量表达式 Closure 与 first-class callable 证据见 [PHP 8.5 常量表达式 callable 验收](reports/php85-constant-expression-callables-2026-09-14.md)。
@@ -327,7 +331,7 @@ pnpm verify:packages
 
 - [ ] P0 全部精准正反 fixtures 和真实插件组合操作核验；Open Source Profile 已在 Linux/WSL 完成隔离安装、许可证/版本、PHP/Twig/YAML/JSON formatter、EditorConfig、Xdebug 与 PHPUnit 实测，PHPUnit 快速删除日志限制已记录；主扩展的 Windows/macOS 打包 Extension Host 已通过，三系统完整第三方插件组合和更完整规则组合仍待平台矩阵；标记 testkit、版本代表样例与冻结性能预算已建立，版本矩阵仍需随实现逐项关闭未支持状态。
 - [ ] parser 的完整表达式事实；打开文档已使用 Tree edit 增量重解析并保留全量语义等价，匿名类和闭包捕获已完成。PHPDoc 模板继承、方差标签和条件类型 AST 已解析；完整嵌套条件相关性及方差安全审计仍待完成。
-- [ ] Composer 嵌套项目、完整逐版本内建符号生成；path/symlink、多个 workspace root、exclude-from-classmap、持久快照、首批版本化标准异常树、Date/Time、字符串及核心迭代/对象契约已实现，仍需扩展/其余核心符号、声明/方法体分层和依赖级增量失效。
+- [ ] Composer 嵌套项目、完整逐版本内建符号生成；path/symlink、多个 workspace root、exclude-from-classmap、持久快照、首批版本化标准异常树、Date/Time、字符串及核心迭代/对象契约已实现。八个已审计扩展组已支持 workspace folder 与 Composer 显式禁用选择，仍需其余扩展/核心符号、启用扩展版本约束、自动环境探测、声明/方法体分层和依赖级增量失效。
 - [ ] type-system 高级类型；semantic 当前覆盖可证明参数、`$this`、`new` 赋值、单一返回链、PHPDoc 基础类型、成员可见性、基础 References、首批正向控制流收窄，以及完整 if/switch/try/catch/finally、安全 do/while、规范非空整数 for、显式单轮循环、可证明非空 foreach，并在一般 while、条件 for 与动态 foreach 的循环体赋值独立且完全可证明时合并循环前后局部类型；自依赖、引用、复杂跳转、循环体读取目标和完整泛型推断仍未完成。
 - [x] 类型、函数与命名空间常量的自动导入候选使用统一 semantic 查询。类型按已可见状态和 namespace 邻近度排序；函数/常量按当前 namespace、显式 import、PHP 全局回退及新 import 分级，外部候选再按共同 namespace 前缀和距离排序。名称与 FQCN 负责确定性决胜，Language Server 通过分类 `sortText` 保持顺序并携带精确 import 编辑。证据见 [类型补全排序验收](reports/type-completion-ranking-2026-09-10.md)与[函数和常量补全排序验收](reports/function-constant-completion-ranking-2026-09-10.md)。
 - [x] namespace 内源码类名严格区分未限定名、相对限定名、显式 import 和 `\\FQCN`。全局类不会作为未导入类名的隐式 Definition 或成员类型，补全会附加必要 `use`；函数和常量的 PHP 全局回退保持独立。内建 `is_countable()` 使用显式 `\\Countable`，语义快照为 schema 68、持久缓存为 v39。

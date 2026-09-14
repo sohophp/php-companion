@@ -30,7 +30,7 @@ const READER_METHODS: readonly ReaderMethod[] = [
   ['expand', '?DOMNode $baseNode = null', '$basenode = null', 'DOMNode|false'],
 ];
 
-function xmlReaderStub(version: SupportedPhpVersion): string {
+export function auditedXmlReaderStub(version: SupportedPhpVersion): string {
   const php80 = atLeast(version, '8.0'); const php81 = atLeast(version, '8.1');
   const php83 = atLeast(version, '8.3'); const php84 = atLeast(version, '8.4');
   const constantType = php84 ? 'int ' : '';
@@ -89,7 +89,7 @@ const WRITER_OPERATIONS: readonly WriterOperation[] = [
   ['xmlwriter_flush', 'flush', 'bool $empty = true', '$empty = true', 'string|int'],
 ];
 
-function xmlWriterStub(version: SupportedPhpVersion): string {
+export function auditedXmlWriterStub(version: SupportedPhpVersion): string {
   const php80 = atLeast(version, '8.0'); const php81 = atLeast(version, '8.1'); const php84 = atLeast(version, '8.4');
   const procedural = WRITER_OPERATIONS.map(([fn, , p8, p7, result]) => {
     const tail = php80 ? p8 : p7; const parameters = `${php80 ? 'XMLWriter $writer' : '$xmlwriter'}${tail ? `, ${tail}` : ''}`;
@@ -112,5 +112,5 @@ function xmlWriterStub(version: SupportedPhpVersion): string {
 }
 
 export function auditedXmlIoStub(version: SupportedPhpVersion): string {
-  return `${xmlReaderStub(version)}${xmlWriterStub(version)}`;
+  return `${auditedXmlReaderStub(version)}${auditedXmlWriterStub(version)}`;
 }

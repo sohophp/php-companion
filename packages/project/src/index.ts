@@ -14,6 +14,7 @@ export interface ComposerProject {
   platformPhp?: string;
   lockPlatformPhp?: string;
   requiredPhp?: string;
+  disabledExtensions: string[];
   psr4: Psr4Mapping[];
   psr0: Psr4Mapping[];
   classmap: string[];
@@ -32,6 +33,13 @@ export interface ComposerDependency {
   classmap: string[];
   files: string[];
   excludeFromClassmap: string[];
+}
+
+function disabledPlatformExtensions(platform: unknown): string[] {
+  if (!platform || typeof platform !== 'object' || Array.isArray(platform)) return [];
+  return Object.entries(platform as Record<string, unknown>)
+    .filter(([name, value]) => value === false && /^ext-[a-z0-9_.-]+$/i.test(name))
+    .map(([name]) => name.slice(4).toLowerCase());
 }
 
 export interface ComposerRootDiscoveryOptions {
@@ -241,6 +249,10 @@ export async function loadComposerProject(root: string, includeDev = true): Prom
     platformPhp: typeof composer.config?.platform?.php === 'string' ? composer.config.platform.php : undefined,
     lockPlatformPhp: typeof lock?.['platform-overrides']?.php === 'string' ? lock['platform-overrides'].php : undefined,
     requiredPhp: typeof composer.require?.php === 'string' ? composer.require.php : undefined,
+    disabledExtensions: [...new Set([
+      ...disabledPlatformExtensions(composer.config?.platform),
+      ...disabledPlatformExtensions(lock?.['platform-overrides']),
+    ])].sort(),
     psr4,
     psr0,
     classmap,

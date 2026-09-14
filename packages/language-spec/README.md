@@ -1,5 +1,7 @@
 # @php-companion/language-spec
 
+`CONFIGURABLE_PHP_EXTENSIONS` 导出当前可独立选择的审计扩展组；`builtinPhpStub(version, { disabledExtensions })` 可移除 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter。省略选项保持完整默认规格，libxml 作为 XML 共享基础保留。
+
 PHP 8.3 动态类常量访问具有独立的语法可用性规则；低于 8.3 的目标版本会在动态名称范围报告版本边界。
 
 SPL 迭代器适配器已覆盖 `IteratorIterator`、`FilterIterator`、`CallbackFilterIterator`、`RecursiveFilterIterator`、`ParentIterator`、`RecursiveCallbackFilterIterator`、`LimitIterator`、`NoRewindIterator`、`InfiniteIterator`、`AppendIterator` 与 `EmptyIterator`。高级迭代器进一步覆盖 `RecursiveIteratorIterator`、`CachingIterator`、`RecursiveCachingIterator`、`RegexIterator`、`RecursiveRegexIterator` 与 `RecursiveTreeIterator`；目录迭代器覆盖 `DirectoryIterator`、`FilesystemIterator`、`RecursiveDirectoryIterator` 与 `GlobIterator`。键和值模板会穿过适配器继承关系；正则、树和目录 flags 产生的字符串/数组/文件对象不会被误报成单一原始对象。PHP 7/8 参数、PHP 8.1 tentative returns、PHP 8.2 `EmptyIterator::valid(): false`、PHP 8.4 typed constants 及 PHP 8.5 树构造联合类型均按目标版本生成。

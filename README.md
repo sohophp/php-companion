@@ -17,6 +17,7 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 ```json
 {
   "phpCompanion.languageServer.enabled": true,
+  "phpCompanion.disabledExtensions": ["mbstring"],
   "phpCompanion.diagnostics.disabledCodes": [],
   "phpCompanion.diagnostics.severity": {
     "php.member.unresolved": "warning"
@@ -33,6 +34,8 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 ```
 
 `diagnostics.disabledCodes` 可按稳定代码关闭诊断；`diagnostics.severity` 可将单项覆盖为 `error`、`warning`、`information`、`hint` 或 `off`。修改后立即重新发布已打开 PHP 文档的诊断，无需重启服务器。Linux / WSL 的 R1 首发门槛已经通过；R4 完整功能和跨平台矩阵仍在实施。未知或动态类型会保守返回空结果；启用时不要同时启用另一个通用 PHP Language Server。
+
+`disabledExtensions` 只用于明确声明项目不可用的 PHP 扩展，当前支持 `dom`、`filter`、`mbstring`、`pdo`、`simplexml`、`xml`、`xmlreader` 与 `xmlwriter`。Composer `config.platform` 中值为 `false` 的对应 `ext-*` 会自动合并；没有写进 Composer `require` 不代表缺失，因此不会据此裁剪内建符号。配置按 workspace folder 生效，变更后无需重启服务器。
 
 `semanticProviders` 只接受用户显式配置的可信可执行文件，不从 Composer 或工作区元数据自动发现命令。每次索引以独立无 shell 子进程请求一份完整事实快照；超时、崩溃、输出超限或协议、身份、generation 校验失败时保留上一代事实。该机制隔离 Provider 故障，不是操作系统安全沙箱。
 

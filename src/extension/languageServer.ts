@@ -59,6 +59,11 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       external: available && vscode.workspace.getConfiguration('symfonyLsp', folder.uri).get<boolean>('runtimeIndexing', true),
     }));
   };
+  const phpExtensionAvailability = (): Array<{ uri: string; disabledExtensions: string[] }> =>
+    (vscode.workspace.workspaceFolders ?? []).map((folder) => ({
+      uri: folder.uri.toString(),
+      disabledExtensions: vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string[]>('disabledExtensions', []),
+    }));
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
@@ -69,6 +74,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       diagnosticSeverity: configuration.get<Record<string, string>>('diagnostics.severity', {}),
       semanticProviders: configuration.get<unknown[]>('semanticProviders', []),
       symfonyRouteProviders: symfonyRouteProviders(),
+      phpExtensionAvailability: phpExtensionAvailability(),
       testMode: context.extensionMode === vscode.ExtensionMode.Test,
       // PHP Companion stages declaration edits through onWillRenameFiles so a
       // PSR-4 file rename and its text changes remain one undoable operation.
@@ -105,12 +111,23 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       output.warn(`Unable to update Symfony route provider ownership: ${String(error)}`);
     });
   };
+  const updatePhpExtensionAvailability = (): void => {
+    if (stopping) return;
+    void client.sendNotification('phpCompanion/phpExtensionAvailability', { roots: phpExtensionAvailability() }).catch((error: unknown) => {
+      if (stopping) return;
+      output.warn(`Unable to update PHP extension availability: ${String(error)}`);
+    });
+  };
   context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration((event) => { if (event.affectsConfiguration('symfonyLsp.runtimeIndexing')) updateRouteProviders(); }),
-    vscode.workspace.onDidChangeWorkspaceFolders(updateRouteProviders),
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('symfonyLsp.runtimeIndexing')) updateRouteProviders();
+      if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
+    }),
+    vscode.workspace.onDidChangeWorkspaceFolders(() => { updateRouteProviders(); updatePhpExtensionAvailability(); }),
     vscode.extensions.onDidChange(updateRouteProviders),
   );
   updateRouteProviders();
+  updatePhpExtensionAvailability();
 
   context.subscriptions.push(vscode.commands.registerCommand('phpCompanion.provideTwigInterop', async (root: vscode.Uri | string): Promise<unknown> => {
     const rootUri = typeof root === 'string' ? root : root?.toString();
