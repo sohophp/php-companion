@@ -4218,6 +4218,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.ok(await runnerConsumerDocument.save(), 'Safe Move fixture references could not be saved after restoration');
 
   // Reproduce the interactive Explorer flow exactly: Service -> Contact -> Service.
+  await waitForAsync(async () => {
+    const forward = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+      'phpCompanion._testBuildMoveEdits', movableServiceUri, contactServiceUri,
+    );
+    return forward?.get(contactServiceUri)?.some((edit) => edit.newText === 'App\\Contact') === true
+      && forward.get(moveConsumerUri)?.some((edit) => edit.newText === 'App\\Contact\\MovableService') === true;
+  }, 'Language Server did not settle before planning the Explorer-style Service to Contact move', 30_000, 100);
   await vscode.window.showTextDocument(moveConsumerDocument);
   const moveServiceToContact = new vscode.WorkspaceEdit();
   moveServiceToContact.renameFile(movableServiceUri, contactServiceUri);
