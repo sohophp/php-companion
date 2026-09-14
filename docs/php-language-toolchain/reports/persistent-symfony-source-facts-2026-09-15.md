@@ -34,6 +34,7 @@
 - `pnpm verify:packages`：十六个组件 tarball 在仓库外隔离消费者中安装和调用成功。
 - `pnpm package:all && pnpm verify:vsix`：三份 VSIX 构建和内容检查通过。
 - `pnpm test:extension:packaged`：VS Code 1.137.0 Linux x64 隔离 Profile 的完整 Extension Host 回归退出码为 0。
+- 提交 `7d4adea` 的 [CI 34907040302](https://github.com/sohophp/php-companion/actions/runs/34907040302)：18/18 成功；Linux、Windows、macOS 的 Quality、打包 Extension Host、七扩展 Open Source Profile 及 PHP 7.2–8.5 运行时矩阵全部通过。
 
 本地候选 SHA-256：
 
