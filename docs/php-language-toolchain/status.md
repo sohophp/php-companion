@@ -2,7 +2,7 @@
 
 最后更新：2026-09-15。状态必须以源码和本页列出的验证命令为依据。
 
-2026-09-15 最新稳定性增量：三平台证据封板提交的首轮 Ubuntu 打包 Extension Host 在 Explorer `Service → Contact` 移动后暴露一次瞬时 reconciliation 失败，目标文件已移动但磁盘 namespace 仍旧；同 SHA 的失败任务重跑成功。产品路径现对移动后协调执行最多三次有界尝试，每次重新读取当前文件状态、重新请求语义编辑并保存所有受影响开放文档；只有每个目标 namespace 已按 Composer 路径落盘且再次请求不再返回任何协调编辑时才算成功。每次失败记录尝试序号和具体原因，最终失败继续显示用户可读警告。16 个组件 624 项、根扩展 35 项测试，三份 VSIX 内容和本机打包 Extension Host 已通过；跨平台 CI 待本次提交补齐。证据见[Safe Move 移动后收敛验收](reports/safe-move-reconciliation-retry-2026-09-15.md)。
+2026-09-15 最新稳定性增量：三平台证据封板提交的首轮 Ubuntu 打包 Extension Host 在 Explorer `Service → Contact` 移动后暴露一次瞬时 reconciliation 失败，目标文件已移动但磁盘 namespace 仍旧；同 SHA 的失败任务重跑成功。产品路径现对移动后协调执行最多三次有界尝试：每次先保存移动前参与者已经精确修改的开放缓冲区，再从当前状态重新请求并应用剩余语义编辑；即使 LSP 请求瞬时失败，正确 namespace 也已落盘。只有每个目标 namespace 已按 Composer 路径落盘且再次请求不再返回任何协调编辑时才算成功。每次失败记录尝试序号和具体原因，最终失败继续显示用户可读警告。16 个组件 624 项、根扩展 35 项测试，三份 VSIX 内容和本机打包 Extension Host 已通过；跨平台 CI 待本次提交补齐。证据见[Safe Move 移动后收敛验收](reports/safe-move-reconciliation-retry-2026-09-15.md)。
 
 2026-09-14 最新 P3 增量：Language Server 持久缓存升级到 v44，把每文件 Symfony Controller/Twig 上下文和 Doctrine repository/association 事实与 schema 72 语义快照放入同一 SHA-256 校验封装；恢复时验证 URI、范围、类型结构和内容，Twig interop 位置更新为当前 generation。热启动不再为这些事实重新解析 PHP。开放文档与磁盘缓存源不同会拒绝恢复，未保存内容也不会写入以磁盘元数据为键的缓存。10,000 文件 Linux x64 基准冷索引 16,932.74 ms、热恢复 3,897.67 ms，恢复 10,000/10,000，PHP 与框架重分析均为 0；损坏单个条目只重建 1 个文件。16 个组件 624 项、根扩展 33 项测试，16 个隔离 tarball、三份 VSIX 内容及 VS Code 1.137.0 打包 Extension Host 均通过；提交 `8576cee` 的 [CI 34861958814](https://github.com/sohophp/php-companion/actions/runs/34861958814) 15/15 成功，三平台热启动均恢复 1,000/1,000、PHP 与框架重分析为 0。Callable 调用依赖、Symfony YAML/编译容器外部事实及更细粒度磁盘记录仍未完成，P3 保持开放。证据见[框架派生事实持久化验收](reports/persistent-framework-facts-2026-09-14.md)。
 

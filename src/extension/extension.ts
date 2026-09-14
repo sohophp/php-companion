@@ -199,6 +199,11 @@ export function activate(context: vscode.ExtensionContext): void {
     const currentUri = new Map(moves.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
     const touched = moves.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
     await withBoundedRetry(async () => {
+      // The will-rename participant has already applied its exact edits to open
+      // buffers. Save those edits before asking the server to inspect the
+      // post-move filesystem; otherwise a transient request failure can leave
+      // the moved file on disk with its old namespace.
+      await applyMoveReconciliation(new vscode.WorkspaceEdit(), touched);
       await applyMoveReconciliation(await requestMoveReconciliation(moves), touched);
       for (const move of moves) {
         const uri = vscode.Uri.parse(move.newUri);
