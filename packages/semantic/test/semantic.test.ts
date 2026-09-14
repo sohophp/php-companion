@@ -5725,7 +5725,14 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
     expect(factoryParses).toBe(0);
 
-    isolated.update(factoryUri, `${factorySource}\n`);
+    const triviaOnly = isolated.update(factoryUri, `${factorySource}\n`);
+    expect(triviaOnly).toMatchObject({ kind: 'none', changedCallables: [], changedTypes: [] });
+    factoryParses = 0;
+    expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    expect(factoryParses).toBe(0);
+
+    const bodyChanged = isolated.update(factoryUri, factorySource.replace('new State(1)', 'new State(2)'));
+    expect(bodyChanged).toMatchObject({ kind: 'implementation', changedCallables: ['targetedcache\\make'], changedTypes: [] });
     factoryParses = 0;
     expect(isolated.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
     expect(factoryParses).toBeGreaterThan(0);
@@ -6726,7 +6733,13 @@ class Worker {
     const result = workspace.update(uri, changed, true);
     expect(result.incremental).toBe(true);
     expect(result.changedRanges).toBeGreaterThan(0);
+    expect(result).toMatchObject({ kind: 'declaration', changedCallables: expect.arrayContaining(['incremental\\user::oldname', 'incremental\\user::newname']),
+      changedTypes: ['incremental\\user'] });
     expect(workspace.completeMembers(uri, changed.indexOf('new }') + 3).map((item) => item.name)).toEqual(['newName']);
+    const topLevelUri = 'file:///TopLevelUpdate.php';
+    workspace.update(topLevelUri, '<?php $value = 1;');
+    expect(workspace.update(topLevelUri, '<?php $value = 2;')).toMatchObject({ kind: 'implementation', changedCallables: [], changedTypes: [] });
+    workspace.remove(topLevelUri);
     workspace.remove(uri);
   });
 });

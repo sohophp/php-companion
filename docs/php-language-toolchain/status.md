@@ -2,6 +2,8 @@
 
 最后更新：2026-09-14。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-14 最新增量：`@php-companion/semantic` 的更新结果已形成声明/实现/无语义变化三层契约，并返回实际变化的 callable/type 身份。文件末尾 trivia 不再清除工厂摘要；单个函数体变化只失效对应 callable，构造器和 Property Hook 实现变化会沿受影响类型层级失效构造摘要，声明变化仍保守扩大到公开表面。Language Server 据此让控制器模板上下文跟随实现体更新，同时只在声明层变化时重建 Doctrine 与 Symfony service 声明事实。引用倒排表、完整派生依赖图和分层磁盘格式尚未完成，因此 P3 总项保持开放。证据见[分层语义更新报告](reports/layered-semantic-updates-2026-09-14.md)。
+
 2026-09-14 最新增量：新增可独立发布的 `@php-companion/runtime-probe`，用参数数组直接启动目标 PHP CLI，在 3 秒和 128 KiB 边界内读取版本、SAPI、已加载扩展及 INI 来源，不执行 shell、项目 autoloader 或 Symfony Kernel。探测只在首次打开 PHP 文件或主动重新检测后发生；服务端再次验证载荷，并只接受与目标 PHP 次版本一致的结果。成功探测到缺少 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter 时，会按 workspace folder/嵌套 Composer 根裁剪内建符号并发布 `php.extension.unavailable`，诊断结构区分设置、Composer 和运行时来源；失败、超时、畸形输出、版本不匹配、项目/polyfill 定义继续保持 unknown。十六个组件 616 项、根扩展 33 项，共 649 项测试通过；本机六个 PHP 次版本、十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 打包宿主均通过。验证证据见[PHP 运行时扩展探测报告](reports/php-runtime-extension-probe-2026-09-14.md)。其余扩展目录和完整 P3 环境能力仍待逐项完成。
 
 PHP 8.4 Property Hook 继承与引用边界证据见 [PHP 8.4 Property Hook 继承与引用边界验收](reports/php84-property-hook-inheritance-2026-09-13.md)；基础读写模型见 [PHP 8.4 Property Hooks 验收报告](reports/php84-property-hooks-2026-09-13.md)。

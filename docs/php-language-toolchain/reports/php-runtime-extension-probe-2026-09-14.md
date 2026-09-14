@@ -24,7 +24,7 @@
 - runtime-probe 单元测试覆盖合法载荷、扩展名规范化、不可执行命令、畸形输出、进程异常、别名去重和版本解析。
 - 真实 stdio LSP 测试覆盖设置、Composer 与运行时三种来源同时存在、运行时快照刷新、内建 Definition 移除，以及目标版本不匹配反例。
 - `pnpm test` 通过：十六个组件 616 项、根扩展 33 项，共 649 项；其中 runtime-probe 4 项、language-server 161 项。
-- 本机 PHP 7.2、7.4、8.1、8.2、8.4、8.5 的真实 CLI 集成探测全部通过；CI 继续覆盖 PHP 7.3 和 8.0。
+- 本机 PHP 7.2、7.4、8.1、8.2、8.4、8.5 的真实 CLI 集成探测全部通过；提交 `431d93e` 的 [CI 34824531041](https://github.com/sohophp/php-companion/actions/runs/34824531041) 进一步通过 PHP 7.2–8.5 九版本矩阵，以及 Linux、Windows、macOS 的质量与打包 Extension Host，共 15/15 项成功。
 - `pnpm typecheck`、`pnpm lint`、`pnpm verify:packages`、`pnpm package:all` 与 `pnpm verify:vsix` 通过；十六个真实 tarball 在仓库外隔离消费者中安装和调用成功。
 - `pnpm test:extension:packaged` 在 VS Code 1.137.0 Linux x64 隔离配置中完成完整 Extension Host 用例，退出码 0。
 
@@ -34,4 +34,4 @@
 - `php-companion-open-source-pack-0.4.5.vsix`：`d74a84ee947b89988c2363ad6f038c622eb473bf9e030b2d161cf65dc79edaf2`
 - `php-companion-recommended-pack-0.4.5.vsix`：`76661f2ca4058be3278826bc899e62a7786570f29f0e9a6779fe634fea1431c0`
 
-以上是本地候选证据，不等同于 npm、Marketplace 或跨平台发布；Windows/macOS 与 PHP 7.3/8.0 以推送后的 CI 为最终矩阵证据。
+以上产物哈希是本地候选证据，不等同于 npm 或 Marketplace 发布；跨平台与 PHP 7.3/8.0 的自动证据由上述 CI 提供。

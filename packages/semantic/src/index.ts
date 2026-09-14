@@ -49,7 +49,17 @@ interface EffectiveProperty {
 }
 type SyntaxTree = ReturnType<PhpSyntaxParser['parse']>['tree'];
 type SyntaxNode = SyntaxTree['rootNode'];
-export interface SemanticUpdateResult { incremental: boolean; changedRanges: number; }
+export type SemanticUpdateKind = 'none' | 'implementation' | 'declaration';
+export interface SemanticUpdateResult {
+  incremental: boolean;
+  changedRanges: number;
+  /** The broadest semantic layer changed by this update. */
+  kind: SemanticUpdateKind;
+  /** Stable lowercase callable identities whose implementation may have changed. */
+  changedCallables: string[];
+  /** Stable lowercase type identities whose declaration surface may have changed. */
+  changedTypes: string[];
+}
 
 export interface SemanticLocation { uri: string; start: number; end: number; }
 export interface MemberInfo extends SemanticLocation {
@@ -412,6 +422,97 @@ function specializeTemplateType(value: string | undefined, arguments_: Record<st
   return normalized.changed ? displayPhpDocType(normalized.type) : specialized;
 }
 
+function semanticParameter(parameter: ParsedParameter): unknown {
+  return {
+    name: parameter.name, type: parameter.type, nativeType: parameter.nativeType,
+    defaultValue: parameter.defaultValue, promoted: parameter.promoted,
+    variadic: parameter.variadic, byReference: parameter.byReference,
+  };
+}
+
+function semanticCallableSurface(callable: ParsedCallableDeclaration): unknown {
+  return {
+    name: callable.name, fqcn: callable.fqcn, kind: callable.kind,
+    containerFqcn: callable.containerFqcn, parameters: callable.parameters.map(semanticParameter),
+    returnType: callable.returnType, nativeReturnType: callable.nativeReturnType,
+    visibility: callable.visibility, static: callable.static,
+  };
+}
+
+function semanticTypeSurfaces(file: SemanticFile | undefined): Map<string, string> {
+  const surfaces = new Map<string, string>();
+  if (!file) return surfaces;
+  for (const declaration of file.declarations.filter((item) => !item.anonymous)) {
+    const key = declaration.fqcn.toLowerCase();
+    const traitAdaptations = declaration.traitAdaptations.map((item) => item.kind === 'precedence'
+      ? { kind: item.kind, trait: item.trait, method: item.method, insteadOf: item.insteadOf }
+      : { kind: item.kind, trait: item.trait, method: item.method, alias: item.alias, visibility: item.visibility });
+    const callables = file.callables.filter((item) => item.containerFqcn?.toLowerCase() === key).map(semanticCallableSurface);
+    const properties = file.properties.filter((item) => item.containerFqcn.toLowerCase() === key).map((item) => ({
+      name: item.name, fqcn: item.fqcn, type: item.type, defaultValue: item.defaultValue,
+      visibility: item.visibility, writeVisibility: item.writeVisibility, static: item.static,
+      readonly: item.readonly, final: item.final, abstract: item.abstract, promoted: item.promoted,
+      virtual: item.virtual, readable: item.readable, writable: item.writable, writeType: item.writeType,
+      hooks: item.hooks?.map((hook) => ({ kind: hook.kind, parameter: hook.parameter && semanticParameter(hook.parameter),
+        byReference: hook.byReference, final: hook.final, abstract: hook.abstract })),
+    }));
+    const constants = file.constants.filter((item) => item.containerFqcn?.toLowerCase() === key).map((item) => ({
+      kind: item.kind, name: item.name, fqcn: item.fqcn, type: item.type, value: item.value, visibility: item.visibility,
+    }));
+    surfaces.set(key, JSON.stringify({
+      declaration: {
+        name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind,
+        extendsNames: declaration.extendsNames, implementsNames: declaration.implementsNames,
+        traitNames: declaration.traitNames, traitAdaptations, readonlyClass: declaration.readonlyClass,
+        enumBackingType: declaration.enumBackingType,
+      }, callables, properties, constants,
+      templates: file.templates.filter((item) => item.ownerFqcn.toLowerCase() === key || item.ownerFqcn.toLowerCase().startsWith(`${key}::`)),
+      genericParents: file.genericParents.filter((item) => item.ownerFqcn.toLowerCase() === key),
+      magicMembers: file.magicMembers.filter((item) => item.ownerFqcn.toLowerCase() === key).map((item) => ({
+        ownerFqcn: item.ownerFqcn, kind: item.kind, name: item.name,
+        parameters: item.parameters.map(semanticParameter), returnType: item.returnType, writeType: item.writeType,
+        static: item.static, readable: item.readable, writable: item.writable,
+        templates: item.templates?.map((template) => ({ ownerFqcn: template.ownerFqcn, name: template.name,
+          bound: template.bound, default: template.default, variance: template.variance })),
+      })),
+    }));
+  }
+  return surfaces;
+}
+
+function semanticFileSurface(file: SemanticFile | undefined, typeSurfaces = semanticTypeSurfaces(file)): string {
+  if (!file) return '';
+  return JSON.stringify({
+    namespace: file.namespace,
+    types: [...typeSurfaces],
+    globalCallables: file.callables.filter((item) => !item.containerFqcn).map(semanticCallableSurface),
+    globalConstants: file.constants.filter((item) => !item.containerFqcn).map((item) => ({
+      kind: item.kind, name: item.name, fqcn: item.fqcn, type: item.type, value: item.value, visibility: item.visibility,
+    })),
+    imports: file.imports.map((item) => ({ kind: item.kind, fqcn: item.fqcn, alias: item.alias,
+      explicitAlias: item.explicitAlias, namespace: item.namespace })),
+  });
+}
+
+function implementationSlices(file: SemanticFile | undefined): Map<string, string[]> {
+  const result = new Map<string, string[]>();
+  if (!file) return result;
+  for (const callable of file.callables) {
+    const key = callable.fqcn.toLowerCase(); const values = result.get(key) ?? [];
+    values.push(file.source.slice(callable.declarationStart, callable.declarationEnd)); result.set(key, values);
+  }
+  for (const property of file.properties.filter((item) => item.hooks?.some((hook) => !hook.abstract))) {
+    const key = `${property.containerFqcn.toLowerCase()}::$${property.name}`; const values = result.get(key) ?? [];
+    values.push(file.source.slice(property.declarationStart, property.declarationEnd)); result.set(key, values);
+  }
+  return result;
+}
+
+function changedMapKeys(left: ReadonlyMap<string, unknown>, right: ReadonlyMap<string, unknown>): Set<string> {
+  const keys = new Set([...left.keys(), ...right.keys()]);
+  return new Set([...keys].filter((key) => JSON.stringify(left.get(key)) !== JSON.stringify(right.get(key))));
+}
+
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
   private readonly trees = new Map<string, SyntaxTree>();
@@ -443,19 +544,14 @@ export class SemanticWorkspace {
     return undefined;
   }
 
-  private invalidateFileDerivedCaches(oldFile: SemanticFile | undefined, nextFile: SemanticFile | undefined,
-    oldDependents: Set<string> | undefined): void {
-    const typeNames = new Set([...oldFile?.declarations ?? [], ...nextFile?.declarations ?? []].map((item) => item.fqcn.toLowerCase()));
-    const nextDependents = this.dependentTypeNames(typeNames);
+  private invalidateFileDerivedCaches(affectedTypes: ReadonlySet<string>, changedCallables: ReadonlySet<string>,
+    topologyChanged: boolean, oldDependents: Set<string> | undefined): void {
+    const nextDependents = this.dependentTypeNames(affectedTypes);
     if (!oldDependents || !nextDependents) this.constructorInitializationSummaries.clear();
     else for (const name of new Set([...oldDependents, ...nextDependents])) this.constructorInitializationSummaries.delete(name);
 
-    const callableNames = new Set([...oldFile?.callables ?? [], ...nextFile?.callables ?? []].map((item) => item.fqcn.toLowerCase()));
-    const oldTypes = new Set((oldFile?.declarations ?? []).map((item) => item.fqcn.toLowerCase()));
-    const nextTypes = new Set((nextFile?.declarations ?? []).map((item) => item.fqcn.toLowerCase()));
-    const topologyChanged = oldTypes.size !== nextTypes.size || [...oldTypes].some((name) => !nextTypes.has(name));
     for (const [key, result] of this.factoryConstructionSummaries) {
-      if (callableNames.has(key) || (result !== null && typeNames.has(result.toLowerCase())) || (result === null && topologyChanged)) {
+      if (changedCallables.has(key) || (result !== null && affectedTypes.has(result.toLowerCase())) || (result === null && topologyChanged)) {
         this.factoryConstructionSummaries.delete(key);
       }
     }
@@ -464,9 +560,6 @@ export class SemanticWorkspace {
   update(uri: string, source: string, retainTree = false): SemanticUpdateResult {
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
-    const oldDependents = hasDerivedCaches
-      ? this.dependentTypeNames(new Set((oldFile?.declarations ?? []).map((item) => item.fqcn)))
-      : new Set<string>();
     const oldSource = oldFile?.source; const oldTree = retainTree ? this.trees.get(uri) : undefined;
     if (oldTree && oldSource !== undefined) oldTree.edit(createIncrementalEdit(oldSource, source));
     const parsed = this.parser.parse(source, oldTree, uri);
@@ -719,6 +812,25 @@ export class SemanticWorkspace {
       });
       const scopes = parsed.scopes.map((scope) => ({ ...scope, parameters: callables.find((callable) => callable.fqcn === scope.id)?.parameters ?? scope.parameters }));
       const nextFile: SemanticFile = { uri, source, namespace: parsed.namespace, declarations: parsed.declarations, callables, scopes, variableReferences: parsed.variableReferences, returns: parsed.returns, narrowings: parsed.narrowings, properties, constants: parsed.constants, imports: parsed.imports, typeReferences: parsed.typeReferences, assignments: parsed.assignments, rawNames: parsed.rawNames, memberAccesses: parsed.memberAccesses, calls: parsed.calls, templates, genericParents, magicMembers, syntaxErrors: parsed.errors, commentRanges: parsed.commentRanges, stringRanges: parsed.stringRanges };
+      const oldTypeSurfaces = semanticTypeSurfaces(oldFile); const nextTypeSurfaces = semanticTypeSurfaces(nextFile);
+      const changedTypes = changedMapKeys(oldTypeSurfaces, nextTypeSurfaces);
+      const declarationChanged = semanticFileSurface(oldFile, oldTypeSurfaces) !== semanticFileSurface(nextFile, nextTypeSurfaces);
+      const changedCallables = changedMapKeys(implementationSlices(oldFile), implementationSlices(nextFile));
+      const implementationChanged = changedCallables.size > 0
+        || (oldFile !== undefined && oldFile.source.trimEnd() !== nextFile.source.trimEnd());
+      if (declarationChanged) {
+        for (const callable of [...(oldFile?.callables ?? []), ...nextFile.callables]) changedCallables.add(callable.fqcn.toLowerCase());
+        if (changedTypes.size === 0) for (const name of new Set([...oldTypeSurfaces.keys(), ...nextTypeSurfaces.keys()])) changedTypes.add(name);
+      }
+      const affectedTypes = new Set(changedTypes);
+      for (const callable of changedCallables) {
+        const separator = callable.lastIndexOf('::');
+        if (separator > 0 && callable.slice(separator + 2) === '__construct') affectedTypes.add(callable.slice(0, separator));
+        else if (separator > 0 && callable.slice(separator + 2).startsWith('$')) affectedTypes.add(callable.slice(0, separator));
+      }
+      const oldTypeNames = new Set(oldTypeSurfaces.keys()); const nextTypeNames = new Set(nextTypeSurfaces.keys());
+      const topologyChanged = oldTypeNames.size !== nextTypeNames.size || [...oldTypeNames].some((name) => !nextTypeNames.has(name));
+      const oldDependents = hasDerivedCaches && affectedTypes.size > 0 ? this.dependentTypeNames(affectedTypes) : new Set<string>();
       const controlFlowAssignments = new Set<number>();
       const controlNodes = new Set(['if_statement', 'switch_statement', 'try_statement', 'while_statement', 'do_statement', 'for_statement', 'foreach_statement']);
       const scopeBoundaries = new Set(['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function']);
@@ -743,10 +855,16 @@ export class SemanticWorkspace {
       this.files.set(uri, nextFile);
       this.assertedTargetInferenceCache.clear();
       this.controlFlowAssignments.set(uri, controlFlowAssignments);
-      if (hasDerivedCaches) this.invalidateFileDerivedCaches(oldFile, nextFile, oldDependents);
+      if (hasDerivedCaches && (affectedTypes.size > 0 || changedCallables.size > 0)) {
+        this.invalidateFileDerivedCaches(affectedTypes, changedCallables, topologyChanged, oldDependents);
+      }
       this.trees.delete(uri);
       if (retainTree) this.trees.set(uri, parsed.tree);
-      return { incremental: Boolean(oldTree), changedRanges };
+      return {
+        incremental: Boolean(oldTree), changedRanges,
+        kind: declarationChanged ? 'declaration' : implementationChanged ? 'implementation' : 'none',
+        changedCallables: [...changedCallables].sort(), changedTypes: [...changedTypes].sort(),
+      };
     } finally {
       oldTree?.delete();
       if (!retainTree) parsed.tree.delete();
@@ -755,11 +873,13 @@ export class SemanticWorkspace {
   remove(uri: string): void {
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
+    const affectedTypes = new Set((oldFile?.declarations ?? []).map((item) => item.fqcn.toLowerCase()));
+    const changedCallables = new Set((oldFile?.callables ?? []).map((item) => item.fqcn.toLowerCase()));
     const oldDependents = hasDerivedCaches
-      ? this.dependentTypeNames(new Set((oldFile?.declarations ?? []).map((item) => item.fqcn)))
+      ? this.dependentTypeNames(affectedTypes)
       : new Set<string>();
     this.files.delete(uri); this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
-    if (hasDerivedCaches) this.invalidateFileDerivedCaches(oldFile, undefined, oldDependents);
+    if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
   dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.factoryConstructionSummaries.clear(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {

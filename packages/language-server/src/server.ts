@@ -1414,13 +1414,17 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     const alreadyIndexed = root ? indexedUrisByRoot.get(root)?.has(change.uri) === true : false;
     if (!alreadyIndexed) { requiresReindex = true; continue; }
     try {
-      const source = await readFile(path, 'utf8'); workspace.update(change.uri, source);
+      const source = await readFile(path, 'utf8'); const update = workspace.update(change.uri, source);
       if (root) {
-        const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        byFile.set(change.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: change.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
-        interopContextsByRoot.set(root, byFile);
-        await refreshDoctrineDocument(root, change.uri, source, workspace);
-        await loadSymfonyServiceFacts(root, workspace);
+        if (update.kind !== 'none') {
+          const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+          byFile.set(change.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: change.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
+          interopContextsByRoot.set(root, byFile);
+        }
+        if (update.kind === 'declaration') {
+          await refreshDoctrineDocument(root, change.uri, source, workspace);
+          await loadSymfonyServiceFacts(root, workspace);
+        }
       }
     } catch { workspace.remove(change.uri); if (root) removeDoctrineDocument(root, change.uri, workspace); requiresReindex = true; }
   }
@@ -1432,17 +1436,17 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
 
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
-  (await semanticForUri(document.uri)).update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root) await refreshDoctrineDocument(root, document.uri, document.getText(), await semanticForUri(document.uri));
-  await refreshInteropDocument(document);
+  const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
+  const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
 });
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
-  (await semanticForUri(document.uri)).update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root) await refreshDoctrineDocument(root, document.uri, document.getText(), await semanticForUri(document.uri));
-  await refreshInteropDocument(document);
+  const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
+  const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
 });
 
@@ -1452,11 +1456,13 @@ documents.onDidClose(async ({ document }) => {
     const path = pathForUri(document.uri);
     try {
       if (!path) throw new Error('Document URI has no filesystem path.');
-      const source = await readFile(path, 'utf8'); workspace.update(document.uri, source);
-      const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-      byFile.set(document.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
-      interopContextsByRoot.set(root, byFile);
-      await refreshDoctrineDocument(root, document.uri, source, workspace);
+      const source = await readFile(path, 'utf8'); const update = workspace.update(document.uri, source);
+      if (update.kind !== 'none') {
+        const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+        byFile.set(document.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
+        interopContextsByRoot.set(root, byFile);
+      }
+      if (update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, source, workspace);
     } catch { workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); }
   } else {
     workspace?.remove(document.uri);

@@ -1,5 +1,7 @@
 # Changelog
 
+- Classify updates as declaration, implementation, or no semantic change; return affected callable/type identities and retain unrelated derived summaries across trivia-only or isolated body edits.
+
 - Diagnose direct reference acquisition, reference assignment, uniquely resolved by-reference arguments, property-reference iteration, and visible hooked properties during whole-object reference iteration according to the effective `&get` contract.
 
 - Validate PHP 8.4 interface and abstract property requirements, get covariance, set contravariance, visibility, final properties, final individual hooks, and `&get` requirements for array-offset modification across complete indexed hierarchies. Preserve non-overridden parent hooks in effective child members. Semantic snapshots advance to schema 71.
