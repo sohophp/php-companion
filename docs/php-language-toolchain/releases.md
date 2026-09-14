@@ -14,7 +14,7 @@
 
 目标：尽早形成可验证的免费工具组合，完成核心开发所需的精准基线。对应 P0、少量 P1 和外部工具集成。
 
-- [x] 验证默认组合成员的许可、实际免费功能、Linux/WSL 平台、PHP 版本、安装方式与维护状态；证据见 Open Source Profile 报告，Windows/macOS 留给 R4 平台矩阵。
+- [x] 验证默认组合成员的许可、实际免费功能、PHP 版本、安装方式与维护状态；冻结版本的完整 Open Source Profile 已通过 Linux、Windows 与 macOS 自动门禁，Windows 客户端连接 WSL Remote 和人工 UI 仍留给 R4。
 - [x] 核查现有 Open Source Pack 的每个成员；闭源 Database Client、非核心扩展及存在 Provider 冲突的 Symfony Language Tools 0.20.1/0.20.2 已移出默认安装和受支持 Profile，八项默认成员已确定许可证与职责边界；Red Hat XML 与 Symfony 历史隔离评估单独记录。
 - [x] 默认插件及职责边界已固定在 integrations.md；JSON/HTML/CSS/JS 使用 VS Code 内建服务。
 - [x] Symfony Language Tools 0.20.1 Linux x64 的静态索引能力已完成历史评估，但它与 0.20.2 都在重复组合门禁中干扰普通 PHP Rename，且没有关闭该 Provider 的设置；当前不提供自动或手动推荐安装。静态路由候选由 Companion 在可证明源码范围内补齐，上游修复后重新执行三平台门禁。

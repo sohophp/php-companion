@@ -60,7 +60,7 @@ SPL 目录迭代器证据见 [SPL 目录迭代器内建报告](reports/spl-direc
 
 2026-09-13 最新封板：PHP 8.4 Property Hook 继承已覆盖完整已索引层级中的接口/抽象属性要求、get 协变、set 逆变、双向不变、独立 hook 继承、final 属性/final hook 与 `private(set)` 隐式 final；有效 `&get` 会控制数组下标修改、直接取引用、唯一解析按引用实参、属性 foreach 引用和对象 foreach 引用是否合法，向 hooked property 赋引用始终拒绝。动态或歧义目标保持 unknown。非法抽象/接口声明、virtual 默认值及 backed `&get`/`set` 组合均有稳定诊断。Semantic snapshot 升至 schema 71，持久缓存升至 v42。十五个组件 590 项、根扩展 33 项，共 623 项测试通过；十五个 tarball、三份 VSIX、纯净宿主和七插件 Open Source Profile 均通过，冻结第三方目录 1,370 个文件哈希不变。产物校验值见本轮继承与引用边界报告。
 
-2026-09-14 当前跨平台候选门禁：提交 `c9adcf7` 的 [CI 34771375887](https://github.com/sohophp/php-companion/actions/runs/34771375887) 全部通过。Linux x64、Windows x64 与 macOS arm64 均完成 quality、十五个组件 tarball 仓库外安装、500 次编辑恢复基准、三份 VSIX 构建与内容校验；三个系统上的 VS Code 1.137.0 打包主扩展 Extension Host 均通过。PHP 7.2–8.5 运行时矩阵全部通过。三系统基准均为 0 次陈旧补全，缓存损坏恢复和重启后补全恢复通过，详细指标及原始 JSON 见 [跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)。WSL Remote 的自动矩阵、三系统完整第三方插件组合和多小时真实项目会话仍待最终系统矩阵，因此 F13 总项保持开放。
+2026-09-14 跨平台候选门禁：提交 `c9adcf7` 的 [CI 34771375887](https://github.com/sohophp/php-companion/actions/runs/34771375887) 全部通过。Linux x64、Windows x64 与 macOS arm64 均完成 quality、十五个组件 tarball 仓库外安装、500 次编辑恢复基准、三份 VSIX 构建与内容校验；三个系统上的 VS Code 1.137.0 打包主扩展 Extension Host 均通过。PHP 7.2–8.5 运行时矩阵全部通过。三系统基准均为 0 次陈旧补全，缓存损坏恢复和重启后补全恢复通过，详细指标及原始 JSON 见 [跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)。随后 2026-09-15 的组合门禁补齐三系统冻结第三方 Profile；WSL Remote 自动矩阵和多小时真实项目会话仍待最终系统矩阵，因此 F13 总项保持开放。
 
 2026-09-14 声明级 F2 封板：class、interface、trait、enum 均可从声明发起 Rename，在一次可撤销的工作区编辑中同步规范 PSR-4 文件名、声明、跨文件 import/类型引用、PHPDoc 和静态访问；普通字符串、显式 alias、大小写不同的 Enum case 与非规范重复声明保持不变。VS Code 扩展通过 `onWillRenameFiles` 将旧声明文件编辑并入文件操作；独立 LSP 客户端仍获得标准有序 `documentChanges`。同 namespace 纯文件名变化不再触发 Safe Move 的重复规划，四种类型的 Apply/Undo/Redo 均无通用错误提示。十五个组件 590 项、根扩展 33 项、十五个独立 tarball、源码/兼容/打包 Extension Host 与三份 VSIX 校验均在 Linux x64 通过；提交 `aa7c2b6` 的 [CI 34778678115](https://github.com/sohophp/php-companion/actions/runs/34778678115) 进一步通过 Linux x64、Windows x64、macOS arm64 的质量和打包 Extension Host 门禁，以及 PHP 7.2–8.5 运行时矩阵。详见 [声明级 F2 类型重命名验收](reports/declaration-f2-rename-2026-09-14.md)。
 
@@ -347,7 +347,7 @@ pnpm verify:packages
 
 ## 尚未完成
 
-- [ ] P0 全部精准正反 fixtures 和真实插件组合操作核验；Open Source Profile 已在 Linux/WSL 完成隔离安装、许可证/版本、PHP/Twig/YAML/JSON formatter、EditorConfig、Xdebug 与 PHPUnit 实测，PHPUnit 快速删除日志限制已记录；主扩展的 Windows/macOS 打包 Extension Host 已通过，三系统完整第三方插件组合和更完整规则组合仍待平台矩阵；标记 testkit、版本代表样例与冻结性能预算已建立，版本矩阵仍需随实现逐项关闭未支持状态。
+- [ ] P0 全部精准正反 fixtures 和真实插件组合操作核验；Open Source Profile 已在 Linux、Windows、macOS 完成冻结版本隔离安装及 PHP/Twig/YAML/XML/JSON、EditorConfig、PHP CS Fixer、Xdebug 与 PHPUnit 组合门禁，PHPUnit 快速删除日志限制已记录；更完整规则组合、Windows 客户端连接 WSL Remote 和人工操作仍待验证。标记 testkit、版本代表样例与冻结性能预算已建立，版本矩阵仍需随实现逐项关闭未支持状态。
 - [ ] parser 的完整表达式事实；打开文档已使用 Tree edit 增量重解析并保留全量语义等价，匿名类和闭包捕获已完成。PHPDoc 模板继承、方差标签和条件类型 AST 已解析；完整嵌套条件相关性及方差安全审计仍待完成。
 - [ ] Composer 嵌套项目、完整逐版本内建符号生成；path/symlink、多个 workspace root、exclude-from-classmap、持久快照、首批版本化标准异常树、Date/Time、字符串及核心迭代/对象契约已实现。八个已审计扩展组已支持 workspace folder 与 Composer 显式禁用选择，仍需其余扩展/核心符号、启用扩展版本约束、自动环境探测、声明/方法体分层和依赖级增量失效。
 - [ ] type-system 高级类型；semantic 当前覆盖可证明参数、`$this`、`new` 赋值、单一返回链、PHPDoc 基础类型、成员可见性、基础 References、首批正向控制流收窄，以及完整 if/switch/try/catch/finally、安全 do/while、规范非空整数 for、显式单轮循环、可证明非空 foreach，并在一般 while、条件 for 与动态 foreach 的循环体赋值独立且完全可证明时合并循环前后局部类型；自依赖、引用、复杂跳转、循环体读取目标和完整泛型推断仍未完成。
@@ -359,7 +359,7 @@ pnpm verify:packages
 - [x] R1 首发候选：Linux / WSL 的 S01–S08 已通过。Safe Move 命令默认 Preview，以单个 WorkspaceEdit 原子提交文件、namespace 和引用，并通过一次 Undo/Redo 往返；资源管理器移动继续验证双向协调与重复 import 收敛。冻结诊断 corpus 的 TP=17、FP=0、FN=0，4/21 未知或不完整场景均正确抑制。R4 F01–F14 与完整系统矩阵未完成。
 - [ ] 打包发布候选、公开 npm/Marketplace 发布。
 
-当前核心编码闭环和开源组合已达到 Linux / WSL R1 首发候选；当前打包主扩展也通过 Windows x64 与 macOS arm64 自动候选门禁。三系统完整插件组合、WSL Remote 自动矩阵和 R4 最终功能仍未完成。逐项证据见 [R1 Linux / WSL 验收审计](reports/r1-acceptance-linux-wsl-2026-09-06.md)及[跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)。
+当前核心编码闭环和开源组合已达到 R1 首发候选；打包主扩展及七扩展 Open Source Profile 已通过 Linux x64、Windows x64 与 macOS arm64 自动门禁。Windows 客户端连接 WSL Remote、多小时真实项目会话和 R4 最终功能仍未完成。逐项证据见 [R1 Linux / WSL 验收审计](reports/r1-acceptance-linux-wsl-2026-09-06.md)、[跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)及[Open Source Profile 版本与 Provider 组合门禁](reports/open-source-profile-version-gate-2026-09-15.md)。
 
 JSON 高频目录现已覆盖 PHP 7.2–8.5 的 `json_encode`、`json_decode`、`json_last_error`、`json_last_error_msg`、主要选项/错误常量，以及 PHP 7.3 `JSON_THROW_ON_ERROR`、PHP 8.1 `JSON_ERROR_NON_BACKED_ENUM` 和 PHP 8.3 `json_validate` 门槛。PHP 7 返回通过 PHPDoc 表达，PHP 8 使用原生参数和返回类型；补全、Signature Help、Definition 与返回传播共用版本化内建文档。完整证据见 [JSON 内建目录验收](reports/json-builtins-2026-09-10.md)。
 
