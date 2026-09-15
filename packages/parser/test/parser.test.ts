@@ -155,6 +155,22 @@ class Child extends ParentBase implements Contract {
     ]);
     result.tree.delete();
   });
+  it('links only exact closure and arrow assignment literals to their scopes', () => {
+    const result = parser.parse(`<?php function run(): void {
+      $closure = function (Input $value): Result { return new Result(); };
+      $arrow = fn(Input $value): Result => new Result();
+      $wrapped = consume(fn(Input $value): Result => new Result());
+    }`);
+    expect(result.assignments.find((item) => item.variable === '$closure')?.sourceClosureId).toMatch(/^closure@/);
+    expect(result.assignments.find((item) => item.variable === '$arrow')?.sourceClosureId).toMatch(/^arrow@/);
+    expect(result.assignments.find((item) => item.variable === '$wrapped')?.sourceClosureId).toBeUndefined();
+    expect(result.scopes.filter((scope) => scope.kind === 'closure' || scope.kind === 'arrow')).toMatchObject([
+      { kind: 'closure', returnType: 'Result', parameters: [{ name: 'value', nativeType: 'Input' }] },
+      { kind: 'arrow', returnType: 'Result', parameters: [{ name: 'value', nativeType: 'Input' }] },
+      { kind: 'arrow', returnType: 'Result', parameters: [{ name: 'value', nativeType: 'Input' }] },
+    ]);
+    result.tree.delete();
+  });
   it('records an explicitly typed single-parameter arrow callback on member assignments', () => {
     const result = parser.parse('<?php function run(Collection $items): void { $mapped = $items->map(fn(User $item): View => new View()); $invalid = $items->map(fn(User $item): View => new View(), true); }');
     expect(result.assignments.find((item) => item.variable === '$mapped')?.sourceCall).toMatchObject({

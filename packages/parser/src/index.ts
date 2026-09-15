@@ -61,6 +61,8 @@ export interface ParsedAssignment extends SourceRange {
   typeName?: string;
   typeNames?: string[];
   sourceVariable?: string;
+  /** Exact closure/arrow literal assigned on the right-hand side. */
+  sourceClosureId?: string;
   sourceMember?: { variable: string; member: string; nullsafe: boolean };
   sourceChain?: { variable: string; steps: Array<
     | { kind: 'property'; name: string; nullsafe: boolean }
@@ -78,6 +80,7 @@ export interface ParsedScope {
   kind: 'function' | 'method' | 'closure' | 'arrow' | 'property-hook';
   containerFqcn?: string;
   parameters: ParsedParameter[];
+  returnType?: string;
   parentId?: string;
   captures: Array<{ variable: string; byReference: boolean }>;
   start: number;
@@ -983,7 +986,7 @@ export class PhpSyntaxParser {
           visibility: (node.namedChildren.find((child) => child.type === 'visibility_modifier')?.text as 'public' | 'protected' | 'private' | undefined) ?? 'public',
           static: node.namedChildren.some((child) => child.type === 'static_modifier'),
         });
-        scopes.push({ id: owner ? `${owner.fqcn}::${name}` : [callableNamespace, name].filter(Boolean).join('\\'), kind: owner ? 'method' : 'function', containerFqcn: owner?.fqcn, parameters: parametersOf(node), captures: [], start: node.startIndex, end: node.endIndex });
+        scopes.push({ id: owner ? `${owner.fqcn}::${name}` : [callableNamespace, name].filter(Boolean).join('\\'), kind: owner ? 'method' : 'function', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, captures: [], start: node.startIndex, end: node.endIndex });
         if (owner) {
           for (const parameter of node.childForFieldName('parameters')?.namedChildren.filter((item) => item.type === 'property_promotion_parameter') ?? []) {
             const nameNode = parameter.childForFieldName('name');
@@ -1016,7 +1019,7 @@ export class PhpSyntaxParser {
           const variable = capture.type === 'variable_name' ? capture : capture.namedChildren.find((child) => child.type === 'variable_name');
           return variable ? [{ variable: variable.text, byReference: capture.type === 'by_ref' }] : [];
         }) ?? [];
-        scopes.push({ id: `${node.type === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: node.type === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
+        scopes.push({ id: `${node.type === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: node.type === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
       }
       if (node.type === 'property_declaration') {
         const owner = containingType(node);
@@ -1188,6 +1191,8 @@ export class PhpSyntaxParser {
           scopeId: scope.id,
           typeName: createdType,
           sourceVariable: right.type === 'variable_name' ? right.text : undefined,
+          sourceClosureId: right.type === 'arrow_function' ? `arrow@${right.startIndex}`
+            : right.type === 'anonymous_function' ? `closure@${right.startIndex}` : undefined,
           sourceMember,
           sourceChain: sourceChain?.steps.length ? sourceChain : undefined,
           sourceArrayElement,

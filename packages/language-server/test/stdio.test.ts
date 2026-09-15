@@ -3605,6 +3605,74 @@ function run(Input $input): void {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('serves native closure and arrow variable invocation contracts through stdio', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-closure-literal-'));
+    try {
+      const source = `<?php declare(strict_types=1); namespace ClosureLiteralLsp;
+class Input {}
+class Result { public function done(): void {} }
+function run(Input $input): void {
+  $callback = function (Input $value, string $label = 'ready'): Result { return new Result(); };
+  $result = $callback(value: $input);
+  $result->done();
+  $missing = fn(Input $value): Result => new Result();
+  $missing();
+  $wrong = fn(Input $value): Result => new Result();
+  $wrong('invalid');
+  $source = fn(Input $value): Result => new Result();
+  $alias = $source;
+  $aliasResult = $alias($input);
+  $aliasResult->do;
+}`;
+      const path = join(root, 'ClosureLiteral.php'); const uri = pathToFileURL(path).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.1' }, autoload: { classmap: ['./ClosureLiteral.php'] } }));
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 238, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+      } }));
+      await output.waitFor((message) => message.id === 238);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params?.uri === uri && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.missing-required')
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'))).params.diagnostics;
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(1);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(1);
+      const signatureOffset = source.indexOf('$callback(value:') + '$callback('.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 239, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, signatureOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 239)).result).toMatchObject({ signatures: [{
+        label: "$callback(Input $value, string $label = 'ready'): Result",
+      }] });
+      const completionOffset = source.indexOf('$result->do') + '$result->do'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, completionOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 240)).result)
+        .toContainEqual(expect.objectContaining({ label: 'done' }));
+      const memberStart = source.indexOf('done();', source.indexOf('$result->'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(source, memberStart + 1),
+      } }));
+      const definitions = (await output.waitFor((message) => message.id === 242)).result;
+      expect(definitions).toHaveLength(1);
+      expect(lspOffset(source, definitions[0].range.start)).toBe(source.indexOf('done():'));
+      const aliasSignatureOffset = source.indexOf('$alias($input)') + '$alias('.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, aliasSignatureOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 241)).result).toMatchObject({ signatures: [{
+        label: '$alias(Input $value): Result',
+      }] });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('serves PHP 8.5 pipe result completion and definition through stdio', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-pipe-'));
     try {

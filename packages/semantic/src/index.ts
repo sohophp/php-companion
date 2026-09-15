@@ -80,7 +80,7 @@ export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: str
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 75;
+  schema: 76;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -158,7 +158,7 @@ export interface MemberInfo extends SemanticLocation {
   finalHooks?: Array<'get' | 'set'>;
   abstractHooks?: Array<'get' | 'set'>;
   getByReference?: boolean;
-  synthetic?: 'enum-native' | 'phpdoc-magic' | 'phpdoc-callable';
+  synthetic?: 'enum-native' | 'phpdoc-magic' | 'phpdoc-callable' | 'closure-literal';
 }
 
 function memberNameKey(kind: MemberInfo['kind'], name: string): string {
@@ -1302,7 +1302,7 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
-      schema: 75,
+      schema: 76,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1393,7 +1393,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 75 || !declaration || !implementation
+    if (value?.schema !== 76 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -3456,7 +3456,8 @@ export class SemanticWorkspace {
       if (call.firstClassCallable) return [];
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.signature(uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1)); if (!signature) return [];
-      if (signature.kind === 'function' && signature.synthetic !== 'phpdoc-callable') {
+      if (signature.kind === 'function' && signature.synthetic !== 'phpdoc-callable'
+        && signature.synthetic !== 'closure-literal') {
         const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)
           .filter((candidate) => candidate.kind === 'function' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
         if (matches.length !== 1) return [];
@@ -3517,8 +3518,8 @@ export class SemanticWorkspace {
     return file.calls.flatMap((call): IncompatibleArgument[] => {
       if (call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.completedCallSignature(file, call); if (!signature) return [];
-      if (signature.synthetic === 'phpdoc-callable') {
-        // The callable contract is carried by the local PHPDoc parameter itself.
+      if (signature.synthetic === 'phpdoc-callable' || signature.synthetic === 'closure-literal') {
+        // The callable contract is carried by a precise local source rather than a declared function.
       } else if (signature.kind === 'function') {
         if (this.callableDeclarationsForSignature(signature).length !== 1) return [];
       } else {
@@ -5662,6 +5663,7 @@ export class SemanticWorkspace {
       const callStart = offset - callableVariable[0].length + callableVariable[0].indexOf(callableVariable[1]!);
       const members = this.firstClassCallableSignatures(file, callableVariable[1]!, offset);
       if (!members.length) members.push(...this.phpDocCallableSignatures(file, callableVariable[1]!, callStart));
+      if (!members.length) members.push(...this.closureLiteralSignatures(file, callableVariable[1]!, callStart));
       const compatible = this.methodCandidatesForArguments(members, callableVariable[2]!, completeAtCursor,
         file, offset - callableVariable[2]!.length);
       return (compatible.length ? compatible : members).map((member) => ({
@@ -5747,6 +5749,42 @@ export class SemanticWorkspace {
     if (acquisitions.length !== 1) return [];
     const acquisition = acquisitions[0]!;
     return this.signatures(file.uri, acquisition.argumentsStart + 1);
+  }
+
+  private closureLiteralSignatures(file: SemanticFile, variable: string, offset: number,
+    visited = new Set<string>(), displayVariable = variable): SignatureInfo[] {
+    const scope = this.containingScope(file, offset); if (!scope) return [];
+    const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
+    if (visited.size >= 9 || visited.has(key)) return [];
+    visited.add(key);
+    const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+      && assignment.variable === variable && assignment.end <= offset);
+    if (assignments.length !== 1) return [];
+    const assignment = assignments[0]!;
+    const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const assignmentText = file.source.slice(assignment.start, assignment.end);
+    const followingText = file.source.slice(assignment.end, offset);
+    if (this.assignmentInsideControlFlow(file, assignment, scope)
+      || /=\s*&/u.test(assignmentText)
+      || new RegExp(`(?:=\\s*&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|unset\\s*\\(\\s*${escapedVariable}\\s*\\))`, 'u').test(followingText)
+      || this.priorReferenceMutations(file, scope, variable, offset).length) return [];
+    if (assignment.sourceVariable) {
+      return this.closureLiteralSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable);
+    }
+    if (!assignment.sourceClosureId) return [];
+    const literalScope = file.scopes.find((candidate) => candidate.id === assignment.sourceClosureId
+      && candidate.parentId === scope.id && (candidate.kind === 'closure' || candidate.kind === 'arrow'));
+    if (!literalScope) return [];
+    const callable = this.closureLiteralType(file, literalScope.start, literalScope.end);
+    const scopeFqcn = literalScope.containerFqcn ?? scope.containerFqcn ?? scope.id;
+    return [{
+      kind: 'function', uri: file.uri, start: literalScope.start, end: literalScope.end,
+      name: displayVariable, fqcn: displayVariable, parameters: literalScope.parameters,
+      returnType: literalScope.returnType ?? (callable?.kind === 'callable' ? displayType(callable.returnType) : undefined),
+      nativeReturnType: literalScope.returnType,
+      visibility: 'public', static: false, typeScopeFqcn: scopeFqcn, calledOnFqcn: scopeFqcn,
+      synthetic: 'closure-literal', activeParameter: 0, usedNamedArguments: [],
+    }];
   }
 
   private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {
@@ -9544,6 +9582,15 @@ export class SemanticWorkspace {
     }
     const callArguments = this.expandedCallArguments(file, callStart, callEnd); if (!callArguments) return undefined;
     if (!variable) return undefined;
+    const literalSignatures = this.closureLiteralSignatures(file, variable, callStart);
+    if (literalSignatures.length === 1) {
+      const signature = literalSignatures[0]!;
+      const call = file.calls.find((candidate) => candidate.start === callStart && candidate.end === callEnd);
+      if (!call || !this.callArgumentsCompatible(file, call, signature, file)) return undefined;
+      const callable = this.closureLiteralType(file, signature.start, signature.end);
+      if (callable?.kind !== 'callable' || ['mixed', 'void', 'never'].includes(displayType(callable.returnType).toLowerCase())) return undefined;
+      return callable.returnType;
+    }
     const resolved = this.phpDocCallableVariable(file, variable, callStart); if (!resolved?.callable.returnType) return undefined;
     const { callable, scope } = resolved;
     const callableReturnType = callable.returnType!;

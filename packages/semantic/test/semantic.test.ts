@@ -373,7 +373,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 75, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 76, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -4934,7 +4934,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 75, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 76, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -5192,6 +5192,62 @@ final class Imported { public const TYPE = Stable::class; }`);
       ['string', 'CallableResults\\ChildType'],
       ['string', 'CallableResults\\ChildType'],
     ]);
+  });
+  it('serves native closure and arrow assignment invocation contracts conservatively', () => {
+    const source = `<?php declare(strict_types=1); namespace ClosureLiteralContracts;
+      class Input {} class Result { public function done(): void {} }
+      function consume(callable $callback): callable { return $callback; }
+      function run(Input $input, bool $condition): void {
+        $callback = function (Input $value, string $label = 'ready'): Result { return new Result(); };
+        $result = $callback(value: $input); $result->do;
+        $missing = fn(Input $value): Result => new Result(); $missing();
+        $wrong = fn(Input $value): Result => new Result(); $wrong('invalid');
+        $source = fn(Input $value): Result => new Result(); $alias = $source;
+        $aliasResult = $alias($input); $aliasResult->do;
+        $deep0 = fn(Input $value): Result => new Result();
+        $deep1 = $deep0; $deep2 = $deep1; $deep3 = $deep2; $deep4 = $deep3;
+        $deep5 = $deep4; $deep6 = $deep5; $deep7 = $deep6; $deep8 = $deep7; $deep8($input);
+        $deep9 = $deep8; $deep9($input);
+        $inferred = fn(Input $value) => new Result();
+        $inferredResult = $inferred($input); $inferredResult->do;
+        $reassigned = fn(Input $value): Result => new Result();
+        $reassigned = fn(Input $value): Result => new Result(); $reassigned($input);
+        if ($condition) { $conditional = fn(Input $value): Result => new Result(); }
+        $conditional($input);
+        $referencedSource = fn(Input $value): Result => new Result();
+        $reference =& $referencedSource; $referencedSource($input);
+        $unset = fn(Input $value): Result => new Result(); unset($unset); $unset($input);
+        $wrapped = consume(fn(Input $value): Result => new Result()); $wrapped($input);
+      }`;
+    workspace.update('file:///ClosureLiteralContracts.php', source);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', parameters: [
+        { name: 'value', nativeType: 'Input', defaultValue: undefined },
+        { name: 'label', nativeType: 'string', defaultValue: "'ready'" },
+      ], returnType: 'Result', synthetic: 'closure-literal' },
+    ]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$alias($input)') + '$alias('.length)).toMatchObject([
+      { name: '$alias', parameters: [{ name: 'value', nativeType: 'Input' }], returnType: 'Result', synthetic: 'closure-literal' },
+    ]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$deep8($input)') + '$deep8('.length)).toHaveLength(1);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$deep9($input)') + '$deep9('.length)).toEqual([]);
+    expect(workspace.missingRequiredArguments('file:///ClosureLiteralContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$missing', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///ClosureLiteralContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$wrong', parameter: 'value', actualType: 'string', expectedType: 'ClosureLiteralContracts\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///ClosureLiteralContracts.php', source.indexOf('$result->do') + '$result->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.completeMembers('file:///ClosureLiteralContracts.php', source.indexOf('$aliasResult->do') + '$aliasResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.completeMembers('file:///ClosureLiteralContracts.php', source.indexOf('$inferredResult->do') + '$inferredResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$reassigned($input)') + '$reassigned('.length)).toEqual([]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$conditional($input)') + '$conditional('.length)).toEqual([]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$referencedSource($input)') + '$referencedSource('.length)).toEqual([]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$unset($input)') + '$unset('.length)).toEqual([]);
+    expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$wrapped($input)') + '$wrapped('.length)).toEqual([]);
   });
   it('serves PHPDoc Callable parameter signatures and direct invocation diagnostics', () => {
     const source = `<?php declare(strict_types=1); namespace CallableContracts;
@@ -6394,7 +6450,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 75, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 76, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -7063,7 +7119,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 75, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 76, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },

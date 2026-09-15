@@ -3,6 +3,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Serve native closure/arrow variable invocation signatures, diagnostics, aliases, and result completion through stdio, and advance persistent PHP caches to v48.
 - Serve one immutable local PHPDoc Callable alias through stdio Signature Help, argument diagnostics, and result completion.
 - Serve standalone local PHPDoc Callable assertions through stdio Signature Help, argument diagnostics, and result completion.
 - Serve direct local PHPDoc Callable assignment contracts through stdio Signature Help, argument diagnostics, and result completion.
