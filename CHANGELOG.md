@@ -1,4 +1,5 @@
 - 局部 PHPDoc callable 赋值注解和独立断言现在可沿一次非控制流、未修改的直接变量别名传播到 Signature Help、调用诊断和返回类型；来源提前读取/修改、别名重赋值或分支赋值保持 unknown。
+- 提交 `9c861a7` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交与三份 VSIX SHA-256。
 - 同一代码块内的独立 PHPDoc `@var callable(...) $variable` 断言现在可为首次直接变量调用提供 Signature Help、具名参数、缺参/错参诊断和返回传播；断言后的读取、修改、跨块使用或引用逃逸保持 unknown。
 - 提交 `3ae79e8` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交与三份 VSIX SHA-256。
 - 紧邻局部赋值的 PHPDoc `@var callable(...) $variable` 现在可为首次直接变量调用提供 Signature Help、具名参数、缺参/错参诊断和返回传播；控制流赋值、介入读取、重赋值或引用修改保持 unknown。
