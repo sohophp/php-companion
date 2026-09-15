@@ -5819,6 +5819,51 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(outerParses).toBe(0);
     isolated.dispose();
   });
+  it('restores positive callable factory facts with transitive dependency validation', () => {
+    const innerUri = 'file:///PersistentCallableInner.php'; const middleUri = 'file:///PersistentCallableMiddle.php';
+    const outerUri = 'file:///PersistentCallableOuter.php'; const unrelatedUri = 'file:///PersistentCallableUnrelated.php';
+    const consumerUri = 'file:///PersistentCallableConsumer.php';
+    const sources = new Map([
+      [innerUri, '<?php namespace PersistentCallable; class State { public function __construct(public readonly int $id) {} } function inner(): State { return new State(1); }'],
+      [middleUri, '<?php namespace PersistentCallable; function middle(): State { return inner(); }'],
+      [outerUri, '<?php namespace PersistentCallable; function outer(): State { return middle(); } function unknown(): State { return dynamic_factory(); }'],
+      [unrelatedUri, '<?php namespace PersistentCallable; class Other {} function unrelated(): Other { return new Other(); }'],
+      [consumerUri, '<?php namespace PersistentCallable; class Consumer { public function run(): void { $state = outer(); foreach ($state as &$value) {} $other = unrelated(); foreach ($other as &$value) {} } }'],
+    ]);
+    const original = new SemanticWorkspace(parser);
+    for (const [uri, source] of sources) original.update(uri, source);
+    expect(original.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    const facts = original.callableConstructionFacts();
+    expect(facts.flatMap((document) => document.facts.map((fact) => fact.callable))).toEqual([
+      'persistentcallable\\inner', 'persistentcallable\\middle', 'persistentcallable\\outer', 'persistentcallable\\unrelated',
+    ]);
+    const snapshots = [...sources].map(([uri]) => [uri, original.snapshot(uri)] as const); original.dispose();
+
+    let factoryParses = 0;
+    const countingParser = { parse: (...arguments_: Parameters<PhpSyntaxParser['parse']>) => {
+      if (arguments_[2] === outerUri) factoryParses += 1;
+      return parser.parse(...arguments_);
+    } } as PhpSyntaxParser;
+    const restored = new SemanticWorkspace(countingParser);
+    for (const [uri, snapshot] of snapshots) expect(restored.restore(snapshot, uri)).toBe(true);
+    expect(restored.restoreCallableConstructionFacts(facts)).toBe(4);
+    factoryParses = 0;
+    expect(restored.readonlyPropertyAssignments(consumerUri).map((item) => item.propertyNames)).toEqual([['id']]);
+    expect(factoryParses).toBe(0);
+    restored.update(innerUri, sources.get(innerUri)!.replace('new State(1)', 'dynamic_factory()'));
+    factoryParses = 0;
+    expect(restored.readonlyPropertyAssignments(consumerUri)).toEqual([]);
+    expect(factoryParses).toBeGreaterThan(0);
+    restored.dispose();
+
+    const partial = new SemanticWorkspace(parser);
+    for (const [uri, snapshot] of snapshots) expect(partial.restore(snapshot, uri)).toBe(true);
+    const withoutInner = facts.map((document) => document.uri === innerUri ? { ...document, facts: [] } : document);
+    expect(partial.restoreCallableConstructionFacts(withoutInner)).toBe(1);
+    expect(partial.callableConstructionFacts().flatMap((document) => document.facts.map((fact) => fact.callable)))
+      .toEqual(['persistentcallable\\unrelated']);
+    partial.dispose();
+  });
   it('loads and invalidates constructor initialization summaries across indexed files', () => {
     const stateUri = 'file:///CrossFileState.php'; const childUri = 'file:///CrossFileChild.php'; const consumerUri = 'file:///CrossFileConsumer.php';
     const state = (initialize: boolean): string => `<?php namespace CrossFileIteration;

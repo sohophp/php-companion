@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Persist consumed positive callable factory facts in a separate bounded cache. Validate caller source and payload SHA-256 digests plus the complete unique dependency chain, exclude open documents, debounce writes, and flush safely during shutdown.
+
 - Persist validated Symfony service-YAML and fresh compiled-container source facts in a separate bounded cache. Verify source and fact SHA-256 digests, re-expand YAML resources against the current PHP type index, bypass watched files, and rebuild only corrupt or stale entries.
 
 - Advance persistent caches to v44 and restore checksummed per-file Symfony Controller/Twig contexts and Doctrine repository/association facts without rerunning their PHP analyzers. Reject cache entries when an open document differs from the saved source.

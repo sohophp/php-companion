@@ -42,6 +42,15 @@ export interface SemanticSnapshot {
   };
   file: SemanticFileSnapshot;
 }
+export interface CallableConstructionFact {
+  callable: string;
+  result: string;
+  dependencies: string[];
+}
+export interface CallableConstructionFactDocument {
+  uri: string;
+  facts: CallableConstructionFact[];
+}
 type SemanticFile = SemanticFileSnapshot;
 interface ObjectClass { fqcn: string; nullable: boolean; typeArguments?: Record<string, string>; groups?: ObjectClass[][]; }
 interface MemberTarget { fqcn: string; member: string; accessFrom?: string; static: boolean; typeArguments?: Record<string, string>; groups?: ObjectClass[][]; }
@@ -1044,6 +1053,83 @@ export class SemanticWorkspace {
       },
       file: JSON.parse(JSON.stringify(file)) as SemanticFileSnapshot,
     } : undefined;
+  }
+  callableConstructionFacts(uri?: string): CallableConstructionFactDocument[] {
+    const documents = uri === undefined ? [...this.callableDependenciesByUri] : [[uri, this.callableDependenciesByUri.get(uri)] as const];
+    return documents.flatMap(([documentUri, dependencies]) => {
+      if (!dependencies) return [];
+      const facts = [...dependencies].flatMap(([callable, targets]) => {
+        const result = this.factoryConstructionSummaries.get(callable);
+        return typeof result === 'string' ? [{ callable, result, dependencies: [...targets].sort() }] : [];
+      }).sort((left, right) => left.callable.localeCompare(right.callable));
+      return facts.length ? [{ uri: documentUri, facts }] : [];
+    }).sort((left, right) => left.uri.localeCompare(right.uri));
+  }
+  restoreCallableConstructionFacts(documents: unknown): number {
+    this.clearFactoryConstructionCaches();
+    if (!Array.isArray(documents) || documents.length > 10_000) return 0;
+    let totalFacts = 0;
+    const callableOwners = new Map<string, Array<{ file: SemanticFile; callable: ParsedCallableDeclaration }>>();
+    const typeOwners = new Map<string, ParsedDeclaration[]>();
+    for (const file of this.files.values()) {
+      for (const callable of file.callables) {
+        const key = callable.fqcn.toLowerCase(); const owners = callableOwners.get(key) ?? [];
+        owners.push({ file, callable }); callableOwners.set(key, owners);
+      }
+      for (const declaration of file.declarations.filter((item) => !item.anonymous)) {
+        const key = declaration.fqcn.toLowerCase(); const owners = typeOwners.get(key) ?? [];
+        owners.push(declaration); typeOwners.set(key, owners);
+      }
+    }
+    type Candidate = { uri: string; fact: CallableConstructionFact };
+    const candidates = new Map<string, Candidate>(); const duplicates = new Set<string>();
+    for (const value of documents) {
+      if (!value || typeof value !== 'object') continue;
+      const document = value as Partial<CallableConstructionFactDocument>;
+      const file = typeof document.uri === 'string' && document.uri.length <= 32_768 ? this.files.get(document.uri) : undefined;
+      if (!file || !Array.isArray(document.facts) || document.facts.length > 10_000) continue;
+      totalFacts += document.facts.length;
+      if (totalFacts > 100_000) { this.clearFactoryConstructionCaches(); return 0; }
+      for (const valueFact of document.facts) {
+        if (!valueFact || typeof valueFact !== 'object') continue;
+        const fact = valueFact as Partial<CallableConstructionFact>;
+        if (typeof fact.callable !== 'string' || fact.callable.length < 1 || fact.callable.length > 1_024
+          || fact.callable !== fact.callable.toLowerCase() || typeof fact.result !== 'string' || fact.result.length < 1 || fact.result.length > 1_024
+          || !Array.isArray(fact.dependencies) || fact.dependencies.length > 256
+          || fact.dependencies.some((dependency) => typeof dependency !== 'string' || dependency.length < 1 || dependency.length > 1_024
+            || dependency !== dependency.toLowerCase() || dependency === fact.callable)
+          || new Set(fact.dependencies).size !== fact.dependencies.length) continue;
+        const caller = callableOwners.get(fact.callable);
+        const result = typeOwners.get(fact.result.toLowerCase());
+        if (caller?.length !== 1 || caller[0]!.file !== file || result?.length !== 1
+          || fact.dependencies.some((dependency) => callableOwners.get(dependency)?.length !== 1)) continue;
+        if (candidates.has(fact.callable)) duplicates.add(fact.callable);
+        else candidates.set(fact.callable, { uri: document.uri!, fact: fact as CallableConstructionFact });
+      }
+    }
+    for (const duplicate of duplicates) candidates.delete(duplicate);
+    const accepted = new Map<string, Candidate>(); let progressed = true;
+    while (progressed) {
+      progressed = false;
+      for (const [key, candidate] of candidates) {
+        if (accepted.has(key) || candidate.fact.dependencies.some((dependency) => !candidates.has(dependency))) continue;
+        if (!candidate.fact.dependencies.every((dependency) => accepted.get(dependency)?.fact.result.toLowerCase() === candidate.fact.result.toLowerCase())) continue;
+        accepted.set(key, candidate); progressed = true;
+      }
+    }
+    const byUri = new Map<string, Array<[string, Set<string>]>>();
+    for (const [key, candidate] of accepted) {
+      this.factoryConstructionSummaries.set(key, candidate.fact.result);
+      const entries = byUri.get(candidate.uri) ?? [];
+      entries.push([key, new Set(candidate.fact.dependencies)]); byUri.set(candidate.uri, entries);
+    }
+    for (const [documentUri, entries] of byUri) {
+      const document = new Map(entries); this.callableDependenciesByUri.set(documentUri, document);
+      const nodes = [...document].map(([key, values]) => ({ key, dependencies: values }));
+      if (this.callableDependencies.replace(documentUri, nodes)) this.unindexedCallableDependencyUris.delete(documentUri);
+      else this.unindexedCallableDependencyUris.add(documentUri);
+    }
+    return accepted.size;
   }
   restore(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSnapshot> | null; const file = value?.file as Partial<SemanticFileSnapshot> | undefined;

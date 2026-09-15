@@ -8,6 +8,7 @@ import { indexComposerSources } from '../packages/index/dist/index.js';
 import { PhpSyntaxParser } from '../packages/parser/dist/index.js';
 import { SemanticWorkspace } from '../packages/semantic/dist/index.js';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../packages/language-server/dist/projectFacts.js';
+import { CallableFactCache } from '../packages/language-server/dist/callableFactsCache.js';
 import { generatePhpComposerProject } from '../packages/testkit/dist/index.js';
 
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
@@ -18,10 +19,10 @@ const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${file
 const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v44-framework-facts-benchmark';
 const sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);
 const uri = (index) => pathToFileURL(sourcePath(index)).toString();
-const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } }`;
-const middle = '<?php namespace Benchmark; class Middle extends Base {}';
-const child = '<?php namespace Benchmark; class Child extends Middle {}';
-const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = new Child(); foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } }";
+const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;
+const middle = '<?php namespace Benchmark; class Middle extends Base {} function middle(): Child { return inner(); }';
+const child = '<?php namespace Benchmark; class Child extends Middle {} function outer(): Child { return middle(); }';
+const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } }";
 
 async function load(workspace) {
   let parsed = 0; let frameworkParsed = 0; let controllerContexts = 0; let doctrineProperties = 0; const started = performance.now();
@@ -51,17 +52,23 @@ try {
   if (cold.result.files !== files || cold.result.cached !== 0 || cold.parsed !== files) throw new Error(`Cold index did not parse every file: ${JSON.stringify(cold)}`);
   if (cold.frameworkParsed !== 2 || cold.controllerContexts !== 1 || cold.doctrineProperties !== 1) throw new Error(`Cold framework facts were incomplete: ${JSON.stringify(cold)}`);
   if (coldWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Cold index did not resolve the transitive constructor fact.');
+  const coldCallableCache = await CallableFactCache.open(cacheDirectory, root);
+  const coldCallableCommit = await coldCallableCache.commit(coldWorkspace, new Set());
+  if (!coldCallableCommit.written || coldCallableCommit.facts !== 3) throw new Error(`Cold callable facts were not persisted: ${JSON.stringify(coldCallableCommit)}`);
   coldWorkspace.dispose();
 
   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);
   if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);
   if (warm.frameworkParsed !== 0 || warm.controllerContexts !== 1 || warm.doctrineProperties !== 1) throw new Error(`Warm framework facts were not restored exactly: ${JSON.stringify(warm)}`);
+  const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);
+  const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
+  if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Warm index lost the transitive constructor fact.');
   warmWorkspace.update(uri(0), base(false));
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 0) throw new Error('Restored dependency graph retained a stale derived constructor fact.');
   warmWorkspace.dispose();
 
-  const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json')) ?? '');
+  const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');
   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
   const baseEntry = persisted.entries[sourcePath(0)];
   if (!baseEntry?.payload?.semantic?.layers?.referenceCandidates) throw new Error('Persistent cache did not contain the layered semantic payload.');
@@ -77,7 +84,8 @@ try {
     cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, frameworkParsed: cold.frameworkParsed },
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, frameworkParsed: warm.frameworkParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
-    exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true, corruptLayerReparsedFiles: recovered.parsed },
+    exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true,
+      callableFactsRestored: restoredCallableFacts, corruptLayerReparsedFiles: recovered.parsed },
   }, null, 2)}\n`);
 } finally {
   parser.dispose(); await rm(root, { recursive: true, force: true });

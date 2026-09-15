@@ -116,6 +116,51 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('restores validated transitive callable factory facts on a hot language-server start', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-callable-hot-'));
+    try {
+      const cacheDirectory = join(root, '.cache'); const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const consumer = '<?php namespace HotCallable; class Consumer { public function run(): void { $state = outer(); foreach ($state as &$value) {} } }';
+      const consumerPath = join(sourceDirectory, 'Consumer.php'); const consumerUri = pathToFileURL(consumerPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src'] } }));
+      await writeFile(join(root, 'composer.lock'), '{}');
+      await writeFile(join(sourceDirectory, 'Inner.php'), '<?php namespace HotCallable; class State { public function __construct(public readonly int $id) {} } function inner(): State { return new State(1); }');
+      await writeFile(join(sourceDirectory, 'Middle.php'), '<?php namespace HotCallable; function middle(): State { return inner(); }');
+      await writeFile(join(sourceDirectory, 'Outer.php'), '<?php namespace HotCallable; function outer(): State { return middle(); }');
+      await writeFile(consumerPath, consumer);
+      const rootUri = pathToFileURL(root).toString();
+      const start = async (id: number, restored: number): Promise<ReturnType<typeof messagesFrom>> => {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri, initializationOptions: { cacheDirectory },
+        } }));
+        await output.waitFor((message) => message.id === id);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes(`Restored ${restored} callable factory facts`));
+        return output;
+      };
+      const openAndDiagnose = async (output: ReturnType<typeof messagesFrom>, version: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: consumerUri, languageId: 'php', version, text: consumer },
+        } }));
+        const diagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params?.uri === consumerUri && message.params?.diagnostics?.some((item: any) => item.code === 'php.assignment.readonly-property'));
+        expect(diagnostics.params.diagnostics).toContainEqual(expect.objectContaining({ code: 'php.assignment.readonly-property' }));
+      };
+      const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === id);
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+      };
+
+      const cold = await start(225, 0); await openAndDiagnose(cold, 1); await stop(cold, 226);
+      const hot = await start(227, 3); await openAndDiagnose(hot, 1); await stop(hot, 228);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('combines resource settings with explicit Composer platform extension exclusions and refreshes resource settings', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-extensions-'));
     try {

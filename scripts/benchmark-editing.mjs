@@ -144,7 +144,8 @@ try {
   const cancellationOutcome = cancellation.result.length === 0 ? 'cancelled' : 'completed-before-cancellation';
   const finalRssMb = await rssMb(server.child.pid); rssSamples.push(finalRssMb); await server.stop(requestId++); server = undefined;
 
-  const cacheFiles = (await readdir(cacheDirectory)).filter((name) => name.endsWith('.json'));
+  const cacheFiles = (await readdir(cacheDirectory)).filter((name) => name.endsWith('.json')
+    && !name.endsWith('.callable.json') && !name.endsWith('.symfony.json'));
   if (cacheFiles.length === 0) throw new Error('Language server did not create a persistent semantic cache.');
   await writeFile(join(cacheDirectory, cacheFiles[0]), '{broken');
   const restarted = startLanguageServer(); server = restarted; await initialize(restarted, rootUri, cacheDirectory, requestId++);

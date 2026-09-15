@@ -1,5 +1,7 @@
 # Changelog
 
+- Export and restore positive callable construction facts with bounded, unique-identity and transitive dependency validation. Reject missing, ambiguous, cyclic, or result-inconsistent dependency chains.
+
 - Track unique direct factory calls in a bounded reverse callable graph. Propagate construction summaries through direct factory chains, invalidate transitive callers when a callee changes, and remove obsolete edges without evicting unrelated summaries.
 
 - Persist separately validated reference-candidate and type-dependency layers in semantic snapshot schema 72. Restore their indexes without reparsing, reject stale or corrupt derived layers, and use the reverse type graph for transitive constructor-summary invalidation.

@@ -39,6 +39,7 @@ import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescr
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile, type ProjectPhpFileFacts } from './projectFacts.js';
 import { SymfonyFactCache } from './symfonyFactsCache.js';
+import { CallableFactCache } from './callableFactsCache.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -62,6 +63,9 @@ const symfonyServicesByRoot = new Map<string, Map<string, SymfonyLiteralMethodRe
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
+const callableFactCachesByRoot = new Map<string, CallableFactCache>();
+const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
 let cacheDirectory: string | undefined;
 let testMode = false;
@@ -474,6 +478,37 @@ async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspac
   symfonyServicesByRoot.set(root, byFile); applySymfonyServiceFacts(root, workspace);
 }
 
+async function persistCallableFacts(root: string, workspace: SemanticWorkspace): Promise<void> {
+  const cache = callableFactCachesByRoot.get(root); if (!cache) return;
+  const excludedUris = new Set(documents.all().filter((document) => rootForUri(document.uri) === root).map((document) => document.uri));
+  const previous = callableFactCommitChains.get(root) ?? Promise.resolve();
+  const current = previous.catch(() => undefined).then(async () => {
+    const result = await cache.commit(workspace, excludedUris);
+    if (result.written) connection.console.info(`Persisted ${result.facts} callable factory facts in ${root}.`);
+  });
+  callableFactCommitChains.set(root, current);
+  try { await current; }
+  finally { if (callableFactCommitChains.get(root) === current) callableFactCommitChains.delete(root); }
+}
+
+function scheduleCallableFactPersistence(root: string, workspace: SemanticWorkspace): void {
+  if (!callableFactCachesByRoot.has(root)) return;
+  const pending = callableFactCommitTimers.get(root); if (pending) clearTimeout(pending);
+  callableFactCommitTimers.set(root, setTimeout(() => {
+    callableFactCommitTimers.delete(root);
+    void persistCallableFacts(root, workspace).catch(() => connection.console.warn('Persistent callable fact cache could not be written.'));
+  }, 750));
+}
+
+async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Promise<void> {
+  if (!cacheDirectory) return;
+  const pending = callableFactCommitTimers.get(root); if (pending) { clearTimeout(pending); callableFactCommitTimers.delete(root); }
+  await callableFactCommitChains.get(root)?.catch(() => undefined);
+  const cache = await CallableFactCache.open(cacheDirectory, root); callableFactCachesByRoot.set(root, cache);
+  const restored = cache.restore(workspace);
+  connection.console.info(`Restored ${restored} callable factory facts from persistent cache in ${root}.`);
+}
+
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration): Promise<void> {
   completeRoots.delete(root);
   projectCompleteRoots.delete(root);
@@ -525,6 +560,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     }));
     await loadSymfonyServiceFacts(root, workspace);
     await refreshSemanticProviders(root, generation, workspace, shouldContinue);
+    await loadCallableFacts(root, workspace);
     for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root)) await publishDocumentDiagnostics(document);
   }
   connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}.`);
@@ -1036,6 +1072,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
   if (documents.get(document.uri)?.version === document.version) {
     const diagnostics = configuredDiagnostics(result.diagnostics);
     await connection.sendDiagnostics({ uri: document.uri, version: document.version, diagnostics });
+    if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
 }
 
@@ -2194,6 +2231,14 @@ connection.onCodeAction(async (params, token) => {
 
 connection.onShutdown(async () => {
   indexingGeneration += 1;
+  for (const timer of callableFactCommitTimers.values()) clearTimeout(timer);
+  callableFactCommitTimers.clear();
+  for (const [root] of callableFactCachesByRoot) {
+    const workspace = await semanticWorkspaces.get(`root:${root}`);
+    if (workspace) await persistCallableFacts(root, workspace).catch(() => connection.console.warn('Persistent callable fact cache could not be written.'));
+  }
+  await Promise.allSettled(callableFactCommitChains.values());
+  callableFactCachesByRoot.clear(); callableFactCommitChains.clear();
   for (const workspace of await Promise.all([...semanticWorkspaces.values()])) workspace.dispose();
   (await parserPromise)?.dispose();
   parserPromise = undefined;
