@@ -31,16 +31,45 @@ export interface SemanticFileSnapshot {
   commentRanges: SourceRange[];
   stringRanges: SourceRange[];
 }
+export interface SemanticDeclarationSnapshot {
+  uri: string;
+  namespace: string;
+  declarations: ParsedDeclaration[];
+  callables: ParsedCallableDeclaration[];
+  properties: ParsedPropertyDeclaration[];
+  constants: ParsedConstantDeclaration[];
+  imports: ParsedImport[];
+  templates: SemanticTemplate[];
+  genericParents: SemanticGenericParent[];
+  magicMembers: SemanticMagicMember[];
+}
+export interface SemanticImplementationSnapshot {
+  uri: string;
+  source: string;
+  typeReferences: ParsedTypeReference[];
+  assignments: ParsedAssignment[];
+  rawNames: RawName[];
+  memberAccesses: ParsedMemberAccess[];
+  calls: ParsedCall[];
+  scopes: ParsedScope[];
+  variableReferences: ParsedVariableReference[];
+  returns: ParsedReturnStatement[];
+  narrowings: ParsedTypeNarrowing[];
+  syntaxErrors: SourceRange[];
+  commentRanges: SourceRange[];
+  stringRanges: SourceRange[];
+}
 export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: string; default?: string; variance: GenericVariance; }
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 72;
+  schema: 73;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
   };
-  file: SemanticFileSnapshot;
+  declaration: SemanticDeclarationSnapshot;
+  implementation: SemanticImplementationSnapshot;
 }
 export interface CallableConstructionFact {
   callable: string;
@@ -523,6 +552,37 @@ function implementationSlices(file: SemanticFile | undefined): Map<string, strin
     values.push(file.source.slice(property.declarationStart, property.declarationEnd)); result.set(key, values);
   }
   return result;
+}
+
+function declarationSnapshot(file: SemanticFile): SemanticDeclarationSnapshot {
+  return {
+    uri: file.uri, namespace: file.namespace, declarations: file.declarations, callables: file.callables,
+    properties: file.properties, constants: file.constants, imports: file.imports, templates: file.templates,
+    genericParents: file.genericParents, magicMembers: file.magicMembers,
+  };
+}
+
+function implementationSnapshot(file: SemanticFile): SemanticImplementationSnapshot {
+  return {
+    uri: file.uri, source: file.source, typeReferences: file.typeReferences, assignments: file.assignments,
+    rawNames: file.rawNames, memberAccesses: file.memberAccesses, calls: file.calls, scopes: file.scopes,
+    variableReferences: file.variableReferences, returns: file.returns, narrowings: file.narrowings,
+    syntaxErrors: file.syntaxErrors, commentRanges: file.commentRanges, stringRanges: file.stringRanges,
+  };
+}
+
+function semanticFileSnapshot(declaration: SemanticDeclarationSnapshot, implementation: SemanticImplementationSnapshot): SemanticFileSnapshot {
+  return {
+    uri: declaration.uri, source: implementation.source, namespace: declaration.namespace,
+    declarations: declaration.declarations, callables: declaration.callables, properties: declaration.properties,
+    constants: declaration.constants, imports: declaration.imports, templates: declaration.templates,
+    genericParents: declaration.genericParents, magicMembers: declaration.magicMembers,
+    typeReferences: implementation.typeReferences, assignments: implementation.assignments,
+    rawNames: implementation.rawNames, memberAccesses: implementation.memberAccesses, calls: implementation.calls,
+    scopes: implementation.scopes, variableReferences: implementation.variableReferences, returns: implementation.returns,
+    narrowings: implementation.narrowings, syntaxErrors: implementation.syntaxErrors,
+    commentRanges: implementation.commentRanges, stringRanges: implementation.stringRanges,
+  };
 }
 
 function changedMapKeys(left: ReadonlyMap<string, unknown>, right: ReadonlyMap<string, unknown>): Set<string> {
@@ -1046,12 +1106,13 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
-      schema: 72,
+      schema: 73,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
       },
-      file: JSON.parse(JSON.stringify(file)) as SemanticFileSnapshot,
+      declaration: JSON.parse(JSON.stringify(declarationSnapshot(file))) as SemanticDeclarationSnapshot,
+      implementation: JSON.parse(JSON.stringify(implementationSnapshot(file))) as SemanticImplementationSnapshot,
     } : undefined;
   }
   callableConstructionFacts(uri?: string): CallableConstructionFactDocument[] {
@@ -1132,9 +1193,14 @@ export class SemanticWorkspace {
     return accepted.size;
   }
   restore(snapshot: unknown, expectedUri?: string): boolean {
-    const value = snapshot as Partial<SemanticSnapshot> | null; const file = value?.file as Partial<SemanticFileSnapshot> | undefined;
+    const value = snapshot as Partial<SemanticSnapshot> | null;
+    const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
+    const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 72 || !file || typeof file.uri !== 'string' || typeof file.source !== 'string' || (expectedUri !== undefined && file.uri !== expectedUri)
+    if (value?.schema !== 73 || !declaration || !implementation
+      || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
+      || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
+      || (expectedUri !== undefined && declaration.uri !== expectedUri)
       || !references || typeof references.indexed !== 'boolean' || !Array.isArray(references.keys)
       || references.keys.length > 100_000 || !references.keys.every((key) => typeof key === 'string' && key.length > 0 && key.length <= 1_024)
       || !dependencies || typeof dependencies.indexed !== 'boolean' || !Array.isArray(dependencies.nodes)
@@ -1143,9 +1209,13 @@ export class SemanticWorkspace {
         && Array.isArray(node.dependencies) && node.dependencies.length <= 10_000
         && node.dependencies.every((dependency) => typeof dependency === 'string' && dependency.length > 0 && dependency.length <= 1_024))
       || new Set(dependencies.nodes.map((node) => node.key)).size !== dependencies.nodes.length) return false;
-    if (![file.declarations, file.callables, file.imports, file.typeReferences, file.assignments, file.properties, file.constants, file.rawNames, file.memberAccesses, file.calls, file.narrowings, file.variableReferences, file.returns, file.templates, file.genericParents, file.magicMembers, file.syntaxErrors, file.commentRanges, file.stringRanges].every(Array.isArray)) return false;
-    if (!Array.isArray(file.scopes) || !file.scopes.every((scope) => Array.isArray(scope.captures))) return false;
-    const restoredFile = file as SemanticFileSnapshot;
+    if (![declaration.declarations, declaration.callables, declaration.imports, declaration.properties, declaration.constants,
+      declaration.templates, declaration.genericParents, declaration.magicMembers,
+      implementation.typeReferences, implementation.assignments, implementation.rawNames, implementation.memberAccesses,
+      implementation.calls, implementation.narrowings, implementation.variableReferences, implementation.returns,
+      implementation.syntaxErrors, implementation.commentRanges, implementation.stringRanges].every(Array.isArray)) return false;
+    if (!Array.isArray(implementation.scopes) || !implementation.scopes.every((scope) => Array.isArray(scope.captures))) return false;
+    const restoredFile = semanticFileSnapshot(declaration as SemanticDeclarationSnapshot, implementation as SemanticImplementationSnapshot);
     const expectedReferenceKeys = [...referenceCandidateKeys(restoredFile)].sort();
     const expectedDependencyNodes = this.typeDependencyNodes(restoredFile)
       .map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() }))
@@ -1154,14 +1224,14 @@ export class SemanticWorkspace {
       || !references.indexed && references.keys.length > 0
       || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
-    this.files.set(file.uri, restoredFile);
+    this.files.set(restoredFile.uri, restoredFile);
     if (references.indexed) {
-      this.referenceCandidates.replace(file.uri, references.keys); this.unindexedReferenceCandidateUris.delete(file.uri);
+      this.referenceCandidates.replace(restoredFile.uri, references.keys); this.unindexedReferenceCandidateUris.delete(restoredFile.uri);
     } else {
       this.replaceReferenceCandidates(restoredFile);
     }
     if (dependencies.indexed) {
-      this.typeDependencies.replace(file.uri, dependencies.nodes); this.unindexedTypeDependencyUris.delete(file.uri);
+      this.typeDependencies.replace(restoredFile.uri, dependencies.nodes); this.unindexedTypeDependencyUris.delete(restoredFile.uri);
     } else {
       this.replaceTypeDependencies(restoredFile);
     }

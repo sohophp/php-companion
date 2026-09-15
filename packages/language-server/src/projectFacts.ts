@@ -14,14 +14,24 @@ export interface ProjectPhpFileFacts {
 }
 
 export interface CachedProjectPhpFile {
-  schema: 1;
+  schema: 2;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
+  checksums: {
+    declaration: string;
+    implementation: string;
+    layers: string;
+    facts: string;
+  };
   checksum: string;
 }
 
 function payloadChecksum(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): string {
   return createHash('sha256').update(JSON.stringify({ semantic, facts })).digest('hex');
+}
+
+function recordChecksum(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -30,6 +40,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isString(value: unknown, limit = 8_192): value is string {
   return typeof value === 'string' && value.length <= limit;
+}
+
+function isChecksum(value: unknown): value is string {
+  return isString(value, 64) && /^[0-9a-f]{64}$/.test(value);
 }
 
 function isLocation(value: unknown, uri: string, sourceLength: number): value is InteropLocation {
@@ -105,26 +119,37 @@ export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string,
 }
 
 export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): CachedProjectPhpFile {
-  return { schema: 1, semantic, facts, checksum: payloadChecksum(semantic, facts) };
+  return { schema: 2, semantic, facts, checksums: {
+    declaration: recordChecksum(semantic.declaration), implementation: recordChecksum(semantic.implementation),
+    layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
+  }, checksum: payloadChecksum(semantic, facts) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string, snapshotVersion: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 1 || !isRecord(value.semantic) || !isRecord(value.facts)
-    || !isString(value.checksum, 64) || !/^[0-9a-f]{64}$/.test(value.checksum)) return undefined;
+  if (!isRecord(value) || value.schema !== 2 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+    || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
-  const file = isRecord(semantic.file) ? semantic.file : undefined;
-  if (!file || file.uri !== expectedUri || !isString(file.source, Number.MAX_SAFE_INTEGER)
-    || expectedSource !== undefined && file.source !== expectedSource
+  const declaration = isRecord(semantic.declaration) ? semantic.declaration : undefined;
+  const implementation = isRecord(semantic.implementation) ? semantic.implementation : undefined;
+  const layers = isRecord(semantic.layers) ? semantic.layers : undefined;
+  const checksums = value.checksums;
+  if (!declaration || !implementation || !layers || declaration.uri !== expectedUri || implementation.uri !== expectedUri
+    || !isString(implementation.source, Number.MAX_SAFE_INTEGER)
+    || expectedSource !== undefined && implementation.source !== expectedSource
+    || !isChecksum(checksums.declaration) || checksums.declaration !== recordChecksum(declaration)
+    || !isChecksum(checksums.implementation) || checksums.implementation !== recordChecksum(implementation)
+    || !isChecksum(checksums.layers) || checksums.layers !== recordChecksum(layers)
+    || !isChecksum(checksums.facts) || checksums.facts !== recordChecksum(facts)
     || facts.schema !== 1 || !Array.isArray(facts.controllerContexts) || facts.controllerContexts.length > 10_000
     || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000
     || !Array.isArray(facts.doctrineProperties) || facts.doctrineProperties.length > 10_000
-    || !facts.controllerContexts.every((context) => isControllerContext(context, expectedUri, file.source.length))
-    || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, file.source.length))
-    || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, file.source.length))
+    || !facts.controllerContexts.every((context) => isControllerContext(context, expectedUri, implementation.source.length))
+    || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
+    || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
     || payloadChecksum(semantic, facts) !== value.checksum) return undefined;
-  return { schema: 1, semantic, checksum: value.checksum, facts: { ...facts,
+  return { schema: 2, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts: { ...facts,
     controllerContexts: rebaseContexts(facts.controllerContexts, snapshotVersion),
   } };
 }

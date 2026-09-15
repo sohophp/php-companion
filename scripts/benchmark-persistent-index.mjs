@@ -16,7 +16,7 @@ const files = Number(arguments_[0] ?? 1_000);
 if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
 
 const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));
-const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v44-framework-facts-benchmark';
+const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v45-layered-records-benchmark';
 const sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);
 const uri = (index) => pathToFileURL(sourcePath(index)).toString();
 const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;
@@ -71,7 +71,10 @@ try {
   const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');
   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
   const baseEntry = persisted.entries[sourcePath(0)];
-  if (!baseEntry?.payload?.semantic?.layers?.referenceCandidates) throw new Error('Persistent cache did not contain the layered semantic payload.');
+  if (!baseEntry?.payload?.semantic?.declaration || !baseEntry?.payload?.semantic?.implementation
+    || !baseEntry?.payload?.semantic?.layers?.referenceCandidates
+    || !['declaration', 'implementation', 'layers', 'facts'].every((key) => /^[0-9a-f]{64}$/.test(baseEntry?.payload?.checksums?.[key] ?? '')))
+    throw new Error('Persistent cache did not contain separately checksummed declaration, implementation, derived, and framework records.');
   baseEntry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
   await writeFile(cacheFile, JSON.stringify(persisted));
   const recoveredWorkspace = new SemanticWorkspace(parser); const recovered = await load(recoveredWorkspace);

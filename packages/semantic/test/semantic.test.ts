@@ -373,7 +373,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 72, file: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 73, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -4904,7 +4904,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 72, file: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 73, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -6199,7 +6199,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 72, file: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 73, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -6856,7 +6856,7 @@ class Worker {
       function invalidArrayMode(): string { return mode(1); }
       function invalidStringMode(): int { return mode(0x3); }
     `);
-    const source = workspace.snapshot(uri)!.file.source;
+    const source = workspace.snapshot(uri)!.implementation.source;
     expect(workspace.signature(uri, source.indexOf('mode(1)') + 'mode(1'.length)?.returnType).toBe('array');
     expect(workspace.signature(uri, source.indexOf('mode(0x3)') + 'mode(0x3'.length)?.returnType).toBe('string');
     expect(workspace.incompatibleReturns(uri).map((item) => [item.callable, item.actualType, item.expectedType])).toEqual([
@@ -6868,14 +6868,16 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 72, layers: {
+    expect(snapshot).toMatchObject({ schema: 73, declaration: { uri }, implementation: { uri, source }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },
     } });
     expect(workspace.restore(snapshot, uri)).toBe(true);
     expect(workspace.workspaceSymbols('restored')).toMatchObject([{ uri, name: 'restored' }]);
-    expect(workspace.restore({ schema: 3, file: snapshot!.file }, uri)).toBe(false);
-    const invalid = structuredClone(snapshot!); invalid.file.scopes[0]!.captures = undefined as never;
+    expect(workspace.restore({ schema: 72, declaration: snapshot!.declaration, implementation: snapshot!.implementation, layers: snapshot!.layers }, uri)).toBe(false);
+    const mismatchedRecords = structuredClone(snapshot!); mismatchedRecords.implementation.uri = 'file:///Other.php';
+    expect(workspace.restore(mismatchedRecords, uri)).toBe(false);
+    const invalid = structuredClone(snapshot!); invalid.implementation.scopes[0]!.captures = undefined as never;
     expect(workspace.restore(invalid, uri)).toBe(false);
     const invalidLayers = structuredClone(snapshot!); invalidLayers.layers.typeDependencies.nodes[0]!.dependencies = [42 as never];
     expect(workspace.restore(invalidLayers, uri)).toBe(false);

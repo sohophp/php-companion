@@ -22,6 +22,9 @@ describe('persistent project PHP facts', () => {
     const facts = analyzeProjectPhpFileFacts(parser, uri, source, 'generation-1');
     expect(facts.controllerContexts).toHaveLength(1); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
+    expect(cached).toMatchObject({ schema: 2, semantic: { schema: 73, declaration: { uri }, implementation: { uri, source } },
+      checksums: { declaration: expect.stringMatching(/^[0-9a-f]{64}$/), implementation: expect.stringMatching(/^[0-9a-f]{64}$/),
+        layers: expect.stringMatching(/^[0-9a-f]{64}$/), facts: expect.stringMatching(/^[0-9a-f]{64}$/) } });
     const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri, 'generation-2');
     expect(restored?.facts.controllerContexts[0]?.sources[0]?.location.snapshotVersion).toBe('generation-2');
     expect(restored?.facts.controllerContexts[0]?.variables[0]?.sources?.[0]?.snapshotVersion).toBe('generation-2');
@@ -37,9 +40,17 @@ describe('persistent project PHP facts', () => {
       ownerFqcn: 'App\\Repository', name: 'find', returnType: 'App\\Other|null', uri, start: 0, end: 5,
     });
     expect(restoreCachedProjectPhpFile(tampered, uri, 'two')).toBeUndefined();
+    const tamperedDeclaration = structuredClone(cached); tamperedDeclaration.semantic.declaration.namespace = 'Other';
+    expect(restoreCachedProjectPhpFile(tamperedDeclaration, uri, 'two')).toBeUndefined();
+    const tamperedImplementation = structuredClone(cached); tamperedImplementation.semantic.implementation.source += ' ';
+    expect(restoreCachedProjectPhpFile(tamperedImplementation, uri, 'two')).toBeUndefined();
+    const tamperedLayers = structuredClone(cached); tamperedLayers.semantic.layers.referenceCandidates.keys.push('raw-ci:tampered');
+    expect(restoreCachedProjectPhpFile(tamperedLayers, uri, 'two')).toBeUndefined();
+    const tamperedRecordChecksum = structuredClone(cached); tamperedRecordChecksum.checksums.declaration = '0'.repeat(64);
+    expect(restoreCachedProjectPhpFile(tamperedRecordChecksum, uri, 'two')).toBeUndefined();
     expect(restoreCachedProjectPhpFile(cached, 'file:///src/Other.php', 'two')).toBeUndefined();
     expect(restoreCachedProjectPhpFile(cached, uri, 'two', `${source}\n// unsaved`)).toBeUndefined();
-    expect(restoreCachedProjectPhpFile({ ...cached, schema: 2 }, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile({ ...cached, schema: 1 }, uri, 'two')).toBeUndefined();
     workspace.dispose();
   });
 });

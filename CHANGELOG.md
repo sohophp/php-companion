@@ -1,3 +1,4 @@
+- PHP 语义快照升级到 schema 73，把全局声明/签名、方法体实现事实和派生索引拆为独立磁盘记录；Language Server v45 分别校验声明、实现、派生层及框架事实 SHA-256，为后续声明复用和方法体按需加载建立可验证边界。
 - 提交 `1d4a909` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 - 已消费且可证明为单一构造类型的 Callable 工厂摘要新增独立持久缓存：只保存正向事实，按调用者源码、载荷 SHA-256、唯一 callable/type 身份及完整直接依赖链恢复；实现变化、同名歧义、损坏条目和缺失依赖会拒绝整条受影响链，未保存文件不会写入。
 - Symfony `services.yaml` 与新鲜 `debug-container.xml` 的原始派生事实新增独立持久缓存：按 Composer 根、来源路径、URI、稳定文件元数据、源内容 SHA-256、事实结构和事实 SHA-256 校验，热启动不重复解析；YAML resource 始终使用当前 PHP 类型目录重新展开，文件监控事件强制绕过对应条目，单条损坏只重建该来源。
