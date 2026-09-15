@@ -1,5 +1,6 @@
 # Changelog
 
+- Preserve unique first-class callable targets through bounded immutable local aliases and reuse their signatures for variable invocation diagnostics and return propagation.
 - Hydrate cached implementation facts per target callable for completion, definition, type definition, signature, and ranged inlay queries. Keep whole-file and unscoped consumers on an automatic full-load fallback, expose mixed per-callable loaded/deferred state, and preserve canonical full snapshots after partial hydration.
 
 - Advance snapshots to schema 74 and partition implementation facts into a canonical file record plus independently addressable records for each unique function, method, and property-hook declaration. Preserve exact parser ordering on reconstruction, reject duplicated or relocated records, and expose deferred/loaded callable record state.

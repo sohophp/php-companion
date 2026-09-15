@@ -1,5 +1,6 @@
 # Changelog
 
+- Record variable-function invocations as call facts while retaining first-class callable acquisition identity.
 - Record property-level `abstract`/`final`, hook-level `abstract`/`final`, and by-reference `&get` facts for PHP 8.4 inheritance and indirect-modification analysis.
 
 - Record PHP 8.4 property hooks, explicit and implicit setter parameters, hook-local scopes, asymmetric write visibility, and backed versus virtual state. Treat short `set => expression` hooks as backing writes.

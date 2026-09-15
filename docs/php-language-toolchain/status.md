@@ -2,6 +2,8 @@
 
 最后更新：2026-09-15。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-15 P4 first-class callable 增量：parser 将变量函数调用记录为独立调用事实，同时保留 `target(...)` 的 Closure 获取身份。semantic 可从唯一直接函数、静态方法或实例方法获取目标签名，并沿最多八层未修改局部别名传播；变量调用复用原参数名、默认值、variadic/by-reference、PHPDoc 和原生类型，提供 Signature Help、缺参/错参诊断，以及位置、具名和泛型实参驱动的返回传播。动态获取、重复赋值、按引用修改、重载歧义或别名循环保持 unknown。语义快照升级到 schema 75，Language Server 缓存升级到 v47，拒绝缺少变量调用事实的旧热缓存。十六个组件 642 项与根扩展 35 项测试全部通过，共 677 项；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 Linux x64 打包宿主通过。1,000 文件热恢复 1,000/1,000、重解析 0，热/冷比 0.354。P4 调用传播总项保持开放。证据见[first-class callable 调用传播验收](reports/first-class-callable-invocation-2026-09-15.md)。
+
 2026-09-15 P4 内建对象增量：基于 Winstar 的 Symfony、Monolog 与 Revolt 实际依赖，补齐 PHP 8.1 `Fiber`、`ReflectionFiber` 和 PHP 8.2 `SensitiveParameter`、`SensitiveParameterValue`。版本化声明保留构造参数、实例/静态成员、`Fiber::getCurrent(): ?Fiber`、Reflection 执行文件/行/trace，以及敏感值的 `mixed` 边界；PHP 8.0/8.1 反例确认不会提前暴露。语义回归覆盖成员补全、构造 Signature、nullable 非空收窄、返回传播与虚拟内建 Definition。全仓 675 项测试、十六个隔离 tarball、三个 VSIX、Linux 打包 Extension Host 通过；提交 `2c91a7d` 的 [CI 34943334118](https://github.com/sohophp/php-companion/actions/runs/34943334118) 18/18 成功。名称/成员完整目录总项保持开放。证据见[Fiber 与敏感参数内建验收](reports/fiber-sensitive-builtins-2026-09-15.md)。
 
 2026-09-15 P4 基础类型代数封板：可独立发布的 `@php-companion/type-system` 统一表示 primitive、named、literal、null、void、never、mixed、unknown、Union、Intersection/DNF、整数区间、array/list/shape、泛型、class-string 与 Callable。Union 扁平化、规范排序、去重，并吸收 never/mixed；三态 `yes | no | unknown` 兼容关系覆盖 PHP int→float、集合到 iterable、命名继承、泛型方差/父级替换、Callable 参数逆变/返回协变和有界递归。新增边界回归确认 never 为底部、mixed 为安全目标、unknown 不伪装成错误或肯定关系、void 与 null 保持分离；组件 18 项测试和类型检查通过。P4 的名称/成员解析完整目录与调用传播总项继续开放。证据见[基础类型代数验收](reports/base-type-algebra-2026-09-15.md)。

@@ -373,7 +373,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 74, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 75, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -902,21 +902,51 @@ describe('conservative semantic workspace', () => {
       { kind: 'unpack-after-named' },
     ]);
   });
-  it('types first-class callable acquisition as Closure without invoking its target', () => {
+  it('preserves first-class callable targets for invocation signatures, diagnostics, and return flow', () => {
     const source = `<?php namespace CallableAcquisition;
+      class Input {}
+      class Result { public function done(): void {} }
       function transform(string $value): int { return strlen($value); }
+      function build(Input $value): Result { return new Result(); }
+      /** @template T
+       * @param T $value
+       * @return T */
+      function identity($value) { return $value; }
+      class Factory {
+        public static function create(Input $value): Result { return new Result(); }
+        public function convert(Input $value): Result { return new Result(); }
+      }
       function takesClosure(\\Closure $callback): void {}
       function takesInt(int $value): void {}
-      function run(): void {
+      function run(Input $input, Factory $factory): void {
         $callback = transform(...);
         takesClosure(transform(...));
         takesInt(transform(...));
+        $build = build(...); $built = $build($input); $built->do;
+        $static = Factory::create(...); $created = $static(value: $input); $created->do;
+        $member = $factory->convert(...); $converted = $member($input); $converted->do;
+        $generic = identity(...); $same = $generic(new Result()); $same->do;
+        $alias = $build; $aliasResult = $alias($input); $aliasResult->do;
+        $build();
+        $build('invalid');
+        $mutable = build(...); $mutable = transform(...); $unknown = $mutable($input); $unknown->do;
       }
     `;
     workspace.update('file:///CallableAcquisition.php', source);
-    expect(workspace.missingRequiredArguments('file:///CallableAcquisition.php')).toEqual([]);
+    expect(workspace.missingRequiredArguments('file:///CallableAcquisition.php')).toMatchObject([
+      { callable: 'CallableAcquisition\\build', parameters: ['value'] },
+    ]);
     expect(workspace.incompatibleArguments('file:///CallableAcquisition.php').map((item) => [item.callable, item.actualType, item.expectedType])).toEqual([
       ['CallableAcquisition\\takesInt', 'Closure', 'int'],
+      ['CallableAcquisition\\build', 'string', 'CallableAcquisition\\Input'],
+    ]);
+    for (const marker of ['$built->do', '$created->do', '$converted->do', '$same->do', '$aliasResult->do']) {
+      expect(workspace.completeMembers('file:///CallableAcquisition.php', source.indexOf(marker) + marker.length)
+        .map((item) => item.name), marker).toEqual(['done']);
+    }
+    expect(workspace.completeMembers('file:///CallableAcquisition.php', source.indexOf('$unknown->do') + '$unknown->do'.length)).toEqual([]);
+    expect(workspace.signatures('file:///CallableAcquisition.php', source.indexOf('$build($input)') + '$build('.length)).toMatchObject([
+      { fqcn: 'CallableAcquisition\\build', parameters: [{ name: 'value', nativeType: 'Input' }], returnType: 'Result' },
     ]);
     const definition = workspace.definition('file:///CallableAcquisition.php', source.indexOf('transform(...)') + 2);
     expect(definition).toHaveLength(1);
@@ -4904,7 +4934,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 74, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 75, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -6199,7 +6229,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 74, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 75, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -6868,7 +6898,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 74, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 75, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },
@@ -6899,7 +6929,7 @@ class Worker {
     expect(workspace.implementationState(uri)).toBe('loaded');
     expect(workspace.callableImplementationStates(uri).every((record) => record.state === 'loaded')).toBe(true);
     workspace.remove(uri); expect(workspace.implementationState(uri)).toBe('absent');
-    expect(workspace.restore({ schema: 73, declaration: snapshot!.declaration, implementation: snapshot!.implementation, layers: snapshot!.layers }, uri)).toBe(false);
+    expect(workspace.restore({ schema: 74, declaration: snapshot!.declaration, implementation: snapshot!.implementation, layers: snapshot!.layers }, uri)).toBe(false);
     const mismatchedRecords = structuredClone(snapshot!); mismatchedRecords.implementation.uri = 'file:///Other.php';
     expect(workspace.restore(mismatchedRecords, uri)).toBe(false);
     const invalid = structuredClone(snapshot!); invalid.implementation.callables.find((record) => record.identity === 'cache\\run')!.facts.scopes[0]!.captures = undefined as never;

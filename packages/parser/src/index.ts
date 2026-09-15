@@ -774,12 +774,16 @@ export class PhpSyntaxParser {
       const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
       if (callTypes.has(node.type)) {
         const argumentsNode = node.childForFieldName('arguments') ?? node.namedChildren.find((child) => child.type === 'arguments');
-        const nameNode = node.childForFieldName('name') ?? (node.type === 'function_call_expression' || node.type === 'object_creation_expression'
-          ? node.namedChildren.find((child) => child.type === 'name' || child.type === 'qualified_name' || child.type === 'relative_name') : undefined);
+        const nameNode = node.childForFieldName('name') ?? (node.type === 'function_call_expression'
+          ? node.childForFieldName('function') ?? node.namedChildren.find((child) => child.type === 'name' || child.type === 'qualified_name'
+            || child.type === 'relative_name' || child.type === 'variable_name')
+          : node.type === 'object_creation_expression'
+            ? node.namedChildren.find((child) => child.type === 'name' || child.type === 'qualified_name' || child.type === 'relative_name') : undefined);
         const callReceiverNode = node.childForFieldName('object') ?? node.childForFieldName('scope');
         const bracedCallName = Boolean(nameNode && callReceiverNode && /\{\s*$/.test(source.slice(callReceiverNode.endIndex, nameNode.startIndex)));
         const preciseDynamicName = nameNode && bracedCallName ? dynamicMemberName(nameNode) : undefined;
-        if (argumentsNode && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name' || preciseDynamicName)) {
+        if (argumentsNode && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
+          || (node.type === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
           const arguments_ = argumentsNode.namedChildren.filter((child) => child.type === 'argument');
           const firstClassCallable = argumentsNode.namedChildren.some((child) => child.type === 'variadic_placeholder');
           const nestedCall = (candidate: SyntaxNode): boolean => candidate.namedChildren.some((child) => callTypes.has(child.type) || nestedCall(child));
@@ -861,7 +865,7 @@ export class PhpSyntaxParser {
             ? nodeRange(source, inlinePrevious) : undefined;
           calls.push({
             ...nodeRange(source, node), nameStart: nameRange.start, nameEnd: nameRange.end,
-            kind: node.type === 'function_call_expression' ? 'function'
+            kind: node.type === 'function_call_expression' ? (nameNode.type === 'variable_name' ? undefined : 'function')
               : node.type === 'object_creation_expression' ? 'constructor'
                 : node.type === 'scoped_call_expression' ? 'static-method' : 'method',
             argumentsStart: argumentsRange.start, argumentsEnd: argumentsRange.end,

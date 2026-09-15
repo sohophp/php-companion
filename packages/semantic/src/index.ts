@@ -80,7 +80,7 @@ export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: str
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 74;
+  schema: 75;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1302,7 +1302,7 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
-      schema: 74,
+      schema: 75,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1393,7 +1393,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 74 || !declaration || !implementation
+    if (value?.schema !== 75 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -5651,6 +5651,15 @@ export class SemanticWorkspace {
       const compatible = this.methodCandidatesForArguments(members, argumentsText, completeAtCursor, file, offset - argumentsText.length);
       return (compatible.length ? compatible : members).map((member) => ({ ...member, ...this.signatureContext(argumentsText, member.parameters) }));
     }
+    const callableVariable = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
+    if (callableVariable) {
+      const members = this.firstClassCallableSignatures(file, callableVariable[1]!, offset);
+      const compatible = this.methodCandidatesForArguments(members, callableVariable[2]!, completeAtCursor,
+        file, offset - callableVariable[2]!.length);
+      return (compatible.length ? compatible : members).map((member) => ({
+        ...member, ...this.signatureContext(callableVariable[2]!, member.parameters),
+      }));
+    }
     const match = /(\$[A-Za-z_][A-Za-z0-9_]*|[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*(\?->|->|::)\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(([^()]*)$/.exec(before);
     if (match) {
       let target: ObjectClass | undefined;
@@ -5710,6 +5719,26 @@ export class SemanticWorkspace {
     if (selected.length !== 1) return undefined;
     return candidates.find((candidate) => candidate.uri === selected[0]!.uri && candidate.start === selected[0]!.start
       && candidate.fqcn.toLowerCase() === selected[0]!.fqcn.toLowerCase());
+  }
+
+  private firstClassCallableSignatures(file: SemanticFile, variable: string, offset: number,
+    visited = new Set<string>()): SignatureInfo[] {
+    const scope = this.containingScope(file, offset); if (!scope) return [];
+    const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
+    if (visited.size >= 8 || visited.has(key)) return [];
+    visited.add(key);
+    const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+      && assignment.variable === variable && assignment.end <= offset);
+    if (assignments.length !== 1) return [];
+    const assignment = assignments[0]!;
+    if (this.priorReferenceMutations(file, scope, variable, offset).length) return [];
+    if (assignment.sourceVariable) return this.firstClassCallableSignatures(file, assignment.sourceVariable, assignment.start, visited);
+    if (!assignment.sourceCall) return [];
+    const acquisitions = file.calls.filter((call) => call.firstClassCallable && call.start >= assignment.start
+      && call.end <= assignment.end && call.kind !== undefined);
+    if (acquisitions.length !== 1) return [];
+    const acquisition = acquisitions[0]!;
+    return this.signatures(file.uri, acquisition.argumentsStart + 1);
   }
 
   private callableBuiltinAttribute(file: SemanticFile, callable: ParsedCallableDeclaration, attributeName: string): {
@@ -8815,6 +8844,10 @@ export class SemanticWorkspace {
     if (call.firstClassCallable) return named('Closure');
     const dynamicResult = this.dynamicCallResultType(file, call); if (dynamicResult) return dynamicResult;
     const signature = this.completedCallSignature(file, call); if (!signature || signature.synthetic) return undefined;
+    return this.resolvedCallResultType(file, call, signature);
+  }
+
+  private resolvedCallResultType(file: SemanticFile, call: ParsedCall, signature: SignatureInfo): PhpType | undefined {
     const declarations = this.callableDeclarationsForSignature(signature);
     if (declarations.length !== 1) return undefined;
     const declarationFile = declarations[0]!.file;
@@ -8887,9 +8920,9 @@ export class SemanticWorkspace {
       results.push(result);
     }
     const result = union(...results);
-    const nullsafe = /^(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*\?->/.exec(file.source.slice(start, end).trim());
+    const nullsafe = /^(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*\?->/.exec(file.source.slice(call.start, call.end).trim());
     if (!nullsafe) return result;
-    const receiver = this.variableClass(file, nullsafe[1]!, start, new Set(), true);
+    const receiver = this.variableClass(file, nullsafe[1]!, call.start, new Set(), true);
     return receiver ? (receiver.nullable ? nullable(result) : result) : undefined;
   }
 
