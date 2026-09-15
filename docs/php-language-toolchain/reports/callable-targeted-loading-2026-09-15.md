@@ -18,7 +18,7 @@
 - `pnpm benchmark:persistence -- 10000`：冷索引 17,919.25 ms，热恢复 7,066.28 ms，热/冷比 0.3943；恢复 10,000/10,000、重解析 0。19,999 条 callable 记录初始全部延迟，聚焦补全只加载 `benchmark\\consumer::inspect`，同文件的 `untouched` 保持 deferred；后续完整 readonly 查询共装载 3 个相关文件。派生层和 callable 单条损坏仍分别只重建 1 个文件。
 - `pnpm benchmark:editing -- 500 50`：500 轮无陈旧补全；诊断 P50/P95/最大值 2.11/3.97/10.32 ms，热补全 0.87/1.32/3.98 ms，取消 1.22 ms，最终 RSS 增长 0.11 MiB；损坏缓存与进程重启恢复通过。
 - `pnpm verify:packages` 验证十六个组件 tarball 可由仓库外消费者安装、导入并执行 API smoke；`pnpm package:all` 与 `pnpm verify:vsix` 验证三个 VSIX 内容。`pnpm test:extension:packaged` 在 Linux VS Code 1.137.0 隔离 Profile 退出码为 0。
-- 本机 VSIX SHA-256：主扩展 `dffa074bee7b58a57854d94ffe1945d05a2289cfe4b413a54e8d62995d9ad4e7`，Open Source Pack `c21d52551fa7f1b3007628821b91befd5cf618935684723da3a853f0f20318f8`，Recommended Pack `9c5e7eb8c963be523844bebf98e28fd28c7e543c420afa035476d174f7b9ce37`。
+- 提交 `6a609ac` 的 [CI 34935803007](https://github.com/sohophp/php-companion/actions/runs/34935803007) 18/18 成功，覆盖三平台 Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5。最终私有候选目录为 `artifacts/php-companion-alpha-0.4.5-6a609ac1/`；SHA-256：主扩展 `561c15badc100f1b1671e2e06d84610865cd7333c99d1cf3b8508dd9c40d4d04`，Open Source Pack `2c4af966e36773f3e71f203efda310e62ac32e270f4a43bcaa1a1222f6931664`，Recommended Pack `c2a182232166ca69732e7d8d49939ee5319a4ddaa2b41832c204a2c1979b75fe`。
 
 ## 剩余边界
 
