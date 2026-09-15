@@ -3266,6 +3266,23 @@ describe('conservative semantic workspace', () => {
     const fromDeclaration = workspace.references('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1);
     expect(fromDeclaration).toHaveLength(2);
   });
+  it('finds local variable references only inside the selected function scope', () => {
+    const source = `<?php
+      function first(object $event): void {
+        $callable = $event->getController();
+        if (!is_array($callable)) return;
+        $controller = $callable[0];
+        $action = $callable[1];
+      }
+      function second(object $request): void { $callable = $request; echo $callable; }
+    `;
+    workspace.update('file:///LocalReferences.php', source);
+    const offset = source.indexOf('$callable') + 2;
+    const references = workspace.references('file:///LocalReferences.php', offset);
+    expect(references.map((item) => source.slice(item.start, item.end))).toEqual(['callable', 'callable', 'callable', 'callable']);
+    expect(references.every((item) => item.start < source.indexOf('function second'))).toBe(true);
+    expect(workspace.references('file:///LocalReferences.php', offset, false)).toHaveLength(3);
+  });
   it('finds type references across aliases, native signatures and PHPDoc', () => {
     workspace.update('file:///DomainUser.php', '<?php namespace Domain; class User {}');
     const source = `<?php namespace App; use Domain\\User as Account;

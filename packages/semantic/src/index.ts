@@ -5490,6 +5490,23 @@ export class SemanticWorkspace {
   }
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
+    const file = this.files.get(uri);
+    const variable = file?.variableReferences.find((item) => offset >= item.start && offset <= item.end);
+    const scope = variable && file?.scopes.find((item) => item.id === variable.scopeId);
+    if (file && variable && scope) {
+      let locations = file.variableReferences.filter((item) => item.scopeId === scope.id && item.variable === variable.variable)
+        .map((item) => ({ uri, start: item.start + 1, end: item.end }));
+      if (!includeDeclaration) {
+        const parameter = scope.parameters.find((item) => `$${item.name}` === variable.variable);
+        const assignment = parameter ? undefined : file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable.variable)
+          .sort((left, right) => left.start - right.start)[0];
+        const declaration = parameter
+          ? { start: parameter.start + 1, end: parameter.end }
+          : assignment && locations.find((item) => item.start >= assignment.start + 1 && item.end <= assignment.end);
+        if (declaration) locations = locations.filter((item) => item.start !== declaration.start || item.end !== declaration.end);
+      }
+      return locations;
+    }
     const target = this.memberAt(uri, offset) ?? this.memberDeclarationAt(uri, offset);
     if (target) {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: target.uri, start: target.start, end: target.end }] : [];

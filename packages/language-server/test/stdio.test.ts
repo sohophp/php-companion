@@ -65,6 +65,39 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('returns references for a local variable without crossing function scopes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-local-references-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const source = `<?php
+        function first(object $event): void { $callable = $event; echo $callable; }
+        function second(object $request): void { $callable = $request; echo $callable; }
+      `;
+      const sourcePath = join(sourceDirectory, 'Functions.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(sourcePath, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 256, method: 'initialize', params: { processId: null, capabilities: {}, rootUri } }));
+      await output.waitFor((message) => message.id === 256);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 257, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$callable') + 2), context: { includeDeclaration: true },
+      } }));
+      const result = (await output.waitFor((message) => message.id === 257)).result;
+      expect(result).toHaveLength(2);
+      expect(result.every((item: any) => item.uri === sourceUri
+        && lspOffset(source, item.range.start) < source.indexOf('function second'))).toBe(true);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 258, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 258);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('does not repeat a completed project scan when only the dependency index is partial', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-partial-dependency-'));
     try {

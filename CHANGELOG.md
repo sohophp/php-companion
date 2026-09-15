@@ -1,3 +1,4 @@
+- References 现在按函数作用域返回局部变量的声明与使用，不再对 `$callable` 等局部变量返回空结果并让 VS Code References 视图保留上一次查询标签。
 - 工作区仍在索引或索引预算不足时，Definition 现在会从已声明的接收者类型逐级按需加载 PSR-4 目标类，使 `$request->getSession()->get()` 等链式成员 Ctrl+点击无需等待全库索引完成。
 - 初始索引期间的 Code Action、导入和重构请求现在共享同一进行中任务，不再通过递增 generation 相互取消并反复重启；修复真实 WSL 会话中连续出现 `Project indexing was cancelled`、高 CPU 且状态栏长期停留在 Indexing 的问题。
 - Definition 现在会按需加载初始依赖预算未收录的精确 Composer PSR-4 类型文件，修复 Winstar 中 Symfony `EventSubscriberInterface` 等 vendor 声明 Ctrl+点击无响应；Language Server 同时正式接收扩展设置的文件数、单文件和总字节预算。

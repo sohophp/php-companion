@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Return scope-isolated local variable declarations and uses from the References provider.
+
 - Progressively resolve chained member definitions through their declared PSR-4 owners while the workspace index is incomplete.
 
 - Share an active workspace-index promise across conservative editor requests so concurrent Code Action, import, and refactoring requests cannot repeatedly cancel and restart initial indexing.
