@@ -3466,6 +3466,16 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
   $result->do;
   $missing();
   $wrong('invalid');
+  /** @var callable(Input $value, string $label=): Result $local */
+  $local = $callback;
+  $localResult = $local(value: $input);
+  $localResult->do;
+  /** @var callable(Input $value): Result $localMissing */
+  $localMissing = $callback;
+  $localMissing();
+  /** @var callable(Input $value): Result $localWrong */
+  $localWrong = $callback;
+  $localWrong('invalid');
 }`;
       const path = join(root, 'Callable.php'); const uri = pathToFileURL(path).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.1' }, autoload: { classmap: ['./Callable.php'] } }));
@@ -3484,8 +3494,8 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
       const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
         && message.params?.uri === uri && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.missing-required')
         && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'))).params.diagnostics;
-      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(1);
-      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(1);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(2);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(2);
       const completionOffset = source.indexOf('$result->do') + '$result->do'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 229, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
@@ -3498,6 +3508,19 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
       } }));
       expect((await output.waitFor((message) => message.id === 230)).result).toMatchObject({ signatures: [{
         label: '$callback(Input $value, string $label = default): Result',
+      }] });
+      const localCompletionOffset = source.indexOf('$localResult->do') + '$localResult->do'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 231, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, localCompletionOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 231)).result)
+        .toContainEqual(expect.objectContaining({ label: 'done' }));
+      const localSignatureOffset = source.indexOf('$local(value:') + '$local('.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, localSignatureOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 232)).result).toMatchObject({ signatures: [{
+        label: '$local(Input $value, string $label = default): Result',
       }] });
     } finally { await rm(root, { recursive: true, force: true }); }
   });

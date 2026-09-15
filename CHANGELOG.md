@@ -1,3 +1,4 @@
+- 紧邻局部赋值的 PHPDoc `@var callable(...) $variable` 现在可为首次直接变量调用提供 Signature Help、具名参数、缺参/错参诊断和返回传播；控制流赋值、介入读取、重赋值或引用修改保持 unknown。
 - 未触碰的 PHPDoc `callable(...)` 参数及其一次直接局部别名现在提供变量调用 Signature Help、具名参数信息、缺少必填参数和已证明类型不匹配诊断；既有条件返回及普通返回传播继续共用同一 PHPDoc callable 契约，提前读取、重赋值或按引用参数保持 unknown。
 - 提交 `8a46213` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交与三份 VSIX SHA-256。
 - PHP 8.1 first-class callable 的直接函数、静态方法、实例方法及最多八层未修改局部别名现在保留唯一目标签名；后续变量调用提供 Signature Help、缺参/错参诊断，并从位置、具名及泛型实参传播返回类型。动态目标、重赋值、按引用修改、歧义或超过预算保持 unknown。

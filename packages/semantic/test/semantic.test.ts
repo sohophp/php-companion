@@ -5228,6 +5228,47 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///CallableContracts.php', source.indexOf('$used($input)') + '$used('.length)).toEqual([]);
     expect(workspace.signatures('file:///CallableContracts.php', source.indexOf('$reassigned($input)') + '$reassigned('.length)).toEqual([]);
   });
+  it('serves direct local PHPDoc Callable assignment contracts conservatively', () => {
+    const source = `<?php declare(strict_types=1); namespace LocalCallableContracts;
+      class Input {} class Result { public function done(): void {} }
+      function createCallable(): callable {}
+      function run(Input $input, bool $condition): void {
+        /** @var callable(Input $value, string $label=): Result $callback */
+        $callback = createCallable();
+        $result = $callback(value: $input); $result->do;
+        /** @var callable(Input $value): Result $missing */
+        $missing = createCallable(); $missing();
+        /** @var callable(Input $value): Result $wrong */
+        $wrong = createCallable(); $wrong('invalid');
+        /** @var callable(Input): Result $used */
+        $used = createCallable(); echo is_callable($used); $used($input);
+        /** @var callable(Input): Result $reassigned */
+        $reassigned = createCallable(); $reassigned = createCallable(); $reassigned($input);
+        if ($condition) {
+          /** @var callable(Input): Result $conditional */
+          $conditional = createCallable();
+        }
+        $conditional($input);
+      }`;
+    workspace.update('file:///LocalCallableContracts.php', source);
+    expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', parameters: [
+        { name: 'value', type: 'Input', defaultValue: undefined },
+        { name: 'label', type: 'string', defaultValue: 'default' },
+      ], returnType: 'Result', synthetic: 'phpdoc-callable' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///LocalCallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$missing', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///LocalCallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$wrong', parameter: 'value', actualType: 'string', expectedType: 'LocalCallableContracts\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///LocalCallableContracts.php', source.indexOf('$result->do') + '$result->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$used($input)') + '$used('.length)).toEqual([]);
+    expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$reassigned($input)') + '$reassigned('.length)).toEqual([]);
+    expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$conditional($input)') + '$conditional('.length)).toEqual([]);
+  });
   it('evaluates PHPDoc conditional return types on untouched Callable variables', () => {
     workspace.update('file:///ConditionalCallableTypes.php', `<?php namespace ConditionalCallable;
       class CommonResult { public function common(): void {} }

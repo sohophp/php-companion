@@ -5751,13 +5751,31 @@ export class SemanticWorkspace {
 
   private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {
     scope: ParsedScope;
-    parameter: ParsedParameter;
+    declaration: SourceRange;
     callable: Extract<PhpDocType, { kind: 'callable' }>;
   } | undefined {
     const scope = this.containingScope(file, callStart); if (!scope) return undefined;
     let sourceVariable = variable; let aliasAssignment: ParsedAssignment | undefined;
     let parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
     if (!parameter) {
+      const priorAssignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+        && assignment.variable === variable && assignment.end <= callStart).sort((left, right) => right.end - left.end);
+      const annotatedAssignment = priorAssignments[0];
+      const doc = annotatedAssignment && !this.assignmentInsideControlFlow(file, annotatedAssignment, scope)
+        ? adjacentPhpDoc(file, annotatedAssignment.start) : undefined;
+      const tag = doc && !doc.errors.length ? preferredDocTags(doc,
+        (candidate) => candidate.name === 'var' && candidate.variable === variable && Boolean(candidate.type),
+        () => variable).at(-1) : undefined;
+      const annotatedCallable = tag?.type?.kind === 'callable' ? tag.type : undefined;
+      if (annotatedAssignment && tag?.type && annotatedCallable?.kind === 'callable') {
+        const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+          && reference.variable === variable && reference.start >= annotatedAssignment.end && reference.end <= callStart);
+        const mutationCount = this.priorReferenceMutations(file, scope, variable, callStart).length
+          - this.priorReferenceMutations(file, scope, variable, annotatedAssignment.end).length;
+        if (!interveningReferences.length && mutationCount === 0) {
+          return { scope, declaration: { start: tag.type.start, end: tag.type.end }, callable: annotatedCallable };
+        }
+      }
       const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
         && assignment.variable === variable && assignment.end <= callStart);
       if (assignments.length !== 1 || !assignments[0]!.sourceVariable) return undefined;
@@ -5778,7 +5796,7 @@ export class SemanticWorkspace {
       || file.assignments.some((assignment) => assignment.scopeId === scope.id
         && assignment.variable === sourceVariable && assignment.end <= callStart)) return undefined;
     const callable = parsePhpDocType(parameter.type).type;
-    return callable?.kind === 'callable' ? { scope, parameter, callable } : undefined;
+    return callable?.kind === 'callable' ? { scope, declaration: parameter, callable } : undefined;
   }
 
   private phpDocCallableSignatures(file: SemanticFile, variable: string, callStart: number): SignatureInfo[] {
@@ -5790,7 +5808,7 @@ export class SemanticWorkspace {
     }));
     const scopeFqcn = resolved.scope.containerFqcn ?? resolved.scope.id;
     return [{
-      kind: 'function', uri: file.uri, start: resolved.parameter.start, end: resolved.parameter.end,
+      kind: 'function', uri: file.uri, start: resolved.declaration.start, end: resolved.declaration.end,
       name: variable, fqcn: variable, parameters,
       returnType: resolved.callable.returnType ? displayPhpDocType(resolved.callable.returnType) : undefined,
       visibility: 'public', static: false, typeScopeFqcn: scopeFqcn, calledOnFqcn: scopeFqcn,
