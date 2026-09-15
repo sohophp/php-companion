@@ -16,13 +16,13 @@ const files = Number(arguments_[0] ?? 1_000);
 if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
 
 const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));
-const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v46-callable-records-benchmark';
+const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v46-callable-targets-benchmark';
 const sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);
 const uri = (index) => pathToFileURL(sourcePath(index)).toString();
 const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;
 const middle = '<?php namespace Benchmark; class Middle extends Base {} function middle(): Child { return inner(); }';
-const child = '<?php namespace Benchmark; class Child extends Middle {} function outer(): Child { return middle(); }';
-const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } }";
+const child = '<?php namespace Benchmark; class Child extends Middle { public function childMethod(): void {} } function outer(): Child { return middle(); }';
+const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); $child->childM; foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } public function untouched(): void {} }";
 
 async function load(workspace) {
   let parsed = 0; let frameworkParsed = 0; let controllerContexts = 0; let doctrineProperties = 0; const started = performance.now();
@@ -69,6 +69,14 @@ try {
   const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
   if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
+  const completionOffset = consumer.indexOf('$child->childM') + '$child->childM'.length;
+  if (!warmWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod'))
+    throw new Error('Focused warm completion lost the restored transitive callable result.');
+  const focusedCallableStates = warmWorkspace.callableImplementationStates(uri(3));
+  const callableImplementationsLoadedByFocusedQuery = focusedCallableStates.filter((record) => record.state === 'loaded').map((record) => record.identity);
+  if (JSON.stringify(callableImplementationsLoadedByFocusedQuery) !== JSON.stringify(['benchmark\\consumer::inspect'])
+    || warmWorkspace.deferredImplementationCount() !== deferredImplementations)
+    throw new Error(`Focused completion did not preserve unrelated callable records: ${JSON.stringify(focusedCallableStates)}`);
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Warm index lost the transitive constructor fact.');
   const implementationsLoadedByQuery = deferredImplementations - warmWorkspace.deferredImplementationCount();
   if (implementationsLoadedByQuery < 1 || implementationsLoadedByQuery >= files) throw new Error(`Focused query loaded an invalid implementation set: ${implementationsLoadedByQuery}/${files}.`);
@@ -110,6 +118,7 @@ try {
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
     exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true,
       callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
+      callableImplementationsLoadedByFocusedQuery,
       callableImplementationRecords: callableImplementationRecords.length,
       corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed },
   }, null, 2)}\n`);

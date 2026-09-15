@@ -78,7 +78,7 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 基准命令为 `pnpm benchmark:index -- <文件数> <重复次数>`；它生成固定 Composer/PSR-4 语料、运行真实 parser/index/semantic 链路、输出 JSON，并在 1k/10k/50k 标准规模超预算时返回非零。Linux x64 的 [1k](reports/index-1000-linux-x64-2026-09-06.json)、[10k](reports/index-10000-linux-x64-2026-09-06.json)、[50k](reports/index-50000-linux-x64-2026-09-06.json) 报告中，冷索引 P95 分别为 1497.03/13463.54/64712.98 ms，首个可用结果 P95 为 32.79/96.68/426.11 ms，峰值 RSS 为 115.1/168/323.8 MiB，均满足对应冻结预算。结果不代表尚未实测的平台。
 
-持久分层基准命令为 `pnpm benchmark:persistence -- <文件数>`；它在同一 Composer 语料执行冷索引、全量热恢复、Symfony Controller/Twig 与 Doctrine PHP 事实恢复、Callable 事实恢复、继承派生事实失效，以及派生层和 callable 记录的单条损坏恢复。当前格式为 schema 74/v46：源码、声明/签名、文件级实现、每条唯一 callable 实现、派生索引和框架事实各有独立 SHA-256，整体条目仍有封装摘要。历史 v44/v45 三平台证据继续保留；当前 callable 记录边界见[Callable 实现记录验收](reports/callable-implementation-records-2026-09-15.md)。
+持久分层基准命令为 `pnpm benchmark:persistence -- <文件数>`；它在同一 Composer 语料执行冷索引、全量热恢复、Symfony Controller/Twig 与 Doctrine PHP 事实恢复、Callable 事实恢复、聚焦成员补全只水合目标 callable、继承派生事实失效，以及派生层和 callable 记录的单条损坏恢复。当前格式为 schema 74/v46：源码、声明/签名、文件级实现、每条唯一 callable 实现、派生索引和框架事实各有独立 SHA-256，整体条目仍有封装摘要。历史 v44/v45 三平台证据继续保留；当前边界见[Callable 目标装载验收](reports/callable-targeted-loading-2026-09-15.md)。
 
 连续编辑与恢复基准命令为 `pnpm benchmark:editing -- <测量次数> <预热次数>`。它通过真实 stdio Language Server 交替更新可区分的对象类型，逐次验证最新补全，测量更新到诊断、热补全、取消和 RSS，并破坏实际持久缓存后重启验证恢复。RSS 采样分别使用 Linux `/proc`、macOS `ps` 和 Windows PowerShell 的进程工作集。Linux x64 的 [1,000 次报告](reports/editing-resilience-linux-x64-2026-09-13.md)通过；当前候选还在 Linux x64、Windows x64 与 macOS arm64 分别完成 500 次 CI 测量并保存原始 JSON，见[跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)。
 

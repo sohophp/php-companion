@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { semanticFacts } from '@php-companion/semantic-provider';
-import { SemanticWorkspace } from '../src/index.js';
+import { SemanticWorkspace, type SemanticCallableImplementationState } from '../src/index.js';
 
 describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
@@ -6889,9 +6889,15 @@ class Worker {
     expect(workspace.workspaceTypes().some((item) => item.fqcn === 'Cache\\Cached')).toBe(true);
     expect(workspace.implementationState(uri)).toBe('deferred');
     expect(workspace.completeMembers(uri, source.indexOf('$cached->rest') + '$cached->rest'.length).map((item) => item.name)).toEqual(['restored']);
+    expect(workspace.callableImplementationStates(uri)).toEqual([
+      { identity: 'cache\\cached::restored', kind: 'callable', state: 'deferred' },
+      { identity: 'cache\\run', kind: 'callable', state: 'loaded' },
+    ]);
+    expect(workspace.completeMembers(uri, source.indexOf('$maybe->rest') + '$maybe->rest'.length)).toEqual([]);
+    expect(workspace.implementationState(uri)).toBe('deferred');
+    expect(workspace.snapshot(uri)).toEqual(snapshot);
     expect(workspace.implementationState(uri)).toBe('loaded');
     expect(workspace.callableImplementationStates(uri).every((record) => record.state === 'loaded')).toBe(true);
-    expect(workspace.completeMembers(uri, source.indexOf('$maybe->rest') + '$maybe->rest'.length)).toEqual([]);
     workspace.remove(uri); expect(workspace.implementationState(uri)).toBe('absent');
     expect(workspace.restore({ schema: 73, declaration: snapshot!.declaration, implementation: snapshot!.implementation, layers: snapshot!.layers }, uri)).toBe(false);
     const mismatchedRecords = structuredClone(snapshot!); mismatchedRecords.implementation.uri = 'file:///Other.php';
@@ -6911,6 +6917,30 @@ class Worker {
     expect(workspace.restore(staleReferences, uri)).toBe(false);
     const staleDependencies = structuredClone(snapshot!); staleDependencies.layers.typeDependencies.nodes[0]!.dependencies = ['cache\\other'];
     expect(workspace.restore(staleDependencies, uri)).toBe(false);
+  });
+  it('loads only the callable selected by focused semantic queries', () => {
+    const uri = 'file:///FocusedCached.php';
+    const source = `<?php namespace Cache;
+class Service { public function serve(string $value): self { return $this; } }
+class Consumer {
+  public function run(Service $service): void { $copy = $service; $copy->ser; $copy->serve('x'); }
+  public function untouched(Service $service): void { $service->serve('untouched'); }
+}`;
+    workspace.update(uri, source); const snapshot = workspace.snapshot(uri)!; workspace.remove(uri);
+    expect(workspace.restoreDeclaration(snapshot, uri)).toBe(true);
+    const run = snapshot.declaration.callables.find((callable) => callable.fqcn === 'Cache\\Consumer::run')!;
+    const statesAfterQuery = (): SemanticCallableImplementationState[] => workspace.callableImplementationStates(uri);
+    expect(workspace.completeMembers(uri, source.indexOf('$copy->ser') + '$copy->ser'.length).map((member) => member.name)).toContain('serve');
+    expect(statesAfterQuery().filter((record) => record.state === 'loaded').map((record) => record.identity)).toEqual(['cache\\consumer::run']);
+    expect(workspace.definition(uri, source.indexOf("serve('x')") + 2)).toMatchObject([{ uri }]);
+    expect(workspace.typeDefinition(uri, source.indexOf("$copy->serve('x')") + 2)).toMatchObject([{ uri }]);
+    expect(workspace.signature(uri, source.indexOf("'x'") + 2)?.fqcn).toBe('Cache\\Service::serve');
+    expect(workspace.inlayTypeHints(uri, run.declarationStart, run.declarationEnd).some((hint) => hint.label === ': Service')).toBe(true);
+    expect(workspace.inlayParameterHints(uri, run.declarationStart, run.declarationEnd).some((hint) => hint.label === '$value:')).toBe(true);
+    expect(statesAfterQuery().filter((record) => record.state === 'loaded').map((record) => record.identity)).toEqual(['cache\\consumer::run']);
+    expect(workspace.implementationState(uri)).toBe('deferred');
+    expect(workspace.incompatibleArguments(uri)).toEqual([]);
+    expect(workspace.implementationState(uri)).toBe('loaded');
   });
   it('reuses an edited syntax tree while keeping semantic results equal to a clean parse', () => {
     const uri = 'file:///Incremental.php';

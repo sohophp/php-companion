@@ -603,6 +603,12 @@ function completeImplementationFacts(file: SemanticFile, controlFlowAssignments:
 
 type ImplementationRange = Omit<SemanticCallableImplementationRecord, 'facts'>;
 
+interface DeferredImplementation {
+  snapshot: SemanticImplementationSnapshot;
+  loadedCallables: Set<string>;
+  facts: SemanticImplementationFacts;
+}
+
 function callableImplementationRanges(file: SemanticFile): ImplementationRange[] {
   const candidates: ImplementationRange[] = [
     ...file.callables.map((callable) => ({
@@ -718,7 +724,8 @@ function referenceCandidateKeys(file: SemanticFile): Set<string> {
 
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
-  private readonly deferredImplementations = new Map<string, SemanticImplementationSnapshot>();
+  private readonly deferredImplementations = new Map<string, DeferredImplementation>();
+  private readonly targetedImplementationQueries = new Map<string, number>();
   private readonly referenceCandidates = new DocumentKeyIndex();
   private readonly unindexedReferenceCandidateUris = new Set<string>();
   private readonly typeDependencies = new DocumentDependencyGraph();
@@ -739,23 +746,75 @@ export class SemanticWorkspace {
   constructor(private readonly parser: PhpSyntaxParser) {}
 
   private deferredSemanticFile(declaration: SemanticDeclarationSnapshot, implementation: SemanticImplementationSnapshot): SemanticFile {
-    const file = semanticFileSnapshot(declaration, implementation); this.deferredImplementations.set(file.uri, implementation);
+    const initial = { ...implementation, file: emptyImplementationFacts(), callables: [] };
+    const file = semanticFileSnapshot(declaration, initial);
+    const deferred: DeferredImplementation = {
+      snapshot: implementation,
+      loadedCallables: new Set(),
+      facts: emptyImplementationFacts(),
+    };
+    this.deferredImplementations.set(file.uri, deferred);
     for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {
       configurable: true, enumerable: true,
-      get: () => { this.loadImplementation(file.uri); return file[field]; },
+      get: () => {
+        const current = this.deferredImplementations.get(file.uri);
+        if (!current) return file[field];
+        if (!this.targetedImplementationQueries.has(file.uri)) {
+          this.loadImplementation(file.uri);
+          return file[field];
+        }
+        return current.facts[field];
+      },
     });
     return file;
   }
 
-  private loadImplementation(uri: string): void {
-    const implementation = this.deferredImplementations.get(uri); const file = this.files.get(uri);
-    if (!implementation || !file) return;
-    const facts = mergedImplementationFacts(implementation);
+  private loadCallableImplementations(uri: string, identities: Iterable<string>): void {
+    const deferred = this.deferredImplementations.get(uri); const file = this.files.get(uri);
+    if (!deferred || !file) return;
+    for (const identity of identities) deferred.loadedCallables.add(identity);
+    const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));
+    deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });
+    this.controlFlowAssignments.set(uri, new Set(deferred.facts.controlFlowAssignments));
+    if (callables.length !== deferred.snapshot.callables.length) return;
     this.deferredImplementations.delete(uri);
     for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {
-      configurable: true, enumerable: true, writable: true, value: facts[field],
+      configurable: true, enumerable: true, writable: true, value: deferred.facts[field],
     });
-    this.controlFlowAssignments.set(uri, new Set(facts.controlFlowAssignments));
+  }
+
+  private loadImplementation(uri: string): void {
+    const deferred = this.deferredImplementations.get(uri);
+    if (deferred) this.loadCallableImplementations(uri, deferred.snapshot.callables.map((record) => record.identity));
+  }
+
+  private withImplementationAt<T>(uri: string, offset: number, query: () => T): T {
+    const deferred = this.deferredImplementations.get(uri);
+    if (!deferred) return query();
+    const target = deferred.snapshot.callables.filter((record) => offset >= record.start && offset <= record.end)
+      .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
+    this.loadCallableImplementations(uri, target ? [target.identity] : []);
+    if (!this.deferredImplementations.has(uri)) return query();
+    this.targetedImplementationQueries.set(uri, (this.targetedImplementationQueries.get(uri) ?? 0) + 1);
+    try { return query(); } finally {
+      const depth = (this.targetedImplementationQueries.get(uri) ?? 1) - 1;
+      if (depth > 0) this.targetedImplementationQueries.set(uri, depth);
+      else this.targetedImplementationQueries.delete(uri);
+    }
+  }
+
+  private withImplementationRange<T>(uri: string, start: number, end: number, query: () => T): T {
+    const deferred = this.deferredImplementations.get(uri);
+    if (!deferred) return query();
+    this.loadCallableImplementations(uri, deferred.snapshot.callables
+      .filter((record) => record.start <= end && record.end >= start).map((record) => record.identity));
+    if (!this.deferredImplementations.has(uri)) return query();
+    this.targetedImplementationQueries.set(uri, (this.targetedImplementationQueries.get(uri) ?? 0) + 1);
+    try { return query(); } finally {
+      const depth = (this.targetedImplementationQueries.get(uri) ?? 1) - 1;
+      if (depth > 0) this.targetedImplementationQueries.set(uri, depth);
+      else this.targetedImplementationQueries.delete(uri);
+    }
   }
 
   implementationState(uri: string): 'absent' | 'deferred' | 'loaded' {
@@ -766,7 +825,9 @@ export class SemanticWorkspace {
 
   callableImplementationStates(uri: string): SemanticCallableImplementationState[] {
     const deferred = this.deferredImplementations.get(uri);
-    if (deferred) return deferred.callables.map(({ identity, kind }) => ({ identity, kind, state: 'deferred' }));
+    if (deferred) return deferred.snapshot.callables.map(({ identity, kind }) => ({
+      identity, kind, state: deferred.loadedCallables.has(identity) ? 'loaded' : 'deferred',
+    }));
     const file = this.files.get(uri);
     return file ? callableImplementationRanges(file).map(({ identity, kind }) => ({ identity, kind, state: 'loaded' })) : [];
   }
@@ -1207,7 +1268,7 @@ export class SemanticWorkspace {
     this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     this.assertedTargetInferenceCache.clear();
@@ -2382,6 +2443,10 @@ export class SemanticWorkspace {
   }
 
   completeMembers(uri: string, offset: number): MemberInfo[] {
+    return this.withImplementationAt(uri, offset, () => this.completeMembersWithImplementation(uri, offset));
+  }
+
+  private completeMembersWithImplementation(uri: string, offset: number): MemberInfo[] {
     const target = this.memberTarget(uri, offset);
     if (!target) return [];
     const prefix = target.member.toLowerCase();
@@ -2764,6 +2829,10 @@ export class SemanticWorkspace {
   }
 
   memberAt(uri: string, offset: number): MemberInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => this.memberAtWithImplementation(uri, offset));
+  }
+
+  private memberAtWithImplementation(uri: string, offset: number): MemberInfo | undefined {
     const members = this.membersAt(uri, offset);
     return members.length && new Set(members.map((member) => this.memberSignature(member))).size === 1 ? members[0] : undefined;
   }
@@ -2923,6 +2992,10 @@ export class SemanticWorkspace {
   }
 
   functionAt(uri: string, offset: number): MemberInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => this.functionAtWithImplementation(uri, offset));
+  }
+
+  private functionAtWithImplementation(uri: string, offset: number): MemberInfo | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
     const declared = file.callables.find((item) => item.kind === 'function' && offset >= item.start && offset <= item.end);
     let callable = declared;
@@ -2943,6 +3016,10 @@ export class SemanticWorkspace {
   }
 
   constantAt(uri: string, offset: number): ConstantCompletionInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => this.constantAtWithImplementation(uri, offset));
+  }
+
+  private constantAtWithImplementation(uri: string, offset: number): ConstantCompletionInfo | undefined {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return undefined;
     const declared = file.constants.find((item) => item.global && offset >= item.start && offset <= item.end);
     const imported = file.imports.find((item) => item.kind === 'const' && offset >= item.pathStart && offset <= item.pathEnd);
@@ -4337,6 +4414,10 @@ export class SemanticWorkspace {
   }
 
   definition(uri: string, offset: number): SemanticLocation[] {
+    return this.withImplementationAt(uri, offset, () => this.definitionWithImplementation(uri, offset));
+  }
+
+  private definitionWithImplementation(uri: string, offset: number): SemanticLocation[] {
     const members = this.membersAt(uri, offset);
     if (members.length) return members;
     const callable = this.functionAt(uri, offset);
@@ -4355,6 +4436,10 @@ export class SemanticWorkspace {
   }
 
   typeDefinition(uri: string, offset: number): SemanticLocation[] {
+    return this.withImplementationAt(uri, offset, () => this.typeDefinitionWithImplementation(uri, offset));
+  }
+
+  private typeDefinitionWithImplementation(uri: string, offset: number): SemanticLocation[] {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return [];
     const member = this.memberAt(uri, offset);
     const memberType = member && this.memberReturnClass(member, true);
@@ -4367,6 +4452,10 @@ export class SemanticWorkspace {
   }
 
   inlayTypeHints(uri: string, start: number, end: number): InlayTypeHint[] {
+    return this.withImplementationRange(uri, start, end, () => this.inlayTypeHintsWithImplementation(uri, start, end));
+  }
+
+  private inlayTypeHintsWithImplementation(uri: string, start: number, end: number): InlayTypeHint[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.assignments.filter((assignment) => assignment.start >= start && assignment.start <= end).flatMap((assignment): InlayTypeHint[] => {
       const resolved = this.variableClass(file, assignment.variable, assignment.end, new Set(), true);
@@ -4376,6 +4465,10 @@ export class SemanticWorkspace {
   }
 
   inlayParameterHints(uri: string, start: number, end: number): InlayParameterHint[] {
+    return this.withImplementationRange(uri, start, end, () => this.inlayParameterHintsWithImplementation(uri, start, end));
+  }
+
+  private inlayParameterHintsWithImplementation(uri: string, start: number, end: number): InlayParameterHint[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.calls.filter((call) => call.start >= start && call.end <= end && call.flat
       && call.arguments.length > 0 && call.arguments.every((argument) => !argument.name && !argument.unpacked))
@@ -5499,11 +5592,19 @@ export class SemanticWorkspace {
   }
 
   typeAt(uri: string, offset: number): TypeInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => this.typeAtWithImplementation(uri, offset));
+  }
+
+  private typeAtWithImplementation(uri: string, offset: number): TypeInfo | undefined {
     const matches = this.typeCandidatesAt(uri, offset);
     return matches.length === 1 ? matches[0] : undefined;
   }
 
   typeCandidatesAt(uri: string, offset: number): TypeInfo[] {
+    return this.withImplementationAt(uri, offset, () => this.typeCandidatesAtWithImplementation(uri, offset));
+  }
+
+  private typeCandidatesAtWithImplementation(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return [];
     const declared = file.declarations.find((item) => offset >= item.start && offset <= item.end);
     const imported = file.imports.find((item) => offset >= item.pathStart && offset <= item.pathEnd);
@@ -5530,6 +5631,10 @@ export class SemanticWorkspace {
   }
 
   signatures(uri: string, offset: number): SignatureInfo[] {
+    return this.withImplementationAt(uri, offset, () => this.signaturesWithImplementation(uri, offset));
+  }
+
+  private signaturesWithImplementation(uri: string, offset: number): SignatureInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
     const before = file.source.slice(0, offset);

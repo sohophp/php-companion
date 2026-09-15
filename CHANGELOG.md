@@ -1,3 +1,4 @@
+- 热缓存实现事实现在按查询目标 callable 水合：成员补全、Definition、Type Definition、Signature Help 和区间 Inlay Hint 只合并文件级事实与光标/范围覆盖的函数、方法或 Property Hook 记录；未标记的整文件诊断、重构和跨文件正文扫描自动完整装载，保持保守完整性。
 - Open Source Profile 的 PHP 8.4 Property Hook 精确诊断验收在 Windows 全插件冷启动下使用 15 秒有界等待，并在失败时输出最后收到的诊断码；消除首次索引偶发超过 5 秒造成的误报，同时保留精确数量断言。
 - 提交 `7e27eb9` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交和三个 VSIX 的 SHA-256。
 - PHP 语义快照升级到 schema 74：文件级实现事实与每个唯一函数、方法、Property Hook 的实现事实成为独立记录；Language Server v46 分别校验源码、声明、文件实现、每条 callable 实现、派生层和框架事实。重复 callable 身份保守留在文件记录，记录搬移、复制、范围或内容篡改均拒绝恢复。
