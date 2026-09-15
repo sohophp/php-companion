@@ -1,6 +1,6 @@
 # Alpha 环境预检
 
-日期：2026-09-15。候选：`artifacts/php-companion-alpha-0.4.5-2413648e/`，源码提交 `2413648e2cd4135c671a5da9a71144cac04098ce`。
+日期：2026-09-15。候选：`artifacts/php-companion-alpha-0.4.5-9c82d22d/`，源码提交 `9c82d22d5eef8125551294558d138239605c39a3`。
 
 ## 自动门禁
 
@@ -12,9 +12,9 @@
 - `--require-wsl` 要求 WSL；`--check-editor` 还要求从 VS Code WSL 集成终端运行，核心和七个冻结扩展版本一致，并且两个 Pack 只安装一个。
 - `--output` 保存完整 JSON，包含候选摘要、工作区、PHP、环境、扩展清单、错误码和人工待办。
 
-四项单元测试覆盖扩展版本/冲突识别、WSL 识别、候选核验和篡改拒绝。全仓 `pnpm check` 通过：十六个组件 651 项、根扩展 39 项，共 690 项测试；三个 VSIX 重新打包并通过内容校验。十六个组件 tarball 的隔离消费者验证和 VS Code 1.137.0 Linux x64 打包 Extension Host 也均通过。
+四项单元测试覆盖扩展版本/冲突识别、WSL 识别、候选核验和篡改拒绝。全仓 `pnpm check` 通过：十六个组件 653 项、根扩展 39 项，共 692 项测试；三个 VSIX 重新打包并通过内容校验。十六个组件 tarball 的隔离消费者验证和 VS Code 1.137.0 Linux x64 打包 Extension Host 也均通过。
 
-提交 `2413648` 的 [CI 34973167989](https://github.com/sohophp/php-companion/actions/runs/34973167989) 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
+提交 `9c82d22` 的 [CI 34978077566](https://github.com/sohophp/php-companion/actions/runs/34978077566) 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 
 ## 当前执行结果
 

@@ -7,7 +7,7 @@
   "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
   "index": {
     "files": 9999,
-    "bytes": 38854938,
+    "bytes": 38855369,
     "cached": 0,
     "complete": false,
     "projectComplete": true,
@@ -15,8 +15,8 @@
       "Dependency index was truncated to fit the 10000-file budget after indexing 2256 project files.",
       "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
     ],
-    "durationMs": 106129.93,
-    "peakRssMb": 745.6
+    "durationMs": 99662.91,
+    "peakRssMb": 776
   },
   "catalog": {
     "types": 10036,
@@ -33,9 +33,9 @@
     "returnedLocations": 1000,
     "durationMs": {
       "samples": 100,
-      "p50": 1.0279149999987567,
-      "p95": 27.565422999992734,
-      "maximum": 59.567815000002156
+      "p50": 0.8226140000042506,
+      "p95": 26.221168999996735,
+      "maximum": 47.809817999994266
     }
   },
   "oracle": {

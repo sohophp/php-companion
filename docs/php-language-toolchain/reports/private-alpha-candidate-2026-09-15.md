@@ -4,41 +4,43 @@
 
 ## 候选产物
 
-`pnpm candidate:alpha` 最新在干净提交 `2413648e2cd4135c671a5da9a71144cac04098ce` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-2413648e/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
+`pnpm candidate:alpha` 最新在干净提交 `9c82d22d5eef8125551294558d138239605c39a3` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-9c82d22d/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
 
 | 角色 | 文件 | 字节 | SHA-256 |
 | --- | --- | ---: | --- |
-| PHP 核心 | `php-companion-0.4.5.vsix` | 881,018 | `01f9b13182d94fd8fa1d6e3c7c980edc473953f7d12a5a302dbb9556efeaaaa0` |
-| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `88f5f87cb461c7f3266d8f2036bc8f0c3d81f5636b7b881715df8c841a880fd8` |
-| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `5e2cb36d90dd3159e11c96fc3f49f27f32350fa92aadab4513793c509118e768` |
+| PHP 核心 | `php-companion-0.4.5.vsix` | 881,236 | `9638ee36385a626911299c2502145d41994ff73e2997e0d6c5d7c49b48bd6ee2` |
+| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `fbc70f7e4234dc12ab2b900899cf8688b4226dcfc5ef8393bca40cab9b871002` |
+| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `72d106dd17119d3480e95dce822fbab6e8853ee8f6212fdf69be4a37c13ea493` |
 
 候选目录的 `sha256sum -c SHA256SUMS` 三项均返回 `OK`。`candidate.json` 同时记录 Node v22.14.0、Linux x64、完整源码提交、三个产物元数据、七个受支持扩展，以及被拒绝的 Symfony Language Tools 0.20.1 和 DotJoshJohnson XML Tools 2.5.1。
 
-提交 `2413648` 的 [CI 34973167989](https://github.com/sohophp/php-companion/actions/runs/34973167989) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。该提交新增 Alpha 环境预检及可移植候选说明；核心 PHP 语义仍来自此前已验收的 `39cc6c6`。
+提交 `9c82d22` 的 [CI 34978077566](https://github.com/sohophp/php-companion/actions/runs/34978077566) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。该提交增加唯一可调用对象的精准变量调用契约；Alpha 环境预检与可移植候选说明继续保留。
 
 ## 最新真实项目门禁
 
 使用候选对应源码构建的 `@php-companion/semantic` 执行：
 
 ```bash
-node scripts/audit-real-workspace.mjs /var/www/php/8.5/winstar2024 100 10000 docs/php-language-toolchain/oracles/winstar.json
-node scripts/audit-real-workspace.mjs /var/www/php/7.2/CoreRepo 100 10000 docs/php-language-toolchain/oracles/corerepo.json
+node scripts/audit-real-workspace.mjs /var/www/php/8.5/winstar2024 100 10000 docs/php-language-toolchain/oracles/winstar.json \
+  > docs/php-language-toolchain/reports/real-workspace-winstar-alpha-2026-09-15.json
+node scripts/audit-real-workspace.mjs /var/www/php/7.2/CoreRepo 100 10000 docs/php-language-toolchain/oracles/corerepo.json \
+  > docs/php-language-toolchain/reports/real-workspace-corerepo-alpha-2026-09-15.json
 ```
 
 | 指标 | Winstar | CoreRepo |
 | --- | ---: | ---: |
 | 项目 PHP 文件 | 2,256，完整 | 1,137，完整 |
 | 总索引文件 | 9,999 | 10,000 |
-| 索引耗时 | 106,129.93 ms | 71,958.66 ms |
-| 峰值 RSS | 745.6 MiB | 705.6 MiB |
+| 索引耗时 | 99,662.91 ms | 66,645.83 ms |
+| 峰值 RSS | 776.0 MiB | 716.4 MiB |
 | 类型目录 / 项目类型 | 10,036 / 2,270 | 10,011 / 1,128 |
 | 抽样声明解析 | 100/100 | 100/100 |
-| References P95 / 最大值 | 27.57 / 59.57 ms | 24.54 / 57.15 ms |
+| References P95 / 最大值 | 26.22 / 47.81 ms | 18.48 / 53.53 ms |
 | 冻结成员 Oracle | 补全、Definition 通过 | 补全、Definition 通过 |
 
 Winstar Oracle 从 `BlogDatasetEntity::getLatestArticles()` 的已证明 repository 类型补全 `createQueryBuilder`，Definition 落到 Doctrine `EntityRepository.php`。CoreRepo Oracle 从 `CanonicalUrl::generate()` 的 `Language` 参数补全 `getUrlCode`，Definition 落到项目 `Language.php`。两边 `projectComplete=true`；vendor 依赖受 10,000 文件预算截断，因此整体 `complete=false`，需要封闭世界的负向结论继续抑制。Winstar 的 Google API Client `Aiplatform.php` 还超过 512 KiB 单文件预算，新完整性逻辑把它明确报告为依赖缺口，没有误伤项目完整性。
 
-Winstar 审计读取提交 `7c25439a8bdbc25055b14d3226e59a43f256bb4d` 上当前含 83 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
+Winstar 审计读取提交 `7c25439a8bdbc25055b14d3226e59a43f256bb4d` 上当前含 84 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
 
 ## 尚需人工关闭的门槛
 
