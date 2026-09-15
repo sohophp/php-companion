@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Preserve open buffers while watched PHP files are created, deleted, moved, or reindexed after Composer autoload changes. Keep unresolved-symbol diagnostics disabled when any project source was skipped by the index budget.
+
 - Let focused editor requests consume schema 74 callable implementation records independently while whole-file diagnostics and conservative semantic operations retain automatic full hydration.
 
 - Advance Composer PHP caches to v46 and wrapper schema 3. Check source, declaration, file-level implementation, every callable implementation record, derived indexes, and framework facts independently before semantic restore.

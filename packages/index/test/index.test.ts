@@ -54,6 +54,31 @@ describe('bounded project source index', () => {
     let emitted = 0; const result = await indexComposerSources(root, { limits: { maxFiles: 1, maxFileSizeBytes: 100, maxTotalBytes: 100 }, onSource: () => { emitted += 1; } });
     expect(result).toMatchObject({ complete: false, projectComplete: false }); expect(emitted).toBe(0);
   });
+  it('rejects invalid resource limits', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-invalid-limit-'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+    await expect(indexComposerSources(root, { limits: { maxFiles: 0, maxFileSizeBytes: 100, maxTotalBytes: 100 }, onSource: () => undefined })).rejects.toThrow(RangeError);
+  });
+  it('marks a skipped oversized project source as project-incomplete', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-size-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const path = join(root, 'src', 'Large.php'); await writeFile(path, '<?php class Large {}');
+    const result = await indexComposerSources(root, { limits: { maxFiles: 10, maxFileSizeBytes: 10, maxTotalBytes: 1_000 }, onSource: () => undefined });
+    expect(result).toMatchObject({ files: 0, complete: false, projectComplete: false });
+    expect(result.warnings).toContain(`Project source ${path} exceeded the 10-byte per-file budget and was skipped.`);
+  });
+  it('keeps project completeness while marking an oversized dependency as incomplete', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-dependency-size-'));
+    await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+    await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+    await writeFile(join(root, 'src', 'Project.php'), '<?php');
+    const dependency = join(root, 'vendor', 'acme', 'lib', 'src', 'Large.php'); await writeFile(dependency, '<?php class LargeDependency {}');
+    const result = await indexComposerSources(root, { limits: { maxFiles: 10, maxFileSizeBytes: 10, maxTotalBytes: 1_000 }, onSource: () => undefined });
+    expect(result).toMatchObject({ files: 1, complete: false, projectComplete: true });
+    expect(result.warnings).toContain(`Dependency source ${dependency} exceeded the 10-byte per-file budget and was skipped.`);
+  });
   it('indexes project sources first and deterministically truncates dependencies', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-dependency-budget-'));
     await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
@@ -79,6 +104,16 @@ describe('bounded project source index', () => {
     const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');
     const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => true }, onSource: () => { parsed += 1; return {}; } });
     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');
+  });
+  it('rebuilds a cache entry when its restore adapter rejects the payload', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-entry-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const path = join(root, 'src', 'User.php'); await writeFile(path, '<?php class User {}');
+    await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => false }, onSource: () => ({ schema: 1 }) });
+    let parsed = 0;
+    const result = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => { throw new Error('invalid payload'); } }, onSource: () => { parsed += 1; return { schema: 1 }; } });
+    expect(result).toMatchObject({ files: 1, cached: 0, complete: true, projectComplete: true }); expect(parsed).toBe(1);
+    expect(result.warnings).toContain(`Persistent index entry for ${path} was rejected and rebuilt.`);
   });
   it('does not index files excluded from Composer classmaps', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-exclude-'));

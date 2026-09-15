@@ -16,6 +16,12 @@ export interface ProjectIndexCacheOptions { directory: string; version: string; 
 export interface ProjectIndexOptions { limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
+function validateLimits(limits: ProjectIndexLimits): void {
+  for (const [name, value] of Object.entries(limits)) {
+    if (!Number.isSafeInteger(value) || value <= 0) throw new RangeError(`${name} must be a positive safe integer.`);
+  }
+}
+
 async function phpFiles(directory: string, output: Set<string>, limit: number, include: (path: string) => boolean, shouldContinue?: () => boolean): Promise<boolean> {
   if (shouldContinue?.() === false) return false;
   if (output.size >= limit) return true;
@@ -33,6 +39,7 @@ async function phpFiles(directory: string, output: Set<string>, limit: number, i
 
 export async function indexComposerSources(root: string, options: ProjectIndexOptions): Promise<ProjectIndexResult> {
   const limits = options.limits ?? DEFAULT_INDEX_LIMITS; const project = await loadComposerProject(root);
+  validateLimits(limits);
   if (!project) return { files: 0, bytes: 0, cached: 0, complete: true, projectComplete: true, warnings: ['composer.json was not readable.'] };
   const warnings = [...project.warnings];
   const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(root).digest('hex')}.json`) : undefined;
@@ -66,19 +73,28 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const files = [...projectFiles.map((path) => ({ path, project: true })), ...uniqueDependencies.slice(0, remaining).map((path) => ({ path, project: false }))];
   if (dependencyTruncatedByCount) warnings.push(`Dependency index was truncated to fit the ${limits.maxFiles}-file budget after indexing ${projectFiles.length} project files.`);
   let bytes = 0; let indexed = 0; let cached = 0; const next = new Map<string, CacheEntry>();
-  let dependencyTruncatedByBytes = false;
+  let projectIncomplete = false; let dependencyIncomplete = dependencyTruncatedByCount;
+  const skipped = (candidate: { path: string; project: boolean }, reason: string): void => {
+    if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
+    warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
+  };
   for (const candidate of files) {
     const path = candidate.path;
     if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };
-    let info; try { info = await stat(path); } catch { continue; } const size = info.size;
-    if (size > limits.maxFileSizeBytes) continue;
+    let info; try { info = await stat(path); } catch { skipped(candidate, 'could not be inspected and was skipped.'); continue; } const size = info.size;
+    if (size > limits.maxFileSizeBytes) { skipped(candidate, `exceeded the ${limits.maxFileSizeBytes}-byte per-file budget and was skipped.`); continue; }
     if (bytes + size > limits.maxTotalBytes) {
       if (candidate.project) return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, `Project source index exceeded ${limits.maxTotalBytes} bytes.`] };
-      dependencyTruncatedByBytes = true; warnings.push(`Dependency index was truncated to fit the ${limits.maxTotalBytes}-byte budget.`); break;
+      dependencyIncomplete = true; warnings.push(`Dependency index was truncated to fit the ${limits.maxTotalBytes}-byte budget.`); break;
     }
     try {
       const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString(); const old = previous.get(path);
-      if (old && old.size === size && old.mtimeMs === info.mtimeMs && options.cache && await options.cache.restore(old.payload, { uri, path, bytes: size })) {
+      let restored = false;
+      if (old && old.size === size && old.mtimeMs === info.mtimeMs && options.cache) {
+        try { restored = await options.cache.restore(old.payload, { uri, path, bytes: size }); }
+        catch { warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`); }
+      }
+      if (old && restored) {
         next.set(path, old); cached += 1; bytes += size; indexed += 1;
         if (indexed % (options.yieldEvery ?? 50) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
         continue;
@@ -87,11 +103,11 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       if (payload !== undefined) next.set(path, { size, mtimeMs: info.mtimeMs, payload });
       bytes += size; indexed += 1;
       if (indexed % (options.yieldEvery ?? 50) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
-    } catch { /* A transient unreadable file does not invalidate completed snapshots. */ }
+    } catch { skipped(candidate, 'could not be read or analyzed and was skipped.'); }
   }
   if (cachePath && options.cache) {
     try { await mkdir(options.cache.directory, { recursive: true }); const temporary = `${cachePath}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify({ schema: 1, version: options.cache.version, root, entries: Object.fromEntries(next) })); await rename(temporary, cachePath); }
     catch { warnings.push('Persistent index cache could not be written.'); }
   }
-  return { files: indexed, bytes, cached, complete: !dependencyTruncatedByCount && !dependencyTruncatedByBytes, projectComplete: true, warnings };
+  return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
 }

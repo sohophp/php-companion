@@ -288,6 +288,87 @@ describe('language server stdio', () => {
     }
   });
 
+  it('keeps open buffers authoritative across watched create, delete, move, and Composer autoload changes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-lifecycle-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const mappedDirectory = join(root, 'mapped');
+      await mkdir(sourceDirectory); await mkdir(mappedDirectory);
+      const composerPath = join(root, 'composer.json');
+      await writeFile(composerPath, JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const servicePath = join(sourceDirectory, 'Service.php'); const movedServicePath = join(sourceDirectory, 'MovedService.php');
+      const addedPath = join(sourceDirectory, 'Added.php'); const mappedPath = join(mappedDirectory, 'MappedService.php');
+      const consumerPath = join(sourceDirectory, 'Consumer.php');
+      await writeFile(servicePath, '<?php namespace App; class Service { public function fromOpenBuffer(): void {} }');
+      await writeFile(mappedPath, '<?php namespace Mapped; class MappedService { public function mappedMethod(): void {} }');
+      await writeFile(consumerPath, '<?php namespace App; function disk(Service $service): void { $service->diskOnly; }');
+      const openSource = `<?php namespace App;
+        function run(Service $service): void {
+          $service->fromOpenB;
+          $added = new Add;
+          $mapped = new \\Mapped\\MappedService;
+        }`;
+      const rootUri = pathToFileURL(root).toString(); const consumerUri = pathToFileURL(consumerPath).toString();
+      const serviceUri = pathToFileURL(servicePath).toString(); const movedServiceUri = pathToFileURL(movedServicePath).toString();
+      const addedUri = pathToFileURL(addedPath).toString(); const mappedUri = pathToFileURL(mappedPath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 214, method: 'initialize', params: { processId: null, capabilities: { workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } }, rootUri } }));
+      await output.waitFor((message) => message.id === 214);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const registration = await output.waitFor((message) => message.method === 'client/registerCapability');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: registration.id, result: null }));
+      let completedIndexes = 0;
+      const waitForNextIndex = async (): Promise<void> => {
+        completedIndexes += 1;
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true')
+          && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('complete=true')).length >= completedIndexes);
+      };
+      await waitForNextIndex();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: openSource } } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
+      const completion = async (id: number, marker: string): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, openSource.indexOf(marker) + marker.length) } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect(await completion(215, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
+
+      await writeFile(consumerPath, '<?php namespace App; function changedOnDisk(): void {}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: consumerUri, type: 2 }] } }));
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      expect(await completion(216, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
+
+      await writeFile(addedPath, '<?php namespace App; class Added { public function addedMethod(): void {} }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: addedUri, type: 1 }] } }));
+      await waitForNextIndex();
+      expect(await completion(217, 'Add')).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Added' })]));
+
+      await rm(addedPath);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: addedUri, type: 3 }] } }));
+      await waitForNextIndex();
+      expect((await completion(218, 'Add')).some((item) => item.label === 'Added')).toBe(false);
+
+      await rename(servicePath, movedServicePath);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 3 }, { uri: movedServiceUri, type: 1 }] } }));
+      await waitForNextIndex();
+      const serviceOffset = openSource.indexOf('Service $service') + 2;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 219, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, serviceOffset) } }));
+      expect((await output.waitFor((message) => message.id === 219)).result).toMatchObject([{ uri: movedServiceUri }]);
+      expect(await completion(220, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
+
+      const mappedOffset = openSource.indexOf('MappedService') + 2;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 221, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, mappedOffset) } }));
+      expect((await output.waitFor((message) => message.id === 221)).result).toEqual([]);
+      await writeFile(composerPath, JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Mapped\\': 'mapped/' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(composerPath).toString(), type: 2 }] } }));
+      await waitForNextIndex();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 222, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, mappedOffset) } }));
+      expect((await output.waitFor((message) => message.id === 222)).result).toMatchObject([{ uri: mappedUri }]);
+      expect(await completion(223, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('renames a unique type and its matching PSR-4 file through documentChanges', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-type-rename-'));
     try {
@@ -1627,6 +1708,28 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 26, method: 'textDocument/completion', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf('nested') + 6 } } }));
       expect((await output.waitFor((message) => message.id === 26)).result.map((item: { label: string }) => item.label)).toEqual(['nestedOnly']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('suppresses unresolved-symbol diagnostics when a project file exceeds the index budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-incomplete-project-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Large.php'), `<?php namespace App; class Large {} /*${'x'.repeat(512 * 1024)}*/`);
+      const source = '<?php namespace App; function run(): void { new MissingService(); missingFunction(); echo MISSING_CONSTANT; }';
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString(); await writeFile(join(root, 'src', 'Consumer.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 29, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString() } }));
+      await output.waitFor((message) => message.id === 29);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=false'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('per-file budget'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const diagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      expect(diagnostics.params.diagnostics.some((diagnostic: { code?: string }) => diagnostic.code === 'php.type.unresolved'
+        || diagnostic.code === 'php.function.unresolved' || diagnostic.code === 'php.constant.unresolved')).toBe(false);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
