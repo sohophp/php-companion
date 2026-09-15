@@ -15,8 +15,8 @@
       "Dependency index was truncated to fit the 10000-file budget after indexing 2256 project files.",
       "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
     ],
-    "durationMs": 99662.91,
-    "peakRssMb": 776
+    "durationMs": 97094.08,
+    "peakRssMb": 713.9
   },
   "catalog": {
     "types": 10036,
@@ -33,9 +33,9 @@
     "returnedLocations": 1000,
     "durationMs": {
       "samples": 100,
-      "p50": 0.8226140000042506,
-      "p95": 26.221168999996735,
-      "maximum": 47.809817999994266
+      "p50": 0.6237229999969713,
+      "p95": 22.25862700000289,
+      "maximum": 45.39366100000916
     }
   },
   "oracle": {

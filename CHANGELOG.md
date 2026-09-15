@@ -1,4 +1,5 @@
 - 精确二元素 callable 数组现在保留对象实例或 `Type::class` 的唯一公开方法目标，并沿有界不可变别名提供变量调用 Signature Help、缺参/错参诊断及返回传播；动态名称、nullable、静态性/可见性不匹配、控制流来源和修改保持 unknown。语义快照升级到 schema 77，持久缓存升级到 v49。
+- 提交 `03461a7` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5；Winstar/CoreRepo 最新只读 Oracle 均通过，对应私有 Alpha 候选绑定完整提交与三份新 SHA-256。
 - 唯一、非空对象类型的公开实例 `__invoke()` 现在成为直接变量调用契约：支持继承和接口声明、局部对象别名、Signature Help、缺参/错参诊断及返回传播；nullable、Union 歧义、非公开和未解析目标保持 unknown。
 - 提交 `9c82d22` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5；Winstar/CoreRepo 最新只读 Oracle 均通过，对应私有 Alpha 候选绑定完整提交与三份新 SHA-256。
 - 新增只读 `pnpm alpha:preflight`：核验 Alpha 清单结构、三个 VSIX 大小与 SHA-256、Composer 项目根、项目 PHP 包装器次版本和 WSL；严格编辑器模式还验证核心、冻结外部扩展及恰好一个 Pack，并输出机器可读 JSON。VS Code CLI 无法证明的 Extension Host 归属和竞争 PHP Provider 禁用状态明确保留为人工门槛。
