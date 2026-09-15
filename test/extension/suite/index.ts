@@ -7,13 +7,14 @@ async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_
   assert.ok(predicate(), message);
 }
 
-async function waitForAsync(predicate: () => Promise<boolean>, message: string, timeoutMs = 5_000, intervalMs = 20): Promise<void> {
+async function waitForAsync(predicate: () => Promise<boolean>, message: string | (() => string), timeoutMs = 5_000, intervalMs = 20): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try { if (await predicate()) return; } catch { /* Providers can reject while their server is restarting. */ }
     await new Promise<void>((resolve) => setTimeout(resolve, intervalMs));
   }
-  try { assert.ok(await predicate(), message); } catch (error) { assert.fail(`${message}: ${error instanceof Error ? error.message : String(error)}`); }
+  const resolvedMessage = typeof message === 'function' ? message() : message;
+  try { assert.ok(await predicate(), resolvedMessage); } catch (error) { assert.fail(`${resolvedMessage}: ${error instanceof Error ? error.message : String(error)}`); }
 }
 
 function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
@@ -1884,19 +1885,20 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   try {
     await vscode.workspace.fs.writeFile(propertyHookUri, Buffer.from(propertyHookSource));
     const propertyHookDocument = await vscode.workspace.openTextDocument(propertyHookUri);
+    let propertyHookCodes: Array<vscode.Diagnostic['code']> = [];
     await waitForAsync(async () => {
-      const codes = vscode.languages.getDiagnostics(propertyHookUri).map((diagnostic) => diagnostic.code);
-      return codes.filter((code) => code === 'php.property.unwritable').length === 1
-        && codes.filter((code) => code === 'php.property.unreadable').length === 1
-        && codes.filter((code) => code === 'php.assignment.type-mismatch').length === 1
-        && codes.filter((code) => code === 'php.member.inaccessible').length === 1
-        && codes.filter((code) => code === 'php.property.indirect-modification').length === 4
-        && codes.filter((code) => code === 'php.property.reference-assignment').length === 2
-        && codes.filter((code) => code === 'php.property.reference-iteration').length === 1
-        && codes.filter((code) => code === 'php.property.missing-implementation').length === 1
-        && codes.filter((code) => code === 'php.property.incompatible-override').length === 2
-        && !codes.includes('php.variable.undefined');
-    }, 'Packaged PHP 8.4 property-hook capabilities did not reach exact diagnostics');
+      propertyHookCodes = vscode.languages.getDiagnostics(propertyHookUri).map((diagnostic) => diagnostic.code);
+      return propertyHookCodes.filter((code) => code === 'php.property.unwritable').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.property.unreadable').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.assignment.type-mismatch').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.member.inaccessible').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.property.indirect-modification').length === 4
+        && propertyHookCodes.filter((code) => code === 'php.property.reference-assignment').length === 2
+        && propertyHookCodes.filter((code) => code === 'php.property.reference-iteration').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.property.missing-implementation').length === 1
+        && propertyHookCodes.filter((code) => code === 'php.property.incompatible-override').length === 2
+        && !propertyHookCodes.includes('php.variable.undefined');
+    }, () => `Packaged PHP 8.4 property-hook capabilities did not reach exact diagnostics; last codes: ${JSON.stringify(propertyHookCodes)}`, 15_000, 50);
     for (const marker of ['display;', 'sink = 1']) {
       const offset = propertyHookSource.indexOf(marker) + 2;
       await waitForAsync(async () => {
