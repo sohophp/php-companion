@@ -19,7 +19,7 @@
 - `pnpm verify:packages`：十六个组件 tarball 均可由隔离消费者安装和导入。
 - `pnpm test:extension:packaged`：VS Code 1.137.0 Linux x64 隔离 Profile 成功加载打包 Core VSIX，Extension Host 退出码为 0。
 
-跨平台 CI、私有 Alpha 候选及其 SHA-256 在功能提交后补录。
+提交 `39cc6c6` 的 [CI 34968267703](https://github.com/sohophp/php-companion/actions/runs/34968267703) 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。对应私有 Alpha 候选位于 `artifacts/php-companion-alpha-0.4.5-39cc6c66/`，绑定完整功能提交 `39cc6c662f690e90c386e818742c8dd749097c94`，三份 VSIX 的 `sha256sum -c SHA256SUMS` 均返回 `OK`。
 
 ## 缓存边界
 
