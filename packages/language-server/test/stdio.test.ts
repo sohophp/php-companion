@@ -179,6 +179,45 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads an omitted PSR-4 member owner before workspace indexing is complete', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-member-definition-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const source = `<?php namespace App;
+        final class Subscriber {
+          public function __construct(private readonly PasswordChangeGuard $guard) {}
+          public function run(): bool { return $this->guard->shouldRedirect(); }
+        }`;
+      const sourcePath = join(sourceDirectory, 'Subscriber.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      const targetPath = join(sourceDirectory, 'PasswordChangeGuard.php'); const targetUri = pathToFileURL(targetPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(sourcePath, source);
+      await writeFile(targetPath, '<?php namespace App; final class PasswordChangeGuard { public function shouldRedirect(): bool { return true; } }');
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 250, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
+      await output.waitFor((message) => message.id === 250);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 0 PHP files') && message.params.message.includes('complete=false'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 251, method: 'textDocument/definition', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('shouldRedirect') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 251)).result).toMatchObject([{ uri: targetUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 252, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 252);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {

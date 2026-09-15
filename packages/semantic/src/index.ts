@@ -2832,6 +2832,15 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.memberAtWithImplementation(uri, offset));
   }
 
+  memberOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
+      if (!file || !word || !file.memberAccesses.some((access) => offset >= access.start && offset <= access.end)) return [];
+      const target = this.memberTarget(uri, word.end); if (!target) return [];
+      return [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])];
+    });
+  }
+
   private memberAtWithImplementation(uri: string, offset: number): MemberInfo | undefined {
     const members = this.membersAt(uri, offset);
     return members.length && new Set(members.map((member) => this.memberSignature(member))).size === 1 ? members[0] : undefined;

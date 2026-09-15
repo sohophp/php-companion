@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Resolve member definitions through their declared PSR-4 owner while the workspace index is incomplete.
+
 - Share an active workspace-index promise across conservative editor requests so concurrent Code Action, import, and refactoring requests cannot repeatedly cancel and restart initial indexing.
 
 - Load an exact missing Composer PSR-4 type on demand for Definition instead of silently failing when the bounded dependency index omitted its file. Honor the configured index resource limits in the language-server scan.

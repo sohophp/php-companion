@@ -14,6 +14,16 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeMembers('file:///C.php', source.indexOf('na }') + 2).map((item) => item.name)).toEqual(['name']);
     expect(workspace.definition('file:///C.php', source.indexOf('User $') + 1)).toMatchObject([{ uri: 'file:///User.php' }]);
   });
+  it('identifies the declared owner type of an unresolved member access', () => {
+    const source = `<?php namespace App;
+      final class Subscriber {
+        public function __construct(private readonly PasswordChangeGuard $guard) {}
+        public function run(): bool { return $this->guard->shouldRedirect(); }
+      }`;
+    workspace.update('file:///Subscriber.php', source);
+    expect(workspace.memberOwnerTypeNamesAt('file:///Subscriber.php', source.indexOf('shouldRedirect') + 2))
+      .toEqual(['App\\PasswordChangeGuard']);
+  });
   it('exposes only signature-identical members across Union and DNF alternatives', () => {
     workspace.update('file:///CompositeTypes.php', `<?php namespace Composite;
       class Result { public function done(): void {} }
