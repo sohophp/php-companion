@@ -3290,9 +3290,13 @@ describe('conservative semantic workspace', () => {
         public function redirect(): object { return $this->urlGenerator; }
       }`;
     workspace.update('file:///IncompletePromotedReferences.php', source);
+    workspace.update('file:///UnrelatedDynamic.php', '<?php class DynamicBag { public function read(string $name): mixed { return $this->{$name}; } }');
     const offset = source.indexOf('$urlGenerator') + 2;
     expect(workspace.references('file:///IncompletePromotedReferences.php', offset)
       .map((item) => source.slice(item.start, item.end))).toEqual(['urlGenerator', 'urlGenerator']);
+    expect(workspace.propertyRename('file:///IncompletePromotedReferences.php', offset, 'router')?.locations
+      .map((item) => source.slice(item.start, item.end))).toEqual(['urlGenerator', 'urlGenerator']);
+    workspace.remove('file:///UnrelatedDynamic.php');
   });
   it('finds type references across aliases, native signatures and PHPDoc', () => {
     workspace.update('file:///DomainUser.php', '<?php namespace Domain; class User {}');

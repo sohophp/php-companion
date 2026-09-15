@@ -68,7 +68,8 @@ describe('language server stdio', () => {
   it('returns references for a local variable without crossing function scopes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-local-references-'));
     try {
-      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'dependency');
+      await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
       const source = `<?php
         final class Service implements MissingContract {
           public function __construct(private object $dependency) {}
@@ -79,10 +80,16 @@ describe('language server stdio', () => {
       `;
       const sourcePath = join(sourceDirectory, 'Functions.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'vendor/dependency', autoload: { 'psr-4': { 'Dependency\\': '' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'vendor/dependency', install_path: '../dependency' }] }));
+      await writeFile(join(dependencyDirectory, 'Extra.php'), '<?php namespace Dependency; final class Extra {}');
       await writeFile(sourcePath, source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 256, method: 'initialize', params: { processId: null, capabilities: {}, rootUri } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 256, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
       await output.waitFor((message) => message.id === 256);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -100,8 +107,17 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2), context: { includeDeclaration: true },
       } }));
       expect((await output.waitFor((message) => message.id === 258)).result).toHaveLength(2);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'shutdown', params: null }));
-      await output.waitFor((message) => message.id === 259);
+      const promotedPosition = lspPosition(source, source.indexOf('$dependency') + 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri: sourceUri }, position: promotedPosition,
+      } }));
+      expect((await output.waitFor((message) => message.id === 259)).result).toBeTruthy();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 260, method: 'textDocument/rename', params: {
+        textDocument: { uri: sourceUri }, position: promotedPosition, newName: 'service',
+      } }));
+      expect((await output.waitFor((message) => message.id === 260)).result.changes[sourceUri]).toHaveLength(2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 261, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 261);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });

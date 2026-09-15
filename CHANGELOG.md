@@ -1,4 +1,4 @@
-- References 现在按函数作用域返回普通局部变量，并在父类/接口尚未索引时仍将构造器属性提升参数视为属性身份，使 `private readonly $service` 的结果包含声明、构造器参数使用、命名实参及 `$this->service` 访问。
+- References 与 Rename 现在按函数作用域处理普通局部变量，并在依赖索引截断时仍允许 final 类的 private 构造器提升属性安全重命名；声明、构造器参数使用、命名实参及 `$this->service` 访问保持同一身份。
 - 工作区仍在索引或索引预算不足时，Definition 现在会从已声明的接收者类型逐级按需加载 PSR-4 目标类，使 `$request->getSession()->get()` 等链式成员 Ctrl+点击无需等待全库索引完成。
 - 初始索引期间的 Code Action、导入和重构请求现在共享同一进行中任务，不再通过递增 generation 相互取消并反复重启；修复真实 WSL 会话中连续出现 `Project indexing was cancelled`、高 CPU 且状态栏长期停留在 Indexing 的问题。
 - Definition 现在会按需加载初始依赖预算未收录的精确 Composer PSR-4 类型文件，修复 Winstar 中 Symfony `EventSubscriberInterface` 等 vendor 声明 Ctrl+点击无响应；Language Server 同时正式接收扩展设置的文件数、单文件和总字节预算。

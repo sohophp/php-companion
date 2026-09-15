@@ -3,7 +3,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
-- Return scope-isolated local variables from References while keeping promoted constructor parameters and property accesses under one identity even when the owner hierarchy is incomplete.
+- Allow scope-local Rename and final private promoted-property Rename after the project source index completes even when the dependency index is partial; keep broader member renames gated on the complete dependency index.
 
 - Progressively resolve chained member definitions through their declared PSR-4 owners while the workspace index is incomplete.
 

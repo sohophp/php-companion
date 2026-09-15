@@ -1147,6 +1147,12 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
   return !isCancellationRequested() && completeRoots.has(root);
 }
 
+async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
+  if (projectCompleteRoots.has(root)) return true;
+  await (activeIndexing ?? startIndexWorkspace());
+  return !isCancellationRequested() && projectCompleteRoots.has(root);
+}
+
 function canonicalTypeRename(workspace: SemanticWorkspace, root: string, uri: string, offset: number, newName?: string, includePhpDoc = true): TypeRename | undefined {
   const candidates = workspace.typeCandidatesAt(uri, offset); if (!candidates.length) return undefined;
   const mappings = projectMappingsByRoot.get(root) ?? [];
@@ -1972,14 +1978,18 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
 
 connection.onPrepareRename(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
-  if (!document || !root || token.isCancellationRequested || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+  if (!document || !root || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(document.uri);
-  const target = canonicalTypeRename(workspace, root, document.uri, document.offsetAt(position))
-    ?? workspace.methodRename(document.uri, document.offsetAt(position))
-    ?? workspace.propertyRename(document.uri, document.offsetAt(position))
-    ?? workspace.functionRename(document.uri, document.offsetAt(position))
-    ?? workspace.constantRename(document.uri, document.offsetAt(position))
-    ?? workspace.localVariableRename(document.uri, document.offsetAt(position));
+  const offset = document.offsetAt(position);
+  const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
+    ?? workspace.localVariableRename(document.uri, offset);
+  if (!scopedTarget && !completeRoots.has(root)) return null;
+  const target = scopedTarget
+    ?? canonicalTypeRename(workspace, root, document.uri, offset)
+    ?? workspace.methodRename(document.uri, offset)
+    ?? workspace.propertyRename(document.uri, offset)
+    ?? workspace.functionRename(document.uri, offset)
+    ?? workspace.constantRename(document.uri, offset);
   if (!target || token.isCancellationRequested) return null;
   return { range: { start: document.positionAt(target.start), end: document.positionAt(target.end) }, placeholder: target.name };
 });
@@ -1991,15 +2001,18 @@ connection.onRenameRequest(async (params, token) => {
   const includePhpDoc = requested.phpCompanion?.includePhpDoc !== false;
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
   if (!document || !root || !isValidPhpIdentifier(newName) || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;
-  const typeTarget = canonicalTypeRename(workspace, root, document.uri, document.offsetAt(position), newName, includePhpDoc);
-  const target = typeTarget
-    ?? workspace.methodRename(document.uri, document.offsetAt(position), newName)
-    ?? workspace.propertyRename(document.uri, document.offsetAt(position), newName)
-    ?? workspace.functionRename(document.uri, document.offsetAt(position), newName)
-    ?? workspace.constantRename(document.uri, document.offsetAt(position), newName)
-    ?? workspace.localVariableRename(document.uri, document.offsetAt(position), newName); if (!target) return null;
+  const offset = document.offsetAt(position);
+  const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
+    ?? workspace.localVariableRename(document.uri, offset, newName);
+  if (!scopedTarget && !completeRoots.has(root)) return null;
+  const typeTarget = scopedTarget ? undefined : canonicalTypeRename(workspace, root, document.uri, offset, newName, includePhpDoc);
+  const target = scopedTarget ?? typeTarget
+    ?? workspace.methodRename(document.uri, offset, newName)
+    ?? workspace.propertyRename(document.uri, offset, newName)
+    ?? workspace.functionRename(document.uri, offset, newName)
+    ?? workspace.constantRename(document.uri, offset, newName); if (!target) return null;
   let fileRename: { oldUri: string; newUri: string } | undefined;
   if (typeTarget && renameFile) {
     const declarationPath = pathForUri(typeTarget.declarationUri); const mappings = projectMappingsByRoot.get(root) ?? [];
