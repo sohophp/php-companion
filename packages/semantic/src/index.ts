@@ -5758,42 +5758,30 @@ export class SemanticWorkspace {
     let sourceVariable = variable; let aliasAssignment: ParsedAssignment | undefined;
     let parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
     if (!parameter) {
-      const standaloneTag = this.standaloneLocalVariableAnnotationTag(file, variable, callStart, scope);
-      const standaloneCallable = standaloneTag?.type?.kind === 'callable' ? standaloneTag.type : undefined;
-      if (standaloneTag?.type && standaloneCallable) {
-        const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
-          && reference.variable === variable && reference.start >= standaloneTag.end && reference.end <= callStart);
-        if (!interveningReferences.length) {
-          return { scope, declaration: { start: standaloneTag.type.start, end: standaloneTag.type.end }, callable: standaloneCallable };
-        }
-      }
-      const priorAssignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
-        && assignment.variable === variable && assignment.end <= callStart).sort((left, right) => right.end - left.end);
-      const annotatedAssignment = priorAssignments[0];
-      const doc = annotatedAssignment && !this.assignmentInsideControlFlow(file, annotatedAssignment, scope)
-        ? adjacentPhpDoc(file, annotatedAssignment.start) : undefined;
-      const tag = doc && !doc.errors.length ? preferredDocTags(doc,
-        (candidate) => candidate.name === 'var' && candidate.variable === variable && Boolean(candidate.type),
-        () => variable).at(-1) : undefined;
-      const annotatedCallable = tag?.type?.kind === 'callable' ? tag.type : undefined;
-      if (annotatedAssignment && tag?.type && annotatedCallable?.kind === 'callable') {
-        const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
-          && reference.variable === variable && reference.start >= annotatedAssignment.end && reference.end <= callStart);
-        const mutationCount = this.priorReferenceMutations(file, scope, variable, callStart).length
-          - this.priorReferenceMutations(file, scope, variable, annotatedAssignment.end).length;
-        if (!interveningReferences.length && mutationCount === 0) {
-          return { scope, declaration: { start: tag.type.start, end: tag.type.end }, callable: annotatedCallable };
-        }
-      }
+      const local = this.phpDocLocalCallableVariable(file, variable, callStart, scope);
+      if (local) return { scope, declaration: local.declaration, callable: local.callable };
       const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
         && assignment.variable === variable && assignment.end <= callStart);
       if (assignments.length !== 1 || !assignments[0]!.sourceVariable) return undefined;
       aliasAssignment = assignments[0]!; sourceVariable = aliasAssignment.sourceVariable!;
+      if (this.assignmentInsideControlFlow(file, aliasAssignment, scope)) return undefined;
       parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
       const aliasReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
         && reference.variable === variable && reference.end <= callStart);
       if (!aliasReferences.length || aliasReferences.some((reference) => reference.start < aliasAssignment!.start
         || reference.end > aliasAssignment!.end)) return undefined;
+      if (!parameter) {
+        const source = this.phpDocLocalCallableVariable(file, sourceVariable, aliasAssignment.start, scope);
+        if (!source) return undefined;
+        const sourceReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+          && reference.variable === sourceVariable && reference.start >= source.stableAfter && reference.end <= callStart);
+        const allowedSourceReference = (reference: ParsedVariableReference): boolean => reference.start >= aliasAssignment!.start
+          && reference.end <= aliasAssignment!.end;
+        const mutationCount = this.priorReferenceMutations(file, scope, sourceVariable, callStart).length
+          - this.priorReferenceMutations(file, scope, sourceVariable, source.stableAfter).length;
+        if (!sourceReferences.length || sourceReferences.some((reference) => !allowedSourceReference(reference)) || mutationCount > 0) return undefined;
+        return { scope, declaration: source.declaration, callable: source.callable };
+      }
     }
     if (!parameter?.type || parameter.byReference) return undefined;
     const priorReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
@@ -5806,6 +5794,40 @@ export class SemanticWorkspace {
         && assignment.variable === sourceVariable && assignment.end <= callStart)) return undefined;
     const callable = parsePhpDocType(parameter.type).type;
     return callable?.kind === 'callable' ? { scope, declaration: parameter, callable } : undefined;
+  }
+
+  private phpDocLocalCallableVariable(file: SemanticFile, variable: string, callStart: number, scope: ParsedScope): {
+    declaration: SourceRange;
+    callable: Extract<PhpDocType, { kind: 'callable' }>;
+    stableAfter: number;
+  } | undefined {
+    const standaloneTag = this.standaloneLocalVariableAnnotationTag(file, variable, callStart, scope);
+    const standaloneCallable = standaloneTag?.type?.kind === 'callable' ? standaloneTag.type : undefined;
+    if (standaloneTag?.type && standaloneCallable) {
+      const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+        && reference.variable === variable && reference.start >= standaloneTag.end && reference.end <= callStart);
+      if (!interveningReferences.length) {
+        return { declaration: { start: standaloneTag.type.start, end: standaloneTag.type.end },
+          callable: standaloneCallable, stableAfter: standaloneTag.end };
+      }
+    }
+    const priorAssignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+      && assignment.variable === variable && assignment.end <= callStart).sort((left, right) => right.end - left.end);
+    const annotatedAssignment = priorAssignments[0];
+    const doc = annotatedAssignment && !this.assignmentInsideControlFlow(file, annotatedAssignment, scope)
+      ? adjacentPhpDoc(file, annotatedAssignment.start) : undefined;
+    const tag = doc && !doc.errors.length ? preferredDocTags(doc,
+      (candidate) => candidate.name === 'var' && candidate.variable === variable && Boolean(candidate.type),
+      () => variable).at(-1) : undefined;
+    const annotatedCallable = tag?.type?.kind === 'callable' ? tag.type : undefined;
+    if (!annotatedAssignment || !tag?.type || !annotatedCallable) return undefined;
+    const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+      && reference.variable === variable && reference.start >= annotatedAssignment.end && reference.end <= callStart);
+    const mutationCount = this.priorReferenceMutations(file, scope, variable, callStart).length
+      - this.priorReferenceMutations(file, scope, variable, annotatedAssignment.end).length;
+    return !interveningReferences.length && mutationCount === 0
+      ? { declaration: { start: tag.type.start, end: tag.type.end }, callable: annotatedCallable, stableAfter: annotatedAssignment.end }
+      : undefined;
   }
 
   private phpDocCallableSignatures(file: SemanticFile, variable: string, callStart: number): SignatureInfo[] {

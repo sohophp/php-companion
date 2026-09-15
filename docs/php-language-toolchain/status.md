@@ -2,6 +2,8 @@
 
 最后更新：2026-09-15。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-15 P4 局部 PHPDoc callable 别名增量：紧邻赋值的 callable `@var` 注解和同块独立 callable `@var` 断言现在可沿一次非控制流、未修改的直接局部别名传播，别名调用保留 Signature Help、具名参数、缺参/错参诊断和返回成员补全。来源在别名前后被读取或修改、别名重赋值、引用修改或控制流内赋值保持 unknown；参数 callable 的既有一次别名也新增控制流门禁。semantic 与真实 stdio 回归覆盖两类来源、签名、结果补全、缺参、错参和三类反例。十六个组件 648 项与根扩展 35 项测试全部通过，共 683 项；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 Linux x64 打包宿主通过。P4 调用传播总项保持开放。证据见[局部 PHPDoc callable 别名传播验收](reports/local-phpdoc-callable-alias-2026-09-15.md)。
+
 2026-09-15 P4 独立局部 PHPDoc callable 断言增量：同一代码块内有变量名且类型完整的 `@var callable(...) $variable` 现在为断言后的首次直接调用提供参数名、可选/variadic 与返回类型 Signature Help，同时发布缺参和已证明类型不匹配诊断，返回类型继续进入成员补全。断言后的介入读取、重赋值、unset、引用修改或跨块使用保持 unknown。semantic 与真实 stdio 回归覆盖具名调用、结果成员补全、缺参、错参和三类反例。十六个组件 647 项与根扩展 35 项测试全部通过，共 682 项；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 Linux x64 打包宿主通过。提交 `3ae79e8` 的 [CI 34959700021](https://github.com/sohophp/php-companion/actions/runs/34959700021) 18/18 成功。P4 调用传播总项保持开放。证据见[独立局部 PHPDoc callable 断言验收](reports/standalone-local-phpdoc-callable-2026-09-15.md)。
 
 2026-09-15 P4 局部 PHPDoc callable 赋值契约增量：紧邻同一词法作用域直接赋值的 `@var callable(...) $variable` 现在为首次直接变量调用提供参数名、可选/variadic 与返回类型 Signature Help，同时发布缺少必填参数和已证明类型不匹配诊断，返回类型继续进入成员补全。控制流赋值、赋值与调用之间的读取、重赋值或引用修改保持 unknown。semantic 与真实 stdio 回归覆盖具名调用、结果成员补全、缺参、错参和三类反例。十六个组件 645 项与根扩展 35 项测试全部通过，共 680 项；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 Linux x64 打包宿主通过。提交 `5631186` 的 [CI 34956917624](https://github.com/sohophp/php-companion/actions/runs/34956917624) 18/18 成功。P4 调用传播总项保持开放。证据见[局部 PHPDoc callable 赋值契约验收](reports/local-phpdoc-callable-assignment-2026-09-15.md)。

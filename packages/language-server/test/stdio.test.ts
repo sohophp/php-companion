@@ -3525,7 +3525,7 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('serves standalone local PHPDoc Callable assertions through stdio', async () => {
+  it('serves standalone local PHPDoc Callable assertions and immutable aliases through stdio', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-standalone-callable-'));
     try {
       const source = `<?php declare(strict_types=1); namespace StandaloneCallableLsp;
@@ -3543,6 +3543,19 @@ function run(Input $input): void {
   $wrong = createCallable();
   /** @var callable(Input $value): Result $wrong */
   $wrong('invalid');
+  /** @var callable(Input $value, string $label=): Result $aliasSource */
+  $aliasSource = createCallable();
+  $alias = $aliasSource;
+  $aliasResult = $alias(value: $input);
+  $aliasResult->do;
+  /** @var callable(Input $value): Result $aliasMissingSource */
+  $aliasMissingSource = createCallable();
+  $aliasMissing = $aliasMissingSource;
+  $aliasMissing();
+  $aliasWrongSource = createCallable();
+  /** @var callable(Input $value): Result $aliasWrongSource */
+  $aliasWrong = $aliasWrongSource;
+  $aliasWrong('invalid');
 }`;
       const path = join(root, 'Callable.php'); const uri = pathToFileURL(path).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.1' }, autoload: { classmap: ['./Callable.php'] } }));
@@ -3561,8 +3574,8 @@ function run(Input $input): void {
       const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
         && message.params?.uri === uri && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.missing-required')
         && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'))).params.diagnostics;
-      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(1);
-      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(1);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(2);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(2);
       const completionOffset = source.indexOf('$result->do') + '$result->do'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
@@ -3575,6 +3588,19 @@ function run(Input $input): void {
       } }));
       expect((await output.waitFor((message) => message.id === 235)).result).toMatchObject({ signatures: [{
         label: '$callback(Input $value, string $label = default): Result',
+      }] });
+      const aliasCompletionOffset = source.indexOf('$aliasResult->do') + '$aliasResult->do'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, aliasCompletionOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 236)).result)
+        .toContainEqual(expect.objectContaining({ label: 'done' }));
+      const aliasSignatureOffset = source.indexOf('$alias(value:') + '$alias('.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, aliasSignatureOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 237)).result).toMatchObject({ signatures: [{
+        label: '$alias(Input $value, string $label = default): Result',
       }] });
     } finally { await rm(root, { recursive: true, force: true }); }
   });

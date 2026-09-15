@@ -5314,6 +5314,44 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$mutated($input)') + '$mutated('.length)).toEqual([]);
     expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$otherBlock($input)') + '$otherBlock('.length)).toEqual([]);
   });
+  it('propagates local PHPDoc Callable contracts through one immutable alias', () => {
+    const source = `<?php declare(strict_types=1); namespace LocalCallableAliases;
+      class Input {} class Result { public function done(): void {} }
+      function createCallable(): callable {}
+      /** @param callable(Input): Result $parameter */
+      function run(callable $parameter, Input $input, bool $condition): void {
+        /** @var callable(Input $value): Result $assigned */
+        $assigned = createCallable(); $assignedAlias = $assigned;
+        $assignedResult = $assignedAlias($input); $assignedResult->do;
+        /** @var callable(Input $value): Result $missingSource */
+        $missingSource = createCallable(); $missingAlias = $missingSource; $missingAlias();
+        $standalone = createCallable();
+        /** @var callable(Input $value): Result $standalone */
+        $standaloneAlias = $standalone; $standaloneAlias('invalid');
+        /** @var callable(Input): Result $usedSource */
+        $usedSource = createCallable(); echo is_callable($usedSource); $usedAlias = $usedSource; $usedAlias($input);
+        /** @var callable(Input): Result $modifiedSource */
+        $modifiedSource = createCallable(); $modifiedAlias = $modifiedSource;
+        $modifiedSource = createCallable(); $modifiedAlias($input);
+        if ($condition) { $conditionalAlias = $parameter; }
+        $conditionalAlias($input);
+      }`;
+    workspace.update('file:///LocalCallableAliases.php', source);
+    expect(workspace.signatures('file:///LocalCallableAliases.php', source.indexOf('$assignedAlias($input)') + '$assignedAlias('.length)).toMatchObject([
+      { name: '$assignedAlias', parameters: [{ name: 'value', type: 'Input' }], returnType: 'Result', synthetic: 'phpdoc-callable' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///LocalCallableAliases.php')).toEqual([
+      expect.objectContaining({ callable: '$missingAlias', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///LocalCallableAliases.php')).toEqual([
+      expect.objectContaining({ callable: '$standaloneAlias', parameter: 'value', actualType: 'string', expectedType: 'LocalCallableAliases\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///LocalCallableAliases.php', source.indexOf('$assignedResult->do') + '$assignedResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///LocalCallableAliases.php', source.indexOf('$usedAlias($input)') + '$usedAlias('.length)).toEqual([]);
+    expect(workspace.signatures('file:///LocalCallableAliases.php', source.indexOf('$modifiedAlias($input)') + '$modifiedAlias('.length)).toEqual([]);
+    expect(workspace.signatures('file:///LocalCallableAliases.php', source.indexOf('$conditionalAlias($input)') + '$conditionalAlias('.length)).toEqual([]);
+  });
   it('evaluates PHPDoc conditional return types on untouched Callable variables', () => {
     workspace.update('file:///ConditionalCallableTypes.php', `<?php namespace ConditionalCallable;
       class CommonResult { public function common(): void {} }
