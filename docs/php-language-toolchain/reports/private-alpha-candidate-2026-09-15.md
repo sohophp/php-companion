@@ -27,18 +27,18 @@ node scripts/audit-real-workspace.mjs /var/www/php/7.2/CoreRepo 100 10000 docs/p
 
 | 指标 | Winstar | CoreRepo |
 | --- | ---: | ---: |
-| 项目 PHP 文件 | 2,232，完整 | 1,137，完整 |
+| 项目 PHP 文件 | 2,256，完整 | 1,137，完整 |
 | 总索引文件 | 9,999 | 10,000 |
-| 索引耗时 | 102,041.43 ms | 73,899.99 ms |
-| 峰值 RSS | 773.3 MiB | 746.8 MiB |
-| 类型目录 / 项目类型 | 10,036 / 2,246 | 10,011 / 1,128 |
+| 索引耗时 | 106,129.93 ms | 71,958.66 ms |
+| 峰值 RSS | 745.6 MiB | 705.6 MiB |
+| 类型目录 / 项目类型 | 10,036 / 2,270 | 10,011 / 1,128 |
 | 抽样声明解析 | 100/100 | 100/100 |
-| References P95 / 最大值 | 18.00 / 57.11 ms | 24.92 / 61.48 ms |
+| References P95 / 最大值 | 27.57 / 59.57 ms | 24.54 / 57.15 ms |
 | 冻结成员 Oracle | 补全、Definition 通过 | 补全、Definition 通过 |
 
 Winstar Oracle 从 `BlogDatasetEntity::getLatestArticles()` 的已证明 repository 类型补全 `createQueryBuilder`，Definition 落到 Doctrine `EntityRepository.php`。CoreRepo Oracle 从 `CanonicalUrl::generate()` 的 `Language` 参数补全 `getUrlCode`，Definition 落到项目 `Language.php`。两边 `projectComplete=true`；vendor 依赖受 10,000 文件预算截断，因此整体 `complete=false`，需要封闭世界的负向结论继续抑制。Winstar 的 Google API Client `Aiplatform.php` 还超过 512 KiB 单文件预算，新完整性逻辑把它明确报告为依赖缺口，没有误伤项目完整性。
 
-Winstar 审计读取提交 `49613bfa98b5141ace4796d4a60b8aa0ac484f2b` 上当前含 39 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
+Winstar 审计读取提交 `7c25439a8bdbc25055b14d3226e59a43f256bb4d` 上当前含 83 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
 
 ## 尚需人工关闭的门槛
 
