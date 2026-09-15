@@ -2836,8 +2836,10 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
       if (!file || !word || !file.memberAccesses.some((access) => offset >= access.start && offset <= access.end)) return [];
-      const target = this.memberTarget(uri, word.end); if (!target) return [];
-      return [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])];
+      const unresolvedOwners = new Set<string>(); const target = this.memberTarget(uri, word.end, unresolvedOwners);
+      return target
+        ? [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])]
+        : [...unresolvedOwners];
     });
   }
 
@@ -6385,7 +6387,7 @@ export class SemanticWorkspace {
     return undefined;
   }
 
-  private memberTarget(uri: string, offset: number): MemberTarget | undefined {
+  private memberTarget(uri: string, offset: number, unresolvedOwners?: Set<string>): MemberTarget | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
     const before = file.source.slice(0, offset);
@@ -6405,7 +6407,7 @@ export class SemanticWorkspace {
       const rawInitial: MemberInfo | undefined = selectedInitial.length === 1 ? selectedInitial[0] : undefined;
       const initial = rawInitial && this.specializedMagicMethod(file, rawInitial, initialArgumentsStart);
       let target: ObjectClass | undefined = initial ? this.memberReturnClass(initial, true) : undefined;
-      if (!target) return undefined;
+      if (!target) { if (!rawInitial && owner) unresolvedOwners?.add(owner); return undefined; }
       const staticTailStart = staticChain.index! + staticChain[0].indexOf(staticChain[4]!);
       const calls = [...staticChain[4]!.matchAll(/(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)(\s*\((?:[^()]|\([^()]*\))*\))?/g)].map((match) => ({
         operator: match[1]!, name: match[2]!, kind: match[3] ? 'method' as const : 'property' as const,
@@ -6421,7 +6423,7 @@ export class SemanticWorkspace {
         const rawMember: MemberInfo | undefined = selected.length === 1 ? selected[0] : undefined;
         const member = rawMember && this.specializedMagicMethod(file, rawMember, call.argumentsStart);
         const returned: ObjectClass | undefined = member ? this.memberReturnClass(member, true) : undefined;
-        if (!returned) return undefined;
+        if (!returned) { if (!rawMember) unresolvedOwners?.add(target.fqcn); return undefined; }
         target = { ...returned, nullable: returned.nullable || (target.nullable && call.operator === '?->') };
       }
       if (target.nullable && staticChain[5] !== '?->') return undefined;
@@ -6485,7 +6487,7 @@ export class SemanticWorkspace {
           ? this.literalMethodReturnClass(current.fqcn, member.name, call.literalArgument)
             ?? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true)
           : member ? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true) : undefined;
-        if (!returned && !compositeReturn) return undefined;
+        if (!returned && !compositeReturn) { if (!member) unresolvedOwners?.add(current.fqcn); return undefined; }
         if (compositeReturn) {
           const first = compositeReturn.groups[0]?.[0]; if (!first) return undefined;
           target = { ...first, nullable: compositeReturn.nullable || (current.nullable && call.operator === '?->') };

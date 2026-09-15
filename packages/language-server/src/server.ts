@@ -1182,9 +1182,10 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
   return declarations.length === 1 ? declarations[0] : undefined;
 }
 
-async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[]): Promise<void> {
+async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[]): Promise<boolean> {
   const candidates = [...new Set(typeNames.map((fqcn) => fqcn.replace(/^\\/, '')).filter((fqcn) => fqcn && !workspace.typeByFqcn(fqcn)))]
     .flatMap((fqcn) => resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? [])).slice(0, 16);
+  let loaded = false;
   for (const path of candidates) {
     try {
       const information = await stat(path);
@@ -1193,8 +1194,10 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
       const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
       workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
       indexedUrisByRoot.get(root)?.add(targetUri);
+      loaded = true;
     } catch { /* Missing or unreadable PSR-4 candidates remain unresolved. */ }
   }
+  return loaded;
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
@@ -1868,11 +1871,14 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   let locations = workspace.definition(document.uri, offset);
   const root = rootForUri(document.uri);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
-    await hydrateCanonicalTypes(workspace, root, [
-      workspace.resolvedTypeNameAt(document.uri, offset),
-      ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
-    ].filter((fqcn): fqcn is string => Boolean(fqcn)));
-    if (!token.isCancellationRequested) locations = workspace.definition(document.uri, offset);
+    for (let depth = 0; depth < 4 && !locations.length && !token.isCancellationRequested; depth += 1) {
+      const loaded = await hydrateCanonicalTypes(workspace, root, [
+        workspace.resolvedTypeNameAt(document.uri, offset),
+        ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
+      ].filter((fqcn): fqcn is string => Boolean(fqcn)));
+      if (!loaded || token.isCancellationRequested) break;
+      locations = workspace.definition(document.uri, offset);
+    }
   }
   return locations.flatMap((location) => {
     const openTarget = documents.get(location.uri);

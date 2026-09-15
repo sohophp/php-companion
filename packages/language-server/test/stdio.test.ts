@@ -218,6 +218,45 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('progressively loads omitted owners in a chained member definition', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-member-chain-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const frameworkDirectory = join(root, 'vendor', 'framework');
+      await mkdir(sourceDirectory); await mkdir(frameworkDirectory, { recursive: true });
+      const source = `<?php namespace App; use Framework\\Request;
+        final class Guard { public function check(Request $request): mixed { return $request->getSession()->get('admin.login'); } }`;
+      const sourcePath = join(sourceDirectory, 'Guard.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      const requestPath = join(frameworkDirectory, 'Request.php');
+      const sessionPath = join(frameworkDirectory, 'SessionInterface.php'); const sessionUri = pathToFileURL(sessionPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Framework\\': 'vendor/framework/' } } }));
+      await writeFile(sourcePath, source);
+      await writeFile(requestPath, '<?php namespace Framework; final class Request { public function getSession(): SessionInterface {} }');
+      await writeFile(sessionPath, '<?php namespace Framework; interface SessionInterface { public function get(string $name, mixed $default = null): mixed; }');
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 253, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
+      await output.waitFor((message) => message.id === 253);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 0 PHP files') && message.params.message.includes('complete=false'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 254, method: 'textDocument/definition', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('->get(') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 254)).result).toMatchObject([{ uri: sessionUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 255, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 255);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {
