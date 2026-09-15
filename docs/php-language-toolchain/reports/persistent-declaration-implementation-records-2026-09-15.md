@@ -23,6 +23,7 @@
 - `pnpm verify:packages`：十六个组件 tarball 均通过隔离消费者验证。
 - `pnpm package:all && pnpm verify:vsix && pnpm test:extension:packaged`：三个 VSIX 内容通过，Linux VS Code 1.137.0 隔离 Profile Extension Host 退出码为 0。
 - 最终 VSIX SHA-256：主扩展 `0358003771d581a8cea3b8d4bb922f610d2750297dbfbfb2ca147e9892aea724`，开源扩展包 `42220a2d044f76c7c62b1b5aa4eb6c0403e4fc2e2ca0b54eb05ee2212373a8ec`，推荐扩展包 `1065ec83e9c5f8e348932462efd0ca96edf7557762057eb46c4b65674ae83174`。
+- 提交 `ec96d9e` 的 [CI 34922085061](https://github.com/sohophp/php-companion/actions/runs/34922085061)：18/18 通过，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5。
 
 ## 边界与下一步
 
