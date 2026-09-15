@@ -1,4 +1,5 @@
 - Composer 项目索引现在把超出单文件预算、瞬时不可读或分析失败的项目源码标记为 `projectComplete=false`，依赖源码缺口标记为 `complete=false`；不完整索引不再启用未解析符号诊断。结构合法但 restore adapter 拒绝的持久缓存条目会回退到源码重建。真实 stdio 回归覆盖 PHP 文件创建、删除、移动、打开缓冲区覆盖磁盘变化及 Composer autoload 映射刷新。
+- 提交 `74f9544` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交和三个 VSIX 的 SHA-256。
 - 热缓存实现事实现在按查询目标 callable 水合：成员补全、Definition、Type Definition、Signature Help 和区间 Inlay Hint 只合并文件级事实与光标/范围覆盖的函数、方法或 Property Hook 记录；未标记的整文件诊断、重构和跨文件正文扫描自动完整装载，保持保守完整性。
 - 提交 `6a609ac` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；最新私有 Alpha 候选绑定该完整提交。
 - Open Source Profile 的 PHP 8.4 Property Hook 精确诊断验收在 Windows 全插件冷启动下使用 15 秒有界等待，并在失败时输出最后收到的诊断码；消除首次索引偶发超过 5 秒造成的误报，同时保留精确数量断言。

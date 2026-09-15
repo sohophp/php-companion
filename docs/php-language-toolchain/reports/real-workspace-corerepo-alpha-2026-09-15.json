@@ -14,8 +14,8 @@
     "warnings": [
       "Dependency index was truncated to fit the 10000-file budget after indexing 1137 project files."
     ],
-    "durationMs": 72518.81,
-    "peakRssMb": 665.2
+    "durationMs": 73899.99,
+    "peakRssMb": 746.8
   },
   "catalog": {
     "types": 10011,
@@ -32,9 +32,9 @@
     "returnedLocations": 1561,
     "durationMs": {
       "samples": 100,
-      "p50": 0.7427239999960875,
-      "p95": 18.976989000002504,
-      "maximum": 72.07058299999335
+      "p50": 0.7989839999936521,
+      "p95": 24.9196179999999,
+      "maximum": 61.482001999989734
     }
   },
   "oracle": {

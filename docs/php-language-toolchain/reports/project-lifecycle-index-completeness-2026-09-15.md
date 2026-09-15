@@ -25,6 +25,8 @@
 
 最终全仓类型检查和 ESLint 通过；十六个组件 638 项、根扩展 35 项，共 673 项测试通过。十六个组件的隔离 tarball、三个 VSIX 内容及 VS Code 1.137.0 Linux x64 打包 Extension Host 通过。1,000 文件持久索引复核冷/热为 2,213.75/671.14 ms，热/冷比 0.3032，恢复 1,000/1,000、重解析 0；聚焦查询只加载 `Consumer::inspect`，派生层和 callable 记录损坏分别只重建 1 个文件。
 
+提交 `74f9544` 的 [CI 34939467083](https://github.com/sohophp/php-companion/actions/runs/34939467083) 18/18 成功。修复后的真实项目审计中，Winstar 与 CoreRepo 均为 `projectComplete=true`、抽样声明 100/100、冻结 oracle 零失败；两者的 vendor 均受 10,000 文件预算截断，Winstar 另有一个超过 512 KiB 的 Google API Client 依赖文件，因此准确保持全量 `complete=false`。
+
 ## 边界
 
 文件系统事件由 VS Code 提供；测试覆盖协议级 Created/Changed/Deleted 及普通移动组合，资源管理器 Safe Move 另有独立事务、Undo/Redo 和失败恢复门禁。自动测试证明 Windows/Linux/macOS 进程和扩展宿主行为时，仍不代替 Windows 客户端连接 WSL Remote 的人工长会话。

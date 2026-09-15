@@ -4,17 +4,17 @@
 
 ## 候选产物
 
-`pnpm candidate:alpha` 最新在干净提交 `6a609ac1279ab591680c591c17d0a96cd0941a7f` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-6a609ac1/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
+`pnpm candidate:alpha` 最新在干净提交 `74f954499f744bb661bdc54e80a23d8d16f9b615` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-74f95449/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
 
 | 角色 | 文件 | 字节 | SHA-256 |
 | --- | --- | ---: | --- |
-| PHP 核心 | `php-companion-0.4.5.vsix` | 877,803 | `561c15badc100f1b1671e2e06d84610865cd7333c99d1cf3b8508dd9c40d4d04` |
-| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `2c4af966e36773f3e71f203efda310e62ac32e270f4a43bcaa1a1222f6931664` |
-| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `c2a182232166ca69732e7d8d49939ee5319a4ddaa2b41832c204a2c1979b75fe` |
+| PHP 核心 | `php-companion-0.4.5.vsix` | 878,230 | `b65e76d94410abd27a242f55db4c794f648c6f4d49db7fba4069a6c7154dce3e` |
+| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `be51e95276fcccfe3882d26bd419d4447ad8aa68a1eaf60b43f7110400ffae09` |
+| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `441d59b61badb388472e5ca5f00aeac7f172e008e96dd5e49ab10fb92f86527b` |
 
 候选目录的 `sha256sum -c SHA256SUMS` 三项均返回 `OK`。`candidate.json` 同时记录 Node v22.14.0、Linux x64、完整源码提交、三个产物元数据、七个受支持扩展，以及被拒绝的 Symfony Language Tools 0.20.1 和 DotJoshJohnson XML Tools 2.5.1。
 
-提交 `6a609ac` 的 [CI 34935803007](https://github.com/sohophp/php-companion/actions/runs/34935803007) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
+提交 `74f9544` 的 [CI 34939467083](https://github.com/sohophp/php-companion/actions/runs/34939467083) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 
 ## 最新真实项目门禁
 
@@ -27,18 +27,18 @@ node scripts/audit-real-workspace.mjs /var/www/php/7.2/CoreRepo 100 10000 docs/p
 
 | 指标 | Winstar | CoreRepo |
 | --- | ---: | ---: |
-| 项目 PHP 文件 | 2,222，完整 | 1,137，完整 |
+| 项目 PHP 文件 | 2,232，完整 | 1,137，完整 |
 | 总索引文件 | 9,999 | 10,000 |
-| 索引耗时 | 101,862.14 ms | 72,518.81 ms |
-| 峰值 RSS | 826.6 MiB | 665.2 MiB |
-| 类型目录 / 项目类型 | 10,036 / 2,236 | 10,011 / 1,128 |
+| 索引耗时 | 102,041.43 ms | 73,899.99 ms |
+| 峰值 RSS | 773.3 MiB | 746.8 MiB |
+| 类型目录 / 项目类型 | 10,036 / 2,246 | 10,011 / 1,128 |
 | 抽样声明解析 | 100/100 | 100/100 |
-| References P95 / 最大值 | 12.54 / 64.62 ms | 18.98 / 72.07 ms |
+| References P95 / 最大值 | 18.00 / 57.11 ms | 24.92 / 61.48 ms |
 | 冻结成员 Oracle | 补全、Definition 通过 | 补全、Definition 通过 |
 
-Winstar Oracle 从 `BlogDatasetEntity::getLatestArticles()` 的已证明 repository 类型补全 `createQueryBuilder`，Definition 落到 Doctrine `EntityRepository.php`。CoreRepo Oracle 从 `CanonicalUrl::generate()` 的 `Language` 参数补全 `getUrlCode`，Definition 落到项目 `Language.php`。两边 `projectComplete=true`；vendor 依赖受 10,000 文件预算截断，因此整体 `complete=false`，需要封闭世界的负向结论继续抑制。
+Winstar Oracle 从 `BlogDatasetEntity::getLatestArticles()` 的已证明 repository 类型补全 `createQueryBuilder`，Definition 落到 Doctrine `EntityRepository.php`。CoreRepo Oracle 从 `CanonicalUrl::generate()` 的 `Language` 参数补全 `getUrlCode`，Definition 落到项目 `Language.php`。两边 `projectComplete=true`；vendor 依赖受 10,000 文件预算截断，因此整体 `complete=false`，需要封闭世界的负向结论继续抑制。Winstar 的 Google API Client `Aiplatform.php` 还超过 512 KiB 单文件预算，新完整性逻辑把它明确报告为依赖缺口，没有误伤项目完整性。
 
-Winstar 审计读取提交 `4a2ca9d502a4b5d6de94943d5ae6527e774e859b` 上当前含 61 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
+Winstar 审计读取提交 `49613bfa98b5141ace4796d4a60b8aa0ac484f2b` 上当前含 39 条未提交状态的工作树；命令没有修改它。CoreRepo 为干净提交 `99c2bd00f3e250a9b70739b5e7862282e0858024`。本报告不把 Winstar 当前业务工作树外推为可复现的纯提交快照；机器可读结果分别保存在 [Winstar JSON](real-workspace-winstar-alpha-2026-09-15.json) 与 [CoreRepo JSON](real-workspace-corerepo-alpha-2026-09-15.json)。
 
 ## 尚需人工关闭的门槛
 
