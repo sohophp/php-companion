@@ -1,3 +1,4 @@
+- 新增 `pnpm candidate:alpha` 私有候选组装门禁：只接受干净提交，把三个已验证 VSIX、源码提交、文件大小、SHA-256 和冻结外部插件版本写入独立候选目录，并生成中文安装说明；该命令不执行 Marketplace/npm 发布。
 - v45 热恢复现在先注册声明表，并把实现数组保持为按文件延迟记录；工作区类型/函数/常量/符号目录不触发正文装载，首次正文查询通过统一 getter 原子装载完整实现。10,000 文件基准中索引完成时 10,000 个实现均延迟，传递 readonly 查询只装载 3 个相关文件。
 - 提交 `b7c3069` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 - 提交 `ec96d9e` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。

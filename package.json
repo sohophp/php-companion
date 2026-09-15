@@ -72,6 +72,7 @@
     "package:open-source-pack": "pnpm --dir packages/php-companion-extension-pack package",
     "package:recommended-pack": "pnpm --dir packages/php-companion-recommended-pack package",
     "package:all": "pnpm package && pnpm package:open-source-pack && pnpm package:recommended-pack",
+    "candidate:alpha": "pnpm package:all && pnpm verify:vsix && node scripts/prepare-alpha-candidate.mjs",
     "verify:vsix": "node scripts/verify-vsix.mjs",
     "verify:packages": "pnpm build:packages && node scripts/verify-package-tarballs.mjs",
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",

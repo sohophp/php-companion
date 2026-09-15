@@ -3,5 +3,6 @@ dist/
 dist-test/
 coverage/
 *.vsix
+artifacts/
 .vscode-test/
 *.log
