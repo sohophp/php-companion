@@ -5491,6 +5491,11 @@ export class SemanticWorkspace {
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
     const file = this.files.get(uri);
+    const promoted = file?.properties.find((item) => item.promoted && offset >= item.start && offset <= item.end);
+    const promotedReferences = promoted ? this.promotedPropertyRename(uri, offset) : undefined;
+    if (promoted && promotedReferences) return includeDeclaration
+      ? promotedReferences.locations
+      : promotedReferences.locations.filter((item) => item.uri !== uri || item.start !== promoted.start + 1 || item.end !== promoted.end);
     const variable = file?.variableReferences.find((item) => offset >= item.start && offset <= item.end);
     const scope = variable && file?.scopes.find((item) => item.id === variable.scopeId);
     if (file && variable && scope) {

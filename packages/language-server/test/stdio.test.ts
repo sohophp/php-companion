@@ -70,6 +70,10 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const source = `<?php
+        final class Service {
+          public function __construct(private object $dependency) {}
+          public function dependency(): object { return $this->dependency; }
+        }
         function first(object $event): void { $callable = $event; echo $callable; }
         function second(object $request): void { $callable = $request; echo $callable; }
       `;
@@ -92,8 +96,12 @@ describe('language server stdio', () => {
       expect(result).toHaveLength(2);
       expect(result.every((item: any) => item.uri === sourceUri
         && lspOffset(source, item.range.start) < source.indexOf('function second'))).toBe(true);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 258, method: 'shutdown', params: null }));
-      await output.waitFor((message) => message.id === 258);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 258, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2), context: { includeDeclaration: true },
+      } }));
+      expect((await output.waitFor((message) => message.id === 258)).result).toHaveLength(2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 259);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });

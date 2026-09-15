@@ -4390,6 +4390,8 @@ final class Imported { public const TYPE = Stable::class; }`);
     const rename = workspace.propertyRename('file:///PromotedDeclarations.php', offset, 'title');
     expect(rename?.locations.filter((item) => item.uri === 'file:///PromotedDeclarations.php')).toHaveLength(3);
     expect(rename?.locations.filter((item) => item.uri === 'file:///PromotedUses.php')).toHaveLength(4);
+    expect(workspace.references('file:///PromotedDeclarations.php', offset)).toEqual(rename?.locations);
+    expect(workspace.references('file:///PromotedDeclarations.php', offset, false)).toHaveLength(6);
     const accessStart = uses.indexOf('label', uses.indexOf('return'));
     expect(workspace.propertyRename('file:///PromotedUses.php', accessStart + 1, 'title')).toMatchObject({ uri: 'file:///PromotedUses.php', start: accessStart, end: accessStart + 5, locations: rename?.locations });
     const namedStart = uses.indexOf('label');
