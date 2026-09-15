@@ -6866,7 +6866,7 @@ class Worker {
     workspace.remove(uri); workspace.remove(declarationsUri);
   });
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
-    const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} }';
+    const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
     expect(snapshot).toMatchObject({ schema: 73, declaration: { uri }, implementation: { uri, source }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
@@ -6874,11 +6874,24 @@ class Worker {
     } });
     expect(workspace.restore(snapshot, uri)).toBe(true);
     expect(workspace.workspaceSymbols('restored')).toMatchObject([{ uri, name: 'restored' }]);
+    expect(snapshot!.implementation.controlFlowAssignments).toHaveLength(1);
+    expect(workspace.completeMembers(uri, source.indexOf('$maybe->rest') + '$maybe->rest'.length)).toEqual([]);
+    workspace.remove(uri); expect(workspace.restoreDeclaration(snapshot, uri)).toBe(true);
+    expect(workspace.implementationState(uri)).toBe('deferred');
+    expect(workspace.workspaceSymbols('restored')).toMatchObject([{ uri, name: 'restored' }]);
+    expect(workspace.workspaceTypes().some((item) => item.fqcn === 'Cache\\Cached')).toBe(true);
+    expect(workspace.implementationState(uri)).toBe('deferred');
+    expect(workspace.completeMembers(uri, source.indexOf('$cached->rest') + '$cached->rest'.length).map((item) => item.name)).toEqual(['restored']);
+    expect(workspace.implementationState(uri)).toBe('loaded');
+    expect(workspace.completeMembers(uri, source.indexOf('$maybe->rest') + '$maybe->rest'.length)).toEqual([]);
+    workspace.remove(uri); expect(workspace.implementationState(uri)).toBe('absent');
     expect(workspace.restore({ schema: 72, declaration: snapshot!.declaration, implementation: snapshot!.implementation, layers: snapshot!.layers }, uri)).toBe(false);
     const mismatchedRecords = structuredClone(snapshot!); mismatchedRecords.implementation.uri = 'file:///Other.php';
     expect(workspace.restore(mismatchedRecords, uri)).toBe(false);
     const invalid = structuredClone(snapshot!); invalid.implementation.scopes[0]!.captures = undefined as never;
     expect(workspace.restore(invalid, uri)).toBe(false);
+    const invalidControlFlow = structuredClone(snapshot!); invalidControlFlow.implementation.controlFlowAssignments = [source.length + 1];
+    expect(workspace.restore(invalidControlFlow, uri)).toBe(false);
     const invalidLayers = structuredClone(snapshot!); invalidLayers.layers.typeDependencies.nodes[0]!.dependencies = [42 as never];
     expect(workspace.restore(invalidLayers, uri)).toBe(false);
     const staleReferences = structuredClone(snapshot!); staleReferences.layers.referenceCandidates.keys = ['raw-ci:other'];

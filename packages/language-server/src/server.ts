@@ -542,7 +542,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, String(generation), open?.getText());
-        if (!restored || !workspace.restore(restored.semantic, uri)) return false;
+        if (!restored || !workspace.restoreDeclaration(restored.semantic, uri)) return false;
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
@@ -563,7 +563,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     await loadCallableFacts(root, workspace);
     for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root)) await publishDocumentDiagnostics(document);
   }
-  connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}.`);
+  connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
   for (const warning of result.warnings) connection.console.warn(warning);
 }
 

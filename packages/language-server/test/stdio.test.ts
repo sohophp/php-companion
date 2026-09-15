@@ -129,7 +129,7 @@ describe('language server stdio', () => {
       await writeFile(join(sourceDirectory, 'Outer.php'), '<?php namespace HotCallable; function outer(): State { return middle(); }');
       await writeFile(consumerPath, consumer);
       const rootUri = pathToFileURL(root).toString();
-      const start = async (id: number, restored: number): Promise<ReturnType<typeof messagesFrom>> => {
+      const start = async (id: number, restored: number, deferred: number): Promise<ReturnType<typeof messagesFrom>> => {
         server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
@@ -139,6 +139,8 @@ describe('language server stdio', () => {
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         await output.waitFor((message) => message.method === 'window/logMessage'
           && message.params?.message?.includes(`Restored ${restored} callable factory facts`));
+        await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes(`deferred implementations=${deferred}`));
         return output;
       };
       const openAndDiagnose = async (output: ReturnType<typeof messagesFrom>, version: number): Promise<void> => {
@@ -156,8 +158,8 @@ describe('language server stdio', () => {
         await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
       };
 
-      const cold = await start(225, 0); await openAndDiagnose(cold, 1); await stop(cold, 226);
-      const hot = await start(227, 3); await openAndDiagnose(hot, 1); await stop(hot, 228);
+      const cold = await start(225, 0, 0); await openAndDiagnose(cold, 1); await stop(cold, 226);
+      const hot = await start(227, 3, 4); await openAndDiagnose(hot, 1); await stop(hot, 228);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

@@ -1,5 +1,7 @@
 # Changelog
 
+- Add declaration-first snapshot restore with observable absent/deferred/loaded implementation state. Keep implementation arrays and control-flow assignment positions behind one atomic lazy boundary so declaration catalogs remain body-free while the first body-dependent query receives the complete validated record.
+
 - Split semantic snapshot schema 73 into declaration, implementation, and derived-index records. Validate matching record identities and reconstruct the exact semantic file only after every required layer passes structural and derivation checks.
 
 - Export and restore positive callable construction facts with bounded, unique-identity and transitive dependency validation. Reject missing, ambiguous, cyclic, or result-inconsistent dependency chains.

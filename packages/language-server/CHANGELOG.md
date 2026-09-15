@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Restore v45 cache hits through the semantic declaration-first API. Leave unopened implementation records deferred, report their count after indexing, and load a complete implementation atomically only when a body-dependent request reaches that file.
+
 - Advance persistent PHP caches to v45 and store semantic schema 73 declaration, implementation, and derived-index records with independent SHA-256 digests. Keep framework facts under a fourth digest and reject any altered record before semantic restore.
 
 - Persist consumed positive callable factory facts in a separate bounded cache. Validate caller source and payload SHA-256 digests plus the complete unique dependency chain, exclude open documents, debounce writes, and flush safely during shutdown.

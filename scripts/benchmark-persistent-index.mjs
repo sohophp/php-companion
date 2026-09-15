@@ -37,7 +37,7 @@ async function load(workspace) {
     },
     cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {
       const restored = restoreCachedProjectPhpFile(payload, source.uri, 'benchmark');
-      if (!restored || !workspace.restore(restored.semantic, source.uri)) return false;
+      if (!restored || !workspace.restoreDeclaration(restored.semantic, source.uri)) return false;
       acceptFacts(restored.facts); return true;
     } },
   });
@@ -60,10 +60,14 @@ try {
   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);
   if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);
   if (warm.frameworkParsed !== 0 || warm.controllerContexts !== 1 || warm.doctrineProperties !== 1) throw new Error(`Warm framework facts were not restored exactly: ${JSON.stringify(warm)}`);
+  const deferredImplementations = warmWorkspace.deferredImplementationCount();
+  if (deferredImplementations !== files) throw new Error(`Warm index eagerly loaded implementation records: ${deferredImplementations}/${files} remained deferred.`);
   const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
   if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Warm index lost the transitive constructor fact.');
+  const implementationsLoadedByQuery = deferredImplementations - warmWorkspace.deferredImplementationCount();
+  if (implementationsLoadedByQuery < 1 || implementationsLoadedByQuery >= files) throw new Error(`Focused query loaded an invalid implementation set: ${implementationsLoadedByQuery}/${files}.`);
   warmWorkspace.update(uri(0), base(false));
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 0) throw new Error('Restored dependency graph retained a stale derived constructor fact.');
   warmWorkspace.dispose();
@@ -88,7 +92,8 @@ try {
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, frameworkParsed: warm.frameworkParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
     exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true,
-      callableFactsRestored: restoredCallableFacts, corruptLayerReparsedFiles: recovered.parsed },
+      callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
+      corruptLayerReparsedFiles: recovered.parsed },
   }, null, 2)}\n`);
 } finally {
   parser.dispose(); await rm(root, { recursive: true, force: true });
