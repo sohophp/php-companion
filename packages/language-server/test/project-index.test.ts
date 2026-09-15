@@ -111,6 +111,41 @@ describe('bounded Composer indexing', () => {
       expect(semantic.unresolvedTypeReferences(uri)).toEqual([]);
     } finally { parser.dispose(); }
   });
+  it('resolves versioned Fiber and sensitive-parameter members, signatures, and definitions', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        function fibers(\\Fiber $fiber): void {
+          $fiber->res;
+          $reflection = new \\ReflectionFiber($fiber);
+          $reflection->getExec;
+          $current = \\Fiber::getCurrent();
+          if ($current !== null) { $current->isSusp; }
+        }
+        #[\\SensitiveParameter]
+        function secret(string $token): void {
+          $wrapped = new \\SensitiveParameterValue($token);
+          $wrapped->getV;
+        }
+      `;
+      const uri = 'file:///VersionedFiber.php';
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1')); semantic.update(uri, source);
+      expect(semantic.unresolvedTypeReferences(uri)).toEqual([]);
+      expect(semantic.unresolvedNewTypes(uri).map((item) => item.fqcn)).toEqual(['SensitiveParameterValue']);
+      expect(semantic.completeMembers(uri, source.indexOf('$fiber->res') + '$fiber->res'.length).map((item) => item.name)).toEqual(['resume']);
+      expect(semantic.completeMembers(uri, source.indexOf('$reflection->getExec') + '$reflection->getExec'.length).map((item) => item.name)).toEqual(['getExecutingFile', 'getExecutingLine']);
+      expect(semantic.completeMembers(uri, source.indexOf('$current->isSusp') + '$current->isSusp'.length).map((item) => item.name)).toEqual(['isSuspended']);
+      expect(semantic.signature(uri, source.indexOf('new \\ReflectionFiber(') + 'new \\ReflectionFiber('.length)).toMatchObject({
+        fqcn: 'ReflectionFiber::__construct', parameters: [{ name: 'fiber', type: 'Fiber' }],
+      });
+      expect(semantic.definition(uri, source.indexOf('ReflectionFiber') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
+      expect(semantic.unresolvedTypeReferences(uri)).toEqual([]);
+      expect(semantic.unresolvedNewTypes(uri)).toEqual([]);
+      expect(semantic.completeMembers(uri, source.indexOf('$wrapped->getV') + '$wrapped->getV'.length).map((item) => item.name)).toEqual(['getValue']);
+      expect(semantic.definition(uri, source.indexOf('SensitiveParameter') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
   it('resolves core iterable contracts, automatic interfaces, and non-constructible objects', async () => {
     const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
     try {

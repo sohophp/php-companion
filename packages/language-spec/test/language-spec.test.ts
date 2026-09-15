@@ -397,6 +397,23 @@ describe('PHP language specification', () => {
     expect(builtinPhpStub('8.1')).toContain('interface UnitEnum');
     expect(builtinPhpStub('8.1')).toContain('interface BackedEnum extends UnitEnum');
   });
+  it('models Fiber and sensitive-parameter runtime objects at their exact version boundaries', () => {
+    const php80 = builtinPhpStub('8.0'); const php81 = builtinPhpStub('8.1'); const php82 = builtinPhpStub('8.2');
+    expect(php80).not.toContain('class Fiber {');
+    expect(php80).not.toContain('class ReflectionFiber {');
+    expect(php81).toContain('final class Fiber {');
+    expect(php81).toContain('public function start(mixed ...$args): mixed');
+    expect(php81).toContain('public static function getCurrent(): ?Fiber');
+    expect(php81).toContain('final class ReflectionFiber {');
+    expect(php81).toContain('public function __construct(Fiber $fiber)');
+    expect(php81).toContain('public function getExecutingFile(): ?string');
+    expect(php81).toContain('public function getTrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT): array');
+    expect(php81).not.toContain('class SensitiveParameter {');
+    expect(php82).toContain('#[\\Attribute(\\Attribute::TARGET_PARAMETER)]\nfinal class SensitiveParameter { public function __construct() {} }');
+    expect(php82).toContain('final class SensitiveParameterValue {');
+    expect(php82).toContain('public function getValue(): mixed');
+    expect(php82).toContain('public function __debugInfo(): array');
+  });
   it('completes the versioned SPL function catalog and preserves collection shapes', () => {
     const catalog = `class_implements class_parents class_uses iterator_apply iterator_count iterator_to_array
       spl_autoload spl_autoload_call spl_autoload_extensions spl_autoload_functions spl_autoload_register

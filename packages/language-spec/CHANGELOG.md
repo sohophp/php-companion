@@ -6,6 +6,7 @@
 - Add the audited PHP 7.2–8.5 Reflection core, including generic `ReflectionClass<T>` instance factories, callable/class/property/parameter/type APIs, class constants, attributes, enum reflection, versioned modifier values, tentative returns, lazy objects, property hooks, and mangled names.
 # Changelog
 
+- Add version-gated PHP 8.1 Fiber and ReflectionFiber contracts plus PHP 8.2 SensitiveParameter and SensitiveParameterValue runtime objects.
 - Add versioned directory, filesystem, recursive directory, and glob iterators with audited flag values and iteration contracts.
 - Add generic advanced SPL traversal, caching, regex, and tree iterators with transformation-safe values and audited PHP 7.2–8.5 signatures.
 - Add generic `IteratorIterator`, filter, recursive, limit, rewind, infinite, append, and empty iterator declarations with audited PHP 7.2–8.5 signatures and returns.

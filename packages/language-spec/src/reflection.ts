@@ -201,6 +201,14 @@ abstract class ReflectionType${php80 ? ' implements Stringable' : ''} { ${method
 class ReflectionNamedType extends ReflectionType { ${method('getName', '', '', 'string')} ${php80 ? method('isBuiltin', '', '', 'bool') : ''} }
 ${php80 ? `class ReflectionUnionType extends ReflectionType { /** @return list<ReflectionNamedType> */ public function getTypes()${php81 ? ': array' : ''} {} }` : ''}
 ${php81 ? 'class ReflectionIntersectionType extends ReflectionType { /** @return list<ReflectionNamedType> */ public function getTypes(): array {} }' : ''}
+${php81 ? `final class ReflectionFiber {
+  public function __construct(Fiber $fiber) {}
+  public function getFiber(): Fiber {}
+  public function getCallable(): callable {}
+  public function getExecutingFile(): ?string {}
+  public function getExecutingLine(): ?int {}
+  /** @return list<array<string, mixed>> */ public function getTrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT): array {}
+}` : ''}
 ${php80 ? `class ReflectionAttribute${php81 ? ' implements Reflector' : ''} {
   public const ${php84 ? 'int ' : ''}IS_INSTANCEOF = 2;
   ${php84 ? 'public string $name;' : ''}

@@ -782,3 +782,8 @@
 - https://www.php.net/manual/en/class.dom-xpath.php
 - https://www.php.net/manual/en/class.dom-tokenlist.php
 - https://www.php.net/manual/en/ref.dom.php
+- https://www.php.net/manual/en/class.fiber.php
+- https://www.php.net/manual/en/class.sensitiveparameter.php
+- https://www.php.net/manual/en/class.sensitiveparametervalue.php
+- https://www.php.net/manual/en/class.reflectionfiber.php
+- https://www.php.net/manual/en/reflectionfiber.gettrace.php

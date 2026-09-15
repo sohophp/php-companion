@@ -295,8 +295,29 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate {
    * @param TValue $value */ public function offsetSet(object $object, mixed $value): void {}
   /** @param TKey $object */ public function offsetUnset(object $object): void {}
 }` : ''}
-${php81 ? `interface UnitEnum { public static function cases(): array; }
+${php81 ? `final class Fiber {
+  public function __construct(callable $callback) {}
+  public function start(mixed ...$args): mixed {}
+  public function resume(mixed $value = null): mixed {}
+  public function throw(Throwable $exception): mixed {}
+  public function getReturn(): mixed {}
+  public function isStarted(): bool {}
+  public function isSuspended(): bool {}
+  public function isRunning(): bool {}
+  public function isTerminated(): bool {}
+  public static function suspend(mixed $value = null): mixed {}
+  public static function getCurrent(): ?Fiber {}
+}
+interface UnitEnum { public static function cases(): array; }
 interface BackedEnum extends UnitEnum { public static function from(int|string $value): static; public static function tryFrom(int|string $value): ?static; }` : ''}
+${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2') ? `#[\\Attribute(\\Attribute::TARGET_PARAMETER)]
+final class SensitiveParameter { public function __construct() {} }
+final class SensitiveParameterValue {
+  private readonly mixed $value;
+  public function __construct(mixed $value) {}
+  public function getValue(): mixed {}
+  public function __debugInfo(): array {}
+}` : ''}
 ${php84 ? 'final class Deprecated { public readonly ?string $message; public readonly ?string $since; public function __construct(?string $message = null, ?string $since = null) {} }' : ''}
 ${php85 ? `final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }
 final class DelayedTargetValidation {}` : ''}
