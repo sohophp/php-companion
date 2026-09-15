@@ -50,6 +50,7 @@ let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
 let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
+const projectIndexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
 const builtinExtensionSignatureByRoot = new Map<string, string>();
@@ -549,6 +550,13 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
+    onProjectComplete: () => {
+      if (!shouldContinue()) return;
+      const projectCurrent = new Set(current);
+      for (const stale of projectIndexedUrisByRoot.get(root) ?? []) if (!projectCurrent.has(stale) && !documents.get(stale)) workspace.remove(stale);
+      projectIndexedUrisByRoot.set(root, projectCurrent);
+      projectCompleteRoots.add(root);
+    },
   });
   if (result.projectComplete && shouldContinue()) {
     projectCompleteRoots.add(root);
@@ -1111,7 +1119,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
       if (!key.startsWith('root:')) continue;
@@ -2310,6 +2318,7 @@ connection.onShutdown(async () => {
   semanticWorkspaces.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();
+  projectIndexedUrisByRoot.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
 });

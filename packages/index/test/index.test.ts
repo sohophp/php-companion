@@ -93,6 +93,21 @@ describe('bounded project source index', () => {
     expect(result).toMatchObject({ files: 2, complete: false, projectComplete: true, warnings: [expect.stringContaining('Dependency index was truncated')] });
     expect(indexed).toEqual([join(root, 'src', 'Project.php'), join(root, 'vendor', 'acme', 'lib', 'src', 'A.php')]);
   });
+  it('signals project completeness before dependency sources are discovered and indexed', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-ready-'));
+    await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+    await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+    const projectPath = join(root, 'src', 'Project.php'); const dependencyPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Dependency.php');
+    await writeFile(projectPath, '<?php class Project {}'); await writeFile(dependencyPath, '<?php class Dependency {}');
+    const events: string[] = [];
+    await indexComposerSources(root, {
+      onSource: ({ path }) => { events.push(path); },
+      onProjectComplete: () => { events.push('project-complete'); },
+    });
+    expect(events).toEqual([projectPath, 'project-complete', dependencyPath]);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
