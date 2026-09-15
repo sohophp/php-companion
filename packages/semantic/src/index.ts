@@ -158,7 +158,7 @@ export interface MemberInfo extends SemanticLocation {
   finalHooks?: Array<'get' | 'set'>;
   abstractHooks?: Array<'get' | 'set'>;
   getByReference?: boolean;
-  synthetic?: 'enum-native' | 'phpdoc-magic';
+  synthetic?: 'enum-native' | 'phpdoc-magic' | 'phpdoc-callable';
 }
 
 function memberNameKey(kind: MemberInfo['kind'], name: string): string {
@@ -3456,7 +3456,7 @@ export class SemanticWorkspace {
       if (call.firstClassCallable) return [];
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.signature(uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1)); if (!signature) return [];
-      if (signature.kind === 'function') {
+      if (signature.kind === 'function' && signature.synthetic !== 'phpdoc-callable') {
         const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)
           .filter((candidate) => candidate.kind === 'function' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
         if (matches.length !== 1) return [];
@@ -3517,7 +3517,9 @@ export class SemanticWorkspace {
     return file.calls.flatMap((call): IncompatibleArgument[] => {
       if (call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.completedCallSignature(file, call); if (!signature) return [];
-      if (signature.kind === 'function') {
+      if (signature.synthetic === 'phpdoc-callable') {
+        // The callable contract is carried by the local PHPDoc parameter itself.
+      } else if (signature.kind === 'function') {
         if (this.callableDeclarationsForSignature(signature).length !== 1) return [];
       } else {
         const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)
@@ -3533,7 +3535,11 @@ export class SemanticWorkspace {
         if (!parameter) return [];
         const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
         const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
-        const expected = this.documentedClassString(declarationFile, parameter.type, signature.typeScopeFqcn)
+        const callableDocumented = signature.synthetic === 'phpdoc-callable' && parameter.type
+          ? parsePhpDocType(parameter.type).type : undefined;
+        const expected = callableDocumented
+          ? this.phpDocDiagnosticType(declarationFile, callableDocumented, signature.typeScopeFqcn)
+          : this.documentedClassString(declarationFile, parameter.type, signature.typeScopeFqcn)
           ?? this.documentedList(declarationFile, parameter.type, signature.typeScopeFqcn)
           ?? this.documentedShape(declarationFile, parameter.type, signature.typeScopeFqcn)
           ?? this.documentedCallable(declarationFile, parameter.type, signature.typeScopeFqcn)
@@ -5653,7 +5659,9 @@ export class SemanticWorkspace {
     }
     const callableVariable = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
     if (callableVariable) {
+      const callStart = offset - callableVariable[0].length + callableVariable[0].indexOf(callableVariable[1]!);
       const members = this.firstClassCallableSignatures(file, callableVariable[1]!, offset);
+      if (!members.length) members.push(...this.phpDocCallableSignatures(file, callableVariable[1]!, callStart));
       const compatible = this.methodCandidatesForArguments(members, callableVariable[2]!, completeAtCursor,
         file, offset - callableVariable[2]!.length);
       return (compatible.length ? compatible : members).map((member) => ({
@@ -5739,6 +5747,55 @@ export class SemanticWorkspace {
     if (acquisitions.length !== 1) return [];
     const acquisition = acquisitions[0]!;
     return this.signatures(file.uri, acquisition.argumentsStart + 1);
+  }
+
+  private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {
+    scope: ParsedScope;
+    parameter: ParsedParameter;
+    callable: Extract<PhpDocType, { kind: 'callable' }>;
+  } | undefined {
+    const scope = this.containingScope(file, callStart); if (!scope) return undefined;
+    let sourceVariable = variable; let aliasAssignment: ParsedAssignment | undefined;
+    let parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
+    if (!parameter) {
+      const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+        && assignment.variable === variable && assignment.end <= callStart);
+      if (assignments.length !== 1 || !assignments[0]!.sourceVariable) return undefined;
+      aliasAssignment = assignments[0]!; sourceVariable = aliasAssignment.sourceVariable!;
+      parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
+      const aliasReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+        && reference.variable === variable && reference.end <= callStart);
+      if (!aliasReferences.length || aliasReferences.some((reference) => reference.start < aliasAssignment!.start
+        || reference.end > aliasAssignment!.end)) return undefined;
+    }
+    if (!parameter?.type || parameter.byReference) return undefined;
+    const priorReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+      && reference.variable === sourceVariable && reference.end <= callStart);
+    const allowedReference = (reference: ParsedVariableReference): boolean => (reference.start >= parameter!.start && reference.end <= parameter!.end)
+      || Boolean(aliasAssignment && reference.start >= aliasAssignment.start && reference.end <= aliasAssignment.end);
+    if (!priorReferences.some((reference) => reference.start >= parameter.start && reference.end <= parameter.end)
+      || priorReferences.some((reference) => !allowedReference(reference))
+      || file.assignments.some((assignment) => assignment.scopeId === scope.id
+        && assignment.variable === sourceVariable && assignment.end <= callStart)) return undefined;
+    const callable = parsePhpDocType(parameter.type).type;
+    return callable?.kind === 'callable' ? { scope, parameter, callable } : undefined;
+  }
+
+  private phpDocCallableSignatures(file: SemanticFile, variable: string, callStart: number): SignatureInfo[] {
+    const resolved = this.phpDocCallableVariable(file, variable, callStart); if (!resolved) return [];
+    const parameters = resolved.callable.parameters.map((parameter, index): ParsedParameter => ({
+      name: parameter.name ?? `arg${index + 1}`, type: displayPhpDocType(parameter.type),
+      defaultValue: parameter.optional ? 'default' : undefined, promoted: false,
+      variadic: parameter.variadic, byReference: false, start: parameter.start, end: parameter.end,
+    }));
+    const scopeFqcn = resolved.scope.containerFqcn ?? resolved.scope.id;
+    return [{
+      kind: 'function', uri: file.uri, start: resolved.parameter.start, end: resolved.parameter.end,
+      name: variable, fqcn: variable, parameters,
+      returnType: resolved.callable.returnType ? displayPhpDocType(resolved.callable.returnType) : undefined,
+      visibility: 'public', static: false, typeScopeFqcn: scopeFqcn, calledOnFqcn: scopeFqcn,
+      synthetic: 'phpdoc-callable', activeParameter: 0, usedNamedArguments: [],
+    }];
   }
 
   private callableBuiltinAttribute(file: SemanticFile, callable: ParsedCallableDeclaration, attributeName: string): {
@@ -9432,27 +9489,10 @@ export class SemanticWorkspace {
       temporaryTree?.delete();
     }
     const callArguments = this.expandedCallArguments(file, callStart, callEnd); if (!callArguments) return undefined;
-    const scope = variable ? this.containingScope(file, callStart) : undefined;
-    if (!variable || !scope) return undefined;
-    let sourceVariable = variable; let aliasAssignment: ParsedAssignment | undefined;
-    let parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
-    if (!parameter) {
-      const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id && assignment.variable === variable && assignment.end <= callStart);
-      if (assignments.length !== 1 || !assignments[0]!.sourceVariable) return undefined;
-      const directAlias = assignments[0]!; aliasAssignment = directAlias; sourceVariable = directAlias.sourceVariable!;
-      parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
-      const aliasReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id && reference.variable === variable && reference.end <= callStart);
-      if (!aliasReferences.length || aliasReferences.some((reference) => reference.start < aliasAssignment!.start || reference.end > aliasAssignment!.end)) return undefined;
-    }
-    if (!parameter?.type || parameter.byReference) return undefined;
-    const priorReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id && reference.variable === sourceVariable && reference.end <= callStart);
-    const allowedReference = (reference: ParsedVariableReference): boolean => (reference.start >= parameter!.start && reference.end <= parameter!.end)
-      || Boolean(aliasAssignment && reference.start >= aliasAssignment.start && reference.end <= aliasAssignment.end);
-    if (!priorReferences.some((reference) => reference.start >= parameter.start && reference.end <= parameter.end)
-      || priorReferences.some((reference) => !allowedReference(reference))
-      || file.assignments.some((assignment) => assignment.scopeId === scope.id && assignment.variable === sourceVariable && assignment.end <= callStart)) return undefined;
-    const callable = parsePhpDocType(parameter.type).type;
-    if (callable?.kind !== 'callable' || !callable.returnType) return undefined;
+    if (!variable) return undefined;
+    const resolved = this.phpDocCallableVariable(file, variable, callStart); if (!resolved?.callable.returnType) return undefined;
+    const { callable, scope } = resolved;
+    const callableReturnType = callable.returnType!;
     const variadicIndex = callable.parameters.findIndex((item) => item.variadic);
     const assigned = new Set<number>(); const assignedNames = new Set<string>(); const mappedArguments = new Map<number, CallableArgument[]>();
     let positionalIndex = 0; let namedStarted = false;
@@ -9500,13 +9540,13 @@ export class SemanticWorkspace {
       assigned.add(positionalIndex); positionalIndex += 1;
     }
     if (callable.parameters.some((item, index) => !item.optional && !item.variadic && !assigned.has(index))) return undefined;
-    const displayed = displayPhpDocType(callable.returnType).toLowerCase(); if (displayed === 'mixed' || displayed === 'void') return undefined;
+    const displayed = displayPhpDocType(callableReturnType).toLowerCase(); if (displayed === 'mixed' || displayed === 'void') return undefined;
     const callableArgument = (name: string): CallableArgument | undefined => {
       const parameterIndex = callable.parameters.findIndex((item) => item.name === name); if (parameterIndex < 0) return undefined;
       const arguments_ = mappedArguments.get(parameterIndex); if (arguments_?.length !== 1) return undefined;
       return arguments_[0];
     };
-    return this.evaluatePhpDocType(file, callable.returnType, scope.containerFqcn ?? scope.id, relation, (name) => {
+    return this.evaluatePhpDocType(file, callableReturnType, scope.containerFqcn ?? scope.id, relation, (name) => {
       const argument = callableArgument(name); if (!argument) return undefined;
       const text = file.source.slice(argument.start, argument.end).trim().toLowerCase();
       return text === 'true' ? literal(true) : text === 'false' ? literal(false)

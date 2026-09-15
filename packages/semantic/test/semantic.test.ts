@@ -5188,7 +5188,45 @@ final class Imported { public const TYPE = Stable::class; }`);
       ['CallableResults\\OtherType', 'CallableResults\\ParentType'],
       ['CallableResults\\OtherType', 'CallableResults\\ParentType'],
       ['CallableResults\\OtherType', 'CallableResults\\ParentType'],
+      ['string', 'CallableResults\\ChildType'],
+      ['string', 'CallableResults\\ChildType'],
+      ['string', 'CallableResults\\ChildType'],
     ]);
+  });
+  it('serves PHPDoc Callable parameter signatures and direct invocation diagnostics', () => {
+    const source = `<?php declare(strict_types=1); namespace CallableContracts;
+      class Input {} class Result { public function done(): void {} }
+      /**
+       * @param callable(Input $value, string $label=): Result $callback
+       * @param callable(Input $value): Result $missing
+       * @param callable(Input $value): Result $wrong
+       * @param callable(Input): Result $used
+       * @param callable(Input): Result $reassigned
+       */
+      function run(callable $callback, callable $missing, callable $wrong, callable $used, callable $reassigned, Input $input): void {
+        $result = $callback(value: $input); $result->do;
+        $missing();
+        $wrong('invalid');
+        echo is_callable($used); $used($input);
+        $reassigned = other(); $reassigned($input);
+      }`;
+    workspace.update('file:///CallableContracts.php', source);
+    expect(workspace.signatures('file:///CallableContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', parameters: [
+        { name: 'value', type: 'Input', defaultValue: undefined },
+        { name: 'label', type: 'string', defaultValue: 'default' },
+      ], returnType: 'Result', synthetic: 'phpdoc-callable' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///CallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$missing', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///CallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$wrong', parameter: 'value', actualType: 'string', expectedType: 'CallableContracts\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///CallableContracts.php', source.indexOf('$result->do') + '$result->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///CallableContracts.php', source.indexOf('$used($input)') + '$used('.length)).toEqual([]);
+    expect(workspace.signatures('file:///CallableContracts.php', source.indexOf('$reassigned($input)') + '$reassigned('.length)).toEqual([]);
   });
   it('evaluates PHPDoc conditional return types on untouched Callable variables', () => {
     workspace.update('file:///ConditionalCallableTypes.php', `<?php namespace ConditionalCallable;
@@ -5227,6 +5265,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.definition('file:///ConditionalCallableUse.php', source.indexOf('$crossAlias->shared') + '$crossAlias->shared'.length)).toHaveLength(2);
     expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$crossIndependent->shared') + '$crossIndependent->shared'.length)).toEqual([]);
     expect(workspace.incompatibleArguments('file:///ConditionalCallableUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
+      ['ConditionalCallable\\OtherResult', 'bool'],
       ['ConditionalCallable\\OtherResult', 'ConditionalCallable\\ReadyResult'],
     ]);
   });
@@ -5245,7 +5284,9 @@ final class Imported { public const TYPE = Stable::class; }`);
     workspace.update('file:///StrictCallableUse.php', `<?php declare(strict_types=1); namespace StrictCallableTypes;
       /** @param callable(int): OtherType $callable */
       function run(callable $callable): void { acceptParent($callable('1')); }`);
-    expect(workspace.incompatibleArguments('file:///StrictCallableUse.php')).toEqual([]);
+    expect(workspace.incompatibleArguments('file:///StrictCallableUse.php')).toEqual([
+      expect.objectContaining({ callable: '$callable', parameter: 'arg1', actualType: 'string', expectedType: 'int' }),
+    ]);
   });
   it('infers callable templates from direct and nested proven arguments before resolving return types', () => {
     workspace.update('file:///CallTemplateDefinitions.php', `<?php namespace CallTemplates;

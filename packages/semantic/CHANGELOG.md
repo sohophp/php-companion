@@ -1,5 +1,6 @@
 # Changelog
 
+- Expose untouched PHPDoc Callable parameter contracts as variable-call signatures, missing-argument diagnostics, and proven incompatible-argument diagnostics while retaining the existing conservative mutation and prior-use gates.
 - Preserve unique first-class callable targets through bounded immutable local aliases and reuse their signatures for variable invocation diagnostics and return propagation.
 - Hydrate cached implementation facts per target callable for completion, definition, type definition, signature, and ranged inlay queries. Keep whole-file and unscoped consumers on an automatic full-load fallback, expose mixed per-callable loaded/deferred state, and preserve canonical full snapshots after partial hydration.
 
