@@ -155,6 +155,21 @@ class Child extends ParentBase implements Contract {
     ]);
     result.tree.delete();
   });
+  it('extracts only literal two-element callable arrays', () => {
+    const result = parser.parse(`<?php function run(Handler $handler, string $method): void {
+      $instance = [$handler, 'handle']; $static = [Handler::class, "build"];
+      $dynamic = [$handler, $method]; $string = ['Handler', 'handle']; $extra = [$handler, 'handle', true];
+    }`);
+    expect(result.assignments.find((item) => item.variable === '$instance')?.sourceCallableArray).toEqual({
+      receiver: { kind: 'variable', variable: '$handler' }, method: 'handle',
+    });
+    expect(result.assignments.find((item) => item.variable === '$static')?.sourceCallableArray).toEqual({
+      receiver: { kind: 'class', typeName: 'Handler' }, method: 'build',
+    });
+    for (const variable of ['$dynamic', '$string', '$extra']) {
+      expect(result.assignments.find((item) => item.variable === variable)?.sourceCallableArray).toBeUndefined();
+    }
+  });
   it('links only exact closure and arrow assignment literals to their scopes', () => {
     const result = parser.parse(`<?php function run(): void {
       $closure = function (Input $value): Result { return new Result(); };

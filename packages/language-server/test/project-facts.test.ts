@@ -22,7 +22,7 @@ describe('persistent project PHP facts', () => {
     const facts = analyzeProjectPhpFileFacts(parser, uri, source, 'generation-1');
     expect(facts.controllerContexts).toHaveLength(1); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
-    expect(cached).toMatchObject({ schema: 3, semantic: { schema: 76, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 3, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),

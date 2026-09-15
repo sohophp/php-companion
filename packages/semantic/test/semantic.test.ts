@@ -373,7 +373,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 76, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 77, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -4934,7 +4934,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 76, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 77, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -5302,6 +5302,62 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$nullable($input)') + '$nullable('.length)).toEqual([]);
     expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$ambiguous($input)') + '$ambiguous('.length)).toEqual([]);
     expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$hidden($input)') + '$hidden('.length)).toEqual([]);
+  });
+  it('uses precise instance and static callable-array contracts for variable calls', () => {
+    const source = `<?php declare(strict_types=1); namespace CallableArrayContracts;
+      class Input {} class Result { public function done(): void {} }
+      class Handler {
+        public function handle(Input $value, string $label = 'ready'): Result { return new Result(); }
+        public static function build(Input $value): Result { return new Result(); }
+        private function hidden(Input $value): Result { return new Result(); }
+      }
+      function run(Handler $handler, ?Handler $nullable, Input $input, string $method, bool $condition): void {
+        $callback = [$handler, 'handle']; $result = $callback(value: $input); $result->do;
+        $static = [Handler::class, 'build']; $built = $static($input); $built->do;
+        $source = [$handler, 'handle']; $alias = $source; $aliasResult = $alias($input); $aliasResult->do;
+        $callback(); $callback('invalid');
+        $wrongStatic = [Handler::class, 'handle']; $wrongStatic($input);
+        $wrongInstance = [$handler, 'build']; $wrongInstance($input);
+        $hidden = [$handler, 'hidden']; $hidden($input);
+        $dynamic = [$handler, $method]; $dynamic($input);
+        $maybe = [$nullable, 'handle']; $maybe($input);
+        if ($condition) { $conditional = [$handler, 'handle']; } $conditional($input);
+        $mutated = [$handler, 'handle']; $mutated = [Handler::class, 'build']; $mutated($input);
+        $referenced = [$handler, 'handle']; $reference =& $referenced; $referenced($input);
+        $unset = [$handler, 'handle']; unset($unset); $unset($input);
+      }`;
+    workspace.update('file:///CallableArrayContracts.php', source);
+    expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', fqcn: 'CallableArrayContracts\\Handler::handle', parameters: [
+        { name: 'value', nativeType: 'Input' }, { name: 'label', nativeType: 'string', defaultValue: "'ready'" },
+      ], returnType: 'Result' },
+    ]);
+    expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$static($input)') + '$static('.length)).toMatchObject([
+      { name: '$static', fqcn: 'CallableArrayContracts\\Handler::build', returnType: 'Result' },
+    ]);
+    expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$alias($input)') + '$alias('.length)).toMatchObject([
+      { name: '$alias', fqcn: 'CallableArrayContracts\\Handler::handle', returnType: 'Result' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///CallableArrayContracts.php')).toEqual([
+      expect.objectContaining({ callable: 'CallableArrayContracts\\Handler::handle', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///CallableArrayContracts.php')).toEqual([
+      expect.objectContaining({ callable: 'CallableArrayContracts\\Handler::handle', parameter: 'value', actualType: 'string', expectedType: 'CallableArrayContracts\\Input' }),
+    ]);
+    for (const marker of ['$result->do', '$built->do', '$aliasResult->do']) {
+      expect(workspace.completeMembers('file:///CallableArrayContracts.php', source.indexOf(marker) + marker.length)
+        .map((item) => item.name), marker).toEqual(['done']);
+    }
+    for (const marker of ['$wrongStatic($input)', '$wrongInstance($input)', '$hidden($input)', '$dynamic($input)', '$maybe($input)', '$conditional($input)', '$mutated($input)', '$referenced($input)', '$unset($input)']) {
+      expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf(marker) + marker.indexOf('(') + 1), marker).toEqual([]);
+    }
+    const snapshot = workspace.snapshot('file:///CallableArrayContracts.php')!;
+    expect(snapshot.schema).toBe(77);
+    workspace.remove('file:///CallableArrayContracts.php');
+    expect(workspace.restoreDeclaration(snapshot, 'file:///CallableArrayContracts.php')).toBe(true);
+    expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', fqcn: 'CallableArrayContracts\\Handler::handle', returnType: 'Result' },
+    ]);
   });
   it('serves PHPDoc Callable parameter signatures and direct invocation diagnostics', () => {
     const source = `<?php declare(strict_types=1); namespace CallableContracts;
@@ -6504,7 +6560,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 76, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 77, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -7173,7 +7229,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 76, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 77, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },

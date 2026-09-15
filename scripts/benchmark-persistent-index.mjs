@@ -16,7 +16,7 @@ const files = Number(arguments_[0] ?? 1_000);
 if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
 
 const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));
-const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v48-closure-literal-callable-benchmark';
+const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v49-callable-array-benchmark';
 const sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);
 const uri = (index) => pathToFileURL(sourcePath(index)).toString();
 const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;

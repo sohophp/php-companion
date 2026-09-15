@@ -1,5 +1,6 @@
 # Changelog
 
+- Record exact two-element callable-array assignments with either a variable receiver or `Type::class` receiver and a literal method name; dynamic strings, string class names, keyed or extra elements remain unclassified.
 - Preserve exact closure/arrow assignment identities and native scope return declarations for downstream variable-call analysis.
 - Record variable-function invocations as call facts while retaining first-class callable acquisition identity.
 - Record property-level `abstract`/`final`, hook-level `abstract`/`final`, and by-reference `&get` facts for PHP 8.4 inheritance and indirect-modification analysis.

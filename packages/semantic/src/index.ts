@@ -80,7 +80,7 @@ export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: str
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 76;
+  schema: 77;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1302,7 +1302,7 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
-      schema: 76,
+      schema: 77,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1393,7 +1393,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 76 || !declaration || !implementation
+    if (value?.schema !== 77 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -5664,6 +5664,7 @@ export class SemanticWorkspace {
       const members = this.firstClassCallableSignatures(file, callableVariable[1]!, offset);
       if (!members.length) members.push(...this.phpDocCallableSignatures(file, callableVariable[1]!, callStart));
       if (!members.length) members.push(...this.closureLiteralSignatures(file, callableVariable[1]!, callStart));
+      if (!members.length) members.push(...this.arrayCallableSignatures(file, callableVariable[1]!, callStart));
       if (!members.length) members.push(...this.invokableObjectSignatures(file, callableVariable[1]!, callStart));
       const compatible = this.methodCandidatesForArguments(members, callableVariable[2]!, completeAtCursor,
         file, offset - callableVariable[2]!.length);
@@ -5799,6 +5800,44 @@ export class SemanticWorkspace {
     if (candidates.length !== 1) return [];
     const member = this.withInferredGeneratorReturn(candidates[0]!);
     return [{ ...member, name: variable, activeParameter: 0, usedNamedArguments: [] }];
+  }
+
+  private arrayCallableSignatures(file: SemanticFile, variable: string, offset: number,
+    visited = new Set<string>(), displayVariable = variable): SignatureInfo[] {
+    const scope = this.containingScope(file, offset); if (!scope) return [];
+    const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
+    if (visited.size >= 9 || visited.has(key)) return [];
+    visited.add(key);
+    const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
+      && assignment.variable === variable && assignment.end <= offset);
+    if (assignments.length !== 1) return [];
+    const assignment = assignments[0]!;
+    const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const followingText = file.source.slice(assignment.end, offset);
+    if (this.assignmentInsideControlFlow(file, assignment, scope)
+      || new RegExp(`(?:=\\s*&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|unset\\s*\\(\\s*${escapedVariable}\\s*\\))`, 'u').test(followingText)
+      || this.priorReferenceMutations(file, scope, variable, offset).length) return [];
+    if (assignment.sourceVariable) {
+      return this.arrayCallableSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable);
+    }
+    const callable = assignment.sourceCallableArray; if (!callable) return [];
+    const accessFrom = scope.containerFqcn;
+    let target: ObjectClass | undefined; let staticAccess = false;
+    if (callable.receiver.kind === 'variable') {
+      target = this.variableClass(file, callable.receiver.variable, assignment.start, new Set(), true);
+      if (!target || target.nullable) return [];
+    } else {
+      const fqcn = this.resolveSourceType(file, callable.receiver.typeName,
+        this.namespaceAt(file, assignment.start), accessFrom);
+      if (!fqcn) return [];
+      target = { fqcn, nullable: false }; staticAccess = true;
+    }
+    const candidates = this.members(target.fqcn, accessFrom, new Set(), false, target.typeArguments)
+      .filter((member) => member.kind === 'method' && member.static === staticAccess
+        && member.visibility === 'public' && member.name.toLowerCase() === callable.method.toLowerCase());
+    if (candidates.length !== 1) return [];
+    const member = this.withInferredGeneratorReturn(candidates[0]!);
+    return [{ ...member, name: displayVariable, activeParameter: 0, usedNamedArguments: [] }];
   }
 
   private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {

@@ -63,6 +63,11 @@ export interface ParsedAssignment extends SourceRange {
   sourceVariable?: string;
   /** Exact closure/arrow literal assigned on the right-hand side. */
   sourceClosureId?: string;
+  /** Exact two-element callable array assigned on the right-hand side. */
+  sourceCallableArray?: {
+    receiver: { kind: 'variable'; variable: string } | { kind: 'class'; typeName: string };
+    method: string;
+  };
   sourceMember?: { variable: string; member: string; nullsafe: boolean };
   sourceChain?: { variable: string; steps: Array<
     | { kind: 'property'; name: string; nullsafe: boolean }
@@ -1124,6 +1129,7 @@ export class PhpSyntaxParser {
         let sourceCall: ParsedAssignment['sourceCall'];
         let sourceArrayElement: ParsedAssignment['sourceArrayElement'];
         let sourceMember: ParsedAssignment['sourceMember'];
+        let sourceCallableArray: ParsedAssignment['sourceCallableArray'];
         const callbackFacts = (callback: SyntaxNode | undefined): { parameterType: string; returnType: string } | undefined => {
           const parameters = callback && (callback.type === 'arrow_function' || callback.type === 'anonymous_function') ? callback.childForFieldName('parameters') : undefined;
           const parameter = parameters?.namedChildren.length === 1 && parameters.namedChildren[0]?.type === 'simple_parameter' ? parameters.namedChildren[0] : undefined;
@@ -1153,6 +1159,24 @@ export class PhpSyntaxParser {
           return { ...base, steps: [...base.steps, { kind: 'method', name: nameNode.text, nullsafe, callback: arguments_.length === 1 ? callbackFacts(literal) : undefined, literalArgument }] };
         };
         const sourceChain = memberChain(right);
+        if (right.type === 'array_creation_expression') {
+          const elements = right.namedChildren.filter((child) => child.type === 'array_element_initializer');
+          const receiverNode = elements.length === 2 && elements[0]?.namedChildren.length === 1
+            ? elements[0].namedChildren[0] : undefined;
+          const methodNode = elements.length === 2 && elements[1]?.namedChildren.length === 1
+            ? elements[1].namedChildren[0] : undefined;
+          const method = methodNode && ['string', 'encapsed_string'].includes(methodNode.type)
+            && /^(['"])[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\1$/u.test(methodNode.text)
+            ? methodNode.text.slice(1, -1) : undefined;
+          if (method && receiverNode?.type === 'variable_name') {
+            sourceCallableArray = { receiver: { kind: 'variable', variable: receiverNode.text }, method };
+          } else if (method && receiverNode?.type === 'class_constant_access_expression') {
+            const [typeNode, constantNode] = receiverNode.namedChildren;
+            if (typeNode && constantNode?.text.toLowerCase() === 'class') {
+              sourceCallableArray = { receiver: { kind: 'class', typeName: typeNode.text }, method };
+            }
+          }
+        }
         if (right.type === 'subscript_expression') {
           const [collection, key] = right.namedChildren;
           if (collection?.type === 'variable_name' && key && /^(?:'[^']*'|"[^"]*"|-?\d+)$/.test(key.text)) sourceArrayElement = { variable: collection.text, key: key.text.replace(/^(['"])(.*)\1$/, '$2') };
@@ -1193,6 +1217,7 @@ export class PhpSyntaxParser {
           sourceVariable: right.type === 'variable_name' ? right.text : undefined,
           sourceClosureId: right.type === 'arrow_function' ? `arrow@${right.startIndex}`
             : right.type === 'anonymous_function' ? `closure@${right.startIndex}` : undefined,
+          sourceCallableArray,
           sourceMember,
           sourceChain: sourceChain?.steps.length ? sourceChain : undefined,
           sourceArrayElement,
