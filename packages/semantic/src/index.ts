@@ -5075,6 +5075,39 @@ export class SemanticWorkspace {
     return { uri, start: property.start + 1, end: property.end, name: property.name, fqcn: property.fqcn, locations: unique };
   }
 
+  private promotedPropertyReferences(file: SemanticFile, property: ParsedPropertyDeclaration): SemanticLocation[] {
+    const constructor = file.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === property.containerFqcn.toLowerCase()
+      && item.name.toLowerCase() === '__construct');
+    const parameter = constructor?.parameters.find((item) => item.promoted && item.start === property.start && item.end === property.end);
+    if (!constructor || !parameter) return [];
+    const locations: SemanticLocation[] = file.variableReferences.filter((reference) => reference.scopeId === constructor.fqcn
+      && reference.variable === `$${parameter.name}`).map((reference) => ({ uri: file.uri, start: reference.start + 1, end: reference.end }));
+    locations.push(...this.phpDocParameterLocations(file, constructor, parameter.name));
+    for (const candidateFile of this.files.values()) for (const call of candidateFile.calls) {
+      const named = call.arguments.filter((argument) => argument.name === parameter.name && argument.nameStart !== undefined && argument.nameEnd !== undefined);
+      if (!named.length) continue;
+      const signature = this.signature(candidateFile.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+      if (signature?.fqcn.toLowerCase() === constructor.fqcn.toLowerCase()) locations.push(...named.map((argument) => ({
+        uri: candidateFile.uri, start: argument.nameStart!, end: argument.nameEnd!,
+      })));
+    }
+    const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
+      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
+      for (const match of candidateFile.source.matchAll(directAccess)) {
+        const start = match.index + match[0].lastIndexOf(match[1]!);
+        const resolved = this.memberAt(candidateFile.uri, start + 1);
+        const lexical = !resolved && /\$this\s*(?:\?->|->)\s*$/i.test(candidateFile.source.slice(Math.max(0, match.index - 24), start))
+          ? this.containingCallable(candidateFile, start) : undefined;
+        if (resolved?.kind === 'property' && resolved.fqcn.toLowerCase() === property.fqcn.toLowerCase()
+          || lexical?.containerFqcn?.toLowerCase() === property.containerFqcn.toLowerCase()) locations.push({
+          uri: candidateFile.uri, start, end: start + match[1]!.length,
+        });
+      }
+    }
+    return [...new Map(locations.map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
+  }
+
   private traitPropertyRename(file: SemanticFile, property: ParsedPropertyDeclaration, newName?: string): PropertyRename | undefined {
     if (!this.hasCompleteHierarchy(property.containerFqcn)) return undefined;
     const consumers = this.traitConsumers(property.containerFqcn);
@@ -5492,10 +5525,10 @@ export class SemanticWorkspace {
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
     const file = this.files.get(uri);
     const promoted = file?.properties.find((item) => item.promoted && offset >= item.start && offset <= item.end);
-    const promotedReferences = promoted ? this.promotedPropertyRename(uri, offset) : undefined;
-    if (promoted && promotedReferences) return includeDeclaration
-      ? promotedReferences.locations
-      : promotedReferences.locations.filter((item) => item.uri !== uri || item.start !== promoted.start + 1 || item.end !== promoted.end);
+    const promotedReferences = promoted ? this.promotedPropertyReferences(file!, promoted) : undefined;
+    if (promoted && promotedReferences?.length) return includeDeclaration
+      ? promotedReferences
+      : promotedReferences.filter((item) => item.uri !== uri || item.start !== promoted.start + 1 || item.end !== promoted.end);
     const variable = file?.variableReferences.find((item) => offset >= item.start && offset <= item.end);
     const scope = variable && file?.scopes.find((item) => item.id === variable.scopeId);
     if (file && variable && scope) {

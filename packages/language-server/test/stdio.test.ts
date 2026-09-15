@@ -70,7 +70,7 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const source = `<?php
-        final class Service {
+        final class Service implements MissingContract {
           public function __construct(private object $dependency) {}
           public function dependency(): object { return $this->dependency; }
         }

@@ -3283,6 +3283,17 @@ describe('conservative semantic workspace', () => {
     expect(references.every((item) => item.start < source.indexOf('function second'))).toBe(true);
     expect(workspace.references('file:///LocalReferences.php', offset, false)).toHaveLength(3);
   });
+  it('finds private promoted property references with an incomplete owner hierarchy', () => {
+    const source = `<?php namespace App;
+      final class Subscriber implements MissingContract {
+        public function __construct(private readonly object $urlGenerator) {}
+        public function redirect(): object { return $this->urlGenerator; }
+      }`;
+    workspace.update('file:///IncompletePromotedReferences.php', source);
+    const offset = source.indexOf('$urlGenerator') + 2;
+    expect(workspace.references('file:///IncompletePromotedReferences.php', offset)
+      .map((item) => source.slice(item.start, item.end))).toEqual(['urlGenerator', 'urlGenerator']);
+  });
   it('finds type references across aliases, native signatures and PHPDoc', () => {
     workspace.update('file:///DomainUser.php', '<?php namespace Domain; class User {}');
     const source = `<?php namespace App; use Domain\\User as Account;
