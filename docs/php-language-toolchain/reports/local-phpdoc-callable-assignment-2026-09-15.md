@@ -17,7 +17,7 @@ semantic 回归覆盖具名签名、可选参数、返回成员补全、缺参�
 - `pnpm verify:packages`：十六个组件 tarball 均可由隔离消费者安装和导入。
 - `pnpm test:extension:packaged`：VS Code 1.137.0 Linux x64 隔离 Profile 成功加载打包 Core VSIX，Extension Host 退出码为 0。
 
-跨平台 CI 结果将在对应门禁完成后补入本报告。
+提交 `5631186` 的 [CI 34956917624](https://github.com/sohophp/php-companion/actions/runs/34956917624) 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。对应私有 Alpha 候选位于 `artifacts/php-companion-alpha-0.4.5-56311867/`，绑定完整功能提交 `56311867bdf877877acb4d7c8b4f68824949e7ec`。
 
 该增量只消费已有赋值、引用和 PHPDoc 事实，没有改变 parser 或 semantic 快照结构；当前语义快照继续使用 schema 75，Language Server 持久缓存继续使用 v47。
 
