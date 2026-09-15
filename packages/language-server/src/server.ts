@@ -48,6 +48,7 @@ let workspaceRoots: string[] = [];
 let workspaceFolderRoots: string[] = [];
 let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
+let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
@@ -1126,6 +1127,15 @@ async function indexWorkspace(generation: number): Promise<void> {
   } finally { progress?.done(); }
 }
 
+function startIndexWorkspace(): Promise<void> {
+  const generation = ++indexingGeneration;
+  const running = indexWorkspace(generation);
+  activeIndexing = running;
+  const clear = (): void => { if (activeIndexing === running) activeIndexing = undefined; };
+  void running.then(clear, clear);
+  return running;
+}
+
 async function ensureCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (completeRoots.has(root)) return true;
   // A completed project scan can still have an intentionally partial dependency
@@ -1133,8 +1143,7 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
   // scan cannot make that index complete and causes every conservative request to
   // restart a full workspace index.
   if (projectCompleteRoots.has(root)) return false;
-  const generation = ++indexingGeneration;
-  await indexWorkspace(generation);
+  await (activeIndexing ?? startIndexWorkspace());
   return !isCancellationRequested() && completeRoots.has(root);
 }
 
@@ -1235,8 +1244,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 });
 
 connection.onInitialized(() => {
-  const generation = ++indexingGeneration;
-  void indexWorkspace(generation).catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
+  void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
     { globPattern: '**/*.php' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' }, { globPattern: '**/services*.{yaml,yml}' },
     { globPattern: '**/config/**/*.{yaml,yml,xml,php}' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
@@ -1500,7 +1508,7 @@ connection.onDidChangeConfiguration(async ({ settings }) => {
   if (removedProviderIds.length) for (const candidate of semanticWorkspaces.values()) {
     const workspace = await candidate; for (const providerId of removedProviderIds) workspace.removeExternalFacts(providerId);
   }
-  if (providersChanged && workspaceFolderRoots.length) await indexWorkspace(++indexingGeneration);
+  if (providersChanged && workspaceFolderRoots.length) await startIndexWorkspace();
   if (providersChanged || diagnosticsChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 });
 
@@ -1545,8 +1553,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     } catch { workspace.remove(change.uri); if (root) removeDoctrineDocument(root, change.uri, workspace); requiresReindex = true; }
   }
   if (requiresReindex) {
-    const generation = ++indexingGeneration;
-    await indexWorkspace(generation);
+    await startIndexWorkspace();
   }
 });
 
@@ -2267,6 +2274,7 @@ connection.onCodeAction(async (params, token) => {
 
 connection.onShutdown(async () => {
   indexingGeneration += 1;
+  activeIndexing = undefined;
   for (const timer of callableFactCommitTimers.values()) clearTimeout(timer);
   callableFactCommitTimers.clear();
   for (const [root] of callableFactCachesByRoot) {

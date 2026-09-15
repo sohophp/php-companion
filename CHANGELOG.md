@@ -1,3 +1,4 @@
+- 初始索引期间的 Code Action、导入和重构请求现在共享同一进行中任务，不再通过递增 generation 相互取消并反复重启；修复真实 WSL 会话中连续出现 `Project indexing was cancelled`、高 CPU 且状态栏长期停留在 Indexing 的问题。
 - Definition 现在会按需加载初始依赖预算未收录的精确 Composer PSR-4 类型文件，修复 Winstar 中 Symfony `EventSubscriberInterface` 等 vendor 声明 Ctrl+点击无响应；Language Server 同时正式接收扩展设置的文件数、单文件和总字节预算。
 - Alpha 实测修复大项目重复索引：Composer 项目源码已完整、仅依赖因资源预算截断时，保守功能直接保持不可用，不再把相同的 10,000 文件有界扫描反复重启；新增真实 stdio 回归锁定一次索引边界。
 - 精确二元素 callable 数组现在保留对象实例或 `Type::class` 的唯一公开方法目标，并沿有界不可变别名提供变量调用 Signature Help、缺参/错参诊断及返回传播；动态名称、nullable、静态性/可见性不匹配、控制流来源和修改保持 unknown。语义快照升级到 schema 77，持久缓存升级到 v49。

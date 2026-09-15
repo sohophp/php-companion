@@ -101,6 +101,43 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('shares initial indexing across concurrent completeness requests', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-shared-indexing-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const source = '<?php namespace App; final class Consumer { public function run(): void { new MissingType(); } }';
+      const sourcePath = join(sourceDirectory, 'Consumer.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(sourcePath, source);
+      await Promise.all(Array.from({ length: 1_000 }, (_, index) => writeFile(join(sourceDirectory, `Type${String(index).padStart(4, '0')}.php`),
+        `<?php namespace App; final class Type${index} { public function value(): int { return ${index}; } }`)));
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 246, method: 'initialize', params: { processId: null, capabilities: {}, rootUri } }));
+      await output.waitFor((message) => message.id === 246);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      const position = lspPosition(source, source.indexOf('MissingType') + 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 247, method: 'phpCompanion/importCandidates', params: {
+        textDocument: { uri: sourceUri }, position, name: 'MissingType',
+      } }) + encode({ jsonrpc: '2.0', id: 248, method: 'phpCompanion/unresolvedTypeNames', params: {
+        textDocument: { uri: sourceUri },
+      } }));
+      await output.waitFor((message) => message.id === 247, 15_000);
+      await output.waitFor((message) => message.id === 248, 15_000);
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed 1001 PHP files'), 15_000);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message === 'Project indexing was cancelled.')).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 249, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 249);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads an exact Composer PSR-4 definition omitted by the initial dependency budget', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-definition-'));
     try {
