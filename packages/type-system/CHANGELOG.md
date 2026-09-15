@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Freeze explicit compatibility boundaries for `mixed`, `unknown`, `never`, `void`, and `null` alongside the existing normalized Union, Intersection, literal, collection, generic, class-string, Callable, and integer-range algebra.
 - Callable 兼容性允许实现省略调用契约的尾部参数，并允许只增加可选尾部参数；实现新增必填参数仍不兼容，已有参数继续按引用、variadic、可选性、参数逆变和返回协变检查。
 - 将 PHP 原生允许的 `int` 到 `float` 拓宽及 array/list/shape 到 `iterable` 的关系纳入共享兼容性代数。
 - 为递归类型关系增加默认 256 次比较预算及可选 `maxComparisons` 覆盖，超限返回 unknown，避免深层或递归类型耗尽调用栈。

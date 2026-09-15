@@ -11,6 +11,17 @@ describe('PHP type algebra', () => {
     expect(compatibility(named('Child'), named('Parent'))).toBe('unknown');
     expect(compatibility(primitive('int'), primitive('string'))).toBe('no');
   });
+  it('keeps mixed, unknown, never, void, and null boundaries distinct', () => {
+    expect(compatibility(primitive('never'), primitive('string'))).toBe('yes');
+    expect(compatibility(primitive('never'), primitive('void'))).toBe('yes');
+    expect(compatibility(primitive('string'), primitive('mixed'))).toBe('yes');
+    expect(compatibility(unknown('unresolved expression'), primitive('mixed'))).toBe('yes');
+    expect(compatibility(primitive('mixed'), primitive('string'))).toBe('no');
+    expect(compatibility(primitive('void'), primitive('void'))).toBe('yes');
+    expect(compatibility(primitive('void'), primitive('null'))).toBe('no');
+    expect(compatibility(primitive('null'), nullable(named('User')))).toBe('yes');
+    expect(compatibility(unknown('unresolved expression'), primitive('null'))).toBe('unknown');
+  });
   it('checks literals, unions and class relations conservatively', () => {
     expect(compatibility(literal(1), primitive('int'))).toBe('yes');
     expect(compatibility(primitive('string'), literal('draft'))).toBe('unknown');
