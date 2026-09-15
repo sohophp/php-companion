@@ -101,6 +101,47 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads an exact Composer PSR-4 definition omitted by the initial dependency budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-definition-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'symfony', 'event-dispatcher');
+      await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
+      const source = '<?php namespace App; use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface; final class Subscriber implements EventSubscriberInterface {}';
+      const sourcePath = join(sourceDirectory, 'Subscriber.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      const targetPath = join(dependencyDirectory, 'EventSubscriberInterface.php'); const targetUri = pathToFileURL(targetPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'symfony/event-dispatcher', autoload: { 'psr-4': { 'Symfony\\Component\\EventDispatcher\\': '' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'symfony/event-dispatcher', install_path: '../symfony/event-dispatcher' }] }));
+      await writeFile(sourcePath, source);
+      await writeFile(targetPath, '<?php namespace Symfony\\Component\\EventDispatcher; interface EventSubscriberInterface {}');
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 243, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
+      await output.waitFor((message) => message.id === 243);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 1 PHP files') && message.params.message.includes('complete=false'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      const offset = source.lastIndexOf('EventSubscriberInterface') + 2;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 244, method: 'textDocument/definition', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 244)).result).toMatchObject([{ uri: targetUri }]);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 1 PHP files'))).toHaveLength(1);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 245, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 245);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {

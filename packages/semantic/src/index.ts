@@ -5611,6 +5611,16 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.typeCandidatesAtWithImplementation(uri, offset));
   }
 
+  resolvedTypeNameAt(uri: string, offset: number): string | undefined {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return undefined;
+      const declared = file.declarations.find((item) => offset >= item.start && offset <= item.end);
+      const imported = file.imports.find((item) => offset >= item.pathStart && offset <= item.pathEnd);
+      return declared?.fqcn ?? imported?.fqcn
+        ?? this.resolveSourceType(file, word.text, this.namespaceAt(file, offset), this.containingCallable(file, offset)?.containerFqcn);
+    });
+  }
+
   private typeCandidatesAtWithImplementation(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return [];
     const declared = file.declarations.find((item) => offset >= item.start && offset <= item.end);

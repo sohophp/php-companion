@@ -29,7 +29,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
-import { indexComposerSources } from '@php-companion/index';
+import { DEFAULT_INDEX_LIMITS, indexComposerSources, type ProjectIndexLimits } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
 import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
@@ -68,6 +68,7 @@ const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>(
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
 let cacheDirectory: string | undefined;
+let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -527,6 +528,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (facts.doctrineProperties.length) doctrinePropertyFiles.set(uri, facts.doctrineProperties);
   };
   const result = await indexComposerSources(root, {
+    limits: indexLimits,
     shouldContinue,
     uriForPath: (path) => indexedUriForPath(root, path),
     onSource: ({ uri, path, source }) => {
@@ -1171,11 +1173,33 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
   return declarations.length === 1 ? declarations[0] : undefined;
 }
 
+async function hydrateCanonicalTypeAt(workspace: SemanticWorkspace, root: string, uri: string, offset: number): Promise<void> {
+  const fqcn = workspace.resolvedTypeNameAt(uri, offset);
+  if (!fqcn || workspace.typeByFqcn(fqcn)) return;
+  const candidates = resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? []).slice(0, 16);
+  for (const path of candidates) {
+    try {
+      const information = await stat(path);
+      if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) continue;
+      const targetUri = indexedUriForPath(root, path);
+      const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
+      workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
+      indexedUrisByRoot.get(root)?.add(targetUri);
+    } catch { /* Missing or unreadable PSR-4 candidates remain unresolved. */ }
+  }
+}
+
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;
+  const requestedLimits = initialization?.indexLimits as Partial<ProjectIndexLimits> | undefined;
+  if (requestedLimits && Number.isSafeInteger(requestedLimits.maxFiles) && Number(requestedLimits.maxFiles) > 0
+    && Number.isSafeInteger(requestedLimits.maxFileSizeBytes) && Number(requestedLimits.maxFileSizeBytes) > 0
+    && Number.isSafeInteger(requestedLimits.maxTotalBytes) && Number(requestedLimits.maxTotalBytes) > 0) {
+    indexLimits = requestedLimits as ProjectIndexLimits;
+  }
   setDisabledDiagnosticCodes(initialization?.disabledDiagnosticCodes);
   setDiagnosticSeverityOverrides(initialization?.diagnosticSeverity);
   setSemanticProviders(initialization?.semanticProviders);
@@ -1834,7 +1858,14 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
       if (target) return [{ uri: implementation.uri, range: { start: target.positionAt(implementation.start), end: target.positionAt(implementation.end) } }];
     }
   }
-  return workspace.definition(document.uri, document.offsetAt(position)).flatMap((location) => {
+  const offset = document.offsetAt(position);
+  let locations = workspace.definition(document.uri, offset);
+  const root = rootForUri(document.uri);
+  if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
+    await hydrateCanonicalTypeAt(workspace, root, document.uri, offset);
+    if (!token.isCancellationRequested) locations = workspace.definition(document.uri, offset);
+  }
+  return locations.flatMap((location) => {
     const openTarget = documents.get(location.uri);
     const source = openTarget?.getText() ?? workspace.source(location.uri);
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));

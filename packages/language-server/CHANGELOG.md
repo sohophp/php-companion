@@ -3,6 +3,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Load an exact missing Composer PSR-4 type on demand for Definition instead of silently failing when the bounded dependency index omitted its file. Honor the configured index resource limits in the language-server scan.
+
 - Stop conservative requests from repeating a completed Composer project scan when only the bounded dependency index is partial.
 
 - Serve precise instance/static callable-array Signature Help, missing/incompatible argument diagnostics, aliases, and result completion through stdio, and advance persistent PHP caches to v49.

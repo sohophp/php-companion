@@ -99,6 +99,11 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     initializationOptions: () => ({
       phpVersion: configuration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : configuration.get<string>('phpVersion', '8.5'),
       cacheDirectory: vscode.Uri.joinPath(context.globalStorageUri, 'semantic-index').fsPath,
+      indexLimits: {
+        maxFiles: configuration.get<number>('indexing.maxFiles', 10_000),
+        maxFileSizeBytes: configuration.get<number>('indexing.maxFileSizeKb', 512) * 1024,
+        maxTotalBytes: configuration.get<number>('indexing.maxTotalMb', 128) * 1024 * 1024,
+      },
       disabledDiagnosticCodes: configuration.get<string[]>('diagnostics.disabledCodes', []),
       diagnosticSeverity: configuration.get<Record<string, string>>('diagnostics.severity', {}),
       semanticProviders: configuration.get<unknown[]>('semanticProviders', []),
