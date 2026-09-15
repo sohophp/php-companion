@@ -1,4 +1,5 @@
 - PHP 8.1 `Fiber`/`ReflectionFiber` 与 PHP 8.2 `SensitiveParameter`/`SensitiveParameterValue` 进入共享版本化内建文档；构造签名、实例和静态成员、nullable 当前 Fiber、反射执行位置/trace，以及敏感值访问可用于补全、Signature Help、返回传播和 Definition，旧目标版本不会泄漏未来符号。
+- 提交 `2c91a7d` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交与三份 VSIX SHA-256。
 - P4 基础类型代数完成正式验收：primitive/named/literal、null/void/never、mixed/unknown、Union/Intersection/DNF、array/list/shape、泛型、class-string、Callable 和整数区间共用三态兼容关系；新增顶部/底部与无返回边界回归，未知关系不被降级为不兼容或错误肯定。
 - Composer 项目索引现在把超出单文件预算、瞬时不可读或分析失败的项目源码标记为 `projectComplete=false`，依赖源码缺口标记为 `complete=false`；不完整索引不再启用未解析符号诊断。结构合法但 restore adapter 拒绝的持久缓存条目会回退到源码重建。真实 stdio 回归覆盖 PHP 文件创建、删除、移动、打开缓冲区覆盖磁盘变化及 Composer autoload 映射刷新。
 - 提交 `74f9544` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交和三个 VSIX 的 SHA-256。

@@ -15,7 +15,9 @@ language-spec 测试逐版本检查 PHP 8.0 不含 Fiber、PHP 8.1 不含敏感�
 
 签名依据 PHP 官方 Fiber、SensitiveParameter、SensitiveParameterValue 与 ReflectionFiber 手册核对，链接记录在 `packages/language-spec/SOURCES.md`。
 
-全仓 `pnpm check` 通过类型检查、ESLint、16 个组件 640 项与根扩展 35 项测试，共 675 项；三个 VSIX 均重新打包并通过内容核验。language-spec 为 52 项，Language Server 为 171 项。
+全仓 `pnpm check` 通过类型检查、ESLint、16 个组件 640 项与根扩展 35 项测试，共 675 项；十六个组件 tarball 均从隔离消费者安装通过，三个 VSIX 均重新打包并通过内容核验。VS Code 1.137.0 Linux x64 打包 Extension Host 退出码为 0。language-spec 为 52 项，Language Server 为 171 项。提交 `2c91a7d` 的 [CI 34943334118](https://github.com/sohophp/php-companion/actions/runs/34943334118) 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
+
+私有 Alpha 候选位于 `artifacts/php-companion-alpha-0.4.5-2c91a7d6/`，三份校验和均通过；候选详情见[私有 Alpha 候选验收](private-alpha-candidate-2026-09-15.md)。
 
 ## 边界
 

@@ -4,17 +4,17 @@
 
 ## 候选产物
 
-`pnpm candidate:alpha` 最新在干净提交 `74f954499f744bb661bdc54e80a23d8d16f9b615` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-74f95449/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
+`pnpm candidate:alpha` 最新在干净提交 `2c91a7d6f725225d3200d6e5f38533f012545438` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-2c91a7d6/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
 
 | 角色 | 文件 | 字节 | SHA-256 |
 | --- | --- | ---: | --- |
-| PHP 核心 | `php-companion-0.4.5.vsix` | 878,230 | `b65e76d94410abd27a242f55db4c794f648c6f4d49db7fba4069a6c7154dce3e` |
-| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `be51e95276fcccfe3882d26bd419d4447ad8aa68a1eaf60b43f7110400ffae09` |
-| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `441d59b61badb388472e5ca5f00aeac7f172e008e96dd5e49ab10fb92f86527b` |
+| PHP 核心 | `php-companion-0.4.5.vsix` | 879,062 | `60bf7c50d8c3eef523e2da6ff1ccff27f652ba872b5326c4046521ace7dfb767` |
+| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `152e4a2feaa2ef5d735d045b19b4ab74578636ec11e0c8e36b32578410fbe3fc` |
+| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `777f0d8e3b5b9c17035b74e310b8d8588b844a020c84b92cf1122b032d3698c4` |
 
 候选目录的 `sha256sum -c SHA256SUMS` 三项均返回 `OK`。`candidate.json` 同时记录 Node v22.14.0、Linux x64、完整源码提交、三个产物元数据、七个受支持扩展，以及被拒绝的 Symfony Language Tools 0.20.1 和 DotJoshJohnson XML Tools 2.5.1。
 
-提交 `74f9544` 的 [CI 34939467083](https://github.com/sohophp/php-companion/actions/runs/34939467083) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
+提交 `2c91a7d` 的 [CI 34943334118](https://github.com/sohophp/php-companion/actions/runs/34943334118) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 
 ## 最新真实项目门禁
 
