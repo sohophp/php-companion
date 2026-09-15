@@ -2,6 +2,8 @@
 
 状态：R1 的 S01–S08 已在 Linux / WSL 通过，形成首发候选；R4 最终验收仍未完成。证据见 [R1 验收审计](reports/r1-acceptance-linux-wsl-2026-09-06.md)。
 
+最新私有候选、产物摘要及 Winstar/CoreRepo 真实项目复核见 [私有 Alpha 候选验收](reports/private-alpha-candidate-2026-09-15.md)。公开发布与 R4 长期门槛仍按下文分别判定。
+
 ## 首发验收 S01–S08
 
 R1 只以以下门槛交付；F01–F14 是 R4 长期门槛，不阻塞符合范围的早期版本。
