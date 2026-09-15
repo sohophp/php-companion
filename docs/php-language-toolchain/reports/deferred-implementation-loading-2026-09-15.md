@@ -23,6 +23,7 @@
 - `node scripts/benchmark-editing.mjs 500 50`：500 次更新无陈旧补全；诊断 P50/P95/最大值 2.02/3.79/5.92 ms，热补全 0.82/1.35/2.31 ms，取消 1.21 ms；最终 RSS 比基线增加 9.18 MiB，损坏缓存与进程重启恢复通过。
 - `pnpm verify:packages`：十六个组件 tarball 均通过隔离消费者安装、导入和 API smoke 验证。
 - `pnpm package:all && pnpm verify:vsix && pnpm test:extension:packaged`：三个 VSIX 内容通过，Linux VS Code 1.137.0 隔离 Profile Extension Host 退出码为 0。
+- 提交 `b7c3069` 的 [CI 34926008703](https://github.com/sohophp/php-companion/actions/runs/34926008703) 18/18 成功：Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵全部通过。
 - 最终 VSIX SHA-256：主扩展 `dd6e1de5e5645e19e8678d14dd95f08f230dd84ed04cbfb38ec645fa8ad078e7`，开源扩展包 `3fa497c02f8600b09d83cbe647041892e7e4605f8cb47a8f75fbd7d241f3fc20`，推荐扩展包 `03330b35d1d8170120f2c1d3c46a823cb724c66ca2dc9ea312aa7dccf9c5f244`。
 
 ## 边界与下一步
