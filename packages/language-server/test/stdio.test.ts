@@ -65,6 +65,42 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('does not repeat a completed project scan when only the dependency index is partial', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-partial-dependency-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
+      await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
+      const source = '<?php namespace App; function consume(): void { new MissingType(); }';
+      const sourcePath = join(sourceDirectory, 'Consumer.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(sourcePath, source);
+      await writeFile(join(dependencyDirectory, 'Oversized.php'), `<?php ${'x'.repeat(524_288)}`);
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: { processId: null, capabilities: {}, rootUri } }));
+      await output.waitFor((message) => message.id === 240);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 1 PHP files') && message.params.message.includes('complete=false'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'phpCompanion/importCandidates', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('MissingType')), name: 'MissingType',
+      } }));
+      expect((await output.waitFor((message) => message.id === 241)).result).toEqual([]);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 1 PHP files'))).toHaveLength(1);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 242);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {

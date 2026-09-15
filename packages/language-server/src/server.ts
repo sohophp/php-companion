@@ -1126,6 +1126,11 @@ async function indexWorkspace(generation: number): Promise<void> {
 
 async function ensureCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (completeRoots.has(root)) return true;
+  // A completed project scan can still have an intentionally partial dependency
+  // index when a dependency exceeds a resource budget. Repeating the same bounded
+  // scan cannot make that index complete and causes every conservative request to
+  // restart a full workspace index.
+  if (projectCompleteRoots.has(root)) return false;
   const generation = ++indexingGeneration;
   await indexWorkspace(generation);
   return !isCancellationRequested() && completeRoots.has(root);
