@@ -1,6 +1,7 @@
 [
   { "id": "sohophp.twig-plus", "version": "1.3.7" },
   { "id": "symfony.language-tools", "version": "0.20.1", "defaultPack": false, "supportedProfile": false },
+  { "id": "DotJoshJohnson.xml", "version": "2.5.1", "defaultPack": false, "supportedProfile": false },
   { "id": "redhat.vscode-yaml", "version": "1.24.0" },
   { "id": "redhat.vscode-xml", "version": "0.29.3" },
   { "id": "xdebug.php-debug", "version": "1.40.1" },
