@@ -18,7 +18,8 @@
 - 框架事实、三条 Callable 工厂事实和传递依赖失效继续通过；单条派生层损坏与单条 callable 实现记录损坏分别只重建 1 个 PHP 文件。
 - 500 轮编辑无陈旧补全；诊断 P50/P95/最大值 2.03/2.69/5.77 ms，热补全 0.81/1.09/2.25 ms，取消 1.15 ms，最终 RSS 比基线增加 14.73 MiB；损坏缓存与进程重启恢复通过。
 - 十六个组件 tarball 通过仓库外消费者安装、导入和 API smoke；三个 VSIX 内容校验通过，Linux VS Code 1.137.0 打包 Extension Host 退出码 0。
-- 最终 VSIX SHA-256：主扩展 `dc023f5bf17005b654cc0f3f71098d8c231c01ddc6ee5f1ee3f00f2d1631e3c9`，Open Source Pack `9f3c5dc6e5feca3f22383b8160ba61272fd5b9680fddfb755967b9f13ce5d9c5`，Recommended Pack `5b6a298e8cc981a368fd03e6bbed1d84d7702ecd75cbbdf7c3928b6147fea65d`。
+- Windows Open Source Profile 首轮在 PHP 8.4 Property Hook 精确诊断的 5 秒等待处超时，同提交复跑通过；门禁随后改用 15 秒有界等待并在失败时输出最后诊断码。最终提交 `7e27eb9` 的 [CI 34932496049](https://github.com/sohophp/php-companion/actions/runs/34932496049) 18/18 成功，覆盖三平台 Quality、打包 Extension Host、七扩展完整组合和 PHP 7.2–8.5。
+- 最新私有 Alpha 目录为 `artifacts/php-companion-alpha-0.4.5-7e27eb99/`，绑定完整提交 `7e27eb9988d6c31f8a3856b3625df13a643958ea`。候选 SHA-256：主扩展 `ff71098c897281b41c37c895ef5a0f3eae06351d42f025a25cbe41448cd8cc53`，Open Source Pack `b288fd9d8e43ac523667f64a5fe2b05580bd243a022014096e57381b5c935683`，Recommended Pack `417b49f52062c6edcd85058f49a6b0de28db3e8de0baf5a4810d799792c8cf34`。
 
 ## 边界与下一步
 
