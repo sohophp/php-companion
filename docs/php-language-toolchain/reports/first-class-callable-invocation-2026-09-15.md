@@ -23,6 +23,10 @@ semantic 回归覆盖直接函数、静态方法、实例方法、具名调用�
 - `pnpm test:extension:packaged`：VS Code 1.137.0 Linux x64 隔离 Profile 成功加载打包后的 Core VSIX，Extension Host 退出码为 0。
 - `pnpm benchmark:persistence -- 1000`：冷索引 2,274.73 ms；schema 75 热恢复 805.15 ms，恢复 1,000/1,000、重解析 0，热/冷比 0.354。损坏派生层或 callable 记录时均只重建一个文件；聚焦补全只加载 `Consumer::inspect`。
 
+提交 `5494030` 的 [CI 34947804332](https://github.com/sohophp/php-companion/actions/runs/34947804332) 最终 18/18 成功，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。Windows/macOS 的 TwigPlus Marketplace 安装曾同时返回一次 `not found`，只重跑失败任务后同一固定版本安装及组合测试通过；仓库代码和版本清单没有为外部波动改变。
+
+对应私有 Alpha 候选位于 `artifacts/php-companion-alpha-0.4.5-54940300/`，绑定完整功能提交 `54940300c4c09bd22a285be04466bf85368026d4`；候选详情见[私有 Alpha 候选验收](private-alpha-candidate-2026-09-15.md)。
+
 ## 边界
 
 本轮只传播源码中可证明且未修改的局部获取关系。属性、数组槽位、函数返回的 Closure、序列化 callable，以及运行时改变目标的动态调用保持 unknown。该增量不宣称 P4 全部调用传播已完成。

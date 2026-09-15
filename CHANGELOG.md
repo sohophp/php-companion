@@ -1,4 +1,5 @@
 - PHP 8.1 first-class callable 的直接函数、静态方法、实例方法及最多八层未修改局部别名现在保留唯一目标签名；后续变量调用提供 Signature Help、缺参/错参诊断，并从位置、具名及泛型实参传播返回类型。动态目标、重赋值、按引用修改、歧义或超过预算保持 unknown。
+- 提交 `5494030` 的 CI 最终 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选绑定完整功能提交与三份 VSIX SHA-256。
 - PHP 8.1 `Fiber`/`ReflectionFiber` 与 PHP 8.2 `SensitiveParameter`/`SensitiveParameterValue` 进入共享版本化内建文档；构造签名、实例和静态成员、nullable 当前 Fiber、反射执行位置/trace，以及敏感值访问可用于补全、Signature Help、返回传播和 Definition，旧目标版本不会泄漏未来符号。
 - 提交 `2c91a7d` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵；对应私有 Alpha 候选已绑定完整提交与三份 VSIX SHA-256。
 - P4 基础类型代数完成正式验收：primitive/named/literal、null/void/never、mixed/unknown、Union/Intersection/DNF、array/list/shape、泛型、class-string、Callable 和整数区间共用三态兼容关系；新增顶部/底部与无返回边界回归，未知关系不被降级为不兼容或错误肯定。
