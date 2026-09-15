@@ -3,6 +3,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Serve standalone local PHPDoc Callable assertions through stdio Signature Help, argument diagnostics, and result completion.
 - Serve direct local PHPDoc Callable assignment contracts through stdio Signature Help, argument diagnostics, and result completion.
 - Serve PHPDoc Callable parameter Signature Help, named parameter labels, and direct missing/incompatible invocation diagnostics through stdio.
 - Serve first-class callable variable Signature Help, missing/incompatible argument diagnostics, and precise result completion through the shared semantic target.

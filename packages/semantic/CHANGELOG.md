@@ -1,5 +1,6 @@
 # Changelog
 
+- Reuse same-block standalone local `@var callable(...)` assertions for first-use variable-call signatures, precise argument diagnostics, and return propagation while preserving mutation, prior-use, and block boundaries.
 - Consume a callable-shaped local `@var` annotation adjacent to a direct assignment for first-use variable-call signatures, argument diagnostics, and result propagation while rejecting control-flow, prior-use, reassignment, and reference-mutation cases.
 - Expose untouched PHPDoc Callable parameter contracts as variable-call signatures, missing-argument diagnostics, and proven incompatible-argument diagnostics while retaining the existing conservative mutation and prior-use gates.
 - Preserve unique first-class callable targets through bounded immutable local aliases and reuse their signatures for variable invocation diagnostics and return propagation.

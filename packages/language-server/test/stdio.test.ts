@@ -3525,6 +3525,60 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('serves standalone local PHPDoc Callable assertions through stdio', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-standalone-callable-'));
+    try {
+      const source = `<?php declare(strict_types=1); namespace StandaloneCallableLsp;
+class Input {}
+class Result { public function done(): void {} }
+function createCallable(): callable {}
+function run(Input $input): void {
+  $callback = createCallable();
+  /** @var callable(Input $value, string $label=): Result $callback */
+  $result = $callback(value: $input);
+  $result->do;
+  $missing = createCallable();
+  /** @var callable(Input $value): Result $missing */
+  $missing();
+  $wrong = createCallable();
+  /** @var callable(Input $value): Result $wrong */
+  $wrong('invalid');
+}`;
+      const path = join(root, 'Callable.php'); const uri = pathToFileURL(path).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.1' }, autoload: { classmap: ['./Callable.php'] } }));
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+      } }));
+      await output.waitFor((message) => message.id === 233);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params?.uri === uri && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.missing-required')
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'))).params.diagnostics;
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.missing-required')).toHaveLength(1);
+      expect(diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toHaveLength(1);
+      const completionOffset = source.indexOf('$result->do') + '$result->do'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, completionOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 234)).result)
+        .toContainEqual(expect.objectContaining({ label: 'done' }));
+      const signatureOffset = source.indexOf('$callback(value:') + '$callback('.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, signatureOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 235)).result).toMatchObject({ signatures: [{
+        label: '$callback(Input $value, string $label = default): Result',
+      }] });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('serves PHP 8.5 pipe result completion and definition through stdio', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-pipe-'));
     try {

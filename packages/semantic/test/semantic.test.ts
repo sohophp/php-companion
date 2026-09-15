@@ -5269,6 +5269,51 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$reassigned($input)') + '$reassigned('.length)).toEqual([]);
     expect(workspace.signatures('file:///LocalCallableContracts.php', source.indexOf('$conditional($input)') + '$conditional('.length)).toEqual([]);
   });
+  it('serves standalone local PHPDoc Callable assertions conservatively', () => {
+    const source = `<?php declare(strict_types=1); namespace StandaloneCallableContracts;
+      class Input {} class Result { public function done(): void {} }
+      function createCallable(): callable {}
+      function run(Input $input, bool $condition): void {
+        $callback = createCallable();
+        /** @var callable(Input $value, string $label=): Result $callback */
+        $result = $callback(value: $input); $result->do;
+        $missing = createCallable();
+        /** @var callable(Input $value): Result $missing */
+        $missing();
+        $wrong = createCallable();
+        /** @var callable(Input $value): Result $wrong */
+        $wrong('invalid');
+        $used = createCallable();
+        /** @var callable(Input): Result $used */
+        echo is_callable($used); $used($input);
+        $mutated = createCallable();
+        /** @var callable(Input): Result $mutated */
+        echo 'barrier'; $mutated = createCallable(); $mutated($input);
+        if ($condition) {
+          /** @var callable(Input): Result $otherBlock */
+          echo 'assertion';
+        }
+        $otherBlock($input);
+      }`;
+    workspace.update('file:///StandaloneCallableContracts.php', source);
+    expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
+      { name: '$callback', parameters: [
+        { name: 'value', type: 'Input', defaultValue: undefined },
+        { name: 'label', type: 'string', defaultValue: 'default' },
+      ], returnType: 'Result', synthetic: 'phpdoc-callable' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///StandaloneCallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$missing', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///StandaloneCallableContracts.php')).toEqual([
+      expect.objectContaining({ callable: '$wrong', parameter: 'value', actualType: 'string', expectedType: 'StandaloneCallableContracts\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///StandaloneCallableContracts.php', source.indexOf('$result->do') + '$result->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$used($input)') + '$used('.length)).toEqual([]);
+    expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$mutated($input)') + '$mutated('.length)).toEqual([]);
+    expect(workspace.signatures('file:///StandaloneCallableContracts.php', source.indexOf('$otherBlock($input)') + '$otherBlock('.length)).toEqual([]);
+  });
   it('evaluates PHPDoc conditional return types on untouched Callable variables', () => {
     workspace.update('file:///ConditionalCallableTypes.php', `<?php namespace ConditionalCallable;
       class CommonResult { public function common(): void {} }

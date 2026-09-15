@@ -5758,6 +5758,15 @@ export class SemanticWorkspace {
     let sourceVariable = variable; let aliasAssignment: ParsedAssignment | undefined;
     let parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
     if (!parameter) {
+      const standaloneTag = this.standaloneLocalVariableAnnotationTag(file, variable, callStart, scope);
+      const standaloneCallable = standaloneTag?.type?.kind === 'callable' ? standaloneTag.type : undefined;
+      if (standaloneTag?.type && standaloneCallable) {
+        const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
+          && reference.variable === variable && reference.start >= standaloneTag.end && reference.end <= callStart);
+        if (!interveningReferences.length) {
+          return { scope, declaration: { start: standaloneTag.type.start, end: standaloneTag.type.end }, callable: standaloneCallable };
+        }
+      }
       const priorAssignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
         && assignment.variable === variable && assignment.end <= callStart).sort((left, right) => right.end - left.end);
       const annotatedAssignment = priorAssignments[0];
@@ -6691,7 +6700,7 @@ export class SemanticWorkspace {
     return { applied: true, type: this.applyDirectFlowNarrowings(file, facts, base, offset, scope) };
   }
 
-  private standaloneLocalVariableAnnotationType(file: SemanticFile, variable: string, offset: number, scope: ParsedScope): PhpType | undefined {
+  private standaloneLocalVariableAnnotationTag(file: SemanticFile, variable: string, offset: number, scope: ParsedScope): PhpDocTag | undefined {
     const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const namedVarTag = new RegExp(`@(?:(?:phpstan|psalm)-)?var\\b[^\\r\\n]*${escapedVariable}(?![\\p{L}\\p{N}_])`, 'iu');
     const ranges = file.commentRanges.filter((range) => range.start >= scope.start && range.end <= offset
@@ -6725,12 +6734,17 @@ export class SemanticWorkspace {
           || new RegExp(`(?:=&\\s*${escaped}|&\\s*${escaped}\\s*=)`, 'u').test(between)
           || this.priorReferenceMutations(file, scope, variable, offset).length
             > this.priorReferenceMutations(file, scope, variable, range.end).length) return undefined;
-        return this.phpDocDiagnosticType(file, tag.type!, scope.containerFqcn ?? scope.id);
+        return tag;
       }
       return undefined;
     } finally {
       temporaryTree?.delete();
     }
+  }
+
+  private standaloneLocalVariableAnnotationType(file: SemanticFile, variable: string, offset: number, scope: ParsedScope): PhpType | undefined {
+    const tag = this.standaloneLocalVariableAnnotationTag(file, variable, offset, scope);
+    return tag?.type ? this.phpDocDiagnosticType(file, tag.type, scope.containerFqcn ?? scope.id) : undefined;
   }
 
   private localArrayAnnotationType(file: SemanticFile, variable: string, offset: number, scope: ParsedScope): PhpType | undefined {
