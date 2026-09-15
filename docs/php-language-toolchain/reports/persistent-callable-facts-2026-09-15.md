@@ -30,6 +30,7 @@ Language Server 缓存回归进一步证明：依赖源码 SHA-256 改变、新�
 - `pnpm verify:packages`：十六个组件 tarball 均通过隔离消费者安装、导入与 API smoke 验证。
 - `pnpm package:all && pnpm verify:vsix`：三个 VSIX 均重新构建并通过内容验证；`pnpm test:extension:packaged` 在隔离 Profile、VS Code 1.137.0 中退出码为 0。
 - 最终 VSIX SHA-256：主扩展 `56c779b122fa75af78ebae2bf29ec589b81d18cc3a7302f53ef6002d78a7d84e`，开源扩展包 `bb0f9fd60b8d3426623653887363704e65915c826dd4bc43eafb3a2383f1d726`，推荐扩展包 `2488771d11eb3d39a2bb9e7229c227ca14db166efd09cd1915587c77105b771b`。
+- 提交 `1d4a909` 的 [CI 34911657028](https://github.com/sohophp/php-companion/actions/runs/34911657028)：18/18 通过，覆盖 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5。
 - `node scripts/benchmark-persistent-index.mjs 10000`：冷索引 17,538.06 ms，热恢复 4,714.06 ms，热/冷比 0.2688；恢复 PHP 文件 10,000/10,000、重解析 0，并恢复 3 条传递 Callable 事实。类型依赖失效、框架事实恢复和单文件损坏重建仍通过。
 - `node scripts/benchmark-editing.mjs 500 50`：500 次更新无陈旧补全；更新到诊断 P50/P95/最大值为 1.80/2.55/5.71 ms，热补全为 0.77/1.09/6.17 ms，取消 1.15 ms；最终 RSS 比基线增加 6.78 MiB，损坏语义缓存与进程重启恢复通过。
 
