@@ -2,6 +2,8 @@
 
 最后更新：2026-09-15。状态必须以源码和本页列出的验证命令为依据。
 
+2026-09-15 Alpha 启动门禁增量：新增只读 `pnpm alpha:preflight`，从 `candidate.json` 验证干净完整提交、三个角色唯一的 VSIX、文件大小与 SHA-256、受支持/拒绝扩展注册表，再核对 Composer 项目、WSL 和项目 PHP 包装器次版本。当前候选分别以 Winstar `bin/php-runtime` 8.5 和 CoreRepo `phpbin` 7.2 通过非编辑器确定性预检。严格编辑器探针准确拒绝了当前非隔离环境：命令不在 VS Code WSL 集成终端运行，且 Open Source Pack 与 Recommended Pack 同时安装；七个冻结外部扩展与核心版本均准确。CLI 无法读取扩展启用状态，因此 Intelephense 与 Symfony Language Tools 是否禁用，以及 Extension Host 归属和两小时交互，仍保留人工验收。全仓共 690 项测试、十六个隔离 tarball、三个 VSIX 内容和 VS Code 1.137.0 Linux x64 打包 Extension Host 均通过。证据见 [Alpha 环境预检](reports/alpha-preflight-2026-09-15.md)。
+
 2026-09-15 P4 原生 closure/arrow 变量调用增量：直接局部赋值及最多八层不可变直接别名复用闭包原生参数、默认值和返回契约，提供 Signature Help、缺参/错参诊断及显式或完整可证明的返回传播；重赋值、控制流赋值、引用修改和包装调用保持 unknown。semantic snapshot 升至 schema 76，持久缓存升至 v48。十六个组件 651 项与根扩展 35 项测试、十六个隔离 tarball、三份 VSIX 内容及 VS Code 1.137.0 Linux x64 打包 Extension Host 均通过。提交 `39cc6c6` 的 [CI 34968267703](https://github.com/sohophp/php-companion/actions/runs/34968267703) 18/18 成功；最新私有候选绑定同一功能提交。P4 调用传播总项保持开放。证据见[原生 closure/arrow 变量调用契约验收](reports/native-closure-variable-callable-2026-09-15.md)。
 
 2026-09-15 P4 局部 PHPDoc callable 别名增量：紧邻赋值的 callable `@var` 注解和同块独立 callable `@var` 断言现在可沿一次非控制流、未修改的直接局部别名传播，别名调用保留 Signature Help、具名参数、缺参/错参诊断和返回成员补全。来源在别名前后被读取或修改、别名重赋值、引用修改或控制流内赋值保持 unknown；参数 callable 的既有一次别名也新增控制流门禁。semantic 与真实 stdio 回归覆盖两类来源、签名、结果补全、缺参、错参和三类反例。十六个组件 648 项与根扩展 35 项测试全部通过，共 683 项；十六个隔离 tarball、三份 VSIX 内容和 VS Code 1.137.0 Linux x64 打包宿主通过。提交 `9c861a7` 的 [CI 34962544589](https://github.com/sohophp/php-companion/actions/runs/34962544589) 18/18 成功。P4 调用传播总项保持开放。证据见[局部 PHPDoc callable 别名传播验收](reports/local-phpdoc-callable-alias-2026-09-15.md)。

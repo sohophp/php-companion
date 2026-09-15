@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-09-15T12:48:34.452Z",
+  "candidate": {
+    "directory": "/var/www/node/php-companion/artifacts/php-companion-alpha-0.4.5-39cc6c66",
+    "commit": "39cc6c662f690e90c386e818742c8dd749097c94",
+    "artifacts": [
+      {
+        "file": "php-companion-0.4.5.vsix",
+        "bytes": 880825,
+        "sha256": "97382134a4267099e822947863ba99292d4c310f6a6b0abe19fa430f15704840",
+        "valid": true
+      },
+      {
+        "file": "php-companion-open-source-pack-0.4.5.vsix",
+        "bytes": 67469,
+        "sha256": "b7b00967f17ff28dc0e6b297c3935e46460a3f6235e75165eb39512b0ac0a188",
+        "valid": true
+      },
+      {
+        "file": "php-companion-recommended-pack-0.4.5.vsix",
+        "bytes": 76496,
+        "sha256": "ceef1af06b47d993fe929608ab63640a45399d02ca2c808922032302189027c5",
+        "valid": true
+      }
+    ]
+  },
+  "workspace": {
+    "root": "/var/www/php/8.5/winstar2024",
+    "composer": "/var/www/php/8.5/winstar2024/composer.json"
+  },
+  "php": {
+    "command": "/var/www/php/8.5/winstar2024/bin/php-runtime",
+    "expected": "8.5",
+    "status": 0,
+    "stdout": "8.5",
+    "stderr": ""
+  },
+  "environment": {
+    "wsl": true,
+    "kernelRelease": "5.15.167.4-microsoft-standard-WSL2",
+    "vscodeTerminal": false
+  },
+  "editor": {
+    "command": "code",
+    "probe": {
+      "status": 0,
+      "stdout": "Extensions installed on WSL: RockyLinux8:\nbmewburn.vscode-intelephense-client@1.18.5\ncweijan.dbclient-jdbc@1.4.6\ncweijan.vscode-database-client2@9.0.2\neditorconfig.editorconfig@0.18.2\neiminsasete.apacheconf-snippets@1.4.0\nfolke.vscode-monorepo-workspace@1.3.1\njunstyle.php-cs-fixer@0.3.21\nmrmlnc.vscode-apache@1.2.0\nms-playwright.playwright@1.1.19\nopenai.chatgpt@26.908.40401\npranaygp.vscode-css-peek@4.4.3\nrecca0120.vscode-phpunit@3.9.40\nredhat.vscode-xml@0.29.3\nredhat.vscode-yaml@1.24.0\nshd101wyy.markdown-preview-enhanced@0.8.35\nsohophp.php-companion@0.4.5\nsohophp.php-companion-open-source-pack@0.4.5\nsohophp.php-companion-recommended-pack@0.4.5\nsohophp.twig-plus@1.3.7\nstreetsidesoftware.code-spell-checker@4.9.3\nsymfony.language-tools@0.20.1\ntomsaunders.vscode-workspace-explorer@1.5.0\nxdebug.php-debug@1.40.1",
+      "stderr": ""
+    },
+    "assessment": {
+      "required": [
+        {
+          "id": "sohophp.twig-plus",
+          "expected": "1.3.7",
+          "installed": "1.3.7"
+        },
+        {
+          "id": "redhat.vscode-yaml",
+          "expected": "1.24.0",
+          "installed": "1.24.0"
+        },
+        {
+          "id": "redhat.vscode-xml",
+          "expected": "0.29.3",
+          "installed": "0.29.3"
+        },
+        {
+          "id": "xdebug.php-debug",
+          "expected": "1.40.1",
+          "installed": "1.40.1"
+        },
+        {
+          "id": "recca0120.vscode-phpunit",
+          "expected": "3.9.40",
+          "installed": "3.9.40"
+        },
+        {
+          "id": "junstyle.php-cs-fixer",
+          "expected": "0.3.21",
+          "installed": "0.3.21"
+        },
+        {
+          "id": "EditorConfig.EditorConfig",
+          "expected": "0.18.2",
+          "installed": "0.18.2"
+        }
+      ],
+      "missing": [],
+      "mismatched": [],
+      "productMissing": [],
+      "productMismatched": [],
+      "installedPacks": [
+        {
+          "role": "open-source-pack",
+          "id": "sohophp.php-companion-open-source-pack",
+          "expected": "0.4.5",
+          "installed": "0.4.5"
+        },
+        {
+          "role": "recommended-pack",
+          "id": "sohophp.php-companion-recommended-pack",
+          "expected": "0.4.5",
+          "installed": "0.4.5"
+        }
+      ],
+      "competingInstalled": [
+        "bmewburn.vscode-intelephense-client",
+        "symfony.language-tools"
+      ]
+    }
+  },
+  "gates": {
+    "deterministicPassed": false,
+    "errors": [
+      {
+        "code": "vscode-remote-terminal-required",
+        "message": "Run strict editor preflight from the VS Code WSL integrated terminal."
+      },
+      {
+        "code": "profile-pack-count",
+        "message": "Install exactly one of the Open Source Pack or Recommended Pack in the Alpha Profile."
+      }
+    ],
+    "manualPending": [
+      "Confirm PHP Companion and workspace extensions run in the WSL Extension Host.",
+      "Confirm every installed competing PHP provider is disabled for this Profile.",
+      "Complete and record the two-hour Winstar and CoreRepo editing sessions."
+    ]
+  }
+}
