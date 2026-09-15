@@ -1,3 +1,4 @@
+- PHP 语义快照升级到 schema 74：文件级实现事实与每个唯一函数、方法、Property Hook 的实现事实成为独立记录；Language Server v46 分别校验源码、声明、文件实现、每条 callable 实现、派生层和框架事实。重复 callable 身份保守留在文件记录，记录搬移、复制、范围或内容篡改均拒绝恢复。
 - 新增 `pnpm candidate:alpha` 私有候选组装门禁：只接受干净提交，把三个已验证 VSIX、源码提交、文件大小、SHA-256 和冻结外部插件版本写入独立候选目录，并生成中文安装说明；机器清单同时冻结拒绝的 Symfony Language Tools 0.20.1 与 DotJoshJohnson XML Tools 2.5.1，该命令不执行 Marketplace/npm 发布。
 - 提交 `c28cf43` 的 CI 以 18/18 通过 Linux、Windows、macOS Quality、打包 Extension Host、七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
 - v45 热恢复现在先注册声明表，并把实现数组保持为按文件延迟记录；工作区类型/函数/常量/符号目录不触发正文装载，首次正文查询通过统一 getter 原子装载完整实现。10,000 文件基准中索引完成时 10,000 个实现均延迟，传递 readonly 查询只装载 3 个相关文件。

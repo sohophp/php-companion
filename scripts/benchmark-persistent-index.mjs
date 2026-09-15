@@ -16,7 +16,7 @@ const files = Number(arguments_[0] ?? 1_000);
 if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
 
 const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));
-const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v45-layered-records-benchmark';
+const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v46-callable-records-benchmark';
 const sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);
 const uri = (index) => pathToFileURL(sourcePath(index)).toString();
 const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Mapping as ORM; #[ORM\\Entity] class Base { #[ORM\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;
@@ -62,6 +62,10 @@ try {
   if (warm.frameworkParsed !== 0 || warm.controllerContexts !== 1 || warm.doctrineProperties !== 1) throw new Error(`Warm framework facts were not restored exactly: ${JSON.stringify(warm)}`);
   const deferredImplementations = warmWorkspace.deferredImplementationCount();
   if (deferredImplementations !== files) throw new Error(`Warm index eagerly loaded implementation records: ${deferredImplementations}/${files} remained deferred.`);
+  const callableImplementationRecords = Array.from({ length: files }, (_, index) => warmWorkspace.callableImplementationStates(uri(index)))
+    .flat();
+  if (callableImplementationRecords.length === 0 || callableImplementationRecords.some((record) => record.state !== 'deferred'))
+    throw new Error('Warm index did not preserve independently observable deferred callable implementation records.');
   const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
   if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
@@ -75,16 +79,29 @@ try {
   const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');
   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
   const baseEntry = persisted.entries[sourcePath(0)];
-  if (!baseEntry?.payload?.semantic?.declaration || !baseEntry?.payload?.semantic?.implementation
+  if (!baseEntry?.payload?.semantic?.declaration || !baseEntry?.payload?.semantic?.implementation?.file
+    || !Array.isArray(baseEntry?.payload?.semantic?.implementation?.callables)
     || !baseEntry?.payload?.semantic?.layers?.referenceCandidates
-    || !['declaration', 'implementation', 'layers', 'facts'].every((key) => /^[0-9a-f]{64}$/.test(baseEntry?.payload?.checksums?.[key] ?? '')))
-    throw new Error('Persistent cache did not contain separately checksummed declaration, implementation, derived, and framework records.');
+    || !['source', 'declaration', 'implementationFile', 'layers', 'facts'].every((key) => /^[0-9a-f]{64}$/.test(baseEntry?.payload?.checksums?.[key] ?? ''))
+    || !Array.isArray(baseEntry?.payload?.checksums?.callableImplementations)
+    || baseEntry.payload.semantic.implementation.callables.length === 0
+    || baseEntry.payload.checksums.callableImplementations.length !== baseEntry.payload.semantic.implementation.callables.length
+    || !baseEntry.payload.checksums.callableImplementations.every((record) => typeof record.identity === 'string' && /^[0-9a-f]{64}$/.test(record.checksum)))
+    throw new Error('Persistent cache did not contain separately checksummed source, declaration, file implementation, callable implementation, derived, and framework records.');
   baseEntry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
   await writeFile(cacheFile, JSON.stringify(persisted));
   const recoveredWorkspace = new SemanticWorkspace(parser); const recovered = await load(recoveredWorkspace);
   if (recovered.result.cached !== files - 1 || recovered.parsed !== 1) throw new Error(`Layer corruption did not rebuild exactly one file: ${JSON.stringify(recovered)}`);
   if (recoveredWorkspace.workspaceTypes().filter((item) => item.fqcn === 'Benchmark\\Base').length !== 1) throw new Error('Layer corruption recovery lost the rebuilt declaration.');
   recoveredWorkspace.dispose();
+
+  const callablePersisted = JSON.parse(await readFile(cacheFile, 'utf8'));
+  const callableEntry = callablePersisted.entries[sourcePath(0)];
+  callableEntry.payload.semantic.implementation.callables[0].facts.rawNames.push({ text: 'corrupt', start: 0, end: 1, context: 'code' });
+  await writeFile(cacheFile, JSON.stringify(callablePersisted));
+  const callableRecoveredWorkspace = new SemanticWorkspace(parser); const callableRecovered = await load(callableRecoveredWorkspace);
+  if (callableRecovered.result.cached !== files - 1 || callableRecovered.parsed !== 1) throw new Error(`Callable record corruption did not rebuild exactly one file: ${JSON.stringify(callableRecovered)}`);
+  callableRecoveredWorkspace.dispose();
 
   process.stdout.write(`${JSON.stringify({
     schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
@@ -93,7 +110,8 @@ try {
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
     exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true,
       callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
-      corruptLayerReparsedFiles: recovered.parsed },
+      callableImplementationRecords: callableImplementationRecords.length,
+      corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed },
   }, null, 2)}\n`);
 } finally {
   parser.dispose(); await rm(root, { recursive: true, force: true });

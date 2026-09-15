@@ -43,9 +43,7 @@ export interface SemanticDeclarationSnapshot {
   genericParents: SemanticGenericParent[];
   magicMembers: SemanticMagicMember[];
 }
-export interface SemanticImplementationSnapshot {
-  uri: string;
-  source: string;
+export interface SemanticImplementationFacts {
   typeReferences: ParsedTypeReference[];
   assignments: ParsedAssignment[];
   rawNames: RawName[];
@@ -60,11 +58,29 @@ export interface SemanticImplementationSnapshot {
   stringRanges: SourceRange[];
   controlFlowAssignments: number[];
 }
+export interface SemanticCallableImplementationRecord {
+  identity: string;
+  kind: 'callable' | 'property-hook';
+  start: number;
+  end: number;
+  facts: SemanticImplementationFacts;
+}
+export interface SemanticCallableImplementationState {
+  identity: string;
+  kind: SemanticCallableImplementationRecord['kind'];
+  state: 'deferred' | 'loaded';
+}
+export interface SemanticImplementationSnapshot {
+  uri: string;
+  source: string;
+  file: SemanticImplementationFacts;
+  callables: SemanticCallableImplementationRecord[];
+}
 export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: string; default?: string; variance: GenericVariance; }
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 73;
+  schema: 74;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -563,34 +579,112 @@ function declarationSnapshot(file: SemanticFile): SemanticDeclarationSnapshot {
   };
 }
 
-function implementationSnapshot(file: SemanticFile, controlFlowAssignments: Iterable<number> = []): SemanticImplementationSnapshot {
+const IMPLEMENTATION_ARRAY_FIELDS = [
+  'typeReferences', 'assignments', 'rawNames', 'memberAccesses', 'calls', 'scopes', 'variableReferences',
+  'returns', 'narrowings', 'syntaxErrors', 'commentRanges', 'stringRanges',
+] as const;
+
+function emptyImplementationFacts(): SemanticImplementationFacts {
   return {
-    uri: file.uri, source: file.source, typeReferences: file.typeReferences, assignments: file.assignments,
-    rawNames: file.rawNames, memberAccesses: file.memberAccesses, calls: file.calls, scopes: file.scopes,
+    typeReferences: [], assignments: [], rawNames: [], memberAccesses: [], calls: [], scopes: [], variableReferences: [],
+    returns: [], narrowings: [], syntaxErrors: [], commentRanges: [], stringRanges: [], controlFlowAssignments: [],
+  };
+}
+
+function completeImplementationFacts(file: SemanticFile, controlFlowAssignments: Iterable<number> = []): SemanticImplementationFacts {
+  return {
+    typeReferences: file.typeReferences, assignments: file.assignments, rawNames: file.rawNames,
+    memberAccesses: file.memberAccesses, calls: file.calls, scopes: file.scopes,
     variableReferences: file.variableReferences, returns: file.returns, narrowings: file.narrowings,
     syntaxErrors: file.syntaxErrors, commentRanges: file.commentRanges, stringRanges: file.stringRanges,
     controlFlowAssignments: [...controlFlowAssignments].sort((left, right) => left - right),
   };
 }
 
+type ImplementationRange = Omit<SemanticCallableImplementationRecord, 'facts'>;
+
+function callableImplementationRanges(file: SemanticFile): ImplementationRange[] {
+  const candidates: ImplementationRange[] = [
+    ...file.callables.map((callable) => ({
+      identity: callable.fqcn.toLowerCase(), kind: 'callable' as const,
+      start: callable.declarationStart, end: callable.declarationEnd,
+    })),
+    ...file.properties.filter((property) => property.hooks?.some((hook) => !hook.abstract)).map((property) => ({
+      identity: `${property.containerFqcn.toLowerCase()}::$${property.name}`, kind: 'property-hook' as const,
+      start: property.declarationStart, end: property.declarationEnd,
+    })),
+  ];
+  const counts = new Map<string, number>();
+  for (const candidate of candidates) counts.set(candidate.identity, (counts.get(candidate.identity) ?? 0) + 1);
+  return candidates.filter((candidate) => counts.get(candidate.identity) === 1)
+    .sort((left, right) => left.start - right.start || left.end - right.end || left.identity.localeCompare(right.identity));
+}
+
+function containingImplementationRange(ranges: ImplementationRange[], start: number, end: number): ImplementationRange | undefined {
+  let result: ImplementationRange | undefined;
+  for (const range of ranges) {
+    if (range.start > start) break;
+    if (start < range.start || end > range.end) continue;
+    if (!result || range.end - range.start < result.end - result.start) result = range;
+  }
+  return result;
+}
+
+function implementationSnapshot(file: SemanticFile, controlFlowAssignments: Iterable<number> = []): SemanticImplementationSnapshot {
+  const complete = completeImplementationFacts(file, controlFlowAssignments);
+  const ranges = callableImplementationRanges(file); const fileFacts = emptyImplementationFacts();
+  const records = new Map(ranges.map((range) => [range.identity, { ...range, facts: emptyImplementationFacts() }]));
+  for (const field of IMPLEMENTATION_ARRAY_FIELDS) {
+    for (const fact of complete[field]) {
+      const owner = containingImplementationRange(ranges, fact.start, fact.end);
+      (owner ? records.get(owner.identity)!.facts : fileFacts)[field].push(fact as never);
+    }
+  }
+  for (const offset of complete.controlFlowAssignments) {
+    const owner = containingImplementationRange(ranges, offset, offset);
+    (owner ? records.get(owner.identity)!.facts : fileFacts).controlFlowAssignments.push(offset);
+  }
+  return { uri: file.uri, source: file.source, file: fileFacts, callables: [...records.values()] };
+}
+
+function mergedImplementationFacts(implementation: SemanticImplementationSnapshot): SemanticImplementationFacts {
+  const merged = emptyImplementationFacts(); const records = [implementation.file, ...implementation.callables.map((record) => record.facts)];
+  for (const field of IMPLEMENTATION_ARRAY_FIELDS) {
+    const values = records.flatMap((record) => record[field]) as SourceRange[];
+    values.sort((left, right) => field === 'rawNames'
+      ? Number((left as RawName).context === 'code') - Number((right as RawName).context === 'code')
+        || left.start - right.start || left.end - right.end
+      : left.start - right.start || left.end - right.end);
+    merged[field] = values as never;
+  }
+  merged.controlFlowAssignments = records.flatMap((record) => record.controlFlowAssignments).sort((left, right) => left - right);
+  return merged;
+}
+
+function validImplementationFacts(value: unknown, sourceLength: number): value is SemanticImplementationFacts {
+  if (!value || typeof value !== 'object') return false;
+  const facts = value as Partial<SemanticImplementationFacts>;
+  if (!IMPLEMENTATION_ARRAY_FIELDS.every((field) => Array.isArray(facts[field]))
+    || !Array.isArray(facts.controlFlowAssignments)
+    || !facts.controlFlowAssignments.every((offset) => Number.isSafeInteger(offset) && offset >= 0 && offset <= sourceLength)
+    || new Set(facts.controlFlowAssignments).size !== facts.controlFlowAssignments.length) return false;
+  return Array.isArray(facts.scopes) && facts.scopes.every((scope) => Array.isArray(scope.captures));
+}
+
 function semanticFileSnapshot(declaration: SemanticDeclarationSnapshot, implementation: SemanticImplementationSnapshot): SemanticFileSnapshot {
+  const facts = mergedImplementationFacts(implementation);
   return {
     uri: declaration.uri, source: implementation.source, namespace: declaration.namespace,
     declarations: declaration.declarations, callables: declaration.callables, properties: declaration.properties,
     constants: declaration.constants, imports: declaration.imports, templates: declaration.templates,
     genericParents: declaration.genericParents, magicMembers: declaration.magicMembers,
-    typeReferences: implementation.typeReferences, assignments: implementation.assignments,
-    rawNames: implementation.rawNames, memberAccesses: implementation.memberAccesses, calls: implementation.calls,
-    scopes: implementation.scopes, variableReferences: implementation.variableReferences, returns: implementation.returns,
-    narrowings: implementation.narrowings, syntaxErrors: implementation.syntaxErrors,
-    commentRanges: implementation.commentRanges, stringRanges: implementation.stringRanges,
+    typeReferences: facts.typeReferences, assignments: facts.assignments,
+    rawNames: facts.rawNames, memberAccesses: facts.memberAccesses, calls: facts.calls,
+    scopes: facts.scopes, variableReferences: facts.variableReferences, returns: facts.returns,
+    narrowings: facts.narrowings, syntaxErrors: facts.syntaxErrors,
+    commentRanges: facts.commentRanges, stringRanges: facts.stringRanges,
   };
 }
-
-const IMPLEMENTATION_ARRAY_FIELDS = [
-  'typeReferences', 'assignments', 'rawNames', 'memberAccesses', 'calls', 'scopes', 'variableReferences',
-  'returns', 'narrowings', 'syntaxErrors', 'commentRanges', 'stringRanges',
-] as const;
 
 function changedMapKeys(left: ReadonlyMap<string, unknown>, right: ReadonlyMap<string, unknown>): Set<string> {
   const keys = new Set([...left.keys(), ...right.keys()]);
@@ -656,11 +750,12 @@ export class SemanticWorkspace {
   private loadImplementation(uri: string): void {
     const implementation = this.deferredImplementations.get(uri); const file = this.files.get(uri);
     if (!implementation || !file) return;
+    const facts = mergedImplementationFacts(implementation);
     this.deferredImplementations.delete(uri);
     for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {
-      configurable: true, enumerable: true, writable: true, value: implementation[field],
+      configurable: true, enumerable: true, writable: true, value: facts[field],
     });
-    this.controlFlowAssignments.set(uri, new Set(implementation.controlFlowAssignments));
+    this.controlFlowAssignments.set(uri, new Set(facts.controlFlowAssignments));
   }
 
   implementationState(uri: string): 'absent' | 'deferred' | 'loaded' {
@@ -668,6 +763,13 @@ export class SemanticWorkspace {
   }
 
   deferredImplementationCount(): number { return this.deferredImplementations.size; }
+
+  callableImplementationStates(uri: string): SemanticCallableImplementationState[] {
+    const deferred = this.deferredImplementations.get(uri);
+    if (deferred) return deferred.callables.map(({ identity, kind }) => ({ identity, kind, state: 'deferred' }));
+    const file = this.files.get(uri);
+    return file ? callableImplementationRanges(file).map(({ identity, kind }) => ({ identity, kind, state: 'loaded' })) : [];
+  }
 
   private replaceReferenceCandidates(file: SemanticFile): void {
     if (this.referenceCandidates.replace(file.uri, referenceCandidateKeys(file))) this.unindexedReferenceCandidateUris.delete(file.uri);
@@ -1139,7 +1241,7 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
-      schema: 73,
+      schema: 74,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1230,9 +1332,11 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 73 || !declaration || !implementation
+    if (value?.schema !== 74 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
+      || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
+      || !validImplementationFacts(implementation.file, implementation.source.length)
       || (expectedUri !== undefined && declaration.uri !== expectedUri)
       || !references || typeof references.indexed !== 'boolean' || !Array.isArray(references.keys)
       || references.keys.length > 100_000 || !references.keys.every((key) => typeof key === 'string' && key.length > 0 && key.length <= 1_024)
@@ -1243,16 +1347,18 @@ export class SemanticWorkspace {
         && node.dependencies.every((dependency) => typeof dependency === 'string' && dependency.length > 0 && dependency.length <= 1_024))
       || new Set(dependencies.nodes.map((node) => node.key)).size !== dependencies.nodes.length) return false;
     if (![declaration.declarations, declaration.callables, declaration.imports, declaration.properties, declaration.constants,
-      declaration.templates, declaration.genericParents, declaration.magicMembers,
-      implementation.typeReferences, implementation.assignments, implementation.rawNames, implementation.memberAccesses,
-      implementation.calls, implementation.narrowings, implementation.variableReferences, implementation.returns,
-      implementation.syntaxErrors, implementation.commentRanges, implementation.stringRanges].every(Array.isArray)
-      || !Array.isArray(implementation.controlFlowAssignments)) return false;
-    if (!implementation.controlFlowAssignments.every((offset) => Number.isSafeInteger(offset)
-      && offset >= 0 && offset <= implementation.source!.length)
-      || new Set(implementation.controlFlowAssignments).size !== implementation.controlFlowAssignments.length) return false;
-    if (!Array.isArray(implementation.scopes) || !implementation.scopes.every((scope) => Array.isArray(scope.captures))) return false;
+      declaration.templates, declaration.genericParents, declaration.magicMembers].every(Array.isArray)) return false;
+    if (!implementation.callables.every((record) => record && typeof record === 'object'
+      && typeof record.identity === 'string' && record.identity.length > 0 && record.identity.length <= 1_024
+      && (record.kind === 'callable' || record.kind === 'property-hook')
+      && Number.isSafeInteger(record.start) && Number.isSafeInteger(record.end)
+      && record.start >= 0 && record.end >= record.start && record.end <= implementation.source!.length
+      && validImplementationFacts(record.facts, implementation.source!.length))) return false;
+    const implementationFacts = mergedImplementationFacts(implementation as SemanticImplementationSnapshot);
+    if (new Set(implementationFacts.controlFlowAssignments).size !== implementationFacts.controlFlowAssignments.length) return false;
     const restoredFile = semanticFileSnapshot(declaration as SemanticDeclarationSnapshot, implementation as SemanticImplementationSnapshot);
+    const canonicalImplementation = implementationSnapshot(restoredFile, implementationFacts.controlFlowAssignments);
+    if (JSON.stringify(canonicalImplementation) !== JSON.stringify(implementation)) return false;
     const expectedReferenceKeys = [...referenceCandidateKeys(restoredFile)].sort();
     const expectedDependencyNodes = this.typeDependencyNodes(restoredFile)
       .map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() }))
@@ -1262,7 +1368,7 @@ export class SemanticWorkspace {
       || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
-    this.controlFlowAssignments.set(restoredFile.uri, new Set((implementation as SemanticImplementationSnapshot).controlFlowAssignments));
+    this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
     if (references.indexed) {
       this.referenceCandidates.replace(restoredFile.uri, references.keys); this.unindexedReferenceCandidateUris.delete(restoredFile.uri);
     } else {

@@ -14,12 +14,14 @@ export interface ProjectPhpFileFacts {
 }
 
 export interface CachedProjectPhpFile {
-  schema: 2;
+  schema: 3;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
   checksums: {
+    source: string;
     declaration: string;
-    implementation: string;
+    implementationFile: string;
+    callableImplementations: Array<{ identity: string; checksum: string }>;
     layers: string;
     facts: string;
   };
@@ -119,15 +121,17 @@ export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string,
 }
 
 export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): CachedProjectPhpFile {
-  return { schema: 2, semantic, facts, checksums: {
-    declaration: recordChecksum(semantic.declaration), implementation: recordChecksum(semantic.implementation),
+  return { schema: 3, semantic, facts, checksums: {
+    source: recordChecksum(semantic.implementation.source), declaration: recordChecksum(semantic.declaration),
+    implementationFile: recordChecksum(semantic.implementation.file),
+    callableImplementations: semantic.implementation.callables.map((record) => ({ identity: record.identity, checksum: recordChecksum(record) })),
     layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
   }, checksum: payloadChecksum(semantic, facts) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string, snapshotVersion: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 2 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+  if (!isRecord(value) || value.schema !== 3 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
     || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
@@ -137,9 +141,17 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   const checksums = value.checksums;
   if (!declaration || !implementation || !layers || declaration.uri !== expectedUri || implementation.uri !== expectedUri
     || !isString(implementation.source, Number.MAX_SAFE_INTEGER)
+    || !isRecord(implementation.file) || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
     || expectedSource !== undefined && implementation.source !== expectedSource
+    || !isChecksum(checksums.source) || checksums.source !== recordChecksum(implementation.source)
     || !isChecksum(checksums.declaration) || checksums.declaration !== recordChecksum(declaration)
-    || !isChecksum(checksums.implementation) || checksums.implementation !== recordChecksum(implementation)
+    || !isChecksum(checksums.implementationFile) || checksums.implementationFile !== recordChecksum(implementation.file)
+    || !Array.isArray(checksums.callableImplementations)
+    || checksums.callableImplementations.length !== implementation.callables.length
+    || !checksums.callableImplementations.every((entry, index) => isRecord(entry) && isString(entry.identity, 1_024)
+      && isChecksum(entry.checksum) && isRecord(implementation.callables[index])
+      && entry.identity === implementation.callables[index].identity
+      && entry.checksum === recordChecksum(implementation.callables[index]))
     || !isChecksum(checksums.layers) || checksums.layers !== recordChecksum(layers)
     || !isChecksum(checksums.facts) || checksums.facts !== recordChecksum(facts)
     || facts.schema !== 1 || !Array.isArray(facts.controllerContexts) || facts.controllerContexts.length > 10_000
@@ -149,7 +161,7 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
     || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
     || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
     || payloadChecksum(semantic, facts) !== value.checksum) return undefined;
-  return { schema: 2, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts: { ...facts,
+  return { schema: 3, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts: { ...facts,
     controllerContexts: rebaseContexts(facts.controllerContexts, snapshotVersion),
   } };
 }
