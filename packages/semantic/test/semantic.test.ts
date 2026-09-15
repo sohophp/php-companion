@@ -5249,6 +5249,60 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$unset($input)') + '$unset('.length)).toEqual([]);
     expect(workspace.signatures('file:///ClosureLiteralContracts.php', source.indexOf('$wrapped($input)') + '$wrapped('.length)).toEqual([]);
   });
+  it('uses a unique public instance __invoke contract for object calls', () => {
+    const source = `<?php declare(strict_types=1); namespace InvokableObjectContracts;
+      class Input {} class Result { public function done(): void {} }
+      class Handler { public function __invoke(Input $value, string $label = 'ready'): Result { return new Result(); } }
+      class ChildHandler extends Handler {}
+      interface HandlerContract { public function __invoke(Input $value): Result; }
+      class OtherHandler { public function __invoke(string $value): Result { return new Result(); } }
+      class HiddenHandler { private function __invoke(Input $value): Result { return new Result(); } }
+      function run(Handler $handler, ChildHandler $child, HandlerContract $contract, ?Handler $nullable,
+        Handler|OtherHandler $ambiguous, HiddenHandler $hidden, Input $input): void {
+        $result = $handler(value: $input); $result->do;
+        $childResult = $child($input); $childResult->do;
+        $contractResult = $contract($input); $contractResult->do;
+        $alias = $handler; $aliasResult = $alias($input); $aliasResult->do;
+        $handler();
+        $handler('invalid');
+        $nullable($input);
+        $ambiguous($input);
+        $hidden($input);
+      }`;
+    workspace.update('file:///InvokableObjectContracts.php', source);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$handler(value:') + '$handler('.length)).toMatchObject([
+      { name: '$handler', fqcn: 'InvokableObjectContracts\\Handler::__invoke', parameters: [
+        { name: 'value', nativeType: 'Input' },
+        { name: 'label', nativeType: 'string', defaultValue: "'ready'" },
+      ], returnType: 'Result' },
+    ]);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$child($input)') + '$child('.length)).toMatchObject([
+      { name: '$child', fqcn: 'InvokableObjectContracts\\Handler::__invoke', returnType: 'Result' },
+    ]);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$alias($input)') + '$alias('.length)).toMatchObject([
+      { name: '$alias', fqcn: 'InvokableObjectContracts\\Handler::__invoke', returnType: 'Result' },
+    ]);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$contract($input)') + '$contract('.length)).toMatchObject([
+      { name: '$contract', fqcn: 'InvokableObjectContracts\\HandlerContract::__invoke', returnType: 'Result' },
+    ]);
+    expect(workspace.missingRequiredArguments('file:///InvokableObjectContracts.php')).toEqual([
+      expect.objectContaining({ callable: 'InvokableObjectContracts\\Handler::__invoke', parameters: ['value'] }),
+    ]);
+    expect(workspace.incompatibleArguments('file:///InvokableObjectContracts.php')).toEqual([
+      expect.objectContaining({ callable: 'InvokableObjectContracts\\Handler::__invoke', parameter: 'value', actualType: 'string', expectedType: 'InvokableObjectContracts\\Input' }),
+    ]);
+    expect(workspace.completeMembers('file:///InvokableObjectContracts.php', source.indexOf('$result->do') + '$result->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.completeMembers('file:///InvokableObjectContracts.php', source.indexOf('$childResult->do') + '$childResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.completeMembers('file:///InvokableObjectContracts.php', source.indexOf('$aliasResult->do') + '$aliasResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.completeMembers('file:///InvokableObjectContracts.php', source.indexOf('$contractResult->do') + '$contractResult->do'.length)
+      .map((item) => item.name)).toEqual(['done']);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$nullable($input)') + '$nullable('.length)).toEqual([]);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$ambiguous($input)') + '$ambiguous('.length)).toEqual([]);
+    expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$hidden($input)') + '$hidden('.length)).toEqual([]);
+  });
   it('serves PHPDoc Callable parameter signatures and direct invocation diagnostics', () => {
     const source = `<?php declare(strict_types=1); namespace CallableContracts;
       class Input {} class Result { public function done(): void {} }

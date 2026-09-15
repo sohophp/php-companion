@@ -1,5 +1,6 @@
 # Changelog
 
+- Resolve a uniquely proven non-null object's public instance `__invoke()` as its variable-call contract, including inherited and interface declarations, local aliases, argument diagnostics, and result propagation; nullable, ambiguous, non-public, static, and unresolved targets remain unknown.
 - Reuse direct native closure/arrow assignments and bounded immutable aliases for variable-call signatures, precise argument diagnostics, and proven return propagation; advance snapshots to schema 76.
 - Propagate local PHPDoc Callable assignment and standalone assertion contracts through one immutable, unconditional direct alias while rejecting source use/mutation and control-flow aliases.
 - Reuse same-block standalone local `@var callable(...)` assertions for first-use variable-call signatures, precise argument diagnostics, and return propagation while preserving mutation, prior-use, and block boundaries.

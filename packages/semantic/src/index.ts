@@ -5664,6 +5664,7 @@ export class SemanticWorkspace {
       const members = this.firstClassCallableSignatures(file, callableVariable[1]!, offset);
       if (!members.length) members.push(...this.phpDocCallableSignatures(file, callableVariable[1]!, callStart));
       if (!members.length) members.push(...this.closureLiteralSignatures(file, callableVariable[1]!, callStart));
+      if (!members.length) members.push(...this.invokableObjectSignatures(file, callableVariable[1]!, callStart));
       const compatible = this.methodCandidatesForArguments(members, callableVariable[2]!, completeAtCursor,
         file, offset - callableVariable[2]!.length);
       return (compatible.length ? compatible : members).map((member) => ({
@@ -5785,6 +5786,19 @@ export class SemanticWorkspace {
       visibility: 'public', static: false, typeScopeFqcn: scopeFqcn, calledOnFqcn: scopeFqcn,
       synthetic: 'closure-literal', activeParameter: 0, usedNamedArguments: [],
     }];
+  }
+
+  private invokableObjectSignatures(file: SemanticFile, variable: string, offset: number): SignatureInfo[] {
+    const target = this.variableClass(file, variable, offset, new Set(), true);
+    if (!target || target.nullable) return [];
+    const accessFrom = this.containingCallable(file, offset)?.containerFqcn
+      ?? this.containingScope(file, offset)?.containerFqcn;
+    const candidates = this.members(target.fqcn, accessFrom, new Set(), false, target.typeArguments)
+      .filter((member) => member.kind === 'method' && !member.static && member.visibility === 'public'
+        && member.name.toLowerCase() === '__invoke');
+    if (candidates.length !== 1) return [];
+    const member = this.withInferredGeneratorReturn(candidates[0]!);
+    return [{ ...member, name: variable, activeParameter: 0, usedNamedArguments: [] }];
   }
 
   private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {
