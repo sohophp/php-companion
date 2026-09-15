@@ -1,26 +1,26 @@
 {
   "schema": 1,
-  "generatedAt": "2026-09-15T12:48:16.077Z",
+  "generatedAt": "2026-09-15T13:10:47.840Z",
   "candidate": {
-    "directory": "/var/www/node/php-companion/artifacts/php-companion-alpha-0.4.5-39cc6c66",
-    "commit": "39cc6c662f690e90c386e818742c8dd749097c94",
+    "directory": "/var/www/node/php-companion/artifacts/php-companion-alpha-0.4.5-2413648e",
+    "commit": "2413648e2cd4135c671a5da9a71144cac04098ce",
     "artifacts": [
       {
         "file": "php-companion-0.4.5.vsix",
-        "bytes": 880825,
-        "sha256": "97382134a4267099e822947863ba99292d4c310f6a6b0abe19fa430f15704840",
+        "bytes": 881018,
+        "sha256": "01f9b13182d94fd8fa1d6e3c7c980edc473953f7d12a5a302dbb9556efeaaaa0",
         "valid": true
       },
       {
         "file": "php-companion-open-source-pack-0.4.5.vsix",
         "bytes": 67469,
-        "sha256": "b7b00967f17ff28dc0e6b297c3935e46460a3f6235e75165eb39512b0ac0a188",
+        "sha256": "88f5f87cb461c7f3266d8f2036bc8f0c3d81f5636b7b881715df8c841a880fd8",
         "valid": true
       },
       {
         "file": "php-companion-recommended-pack-0.4.5.vsix",
         "bytes": 76496,
-        "sha256": "ceef1af06b47d993fe929608ab63640a45399d02ca2c808922032302189027c5",
+        "sha256": "5e2cb36d90dd3159e11c96fc3f49f27f32350fa92aadab4513793c509118e768",
         "valid": true
       }
     ]

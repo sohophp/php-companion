@@ -4,17 +4,17 @@
 
 ## 候选产物
 
-`pnpm candidate:alpha` 最新在干净提交 `39cc6c662f690e90c386e818742c8dd749097c94` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-39cc6c66/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
+`pnpm candidate:alpha` 最新在干净提交 `2413648e2cd4135c671a5da9a71144cac04098ce` 上重新构建并验证三个 VSIX，生成本地目录 `artifacts/php-companion-alpha-0.4.5-2413648e/`。目录没有加入 Git，公开 npm、Marketplace、Git tag 与对外发布均未执行。
 
 | 角色 | 文件 | 字节 | SHA-256 |
 | --- | --- | ---: | --- |
-| PHP 核心 | `php-companion-0.4.5.vsix` | 880,825 | `97382134a4267099e822947863ba99292d4c310f6a6b0abe19fa430f15704840` |
-| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `b7b00967f17ff28dc0e6b297c3935e46460a3f6235e75165eb39512b0ac0a188` |
-| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `ceef1af06b47d993fe929608ab63640a45399d02ca2c808922032302189027c5` |
+| PHP 核心 | `php-companion-0.4.5.vsix` | 881,018 | `01f9b13182d94fd8fa1d6e3c7c980edc473953f7d12a5a302dbb9556efeaaaa0` |
+| Open Source Pack | `php-companion-open-source-pack-0.4.5.vsix` | 67,469 | `88f5f87cb461c7f3266d8f2036bc8f0c3d81f5636b7b881715df8c841a880fd8` |
+| Recommended Pack | `php-companion-recommended-pack-0.4.5.vsix` | 76,496 | `5e2cb36d90dd3159e11c96fc3f49f27f32350fa92aadab4513793c509118e768` |
 
 候选目录的 `sha256sum -c SHA256SUMS` 三项均返回 `OK`。`candidate.json` 同时记录 Node v22.14.0、Linux x64、完整源码提交、三个产物元数据、七个受支持扩展，以及被拒绝的 Symfony Language Tools 0.20.1 和 DotJoshJohnson XML Tools 2.5.1。
 
-提交 `39cc6c6` 的 [CI 34968267703](https://github.com/sohophp/php-companion/actions/runs/34968267703) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。
+提交 `2413648` 的 [CI 34973167989](https://github.com/sohophp/php-companion/actions/runs/34973167989) 18/18 成功，覆盖 Linux、Windows、macOS Quality、真实打包 Extension Host、冻结七扩展 Open Source Profile 与 PHP 7.2–8.5 运行时矩阵。该提交新增 Alpha 环境预检及可移植候选说明；核心 PHP 语义仍来自此前已验收的 `39cc6c6`。
 
 ## 最新真实项目门禁
 
@@ -42,4 +42,4 @@ Winstar 审计读取提交 `7c25439a8bdbc25055b14d3226e59a43f256bb4d` 上当前�
 
 ## 尚需人工关闭的门槛
 
-自动证据已覆盖 Linux、Windows、macOS 原生 CI 宿主、真实打包 VSIX、冻结七扩展组合和 PHP 7.2–8.5。Windows 客户端连接 WSL Remote 的扩展归属、路径解析与项目包装器仍需在实际 Remote 窗口验收；依赖完整的大型项目连续两小时交互也需要人工操作记录。执行步骤与阻断缺陷定义见 [Alpha 候选试用](../alpha-candidate.md)。
+自动证据已覆盖 Linux、Windows、macOS 原生 CI 宿主、真实打包 VSIX、冻结七扩展组合和 PHP 7.2–8.5。新增预检已确认 Winstar `bin/php-runtime` 为 8.5、CoreRepo `phpbin` 为 7.2，并且最终候选三项摘要有效；证据见 [Alpha 环境预检](alpha-preflight-2026-09-15.md)。Windows 客户端连接 WSL Remote 的扩展归属、路径解析与项目包装器仍需在实际 Remote 窗口验收；依赖完整的大型项目连续两小时交互也需要人工操作记录。执行步骤与阻断缺陷定义见 [Alpha 候选试用](../alpha-candidate.md)。
