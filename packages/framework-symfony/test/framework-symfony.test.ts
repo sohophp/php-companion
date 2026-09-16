@@ -61,6 +61,16 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('onController');
   });
 
+  it('accepts inherited subscriber callbacks only when a semantic validator proves them', () => {
+    const source = "<?php namespace App; use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface; final class ChildSubscriber implements EventSubscriberInterface { public static function getSubscribedEvents(): array { return ['app.inherited' => 'onInherited', 'app.trait' => 'onTrait', 'app.hidden' => 'hidden']; } }";
+    expect(analyzeSymfonyEventSubscriptions(parser, 'file:///src/ChildSubscriber.php', source)).toEqual([]);
+    const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/ChildSubscriber.php', source,
+      (_subscriber, listener) => ['onInherited', 'onTrait'].includes(listener));
+    expect(facts.map(({ event, listener }) => [event, listener])).toEqual([
+      ['app.inherited', 'onInherited'], ['app.trait', 'onTrait'],
+    ]);
+  });
+
   it('extracts exact class and method AsEventListener attributes with type inference', () => {
     const source = `<?php
       namespace App\\Events { final class FooEvent {} final class BarEvent {} }

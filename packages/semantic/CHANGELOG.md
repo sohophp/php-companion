@@ -1,5 +1,6 @@
 # Changelog
 
+- Expose one conservative effective public-instance-method query that resolves concrete inherited and Trait-composed declarations while requiring a complete parent/Trait graph.
 - Expose the currently loaded semantic document URIs so framework integrations can inspect bounded candidate files and retain semantic target validation.
 - Expose one reference-target lookup for class-member declarations and resolved member uses so framework integrations can attach implicit references to the same semantic identity.
 - Resolve exact instance and static callable arrays through bounded immutable aliases for variable-call signatures, argument diagnostics, and result propagation; reject nullable, visibility/static mismatches, dynamic names, control-flow sources and mutations, and advance snapshots to schema 77.

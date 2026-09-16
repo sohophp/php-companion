@@ -2251,6 +2251,24 @@ describe('conservative semantic workspace', () => {
     workspace.update('file:///TraitConsumer.php', external);
     expect(workspace.completeMembers('file:///TraitConsumer.php', external.indexOf('->') + 2).map((item) => item.name).sort()).toEqual(['exposed', 'inside', 'run']);
   });
+  it('resolves only effective public instance methods on complete class hierarchies', () => {
+    workspace.update('file:///ListenerBase.php', `<?php namespace ListenerMethods;
+      class Base { public function inherited(): void {} public static function staticListener(): void {} protected function hidden(): void {} }
+      trait Shared { public function fromTrait(): void {} private function privateTrait(): void {} }
+      class Listener extends Base { use Shared; public function own(): void {} }
+      class ListenerWithExternalContract implements MissingContract { public function local(): void {} }
+      class BrokenListener extends MissingBase { public function local(): void {} }
+    `);
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'own')?.fqcn).toBe('ListenerMethods\\Listener::own');
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'inherited')?.fqcn).toBe('ListenerMethods\\Base::inherited');
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'fromTrait')?.fqcn).toBe('ListenerMethods\\Shared::fromTrait');
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'staticListener')).toBeUndefined();
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'hidden')).toBeUndefined();
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'privateTrait')).toBeUndefined();
+    expect(workspace.publicInstanceMethod('ListenerMethods\\ListenerWithExternalContract', 'local')?.fqcn).toBe('ListenerMethods\\ListenerWithExternalContract::local');
+    expect(workspace.publicInstanceMethod('ListenerMethods\\BrokenListener', 'local')).toBeUndefined();
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Missing', 'own')).toBeUndefined();
+  });
   it('infers local variables from new and direct variable assignments', () => {
     workspace.update('file:///User.php', '<?php namespace App; class User { public function name(): string {} }');
     const source = '<?php namespace App; function run(): void { $user = new User(); $copy = $user; $copy->na }';

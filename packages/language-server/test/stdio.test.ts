@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { join, resolve, sep } from 'node:path';
-import { mkdtemp, mkdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -115,6 +115,15 @@ describe('language server stdio', () => {
             #[AsEventListener(ReadyEvent::class)]
             public function onAttribute(): void {}
           }
+          class ListenerBase { public function onInherited(): void {} private function hiddenListener(): void {} }
+          trait ListenerTrait { public function onTrait(): void {} public static function staticListener(): void {} }
+          final class DerivedListener extends ListenerBase implements EventSubscriberInterface {
+            use ListenerTrait;
+            public static function getSubscribedEvents(): array { return [
+              'app.inherited' => 'onInherited', 'app.trait' => 'onTrait',
+              'app.hidden' => 'hiddenListener', 'app.static' => 'staticListener',
+            ]; }
+          }
           final class Publisher {
             public function publish(EventDispatcherInterface $dispatcher, MessageBusInterface $bus): void {
               $dispatcher->dispatch(new ReadyEvent());
@@ -127,13 +136,19 @@ describe('language server stdio', () => {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(root, 'composer.lock'), '{}');
       await writeFile(sourcePath, source);
-      await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n    tags:\n      - { name: kernel.event_listener, event: 'app.yaml', method: onReady }\n      - { name: kernel.event_listener, event: 'app.invalid', method: missingMethod }\n");
+      await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n    tags:\n      - { name: kernel.event_listener, event: 'app.yaml', method: onReady }\n      - { name: kernel.event_listener, event: 'app.invalid', method: missingMethod }\n  App\\DerivedListener:\n    tags:\n      - { name: kernel.event_listener, event: 'app.yaml.inherited', method: onInherited }\n      - { name: kernel.event_listener, event: 'app.yaml.trait', method: onTrait }\n      - { name: kernel.event_listener, event: 'app.yaml.hidden', method: hiddenListener }\n      - { name: kernel.event_listener, event: 'app.yaml.static', method: staticListener }\n");
       const cacheDirectory = join(root, 'var', 'cache', 'dev'); await mkdir(cacheDirectory, { recursive: true });
       const compiledPath = join(cacheDirectory, 'App_KernelDevDebugContainer.xml'); const compiledUri = pathToFileURL(compiledPath).toString();
       await writeFile(compiledPath, `<?xml version="1.0"?><container><services>
         <service id="app.registered" class="App\\RegisteredService">
           <tag name="kernel.event_listener" event="app.compiled" method="onReady" priority="4"/>
           <tag name="kernel.event_listener" event="app.invalid" method="missingMethod"/>
+        </service>
+        <service id="app.derived" class="App\\DerivedListener">
+          <tag name="kernel.event_listener" event="app.compiled.inherited" method="onInherited"/>
+          <tag name="kernel.event_listener" event="app.compiled.trait" method="onTrait"/>
+          <tag name="kernel.event_listener" event="app.compiled.hidden" method="hiddenListener"/>
+          <tag name="kernel.event_listener" event="app.compiled.static" method="staticListener"/>
         </service>
       </services></container>`);
       const future = new Date(Date.now() + 1_000); await utimes(compiledPath, future, future);
@@ -168,6 +183,30 @@ describe('language server stdio', () => {
         expect.objectContaining({ uri: sourceUri }),
         expect.objectContaining({ uri: sourceUri }),
       ]);
+      for (const [id, method] of [[238, 'onInherited'], [239, 'onTrait']] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
+        } }));
+        const inherited = (await output.waitFor((message) => message.id === id)).result;
+        expect(inherited.map((reference: { uri: string }) => reference.uri).sort()).toEqual([sourceUri, servicesUri, compiledUri].sort());
+      }
+      for (const [id, method] of [[240, 'hiddenListener'], [241, 'staticListener']] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
+        } }));
+        expect((await output.waitFor((message) => message.id === id)).result).toEqual([]);
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('DerivedListener') + 2), context: { includeDeclaration: false },
+      } }));
+      const derivedReferences = (await output.waitFor((message) => message.id === 242)).result;
+      const sourceByUri = new Map([[sourceUri, source], [servicesUri, await readFile(servicesPath, 'utf8')], [compiledUri, await readFile(compiledPath, 'utf8')]]);
+      const referencedText = derivedReferences.flatMap((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) => {
+        const text = sourceByUri.get(reference.uri); return text ? [text.slice(lspOffset(text, reference.range.start), lspOffset(text, reference.range.end))] : [];
+      });
+      expect(referencedText).toEqual(expect.arrayContaining([
+        'app.inherited', 'app.trait', 'app.yaml.inherited', 'app.yaml.trait', 'app.compiled.inherited', 'app.compiled.trait',
+      ]));
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 235);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

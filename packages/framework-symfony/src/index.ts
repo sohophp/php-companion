@@ -261,8 +261,9 @@ function literalTextRange(node: NodeLike): { value: string; start: number; end: 
   const value = literalString(node); return value === undefined ? undefined : { value, start: node.startIndex + 1, end: node.endIndex - 1 };
 }
 
-/** Extract only complete, literal EventSubscriberInterface maps whose listener methods are public instance methods on the subscriber. */
-export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventSubscriptionFact[] {
+/** Extract only complete, literal listener declarations whose callbacks are proven public instance methods. */
+export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string,
+  isPublicInstanceListener?: (subscriberFqcn: string, listener: string) => boolean): SymfonyEventSubscriptionFact[] {
   const parsed = parser.parse(source, undefined, uri);
   try {
     const subscriptions: SymfonyEventSubscriptionFact[] = [];
@@ -316,6 +317,8 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
       if (!classNode) continue;
       const methods = parsed.callables.filter((callable) => callable.kind === 'method' && callable.containerFqcn === declaration.fqcn);
       const publicListeners = new Set(methods.filter((callable) => !callable.static && callable.visibility === 'public').map((callable) => callable.name.toLowerCase()));
+      const acceptsListener = (listener: string): boolean => publicListeners.has(listener.toLowerCase())
+        || Boolean(isPublicInstanceListener?.(declaration.fqcn, listener));
       if (declaration.implementsNames.some((name) => resolveName(name, namespace, parsed.imports).toLowerCase()
         === 'symfony\\component\\eventdispatcher\\eventsubscriberinterface')) {
         const subscriptionMethod = methods.find((callable) => callable.name.toLowerCase() === 'getsubscribedevents'
@@ -332,7 +335,7 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
           const staticIdentity = classConstantIdentity(eventNode!, namespace, parsed.imports, declaration.fqcn);
           const staticEvent = staticIdentity ? { value: staticIdentity, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
           const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
-          for (const listener of listeners) if (publicListeners.has(listener.listener.toLowerCase())) subscriptions.push({
+          for (const listener of listeners) if (acceptsListener(listener.listener)) subscriptions.push({
             subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
             uri, eventStart: event.start, eventEnd: event.end, listenerStart: listener.start, listenerEnd: listener.end,
           });
@@ -340,13 +343,14 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
       }
       const methodNodes = classNode.namedChildren.find((child) => child.type === 'declaration_list')?.namedChildren
         .filter((child) => child.type === 'method_declaration') ?? [];
-      const inferredEvents = (method: (typeof methods)[number]): string[] => {
+      type ListenerMethod = Pick<(typeof methods)[number], 'name' | 'static' | 'visibility' | 'parameters'>;
+      const inferredEvents = (method: ListenerMethod): string[] => {
         const native = method.parameters[0]?.nativeType?.replace(/^\?/, ''); if (!native || native.includes('&')) return [];
         return [...new Set(native.split('|').map((name) => name.trim()).filter((name) => name && name.toLowerCase() !== 'null')
           .flatMap((name) => primitiveNames.has(name.toLowerCase()) ? [] : [resolveName(name, namespace, parsed.imports)]))]
           .filter((name) => name.toLowerCase() !== 'symfony\\contracts\\eventdispatcher\\event');
       };
-      const addAttribute = (attribute: NodeLike, listener: (typeof methods)[number]): void => {
+      const addAttribute = (attribute: NodeLike, listener: ListenerMethod): void => {
         if (listener.static || listener.visibility !== 'public') return;
         const values = attributeValues(attribute); if (!values) return;
         const eventValue = values.get('event'); let events: Array<{ value: string; start: number; end: number }> = [];
@@ -376,7 +380,10 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
       for (const attribute of attributes(classNode, namespace)) {
         const values = attributeValues(attribute); if (!values) continue;
         const configured = nullableLiteral(values.get('method')); if (!configured) continue;
-        let listener = configured.value ? methods.find((method) => method.name === configured.value) : undefined;
+        let listener: ListenerMethod | undefined = configured.value ? methods.find((method) => method.name === configured.value) : undefined;
+        if (configured.value && !listener && acceptsListener(configured.value)) listener = {
+          name: configured.value, parameters: [], visibility: 'public', static: false,
+        };
         if (configured.value && !listener) continue;
         if (!listener) {
           const eventNode = values.get('event'); const eventValue = nullableLiteral(eventNode);
@@ -389,7 +396,14 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
             const derived = `on${eventName.replace(/(?<=\b|_)[a-z]/gi, (character) => character.toUpperCase()).replace(/[^a-z0-9]/gi, '')}`;
             const declared = methods.find((method) => method.name.toLowerCase() === derived.toLowerCase());
             listener = declared ?? methods.find((method) => method.name === '__invoke');
-          } else listener = methods.find((method) => method.name === '__invoke');
+            if (!listener) {
+              const inherited = [derived, '__invoke'].find(acceptsListener);
+              if (inherited) listener = { name: inherited, parameters: [], visibility: 'public', static: false };
+            }
+          } else {
+            listener = methods.find((method) => method.name === '__invoke');
+            if (!listener && acceptsListener('__invoke')) listener = { name: '__invoke', parameters: [], visibility: 'public', static: false };
+          }
         }
         if (listener) addAttribute(attribute, listener);
       }

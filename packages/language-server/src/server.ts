@@ -2110,25 +2110,28 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const eventTarget = type ?? (member?.kind === 'method' ? member : undefined);
     const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
     const syntaxParser = eventTarget && eventSource ? await parser() : undefined;
-    const subscriptions = eventTarget && eventSource && syntaxParser ? analyzeSymfonyEventSubscriptions(syntaxParser, eventTarget.uri, eventSource) : [];
+    const subscriptionSources = syntaxParser && eventTarget ? (member?.kind === 'method'
+      ? workspace.documentUris().flatMap((uri) => {
+        const source = workspace.source(uri);
+        return source?.toLowerCase().includes(member.name.toLowerCase())
+          && (source.includes('getSubscribedEvents') || source.includes('AsEventListener')) ? [{ uri, source }] : [];
+      })
+      : eventSource ? [{ uri: eventTarget.uri, source: eventSource }] : []) : [];
+    const subscriptions = syntaxParser ? subscriptionSources.flatMap(({ uri, source }) => analyzeSymfonyEventSubscriptions(
+      syntaxParser, uri, source, (subscriber, listener) => workspace.publicInstanceMethod(subscriber, listener) !== undefined)) : [];
     const matchingSubscriptions = type
       ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
-      : member?.kind === 'method' ? subscriptions.filter((fact) => `${fact.subscriberFqcn}::${fact.listener}`.toLowerCase() === member.fqcn.toLowerCase()) : [];
+      : member?.kind === 'method' ? subscriptions.filter((fact) => workspace.publicInstanceMethod(fact.subscriberFqcn, fact.listener)?.fqcn.toLowerCase()
+        === member.fqcn.toLowerCase()) : [];
     const eventLocations = matchingSubscriptions.map((fact) => type
       ? { uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }
       : { uri: fact.uri, start: fact.listenerStart, end: fact.listenerEnd });
-    const listenerMethods = new Set<string>();
-    if (type && eventSource && syntaxParser) {
-      const parsed = syntaxParser.parse(eventSource, undefined, type.uri);
-      try {
-        for (const callable of parsed.callables) if (callable.kind === 'method' && callable.containerFqcn?.toLowerCase() === type.fqcn.toLowerCase()
-          && callable.visibility === 'public' && !callable.static) listenerMethods.add(callable.name.toLowerCase());
-      } finally { parsed.tree.delete(); }
-    } else if (member?.kind === 'method' && member.visibility === 'public' && !member.static) listenerMethods.add(member.name.toLowerCase());
     const matchingTaggedListeners = (type || member?.kind === 'method') ? symfonyServiceCatalog(root)
-      .filter((service) => service.className.toLowerCase() === (type?.fqcn ?? member!.fqcn.split('::')[0]!).toLowerCase())
-      .flatMap((service) => service.eventListeners.filter((listener) => listenerMethods.has(listener.method.toLowerCase())
-        && (type || listener.method.toLowerCase() === member!.name.toLowerCase()))) : [];
+      .filter((service) => !type || service.className.toLowerCase() === type.fqcn.toLowerCase())
+      .flatMap((service) => service.eventListeners.filter((listener) => {
+        const effective = workspace.publicInstanceMethod(service.className, listener.method);
+        return effective !== undefined && (type || effective.fqcn.toLowerCase() === member!.fqcn.toLowerCase());
+      })) : [];
     const taggedEventLocations = matchingTaggedListeners.map((listener) => type
       ? { uri: listener.uri, start: listener.eventStart, end: listener.eventEnd }
       : { uri: listener.uri, start: listener.methodStart, end: listener.methodEnd });

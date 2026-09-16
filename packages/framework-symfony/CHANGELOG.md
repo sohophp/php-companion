@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Accept inherited or Trait-composed subscriber and class-level attribute callbacks only through an optional semantic public-instance-method validator; keep standalone syntax analysis conservative.
 - Extract explicit `kernel.event_listener` tags from compiled debug-container XML with decoded event identities, integer priorities and exact raw event/method ranges.
 - Extract exact event identities and source ranges from syntactic `dispatch()` candidates, including direct event construction, literal/custom event names, class constants and named arguments, while leaving receiver ownership for the semantic caller to prove.
 - Extract exact class/method `#[AsEventListener]` relationships, including native event-parameter inference, class method derivation, priorities, unions and invokable fallback.

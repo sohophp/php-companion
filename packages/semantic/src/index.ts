@@ -2469,6 +2469,15 @@ export class SemanticWorkspace {
     return this.hasCompleteHierarchy(fqcn) ? this.members(fqcn).filter((member) => member.visibility === 'public') : [];
   }
 
+  /** Resolve one effective concrete public instance method on a complete parent/Trait hierarchy. */
+  publicInstanceMethod(fqcn: string, methodName: string): MemberInfo | undefined {
+    if (!this.hasCompleteMethodHierarchy(fqcn)) return undefined;
+    const normalized = methodName.toLowerCase();
+    const methods = this.members(fqcn).filter((member) => member.kind === 'method'
+      && member.visibility === 'public' && !member.static && !member.abstract && member.name.toLowerCase() === normalized);
+    return methods.length === 1 ? methods[0] : undefined;
+  }
+
   resolvedMemberReturnType(member: MemberInfo): string | undefined {
     if (!member.returnType || member.readable === false) return undefined;
     const owner = this.files.get(member.uri); if (!owner) return member.returnType;
@@ -6371,6 +6380,18 @@ export class SemanticWorkspace {
     return [...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames].every((name) => {
       const inherited = this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn);
       return Boolean(inherited && this.hasCompleteHierarchy(inherited, visited));
+    });
+  }
+
+  private hasCompleteMethodHierarchy(fqcn: string, visited = new Set<string>()): boolean {
+    const key = fqcn.toLowerCase(); if (visited.has(key)) return true;
+    if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
+    visited.add(key);
+    const owner = this.fileAndDeclaration(fqcn); if (!owner) return false;
+    const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    return [...owner.declaration.extendsNames, ...owner.declaration.traitNames].every((name) => {
+      const inherited = this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn);
+      return Boolean(inherited && this.hasCompleteMethodHierarchy(inherited, visited));
     });
   }
 
