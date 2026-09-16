@@ -25,6 +25,32 @@ const primitiveNames = new Set(['bool', 'int', 'float', 'string', 'array', 'obje
 
 function record(value: unknown): Record<string, unknown> | undefined { return value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined; }
 function array(value: unknown): unknown[] { return value === undefined ? [] : Array.isArray(value) ? value : [value]; }
+function decodeXmlAttribute(value: string): string {
+  return value.replace(/&#(x[0-9a-f]+|\d+);|&(quot|apos|lt|gt|amp);/gi, (entity, numeric: string | undefined, named: string | undefined) => {
+    if (numeric) { const point = Number.parseInt(numeric.replace(/^x/i, ''), numeric.toLowerCase().startsWith('x') ? 16 : 10); return Number.isSafeInteger(point) && point >= 0 && point <= 0x10ffff ? String.fromCodePoint(point) : entity; }
+    return ({ quot: '"', apos: "'", lt: '<', gt: '>', amp: '&' } as Record<string, string>)[named!.toLowerCase()] ?? entity;
+  });
+}
+function xmlAttribute(tag: string, name: string, offset: number): { value: string; start: number; end: number } | undefined {
+  const match = new RegExp(`\\b${name}\\s*=\\s*(['"])(.*?)\\1`, 's').exec(tag); if (!match || match.index === undefined) return undefined;
+  const quote = match[0].indexOf(match[1]!); const start = offset + match.index + quote + 1;
+  return { value: decodeXmlAttribute(match[2]!), start, end: start + match[2]!.length };
+}
+function compiledEventListenerTags(source: string, serviceTag: RegExpMatchArray, uri: string): SymfonyEventListenerTagFact[] {
+  if (serviceTag.index === undefined || /\/>\s*$/.test(serviceTag[0])) return [];
+  const contentStart = serviceTag.index + serviceTag[0].length; const close = source.indexOf('</service>', contentStart);
+  if (close < 0) return [];
+  return [...source.slice(contentStart, close).matchAll(/<tag(?=\s)[^>]*>/g)].flatMap((match): SymfonyEventListenerTagFact[] => {
+    if (match.index === undefined) return [];
+    const offset = contentStart + match.index; const name = xmlAttribute(match[0], 'name', offset);
+    const event = xmlAttribute(match[0], 'event', offset); const method = xmlAttribute(match[0], 'method', offset);
+    const priorityAttribute = xmlAttribute(match[0], 'priority', offset); const priority = priorityAttribute ? Number(priorityAttribute.value) : 0;
+    if (name?.value !== 'kernel.event_listener' || !event || !method || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(method.value)
+      || !/^-?\d+$/.test(priorityAttribute?.value ?? '0') || !Number.isSafeInteger(priority)) return [];
+    return [{ event: event.value, method: method.value, priority, uri, eventStart: event.start, eventEnd: event.end,
+      methodStart: method.start, methodEnd: method.end }];
+  });
+}
 
 /** Parse Symfony's debug-container XML dump without loading project PHP or parameter values. */
 export function analyzeSymfonyContainerXml(uri: string, source: string): SymfonyCompiledContainerFacts {
@@ -36,16 +62,17 @@ export function analyzeSymfonyContainerXml(uri: string, source: string): Symfony
   const container = record(record(parsed)?.container); const serviceRoot = record(container?.services);
   if (!serviceRoot) return { complete: false, services: [], methodArguments: [], propertyArguments: [] };
   const nodes = array(serviceRoot.service).flatMap((value) => record(value) ? [record(value)!] : []);
-  const tags = [...source.matchAll(/<service(?=\s)[^>]*>/g)].filter((tag) => /\bid\s*=/.test(tag[0]));
-  if (nodes.length !== tags.length) return { complete: false, services: [], methodArguments: [], propertyArguments: [] };
+  const serviceTags = [...source.matchAll(/<service(?=\s)[^>]*>/g)].filter((tag) => /\bid\s*=/.test(tag[0]));
+  if (nodes.length !== serviceTags.length) return { complete: false, services: [], methodArguments: [], propertyArguments: [] };
   const raw = nodes.map((node, index) => {
-    const id = typeof node.id === 'string' ? node.id : undefined; const tag = tags[index]!;
+    const id = typeof node.id === 'string' ? node.id : undefined; const tag = serviceTags[index]!;
     const idMatch = /\bid\s*=\s*(['"])(.*?)\1/s.exec(tag[0]);
     if (!id || !idMatch || tag.index === undefined) return undefined;
     const valueOffset = idMatch.index + idMatch[0].indexOf(idMatch[2]!);
     return { node, id, className: typeof node.class === 'string' ? node.class.replace(/^\\/, '') : undefined,
       alias: typeof node.alias === 'string' ? node.alias.replace(/^\\/, '') : undefined,
-      public: node.public === 'true', abstract: node.abstract === 'true', start: tag.index + valueOffset, end: tag.index + valueOffset + idMatch[2]!.length };
+      public: node.public === 'true', abstract: node.abstract === 'true', start: tag.index + valueOffset, end: tag.index + valueOffset + idMatch[2]!.length,
+      eventListeners: compiledEventListenerTags(source, tag, uri) };
   });
   if (raw.some((item) => !item)) return { complete: false, services: [], methodArguments: [], propertyArguments: [] };
   const byId = new Map(raw.map((item) => [item!.id.toLowerCase(), item!]));
@@ -59,7 +86,7 @@ export function analyzeSymfonyContainerXml(uri: string, source: string): Symfony
     if (!item || item.abstract) return [];
     const className = resolveClass(item, new Set([item.id.toLowerCase()]));
     return className ? [{ id: item.id, className, alias: item.alias, public: item.public, autowire: item.node.autowire === 'true', autowireComplete: false,
-      bindings: [], configuredCalls: [], callsComplete: false, configuredProperties: [], propertiesComplete: false, eventListeners: [],
+      bindings: [], configuredCalls: [], callsComplete: false, configuredProperties: [], propertiesComplete: false, eventListeners: item.eventListeners,
       origin: 'compiled', uri, start: item.start, end: item.end,
       registrationUri: uri, registrationStart: item.start, registrationEnd: item.end }] : [];
   });

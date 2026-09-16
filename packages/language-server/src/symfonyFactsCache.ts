@@ -10,7 +10,7 @@ interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: strin
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v3';
+const CACHE_VERSION = 'symfony-facts-v4';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;

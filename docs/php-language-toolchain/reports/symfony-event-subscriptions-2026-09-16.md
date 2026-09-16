@@ -13,6 +13,7 @@
 
 - 类级和方法级 `Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener`，包括字面量事件、`Event::class`、整数优先级、首个原生事件参数推断、类级 `on<EventName>` 派生和 `__invoke` 回退；方法级 attribute 不接受另行指定 method。
 - `services.yaml` 中显式 `kernel.event_listener` 标签；event、method 和 priority 必须为静态值，标签可随确定性 resource 服务展开，类与方法 References 分别返回 event 和 method 的精确 YAML 范围。
+- 新鲜 debug-container XML 中具体 service 的显式 `kernel.event_listener` 标签；XML 实体会解码为运行时事件身份，References 仍定位原始 event/method 属性范围，缺少字段或非法 priority 不发布。
 
 监听类和方法 References 还会合并匹配事件的派发位置：
 
@@ -22,7 +23,7 @@
 
 监听关系仍要求回调对应同类公开非静态方法。动态事件名、动态 attribute 参数、分支返回、继承或 Trait 提供的订阅数组/监听方法，以及 XML 或编译容器事件标签保持未知，避免把约定猜测成引用。
 
-Symfony 来源事实缓存同步升级为 `symfony-facts-v3`，恢复时会验证每条 YAML 监听事实及 event/method 范围；旧 v2 缓存自动重建。
+Symfony 来源事实缓存同步升级为 `symfony-facts-v4`，恢复时会验证每条 YAML/编译容器监听事实及 event/method 范围；旧 v3 缓存自动重建。
 
 ## 查询性能
 
@@ -40,8 +41,9 @@ Winstar 只读实测：
 - Language Server 冷启动 stdio 回归同时验证服务注册、类事件关系、方法回调关系，且没有启动完整 `[index:]` 扫描。
 - framework-symfony 新增 attribute 与 YAML 标签正反例；Language Server 冷启动回归确认 subscriber、attribute、有效 YAML 标签同时出现，无效 method 标签被排除。
 - framework-symfony 新增直接构造、显式事件名、类常量、命名参数、动态变量与非法调用反例；Language Server 同时验证 EventDispatcher 正例和 Messenger 同名反例。
+- 编译容器回归覆盖 XML 实体、负优先级、缺失 method 反例，并在冷启动 References 中同时验证编译 service 注册、event 与 method 范围。
 - framework-symfony 24 项和 semantic 267 项测试通过。
-- Language Server 完整套件 6 个测试文件、185 项测试通过，耗时 211.02 秒。
+- Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 215.88 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
 - 16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
 - 三份 0.4.5 VSIX 已完成打包并通过 `verify:vsix` 内容检查。

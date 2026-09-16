@@ -234,14 +234,15 @@ describe('static Symfony Controller context analysis', () => {
 
   it('reads compiled bundle services, aliases and controller method locators from debug-container XML', () => {
     const uri = 'file:///project/var/cache/dev/App_KernelDevDebugContainer.xml';
-    const facts = analyzeSymfonyContainerXml(uri, `<?xml version="1.0"?><container><services>
+    const source = `<?xml version="1.0"?><container><services>
       <service id="app.mailer" class="Vendor\\Bundle\\Mailer" public="true"/>
       <service id="Vendor\\Bundle\\MailerInterface" alias="app.mailer"/>
       <service id="abstract.mailer" class="Vendor\\Bundle\\Mailer" abstract="true"/>
-      <service id="app.consumer" class="App\\Controller\\MailController"><argument type="service" id="app.mailer"/><call method="setMailer"><argument type="service" id="app.mailer"/></call><property name="mailer" type="service" id="app.mailer"/></service>
+      <service id="app.consumer" class="App\\Controller\\MailController"><tag name="kernel.event_listener" event="app&amp;ready" method="onReady" priority="-8"/><tag name="kernel.event_listener" event="ignored"/><argument type="service" id="app.mailer"/><call method="setMailer"><argument type="service" id="app.mailer"/></call><property name="mailer" type="service" id="app.mailer"/></service>
       <service id=".service_locator.base" class="Symfony\\Component\\DependencyInjection\\ServiceLocator"><tag name="container.service_locator"/><argument type="collection"><argument key="mailer" type="service_closure" id="app.mailer"/></argument></service>
       <service id=".service_locator.context" class="Symfony\\Component\\DependencyInjection\\ServiceLocator"><tag name="container.service_locator_context" id="App\\Controller\\MailController::send()"/><factory service=".service_locator.base" method="withContext"/></service>
-    </services></container>`);
+    </services></container>`;
+    const facts = analyzeSymfonyContainerXml(uri, source);
     expect(facts.complete).toBe(true);
     expect(facts.services.map((service) => [service.id, service.className, service.public])).toEqual([
       ['app.mailer', 'Vendor\\Bundle\\Mailer', true],
@@ -260,6 +261,9 @@ describe('static Symfony Controller context analysis', () => {
     expect(facts.propertyArguments).toMatchObject([{
       ownerFqcn: 'App\\Controller\\MailController', property: 'mailer', serviceId: 'app.mailer', className: 'Vendor\\Bundle\\Mailer',
     }]);
+    const listener = facts.services.find((service) => service.id === 'app.consumer')!.eventListeners[0]!;
+    expect(listener).toMatchObject({ event: 'app&ready', method: 'onReady', priority: -8 });
+    expect(source.slice(listener.eventStart, listener.eventEnd)).toBe('app&amp;ready');
     expect(analyzeSymfonyContainerXml(uri, '<!DOCTYPE container><container/>').complete).toBe(false);
   });
 

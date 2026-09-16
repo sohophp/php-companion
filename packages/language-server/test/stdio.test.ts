@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { join, resolve, sep } from 'node:path';
-import { mkdtemp, mkdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -125,8 +125,18 @@ describe('language server stdio', () => {
       const sourcePath = join(sourceDirectory, 'RegisteredService.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       const servicesPath = join(configDirectory, 'services.yaml'); const servicesUri = pathToFileURL(servicesPath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), '{}');
       await writeFile(sourcePath, source);
       await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n    tags:\n      - { name: kernel.event_listener, event: 'app.yaml', method: onReady }\n      - { name: kernel.event_listener, event: 'app.invalid', method: missingMethod }\n");
+      const cacheDirectory = join(root, 'var', 'cache', 'dev'); await mkdir(cacheDirectory, { recursive: true });
+      const compiledPath = join(cacheDirectory, 'App_KernelDevDebugContainer.xml'); const compiledUri = pathToFileURL(compiledPath).toString();
+      await writeFile(compiledPath, `<?xml version="1.0"?><container><services>
+        <service id="app.registered" class="App\\RegisteredService">
+          <tag name="kernel.event_listener" event="app.compiled" method="onReady" priority="4"/>
+          <tag name="kernel.event_listener" event="app.invalid" method="missingMethod"/>
+        </service>
+      </services></container>`);
+      const future = new Date(Date.now() + 1_000); await utimes(compiledPath, future, future);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
@@ -141,16 +151,15 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onReady') + 2), context: { includeDeclaration: false },
       } }));
-      expect((await output.waitFor((message) => message.id === 236)).result).toEqual(expect.arrayContaining([
-        expect.objectContaining({ uri: sourceUri }), expect.objectContaining({ uri: servicesUri }),
-      ]));
+      const methodReferences = (await output.waitFor((message) => message.id === 236)).result;
+      expect(methodReferences.map((reference: { uri: string }) => reference.uri).sort()).toEqual([sourceUri, servicesUri, compiledUri].sort());
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
       const classReferences = (await output.waitFor((message) => message.id === 234)).result;
-      expect(classReferences).toHaveLength(5);
+      expect(classReferences).toHaveLength(7);
       expect(classReferences).toEqual(expect.arrayContaining([
-        expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: sourceUri }),
+        expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: compiledUri }), expect.objectContaining({ uri: sourceUri }),
       ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
