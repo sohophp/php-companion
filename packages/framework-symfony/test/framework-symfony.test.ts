@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -69,6 +69,17 @@ describe('static Symfony Controller context analysis', () => {
     expect(facts.map(({ event, listener }) => [event, listener])).toEqual([
       ['app.inherited', 'onInherited'], ['app.trait', 'onTrait'],
     ]);
+  });
+
+  it('extracts literal maps from inherited or Trait subscription providers without rebinding class constants', () => {
+    const source = "<?php namespace App; class BaseSubscriber { public static function getSubscribedEvents(): array { return ['app.parent' => 'onParent', self::EVENT => 'onConstant']; } } trait SharedSubscriptions { public static function getSubscribedEvents(): array { return ['app.trait' => ['onTrait', 4]]; } }";
+    const accepts = (_subscriber: string, listener: string): boolean => ['onParent', 'onTrait'].includes(listener);
+    expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
+      'App\\BaseSubscriber', 'App\\ChildSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
+      .toEqual([['app.parent', 'onParent', undefined]]);
+    expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
+      'App\\SharedSubscriptions', 'App\\TraitSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
+      .toEqual([['app.trait', 'onTrait', 4]]);
   });
 
   it('extracts exact class and method AsEventListener attributes with type inference', () => {

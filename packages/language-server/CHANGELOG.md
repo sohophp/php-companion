@@ -6,6 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Merge literal event maps from an effective inherited or Trait-provided `getSubscribedEvents()` method into each registered subscriber class and callback References after proving EventSubscriberInterface membership; avoid Symfony hydration for unrelated reference queries.
 - Resolve subscriber maps, class-level `AsEventListener`, YAML tags and compiled-container listener tags through each service class's effective public instance method, linking inherited and Trait-composed callbacks to their declaration while rejecting private, static and incomplete targets.
 - Merge exact `kernel.event_listener` relationships from fresh compiled debug-container XML into listener class and public method References. Advance the Symfony fact cache to v4.
 - Merge exact event-dispatch sites into Symfony listener class and method References only when the resolved `dispatch()` owner is a Symfony EventDispatcher contract or subtype; reject Messenger and unrelated same-named methods.

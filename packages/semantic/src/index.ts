@@ -2471,10 +2471,19 @@ export class SemanticWorkspace {
 
   /** Resolve one effective concrete public instance method on a complete parent/Trait hierarchy. */
   publicInstanceMethod(fqcn: string, methodName: string): MemberInfo | undefined {
+    return this.publicConcreteMethod(fqcn, methodName, false);
+  }
+
+  /** Resolve one effective concrete public static method on a complete parent/Trait hierarchy. */
+  publicStaticMethod(fqcn: string, methodName: string): MemberInfo | undefined {
+    return this.publicConcreteMethod(fqcn, methodName, true);
+  }
+
+  private publicConcreteMethod(fqcn: string, methodName: string, staticMethod: boolean): MemberInfo | undefined {
     if (!this.hasCompleteMethodHierarchy(fqcn)) return undefined;
     const normalized = methodName.toLowerCase();
     const methods = this.members(fqcn).filter((member) => member.kind === 'method'
-      && member.visibility === 'public' && !member.static && !member.abstract && member.name.toLowerCase() === normalized);
+      && member.visibility === 'public' && member.static === staticMethod && !member.abstract && member.name.toLowerCase() === normalized);
     return methods.length === 1 ? methods[0] : undefined;
   }
 

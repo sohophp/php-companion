@@ -412,6 +412,64 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
   } finally { parsed.tree.delete(); }
 }
 
+/**
+ * Extract a public static getSubscribedEvents() body supplied by a parent class or Trait.
+ * Cross-owner class-constant event keys remain unknown because self/static binding differs after composition.
+ */
+export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string,
+  providerFqcn: string, subscriberFqcn: string,
+  isPublicInstanceListener: (subscriberFqcn: string, listener: string) => boolean): SymfonyEventSubscriptionFact[] {
+  const parsed = parser.parse(source, undefined, uri);
+  try {
+    const declaration = parsed.declarations.find((item) => ['class', 'trait'].includes(item.kind)
+      && item.fqcn.toLowerCase() === providerFqcn.toLowerCase());
+    if (!declaration) return [];
+    const method = parsed.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === providerFqcn.toLowerCase()
+      && item.name.toLowerCase() === 'getsubscribedevents' && item.visibility === 'public' && item.static);
+    if (!method) return [];
+    const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
+      if (accept(node)) return node;
+      for (const child of node.namedChildren) { const found = visit(child, accept); if (found) return found; }
+      return undefined;
+    };
+    const methodNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'method_declaration'
+      && node.startIndex === method.declarationStart && node.endIndex === method.declarationEnd);
+    const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
+    const returned = body?.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement'
+      ? body.namedChildren[0]!.namedChildren[0] : undefined;
+    if (returned?.type !== 'array_creation_expression') return [];
+    const listenerSpecs = (node: NodeLike): Array<{ listener: string; start: number; end: number; priority?: number }> => {
+      const direct = literalTextRange(node); if (direct) return [{ listener: direct.value, start: direct.start, end: direct.end }];
+      if (node.type !== 'array_creation_expression') return [];
+      const values = node.namedChildren.map(unwrappedArrayValue); if (values.some((value) => !value)) return [];
+      const first = values[0] && literalTextRange(values[0]);
+      if (first) {
+        if (values.length > 2 || values[1]?.type !== 'integer' && values[1] !== undefined) return [];
+        const priority = values[1] ? Number(values[1].text) : undefined;
+        return priority === undefined || Number.isSafeInteger(priority) ? [{ listener: first.value, start: first.start, end: first.end, priority }] : [];
+      }
+      if (!values.length || values.some((value) => value!.type !== 'array_creation_expression')) return [];
+      const nested = values.flatMap((value) => listenerSpecs(value!)); return nested.length === values.length ? nested : [];
+    };
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const facts: SymfonyEventSubscriptionFact[] = [];
+    for (const item of returned.namedChildren) {
+      if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
+      const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
+      const literalEvent = literalTextRange(eventNode!);
+      const staticIdentity = providerFqcn.toLowerCase() === subscriberFqcn.toLowerCase()
+        ? classConstantIdentity(eventNode!, namespace, parsed.imports, providerFqcn) : undefined;
+      const event = literalEvent ?? (staticIdentity ? { value: staticIdentity, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined);
+      if (!event || !listeners.length) continue;
+      for (const listener of listeners) if (isPublicInstanceListener(subscriberFqcn, listener.listener)) facts.push({
+        subscriberFqcn, event: event.value, listener: listener.listener, priority: listener.priority,
+        uri, eventStart: event.start, eventEnd: event.end, listenerStart: listener.start, listenerEnd: listener.end,
+      });
+    }
+    return facts;
+  } finally { parsed.tree.delete(); }
+}
+
 /** Extract syntactically exact dispatch event identities; callers must still prove the method target is Symfony's dispatcher. */
 export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventDispatchFact[] {
   const parsed = parser.parse(source, undefined, uri);

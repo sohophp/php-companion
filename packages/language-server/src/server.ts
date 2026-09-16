@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -2110,6 +2110,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const eventTarget = type ?? (member?.kind === 'method' ? member : undefined);
     const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
     const syntaxParser = eventTarget && eventSource ? await parser() : undefined;
+    const subscriberInterface = 'Symfony\\Component\\EventDispatcher\\EventSubscriberInterface';
     const subscriptionSources = syntaxParser && eventTarget ? (member?.kind === 'method'
       ? workspace.documentUris().flatMap((uri) => {
         const source = workspace.source(uri);
@@ -2117,8 +2118,24 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           && (source.includes('getSubscribedEvents') || source.includes('AsEventListener')) ? [{ uri, source }] : [];
       })
       : eventSource ? [{ uri: eventTarget.uri, source: eventSource }] : []) : [];
-    const subscriptions = syntaxParser ? subscriptionSources.flatMap(({ uri, source }) => analyzeSymfonyEventSubscriptions(
+    const inspectInheritedSubscriptions = subscriptionSources.length > 0
+      || Boolean(type && workspace.publicStaticMethod(type.fqcn, 'getSubscribedEvents'));
+    if (root && syntaxParser && inspectInheritedSubscriptions) {
+      await hydrateCanonicalTypes(workspace, root, [subscriberInterface]);
+    }
+    const directSubscriptions = syntaxParser ? subscriptionSources.flatMap(({ uri, source }) => analyzeSymfonyEventSubscriptions(
       syntaxParser, uri, source, (subscriber, listener) => workspace.publicInstanceMethod(subscriber, listener) !== undefined)) : [];
+    const subscriberClasses = syntaxParser && inspectInheritedSubscriptions ? [...new Set(symfonyServiceCatalog(root).map((service) => service.className))]
+      .filter((fqcn) => workspace.isSubtype(fqcn, subscriberInterface)) : [];
+    const inheritedSubscriptions = syntaxParser ? subscriberClasses.flatMap((subscriber) => {
+      const provider = workspace.publicStaticMethod(subscriber, 'getSubscribedEvents');
+      const providerFqcn = provider?.fqcn.split('::')[0];
+      if (!provider || !providerFqcn || providerFqcn.toLowerCase() === subscriber.toLowerCase()) return [];
+      const source = workspace.source(provider.uri); if (!source) return [];
+      return analyzeSymfonyInheritedEventSubscriptions(syntaxParser, provider.uri, source, providerFqcn, subscriber,
+        (owner, listener) => workspace.publicInstanceMethod(owner, listener) !== undefined);
+    }) : [];
+    const subscriptions = [...directSubscriptions, ...inheritedSubscriptions];
     const matchingSubscriptions = type
       ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
       : member?.kind === 'method' ? subscriptions.filter((fact) => workspace.publicInstanceMethod(fact.subscriberFqcn, fact.listener)?.fqcn.toLowerCase()

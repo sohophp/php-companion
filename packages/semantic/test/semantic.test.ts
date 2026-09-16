@@ -2253,8 +2253,8 @@ describe('conservative semantic workspace', () => {
   });
   it('resolves only effective public instance methods on complete class hierarchies', () => {
     workspace.update('file:///ListenerBase.php', `<?php namespace ListenerMethods;
-      class Base { public function inherited(): void {} public static function staticListener(): void {} protected function hidden(): void {} }
-      trait Shared { public function fromTrait(): void {} private function privateTrait(): void {} }
+      class Base { public function inherited(): void {} public static function staticListener(): void {} public static function getSubscribedEvents(): array { return []; } protected function hidden(): void {} }
+      trait Shared { public function fromTrait(): void {} public static function traitSubscriptions(): array { return []; } private function privateTrait(): void {} }
       class Listener extends Base { use Shared; public function own(): void {} }
       class ListenerWithExternalContract implements MissingContract { public function local(): void {} }
       class BrokenListener extends MissingBase { public function local(): void {} }
@@ -2263,6 +2263,10 @@ describe('conservative semantic workspace', () => {
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'inherited')?.fqcn).toBe('ListenerMethods\\Base::inherited');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'fromTrait')?.fqcn).toBe('ListenerMethods\\Shared::fromTrait');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'staticListener')).toBeUndefined();
+    expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'staticListener')?.fqcn).toBe('ListenerMethods\\Base::staticListener');
+    expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'getSubscribedEvents')?.fqcn).toBe('ListenerMethods\\Base::getSubscribedEvents');
+    expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'traitSubscriptions')?.fqcn).toBe('ListenerMethods\\Shared::traitSubscriptions');
+    expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'own')).toBeUndefined();
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'hidden')).toBeUndefined();
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'privateTrait')).toBeUndefined();
     expect(workspace.publicInstanceMethod('ListenerMethods\\ListenerWithExternalContract', 'local')?.fqcn).toBe('ListenerMethods\\ListenerWithExternalContract::local');
