@@ -1,3 +1,4 @@
+- 提交 `48d8126` 完成继承/Trait Symfony 方法 Attribute References，候选 `php-companion-alpha-0.4.5-48d81260` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 已注册服务从父类或 Trait 获得的有效公开实例方法会保留方法级 `#[AsEventListener]`：事件、优先级、回调声明和匹配 dispatch 均进入子服务/真实方法 References；跨宿主相对类名和 Trait alias 改名保持 unknown。
 - 提交 `814c25f` 完成确定性 Symfony 订阅构造 References，候选 `php-companion-alpha-0.4.5-814c25fb` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony subscriber map 支持单一局部变量的确定性线性构造：静态数组初始化、字面量/显式类常量键追加和原样返回可进入 References；动态键、其他语句或变量切换整段保持 unknown。父类/Trait 提供者中的显式外部类常量事件也可安全发布，`self/static/parent` 仍拒绝。
