@@ -1,3 +1,4 @@
+- 提交 `4627aca` 完成编译容器 Symfony 事件监听 References，候选 `php-companion-alpha-0.4.5-4627aca3` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 新鲜 Symfony debug-container XML 中显式 `kernel.event_listener` 标签现已进入监听类与方法 References；解析保留 XML 实体解码后的事件身份和原始精确范围，无效 method/priority 保持 unknown，事实缓存升级为 v4。
 - 提交 `d6411e7` 完成 Symfony 事件派发 References 与同名 API 语义门禁，候选 `php-companion-alpha-0.4.5-d6411e74` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony 监听类与方法 References 现在合并可证明的事件派发位置：支持直接 `new Event()`、字面量事件名、类名/类常量事件名和命名参数，并要求 `dispatch()` 的解析目标属于 Symfony EventDispatcher 接口族；Messenger 等同名 API 不会混入。
