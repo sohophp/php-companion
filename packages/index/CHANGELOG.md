@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Support a project-only phase for on-demand clients without discovering or parsing Composer dependency sources.
 - Signal project-source completeness immediately after project files are indexed so scoped language operations can proceed while dependency indexing continues.
 - Mark oversized, unreadable, or unanalyzable project files as project-incomplete and dependency gaps as whole-index-incomplete. Validate resource limits and rebuild source when a cache restore adapter rejects one entry.
 - Add an atomic, bounded document dependency graph with deterministic per-document snapshots and shared-node-safe removal.

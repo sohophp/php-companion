@@ -13,7 +13,7 @@ export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; }
 export interface ProjectIndexCacheOptions { directory: string; version: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => boolean | Promise<boolean>; }
-export interface ProjectIndexOptions { limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
+export interface ProjectIndexOptions { limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
 function validateLimits(limits: ProjectIndexLimits): void {
@@ -104,6 +104,15 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   }
   if (!projectIncomplete && options.shouldContinue?.() !== false) await options.onProjectComplete?.();
   if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
+  const commitCache = async (): Promise<void> => {
+    if (!cachePath || !options.cache) return;
+    try { await mkdir(options.cache.directory, { recursive: true }); const temporary = `${cachePath}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify({ schema: 1, version: options.cache.version, root, entries: Object.fromEntries(next) })); await rename(temporary, cachePath); }
+    catch { warnings.push('Persistent index cache could not be written.'); }
+  };
+  if (options.includeDependencies === false) {
+    await commitCache();
+    return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings };
+  }
   const dependencyCandidates = new Set<string>(); const remaining = limits.maxFiles - projectFiles.length;
   for (const path of dependencyAutoloadPaths(project)) {
     if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
@@ -120,9 +129,6 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
     if (status === 'budget') break;
   }
-  if (cachePath && options.cache) {
-    try { await mkdir(options.cache.directory, { recursive: true }); const temporary = `${cachePath}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify({ schema: 1, version: options.cache.version, root, entries: Object.fromEntries(next) })); await rename(temporary, cachePath); }
-    catch { warnings.push('Persistent index cache could not be written.'); }
-  }
+  await commitCache();
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
 }

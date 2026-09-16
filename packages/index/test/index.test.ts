@@ -108,6 +108,19 @@ describe('bounded project source index', () => {
     });
     expect(events).toEqual([projectPath, 'project-complete', dependencyPath]);
   });
+  it('can stop after the complete project phase for on-demand indexing', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-only-'));
+    await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+    await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+    const projectPath = join(root, 'src', 'Project.php'); const dependencyPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Dependency.php');
+    await writeFile(projectPath, '<?php class Project {}'); await writeFile(dependencyPath, '<?php class Dependency {}');
+    const indexed: string[] = [];
+    const result = await indexComposerSources(root, { includeDependencies: false, onSource: ({ path }) => { indexed.push(path); } });
+    expect(result).toMatchObject({ files: 1, complete: false, projectComplete: true, warnings: [] });
+    expect(indexed).toEqual([projectPath]);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

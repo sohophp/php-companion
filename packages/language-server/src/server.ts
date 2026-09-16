@@ -70,6 +70,7 @@ const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
+let indexingMode: 'off' | 'onDemand' | 'experimental' = 'experimental';
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
@@ -532,6 +533,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   };
   const result = await indexComposerSources(root, {
     limits: indexLimits,
+    includeDependencies: indexingMode === 'experimental',
     shouldContinue,
     uriForPath: (path) => indexedUriForPath(root, path),
     onSource: ({ uri, path, source }) => {
@@ -1151,6 +1153,7 @@ function startIndexWorkspace(): Promise<void> {
 }
 
 async function ensureCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
+  if (indexingMode !== 'experimental') return false;
   if (completeRoots.has(root)) return true;
   // A completed project scan can still have an intentionally partial dependency
   // index when a dependency exceeds a resource budget. Repeating the same bounded
@@ -1162,6 +1165,7 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
 }
 
 async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
+  if (indexingMode === 'off') return false;
   if (projectCompleteRoots.has(root)) return true;
   const indexing = activeIndexing ?? startIndexWorkspace();
   if (!projectCompleteRoots.has(root)) await new Promise<void>((resolveReady) => {
@@ -1227,9 +1231,10 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
+  if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;
   const requestedLimits = initialization?.indexLimits as Partial<ProjectIndexLimits> | undefined;
   if (requestedLimits && Number.isSafeInteger(requestedLimits.maxFiles) && Number(requestedLimits.maxFiles) > 0
@@ -1272,7 +1277,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 });
 
 connection.onInitialized(() => {
-  void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
+  if (indexingMode === 'experimental') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
     { globPattern: '**/*.php' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' }, { globPattern: '**/services*.{yaml,yml}' },
     { globPattern: '**/config/**/*.{yaml,yml,xml,php}' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },

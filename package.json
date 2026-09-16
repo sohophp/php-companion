@@ -136,7 +136,7 @@
         "phpCompanion.diagnostics.severity": { "type": "object", "scope": "window", "additionalProperties": { "type": "string", "enum": ["error", "warning", "information", "hint", "off"] }, "default": {}, "description": "Severity overrides keyed by stable diagnostic code. Use off to suppress a code." },
         "phpCompanion.composer.includeDevAutoload": { "type": "boolean", "scope": "resource", "default": true, "description": "Include Composer autoload-dev mappings." },
         "phpCompanion.files.exclude": { "type": "array", "scope": "resource", "items": { "type": "string" }, "default": ["**/vendor/**", "**/.git/**", "**/node_modules/**", "**/var/cache/**", "**/storage/framework/**"] },
-        "phpCompanion.indexing.mode": { "type": "string", "scope": "resource", "enum": ["off", "onDemand", "experimental"], "default": "onDemand", "description": "Controls project indexing. Indexing is never performed during activation." },
+        "phpCompanion.indexing.mode": { "type": "string", "scope": "resource", "enum": ["off", "onDemand", "experimental"], "default": "onDemand", "description": "Controls project indexing. onDemand performs no reload-time scan and loads project sources only for project-wide operations; experimental eagerly indexes project and dependency sources." },
         "phpCompanion.indexing.maxFiles": { "type": "number", "scope": "resource", "minimum": 100, "default": 10000 },
         "phpCompanion.indexing.maxFileSizeKb": { "type": "number", "scope": "resource", "minimum": 16, "default": 512 },
         "phpCompanion.indexing.maxTotalMb": { "type": "number", "scope": "resource", "minimum": 1, "default": 128 },

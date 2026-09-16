@@ -98,6 +98,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     outputChannel: output,
     initializationOptions: () => ({
       phpVersion: configuration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : configuration.get<string>('phpVersion', '8.5'),
+      indexingMode: configuration.get<'off' | 'onDemand' | 'experimental'>('indexing.mode', 'onDemand'),
       cacheDirectory: vscode.Uri.joinPath(context.globalStorageUri, 'semantic-index').fsPath,
       indexLimits: {
         maxFiles: configuration.get<number>('indexing.maxFiles', 10_000),

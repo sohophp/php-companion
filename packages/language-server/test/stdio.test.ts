@@ -65,6 +65,35 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('defers project indexing on reload in on-demand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-startup-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const source = '<?php final class Service { public function __construct(private object $dependency) {} public function dependency(): object { return $this->dependency; } }';
+      const sourcePath = join(sourceDirectory, 'Service.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } })); await writeFile(sourcePath, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 230, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 230);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed '))).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 231, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 231)).result).toBeTruthy();
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed 1 PHP files'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 232);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('returns references for a local variable without crossing function scopes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-local-references-'));
     try {
