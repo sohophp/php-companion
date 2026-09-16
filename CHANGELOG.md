@@ -1,3 +1,4 @@
+- 提交 `bea0622` 完成确定性局部 Symfony 事件变量 References，候选 `php-companion-alpha-0.4.5-bea06222` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony EventDispatcher References 现在识别同一代码块内最后由 `new EventClass(...)` 确定性赋值的局部事件变量；参数变量、中间使用/引用暴露、分支外赋值和动态重赋值保持 unknown，既有 EventDispatcher 接收者语义门禁继续排除 Messenger 与业务同名 API。
 - 提交 `3f6b5b4` 完成继承/Trait Symfony subscriber 相对常量 References，候选 `php-companion-alpha-0.4.5-3f6b5b46` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 继承或 Trait 提供的 `getSubscribedEvents()` 现在按 PHP/Symfony 运行时语义解析 `self/static/parent` 类常量事件键：`self` 绑定方法组合宿主，`static` 绑定实际注册 subscriber，`parent` 绑定宿主直接父类；Trait `as public getSubscribedEvents` 可回溯原静态方法，缺失绑定仍保持 unknown。父类和 Trait 的类级 `#[AsEventListener]` 经 PHP 8.5 与 Symfony 自动配置实测不会继承，继续只作用于其自身注册服务。
