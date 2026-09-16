@@ -6,6 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Merge proven Symfony service registration locations into PHP type References. Load static service facts after a cold on-demand candidate scan, without requiring an eager full-project index, and keep generated implementation navigation unchanged.
 - Honor `indexing.mode`: `onDemand` performs no reload-time scan and indexes project sources only when a precise project-wide operation requests them; `experimental` retains eager project and dependency indexing.
 - Safe Move now accepts current unsaved editor snapshots, protects planned old/new paths from watcher-triggered index cancellation, and requires a complete project-source index rather than an unattainable complete dependency index in bounded workspaces.
 - Allow scope-local Rename and final private promoted-property Rename as soon as project source indexing completes, waking requests already waiting at that boundary while dependency indexing continues or remains partial; keep broader member renames gated on the complete dependency index.

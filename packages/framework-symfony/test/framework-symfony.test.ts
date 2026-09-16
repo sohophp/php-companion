@@ -67,14 +67,15 @@ describe('static Symfony Controller context analysis', () => {
   });
 
   it('expands deterministic resources, brace exclusions and explicit overrides without registering non-instantiable types', () => {
-    const facts = analyzeSymfonyServiceYaml('file:///project/config/services.yaml', `services:
+    const source = `services:
       _defaults: { public: true }
       App\\:
         resource: '../src/*'
         exclude: '../src/{Entity,Tests,Kernel.php}'
       App\\Service\\Mailer:
         public: false
-    `);
+    `;
+    const facts = analyzeSymfonyServiceYaml('file:///project/config/services.yaml', source);
     const candidate = (fqcn: string, path: string, kind: 'class' | 'interface' = 'class', abstract = false): SymfonyServiceClassCandidate => ({ fqcn, kind, abstract, uri: `file:///project/src/${path}`, start: 10, end: 20 });
     const services = expandSymfonyServiceResources(facts, [
       candidate('App\\Service\\Mailer', 'Service/Mailer.php'), candidate('App\\Service\\AbstractJob', 'Service/AbstractJob.php', 'class', true),
@@ -84,7 +85,11 @@ describe('static Symfony Controller context analysis', () => {
     expect(services.map(({ id, public: isPublic }) => [id, isPublic])).toEqual([
       ['App\\Service\\Mailer', false], ['App\\Other', true],
     ]);
-    expect(services[1]).toMatchObject({ uri: 'file:///project/src/Other.php', start: 10, end: 20 });
+    expect(services[1]).toMatchObject({
+      uri: 'file:///project/src/Other.php', start: 10, end: 20,
+      registrationUri: 'file:///project/config/services.yaml',
+    });
+    expect(source.slice(services[1]!.registrationStart, services[1]!.registrationEnd)).toBe('App\\');
   });
 
   it('recognizes only literal Autowire service named arguments', () => {

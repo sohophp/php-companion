@@ -2087,11 +2087,27 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
-    const locations = workspace.references(document.uri, document.offsetAt(position), context.includeDeclaration).flatMap((location) => {
-      const source = workspace.source(location.uri);
-      const target = source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source);
-      return target ? [{ uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } }] : [];
-    });
+    if (type && root && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())) {
+      await loadSymfonyServiceFacts(root, workspace);
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+      if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    }
+    const semanticLocations = workspace.references(document.uri, document.offsetAt(position), context.includeDeclaration);
+    const frameworkLocations = type ? symfonyServiceCatalog(root)
+      .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
+      .map((service) => ({ uri: service.registrationUri, start: service.registrationStart, end: service.registrationEnd })) : [];
+    const rawLocations = [...new Map([...semanticLocations, ...frameworkLocations]
+      .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
+    const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
+      const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);
+      if (source === undefined) {
+        const path = pathForUri(location.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing framework source. */ }
+      }
+      const languageId = location.uri.endsWith('.php') ? 'php' : location.uri.endsWith('.xml') ? 'xml' : 'yaml';
+      const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, languageId, 0, source));
+      return target ? { uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } } : undefined;
+    }));
+    const locations = resolvedLocations.flatMap((location) => location ? [location] : []);
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;
   } finally { connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`); }

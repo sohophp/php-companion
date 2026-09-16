@@ -94,6 +94,39 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads Symfony resource registrations for cold on-demand type references', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-symfony-references-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const configDirectory = join(root, 'config');
+      await mkdir(sourceDirectory); await mkdir(configDirectory);
+      const source = '<?php namespace App; final class RegisteredService {}';
+      const sourcePath = join(sourceDirectory, 'RegisteredService.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      const servicesPath = join(configDirectory, 'services.yaml'); const servicesUri = pathToFileURL(servicesPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(sourcePath, source);
+      await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n");
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 233);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 234)).result).toEqual([
+        expect.objectContaining({ uri: servicesUri }),
+      ]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 235);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('returns references for a local variable without crossing function scopes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-local-references-'));
     try {
@@ -1438,6 +1471,15 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect((await output.waitFor((message) => message.id === 40)).result).toMatchObject([{ uri: pathToFileURL(servicePath).toString() }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 42, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, definitionSource.indexOf('App\\Service') + 5) } }));
       expect((await output.waitFor((message) => message.id === 42)).result).toMatchObject({ contents: { value: expect.stringContaining('class App\\Service') } });
+      const serviceTypeOffset = definitionSource.indexOf('Service $service') + 3;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 83, method: 'textDocument/references', params: {
+        textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, serviceTypeOffset), context: { includeDeclaration: true },
+      } }));
+      const serviceReferences = (await output.waitFor((message) => message.id === 83)).result;
+      expect(serviceReferences).toEqual(expect.arrayContaining([
+        expect.objectContaining({ uri: pathToFileURL(servicesPath).toString() }),
+        expect.objectContaining({ uri: pathToFileURL(servicePath).toString() }),
+      ]));
       const transportOffset = definitionSource.indexOf('Transport $transport') + 3;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 48, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, transportOffset) } }));
       expect((await output.waitFor((message) => message.id === 48)).result).toMatchObject({ contents: { value: expect.stringContaining('(inferred)') } });

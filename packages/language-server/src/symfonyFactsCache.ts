@@ -10,7 +10,7 @@ interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: strin
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v1';
+const CACHE_VERSION = 'symfony-facts-v2';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;
@@ -37,7 +37,9 @@ function service(value: unknown): boolean {
     && typeof item.autowireComplete === 'boolean' && Array.isArray(item.bindings) && item.bindings.length <= MAX_FACTS && item.bindings.every(binding)
     && textArray(item.configuredCalls) && typeof item.callsComplete === 'boolean' && textArray(item.configuredProperties)
     && typeof item.propertiesComplete === 'boolean' && ['explicit', 'resource', 'compiled'].includes(String(item.origin))
-    && text(item.uri) && range(item));
+    && text(item.uri) && range(item) && text(item.registrationUri)
+    && Number.isSafeInteger(item.registrationStart) && Number.isSafeInteger(item.registrationEnd)
+    && (item.registrationStart as number) >= 0 && (item.registrationEnd as number) >= (item.registrationStart as number));
 }
 function resource(value: unknown): boolean {
   const item = record(value); return Boolean(item && text(item.namespacePrefix) && text(item.resource) && textArray(item.exclude)

@@ -7,7 +7,7 @@ import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type YAMLM
 interface NodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: NodeLike[]; childForFieldName(name: string): NodeLike | null; }
 export interface SymfonyControllerDocument { uri: string; source: string; snapshotVersion: string; }
 export interface SymfonyAutowireBinding { type?: string; parameter?: string; serviceId?: string; }
-export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; }
+export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; registrationUri: string; registrationStart: number; registrationEnd: number; }
 export interface SymfonyServiceResourceFact { namespacePrefix: string; resource: string; exclude: string[]; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; uri: string; start: number; end: number; }
 export interface SymfonyServiceClassCandidate { fqcn: string; kind: 'class' | 'interface' | 'trait' | 'enum'; abstract: boolean; uri: string; start: number; end: number; }
 export interface SymfonyServiceDocumentFacts { complete: boolean; services: SymfonyServiceFact[]; resources: SymfonyServiceResourceFact[]; }
@@ -57,7 +57,8 @@ export function analyzeSymfonyContainerXml(uri: string, source: string): Symfony
     const className = resolveClass(item, new Set([item.id.toLowerCase()]));
     return className ? [{ id: item.id, className, alias: item.alias, public: item.public, autowire: item.node.autowire === 'true', autowireComplete: false,
       bindings: [], configuredCalls: [], callsComplete: false, configuredProperties: [], propertiesComplete: false,
-      origin: 'compiled', uri, start: item.start, end: item.end }] : [];
+      origin: 'compiled', uri, start: item.start, end: item.end,
+      registrationUri: uri, registrationStart: item.start, registrationEnd: item.end }] : [];
   });
   const serviceById = new Map(services.map((service) => [service.id.toLowerCase(), service]));
   const invocationArguments: SymfonyCompiledMethodArgumentFact[] = [];
@@ -334,7 +335,8 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
   };
   return { complete: true, resources, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
-    return className ? [{ ...service, className, origin: 'explicit' }] : [];
+    return className ? [{ ...service, className, origin: 'explicit',
+      registrationUri: service.uri, registrationStart: service.start, registrationEnd: service.end }] : [];
   }) };
 }
 
@@ -368,7 +370,8 @@ export function expandSymfonyServiceResources(facts: SymfonyServiceDocumentFacts
       if (candidate.kind !== 'class' || candidate.abstract || !candidate.fqcn.startsWith(resource.namespacePrefix)
         || !matchesPattern(candidate.uri, resource.uri, resource.resource)
         || excludes.some((pattern) => matchesPattern(candidate.uri, resource.uri, pattern))) continue;
-      expanded.set(candidate.fqcn, { id: candidate.fqcn, className: candidate.fqcn, public: resource.public, autowire: resource.autowire, autowireComplete: resource.autowireComplete, bindings: resource.bindings, configuredCalls: resource.configuredCalls, callsComplete: resource.callsComplete, configuredProperties: resource.configuredProperties, propertiesComplete: resource.propertiesComplete, origin: 'resource', uri: candidate.uri, start: candidate.start, end: candidate.end });
+      expanded.set(candidate.fqcn, { id: candidate.fqcn, className: candidate.fqcn, public: resource.public, autowire: resource.autowire, autowireComplete: resource.autowireComplete, bindings: resource.bindings, configuredCalls: resource.configuredCalls, callsComplete: resource.callsComplete, configuredProperties: resource.configuredProperties, propertiesComplete: resource.propertiesComplete, origin: 'resource', uri: candidate.uri, start: candidate.start, end: candidate.end,
+        registrationUri: resource.uri, registrationStart: resource.start, registrationEnd: resource.end });
     }
   }
   for (const service of facts.services) expanded.set(service.id, service);
