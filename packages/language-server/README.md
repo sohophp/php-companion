@@ -8,7 +8,7 @@ Composer 索引缓存使用 v46/schema 3 校验封装：schema 74 的源码、�
 
 Symfony `services.yaml` 和新鲜 `var/cache/dev/*DebugContainer.xml` 使用独立的 `symfony-facts-v4` 有界缓存。恢复同时校验 Composer 根、来源路径、URI、稳定文件元数据、源内容 SHA-256、事实结构和事实 SHA-256；损坏或陈旧条目单独重建。热启动仍读取来源以验证内容，但不重新执行 YAML/XML 分析。缓存只保存未展开 YAML 事实，resource 服务每次都按当前 PHP 类型目录展开；文件监控明确报告变化时会绕过对应缓存条目。v4 同时校验 YAML 与编译容器的精确事件监听标签及其 event/method 范围。
 
-Symfony 监听类与公开方法的 References 会合并 subscriber 数组、`AsEventListener`、YAML/新鲜编译容器中的显式 `kernel.event_listener`，以及匹配的事件派发位置。继承或 Trait 组合的 subscriber map 按有效宿主与注册服务解析 `self/static/parent` 类常量事件键。派发位置只在 `dispatch()` 唯一解析到 Symfony EventDispatcher contract 或其子类型时出现；Messenger、业务同名方法、变量事件和动态事件名保持 unknown。
+Symfony 监听类与公开方法的 References 会合并 subscriber 数组、`AsEventListener`、YAML/新鲜编译容器中的显式 `kernel.event_listener`，以及匹配的事件派发位置。继承或 Trait 组合的 subscriber map 按有效宿主与注册服务解析 `self/static/parent` 类常量事件键。派发位置只在 `dispatch()` 唯一解析到 Symfony EventDispatcher contract 或其子类型时出现；同一代码块内直接构造且未经暴露/重赋值的局部事件变量可精确关联，参数或分支来源变量、Messenger、业务同名方法和动态事件名保持 unknown。
 
 已消费且证明为单一构造类型的 Callable 工厂摘要使用独立 `callable-facts-v1` 有界缓存。它只保存正向事实，不预扫描未使用 Callable；恢复会核对调用者源码与事实载荷 SHA-256、唯一 callable/type 身份，并从依赖叶节点向上传递验证完整调用链。依赖实现变化、同名歧义、缺失或损坏会拒绝受影响链，独立事实仍可恢复。写入经过 750 ms 去抖并在关闭前刷新，所有打开文档均排除在磁盘事实之外。
 

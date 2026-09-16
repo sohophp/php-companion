@@ -610,6 +610,30 @@ export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: stri
     const expression = (argument: (typeof parsed.calls)[number]['arguments'][number]): NodeLike | undefined => {
       const node = find(argument.start, argument.end); return node?.namedChildren.at(-1);
     };
+    const locallyConstructedEvent = (node: NodeLike, callStart: number, namespace: string): { event: string; start: number; end: number } | undefined => {
+      if (node.type !== 'variable_name' || !/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(node.text)) return undefined;
+      const blocks: NodeLike[] = [];
+      const collectBlocks = (candidate: NodeLike): void => {
+        if (candidate.type === 'compound_statement' && candidate.startIndex <= callStart && candidate.endIndex >= callStart) blocks.push(candidate);
+        for (const child of candidate.namedChildren) collectBlocks(child);
+      };
+      collectBlocks(root);
+      const block = blocks.sort((left, right) => left.endIndex - left.startIndex - (right.endIndex - right.startIndex))[0];
+      const statementIndex = block?.namedChildren.findIndex((candidate) => candidate.startIndex <= callStart && candidate.endIndex >= callStart) ?? -1;
+      if (!block || statementIndex < 0) return undefined;
+      const escaped = node.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const mentions = new RegExp(`${escaped}(?![A-Za-z0-9_\\x80-\\xff])`);
+      let event: string | undefined;
+      for (const statement of block.namedChildren.slice(0, statementIndex)) {
+        if (!mentions.test(statement.text)) continue;
+        const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+        const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
+        const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
+        if (left?.type !== 'variable_name' || left.text !== node.text || right?.type !== 'object_creation_expression') { event = undefined; continue; }
+        const name = right.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
+        event = name && !['self', 'static', 'parent'].includes(name.toLowerCase()) ? resolveName(name, namespace, parsed.imports) : undefined;
+      }
+      return event ? { event, start: node.startIndex, end: node.endIndex } : undefined;
+    };
     const identity = (node: NodeLike | undefined, namespace: string): { event: string; start: number; end: number } | undefined => {
       if (!node) return undefined;
       const literal = literalTextRange(node); if (literal) return { event: literal.value, start: literal.start, end: literal.end };
@@ -633,10 +657,13 @@ export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: stri
       let event = eventNameNode?.type === 'null' || !eventNameNode ? undefined : identity(eventNameNode, namespace);
       if (eventNameNode && eventNameNode.type !== 'null' && !event) return [];
       if (!event) {
-        const eventNode = expression(eventArgument); if (eventNode?.type !== 'object_creation_expression') return [];
-        const name = eventNode.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
-        if (!name || ['self', 'static', 'parent'].includes(name.toLowerCase())) return [];
-        event = { event: resolveName(name, namespace, parsed.imports), start: eventNode.startIndex, end: eventNode.endIndex };
+        const eventNode = expression(eventArgument); if (!eventNode) return [];
+        if (eventNode.type === 'object_creation_expression') {
+          const name = eventNode.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
+          if (!name || ['self', 'static', 'parent'].includes(name.toLowerCase())) return [];
+          event = { event: resolveName(name, namespace, parsed.imports), start: eventNode.startIndex, end: eventNode.endIndex };
+        } else event = locallyConstructedEvent(eventNode, call.start, namespace);
+        if (!event) return [];
       }
       return [{ event: event.event, uri, eventStart: event.start, eventEnd: event.end,
         dispatchStart: call.nameStart, dispatchEnd: call.nameEnd }];
