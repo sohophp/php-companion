@@ -1,3 +1,4 @@
+- 提交 `a7a5448` 完成继承/Trait Symfony 订阅提供者 References，候选 `php-companion-alpha-0.4.5-a7a5448a` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 父类或 Trait 提供的公开静态 `getSubscribedEvents()` 现在也进入 Symfony References：已注册 subscriber 的字面量事件与回调会绑定到子服务类及有效监听方法；跨宿主 `self/static` 类常量事件、动态或分支返回保持 unknown。
 - 提交 `c994928` 完成继承/Trait Symfony 监听方法 References，候选 `php-companion-alpha-0.4.5-c994928a` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony 事件监听 References 现在按服务类的有效方法解析继承与 Trait 组合：`getSubscribedEvents()`、类级 `#[AsEventListener]`、YAML 和新鲜编译容器标签可精确指向父类或 Trait 的公开实例方法；private、static、抽象、缺失父类/Trait 和无法唯一证明的目标保持 unknown。
