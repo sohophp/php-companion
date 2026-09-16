@@ -26,10 +26,12 @@ export async function run(): Promise<void> {
   }, 'Forward Explorer move did not update namespace');
   assert.ok(document.getText().includes('// preserve unsaved content'));
   await waitFor(async () => (await vscode.workspace.openTextDocument(consumer)).getText().includes('use App\\Subscriber;'), 'Consumer import did not follow move');
+  assert.match((await vscode.workspace.openTextDocument(newUri)).getText(), /^namespace App;$/m, 'Reconciliation removed namespace delimiter');
   const reverse = new vscode.WorkspaceEdit(); reverse.renameFile(newUri, oldUri);
   assert.ok(await vscode.workspace.applyEdit(reverse));
   await waitFor(async () => {
     try { return (await vscode.workspace.openTextDocument(oldUri)).getText().includes('namespace App\\Bridge;') && (await vscode.workspace.openTextDocument(consumer)).getText().includes('use App\\Bridge\\Subscriber;'); } catch { return false; }
   }, 'Reverse Explorer move did not reconcile');
+  assert.match((await vscode.workspace.openTextDocument(oldUri)).getText(), /^namespace App\\Bridge;$/m, 'Reverse reconciliation damaged namespace');
   console.log('PASS: onDemand references, dual PSR-4 mapping, dirty Explorer move and reverse');
 }

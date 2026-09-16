@@ -1527,10 +1527,11 @@ connection.onRequest('phpCompanion/reconcileSafeMove', async (params: { moves?: 
     const plan = createEditPlan('Reconcile moved PHP types', snapshots, result.plan.edits); const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
     for (const edit of plan.textEdits) {
       const source = workspace.source(edit.uri); if (source === undefined) return { error: `Safe Move reconciliation is missing ${edit.uri}.` };
-      const target = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, source);
+      // Offsets and positions must use the same semantic snapshot.
+      const target = TextDocument.create(edit.uri, 'php', 0, source);
       (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: edit.newText });
     }
-    return { edit: { changes } };
+    return { edit: { changes }, sources: Object.fromEntries(uris.map((uri) => [uri, workspace.source(uri)!])) };
   } catch (error) { return { error: error instanceof Error ? error.message : String(error) }; }
 });
 

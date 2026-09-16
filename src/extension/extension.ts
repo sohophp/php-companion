@@ -162,7 +162,7 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   type PasteSymbol = { fqcn: string; alias: string; selectedAlias?: string };
   type ImportPlanResponse = { replacements: Record<string, string>; conflict?: { fqcn: string; sourceAlias: string }; edit?: ProtocolWorkspaceEdit };
-  type SafeMoveResponse = { edit?: ProtocolWorkspaceEdit; error?: string; reconciliation?: ServerMoveReconciliation[] };
+  type SafeMoveResponse = { edit?: ProtocolWorkspaceEdit; error?: string; sources?: Record<string, string>; reconciliation?: ServerMoveReconciliation[] };
   const requestImportPlan = async (document: vscode.TextDocument, position: vscode.Position, symbols: readonly PasteSymbol[]): Promise<ImportPlanResponse | null> => {
     const client = await languageServer; if (!client) return null;
     return client.sendRequest<ImportPlanResponse | null>('phpCompanion/planTypeImports', {
@@ -191,6 +191,13 @@ export function activate(context: vscode.ExtensionContext): void {
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
     if (!edit) throw new MoveError('PHP Companion Language Server did not return a Safe Move reconciliation edit.');
+    // A move or typing can change a document while the server plans. Never
+    // apply ranges from the old text to the current editor (VS Code clamps
+    // an oversized end column, which can silently consume the semicolon).
+    const participants = await Promise.all(edit.entries().map(async ([uri]) => ({ uri, document: await vscode.workspace.openTextDocument(uri) })));
+    for (const { uri, document } of participants) {
+      if (result.sources?.[uri.toString()] !== document.getText()) throw new MoveError(`Safe Move snapshot changed for ${uri.fsPath}; replanning.`);
+    }
     return edit;
   };
 
@@ -773,7 +780,6 @@ export function activate(context: vscode.ExtensionContext): void {
             // an already-complete index when available; otherwise the
             // post-operation pipeline plans from this snapshot and rolls the
             // file operation back if no precise plan can be produced.
-            const immediateEdit = immediateNamespaceMoveEdit(snapshottedFiles, versions);
             try {
               const planned = await requestSafeMovePlan(snapshottedFiles, false, true);
               pendingServerSafeMoves.set(key, { files: snapshottedFiles, reconciliation: planned.reconciliation });
@@ -781,7 +787,10 @@ export function activate(context: vscode.ExtensionContext): void {
               pendingServerSafeMoves.set(key, { files: snapshottedFiles });
               output.info(`Safe Move deferred semantic planning until after the file operation: ${error instanceof Error ? error.message : String(error)}`);
             }
-            return immediateEdit;
+            return immediateNamespaceMoveEdit(snapshottedFiles.map((file) => ({
+              ...file,
+              source: vscode.workspace.textDocuments.find((document) => document.uri.toString() === file.oldUri.toString())?.getText() ?? file.source,
+            })), versions);
           } else {
             const manager = await workspace();
             // Rebuild from the current files before every Explorer move. A prior

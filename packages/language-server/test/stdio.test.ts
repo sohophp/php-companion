@@ -765,6 +765,8 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 111, method: 'phpCompanion/reconcileSafeMove', params: { moves: move.reconciliation } }));
       const reconciliation = (await output.waitFor((message) => message.id === 111, 10_000)).result;
       expect(reconciliation.error).toBeUndefined();
+      expect(reconciliation.sources[movedDeclarationUri]).toBe(declaration);
+      expect(reconciliation.sources[uri]).toBe(source);
       expect(reconciliation.edit.changes[movedDeclarationUri]).toEqual(expect.arrayContaining([expect.objectContaining({ newText: 'App\\Moved' })]));
       expect(reconciliation.edit.changes[uri]).toEqual(expect.arrayContaining([expect.objectContaining({ newText: '\\App\\Moved\\OldName' })]));
     } finally {

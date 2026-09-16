@@ -1,3 +1,4 @@
+- Safe Move 校正编辑携带原文快照，应用前检查编辑器内容；范围换算使用同一快照，避免过期范围吞掉 namespace 分号。移动前的即时编辑在异步规划后重新读取当前文本。
 - 修复共用 src/ 的 App\ 与 SohoPHP\ 映射导致 Safe Move 拒绝目标 namespace；References 在 onDemand 下先建立项目索引，文件监视忽略非自动加载 PHP 路径，进行中的索引请求共享任务。加入真实 VS Code 的双映射、未保存移动及跨文件引用回归。
 - 默认 `onDemand` 模式不再在 Reload 时启动 10000 文件扫描；需要全项目精度的操作才索引项目源码，vendor 类型继续通过精确 PSR-4 请求按需加载，`experimental` 保留主动全量索引。
 - Explorer 移动 PHP 文件现在立即更新目标文件的 PSR-4 namespace，再于项目索引完成后更新跨文件引用；未保存内容可参与移动，旧/新路径的监视事件也不会再取消正在进行的安全移动索引。
