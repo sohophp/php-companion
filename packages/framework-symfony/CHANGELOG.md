@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Extract exact class/method `#[AsEventListener]` relationships, including native event-parameter inference, class method derivation, priorities, unions and invokable fallback.
+- Preserve explicit YAML `kernel.event_listener` event/method ranges on services and deterministic resources while rejecting dynamic events, invalid methods and non-literal priorities.
 - Extract complete literal `EventSubscriberInterface::getSubscribedEvents()` maps, including direct listeners, priorities and multiple listeners, only when every emitted relation targets a proven public instance method.
 - Preserve the distinct Symfony registration range for explicit services, deterministic YAML resources, and compiled-container services while retaining the PHP implementation location for navigation.
 - 容器字面量返回事实实现独立 `@php-companion/semantic-provider` 契约。

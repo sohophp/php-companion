@@ -103,16 +103,19 @@ describe('language server stdio', () => {
         namespace Symfony\\Component\\EventDispatcher { interface EventSubscriberInterface {} }
         namespace App {
           use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+          use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener;
           final class RegisteredService implements EventSubscriberInterface {
             public static function getSubscribedEvents(): array { return ['app.ready' => ['onReady', 16]]; }
             public function onReady(): void {}
+            #[AsEventListener('app.attribute')]
+            public function onAttribute(): void {}
           }
         }`;
       const sourcePath = join(sourceDirectory, 'RegisteredService.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       const servicesPath = join(configDirectory, 'services.yaml'); const servicesUri = pathToFileURL(servicesPath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(sourcePath, source);
-      await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n");
+      await writeFile(servicesPath, "services:\n  App\\:\n    resource: '../src/'\n    tags:\n      - { name: kernel.event_listener, event: 'app.yaml', method: onReady }\n      - { name: kernel.event_listener, event: 'app.invalid', method: missingMethod }\n");
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
@@ -124,18 +127,24 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onReady') + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 236)).result).toEqual(expect.arrayContaining([
+        expect.objectContaining({ uri: sourceUri }), expect.objectContaining({ uri: servicesUri }),
+      ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
       const classReferences = (await output.waitFor((message) => message.id === 234)).result;
-      expect(classReferences).toHaveLength(2);
+      expect(classReferences).toHaveLength(4);
       expect(classReferences).toEqual(expect.arrayContaining([
         expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: sourceUri }),
       ]));
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/references', params: {
-        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onReady') + 2), context: { includeDeclaration: false },
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
       } }));
-      expect((await output.waitFor((message) => message.id === 236)).result).toEqual([
+      expect((await output.waitFor((message) => message.id === 237)).result).toEqual([
         expect.objectContaining({ uri: sourceUri }),
       ]);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);

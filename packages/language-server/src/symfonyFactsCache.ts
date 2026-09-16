@@ -10,7 +10,7 @@ interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: strin
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v2';
+const CACHE_VERSION = 'symfony-facts-v3';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;
@@ -31,11 +31,19 @@ function binding(value: unknown): boolean {
   const item = record(value); return Boolean(item && (item.type === undefined || text(item.type))
     && (item.parameter === undefined || text(item.parameter)) && (item.serviceId === undefined || text(item.serviceId)));
 }
+function eventListener(value: unknown): boolean {
+  const item = record(value); return Boolean(item && text(item.event) && text(item.method) && Number.isSafeInteger(item.priority)
+    && text(item.uri) && Number.isSafeInteger(item.eventStart) && Number.isSafeInteger(item.eventEnd)
+    && Number.isSafeInteger(item.methodStart) && Number.isSafeInteger(item.methodEnd)
+    && (item.eventStart as number) >= 0 && (item.eventEnd as number) >= (item.eventStart as number)
+    && (item.methodStart as number) >= 0 && (item.methodEnd as number) >= (item.methodStart as number));
+}
 function service(value: unknown): boolean {
   const item = record(value); return Boolean(item && text(item.id) && text(item.className)
     && (item.alias === undefined || text(item.alias)) && typeof item.public === 'boolean' && typeof item.autowire === 'boolean'
     && typeof item.autowireComplete === 'boolean' && Array.isArray(item.bindings) && item.bindings.length <= MAX_FACTS && item.bindings.every(binding)
     && textArray(item.configuredCalls) && typeof item.callsComplete === 'boolean' && textArray(item.configuredProperties)
+    && Array.isArray(item.eventListeners) && item.eventListeners.length <= MAX_FACTS && item.eventListeners.every(eventListener)
     && typeof item.propertiesComplete === 'boolean' && ['explicit', 'resource', 'compiled'].includes(String(item.origin))
     && text(item.uri) && range(item) && text(item.registrationUri)
     && Number.isSafeInteger(item.registrationStart) && Number.isSafeInteger(item.registrationEnd)
@@ -46,6 +54,7 @@ function resource(value: unknown): boolean {
     && typeof item.public === 'boolean' && typeof item.autowire === 'boolean' && typeof item.autowireComplete === 'boolean'
     && Array.isArray(item.bindings) && item.bindings.length <= MAX_FACTS && item.bindings.every(binding)
     && textArray(item.configuredCalls) && typeof item.callsComplete === 'boolean' && textArray(item.configuredProperties)
+    && Array.isArray(item.eventListeners) && item.eventListeners.length <= MAX_FACTS && item.eventListeners.every(eventListener)
     && typeof item.propertiesComplete === 'boolean' && text(item.uri) && range(item));
 }
 function compiledMethodArgument(value: unknown): boolean {

@@ -61,6 +61,46 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('onController');
   });
 
+  it('extracts exact class and method AsEventListener attributes with type inference', () => {
+    const source = `<?php
+      namespace App\\Events { final class FooEvent {} final class BarEvent {} }
+      namespace App {
+        use App\\Events\\FooEvent;
+        use App\\Events\\BarEvent;
+        use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener as Listen;
+        #[Listen('app.class', method: 'onClass', priority: -2)]
+        #[Listen(FooEvent::class)]
+        #[Listen('app.invalid', method: 'missing')]
+        final class AttributeListener {
+          public function onClass(): void {}
+          public function onAppEventsFooEvent(FooEvent $event): void {}
+          #[Listen(event: FooEvent::class, priority: 5)]
+          public function onFoo(FooEvent $event): void {}
+          #[Listen]
+          public function onBar(BarEvent $event): void {}
+          #[Listen(method: 'wrong')]
+          public function invalidMethodArgument(FooEvent $event): void {}
+          #[\\App\\Listen('custom')]
+          public function custom(): void {}
+        }
+        #[Listen]
+        final class InvokableListener { public function __invoke(FooEvent|BarEvent $event): void {} }
+      }`;
+    const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/AttributeListener.php', source);
+    expect(facts.map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
+      ['App\\AttributeListener', 'App\\Events\\FooEvent', 'onFoo', 5],
+      ['App\\AttributeListener', 'App\\Events\\BarEvent', 'onBar', 0],
+      ['App\\AttributeListener', 'app.class', 'onClass', -2],
+      ['App\\AttributeListener', 'App\\Events\\FooEvent', 'onAppEventsFooEvent', 0],
+      ['App\\InvokableListener', 'App\\Events\\FooEvent', '__invoke', 0],
+      ['App\\InvokableListener', 'App\\Events\\BarEvent', '__invoke', 0],
+    ]);
+    expect(source.slice(facts[0]!.eventStart, facts[0]!.eventEnd)).toBe('FooEvent::class');
+    expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('Listen');
+    expect(source.slice(facts[2]!.eventStart, facts[2]!.eventEnd)).toBe('app.class');
+    expect(source.slice(facts[2]!.listenerStart, facts[2]!.listenerEnd)).toBe('onClass');
+  });
+
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {
     const source = `services:
       _defaults: { public: false, autowire: true }
@@ -95,6 +135,38 @@ describe('static Symfony Controller context analysis', () => {
       { ownerFqcn: 'Symfony\\Component\\DependencyInjection\\ContainerInterface', argument: 'explicit.service', returnType: 'App\\Service\\Explicit' },
     ]);
     expect(analyzeSymfonyServiceYaml('file:///broken.yaml', 'services: [').complete).toBe(false);
+  });
+
+  it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
+    const source = `services:
+      _defaults:
+        tags:
+          - { name: kernel.event_listener, event: 'app.default', method: onDefault }
+      App\\Listener\\Configured:
+        tags:
+          - { name: kernel.event_listener, event: 'app.ready', method: onReady, priority: -4 }
+          - { name: kernel.event_listener, event: '%dynamic%', method: ignored }
+          - { name: other.tag, event: 'app.other', method: ignored }
+      App\\Listener\\Resource\\:
+        resource: '../src/Listener/Resource/'
+        tags:
+          - name: kernel.event_listener
+            event: app.resource
+            method: onResource
+    `;
+    const facts = analyzeSymfonyServiceYaml('file:///project/config/services.yaml', source);
+    expect(facts.services[0]!.eventListeners.map(({ event, method, priority }) => [event, method, priority])).toEqual([
+      ['app.default', 'onDefault', 0], ['app.ready', 'onReady', -4],
+    ]);
+    expect(facts.resources[0]!.eventListeners.map(({ event, method }) => [event, method])).toEqual([
+      ['app.default', 'onDefault'], ['app.resource', 'onResource'],
+    ]);
+    const configured = facts.services[0]!.eventListeners[1]!;
+    expect(source.slice(configured.eventStart, configured.eventEnd)).toBe('app.ready');
+    expect(source.slice(configured.methodStart, configured.methodEnd)).toBe('onReady');
+    const expanded = expandSymfonyServiceResources(facts, [{ fqcn: 'App\\Listener\\Resource\\Worker', kind: 'class', abstract: false,
+      uri: 'file:///project/src/Listener/Resource/Worker.php', start: 10, end: 20 }]);
+    expect(expanded.find((service) => service.id.endsWith('Worker'))?.eventListeners).toHaveLength(2);
   });
 
   it('expands deterministic resources, brace exclusions and explicit overrides without registering non-instantiable types', () => {

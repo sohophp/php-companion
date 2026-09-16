@@ -7,8 +7,9 @@ import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type YAMLM
 interface NodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: NodeLike[]; childForFieldName(name: string): NodeLike | null; }
 export interface SymfonyControllerDocument { uri: string; source: string; snapshotVersion: string; }
 export interface SymfonyAutowireBinding { type?: string; parameter?: string; serviceId?: string; }
-export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; registrationUri: string; registrationStart: number; registrationEnd: number; }
-export interface SymfonyServiceResourceFact { namespacePrefix: string; resource: string; exclude: string[]; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; uri: string; start: number; end: number; }
+export interface SymfonyEventListenerTagFact { event: string; method: string; priority: number; uri: string; eventStart: number; eventEnd: number; methodStart: number; methodEnd: number; }
+export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; registrationUri: string; registrationStart: number; registrationEnd: number; }
+export interface SymfonyServiceResourceFact { namespacePrefix: string; resource: string; exclude: string[]; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number; }
 export interface SymfonyServiceClassCandidate { fqcn: string; kind: 'class' | 'interface' | 'trait' | 'enum'; abstract: boolean; uri: string; start: number; end: number; }
 export interface SymfonyServiceDocumentFacts { complete: boolean; services: SymfonyServiceFact[]; resources: SymfonyServiceResourceFact[]; }
 export type SymfonyLiteralMethodReturnFact = ExternalLiteralMethodReturnFact;
@@ -57,7 +58,7 @@ export function analyzeSymfonyContainerXml(uri: string, source: string): Symfony
     if (!item || item.abstract) return [];
     const className = resolveClass(item, new Set([item.id.toLowerCase()]));
     return className ? [{ id: item.id, className, alias: item.alias, public: item.public, autowire: item.node.autowire === 'true', autowireComplete: false,
-      bindings: [], configuredCalls: [], callsComplete: false, configuredProperties: [], propertiesComplete: false,
+      bindings: [], configuredCalls: [], callsComplete: false, configuredProperties: [], propertiesComplete: false, eventListeners: [],
       origin: 'compiled', uri, start: item.start, end: item.end,
       registrationUri: uri, registrationStart: item.start, registrationEnd: item.end }] : [];
   });
@@ -138,8 +139,9 @@ function literalString(node: NodeLike | undefined): string | undefined {
 
 function resolveName(name: string, namespace: string, imports: ParsedImport[]): string {
   if (name.startsWith('\\')) return name.slice(1);
+  if (name.toLowerCase().startsWith('namespace\\')) return [namespace, name.slice('namespace\\'.length)].filter(Boolean).join('\\');
   const [head, ...tail] = name.split('\\');
-  const imported = imports.find((item) => item.kind === 'class' && item.alias.toLowerCase() === head!.toLowerCase());
+  const imported = imports.find((item) => item.kind === 'class' && item.namespace === namespace && item.alias.toLowerCase() === head!.toLowerCase());
   return imported ? [imported.fqcn, ...tail].join('\\') : [namespace, name].filter(Boolean).join('\\');
 }
 
@@ -249,33 +251,110 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
       const nested = values.flatMap((value) => listenerSpecs(value!));
       return nested.length === values.length ? nested : [];
     };
+    const attributes = (owner: NodeLike, namespace: string): NodeLike[] => owner.namedChildren
+      .filter((child) => child.type === 'attribute_list').flatMap((list) => list.namedChildren.flatMap((group) => group.namedChildren))
+      .filter((attribute) => attribute.type === 'attribute' && attribute.namedChildren[0]
+        && resolveName(attribute.namedChildren[0].text, namespace, parsed.imports).toLowerCase()
+          === 'symfony\\component\\eventdispatcher\\attribute\\aseventlistener');
+    const attributeValues = (attribute: NodeLike): Map<string, NodeLike> | undefined => {
+      const names = ['event', 'method', 'priority', 'dispatcher']; const result = new Map<string, NodeLike>();
+      const args = attribute.namedChildren.find((child) => child.type === 'arguments')?.namedChildren ?? [];
+      let position = 0; let named = false;
+      for (const argument of args) {
+        const children = argument.namedChildren; const isNamed = children.length === 2 && children[0]?.type === 'name';
+        const key = isNamed ? children[0]!.text : names[position++];
+        if (!key || !names.includes(key) || result.has(key) || (!isNamed && (named || children.length !== 1))) return undefined;
+        named ||= isNamed; result.set(key, children.at(-1)!);
+      }
+      return result;
+    };
+    const nullableLiteral = (node: NodeLike | undefined): { value?: string; start: number; end: number } | undefined => {
+      if (!node) return { start: 0, end: 0 };
+      if (node.type === 'null') return { start: node.startIndex, end: node.endIndex };
+      const literal = literalTextRange(node); return literal ? { value: literal.value, start: literal.start, end: literal.end } : undefined;
+    };
     for (const declaration of parsed.declarations.filter((item) => item.kind === 'class' && !item.anonymous)) {
       const namespace = declaration.fqcn.slice(0, Math.max(0, declaration.fqcn.length - declaration.name.length - 1));
-      if (!declaration.implementsNames.some((name) => resolveName(name, namespace, parsed.imports).toLowerCase()
-        === 'symfony\\component\\eventdispatcher\\eventsubscriberinterface')) continue;
       const classNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'class_declaration'
         && node.startIndex === declaration.declarationStart && node.endIndex === declaration.declarationEnd);
       if (!classNode) continue;
       const methods = parsed.callables.filter((callable) => callable.kind === 'method' && callable.containerFqcn === declaration.fqcn);
-      const subscriptionMethod = methods.find((callable) => callable.name.toLowerCase() === 'getsubscribedevents'
-        && callable.static && callable.visibility === 'public');
-      if (!subscriptionMethod) continue;
-      const methodNode = visit(classNode, (node) => node.type === 'method_declaration'
-        && node.startIndex === subscriptionMethod.declarationStart && node.endIndex === subscriptionMethod.declarationEnd);
-      const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
-      if (!body || body.namedChildren.length !== 1 || body.namedChildren[0]!.type !== 'return_statement') continue;
-      const returned = body.namedChildren[0]!.namedChildren[0]; if (returned?.type !== 'array_creation_expression') continue;
       const publicListeners = new Set(methods.filter((callable) => !callable.static && callable.visibility === 'public').map((callable) => callable.name.toLowerCase()));
-      for (const item of returned.namedChildren) {
-        if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
-        const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
-        const eventLiteral = literalTextRange(eventNode!);
-        const staticEvent = eventNode!.type === 'class_constant_access_expression' ? { value: eventNode!.text, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
-        const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
-        for (const listener of listeners) if (publicListeners.has(listener.listener.toLowerCase())) subscriptions.push({
-          subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
-          uri, eventStart: event.start, eventEnd: event.end, listenerStart: listener.start, listenerEnd: listener.end,
-        });
+      if (declaration.implementsNames.some((name) => resolveName(name, namespace, parsed.imports).toLowerCase()
+        === 'symfony\\component\\eventdispatcher\\eventsubscriberinterface')) {
+        const subscriptionMethod = methods.find((callable) => callable.name.toLowerCase() === 'getsubscribedevents'
+          && callable.static && callable.visibility === 'public');
+        const methodNode = subscriptionMethod ? visit(classNode, (node) => node.type === 'method_declaration'
+          && node.startIndex === subscriptionMethod.declarationStart && node.endIndex === subscriptionMethod.declarationEnd) : undefined;
+        const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
+        const returned = body?.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement'
+          ? body.namedChildren[0]!.namedChildren[0] : undefined;
+        if (returned?.type === 'array_creation_expression') for (const item of returned.namedChildren) {
+          if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
+          const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
+          const eventLiteral = literalTextRange(eventNode!);
+          const staticEvent = eventNode!.type === 'class_constant_access_expression' ? { value: eventNode!.text, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
+          const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
+          for (const listener of listeners) if (publicListeners.has(listener.listener.toLowerCase())) subscriptions.push({
+            subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
+            uri, eventStart: event.start, eventEnd: event.end, listenerStart: listener.start, listenerEnd: listener.end,
+          });
+        }
+      }
+      const methodNodes = classNode.namedChildren.find((child) => child.type === 'declaration_list')?.namedChildren
+        .filter((child) => child.type === 'method_declaration') ?? [];
+      const inferredEvents = (method: (typeof methods)[number]): string[] => {
+        const native = method.parameters[0]?.nativeType?.replace(/^\?/, ''); if (!native || native.includes('&')) return [];
+        return [...new Set(native.split('|').map((name) => name.trim()).filter((name) => name && name.toLowerCase() !== 'null')
+          .flatMap((name) => primitiveNames.has(name.toLowerCase()) ? [] : [resolveName(name, namespace, parsed.imports)]))]
+          .filter((name) => name.toLowerCase() !== 'symfony\\contracts\\eventdispatcher\\event');
+      };
+      const addAttribute = (attribute: NodeLike, listener: (typeof methods)[number]): void => {
+        if (listener.static || listener.visibility !== 'public') return;
+        const values = attributeValues(attribute); if (!values) return;
+        const eventValue = values.get('event'); let events: Array<{ value: string; start: number; end: number }> = [];
+        const literalEvent = nullableLiteral(eventValue);
+        if (eventValue?.type === 'class_constant_access_expression' && eventValue.namedChildren[1]?.text.toLowerCase() === 'class') {
+          const name = eventValue.namedChildren[0]?.text;
+          if (name && !['parent'].includes(name.toLowerCase())) events = [{ value: ['self', 'static'].includes(name.toLowerCase()) ? declaration.fqcn : resolveName(name, namespace, parsed.imports), start: eventValue.startIndex, end: eventValue.endIndex }];
+        } else if (literalEvent?.value !== undefined) events = [{ value: literalEvent.value, start: literalEvent.start, end: literalEvent.end }];
+        else if (!eventValue || eventValue.type === 'null') events = inferredEvents(listener).map((value) => ({ value, start: attribute.namedChildren[0]!.startIndex, end: attribute.namedChildren[0]!.endIndex }));
+        else return;
+        const priorityNode = values.get('priority'); const priority = priorityNode === undefined ? 0 : /^-?\d+$/.test(priorityNode.text) ? Number(priorityNode.text) : Number.NaN;
+        if (!Number.isSafeInteger(priority) || nullableLiteral(values.get('dispatcher')) === undefined) return;
+        const methodValue = nullableLiteral(values.get('method')); if (methodValue === undefined) return;
+        const listenerRange = methodValue.value === listener.name ? methodValue : { start: attribute.namedChildren[0]!.startIndex, end: attribute.namedChildren[0]!.endIndex };
+        for (const event of events) subscriptions.push({ subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.name,
+          priority, uri, eventStart: event.start, eventEnd: event.end, listenerStart: listenerRange.start, listenerEnd: listenerRange.end });
+      };
+      for (const methodNode of methodNodes) {
+        const name = methodNode.namedChildren.find((child) => child.type === 'name')?.text;
+        const method = name && methods.find((candidate) => candidate.name === name && candidate.declarationStart === methodNode.startIndex); if (!method) continue;
+        for (const attribute of attributes(methodNode, namespace)) {
+          const values = attributeValues(attribute); const configuredMethod = values && nullableLiteral(values.get('method'));
+          if (configuredMethod?.value !== undefined) continue;
+          addAttribute(attribute, method);
+        }
+      }
+      for (const attribute of attributes(classNode, namespace)) {
+        const values = attributeValues(attribute); if (!values) continue;
+        const configured = nullableLiteral(values.get('method')); if (!configured) continue;
+        let listener = configured.value ? methods.find((method) => method.name === configured.value) : undefined;
+        if (configured.value && !listener) continue;
+        if (!listener) {
+          const eventNode = values.get('event'); const eventValue = nullableLiteral(eventNode);
+          let eventName = eventValue?.value;
+          if (!eventName && eventNode?.type === 'class_constant_access_expression' && eventNode.namedChildren[1]?.text.toLowerCase() === 'class') {
+            const name = eventNode.namedChildren[0]?.text;
+            if (name && name.toLowerCase() !== 'parent') eventName = ['self', 'static'].includes(name.toLowerCase()) ? declaration.fqcn : resolveName(name, namespace, parsed.imports);
+          }
+          if (eventName) {
+            const derived = `on${eventName.replace(/(?<=\b|_)[a-z]/gi, (character) => character.toUpperCase()).replace(/[^a-z0-9]/gi, '')}`;
+            const declared = methods.find((method) => method.name.toLowerCase() === derived.toLowerCase());
+            listener = declared ?? methods.find((method) => method.name === '__invoke');
+          } else listener = methods.find((method) => method.name === '__invoke');
+        }
+        if (listener) addAttribute(attribute, listener);
       }
     }
     return subscriptions;
@@ -336,6 +415,29 @@ function configuredProperties(node: Node | null | undefined): { complete: boolea
   return { complete: true, properties };
 }
 
+function scalarRange(node: Node, source: string): { start: number; end: number } | undefined {
+  if (!isScalar(node) || !node.range) return undefined;
+  let start = node.range[0]; let end = node.range[1];
+  if ((source[start] === "'" || source[start] === '"') && source[end - 1] === source[start]) { start += 1; end -= 1; }
+  return { start, end };
+}
+
+function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {
+  if (!isSeq(node)) return [];
+  return node.items.flatMap((item): SymfonyEventListenerTagFact[] => {
+    if (!isMap(item)) return [];
+    const name = scalarValue(mapValue(item, 'name')); const eventNode = mapValue(item, 'event'); const methodNode = mapValue(item, 'method');
+    const event = scalarValue(eventNode); const method = scalarValue(methodNode); const priorityValue = scalarValue(mapValue(item, 'priority'));
+    const eventRange = eventNode && scalarRange(eventNode, source); const methodRange = methodNode && scalarRange(methodNode, source);
+    const priority = priorityValue === undefined ? 0 : priorityValue;
+    if (name !== 'kernel.event_listener' || typeof event !== 'string' || event.includes('%')
+      || typeof method !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(method)
+      || typeof priority !== 'number' || !Number.isSafeInteger(priority) || !eventRange || !methodRange) return [];
+    return [{ event, method, priority, uri, eventStart: eventRange.start, eventEnd: eventRange.end,
+      methodStart: methodRange.start, methodEnd: methodRange.end }];
+  });
+}
+
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */
 export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
@@ -345,7 +447,8 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
   const defaultPublic = isMap(defaults) && scalarValue(mapValue(defaults, 'public')) === true;
   const defaultAutowire = isMap(defaults) && scalarValue(mapValue(defaults, 'autowire')) === true;
   const defaultWiring = autowireBindings(isMap(defaults) ? mapValue(defaults, 'bind') : undefined);
-  const raw = new Map<string, { id: string; className?: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; uri: string; start: number; end: number }>();
+  const defaultListeners = eventListenerTags(isMap(defaults) ? mapValue(defaults, 'tags') : undefined, uri, source);
+  const raw = new Map<string, { id: string; className?: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number }>();
   const resources: SymfonyServiceResourceFact[] = [];
   for (const pair of services.items as Pair[]) {
     const idValue = scalarValue(pair.key as Node); if (typeof idValue !== 'string' || idValue.startsWith('_')) continue;
@@ -356,6 +459,7 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
       const wiring = autowireBindings(mapValue(pair.value, 'bind'));
       const calls = configuredMethodCalls(mapValue(pair.value, 'calls'));
       const properties = configuredProperties(mapValue(pair.value, 'properties'));
+      const listeners = eventListenerTags(mapValue(pair.value, 'tags'), uri, source);
       const excludeNode = mapValue(pair.value, 'exclude');
       const exclude = isScalar(excludeNode) && typeof excludeNode.value === 'string' ? [excludeNode.value]
         : isSeq(excludeNode) ? excludeNode.items.flatMap((item) => isScalar(item) && typeof item.value === 'string' ? [item.value] : []) : [];
@@ -366,12 +470,13 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
         bindings: [...defaultWiring.bindings, ...wiring.bindings],
         configuredCalls: calls.methods, callsComplete: calls.complete,
         configuredProperties: properties.properties, propertiesComplete: properties.complete,
+        eventListeners: [...defaultListeners, ...listeners],
         uri, start: range[0], end: range[1],
       });
       continue;
     }
     let className: string | undefined; let alias: string | undefined; let isPublic = defaultPublic; let autowire = defaultAutowire;
-    let autowireComplete = defaultWiring.complete; let bindings = [...defaultWiring.bindings]; let configuredCalls: string[] = []; let callsComplete = true; let configuredPropertyNames: string[] = []; let propertiesComplete = true;
+    let autowireComplete = defaultWiring.complete; let bindings = [...defaultWiring.bindings]; let configuredCalls: string[] = []; let callsComplete = true; let configuredPropertyNames: string[] = []; let propertiesComplete = true; let eventListeners = [...defaultListeners];
     if (pair.value === null || (isScalar(pair.value) && pair.value.value === null)) className = idValue.includes('\\') ? idValue : undefined;
     else if (isScalar(pair.value) && typeof pair.value.value === 'string') {
       const value = pair.value.value; if (value.startsWith('@')) alias = value.replace(/^@\??/, '');
@@ -383,6 +488,7 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
       const argumentsWiring = autowireBindings(mapValue(pair.value, 'arguments'));
       const calls = configuredMethodCalls(mapValue(pair.value, 'calls'));
       const properties = configuredProperties(mapValue(pair.value, 'properties'));
+      const listeners = eventListenerTags(mapValue(pair.value, 'tags'), uri, source);
       if (typeof configuredClass === 'string' && !configuredClass.includes('%')) className = configuredClass;
       else if (typeof configuredAlias !== 'string' && idValue.includes('\\') && !mapValue(pair.value, 'resource') && !mapValue(pair.value, 'factory')) className = idValue;
       if (typeof configuredAlias === 'string' && !configuredAlias.includes('%')) alias = configuredAlias.replace(/^@\??/, '');
@@ -392,8 +498,9 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
       bindings = [...bindings, ...wiring.bindings, ...argumentsWiring.bindings];
       configuredCalls = calls.methods; callsComplete = calls.complete;
       configuredPropertyNames = properties.properties; propertiesComplete = properties.complete;
+      eventListeners = [...eventListeners, ...listeners];
     }
-    if (className || alias) raw.set(idValue, { id: idValue, className, alias, public: isPublic, autowire, autowireComplete, bindings, configuredCalls, callsComplete, configuredProperties: configuredPropertyNames, propertiesComplete, uri, start: range[0], end: range[1] });
+    if (className || alias) raw.set(idValue, { id: idValue, className, alias, public: isPublic, autowire, autowireComplete, bindings, configuredCalls, callsComplete, configuredProperties: configuredPropertyNames, propertiesComplete, eventListeners, uri, start: range[0], end: range[1] });
   }
   const resolveClass = (service: { className?: string; alias?: string }, visited = new Set<string>()): string | undefined => {
     if (service.className) return service.className;
@@ -438,7 +545,7 @@ export function expandSymfonyServiceResources(facts: SymfonyServiceDocumentFacts
       if (candidate.kind !== 'class' || candidate.abstract || !candidate.fqcn.startsWith(resource.namespacePrefix)
         || !matchesPattern(candidate.uri, resource.uri, resource.resource)
         || excludes.some((pattern) => matchesPattern(candidate.uri, resource.uri, pattern))) continue;
-      expanded.set(candidate.fqcn, { id: candidate.fqcn, className: candidate.fqcn, public: resource.public, autowire: resource.autowire, autowireComplete: resource.autowireComplete, bindings: resource.bindings, configuredCalls: resource.configuredCalls, callsComplete: resource.callsComplete, configuredProperties: resource.configuredProperties, propertiesComplete: resource.propertiesComplete, origin: 'resource', uri: candidate.uri, start: candidate.start, end: candidate.end,
+      expanded.set(candidate.fqcn, { id: candidate.fqcn, className: candidate.fqcn, public: resource.public, autowire: resource.autowire, autowireComplete: resource.autowireComplete, bindings: resource.bindings, configuredCalls: resource.configuredCalls, callsComplete: resource.callsComplete, configuredProperties: resource.configuredProperties, propertiesComplete: resource.propertiesComplete, eventListeners: resource.eventListeners, origin: 'resource', uri: candidate.uri, start: candidate.start, end: candidate.end,
         registrationUri: resource.uri, registrationStart: resource.start, registrationEnd: resource.end });
     }
   }
