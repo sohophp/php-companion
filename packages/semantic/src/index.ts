@@ -2471,7 +2471,14 @@ export class SemanticWorkspace {
 
   /** Resolve one effective concrete public instance method on a complete parent/Trait hierarchy. */
   publicInstanceMethod(fqcn: string, methodName: string): MemberInfo | undefined {
-    return this.publicConcreteMethod(fqcn, methodName, false);
+    const normalized = methodName.toLowerCase();
+    const methods = this.publicInstanceMethods(fqcn).filter((member) => member.name.toLowerCase() === normalized);
+    return methods.length === 1 ? methods[0] : undefined;
+  }
+
+  /** List effective concrete public instance methods on a complete parent/Trait hierarchy. */
+  publicInstanceMethods(fqcn: string): MemberInfo[] {
+    return this.publicConcreteMethods(fqcn, false);
   }
 
   /** Resolve one effective concrete public static method on a complete parent/Trait hierarchy. */
@@ -2480,11 +2487,15 @@ export class SemanticWorkspace {
   }
 
   private publicConcreteMethod(fqcn: string, methodName: string, staticMethod: boolean): MemberInfo | undefined {
-    if (!this.hasCompleteMethodHierarchy(fqcn)) return undefined;
     const normalized = methodName.toLowerCase();
-    const methods = this.members(fqcn).filter((member) => member.kind === 'method'
-      && member.visibility === 'public' && member.static === staticMethod && !member.abstract && member.name.toLowerCase() === normalized);
+    const methods = this.publicConcreteMethods(fqcn, staticMethod).filter((member) => member.name.toLowerCase() === normalized);
     return methods.length === 1 ? methods[0] : undefined;
+  }
+
+  private publicConcreteMethods(fqcn: string, staticMethod: boolean): MemberInfo[] {
+    if (!this.hasCompleteMethodHierarchy(fqcn)) return [];
+    return this.members(fqcn).filter((member) => member.kind === 'method'
+      && member.visibility === 'public' && member.static === staticMethod && !member.abstract);
   }
 
   resolvedMemberReturnType(member: MemberInfo): string | undefined {

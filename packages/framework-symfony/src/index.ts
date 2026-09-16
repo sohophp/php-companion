@@ -502,6 +502,80 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
   } finally { parsed.tree.delete(); }
 }
 
+/** Extract method-level AsEventListener attributes copied from an inherited or Trait-composed method. */
+export function analyzeSymfonyInheritedEventListenerAttributes(parser: PhpSyntaxParser, uri: string, source: string,
+  providerFqcn: string, subscriberFqcn: string, listenerName: string): SymfonyEventSubscriptionFact[] {
+  const parsed = parser.parse(source, undefined, uri);
+  try {
+    const declaration = parsed.declarations.find((item) => ['class', 'trait'].includes(item.kind)
+      && item.fqcn.toLowerCase() === providerFqcn.toLowerCase());
+    const method = parsed.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === providerFqcn.toLowerCase()
+      && item.name.toLowerCase() === listenerName.toLowerCase() && item.visibility === 'public' && !item.static);
+    if (!declaration || !method) return [];
+    const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
+      if (accept(node)) return node;
+      for (const child of node.namedChildren) { const found = visit(child, accept); if (found) return found; }
+      return undefined;
+    };
+    const methodNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'method_declaration'
+      && node.startIndex === method.declarationStart && node.endIndex === method.declarationEnd);
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const attributes = methodNode?.namedChildren.filter((child) => child.type === 'attribute_list')
+      .flatMap((list) => list.namedChildren.flatMap((group) => group.namedChildren))
+      .filter((attribute) => attribute.type === 'attribute' && attribute.namedChildren[0]
+        && resolveName(attribute.namedChildren[0].text, namespace, parsed.imports).toLowerCase()
+          === 'symfony\\component\\eventdispatcher\\attribute\\aseventlistener') ?? [];
+    const attributeValues = (attribute: NodeLike): Map<string, NodeLike> | undefined => {
+      const names = ['event', 'method', 'priority', 'dispatcher']; const result = new Map<string, NodeLike>();
+      const args = attribute.namedChildren.find((child) => child.type === 'arguments')?.namedChildren ?? [];
+      let position = 0; let named = false;
+      for (const argument of args) {
+        const children = argument.namedChildren; const isNamed = children.length === 2 && children[0]?.type === 'name';
+        const key = isNamed ? children[0]!.text : names[position++];
+        if (!key || !names.includes(key) || result.has(key) || (!isNamed && (named || children.length !== 1))) return undefined;
+        named ||= isNamed; result.set(key, children.at(-1)!);
+      }
+      return result;
+    };
+    const nullableLiteral = (node: NodeLike | undefined): { value?: string; start: number; end: number } | undefined => {
+      if (!node) return { start: 0, end: 0 };
+      if (node.type === 'null') return { start: node.startIndex, end: node.endIndex };
+      const literal = literalTextRange(node); return literal ? { value: literal.value, start: literal.start, end: literal.end } : undefined;
+    };
+    const inferredEvents = (): string[] => {
+      const native = method.parameters[0]?.nativeType?.replace(/^\?/, ''); if (!native || native.includes('&')) return [];
+      return [...new Set(native.split('|').map((name) => name.trim()).filter((name) => name && name.toLowerCase() !== 'null')
+        .flatMap((name) => primitiveNames.has(name.toLowerCase()) ? [] : [resolveName(name, namespace, parsed.imports)]))]
+        .filter((name) => name.toLowerCase() !== 'symfony\\contracts\\eventdispatcher\\event');
+    };
+    const facts: SymfonyEventSubscriptionFact[] = [];
+    for (const attribute of attributes) {
+      const values = attributeValues(attribute); if (!values) continue;
+      const configuredMethod = nullableLiteral(values.get('method')); if (configuredMethod?.value !== undefined) continue;
+      const eventNode = values.get('event'); const literalEvent = nullableLiteral(eventNode);
+      let events: Array<{ value: string; start: number; end: number }> = [];
+      if (eventNode?.type === 'class_constant_access_expression' && eventNode.namedChildren[1]?.text.toLowerCase() === 'class') {
+        const name = eventNode.namedChildren[0]?.text; const relative = name?.toLowerCase();
+        if (!name || relative === 'parent' || (providerFqcn.toLowerCase() !== subscriberFqcn.toLowerCase() && ['self', 'static'].includes(relative!))) continue;
+        events = [{ value: ['self', 'static'].includes(relative!) ? providerFqcn : resolveName(name, namespace, parsed.imports),
+          start: eventNode.startIndex, end: eventNode.endIndex }];
+      } else if (literalEvent?.value !== undefined) events = [{ value: literalEvent.value, start: literalEvent.start, end: literalEvent.end }];
+      else if (!eventNode || eventNode.type === 'null') events = inferredEvents().map((value) => ({
+        value, start: attribute.namedChildren[0]!.startIndex, end: attribute.namedChildren[0]!.endIndex,
+      }));
+      else continue;
+      const priorityNode = values.get('priority'); const priority = priorityNode === undefined ? 0 : /^-?\d+$/.test(priorityNode.text) ? Number(priorityNode.text) : Number.NaN;
+      if (!Number.isSafeInteger(priority) || nullableLiteral(values.get('dispatcher')) === undefined) continue;
+      for (const event of events) facts.push({
+        subscriberFqcn, event: event.value, listener: listenerName, priority, uri,
+        eventStart: event.start, eventEnd: event.end,
+        listenerStart: attribute.namedChildren[0]!.startIndex, listenerEnd: attribute.namedChildren[0]!.endIndex,
+      });
+    }
+    return facts;
+  } finally { parsed.tree.delete(); }
+}
+
 /** Extract syntactically exact dispatch event identities; callers must still prove the method target is Symfony's dispatcher. */
 export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventDispatchFact[] {
   const parsed = parser.parse(source, undefined, uri);

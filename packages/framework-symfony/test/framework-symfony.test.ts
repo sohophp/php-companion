@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -149,6 +149,24 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('Listen');
     expect(source.slice(facts[2]!.eventStart, facts[2]!.eventEnd)).toBe('app.class');
     expect(source.slice(facts[2]!.listenerStart, facts[2]!.listenerEnd)).toBe('onClass');
+  });
+
+  it('extracts inherited method attributes for a proven consumer and rejects relative rebinding', () => {
+    const source = `<?php namespace App;
+      use App\\Events\\ReadyEvent;
+      use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener as Listen;
+      trait SharedListener {
+        #[Listen(ReadyEvent::class, priority: 3)]
+        #[Listen('app.shared')]
+        #[Listen(self::class)]
+        public function onShared(ReadyEvent $event): void {}
+      }`;
+    const facts = analyzeSymfonyInheritedEventListenerAttributes(parser, 'file:///src/SharedListener.php', source,
+      'App\\SharedListener', 'App\\Consumer', 'onShared');
+    expect(facts.map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
+      ['App\\Consumer', 'App\\Events\\ReadyEvent', 'onShared', 3],
+      ['App\\Consumer', 'app.shared', 'onShared', 0],
+    ]);
   });
 
   it('extracts exact dispatch event identities without claiming the receiver type', () => {

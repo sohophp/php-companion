@@ -2262,6 +2262,9 @@ describe('conservative semantic workspace', () => {
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'own')?.fqcn).toBe('ListenerMethods\\Listener::own');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'inherited')?.fqcn).toBe('ListenerMethods\\Base::inherited');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'fromTrait')?.fqcn).toBe('ListenerMethods\\Shared::fromTrait');
+    expect(workspace.publicInstanceMethods('ListenerMethods\\Listener').map((method) => method.fqcn).sort()).toEqual([
+      'ListenerMethods\\Base::inherited', 'ListenerMethods\\Listener::own', 'ListenerMethods\\Shared::fromTrait',
+    ]);
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'staticListener')).toBeUndefined();
     expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'staticListener')?.fqcn).toBe('ListenerMethods\\Base::staticListener');
     expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'getSubscribedEvents')?.fqcn).toBe('ListenerMethods\\Base::getSubscribedEvents');

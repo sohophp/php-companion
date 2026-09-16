@@ -130,11 +130,13 @@ describe('language server stdio', () => {
           }
           class ParentSubscriptions {
             public static function getSubscribedEvents(): array { return ['app.parent.map' => 'onParentMap']; }
+            #[AsEventListener('app.parent.attribute')]
             public function onParentMap(): void {}
           }
           final class InheritedMapListener extends ParentSubscriptions implements EventSubscriberInterface {}
           trait TraitSubscriptions {
             public static function getSubscribedEvents(): array { return ['app.trait.map' => 'onTraitMap']; }
+            #[AsEventListener(ReadyEvent::class, priority: 7)]
             public function onTraitMap(): void {}
           }
           final class TraitMapListener implements EventSubscriberInterface { use TraitSubscriptions; }
@@ -221,13 +223,18 @@ describe('language server stdio', () => {
       expect(referencedText).toEqual(expect.arrayContaining([
         'app.inherited', 'app.trait', 'app.yaml.inherited', 'app.yaml.trait', 'app.compiled.inherited', 'app.compiled.trait',
       ]));
-      for (const [id, method, event] of [[243, 'onParentMap', 'app.parent.map'], [244, 'onTraitMap', 'app.trait.map']] as const) {
+      for (const [id, method, event, attributeEvent] of [
+        [243, 'onParentMap', 'app.parent.map', 'app.parent.attribute'],
+        [244, 'onTraitMap', 'app.trait.map', 'ReadyEvent::class'],
+      ] as const) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
           textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
         } }));
         const inheritedMap = (await output.waitFor((message) => message.id === id)).result;
-        expect(inheritedMap).toHaveLength(1);
-        expect(source.slice(lspOffset(source, inheritedMap[0].range.start), lspOffset(source, inheritedMap[0].range.end))).toBe(method);
+        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 3 : 2);
+        expect(inheritedMap.map((reference: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+          source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end))))
+          .toEqual(expect.arrayContaining([method, 'AsEventListener']));
         const listenerClass = method === 'onParentMap' ? 'InheritedMapListener' : 'TraitMapListener';
         server.stdin.write(encode({ jsonrpc: '2.0', id: id + 10, method: 'textDocument/references', params: {
           textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('class ' + listenerClass) + 8), context: { includeDeclaration: false },
@@ -235,6 +242,8 @@ describe('language server stdio', () => {
         const classReferencesForMap = (await output.waitFor((message) => message.id === id + 10)).result;
         expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === event)).toBe(true);
+        expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+          reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === attributeEvent)).toBe(true);
       }
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 235);

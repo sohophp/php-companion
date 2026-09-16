@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -2135,7 +2135,24 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       return analyzeSymfonyInheritedEventSubscriptions(syntaxParser, provider.uri, source, providerFqcn, subscriber,
         (owner, listener) => workspace.publicInstanceMethod(owner, listener) !== undefined);
     }) : [];
-    const subscriptions = [...directSubscriptions, ...inheritedSubscriptions];
+    const registeredClasses = [...new Set(symfonyServiceCatalog(root).map((service) => service.className))];
+    const inspectInheritedAttributes = Boolean(type || eventSource?.toLowerCase().includes('aseventlistener'));
+    const inheritedAttributeTargets = syntaxParser && inspectInheritedAttributes ? (type
+      ? registeredClasses.filter((subscriber) => subscriber.toLowerCase() === type.fqcn.toLowerCase())
+        .flatMap((subscriber) => workspace.publicInstanceMethods(subscriber).map((method) => ({ subscriber, method })))
+      : member?.kind === 'method' ? registeredClasses.flatMap((subscriber) => {
+        const method = workspace.publicInstanceMethod(subscriber, member.name);
+        return method?.fqcn.toLowerCase() === member.fqcn.toLowerCase() ? [{ subscriber, method }] : [];
+      }) : []) : [];
+    const inheritedAttributeSubscriptions = syntaxParser ? [...new Map(inheritedAttributeTargets.map((target) => [
+      target.subscriber.toLowerCase() + ':' + target.method.fqcn.toLowerCase() + ':' + target.method.name.toLowerCase(), target,
+    ])).values()].flatMap(({ subscriber, method }) => {
+      const providerFqcn = method.fqcn.split('::')[0];
+      if (!providerFqcn || providerFqcn.toLowerCase() === subscriber.toLowerCase()) return [];
+      const source = workspace.source(method.uri); if (!source?.toLowerCase().includes('aseventlistener')) return [];
+      return analyzeSymfonyInheritedEventListenerAttributes(syntaxParser, method.uri, source, providerFqcn, subscriber, method.name);
+    }) : [];
+    const subscriptions = [...directSubscriptions, ...inheritedSubscriptions, ...inheritedAttributeSubscriptions];
     const matchingSubscriptions = type
       ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
       : member?.kind === 'method' ? subscriptions.filter((fact) => workspace.publicInstanceMethod(fact.subscriberFqcn, fact.listener)?.fqcn.toLowerCase()
