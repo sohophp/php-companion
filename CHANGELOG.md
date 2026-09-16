@@ -1,3 +1,4 @@
+- 提交 `efd443d` 完成 Symfony 方法 Attribute 相对事件类 References，候选 `php-companion-alpha-0.4.5-efd443d9` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 继承/Trait 方法 `AsEventListener` 的相对事件类按 PHP 8.5 Reflection 语义解析：Trait `self/parent` 绑定消费类/消费类父类，父类方法 `self/parent` 绑定声明类/声明类父类；非法 `static::class` 保持 unknown。
 - 提交 `2848e49` 完成 Trait alias Symfony Attribute References，候选 `php-companion-alpha-0.4.5-2848e499` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 提交 `48d8126` 完成继承/Trait Symfony 方法 Attribute References，候选 `php-companion-alpha-0.4.5-48d81260` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
