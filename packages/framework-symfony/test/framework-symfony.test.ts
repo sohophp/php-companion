@@ -61,6 +61,35 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('onController');
   });
 
+  it('extracts a deterministic local subscription array and rejects dynamic mutations', () => {
+    const source = `<?php namespace App;
+      use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+      use Symfony\\Component\\HttpKernel\\KernelEvents;
+      final class BuiltSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.ready' => 'onReady'];
+          $events[KernelEvents::REQUEST] = ['onRequest', 8];
+          return $events;
+        }
+        public function onReady(): void {}
+        public function onRequest(): void {}
+      }
+      final class DynamicSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.known' => 'onKnown'];
+          $events[eventName()] = 'onDynamic';
+          return $events;
+        }
+        public function onKnown(): void {}
+        public function onDynamic(): void {}
+      }`;
+    expect(analyzeSymfonyEventSubscriptions(parser, 'file:///src/BuiltSubscriber.php', source)
+      .map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
+      ['App\\BuiltSubscriber', 'app.ready', 'onReady', undefined],
+      ['App\\BuiltSubscriber', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onRequest', 8],
+    ]);
+  });
+
   it('accepts inherited subscriber callbacks only when a semantic validator proves them', () => {
     const source = "<?php namespace App; use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface; final class ChildSubscriber implements EventSubscriberInterface { public static function getSubscribedEvents(): array { return ['app.inherited' => 'onInherited', 'app.trait' => 'onTrait', 'app.hidden' => 'hidden']; } }";
     expect(analyzeSymfonyEventSubscriptions(parser, 'file:///src/ChildSubscriber.php', source)).toEqual([]);
@@ -72,11 +101,11 @@ describe('static Symfony Controller context analysis', () => {
   });
 
   it('extracts literal maps from inherited or Trait subscription providers without rebinding class constants', () => {
-    const source = "<?php namespace App; class BaseSubscriber { public static function getSubscribedEvents(): array { return ['app.parent' => 'onParent', self::EVENT => 'onConstant']; } } trait SharedSubscriptions { public static function getSubscribedEvents(): array { return ['app.trait' => ['onTrait', 4]]; } }";
+    const source = "<?php namespace App; use Symfony\\Component\\HttpKernel\\KernelEvents; class BaseSubscriber { public static function getSubscribedEvents(): array { return ['app.parent' => 'onParent', KernelEvents::REQUEST => 'onParent', self::EVENT => 'onConstant']; } } trait SharedSubscriptions { public static function getSubscribedEvents(): array { return ['app.trait' => ['onTrait', 4]]; } }";
     const accepts = (_subscriber: string, listener: string): boolean => ['onParent', 'onTrait'].includes(listener);
     expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
       'App\\BaseSubscriber', 'App\\ChildSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
-      .toEqual([['app.parent', 'onParent', undefined]]);
+      .toEqual([['app.parent', 'onParent', undefined], ['Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onParent', undefined]]);
     expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
       'App\\SharedSubscriptions', 'App\\TraitSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
       .toEqual([['app.trait', 'onTrait', 4]]);

@@ -261,6 +261,41 @@ function literalTextRange(node: NodeLike): { value: string; start: number; end: 
   const value = literalString(node); return value === undefined ? undefined : { value, start: node.startIndex + 1, end: node.endIndex - 1 };
 }
 
+function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: NodeLike; listeners: NodeLike }> | undefined {
+  if (!body) return undefined;
+  const arrayEntries = (array: NodeLike): Array<{ event: NodeLike; listeners: NodeLike }> | undefined => {
+    if (array.type !== 'array_creation_expression') return undefined;
+    const entries = array.namedChildren.map((item) => item.type === 'array_element_initializer' && item.namedChildren.length === 2
+      ? { event: item.namedChildren[0]!, listeners: item.namedChildren[1]! } : undefined);
+    return entries.every((entry) => entry !== undefined) ? entries as Array<{ event: NodeLike; listeners: NodeLike }> : undefined;
+  };
+  if (body.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement') {
+    const returned = body.namedChildren[0]!.namedChildren[0]; return returned ? arrayEntries(returned) : undefined;
+  }
+  if (body.namedChildren.length < 2) return undefined;
+  const firstExpression = body.namedChildren[0]?.type === 'expression_statement' ? body.namedChildren[0]!.namedChildren[0] : undefined;
+  const firstTarget = firstExpression?.type === 'assignment_expression' ? firstExpression.namedChildren[0] : undefined;
+  const firstArray = firstExpression?.type === 'assignment_expression' ? firstExpression.namedChildren[1] : undefined;
+  if (firstTarget?.type !== 'variable_name' || !firstArray) return undefined;
+  const variable = firstTarget.text; const entries = arrayEntries(firstArray); if (!entries) return undefined;
+  const deterministicEntry = ({ event, listeners }: { event: NodeLike; listeners: NodeLike }): boolean =>
+    ['string', 'class_constant_access_expression'].includes(event.type)
+      && ['string', 'array_creation_expression'].includes(listeners.type);
+  if (!entries.every(deterministicEntry)) return undefined;
+  for (const statement of body.namedChildren.slice(1, -1)) {
+    const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+    const target = assignment?.type === 'assignment_expression' ? assignment.namedChildren[0] : undefined;
+    const listeners = assignment?.type === 'assignment_expression' ? assignment.namedChildren[1] : undefined;
+    const targetVariable = target?.type === 'subscript_expression' ? target.namedChildren[0] : undefined;
+    const event = target?.type === 'subscript_expression' ? target.namedChildren[1] : undefined;
+    if (targetVariable?.type !== 'variable_name' || targetVariable.text !== variable || !event || !listeners) return undefined;
+    const entry = { event, listeners }; if (!deterministicEntry(entry)) return undefined; entries.push(entry);
+  }
+  const returned = body.namedChildren.at(-1);
+  return returned?.type === 'return_statement' && returned.namedChildren[0]?.type === 'variable_name'
+    && returned.namedChildren[0]!.text === variable ? entries : undefined;
+}
+
 /** Extract only complete, literal listener declarations whose callbacks are proven public instance methods. */
 export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string,
   isPublicInstanceListener?: (subscriberFqcn: string, listener: string) => boolean): SymfonyEventSubscriptionFact[] {
@@ -326,14 +361,12 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
         const methodNode = subscriptionMethod ? visit(classNode, (node) => node.type === 'method_declaration'
           && node.startIndex === subscriptionMethod.declarationStart && node.endIndex === subscriptionMethod.declarationEnd) : undefined;
         const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
-        const returned = body?.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement'
-          ? body.namedChildren[0]!.namedChildren[0] : undefined;
-        if (returned?.type === 'array_creation_expression') for (const item of returned.namedChildren) {
-          if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
-          const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
-          const eventLiteral = literalTextRange(eventNode!);
-          const staticIdentity = classConstantIdentity(eventNode!, namespace, parsed.imports, declaration.fqcn);
-          const staticEvent = staticIdentity ? { value: staticIdentity, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
+        const entries = eventSubscriptionEntries(body);
+        if (entries) for (const { event: eventNode, listeners: listenersNode } of entries) {
+          const listeners = listenerSpecs(listenersNode);
+          const eventLiteral = literalTextRange(eventNode);
+          const staticIdentity = classConstantIdentity(eventNode, namespace, parsed.imports, declaration.fqcn);
+          const staticEvent = staticIdentity ? { value: staticIdentity, start: eventNode.startIndex, end: eventNode.endIndex } : undefined;
           const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
           for (const listener of listeners) if (acceptsListener(listener.listener)) subscriptions.push({
             subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
@@ -435,9 +468,7 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
     const methodNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'method_declaration'
       && node.startIndex === method.declarationStart && node.endIndex === method.declarationEnd);
     const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
-    const returned = body?.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement'
-      ? body.namedChildren[0]!.namedChildren[0] : undefined;
-    if (returned?.type !== 'array_creation_expression') return [];
+    const entries = eventSubscriptionEntries(body); if (!entries) return [];
     const listenerSpecs = (node: NodeLike): Array<{ listener: string; start: number; end: number; priority?: number }> => {
       const direct = literalTextRange(node); if (direct) return [{ listener: direct.value, start: direct.start, end: direct.end }];
       if (node.type !== 'array_creation_expression') return [];
@@ -453,13 +484,14 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
     };
     const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
     const facts: SymfonyEventSubscriptionFact[] = [];
-    for (const item of returned.namedChildren) {
-      if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
-      const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
-      const literalEvent = literalTextRange(eventNode!);
-      const staticIdentity = providerFqcn.toLowerCase() === subscriberFqcn.toLowerCase()
-        ? classConstantIdentity(eventNode!, namespace, parsed.imports, providerFqcn) : undefined;
-      const event = literalEvent ?? (staticIdentity ? { value: staticIdentity, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined);
+    for (const { event: eventNode, listeners: listenersNode } of entries) {
+      const listeners = listenerSpecs(listenersNode);
+      const literalEvent = literalTextRange(eventNode);
+      const relativeReceiver = eventNode.type === 'class_constant_access_expression'
+        && ['self', 'static', 'parent'].includes(eventNode.namedChildren[0]?.text.toLowerCase() ?? '');
+      const staticIdentity = providerFqcn.toLowerCase() === subscriberFqcn.toLowerCase() || !relativeReceiver
+        ? classConstantIdentity(eventNode, namespace, parsed.imports, providerFqcn) : undefined;
+      const event = literalEvent ?? (staticIdentity ? { value: staticIdentity, start: eventNode.startIndex, end: eventNode.endIndex } : undefined);
       if (!event || !listeners.length) continue;
       for (const listener of listeners) if (isPublicInstanceListener(subscriberFqcn, listener.listener)) facts.push({
         subscriberFqcn, event: event.value, listener: listener.listener, priority: listener.priority,
