@@ -1,3 +1,4 @@
+- 提交 `3f6b5b4` 完成继承/Trait Symfony subscriber 相对常量 References，候选 `php-companion-alpha-0.4.5-3f6b5b46` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 继承或 Trait 提供的 `getSubscribedEvents()` 现在按 PHP/Symfony 运行时语义解析 `self/static/parent` 类常量事件键：`self` 绑定方法组合宿主，`static` 绑定实际注册 subscriber，`parent` 绑定宿主直接父类；Trait `as public getSubscribedEvents` 可回溯原静态方法，缺失绑定仍保持 unknown。父类和 Trait 的类级 `#[AsEventListener]` 经 PHP 8.5 与 Symfony 自动配置实测不会继承，继续只作用于其自身注册服务。
 - 提交 `efd443d` 完成 Symfony 方法 Attribute 相对事件类 References，候选 `php-companion-alpha-0.4.5-efd443d9` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 继承/Trait 方法 `AsEventListener` 的相对事件类按 PHP 8.5 Reflection 语义解析：Trait `self/parent` 绑定消费类/消费类父类，父类方法 `self/parent` 绑定声明类/声明类父类；非法 `static::class` 保持 unknown。
