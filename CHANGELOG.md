@@ -1,3 +1,4 @@
+- 提交 `d6411e7` 完成 Symfony 事件派发 References 与同名 API 语义门禁，候选 `php-companion-alpha-0.4.5-d6411e74` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony 监听类与方法 References 现在合并可证明的事件派发位置：支持直接 `new Event()`、字面量事件名、类名/类常量事件名和命名参数，并要求 `dispatch()` 的解析目标属于 Symfony EventDispatcher 接口族；Messenger 等同名 API 不会混入。
 - 提交 `c22b57f` 完成精确 `AsEventListener` 与 YAML 事件监听 References，候选 `php-companion-alpha-0.4.5-c22b57f9` 的三份 VSIX 已验证；Remote CLI 挂起后，候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 的现有 0.4.5 扩展目录，Reload Window 后加载。
 - Symfony 事件监听 References 扩展到精确 `#[AsEventListener]` 和 YAML `kernel.event_listener`：支持显式事件/方法/优先级、方法参数事件推断、类级方法派生与 `__invoke` 回退；只有可对应到公开非静态方法的静态关系才进入类或方法引用。

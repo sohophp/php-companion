@@ -48,9 +48,9 @@ Winstar 只读实测：
 
 ## Alpha 候选
 
-- 功能提交：`c22b57f9bfddbb6dac20b4102f7bd3a6e0ea62ed`。
-- 候选目录：`artifacts/php-companion-alpha-0.4.5-c22b57f9/`。
-- 核心 VSIX SHA-256：`1326ae34e8fff87e9fcdc4128c0cee79e71fa6cb1f8fa4459f579fd4df782a14`。
-- Open Source Pack SHA-256：`fba67a28c4c22589a4d198924a025bee0f14e6c610ea97d692c715c86fe14667`。
-- Recommended Pack SHA-256：`a8710515f44b4a6575f7662aed784dc1205df9bd5b3abe8fecee8cec8894067a`。
-- `code --install-extension` 使用当前 Remote CLI 环境时持续挂起；移除 IPC 环境后 CLI 明确拒绝非 VS Code WSL 终端。由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录；安装目录与候选包 SHA-256 均为 `563353501f892b3f5c4696a4f4f3063a03051db2d6c1b3a067ee04dcfc920278`。须 Reload Window 后加载新进程。
+- 功能提交：`d6411e744b3a1100813bfcf76bed3d2ebeac2a15`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-d6411e74/`。
+- 核心 VSIX SHA-256：`e58273ea7b59c7dcab452e869ba77af06ea4be165358080258a492df9cc404ab`。
+- Open Source Pack SHA-256：`145dbbe9090fd4895fceb633715b13b36ecc185fd00c0c775ab3a3e25b11afb1`。
+- Recommended Pack SHA-256：`f742e8c559f250856081113a3daf84d645344ef4ca2a969fde1612802b814ad6`。
+- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选包 SHA-256 均为 `55b8bf1b1bd31f9360c6ca01b1a8ddb4e4ad16cdf7a6e060a7a0581baeb9f08e`。须 Reload Window 后加载新进程。
