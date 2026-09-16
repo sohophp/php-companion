@@ -1,3 +1,4 @@
+- 提交 `2848e49` 完成 Trait alias Symfony Attribute References，候选 `php-companion-alpha-0.4.5-2848e499` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 提交 `48d8126` 完成继承/Trait Symfony 方法 Attribute References，候选 `php-companion-alpha-0.4.5-48d81260` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 已注册服务从父类或 Trait 获得的有效公开实例方法会保留方法级 `#[AsEventListener]`：事件、优先级、回调声明和匹配 dispatch 均进入子服务/真实方法 References；Trait `as` 别名保留独立有效方法名并回溯原始 Attribute 声明，跨宿主相对类名保持 unknown。
 - 提交 `814c25f` 完成确定性 Symfony 订阅构造 References，候选 `php-companion-alpha-0.4.5-814c25fb` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。

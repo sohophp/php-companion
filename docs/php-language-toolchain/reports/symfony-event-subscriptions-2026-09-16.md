@@ -21,7 +21,7 @@
 - 语法事实只给出事件身份和范围，Language Server 必须再把方法唯一解析到 Symfony Contracts/Component EventDispatcher 接口或其子类型。
 - 相同事件对象传给 Messenger `MessageBusInterface::dispatch()`、业务同名方法、动态接收者或变量事件时不会发布关系。
 
-监听关系通过服务类的有效方法表验证回调：本类、父类或 Trait 提供的具体公开实例方法均可发布，并把方法 References 绑定到真实声明；Trait precedence、alias 和 visibility 复用 PHP 语义组合结果。已注册服务若可证明属于 `EventSubscriberInterface`，父类或 Trait 提供的具体公开静态 `getSubscribedEvents()` 也会发布其中的字面量事件、回调、优先级和多监听器。订阅数组可直接返回，也可通过一个局部变量完成静态初始化、字面量/显式类常量键追加并原样返回。已注册服务从父类或 Trait 获得的有效方法还会保留方法级 `#[AsEventListener]`，事件和派发绑定到子服务，Attribute 范围绑定到真实声明。private、static 回调、非公开/非静态/抽象订阅提供者、缺失父类/Trait、动态键、其他语句、变量切换、动态 attribute 参数和分支返回保持未知。跨宿主 `self/static/parent` 类常量事件及 Trait alias 改名 Attribute 映射尚未发布，避免错误绑定。
+监听关系通过服务类的有效方法表验证回调：本类、父类或 Trait 提供的具体公开实例方法均可发布，并把方法 References 绑定到真实声明；Trait precedence、alias 和 visibility 复用 PHP 语义组合结果。已注册服务若可证明属于 `EventSubscriberInterface`，父类或 Trait 提供的具体公开静态 `getSubscribedEvents()` 也会发布其中的字面量事件、回调、优先级和多监听器。订阅数组可直接返回，也可通过一个局部变量完成静态初始化、字面量/显式类常量键追加并原样返回。已注册服务从父类或 Trait 获得的有效方法还会保留方法级 `#[AsEventListener]`，事件和派发绑定到子服务，Attribute 范围绑定到真实声明；`as` alias 使用独立有效回调名并回溯原始 Trait 方法 Attribute。private、static 回调、非公开/非静态/抽象订阅提供者、缺失父类/Trait、动态键、其他语句、变量切换、动态 attribute 参数和分支返回保持未知。跨宿主 `self/static/parent` 类常量事件仍保持 unknown，避免错误绑定。
 
 Symfony 来源事实缓存同步升级为 `symfony-facts-v4`，恢复时会验证每条 YAML/编译容器监听事实及 event/method 范围；旧 v3 缓存自动重建。
 
@@ -46,6 +46,7 @@ Winstar 只读实测：
 - 继承订阅提供者回归覆盖父类/Trait 字面量 map、优先级、跨宿主类常量拒绝和 EventSubscriberInterface 语义门禁；真实 stdio 从父类/Trait 回调与实际子服务类双向验证引用。
 - 确定性局部数组回归覆盖静态初始化、追加、显式类常量、动态键整段拒绝；真实 stdio 的直接 subscriber 使用同一路径。
 - 继承/Trait 方法 Attribute 回归覆盖显式类事件、字面量、优先级、相对类名拒绝及已注册消费门禁；真实 stdio 同时验证父类、Trait、子服务类和匹配 dispatch。
+- PHP 8.5 Reflection 对照和 semantic/stdin 回归覆盖 Trait 原方法与 alias 同时保留 Attribute；alias 调用返回 Attribute 位置及匹配派发。
 - framework-symfony 28 项和 semantic 268 项测试通过。
 - Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 218.65 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
@@ -54,9 +55,9 @@ Winstar 只读实测：
 
 ## Alpha 候选
 
-- 功能提交：`48d8126077c1e75c8915a61c78382ccd264c56d3`。
-- 候选目录：`artifacts/php-companion-alpha-0.4.5-48d81260/`。
-- 核心 VSIX SHA-256：`08178ad00afa89bf1a0b763679b029b13e6202b06fdfacf01d30a5e26832e5dc`。
-- Open Source Pack SHA-256：`a4a8ecf3e3dd883495fdd47945057b99b1452d4f743a56e2b0a52fc4389bdc31`。
-- Recommended Pack SHA-256：`4fa1d16e6eb22b051b8e17dadc623791c191816f22eccc36a7b208bff0a360af`。
-- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `2831426b4b6db858c1bd862d3337ed7e6bd030b7487edd4630fc0d77647bf54f`。须 Reload Window 后加载新进程。
+- 功能提交：`2848e499ea48a665a5c80c59373deacf53f3e248`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-2848e499/`。
+- 核心 VSIX SHA-256：`dc384f1261b270264223800f2408d88b5440b254dae7dab7e55c40565791d6ab`。
+- Open Source Pack SHA-256：`75e9ac16ad16ffe4031d43e87a7c505437ce0413a6b2263b6dd71f685ef47c22`。
+- Recommended Pack SHA-256：`56cff3a4ebd48ad1727a084e46a70ca890e03a0ee0fe4479365b106d236a5958`。
+- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `9678e98124d1af361a5485394bcf2f5d2e85ac2b8aeecd2ca664b39cdd07d288`。须 Reload Window 后加载新进程。
