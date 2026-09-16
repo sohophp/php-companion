@@ -1,3 +1,4 @@
+- 提交 `c994928` 完成继承/Trait Symfony 监听方法 References，候选 `php-companion-alpha-0.4.5-c994928a` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony 事件监听 References 现在按服务类的有效方法解析继承与 Trait 组合：`getSubscribedEvents()`、类级 `#[AsEventListener]`、YAML 和新鲜编译容器标签可精确指向父类或 Trait 的公开实例方法；private、static、抽象、缺失父类/Trait 和无法唯一证明的目标保持 unknown。
 - 提交 `4627aca` 完成编译容器 Symfony 事件监听 References，候选 `php-companion-alpha-0.4.5-4627aca3` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 新鲜 Symfony debug-container XML 中显式 `kernel.event_listener` 标签现已进入监听类与方法 References；解析保留 XML 实体解码后的事件身份和原始精确范围，无效 method/priority 保持 unknown，事实缓存升级为 v4。
