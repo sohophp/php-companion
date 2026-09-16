@@ -28,4 +28,13 @@ Winstar 只读实测：
 - Language Server 完整套件 6 个测试文件、185 项测试通过，耗时 210.63 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
 - 16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
-- VSIX 证据在本阶段封板后补充。
+- 三份 0.4.5 VSIX 已完成打包并通过 `verify:vsix` 内容检查。
+
+## Alpha 候选
+
+- 功能提交：`2f693ca9d8b39be1f4961c02c68734867b4eb5f3`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-2f693ca9/`。
+- 核心 VSIX SHA-256：`41911b1958bbefdd12aa235b80ed7b798348ed6f125c58988ecbd3d8bf8b0831`。
+- Open Source Pack SHA-256：`b5bf50b511fd31c61ba922f4a52c7bb2eb97fe203bc270180e0094e4bca9c3d4`。
+- Recommended Pack SHA-256：`7cdb5a77c705432de1e0b925ccbe7bd381df6bb27a90f83db57f13f3e6560c4a`。
+- 核心 VSIX 已覆盖安装到 WSL RockyLinux8。安装目录与候选包内的 `language-server.js` SHA-256 均为 `56c69463b313128c395808f543a6193ffad24fc106ea9c4ff4bacfa4904af919`；`extension.js` SHA-256 均为 `9c666742c7823b2ff640f9d4b813979a7e6aeaed69e6b99d6d1afe6cf375ef8f`。须 Reload Window 后加载新进程。

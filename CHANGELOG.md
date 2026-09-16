@@ -1,3 +1,4 @@
+- 提交 `2f693ca` 完成 Symfony 事件订阅 References 与成员候选扫描，候选 `php-companion-alpha-0.4.5-2f693ca9` 的三份 VSIX 已验证；核心候选已覆盖安装到 WSL RockyLinux8，Reload Window 后加载。
 - Symfony 事件订阅关系进入 References：可证明的 `EventSubscriberInterface::getSubscribedEvents()` 字面量映射会把事件键加入订阅类引用，把回调字符串加入公开监听方法引用；方法、属性和常量 References 在 onDemand 模式改用按名称候选扫描，Winstar `onKernelController` 冷查询由约 50 秒降至约 5.8 秒。
 - 提交 `da3d68a` 完成 Symfony 服务注册 References，候选 `php-companion-alpha-0.4.5-da3d68a0` 的三份 VSIX 已验证；核心候选已安装到 WSL RockyLinux8，Reload Window 后加载。
 - Symfony 隐式服务注册进入类型 References：类声明及使用点的 Find All References 会合并显式 service、确定性 YAML resource 和新鲜编译容器的注册位置；实现导航仍指向 PHP 类。冷启动 onDemand 查询在候选扫描后按需加载服务事实，Winstar `AdminSecuritySubscriber` 首次查询返回 `config/symfony/services.yaml` 注册项，热查询保持毫秒级。
