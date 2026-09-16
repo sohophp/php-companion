@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Resolve relative class-constant event keys from inherited and Trait-composed subscriber maps with caller-proven `self`, late-static `static`, and `parent` owners; follow public Trait aliases back to non-public static source methods and retain unknown when any binding is unavailable.
 - Resolve inherited method-attribute `self::class` and `parent::class` according to whether the provider is a class or Trait, using caller-proven direct parents; reject invalid `static::class`.
 - Extract method-level `AsEventListener` attributes for a specifically proven parent or Trait method consumer, allowing its effective callback name to differ from the source method for Trait aliases while rejecting relative cross-owner rebinding.
 - Extract deterministic subscription arrays built through one static initialization, literal/class-constant keyed assignments and an unchanged return; reject dynamic mutations, and allow explicit non-relative class constants across inherited providers.

@@ -6,6 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Bind inherited subscriber-map `self`, late-static `static`, and `parent` event constants to the effective method host, registered subscriber, and host parent; preserve original Trait method identities and visibility changes through aliases.
 - Bind relative event classes on inherited method attributes to the proven provider or Trait consumer and its direct parent, matching PHP Reflection behavior without treating invalid `static::class` as an event.
 - Merge method-level `AsEventListener` attributes from effective parent and Trait methods into each registered service class and true declaration References, including matching dispatch sites and independently named Trait aliases.
 - Surface deterministic locally built subscriber maps and inherited-provider events that use explicit non-relative class constants while retaining dynamic mutations and relative cross-owner constants as unknown.

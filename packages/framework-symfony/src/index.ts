@@ -445,20 +445,19 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
   } finally { parsed.tree.delete(); }
 }
 
-/**
- * Extract a public static getSubscribedEvents() body supplied by a parent class or Trait.
- * Cross-owner class-constant event keys remain unknown because self/static binding differs after composition.
- */
+/** Extract a caller-proven effective public static getSubscribedEvents() body supplied by a parent class or Trait. */
 export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string,
   providerFqcn: string, subscriberFqcn: string,
-  isPublicInstanceListener: (subscriberFqcn: string, listener: string) => boolean): SymfonyEventSubscriptionFact[] {
+  isPublicInstanceListener: (subscriberFqcn: string, listener: string) => boolean,
+  relativeClasses: { selfFqcn?: string; staticFqcn?: string; parentFqcn?: string } = {},
+  sourceMethodName = 'getSubscribedEvents'): SymfonyEventSubscriptionFact[] {
   const parsed = parser.parse(source, undefined, uri);
   try {
     const declaration = parsed.declarations.find((item) => ['class', 'trait'].includes(item.kind)
       && item.fqcn.toLowerCase() === providerFqcn.toLowerCase());
     if (!declaration) return [];
     const method = parsed.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === providerFqcn.toLowerCase()
-      && item.name.toLowerCase() === 'getsubscribedevents' && item.visibility === 'public' && item.static);
+      && item.name.toLowerCase() === sourceMethodName.toLowerCase() && item.static);
     if (!method) return [];
     const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
       if (accept(node)) return node;
@@ -488,9 +487,14 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
       const listeners = listenerSpecs(listenersNode);
       const literalEvent = literalTextRange(eventNode);
       const relativeReceiver = eventNode.type === 'class_constant_access_expression'
-        && ['self', 'static', 'parent'].includes(eventNode.namedChildren[0]?.text.toLowerCase() ?? '');
-      const staticIdentity = providerFqcn.toLowerCase() === subscriberFqcn.toLowerCase() || !relativeReceiver
-        ? classConstantIdentity(eventNode, namespace, parsed.imports, providerFqcn) : undefined;
+        ? eventNode.namedChildren[0]?.text.toLowerCase() : undefined;
+      const relativeOwner = relativeReceiver === 'self' ? relativeClasses.selfFqcn
+        : relativeReceiver === 'static' ? relativeClasses.staticFqcn
+        : relativeReceiver === 'parent' ? relativeClasses.parentFqcn : undefined;
+      const staticIdentity = relativeReceiver && ['self', 'static', 'parent'].includes(relativeReceiver)
+        ? relativeOwner && eventNode.namedChildren[1]
+          ? `${relativeOwner}::${eventNode.namedChildren[1]!.text}` : undefined
+        : classConstantIdentity(eventNode, namespace, parsed.imports, providerFqcn);
       const event = literalEvent ?? (staticIdentity ? { value: staticIdentity, start: eventNode.startIndex, end: eventNode.endIndex } : undefined);
       if (!event || !listeners.length) continue;
       for (const listener of listeners) if (isPublicInstanceListener(subscriberFqcn, listener.listener)) facts.push({

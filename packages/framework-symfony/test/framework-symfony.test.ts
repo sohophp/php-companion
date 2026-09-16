@@ -100,15 +100,43 @@ describe('static Symfony Controller context analysis', () => {
     ]);
   });
 
-  it('extracts literal maps from inherited or Trait subscription providers without rebinding class constants', () => {
-    const source = "<?php namespace App; use Symfony\\Component\\HttpKernel\\KernelEvents; class BaseSubscriber { public static function getSubscribedEvents(): array { return ['app.parent' => 'onParent', KernelEvents::REQUEST => 'onParent', self::EVENT => 'onConstant']; } } trait SharedSubscriptions { public static function getSubscribedEvents(): array { return ['app.trait' => ['onTrait', 4]]; } }";
+  it('extracts inherited or Trait subscription maps with exact relative constant bindings', () => {
+    const source = `<?php namespace App;
+      use Symfony\\Component\\HttpKernel\\KernelEvents;
+      class ProviderRoot { public const ROOT_EVENT = 'root'; }
+      class BaseSubscriber extends ProviderRoot {
+        public const SELF_EVENT = 'self'; public const STATIC_EVENT = 'static';
+        public static function getSubscribedEvents(): array { return [
+          'app.parent' => 'onParent', KernelEvents::REQUEST => 'onParent',
+          self::SELF_EVENT => 'onParent', static::STATIC_EVENT => 'onParent', parent::ROOT_EVENT => 'onParent',
+        ]; }
+      }
+      trait SharedSubscriptions {
+        private static function subscriptions(): array { return [
+          'app.trait' => ['onTrait', 4], self::SELF_EVENT => 'onTrait',
+          static::STATIC_EVENT => 'onTrait', parent::ROOT_EVENT => 'onTrait',
+        ]; }
+      }`;
     const accepts = (_subscriber: string, listener: string): boolean => ['onParent', 'onTrait'].includes(listener);
     expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
-      'App\\BaseSubscriber', 'App\\ChildSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
-      .toEqual([['app.parent', 'onParent', undefined], ['Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onParent', undefined]]);
+      'App\\BaseSubscriber', 'App\\ChildSubscriber', accepts, {
+        selfFqcn: 'App\\BaseSubscriber', staticFqcn: 'App\\ChildSubscriber', parentFqcn: 'App\\ProviderRoot',
+      }).map(({ event, listener, priority }) => [event, listener, priority])).toEqual([
+      ['app.parent', 'onParent', undefined], ['Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onParent', undefined],
+      ['App\\BaseSubscriber::SELF_EVENT', 'onParent', undefined], ['App\\ChildSubscriber::STATIC_EVENT', 'onParent', undefined],
+      ['App\\ProviderRoot::ROOT_EVENT', 'onParent', undefined],
+    ]);
     expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
-      'App\\SharedSubscriptions', 'App\\TraitSubscriber', accepts).map(({ event, listener, priority }) => [event, listener, priority]))
-      .toEqual([['app.trait', 'onTrait', 4]]);
+      'App\\SharedSubscriptions', 'App\\TraitSubscriber', accepts, {
+        selfFqcn: 'App\\TraitHost', staticFqcn: 'App\\TraitSubscriber', parentFqcn: 'App\\TraitRoot',
+      }, 'subscriptions').map(({ event, listener, priority }) => [event, listener, priority])).toEqual([
+      ['app.trait', 'onTrait', 4], ['App\\TraitHost::SELF_EVENT', 'onTrait', undefined],
+      ['App\\TraitSubscriber::STATIC_EVENT', 'onTrait', undefined], ['App\\TraitRoot::ROOT_EVENT', 'onTrait', undefined],
+    ]);
+    expect(analyzeSymfonyInheritedEventSubscriptions(parser, 'file:///src/Subscriptions.php', source,
+      'App\\BaseSubscriber', 'App\\ChildSubscriber', accepts).map(({ event }) => event)).toEqual([
+      'app.parent', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST',
+    ]);
   });
 
   it('extracts exact class and method AsEventListener attributes with type inference', () => {

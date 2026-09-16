@@ -2129,11 +2129,17 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       .filter((fqcn) => workspace.isSubtype(fqcn, subscriberInterface)) : [];
     const inheritedSubscriptions = syntaxParser ? subscriberClasses.flatMap((subscriber) => {
       const provider = workspace.publicStaticMethod(subscriber, 'getSubscribedEvents');
-      const providerFqcn = provider?.fqcn.split('::')[0];
+      const providerIdentity = provider?.declarationFqcn ?? provider?.fqcn;
+      const providerFqcn = providerIdentity?.split('::')[0];
+      const providerMethodName = provider?.declarationName ?? provider?.name;
       if (!provider || !providerFqcn || providerFqcn.toLowerCase() === subscriber.toLowerCase()) return [];
       const source = workspace.source(provider.uri); if (!source) return [];
       return analyzeSymfonyInheritedEventSubscriptions(syntaxParser, provider.uri, source, providerFqcn, subscriber,
-        (owner, listener) => workspace.publicInstanceMethod(owner, listener) !== undefined);
+        (owner, listener) => workspace.publicInstanceMethod(owner, listener) !== undefined, {
+          selfFqcn: provider.typeScopeFqcn,
+          staticFqcn: subscriber,
+          parentFqcn: workspace.directParentClass(provider.typeScopeFqcn),
+        }, providerMethodName);
     }) : [];
     const registeredClasses = [...new Set(symfonyServiceCatalog(root).map((service) => service.className))];
     const inspectInheritedAttributes = Boolean(type || eventSource?.toLowerCase().includes('aseventlistener'));

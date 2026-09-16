@@ -128,22 +128,35 @@ describe('language server stdio', () => {
               'app.hidden' => 'hiddenListener', 'app.static' => 'staticListener',
             ]; }
           }
-          class ParentSubscriptions {
-            public static function getSubscribedEvents(): array { return ['app.parent.map' => 'onParentMap']; }
+          class ParentSubscriptionRoot { public const ROOT_EVENT = 'app.parent.root'; }
+          #[AsEventListener('app.parent.class', method: 'onParentMap')]
+          class ParentSubscriptions extends ParentSubscriptionRoot {
+            public const SELF_EVENT = 'app.parent.self'; public const STATIC_EVENT = 'app.parent.static';
+            public static function getSubscribedEvents(): array { return [
+              'app.parent.map' => 'onParentMap', self::SELF_EVENT => 'onParentMap',
+              static::STATIC_EVENT => 'onParentMap', parent::ROOT_EVENT => 'onParentMap',
+            ]; }
             #[AsEventListener('app.parent.attribute')]
             public function onParentMap(): void {}
           }
-          final class InheritedMapListener extends ParentSubscriptions implements EventSubscriberInterface {}
+          final class InheritedMapListener extends ParentSubscriptions implements EventSubscriberInterface {
+            public const STATIC_EVENT = 'app.child.static';
+          }
+          #[AsEventListener('app.trait.class', method: 'onTraitMap')]
           trait TraitSubscriptions {
-            public static function getSubscribedEvents(): array { return ['app.trait.map' => 'onTraitMap']; }
+            public const SELF_EVENT = 'app.trait.self'; public const STATIC_EVENT = 'app.trait.static';
+            private static function subscriptions(): array { return [
+              'app.trait.map' => 'onTraitMap', self::SELF_EVENT => 'onTraitMap',
+              static::STATIC_EVENT => 'onTraitMap', parent::ROOT_EVENT => 'onTraitMap',
+            ]; }
             #[AsEventListener(ReadyEvent::class, priority: 7)]
             #[AsEventListener(self::class)]
             #[AsEventListener(parent::class)]
             public function onTraitMap(): void {}
           }
-          class TraitMapBase {}
+          class TraitMapBase { public const ROOT_EVENT = 'app.trait.root'; }
           final class TraitMapListener extends TraitMapBase implements EventSubscriberInterface {
-            use TraitSubscriptions { onTraitMap as onTraitAlias; }
+            use TraitSubscriptions { subscriptions as public getSubscribedEvents; onTraitMap as onTraitAlias; }
           }
           final class AliasCaller {
             public function call(TraitMapListener $listener): void { $listener->onTraitAlias(); }
@@ -239,7 +252,7 @@ describe('language server stdio', () => {
           textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
         } }));
         const inheritedMap = (await output.waitFor((message) => message.id === id)).result;
-        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 5 : 2);
+        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 8 : 6);
         expect(inheritedMap.map((reference: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end))))
           .toEqual(expect.arrayContaining([method, 'AsEventListener']));
@@ -252,6 +265,13 @@ describe('language server stdio', () => {
           reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === event)).toBe(true);
         expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === attributeEvent)).toBe(true);
+        for (const relativeEvent of ['self::SELF_EVENT', 'static::STATIC_EVENT', 'parent::ROOT_EVENT']) {
+          expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+            reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === relativeEvent)).toBe(true);
+        }
+        const nonInheritedClassEvent = method === 'onParentMap' ? 'app.parent.class' : 'app.trait.class';
+        expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+          reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === nonInheritedClassEvent)).toBe(false);
       }
       server.stdin.write(encode({ jsonrpc: '2.0', id: 255, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onTraitAlias') + 2), context: { includeDeclaration: false },
