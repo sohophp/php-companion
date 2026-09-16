@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { basename } from 'node:path';
-import { resolvePsr4Namespace } from '../composer/project.js';
+import { resolvePsr4Namespace, resolvePsr4Namespaces } from '../composer/project.js';
 import { performance } from 'node:perf_hooks';
 import { VersionManager } from './versionManager.js';
 import { WorkspaceManager } from './workspaceManager.js';
@@ -41,11 +41,15 @@ function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri
   const edit = new vscode.WorkspaceEdit();
   for (const file of files) {
     const mappings = versions.stateForUri(file.oldUri)?.composer?.psr4 ?? versions.stateForUri(file.newUri)?.composer?.psr4 ?? [];
-    const namespace = resolvePsr4Namespace(file.newUri.fsPath, mappings);
     const match = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(file.source);
-    if (namespace === undefined || !match?.[1] || match.index === undefined) continue;
+    if (!match?.[1] || match.index === undefined) continue;
+    const sourceMappings = mappings.filter((mapping) => resolvePsr4Namespaces(file.oldUri.fsPath, [mapping]).includes(match[1]!.trim()));
+    const preferred = resolvePsr4Namespaces(file.newUri.fsPath, sourceMappings);
+    const candidates = preferred.length ? preferred : resolvePsr4Namespaces(file.newUri.fsPath, mappings);
+    if (candidates.length !== 1) continue;
+    const namespace = candidates[0]!;
     const start = match.index + match[0].indexOf(match[1]); const end = start + match[1].trimEnd().length;
-    edit.replace(file.newUri, new vscode.Range(positionAt(file.source, start), positionAt(file.source, end)), namespace);
+    edit.replace(file.oldUri, new vscode.Range(positionAt(file.source, start), positionAt(file.source, end)), namespace);
   }
   return edit;
 }

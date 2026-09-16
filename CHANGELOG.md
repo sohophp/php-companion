@@ -1,3 +1,4 @@
+- 修复共用 src/ 的 App\ 与 SohoPHP\ 映射导致 Safe Move 拒绝目标 namespace；References 在 onDemand 下先建立项目索引，文件监视忽略非自动加载 PHP 路径，进行中的索引请求共享任务。加入真实 VS Code 的双映射、未保存移动及跨文件引用回归。
 - 默认 `onDemand` 模式不再在 Reload 时启动 10000 文件扫描；需要全项目精度的操作才索引项目源码，vendor 类型继续通过精确 PSR-4 请求按需加载，`experimental` 保留主动全量索引。
 - Explorer 移动 PHP 文件现在立即更新目标文件的 PSR-4 namespace，再于项目索引完成后更新跨文件引用；未保存内容可参与移动，旧/新路径的监视事件也不会再取消正在进行的安全移动索引。
 - References 与 Rename 现在按函数作用域处理普通局部变量；项目源码索引完成信号会立即唤醒已在等待的 F2 请求，无需等待依赖索引结束，即可安全重命名 final 类的 private 构造器提升属性，并保持声明、命名实参与 `$this->service` 访问为同一身份。

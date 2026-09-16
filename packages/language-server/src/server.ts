@@ -31,7 +31,7 @@ import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, indexComposerSources, type ProjectIndexLimits } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
-import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
+import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
 import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
@@ -561,7 +561,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       projectCompleteRoots.add(root);
       for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
       projectCompleteWaiters.delete(root);
-      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; dependency indexing continues.`);
+      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; ${indexingMode === 'experimental' ? 'dependency indexing continues' : 'project indexing complete'}.`);
     },
   });
   if (result.projectComplete && shouldContinue()) {
@@ -1144,6 +1144,7 @@ async function indexWorkspace(generation: number): Promise<void> {
 }
 
 function startIndexWorkspace(): Promise<void> {
+  if (activeIndexing) return activeIndexing;
   const generation = ++indexingGeneration;
   const running = indexWorkspace(generation);
   activeIndexing = running;
@@ -1432,7 +1433,10 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     if (!declarations.length || declarations.some((declaration) => !resolvePsr4Class(declaration.fqcn, mappings).some((candidate) => resolve(candidate) === resolve(oldPath)))) {
       return { error: `Cannot move ${oldPath}: its declarations do not match Composer PSR-4 paths.` };
     }
-    const namespaces = resolvePsr4Namespaces(newPath, mappings);
+    const sourceMappings = mappings.filter((mapping) => declarations.every((declaration) =>
+      resolvePsr4Class(declaration.fqcn, [mapping]).some((candidate) => resolve(candidate) === resolve(oldPath))));
+    const preferredNamespaces = resolvePsr4Namespaces(newPath, sourceMappings);
+    const namespaces = preferredNamespaces.length ? preferredNamespaces : resolvePsr4Namespaces(newPath, mappings);
     if (namespaces.length !== 1) return { error: `Cannot move ${newPath}: destination does not resolve to one Composer PSR-4 namespace.` };
     semanticMoves.push({ ...move, newNamespace: namespaces[0]! });
   }
@@ -1561,6 +1565,14 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     if (!path.toLowerCase().endsWith('.php') || documents.get(change.uri)) continue;
     const root = rootForUri(change.uri); const workspace = await semanticForUri(change.uri);
     const plannedMoveChange = isPlannedSafeMovePath(path);
+    if (root && !plannedMoveChange) {
+      const project = await loadComposerProject(root);
+      const roots = project ? allAutoloadPaths(project) : [];
+      if (project && (!roots.some((sourceRoot) => {
+        const child = relative(sourceRoot, path);
+        return child === '' || child !== '..' && !child.startsWith(`..${sep}`) && !isAbsolute(child);
+      }) || isAutoloadPathExcluded(project, path))) continue;
+    }
     if (change.type === FileChangeType.Deleted) {
       workspace.remove(change.uri); interopContextsByRoot.get(root ?? '')?.delete(change.uri);
       if (root) {
@@ -1978,6 +1990,8 @@ connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
 connection.onReferences(async ({ textDocument, position, context }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const root = rootForUri(document.uri);
+  if (root && !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
   return workspace.references(document.uri, document.offsetAt(position), context.includeDeclaration).flatMap((location) => {

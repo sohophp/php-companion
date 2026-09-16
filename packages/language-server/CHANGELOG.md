@@ -1,3 +1,4 @@
+- Resolve Safe Move destinations using the source declaration mapping; wait for project references in onDemand mode and ignore non-autoload PHP watcher events.
 - Surface versioned libxml, SimpleXML, XML Parser, XMLReader, and XMLWriter functions, constants, error properties, member signatures, iteration values, and builtin navigation.
 - Surface the complete versioned mbstring catalog through completion, Signature Help, return propagation, and builtin Definition.
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
