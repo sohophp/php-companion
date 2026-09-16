@@ -13,7 +13,8 @@ export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; }
 export interface ProjectIndexCacheOptions { directory: string; version: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => boolean | Promise<boolean>; }
-export interface ProjectIndexOptions { limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
+export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
+export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
 function validateLimits(limits: ProjectIndexLimits): void {
@@ -43,7 +44,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   if (!project) return { files: 0, bytes: 0, cached: 0, complete: true, projectComplete: true, warnings: ['composer.json was not readable.'] };
   const warnings = [...project.warnings];
   const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(root).digest('hex')}.json`) : undefined;
-  type CacheEntry = { size: number; mtimeMs: number; payload: unknown };
+  type CacheEntry = { size: number; mtimeMs: number; hash: string; payload: unknown };
   let previous = new Map<string, CacheEntry>();
   if (cachePath && options.cache) {
     try {
@@ -80,20 +81,24 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     }
     try {
       const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString(); const old = previous.get(path);
+      const source = await readFile(path, 'utf8');
+      const hash = createHash('sha256').update(source).digest('hex');
       let restored = false;
-      if (old && old.size === size && old.mtimeMs === info.mtimeMs && options.cache) {
+      if (old && old.size === size && old.hash === hash && options.cache) {
         try { restored = await options.cache.restore(old.payload, { uri, path, bytes: size }); }
         catch { warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`); }
       }
       if (old && restored) {
-        next.set(path, old); cached += 1; bytes += size; indexed += 1;
-        if (indexed % (options.yieldEvery ?? 50) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
+        next.set(path, { ...old, mtimeMs: info.mtimeMs }); cached += 1; bytes += size; indexed += 1;
+        options.onProgress?.({ files: indexed, cached, total: projectFiles.length, phase: candidate.project ? 'project' : 'dependencies' });
+      if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
         return 'indexed';
       }
-      const source = await readFile(path, 'utf8'); const payload = await options.onSource({ uri, path, source, bytes: size });
-      if (payload !== undefined) next.set(path, { size, mtimeMs: info.mtimeMs, payload });
+      const payload = await options.onSource({ uri, path, source, bytes: size });
+      if (payload !== undefined) next.set(path, { size, mtimeMs: info.mtimeMs, hash, payload });
       bytes += size; indexed += 1;
-      if (indexed % (options.yieldEvery ?? 50) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
+      options.onProgress?.({ files: indexed, cached, total: projectFiles.length, phase: candidate.project ? 'project' : 'dependencies' });
+      if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
     } catch { skipped(candidate, 'could not be read or analyzed and was skipped.'); }
     return 'indexed';
   };
@@ -132,3 +137,5 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   await commitCache();
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
 }
+
+export { PendingChanges } from './pending.js';

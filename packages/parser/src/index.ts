@@ -1491,3 +1491,11 @@ export class PhpSyntaxParser {
     this.parser.delete();
   }
 }
+
+/** Exact namespace name spans; delimiters and comments are never part of an edit. */
+export function namespaceDeclarations(tree: Tree): Array<SourceRange & { name: string }> {
+  return tree.rootNode.namedChildren.filter((node) => node.type === 'namespace_definition').flatMap((node) => {
+    const name = node.childForFieldName('name');
+    return name ? [{ name: name.text, start: name.startIndex, end: name.endIndex }] : [];
+  });
+}

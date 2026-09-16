@@ -27,6 +27,21 @@ export async function run(): Promise<void> {
   assert.ok(document.getText().includes('// preserve unsaved content'));
   await waitFor(async () => (await vscode.workspace.openTextDocument(consumer)).getText().includes('use App\\Subscriber;'), 'Consumer import did not follow move');
   assert.match((await vscode.workspace.openTextDocument(newUri)).getText(), /^namespace App;$/m, 'Reconciliation removed namespace delimiter');
+  assert.ok((await vscode.workspace.openTextDocument(newUri)).isDirty, 'Move silently saved the dirty source');
+  const current = await vscode.workspace.openTextDocument(newUri);
+  const afterReferences = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', newUri, current.positionAt(current.getText().indexOf('Subscriber') + 2));
+  assert.ok(afterReferences?.some((location) => location.uri.toString() === consumer.toString()), 'References after move omitted consumer');
+  if (process.env.PHP_COMPANION_UNDO_MOVE === '1') {
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(newUri));
+    await vscode.commands.executeCommand('undo');
+    await waitFor(async () => {
+      try { return (await vscode.workspace.openTextDocument(oldUri)).getText().includes('namespace App\\Bridge;') && (await vscode.workspace.openTextDocument(consumer)).getText().includes('use App\\Bridge\\Subscriber;'); } catch { return false; }
+    }, 'Undo did not restore file, namespace and references');
+    await vscode.commands.executeCommand('redo');
+    await waitFor(async () => {
+      try { return (await vscode.workspace.openTextDocument(newUri)).getText().includes('namespace App;') && (await vscode.workspace.openTextDocument(consumer)).getText().includes('use App\\Subscriber;'); } catch { return false; }
+    }, 'Redo did not restore moved file and references');
+  }
   const reverse = new vscode.WorkspaceEdit(); reverse.renameFile(newUri, oldUri);
   assert.ok(await vscode.workspace.applyEdit(reverse));
   await waitFor(async () => {

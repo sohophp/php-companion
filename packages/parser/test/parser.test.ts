@@ -1,10 +1,23 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createIncrementalEdit, PhpSyntaxParser } from '../src/index.js';
+import { namespaceDeclarations, createIncrementalEdit, PhpSyntaxParser } from '../src/index.js';
 
 describe('@php-companion/parser', () => {
   let parser: PhpSyntaxParser;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
+
+  it.each(['\n', '\r\n'])('keeps namespace delimiters and misleading comments intact with %j', (eol) => {
+    const source = ['<?php', '// namespace Wrong; 中文 😀', 'namespace App\\Bridge /* retain */;', 'class C {}'].join(eol);
+    const parsed = parser.parse(source);
+    const declarations = namespaceDeclarations(parsed.tree);
+    expect(declarations).toHaveLength(1);
+    const range = declarations[0]!;
+    const edited = source.slice(0, range.start) + 'App' + source.slice(range.end);
+    expect(edited).toContain('namespace App /* retain */;');
+    expect(edited).toContain('// namespace Wrong; 中文 😀');
+    const verified = parser.parse(edited); expect(verified.errors).toEqual([]);
+    parsed.tree.delete(); verified.tree.delete();
+  });
 
   it('loads packaged grammar paths and returns declarations', () => {
     const result = parser.parse('<?php namespace App; interface Clock {}');

@@ -1,3 +1,4 @@
+import { PhpSyntaxParser, namespaceDeclarations } from '@php-companion/parser';
 import * as vscode from 'vscode';
 import { basename } from 'node:path';
 import { resolvePsr4Namespace, resolvePsr4Namespaces } from '../composer/project.js';
@@ -37,19 +38,22 @@ function positionAt(source: string, offset: number): vscode.Position {
   return new vscode.Position(lines.length - 1, lines.at(-1)!.length);
 }
 
-function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source: string }[], versions: VersionManager): vscode.WorkspaceEdit {
+function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source: string }[], versions: VersionManager, parser: PhpSyntaxParser): vscode.WorkspaceEdit {
   const edit = new vscode.WorkspaceEdit();
   for (const file of files) {
     const mappings = versions.stateForUri(file.oldUri)?.composer?.psr4 ?? versions.stateForUri(file.newUri)?.composer?.psr4 ?? [];
-    const match = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(file.source);
-    if (!match?.[1] || match.index === undefined) continue;
-    const sourceMappings = mappings.filter((mapping) => resolvePsr4Namespaces(file.oldUri.fsPath, [mapping]).includes(match[1]!.trim()));
-    const preferred = resolvePsr4Namespaces(file.newUri.fsPath, sourceMappings);
-    const candidates = preferred.length ? preferred : resolvePsr4Namespaces(file.newUri.fsPath, mappings);
-    if (candidates.length !== 1) continue;
-    const namespace = candidates[0]!;
-    const start = match.index + match[0].indexOf(match[1]); const end = start + match[1].trimEnd().length;
-    edit.replace(file.oldUri, new vscode.Range(positionAt(file.source, start), positionAt(file.source, end)), namespace);
+    const parsed = parser.parse(file.source);
+    try {
+      const declarations = namespaceDeclarations(parsed.tree);
+      if (parsed.errors.length || declarations.length !== 1) throw new MoveError('Safe Move requires one valid namespace declaration.');
+      const declaration = declarations[0]!;
+      const sourceMappings = mappings.filter((mapping) => resolvePsr4Namespaces(file.oldUri.fsPath, [mapping]).includes(declaration.name));
+      const preferred = resolvePsr4Namespaces(file.newUri.fsPath, sourceMappings);
+      const candidates = preferred.length ? preferred : resolvePsr4Namespaces(file.newUri.fsPath, mappings);
+      if (candidates.length !== 1) throw new MoveError('Safe Move namespace mapping is ambiguous.');
+      edit.replace(file.oldUri, new vscode.Range(positionAt(file.source, declaration.start), positionAt(file.source, declaration.end)), candidates[0]!);
+    } finally { parsed.tree.delete(); }
+
   }
   return edit;
 }
@@ -141,7 +145,10 @@ export function activate(context: vscode.ExtensionContext): void {
   const reconcilingServerSafeMoves = new Set<string>();
   const pendingMovePlanning = new Map<string, Promise<void>>();
   const pendingTypeRenameEdits = new Map<string, vscode.WorkspaceEdit>();
+  let moveSequence = 0;
   let movePipeline: Promise<void> = Promise.resolve();
+  let moveParserPromise: Promise<PhpSyntaxParser> | undefined;
+  const moveParser = (): Promise<PhpSyntaxParser> => moveParserPromise ??= PhpSyntaxParser.create({ coreWasmPath: context.asAbsolutePath('dist/web-tree-sitter.wasm'), phpWasmPath: context.asAbsolutePath('dist/tree-sitter-php.wasm') });
   let workspacePromise: Promise<WorkspaceManager> | undefined;
 
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('php-companion-builtin', {
@@ -173,6 +180,8 @@ export function activate(context: vscode.ExtensionContext): void {
   const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
     const client = await languageServer;
     if (!client) throw new MoveError('PHP Companion Language Server is unavailable.');
+    const moveId = ++moveSequence; const started = performance.now();
+    output.info(`[move:${moveId}] planning files=${files.length}`);
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/planSafeMove', {
       moves: files.map((file) => ({ oldUri: file.oldUri.toString(), newUri: file.newUri.toString(), ...(file.source === undefined ? {} : { source: file.source }) })),
       includeFileOperations, requireCompleteIndex,
@@ -180,6 +189,11 @@ export function activate(context: vscode.ExtensionContext): void {
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
     if (!edit) throw new MoveError('PHP Companion Language Server did not return a complete Safe Move edit.');
+    const snapshots = await Promise.all(Object.entries(includeFileOperations || requireCompleteIndex ? result.sources ?? {} : {}).map(async ([uri, source]) => ({
+      document: await vscode.workspace.openTextDocument(vscode.Uri.parse(uri)), source,
+    })));
+    if (snapshots.some(({ document, source }) => document.getText() !== source)) throw new MoveError('Safe Move participants changed during planning. Retry the move.');
+    output.info(`[move:${moveId}] planned elapsedMs=${Math.round(performance.now() - started)} editedFiles=${edit.entries().length}`);
     return { edit, reconciliation: result.reconciliation ?? [] };
   };
   const requestSafeMove = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[], includeFileOperations: boolean): Promise<vscode.WorkspaceEdit> =>
@@ -206,31 +220,22 @@ export function activate(context: vscode.ExtensionContext): void {
     return workspacePromise;
   };
 
-  const applyMoveReconciliation = async (edits: vscode.WorkspaceEdit, additionallyTouched: readonly vscode.Uri[] = []): Promise<void> => {
+  const applyMoveReconciliation = async (edits: vscode.WorkspaceEdit): Promise<void> => {
     if (edits.entries().length && !await vscode.workspace.applyEdit(edits)) throw new MoveError('VS Code could not update moved PHP namespaces and references.');
-    const touched = new Set([
-      ...edits.entries().map(([uri]) => fileOperationUriKey(uri)),
-      ...additionallyTouched.map(fileOperationUriKey),
-    ]);
-    for (const document of vscode.workspace.textDocuments) {
-      if (!touched.has(fileOperationUriKey(document.uri))) continue;
-      if (document.isDirty && !await document.save()) throw new MoveError(`VS Code could not save ${document.uri.fsPath}.`);
-    }
+
   };
 
   const reconcileServerMove = async (moves: readonly ServerMoveReconciliation[]): Promise<void> => {
-    const currentUri = new Map(moves.map((move) => [fileOperationUriKey(move.oldUri), vscode.Uri.parse(move.newUri)]));
-    const touched = moves.flatMap((move) => move.sourceUris.map((uri) => currentUri.get(fileOperationUriKey(uri)) ?? vscode.Uri.parse(uri)));
-    // Save open participants before asking the server to inspect the final
-    // filesystem. The caller retains the exact plan and retries this complete
-    // transaction until the move, language-server snapshot and disk converge.
-    await applyMoveReconciliation(new vscode.WorkspaceEdit(), touched);
-    await applyMoveReconciliation(await requestMoveReconciliation(moves), touched);
+    // Preserve dirty editor buffers; reconciliation uses the open document snapshot.
+    await applyMoveReconciliation(await requestMoveReconciliation(moves));
     for (const move of moves) {
       const uri = vscode.Uri.parse(move.newUri);
-      const source = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
-      const declared = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(source)?.[1]?.trim();
-      if (declared !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} declares ${declared ?? 'the global namespace'} instead of ${move.newNamespace}.`);
+      const document = await vscode.workspace.openTextDocument(uri);
+      const parsed = (await moveParser()).parse(document.getText());
+      try {
+        const declarations = namespaceDeclarations(parsed.tree);
+        if (parsed.errors.length || declarations.length !== 1 || declarations[0]!.name !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} failed namespace or syntax validation.`);
+      } finally { parsed.tree.delete(); }
     }
     const remaining = await requestMoveReconciliation(moves);
     if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
@@ -783,6 +788,14 @@ export function activate(context: vscode.ExtensionContext): void {
             try {
               const planned = await requestSafeMovePlan(snapshottedFiles, false, true);
               pendingServerSafeMoves.set(key, { files: snapshottedFiles, reconciliation: planned.reconciliation });
+              // Put every proven edit in the Explorer transaction so native
+              // undo/redo restores imports together with the file operation.
+              const transaction = new vscode.WorkspaceEdit();
+              for (const [uri, edits] of planned.edit.entries()) {
+                const original = snapshottedFiles.find((file) => fileOperationUriKey(file.newUri) === fileOperationUriKey(uri));
+                transaction.set(original?.oldUri ?? uri, edits);
+              }
+              return transaction;
             } catch (error) {
               pendingServerSafeMoves.set(key, { files: snapshottedFiles });
               output.info(`Safe Move deferred semantic planning until after the file operation: ${error instanceof Error ? error.message : String(error)}`);
@@ -790,7 +803,7 @@ export function activate(context: vscode.ExtensionContext): void {
             return immediateNamespaceMoveEdit(snapshottedFiles.map((file) => ({
               ...file,
               source: vscode.workspace.textDocuments.find((document) => document.uri.toString() === file.oldUri.toString())?.getText() ?? file.source,
-            })), versions);
+            })), versions, await moveParser());
           } else {
             const manager = await workspace();
             // Rebuild from the current files before every Explorer move. A prior

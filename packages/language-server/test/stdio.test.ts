@@ -608,6 +608,12 @@ describe('language server stdio', () => {
         await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true')
           && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('complete=true')).length >= completedIndexes);
       };
+      let completedDeltas = 1; // the first event changes the open consumer on disk
+      const waitForNextDelta = async (): Promise<void> => {
+        completedDeltas += 1;
+        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:delta] complete')
+          && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('[index:delta] complete')).length >= completedDeltas);
+      };
       await waitForNextIndex();
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: openSource } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
@@ -624,17 +630,19 @@ describe('language server stdio', () => {
 
       await writeFile(addedPath, '<?php namespace App; class Added { public function addedMethod(): void {} }');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: addedUri, type: 1 }] } }));
-      await waitForNextIndex();
+      await waitForNextDelta();
       expect(await completion(217, 'Add')).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Added' })]));
 
       await rm(addedPath);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: addedUri, type: 3 }] } }));
-      await waitForNextIndex();
+      await waitForNextDelta();
       expect((await completion(218, 'Add')).some((item) => item.label === 'Added')).toBe(false);
 
       await rename(servicePath, movedServicePath);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 3 }, { uri: movedServiceUri, type: 1 }] } }));
-      await waitForNextIndex();
+      completedDeltas += 1; // delete plus create
+      await waitForNextDelta();
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('start reason='))).toHaveLength(1);
       const serviceOffset = openSource.indexOf('Service $service') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 219, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, serviceOffset) } }));
       expect((await output.waitFor((message) => message.id === 219)).result).toMatchObject([{ uri: movedServiceUri }]);

@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readdir, rm, writeFile, stat, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -130,7 +130,7 @@ describe('bounded project source index', () => {
     let parsed = 0; const second = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (payload) => (payload as { sourceLength?: number }).sourceLength === 19 }, onSource: () => { parsed += 1; } });
     expect(second.cached).toBe(1); expect(parsed).toBe(0);
     const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');
-    const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => true }, onSource: () => { parsed += 1; return {}; } });
+    const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: () => { parsed += 1; return {}; } });
     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');
   });
   it('rebuilds a cache entry when its restore adapter rejects the payload', async () => {
@@ -164,4 +164,18 @@ describe('bounded project source index', () => {
     expect(result).toMatchObject({ files: 0, complete: false, warnings: expect.arrayContaining(['Project indexing was cancelled.']) });
     expect(emitted).toBe(0);
   });
+});
+
+it('invalidates same-size content changes even when the timestamp is preserved', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'php-index-digest-'));
+  try {
+    await mkdir(join(root, 'src')); await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const file = join(root, 'src', 'C.php'); await writeFile(file, '<?php class A {}'); const before = await stat(file);
+    const seen: string[] = [];
+    const options = { includeDependencies: false, onSource: ({ source }: { source: string }): { source: string } => { seen.push(source); return { source }; }, cache: { directory: join(root, 'cache'), version: 'test', restore: (): boolean => true } };
+    await indexComposerSources(root, options);
+    await writeFile(file, '<?php class B {}'); await utimes(file, before.atime, before.mtime);
+    const result = await indexComposerSources(root, options);
+    expect(result.cached).toBe(0); expect(seen).toEqual(['<?php class A {}', '<?php class B {}']);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });

@@ -1,4 +1,4 @@
-import { createIncrementalEdit, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
+import { namespaceDeclarations, createIncrementalEdit, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, type PhpDocTag, type PhpDocType } from '@php-companion/phpdoc';
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
@@ -641,7 +641,10 @@ function implementationSnapshot(file: SemanticFile, controlFlowAssignments: Iter
   const ranges = callableImplementationRanges(file); const fileFacts = emptyImplementationFacts();
   const records = new Map(ranges.map((range) => [range.identity, { ...range, facts: emptyImplementationFacts() }]));
   for (const field of IMPLEMENTATION_ARRAY_FIELDS) {
-    for (const fact of complete[field]) {
+    const ordered = [...complete[field]].sort((left, right) => field === 'rawNames'
+      ? Number((left as RawName).context === 'code') - Number((right as RawName).context === 'code') || left.start - right.start || left.end - right.end
+      : left.start - right.start || left.end - right.end);
+    for (const fact of ordered) {
       const owner = containingImplementationRange(ranges, fact.start, fact.end);
       (owner ? records.get(owner.identity)!.facts : fileFacts)[field].push(fact as never);
     }
@@ -2611,12 +2614,9 @@ export class SemanticWorkspace {
       if (namespaces.size !== 1) return { error: `Cannot move ${move.oldUri}: multiple declaration namespaces are not supported.` };
       const oldNamespace = [...namespaces][0]!;
       if (oldNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
-        const ranges = [...file.source.matchAll(/\bnamespace\s+([^;{]+?)\s*[;{]/g)].flatMap((match): SourceRange[] => {
-          const name = match[1]?.trim();
-          if (!name || name.replace(/^\\+|\\+$/g, '').toLowerCase() !== oldNamespace.toLowerCase()) return [];
-          const start = match.index + match[0].indexOf(match[1]!);
-          return [{ start, end: start + match[1]!.trimEnd().length }];
-        });
+        const parsed = this.parser.parse(file.source);
+        const ranges = namespaceDeclarations(parsed.tree).filter((item) => item.name.toLowerCase() === oldNamespace.toLowerCase());
+        parsed.tree.delete();
         if (ranges.length !== 1) return { error: `Cannot move ${move.oldUri}: its namespace declaration is missing or ambiguous.` };
         namespaceEdits.push({ uri: move.newUri, ...ranges[0]!, newText: move.newNamespace });
       }
@@ -2676,10 +2676,9 @@ export class SemanticWorkspace {
       if (currentNamespaces.size !== 1) return { error: `Cannot reconcile ${move.newUri}: its declaration namespace is missing or ambiguous.` };
       const currentNamespace = [...currentNamespaces][0]!;
       if (currentNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
-        const ranges = [...moved.source.matchAll(/\bnamespace\s+([^;{]+?)\s*[;{]/g)].flatMap((match): SourceRange[] => {
-          const name = match[1]?.trim(); if (!name || name.replace(/^\\+|\\+$/g, '').toLowerCase() !== currentNamespace.toLowerCase()) return [];
-          const start = match.index + match[0].indexOf(match[1]!); return [{ start, end: start + match[1]!.trimEnd().length }];
-        });
+        const parsed = this.parser.parse(moved.source);
+        const ranges = namespaceDeclarations(parsed.tree).filter((item) => item.name.toLowerCase() === currentNamespace.toLowerCase());
+        parsed.tree.delete();
         if (ranges.length !== 1) return { error: `Cannot reconcile ${move.newUri}: its namespace declaration is missing or ambiguous.` };
         edits.push({ uri: move.newUri, ...ranges[0]!, newText: move.newNamespace }); touchedSourceUris.add(move.newUri);
       }
@@ -5525,6 +5524,12 @@ export class SemanticWorkspace {
         ? [{ uri: file.uri, start: start + 1, end: start + parameterName.length + 1 }]
         : [];
     });
+  }
+
+  referenceScope(uri: string, offset: number): 'document' | 'project' {
+    const file = this.files.get(uri);
+    if (file?.properties.some((item) => item.promoted && offset >= item.start && offset <= item.end)) return 'project';
+    return file?.variableReferences.some((item) => offset >= item.start && offset <= item.end) ? 'document' : 'project';
   }
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {

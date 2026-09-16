@@ -7,6 +7,16 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('round-trips nested member access snapshots without rejecting canonical fact ordering', () => {
+    const uri = 'file:///CacheRoundTrip.php';
+    const source = '<?php class CacheRoundTrip { function a($x) { if ($x instanceof self && $x !== null) { return $this->a($x->a($this))->a($x); } return null; } }';
+    workspace.update(uri, source);
+    const snapshot = JSON.parse(JSON.stringify(workspace.snapshot(uri)));
+    const restored = new SemanticWorkspace(parser);
+    expect(restored.restoreDeclaration(snapshot, uri)).toBe(true);
+    expect(restored.definition(uri, source.indexOf('CacheRoundTrip') + 1)).toEqual(workspace.definition(uri, source.indexOf('CacheRoundTrip') + 1));
+    restored.dispose();
+  });
   it('completes only proven parameter and this members across open files', () => {
     workspace.update('file:///User.php', '<?php namespace App; class User { public function name(): string {} public function rename(string $name): void {} }');
     const source = '<?php namespace App\\Controller; use App\\User; class C { function show(User $user): void { $user->na } }';
