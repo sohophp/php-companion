@@ -127,7 +127,7 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
       await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
-      const source = '<?php namespace App; function consume(): void { new MissingType(); }';
+      const source = '<?php namespace App; final class Consumer { public function consume(): void { new MissingType(); } }';
       const sourcePath = join(sourceDirectory, 'Consumer.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
@@ -152,6 +152,13 @@ describe('language server stdio', () => {
       expect((await output.waitFor((message) => message.id === 241)).result).toEqual([]);
       expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('Indexed 1 PHP files'))).toHaveLength(1);
+      const movedUri = pathToFileURL(join(root, 'src', 'Moved', 'Consumer.php')).toString(); await mkdir(join(root, 'src', 'Moved'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2411, method: 'phpCompanion/planSafeMove', params: {
+        moves: [{ oldUri: sourceUri, newUri: movedUri, source }], includeFileOperations: false,
+      } }));
+      const safeMove = (await output.waitFor((message) => message.id === 2411)).result;
+      expect(safeMove.error).toBeUndefined();
+      expect(safeMove.edit.changes[movedUri]).toEqual(expect.arrayContaining([expect.objectContaining({ newText: 'App\\Moved' })]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
       await output.waitFor((message) => message.id === 242);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
@@ -713,10 +720,18 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 110, method: 'phpCompanion/planSafeMove', params: {
         moves: [{ oldUri: declarationUri, newUri: movedDeclarationUri }], includeFileOperations: true,
       } }));
-      expect((await output.waitFor((message) => message.id === 110)).result.error).toContain('save related file');
+      expect((await output.waitFor((message) => message.id === 110)).result.error).toBeUndefined();
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri, version: 3 }, contentChanges: [{ text: source }],
       } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: `${declaration}\n` },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1101, method: 'phpCompanion/planSafeMove', params: {
+        moves: [{ oldUri: declarationUri, newUri: movedDeclarationUri, source: `${declaration}\n` }], includeFileOperations: true,
+      } }));
+      expect((await output.waitFor((message) => message.id === 1101)).result.error).toBeUndefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: declarationUri } } }));
       await rename(declarationPath, join(root, 'src', 'Moved', 'OldName.php'));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 111, method: 'phpCompanion/reconcileSafeMove', params: { moves: move.reconciliation } }));
       const reconciliation = (await output.waitFor((message) => message.id === 111, 10_000)).result;

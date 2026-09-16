@@ -740,7 +740,6 @@ export function activate(context: vscode.ExtensionContext): void {
           if (!managedFiles.length) return new vscode.WorkspaceEdit();
           const snapshottedFiles = await Promise.all(managedFiles.map(async (file) => {
             const document = vscode.workspace.textDocuments.find((candidate) => candidate.uri.toString() === file.oldUri.toString());
-            if (document?.isDirty) throw new MoveError(`Cannot move PHP types: save related file ${file.oldUri.fsPath} first.`);
             return { ...file, source: document?.getText() ?? new TextDecoder().decode(await vscode.workspace.fs.readFile(file.oldUri)) };
           }));
           if (vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<string>('indexing.mode', 'onDemand') === 'off') {

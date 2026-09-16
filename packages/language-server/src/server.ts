@@ -1398,15 +1398,17 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     }
     const source = move.source ?? document?.getText() ?? diskSource;
     if (source === undefined) return { error: `Cannot move ${oldPath}: source file is unavailable.` };
-    if (diskSource !== undefined && source !== diskSource) return { error: `Cannot move PHP types: save related file ${oldPath} first.` };
+    if (diskSource !== undefined && source !== diskSource && document?.getText() !== source) {
+      return { error: `Cannot move PHP types: source snapshot for ${oldPath} is stale.` };
+    }
     if (params.includeFileOperations !== false && resolve(oldPath).toLowerCase() !== resolve(newPath).toLowerCase()) {
       try { await stat(newPath); return { error: `Cannot move ${oldPath}: destination file already exists.` }; }
       catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return { error: `Cannot inspect Safe Move destination ${newPath}.` }; }
     }
     capturedMoves.push({ oldUri: move.oldUri, newUri: move.newUri, oldPath, newPath, source, open: Boolean(document) });
   }
-  if (params.requireCompleteIndex === true && !completeRoots.has(root)) return { error: 'Safe Move index is not ready yet.' };
-  if (!await ensureCompleteRoot(root, () => token.isCancellationRequested) || token.isCancellationRequested) return { error: 'Safe Move could not complete the Composer project index.' };
+  if (params.requireCompleteIndex === true && !projectCompleteRoots.has(root)) return { error: 'Safe Move project index is not ready yet.' };
+  if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested) || token.isCancellationRequested) return { error: 'Safe Move could not complete the project source index.' };
   const workspace = await semanticForRoot(root); const mappings = projectMappingsByRoot.get(root) ?? [];
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
     workspace.update(document.uri, document.getText(), true);
@@ -1431,6 +1433,8 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     const source = workspace.source(uri); const path = pathForUri(uri);
     if (source === undefined || !path) return { error: `Safe Move is missing the current source for ${uri}.` };
     if (capturedSourceUris.has(uri)) continue;
+    const open = documents.get(uri);
+    if (open?.getText() === source) continue;
     try {
       if (await readFile(path, 'utf8') !== source) return { error: `Cannot move PHP types: save related file ${path} first.` };
     } catch { return { error: `Cannot move PHP types: related file ${path} is unavailable.` }; }
