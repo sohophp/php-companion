@@ -17,6 +17,7 @@ export interface SymfonyAutowireResolution { serviceId: string; className: strin
 export interface SymfonyCompiledMethodArgumentFact { callableFqcn: string; parameter?: string; parameterIndex?: number; serviceId: string; className: string; uri: string; start: number; end: number; }
 export interface SymfonyCompiledPropertyArgumentFact { ownerFqcn: string; property: string; serviceId: string; className: string; uri: string; start: number; end: number; }
 export interface SymfonyCompiledContainerFacts { complete: boolean; services: SymfonyServiceFact[]; methodArguments: SymfonyCompiledMethodArgumentFact[]; propertyArguments: SymfonyCompiledPropertyArgumentFact[]; }
+export interface SymfonyEventSubscriptionFact { subscriberFqcn: string; event: string; listener: string; priority?: number; uri: string; eventStart: number; eventEnd: number; listenerStart: number; listenerEnd: number; }
 
 const primitiveNames = new Set(['bool', 'int', 'float', 'string', 'array', 'object', 'callable', 'iterable', 'resource', 'null', 'void', 'never', 'mixed']);
 
@@ -211,6 +212,73 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
     };
     visit(parsed.tree.rootNode as unknown as NodeLike);
     return contexts;
+  } finally { parsed.tree.delete(); }
+}
+
+function unwrappedArrayValue(node: NodeLike): NodeLike | undefined {
+  return node.type === 'array_element_initializer' && node.namedChildren.length === 1 ? node.namedChildren[0] : undefined;
+}
+
+function literalTextRange(node: NodeLike): { value: string; start: number; end: number } | undefined {
+  const value = literalString(node); return value === undefined ? undefined : { value, start: node.startIndex + 1, end: node.endIndex - 1 };
+}
+
+/** Extract only complete, literal EventSubscriberInterface maps whose listener methods are public instance methods on the subscriber. */
+export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventSubscriptionFact[] {
+  const parsed = parser.parse(source, undefined, uri);
+  try {
+    const subscriptions: SymfonyEventSubscriptionFact[] = [];
+    const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
+      if (accept(node)) return node;
+      for (const child of node.namedChildren) { const found = visit(child, accept); if (found) return found; }
+      return undefined;
+    };
+    const listenerSpecs = (node: NodeLike): Array<{ listener: string; start: number; end: number; priority?: number }> => {
+      const direct = literalTextRange(node); if (direct) return [{ listener: direct.value, start: direct.start, end: direct.end }];
+      if (node.type !== 'array_creation_expression') return [];
+      const values = node.namedChildren.map(unwrappedArrayValue);
+      if (values.some((value) => !value)) return [];
+      const first = values[0] && literalTextRange(values[0]);
+      if (first) {
+        if (values.length > 2 || values[1]?.type !== 'integer' && values[1] !== undefined) return [];
+        const priority = values[1] ? Number(values[1].text) : undefined;
+        if (priority !== undefined && !Number.isSafeInteger(priority)) return [];
+        return [{ listener: first.value, start: first.start, end: first.end, priority }];
+      }
+      if (!values.length || values.some((value) => value!.type !== 'array_creation_expression')) return [];
+      const nested = values.flatMap((value) => listenerSpecs(value!));
+      return nested.length === values.length ? nested : [];
+    };
+    for (const declaration of parsed.declarations.filter((item) => item.kind === 'class' && !item.anonymous)) {
+      const namespace = declaration.fqcn.slice(0, Math.max(0, declaration.fqcn.length - declaration.name.length - 1));
+      if (!declaration.implementsNames.some((name) => resolveName(name, namespace, parsed.imports).toLowerCase()
+        === 'symfony\\component\\eventdispatcher\\eventsubscriberinterface')) continue;
+      const classNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'class_declaration'
+        && node.startIndex === declaration.declarationStart && node.endIndex === declaration.declarationEnd);
+      if (!classNode) continue;
+      const methods = parsed.callables.filter((callable) => callable.kind === 'method' && callable.containerFqcn === declaration.fqcn);
+      const subscriptionMethod = methods.find((callable) => callable.name.toLowerCase() === 'getsubscribedevents'
+        && callable.static && callable.visibility === 'public');
+      if (!subscriptionMethod) continue;
+      const methodNode = visit(classNode, (node) => node.type === 'method_declaration'
+        && node.startIndex === subscriptionMethod.declarationStart && node.endIndex === subscriptionMethod.declarationEnd);
+      const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
+      if (!body || body.namedChildren.length !== 1 || body.namedChildren[0]!.type !== 'return_statement') continue;
+      const returned = body.namedChildren[0]!.namedChildren[0]; if (returned?.type !== 'array_creation_expression') continue;
+      const publicListeners = new Set(methods.filter((callable) => !callable.static && callable.visibility === 'public').map((callable) => callable.name.toLowerCase()));
+      for (const item of returned.namedChildren) {
+        if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
+        const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
+        const eventLiteral = literalTextRange(eventNode!);
+        const staticEvent = eventNode!.type === 'class_constant_access_expression' ? { value: eventNode!.text, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
+        const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
+        for (const listener of listeners) if (publicListeners.has(listener.listener.toLowerCase())) subscriptions.push({
+          subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
+          uri, eventStart: event.start, eventEnd: event.end, listenerStart: listener.start, listenerEnd: listener.end,
+        });
+      }
+    }
+    return subscriptions;
   } finally { parsed.tree.delete(); }
 }
 

@@ -99,7 +99,15 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); const configDirectory = join(root, 'config');
       await mkdir(sourceDirectory); await mkdir(configDirectory);
-      const source = '<?php namespace App; final class RegisteredService {}';
+      const source = `<?php
+        namespace Symfony\\Component\\EventDispatcher { interface EventSubscriberInterface {} }
+        namespace App {
+          use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+          final class RegisteredService implements EventSubscriberInterface {
+            public static function getSubscribedEvents(): array { return ['app.ready' => ['onReady', 16]]; }
+            public function onReady(): void {}
+          }
+        }`;
       const sourcePath = join(sourceDirectory, 'RegisteredService.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       const servicesPath = join(configDirectory, 'services.yaml'); const servicesUri = pathToFileURL(servicesPath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -119,9 +127,18 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
-      expect((await output.waitFor((message) => message.id === 234)).result).toEqual([
-        expect.objectContaining({ uri: servicesUri }),
+      const classReferences = (await output.waitFor((message) => message.id === 234)).result;
+      expect(classReferences).toHaveLength(2);
+      expect(classReferences).toEqual(expect.arrayContaining([
+        expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: sourceUri }),
+      ]));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onReady') + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 236)).result).toEqual([
+        expect.objectContaining({ uri: sourceUri }),
       ]);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 235);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
     } finally { await rm(root, { recursive: true, force: true }); }

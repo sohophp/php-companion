@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -28,6 +28,37 @@ describe('static Symfony Controller context analysis', () => {
     const contexts = [first, second].flatMap((source, index) => analyzeSymfonyControllerContexts(parser, { uri: `file:///src/${index}.php`, source, snapshotVersion: String(index) }));
     expect(contexts[0]).toMatchObject({ complete: false });
     expect(mergeControllerContexts(contexts)).toMatchObject({ complete: false, variables: [{ name: 'actor', type: { kind: 'union' } }], sources: [{ symbol: 'App\\First::show' }, { symbol: 'App\\Second::show' }] });
+  });
+
+  it('extracts literal event subscriber maps and rejects dynamic or inaccessible listeners', () => {
+    const source = `<?php namespace App;
+      use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+      use Symfony\\Component\\HttpKernel\\KernelEvents;
+      final class Subscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array { return [
+          KernelEvents::CONTROLLER => ['onController', 16],
+          'app.ready' => 'onReady',
+          'app.multi' => [['onReady', 4], ['onController', 2]],
+          'app.hidden' => 'hidden',
+          dynamicEvent() => 'onReady',
+        ]; }
+        public function onController(): void {}
+        public function onReady(): void {}
+        private function hidden(): void {}
+      }
+      final class NotSubscriber {
+        public static function getSubscribedEvents(): array { return ['ignored' => 'onIgnored']; }
+        public function onIgnored(): void {}
+      }`;
+    const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/Subscriber.php', source);
+    expect(facts.map(({ event, listener, priority }) => [event, listener, priority])).toEqual([
+      ['KernelEvents::CONTROLLER', 'onController', 16],
+      ['app.ready', 'onReady', undefined],
+      ['app.multi', 'onReady', 4],
+      ['app.multi', 'onController', 2],
+    ]);
+    expect(source.slice(facts[0]!.eventStart, facts[0]!.eventEnd)).toBe('KernelEvents::CONTROLLER');
+    expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('onController');
   });
 
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {

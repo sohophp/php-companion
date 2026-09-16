@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -1234,13 +1234,13 @@ const candidateQueries = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
-async function scanTypeCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2): Promise<boolean> {
+async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2): Promise<boolean> {
   if (indexingMode === 'off') return false;
   const key = `${root}:${[...names].sort().join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
   const started = Date.now(); let candidates = 0;
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
-  progress?.begin('Preparing PHP type query', 0, 'Finding candidate files', true);
+  progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
   const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
@@ -1252,12 +1252,12 @@ async function scanTypeCandidates(workspace: SemanticWorkspace, root: string, na
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
-  connection.console.info(`[type-candidates] files=${scan.files} parsed=${candidates} elapsedMs=${Date.now() - started}`);
+  connection.console.info(`[named-candidates] files=${scan.files} parsed=${candidates} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
-    return retries > 0 ? scanTypeCandidates(workspace, root, names, cancelled, retries - 1) : false;
+    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1) : false;
   }
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
@@ -1486,7 +1486,7 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
       finally { parsed.tree.delete(); }
     }
     if (!names.size) return { error: 'Safe Move source has no named declaration.' };
-    if (!await scanTypeCandidates(workspace, root, names, () => token.isCancellationRequested)) return { error: 'Safe Move candidate scan was incomplete or changed; retry the move.' };
+    if (!await scanNamedCandidates(workspace, root, names, () => token.isCancellationRequested)) return { error: 'Safe Move candidate scan was incomplete or changed; retry the move.' };
   } else await applyPendingFiles();
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
     workspace.update(document.uri, document.getText(), true);
@@ -2072,13 +2072,16 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   if (!document) return [];
   const version = document.version;
   const workspace = await semanticForUri(document.uri);
-  const scope = workspace.referenceScope(document.uri, document.offsetAt(position));
+  const offset = document.offsetAt(position);
+  const scope = workspace.referenceScope(document.uri, offset);
   connection.console.info(`[references:${id}] start scope=${scope}`);
   try {
     const root = rootForUri(document.uri);
-    const type = scope === 'project' ? workspace.typeAt(document.uri, document.offsetAt(position)) : undefined;
-    const ready = scope === 'document' || !root || (type && !projectCompleteRoots.has(root)
-      ? await scanTypeCandidates(workspace, root, new Set([type.name.toLowerCase()]), () => token.isCancellationRequested)
+    const type = scope === 'project' ? workspace.typeAt(document.uri, offset) : undefined;
+    const member = scope === 'project' && !type ? workspace.referenceMemberAt(document.uri, offset) : undefined;
+    const namedTarget = type?.name ?? member?.name;
+    const ready = scope === 'document' || !root || (namedTarget && !projectCompleteRoots.has(root)
+      ? await scanNamedCandidates(workspace, root, new Set([namedTarget.toLowerCase()]), () => token.isCancellationRequested)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -2092,11 +2095,19 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }
-    const semanticLocations = workspace.references(document.uri, document.offsetAt(position), context.includeDeclaration);
-    const frameworkLocations = type ? symfonyServiceCatalog(root)
+    const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
+    const serviceLocations = type ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
       .map((service) => ({ uri: service.registrationUri, start: service.registrationStart, end: service.registrationEnd })) : [];
-    const rawLocations = [...new Map([...semanticLocations, ...frameworkLocations]
+    const eventTarget = type ?? (member?.kind === 'method' ? member : undefined);
+    const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
+    const subscriptions = eventTarget && eventSource ? analyzeSymfonyEventSubscriptions(await parser(), eventTarget.uri, eventSource) : [];
+    const eventLocations = type
+      ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
+        .map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }))
+      : member?.kind === 'method' ? subscriptions.filter((fact) => `${fact.subscriberFqcn}::${fact.listener}`.toLowerCase() === member.fqcn.toLowerCase())
+        .map((fact) => ({ uri: fact.uri, start: fact.listenerStart, end: fact.listenerEnd })) : [];
+    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...eventLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);

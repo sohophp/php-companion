@@ -3275,6 +3275,8 @@ describe('conservative semantic workspace', () => {
     expect(references.some((item) => item.uri === 'file:///Two.php')).toBe(false);
     const fromDeclaration = workspace.references('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1);
     expect(fromDeclaration).toHaveLength(2);
+    expect(workspace.referenceMemberAt('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1)?.fqcn).toBe('App\\One::run');
+    expect(workspace.referenceMemberAt('file:///Calls.php', source.indexOf('run();') + 1)?.fqcn).toBe('App\\One::run');
   });
   it('finds local variable references only inside the selected function scope', () => {
     const source = `<?php

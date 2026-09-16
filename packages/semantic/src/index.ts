@@ -2831,6 +2831,10 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.memberAtWithImplementation(uri, offset));
   }
 
+  referenceMemberAt(uri: string, offset: number): MemberInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => this.memberAtWithImplementation(uri, offset) ?? this.memberDeclarationAt(uri, offset));
+  }
+
   memberOwnerTypeNamesAt(uri: string, offset: number): string[] {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
