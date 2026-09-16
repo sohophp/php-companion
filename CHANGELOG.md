@@ -1,3 +1,4 @@
+- 继承/Trait 方法 `AsEventListener` 的相对事件类按 PHP 8.5 Reflection 语义解析：Trait `self/parent` 绑定消费类/消费类父类，父类方法 `self/parent` 绑定声明类/声明类父类；非法 `static::class` 保持 unknown。
 - 提交 `2848e49` 完成 Trait alias Symfony Attribute References，候选 `php-companion-alpha-0.4.5-2848e499` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 提交 `48d8126` 完成继承/Trait Symfony 方法 Attribute References，候选 `php-companion-alpha-0.4.5-48d81260` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 已注册服务从父类或 Trait 获得的有效公开实例方法会保留方法级 `#[AsEventListener]`：事件、优先级、回调声明和匹配 dispatch 均进入子服务/真实方法 References；Trait `as` 别名保留独立有效方法名并回溯原始 Attribute 声明，跨宿主相对类名保持 unknown。

@@ -2152,7 +2152,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       if (!providerFqcn || (!method.declarationFqcn && providerFqcn.toLowerCase() === subscriber.toLowerCase())) return [];
       const source = workspace.source(method.uri); if (!source?.toLowerCase().includes('aseventlistener')) return [];
       return analyzeSymfonyInheritedEventListenerAttributes(syntaxParser, method.uri, source,
-        providerFqcn, subscriber, sourceMethodName, method.name);
+        providerFqcn, subscriber, sourceMethodName, method.name, {
+          providerParentFqcn: workspace.directParentClass(providerFqcn),
+          subscriberParentFqcn: workspace.directParentClass(subscriber),
+        });
     }) : [];
     const subscriptions = [...directSubscriptions, ...inheritedSubscriptions, ...inheritedAttributeSubscriptions];
     const matchingSubscriptions = type

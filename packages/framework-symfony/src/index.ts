@@ -504,7 +504,8 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
 
 /** Extract method-level AsEventListener attributes copied from an inherited or Trait-composed method. */
 export function analyzeSymfonyInheritedEventListenerAttributes(parser: PhpSyntaxParser, uri: string, source: string,
-  providerFqcn: string, subscriberFqcn: string, sourceMethodName: string, listenerName = sourceMethodName): SymfonyEventSubscriptionFact[] {
+  providerFqcn: string, subscriberFqcn: string, sourceMethodName: string, listenerName = sourceMethodName,
+  relativeClasses: { providerParentFqcn?: string; subscriberParentFqcn?: string } = {}): SymfonyEventSubscriptionFact[] {
   const parsed = parser.parse(source, undefined, uri);
   try {
     const declaration = parsed.declarations.find((item) => ['class', 'trait'].includes(item.kind)
@@ -556,8 +557,12 @@ export function analyzeSymfonyInheritedEventListenerAttributes(parser: PhpSyntax
       let events: Array<{ value: string; start: number; end: number }> = [];
       if (eventNode?.type === 'class_constant_access_expression' && eventNode.namedChildren[1]?.text.toLowerCase() === 'class') {
         const name = eventNode.namedChildren[0]?.text; const relative = name?.toLowerCase();
-        if (!name || relative === 'parent' || (providerFqcn.toLowerCase() !== subscriberFqcn.toLowerCase() && ['self', 'static'].includes(relative!))) continue;
-        events = [{ value: ['self', 'static'].includes(relative!) ? providerFqcn : resolveName(name, namespace, parsed.imports),
+        if (!name || relative === 'static') continue;
+        const relativeClass = relative === 'self' ? declaration.kind === 'trait' ? subscriberFqcn : providerFqcn
+          : relative === 'parent' ? declaration.kind === 'trait' ? relativeClasses.subscriberParentFqcn : relativeClasses.providerParentFqcn
+          : undefined;
+        if (['self', 'parent'].includes(relative!) && !relativeClass) continue;
+        events = [{ value: relativeClass ?? resolveName(name, namespace, parsed.imports),
           start: eventNode.startIndex, end: eventNode.endIndex }];
       } else if (literalEvent?.value !== undefined) events = [{ value: literalEvent.value, start: literalEvent.start, end: literalEvent.end }];
       else if (!eventNode || eventNode.type === 'null') events = inferredEvents().map((value) => ({

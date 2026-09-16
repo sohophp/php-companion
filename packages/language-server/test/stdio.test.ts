@@ -137,9 +137,12 @@ describe('language server stdio', () => {
           trait TraitSubscriptions {
             public static function getSubscribedEvents(): array { return ['app.trait.map' => 'onTraitMap']; }
             #[AsEventListener(ReadyEvent::class, priority: 7)]
+            #[AsEventListener(self::class)]
+            #[AsEventListener(parent::class)]
             public function onTraitMap(): void {}
           }
-          final class TraitMapListener implements EventSubscriberInterface {
+          class TraitMapBase {}
+          final class TraitMapListener extends TraitMapBase implements EventSubscriberInterface {
             use TraitSubscriptions { onTraitMap as onTraitAlias; }
           }
           final class AliasCaller {
@@ -236,7 +239,7 @@ describe('language server stdio', () => {
           textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
         } }));
         const inheritedMap = (await output.waitFor((message) => message.id === id)).result;
-        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 3 : 2);
+        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 5 : 2);
         expect(inheritedMap.map((reference: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end))))
           .toEqual(expect.arrayContaining([method, 'AsEventListener']));

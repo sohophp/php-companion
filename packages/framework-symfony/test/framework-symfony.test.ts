@@ -159,18 +159,36 @@ describe('static Symfony Controller context analysis', () => {
         #[Listen(ReadyEvent::class, priority: 3)]
         #[Listen('app.shared')]
         #[Listen(self::class)]
+        #[Listen(parent::class)]
         public function onShared(ReadyEvent $event): void {}
+      }
+      class BaseProvider {}
+      class ParentListener extends BaseProvider {
+        #[Listen(self::class)]
+        #[Listen(parent::class)]
+        public function onParent(): void {}
       }`;
     const facts = analyzeSymfonyInheritedEventListenerAttributes(parser, 'file:///src/SharedListener.php', source,
-      'App\\SharedListener', 'App\\Consumer', 'onShared');
+      'App\\SharedListener', 'App\\Consumer', 'onShared', 'onShared', { subscriberParentFqcn: 'App\\BaseConsumer' });
     expect(facts.map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
       ['App\\Consumer', 'App\\Events\\ReadyEvent', 'onShared', 3],
       ['App\\Consumer', 'app.shared', 'onShared', 0],
+      ['App\\Consumer', 'App\\Consumer', 'onShared', 0],
+      ['App\\Consumer', 'App\\BaseConsumer', 'onShared', 0],
     ]);
     expect(analyzeSymfonyInheritedEventListenerAttributes(parser, 'file:///src/SharedListener.php', source,
-      'App\\SharedListener', 'App\\Consumer', 'onShared', 'onAlias').map(({ event, listener }) => [event, listener])).toEqual([
+      'App\\SharedListener', 'App\\Consumer', 'onShared', 'onAlias', { subscriberParentFqcn: 'App\\BaseConsumer' })
+      .map(({ event, listener }) => [event, listener])).toEqual([
       ['App\\Events\\ReadyEvent', 'onAlias'],
       ['app.shared', 'onAlias'],
+      ['App\\Consumer', 'onAlias'],
+      ['App\\BaseConsumer', 'onAlias'],
+    ]);
+    expect(analyzeSymfonyInheritedEventListenerAttributes(parser, 'file:///src/SharedListener.php', source,
+      'App\\ParentListener', 'App\\ChildListener', 'onParent', 'onParent', { providerParentFqcn: 'App\\BaseProvider' })
+      .map(({ event, listener }) => [event, listener])).toEqual([
+      ['App\\ParentListener', 'onParent'],
+      ['App\\BaseProvider', 'onParent'],
     ]);
   });
 

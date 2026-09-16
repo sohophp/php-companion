@@ -2489,6 +2489,15 @@ export class SemanticWorkspace {
     return this.publicConcreteMethod(fqcn, methodName, true);
   }
 
+  /** Resolve one directly extended class without traversing the hierarchy. */
+  directParentClass(fqcn: string): string | undefined {
+    const owner = this.fileAndDeclaration(fqcn);
+    if (!owner || owner.declaration.kind !== 'class' || owner.declaration.extendsNames.length !== 1) return undefined;
+    const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const parent = this.resolveSourceType(owner.file, owner.declaration.extendsNames[0]!, namespace, owner.declaration.fqcn);
+    return parent && this.fileAndDeclaration(parent)?.declaration.kind === 'class' ? parent : undefined;
+  }
+
   private publicConcreteMethod(fqcn: string, methodName: string, staticMethod: boolean): MemberInfo | undefined {
     const normalized = methodName.toLowerCase();
     const methods = this.publicConcreteMethods(fqcn, staticMethod).filter((member) => member.name.toLowerCase() === normalized);

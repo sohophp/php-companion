@@ -1,5 +1,6 @@
 # Changelog
 
+- Resolve a unique direct parent class for framework metadata whose relative class constants bind against either a declaration owner or a Trait consumer.
 - List effective concrete public instance methods across a complete parent/Trait graph, preserving original declaration identity and name for Trait aliases, so registered framework consumers can inspect inherited metadata without requiring every implemented interface to be loaded.
 - Expose the matching conservative effective public-static-method query for framework integrations that must prove inherited or Trait-composed providers.
 - Expose one conservative effective public-instance-method query that resolves concrete inherited and Trait-composed declarations while requiring a complete parent/Trait graph.
