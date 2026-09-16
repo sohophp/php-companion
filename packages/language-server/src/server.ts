@@ -57,6 +57,7 @@ const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
+const projectCompleteWaiters = new Map<string, Set<() => void>>();
 const plannedSafeMovePaths = new Map<string, number>();
 const interopContextsByRoot = new Map<string, Map<string, ControllerTemplateContext[]>>();
 const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineRepositoryMethodFact[]>>();
@@ -550,16 +551,21 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
-    onProjectComplete: () => {
+    onProjectComplete: (): void => {
       if (!shouldContinue()) return;
       const projectCurrent = new Set(current);
       for (const stale of projectIndexedUrisByRoot.get(root) ?? []) if (!projectCurrent.has(stale) && !documents.get(stale)) workspace.remove(stale);
       projectIndexedUrisByRoot.set(root, projectCurrent);
       projectCompleteRoots.add(root);
+      for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
+      projectCompleteWaiters.delete(root);
+      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; dependency indexing continues.`);
     },
   });
   if (result.projectComplete && shouldContinue()) {
     projectCompleteRoots.add(root);
+    for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
+    projectCompleteWaiters.delete(root);
     for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
     indexedUrisByRoot.set(root, current);
     if (result.complete) completeRoots.add(root);
@@ -1119,7 +1125,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
       if (!key.startsWith('root:')) continue;
@@ -1157,7 +1163,13 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
 
 async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (projectCompleteRoots.has(root)) return true;
-  await (activeIndexing ?? startIndexWorkspace());
+  const indexing = activeIndexing ?? startIndexWorkspace();
+  if (!projectCompleteRoots.has(root)) await new Promise<void>((resolveReady) => {
+    const waiters = projectCompleteWaiters.get(root) ?? new Set<() => void>(); waiters.add(resolveReady); projectCompleteWaiters.set(root, waiters);
+    const finish = (): void => { waiters.delete(resolveReady); if (!waiters.size) projectCompleteWaiters.delete(root); resolveReady(); };
+    void indexing.then(finish, finish);
+    if (projectCompleteRoots.has(root)) finish();
+  });
   return !isCancellationRequested() && projectCompleteRoots.has(root);
 }
 
@@ -2318,6 +2330,8 @@ connection.onShutdown(async () => {
   semanticWorkspaces.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();
+  for (const waiters of projectCompleteWaiters.values()) for (const resolveReady of waiters) resolveReady();
+  projectCompleteWaiters.clear();
   projectIndexedUrisByRoot.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
