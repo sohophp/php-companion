@@ -1,3 +1,4 @@
+- 提交 `c22b57f` 完成精确 `AsEventListener` 与 YAML 事件监听 References，候选 `php-companion-alpha-0.4.5-c22b57f9` 的三份 VSIX 已验证；Remote CLI 挂起后，候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 的现有 0.4.5 扩展目录，Reload Window 后加载。
 - Symfony 事件监听 References 扩展到精确 `#[AsEventListener]` 和 YAML `kernel.event_listener`：支持显式事件/方法/优先级、方法参数事件推断、类级方法派生与 `__invoke` 回退；只有可对应到公开非静态方法的静态关系才进入类或方法引用。
 - 提交 `2f693ca` 完成 Symfony 事件订阅 References 与成员候选扫描，候选 `php-companion-alpha-0.4.5-2f693ca9` 的三份 VSIX 已验证；核心候选已覆盖安装到 WSL RockyLinux8，Reload Window 后加载。
 - Symfony 事件订阅关系进入 References：可证明的 `EventSubscriberInterface::getSubscribedEvents()` 字面量映射会把事件键加入订阅类引用，把回调字符串加入公开监听方法引用；方法、属性和常量 References 在 onDemand 模式改用按名称候选扫描，Winstar `onKernelController` 冷查询由约 50 秒降至约 5.8 秒。
