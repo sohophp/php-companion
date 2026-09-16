@@ -23,3 +23,12 @@
 - 根级 TypeScript 与 ESLint 通过；16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
 - 三份 0.4.5 VSIX 均完成打包并通过 `verify:vsix` 内容检查。
 - Winstar 只读实测：`src/Bridge/AdminSecuritySubscriber.php` 首次 Definition 约 1.95 秒；首次 References 约 6.19 秒并返回 1 项；重复 References 约 15 毫秒并保持 1 项。该项目由 `config/symfony/services.yaml` 的 `App\\Bridge\\` resource 注册此类。
+
+## Alpha 候选
+
+- 功能提交：`da3d68a087016bf706b2296980c162906754a72d`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-da3d68a0/`。
+- 核心 VSIX SHA-256：`ef3f1148501c7334c4383ba9448e11a527394e8834eeb17c1b9f33a7ee9d656e`。
+- Open Source Pack SHA-256：`0b2f651068217d2c89f4cedd5cfb26f88696766c802cb27bb1fd9c42c1d6fd85`。
+- Recommended Pack SHA-256：`aa8155e9343d51c4492a030ef44bdda3b91950e4a4afd18c143954deaea146f3`。
+- 核心 VSIX 已通过 `code --install-extension ... --force` 安装到 WSL RockyLinux8。安装目录内 `extension.js` 与 `language-server.js` 的 SHA-256 和候选压缩包内容一致；当前 Extension Host 在安装前已启动，须 Reload Window 后才会加载本候选。

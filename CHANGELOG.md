@@ -1,3 +1,4 @@
+- 提交 `da3d68a` 完成 Symfony 服务注册 References，候选 `php-companion-alpha-0.4.5-da3d68a0` 的三份 VSIX 已验证；核心候选已安装到 WSL RockyLinux8，Reload Window 后加载。
 - Symfony 隐式服务注册进入类型 References：类声明及使用点的 Find All References 会合并显式 service、确定性 YAML resource 和新鲜编译容器的注册位置；实现导航仍指向 PHP 类。冷启动 onDemand 查询在候选扫描后按需加载服务事实，Winstar `AdminSecuritySubscriber` 首次查询返回 `config/symfony/services.yaml` 注册项，热查询保持毫秒级。
 - 索引、移动和引用一致性改进：文件事件改为合并增量队列；缓存按内容校验并修复事实排序导致的缓存拒绝；类引用与移动按类名筛选候选文件；移动使用语法树范围与固定原文快照，合并引用修改为可撤销事务并保留未保存内容；查询记录耗时并区分取消和索引未完成。
 - Safe Move 校正编辑携带原文快照，应用前检查编辑器内容；范围换算使用同一快照，避免过期范围吞掉 namespace 分号。移动前的即时编辑在异步规划后重新读取当前文本。
