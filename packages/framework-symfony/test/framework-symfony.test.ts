@@ -167,6 +167,11 @@ describe('static Symfony Controller context analysis', () => {
       ['App\\Consumer', 'App\\Events\\ReadyEvent', 'onShared', 3],
       ['App\\Consumer', 'app.shared', 'onShared', 0],
     ]);
+    expect(analyzeSymfonyInheritedEventListenerAttributes(parser, 'file:///src/SharedListener.php', source,
+      'App\\SharedListener', 'App\\Consumer', 'onShared', 'onAlias').map(({ event, listener }) => [event, listener])).toEqual([
+      ['App\\Events\\ReadyEvent', 'onAlias'],
+      ['app.shared', 'onAlias'],
+    ]);
   });
 
   it('extracts exact dispatch event identities without claiming the receiver type', () => {

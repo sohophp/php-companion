@@ -504,13 +504,13 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
 
 /** Extract method-level AsEventListener attributes copied from an inherited or Trait-composed method. */
 export function analyzeSymfonyInheritedEventListenerAttributes(parser: PhpSyntaxParser, uri: string, source: string,
-  providerFqcn: string, subscriberFqcn: string, listenerName: string): SymfonyEventSubscriptionFact[] {
+  providerFqcn: string, subscriberFqcn: string, sourceMethodName: string, listenerName = sourceMethodName): SymfonyEventSubscriptionFact[] {
   const parsed = parser.parse(source, undefined, uri);
   try {
     const declaration = parsed.declarations.find((item) => ['class', 'trait'].includes(item.kind)
       && item.fqcn.toLowerCase() === providerFqcn.toLowerCase());
     const method = parsed.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === providerFqcn.toLowerCase()
-      && item.name.toLowerCase() === listenerName.toLowerCase() && item.visibility === 'public' && !item.static);
+      && item.name.toLowerCase() === sourceMethodName.toLowerCase() && !item.static);
     if (!declaration || !method) return [];
     const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
       if (accept(node)) return node;

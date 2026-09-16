@@ -139,7 +139,12 @@ describe('language server stdio', () => {
             #[AsEventListener(ReadyEvent::class, priority: 7)]
             public function onTraitMap(): void {}
           }
-          final class TraitMapListener implements EventSubscriberInterface { use TraitSubscriptions; }
+          final class TraitMapListener implements EventSubscriberInterface {
+            use TraitSubscriptions { onTraitMap as onTraitAlias; }
+          }
+          final class AliasCaller {
+            public function call(TraitMapListener $listener): void { $listener->onTraitAlias(); }
+          }
           final class Publisher {
             public function publish(EventDispatcherInterface $dispatcher, MessageBusInterface $bus): void {
               $dispatcher->dispatch(new ReadyEvent());
@@ -245,6 +250,13 @@ describe('language server stdio', () => {
         expect(classReferencesForMap.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === attributeEvent)).toBe(true);
       }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 255, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onTraitAlias') + 2), context: { includeDeclaration: false },
+      } }));
+      const aliasAttributeReferences = (await output.waitFor((message) => message.id === 255)).result;
+      expect(aliasAttributeReferences.map((reference: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+        source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end))))
+        .toEqual(expect.arrayContaining(['AsEventListener', 'new ReadyEvent()']));
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 235);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

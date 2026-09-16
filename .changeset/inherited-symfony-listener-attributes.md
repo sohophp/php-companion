@@ -4,4 +4,4 @@
 '@php-companion/language-server': minor
 ---
 
-Link method-level Symfony listener attributes inherited from parent classes or composed Traits to registered service classes and effective method declarations.
+Link method-level Symfony listener attributes inherited from parent classes or composed Traits, including independently named Trait aliases, to registered service classes and effective method declarations.

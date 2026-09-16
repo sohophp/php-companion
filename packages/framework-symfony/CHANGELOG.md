@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Extract method-level `AsEventListener` attributes for a specifically proven parent or Trait method consumer, retaining literal, explicit class and inferred parameter events while rejecting relative cross-owner rebinding.
+- Extract method-level `AsEventListener` attributes for a specifically proven parent or Trait method consumer, allowing its effective callback name to differ from the source method for Trait aliases while rejecting relative cross-owner rebinding.
 - Extract deterministic subscription arrays built through one static initialization, literal/class-constant keyed assignments and an unchanged return; reject dynamic mutations, and allow explicit non-relative class constants across inherited providers.
 - Extract literal subscription maps from a specifically proven parent or Trait `getSubscribedEvents()` provider while rejecting cross-owner class-constant binding.
 - Accept inherited or Trait-composed subscriber and class-level attribute callbacks only through an optional semantic public-instance-method validator; keep standalone syntax analysis conservative.

@@ -6,7 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
-- Merge method-level `AsEventListener` attributes from effective parent and Trait methods into each registered service class and true declaration References, including matching dispatch sites, while leaving renamed Trait aliases and relative cross-owner event classes unknown.
+- Merge method-level `AsEventListener` attributes from effective parent and Trait methods into each registered service class and true declaration References, including matching dispatch sites and independently named Trait aliases, while leaving relative cross-owner event classes unknown.
 - Surface deterministic locally built subscriber maps and inherited-provider events that use explicit non-relative class constants while retaining dynamic mutations and relative cross-owner constants as unknown.
 - Merge literal event maps from an effective inherited or Trait-provided `getSubscribedEvents()` method into each registered subscriber class and callback References after proving EventSubscriberInterface membership; avoid Symfony hydration for unrelated reference queries.
 - Resolve subscriber maps, class-level `AsEventListener`, YAML tags and compiled-container listener tags through each service class's effective public instance method, linking inherited and Trait-composed callbacks to their declaration while rejecting private, static and incomplete targets.

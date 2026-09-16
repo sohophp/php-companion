@@ -143,6 +143,9 @@ export interface MemberInfo extends SemanticLocation {
   constantKind?: ParsedConstantDeclaration['kind'];
   typeScopeFqcn: string;
   calledOnFqcn: string;
+  /** Original declaration identity when an effective method was introduced through a Trait alias. */
+  declarationFqcn?: string;
+  declarationName?: string;
   templateArguments?: Record<string, string>;
   calledOnTemplateArguments?: Record<string, string>;
   callableTemplates?: SemanticTemplate[];
@@ -10695,7 +10698,11 @@ export class SemanticWorkspace {
       const expectedTrait = adaptation.trait ? this.resolveSourceType(ownerFile, adaptation.trait, namespace)?.toLowerCase() : undefined;
       const matches = allTraitEntries.filter(({ trait, member }) => (!expectedTrait || trait.toLowerCase() === expectedTrait) && member.kind === 'method' && member.name.toLowerCase() === adaptation.method.toLowerCase());
       if (adaptation.alias) {
-        for (const { member } of matches) traitEntries.push({ trait: member.fqcn.split('::')[0]!, member: { ...member, name: adaptation.alias, fqcn: `${fqcn}::${adaptation.alias}`, visibility: adaptation.visibility ?? member.visibility } });
+        for (const { member } of matches) traitEntries.push({ trait: member.fqcn.split('::')[0]!, member: {
+          ...member, name: adaptation.alias, fqcn: `${fqcn}::${adaptation.alias}`,
+          declarationFqcn: member.declarationFqcn ?? member.fqcn, declarationName: member.declarationName ?? member.name,
+          visibility: adaptation.visibility ?? member.visibility,
+        } });
       } else if (adaptation.visibility) {
         for (const entry of matches) entry.member = { ...entry.member, visibility: adaptation.visibility };
       }

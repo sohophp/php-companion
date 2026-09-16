@@ -2255,15 +2255,21 @@ describe('conservative semantic workspace', () => {
     workspace.update('file:///ListenerBase.php', `<?php namespace ListenerMethods;
       class Base { public function inherited(): void {} public static function staticListener(): void {} public static function getSubscribedEvents(): array { return []; } protected function hidden(): void {} }
       trait Shared { public function fromTrait(): void {} public static function traitSubscriptions(): array { return []; } private function privateTrait(): void {} }
-      class Listener extends Base { use Shared; public function own(): void {} }
+      class Listener extends Base { use Shared { fromTrait as traitAlias; } public function own(): void {} }
       class ListenerWithExternalContract implements MissingContract { public function local(): void {} }
       class BrokenListener extends MissingBase { public function local(): void {} }
     `);
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'own')?.fqcn).toBe('ListenerMethods\\Listener::own');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'inherited')?.fqcn).toBe('ListenerMethods\\Base::inherited');
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'fromTrait')?.fqcn).toBe('ListenerMethods\\Shared::fromTrait');
+    expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'traitAlias')).toMatchObject({
+      fqcn: 'ListenerMethods\\Listener::traitAlias',
+      declarationFqcn: 'ListenerMethods\\Shared::fromTrait',
+      declarationName: 'fromTrait',
+    });
     expect(workspace.publicInstanceMethods('ListenerMethods\\Listener').map((method) => method.fqcn).sort()).toEqual([
-      'ListenerMethods\\Base::inherited', 'ListenerMethods\\Listener::own', 'ListenerMethods\\Shared::fromTrait',
+      'ListenerMethods\\Base::inherited', 'ListenerMethods\\Listener::own', 'ListenerMethods\\Listener::traitAlias',
+      'ListenerMethods\\Shared::fromTrait',
     ]);
     expect(workspace.publicInstanceMethod('ListenerMethods\\Listener', 'staticListener')).toBeUndefined();
     expect(workspace.publicStaticMethod('ListenerMethods\\Listener', 'staticListener')?.fqcn).toBe('ListenerMethods\\Base::staticListener');

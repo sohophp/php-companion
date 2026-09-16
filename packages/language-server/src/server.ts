@@ -2147,10 +2147,12 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const inheritedAttributeSubscriptions = syntaxParser ? [...new Map(inheritedAttributeTargets.map((target) => [
       target.subscriber.toLowerCase() + ':' + target.method.fqcn.toLowerCase() + ':' + target.method.name.toLowerCase(), target,
     ])).values()].flatMap(({ subscriber, method }) => {
-      const providerFqcn = method.fqcn.split('::')[0];
-      if (!providerFqcn || providerFqcn.toLowerCase() === subscriber.toLowerCase()) return [];
+      const providerFqcn = (method.declarationFqcn ?? method.fqcn).split('::')[0];
+      const sourceMethodName = method.declarationName ?? method.name;
+      if (!providerFqcn || (!method.declarationFqcn && providerFqcn.toLowerCase() === subscriber.toLowerCase())) return [];
       const source = workspace.source(method.uri); if (!source?.toLowerCase().includes('aseventlistener')) return [];
-      return analyzeSymfonyInheritedEventListenerAttributes(syntaxParser, method.uri, source, providerFqcn, subscriber, method.name);
+      return analyzeSymfonyInheritedEventListenerAttributes(syntaxParser, method.uri, source,
+        providerFqcn, subscriber, sourceMethodName, method.name);
     }) : [];
     const subscriptions = [...directSubscriptions, ...inheritedSubscriptions, ...inheritedAttributeSubscriptions];
     const matchingSubscriptions = type
