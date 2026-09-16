@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -52,7 +52,7 @@ describe('static Symfony Controller context analysis', () => {
       }`;
     const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/Subscriber.php', source);
     expect(facts.map(({ event, listener, priority }) => [event, listener, priority])).toEqual([
-      ['KernelEvents::CONTROLLER', 'onController', 16],
+      ['Symfony\\Component\\HttpKernel\\KernelEvents::CONTROLLER', 'onController', 16],
       ['app.ready', 'onReady', undefined],
       ['app.multi', 'onReady', 4],
       ['app.multi', 'onController', 2],
@@ -99,6 +99,33 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(facts[0]!.listenerStart, facts[0]!.listenerEnd)).toBe('Listen');
     expect(source.slice(facts[2]!.eventStart, facts[2]!.eventEnd)).toBe('app.class');
     expect(source.slice(facts[2]!.listenerStart, facts[2]!.listenerEnd)).toBe('onClass');
+  });
+
+  it('extracts exact dispatch event identities without claiming the receiver type', () => {
+    const source = `<?php namespace App;
+      use Domain\\Event\\ReadyEvent as Ready;
+      use Symfony\\Component\\HttpKernel\\KernelEvents;
+      final class Publisher {
+        public function run(object $dispatcher, object $event): void {
+          $dispatcher->dispatch(new Ready());
+          $dispatcher->dispatch(new Ready(), 'app.custom');
+          $dispatcher->dispatch(new Ready(), eventName: KernelEvents::CONTROLLER);
+          $dispatcher->dispatch(event: new Ready(), eventName: Ready::class);
+          $dispatcher->dispatch($event, 'app.named');
+          $dispatcher->dispatch($event);
+          $dispatcher->dispatch(eventName: 'invalid', event: new Ready());
+          $dispatcher->dispatch(...[$event]);
+          $dispatcher->other(new Ready());
+        }
+      }`;
+    const facts = analyzeSymfonyEventDispatches(parser, 'file:///src/Publisher.php', source);
+    expect(facts.map(({ event }) => event)).toEqual([
+      'Domain\\Event\\ReadyEvent', 'app.custom', 'Symfony\\Component\\HttpKernel\\KernelEvents::CONTROLLER',
+      'Domain\\Event\\ReadyEvent', 'app.named', 'invalid',
+    ]);
+    expect(source.slice(facts[0]!.eventStart, facts[0]!.eventEnd)).toBe('new Ready()');
+    expect(source.slice(facts[1]!.eventStart, facts[1]!.eventEnd)).toBe('app.custom');
+    expect(source.slice(facts[2]!.dispatchStart, facts[2]!.dispatchEnd)).toBe('dispatch');
   });
 
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {

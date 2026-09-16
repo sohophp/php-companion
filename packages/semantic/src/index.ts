@@ -1302,6 +1302,8 @@ export class SemanticWorkspace {
     const current = this.externalFacts.get(provider); this.replaceExternalFacts(semanticFacts(provider, current?.generation ?? 'legacy', { complete: current?.complete, methods: current?.methods, properties: current?.properties, literalMethodReturns: facts }));
   }
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
+
+  documentUris(): string[] { return [...this.files.keys()]; }
   snapshot(uri: string): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {

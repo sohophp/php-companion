@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract exact event identities and source ranges from syntactic `dispatch()` candidates, including direct event construction, literal/custom event names, class constants and named arguments, while leaving receiver ownership for the semantic caller to prove.
 - Extract exact class/method `#[AsEventListener]` relationships, including native event-parameter inference, class method derivation, priorities, unions and invokable fallback.
 - Preserve explicit YAML `kernel.event_listener` event/method ranges on services and deterministic resources while rejecting dynamic events, invalid methods and non-literal priorities.
 - Extract complete literal `EventSubscriberInterface::getSubscribedEvents()` maps, including direct listeners, priorities and multiple listeners, only when every emitted relation targets a proven public instance method.

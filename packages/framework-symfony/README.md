@@ -4,6 +4,6 @@ Symfony 的静态框架事实组件。它从 PHP Controller 的 `$this->render('
 
 组件还可把 Symfony `debug:container --show-hidden --format=xml` 一类开发调试容器 XML 当作只读数据，提取 bundle/编译器生成服务、别名、公开服务、`container.service_locator_context` 对应的可定位公开方法参数、直接构造参数和 `<call method>` 中的服务引用及参数位置，以及带 owner/property 名的直接 `<property>` 服务引用。调用方负责确认缓存新鲜度；解析器拒绝 DOCTYPE，不读取标量参数值，也不启动 Symfony Kernel、执行 Composer autoloader 或项目 PHP。errored 服务引用、嵌套集合、无法解析到 service class 的目标、factory、参数化 YAML class、复杂 glob、动态 Target/bind、非公开或复合类型 Required 属性，以及不能映射到明确 callable 和参数名的 locator 保持未知。
 
-事件关系以精确来源范围输出：完整字面量 `EventSubscriberInterface::getSubscribedEvents()`、类/方法级 `#[AsEventListener]`，以及 YAML 服务或确定性 resource 上的显式 `kernel.event_listener` 标签，都可关联到已证明的公开非静态监听方法。Attribute 支持字面量事件、`Event::class`、首个原生对象参数推断、整数优先级、类级方法派生与 `__invoke` 回退；动态参数、动态订阅数组、XML 标签、继承/Trait 方法和 dispatch 调用暂时保持未知。
+事件关系以精确来源范围输出：完整字面量 `EventSubscriberInterface::getSubscribedEvents()`、类/方法级 `#[AsEventListener]`，以及 YAML 服务或确定性 resource 上的显式 `kernel.event_listener` 标签，都可关联到已证明的公开非静态监听方法。Attribute 支持字面量事件、`Event::class`、首个原生对象参数推断、整数优先级、类级方法派生与 `__invoke` 回退。派发候选支持直接 `new Event()`、显式字符串/类名/类常量事件名与命名参数；调用方仍须以语义类型证明接收者属于 Symfony EventDispatcher 接口族。变量事件、动态参数、动态订阅数组、XML 标签和继承/Trait 方法暂时保持未知。
 
 当前只接受字面量模板名和字面量关联数组。参数、`$this`、`new` 与标量/null/数组字面量可确定类型；动态模板或动态 context 不猜测。多个 Controller 的同模板结果由 interop 合并器保留来源与 Union。

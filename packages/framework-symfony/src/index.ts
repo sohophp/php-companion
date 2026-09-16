@@ -19,6 +19,7 @@ export interface SymfonyCompiledMethodArgumentFact { callableFqcn: string; param
 export interface SymfonyCompiledPropertyArgumentFact { ownerFqcn: string; property: string; serviceId: string; className: string; uri: string; start: number; end: number; }
 export interface SymfonyCompiledContainerFacts { complete: boolean; services: SymfonyServiceFact[]; methodArguments: SymfonyCompiledMethodArgumentFact[]; propertyArguments: SymfonyCompiledPropertyArgumentFact[]; }
 export interface SymfonyEventSubscriptionFact { subscriberFqcn: string; event: string; listener: string; priority?: number; uri: string; eventStart: number; eventEnd: number; listenerStart: number; listenerEnd: number; }
+export interface SymfonyEventDispatchFact { event: string; uri: string; eventStart: number; eventEnd: number; dispatchStart: number; dispatchEnd: number; }
 
 const primitiveNames = new Set(['bool', 'int', 'float', 'string', 'array', 'object', 'callable', 'iterable', 'resource', 'null', 'void', 'never', 'mixed']);
 
@@ -143,6 +144,14 @@ function resolveName(name: string, namespace: string, imports: ParsedImport[]): 
   const [head, ...tail] = name.split('\\');
   const imported = imports.find((item) => item.kind === 'class' && item.namespace === namespace && item.alias.toLowerCase() === head!.toLowerCase());
   return imported ? [imported.fqcn, ...tail].join('\\') : [namespace, name].filter(Boolean).join('\\');
+}
+
+function classConstantIdentity(node: NodeLike, namespace: string, imports: ParsedImport[], selfFqcn?: string): string | undefined {
+  if (node.type !== 'class_constant_access_expression' || node.namedChildren.length < 2) return undefined;
+  const owner = node.namedChildren[0]!.text; const constant = node.namedChildren[1]!.text;
+  if (owner.toLowerCase() === 'parent') return undefined;
+  const resolved = ['self', 'static'].includes(owner.toLowerCase()) ? selfFqcn : resolveName(owner, namespace, imports);
+  return resolved ? constant.toLowerCase() === 'class' ? resolved : `${resolved}::${constant}` : undefined;
 }
 
 function serializedType(input: string | undefined, namespace: string, imports: ParsedImport[]): SerializedPhpType {
@@ -293,7 +302,8 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
           if (item.type !== 'array_element_initializer' || item.namedChildren.length !== 2) continue;
           const [eventNode, listenersNode] = item.namedChildren; const listeners = listenerSpecs(listenersNode!);
           const eventLiteral = literalTextRange(eventNode!);
-          const staticEvent = eventNode!.type === 'class_constant_access_expression' ? { value: eventNode!.text, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
+          const staticIdentity = classConstantIdentity(eventNode!, namespace, parsed.imports, declaration.fqcn);
+          const staticEvent = staticIdentity ? { value: staticIdentity, start: eventNode!.startIndex, end: eventNode!.endIndex } : undefined;
           const event = eventLiteral ?? staticEvent; if (!event || !listeners.length) continue;
           for (const listener of listeners) if (publicListeners.has(listener.listener.toLowerCase())) subscriptions.push({
             subscriberFqcn: declaration.fqcn, event: event.value, listener: listener.listener, priority: listener.priority,
@@ -358,6 +368,65 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
       }
     }
     return subscriptions;
+  } finally { parsed.tree.delete(); }
+}
+
+/** Extract syntactically exact dispatch event identities; callers must still prove the method target is Symfony's dispatcher. */
+export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventDispatchFact[] {
+  const parsed = parser.parse(source, undefined, uri);
+  try {
+    const root = parsed.tree.rootNode as unknown as NodeLike;
+    const visit = (node: NodeLike, accept: (candidate: NodeLike) => boolean): NodeLike | undefined => {
+      if (accept(node)) return node;
+      for (const child of node.namedChildren) { const found = visit(child, accept); if (found) return found; }
+      return undefined;
+    };
+    const find = (start: number, end: number): NodeLike | undefined => visit(root, (node) => node.type === 'argument'
+      && node.startIndex === start && node.endIndex === end);
+    const namespaceAt = (offset: number): string | undefined => {
+      const callable = parsed.callables.filter((item) => offset >= item.declarationStart && offset <= item.declarationEnd)
+        .sort((left, right) => left.declarationEnd - left.declarationStart - (right.declarationEnd - right.declarationStart))[0];
+      if (callable) {
+        const owner = callable.containerFqcn ?? callable.fqcn;
+        return owner.split('\\').slice(0, -1).join('\\');
+      }
+      const declaration = parsed.declarations.find((item) => offset >= item.declarationStart && offset <= item.declarationEnd);
+      return declaration ? declaration.fqcn.split('\\').slice(0, -1).join('\\') : parsed.namespace;
+    };
+    const expression = (argument: (typeof parsed.calls)[number]['arguments'][number]): NodeLike | undefined => {
+      const node = find(argument.start, argument.end); return node?.namedChildren.at(-1);
+    };
+    const identity = (node: NodeLike | undefined, namespace: string): { event: string; start: number; end: number } | undefined => {
+      if (!node) return undefined;
+      const literal = literalTextRange(node); if (literal) return { event: literal.value, start: literal.start, end: literal.end };
+      const constant = classConstantIdentity(node, namespace, parsed.imports);
+      return constant ? { event: constant, start: node.startIndex, end: node.endIndex } : undefined;
+    };
+    return parsed.calls.flatMap((call): SymfonyEventDispatchFact[] => {
+      if (call.kind !== 'method' || source.slice(call.nameStart, call.nameEnd).toLowerCase() !== 'dispatch'
+        || call.firstClassCallable || call.arguments.some((argument) => argument.unpacked)) return [];
+      const namespace = namespaceAt(call.start); if (namespace === undefined) return [];
+      const named = new Map(call.arguments.flatMap((argument) => argument.name ? [[argument.name.toLowerCase(), argument] as const] : []));
+      if (named.size !== call.arguments.filter((argument) => argument.name).length
+        || [...named.keys()].some((name) => !['event', 'eventname'].includes(name))) return [];
+      let sawNamed = false; let invalidOrder = false;
+      for (const argument of call.arguments) { if (argument.name) sawNamed = true; else if (sawNamed) invalidOrder = true; }
+      const positional = call.arguments.filter((argument) => !argument.name);
+      if (invalidOrder || positional.length > 2 || named.has('event') && positional.length >= 1 || named.has('eventname') && positional.length >= 2) return [];
+      const eventArgument = named.get('event') ?? positional[0]; const eventNameArgument = named.get('eventname') ?? positional[1];
+      if (!eventArgument) return [];
+      const eventNameNode = eventNameArgument ? expression(eventNameArgument) : undefined;
+      let event = eventNameNode?.type === 'null' || !eventNameNode ? undefined : identity(eventNameNode, namespace);
+      if (eventNameNode && eventNameNode.type !== 'null' && !event) return [];
+      if (!event) {
+        const eventNode = expression(eventArgument); if (eventNode?.type !== 'object_creation_expression') return [];
+        const name = eventNode.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
+        if (!name || ['self', 'static', 'parent'].includes(name.toLowerCase())) return [];
+        event = { event: resolveName(name, namespace, parsed.imports), start: eventNode.startIndex, end: eventNode.endIndex };
+      }
+      return [{ event: event.event, uri, eventStart: event.start, eventEnd: event.end,
+        dispatchStart: call.nameStart, dispatchEnd: call.nameEnd }];
+    });
   } finally { parsed.tree.delete(); }
 }
 

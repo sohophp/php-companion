@@ -14,7 +14,13 @@
 - 类级和方法级 `Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener`，包括字面量事件、`Event::class`、整数优先级、首个原生事件参数推断、类级 `on<EventName>` 派生和 `__invoke` 回退；方法级 attribute 不接受另行指定 method。
 - `services.yaml` 中显式 `kernel.event_listener` 标签；event、method 和 priority 必须为静态值，标签可随确定性 resource 服务展开，类与方法 References 分别返回 event 和 method 的精确 YAML 范围。
 
-两条路径都要求监听器对应同类公开非静态方法。动态事件名、动态 attribute 参数、分支返回、继承或 Trait 提供的订阅数组/监听方法、XML 或编译容器事件标签和 dispatch 调用保持未知，避免把约定猜测成引用。
+监听类和方法 References 还会合并匹配事件的派发位置：
+
+- 接受 `dispatch(new Event())`，以及第二参数或 `eventName:` 中的字面量字符串、`Event::class` 和类常量；位置参数与命名参数按 PHP 调用规则校验。
+- 语法事实只给出事件身份和范围，Language Server 必须再把方法唯一解析到 Symfony Contracts/Component EventDispatcher 接口或其子类型。
+- 相同事件对象传给 Messenger `MessageBusInterface::dispatch()`、业务同名方法、动态接收者或变量事件时不会发布关系。
+
+监听关系仍要求回调对应同类公开非静态方法。动态事件名、动态 attribute 参数、分支返回、继承或 Trait 提供的订阅数组/监听方法，以及 XML 或编译容器事件标签保持未知，避免把约定猜测成引用。
 
 Symfony 来源事实缓存同步升级为 `symfony-facts-v3`，恢复时会验证每条 YAML 监听事实及 event/method 范围；旧 v2 缓存自动重建。
 
@@ -24,16 +30,18 @@ Symfony 来源事实缓存同步升级为 `symfony-facts-v3`，恢复时会验�
 
 Winstar 只读实测：
 
-- `AdminSecuritySubscriber` 类 References：本轮首次约 6.29 秒，返回服务 resource 注册和 `KernelEvents::CONTROLLER` 事件订阅两项；热查询约 33 毫秒。
-- `onKernelController` 方法 References：优化前基线约 50.02 秒；本轮首次约 5.72 秒，返回 `getSubscribedEvents()` 中的回调字符串；热查询约 13 毫秒。
+- `AdminSecuritySubscriber` 类 References：派发增量后首次约 7.69 秒，返回服务 resource 注册和 `KernelEvents::CONTROLLER` 事件订阅两项；热查询约 32 毫秒。
+- `onKernelController` 方法 References：优化前基线约 50.02 秒；派发增量后首次约 6.88 秒，返回 `getSubscribedEvents()` 中的回调字符串；热查询约 31 毫秒。
+- Winstar 当前四个 `dispatch()` 都属于 Messenger message bus；语义接收者门禁将其全部排除，没有产生 Symfony EventDispatcher 假引用。
 
 ## 验证
 
 - framework-symfony 覆盖直接监听器、优先级、多监听器、动态事件、私有方法和非 subscriber 反例。
 - Language Server 冷启动 stdio 回归同时验证服务注册、类事件关系、方法回调关系，且没有启动完整 `[index:]` 扫描。
 - framework-symfony 新增 attribute 与 YAML 标签正反例；Language Server 冷启动回归确认 subscriber、attribute、有效 YAML 标签同时出现，无效 method 标签被排除。
-- framework-symfony 23 项测试通过。
-- Language Server 完整套件 6 个测试文件、185 项测试通过，耗时 220.30 秒。
+- framework-symfony 新增直接构造、显式事件名、类常量、命名参数、动态变量与非法调用反例；Language Server 同时验证 EventDispatcher 正例和 Messenger 同名反例。
+- framework-symfony 24 项和 semantic 267 项测试通过。
+- Language Server 完整套件 6 个测试文件、185 项测试通过，耗时 211.02 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
 - 16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
 - 三份 0.4.5 VSIX 已完成打包并通过 `verify:vsix` 内容检查。

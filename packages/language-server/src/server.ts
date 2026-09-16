@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -67,6 +67,7 @@ const symfonyServicesByRoot = new Map<string, Map<string, SymfonyLiteralMethodRe
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
+const symfonyEventDispatchesByUri = new Map<string, { source: string; facts: SymfonyEventDispatchFact[] }>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
@@ -389,6 +390,10 @@ function symfonyServiceCatalog(root: string | undefined): SymfonyServiceFact[] {
   if (!root) return [];
   const entries = [...(symfonyServiceCatalogByRoot.get(root)?.values() ?? [])].flat();
   return [...new Map(entries.map((service) => [service.id, service])).values()].sort((left, right) => left.id.localeCompare(right.id));
+}
+function symfonyEventDispatches(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventDispatchFact[] {
+  const cached = symfonyEventDispatchesByUri.get(uri); if (cached?.source === source) return cached.facts;
+  const facts = analyzeSymfonyEventDispatches(parser, uri, source); symfonyEventDispatchesByUri.set(uri, { source, facts }); return facts;
 }
 function symfonyAutowireAt(document: TextDocument, offset: number, workspace: SemanticWorkspace): SymfonyAutowireResolution | undefined {
   const root = rootForUri(document.uri); if (!root || !projectCompleteRoots.has(root)) return undefined;
@@ -2080,8 +2085,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const type = scope === 'project' ? workspace.typeAt(document.uri, offset) : undefined;
     const member = scope === 'project' && !type ? workspace.referenceMemberAt(document.uri, offset) : undefined;
     const namedTarget = type?.name ?? member?.name;
+    const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
+    if (type || member?.kind === 'method') candidateNames.add('dispatch');
     const ready = scope === 'document' || !root || (namedTarget && !projectCompleteRoots.has(root)
-      ? await scanNamedCandidates(workspace, root, new Set([namedTarget.toLowerCase()]), () => token.isCancellationRequested)
+      ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -2104,11 +2111,12 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
     const syntaxParser = eventTarget && eventSource ? await parser() : undefined;
     const subscriptions = eventTarget && eventSource && syntaxParser ? analyzeSymfonyEventSubscriptions(syntaxParser, eventTarget.uri, eventSource) : [];
-    const eventLocations = type
+    const matchingSubscriptions = type
       ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
-        .map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }))
-      : member?.kind === 'method' ? subscriptions.filter((fact) => `${fact.subscriberFqcn}::${fact.listener}`.toLowerCase() === member.fqcn.toLowerCase())
-        .map((fact) => ({ uri: fact.uri, start: fact.listenerStart, end: fact.listenerEnd })) : [];
+      : member?.kind === 'method' ? subscriptions.filter((fact) => `${fact.subscriberFqcn}::${fact.listener}`.toLowerCase() === member.fqcn.toLowerCase()) : [];
+    const eventLocations = matchingSubscriptions.map((fact) => type
+      ? { uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }
+      : { uri: fact.uri, start: fact.listenerStart, end: fact.listenerEnd });
     const listenerMethods = new Set<string>();
     if (type && eventSource && syntaxParser) {
       const parsed = syntaxParser.parse(eventSource, undefined, type.uri);
@@ -2117,13 +2125,38 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           && callable.visibility === 'public' && !callable.static) listenerMethods.add(callable.name.toLowerCase());
       } finally { parsed.tree.delete(); }
     } else if (member?.kind === 'method' && member.visibility === 'public' && !member.static) listenerMethods.add(member.name.toLowerCase());
-    const taggedEventLocations = (type || member?.kind === 'method') ? symfonyServiceCatalog(root)
+    const matchingTaggedListeners = (type || member?.kind === 'method') ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === (type?.fqcn ?? member!.fqcn.split('::')[0]!).toLowerCase())
       .flatMap((service) => service.eventListeners.filter((listener) => listenerMethods.has(listener.method.toLowerCase())
-        && (type || listener.method.toLowerCase() === member!.name.toLowerCase()))
-        .map((listener) => type ? { uri: listener.uri, start: listener.eventStart, end: listener.eventEnd }
-          : { uri: listener.uri, start: listener.methodStart, end: listener.methodEnd })) : [];
-    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...eventLocations, ...taggedEventLocations]
+        && (type || listener.method.toLowerCase() === member!.name.toLowerCase()))) : [];
+    const taggedEventLocations = matchingTaggedListeners.map((listener) => type
+      ? { uri: listener.uri, start: listener.eventStart, end: listener.eventEnd }
+      : { uri: listener.uri, start: listener.methodStart, end: listener.methodEnd });
+    const subscribedEvents = new Set([...matchingSubscriptions.map((fact) => fact.event.toLowerCase()),
+      ...matchingTaggedListeners.map((listener) => listener.event.toLowerCase())]);
+    if (root && subscribedEvents.size) await hydrateCanonicalTypes(workspace, root, [
+      'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface',
+      'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface',
+    ]);
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    const dispatcherOwners = new Set([
+      'symfony\\contracts\\eventdispatcher\\eventdispatcherinterface',
+      'symfony\\component\\eventdispatcher\\eventdispatcherinterface',
+    ]);
+    const dispatchLocations = subscribedEvents.size && syntaxParser ? workspace.documentUris().flatMap((uri) => {
+      const source = workspace.source(uri); if (!source?.toLowerCase().includes('dispatch')) return [];
+      return symfonyEventDispatches(syntaxParser, uri, source).filter((fact) => {
+        if (!subscribedEvents.has(fact.event.toLowerCase())) return false;
+        const target = workspace.referenceMemberAt(uri, fact.dispatchStart);
+        if (target?.kind !== 'method' || target.name.toLowerCase() !== 'dispatch') return false;
+        const owner = target.fqcn.split('::')[0]!; const normalized = owner.toLowerCase();
+        return dispatcherOwners.has(normalized)
+          || workspace.isSubtype(owner, 'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface')
+          || workspace.isSubtype(owner, 'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
+      }).map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }));
+    }) : [];
+    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);
@@ -2489,6 +2522,7 @@ connection.onShutdown(async () => {
   (await parserPromise)?.dispose();
   parserPromise = undefined;
   semanticWorkspaces.clear();
+  symfonyEventDispatchesByUri.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();
   for (const waiters of projectCompleteWaiters.values()) for (const resolveReady of waiters) resolveReady();

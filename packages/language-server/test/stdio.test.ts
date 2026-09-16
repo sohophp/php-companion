@@ -101,14 +101,25 @@ describe('language server stdio', () => {
       await mkdir(sourceDirectory); await mkdir(configDirectory);
       const source = `<?php
         namespace Symfony\\Component\\EventDispatcher { interface EventSubscriberInterface {} }
+        namespace Symfony\\Contracts\\EventDispatcher { interface EventDispatcherInterface { public function dispatch(object $event, ?string $eventName = null): object; } }
+        namespace Symfony\\Component\\Messenger { interface MessageBusInterface { public function dispatch(object $message): object; } }
         namespace App {
           use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
           use Symfony\\Component\\EventDispatcher\\Attribute\\AsEventListener;
+          use Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface;
+          use Symfony\\Component\\Messenger\\MessageBusInterface;
+          final class ReadyEvent {}
           final class RegisteredService implements EventSubscriberInterface {
             public static function getSubscribedEvents(): array { return ['app.ready' => ['onReady', 16]]; }
             public function onReady(): void {}
-            #[AsEventListener('app.attribute')]
+            #[AsEventListener(ReadyEvent::class)]
             public function onAttribute(): void {}
+          }
+          final class Publisher {
+            public function publish(EventDispatcherInterface $dispatcher, MessageBusInterface $bus): void {
+              $dispatcher->dispatch(new ReadyEvent());
+              $bus->dispatch(new ReadyEvent());
+            }
           }
         }`;
       const sourcePath = join(sourceDirectory, 'RegisteredService.php'); const sourceUri = pathToFileURL(sourcePath).toString();
@@ -137,7 +148,7 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
       const classReferences = (await output.waitFor((message) => message.id === 234)).result;
-      expect(classReferences).toHaveLength(4);
+      expect(classReferences).toHaveLength(5);
       expect(classReferences).toEqual(expect.arrayContaining([
         expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: sourceUri }),
       ]));
@@ -145,6 +156,7 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 237)).result).toEqual([
+        expect.objectContaining({ uri: sourceUri }),
         expect.objectContaining({ uri: sourceUri }),
       ]);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
