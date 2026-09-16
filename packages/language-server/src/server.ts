@@ -1412,6 +1412,11 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     }
     capturedMoves.push({ oldUri: move.oldUri, newUri: move.newUri, oldPath, newPath, source, open: Boolean(document) });
   }
+  const moveEventDeadline = Date.now() + 120_000;
+  for (const move of capturedMoves) {
+    plannedSafeMovePaths.set(filesystemPathKey(move.oldPath), moveEventDeadline);
+    plannedSafeMovePaths.set(filesystemPathKey(move.newPath), moveEventDeadline);
+  }
   if (params.requireCompleteIndex === true && !projectCompleteRoots.has(root)) return { error: 'Safe Move project index is not ready yet.' };
   if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested) || token.isCancellationRequested) return { error: 'Safe Move could not complete the project source index.' };
   const workspace = await semanticForRoot(root); const mappings = projectMappingsByRoot.get(root) ?? [];
@@ -1465,11 +1470,6 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
         : operation),
       ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
     ] } : { changes };
-    const moveEventDeadline = Date.now() + 120_000;
-    for (const move of capturedMoves) {
-      plannedSafeMovePaths.set(filesystemPathKey(move.oldPath), moveEventDeadline);
-      plannedSafeMovePaths.set(filesystemPathKey(move.newPath), moveEventDeadline);
-    }
     return { edit, declarations: result.plan.declarations, reconciliation: semanticMoves.map((move) => ({
       oldUri: move.oldUri, newUri: move.newUri, newNamespace: move.newNamespace, sourceUris: result.plan!.touchedSourceUris,
       declarations: result.plan!.declarations.filter((item) => item.oldUri === move.oldUri).map(({ oldFqcn, newFqcn }) => ({ oldFqcn, newFqcn })),
@@ -1560,7 +1560,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     }
     if (!path.toLowerCase().endsWith('.php') || documents.get(change.uri)) continue;
     const root = rootForUri(change.uri); const workspace = await semanticForUri(change.uri);
-    const plannedMoveChange = semanticProviders.length === 0 && isPlannedSafeMovePath(path);
+    const plannedMoveChange = isPlannedSafeMovePath(path);
     if (change.type === FileChangeType.Deleted) {
       workspace.remove(change.uri); interopContextsByRoot.get(root ?? '')?.delete(change.uri);
       if (root) {

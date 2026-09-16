@@ -32,6 +32,24 @@ function offsetAt(source: string, position: vscode.Position): number {
   return offset + position.character;
 }
 
+function positionAt(source: string, offset: number): vscode.Position {
+  const lines = source.slice(0, offset).split('\n');
+  return new vscode.Position(lines.length - 1, lines.at(-1)!.length);
+}
+
+function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source: string }[], versions: VersionManager): vscode.WorkspaceEdit {
+  const edit = new vscode.WorkspaceEdit();
+  for (const file of files) {
+    const mappings = versions.stateForUri(file.oldUri)?.composer?.psr4 ?? versions.stateForUri(file.newUri)?.composer?.psr4 ?? [];
+    const namespace = resolvePsr4Namespace(file.newUri.fsPath, mappings);
+    const match = /\bnamespace\s+([^;{]+)\s*[;{]/m.exec(file.source);
+    if (namespace === undefined || !match?.[1] || match.index === undefined) continue;
+    const start = match.index + match[0].indexOf(match[1]); const end = start + match[1].trimEnd().length;
+    edit.replace(file.newUri, new vscode.Range(positionAt(file.source, start), positionAt(file.source, end)), namespace);
+  }
+  return edit;
+}
+
 function applyTextEdits(source: string, edits: readonly vscode.TextEdit[]): string {
   return [...edits].sort((left, right) => offsetAt(source, right.range.start) - offsetAt(source, left.range.start)).reduce((result, edit) => {
     const start = offsetAt(result, edit.range.start);
@@ -751,6 +769,7 @@ export function activate(context: vscode.ExtensionContext): void {
             // an already-complete index when available; otherwise the
             // post-operation pipeline plans from this snapshot and rolls the
             // file operation back if no precise plan can be produced.
+            const immediateEdit = immediateNamespaceMoveEdit(snapshottedFiles, versions);
             try {
               const planned = await requestSafeMovePlan(snapshottedFiles, false, true);
               pendingServerSafeMoves.set(key, { files: snapshottedFiles, reconciliation: planned.reconciliation });
@@ -758,7 +777,7 @@ export function activate(context: vscode.ExtensionContext): void {
               pendingServerSafeMoves.set(key, { files: snapshottedFiles });
               output.info(`Safe Move deferred semantic planning until after the file operation: ${error instanceof Error ? error.message : String(error)}`);
             }
-            return new vscode.WorkspaceEdit();
+            return immediateEdit;
           } else {
             const manager = await workspace();
             // Rebuild from the current files before every Explorer move. A prior

@@ -1,5 +1,5 @@
 - 默认 `onDemand` 模式不再在 Reload 时启动 10000 文件扫描；需要全项目精度的操作才索引项目源码，vendor 类型继续通过精确 PSR-4 请求按需加载，`experimental` 保留主动全量索引。
-- Explorer 移动 PHP 文件现在可使用编辑器中的未保存内容，并在项目源码完整后更新 PSR-4 namespace 与已证明的引用，不再因 vendor 索引按预算截断而留下“路径已移动、namespace 未变化”的半完成状态。
+- Explorer 移动 PHP 文件现在立即更新目标文件的 PSR-4 namespace，再于项目索引完成后更新跨文件引用；未保存内容可参与移动，旧/新路径的监视事件也不会再取消正在进行的安全移动索引。
 - References 与 Rename 现在按函数作用域处理普通局部变量；项目源码索引完成信号会立即唤醒已在等待的 F2 请求，无需等待依赖索引结束，即可安全重命名 final 类的 private 构造器提升属性，并保持声明、命名实参与 `$this->service` 访问为同一身份。
 - 工作区仍在索引或索引预算不足时，Definition 现在会从已声明的接收者类型逐级按需加载 PSR-4 目标类，使 `$request->getSession()->get()` 等链式成员 Ctrl+点击无需等待全库索引完成。
 - 初始索引期间的 Code Action、导入和重构请求现在共享同一进行中任务，不再通过递增 generation 相互取消并反复重启；修复真实 WSL 会话中连续出现 `Project indexing was cancelled`、高 CPU 且状态栏长期停留在 Indexing 的问题。
