@@ -635,7 +635,30 @@ export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: stri
         const name = candidate.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
         return name && !['self', 'static', 'parent'].includes(name.toLowerCase()) ? resolveName(name, namespace, parsed.imports) : undefined;
       };
+      const convergedConditional = (candidate: NodeLike): { variable: string; event: string } | undefined => {
+        if (candidate.type !== 'if_statement') return undefined;
+        const thenBody = candidate.childForFieldName('body');
+        const elseIfBodies = candidate.namedChildren.filter((child) => child.type === 'else_if_clause')
+          .map((child) => child.childForFieldName('body'));
+        const elseBody = candidate.namedChildren.find((child) => child.type === 'else_clause')?.childForFieldName('body');
+        if (!thenBody || !elseBody || elseIfBodies.some((body) => !body)) return undefined;
+        const assigned = [thenBody, ...elseIfBodies, elseBody].map((body) => {
+          if (body!.type !== 'compound_statement' || body!.namedChildren.length !== 1) return undefined;
+          const expression = body!.namedChildren[0]?.type === 'expression_statement' ? body!.namedChildren[0]!.namedChildren[0] : undefined;
+          const left = expression?.type === 'assignment_expression' ? expression.childForFieldName('left') : undefined;
+          const right = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : undefined;
+          const event = constructed(right);
+          return left?.type === 'variable_name' && event ? { variable: left.text, event } : undefined;
+        });
+        const first = assigned[0];
+        return first && assigned.every((value) => value?.variable === first.variable && value.event === first.event) ? first : undefined;
+      };
       for (const statement of block.namedChildren.slice(0, statementIndex)) {
+        const converged = convergedConditional(statement);
+        if (converged) {
+          for (const variable of variables(statement)) states.delete(variable);
+          states.set(converged.variable, converged.event); continue;
+        }
         const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;

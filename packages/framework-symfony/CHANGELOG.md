@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract a converged local dispatch event after a complete `if`/`elseif`/`else` only when every branch contains exactly one direct construction assignment to the same variable and event class.
 - Propagate a directly constructed local dispatch event through bounded same-block direct variable aliases, invalidating variables touched by references, calls, compound expressions, or control-flow statements.
 - Extract a local EventDispatcher event variable only when its last relevant statement in the same block is a direct object construction and no intervening use can expose or replace it.
 - Resolve relative class-constant event keys from inherited and Trait-composed subscriber maps with caller-proven `self`, late-static `static`, and `parent` owners; follow public Trait aliases back to non-public static source methods and retain unknown when any binding is unavailable.

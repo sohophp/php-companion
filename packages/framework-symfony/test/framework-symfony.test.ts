@@ -235,6 +235,12 @@ describe('static Symfony Controller context analysis', () => {
           $dispatcher->dispatch($changed);
           $escaped = $original; touch($escaped);
           $dispatcher->dispatch($escaped);
+          if ($condition) { $branch = new Ready(); } else { $branch = new Ready(); }
+          $dispatcher->dispatch($branch);
+          if ($condition) { $different = new Ready(); } else { $different = new OtherEvent(); }
+          $dispatcher->dispatch($different);
+          if ($condition) { $partial = new Ready(); }
+          $dispatcher->dispatch($partial);
           $dispatcher->dispatch(new Ready(), 'app.custom');
           $dispatcher->dispatch(new Ready(), eventName: KernelEvents::CONTROLLER);
           $dispatcher->dispatch(event: new Ready(), eventName: Ready::class);
@@ -248,14 +254,15 @@ describe('static Symfony Controller context analysis', () => {
     const facts = analyzeSymfonyEventDispatches(parser, 'file:///src/Publisher.php', source);
     expect(facts.map(({ event }) => event)).toEqual([
       'Domain\\Event\\ReadyEvent', 'Domain\\Event\\ReadyEvent', 'Domain\\Event\\ReadyEvent',
-      'app.custom', 'Symfony\\Component\\HttpKernel\\KernelEvents::CONTROLLER',
+      'Domain\\Event\\ReadyEvent', 'app.custom', 'Symfony\\Component\\HttpKernel\\KernelEvents::CONTROLLER',
       'Domain\\Event\\ReadyEvent', 'app.named', 'invalid',
     ]);
     expect(source.slice(facts[0]!.eventStart, facts[0]!.eventEnd)).toBe('new Ready()');
     expect(source.slice(facts[1]!.eventStart, facts[1]!.eventEnd)).toBe('$local');
     expect(source.slice(facts[2]!.eventStart, facts[2]!.eventEnd)).toBe('$alias');
-    expect(source.slice(facts[3]!.eventStart, facts[3]!.eventEnd)).toBe('app.custom');
-    expect(source.slice(facts[4]!.dispatchStart, facts[4]!.dispatchEnd)).toBe('dispatch');
+    expect(source.slice(facts[3]!.eventStart, facts[3]!.eventEnd)).toBe('$branch');
+    expect(source.slice(facts[4]!.eventStart, facts[4]!.eventEnd)).toBe('app.custom');
+    expect(source.slice(facts[5]!.dispatchStart, facts[5]!.dispatchEnd)).toBe('dispatch');
   });
 
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {

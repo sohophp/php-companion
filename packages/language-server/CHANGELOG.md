@@ -6,6 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Merge dispatch sites after a complete same-event `if`/`elseif`/`else` assignment while suppressing partial, divergent, or statement-bearing branches.
 - Merge same-block direct alias chains of exact locally constructed EventDispatcher events while continuing to exclude identical Messenger variable calls through semantic receiver ownership.
 - Merge EventDispatcher sites that pass a same-block, directly constructed local event variable while retaining parameters, branch-dependent values and exposed or reassigned locals as unknown.
 - Bind inherited subscriber-map `self`, late-static `static`, and `parent` event constants to the effective method host, registered subscriber, and host parent; preserve original Trait method identities and visibility changes through aliases.
