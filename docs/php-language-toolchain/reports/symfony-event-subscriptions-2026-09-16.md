@@ -19,6 +19,7 @@
 
 - 接受 `dispatch(new Event())`，以及第二参数或 `eventName:` 中的字面量字符串、`Event::class` 和类常量；位置参数与命名参数按 PHP 调用规则校验。
 - 接受同一最内层代码块内由 `new EventClass(...)` 赋值的局部事件变量，以及前 256 条直接语句内的确定性变量别名链；References 精确定位派发参数变量。引用/复合别名、参数、分支来源和被未知调用或控制流触碰的变量保持 unknown。
+- 接受每个 `if/elseif/else` 分支都只向同一变量直接构造同一事件类的完整收敛；缺少 else、不同变量/事件或额外分支语句保持 unknown。
 - 语法事实只给出事件身份和范围，Language Server 必须再把方法唯一解析到 Symfony Contracts/Component EventDispatcher 接口或其子类型。
 - 相同事件对象传给 Messenger `MessageBusInterface::dispatch()`、业务同名方法、动态接收者或变量事件时不会发布关系。
 
@@ -44,6 +45,7 @@ Winstar 只读实测：
 - framework-symfony 新增直接构造、显式事件名、类常量、命名参数、动态变量与非法调用反例；Language Server 同时验证 EventDispatcher 正例和 Messenger 同名反例。
 - framework-symfony 新增同块直接构造局部变量正例，以及参数变量和中间调用暴露反例；真实 stdio 确认监听类/方法 References 返回 `$event` 派发参数。
 - framework-symfony 新增直接变量别名和别名调用后撤销反例；真实 stdio 确认 EventDispatcher `$alias` 返回、Messenger `$message` 排除。
+- framework-symfony 新增完整同类型分支正例、不同类型和缺失 else 反例；真实 stdio 确认收敛后的 `$branch` 进入监听 References。
 - 编译容器回归覆盖 XML 实体、负优先级、缺失 method 反例，并在冷启动 References 中同时验证编译 service 注册、event 与 method 范围。
 - 有效方法回归覆盖父类、Trait、未载入外部接口、缺失父类、private 和 static 边界；真实冷启动 stdio 同时验证 subscriber、YAML 和编译容器从父类/Trait 方法与子服务类双向进入 References。
 - 继承订阅提供者回归覆盖父类/Trait 字面量 map、优先级、`self/static/parent` 精确宿主、Trait 可见性 alias、缺失绑定拒绝和 EventSubscriberInterface 语义门禁；真实 stdio 从父类/Trait 回调与实际子服务类双向验证引用。
@@ -53,16 +55,16 @@ Winstar 只读实测：
 - PHP 8.5 Reflection 对照覆盖父类/Trait 方法 `self` 与 `parent` 的四种绑定和非法 `static`；framework/stdin 回归使用唯一直接父类结果验证事件关系。
 - PHP 8.5 静态调用对照覆盖继承/Trait subscriber map 的 `self/static/parent`，Symfony 源码确认编译阶段按实际 service class 调用 `getSubscribedEvents()`；Reflection 与最小 AttributeAutoconfigurationPass 容器确认父类/Trait 类级 Attribute 不继承。
 - framework-symfony 28 项和 semantic 268 项测试通过。
-- Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 216.06 秒。
+- Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 213.28 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
 - 16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
 - 三份 0.4.5 VSIX 已完成打包并通过 `verify:vsix` 内容检查。
 
 ## Alpha 候选
 
-- 功能提交：`e9a25db0ebcaeb2be00032cf2420632c491a319e`。
-- 候选目录：`artifacts/php-companion-alpha-0.4.5-e9a25db0/`。
-- 核心 VSIX SHA-256：`590626e44c6b9b84ec80ba65a80fd39af77a5e2a64ccdb594fffadad1462620f`。
-- Open Source Pack SHA-256：`1c547465b46278f1b91f07aa2daeb8b23b2be291bc3c31e59b9bd920c8b0f08e`。
-- Recommended Pack SHA-256：`ef3d9495424ae157b803e0152503f37c679dff5302494cf7afe79b3eb2c4df7e`。
-- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `86d1ea8e39836113097b4f0e6979163a62f848e75b24422e39ea34fc675db20b`。须 Reload Window 后加载新进程。
+- 功能提交：`7f29d6b5650ac52f9e59d0ed3e8d78e2d3366609`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-7f29d6b5/`。
+- 核心 VSIX SHA-256：`4a2d840adf5cff9e69b134160ab2bca7bd5f4f7d1f4f32a80baf6d421c73745a`。
+- Open Source Pack SHA-256：`3f288592ded706fef21765308a965635b0986b0a604c2c2e45df1299ffbf54d8`。
+- Recommended Pack SHA-256：`6db2aab618f947381e3e68c3a7726aeae6c733a068e23c73b8c68d4c4677399a`。
+- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `7ae9ed6240fe6c25755086ffa34ab47e80bf81d636d09f9a4f8aa6630611c883`。须 Reload Window 后加载新进程。
