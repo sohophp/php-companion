@@ -620,18 +620,35 @@ export function analyzeSymfonyEventDispatches(parser: PhpSyntaxParser, uri: stri
       collectBlocks(root);
       const block = blocks.sort((left, right) => left.endIndex - left.startIndex - (right.endIndex - right.startIndex))[0];
       const statementIndex = block?.namedChildren.findIndex((candidate) => candidate.startIndex <= callStart && candidate.endIndex >= callStart) ?? -1;
-      if (!block || statementIndex < 0) return undefined;
-      const escaped = node.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const mentions = new RegExp(`${escaped}(?![A-Za-z0-9_\\x80-\\xff])`);
-      let event: string | undefined;
+      if (!block || statementIndex < 0 || statementIndex > 256) return undefined;
+      const states = new Map<string, string>();
+      const variables = (candidate: NodeLike): string[] => {
+        const found: string[] = [];
+        const collect = (current: NodeLike): void => {
+          if (current.type === 'variable_name') found.push(current.text);
+          for (const child of current.namedChildren) collect(child);
+        };
+        collect(candidate); return [...new Set(found)];
+      };
+      const constructed = (candidate: NodeLike | null | undefined): string | undefined => {
+        if (candidate?.type !== 'object_creation_expression') return undefined;
+        const name = candidate.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
+        return name && !['self', 'static', 'parent'].includes(name.toLowerCase()) ? resolveName(name, namespace, parsed.imports) : undefined;
+      };
       for (const statement of block.namedChildren.slice(0, statementIndex)) {
-        if (!mentions.test(statement.text)) continue;
         const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
-        if (left?.type !== 'variable_name' || left.text !== node.text || right?.type !== 'object_creation_expression') { event = undefined; continue; }
-        const name = right.namedChildren.find((child) => ['name', 'qualified_name'].includes(child.type))?.text;
-        event = name && !['self', 'static', 'parent'].includes(name.toLowerCase()) ? resolveName(name, namespace, parsed.imports) : undefined;
+        if (left?.type === 'variable_name' && right) {
+          const alias = right.type === 'variable_name' ? states.get(right.text) : undefined;
+          const event = constructed(right) ?? alias;
+          for (const variable of variables(right)) if (right.type !== 'variable_name' || variable !== right.text) states.delete(variable);
+          if (event) states.set(left.text, event); else states.delete(left.text);
+          continue;
+        }
+        for (const variable of variables(statement)) states.delete(variable);
       }
+      const event = states.get(node.text);
       return event ? { event, start: node.startIndex, end: node.endIndex } : undefined;
     };
     const identity = (node: NodeLike | undefined, namespace: string): { event: string; start: number; end: number } | undefined => {

@@ -166,7 +166,12 @@ describe('language server stdio', () => {
               $dispatcher->dispatch(new ReadyEvent());
               $event = new ReadyEvent();
               $dispatcher->dispatch($event);
+              $original = new ReadyEvent();
+              $alias = $original;
+              $dispatcher->dispatch($alias);
               $bus->dispatch(new ReadyEvent());
+              $message = new ReadyEvent();
+              $bus->dispatch($message);
             }
           }
         }`;
@@ -211,16 +216,21 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
       const classReferences = (await output.waitFor((message) => message.id === 234)).result;
-      expect(classReferences).toHaveLength(9);
+      expect(classReferences).toHaveLength(10);
       expect(classReferences).toEqual(expect.arrayContaining([
         expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: compiledUri }), expect.objectContaining({ uri: sourceUri }),
       ]));
       expect(classReferences.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
         reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$event')).toBe(true);
+      expect(classReferences.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+        reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$alias')).toBe(true);
+      expect(classReferences.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+        reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$message')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 237)).result).toEqual([
+        expect.objectContaining({ uri: sourceUri }),
         expect.objectContaining({ uri: sourceUri }),
         expect.objectContaining({ uri: sourceUri }),
         expect.objectContaining({ uri: sourceUri }),
@@ -257,7 +267,7 @@ describe('language server stdio', () => {
           textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('function ' + method) + 10), context: { includeDeclaration: false },
         } }));
         const inheritedMap = (await output.waitFor((message) => message.id === id)).result;
-        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 9 : 6);
+        expect(inheritedMap).toHaveLength(method === 'onTraitMap' ? 10 : 6);
         expect(inheritedMap.map((reference: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
           source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end))))
           .toEqual(expect.arrayContaining([method, 'AsEventListener']));

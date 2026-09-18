@@ -1,3 +1,4 @@
+- Symfony EventDispatcher 的确定性局部事件现在可沿同一代码块内有界的直接变量别名链进入 References；引用赋值、复合表达式、未知调用或控制流触碰到的变量会撤销，Messenger 的相同变量形态仍由接收者语义门禁排除。
 - 提交 `bea0622` 完成确定性局部 Symfony 事件变量 References，候选 `php-companion-alpha-0.4.5-bea06222` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony EventDispatcher References 现在识别同一代码块内最后由 `new EventClass(...)` 确定性赋值的局部事件变量；参数变量、中间使用/引用暴露、分支外赋值和动态重赋值保持 unknown，既有 EventDispatcher 接收者语义门禁继续排除 Messenger 与业务同名 API。
 - 提交 `3f6b5b4` 完成继承/Trait Symfony subscriber 相对常量 References，候选 `php-companion-alpha-0.4.5-3f6b5b46` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
