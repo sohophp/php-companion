@@ -113,6 +113,8 @@ describe('language server stdio', () => {
             public static function getSubscribedEvents(): array {
               $events = ['app.ready' => ['onReady', 16]];
               $events['app.built'] = 'onReady';
+              if ($feature) { $events['app.branch'] = 'onReady'; }
+              else { $events['app.branch'] = 'onReady'; }
               return $events;
             }
             public function onReady(): void {}
@@ -213,12 +215,13 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onReady') + 2), context: { includeDeclaration: false },
       } }));
       const methodReferences = (await output.waitFor((message) => message.id === 236)).result;
-      expect(methodReferences.map((reference: { uri: string }) => reference.uri).sort()).toEqual([sourceUri, sourceUri, servicesUri, compiledUri].sort());
+      expect(methodReferences.map((reference: { uri: string }) => reference.uri).sort())
+        .toEqual([sourceUri, sourceUri, sourceUri, sourceUri, servicesUri, compiledUri].sort());
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('RegisteredService') + 2), context: { includeDeclaration: false },
       } }));
       const classReferences = (await output.waitFor((message) => message.id === 234)).result;
-      expect(classReferences).toHaveLength(11);
+      expect(classReferences).toHaveLength(13);
       expect(classReferences).toEqual(expect.arrayContaining([
         expect.objectContaining({ uri: servicesUri }), expect.objectContaining({ uri: compiledUri }), expect.objectContaining({ uri: sourceUri }),
       ]));
@@ -230,6 +233,8 @@ describe('language server stdio', () => {
         reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$branch')).toBe(true);
       expect(classReferences.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
         reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$message')).toBe(false);
+      expect(classReferences.filter((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+        reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === 'app.branch')).toHaveLength(2);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
       } }));

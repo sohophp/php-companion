@@ -90,6 +90,56 @@ describe('static Symfony Controller context analysis', () => {
     ]);
   });
 
+  it('extracts only complete subscription branches whose static results converge exactly', () => {
+    const source = `<?php namespace App;
+      use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;
+      use Symfony\\Component\\HttpKernel\\KernelEvents;
+      final class BranchedSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.ready' => 'onReady'];
+          if (featureA()) { $events[KernelEvents::REQUEST] = ['onRequest', 8]; }
+          elseif (featureB()) { $events[KernelEvents::REQUEST] = ['onRequest', 8]; }
+          else { $events[KernelEvents::REQUEST] = ['onRequest', 8]; }
+          return $events;
+        }
+        public function onReady(): void {}
+        public function onRequest(): void {}
+      }
+      final class ReturnedSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          if (featureA()) { return ['app.returned' => 'onReturned']; }
+          else { return ['app.returned' => 'onReturned']; }
+        }
+        public function onReturned(): void {}
+      }
+      final class PartialSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = [];
+          if (featureA()) { $events['app.partial'] = 'onPartial'; }
+          return $events;
+        }
+        public function onPartial(): void {}
+      }
+      final class DivergentSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          if (featureA()) { return ['app.first' => 'onDivergent']; }
+          else { return ['app.second' => 'onDivergent']; }
+        }
+        public function onDivergent(): void {}
+      }`;
+    const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/BranchedSubscriber.php', source);
+    expect(facts.map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
+      ['App\\BranchedSubscriber', 'app.ready', 'onReady', undefined],
+      ['App\\BranchedSubscriber', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onRequest', 8],
+      ['App\\BranchedSubscriber', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onRequest', 8],
+      ['App\\BranchedSubscriber', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onRequest', 8],
+      ['App\\ReturnedSubscriber', 'app.returned', 'onReturned', undefined],
+      ['App\\ReturnedSubscriber', 'app.returned', 'onReturned', undefined],
+    ]);
+    expect(facts.filter((fact) => fact.event.endsWith('REQUEST')).map((fact) => source.slice(fact.eventStart, fact.eventEnd)))
+      .toEqual(['KernelEvents::REQUEST', 'KernelEvents::REQUEST', 'KernelEvents::REQUEST']);
+  });
+
   it('accepts inherited subscriber callbacks only when a semantic validator proves them', () => {
     const source = "<?php namespace App; use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface; final class ChildSubscriber implements EventSubscriberInterface { public static function getSubscribedEvents(): array { return ['app.inherited' => 'onInherited', 'app.trait' => 'onTrait', 'app.hidden' => 'hidden']; } }";
     expect(analyzeSymfonyEventSubscriptions(parser, 'file:///src/ChildSubscriber.php', source)).toEqual([]);

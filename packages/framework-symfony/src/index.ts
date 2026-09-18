@@ -263,14 +263,44 @@ function literalTextRange(node: NodeLike): { value: string; start: number; end: 
 
 function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: NodeLike; listeners: NodeLike }> | undefined {
   if (!body) return undefined;
+  type SubscriptionEntry = { event: NodeLike; listeners: NodeLike };
   const arrayEntries = (array: NodeLike): Array<{ event: NodeLike; listeners: NodeLike }> | undefined => {
     if (array.type !== 'array_creation_expression') return undefined;
     const entries = array.namedChildren.map((item) => item.type === 'array_element_initializer' && item.namedChildren.length === 2
       ? { event: item.namedChildren[0]!, listeners: item.namedChildren[1]! } : undefined);
     return entries.every((entry) => entry !== undefined) ? entries as Array<{ event: NodeLike; listeners: NodeLike }> : undefined;
   };
+  const deterministicEntry = ({ event, listeners }: SubscriptionEntry): boolean =>
+    ['string', 'class_constant_access_expression'].includes(event.type)
+      && ['string', 'array_creation_expression'].includes(listeners.type);
+  const entrySignature = ({ event, listeners }: SubscriptionEntry): string =>
+    `${event.type}:${event.text}\u0000${listeners.type}:${listeners.text}`;
+  const convergedBranches = (statement: NodeLike,
+    entriesForBody: (branch: NodeLike) => SubscriptionEntry[] | undefined): SubscriptionEntry[] | undefined => {
+    if (statement.type !== 'if_statement') return undefined;
+    const directBody = statement.namedChildren.find((child) => child.type === 'compound_statement');
+    const elseIfBodies = statement.namedChildren.filter((child) => child.type === 'else_if_clause')
+      .map((clause) => clause.namedChildren.find((child) => child.type === 'compound_statement'));
+    const elseBody = statement.namedChildren.find((child) => child.type === 'else_clause')?.namedChildren
+      .find((child) => child.type === 'compound_statement');
+    if (!directBody || !elseBody || elseIfBodies.some((branch) => !branch)) return undefined;
+    const alternatives = [directBody, ...elseIfBodies as NodeLike[], elseBody].map(entriesForBody);
+    if (alternatives.some((entries) => !entries?.length)) return undefined;
+    const expected = alternatives[0]!.map(entrySignature);
+    if (alternatives.some((entries) => entries!.length !== expected.length
+      || entries!.some((entry, index) => entrySignature(entry) !== expected[index]))) return undefined;
+    return alternatives.flatMap((entries) => entries!);
+  };
   if (body.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement') {
     const returned = body.namedChildren[0]!.namedChildren[0]; return returned ? arrayEntries(returned) : undefined;
+  }
+  if (body.namedChildren.length === 1 && body.namedChildren[0]!.type === 'if_statement') {
+    return convergedBranches(body.namedChildren[0]!, (branch) => {
+      if (branch.namedChildren.length !== 1 || branch.namedChildren[0]!.type !== 'return_statement') return undefined;
+      const returned = branch.namedChildren[0]!.namedChildren[0];
+      const entries = returned ? arrayEntries(returned) : undefined;
+      return entries?.every(deterministicEntry) ? entries : undefined;
+    });
   }
   if (body.namedChildren.length < 2) return undefined;
   const firstExpression = body.namedChildren[0]?.type === 'expression_statement' ? body.namedChildren[0]!.namedChildren[0] : undefined;
@@ -278,18 +308,26 @@ function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: No
   const firstArray = firstExpression?.type === 'assignment_expression' ? firstExpression.namedChildren[1] : undefined;
   if (firstTarget?.type !== 'variable_name' || !firstArray) return undefined;
   const variable = firstTarget.text; const entries = arrayEntries(firstArray); if (!entries) return undefined;
-  const deterministicEntry = ({ event, listeners }: { event: NodeLike; listeners: NodeLike }): boolean =>
-    ['string', 'class_constant_access_expression'].includes(event.type)
-      && ['string', 'array_creation_expression'].includes(listeners.type);
   if (!entries.every(deterministicEntry)) return undefined;
+  const assignedEntries = (statements: NodeLike[]): SubscriptionEntry[] | undefined => {
+    const assigned: SubscriptionEntry[] = [];
+    for (const statement of statements) {
+      const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+      const target = assignment?.type === 'assignment_expression' ? assignment.namedChildren[0] : undefined;
+      const listeners = assignment?.type === 'assignment_expression' ? assignment.namedChildren[1] : undefined;
+      const targetVariable = target?.type === 'subscript_expression' ? target.namedChildren[0] : undefined;
+      const event = target?.type === 'subscript_expression' ? target.namedChildren[1] : undefined;
+      if (targetVariable?.type !== 'variable_name' || targetVariable.text !== variable || !event || !listeners) return undefined;
+      const entry = { event, listeners }; if (!deterministicEntry(entry)) return undefined; assigned.push(entry);
+    }
+    return assigned;
+  };
   for (const statement of body.namedChildren.slice(1, -1)) {
-    const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
-    const target = assignment?.type === 'assignment_expression' ? assignment.namedChildren[0] : undefined;
-    const listeners = assignment?.type === 'assignment_expression' ? assignment.namedChildren[1] : undefined;
-    const targetVariable = target?.type === 'subscript_expression' ? target.namedChildren[0] : undefined;
-    const event = target?.type === 'subscript_expression' ? target.namedChildren[1] : undefined;
-    if (targetVariable?.type !== 'variable_name' || targetVariable.text !== variable || !event || !listeners) return undefined;
-    const entry = { event, listeners }; if (!deterministicEntry(entry)) return undefined; entries.push(entry);
+    if (statement.type === 'if_statement') {
+      const converged = convergedBranches(statement, (branch) => assignedEntries(branch.namedChildren));
+      if (!converged) return undefined; entries.push(...converged); continue;
+    }
+    const assigned = assignedEntries([statement]); if (!assigned) return undefined; entries.push(...assigned);
   }
   const returned = body.namedChildren.at(-1);
   return returned?.type === 'return_statement' && returned.namedChildren[0]?.type === 'variable_name'

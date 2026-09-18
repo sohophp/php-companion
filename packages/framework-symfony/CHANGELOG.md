@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract exhaustive `if`/`elseif`/`else` subscription branches only when every branch returns the same static map or appends the same static entries to one local map, preserving every branch source range.
 - Extract a converged local dispatch event after a complete `if`/`elseif`/`else` only when every branch contains exactly one direct construction assignment to the same variable and event class.
 - Propagate a directly constructed local dispatch event through bounded same-block direct variable aliases, invalidating variables touched by references, calls, compound expressions, or control-flow statements.
 - Extract a local EventDispatcher event variable only when its last relevant statement in the same block is a direct object construction and no intervening use can expose or replace it.

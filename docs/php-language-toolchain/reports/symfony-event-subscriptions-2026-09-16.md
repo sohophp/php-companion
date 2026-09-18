@@ -2,11 +2,12 @@
 
 ## 行为
 
-对实现 `Symfony\\Component\\EventDispatcher\\EventSubscriberInterface` 的类，PHP Companion 会分析公开静态 `getSubscribedEvents()` 的直接返回数组或单一局部变量确定性构造：
+对实现 `Symfony\\Component\\EventDispatcher\\EventSubscriberInterface` 的类，PHP Companion 会分析公开静态 `getSubscribedEvents()` 的直接返回数组、单一局部变量确定性构造，以及结果严格收敛的完整分支：
 
 - 从订阅类执行 Find All References，会额外显示每个可证明的事件键。
 - 从公开实例监听方法执行 Find All References，会额外显示数组中的回调字符串。
 - 支持字符串事件、静态类常量事件、直接回调、`[method, priority]` 和多个监听器数组。
+- 完整 `if/elseif/else` 可在每个分支返回文本相同的静态 map，或向同一局部 map 追加文本相同的静态条目；References 保留每个分支内事件键和回调的真实范围。
 - 只有回调可对应到同类公开非静态方法时才发布关系。
 
 同一 References 链路现在也分析两类可静态证明的监听关系：
@@ -23,7 +24,7 @@
 - 语法事实只给出事件身份和范围，Language Server 必须再把方法唯一解析到 Symfony Contracts/Component EventDispatcher 接口或其子类型。
 - 相同事件对象传给 Messenger `MessageBusInterface::dispatch()`、业务同名方法、动态接收者或变量事件时不会发布关系。
 
-监听关系通过服务类的有效方法表验证回调：本类、父类或 Trait 提供的具体公开实例方法均可发布，并把方法 References 绑定到真实声明；Trait precedence、alias 和 visibility 复用 PHP 语义组合结果。已注册服务若可证明属于 `EventSubscriberInterface`，父类或 Trait 提供的具体公开静态 `getSubscribedEvents()` 也会发布其中的字面量事件、回调、优先级和多监听器。订阅数组可直接返回，也可通过一个局部变量完成静态初始化、字面量/显式类常量键追加并原样返回。跨宿主订阅事件常量按 PHP 调用语义绑定：`self` 使用静态方法组合宿主，`static` 使用实际注册 subscriber，`parent` 使用宿主直接父类；Trait `as public getSubscribedEvents` 可回溯非公开原静态方法。已注册服务从父类或 Trait 获得的有效方法还会保留方法级 `#[AsEventListener]`，事件和派发绑定到子服务，Attribute 范围绑定到真实声明；`as` alias 使用独立有效回调名并回溯原始 Trait 方法 Attribute。方法 Attribute 的 `self::class`/`parent::class` 按 PHP Reflection 分别使用声明类或 Trait 消费类上下文，`static::class` 保持非法/unknown。父类/Trait 类级 Attribute 不会由 PHP Reflection 或 Symfony 自动配置继承。private/static 回调、无法证明为公开静态具体方法的有效订阅提供者、缺失父类/Trait、动态键、其他语句、变量切换、动态 attribute 参数和分支返回保持未知。
+监听关系通过服务类的有效方法表验证回调：本类、父类或 Trait 提供的具体公开实例方法均可发布，并把方法 References 绑定到真实声明；Trait precedence、alias 和 visibility 复用 PHP 语义组合结果。已注册服务若可证明属于 `EventSubscriberInterface`，父类或 Trait 提供的具体公开静态 `getSubscribedEvents()` 也会发布其中的字面量事件、回调、优先级和多监听器。订阅数组可直接返回，也可通过一个局部变量完成静态初始化、字面量/显式类常量键追加并原样返回；完整分支必须具有 `else`，每个分支只能包含对应的静态返回或静态追加，且条目数量、顺序和源码文本完全一致。跨宿主订阅事件常量按 PHP 调用语义绑定：`self` 使用静态方法组合宿主，`static` 使用实际注册 subscriber，`parent` 使用宿主直接父类；Trait `as public getSubscribedEvents` 可回溯非公开原静态方法。已注册服务从父类或 Trait 获得的有效方法还会保留方法级 `#[AsEventListener]`，事件和派发绑定到子服务，Attribute 范围绑定到真实声明；`as` alias 使用独立有效回调名并回溯原始 Trait 方法 Attribute。方法 Attribute 的 `self::class`/`parent::class` 按 PHP Reflection 分别使用声明类或 Trait 消费类上下文，`static::class` 保持非法/unknown。父类/Trait 类级 Attribute 不会由 PHP Reflection 或 Symfony 自动配置继承。private/static 回调、无法证明为公开静态具体方法的有效订阅提供者、缺失父类/Trait、动态键、辅助调用、部分分支、分歧分支和动态 attribute 参数保持未知。
 
 Symfony 来源事实缓存同步升级为 `symfony-facts-v4`，恢复时会验证每条 YAML/编译容器监听事实及 event/method 范围；旧 v3 缓存自动重建。
 
@@ -46,6 +47,7 @@ Winstar 只读实测：
 - framework-symfony 新增同块直接构造局部变量正例，以及参数变量和中间调用暴露反例；真实 stdio 确认监听类/方法 References 返回 `$event` 派发参数。
 - framework-symfony 新增直接变量别名和别名调用后撤销反例；真实 stdio 确认 EventDispatcher `$alias` 返回、Messenger `$message` 排除。
 - framework-symfony 新增完整同类型分支正例、不同类型和缺失 else 反例；真实 stdio 确认收敛后的 `$branch` 进入监听 References。
+- framework-symfony 新增订阅直接返回分支和局部 map 追加分支正例，以及缺失 else、事件分歧反例；真实 stdio 确认类和监听方法 References 分别保留两条 `app.branch` 与 `onReady` 分支范围。
 - 编译容器回归覆盖 XML 实体、负优先级、缺失 method 反例，并在冷启动 References 中同时验证编译 service 注册、event 与 method 范围。
 - 有效方法回归覆盖父类、Trait、未载入外部接口、缺失父类、private 和 static 边界；真实冷启动 stdio 同时验证 subscriber、YAML 和编译容器从父类/Trait 方法与子服务类双向进入 References。
 - 继承订阅提供者回归覆盖父类/Trait 字面量 map、优先级、`self/static/parent` 精确宿主、Trait 可见性 alias、缺失绑定拒绝和 EventSubscriberInterface 语义门禁；真实 stdio 从父类/Trait 回调与实际子服务类双向验证引用。

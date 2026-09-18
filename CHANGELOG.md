@@ -1,3 +1,4 @@
+- Symfony subscriber map References 支持严格收敛的完整 `if/elseif/else`：各分支必须返回文本相同的静态 map，或向同一局部 map 追加文本相同的静态条目；每个分支的事件键和回调源码范围都会进入类/监听方法 References，部分、分歧或动态分支保持 unknown。
 - 提交 `7f29d6b` 完成 Symfony 完整同类型事件分支 References，候选 `php-companion-alpha-0.4.5-7f29d6b5` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony EventDispatcher References 支持完整同类型 `if/elseif/else` 事件收敛：每个分支必须仅向同一局部变量直接构造同一事件类；缺少 `else`、事件类分歧或额外分支语句保持 unknown。
 - 提交 `e9a25db` 完成 Symfony 局部事件直接别名 References，候选 `php-companion-alpha-0.4.5-e9a25db0` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
