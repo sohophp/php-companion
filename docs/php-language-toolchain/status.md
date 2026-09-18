@@ -1,6 +1,8 @@
 # 实施状态
 
-最后更新：2026-09-16。状态必须以源码和本页列出的验证命令为依据。
+最后更新：2026-09-18。状态必须以源码和本页列出的验证命令为依据。
+
+2026-09-18 P8 局部事件直接别名增量：framework-symfony 对同一最内层代码块的前 256 条直接语句建立事件变量状态，`new EventClass(...)` 和直接 `$alias = $event` 可传播精确运行时事件类；引用赋值、复合表达式、未知调用或控制流只撤销被触碰变量，动态/未知来源不会产生事实。Language Server 仍要求 `dispatch()` 唯一属于 Symfony EventDispatcher；真实 stdio 同时证明 `$dispatcher->dispatch($alias)` 返回 alias 范围，而 `$bus->dispatch($message)` 不进入 References。framework-symfony 28 项、Language Server 185 项及根扩展 39 项测试通过，全仓 TypeScript 与 ESLint、16 个隔离 tarball 和三份 VSIX 内容验证通过。功能提交 `e9a25db`，候选目录 `artifacts/php-companion-alpha-0.4.5-e9a25db0/`；候选语言服务器 bundle 已原子覆盖到 WSL 现有扩展目录并以 `86d1ea8e39836113097b4f0e6979163a62f848e75b24422e39ea34fc675db20b` 核对，须 Reload Window。P8 下一步评估完整同类型分支收敛、订阅构造分支/辅助调用和缓存缺失时的纯静态覆盖。证据继续记录在 [Symfony 事件订阅 References](reports/symfony-event-subscriptions-2026-09-16.md)。
 
 2026-09-16 P8 局部事件变量派发增量：framework-symfony 在 `dispatch($event)` 没有显式 eventName 时，只接受同一最内层代码块内最后一次相关语句为 `$event = new EventClass(...)`，并要求赋值到派发之间没有任何使用、引用暴露或重赋值；事件范围精确落在派发参数变量。参数、别名、分支外赋值、动态重赋值和中间调用保持 unknown。Language Server 继续要求 `dispatch()` 唯一解析到 Symfony Contracts/Component EventDispatcher 接口族，因此 Messenger 与业务同名 API 不会误报。framework-symfony 28 项、Language Server 185 项及根扩展 39 项测试通过，全仓 TypeScript 与 ESLint、16 个隔离 tarball 和三份 VSIX 内容验证通过。功能提交 `bea0622`，候选目录 `artifacts/php-companion-alpha-0.4.5-bea06222/`；候选语言服务器 bundle 已原子覆盖到 WSL 现有扩展目录并以 `f18e6e8405f408ab61c260c5b6bc381a9cadbc606b350960a211876404b2ee3f` 核对，须 Reload Window。P8 下一步评估局部事件别名/分支收敛的可证明子集、订阅构造分支/辅助调用，以及缓存缺失时的纯静态覆盖。证据继续记录在 [Symfony 事件订阅 References](reports/symfony-event-subscriptions-2026-09-16.md)。
 
