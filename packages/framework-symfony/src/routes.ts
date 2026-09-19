@@ -1,9 +1,27 @@
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
-import type { PhpSyntaxParser } from '@php-companion/parser';
+import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
 
 export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; }
-export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: string; attribute?: boolean; namespace?: string; exclude?: string[]; }
+export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: string; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; }
 export interface SymfonyRouteDocument { complete: boolean; routes: SymfonyRouteFact[]; imports: SymfonyRouteImport[]; }
+
+function resolvePhpName(name: string, namespace: string, imports: ParsedImport[]): string {
+  if (name.startsWith('\\')) return name.slice(1);
+  if (name.toLowerCase().startsWith('namespace\\')) return [namespace, name.slice(10)].filter(Boolean).join('\\');
+  const [head, ...tail] = name.split('\\');
+  const imported = imports.find((item) => item.kind === 'class' && item.namespace === namespace && item.alias.toLowerCase() === head!.toLowerCase());
+  return imported ? [imported.fqcn, ...tail].join('\\') : [namespace, name].filter(Boolean).join('\\');
+}
+
+function phpString(node: SyntaxNode | undefined): { value: string; start: number; end: number } | undefined {
+  if (node?.type !== 'string' || node.text.length < 2) return undefined;
+  const quote = node.text[0]; if ((quote !== "'" && quote !== '"') || node.text.at(-1) !== quote) return undefined;
+  const raw = node.text.slice(1, -1);
+  if (quote === '"' && /\$|\\(?:x[0-9a-fA-F]|u\{|[0-7])/u.test(raw)) return undefined;
+  const value = quote === "'" ? raw.replace(/\\(['\\])/g, '$1')
+    : raw.replace(/\\([\\"$nrtvef])/g, (_match, escaped: string) => ({ n: '\n', r: '\r', t: '\t', v: '\v', e: '\x1b', f: '\f' }[escaped] ?? escaped));
+  return { value, start: node.startIndex + 1, end: node.endIndex - 1 };
+}
 
 function supportedRoutePattern(value: unknown): value is string {
   return typeof value === 'string' && value.length > 0 && value.length <= 512 && !/[%\r\n\0]/.test(value)
@@ -51,6 +69,9 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string): SymfonyRou
       } else if (supportedRoutePattern(resource) && (type === 'yaml' || /(?:\.ya?ml|\.\{yaml,yml\}|\.\{yml,yaml\})$/.test(resource))
         && typeof pathPrefix === 'string' && !pathPrefix.includes('%') && typeof prefix === 'string' && !prefix.includes('%') && (type === undefined || type === 'yaml')) {
         result.imports.push({ resource, namePrefix: prefix, pathPrefix, ...(exclude.length ? { exclude } : {}) });
+      } else if (supportedRoutePattern(resource) && resource.endsWith('.php') && (type === undefined || type === 'php')
+        && typeof pathPrefix === 'string' && !pathPrefix.includes('%') && typeof prefix === 'string' && !prefix.includes('%') && exclude.length === 0) {
+        result.imports.push({ resource, namePrefix: prefix, pathPrefix, php: true });
       } else result.complete = false;
       continue;
     }
@@ -63,6 +84,130 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string): SymfonyRou
 
 interface SyntaxNode { type: string; text: string; startIndex: number; endIndex: number; namedChildren: SyntaxNode[]; }
 export interface SymfonyRouteCall { start: number; end: number; methodOffset: number; prefix: string; argumentName?: string; namedArguments: string[]; quote: "\"" | "'"; }
+
+function collectNodes(node: SyntaxNode, type: string, found: SyntaxNode[] = []): SyntaxNode[] {
+  if (node.type === type) found.push(node);
+  for (const child of node.namedChildren) collectNodes(child, type, found);
+  return found;
+}
+
+function routingCallChain(statement: SyntaxNode, variable: string): Array<{ method: string; arguments: SyntaxNode[] }> | undefined {
+  let current = statement.type === 'expression_statement' ? statement.namedChildren[0] : statement;
+  const outerToInner: Array<{ method: string; arguments: SyntaxNode[] }> = [];
+  while (current?.type === 'member_call_expression') {
+    const [receiver, method, args] = current.namedChildren;
+    if (!receiver || !method || !args) return undefined;
+    outerToInner.push({ method: method.text, arguments: args.namedChildren }); current = receiver;
+  }
+  return current?.type === 'variable_name' && current.text === variable ? outerToInner.reverse() : undefined;
+}
+
+/** Parse the deterministic source-declaration subset of Symfony's PHP RoutingConfigurator DSL. */
+export function analyzeSymfonyRoutePhp(parser: PhpSyntaxParser, uri: string, source: string): SymfonyRouteDocument {
+  const parsed = parser.parse(source, undefined, uri); const result: SymfonyRouteDocument = { complete: true, routes: [], imports: [] };
+  try {
+    if (parsed.errors.length || parsed.tree.rootNode.hasError) return { ...result, complete: false };
+    const root = parsed.tree.rootNode as unknown as SyntaxNode;
+    const returns = root.namedChildren.filter((node) => node.type === 'return_statement');
+    const closure = returns.length === 1 ? returns[0]!.namedChildren.find((node) => node.type === 'anonymous_function') : undefined;
+    const parameters = closure?.namedChildren.find((node) => node.type === 'formal_parameters')?.namedChildren ?? [];
+    const parameter = parameters.length === 1 && parameters[0]?.type === 'simple_parameter' ? parameters[0] : undefined;
+    const type = parameter?.namedChildren.find((node) => node.type === 'named_type')?.text;
+    const variable = parameter?.namedChildren.find((node) => node.type === 'variable_name')?.text;
+    const body = closure?.namedChildren.find((node) => node.type === 'compound_statement');
+    if (!type || !variable || !body || resolvePhpName(type, parsed.namespace, parsed.imports).toLowerCase()
+      !== 'symfony\\component\\routing\\loader\\configurator\\routingconfigurator') return { ...result, complete: false };
+    const reassigned = collectNodes(body, 'assignment_expression').some((node) => node.namedChildren[0]?.type === 'variable_name'
+      && node.namedChildren[0].text === variable);
+    if (reassigned) return { ...result, complete: false };
+    for (const statement of body.namedChildren) {
+      if (statement.type !== 'expression_statement') {
+        const nested = collectNodes(statement, 'member_call_expression').flatMap((node) => routingCallChain(node, variable) ?? []);
+        if (nested.length) {
+          result.complete = false;
+          if (nested.some((call) => !['add', 'import'].includes(call.method.toLowerCase()))) return { ...result, routes: [], imports: [] };
+        }
+        continue;
+      }
+      const chain = routingCallChain(statement, variable); const first = chain?.[0];
+      if (!first) continue;
+      if (first.method.toLowerCase() === 'add' && first.arguments.length === 2) {
+        const name = first.arguments[0]?.namedChildren.length === 1 ? phpString(first.arguments[0].namedChildren[0]) : undefined;
+        const path = first.arguments[1]?.namedChildren.length === 1 ? phpString(first.arguments[1].namedChildren[0]) : undefined;
+        if (name && path) result.routes.push({ name: name.value, path: path.value, uri, start: name.start, end: name.end });
+        else result.complete = false;
+        continue;
+      }
+      if (first.method.toLowerCase() !== 'import' || first.arguments.length < 1 || first.arguments.length > 2) {
+        return { ...result, complete: false, routes: [], imports: [] };
+      }
+      const resourceLiteral = first.arguments[0]?.namedChildren.length === 1 ? phpString(first.arguments[0].namedChildren[0]) : undefined;
+      const resource = resourceLiteral?.value; const loaderLiteral = first.arguments[1]?.namedChildren.length === 1
+        ? phpString(first.arguments[1].namedChildren[0]) : undefined;
+      const loader = loaderLiteral?.value;
+      if (!resource || (first.arguments[1] && !loaderLiteral) || (loader !== undefined && !['attribute', 'php', 'yaml'].includes(loader))) { result.complete = false; continue; }
+      let namePrefix = ''; let pathPrefix = ''; let valid = true;
+      for (const call of chain!.slice(1)) {
+        const value = call.arguments.length === 1 && call.arguments[0]?.namedChildren.length === 1
+          ? phpString(call.arguments[0].namedChildren[0])?.value : undefined;
+        if (call.method.toLowerCase() === 'nameprefix' && value !== undefined) namePrefix += value;
+        else if (call.method.toLowerCase() === 'prefix' && value !== undefined) pathPrefix += value;
+        else if (['nameprefix', 'prefix'].includes(call.method.toLowerCase())) valid = false;
+      }
+      if (!valid || !supportedRoutePattern(resource)) { result.complete = false; continue; }
+      const attribute = loader === 'attribute'; const php = loader === 'php' || (loader === undefined && resource.endsWith('.php'));
+      const yaml = loader === 'yaml' || (loader === undefined && /\.ya?ml$/.test(resource));
+      if (!attribute && !php && !yaml) { result.complete = false; continue; }
+      result.imports.push({ resource, namePrefix, pathPrefix, ...(attribute ? { attribute: true } : {}), ...(php ? { php: true } : {}) });
+    }
+    return result;
+  } finally { parsed.tree.delete(); }
+}
+
+/** Extract only top-level, unconditional Kernel::configureRoutes() imports with a deterministic Kernel-relative path. */
+export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: string, source: string): SymfonyRouteDocument {
+  const parsed = parser.parse(source, undefined, uri); const result: SymfonyRouteDocument = { complete: true, routes: [], imports: [] };
+  try {
+    if (parsed.errors.length || parsed.tree.rootNode.hasError) return { ...result, complete: false };
+    const root = parsed.tree.rootNode as unknown as SyntaxNode;
+    const pathExpression = (node: SyntaxNode | undefined): string | undefined => {
+      const literal = phpString(node); if (literal) return literal.value;
+      if (node?.type === 'name' && node.text.toLowerCase() === '__dir__') return '.';
+      if (node?.type === 'function_call_expression' && node.namedChildren[0]?.text.toLowerCase() === 'dirname') {
+        const args = node.namedChildren[1]?.namedChildren ?? [];
+        const inner = args.length === 1 ? pathExpression(args[0]?.namedChildren.at(-1)) : undefined;
+        return inner === undefined ? undefined : `${inner}/..`;
+      }
+      if (node?.type === 'binary_expression' && node.namedChildren.length === 2) {
+        const [left, right] = node.namedChildren; const operator = source.slice(left!.endIndex, right!.startIndex).trim();
+        const leftPath = operator === '.' ? pathExpression(left) : undefined; const rightPath = pathExpression(right);
+        return leftPath !== undefined && rightPath !== undefined ? leftPath + rightPath : undefined;
+      }
+      return undefined;
+    };
+    for (const callable of parsed.callables.filter((item) => item.kind === 'method' && item.name.toLowerCase() === 'configureroutes'
+      && !item.static && item.parameters.length === 1)) {
+      const owner = parsed.declarations.find((item) => item.kind === 'class' && item.fqcn === callable.containerFqcn);
+      const namespace = owner?.fqcn.split('\\').slice(0, -1).join('\\') ?? '';
+      const parameter = callable.parameters[0]!;
+      if (!owner || owner.extendsNames.length !== 1 || resolvePhpName(owner.extendsNames[0]!, namespace, parsed.imports).toLowerCase()
+        !== 'symfony\\component\\httpkernel\\kernel' || !parameter.nativeType || resolvePhpName(parameter.nativeType, namespace, parsed.imports).toLowerCase()
+        !== 'symfony\\component\\routing\\loader\\configurator\\routingconfigurator') continue;
+      const method = collectNodes(root, 'method_declaration').find((node) => node.startIndex <= callable.start && node.endIndex >= callable.end);
+      const body = method?.namedChildren.find((node) => node.type === 'compound_statement');
+      for (const statement of body?.namedChildren ?? []) {
+        if (statement.type !== 'expression_statement') continue;
+        const chain = routingCallChain(statement, `$${parameter.name}`); const first = chain?.[0];
+        if (!first || first.method.toLowerCase() !== 'import' || first.arguments.length !== 1) continue;
+        const argument = first.arguments[0]?.namedChildren.length === 1 ? first.arguments[0].namedChildren[0] : undefined;
+        const resource = pathExpression(argument);
+        if (!resource || !/\.(?:ya?ml|php)$/.test(resource)) { result.complete = false; continue; }
+        result.imports.push({ resource, namePrefix: '', pathPrefix: '', ...(resource.endsWith('.php') ? { php: true } : {}) });
+      }
+    }
+    return result;
+  } finally { parsed.tree.delete(); }
+}
 
 /** Locate a direct literal argument; semantic ownership and the formal route parameter are checked by the caller. */
 export function symfonyRouteCallAt(parser: PhpSyntaxParser, uri: string, source: string, offset: number): SymfonyRouteCall | undefined {

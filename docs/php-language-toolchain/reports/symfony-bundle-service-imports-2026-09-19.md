@@ -18,7 +18,7 @@
 
 - framework-symfony 单元测试证明 `all => true` 和无条件 Kernel yield，排除 dev-only 条目、条件 yield、动态 key 与 `yield from`。
 - 真实 stdio 冷/热测试从 XML 经 `@SharedBundle/Resources/config/bundled.php` 加载公开服务，Container 返回补全和 PHP 类型 References 均指向 bundle 配置；同目录但覆盖 `getPath()` 的 CustomBundle 和声明构造器的 ConstructedBundle 导入都不进入来源计数。
-- Winstar 当前 `src/Kernel.php` 静态得到 14 个无条件 bundle 注册。当前服务配置没有 `@Bundle` 导入；`config/symfony/routes/dev/web_profiler.yaml` 的两个 `@WebProfilerBundle` PHP 路由资源保留给后续路由 PHP Configurator 增量。
+- Winstar 当前 `src/Kernel.php` 静态得到 14 个无条件 bundle 注册。当前服务配置没有 `@Bundle` 导入；后续 PHP 路由分析器可提取两个 WebProfiler 文件中的 14 个声明，但它们的 Kernel 导入和 Bundle 注册都属于 `dev` 条件，静态默认模式不会冒充无条件路由。
 
 ## 验收结果
 

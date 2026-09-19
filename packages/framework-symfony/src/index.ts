@@ -1567,5 +1567,5 @@ export function symfonyContainerMethodReturnFacts(services: SymfonyServiceFact[]
   })));
 }
 
-export { analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, type SymfonyRouteImport, type SymfonyRouteDocument, type SymfonyRouteCall } from './routes.js';
+export { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, type SymfonyRouteImport, type SymfonyRouteDocument, type SymfonyRouteCall } from './routes.js';
 export { analyzeSymfonyRouteAttributes, type SymfonyAttributeRouteFact, type SymfonyAttributeRoutes } from './routes.js';

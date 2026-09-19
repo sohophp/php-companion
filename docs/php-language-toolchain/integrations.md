@@ -123,6 +123,12 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 模式最多 512 字符、两个左花括号、16 个逗号；花括号范围展开和 extglob 不支持，参数化路径保持未解析。隐藏目录不遍历，realpath 不得越过项目根，循环链接终止；单请求共享 64 次资源/遍历预算、单文件 1 MB 限制和取消检查。预算耗尽可能使候选不完整，不能据此判定某路由不存在。资源 namespace 映射见下一节；自动路由名称、继承及完整环境/本地化规则仍待完成。
 
+## PHP 路由配置与自定义 Kernel 入口
+
+framework-symfony 可静态读取唯一返回且参数类型明确为 `RoutingConfigurator` 的 PHP closure。顶层字面量 `add(name, path)` 和 `import(resource[, type])` 可进入路由图；导入链上的字面量 `prefix()` 与 `namePrefix()` 会按顺序叠加。Configurator 重赋值、动态参数、嵌套调用和未知 Configurator 方法会保守撤销可能受影响的事实，不执行配置文件。
+
+Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提取顶层无条件 `import()`。当前只接受字面量路径，以及 `__DIR__` / `dirname(__DIR__)` 与字面量的确定性拼接。项目外 PHP 路由只允许经通用 bundle 注册、唯一类文件、默认 Bundle 路径和 realpath containment 全部证明的 `@Bundle/...` 资源；环境条件导入、环境专属 bundle、动态 Kernel 表达式和返回 `RouteCollection` 的业务 factory 保持 unknown，并由启用运行时索引的 Symfony Language Tools 接管。
+
 
 ## PSR-4 路由目录映射
 

@@ -1,3 +1,4 @@
+- Complete source-declared routes from deterministic PHP Configurator files and unconditional custom Kernel roots, including contained `@Bundle/...` PHP resources whose universal registration and conventional path are proven.
 - Resolve bounded `@Bundle/...` YAML/XML/PHP service imports only from universal static registrations, one conventional Bundle inheritance path and a contained real resource path; refresh on registration, bundle-class and imported-file changes.
 - Map deterministic Symfony positional service arguments to semantic constructor parameter indexes, keep scalar overrides local to one parameter, and advance the validated Symfony fact cache to v8.
 - Add incremental file-event draining, timed query logs, precise type candidate scans, cancellation errors, and immutable Safe Move source snapshots.

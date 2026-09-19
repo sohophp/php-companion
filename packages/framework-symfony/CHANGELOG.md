@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract unconditional custom Kernel route imports and the deterministic PHP `RoutingConfigurator` subset for literal `add()` and chained `import()` declarations, while retaining only safe unconditional facts around unsupported control flow.
 - Extract universal `config/bundles.php` registrations and unconditional top-level `Kernel::registerBundles()` yields with exact class ranges, leaving environment-only and dynamic registrations unknown.
 - Resolve positional PHP Configurator, YAML and XML service arguments by exact constructor index, preserve per-position scalar suppression, and honor explicit arguments before binds or inferred autowiring even when autowiring is disabled.
 - Parse the static Symfony PHP Configurator service DSL from a proven returned `ContainerConfigurator` closure, including service/resource registration, aliases, defaults, named wiring overrides, configured methods/properties, listener tags and literal imports with exact source ranges. Reject reassigned configurators and runtime-dependent definitions.

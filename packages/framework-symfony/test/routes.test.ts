@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText } from '../src/index.js';
+import { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText } from '../src/index.js';
 
 describe('static Symfony routes', () => {
   it('preserves literal route names, locations and import prefixes without inventing runtime routes', () => {
@@ -47,6 +47,40 @@ describe('static Symfony routes', () => {
     expect(facts.complete).toBe(false);
     expect(facts.routes.map((route) => route.name)).toEqual(['e']);
     expect(facts.imports).toEqual([]);
+  });
+  it('extracts PHP Configurator route declarations and deterministic imports', async () => {
+    const parser = await PhpSyntaxParser.createDefault();
+    const source = `<?php
+      use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator as Routes;
+      return static function (Routes $routes): void {
+        foreach (debug_backtrace() as $trace) { trigger_deprecation('package', '1.0', 'message'); }
+        $routes->add('_home', '/home')->controller('app.controller');
+        $routes->import('child.php')->prefix('/api')->namePrefix('api_');
+        if (feature()) { $routes->add('_conditional', '/conditional'); }
+      };`;
+    const facts = analyzeSymfonyRoutePhp(parser, 'file:///vendor/Bundle/Resources/config/routes.php', source);
+    expect(facts.complete).toBe(false);
+    expect(facts.routes.map(({ name, path, start, end }) => ({ name, path, text: source.slice(start, end) })))
+      .toEqual([{ name: '_home', path: '/home', text: '_home' }]);
+    expect(facts.imports).toEqual([{ resource: 'child.php', namePrefix: 'api_', pathPrefix: '/api', php: true }]);
+    expect(analyzeSymfonyRoutePhp(parser, 'file:///routes.php', `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator; return static function (RoutingConfigurator $routes): void { $routes = other(); $routes->add('wrong', '/wrong'); };`).routes).toEqual([]);
+    expect(analyzeSymfonyRoutePhp(parser, 'file:///routes.php', `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator; return static function (RoutingConfigurator $routes): void { $routes->add(path: '/wrong', name: 'swapped'); };`).routes).toEqual([]);
+    parser.dispose();
+  });
+  it('extracts only unconditional Kernel route imports with deterministic Kernel-relative paths', async () => {
+    const parser = await PhpSyntaxParser.createDefault();
+    const source = `<?php namespace App;
+      use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
+      use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
+      final class Kernel extends BaseKernel {
+        protected function configureRoutes(RoutingConfigurator $routes): void {
+          $routes->import(dirname(__DIR__) . '/config/symfony/routes.yaml');
+          if ($this->environment === 'dev') { $routes->import(dirname(__DIR__) . '/config/symfony/routes/dev.yaml'); }
+        }
+      }`;
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', source).imports)
+      .toEqual([{ resource: './../config/symfony/routes.yaml', namePrefix: '', pathPrefix: '' }]);
+    parser.dispose();
   });
   it('escapes quotes, backslashes and dollar signs for the original PHP string delimiter', () => {
     const name = String.raw`account.'"$id\end`;

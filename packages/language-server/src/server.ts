@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -1888,13 +1888,25 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
   const routes: SymfonyRouteFact[] = [];
   let remaining = 64;
   const actualRoot = await realpath(root);
+  const syntaxParser = await parser();
+  let bundleRoots: Map<string, SymfonyBundleResourceRoot> | undefined;
+  const resolveBundleRoot = async (name: string): Promise<SymfonyBundleResourceRoot | undefined> => {
+    if (!bundleRoots) {
+      const workspace = await semanticForRoot(root);
+      const candidates = workspace.workspaceTypes().map(({ fqcn, uri }) => ({ fqcn, uri }));
+      bundleRoots = await registeredSymfonyBundleRoots(root, syntaxParser, candidates);
+    }
+    return bundleRoots.get(name.toLowerCase());
+  };
+  const projectScope: SymfonyBundleResourceRoot = { path: root, realPath: actualRoot };
   let defaultNameStyle: 'framework' | undefined;
   try {
     const composer = JSON.parse(await readFile(resolve(root, 'composer.json'), 'utf8'));
     if (typeof composer.require?.['symfony/framework-bundle'] === 'string') defaultNameStyle = 'framework';
   } catch { /* Unknown loader configuration does not authorize generated route names. */ }
-  const read = async (path: string, prefix: string, pathPrefix: string, ancestors: Set<string>, attribute = false, excludedPaths: string[] = [], mapping?: { root: string; namespace: string }): Promise<void> => {
-    const local = relative(root, path);
+  const read = async (path: string, prefix: string, pathPrefix: string, ancestors: Set<string>, attribute = false, php = false,
+    excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope): Promise<void> => {
+    const local = relative(scope.path, path);
     if (excludedRoutePath(path, excludedPaths)) return;
     if (cancelled() || remaining-- <= 0 || ancestors.has(path) || isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`)) return;
     try {
@@ -1906,10 +1918,10 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
           if (cancelled() || remaining-- <= 0 || excludedRoutePath(candidate, excludedPaths)) return;
           try {
             const actual = await realpath(candidate);
-            if (seen.has(actual) || !pathWithin(actualRoot, actual)) return;
+            if (seen.has(actual) || !pathWithin(scope.realPath, actual)) return;
             const info = await stat(candidate);
             if (routePathMatches(candidate, path)) {
-              await read(candidate, prefix, pathPrefix, ancestors, attribute, excludedPaths, mapping);
+              await read(candidate, prefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope);
               return;
             }
             if (!info.isDirectory()) return;
@@ -1926,7 +1938,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
       }
       const actualPath = await realpath(path);
       if (ancestors.has(actualPath)) return;
-      const actualLocal = relative(actualRoot, actualPath);
+      const actualLocal = relative(scope.realPath, actualPath);
       if (isAbsolute(actualLocal) || actualLocal === '..' || actualLocal.startsWith(`..${sep}`)) return;
       const info = await stat(path);
       if (mapping && path === mapping.root && !info.isDirectory()) return;
@@ -1936,7 +1948,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
         for (const entry of entries) {
           if (cancelled() || remaining <= 0) break;
           if (!entry.name.startsWith('.') && (entry.isDirectory() || entry.isSymbolicLink() || entry.name.endsWith('.php'))) {
-            await read(resolve(path, entry.name), prefix, pathPrefix, next, true, excludedPaths, mapping);
+            await read(resolve(path, entry.name), prefix, pathPrefix, next, true, false, excludedPaths, mapping, scope);
           }
         }
         return;
@@ -1947,19 +1959,38 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
       const source = open?.getText() ?? await readFile(path, 'utf8');
       if (source.length > 1_000_000 || cancelled()) return;
       if (attribute) {
-        const facts = analyzeSymfonyRouteAttributes(await parser(), uri, source, defaultNameStyle);
+        const facts = analyzeSymfonyRouteAttributes(syntaxParser, uri, source, defaultNameStyle);
         const expectedOwner = mapping ? `${mapping.namespace}\\${relative(mapping.root, path).slice(0, -4).split(sep).join('\\')}` : undefined;
         routes.push(...facts.routes.filter((route) => !expectedOwner || route.ownerFqcn === expectedOwner)
           .map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
         return;
       }
-      const facts = analyzeSymfonyRouteYaml(uri, source);
+      const facts = php ? analyzeSymfonyRoutePhp(syntaxParser, uri, source) : analyzeSymfonyRouteYaml(uri, source);
       routes.push(...facts.routes.map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
       const next = new Set([...ancestors, path, actualPath]);
-      for (const entry of facts.imports) await read(resolve(dirname(path), entry.resource), prefix + entry.namePrefix, pathPrefix + entry.pathPrefix, next, entry.attribute, (entry.exclude ?? []).map((excluded) => resolve(dirname(path), excluded)), entry.namespace ? { root: resolve(dirname(path), entry.resource), namespace: entry.namespace } : undefined);
+      for (const entry of facts.imports) {
+        const bundle = /^@([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*Bundle)[\\/](.+)$/.exec(entry.resource);
+        const bundleRoot = bundle ? await resolveBundleRoot(bundle[1]!) : undefined;
+        if (entry.resource.startsWith('@') && !bundleRoot) continue;
+        const importedScope = bundleRoot ?? scope;
+        const importedPath = resolve(bundleRoot?.path ?? dirname(path), (bundle?.[2] ?? entry.resource).replace(/[\\/]/g, sep));
+        await read(importedPath, prefix + entry.namePrefix, pathPrefix + entry.pathPrefix, next, entry.attribute, entry.php,
+          (entry.exclude ?? []).map((excluded) => resolve(dirname(path), excluded)),
+          entry.namespace ? { root: importedPath, namespace: entry.namespace } : undefined, importedScope);
+      }
     } catch { /* Missing or unreadable route sources contribute no candidates. */ }
   };
-  for (const filename of ['config/routes.yaml', 'config/routes.yml']) await read(resolve(root, filename), '', '', new Set());
+  for (const filename of ['config/routes.yaml', 'config/routes.yml']) await read(resolve(root, filename), '', '', new Set(), false, false, [], undefined, projectScope);
+  for (const filename of ['src/Kernel.php', 'app/AppKernel.php']) {
+    const kernelPath = resolve(root, filename);
+    try {
+      const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), kernelPath));
+      const source = open?.getText() ?? await readFile(kernelPath, 'utf8');
+      const facts = analyzeSymfonyKernelRouteImports(syntaxParser, indexedUriForPath(root, kernelPath), source);
+      for (const entry of facts.imports) await read(resolve(dirname(kernelPath), entry.resource), entry.namePrefix, entry.pathPrefix,
+        new Set(), false, entry.php, [], undefined, projectScope);
+    } catch { /* Projects may use conventional route roots or no Kernel route configurator. */ }
+  }
   const counts = new Map<string, number>();
   for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
   return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
