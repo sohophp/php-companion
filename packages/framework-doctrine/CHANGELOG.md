@@ -1,5 +1,6 @@
 # Changelog
 
+- Bind the stable `find`, `findOneBy`, `findAll` and `findBy` entity return shapes from a literal `#[Entity(repositoryClass: Repository::class)]`, including custom repositories that do not use the official ServiceEntityRepository constructor pattern.
 ## Unreleased
 
 - 公开事实类型实现独立 `@php-companion/semantic-provider` 契约，可由任意宿主组装而不依赖 semantic 实现。

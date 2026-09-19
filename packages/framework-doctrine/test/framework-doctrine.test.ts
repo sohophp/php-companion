@@ -38,4 +38,18 @@ describe('static Doctrine facts', () => {
     expect(facts.entities).toMatchObject([{ associations: [] }]);
     expect(repositoryMethodReturnType({ fqcn: 'App\\Repo', entity: 'App\\Item', uri: '', start: 0, end: 0 }, 'customQuery')).toBeUndefined();
   });
+
+  it('binds a literal entity repositoryClass without requiring a repository constructor pattern', () => {
+    const source = `<?php namespace App;
+      use Doctrine\\ORM\\Mapping as ORM;
+      #[ORM\\Entity(repositoryClass: LanguageRepository::class)] class Language {}
+      class LanguageRepository extends \\Doctrine\\ORM\\EntityRepository {}
+    `;
+    const facts = analyzeDoctrineDocument(parser, 'file:///CustomRepository.php', source);
+    expect(facts.repositories).toMatchObject([{ fqcn: 'App\\LanguageRepository', entity: 'App\\Language' }]);
+    expect(doctrineRepositoryMethodFacts(facts.repositories[0]!).map((item) => [item.name, item.returnType])).toEqual([
+      ['find', 'App\\Language|null'], ['findOneBy', 'App\\Language|null'],
+      ['findAll', 'array<int, App\\Language>'], ['findBy', 'array<int, App\\Language>'],
+    ]);
+  });
 });

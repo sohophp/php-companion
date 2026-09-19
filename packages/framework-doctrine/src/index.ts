@@ -51,8 +51,9 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
           }
           return [];
         });
-        entities.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end,
-          repository: repositoryName ? resolveName(repositoryName, namespace, parsed.imports) : undefined, associations });
+        const repository = repositoryName ? resolveName(repositoryName, namespace, parsed.imports) : undefined;
+        entities.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, repository, associations });
+        if (repository) repositories.push({ fqcn: repository, uri, start: declaration.start, end: declaration.end, entity: declaration.fqcn });
       }
       const parent = declaration.extendsNames[0] && resolveName(declaration.extendsNames[0], namespace, parsed.imports);
       if (parent?.toLowerCase() === 'doctrine\\bundle\\doctrinebundle\\repository\\serviceentityrepository') {
@@ -62,7 +63,9 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
         if (entityName) repositories.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, entity: resolveName(entityName, namespace, parsed.imports) });
       }
     }
-    return { entities, repositories };
+    return { entities, repositories: [...new Map(repositories.map((repository) => [
+      `${repository.fqcn.toLowerCase()}\0${repository.entity.toLowerCase()}`, repository,
+    ])).values()] };
   } finally { parsed.tree.delete(); }
 }
 

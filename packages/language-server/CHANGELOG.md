@@ -1,3 +1,4 @@
+- Rebuild persistent PHP project facts with cache version v51 so literal Doctrine `Entity(repositoryClass: ...)` bindings are available after an upgrade instead of retaining an older incomplete framework snapshot.
 - Resolve exact Symfony YAML controller segments to unique Composer PHP class or effective public method declarations through a source-snapshot request, while yielding to external runtime-provider ownership.
 - Start the bounded project-source index when Twig interop is first requested in `onDemand` mode; dependency-complete indexing remains exclusive to `experimental` mode.
 - Merge exact Symfony YAML and explicitly configured route-provider controller locations into PHP class and effective public method References while honoring external runtime-provider ownership.
