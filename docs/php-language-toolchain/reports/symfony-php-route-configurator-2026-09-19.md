@@ -22,4 +22,11 @@
 - Winstar onDemand 真实 LSP 探针返回 `health_live` 与 `health_ready`；冷查询 1851 ms（包含 parser 首次加载），同进程热查询 40 ms。
 - Symfony 7.4 vendor 的 7 个含 RoutingConfigurator 参数的 PHP 文件中，5 个完整配置文件可证明，共提取 17 个路由声明；MicroKernelTrait 与测试 Kernel 的动态路径保持 unknown。WebProfiler 的 wdt/profiler 文件共提取 14 个源码声明，但 Winstar 的 `dev` 条件没有静态启用。
 
-完整仓库门禁、候选和安装证据在功能提交后补记。
+## 验收结果
+
+- framework-symfony：3 个测试文件、35 项全部通过。
+- Language Server：6 个测试文件、185 项全部通过，耗时 219.99 秒。
+- 语义内核：1 个测试文件、268 项全部通过；根扩展：9 个测试文件、39 项全部通过。
+- 全仓 TypeScript、ESLint 和三个 VSIX 内容校验通过；16 个 monorepo 组件 tarball 均在隔离消费者中安装验证通过。
+
+功能提交为 `864a38a6a0fe9be68fdd71a530d9749c2e48037c`，候选目录为 `artifacts/php-companion-alpha-0.4.5-864a38a6/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `133a66b954a010042b1a5d8ca54694747ad29e62b77eefb5a6b9cf787c43c644`、`a808a0252e3496db2c8a0b0e2b5b75c147b5e07e30ec6d9f7ab967becc21ccf9`、`d07660f8f7ea31ae25ad8193caa714afe3e0dbced891f92a5237f7c691618fc9`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `9fdb7e160c4a515cd978900ab56e0c8015a6f431f68a386139d30545825f0d40`，Reload Window 后加载。
