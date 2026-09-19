@@ -1,6 +1,8 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
+interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => unknown; }
+
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!predicate() && Date.now() < deadline) await new Promise<void>((resolve) => setTimeout(resolve, 20));
@@ -210,7 +212,9 @@ final class ProfileTest extends TestCase {
 export async function run(): Promise<void> {
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'PHP Companion extension was not discovered');
-  await extension.activate();
+  const api = await extension.activate() as PhpCompanionPluginApi;
+  assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
+  assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
   const commands = await vscode.commands.getCommands(true);
   assert.ok(commands.includes('phpCompanion.selectPhpVersion'));
   assert.ok(commands.includes('phpCompanion.new.class'));

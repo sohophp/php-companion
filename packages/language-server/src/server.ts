@@ -82,6 +82,8 @@ let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
+let configuredSemanticProviders: SemanticProviderDescriptor[] = [];
+let bundledSemanticProviders: SemanticProviderDescriptor[] = [];
 let routeProviders: RouteProviderDescriptor[] = [];
 let configuredRouteProviders: RouteProviderDescriptor[] = [];
 let bundledRouteProviders: RouteProviderDescriptor[] = [];
@@ -247,15 +249,28 @@ function setDiagnosticSeverityOverrides(value: unknown): void {
     .filter((entry): entry is [string, DiagnosticLevel] => levels.has(entry[1] as DiagnosticLevel)));
 }
 
-function setSemanticProviders(value: unknown): void {
+function acceptedSemanticProviders(value: unknown, source: 'configured' | 'bundled'): SemanticProviderDescriptor[] {
   const reserved = new Set(['symfony', 'doctrine']); const seen = new Set<string>(); const accepted: SemanticProviderDescriptor[] = [];
   for (const candidate of Array.isArray(value) ? value : []) {
-    if (!isSemanticProviderDescriptor(candidate)) { connection.console.warn('Ignored invalid semantic provider configuration.'); continue; }
-    if (reserved.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored semantic provider ${candidate.providerId}: the identity is reserved.`); continue; }
-    if (seen.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored duplicate semantic provider ${candidate.providerId}.`); continue; }
+    if (!isSemanticProviderDescriptor(candidate)) { connection.console.warn(`Ignored invalid ${source} semantic provider configuration.`); continue; }
+    if (reserved.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored ${source} semantic provider ${candidate.providerId}: the identity is reserved.`); continue; }
+    if (seen.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored duplicate ${source} semantic provider ${candidate.providerId}.`); continue; }
     seen.add(candidate.providerId.toLowerCase()); accepted.push(candidate);
   }
-  semanticProviders = accepted;
+  return accepted;
+}
+function rebuildSemanticProviders(): void {
+  const bundledIds = new Set(bundledSemanticProviders.map((provider) => provider.providerId.toLowerCase()));
+  semanticProviders = [...bundledSemanticProviders, ...configuredSemanticProviders.filter((provider) => {
+    if (!bundledIds.has(provider.providerId.toLowerCase())) return true;
+    connection.console.warn(`Ignored configured semantic provider ${provider.providerId}: the bundled identity is reserved.`); return false;
+  })];
+}
+function setConfiguredSemanticProviders(value: unknown): void {
+  configuredSemanticProviders = acceptedSemanticProviders(value, 'configured'); rebuildSemanticProviders();
+}
+function setBundledSemanticProviders(value: unknown): void {
+  bundledSemanticProviders = acceptedSemanticProviders(value, 'bundled'); rebuildSemanticProviders();
 }
 
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
@@ -335,8 +350,29 @@ function symfonyRouteProvider(uri: string): { path: string; external: boolean; e
     .sort((left, right) => right.path.length - left.path.length)[0] : undefined;
 }
 function externalSymfonyRoutes(uri: string): boolean { return symfonyRouteProvider(uri)?.external === true; }
+async function reconcileSemanticProviderChange(previous: readonly SemanticProviderDescriptor[]): Promise<void> {
+  if (JSON.stringify(previous) === JSON.stringify(semanticProviders)) return;
+  const currentIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
+  const removed = previous.filter((provider) => !currentIds.has(provider.providerId.toLowerCase()));
+  if (removed.length) for (const candidate of semanticWorkspaces.values()) {
+    const workspace = await candidate; for (const provider of removed) workspace.removeExternalFacts(provider.providerId);
+  }
+  if (workspaceFolderRoots.length) await startIndexWorkspace();
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+}
+let semanticProviderReconciliation = Promise.resolve();
+function enqueueSemanticProviderChange(update: () => void): Promise<void> {
+  const work = semanticProviderReconciliation.then(async () => {
+    const previous = [...semanticProviders]; update(); await reconcileSemanticProviderChange(previous);
+  });
+  semanticProviderReconciliation = work.catch((error: unknown) => connection.console.error(`Semantic provider reconciliation failed: ${String(error)}`));
+  return work;
+}
 connection.onNotification('phpCompanion/symfonyRouteProviders', (params: { providers?: unknown } | undefined) => setSymfonyRouteProviders(params?.providers));
 connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => setBundledRouteProviders(params?.providers));
+connection.onNotification('phpCompanion/bundledSemanticProviders', (params: { providers?: unknown } | undefined) => {
+  void enqueueSemanticProviderChange(() => setBundledSemanticProviders(params?.providers));
+});
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
   setConfiguredExtensionAvailability(params?.roots);
   await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
@@ -1435,7 +1471,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -1448,7 +1484,8 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   }
   setDisabledDiagnosticCodes(initialization?.disabledDiagnosticCodes);
   setDiagnosticSeverityOverrides(initialization?.diagnosticSeverity);
-  setSemanticProviders(initialization?.semanticProviders);
+  setConfiguredSemanticProviders(initialization?.semanticProviders);
+  setBundledSemanticProviders(initialization?.bundledSemanticProviders);
   setConfiguredRouteProviders(initialization?.routeProviders);
   setBundledRouteProviders(initialization?.bundledRouteProviders);
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
@@ -1795,23 +1832,16 @@ connection.onRequest('phpCompanion/reconcileSafeMove', async (params: { moves?: 
 connection.onDidChangeConfiguration(async ({ settings }) => {
   const phpCompanion = (settings as { phpCompanion?: { diagnostics?: { disabledCodes?: unknown; severity?: unknown }; semanticProviders?: unknown; routeProviders?: unknown } } | undefined)?.phpCompanion;
   const previousDiagnostics = JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
-  const previousProviders = JSON.stringify(semanticProviders);
   const previousRouteProviders = JSON.stringify(routeProviders);
   setDisabledDiagnosticCodes(phpCompanion?.diagnostics?.disabledCodes);
   setDiagnosticSeverityOverrides(phpCompanion?.diagnostics?.severity);
-  const previousProviderIds = new Map(semanticProviders.map((provider) => [provider.providerId.toLowerCase(), provider.providerId]));
-  setSemanticProviders(phpCompanion?.semanticProviders);
   setConfiguredRouteProviders(phpCompanion?.routeProviders);
-  const currentProviderIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
-  const removedProviderIds = [...previousProviderIds].filter(([key]) => !currentProviderIds.has(key)).map(([, providerId]) => providerId);
   const diagnosticsChanged = previousDiagnostics !== JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
-  const providersChanged = previousProviders !== JSON.stringify(semanticProviders);
   const routeProvidersChanged = previousRouteProviders !== JSON.stringify(routeProviders);
-  if (removedProviderIds.length) for (const candidate of semanticWorkspaces.values()) {
-    const workspace = await candidate; for (const providerId of removedProviderIds) workspace.removeExternalFacts(providerId);
-  }
-  if (providersChanged && workspaceFolderRoots.length) await startIndexWorkspace();
-  if (providersChanged || routeProvidersChanged || diagnosticsChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  const previousProviders = JSON.stringify(semanticProviders);
+  await enqueueSemanticProviderChange(() => setConfiguredSemanticProviders(phpCompanion?.semanticProviders));
+  const providersChanged = previousProviders !== JSON.stringify(semanticProviders);
+  if ((routeProvidersChanged || diagnosticsChanged) && !providersChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 });
 
 const pendingFiles = new PendingChanges<{ uri: string; root: string }>();

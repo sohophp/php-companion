@@ -1,3 +1,5 @@
+- Add schema 1 of `@php-companion/plugin-api`; the core extension now returns a versioned API through which independently installed extensions can register and withdraw namespaced semantic and route provider processes at runtime.
+- Withdrawing an integration removes its external semantic facts and refreshes open PHP documents without restarting the language server, establishing the runtime boundary for a future standalone PHP Companion Symfony VSIX.
 - Exact `class-string<T>` arguments now specialize real method templates, including safe `@phpstan-return ?T` refinements; direct local assignments preserve the generic result instead of collapsing it to the native `object` bound.
 - Empty member completion in `onDemand` mode may load at most four successive exact Composer PSR-4 owners, so cold Doctrine `EntityManagerInterface::getRepository(Entity::class)->find()` chains resolve without dependency-wide indexing; dynamic class strings remain unknown.
 - 提交 `1be85dd` 完成 Doctrine EntityManager 泛型按需补全；候选 `php-companion-alpha-0.4.5-1be85dd9` 的三份 VSIX、Winstar PHP 8.5/CoreRepo PHP 7.2 预检及安装哈希均已验证，已安装 bundle 的真实 Winstar 冷/热探针为 56.443/13.046 秒。

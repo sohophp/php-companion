@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
+import type { IntegrationRegistry } from './integrationRegistry.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
@@ -33,7 +34,7 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
   });
 }
 
-export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager): Promise<LanguageClient | undefined> {
+export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
   const activation = languageServerActivationDecision();
   if (!activation.start) {
@@ -73,11 +74,11 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       };
     });
   };
-  const bundledRouteProviders = (): unknown[] => (vscode.workspace.workspaceFolders ?? []).some((folder) =>
+  const bundledRouteProviders = (): unknown[] => [...integrations.routeProviders(), ...(vscode.workspace.workspaceFolders ?? []).some((folder) =>
     vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<boolean>('symfony.winstarRoutes.enabled', false)) ? [{
       providerId: 'php-companion.winstar-routes', command: process.execPath,
       args: [context.asAbsolutePath('dist/winstar-route-provider.js')], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024,
-    }] : [];
+    }] : []];
   const stateRootUri = (state: FolderState): vscode.Uri => state.projectRoot
     ? state.folder.uri.scheme === 'file' ? vscode.Uri.file(state.projectRoot) : state.folder.uri.with({ path: state.projectRoot.replaceAll('\\', '/') })
     : state.folder.uri;
@@ -117,6 +118,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       disabledDiagnosticCodes: configuration.get<string[]>('diagnostics.disabledCodes', []),
       diagnosticSeverity: configuration.get<Record<string, string>>('diagnostics.severity', {}),
       semanticProviders: configuration.get<unknown[]>('semanticProviders', []),
+      bundledSemanticProviders: integrations.semanticProviders(),
       routeProviders: configuration.get<unknown[]>('routeProviders', []),
       bundledRouteProviders: bundledRouteProviders(),
       symfonyRouteProviders: symfonyRouteProviders(),
@@ -164,6 +166,16 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       output.warn(`Unable to update bundled route providers: ${String(error)}`);
     });
   };
+  const updateIntegrationProviders = (): void => {
+    if (stopping) return;
+    void Promise.all([
+      client.sendNotification('phpCompanion/bundledSemanticProviders', { providers: integrations.semanticProviders() }),
+      client.sendNotification('phpCompanion/bundledRouteProviders', { providers: bundledRouteProviders() }),
+    ]).catch((error: unknown) => {
+      if (stopping) return;
+      output.warn(`Unable to update PHP Companion integrations: ${String(error)}`);
+    });
+  };
   const updatePhpExtensionAvailability = (): void => {
     if (stopping) return;
     void client.sendNotification('phpCompanion/phpExtensionAvailability', { roots: phpExtensionAvailability() }).catch((error: unknown) => {
@@ -172,6 +184,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     });
   };
   context.subscriptions.push(
+    integrations.onDidChange(updateIntegrationProviders),
     versions.onDidChangeState(updatePhpExtensionAvailability),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('symfonyLsp.runtimeIndexing') || event.affectsConfiguration('phpCompanion.symfony.environment')) updateRouteProviders();
@@ -185,7 +198,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     vscode.extensions.onDidChange(updateRouteProviders),
   );
   updateRouteProviders();
-  updateBundledRouteProviders();
+  updateIntegrationProviders();
   updatePhpExtensionAvailability();
   for (const document of vscode.workspace.textDocuments) if (document.languageId === 'php' && !document.isUntitled) {
     void versions.ensureForUri(document.uri).catch((error: unknown) => output.warn(`Unable to detect PHP runtime for ${document.uri.toString()}: ${String(error)}`));

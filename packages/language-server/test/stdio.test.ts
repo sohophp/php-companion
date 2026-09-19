@@ -4302,6 +4302,39 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('registers and withdraws a bundled semantic provider without restarting', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-plugin-provider-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\\\': './' } } }));
+      await writeFile(join(root, 'Service.php'), '<?php namespace App; class Service {}');
+      const uri = pathToFileURL(join(root, 'Consumer.php')).toString();
+      const source = '<?php namespace App; function consume(Service $service): void { $service->plug; }';
+      await writeFile(join(root, 'Consumer.php'), source);
+      const provider = join(root, 'provider.mjs');
+      await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.symfony.services',generation:request.params.generation,complete:true,methods:[{ownerFqcn:'App\\\\Service',name:'pluginMethod',returnType:'string',uri:request.params.rootUri,start:0,end:1}],properties:[],literalMethodReturns:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 62, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 62);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [
+        { providerId: 'vendor.symfony.services', command: process.execPath, args: [provider], timeoutMs: 1000 },
+      ] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('vendor.symfony.services committed'));
+      const position = lspPosition(source, source.indexOf('plug') + 4);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 63, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
+      expect((await output.waitFor((message) => message.id === 63)).result).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
+      expect((await output.waitFor((message) => message.id === 64)).result).not.toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('serves first-class callable invocation signatures, diagnostics, and return completion through stdio', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-first-class-callable-'));
     try {

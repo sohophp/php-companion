@@ -22,6 +22,8 @@ import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
 import { withBoundedRetry } from '../refactor/retry.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
+import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
+import { IntegrationRegistry } from './integrationRegistry.js';
 
 function offsetAt(source: string, position: vscode.Position): number {
   let offset = 0;
@@ -128,11 +130,12 @@ function replacePasteAliases(source: string, replacements: Record<string, string
   return result;
 }
 
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): PhpCompanionPluginApi {
   const started = performance.now();
   const output = vscode.window.createOutputChannel('PHP Companion', { log: true });
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 90);
   const versions = new VersionManager(status);
+  const integrations = new IntegrationRegistry();
   const selfLanguageServer = languageServerActivationDecision().start;
   const diagnostics = new CurrentDocumentDiagnostics(versions, selfLanguageServer);
   const delegatedSafeMoves = new Set<string>();
@@ -161,7 +164,7 @@ export function activate(context: vscode.ExtensionContext): void {
     },
   }));
 
-  const languageServer = startLanguageServer(context, output, versions).then((client) => {
+  const languageServer = startLanguageServer(context, output, versions, integrations).then((client) => {
     return client;
   }).catch((error) => {
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);
@@ -883,6 +886,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
   output.info(`Activation registered in ${(performance.now() - started).toFixed(1)} ms; no workspace scan or PHP process was started.`);
+  return integrations.api;
 }
 
 export function deactivate(): void {}
