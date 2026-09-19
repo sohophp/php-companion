@@ -10,7 +10,7 @@ interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: strin
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v5';
+const CACHE_VERSION = 'symfony-facts-v6';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;
@@ -57,6 +57,9 @@ function resource(value: unknown): boolean {
     && Array.isArray(item.eventListeners) && item.eventListeners.length <= MAX_FACTS && item.eventListeners.every(eventListener)
     && typeof item.propertiesComplete === 'boolean' && text(item.uri) && range(item));
 }
+function serviceImport(value: unknown): boolean {
+  const item = record(value); return Boolean(item && text(item.resource) && text(item.uri) && range(item));
+}
 function compiledMethodArgument(value: unknown): boolean {
   const item = record(value); return Boolean(item && text(item.callableFqcn) && (item.parameter === undefined || text(item.parameter))
     && (item.parameterIndex === undefined || Number.isSafeInteger(item.parameterIndex) && (item.parameterIndex as number) >= 0)
@@ -75,6 +78,7 @@ function validFacts(kind: FactKind, value: unknown, uri?: string): value is Fact
   return kind === 'service-yaml' || kind === 'service-xml'
     ? factArray(facts.services, (item) => service(item) && hasExpectedUri(item))
       && factArray(facts.resources, (item) => resource(item) && hasExpectedUri(item))
+      && (facts.imports === undefined || factArray(facts.imports, (item) => serviceImport(item) && hasExpectedUri(item)))
     : factArray(facts.services, (item) => service(item) && hasExpectedUri(item))
       && factArray(facts.methodArguments, (item) => compiledMethodArgument(item) && hasExpectedUri(item))
       && factArray(facts.propertyArguments, (item) => compiledPropertyArgument(item) && hasExpectedUri(item));

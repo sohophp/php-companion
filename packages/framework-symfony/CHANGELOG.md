@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract exact literal service-import resources from YAML and XML so callers can build deterministic configuration graphs without loading Symfony.
 - Parse conventional Symfony `services.xml` files without executing the Kernel, covering deterministic defaults, explicit services and aliases, named service arguments, calls, properties, prototypes/excludes and event-listener tags with exact source ranges. Reject environment branches, dynamic values and factories that cannot prove a class.
 - Preserve guaranteed literal subscription entries across optional environment-guarded additions when branches cannot touch or overwrite the base map.
 - Extract exhaustive `if`/`elseif`/`else` subscription branches only when every branch returns the same static map or appends the same static entries to one local map, preserving every branch source range.

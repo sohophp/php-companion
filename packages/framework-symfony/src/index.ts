@@ -10,8 +10,9 @@ export interface SymfonyAutowireBinding { type?: string; parameter?: string; ser
 export interface SymfonyEventListenerTagFact { event: string; method: string; priority: number; uri: string; eventStart: number; eventEnd: number; methodStart: number; methodEnd: number; }
 export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; registrationUri: string; registrationStart: number; registrationEnd: number; }
 export interface SymfonyServiceResourceFact { namespacePrefix: string; resource: string; exclude: string[]; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number; }
+export interface SymfonyServiceImportFact { resource: string; uri: string; start: number; end: number; }
 export interface SymfonyServiceClassCandidate { fqcn: string; kind: 'class' | 'interface' | 'trait' | 'enum'; abstract: boolean; uri: string; start: number; end: number; }
-export interface SymfonyServiceDocumentFacts { complete: boolean; services: SymfonyServiceFact[]; resources: SymfonyServiceResourceFact[]; }
+export interface SymfonyServiceDocumentFacts { complete: boolean; services: SymfonyServiceFact[]; resources: SymfonyServiceResourceFact[]; imports?: SymfonyServiceImportFact[]; }
 export type SymfonyLiteralMethodReturnFact = ExternalLiteralMethodReturnFact;
 export interface SymfonyServiceIdReference { value: string; start: number; end: number; }
 export interface SymfonyAutowireResolution { serviceId: string; className: string; uri: string; start: number; end: number; kind: 'exact' | 'named-alias' | 'binding' | 'inferred' | 'compiled'; inferredAlias: boolean; }
@@ -919,11 +920,20 @@ export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonySe
   const containers = elements.filter((element) => element.name === 'container' && element.parentStart === undefined);
   const servicesRoots = containers.length === 1
     ? elements.filter((element) => element.name === 'services' && element.parentStart === containers[0]!.start) : [];
-  if (servicesRoots.length !== 1 || elements.some((element) => element.name === 'when')) return { complete: false, services: [], resources: [] };
-  const root = servicesRoots[0]!; const children = (parent: XmlElementRange, name?: string): XmlElementRange[] => elements
+  const importsRoots = containers.length === 1
+    ? elements.filter((element) => element.name === 'imports' && element.parentStart === containers[0]!.start) : [];
+  if (servicesRoots.length > 1 || importsRoots.length > 1 || servicesRoots.length + importsRoots.length === 0
+    || elements.some((element) => element.name === 'when')) return { complete: false, services: [], resources: [] };
+  const children = (parent: XmlElementRange, name?: string): XmlElementRange[] => elements
     .filter((element) => element.parentStart === parent.start && (!name || element.name === name));
   const attribute = (element: XmlElementRange, name: string): { value: string; start: number; end: number } | undefined =>
     xmlAttribute(element.tag, name, element.start);
+  const imports = importsRoots[0] ? children(importsRoots[0], 'import').flatMap((element): SymfonyServiceImportFact[] => {
+    const resource = attribute(element, 'resource');
+    return resource && !resource.value.includes('%') ? [{ resource: resource.value, uri, start: resource.start, end: resource.end }] : [];
+  }) : [];
+  const root = servicesRoots[0];
+  if (!root) return { complete: true, services: [], resources: [], imports };
   const defaults = children(root, 'defaults'); if (defaults.length > 1) return { complete: false, services: [], resources: [] };
   const defaultPublic = xmlBoolean(defaults[0] && attribute(defaults[0], 'public')?.value) ?? false;
   const defaultAutowire = xmlBoolean(defaults[0] && attribute(defaults[0], 'autowire')?.value) ?? false;
@@ -1010,7 +1020,7 @@ export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonySe
     visited.add(service.alias); const target = raw.get(service.alias);
     return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias.replace(/^\\/, '') : undefined;
   };
-  return { complete: true, resources, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
     return className ? [{ ...service, className, origin: 'explicit', registrationUri: service.uri,
       registrationStart: service.start, registrationEnd: service.end }] : [];
@@ -1020,8 +1030,17 @@ export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonySe
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */
 export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
+  const topLevel = isMap(document.contents) ? document.contents : undefined;
+  const importsNode = topLevel ? mapValue(topLevel, 'imports') : undefined;
+  const imports = isSeq(importsNode) ? importsNode.items.flatMap((item): SymfonyServiceImportFact[] => {
+    if (!isMap(item)) return [];
+    const resourceNode = mapValue(item, 'resource'); const resource = scalarValue(resourceNode);
+    const range = resourceNode && scalarRange(resourceNode, source);
+    return typeof resource === 'string' && !resource.includes('%') && range
+      ? [{ resource, uri, start: range.start, end: range.end }] : [];
+  }) : [];
   const services = serviceMap(document.contents);
-  if (document.errors.length || !services) return { complete: document.errors.length === 0, services: [], resources: [] };
+  if (document.errors.length || !services) return { complete: document.errors.length === 0, services: [], resources: [], imports };
   const defaults = mapValue(services, '_defaults');
   const defaultPublic = isMap(defaults) && scalarValue(mapValue(defaults, 'public')) === true;
   const defaultAutowire = isMap(defaults) && scalarValue(mapValue(defaults, 'autowire')) === true;
@@ -1087,7 +1106,7 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
     visited.add(service.alias); const target = raw.get(service.alias);
     return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias.replace(/^\\/, '') : undefined;
   };
-  return { complete: true, resources, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
     return className ? [{ ...service, className, origin: 'explicit',
       registrationUri: service.uri, registrationStart: service.start, registrationEnd: service.end }] : [];

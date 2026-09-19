@@ -65,6 +65,7 @@ const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineRepositoryMeth
 const doctrinePropertiesByRoot = new Map<string, Map<string, DoctrineAssociationPropertyFact[]>>();
 const symfonyServicesByRoot = new Map<string, Map<string, SymfonyLiteralMethodReturnFact[]>>();
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
+const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
 const symfonyEventDispatchesByUri = new Map<string, { source: string; facts: SymfonyEventDispatchFact[] }>();
@@ -376,7 +377,14 @@ const SYMFONY_SERVICE_CONFIGS = ['config/services.yaml', 'config/services.yml', 
 const SYMFONY_SERVICE_XML_CONFIGS = ['config/services.xml', 'config/packages/services.xml', 'config/symfony/services.xml', 'app/config/services.xml'];
 function isSymfonyServiceConfig(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
-  return SYMFONY_SERVICE_CONFIGS.includes(normalized) || SYMFONY_SERVICE_XML_CONFIGS.includes(normalized);
+  return SYMFONY_SERVICE_CONFIGS.includes(normalized) || SYMFONY_SERVICE_XML_CONFIGS.includes(normalized)
+    || symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(path)) === true;
+}
+function importedSymfonyServiceConfig(root: string, ownerPath: string, resource: string): string | undefined {
+  if (!resource || resource.startsWith('@') || resource.includes('%') || /[*?[\]{}]/.test(resource)
+    || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(resource) || isAbsolute(resource)) return undefined;
+  const target = resolve(dirname(ownerPath), resource.replace(/[\\/]/g, sep));
+  return pathWithin(root, target) && /\.(?:ya?ml|xml)$/i.test(target) ? target : undefined;
 }
 function affectsSymfonyCompiledContainer(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
@@ -470,28 +478,36 @@ async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspac
       } else { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
     } catch { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
   } else { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
-  for (const relativePath of SYMFONY_SERVICE_XML_CONFIGS) {
-    const path = resolve(root, relativePath); const uri = indexedUriForPath(root, path);
+  const configuredPaths = new Set<string>(); const loadedPaths = new Set<string>(); const loadingPaths = new Set<string>();
+  const realRoot = await realpath(root).catch(() => resolve(root));
+  const loadStaticConfig = async (path: string, depth = 0): Promise<void> => {
+    path = resolve(path); configuredPaths.add(path);
+    if (depth > 32 || loadedPaths.has(path) || loadingPaths.has(path)) return;
+    loadingPaths.add(path);
     try {
+      const uri = indexedUriForPath(root, path); const xml = path.toLowerCase().endsWith('.xml');
       const loaded = factsCache
-        ? await factsCache.loadServiceXml(path, uri, (source) => analyzeSymfonyServiceXml(uri, source), bypassCachePaths.has(path))
-        : { facts: analyzeSymfonyServiceXml(uri, await readFile(path, 'utf8')), cached: false };
+        ? xml
+          ? await factsCache.loadServiceXml(path, uri, (source) => analyzeSymfonyServiceXml(uri, source), bypassCachePaths.has(path))
+          : await factsCache.loadServiceYaml(path, uri, (source) => analyzeSymfonyServiceYaml(uri, source), bypassCachePaths.has(path))
+        : { facts: xml ? analyzeSymfonyServiceXml(uri, await readFile(path, 'utf8'))
+          : analyzeSymfonyServiceYaml(uri, await readFile(path, 'utf8')), cached: false };
       loadedSources += 1; if (loaded.cached) cachedSources += 1;
+      for (const imported of loaded.facts.imports ?? []) {
+        const importedPath = importedSymfonyServiceConfig(root, path, imported.resource);
+        if (importedPath) {
+          configuredPaths.add(importedPath);
+          const importedRealPath = await realpath(importedPath).catch(() => undefined);
+          if (importedRealPath && pathWithin(realRoot, importedRealPath)) await loadStaticConfig(importedPath, depth + 1);
+        }
+      }
       const services = expandSymfonyServiceResources(loaded.facts, candidates);
-      catalog.set(uri, services); byFile.set(uri, symfonyContainerMethodReturnFacts(services));
-    } catch { /* Optional conventional XML service files may be absent. */ }
-  }
-  for (const relativePath of SYMFONY_SERVICE_CONFIGS) {
-    const path = resolve(root, relativePath); const uri = indexedUriForPath(root, path);
-    try {
-      const loaded = factsCache
-        ? await factsCache.loadServiceYaml(path, uri, (source) => analyzeSymfonyServiceYaml(uri, source), bypassCachePaths.has(path))
-        : { facts: analyzeSymfonyServiceYaml(uri, await readFile(path, 'utf8')), cached: false };
-      loadedSources += 1; if (loaded.cached) cachedSources += 1;
-      const services = expandSymfonyServiceResources(loaded.facts, candidates);
-      catalog.set(uri, services); byFile.set(uri, symfonyContainerMethodReturnFacts(services));
-    } catch { /* Optional conventional service files may be absent. */ }
-  }
+      catalog.set(uri, services); byFile.set(uri, symfonyContainerMethodReturnFacts(services)); loadedPaths.add(path);
+    } catch { /* Optional conventional or imported service files may be absent. */ }
+    finally { loadingPaths.delete(path); }
+  };
+  for (const relativePath of [...SYMFONY_SERVICE_XML_CONFIGS, ...SYMFONY_SERVICE_CONFIGS]) await loadStaticConfig(resolve(root, relativePath));
+  symfonyServiceConfigPathsByRoot.set(root, configuredPaths);
   if (factsCache) {
     try { await factsCache.commit(); }
     catch { connection.console.warn('Persistent Symfony fact cache could not be written.'); }
@@ -1149,7 +1165,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
       if (!key.startsWith('root:')) continue;

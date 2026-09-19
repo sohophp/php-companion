@@ -353,7 +353,10 @@ describe('static Symfony Controller context analysis', () => {
   });
 
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {
-    const source = `services:
+    const source = `imports:
+      - { resource: services/mailer.yaml }
+      - { resource: '%kernel.project_dir%/dynamic.yaml' }
+services:
       _defaults: { public: false, autowire: true }
       App\\Service\\Mailer: ~
       App\\Contract\\MailerInterface:
@@ -370,6 +373,8 @@ describe('static Symfony Controller context analysis', () => {
     `;
     const result = analyzeSymfonyServiceYaml('file:///config/services.yaml', source);
     expect(result.complete).toBe(true);
+    expect(result.imports).toMatchObject([{ resource: 'services/mailer.yaml', uri: 'file:///config/services.yaml' }]);
+    expect(source.slice(result.imports![0]!.start, result.imports![0]!.end)).toBe('services/mailer.yaml');
     expect(result.resources).toMatchObject([{ namespacePrefix: 'App\\Resource\\', resource: '../src/Resource/', public: false }]);
     expect(result.services.every((service) => service.autowire && service.origin === 'explicit')).toBe(true);
     expect(result.services.map(({ id, className, alias, public: isPublic }) => ({ id, className, alias, public: isPublic }))).toEqual([
@@ -391,6 +396,10 @@ describe('static Symfony Controller context analysis', () => {
   it('extracts conventional XML services, prototypes and exact listener ranges', () => {
     const source = `<?xml version="1.0"?>
       <container xmlns="http://symfony.com/schema/dic/services">
+        <imports>
+          <import resource="services/mailer.yaml"/>
+          <import resource="%kernel.project_dir%/dynamic.xml"/>
+        </imports>
         <services>
           <!-- <service id="comment.injected" class="App\\Injected"/> -->
           <defaults public="false" autowire="true">
@@ -415,6 +424,8 @@ describe('static Symfony Controller context analysis', () => {
       </container>`;
     const result = analyzeSymfonyServiceXml('file:///project/config/services.xml', source);
     expect(result.complete).toBe(true);
+    expect(result.imports).toMatchObject([{ resource: 'services/mailer.yaml', uri: 'file:///project/config/services.xml' }]);
+    expect(source.slice(result.imports![0]!.start, result.imports![0]!.end)).toBe('services/mailer.yaml');
     expect(result.services.map(({ id, className, alias, public: isPublic }) => ({ id, className, alias, public: isPublic }))).toEqual([
       { id: 'app.clock', className: 'App\\Clock', alias: undefined, public: false },
       { id: 'App\\Service\\Mailer', className: 'App\\Service\\Mailer', alias: undefined, public: true },
@@ -435,6 +446,8 @@ describe('static Symfony Controller context analysis', () => {
     expect(source.slice(result.services[2]!.registrationStart, result.services[2]!.registrationEnd)).toBe('App\\Contract\\MailerInterface');
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<!DOCTYPE foo><container/>').complete).toBe(false);
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(false);
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="child.yaml"/></imports></container>').imports)
+      .toMatchObject([{ resource: 'child.yaml' }]);
   });
 
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
