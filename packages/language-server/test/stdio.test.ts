@@ -1064,8 +1064,8 @@ describe('language server stdio', () => {
       const source = String.raw`<?php
 namespace Symfony\Bundle\FrameworkBundle\Controller { abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string {} } }
 namespace App {
-#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
-class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } }
+#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function exactNamedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.home'); } public function exactLocalUrl(): string { return $this->generateUrl('local_route'); } public function exactBundleUrl(): string { return $this->generateUrl('vendor_bundle'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
+class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } }
 }`;
       const uri = pathToFileURL(join(root, 'Controller.php')).toString();
       const routeUri = pathToFileURL(join(root, 'config', 'routes', 'admin.yaml')).toString();
@@ -1107,12 +1107,37 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, offset) } }));
         return (await output.waitFor((message) => message.id === id)).result;
       };
+      const definition = async (id: number, offset: number): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, offset) } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      const references = async (id: number, offset: number, includeDeclaration: boolean): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, offset), context: { includeDeclaration },
+        } }));
+        return (await output.waitFor((message) => message.id === id, 20_000)).result;
+      };
       const offset = source.indexOf("'admin.'") + 7;
       // Unimported attributes do not leak into route candidates.
 
       const items = await query(2, offset);
       expect(items.map((item) => item.label)).toEqual(['admin.home']);
       expect(items[0].textEdit.newText).toBe('admin.home');
+      const exactOffset = source.indexOf("'admin.home'") + 4;
+      expect(await definition(251, exactOffset)).toEqual([{ uri: routeUri, range: {
+        start: { line: 0, character: 0 }, end: { line: 0, character: 4 },
+      } }]);
+      const localRouteUri = pathToFileURL(join(root, 'config', 'symfony', 'local.php')).toString();
+      expect(await definition(252, source.indexOf("'local_route'") + 4)).toEqual([expect.objectContaining({ uri: localRouteUri })]);
+      const bundleRouteUri = pathToFileURL(join(root, 'bundle', 'Resources', 'config', 'routing', 'routes.php')).toString();
+      expect(await definition(253, source.indexOf("'vendor_bundle'") + 4)).toEqual([expect.objectContaining({ uri: bundleRouteUri })]);
+      expect(await definition(254, source.lastIndexOf("'admin.home'") + 4)).toEqual([]);
+      const routeReferences = await references(255, exactOffset, true);
+      expect(routeReferences.filter((item) => item.uri === uri)).toHaveLength(2);
+      expect(routeReferences.filter((item) => item.uri === routeUri)).toEqual([{ uri: routeUri, range: {
+        start: { line: 0, character: 0 }, end: { line: 0, character: 4 },
+      } }]);
+      expect(await references(256, exactOffset, false)).toHaveLength(2);
       const kernelOffset = source.indexOf("'kernel.'") + 8;
       expect((await query(23, kernelOffset)).map((item) => [item.label, item.detail]))
         .toEqual([['kernel.home', '/kernel (source declaration)']]);
@@ -1185,6 +1210,8 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
 
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: true }] } }));
       expect((await query(20, offset)).some((item) => item.label === 'admin.home')).toBe(false);
+      expect(await definition(201, exactOffset)).toEqual([]);
+      expect(await references(202, exactOffset, true)).toEqual([]);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: 'invalid' }] } }));
       expect((await query(21, offset)).some((item) => item.label === 'admin.home')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [

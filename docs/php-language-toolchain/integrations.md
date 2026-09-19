@@ -133,6 +133,8 @@ Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提
 
 选中的环境 Kernel 根先进入单请求 64 次资源/遍历预算，随后处理无条件 Kernel 根和约定根；同一实际资源及加载上下文仍去重，同名声明仍拒绝作为唯一候选。Bundle 解析会按需读取 Composer 元数据和 PSR-4 映射，但不扫描或执行 vendor 源码。
 
+同一静态图也为 PHP 路由字面量提供 Definition 与 References。调用必须唯一解析到 FrameworkBundle `AbstractController::generateUrl()` / `redirectToRoute()`、Routing `UrlGeneratorInterface::generate()` 或 `RouterInterface::generate()`，且选中的参数必须是该方法首个路由参数。Definition 只跳到唯一名称的 YAML、Attribute 或 PHP Configurator 声明；References 先按精确名称有界扫描项目 PHP，再逐个验证调用语义，可按 LSP `includeDeclaration` 附加声明。项目索引不完整时明确失败，同名业务方法、普通字符串、动态名称、重复声明和外部 provider 所有权均不返回 Companion 结果。
+
 同一真实资源若同时从约定入口和 Kernel 入口以相同前缀、loader、exclude 与 namespace 上下文到达，只分析一次；前缀或加载上下文不同的重复导入保持独立，避免把合法的多入口路由合并掉。
 
 

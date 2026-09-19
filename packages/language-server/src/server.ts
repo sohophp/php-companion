@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -2012,27 +2012,32 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
   return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
 }
 
+const SYMFONY_ROUTE_METHODS = new Set([
+  'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::generateurl',
+  'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::redirecttoroute',
+  'symfony\\component\\routing\\generator\\urlgeneratorinterface::generate',
+  'symfony\\component\\routing\\routerinterface::generate',
+]);
+
+async function provenSymfonyRouteCall(document: TextDocument, offset: number, workspace: SemanticWorkspace): Promise<SymfonyRouteCall | undefined> {
+  if (document.languageId !== 'php' || externalSymfonyRoutes(document.uri)) return undefined;
+  const call = symfonyRouteCallAt(await parser(), document.uri, document.getText(), offset); if (!call) return undefined;
+  const method = workspace.memberAt(document.uri, call.methodOffset); const routeParameter = method?.parameters[0]?.name;
+  const correctArgument = routeParameter && (call.argumentName !== undefined
+    ? call.argumentName === routeParameter : !call.namedArguments.includes(routeParameter));
+  return method && SYMFONY_ROUTE_METHODS.has(method.fqcn.toLowerCase()) && correctArgument ? call : undefined;
+}
+
 connection.onCompletion(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
   const offset = document.offsetAt(position);
-  const routeCall = document.languageId === 'php' && !externalSymfonyRoutes(document.uri) ? symfonyRouteCallAt(await parser(), document.uri, document.getText(), offset) : undefined;
+  const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (routeCall) {
-    const method = workspace.memberAt(document.uri, routeCall.methodOffset);
-    const owner = method?.fqcn.toLowerCase();
-    const allowed = new Set([
-      'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::generateurl',
-      'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::redirecttoroute',
-      'symfony\\component\\routing\\generator\\urlgeneratorinterface::generate',
-      'symfony\\component\\routing\\routerinterface::generate',
-    ]);
     const root = rootForUri(document.uri);
-    const routeParameter = method?.parameters[0]?.name;
-    const correctArgument = routeParameter && (routeCall.argumentName !== undefined
-      ? routeCall.argumentName === routeParameter : !routeCall.namedArguments.includes(routeParameter));
-    if (root && owner && allowed.has(owner) && correctArgument) {
+    if (root) {
       const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
       if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
       return routes.filter((route) => route.name.startsWith(routeCall.prefix)).map((route) => ({
@@ -2129,6 +2134,20 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
+  const offset = document.offsetAt(position);
+  const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
+  if (routeCall) {
+    const root = rootForUri(document.uri); if (!root) return [];
+    const version = document.version; const name = document.getText().slice(routeCall.start, routeCall.end);
+    const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
+    if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== version) return [];
+    const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
+    const openTarget = documents.get(route.uri); let source = openTarget?.getText() ?? workspace.source(route.uri);
+    if (source === undefined) { const path = pathForUri(route.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }
+    const languageId = route.uri.endsWith('.php') ? 'php' : 'yaml';
+    const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(route.uri, languageId, 0, source));
+    return target ? [{ uri: route.uri, range: { start: target.positionAt(route.start), end: target.positionAt(route.end) } }] : [];
+  }
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), document.offsetAt(position)) : undefined;
   if (serviceReference) {
     const service = symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
@@ -2147,7 +2166,6 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
       if (target) return [{ uri: implementation.uri, range: { start: target.positionAt(implementation.start), end: target.positionAt(implementation.end) } }];
     }
   }
-  const offset = document.offsetAt(position);
   let locations = workspace.definition(document.uri, offset);
   const root = rootForUri(document.uri);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
@@ -2229,6 +2247,46 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const version = document.version;
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
+  const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
+  if (routeCall) {
+    const root = rootForUri(document.uri); if (!root) return [];
+    const name = document.getText().slice(routeCall.start, routeCall.end);
+    const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
+    const declaration = routes.find((candidate) => candidate.name === name); if (!declaration) return [];
+    const ready = await scanNamedCandidates(workspace, root, new Set([name.toLowerCase()]), () => token.isCancellationRequested);
+    if (!ready) {
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
+      throw new ResponseError(LSPErrorCodes.RequestFailed, 'Project index incomplete; this is not a zero-reference result.');
+    }
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during route reference query.');
+    const uses: Array<{ uri: string; start: number; end: number }> = [];
+    for (const uri of workspace.documentUris()) {
+      if (token.isCancellationRequested) break;
+      if (externalSymfonyRoutes(uri)) continue;
+      const source = documents.get(uri)?.getText() ?? workspace.source(uri); if (!source?.includes(name)) continue;
+      const candidate = documents.get(uri) ?? TextDocument.create(uri, 'php', 0, source);
+      for (let start = source.indexOf(name); start >= 0; start = source.indexOf(name, start + Math.max(1, name.length))) {
+        const call = await provenSymfonyRouteCall(candidate, start, workspace);
+        if (call && source.slice(call.start, call.end) === name
+          && !uses.some((item) => item.uri === uri && item.start === call.start && item.end === call.end)) {
+          uses.push({ uri, start: call.start, end: call.end });
+        }
+      }
+    }
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
+    if (externalSymfonyRoutes(document.uri)) return [];
+    const raw = context.includeDeclaration ? [...uses, declaration] : uses;
+    const locations = await Promise.all(raw.map(async (location) => {
+      const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);
+      if (source === undefined) { const path = pathForUri(location.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }
+      const languageId = location.uri.endsWith('.php') ? 'php' : 'yaml';
+      const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, languageId, 0, source));
+      return target ? { uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } } : undefined;
+    }));
+    const result = locations.flatMap((location) => location ? [location] : []);
+    connection.console.info(`[references:${id}] result count=${result.length} coverage=project-route-candidates`);
+    return result;
+  }
   const scope = workspace.referenceScope(document.uri, offset);
   connection.console.info(`[references:${id}] start scope=${scope}`);
   try {
