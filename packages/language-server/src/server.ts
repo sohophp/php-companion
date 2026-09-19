@@ -38,7 +38,7 @@ import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepo
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
-import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor } from '@php-companion/route-provider';
+import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
 import { runRouteProvider } from '@php-companion/route-provider-host';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile, type ProjectPhpFileFacts } from './projectFacts.js';
 import { SymfonyFactCache } from './symfonyFactsCache.js';
@@ -2138,24 +2138,45 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
   return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
 }
 
-async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
+function routeProviderDocuments(root: string): { complete: boolean; documents: RouteProviderDocument[] } {
+  const candidates = documents.all().filter((document) => ['php', 'yaml'].includes(document.languageId))
+    .filter((document) => { const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path); })
+    .sort((left, right) => left.uri.localeCompare(right.uri));
+  const snapshots: RouteProviderDocument[] = []; let characters = 0;
+  for (const document of candidates) {
+    const source = document.getText();
+    if (source.length > 1_000_000 || snapshots.length >= 128 || characters + source.length > 8 * 1024 * 1024)
+      return { complete: false, documents: [] };
+    characters += source.length;
+    snapshots.push({ uri: document.uri, languageId: document.languageId as 'php' | 'yaml', source, snapshotVersion: String(document.version) });
+  }
+  return { complete: true, documents: snapshots };
+}
+
+async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<{ routes: RouteFact[]; replacesStaticRoutes: boolean }> {
   const routes: RouteFact[] = [];
   const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
+  const snapshots = routeProviderDocuments(root); let replacesStaticRoutes = false;
   for (const descriptor of routeProviders) {
-    if (cancelled()) return [];
+    if (cancelled()) return { routes: [], replacesStaticRoutes: false };
+    if (descriptor.replacesStaticRoutes && !snapshots.complete) {
+      connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`); continue;
+    }
     const generation = String(++routeProviderGeneration);
     const result = await runRouteProvider(descriptor, {
-      rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion, ...(environment ? { environment } : {}),
+      rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion,
+      ...(environment ? { environment } : {}), ...(snapshots.documents.length ? { documents: snapshots.documents } : {}),
     });
-    if (cancelled()) return [];
-    if (result.ok) routes.push(...result.contribution.routes);
+    if (cancelled()) return { routes: [], replacesStaticRoutes: false };
+    if (result.ok) { routes.push(...result.contribution.routes); replacesStaticRoutes ||= descriptor.replacesStaticRoutes === true; }
     else connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
   }
-  return routes;
+  return { routes, replacesStaticRoutes };
 }
 
 async function availableSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
-  const routes = [...await staticSymfonyRoutes(root, cancelled), ...await providedSymfonyRoutes(root, cancelled)];
+  const provided = await providedSymfonyRoutes(root, cancelled);
+  const routes = [...(provided.replacesStaticRoutes ? [] : await staticSymfonyRoutes(root, cancelled)), ...provided.routes];
   if (cancelled()) return [];
   const counts = new Map<string, number>();
   for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);

@@ -1,5 +1,7 @@
 # Changelog
 
+- Add bounded PHP/YAML document snapshots and explicit static-route replacement ownership for standalone framework integrations.
+
 ## Unreleased
 
 - 允许完整路由快照附带可选、精确定位的控制器类与方法关系，并拒绝不完整或越界的位置数据。

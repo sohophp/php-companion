@@ -11,7 +11,7 @@ const temporary = await mkdtemp(join(tmpdir(), 'php-companion-pack-'));
 const tarballs = join(temporary, 'tarballs');
 const consumer = join(temporary, 'consumer');
 const changesetStatus = join(temporary, 'changeset-status.json');
-const packageDirectories = ['packages/runtime-probe', 'packages/language-spec', 'packages/phpdoc', 'packages/parser', 'packages/project', 'packages/index', 'packages/type-system', 'packages/interop', 'packages/semantic-provider', 'packages/semantic-provider-host', 'packages/route-provider', 'packages/route-provider-host', 'packages/plugin-api', 'packages/provider-winstar-routes', 'packages/framework-symfony', 'packages/framework-doctrine', 'packages/semantic', 'packages/refactor', 'packages/language-server', 'packages/testkit'];
+const packageDirectories = ['packages/runtime-probe', 'packages/language-spec', 'packages/phpdoc', 'packages/parser', 'packages/project', 'packages/index', 'packages/type-system', 'packages/interop', 'packages/semantic-provider', 'packages/semantic-provider-host', 'packages/route-provider', 'packages/route-provider-host', 'packages/plugin-api', 'packages/provider-winstar-routes', 'packages/framework-symfony', 'packages/provider-symfony-routes', 'packages/framework-doctrine', 'packages/semantic', 'packages/refactor', 'packages/language-server', 'packages/testkit'];
 
 const manifests = new Map();
 for (const packageDirectory of packageDirectories) {
@@ -47,7 +47,7 @@ try {
     await run('pnpm', ['pack', '--pack-destination', tarballs], { cwd: join(root, packageDirectory), shell: process.platform === 'win32' });
   }
   const archives = (await readdir(tarballs)).filter((name) => name.endsWith('.tgz')).map((name) => join(tarballs, name));
-  if (archives.length !== 20) throw new Error(`Expected twenty package archives, found ${archives.length}.`);
+  if (archives.length !== 21) throw new Error(`Expected twenty-one package archives, found ${archives.length}.`);
   await writeFile(join(consumer, 'package.json'), JSON.stringify({ private: true, type: 'module' }, null, 2));
   await run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...archives], { cwd: consumer, shell: process.platform === 'win32' });
   for (const [name] of manifests) {
@@ -79,6 +79,7 @@ import { isRouteFactsContribution, routeFacts } from '@php-companion/route-provi
 import { runRouteProvider } from '@php-companion/route-provider-host';
 import { isPhpCompanionIntegrationContribution, PHP_COMPANION_PLUGIN_API_VERSION } from '@php-companion/plugin-api';
 import { collectWinstarModuleRouteFacts } from '@php-companion/provider-winstar-routes';
+import { collectSymfonyStaticRouteFacts } from '@php-companion/provider-symfony-routes';
 import { analyzeSymfonyControllerContexts } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument } from '@php-companion/framework-doctrine';
 import { phpMinor } from '@php-companion/runtime-probe';
@@ -103,6 +104,7 @@ if (!isRouteFactsContribution(routeFacts('consumer', '1'))) throw new Error('Rou
 if (typeof runRouteProvider !== 'function') throw new Error('Route provider host tarball export is unavailable.');
 if (PHP_COMPANION_PLUGIN_API_VERSION !== 1 || !isPhpCompanionIntegrationContribution({integrationId:'consumer.symfony',semanticProviders:[{providerId:'consumer.symfony.services',command:'node'}]})) throw new Error('Plugin API tarball rejected a valid integration.');
 if (typeof collectWinstarModuleRouteFacts !== 'function') throw new Error('Winstar route provider tarball export is unavailable.');
+if (typeof collectSymfonyStaticRouteFacts !== 'function') throw new Error('Symfony static route provider tarball export is unavailable.');
 if (phpMinor('8.5.3') !== '8.5') throw new Error('Runtime-probe tarball returned the wrong PHP minor.');
 const frameworkParser = await PhpSyntaxParser.createDefault();
 const frameworkContexts = analyzeSymfonyControllerContexts(frameworkParser, { uri: 'file:///Controller.php', snapshotVersion: '1', source: "<?php class Controller { function show(User $user) { $this->render('page.html.twig', ['user' => $user]); } }" });
@@ -140,7 +142,7 @@ await request('shutdown', null); notify('exit');
 await new Promise((resolveExit, reject) => { child.on('error', reject); child.on('exit', (code) => code === 0 ? resolveExit() : reject(new Error('Installed language server exited with ' + code + '.'))); });
 `);
   await run(process.execPath, ['smoke.mjs'], { cwd: consumer });
-  process.stdout.write('Verified twenty PHP Companion component tarballs from an isolated consumer.\n');
+  process.stdout.write('Verified twenty-one PHP Companion component tarballs from an isolated consumer.\n');
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }

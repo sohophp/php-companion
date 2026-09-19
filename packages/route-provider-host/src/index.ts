@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
-import { ROUTE_PROVIDER_PROTOCOL_VERSION, isRouteProviderResponse, type RouteFactsContribution, type RouteProviderDescriptor, type RouteProviderRequest } from '@php-companion/route-provider';
+import { ROUTE_PROVIDER_PROTOCOL_VERSION, isRouteProviderResponse, type RouteFactsContribution, type RouteProviderDescriptor, type RouteProviderDocument, type RouteProviderRequest } from '@php-companion/route-provider';
 
-export interface RouteProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string; }
+export interface RouteProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string; documents?: readonly RouteProviderDocument[]; }
 export type RouteProviderFailureCode = 'spawn' | 'timeout' | 'output-limit' | 'exit' | 'protocol' | 'provider';
 export type RouteProviderRunResult = { ok: true; contribution: RouteFactsContribution } | { ok: false; code: RouteProviderFailureCode; message: string };
 

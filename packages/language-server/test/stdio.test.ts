@@ -4235,7 +4235,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const consumerPath = join(root, 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
       const declarationPath = join(root, 'runtime-routes.txt'); const declarationUri = pathToFileURL(declarationPath).toString();
       const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs');
+      await mkdir(join(root, 'config'), { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
+      await writeFile(join(root, 'config', 'routes.yaml'), 'dynamic.static: {path: /static}\n');
       const declaration = 'dynamic.home\nApp\\DynamicController::home\n';
       const controllerStart = declaration.indexOf('App\\DynamicController'); const methodStart = declaration.indexOf('home', controllerStart);
       await writeFile(consumerPath, source); await writeFile(declarationPath, declaration);
@@ -4247,7 +4249,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { routeProviders: [{ providerId: 'winstar.routes', command: process.execPath, args: [provider], timeoutMs: 1000 }] },
+        initializationOptions: { routeProviders: [{ providerId: 'winstar.routes', command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true }] },
       } }));
       await output.waitFor((message) => message.id === 114); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
@@ -4273,6 +4275,10 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
       const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;
       expect(refreshed.map((item) => item.label)).toEqual(['dynamic.changed']);
+      await writeFile(statePath, '{broken');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
+      const fallback = (await output.waitFor((message) => message.id === 118)).result as Array<{ label: string }>;
+      expect(fallback.map((item) => item.label)).toEqual(['dynamic.static']);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

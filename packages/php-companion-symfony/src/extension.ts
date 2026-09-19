@@ -4,7 +4,7 @@ import { SymfonyIntegration } from './integration.js';
 
 export interface PhpCompanionSymfonyApi {
   version: 1;
-  status(): { apiVersion: number; winstarRouteProviderRegistered: boolean };
+  status(): { apiVersion: number; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean };
 }
 
 function winstarRoutesEnabled(): boolean {
@@ -16,7 +16,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   const coreExtension = vscode.extensions.getExtension<PhpCompanionPluginApi>('sohophp.php-companion');
   if (!coreExtension) throw new Error('PHP Companion: Symfony requires sohophp.php-companion.');
   const core = await coreExtension.activate();
-  const integration = new SymfonyIntegration(core, context.asAbsolutePath('dist/winstar-route-provider.js'));
+  const integration = new SymfonyIntegration(core,
+    context.asAbsolutePath('dist/static-route-provider.js'), context.asAbsolutePath('dist/winstar-route-provider.js'),
+    context.asAbsolutePath('dist/web-tree-sitter.wasm'), context.asAbsolutePath('dist/tree-sitter-php.wasm'));
   const synchronize = (): void => integration.setWinstarRoutesEnabled(winstarRoutesEnabled());
   synchronize();
   context.subscriptions.push(
@@ -28,8 +30,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     vscode.commands.registerCommand('phpCompanionSymfony.showStatus', async () => {
       const status = integration.status();
       await vscode.window.showInformationMessage(status.winstarRouteProviderRegistered
-        ? 'PHP Companion Symfony is active; the Winstar route provider is registered.'
-        : 'PHP Companion Symfony is active; the Winstar route provider is disabled.');
+        ? 'PHP Companion Symfony is active; static and Winstar route providers are registered.'
+        : 'PHP Companion Symfony is active; static routes are registered and Winstar runtime routes are disabled.');
     }),
   );
   return Object.freeze({ version: 1 as const, status: () => integration.status() });

@@ -27,6 +27,8 @@ TypeScript + Node.js 独立语言服务器进程；Tree-sitter/WASM 作为语法
 | type-system | 类型代数、兼容性、替换、合并与收窄运算 | 文件 IO、LSP、框架硬编码 |
 | semantic-provider | 版本化外部语义事实、来源位置、完整快照与运行时校验 | 解析 PHP、加载框架或执行语义查询 |
 | semantic-provider-host | 显式配置 Provider 的一次性子进程、JSON 协议、超时与输出限制 | 自动执行项目元数据、提供安全沙箱或产生语义事实 |
+| route-provider / route-provider-host | 版本化路由快照、打开文档及隔离进程协议 | 自动发现或执行项目命令 |
+| provider-symfony-routes | Symfony 静态路由图、导入与 Bundle 资源编排 | 启动项目 PHP 或发布通用 PHP 语义 |
 | plugin-api | 独立 VS Code 扩展注册语义/路由 Provider 的版本化入口、身份与资源预算校验 | 暴露 Language Client、任意 LSP 通道或框架模型 |
 | semantic | 绑定、成员解析、表达式推断、控制流与诊断事实 | VS Code Provider |
 | refactor | 前置条件、冲突检测、带版本编辑计划 | 直接写磁盘 |
@@ -65,9 +67,9 @@ flowchart BT
 
 最终发行结构包含独立的 `PHP Companion: Symfony` VSIX。核心 `sohophp.php-companion` 只拥有 PHP 语法、类型、索引、导航、重构及版本化插件 API；Symfony 扩展拥有服务容器、依赖注入、事件订阅、路由、Controller 上下文和 Symfony 元数据适配。Twig 解析、模板格式化和模板作用域继续由 twig-plus 唯一拥有，YAML/XML 的通用语法与格式化继续复用成熟扩展。
 
-独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，首项接管可选 Winstar 运行时路由适配器；核心检测到独立扩展后停止注册该内置副本，未安装时仍保留 Alpha 回退。核心不向插件暴露 Language Client。
+独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，已经接管静态 Symfony 路由图和可选 Winstar 运行时路由适配器。静态路由请求携带有界 PHP/YAML 打开文档快照；权威 Provider 成功后核心不执行兼容扫描，失败、超时或快照越界时核心回退。核心检测到独立扩展后也停止注册 Winstar 内置副本。核心不向插件暴露 Language Client。
 
-当前迁移阶段仍把其余 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。完成拆分还需要把服务、事件、静态路由和 Controller 编排逐项改为框架中立事实，并验证升级、停用及核心版本不兼容。每项迁移完成后删除核心中的对应 Symfony 组装路径，避免两个所有者同时发布结果。
+当前迁移阶段仍把服务、事件和 Controller 上下文的 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。完成拆分还需要把这些能力逐项改为框架中立事实，并验证升级、停用及核心版本不兼容。每项迁移完成后删除核心中的对应 Symfony 组装路径，避免两个所有者同时发布结果。
 
 Symfony 官方插件属于可选外部实现，不是自研 Symfony 扩展的运行依赖。只有在其 PHP Rename、索引所有权和版本兼容门禁通过后才可加入推荐组合；未通过时由自研 Symfony 扩展承担框架语义，通用 YAML/XML 能力仍交给各自成熟插件。
 

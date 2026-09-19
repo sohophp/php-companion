@@ -1,24 +1,31 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
-import { SymfonyIntegration, SYMFONY_INTEGRATION_ID, WINSTAR_ROUTE_PROVIDER_ID } from '../../src/integration.js';
+import { STATIC_ROUTE_PROVIDER_ID, SymfonyIntegration, SYMFONY_INTEGRATION_ID, WINSTAR_ROUTE_PROVIDER_ID } from '../../src/integration.js';
 
 describe('SymfonyIntegration', () => {
   it('registers the namespaced runtime route provider once and withdraws it', () => {
     const dispose = vi.fn(); const registerIntegration = vi.fn(() => ({ dispose }));
-    const integration = new SymfonyIntegration({ version: 1, registerIntegration } satisfies PhpCompanionPluginApi, '/extension/provider.js', '/node');
-    integration.setWinstarRoutesEnabled(true); integration.setWinstarRoutesEnabled(true);
+    const integration = new SymfonyIntegration({ version: 1, registerIntegration } satisfies PhpCompanionPluginApi,
+      '/extension/static.js', '/extension/winstar.js', '/extension/core.wasm', '/extension/php.wasm', '/node');
     expect(registerIntegration).toHaveBeenCalledOnce();
-    expect(registerIntegration).toHaveBeenCalledWith({
+    integration.setWinstarRoutesEnabled(true); integration.setWinstarRoutesEnabled(true);
+    expect(registerIntegration).toHaveBeenCalledTimes(2);
+    expect(registerIntegration).toHaveBeenLastCalledWith({
       integrationId: SYMFONY_INTEGRATION_ID,
-      routeProviders: [{ providerId: WINSTAR_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/provider.js'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024 }],
+      routeProviders: [
+        { providerId: STATIC_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/static.js', '--parser-core-wasm', '/extension/core.wasm', '--php-wasm', '/extension/php.wasm'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024, replacesStaticRoutes: true },
+        { providerId: WINSTAR_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/winstar.js'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024 },
+      ],
     });
-    expect(integration.status()).toEqual({ apiVersion: 1, winstarRouteProviderRegistered: true });
+    expect(integration.status()).toEqual({ apiVersion: 1, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: true });
     integration.setWinstarRoutesEnabled(false); integration.dispose();
-    expect(dispose).toHaveBeenCalledOnce();
+    expect(dispose).toHaveBeenCalledTimes(3);
     expect(integration.status().winstarRouteProviderRegistered).toBe(false);
+    expect(integration.status().staticRouteProviderRegistered).toBe(false);
   });
 
   it('rejects an unsupported core plugin API', () => {
-    expect(() => new SymfonyIntegration({ version: 2, registerIntegration: vi.fn() } as unknown as PhpCompanionPluginApi, '/provider')).toThrow(/expected version 1/);
+    expect(() => new SymfonyIntegration({ version: 2, registerIntegration: vi.fn() } as unknown as PhpCompanionPluginApi,
+      '/static', '/winstar', '/core.wasm', '/php.wasm')).toThrow(/expected version 1/);
   });
 });

@@ -7,13 +7,22 @@ export interface RouteProviderDescriptor {
   args?: readonly string[];
   timeoutMs?: number;
   maxOutputBytes?: number;
+  /** When this provider succeeds, its snapshot replaces the language server's built-in static route scan. */
+  replacesStaticRoutes?: boolean;
+}
+
+export interface RouteProviderDocument {
+  uri: string;
+  languageId: 'php' | 'yaml';
+  source: string;
+  snapshotVersion: string;
 }
 
 export interface RouteProviderRequest {
   protocolVersion: typeof ROUTE_PROVIDER_PROTOCOL_VERSION;
   id: string;
   method: 'routes';
-  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string };
+  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string; documents?: readonly RouteProviderDocument[] };
 }
 
 export interface RouteControllerFact {
@@ -70,15 +79,23 @@ export function isRouteProviderDescriptor(value: unknown): value is RouteProvide
   return Boolean(item && boundedString(item.providerId, 128) && providerIdPattern.test(item.providerId) && boundedString(item.command)
     && (item.args === undefined || (Array.isArray(item.args) && item.args.length <= 64 && item.args.every((arg) => typeof arg === 'string' && arg.length <= 4096)))
     && (item.timeoutMs === undefined || (Number.isSafeInteger(item.timeoutMs) && item.timeoutMs! >= 100 && item.timeoutMs! <= 30_000))
-    && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes) && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024)));
+    && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes) && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
+    && (item.replacesStaticRoutes === undefined || typeof item.replacesStaticRoutes === 'boolean'));
 }
 export function isRouteProviderRequest(value: unknown): value is RouteProviderRequest {
   const item = value as Partial<RouteProviderRequest> | null;
   const params = item?.params as Partial<RouteProviderRequest['params']> | null;
+  const documents = params?.documents;
+  const validDocuments = documents === undefined || (Array.isArray(documents) && documents.length <= 128
+    && documents.reduce((characters, document) => characters + (typeof document?.source === 'string' ? document.source.length : 0), 0) <= 8 * 1024 * 1024
+    && documents.every((document) => boundedString(document?.uri, 32_768) && ['php', 'yaml'].includes(document?.languageId)
+      && typeof document?.source === 'string' && document.source.length <= 1_000_000
+      && boundedString(document?.snapshotVersion, 128)));
   return Boolean(item?.protocolVersion === ROUTE_PROVIDER_PROTOCOL_VERSION && boundedString(item.id, 128) && item.method === 'routes'
     && params && boundedString(params.rootUri, 32_768) && boundedString(params.rootPath, 32_768)
     && boundedString(params.generation, 128) && boundedString(params.phpVersion, 32)
-    && (params.environment === undefined || (boundedString(params.environment, 64) && /^[A-Za-z0-9_.-]+$/.test(params.environment))));
+    && (params.environment === undefined || (boundedString(params.environment, 64) && /^[A-Za-z0-9_.-]+$/.test(params.environment)))
+    && validDocuments);
 }
 export function isRouteProviderResponse(value: unknown): value is RouteProviderResponse {
   const item = value as Partial<RouteProviderResponse> | null;

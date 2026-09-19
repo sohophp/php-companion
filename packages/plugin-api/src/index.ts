@@ -28,7 +28,9 @@ function providerDescriptor(value: unknown): value is SemanticProviderDescriptor
       && item.args.every((argument) => typeof argument === 'string' && argument.length <= 4096)))
     && (item.timeoutMs === undefined || (Number.isSafeInteger(item.timeoutMs) && item.timeoutMs! >= 100 && item.timeoutMs! <= 30_000))
     && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes)
-      && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024)));
+      && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
+    && ((item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === undefined
+      || typeof (item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === 'boolean'));
 }
 
 function ownedProviderId(integrationId: string, providerId: string): boolean {
