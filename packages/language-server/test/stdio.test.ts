@@ -585,9 +585,17 @@ describe('language server stdio', () => {
       await writeFile(sourcePath, source);
       const serviceXmlPath = join(configDirectory, 'services.xml');
       const importedDirectory = join(configDirectory, 'services'); await mkdir(importedDirectory);
-      const importedPath = join(importedDirectory, 'mailer.yaml'); const importedUri = pathToFileURL(importedPath).toString();
-      await writeFile(serviceXmlPath, '<container><imports><import resource="services/mailer.yaml"/></imports></container>');
-      await writeFile(importedPath, 'imports:\n  - { resource: ../services.xml }\nservices:\n  app.mailer:\n    class: App\\Mailer\n    public: true\n');
+      const importedPath = join(importedDirectory, 'mailer.php'); const importedUri = pathToFileURL(importedPath).toString();
+      const importedYamlPath = join(importedDirectory, 'imports.yaml');
+      await writeFile(serviceXmlPath, '<container><imports><import resource="services/imports.yaml"/></imports></container>');
+      await writeFile(importedYamlPath, 'imports:\n  - { resource: mailer.php }\n');
+      await writeFile(importedPath, `<?php
+        use App\\Mailer;
+        use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+        return static function (ContainerConfigurator $container): void {
+          $container->services()->set('app.mailer', Mailer::class)->public();
+          $container->import('../services.xml');
+        };`);
       await writeFile(join(containerDirectory, 'App_KernelDevDebugContainer.xml'),
         '<?xml version="1.0"?><container><services><service id="app.compiled" class="App\\Mailer" public="true"/></services></container>');
       const rootUri = pathToFileURL(root).toString();
@@ -600,7 +608,7 @@ describe('language server stdio', () => {
         await output.waitFor((message) => message.id === id);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         await output.waitFor((message) => message.method === 'window/logMessage'
-          && message.params?.message?.includes(`Loaded Symfony facts from 3 sources (${expectedCached} cached)`));
+          && message.params?.message?.includes(`Loaded Symfony facts from 4 sources (${expectedCached} cached)`));
         return output;
       };
       const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
@@ -611,7 +619,7 @@ describe('language server stdio', () => {
       };
 
       const cold = await start(220, 0); await stop(cold, 221);
-      const hot = await start(222, 3);
+      const hot = await start(222, 4);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
@@ -626,12 +634,15 @@ describe('language server stdio', () => {
       } }));
       const references = (await hot.waitFor((message) => message.id === 225)).result;
       expect(references).toContainEqual(expect.objectContaining({ uri: importedUri }));
-      await writeFile(importedPath, 'services: {}\n');
+      await writeFile(importedPath, `<?php
+        use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+        return static function (ContainerConfigurator $container): void {};
+      `);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
         changes: [{ uri: importedUri, type: 2 }],
       } }));
       await hot.waitFor((message) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('Loaded Symfony facts from 2 sources'));
+        && message.params?.message?.includes('Loaded Symfony facts from 3 sources'));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));

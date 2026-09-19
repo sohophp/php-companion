@@ -1027,6 +1027,205 @@ export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonySe
   }) };
 }
 
+function phpConfiguratorLiteral(node: NodeLike | undefined): { value: string; start: number; end: number } | undefined {
+  if (node?.type !== 'string' || node.text.length < 2) return undefined;
+  const quote = node.text[0]; if ((quote !== "'" && quote !== '"') || node.text.at(-1) !== quote) return undefined;
+  const raw = node.text.slice(1, -1);
+  if (quote === '"' && /\$|\\(?:x[0-9a-fA-F]|u\{|[0-7])/u.test(raw)) return undefined;
+  const value = quote === "'" ? raw.replace(/\\(['\\])/g, '$1')
+    : raw.replace(/\\([\\"$nrtvef])/g, (_match, escaped: string) => ({ n: '\n', r: '\r', t: '\t', v: '\v', e: '\x1b', f: '\f' }[escaped] ?? escaped));
+  return { value, start: node.startIndex + 1, end: node.endIndex - 1 };
+}
+
+/** Parse the static subset of Symfony's PHP service Configurator DSL without executing the returned closure. */
+export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, source: string): SymfonyServiceDocumentFacts {
+  const parsed = parser.parse(source); if (parsed.errors.length) return { complete: false, services: [], resources: [] };
+  const root = parsed.tree.rootNode as unknown as NodeLike;
+  const returns = root.namedChildren.filter((node) => node.type === 'return_statement');
+  const closure = returns.length === 1 ? returns[0]!.namedChildren[0] : undefined;
+  const parameters = closure?.type === 'anonymous_function' ? closure.namedChildren.find((node) => node.type === 'formal_parameters') : undefined;
+  const parameter = parameters?.namedChildren.length === 1 ? parameters.namedChildren[0] : undefined;
+  const typeNode = parameter?.namedChildren.find((node) => node.type === 'named_type')?.namedChildren[0];
+  const variableNode = parameter?.namedChildren.find((node) => node.type === 'variable_name');
+  if (!closure || !typeNode || !variableNode || parameter.text.includes('&') || parameter.text.includes('...')
+    || resolveName(typeNode.text, parsed.namespace, parsed.imports) !== 'Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator') {
+    return { complete: false, services: [], resources: [] };
+  }
+  const body = closure.namedChildren.find((node) => node.type === 'compound_statement');
+  if (!body) return { complete: false, services: [], resources: [] };
+  const containerVariable = variableNode.text; let containerValid = true;
+  const serviceVariables = new Set<string>(); const imports: SymfonyServiceImportFact[] = [];
+  interface ChainCall { name: string; args: NodeLike[]; node: NodeLike; }
+  const chain = (node: NodeLike): { base: NodeLike; calls: ChainCall[] } | undefined => {
+    if (node.type !== 'member_call_expression') return { base: node, calls: [] };
+    const receiver = node.namedChildren[0]; const name = node.namedChildren[1]; const args = node.namedChildren[2];
+    if (!receiver || name?.type !== 'name' || args?.type !== 'arguments') return undefined;
+    const previous = chain(receiver); if (!previous) return undefined;
+    return { base: previous.base, calls: [...previous.calls, { name: name.text, args: args.namedChildren.map((arg) => arg.namedChildren.at(-1) ?? arg), node }] };
+  };
+  const classValue = (node: NodeLike | undefined): { value: string; start: number; end: number } | undefined => {
+    if (node?.type !== 'class_constant_access_expression' || node.namedChildren[1]?.text.toLowerCase() !== 'class') return undefined;
+    const owner = node.namedChildren[0]; if (!owner || ['self', 'static', 'parent'].includes(owner.text.toLowerCase())) return undefined;
+    return { value: resolveName(owner.text, parsed.namespace, parsed.imports), start: owner.startIndex, end: owner.endIndex };
+  };
+  const identifier = (node: NodeLike | undefined): { value: string; start: number; end: number } | undefined => classValue(node) ?? phpConfiguratorLiteral(node);
+  const functionIdentity = (name: string): string => {
+    if (name.startsWith('\\')) return name.slice(1);
+    const imported = parsed.imports.find((item) => item.kind === 'function' && item.alias.toLowerCase() === name.toLowerCase());
+    return imported?.fqcn ?? [parsed.namespace, name].filter(Boolean).join('\\');
+  };
+  const serviceReference = (node: NodeLike | undefined): string | undefined => {
+    if (!node) return undefined;
+    const referenceChain = chain(node); const base = referenceChain?.base ?? node;
+    if (base.type !== 'function_call_expression'
+      || referenceChain?.calls.some((call) => !['ignoreOnInvalid', 'nullOnInvalid', 'ignoreOnUninitialized'].includes(call.name) || call.args.length)) return undefined;
+    const name = base.namedChildren[0]; const args = base.namedChildren.find((child) => child.type === 'arguments');
+    const identity = name && functionIdentity(name.text).toLowerCase();
+    if (identity !== 'symfony\\component\\dependencyinjection\\loader\\configurator\\service' || args?.namedChildren.length !== 1) return undefined;
+    return identifier(args.namedChildren[0]!.namedChildren.at(-1) ?? args.namedChildren[0])?.value;
+  };
+  type Mutable = Omit<SymfonyServiceFact, 'className' | 'origin' | 'registrationUri' | 'registrationStart' | 'registrationEnd'> & { className?: string };
+  const raw = new Map<string, Mutable>(); const resources: SymfonyServiceResourceFact[] = [];
+  let defaults = { public: false, autowire: false, autowireComplete: true, bindings: [] as SymfonyAutowireBinding[], eventListeners: [] as SymfonyEventListenerTagFact[] };
+  const newMutable = (id: { value: string; start: number; end: number }, className?: string, alias?: string): Mutable => ({
+    id: id.value, className, alias, public: defaults.public, autowire: defaults.autowire,
+    autowireComplete: defaults.autowireComplete, bindings: [...defaults.bindings], configuredCalls: [], callsComplete: true,
+    configuredProperties: [], propertiesComplete: true, eventListeners: [...defaults.eventListeners], uri, start: id.start, end: id.end,
+  });
+  const booleanArgument = (call: ChainCall, fallback: boolean): boolean | undefined => call.args.length === 0 ? fallback
+    : call.args.length === 1 && ['true', 'false'].includes(call.args[0]!.text.toLowerCase()) ? call.args[0]!.text.toLowerCase() === 'true' : undefined;
+  const listenerTag = (call: ChainCall): SymfonyEventListenerTagFact | undefined => {
+    if (phpConfiguratorLiteral(call.args[0])?.value !== 'kernel.event_listener' || call.args[1]?.type !== 'array_creation_expression') return undefined;
+    const values = new Map<string, NodeLike>();
+    for (const element of call.args[1]!.namedChildren) {
+      if (element.type !== 'array_element_initializer' || element.namedChildren.length !== 2) return undefined;
+      const key = phpConfiguratorLiteral(element.namedChildren[0])?.value; if (!key) return undefined; values.set(key, element.namedChildren[1]!);
+    }
+    const eventNode = values.get('event'); const methodNode = values.get('method');
+    const event = phpConfiguratorLiteral(eventNode) ?? classValue(eventNode); const method = phpConfiguratorLiteral(methodNode);
+    const priorityText = values.get('priority')?.text ?? '0'; const priority = Number(priorityText);
+    return event && method && /^[A-Za-z_][A-Za-z0-9_]*$/.test(method.value) && /^-?\d+$/.test(priorityText) && Number.isSafeInteger(priority)
+      ? { event: event.value, method: method.value, priority, uri, eventStart: event.start, eventEnd: event.end,
+        methodStart: method.start, methodEnd: method.end } : undefined;
+  };
+  for (const statement of body.namedChildren) {
+    const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+    if (expression?.type === 'assignment_expression' && expression.namedChildren[0]?.type === 'variable_name') {
+      const assignedVariable = expression.namedChildren[0]!.text; const assigned = chain(expression.namedChildren[1]!);
+      const servicesAssignment = containerValid && assigned?.base.text === containerVariable && assigned.calls.length === 1
+        && assigned.calls[0]!.name === 'services' && assigned.calls[0]!.args.length === 0;
+      if (assignedVariable === containerVariable) containerValid = false;
+      if (servicesAssignment) serviceVariables.add(assignedVariable); else serviceVariables.delete(assignedVariable);
+      continue;
+    }
+    const candidate = expression ? chain(expression) : undefined; if (!candidate) continue;
+    if (containerValid && candidate.base.text === containerVariable && candidate.calls.length === 1 && candidate.calls[0]!.name === 'import') {
+      const resource = phpConfiguratorLiteral(candidate.calls[0]!.args[0]);
+      if (resource && !resource.value.includes('%')) imports.push({ resource: resource.value, uri, start: resource.start, end: resource.end });
+      continue;
+    }
+    let calls = candidate.calls;
+    if (containerValid && candidate.base.text === containerVariable && calls[0]?.name === 'services' && calls[0].args.length === 0) calls = calls.slice(1);
+    else if (!serviceVariables.has(candidate.base.text)) continue;
+    let current: Mutable | SymfonyServiceResourceFact | undefined; let currentKind: 'service' | 'resource' | 'defaults' | undefined;
+    for (const call of calls) {
+      if (call.name === 'defaults' && call.args.length === 0) {
+        defaults = { public: false, autowire: false, autowireComplete: true, bindings: [], eventListeners: [] };
+        current = undefined; currentKind = 'defaults'; continue;
+      }
+      if (call.name === 'instanceof') { current = undefined; currentKind = undefined; continue; }
+      if (call.name === 'set') {
+        const id = identifier(call.args[0]); const configuredClass = identifier(call.args[1]); if (!id) { current = undefined; currentKind = undefined; continue; }
+        current = newMutable(id, configuredClass?.value ?? (id.value.includes('\\') ? id.value : undefined));
+        raw.set(id.value, current); currentKind = 'service'; continue;
+      }
+      if (call.name === 'alias') {
+        const id = identifier(call.args[0]); const target = identifier(call.args[1]); if (!id || !target) { current = undefined; currentKind = undefined; continue; }
+        current = newMutable(id, undefined, target.value); raw.set(id.value, current); currentKind = 'service'; continue;
+      }
+      if (call.name === 'load') {
+        const namespace = phpConfiguratorLiteral(call.args[0]); const resource = phpConfiguratorLiteral(call.args[1]);
+        if (!namespace?.value.endsWith('\\') || !resource || resource.value.includes('%')) { current = undefined; currentKind = undefined; continue; }
+        const fact: SymfonyServiceResourceFact = { namespacePrefix: namespace.value, resource: resource.value, exclude: [],
+          public: defaults.public, autowire: defaults.autowire, autowireComplete: defaults.autowireComplete,
+          bindings: [...defaults.bindings], configuredCalls: [], callsComplete: true, configuredProperties: [], propertiesComplete: true,
+          eventListeners: [...defaults.eventListeners], uri, start: namespace.start, end: namespace.end };
+        resources.push(fact); current = fact; currentKind = 'resource'; continue;
+      }
+      if (call.name === 'get') {
+        const id = identifier(call.args[0]); current = id ? raw.get(id.value) : undefined; currentKind = current ? 'service' : undefined; continue;
+      }
+      if (call.name === 'remove') { const id = identifier(call.args[0]); if (id) raw.delete(id.value); current = undefined; currentKind = undefined; continue; }
+      const target = currentKind === 'defaults' ? defaults : current;
+      if (call.name === 'public' || call.name === 'private') {
+        if (target) target.public = call.name === 'public'; continue;
+      }
+      if (call.name === 'autowire') {
+        const value = booleanArgument(call, true); if (target && value !== undefined) target.autowire = value; else if (target) target.autowireComplete = false; continue;
+      }
+      if (call.name === 'bind') {
+        const key = phpConfiguratorLiteral(call.args[0]); if (!target || !key) { if (target) target.autowireComplete = false; continue; }
+        const match = /^(?:(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:[|&]\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)*)(?:\s+\$([A-Za-z_][A-Za-z0-9_]*))?|\$([A-Za-z_][A-Za-z0-9_]*))$/.exec(key.value.trim());
+        if (!match) { target.autowireComplete = false; continue; }
+        target.bindings.push({ type: match[1]?.replace(/(^|[|&])\\/g, '$1'), parameter: match[2] ?? match[3], serviceId: serviceReference(call.args[1]) }); continue;
+      }
+      if (call.name === 'arg') {
+        const key = phpConfiguratorLiteral(call.args[0]);
+        if (!target || currentKind !== 'service' || !key?.value.startsWith('$')) { if (target) target.autowireComplete = false; continue; }
+        target.bindings.push({ parameter: key.value.slice(1), serviceId: serviceReference(call.args[1]) }); continue;
+      }
+      if (call.name === 'args') {
+        if (!target || currentKind !== 'service' || call.args[0]?.type !== 'array_creation_expression') { if (target) target.autowireComplete = false; continue; }
+        for (const element of call.args[0]!.namedChildren) {
+          const key = element.type === 'array_element_initializer' && element.namedChildren.length === 2 ? phpConfiguratorLiteral(element.namedChildren[0]) : undefined;
+          if (!key?.value.startsWith('$')) { target.autowireComplete = false; break; }
+          target.bindings.push({ parameter: key.value.slice(1), serviceId: serviceReference(element.namedChildren[1]) });
+        }
+        continue;
+      }
+      if (call.name === 'call') {
+        const configured = currentKind !== 'defaults' ? current : undefined; const method = phpConfiguratorLiteral(call.args[0]);
+        if (configured && method && /^[A-Za-z_][A-Za-z0-9_]*$/.test(method.value)) configured.configuredCalls.push(method.value);
+        else if (configured) configured.callsComplete = false; continue;
+      }
+      if (call.name === 'property') {
+        const configured = currentKind !== 'defaults' ? current : undefined; const property = phpConfiguratorLiteral(call.args[0]);
+        if (configured && property && /^[A-Za-z_][A-Za-z0-9_]*$/.test(property.value)) configured.configuredProperties.push(property.value);
+        else if (configured) configured.propertiesComplete = false; continue;
+      }
+      if (call.name === 'exclude' && currentKind === 'resource' && current) {
+        const resource = current as SymfonyServiceResourceFact;
+        const value = phpConfiguratorLiteral(call.args[0]);
+        const values = call.args[0]?.type === 'array_creation_expression' ? call.args[0].namedChildren.map((element) => phpConfiguratorLiteral(element.namedChildren.at(-1) ?? element)) : [];
+        if (value) resource.exclude.push(value.value); else if (values.length && values.every(Boolean)) resource.exclude.push(...values.map((item) => item!.value));
+        else resource.autowireComplete = false; continue;
+      }
+      if (call.name === 'tag') { const listener = listenerTag(call); if (target && listener) target.eventListeners.push(listener); continue; }
+      if (call.name === 'class' && currentKind === 'service' && current) { const value = identifier(call.args[0]); (current as Mutable).className = value?.value; continue; }
+      if (call.name === 'constructor' && currentKind === 'service' && current) { current.autowireComplete = false; continue; }
+      if (['abstract', 'synthetic'].includes(call.name) && currentKind === 'service' && current) {
+        const enabled = booleanArgument(call, true);
+        if (enabled !== false) { raw.delete((current as Mutable).id); current = undefined; currentKind = undefined; }
+        continue;
+      }
+      if (['factory', 'fromCallable', 'parent'].includes(call.name) && currentKind === 'service' && current) {
+        raw.delete((current as Mutable).id); current = undefined; currentKind = undefined;
+      }
+    }
+  }
+  const resolveClass = (service: Mutable, visited = new Set<string>()): string | undefined => {
+    if (service.className) return service.className;
+    if (!service.alias || visited.has(service.alias)) return undefined;
+    visited.add(service.alias); const target = raw.get(service.alias);
+    return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias : undefined;
+  };
+  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+    const className = resolveClass(service, new Set([service.id]));
+    return className ? [{ ...service, className, origin: 'explicit', registrationUri: uri,
+      registrationStart: service.start, registrationEnd: service.end }] : [];
+  }) };
+}
+
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */
 export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });

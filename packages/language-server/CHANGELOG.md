@@ -6,6 +6,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Load conventional and deterministically imported Symfony PHP Configurator service files without executing them, merge their service registrations into Container returns and type References, and advance the Symfony fact cache to v7.
 - Follow deterministic project-local YAML/XML service imports before their importing document, reject parameterized, wildcard, bundle-alias, absolute and real-path escaping resources, refresh imported facts on file changes, and advance the Symfony fact cache to v6.
 - Load conventional Symfony `services.xml` facts and deterministic prototypes alongside YAML when compiled-container data is unavailable or stale. Merge exact XML service registrations into type References and advance the independently checksummed Symfony fact cache to v5.
 - Merge dispatch sites after a complete same-event `if`/`elseif`/`else` assignment while suppressing partial, divergent, or statement-bearing branches.
