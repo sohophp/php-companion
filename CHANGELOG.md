@@ -1,4 +1,5 @@
 - Symfony YAML 的字面量本地化 `path` 与 import `prefix` map 现在按 locale 展开为精确的 `route.locale` 名称和最终路径；嵌套字符串/map 前缀按 Symfony 加载顺序组合，缺失 locale 或动态值保持 unknown。
+- 提交 `b55cb35` 完成 YAML 本地化路由，候选 `php-companion-alpha-0.4.5-b55cb35a` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装 bundle 实测直接 path map、import 克隆和同 locale 匹配。
 - Symfony Route Attribute 的字面量本地化 path map 现在展开为精确的 `route.locale` 名称和最终路径；支持类级本地化前缀、方法级本地化路径与 invokable 类，locale 键不对应或动态 map 保持 unknown。
 - 提交 `5c57b84` 完成本地化 Attribute 路由，候选 `php-companion-alpha-0.4.5-5c57b84d` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装 bundle 返回精确 en/fr 名称与路径。
 - Symfony YAML 路由现在按显式工作区环境展开唯一匹配的 `when@env` 块，同时保留无条件声明、嵌套源码范围和同文件后置路由覆盖语义；未选环境或其它环境块不会进入候选。
