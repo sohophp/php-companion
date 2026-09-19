@@ -20,6 +20,10 @@
 - 拒绝 DOCTYPE、环境 `<when>`、动态 `%...%`、abstract 服务和无法证明 class 的 factory。PHP DSL、导入的 bundle 配置与动态 env 表达式继续保持 unknown。
 - stdio 回归在无编译容器依赖的场景中证明：公开 XML 服务驱动 Container `get()` 返回补全，从 PHP 类执行 References 返回 `services.xml` 的注册范围。
 
+本增量验证：framework-symfony 30 项与 Language Server 185 项全部通过，后者耗时 219.82 秒；根扩展 39 项、全仓 TypeScript、ESLint、16 个隔离组件 tarball 和三份 VSIX 内容检查均通过。
+
+最新功能提交为 `6fbdf5e01bc16dadba415e0f14df582c488666d6`，候选目录为 `artifacts/php-companion-alpha-0.4.5-6fbdf5e0/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `8d72fa1530f5e2618cdb06b7f1ee9cb908584a6d714b74f76e4ac0e6705f6264`、`9e7b05749a94d28b79ed373007c42a3eb2370d03166096af918867463db776a7`、`f698c836500f6c22cf42ff2c3ffeb56f77abeed386ef1333f621a8927aa7135b`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `ff2f35e9597e597ef7811fef32c3d22fd0e4f2eeb8e601fef5afb00bebeb3e2d`，Reload Window 后加载。
+
 动态 resource、参数化 class/resource、运行时编译器改写和无法证明的注册保持不返回。事件订阅与 dispatch/listener 关系不在本次范围，仍列为 P8 后续任务。
 
 ## 验证证据

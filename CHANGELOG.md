@@ -1,3 +1,5 @@
+- 提交 `6fbdf5e` 完成传统 Symfony `services.xml` 静态服务索引，候选 `php-companion-alpha-0.4.5-6fbdf5e0` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
+- 无需新鲜编译容器即可静态读取约定位置的 XML defaults、service/alias、bind、具名 argument、call/property、prototype/exclude 和 `kernel.event_listener`；PHP 类型 References 返回精确 XML 注册范围，事实缓存升级为 v5。DOCTYPE、环境 `<when>`、动态参数和无法证明 class 的 factory 保持 unknown。
 - 提交 `e737ff8` 完成 Symfony 必然基础订阅 References，候选 `php-companion-alpha-0.4.5-e737ff85` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony subscriber map 会在安全的环境条件追加中保留必定存在的基础订阅：条件只能使用 `defined/class_exists/function_exists` 等白名单检查，基础与可选事件必须是不重叠的字符串字面量键；可选关系、类常量键、覆盖、变量暴露或动态调用保持 unknown。
 - 提交 `5c4efd1` 完成 Symfony 订阅分支收敛 References，候选 `php-companion-alpha-0.4.5-5c4efd19` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
