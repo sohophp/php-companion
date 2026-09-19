@@ -1,4 +1,5 @@
 - Persistent project-index restores now skip source reads and SHA-256 work when size, mtime and ctime are unchanged, and a fully unchanged cache is no longer rewritten; same-size edits with a preserved mtime still invalidate through ctime.
+- 提交 `9bff193` 完成未变项目索引缓存快速恢复；候选 `php-companion-alpha-0.4.5-9bff193e` 的三份 VSIX、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和安装哈希均已验证，已安装 bundle 的真实 Winstar 冷/热扫描为 59.146/14.609 秒且 4 个 YAML 控制器 Definition 保持精确。
 - Symfony YAML `controller` and `defaults._controller` FQCN segments now support Ctrl+click/Go to Definition to the exact PHP class or effective public instance method; a narrow VS Code YAML Definition bridge coexists with Red Hat YAML syntax, schema and formatting.
 - Controller navigation requires a route map with `path`, an exact literal FQCN, a unique Composer declaration and a proven method; service IDs, dynamic/escaped values, unrelated `_controller` keys and external Symfony runtime ownership remain without Companion results.
 - The Twig interop request now starts and awaits the bounded project-source scan in `onDemand` mode instead of waiting for a dependency-complete index that this mode intentionally never creates.
