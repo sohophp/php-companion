@@ -11,6 +11,7 @@
 3. Configurator 参数重赋值、动态参数和可能修改路由集合的未知调用撤销事实。条件内 add/import 不发布为无条件候选；条件 remove 或未知方法会撤销可能受影响的同文件事实。
 4. 自定义 Kernel 入口要求类直接继承 Symfony Kernel、`configureRoutes()` 为非静态单参数方法且参数原生类型为 RoutingConfigurator；只读取方法体顶层 import 和确定性的 `__DIR__` / `dirname(__DIR__)` 路径拼接。
 5. `@Bundle/...` 路由复用服务导入的证明链：通用静态注册、唯一类文件、继承链未声明构造器或 `getPath()`、最终到达基础 Bundle，并同时满足语法路径与 realpath containment。Bundle 证明只在路由图实际遇到别名时按需执行。
+6. 约定入口和 Kernel 入口到达同一真实资源、且前缀/loader/exclude/namespace 上下文相同时去重；上下文不同的重复导入仍分别产生带各自前缀的声明。
 
 环境条件、参数/glob Kernel 表达式、环境专属 Bundle、动态 RouteCollection factory 和 service loader 保持 unknown。启用 Symfony Language Tools runtime indexing 时，原有 provider 所有权切换继续让外部运行时路由表接管。
 

@@ -129,6 +129,8 @@ framework-symfony 可静态读取唯一返回且参数类型明确为 `RoutingCo
 
 Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提取顶层无条件 `import()`。当前只接受字面量路径，以及 `__DIR__` / `dirname(__DIR__)` 与字面量的确定性拼接。项目外 PHP 路由只允许经通用 bundle 注册、唯一类文件、默认 Bundle 路径和 realpath containment 全部证明的 `@Bundle/...` 资源；环境条件导入、环境专属 bundle、动态 Kernel 表达式和返回 `RouteCollection` 的业务 factory 保持 unknown，并由启用运行时索引的 Symfony Language Tools 接管。
 
+同一真实资源若同时从约定入口和 Kernel 入口以相同前缀、loader、exclude 与 namespace 上下文到达，只分析一次；前缀或加载上下文不同的重复导入保持独立，避免把合法的多入口路由合并掉。
+
 
 ## PSR-4 路由目录映射
 

@@ -1887,6 +1887,7 @@ function excludedRoutePath(path: string, patterns: string[]): boolean {
 async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
   const routes: SymfonyRouteFact[] = [];
   let remaining = 64;
+  const visitedContexts = new Set<string>();
   const actualRoot = await realpath(root);
   const syntaxParser = await parser();
   let bundleRoots: Map<string, SymfonyBundleResourceRoot> | undefined;
@@ -1940,6 +1941,8 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
       if (ancestors.has(actualPath)) return;
       const actualLocal = relative(scope.realPath, actualPath);
       if (isAbsolute(actualLocal) || actualLocal === '..' || actualLocal.startsWith(`..${sep}`)) return;
+      const contextKey = JSON.stringify([actualPath, prefix, pathPrefix, attribute, php, [...excludedPaths].sort(), mapping?.root, mapping?.namespace]);
+      if (visitedContexts.has(contextKey)) return; visitedContexts.add(contextKey);
       const info = await stat(path);
       if (mapping && path === mapping.root && !info.isDirectory()) return;
       if (attribute && info.isDirectory()) {

@@ -1075,6 +1075,7 @@ class Other { public function generateUrl(string $route, array $parameters = [])
         use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
         use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
         final class Kernel extends BaseKernel { protected function configureRoutes(RoutingConfigurator $routes): void {
+          $routes->import(dirname(__DIR__) . '/config/routes.yaml');
           $routes->import(dirname(__DIR__) . '/config/symfony/routes.yaml');
           if ($this->environment === 'dev') { $routes->import(dirname(__DIR__) . '/config/symfony/dev.yaml'); }
         } }`);
