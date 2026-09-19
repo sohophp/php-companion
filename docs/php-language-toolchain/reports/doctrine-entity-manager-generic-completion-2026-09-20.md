@@ -33,4 +33,23 @@ dynamic class-string entity completion count: 0
 
 ## 发布门禁
 
-功能提交、候选目录、三份 VSIX 哈希、项目预检、安装哈希和已安装 bundle 复测将在候选生成后补入本节。
+功能提交：`1be85dd`。
+
+候选目录：`artifacts/php-companion-alpha-0.4.5-1be85dd9/`。
+
+| 产物 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `37dc935855f5cb86b61ba815c02719ca7f06335cf3070c2c65240ce169058283` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `7d9676c23f0d7fe9807fe6a03ba251751bd488b52b7ecc4313d3f12031320ede` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `f9d681bb6923c97921969d640c5b28b969a158db9bbc5f55dd97dea002ecae17` |
+
+`sha256sum -c SHA256SUMS` 三项均为 OK。Winstar `bin/php-runtime` 确认为 PHP 8.5，CoreRepo `phpbin` 确认为 PHP 7.2；两个 Composer 项目的 WSL 确定性 Alpha 预检均通过。
+
+完整发布前门禁包括全仓 TypeScript、ESLint、19 个组件 712 项测试、根扩展 39 项测试、19 个隔离 tarball、三份 VSIX 内容校验，以及 VS Code 1.138.0 隔离 Profile 中的打包 Extension Host；均通过。
+
+核心 VSIX 已安装到 WSL RockyLinux8。安装目录与构建输出的哈希为：
+
+- `dist/language-server.js`：`777f9f20d2b079afe0df7d3986ce25ea0f60395bbf72be8b0a4127805546045e`
+- `dist/extension.js`：`116c624e95589f504f6b30821db1aa830a586deb2982e0134a1de5f41705babd`
+
+安装 bundle 使用独立全新缓存冷执行 56.443 秒，随后热恢复 13.046 秒；两次均返回 9 个 Controller context、精确 `?Language`、`getCode` 及动态反例 0。安装后需要在 Alpha Profile 执行 `Developer: Reload Window`，让当前 Extension Host 切换到新 bundle。
