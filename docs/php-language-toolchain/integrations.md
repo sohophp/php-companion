@@ -118,6 +118,10 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external, environment? }] }` 对象。环境只接受 1–64 个 ASCII 字母、数字、点、下划线或连字符；非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
 
+项目自定义 loader 使用独立设置 `phpCompanion.routeProviders`，只接受用户显式配置的 `{ providerId, command, args?, timeoutMs?, maxOutputBytes? }`。`@php-companion/route-provider` 定义 schema 1 完整快照：每条事实必须给出 `name`、`path`、声明 `uri` 及 UTF-16 文本换算前的字节/字符偏移范围；`@php-companion/route-provider-host` 以项目根为 cwd、关闭 shell，并校验请求 ID、provider 身份、generation、完整性、超时和输出上限。核心不会从 Composer 或项目文件自动发现命令。
+
+动态快照不跨路由查询缓存。补全、Definition 或 References 每次都重新启动一次 provider，因此配置或自定义路由文件变化后不会继续返回旧事实；provider 失败只让该次动态贡献缺席，并记录输出诊断。多个静态/动态来源出现同名路由时整体按歧义处理，不提供该名称的 Companion 跳转。外部 Symfony runtime provider 拥有该工作区路由能力时，语义调用门禁会在启动自定义 provider 前退出。
+
 
 ## 静态路由 glob 支持范围
 

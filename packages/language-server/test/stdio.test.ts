@@ -4039,6 +4039,43 @@ echo RANKED_LSP_CONSTANT;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads fresh complete route-provider snapshots for Symfony route navigation', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-route-provider-'));
+    try {
+      const source = `<?php
+namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } }
+namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(RouterInterface $router): void {
+  $router->generate('dynamic.');
+  $router->generate('dynamic.home');
+} }`;
+      const consumerPath = join(root, 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
+      const declarationPath = join(root, 'runtime-routes.txt'); const declarationUri = pathToFileURL(declarationPath).toString();
+      const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs');
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
+      await writeFile(consumerPath, source); await writeFile(declarationPath, 'dynamic.home\n');
+      await writeFile(statePath, JSON.stringify({ name: 'dynamic.home', path: '/dynamic' }));
+      await writeFile(provider, `import {readFile} from 'node:fs/promises'; import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'winstar.routes',generation:request.params.generation,complete:true,routes:[{...route,uri:pathToFileURL(${JSON.stringify(declarationPath)}).toString(),start:0,end:route.name.length}]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { routeProviders: [{ providerId: 'winstar.routes', command: process.execPath, args: [provider], timeoutMs: 1000 }] },
+      } }));
+      await output.waitFor((message) => message.id === 114); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const completionOffset = source.indexOf("'dynamic.'") + "'dynamic.".length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 115, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
+      expect((await output.waitFor((message) => message.id === 115)).result).toContainEqual(expect.objectContaining({ label: 'dynamic.home', detail: '/dynamic (source declaration)' }));
+      const definitionOffset = source.indexOf("'dynamic.home'") + 4;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 116, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, definitionOffset) } }));
+      expect((await output.waitFor((message) => message.id === 116)).result).toEqual([{ uri: declarationUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 12 } } }]);
+      await writeFile(statePath, JSON.stringify({ name: 'dynamic.changed', path: '/changed' })); await writeFile(declarationPath, 'dynamic.changed\n');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
+      const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;
+      expect(refreshed.map((item) => item.label)).toEqual(['dynamic.changed']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads an explicitly configured semantic provider through the isolated process host', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-provider-'));
     try {

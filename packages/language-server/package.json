@@ -38,6 +38,8 @@
     "@php-companion/parser": "workspace:^",
     "@php-companion/project": "workspace:^",
     "@php-companion/refactor": "workspace:^",
+    "@php-companion/route-provider": "workspace:^",
+    "@php-companion/route-provider-host": "workspace:^",
     "@php-companion/semantic": "workspace:^",
     "@php-companion/semantic-provider": "workspace:^",
     "@php-companion/semantic-provider-host": "workspace:^",

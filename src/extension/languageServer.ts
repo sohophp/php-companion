@@ -112,6 +112,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       disabledDiagnosticCodes: configuration.get<string[]>('diagnostics.disabledCodes', []),
       diagnosticSeverity: configuration.get<Record<string, string>>('diagnostics.severity', {}),
       semanticProviders: configuration.get<unknown[]>('semanticProviders', []),
+      routeProviders: configuration.get<unknown[]>('routeProviders', []),
       symfonyRouteProviders: symfonyRouteProviders(),
       phpExtensionAvailability: phpExtensionAvailability(),
       testMode: context.extensionMode === vscode.ExtensionMode.Test,

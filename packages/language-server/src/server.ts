@@ -38,6 +38,8 @@ import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepo
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
+import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor } from '@php-companion/route-provider';
+import { runRouteProvider } from '@php-companion/route-provider-host';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile, type ProjectPhpFileFacts } from './projectFacts.js';
 import { SymfonyFactCache } from './symfonyFactsCache.js';
 import { CallableFactCache } from './callableFactsCache.js';
@@ -80,6 +82,8 @@ let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
+let routeProviders: RouteProviderDescriptor[] = [];
+let routeProviderGeneration = 0;
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
@@ -250,6 +254,17 @@ function setSemanticProviders(value: unknown): void {
     seen.add(candidate.providerId.toLowerCase()); accepted.push(candidate);
   }
   semanticProviders = accepted;
+}
+
+function setRouteProviders(value: unknown): void {
+  const seen = new Set<string>(); const accepted: RouteProviderDescriptor[] = [];
+  for (const candidate of Array.isArray(value) ? value : []) {
+    if (!isRouteProviderDescriptor(candidate)) { connection.console.warn('Ignored invalid route provider configuration.'); continue; }
+    const key = candidate.providerId.toLowerCase();
+    if (seen.has(key)) { connection.console.warn(`Ignored duplicate route provider ${candidate.providerId}.`); continue; }
+    seen.add(key); accepted.push(candidate);
+  }
+  routeProviders = accepted;
 }
 
 async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean): Promise<void> {
@@ -1404,7 +1419,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; routeProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -1418,6 +1433,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setDisabledDiagnosticCodes(initialization?.disabledDiagnosticCodes);
   setDiagnosticSeverityOverrides(initialization?.diagnosticSeverity);
   setSemanticProviders(initialization?.semanticProviders);
+  setRouteProviders(initialization?.routeProviders);
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
@@ -1723,22 +1739,25 @@ connection.onRequest('phpCompanion/reconcileSafeMove', async (params: { moves?: 
 });
 
 connection.onDidChangeConfiguration(async ({ settings }) => {
-  const phpCompanion = (settings as { phpCompanion?: { diagnostics?: { disabledCodes?: unknown; severity?: unknown }; semanticProviders?: unknown } } | undefined)?.phpCompanion;
+  const phpCompanion = (settings as { phpCompanion?: { diagnostics?: { disabledCodes?: unknown; severity?: unknown }; semanticProviders?: unknown; routeProviders?: unknown } } | undefined)?.phpCompanion;
   const previousDiagnostics = JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
   const previousProviders = JSON.stringify(semanticProviders);
+  const previousRouteProviders = JSON.stringify(routeProviders);
   setDisabledDiagnosticCodes(phpCompanion?.diagnostics?.disabledCodes);
   setDiagnosticSeverityOverrides(phpCompanion?.diagnostics?.severity);
   const previousProviderIds = new Map(semanticProviders.map((provider) => [provider.providerId.toLowerCase(), provider.providerId]));
   setSemanticProviders(phpCompanion?.semanticProviders);
+  setRouteProviders(phpCompanion?.routeProviders);
   const currentProviderIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
   const removedProviderIds = [...previousProviderIds].filter(([key]) => !currentProviderIds.has(key)).map(([, providerId]) => providerId);
   const diagnosticsChanged = previousDiagnostics !== JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });
   const providersChanged = previousProviders !== JSON.stringify(semanticProviders);
+  const routeProvidersChanged = previousRouteProviders !== JSON.stringify(routeProviders);
   if (removedProviderIds.length) for (const candidate of semanticWorkspaces.values()) {
     const workspace = await candidate; for (const providerId of removedProviderIds) workspace.removeExternalFacts(providerId);
   }
   if (providersChanged && workspaceFolderRoots.length) await startIndexWorkspace();
-  if (providersChanged || diagnosticsChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  if (providersChanged || routeProvidersChanged || diagnosticsChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 });
 
 const pendingFiles = new PendingChanges<{ uri: string; root: string }>();
@@ -2012,6 +2031,30 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
   return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
 }
 
+async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
+  const routes: RouteFact[] = [];
+  const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
+  for (const descriptor of routeProviders) {
+    if (cancelled()) return [];
+    const generation = String(++routeProviderGeneration);
+    const result = await runRouteProvider(descriptor, {
+      rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion, ...(environment ? { environment } : {}),
+    });
+    if (cancelled()) return [];
+    if (result.ok) routes.push(...result.contribution.routes);
+    else connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
+  }
+  return routes;
+}
+
+async function availableSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
+  const routes = [...await staticSymfonyRoutes(root, cancelled), ...await providedSymfonyRoutes(root, cancelled)];
+  if (cancelled()) return [];
+  const counts = new Map<string, number>();
+  for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
+  return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
+}
+
 const SYMFONY_ROUTE_METHODS = new Set([
   'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::generateurl',
   'symfony\\bundle\\frameworkbundle\\controller\\abstractcontroller::redirecttoroute',
@@ -2038,7 +2081,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (routeCall) {
     const root = rootForUri(document.uri);
     if (root) {
-      const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
+      const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
       if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
       return routes.filter((route) => route.name.startsWith(routeCall.prefix)).map((route) => ({
         label: route.name, kind: CompletionItemKind.Reference, detail: `${route.path} (source declaration)`,
@@ -2139,7 +2182,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (routeCall) {
     const root = rootForUri(document.uri); if (!root) return [];
     const version = document.version; const name = document.getText().slice(routeCall.start, routeCall.end);
-    const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
+    const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
     if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== version) return [];
     const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
     const openTarget = documents.get(route.uri); let source = openTarget?.getText() ?? workspace.source(route.uri);
@@ -2251,7 +2294,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   if (routeCall) {
     const root = rootForUri(document.uri); if (!root) return [];
     const name = document.getText().slice(routeCall.start, routeCall.end);
-    const routes = await staticSymfonyRoutes(root, () => token.isCancellationRequested);
+    const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
     const declaration = routes.find((candidate) => candidate.name === name); if (!declaration) return [];
     const ready = await scanNamedCandidates(workspace, root, new Set([name.toLowerCase()]), () => token.isCancellationRequested);
     if (!ready) {

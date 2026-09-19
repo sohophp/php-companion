@@ -174,6 +174,12 @@ importers:
       '@php-companion/refactor':
         specifier: workspace:^
         version: link:../refactor
+      '@php-companion/route-provider':
+        specifier: workspace:^
+        version: link:../route-provider
+      '@php-companion/route-provider-host':
+        specifier: workspace:^
+        version: link:../route-provider-host
       '@php-companion/semantic':
         specifier: workspace:^
         version: link:../semantic
@@ -265,6 +271,31 @@ importers:
 
   packages/refactor:
     devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
+
+  packages/route-provider:
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
+
+  packages/route-provider-host:
+    dependencies:
+      '@php-companion/route-provider':
+        specifier: workspace:^
+        version: link:../route-provider
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

@@ -10,6 +10,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- 新增显式 `phpCompanion.routeProviders`：每次路由查询经独立无 shell 子进程读取一份完整、有来源位置的动态路由快照，并与静态 Symfony 路由按名称唯一性合并；失败快照不会缓存或成为否定依据。
+
 - Navigate exact Symfony route literals to unique YAML, Attribute or PHP Configurator declarations, and find only semantically proven project PHP usages while honoring environment selection and external provider ownership.
 - Select exact environment-gated Kernel and Bundle route sources from the resource-scoped provider snapshot, prioritize selected Kernel roots within the bounded static graph, and load Composer PSR-4 mappings on demand without booting project PHP.
 - Load conventional and deterministically imported Symfony PHP Configurator service files without executing them, merge their service registrations into Container returns and type References, and advance the Symfony fact cache to v7.
