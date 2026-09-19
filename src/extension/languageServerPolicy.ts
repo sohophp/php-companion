@@ -19,6 +19,11 @@ export function resolveLanguageServerActivation(input: LanguageServerActivationI
   return { start: input.enabled && !blockedByCompetingServer, blockedByCompetingServer };
 }
 
+/** The standalone Symfony extension owns its bundled providers once installed. */
+export function useBundledWinstarRouteProvider(enabled: boolean, standaloneSymfonyInstalled: boolean): boolean {
+  return enabled && !standaloneSymfonyInstalled;
+}
+
 export function createRestartBudget(options: { maxRestarts?: number; windowMs?: number; now?: () => number } = {}): RestartBudget {
   const maxRestarts = options.maxRestarts ?? 3;
   const windowMs = options.windowMs ?? 60_000;

@@ -25,12 +25,20 @@ async function manifest(path: string): Promise<ExtensionManifest> {
 
 describe('PHP Companion manifests', () => {
   it('publishes every extension as version 0.4.5', async () => {
-    for (const path of ['package.json', 'packages/php-companion-extension-pack/package.json', 'packages/php-companion-recommended-pack/package.json']) {
+    for (const path of ['package.json', 'packages/php-companion-symfony/package.json', 'packages/php-companion-extension-pack/package.json', 'packages/php-companion-recommended-pack/package.json']) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
       expect(value.version).toBe('0.4.5');
       expect(value.icon).toBe('resources/icon.png');
     }
+  });
+
+  it('publishes Symfony as a separate extension that depends on the core', async () => {
+    const value = await manifest('packages/php-companion-symfony/package.json') as ExtensionManifest & { extensionDependencies?: string[] };
+    expect(value.name).toBe('php-companion-symfony');
+    expect(value.main).toBe('./dist/extension.js');
+    expect(value.extensionDependencies).toEqual(['sohophp.php-companion']);
+    expect(value.activationEvents).toContain('workspaceContains:composer.json');
   });
 
   it('restores the core with lazy activation and contributions', async () => {

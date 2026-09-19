@@ -65,7 +65,9 @@ flowchart BT
 
 最终发行结构包含独立的 `PHP Companion: Symfony` VSIX。核心 `sohophp.php-companion` 只拥有 PHP 语法、类型、索引、导航、重构及版本化插件 API；Symfony 扩展拥有服务容器、依赖注入、事件订阅、路由、Controller 上下文和 Symfony 元数据适配。Twig 解析、模板格式化和模板作用域继续由 twig-plus 唯一拥有，YAML/XML 的通用语法与格式化继续复用成熟扩展。
 
-当前迁移阶段仍把 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。schema 1 的 `plugin-api` 已允许另一个已安装 VSIX 在运行时注册和撤销命名空间隔离的 semantic/route provider；核心不向插件暴露 Language Client。完成独立 Symfony VSIX 还需要把现有服务、事件、路由和 Controller 编排逐项改为框架中立事实，并为独立安装、升级、停用及核心版本不兼容建立 Extension Host 门禁。每项迁移完成后删除核心中的对应 Symfony 组装路径，避免两个所有者同时发布结果。
+独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，首项接管可选 Winstar 运行时路由适配器；核心检测到独立扩展后停止注册该内置副本，未安装时仍保留 Alpha 回退。核心不向插件暴露 Language Client。
+
+当前迁移阶段仍把其余 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。完成拆分还需要把服务、事件、静态路由和 Controller 编排逐项改为框架中立事实，并验证升级、停用及核心版本不兼容。每项迁移完成后删除核心中的对应 Symfony 组装路径，避免两个所有者同时发布结果。
 
 Symfony 官方插件属于可选外部实现，不是自研 Symfony 扩展的运行依赖。只有在其 PHP Rename、索引所有权和版本兼容门禁通过后才可加入推荐组合；未通过时由自研 Symfony 扩展承担框架语义，通用 YAML/XML 能力仍交给各自成熟插件。
 

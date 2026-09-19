@@ -8,6 +8,17 @@ const openSourceProfile = JSON.parse(await readFile(new URL('../test/extension/o
 
 const artifacts = [
   {
+    path: 'packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix',
+    symfony: true,
+    required: [
+      'extension/package.json',
+      'extension/dist/extension.js',
+      'extension/dist/winstar-route-provider.js',
+      'extension/readme.md',
+      'extension/resources/icon.png',
+    ],
+  },
+  {
     path: 'php-companion-0.4.5.vsix',
     core: true,
     required: [
@@ -97,6 +108,19 @@ for (const artifact of artifacts) {
       if (/require\(["']web-tree-sitter["']\)/.test(bundle)) {
         throw new Error(`${artifact.path} leaves web-tree-sitter as a runtime dependency in ${entry}.`);
       }
+    }
+  }
+  if (artifact.symfony) {
+    const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-symfony' || manifest.version !== '0.4.5') {
+      throw new Error(`${artifact.path} has an unexpected Symfony extension identity.`);
+    }
+    if (JSON.stringify(manifest.extensionDependencies) !== JSON.stringify(['sohophp.php-companion'])) {
+      throw new Error(`${artifact.path} must depend only on the PHP Companion core extension.`);
+    }
+    for (const entry of ['extension/dist/extension.js', 'extension/dist/winstar-route-provider.js']) {
+      const bundle = await textEntry(artifact.path, entry);
+      if (/require\(["']@php-companion\//.test(bundle)) throw new Error(`${artifact.path} leaves a workspace package as a runtime dependency in ${entry}.`);
     }
   }
   if (artifact.focusedPack) {

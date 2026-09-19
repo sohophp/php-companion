@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -24,6 +24,7 @@ const commit = '1234567890abcdef1234567890abcdef12345678';
 async function writeCandidate(root: string, contents: Buffer): Promise<string> {
   const specifications = [
     { role: 'core', id: 'sohophp.php-companion', file: 'php-companion.vsix' },
+    { role: 'symfony', id: 'sohophp.php-companion-symfony', file: 'php-companion-symfony.vsix' },
     { role: 'open-source-pack', id: 'sohophp.php-companion-open-source-pack', file: 'php-companion-open-source-pack.vsix' },
     { role: 'recommended-pack', id: 'sohophp.php-companion-recommended-pack', file: 'php-companion-recommended-pack.vsix' },
   ];
@@ -33,7 +34,7 @@ async function writeCandidate(root: string, contents: Buffer): Promise<string> {
       sha256: createHash('sha256').update(contents).digest('hex') };
   }));
   await writeFile(join(root, 'candidate.json'), JSON.stringify({
-    schema: 1, channel: 'alpha', source: { clean: true, commit }, artifacts,
+    schema: 2, channel: 'alpha', source: { clean: true, commit }, artifacts,
     supportedExtensions: [{ id: 'redhat.vscode-yaml', version: '1.24.0' }], rejectedExtensions: [],
   }));
   return specifications[0]!.file;
@@ -52,13 +53,14 @@ describe('Alpha preflight', () => {
       { id: 'redhat.vscode-xml', version: '0.29.3' },
     ], artifacts: [
       { role: 'core', id: 'sohophp.php-companion', version: '0.4.5' },
+      { role: 'symfony', id: 'sohophp.php-companion-symfony', version: '0.4.5' },
       { role: 'open-source-pack', id: 'sohophp.php-companion-open-source-pack', version: '0.4.5' },
       { role: 'recommended-pack', id: 'sohophp.php-companion-recommended-pack', version: '0.4.5' },
     ] }, installed);
     expect(result.missing).toEqual(['redhat.vscode-xml']);
     expect(result.mismatched).toEqual([{ id: 'redhat.vscode-yaml', expected: '1.24.0', installed: '1.23.0' }]);
     expect(result.competingInstalled).toEqual(['bmewburn.vscode-intelephense-client']);
-    expect(result.productMissing).toEqual(['sohophp.php-companion']);
+    expect(result.productMissing).toEqual(['sohophp.php-companion', 'sohophp.php-companion-symfony']);
     expect(result.installedPacks).toEqual([]);
   });
 
@@ -74,6 +76,16 @@ describe('Alpha preflight', () => {
     await expect(preflight.verifyCandidate(root)).resolves.toMatchObject({
       artifacts: expect.arrayContaining([expect.objectContaining({ file, valid: true })]),
     });
+  });
+
+  it('continues to verify legacy three-artifact schema 1 candidates', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-alpha-preflight-v1-')); roots.push(root);
+    await writeCandidate(root, Buffer.from('legacy-vsix'));
+    const manifest = JSON.parse(await readFile(join(root, 'candidate.json'), 'utf8')) as { schema: number; artifacts: Array<{ role: string; file: string }> };
+    manifest.schema = 1;
+    manifest.artifacts = manifest.artifacts.filter((artifact) => artifact.role !== 'symfony');
+    await writeFile(join(root, 'candidate.json'), JSON.stringify(manifest));
+    await expect(preflight.verifyCandidate(root)).resolves.toMatchObject({ artifacts: expect.arrayContaining([expect.objectContaining({ valid: true })]) });
   });
 
   it('rejects a candidate after an artifact changes', async () => {

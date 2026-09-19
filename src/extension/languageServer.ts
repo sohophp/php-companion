@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node.js';
-import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
+import { createRestartBudget, resolveLanguageServerActivation, useBundledWinstarRouteProvider, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
 
@@ -74,8 +74,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       };
     });
   };
-  const bundledRouteProviders = (): unknown[] => [...integrations.routeProviders(), ...(vscode.workspace.workspaceFolders ?? []).some((folder) =>
-    vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<boolean>('symfony.winstarRoutes.enabled', false)) ? [{
+  const standaloneSymfonyInstalled = (): boolean => vscode.extensions.getExtension('sohophp.php-companion-symfony') !== undefined;
+  const bundledRouteProviders = (): unknown[] => [...integrations.routeProviders(), useBundledWinstarRouteProvider((vscode.workspace.workspaceFolders ?? []).some((folder) =>
+    vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<boolean>('symfony.winstarRoutes.enabled', false)), standaloneSymfonyInstalled()) ? [{
       providerId: 'php-companion.winstar-routes', command: process.execPath,
       args: [context.asAbsolutePath('dist/winstar-route-provider.js')], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024,
     }] : []];
@@ -195,7 +196,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       }
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => { updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability(); }),
-    vscode.extensions.onDidChange(updateRouteProviders),
+    vscode.extensions.onDidChange(() => { updateRouteProviders(); updateBundledRouteProviders(); }),
   );
   updateRouteProviders();
   updateIntegrationProviders();

@@ -1,0 +1,44 @@
+{
+  "name": "php-companion-symfony",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.4.5",
+  "publisher": "sohophp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sohophp/php-companion.git",
+    "directory": "packages/php-companion-symfony"
+  },
+  "homepage": "https://github.com/sohophp/php-companion/tree/main/packages/php-companion-symfony#readme",
+  "bugs": { "url": "https://github.com/sohophp/php-companion/issues" },
+  "icon": "resources/icon.png",
+  "galleryBanner": { "color": "#07183F", "theme": "dark" },
+  "engines": { "vscode": "^1.100.0" },
+  "categories": ["Programming Languages", "Other"],
+  "keywords": ["php", "symfony", "routes", "dependency injection", "events"],
+  "activationEvents": ["workspaceContains:composer.json", "onCommand:phpCompanionSymfony.showStatus"],
+  "main": "./dist/extension.js",
+  "files": ["dist", "resources/icon.png", "package.nls.json", "package.nls.zh-cn.json", "README.md", "LICENSE", "CHANGELOG.md"],
+  "scripts": {
+    "build": "node esbuild.mjs --production",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "package": "pnpm build && vsce package --no-dependencies"
+  },
+  "extensionDependencies": ["sohophp.php-companion"],
+  "contributes": {
+    "commands": [
+      { "command": "phpCompanionSymfony.showStatus", "title": "Show Integration Status", "category": "PHP Companion: Symfony" }
+    ]
+  },
+  "devDependencies": {
+    "@php-companion/plugin-api": "workspace:*",
+    "@types/node": "^22.15.0",
+    "@types/vscode": "^1.100.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

@@ -38,17 +38,17 @@ export function extensionAssessment(manifest, installed) {
     expected: extension.version,
     installed: installed.get(extension.id.toLowerCase()),
   }));
-  const products = (manifest.artifacts ?? []).filter((artifact) => ['core', 'open-source-pack', 'recommended-pack'].includes(artifact.role))
+  const products = (manifest.artifacts ?? []).filter((artifact) => ['core', 'symfony', 'open-source-pack', 'recommended-pack'].includes(artifact.role))
     .map((artifact) => ({ role: artifact.role, id: artifact.id, expected: artifact.version,
       installed: installed.get(artifact.id.toLowerCase()) }));
-  const core = products.find((product) => product.role === 'core');
+  const requiredProducts = products.filter((product) => product.role === 'core' || product.role === 'symfony');
   const packs = products.filter((product) => product.role === 'open-source-pack' || product.role === 'recommended-pack');
   const installedPacks = packs.filter((product) => product.installed !== undefined);
   return {
     required,
     missing: required.filter((extension) => extension.installed === undefined).map((extension) => extension.id),
     mismatched: required.filter((extension) => extension.installed !== undefined && extension.installed !== extension.expected),
-    productMissing: core?.installed === undefined ? [core?.id].filter(Boolean) : [],
+    productMissing: requiredProducts.filter((product) => product.installed === undefined).map((product) => product.id),
     productMismatched: products.filter((product) => product.installed !== undefined && product.installed !== product.expected),
     installedPacks,
     competingInstalled: competingPhpProviders.filter((id) => installed.has(id)),
@@ -64,14 +64,17 @@ export async function verifyCandidate(candidateDirectory) {
   const manifestPath = resolve(directory, 'candidate.json');
   const manifest = record(JSON.parse(await readFile(manifestPath, 'utf8')));
   const source = record(manifest?.source);
-  if (!manifest || manifest.schema !== 1 || manifest.channel !== 'alpha' || source?.clean !== true
+  if (!manifest || (manifest.schema !== 1 && manifest.schema !== 2) || manifest.channel !== 'alpha' || source?.clean !== true
     || typeof source.commit !== 'string' || !/^[a-f0-9]{40,64}$/u.test(source.commit)
     || !Array.isArray(manifest.artifacts) || !Array.isArray(manifest.supportedExtensions)
     || !Array.isArray(manifest.rejectedExtensions)) throw new Error('Alpha candidate manifest is invalid.');
+  const expectedRoles = manifest.schema === 1
+    ? ['core', 'open-source-pack', 'recommended-pack']
+    : ['core', 'symfony', 'open-source-pack', 'recommended-pack'];
   const names = new Set(); const artifacts = [];
   for (const raw of manifest.artifacts) {
     const artifact = record(raw);
-    if (!artifact || !['core', 'open-source-pack', 'recommended-pack'].includes(artifact.role)
+    if (!artifact || !expectedRoles.includes(artifact.role)
       || typeof artifact.id !== 'string' || typeof artifact.version !== 'string'
       || typeof artifact.file !== 'string' || basename(artifact.file) !== artifact.file
       || typeof artifact.sha256 !== 'string' || !SHA256.test(artifact.sha256)
@@ -88,8 +91,8 @@ export async function verifyCandidate(candidateDirectory) {
       valid: metadata.isFile() && metadata.size === artifact.bytes && actualSha256 === artifact.sha256 });
   }
   const roles = manifest.artifacts.map((artifact) => artifact.role);
-  if (artifacts.length !== 3 || new Set(roles).size !== 3
-    || !['core', 'open-source-pack', 'recommended-pack'].every((role) => roles.includes(role))
+  if (artifacts.length !== expectedRoles.length || new Set(roles).size !== expectedRoles.length
+    || !expectedRoles.every((role) => roles.includes(role))
     || artifacts.some((artifact) => !artifact.valid)) {
     throw new Error('Alpha candidate artifact verification failed.');
   }

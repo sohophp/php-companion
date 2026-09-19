@@ -46,5 +46,6 @@ Symfony Language Tools 暂不随 Pack 自动安装，也不属于受支持组合
 ```bash
 pnpm package:all
 code --install-extension php-companion-0.4.5.vsix
+code --install-extension packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix
 code --install-extension packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.5.vsix
 ```

@@ -2,6 +2,7 @@ import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
 interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => unknown; }
+interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; winstarRouteProviderRegistered: boolean }; }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -215,6 +216,19 @@ export async function run(): Promise<void> {
   const api = await extension.activate() as PhpCompanionPluginApi;
   assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
   assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
+  if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
+    const symfonyExtension = vscode.extensions.getExtension<PhpCompanionSymfonyApi>('sohophp.php-companion-symfony');
+    assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
+    const symfonyApi = await symfonyExtension.activate();
+    assert.strictEqual(symfonyApi.version, 1, 'PHP Companion Symfony did not expose API version 1');
+    assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, winstarRouteProviderRegistered: false });
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    assert.ok(folder, 'Fixture workspace was not opened');
+    await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', true, vscode.ConfigurationTarget.Workspace);
+    await waitFor(() => symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not register its route provider');
+    await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', false, vscode.ConfigurationTarget.Workspace);
+    await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not withdraw its route provider');
+  }
   const commands = await vscode.commands.getCommands(true);
   assert.ok(commands.includes('phpCompanion.selectPhpVersion'));
   assert.ok(commands.includes('phpCompanion.new.class'));

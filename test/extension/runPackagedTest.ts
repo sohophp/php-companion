@@ -40,13 +40,16 @@ function resolvePhpScriptCommand(command: string): string {
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const vsix = join(repository, 'php-companion-0.4.5.vsix');
+  const symfonyVsix = join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.5.vsix');
   await stat(vsix);
+  await stat(symfonyVsix);
   // macOS limits Unix-domain socket paths to roughly 104 bytes. GitHub's
   // per-user tmpdir is already long enough that VS Code's profile socket can
   // exceed that limit before the tests start.
   const temporary = await mkdtemp(join(process.platform === 'darwin' ? '/tmp' : tmpdir(), 'php-companion-packaged-'));
   const fixture = join(temporary, 'workspace');
   const extracted = join(temporary, 'vsix');
+  const symfonyExtracted = join(temporary, 'symfony-vsix');
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
@@ -122,10 +125,12 @@ abstract class AbstractController { public function generateUrl(string $route, a
     }
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
     await mkdir(extracted, { recursive: true });
+    await mkdir(symfonyExtracted, { recursive: true });
     execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
+    execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
     await runTests({
       vscodeExecutablePath: await macOSExecutablePath(),
-      extensionDevelopmentPath: join(extracted, 'extension'),
+      extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension')],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [
         fixture,

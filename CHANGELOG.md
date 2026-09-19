@@ -1,3 +1,4 @@
+- Add the installable `sohophp.php-companion-symfony` extension and move the optional Winstar runtime route provider under its plugin API registration; the core retains the provider only as an Alpha fallback when the standalone extension is absent.
 - Add schema 1 of `@php-companion/plugin-api`; the core extension now returns a versioned API through which independently installed extensions can register and withdraw namespaced semantic and route provider processes at runtime.
 - Withdrawing an integration removes its external semantic facts and refreshes open PHP documents without restarting the language server, establishing the runtime boundary for a future standalone PHP Companion Symfony VSIX.
 - 提交 `23e1a42` 完成 Symfony 独立插件运行边界；候选 `php-companion-alpha-0.4.5-23e1a42a` 的三份 VSIX、20 个独立组件 tarball、Winstar PHP 8.5/CoreRepo PHP 7.2 预检及打包 Extension Host 均已验证，核心候选已安装到 WSL RockyLinux8。
