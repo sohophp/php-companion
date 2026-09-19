@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -386,6 +386,55 @@ describe('static Symfony Controller context analysis', () => {
       { ownerFqcn: 'Symfony\\Component\\DependencyInjection\\ContainerInterface', argument: 'explicit.service', returnType: 'App\\Service\\Explicit' },
     ]);
     expect(analyzeSymfonyServiceYaml('file:///broken.yaml', 'services: [').complete).toBe(false);
+  });
+
+  it('extracts conventional XML services, prototypes and exact listener ranges', () => {
+    const source = `<?xml version="1.0"?>
+      <container xmlns="http://symfony.com/schema/dic/services">
+        <services>
+          <!-- <service id="comment.injected" class="App\\Injected"/> -->
+          <defaults public="false" autowire="true">
+            <bind key="App\\Contract\\ClockInterface $clock" type="service" id="app.clock"/>
+          </defaults>
+          <service id="app.clock" class="App\\Clock"/>
+          <service id="App\\Service\\Mailer" public="true">
+            <argument key="$transport" type="service" id="app.transport"/>
+            <call method="setLogger"/>
+            <property name="fallback" type="service" id="app.fallback"/>
+            <tag name="kernel.event_listener" event="app&amp;ready" method="onReady" priority="-4"/>
+            <tag name="kernel.event_listener" event="app.invalid" data-method="ignored"/>
+          </service>
+          <service id="App\\Contract\\MailerInterface" alias="App\\Service\\Mailer" public="true"/>
+          <prototype namespace="App\\Resource\\" resource="../src/Resource/" exclude="../src/Resource/Generated/">
+            <exclude>../src/Resource/Legacy/</exclude>
+            <tag name="kernel.event_listener" event="app.resource" method="onResource"/>
+          </prototype>
+          <service id="dynamic" class="%dynamic_class%"/>
+          <service id="abstract.base" class="App\\Base" abstract="true"/>
+        </services>
+      </container>`;
+    const result = analyzeSymfonyServiceXml('file:///project/config/services.xml', source);
+    expect(result.complete).toBe(true);
+    expect(result.services.map(({ id, className, alias, public: isPublic }) => ({ id, className, alias, public: isPublic }))).toEqual([
+      { id: 'app.clock', className: 'App\\Clock', alias: undefined, public: false },
+      { id: 'App\\Service\\Mailer', className: 'App\\Service\\Mailer', alias: undefined, public: true },
+      { id: 'App\\Contract\\MailerInterface', className: 'App\\Service\\Mailer', alias: 'App\\Service\\Mailer', public: true },
+    ]);
+    expect(result.services[1]).toMatchObject({ autowire: true, autowireComplete: true,
+      bindings: [{ type: 'App\\Contract\\ClockInterface', parameter: 'clock', serviceId: 'app.clock' },
+        { parameter: 'transport', serviceId: 'app.transport' }],
+      configuredCalls: ['setLogger'], callsComplete: true, configuredProperties: ['fallback'], propertiesComplete: true });
+    expect(result.services[1]!.eventListeners.map(({ event, method, priority }) => [event, method, priority]))
+      .toEqual([['app&ready', 'onReady', -4]]);
+    const listener = result.services[1]!.eventListeners[0]!;
+    expect(source.slice(listener.eventStart, listener.eventEnd)).toBe('app&amp;ready');
+    expect(source.slice(listener.methodStart, listener.methodEnd)).toBe('onReady');
+    expect(result.resources).toMatchObject([{ namespacePrefix: 'App\\Resource\\', resource: '../src/Resource/',
+      exclude: ['../src/Resource/Generated/', '../src/Resource/Legacy/'], autowire: true,
+      eventListeners: [{ event: 'app.resource', method: 'onResource' }] }]);
+    expect(source.slice(result.services[2]!.registrationStart, result.services[2]!.registrationEnd)).toBe('App\\Contract\\MailerInterface');
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<!DOCTYPE foo><container/>').complete).toBe(false);
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(false);
   });
 
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {

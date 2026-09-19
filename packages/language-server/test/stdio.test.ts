@@ -570,7 +570,7 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('restores Symfony YAML and compiled-container facts on a hot language-server start', async () => {
+  it('restores Symfony XML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {
       const cacheDirectory = join(root, '.cache'); const sourceDirectory = join(root, 'src');
@@ -583,9 +583,11 @@ describe('language server stdio', () => {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/App.php'] } }));
       await writeFile(join(root, 'composer.lock'), '{}');
       await writeFile(sourcePath, source);
-      await writeFile(join(configDirectory, 'services.yaml'), 'services:\n  app.mailer:\n    class: App\\Mailer\n    public: true\n');
+      const serviceXmlPath = join(configDirectory, 'services.xml'); const serviceXmlUri = pathToFileURL(serviceXmlPath).toString();
+      await writeFile(serviceXmlPath,
+        '<container><services><service id="app.mailer" class="App\\Mailer" public="true"/></services></container>');
       await writeFile(join(containerDirectory, 'App_KernelDevDebugContainer.xml'),
-        '<?xml version="1.0"?><container><services><service id="app.mailer" class="App\\Mailer" public="true"/></services></container>');
+        '<?xml version="1.0"?><container><services><service id="app.compiled" class="App\\Mailer" public="true"/></services></container>');
       const rootUri = pathToFileURL(root).toString();
       const start = async (id: number, expectedCached: number): Promise<ReturnType<typeof messagesFrom>> => {
         server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
@@ -617,6 +619,11 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
       expect((await hot.waitFor((message) => message.id === 223)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 225, method: 'textDocument/references', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('class Mailer') + 7), context: { includeDeclaration: false },
+      } }));
+      const references = (await hot.waitFor((message) => message.id === 225)).result;
+      expect(references).toContainEqual(expect.objectContaining({ uri: serviceXmlUri }));
       await stop(hot, 224);
     } finally { await rm(root, { recursive: true, force: true }); }
   });

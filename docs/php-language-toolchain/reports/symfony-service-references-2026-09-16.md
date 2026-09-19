@@ -12,6 +12,14 @@
 - `onDemand` 冷启动类型查询先按短类名扫描候选 PHP 文件；若尚无该类的 Symfony 服务事实，再加载服务配置并合并引用，不启动依赖全量索引。
 - Symfony 原始事实缓存升级为 `symfony-facts-v2`，旧缓存会安全重建。
 
+### 2026-09-19 传统 services.xml 增量
+
+- 静态解析标准 `<container><services>` 文档中的 defaults、显式 service/alias、bind、具名 service argument、call/property、prototype/exclude 和 `kernel.event_listener`，保留精确原始 XML 范围。
+- 约定位置的 `config/services.xml`、`config/packages/services.xml`、`config/symfony/services.xml` 和 `app/config/services.xml` 与 YAML 一同进入 Language Server；XML 先加载，重复 ID 仍由后加载的 YAML 显式配置优先。
+- XML resource/prototype 每次按当前 PHP 类型目录展开；原始事实进入 `symfony-facts-v5` 缓存，热恢复验证源内容和事实摘要但不重新解析。
+- 拒绝 DOCTYPE、环境 `<when>`、动态 `%...%`、abstract 服务和无法证明 class 的 factory。PHP DSL、导入的 bundle 配置与动态 env 表达式继续保持 unknown。
+- stdio 回归在无编译容器依赖的场景中证明：公开 XML 服务驱动 Container `get()` 返回补全，从 PHP 类执行 References 返回 `services.xml` 的注册范围。
+
 动态 resource、参数化 class/resource、运行时编译器改写和无法证明的注册保持不返回。事件订阅与 dispatch/listener 关系不在本次范围，仍列为 P8 后续任务。
 
 ## 验证证据

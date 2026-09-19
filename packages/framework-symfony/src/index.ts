@@ -1,7 +1,7 @@
 import type { ControllerTemplateContext, ControllerContextVariable, SerializedPhpType } from '@php-companion/interop';
 import type { PhpSyntaxParser, ParsedImport } from '@php-companion/parser';
 import type { ExternalLiteralMethodReturnFact } from '@php-companion/semantic-provider';
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type YAMLMap } from 'yaml';
 
 interface NodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: NodeLike[]; childForFieldName(name: string): NodeLike | null; }
@@ -32,7 +32,7 @@ function decodeXmlAttribute(value: string): string {
   });
 }
 function xmlAttribute(tag: string, name: string, offset: number): { value: string; start: number; end: number } | undefined {
-  const match = new RegExp(`\\b${name}\\s*=\\s*(['"])(.*?)\\1`, 's').exec(tag); if (!match || match.index === undefined) return undefined;
+  const match = new RegExp(`(?:^|\\s)${name}\\s*=\\s*(['"])(.*?)\\1`, 's').exec(tag); if (!match || match.index === undefined) return undefined;
   const quote = match[0].indexOf(match[1]!); const start = offset + match.index + quote + 1;
   return { value: decodeXmlAttribute(match[2]!), start, end: start + match[2]!.length };
 }
@@ -882,6 +882,139 @@ function eventListenerTags(node: Node | null | undefined, uri: string, source: s
     return [{ event, method, priority, uri, eventStart: eventRange.start, eventEnd: eventRange.end,
       methodStart: methodRange.start, methodEnd: methodRange.end }];
   });
+}
+
+interface XmlElementRange { name: string; start: number; end: number; openEnd: number; closeStart: number; parentStart?: number; tag: string; }
+
+function xmlElementRanges(source: string): XmlElementRange[] | undefined {
+  const ignored = [...source.matchAll(/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>/g)]
+    .flatMap((match) => match.index === undefined ? [] : [{ start: match.index, end: match.index + match[0].length }]);
+  const tokens = [...source.matchAll(/<\s*(\/?)\s*([A-Za-z_][A-Za-z0-9_.:-]*)(?:\s[^>]*)?>/g)];
+  const elements: XmlElementRange[] = []; const stack: XmlElementRange[] = [];
+  for (const token of tokens) {
+    if (token.index === undefined) continue;
+    if (ignored.some((range) => token.index! >= range.start && token.index! < range.end)) continue;
+    const name = token[2]!.split(':').at(-1)!.toLowerCase(); const closing = token[1] === '/';
+    if (closing) {
+      const element = stack.pop(); if (!element || element.name !== name) return undefined;
+      element.closeStart = token.index; element.end = token.index + token[0].length; elements.push(element); continue;
+    }
+    const element: XmlElementRange = { name, start: token.index, end: token.index + token[0].length,
+      openEnd: token.index + token[0].length, closeStart: token.index + token[0].length,
+      parentStart: stack.at(-1)?.start, tag: token[0] };
+    if (/\/\s*>$/.test(token[0])) elements.push(element); else stack.push(element);
+  }
+  return stack.length ? undefined : elements.sort((left, right) => left.start - right.start);
+}
+
+function xmlBoolean(value: string | undefined): boolean | undefined {
+  return value === 'true' || value === '1' ? true : value === 'false' || value === '0' ? false : undefined;
+}
+
+/** Parse conventional Symfony XML service definitions without loading the container or resolving parameters. */
+export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonyServiceDocumentFacts {
+  if (/<!DOCTYPE/i.test(source)) return { complete: false, services: [], resources: [] };
+  if (XMLValidator.validate(source) !== true) return { complete: false, services: [], resources: [] };
+  const elements = xmlElementRanges(source); if (!elements) return { complete: false, services: [], resources: [] };
+  const containers = elements.filter((element) => element.name === 'container' && element.parentStart === undefined);
+  const servicesRoots = containers.length === 1
+    ? elements.filter((element) => element.name === 'services' && element.parentStart === containers[0]!.start) : [];
+  if (servicesRoots.length !== 1 || elements.some((element) => element.name === 'when')) return { complete: false, services: [], resources: [] };
+  const root = servicesRoots[0]!; const children = (parent: XmlElementRange, name?: string): XmlElementRange[] => elements
+    .filter((element) => element.parentStart === parent.start && (!name || element.name === name));
+  const attribute = (element: XmlElementRange, name: string): { value: string; start: number; end: number } | undefined =>
+    xmlAttribute(element.tag, name, element.start);
+  const defaults = children(root, 'defaults'); if (defaults.length > 1) return { complete: false, services: [], resources: [] };
+  const defaultPublic = xmlBoolean(defaults[0] && attribute(defaults[0], 'public')?.value) ?? false;
+  const defaultAutowire = xmlBoolean(defaults[0] && attribute(defaults[0], 'autowire')?.value) ?? false;
+  const parseBindings = (owner: XmlElementRange): { complete: boolean; bindings: SymfonyAutowireBinding[] } => {
+    const bindings: SymfonyAutowireBinding[] = [];
+    for (const bind of children(owner, 'bind')) {
+      const key = attribute(bind, 'key')?.value;
+      const match = key && /^(?:(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:[|&]\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)*)(?:\s+\$([A-Za-z_][A-Za-z0-9_]*))?|\$([A-Za-z_][A-Za-z0-9_]*))$/.exec(key.trim());
+      if (!match) return { complete: false, bindings: [] };
+      const type = attribute(bind, 'type')?.value; const id = attribute(bind, 'id')?.value;
+      const serviceId = type === 'service' && id && !id.includes('%') ? id : undefined;
+      bindings.push({ type: match[1]?.replace(/(^|[|&])\\/g, '$1'), parameter: match[2] ?? match[3], serviceId });
+    }
+    return { complete: true, bindings };
+  };
+  const parseArguments = (owner: XmlElementRange): { complete: boolean; bindings: SymfonyAutowireBinding[] } => {
+    const bindings: SymfonyAutowireBinding[] = [];
+    for (const argument of children(owner, 'argument')) {
+      const key = attribute(argument, 'key')?.value;
+      if (!key?.startsWith('$') || !/^\$[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return { complete: false, bindings: [] };
+      const type = attribute(argument, 'type')?.value; const id = attribute(argument, 'id')?.value;
+      bindings.push({ parameter: key.slice(1), serviceId: type === 'service' && id && !id.includes('%') ? id : undefined });
+    }
+    return { complete: true, bindings };
+  };
+  const parseCalls = (owner: XmlElementRange): { complete: boolean; names: string[] } => {
+    const calls = children(owner, 'call'); const names = calls.map((call) => attribute(call, 'method')?.value);
+    return names.every((name) => name && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name))
+      ? { complete: true, names: names as string[] } : { complete: false, names: [] };
+  };
+  const parseProperties = (owner: XmlElementRange): { complete: boolean; names: string[] } => {
+    const properties = children(owner, 'property'); const names = properties.map((property) => attribute(property, 'name')?.value);
+    return names.every((name) => name && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name))
+      ? { complete: true, names: names as string[] } : { complete: false, names: [] };
+  };
+  const parseListeners = (owner: XmlElementRange): SymfonyEventListenerTagFact[] => children(owner, 'tag').flatMap((tag) => {
+    const name = attribute(tag, 'name')?.value; const event = attribute(tag, 'event'); const method = attribute(tag, 'method');
+    const priorityValue = attribute(tag, 'priority')?.value ?? '0'; const priority = Number(priorityValue);
+    return name === 'kernel.event_listener' && event && method && !event.value.includes('%')
+      && /^[A-Za-z_][A-Za-z0-9_]*$/.test(method.value) && /^-?\d+$/.test(priorityValue) && Number.isSafeInteger(priority)
+      ? [{ event: event.value, method: method.value, priority, uri, eventStart: event.start, eventEnd: event.end,
+        methodStart: method.start, methodEnd: method.end }] : [];
+  });
+  const defaultBindings = defaults[0] ? parseBindings(defaults[0]) : { complete: true, bindings: [] };
+  const defaultListeners = defaults[0] ? parseListeners(defaults[0]) : [];
+  const resources: SymfonyServiceResourceFact[] = [];
+  for (const prototype of children(root, 'prototype')) {
+    const namespace = attribute(prototype, 'namespace'); const resource = attribute(prototype, 'resource');
+    if (!namespace || !namespace.value.endsWith('\\') || !resource || resource.value.includes('%')) continue;
+    const wiring = parseBindings(prototype); const calls = parseCalls(prototype); const properties = parseProperties(prototype);
+    const excludeAttribute = attribute(prototype, 'exclude')?.value;
+    const excludes = [...(excludeAttribute ? [excludeAttribute] : []), ...children(prototype, 'exclude')
+      .map((exclude) => decodeXmlAttribute(source.slice(exclude.openEnd, exclude.closeStart).trim())).filter(Boolean)];
+    resources.push({ namespacePrefix: namespace.value, resource: resource.value, exclude: excludes,
+      public: xmlBoolean(attribute(prototype, 'public')?.value) ?? defaultPublic,
+      autowire: xmlBoolean(attribute(prototype, 'autowire')?.value) ?? defaultAutowire,
+      autowireComplete: defaultBindings.complete && wiring.complete, bindings: [...defaultBindings.bindings, ...wiring.bindings],
+      configuredCalls: calls.names, callsComplete: calls.complete, configuredProperties: properties.names,
+      propertiesComplete: properties.complete, eventListeners: [...defaultListeners, ...parseListeners(prototype)],
+      uri, start: namespace.start, end: namespace.end });
+  }
+  const raw = new Map<string, Omit<SymfonyServiceFact, 'className' | 'origin' | 'registrationUri' | 'registrationStart' | 'registrationEnd'> & { className?: string }>();
+  for (const element of children(root, 'service')) {
+    const id = attribute(element, 'id'); if (!id || id.value.includes('%') || xmlBoolean(attribute(element, 'abstract')?.value) === true) continue;
+    const configuredClass = attribute(element, 'class')?.value; const configuredAlias = attribute(element, 'alias')?.value;
+    const factory = children(element, 'factory').length > 0 || children(element, 'from-callable').length > 0;
+    const className = configuredClass && !configuredClass.includes('%') ? configuredClass.replace(/^\\/, '')
+      : !configuredAlias && id.value.includes('\\') && !factory && !attribute(element, 'parent') ? id.value.replace(/^\\/, '') : undefined;
+    const alias = configuredAlias && !configuredAlias.includes('%') ? configuredAlias.replace(/^@\??/, '').replace(/^\\/, '') : undefined;
+    if (!className && !alias) continue;
+    const wiring = parseBindings(element); const argumentsWiring = parseArguments(element);
+    const calls = parseCalls(element); const properties = parseProperties(element);
+    raw.set(id.value, { id: id.value, className, alias, public: xmlBoolean(attribute(element, 'public')?.value) ?? defaultPublic,
+      autowire: xmlBoolean(attribute(element, 'autowire')?.value) ?? defaultAutowire,
+      autowireComplete: defaultBindings.complete && wiring.complete && argumentsWiring.complete,
+      bindings: [...defaultBindings.bindings, ...wiring.bindings, ...argumentsWiring.bindings],
+      configuredCalls: calls.names, callsComplete: calls.complete, configuredProperties: properties.names,
+      propertiesComplete: properties.complete, eventListeners: [...defaultListeners, ...parseListeners(element)],
+      uri, start: id.start, end: id.end });
+  }
+  const resolveClass = (service: { className?: string; alias?: string }, visited = new Set<string>()): string | undefined => {
+    if (service.className) return service.className;
+    if (!service.alias || visited.has(service.alias)) return undefined;
+    visited.add(service.alias); const target = raw.get(service.alias);
+    return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias.replace(/^\\/, '') : undefined;
+  };
+  return { complete: true, resources, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+    const className = resolveClass(service, new Set([service.id]));
+    return className ? [{ ...service, className, origin: 'explicit', registrationUri: service.uri,
+      registrationStart: service.start, registrationEnd: service.end }] : [];
+  }) };
 }
 
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */

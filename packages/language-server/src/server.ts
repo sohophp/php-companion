@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyRouteAttributes, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -373,9 +373,10 @@ function semanticForRoot(root: string): Promise<SemanticWorkspace> { return sema
 function semanticForUri(uri: string): Promise<SemanticWorkspace> { const root = rootForUri(uri); return root ? semanticForRoot(root) : semanticForKey('loose'); }
 
 const SYMFONY_SERVICE_CONFIGS = ['config/services.yaml', 'config/services.yml', 'config/packages/services.yaml', 'config/packages/services.yml', 'config/symfony/services.yaml', 'config/symfony/services.yml', 'app/config/services.yaml', 'app/config/services.yml'];
+const SYMFONY_SERVICE_XML_CONFIGS = ['config/services.xml', 'config/packages/services.xml', 'config/symfony/services.xml', 'app/config/services.xml'];
 function isSymfonyServiceConfig(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
-  return SYMFONY_SERVICE_CONFIGS.includes(normalized);
+  return SYMFONY_SERVICE_CONFIGS.includes(normalized) || SYMFONY_SERVICE_XML_CONFIGS.includes(normalized);
 }
 function affectsSymfonyCompiledContainer(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
@@ -469,6 +470,17 @@ async function loadSymfonyServiceFacts(root: string, workspace: SemanticWorkspac
       } else { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
     } catch { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
   } else { symfonyCompiledMethodArgumentsByRoot.set(root, []); symfonyCompiledPropertyArgumentsByRoot.set(root, []); }
+  for (const relativePath of SYMFONY_SERVICE_XML_CONFIGS) {
+    const path = resolve(root, relativePath); const uri = indexedUriForPath(root, path);
+    try {
+      const loaded = factsCache
+        ? await factsCache.loadServiceXml(path, uri, (source) => analyzeSymfonyServiceXml(uri, source), bypassCachePaths.has(path))
+        : { facts: analyzeSymfonyServiceXml(uri, await readFile(path, 'utf8')), cached: false };
+      loadedSources += 1; if (loaded.cached) cachedSources += 1;
+      const services = expandSymfonyServiceResources(loaded.facts, candidates);
+      catalog.set(uri, services); byFile.set(uri, symfonyContainerMethodReturnFacts(services));
+    } catch { /* Optional conventional XML service files may be absent. */ }
+  }
   for (const relativePath of SYMFONY_SERVICE_CONFIGS) {
     const path = resolve(root, relativePath); const uri = indexedUriForPath(root, path);
     try {

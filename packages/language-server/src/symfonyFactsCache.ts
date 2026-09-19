@@ -3,14 +3,14 @@ import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { SymfonyCompiledContainerFacts, SymfonyServiceDocumentFacts } from '@php-companion/framework-symfony';
 
-type FactKind = 'service-yaml' | 'compiled-container';
+type FactKind = 'service-yaml' | 'service-xml' | 'compiled-container';
 type FactPayload = SymfonyServiceDocumentFacts | SymfonyCompiledContainerFacts;
 interface CachedFactEnvelope { schema: 1; kind: FactKind; uri: string; facts: FactPayload; checksum: string; }
 interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: string; payload: CachedFactEnvelope; }
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v4';
+const CACHE_VERSION = 'symfony-facts-v5';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;
@@ -72,7 +72,7 @@ function factArray(value: unknown, validate: (item: unknown) => boolean): boolea
 function validFacts(kind: FactKind, value: unknown, uri?: string): value is FactPayload {
   const facts = record(value); if (!facts || typeof facts.complete !== 'boolean') return false;
   const hasExpectedUri = (item: unknown): boolean => uri === undefined || record(item)?.uri === uri;
-  return kind === 'service-yaml'
+  return kind === 'service-yaml' || kind === 'service-xml'
     ? factArray(facts.services, (item) => service(item) && hasExpectedUri(item))
       && factArray(facts.resources, (item) => resource(item) && hasExpectedUri(item))
     : factArray(facts.services, (item) => service(item) && hasExpectedUri(item))
@@ -136,6 +136,10 @@ export class SymfonyFactCache {
 
   loadServiceYaml(path: string, uri: string, analyze: (source: string) => SymfonyServiceDocumentFacts, bypass = false): Promise<SymfonyFactCacheResult<SymfonyServiceDocumentFacts>> {
     return this.load(path, uri, 'service-yaml', analyze, bypass);
+  }
+
+  loadServiceXml(path: string, uri: string, analyze: (source: string) => SymfonyServiceDocumentFacts, bypass = false): Promise<SymfonyFactCacheResult<SymfonyServiceDocumentFacts>> {
+    return this.load(path, uri, 'service-xml', analyze, bypass);
   }
 
   loadCompiledContainer(path: string, uri: string, analyze: (source: string) => SymfonyCompiledContainerFacts, bypass = false): Promise<SymfonyFactCacheResult<SymfonyCompiledContainerFacts>> {

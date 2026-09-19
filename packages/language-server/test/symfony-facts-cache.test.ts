@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { analyzeSymfonyContainerXml, analyzeSymfonyServiceYaml } from '@php-companion/framework-symfony';
+import { analyzeSymfonyContainerXml, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml } from '@php-companion/framework-symfony';
 import { SymfonyFactCache, symfonyFactCachePath } from '../src/symfonyFactsCache.js';
 
 describe('persistent Symfony source facts', () => {
@@ -16,21 +16,27 @@ describe('persistent Symfony source facts', () => {
     const containerDirectory = join(root, 'var', 'cache', 'dev');
     await mkdir(configDirectory); await mkdir(containerDirectory, { recursive: true });
     const yamlPath = join(configDirectory, 'services.yaml'); const yamlUri = pathToFileURL(yamlPath).toString();
+    const serviceXmlPath = join(configDirectory, 'services.xml'); const serviceXmlUri = pathToFileURL(serviceXmlPath).toString();
     const xmlPath = join(containerDirectory, 'App_KernelDevDebugContainer.xml'); const xmlUri = pathToFileURL(xmlPath).toString();
     await writeFile(yamlPath, 'services:\n  app.mailer:\n    class: App\\Mailer\n    public: true\n');
+    await writeFile(serviceXmlPath, '<container><services><service id="app.xml" class="App\\XmlService"/></services></container>');
     await writeFile(xmlPath, '<?xml version="1.0"?><container><services><service id="app.mailer" class="App\\Mailer" public="true"/></services></container>');
 
     const cold = await SymfonyFactCache.open(cacheDirectory, root);
     expect((await cold.loadServiceYaml(yamlPath, yamlUri, (source) => analyzeSymfonyServiceYaml(yamlUri, source))).cached).toBe(false);
+    expect((await cold.loadServiceXml(serviceXmlPath, serviceXmlUri, (source) => analyzeSymfonyServiceXml(serviceXmlUri, source))).cached).toBe(false);
     expect((await cold.loadCompiledContainer(xmlPath, xmlUri, (source) => analyzeSymfonyContainerXml(xmlUri, source))).cached).toBe(false);
     await cold.commit();
 
-    let yamlParses = 0; let xmlParses = 0;
+    let yamlParses = 0; let serviceXmlParses = 0; let xmlParses = 0;
     const hot = await SymfonyFactCache.open(cacheDirectory, root);
     const yaml = await hot.loadServiceYaml(yamlPath, yamlUri, (source) => { yamlParses += 1; return analyzeSymfonyServiceYaml(yamlUri, source); });
+    const serviceXml = await hot.loadServiceXml(serviceXmlPath, serviceXmlUri, (source) => { serviceXmlParses += 1; return analyzeSymfonyServiceXml(serviceXmlUri, source); });
     const xml = await hot.loadCompiledContainer(xmlPath, xmlUri, (source) => { xmlParses += 1; return analyzeSymfonyContainerXml(xmlUri, source); });
-    expect({ yamlCached: yaml.cached, xmlCached: xml.cached, yamlParses, xmlParses }).toEqual({ yamlCached: true, xmlCached: true, yamlParses: 0, xmlParses: 0 });
+    expect({ yamlCached: yaml.cached, serviceXmlCached: serviceXml.cached, xmlCached: xml.cached, yamlParses, serviceXmlParses, xmlParses })
+      .toEqual({ yamlCached: true, serviceXmlCached: true, xmlCached: true, yamlParses: 0, serviceXmlParses: 0, xmlParses: 0 });
     expect(yaml.facts.services).toMatchObject([{ id: 'app.mailer', className: 'App\\Mailer' }]);
+    expect(serviceXml.facts.services).toMatchObject([{ id: 'app.xml', className: 'App\\XmlService' }]);
     expect(xml.facts.services).toMatchObject([{ id: 'app.mailer', className: 'App\\Mailer', origin: 'compiled' }]);
     await hot.commit();
 

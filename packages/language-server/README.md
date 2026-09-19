@@ -6,7 +6,7 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 Composer 索引缓存使用 v46/schema 3 校验封装：schema 74 的源码、声明/签名、文件级实现、每个唯一 callable 实现、引用候选/类型依赖，以及 Symfony Controller/Twig 与 Doctrine 事实分别计算 SHA-256，再由整体摘要封装。全部记录核对通过后先注册声明表，未打开文件的实现记录保持延迟；工作区类型、函数、常量和符号目录不装载正文。成员补全、Definition、Type Definition、Signature Help 和区间 Inlay Hint 只把目标 callable 及文件级事实合并进活动语义视图；整文件诊断、重构和无法证明局部边界的正文扫描自动完整水合。索引日志报告仍含未加载记录的文件数。单个缓存条目损坏时只重建对应文件；已打开且内容不同的文档拒绝磁盘缓存，未保存内容不会写入以磁盘时间戳为键的缓存。
 
-Symfony `services.yaml` 和新鲜 `var/cache/dev/*DebugContainer.xml` 使用独立的 `symfony-facts-v4` 有界缓存。恢复同时校验 Composer 根、来源路径、URI、稳定文件元数据、源内容 SHA-256、事实结构和事实 SHA-256；损坏或陈旧条目单独重建。热启动仍读取来源以验证内容，但不重新执行 YAML/XML 分析。缓存只保存未展开 YAML 事实，resource 服务每次都按当前 PHP 类型目录展开；文件监控明确报告变化时会绕过对应缓存条目。v4 同时校验 YAML 与编译容器的精确事件监听标签及其 event/method 范围。
+Symfony `services.yaml`、约定位置的 `services.xml` 和新鲜 `var/cache/dev/*DebugContainer.xml` 使用独立的 `symfony-facts-v5` 有界缓存。恢复同时校验 Composer 根、来源路径、URI、稳定文件元数据、源内容 SHA-256、事实结构和事实 SHA-256；损坏或陈旧条目单独重建。热启动仍读取来源以验证内容，但不重新执行 YAML/XML 分析。缓存只保存未展开的静态配置事实，resource/prototype 服务每次都按当前 PHP 类型目录展开；文件监控明确报告变化时会绕过对应缓存条目。v5 同时校验 YAML、传统 XML 配置与编译容器的精确事件监听标签及其 event/method 范围。
 
 Symfony 监听类与公开方法的 References 会合并 subscriber 数组、`AsEventListener`、YAML/新鲜编译容器中的显式 `kernel.event_listener`，以及匹配的事件派发位置。继承或 Trait 组合的 subscriber map 按有效宿主与注册服务解析 `self/static/parent` 类常量事件键。派发位置只在 `dispatch()` 唯一解析到 Symfony EventDispatcher contract 或其子类型时出现；同一代码块内直接构造且未经暴露/重赋值的局部事件变量、其有界直接别名链，以及每个分支都只构造同一事件的完整 `if/elseif/else` 可精确关联。参数、部分或分歧分支、Messenger、业务同名方法和动态事件名保持 unknown。
 
@@ -112,7 +112,7 @@ PHPDoc 泛型参数转发会读取声明类的 `@template-covariant`、`@templat
 
 未按引用、调用前未使用或重赋值的 PHPDoc Callable 参数，在位置/具名实参、直接静态数组展开、一次直接静态数组局部赋值后的变量展开、静态基数组上连续 `[]`/整数键写入构造的未读取局部位置数组，或未触碰非引用参数的封闭全必填具名 shape 展开同时满足必填、可选、variadic、名称和逐项类型声明时，其直接调用结果会参与参数诊断；同作用域一次直接赋值且双方未再使用/重赋值的单层别名也受支持。实参类型校验复用继承、泛型方差和调用文件的 strict/weak 标量规则，`mixed` 参数可接收动态值，variadic 可接收额外具名参数。重复名称、无 variadic 接收的未知名称、命名后位置实参、类型不兼容或无法证明的非 mixed 实参、宽泛/可选参数 shape、已使用参数数组、稀疏或动态键数组、数量不符、多层/条件别名或签名不完整时保持静默。
 
-Symfony 项目存在 `var/cache/dev/*DebugContainer.xml` 时，服务器只在该文件不早于已索引 `src/`、递归 `config/`、`composer.json` 和 `composer.lock` 时读取它。新鲜缓存可补充 bundle/编译器生成的服务目录、公开 `ContainerInterface::get()` 返回类型、精确到已索引公开方法和参数名的私有 service locator、按源码 callable/参数位置/对象类型复核的编译构造参数与方法调用，以及按 owner/名称/对象类型复核的明确 Required 属性注入 Hover/Definition；任一依赖文件更新或缓存无法完整解析时，整组编译事实立即停用，继续使用静态 YAML 能力。
+服务器会直接静态读取约定位置的 `services.yaml` 和 `services.xml`，因此没有可用编译缓存时仍可提供其中可证明的服务、注入、监听标签和注册 References。项目存在 `var/cache/dev/*DebugContainer.xml` 时，服务器只在该文件不早于已索引 `src/`、递归 `config/`、`composer.json` 和 `composer.lock` 时读取它。新鲜缓存可补充 bundle/编译器生成的服务目录、公开 `ContainerInterface::get()` 返回类型、精确到已索引公开方法和参数名的私有 service locator、按源码 callable/参数位置/对象类型复核的编译构造参数与方法调用，以及按 owner/名称/对象类型复核的明确 Required 属性注入 Hover/Definition；任一依赖文件更新或缓存无法完整解析时，整组编译事实立即停用，继续使用静态 YAML/XML 能力。
 
 Controller interop 会为完整、字面量 `render()` context 中的每个变量提供 PHP 键名精确范围，并声明 `rename-prepare` 能力。TwigPlus 可据此把直接目标模板的外部变量引用与全部 Controller 键合并为一次跨语言 Rename；动态或不完整 context 不进入该能力。
 
