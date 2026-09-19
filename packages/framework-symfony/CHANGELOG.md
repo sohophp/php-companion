@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Resolve positional PHP Configurator, YAML and XML service arguments by exact constructor index, preserve per-position scalar suppression, and honor explicit arguments before binds or inferred autowiring even when autowiring is disabled.
 - Parse the static Symfony PHP Configurator service DSL from a proven returned `ContainerConfigurator` closure, including service/resource registration, aliases, defaults, named wiring overrides, configured methods/properties, listener tags and literal imports with exact source ranges. Reject reassigned configurators and runtime-dependent definitions.
 - Extract exact literal service-import resources from YAML and XML so callers can build deterministic configuration graphs without loading Symfony.
 - Parse conventional Symfony `services.xml` files without executing the Kernel, covering deterministic defaults, explicit services and aliases, named service arguments, calls, properties, prototypes/excludes and event-listener tags with exact source ranges. Reject environment branches, dynamic values and factories that cannot prove a class.

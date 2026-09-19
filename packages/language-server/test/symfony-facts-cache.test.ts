@@ -22,7 +22,12 @@ describe('persistent Symfony source facts', () => {
     const xmlPath = join(containerDirectory, 'App_KernelDevDebugContainer.xml'); const xmlUri = pathToFileURL(xmlPath).toString();
     await writeFile(yamlPath, 'imports:\n  - { resource: services/child.yaml }\nservices:\n  app.mailer:\n    class: App\\Mailer\n    public: true\n');
     await writeFile(serviceXmlPath, '<container><imports><import resource="services/child.xml"/></imports><services><service id="app.xml" class="App\\XmlService"/></services></container>');
-    await writeFile(servicePhpPath, '<?php use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator; return static function (ContainerConfigurator $container): void { $container->services()->set(App\\PhpService::class); };');
+    await writeFile(servicePhpPath, `<?php
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\service;
+      return static function (ContainerConfigurator $container): void {
+        $container->services()->set(App\\PhpService::class)->autowire()->args([service('app.mailer'), 'disabled']);
+      };`);
     await writeFile(xmlPath, '<?xml version="1.0"?><container><services><service id="app.mailer" class="App\\Mailer" public="true"/></services></container>');
 
     const cold = await SymfonyFactCache.open(cacheDirectory, root);
@@ -45,7 +50,8 @@ describe('persistent Symfony source facts', () => {
         yamlParses: 0, serviceXmlParses: 0, servicePhpParses: 0, xmlParses: 0 });
     expect(yaml.facts.services).toMatchObject([{ id: 'app.mailer', className: 'App\\Mailer' }]);
     expect(serviceXml.facts.services).toMatchObject([{ id: 'app.xml', className: 'App\\XmlService' }]);
-    expect(servicePhp.facts.services).toMatchObject([{ id: 'App\\PhpService', className: 'App\\PhpService' }]);
+    expect(servicePhp.facts.services).toMatchObject([{ id: 'App\\PhpService', className: 'App\\PhpService', autowireComplete: true,
+      bindings: [{ parameterIndex: 0, serviceId: 'app.mailer', explicitArgument: true }, { parameterIndex: 1, explicitArgument: true }] }]);
     expect(yaml.facts.imports).toMatchObject([{ resource: 'services/child.yaml', uri: yamlUri }]);
     expect(serviceXml.facts.imports).toMatchObject([{ resource: 'services/child.xml', uri: serviceXmlUri }]);
     expect(xml.facts.services).toMatchObject([{ id: 'app.mailer', className: 'App\\Mailer', origin: 'compiled' }]);

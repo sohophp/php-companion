@@ -14,7 +14,7 @@
 - 服务、别名、resource、事件、回调和 import 保留原始 PHP 精确范围；公开服务进入 Container 返回类型，注册位置进入 PHP 类型 References。
 - services 变量或 container 参数一旦重赋值，后续调用不再采信。factory、fromCallable、parent、abstract/synthetic 服务被移除；自定义 constructor 和无法映射的显式参数会抑制自动注入推断。
 
-条件/循环内注册、动态 ID/class/resource、位置参数到 PHP 构造参数的静态映射、复杂 configurator 别名和运行时 helper 保持 unknown。
+条件/循环内注册、动态 ID/class/resource、复杂 configurator 别名和运行时 helper 保持 unknown。位置参数到 PHP 构造参数的静态映射已在后续增量完成，见 [Symfony 位置服务参数映射](symfony-positional-service-arguments-2026-09-19.md)。
 
 ## 真实源码审计
 

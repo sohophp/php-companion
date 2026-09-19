@@ -1,3 +1,4 @@
+- Map deterministic Symfony positional service arguments to semantic constructor parameter indexes, keep scalar overrides local to one parameter, and advance the validated Symfony fact cache to v8.
 - Add incremental file-event draining, timed query logs, precise type candidate scans, cancellation errors, and immutable Safe Move source snapshots.
 - Bind Safe Move reconciliation ranges to their source text and return source snapshots for client stale-edit rejection.
 - Resolve Safe Move destinations using the source declaration mapping; wait for project references in onDemand mode and ignore non-autoload PHP watcher events.

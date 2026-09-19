@@ -6,7 +6,7 @@ import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type YAMLM
 
 interface NodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: NodeLike[]; childForFieldName(name: string): NodeLike | null; }
 export interface SymfonyControllerDocument { uri: string; source: string; snapshotVersion: string; }
-export interface SymfonyAutowireBinding { type?: string; parameter?: string; serviceId?: string; }
+export interface SymfonyAutowireBinding { type?: string; parameter?: string; parameterIndex?: number; serviceId?: string; explicitArgument?: boolean; }
 export interface SymfonyEventListenerTagFact { event: string; method: string; priority: number; uri: string; eventStart: number; eventEnd: number; methodStart: number; methodEnd: number; }
 export interface SymfonyServiceFact { id: string; className: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; origin: 'explicit' | 'resource' | 'compiled'; uri: string; start: number; end: number; registrationUri: string; registrationStart: number; registrationEnd: number; }
 export interface SymfonyServiceResourceFact { namespacePrefix: string; resource: string; exclude: string[]; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number; }
@@ -823,16 +823,29 @@ function serviceMap(contents: Node | null | undefined): YAMLMap | undefined {
   return isMap(nested) ? nested : undefined;
 }
 
-function autowireBindings(node: Node | null | undefined): { complete: boolean; bindings: SymfonyAutowireBinding[] } {
+function autowireBindings(node: Node | null | undefined, arguments_: boolean = false): { complete: boolean; bindings: SymfonyAutowireBinding[] } {
   if (node === undefined) return { complete: true, bindings: [] };
+  if (arguments_ && isSeq(node)) return { complete: true, bindings: node.items.map((value, parameterIndex) => {
+    const scalar = scalarValue(value as Node); const serviceId = typeof scalar === 'string' && /^@\??[^@]/.test(scalar) ? scalar.replace(/^@\??/, '') : undefined;
+    return { parameterIndex, serviceId, explicitArgument: true };
+  }) };
   if (!isMap(node)) return { complete: false, bindings: [] };
   const bindings: SymfonyAutowireBinding[] = [];
   for (const pair of node.items as Pair[]) {
-    const key = scalarValue(pair.key as Node); if (typeof key !== 'string') return { complete: false, bindings: [] };
+    const key = scalarValue(pair.key as Node);
+    if (arguments_ && typeof key === 'number' && Number.isSafeInteger(key) && key >= 0) {
+      const value = scalarValue(pair.value as Node); const serviceId = typeof value === 'string' && /^@\??[^@]/.test(value) ? value.replace(/^@\??/, '') : undefined;
+      bindings.push({ parameterIndex: key, serviceId, explicitArgument: true }); continue;
+    }
+    if (typeof key !== 'string') return { complete: false, bindings: [] };
+    if (arguments_ && /^(?:0|[1-9]\d*)$/.test(key) && Number.isSafeInteger(Number(key))) {
+      const value = scalarValue(pair.value as Node); const serviceId = typeof value === 'string' && /^@\??[^@]/.test(value) ? value.replace(/^@\??/, '') : undefined;
+      bindings.push({ parameterIndex: Number(key), serviceId, explicitArgument: true }); continue;
+    }
     const match = /^(?:(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:[|&]\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)*)(?:\s+\$([A-Za-z_][A-Za-z0-9_]*))?|\$([A-Za-z_][A-Za-z0-9_]*))$/.exec(key.trim());
     if (!match) return { complete: false, bindings: [] };
     const value = scalarValue(pair.value as Node); const serviceId = typeof value === 'string' && /^@\??[^@]/.test(value) ? value.replace(/^@\??/, '') : undefined;
-    bindings.push({ type: match[1]?.replace(/(^|[|&])\\/g, '$1'), parameter: match[2] ?? match[3], serviceId });
+    bindings.push({ type: match[1]?.replace(/(^|[|&])\\/g, '$1'), parameter: match[2] ?? match[3], serviceId, explicitArgument: arguments_ || undefined });
   }
   return { complete: true, bindings };
 }
@@ -950,12 +963,21 @@ export function analyzeSymfonyServiceXml(uri: string, source: string): SymfonySe
     return { complete: true, bindings };
   };
   const parseArguments = (owner: XmlElementRange): { complete: boolean; bindings: SymfonyAutowireBinding[] } => {
-    const bindings: SymfonyAutowireBinding[] = [];
+    const bindings: SymfonyAutowireBinding[] = []; let nextIndex = 0;
     for (const argument of children(owner, 'argument')) {
-      const key = attribute(argument, 'key')?.value;
-      if (!key?.startsWith('$') || !/^\$[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return { complete: false, bindings: [] };
+      const key = attribute(argument, 'key')?.value; const configuredIndex = attribute(argument, 'index')?.value;
+      if (key !== undefined && configuredIndex !== undefined) return { complete: false, bindings: [] };
+      let selector: Pick<SymfonyAutowireBinding, 'parameter' | 'parameterIndex'>;
+      if (key?.startsWith('$') && /^\$[A-Za-z_][A-Za-z0-9_]*$/.test(key)) selector = { parameter: key.slice(1) };
+      else {
+        const indexText = configuredIndex ?? key;
+        if (indexText !== undefined && !/^(?:0|[1-9]\d*)$/.test(indexText)) return { complete: false, bindings: [] };
+        const parameterIndex = indexText === undefined ? nextIndex : Number(indexText);
+        if (!Number.isSafeInteger(parameterIndex)) return { complete: false, bindings: [] };
+        selector = { parameterIndex }; nextIndex = Math.max(nextIndex, parameterIndex + 1);
+      }
       const type = attribute(argument, 'type')?.value; const id = attribute(argument, 'id')?.value;
-      bindings.push({ parameter: key.slice(1), serviceId: type === 'service' && id && !id.includes('%') ? id : undefined });
+      bindings.push({ ...selector, serviceId: type === 'service' && id && !id.includes('%') ? id : undefined, explicitArgument: true });
     }
     return { complete: true, bindings };
   };
@@ -1035,6 +1057,11 @@ function phpConfiguratorLiteral(node: NodeLike | undefined): { value: string; st
   const value = quote === "'" ? raw.replace(/\\(['\\])/g, '$1')
     : raw.replace(/\\([\\"$nrtvef])/g, (_match, escaped: string) => ({ n: '\n', r: '\r', t: '\t', v: '\v', e: '\x1b', f: '\f' }[escaped] ?? escaped));
   return { value, start: node.startIndex + 1, end: node.endIndex - 1 };
+}
+
+function phpConfiguratorIndex(node: NodeLike | undefined): number | undefined {
+  if (!node || !/^(?:0|[1-9]\d*)$/.test(node.text)) return undefined;
+  const value = Number(node.text); return Number.isSafeInteger(value) ? value : undefined;
 }
 
 /** Parse the static subset of Symfony's PHP service Configurator DSL without executing the returned closure. */
@@ -1170,16 +1197,31 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
         target.bindings.push({ type: match[1]?.replace(/(^|[|&])\\/g, '$1'), parameter: match[2] ?? match[3], serviceId: serviceReference(call.args[1]) }); continue;
       }
       if (call.name === 'arg') {
-        const key = phpConfiguratorLiteral(call.args[0]);
-        if (!target || currentKind !== 'service' || !key?.value.startsWith('$')) { if (target) target.autowireComplete = false; continue; }
-        target.bindings.push({ parameter: key.value.slice(1), serviceId: serviceReference(call.args[1]) }); continue;
+        const key = phpConfiguratorLiteral(call.args[0]); const parameterIndex = phpConfiguratorIndex(call.args[0])
+          ?? (key && /^(?:0|[1-9]\d*)$/.test(key.value) && Number.isSafeInteger(Number(key.value)) ? Number(key.value) : undefined);
+        const selector = key?.value.startsWith('$') && /^\$[A-Za-z_][A-Za-z0-9_]*$/.test(key.value)
+          ? { parameter: key.value.slice(1) } : parameterIndex !== undefined ? { parameterIndex } : undefined;
+        if (!target || currentKind !== 'service' || call.args.length !== 2 || !selector) { if (target) target.autowireComplete = false; continue; }
+        target.bindings = target.bindings.filter((binding) => !binding.explicitArgument
+          || (selector.parameter !== undefined ? binding.parameter !== selector.parameter : binding.parameterIndex !== selector.parameterIndex));
+        target.bindings.push({ ...selector, serviceId: serviceReference(call.args[1]), explicitArgument: true }); continue;
       }
       if (call.name === 'args') {
-        if (!target || currentKind !== 'service' || call.args[0]?.type !== 'array_creation_expression') { if (target) target.autowireComplete = false; continue; }
+        if (!target || currentKind !== 'service' || call.args.length !== 1 || call.args[0]?.type !== 'array_creation_expression') { if (target) target.autowireComplete = false; continue; }
+        target.bindings = target.bindings.filter((binding) => !binding.explicitArgument);
+        let nextIndex = 0;
         for (const element of call.args[0]!.namedChildren) {
-          const key = element.type === 'array_element_initializer' && element.namedChildren.length === 2 ? phpConfiguratorLiteral(element.namedChildren[0]) : undefined;
-          if (!key?.value.startsWith('$')) { target.autowireComplete = false; break; }
-          target.bindings.push({ parameter: key.value.slice(1), serviceId: serviceReference(element.namedChildren[1]) });
+          if (element.type !== 'array_element_initializer' || ![1, 2].includes(element.namedChildren.length)) { target.autowireComplete = false; break; }
+          const keyed = element.namedChildren.length === 2; const keyNode = keyed ? element.namedChildren[0] : undefined;
+          const valueNode = element.namedChildren[keyed ? 1 : 0]; const key = phpConfiguratorLiteral(keyNode);
+          const configuredIndex = phpConfiguratorIndex(keyNode) ?? (key && /^(?:0|[1-9]\d*)$/.test(key.value)
+            && Number.isSafeInteger(Number(key.value)) ? Number(key.value) : undefined);
+          let selector: Pick<SymfonyAutowireBinding, 'parameter' | 'parameterIndex'>;
+          if (key?.value.startsWith('$') && /^\$[A-Za-z_][A-Za-z0-9_]*$/.test(key.value)) selector = { parameter: key.value.slice(1) };
+          else if (!keyed || configuredIndex !== undefined) {
+            const parameterIndex = configuredIndex ?? nextIndex; selector = { parameterIndex }; nextIndex = Math.max(nextIndex, parameterIndex + 1);
+          } else { target.autowireComplete = false; break; }
+          target.bindings.push({ ...selector, serviceId: serviceReference(valueNode), explicitArgument: true });
         }
         continue;
       }
@@ -1282,7 +1324,7 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
       const configuredPublic = scalarValue(mapValue(pair.value, 'public'));
       const configuredAutowire = scalarValue(mapValue(pair.value, 'autowire'));
       const wiring = autowireBindings(mapValue(pair.value, 'bind'));
-      const argumentsWiring = autowireBindings(mapValue(pair.value, 'arguments'));
+      const argumentsWiring = autowireBindings(mapValue(pair.value, 'arguments'), true);
       const calls = configuredMethodCalls(mapValue(pair.value, 'calls'));
       const properties = configuredProperties(mapValue(pair.value, 'properties'));
       const listeners = eventListenerTags(mapValue(pair.value, 'tags'), uri, source);
@@ -1360,8 +1402,9 @@ export function resolveSymfonyAutowireTarget(
   targetName?: string,
   requiredMethodName?: string,
   requiredPropertyName?: string,
+  parameterIndex?: number,
 ): SymfonyAutowireResolution | undefined {
-  return resolveSymfonyAutowireTypes(services, consumerFqcn, [dependencyFqcn], undefined, isSubtype, parameterName, targetName, requiredMethodName, requiredPropertyName);
+  return resolveSymfonyAutowireTypes(services, consumerFqcn, [dependencyFqcn], undefined, isSubtype, parameterName, targetName, requiredMethodName, requiredPropertyName, undefined, parameterIndex);
 }
 
 /** Resolve named, flat union/intersection and canonical DNF types using Symfony's combined-alias rules. */
@@ -1376,6 +1419,7 @@ export function resolveSymfonyAutowireTypes(
   requiredMethodName?: string,
   requiredPropertyName?: string,
   typeGroups?: string[][],
+  parameterIndex?: number,
 ): SymfonyAutowireResolution | undefined {
   const key = (value: string): string => value.replace(/^\\/, '').toLowerCase();
   if (!dependencyFqcns.length || (!operator && dependencyFqcns.length !== 1)) return undefined;
@@ -1385,7 +1429,11 @@ export function resolveSymfonyAutowireTypes(
   const dependencyType = operator === 'dnf'
     ? groups!.map((group) => group.length > 1 ? `(${group.join('&')})` : group[0]!).sort((left, right) => left < right ? -1 : left > right ? 1 : 0).join('|')
     : members.join(operator === 'union' ? '|' : operator === 'intersection' ? '&' : '');
-  const directConsumers = services.filter((service) => !service.alias && key(service.className) === key(consumerFqcn) && service.autowire && service.autowireComplete);
+  const explicitArgumentForParameter = (service: SymfonyServiceFact): boolean => service.bindings.some((binding) => binding.explicitArgument
+    && (!binding.parameter || binding.parameter === parameterName)
+    && (binding.parameterIndex === undefined || binding.parameterIndex === parameterIndex));
+  const directConsumers = services.filter((service) => !service.alias && key(service.className) === key(consumerFqcn) && service.autowireComplete
+    && (service.autowire || explicitArgumentForParameter(service)));
   const consumers = directConsumers.length || (!requiredMethodName && !requiredPropertyName) ? directConsumers : services.filter((service) =>
     !service.alias && service.autowire && service.autowireComplete && isSubtype(service.className, consumerFqcn));
   if (!consumers.length) return undefined;
@@ -1412,20 +1460,27 @@ export function resolveSymfonyAutowireTypes(
     const ids = new Set(aliases.map((service) => ultimateId(service!)));
     return ids.size === 1 ? aliases[0] : undefined;
   };
-  const normalizedTarget = targetName?.replace(/[._\-\s]+([A-Za-z0-9])/g, (_, character: string) => character.toUpperCase());
-  if (normalizedTarget) {
-    const named = serviceById(`${dependencyType} $${normalizedTarget}`) ?? (operator && operator !== 'dnf' ? sharedMemberAlias(` $${normalizedTarget}`) : undefined);
-    return named ? resolution(named, 'named-alias') : undefined;
-  }
-  const matchingBindings = consumers.flatMap((service) => service.bindings.filter((binding) =>
-    (!binding.type || key(binding.type) === key(dependencyType)) && (!binding.parameter || binding.parameter === parameterName))
-    .map((binding) => ({ binding, specificity: Number(Boolean(binding.type)) + Number(Boolean(binding.parameter)) })));
+  const matchingBindings = consumers.flatMap((service) => {
+    const matches = service.bindings.filter((binding) => (!binding.type || key(binding.type) === key(dependencyType))
+      && (!binding.parameter || binding.parameter === parameterName)
+      && (binding.parameterIndex === undefined || binding.parameterIndex === parameterIndex))
+      .map((binding) => ({ binding, specificity: Number(Boolean(binding.explicitArgument)) * 4
+        + Number(Boolean(binding.type)) + Number(Boolean(binding.parameter)) + Number(binding.parameterIndex !== undefined) }));
+    if (!matches.length) return [];
+    const specificity = Math.max(...matches.map((item) => item.specificity));
+    return [matches.filter((item) => item.specificity === specificity).at(-1)!];
+  });
   if (matchingBindings.length) {
     const specificity = Math.max(...matchingBindings.map((item) => item.specificity));
     const selected = matchingBindings.filter((item) => item.specificity === specificity).map((item) => item.binding);
     const ids = [...new Set(selected.map((binding) => binding.serviceId))];
     if (ids.length !== 1 || !ids[0]) return undefined;
     const service = serviceById(ids[0]); return service ? resolution(service, 'binding') : undefined;
+  }
+  const normalizedTarget = targetName?.replace(/[._\-\s]+([A-Za-z0-9])/g, (_, character: string) => character.toUpperCase());
+  if (normalizedTarget) {
+    const named = serviceById(`${dependencyType} $${normalizedTarget}`) ?? (operator && operator !== 'dnf' ? sharedMemberAlias(` $${normalizedTarget}`) : undefined);
+    return named ? resolution(named, 'named-alias') : undefined;
   }
   if (parameterName) {
     const named = serviceById(`${dependencyType} $${parameterName}`) ?? (operator && operator !== 'dnf' ? sharedMemberAlias(` $${parameterName}`) : undefined);

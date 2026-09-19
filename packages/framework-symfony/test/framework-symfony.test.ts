@@ -408,6 +408,8 @@ services:
           <service id="app.clock" class="App\\Clock"/>
           <service id="App\\Service\\Mailer" public="true">
             <argument key="$transport" type="service" id="app.transport"/>
+            <argument index="1" type="service" id="app.secondary"/>
+            <argument type="string">disabled</argument>
             <call method="setLogger"/>
             <property name="fallback" type="service" id="app.fallback"/>
             <tag name="kernel.event_listener" event="app&amp;ready" method="onReady" priority="-4"/>
@@ -433,7 +435,9 @@ services:
     ]);
     expect(result.services[1]).toMatchObject({ autowire: true, autowireComplete: true,
       bindings: [{ type: 'App\\Contract\\ClockInterface', parameter: 'clock', serviceId: 'app.clock' },
-        { parameter: 'transport', serviceId: 'app.transport' }],
+        { parameter: 'transport', serviceId: 'app.transport', explicitArgument: true },
+        { parameterIndex: 1, serviceId: 'app.secondary', explicitArgument: true },
+        { parameterIndex: 2, serviceId: undefined, explicitArgument: true }],
       configuredCalls: ['setLogger'], callsComplete: true, configuredProperties: ['fallback'], propertiesComplete: true });
     expect(result.services[1]!.eventListeners.map(({ event, method, priority }) => [event, method, priority]))
       .toEqual([['app&ready', 'onReady', -4]]);
@@ -462,8 +466,8 @@ services:
         $services->defaults()->autowire()->bind('App\\Contract\\TransportInterface $transport', service('app.transport'));
         $services->load('App\\\\', '../src/')->exclude(['../src/Entity/', '../src/Kernel.php']);
         $services->set(Mailer::class)
+          ->args([service('primary'), 1 => service('secondary'), service('tertiary'), '$logger' => service('logger')->nullOnInvalid(), 4 => 'disabled'])
           ->arg('$transport', service('app.transport'))
-          ->args(['$logger' => service('logger')->nullOnInvalid()])
           ->call('setLogger')->property('fallback', service('fallback'))
           ->tag('kernel.event_listener', ['event' => Ready::class, 'method' => 'onReady', 'priority' => -4]);
         $services->set('app.mailer')->class(Mailer::class)->public();
@@ -493,13 +497,36 @@ services:
     expect(result.services[0]).toMatchObject({ autowire: true, autowireComplete: true,
       bindings: [
         { type: 'App\\Contract\\TransportInterface', parameter: 'transport', serviceId: 'app.transport' },
-        { parameter: 'transport', serviceId: 'app.transport' }, { parameter: 'logger', serviceId: 'logger' },
+        { parameterIndex: 0, serviceId: 'primary', explicitArgument: true },
+        { parameterIndex: 1, serviceId: 'secondary', explicitArgument: true },
+        { parameterIndex: 2, serviceId: 'tertiary', explicitArgument: true },
+        { parameter: 'logger', serviceId: 'logger', explicitArgument: true },
+        { parameterIndex: 4, serviceId: undefined, explicitArgument: true },
+        { parameter: 'transport', serviceId: 'app.transport', explicitArgument: true },
       ], configuredCalls: ['setLogger'], configuredProperties: ['fallback'] });
     expect(result.services[0]!.eventListeners).toMatchObject([{ event: 'App\\Event\\Ready', method: 'onReady', priority: -4 }]);
     const listener = result.services[0]!.eventListeners[0]!;
     expect(source.slice(listener.eventStart, listener.eventEnd)).toBe('Ready');
     expect(source.slice(listener.methodStart, listener.methodEnd)).toBe('onReady');
     expect(source.slice(result.services[0]!.registrationStart, result.services[0]!.registrationEnd)).toBe('Mailer');
+  });
+
+  it('resolves PHP Configurator positional arguments by exact constructor index', () => {
+    const source = `<?php
+      use App\\Consumer;
+      use App\\Mailer;
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\service;
+      return static function (ContainerConfigurator $container): void {
+        $container->services()->set(Consumer::class)->args([service('app.mailer'), 'disabled']);
+        $container->services()->set('app.mailer', Mailer::class);
+      };`;
+    const services = analyzeSymfonyServicePhp(parser, 'file:///project/config/services.php', source).services;
+    const subtype = (candidate: string, target: string): boolean => candidate === 'App\\Mailer' && target === 'App\\Transport';
+    expect(resolveSymfonyAutowireTarget(services, 'App\\Consumer', 'App\\Transport', subtype, 'primary', undefined, undefined, undefined, 0))
+      .toMatchObject({ serviceId: 'app.mailer', className: 'App\\Mailer', kind: 'binding' });
+    expect(resolveSymfonyAutowireTarget(services, 'App\\Consumer', 'App\\Transport', subtype, 'disabled', undefined, undefined, undefined, 1))
+      .toBeUndefined();
   });
 
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
@@ -625,6 +652,8 @@ services:
         autowire: false
       App\\BoundConsumer:
         arguments: { $mailer: '@App\\Service\\Mailer' }
+      App\\PositionalConsumer:
+        arguments: ['@App\\Service\\Mailer', ~]
       App\\CalledConsumer:
         calls:
           - setMailer: []
@@ -635,7 +664,7 @@ services:
         properties: '%dynamic_properties%'
     `);
     const candidate = (fqcn: string): SymfonyServiceClassCandidate => ({ fqcn, kind: 'class', abstract: false, uri: `file:///project/src/${fqcn.split('\\').at(-1)}.php`, start: 10, end: 20 });
-    const services = expandSymfonyServiceResources(facts, [candidate('App\\Consumer'), candidate('App\\ManualConsumer'), candidate('App\\BoundConsumer'), candidate('App\\CalledConsumer'), candidate('App\\UnknownCalls'), candidate('App\\ConcreteConsumer'), candidate('App\\Service\\Mailer')]);
+    const services = expandSymfonyServiceResources(facts, [candidate('App\\Consumer'), candidate('App\\ManualConsumer'), candidate('App\\BoundConsumer'), candidate('App\\PositionalConsumer'), candidate('App\\CalledConsumer'), candidate('App\\UnknownCalls'), candidate('App\\ConcreteConsumer'), candidate('App\\Service\\Mailer')]);
     const subtype = (candidateFqcn: string, targetFqcn: string): boolean => candidateFqcn === 'App\\ConcreteConsumer' && targetFqcn === 'App\\AbstractConsumer' ? true : candidateFqcn === 'App\\Service\\Mailer'
       ? ['App\\Contract\\MailerInterface', 'App\\Contract\\TransportInterface'].includes(targetFqcn)
       : candidateFqcn === 'App\\Service\\BackupMailer' && targetFqcn === 'App\\Contract\\MailerInterface';
@@ -669,6 +698,8 @@ services:
       'App\\Consumer', dnfMembers, 'dnf', subtype, undefined, undefined, undefined, undefined, dnfGroups)).toBeUndefined();
     expect(resolveSymfonyAutowireTarget(services, 'App\\ManualConsumer', 'App\\Contract\\MailerInterface', subtype)).toBeUndefined();
     expect(resolveSymfonyAutowireTarget(services, 'App\\BoundConsumer', 'App\\Contract\\MailerInterface', subtype, 'mailer')).toMatchObject({ kind: 'binding' });
+    expect(resolveSymfonyAutowireTarget(services, 'App\\PositionalConsumer', 'App\\Contract\\MailerInterface', subtype, 'first', undefined, undefined, undefined, 0)).toMatchObject({ kind: 'binding', serviceId: 'App\\Service\\Mailer' });
+    expect(resolveSymfonyAutowireTarget(services, 'App\\PositionalConsumer', 'App\\Contract\\MailerInterface', subtype, 'second', undefined, undefined, undefined, 1)).toBeUndefined();
     expect(resolveSymfonyAutowireTarget(services, 'App\\CalledConsumer', 'App\\Contract\\MailerInterface', subtype, 'mailer')).toMatchObject({ kind: 'exact' });
     expect(resolveSymfonyAutowireTarget(services, 'App\\CalledConsumer', 'App\\Contract\\MailerInterface', subtype, 'mailer', undefined, 'setMailer')).toBeUndefined();
     expect(resolveSymfonyAutowireTarget(services, 'App\\CalledConsumer', 'App\\Contract\\MailerInterface', subtype, 'mailer', undefined, undefined, 'mailer')).toBeUndefined();

@@ -10,7 +10,7 @@ interface CachedFactEntry { size: number; mtimeMs: number; sourceChecksum: strin
 interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CachedFactEntry>; }
 export interface SymfonyFactCacheResult<T> { facts: T; cached: boolean; }
 
-const CACHE_VERSION = 'symfony-facts-v7';
+const CACHE_VERSION = 'symfony-facts-v8';
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_ENTRIES = 64;
 const MAX_FACTS = 100_000;
@@ -29,7 +29,9 @@ function textArray(value: unknown): value is string[] {
 }
 function binding(value: unknown): boolean {
   const item = record(value); return Boolean(item && (item.type === undefined || text(item.type))
-    && (item.parameter === undefined || text(item.parameter)) && (item.serviceId === undefined || text(item.serviceId)));
+    && (item.parameter === undefined || text(item.parameter))
+    && (item.parameterIndex === undefined || Number.isSafeInteger(item.parameterIndex) && (item.parameterIndex as number) >= 0)
+    && (item.serviceId === undefined || text(item.serviceId)) && (item.explicitArgument === undefined || typeof item.explicitArgument === 'boolean'));
 }
 function eventListener(value: unknown): boolean {
   const item = record(value); return Boolean(item && text(item.event) && text(item.method) && Number.isSafeInteger(item.priority)

@@ -410,7 +410,7 @@ function symfonyAutowireAt(document: TextDocument, offset: number, workspace: Se
   const parameter = workspace.constructorParameterAt(document.uri, offset) ?? workspace.requiredMethodParameterAt(document.uri, offset) ?? workspace.requiredPropertyAt(document.uri, offset);
   if (parameter && !parameter.explicitWiring) {
     const resolution = resolveSymfonyAutowireTypes(symfonyServiceCatalog(root), parameter.ownerFqcn, parameter.typeFqcns, parameter.typeOperator,
-      (candidate, target) => workspace.isSubtype(candidate, target), parameter.name, parameter.targetName, parameter.requiredMethodName, parameter.requiredPropertyName, parameter.typeGroups);
+      (candidate, target) => workspace.isSubtype(candidate, target), parameter.name, parameter.targetName, parameter.requiredMethodName, parameter.requiredPropertyName, parameter.typeGroups, parameter.parameterIndex);
     if (resolution) return resolution;
   }
   if (parameter?.requiredPropertyName) {
