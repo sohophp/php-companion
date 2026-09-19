@@ -42,4 +42,21 @@ App\Modules\LocalLanguages\ORM\Repository\LanguageRepository::find(): App\Module
 
 ## 发布门禁
 
-候选目录、SHA-256、Winstar/CoreRepo 预检、VSIX 安装哈希和已安装 bundle 探针将在候选构建后补录。
+功能提交：`d9b49bb`。
+
+候选目录：`artifacts/php-companion-alpha-0.4.5-d9b49bbe/`。
+
+| 产物 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `0c57176b650f87088b886ce5af86ca26b5f548fae5174a4f34b9b64e600588c1` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `02c31b8ef64f624c371f61ee7aab0f5e2b56a313d0068c63f5aebb280f5eed11` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `a6399f898d44b0aba29d3c80583b1432e5ac5aaa7bdebbe52d49dd8d0e086ebd` |
+
+`sha256sum -c SHA256SUMS` 三项均为 OK。Winstar `bin/php-runtime` 确认为 PHP 8.5，CoreRepo `phpbin` 确认为 PHP 7.2；两个 Composer 项目的 WSL 确定性 Alpha 预检均通过。
+
+核心 VSIX 已安装到 WSL RockyLinux8。安装目录与构建输出的哈希为：
+
+- `dist/language-server.js`：`bb2bcfa2a3c0c6260274928a538ca31d61c76be6e16381e88fc5b8e75324a12e`
+- `dist/extension.js`：`116c624e95589f504f6b30821db1aa830a586deb2982e0134a1de5f41705babd`
+
+已安装 bundle 复用同一 v51 Winstar 缓存连续执行两次，索引分别为 12.328 秒和 12.903 秒；两次均返回 9 个 Controller context，并继续得到精确 `Language|null` 详情和 `getCode` 补全。安装后需要在 Alpha Profile 执行 `Developer: Reload Window`，让当前 Extension Host 切换到新 bundle。

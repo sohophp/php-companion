@@ -1,5 +1,6 @@
 - Literal Doctrine `#[Entity(repositoryClass: Repository::class)]` mappings now bind custom repositories, including plain `EntityRepository` subclasses, to the entity return types of `find`, `findOneBy`, `findAll` and `findBy`.
 - The persistent project-fact cache advances to v51 so an upgrade cannot reuse snapshots that predate Doctrine `repositoryClass` bindings; real Winstar source analysis found all 7 literal mappings and returned `Language|null` plus `Language::getCode()` for its custom repository.
+- 提交 `d9b49bb` 完成 Doctrine `repositoryClass` 实体绑定；候选 `php-companion-alpha-0.4.5-d9b49bbe` 的三份 VSIX、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和安装哈希均已验证，已安装 bundle 连续热恢复为 12.328/12.903 秒。
 - Declaration-first semantic cache restores now validate callable ownership, canonical fact ordering, reference candidates and type dependencies without eagerly merging and reserializing deferred implementation bodies.
 - Real Winstar warm project restore with the unchanged 2265-file cache measured 12.901–13.331 seconds after this change, down from the preceding 14.535-second source baseline while preserving all four sampled Symfony YAML controller definitions.
 - 提交 `a5b17e0` 完成声明优先缓存恢复；候选 `php-companion-alpha-0.4.5-a5b17e04` 的三份 VSIX、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和安装哈希均已验证，已安装 bundle 连续热恢复为 13.589/13.127 秒。
