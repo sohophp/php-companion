@@ -343,6 +343,7 @@ export function symfonyRouteNameText(name: string, quote: "'" | '"'): string {
 
 export interface SymfonyAttributeRouteFact extends SymfonyRouteFact { ownerFqcn: string; method: string; }
 export interface SymfonyAttributeRoutes { complete: boolean; routes: SymfonyAttributeRouteFact[]; }
+type SymfonyAttributePath = string | Map<string, string>;
 
 /** Extract local Route declarations; generated names require an explicit loader strategy and do not prove runtime registration. */
 export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: string, source: string, defaultNameStyle?: 'framework' | 'routing', environment?: string): SymfonyAttributeRoutes {
@@ -387,7 +388,18 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
           }
           return values;
         };
-        const values = (attribute: SyntaxNode): { name?: string; path: string; start: number; end: number; environments?: string[] } | undefined => {
+        const localizedPaths = (node: SyntaxNode | undefined): Map<string, string> | undefined => {
+          if (node?.type !== 'array_creation_expression') return undefined;
+          const paths = new Map<string, string>();
+          for (const element of node.namedChildren) {
+            if (element.type !== 'array_element_initializer' || element.namedChildren.length !== 2) return undefined;
+            const locale = literal(element.namedChildren[0]); const path = literal(element.namedChildren[1]);
+            if (locale === undefined || path === undefined || paths.has(locale)) return undefined;
+            paths.set(locale, path);
+          }
+          return paths;
+        };
+        const values = (attribute: SyntaxNode): { name?: string; path: SymfonyAttributePath; start: number; end: number; environments?: string[] } | undefined => {
           const args = attribute.namedChildren.find((child) => child.type === 'arguments')?.namedChildren ?? [];
           const found = new Map<string, SyntaxNode>(); let position = 0; let named = false;
           for (const argument of args) {
@@ -398,15 +410,23 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             named ||= isNamed;
             found.set(key, children.at(-1)!);
           }
-          // Locale and aliases can change which names exist. Keep their declarations unresolved.
-          if (['locale', 'alias'].some((key) => found.has(key))) return undefined;
+          if (found.has('alias')) return undefined;
           const environments = found.has('env') ? environmentList(found.get('env')) : undefined;
           if (found.has('env') && environments === undefined) return undefined;
-          const path = found.has('path') ? literal(found.get('path')) : '';
+          if (found.has('locale') && literal(found.get('locale')) === undefined) return undefined;
+          const path = found.has('path') ? literal(found.get('path')) ?? localizedPaths(found.get('path')) : '';
           const name = found.has('name') ? literal(found.get('name')) : undefined;
-          if (path === undefined || (found.has('name') && name === undefined) || path.includes('%') || name?.includes('%')) return undefined;
+          if (path === undefined || (found.has('name') && name === undefined)
+            || (typeof path === 'string' ? path.includes('%') : [...path.values()].some((item) => item.includes('%'))) || name?.includes('%')) return undefined;
           const origin = found.get('name') ?? attribute;
           return { path, name, start: origin.startIndex, end: origin.endIndex, ...(environments ? { environments } : {}) };
+        };
+        const expandPaths = (prefix: SymfonyAttributePath, path: SymfonyAttributePath): Array<{ suffix: string; path: string }> | undefined => {
+          if (typeof prefix === 'string' && typeof path === 'string') return [{ suffix: '', path: prefix + path }];
+          if (typeof prefix === 'string') return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix + item }));
+          if (typeof path === 'string') return [...prefix].map(([locale, item]) => ({ suffix: `.${locale}`, path: item + path }));
+          if (prefix.size !== path.size || [...prefix.keys()].some((locale) => !path.has(locale))) return undefined;
+          return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix.get(locale)! + item }));
         };
         const classAttributes = routeAttributes(node);
         const globals = classAttributes[0] ? values(classAttributes[0]) : { path: '', name: '', environments: undefined };
@@ -436,8 +456,9 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             if (route.environments?.length && (!environment || !route.environments.includes(environment))) continue;
             const name = route.name ?? (!uncertainDefaultIndex ? defaultName(methodName, defaultIndex++) : undefined);
             if (name === undefined) { result.complete = false; continue; }
-            result.routes.push({ name: (globals.name ?? '') + name, path: globals.path + route.path,
-              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: methodName });
+            const paths = expandPaths(globals.path, route.path); if (!paths) { result.complete = false; continue; }
+            result.routes.push(...paths.map((item) => ({ name: (globals.name ?? '') + name + item.suffix, path: item.path,
+              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: methodName })));
           }
         }
         if (!hasMethodRoutes && methods.some((method) => method.namedChildren.some((child) => child.type === 'name' && child.text === '__invoke'))) {
@@ -449,8 +470,9 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             if (route.environments?.length && (!environment || !route.environments.includes(environment))) continue;
             const name = route.name ?? (!uncertainDefaultIndex ? defaultName('__invoke', defaultIndex++) : undefined);
             if (name === undefined) { result.complete = false; continue; }
-            result.routes.push({ name, path: route.path, uri, start: route.start, end: route.end,
-              ownerFqcn: declaration.fqcn, method: '__invoke' });
+            const paths = expandPaths('', route.path); if (!paths) { result.complete = false; continue; }
+            result.routes.push(...paths.map((item) => ({ name: name + item.suffix, path: item.path,
+              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: '__invoke' })));
           }
         }
         return;

@@ -55,6 +55,33 @@ use Symfony\Component\Routing\Attribute\Route as R;
   ]);
 });
 
+it('expands literal localized paths with exact class and method locale correspondence', async () => {
+  const parser = await PhpSyntaxParser.createDefault();
+  const source = String.raw`<?php namespace App;
+use Symfony\Component\Routing\Attribute\Route as R;
+#[R(path: ['en' => '/en', 'fr' => '/fr'], name: 'site_')] class Controller {
+  #[R(path: '/home', name: 'home', locale: 'en')] public function home() {}
+  #[R(path: ['en' => '/news', 'fr' => '/actualites'], name: 'news')] public function news() {}
+}
+#[R('/api', name: 'api_')] class ApiController {
+  #[R(path: ['en' => '/item', 'fr' => '/article'], name: 'show')] public function show() {}
+}
+#[R(path: ['en' => '/invoke', 'fr' => '/appel'], name: 'invoke')] class Invokable { public function __invoke() {} }`;
+
+  const result = analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source);
+  expect(result.complete).toBe(true);
+  expect(result.routes.map(({ name, path }) => [name, path])).toEqual([
+    ['site_home.en', '/en/home'], ['site_home.fr', '/fr/home'],
+    ['site_news.en', '/en/news'], ['site_news.fr', '/fr/actualites'],
+    ['api_show.en', '/api/item'], ['api_show.fr', '/api/article'],
+    ['invoke.en', '/invoke'], ['invoke.fr', '/appel'],
+  ]);
+  const mismatch = source.replace("'fr' => '/actualites'", "'de' => '/nachrichten'");
+  const invalid = analyzeSymfonyRouteAttributes(parser, 'file:///C.php', mismatch);
+  expect(invalid.complete).toBe(false);
+  expect(invalid.routes.map(({ name }) => name)).toEqual(['site_home.en', 'site_home.fr', 'api_show.en', 'api_show.fr', 'invoke.en', 'invoke.fr']);
+});
+
 it('generates loader-specific names, counting only unnamed attributes per method', async () => {
   const parser = await PhpSyntaxParser.createDefault();
   const source = String.raw`<?php namespace App\Controller;
