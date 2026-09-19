@@ -118,6 +118,8 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 同一环境身份也筛选 `#[Route(env: ...)]`。支持类级和方法级的字面量字符串或字符串数组：类级不匹配时整个 Controller 不发布，类级匹配后再逐条筛选方法 Attribute；被排除的未命名 Attribute 不消耗 Symfony 自动名称序号。动态表达式、非字符串数组、localized path/locale 与 alias 仍保持 unknown。未显式选择环境时只发布没有 `env` 限制的 Attribute 路由。
 
+YAML 路由文件中的顶层 `when@<env>` 使用相同环境身份。分析器只展开名称与当前环境精确相等的 map，保留块外无条件 route/import，并使用内层键的真实源码范围；未选择环境和其它环境块在结构验证前跳过，与 Symfony `YamlFileLoader` 一致。同一文件中后出现的直接路由会覆盖前面的同名直接路由；跨 import 或不同资源产生的同名名称仍保守视为歧义。
+
 服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external, environment? }] }` 对象。环境只接受 1–64 个 ASCII 字母、数字、点、下划线或连字符；非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
 
 项目自定义 loader 使用独立设置 `phpCompanion.routeProviders`，只接受用户显式配置的 `{ providerId, command, args?, timeoutMs?, maxOutputBytes? }`。`@php-companion/route-provider` 定义 schema 1 完整快照：每条事实必须给出 `name`、`path`、声明 `uri` 及 UTF-16 文本换算前的字节/字符偏移范围；`@php-companion/route-provider-host` 以项目根为 cwd、关闭 shell，并校验请求 ID、provider 身份、generation、完整性、超时和输出上限。核心不会从 Composer 或项目文件自动发现命令。

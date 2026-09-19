@@ -41,12 +41,33 @@ describe('static Symfony routes', () => {
       expect(analyzeSymfonyRouteYaml('file:///routes.yaml', `routes: {resource: "${resource}"}`).complete).toBe(false);
     }
   });
-  it('rejects duplicate keys and leaves dynamic, localized and environment routing incomplete', () => {
+  it('rejects duplicate keys and leaves dynamic or localized routing incomplete', () => {
     expect(analyzeSymfonyRouteYaml('file:///routes.yaml', 'a: {path: /a}\na: {path: /b}').routes).toEqual([]);
     const facts = analyzeSymfonyRouteYaml('file:///routes.yaml', 'a: {path: "%prefix%/a"}\nb: {path: {en: /b}}\nwhen@dev: {c: {path: /c}}\nd: {resource: "%routes%/*.yaml"}\ne: {path: /e}\n');
     expect(facts.complete).toBe(false);
     expect(facts.routes.map((route) => route.name)).toEqual(['e']);
     expect(facts.imports).toEqual([]);
+  });
+  it('selects an exact YAML environment block and preserves nested source ranges', () => {
+    const source = `base: {path: /base}
+when@dev:
+  base: {path: /dev-base}
+  dev.page: {path: /dev}
+  dev_import: {resource: dev.yaml, name_prefix: dev., prefix: /prefix}
+when@test:
+  test.page: {path: /test}
+after: {path: /after}
+`;
+    const unconditional = analyzeSymfonyRouteYaml('file:///routes.yaml', source);
+    expect(unconditional.complete).toBe(true);
+    expect(unconditional.routes.map(({ name, path }) => [name, path])).toEqual([['base', '/base'], ['after', '/after']]);
+    const dev = analyzeSymfonyRouteYaml('file:///routes.yaml', source, 'dev');
+    expect(dev.complete).toBe(true);
+    expect(dev.routes.map(({ name, path, start, end }) => [name, path, source.slice(start, end)]))
+      .toEqual([['base', '/dev-base', 'base'], ['dev.page', '/dev', 'dev.page'], ['after', '/after', 'after']]);
+    expect(dev.imports).toEqual([{ resource: 'dev.yaml', namePrefix: 'dev.', pathPrefix: '/prefix' }]);
+    expect(analyzeSymfonyRouteYaml('file:///routes.yaml', source, 'prod').routes.map(({ name }) => name)).toEqual(['base', 'after']);
+    expect(analyzeSymfonyRouteYaml('file:///routes.yaml', 'when@dev: invalid\nbase: {path: /base}\n', 'dev').complete).toBe(false);
   });
   it('extracts PHP Configurator route declarations and deterministic imports', async () => {
     const parser = await PhpSyntaxParser.createDefault();

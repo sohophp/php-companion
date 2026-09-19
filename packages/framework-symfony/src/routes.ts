@@ -30,11 +30,17 @@ function supportedRoutePattern(value: unknown): value is string {
 }
 
 /** Source declarations only: completeness never implies an effective runtime route table. */
-export function analyzeSymfonyRouteYaml(uri: string, source: string): SymfonyRouteDocument {
+export function analyzeSymfonyRouteYaml(uri: string, source: string, environment?: string): SymfonyRouteDocument {
   const document = parseDocument(source, { uniqueKeys: true, prettyErrors: false });
   const result: SymfonyRouteDocument = { complete: true, routes: [], imports: [] };
   if (document.errors.length || !isMap(document.contents)) return { ...result, complete: false };
-  for (const pair of document.contents.items) {
+  const entries = document.contents.items.flatMap((pair) => {
+    if (!isScalar(pair.key) || typeof pair.key.value !== 'string' || !pair.key.value.startsWith('when@')) return [pair];
+    if (!environment || pair.key.value !== `when@${environment}`) return [];
+    if (!isMap(pair.value)) { result.complete = false; return []; }
+    return pair.value.items;
+  });
+  for (const pair of entries) {
     if (!isScalar(pair.key) || typeof pair.key.value !== 'string' || !isMap(pair.value)) { result.complete = false; continue; }
     const name = pair.key.value;
     if (name.startsWith('when@')) { result.complete = false; continue; }
@@ -77,6 +83,7 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string): SymfonyRou
     }
     const path = value('path');
     if (typeof path !== 'string' || path.includes('%') || name.includes('%') || !pair.key.range) { result.complete = false; continue; }
+    result.routes = result.routes.filter((route) => route.name !== name);
     result.routes.push({ name, path, uri, start: pair.key.range[0], end: pair.key.range[1] });
   }
   return result;

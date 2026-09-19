@@ -2015,7 +2015,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
           .map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
         return;
       }
-      const facts = php ? analyzeSymfonyRoutePhp(syntaxParser, uri, source) : analyzeSymfonyRouteYaml(uri, source);
+      const facts = php ? analyzeSymfonyRoutePhp(syntaxParser, uri, source) : analyzeSymfonyRouteYaml(uri, source, environment);
       routes.push(...facts.routes.map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
       const next = new Set([...ancestors, path, actualPath]);
       for (const entry of facts.imports) {
