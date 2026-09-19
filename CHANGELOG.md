@@ -241,6 +241,7 @@
 
 ## Unreleased
 
+- 提交 `bbdeb21` 完成 Symfony 静态路由 Definition/References，候选 `php-companion-alpha-0.4.5-bbdeb212` 的三份 VSIX 和 16 个独立组件包已验证；核心 VSIX 已完整安装到 WSL RockyLinux8 并核对 adapter/server 哈希，Reload Window 后加载。
 - Add source-backed Symfony route Definition and References for exact literals whose route declaration and framework method ownership are both proven; reject unrelated same-named methods and incomplete project scans.
 - 提交 `a69e3d6` 完成 Symfony 显式环境路由，候选 `php-companion-alpha-0.4.5-a69e3d68` 的三份 VSIX 和 16 个独立组件包已验证；核心 VSIX 已完整安装到 WSL RockyLinux8 并核对 adapter/server 哈希，Reload Window 后加载。
 - Add resource-scoped `phpCompanion.symfony.environment` selection for exact environment-gated Symfony route imports and Bundle resources; keep the default limited to unconditional routes and preserve Symfony Language Tools runtime-provider ownership.
