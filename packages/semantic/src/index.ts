@@ -728,6 +728,62 @@ function referenceCandidateKeys(file: SemanticFile): Set<string> {
   return keys;
 }
 
+function deferredReferenceCandidateKeys(file: SemanticFile, implementation: SemanticImplementationSnapshot): Set<string> {
+  const keys = referenceCandidateKeys(file);
+  for (const facts of [implementation.file, ...implementation.callables.map((record) => record.facts)]) {
+    for (const raw of facts.rawNames) {
+      const tail = referenceNameTail(raw.text); if (!tail) continue;
+      keys.add(`raw-ci:${tail.toLowerCase()}`); keys.add(`raw-cs:${tail}`);
+    }
+    for (const access of facts.memberAccesses) if (!access.dynamic) keys.add(memberCandidateKey(access.kind, access.name));
+  }
+  return keys;
+}
+
+function validDeferredImplementation(file: SemanticFile, implementation: SemanticImplementationSnapshot): boolean {
+  if (!validImplementationFacts(implementation.file, implementation.source.length)
+    || !implementation.callables.every((record) => record && typeof record === 'object'
+      && typeof record.identity === 'string' && record.identity.length > 0 && record.identity.length <= 1_024
+      && (record.kind === 'callable' || record.kind === 'property-hook')
+      && Number.isSafeInteger(record.start) && Number.isSafeInteger(record.end)
+      && record.start >= 0 && record.end >= record.start && record.end <= implementation.source.length
+      && validImplementationFacts(record.facts, implementation.source.length))) return false;
+  const ranges = callableImplementationRanges(file);
+  if (ranges.length !== implementation.callables.length || ranges.some((range, index) => {
+    const record = implementation.callables[index];
+    return !record || range.identity !== record.identity || range.kind !== record.kind
+      || range.start !== record.start || range.end !== record.end;
+  })) return false;
+  const records: Array<{ owner?: string; facts: SemanticImplementationFacts }> = [
+    { facts: implementation.file },
+    ...implementation.callables.map((record) => ({ owner: record.identity, facts: record.facts })),
+  ];
+  const assignments = new Set<number>();
+  for (const { owner, facts } of records) {
+    for (const field of IMPLEMENTATION_ARRAY_FIELDS) {
+      let previous: SourceRange | undefined;
+      for (const fact of facts[field] as SourceRange[]) {
+        if (!fact || !Number.isSafeInteger(fact.start) || !Number.isSafeInteger(fact.end)
+          || fact.start < 0 || fact.end < fact.start || fact.end > implementation.source.length
+          || containingImplementationRange(ranges, fact.start, fact.end)?.identity !== owner) return false;
+        if (previous) {
+          const order = field === 'rawNames'
+            ? Number((previous as RawName).context === 'code') - Number((fact as RawName).context === 'code')
+              || previous.start - fact.start || previous.end - fact.end
+            : previous.start - fact.start || previous.end - fact.end;
+          if (order > 0) return false;
+        }
+        previous = fact;
+      }
+    }
+    for (const offset of facts.controlFlowAssignments) {
+      if (assignments.has(offset) || containingImplementationRange(ranges, offset, offset)?.identity !== owner) return false;
+      assignments.add(offset);
+    }
+  }
+  return true;
+}
+
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
   private readonly deferredImplementations = new Map<string, DeferredImplementation>();
@@ -1452,11 +1508,48 @@ export class SemanticWorkspace {
   }
 
   restoreDeclaration(snapshot: unknown, expectedUri?: string): boolean {
-    if (!this.restore(snapshot, expectedUri)) return false;
-    const value = snapshot as SemanticSnapshot; const uri = value.declaration.uri;
+    const value = snapshot as Partial<SemanticSnapshot> | null;
+    const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
+    const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
+    const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
+    if (value?.schema !== 77 || !declaration || !implementation
+      || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
+      || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
+      || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
+      || (expectedUri !== undefined && declaration.uri !== expectedUri)
+      || !references || typeof references.indexed !== 'boolean' || !Array.isArray(references.keys)
+      || references.keys.length > 100_000 || !references.keys.every((key) => typeof key === 'string' && key.length > 0 && key.length <= 1_024)
+      || !dependencies || typeof dependencies.indexed !== 'boolean' || !Array.isArray(dependencies.nodes)
+      || dependencies.nodes.length > 10_000 || !dependencies.nodes.every((node) => node && typeof node === 'object'
+        && typeof node.key === 'string' && node.key.length > 0 && node.key.length <= 1_024
+        && Array.isArray(node.dependencies) && node.dependencies.length <= 10_000
+        && node.dependencies.every((dependency) => typeof dependency === 'string' && dependency.length > 0 && dependency.length <= 1_024))
+      || new Set(dependencies.nodes.map((node) => node.key)).size !== dependencies.nodes.length
+      || ![declaration.declarations, declaration.callables, declaration.imports, declaration.properties, declaration.constants,
+        declaration.templates, declaration.genericParents, declaration.magicMembers].every(Array.isArray)) return false;
+    const declarationSnapshot = declaration as SemanticDeclarationSnapshot;
+    const implementationSnapshotValue = implementation as SemanticImplementationSnapshot;
+    const initial = { ...implementationSnapshotValue, file: emptyImplementationFacts(), callables: [] };
+    const file = semanticFileSnapshot(declarationSnapshot, initial);
+    if (!validDeferredImplementation(file, implementationSnapshotValue)) return false;
+    const expectedReferenceKeys = [...deferredReferenceCandidateKeys(file, implementationSnapshotValue)].sort();
+    const expectedDependencyNodes = this.typeDependencyNodes(file)
+      .map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() }))
+      .sort((left, right) => left.key.localeCompare(right.key));
+    if (references.indexed && JSON.stringify([...new Set(references.keys)].sort()) !== JSON.stringify(expectedReferenceKeys)
+      || !references.indexed && references.keys.length > 0
+      || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
+      || !dependencies.indexed && dependencies.nodes.length > 0) return false;
+    const uri = declarationSnapshot.uri;
+    this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(declarationSnapshot, implementationSnapshotValue));
     this.controlFlowAssignments.delete(uri);
-    this.files.set(uri, this.deferredSemanticFile(value.declaration, value.implementation));
-    return true;
+    if (references.indexed) {
+      this.referenceCandidates.replace(uri, references.keys); this.unindexedReferenceCandidateUris.delete(uri);
+    } else { this.referenceCandidates.replace(uri, []); this.unindexedReferenceCandidateUris.add(uri); }
+    if (dependencies.indexed) {
+      this.typeDependencies.replace(uri, dependencies.nodes); this.unindexedTypeDependencyUris.delete(uri);
+    } else { this.typeDependencies.replace(uri, []); this.unindexedTypeDependencyUris.add(uri); }
+    this.assertedTargetInferenceCache.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); return true;
   }
 
   workspaceSymbols(query: string, limit = 100): WorkspaceSymbolInfo[] {

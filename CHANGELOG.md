@@ -1,3 +1,5 @@
+- Declaration-first semantic cache restores now validate callable ownership, canonical fact ordering, reference candidates and type dependencies without eagerly merging and reserializing deferred implementation bodies.
+- Real Winstar warm project restore with the unchanged 2265-file cache measured 12.901–13.331 seconds after this change, down from the preceding 14.535-second source baseline while preserving all four sampled Symfony YAML controller definitions.
 - Persistent project-index restores now skip source reads and SHA-256 work when size, mtime and ctime are unchanged, and a fully unchanged cache is no longer rewritten; same-size edits with a preserved mtime still invalidate through ctime.
 - 提交 `9bff193` 完成未变项目索引缓存快速恢复；候选 `php-companion-alpha-0.4.5-9bff193e` 的三份 VSIX、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和安装哈希均已验证，已安装 bundle 的真实 Winstar 冷/热扫描为 59.146/14.609 秒且 4 个 YAML 控制器 Definition 保持精确。
 - Symfony YAML `controller` and `defaults._controller` FQCN segments now support Ctrl+click/Go to Definition to the exact PHP class or effective public instance method; a narrow VS Code YAML Definition bridge coexists with Red Hat YAML syntax, schema and formatting.

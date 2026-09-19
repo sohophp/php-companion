@@ -7354,19 +7354,26 @@ class Worker {
     expect(workspace.restore(mismatchedRecords, uri)).toBe(false);
     const invalid = structuredClone(snapshot!); invalid.implementation.callables.find((record) => record.identity === 'cache\\run')!.facts.scopes[0]!.captures = undefined as never;
     expect(workspace.restore(invalid, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(invalid, uri)).toBe(false);
     const invalidControlFlow = structuredClone(snapshot!); invalidControlFlow.implementation.callables.find((record) => record.identity === 'cache\\run')!.facts.controlFlowAssignments = [source.length + 1];
     expect(workspace.restore(invalidControlFlow, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(invalidControlFlow, uri)).toBe(false);
     const relocatedFact = structuredClone(snapshot!); const relocatedRun = relocatedFact.implementation.callables.find((record) => record.identity === 'cache\\run')!;
     relocatedFact.implementation.file.assignments.push(relocatedRun.facts.assignments.shift()!);
     expect(workspace.restore(relocatedFact, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(relocatedFact, uri)).toBe(false);
     const duplicateCallableRecord = structuredClone(snapshot!); duplicateCallableRecord.implementation.callables.push(structuredClone(runRecord));
     expect(workspace.restore(duplicateCallableRecord, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(duplicateCallableRecord, uri)).toBe(false);
     const invalidLayers = structuredClone(snapshot!); invalidLayers.layers.typeDependencies.nodes[0]!.dependencies = [42 as never];
     expect(workspace.restore(invalidLayers, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(invalidLayers, uri)).toBe(false);
     const staleReferences = structuredClone(snapshot!); staleReferences.layers.referenceCandidates.keys = ['raw-ci:other'];
     expect(workspace.restore(staleReferences, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(staleReferences, uri)).toBe(false);
     const staleDependencies = structuredClone(snapshot!); staleDependencies.layers.typeDependencies.nodes[0]!.dependencies = ['cache\\other'];
     expect(workspace.restore(staleDependencies, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(staleDependencies, uri)).toBe(false);
   });
   it('loads only the callable selected by focused semantic queries', () => {
     const uri = 'file:///FocusedCached.php';
