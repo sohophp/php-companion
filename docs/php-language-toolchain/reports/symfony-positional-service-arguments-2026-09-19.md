@@ -22,4 +22,4 @@
 - 冷写入和热恢复缓存均保留 `parameterIndex`、显式参数来源及标量抑制事实。
 - 对 `/var/www/php/8.5/winstar2024/vendor` 的当前只读快照，用“包含 `ContainerConfigurator` 且文本上返回 static closure”的固定筛选得到 96 个文件；96/96 完整解析，共提取 601 个服务、794 个位置参数事实，其中 499 个是静态服务引用，295 个是精确位置抑制事实。这是静态支持子集，不代表运行时容器总量。
 
-完整仓库测试、打包和 Alpha 候选证据在功能提交后补记到状态文档。
+完整验证通过：framework-symfony 32 项、Language Server 185 项、根扩展 39 项，全仓 TypeScript 与 ESLint、16 个隔离组件 tarball、三份 VSIX 内容与校验和。功能提交为 `7b8aead`，候选目录为 `artifacts/php-companion-alpha-0.4.5-7b8aead1/`；三份 VSIX SHA-256 依次为 `2a41cc7fa75c2108abb58b3260be2a8e67506b155292cd53e78c130d3e6f3e3f`、`f689e539b5469f757d910f9522bde0cabd6f0d2c1b95e68c31d1905c28f38d3c`、`7cefb5cc57e4eedc4936581bd3778b9c81b678d01059f766c0c43dd6cd52ca72`。候选语言服务器 bundle 已原子覆盖到 WSL 已安装的 0.4.5 扩展并以 `8c845dc1042b622d7a4ea6f4e8cdfbeb83f1b1d67412588d6847728086bcc445` 核对，Reload Window 后生效。
