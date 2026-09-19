@@ -261,7 +261,8 @@ function literalTextRange(node: NodeLike): { value: string; start: number; end: 
   const value = literalString(node); return value === undefined ? undefined : { value, start: node.startIndex + 1, end: node.endIndex - 1 };
 }
 
-function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: NodeLike; listeners: NodeLike }> | undefined {
+function eventSubscriptionEntries(body: NodeLike | undefined,
+  eventIdentity?: (event: NodeLike) => string | undefined): Array<{ event: NodeLike; listeners: NodeLike }> | undefined {
   if (!body) return undefined;
   type SubscriptionEntry = { event: NodeLike; listeners: NodeLike };
   const arrayEntries = (array: NodeLike): Array<{ event: NodeLike; listeners: NodeLike }> | undefined => {
@@ -290,6 +291,18 @@ function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: No
     if (alternatives.some((entries) => entries!.length !== expected.length
       || entries!.some((entry, index) => entrySignature(entry) !== expected[index]))) return undefined;
     return alternatives.flatMap((entries) => entries!);
+  };
+  const containsVariable = (node: NodeLike): boolean => node.type === 'variable_name' && node.text === variable
+    || node.namedChildren.some(containsVariable);
+  const safeCondition = (node: NodeLike): boolean => {
+    if (containsVariable(node) || ['assignment_expression', 'augmented_assignment_expression', 'update_expression',
+      'reference_assignment_expression', 'dynamic_variable_name', 'include_expression', 'include_once_expression',
+      'require_expression', 'require_once_expression', 'yield_expression'].includes(node.type)) return false;
+    if (node.type === 'function_call_expression') {
+      const name = node.namedChildren[0]?.text.toLowerCase().replace(/^\\/, '');
+      if (!name || !['defined', 'class_exists', 'interface_exists', 'trait_exists', 'enum_exists', 'function_exists', 'extension_loaded'].includes(name)) return false;
+    }
+    return node.namedChildren.every(safeCondition);
   };
   if (body.namedChildren.length === 1 && body.namedChildren[0]!.type === 'return_statement') {
     const returned = body.namedChildren[0]!.namedChildren[0]; return returned ? arrayEntries(returned) : undefined;
@@ -322,12 +335,44 @@ function eventSubscriptionEntries(body: NodeLike | undefined): Array<{ event: No
     }
     return assigned;
   };
+  const protectedEvents = new Set(entries.map((entry) => eventIdentity?.(entry.event)).filter((identity): identity is string => identity !== undefined));
+  const safeOptionalBranches = (statement: NodeLike): boolean => {
+    // Different class constants can legally have the same runtime string value, so only literal keys can prove non-overlap.
+    if (!eventIdentity || entries.some((entry) => eventIdentity(entry.event) === undefined || entry.event.type !== 'string')
+      || statement.type !== 'if_statement') return false;
+    const directCondition = statement.namedChildren.find((child) => child.type === 'parenthesized_expression');
+    const directBody = statement.namedChildren.find((child) => child.type === 'compound_statement');
+    const clauses = statement.namedChildren.filter((child) => child.type === 'else_if_clause');
+    const elseBody = statement.namedChildren.find((child) => child.type === 'else_clause')?.namedChildren
+      .find((child) => child.type === 'compound_statement');
+    if (!directCondition || !directBody || !safeCondition(directCondition)) return false;
+    const bodies: NodeLike[] = [directBody];
+    for (const clause of clauses) {
+      const condition = clause.namedChildren.find((child) => child.type === 'parenthesized_expression');
+      const branch = clause.namedChildren.find((child) => child.type === 'compound_statement');
+      if (!condition || !branch || !safeCondition(condition)) return false; bodies.push(branch);
+    }
+    if (elseBody) bodies.push(elseBody);
+    const optional = bodies.map((branch) => assignedEntries(branch.namedChildren));
+    if (optional.some((branch) => !branch?.length)) return false;
+    return optional.every((branch) => branch!.every((entry) => {
+      const identity = eventIdentity(entry.event);
+      return entry.event.type === 'string' && identity !== undefined && !protectedEvents.has(identity);
+    }));
+  };
   for (const statement of body.namedChildren.slice(1, -1)) {
     if (statement.type === 'if_statement') {
       const converged = convergedBranches(statement, (branch) => assignedEntries(branch.namedChildren));
-      if (!converged) return undefined; entries.push(...converged); continue;
+      if (converged) {
+        entries.push(...converged);
+        for (const entry of converged) { const identity = eventIdentity?.(entry.event); if (identity) protectedEvents.add(identity); }
+        continue;
+      }
+      if (safeOptionalBranches(statement)) continue;
+      return undefined;
     }
     const assigned = assignedEntries([statement]); if (!assigned) return undefined; entries.push(...assigned);
+    for (const entry of assigned) { const identity = eventIdentity?.(entry.event); if (identity) protectedEvents.add(identity); }
   }
   const returned = body.namedChildren.at(-1);
   return returned?.type === 'return_statement' && returned.namedChildren[0]?.type === 'variable_name'
@@ -399,7 +444,9 @@ export function analyzeSymfonyEventSubscriptions(parser: PhpSyntaxParser, uri: s
         const methodNode = subscriptionMethod ? visit(classNode, (node) => node.type === 'method_declaration'
           && node.startIndex === subscriptionMethod.declarationStart && node.endIndex === subscriptionMethod.declarationEnd) : undefined;
         const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
-        const entries = eventSubscriptionEntries(body);
+        const eventIdentity = (eventNode: NodeLike): string | undefined => literalString(eventNode)
+          ?? classConstantIdentity(eventNode, namespace, parsed.imports, declaration.fqcn);
+        const entries = eventSubscriptionEntries(body, eventIdentity);
         if (entries) for (const { event: eventNode, listeners: listenersNode } of entries) {
           const listeners = listenerSpecs(listenersNode);
           const eventLiteral = literalTextRange(eventNode);
@@ -505,7 +552,19 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
     const methodNode = visit(parsed.tree.rootNode as unknown as NodeLike, (node) => node.type === 'method_declaration'
       && node.startIndex === method.declarationStart && node.endIndex === method.declarationEnd);
     const body = methodNode?.namedChildren.find((child) => child.type === 'compound_statement');
-    const entries = eventSubscriptionEntries(body); if (!entries) return [];
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const eventIdentity = (eventNode: NodeLike): string | undefined => {
+      const literal = literalString(eventNode); if (literal !== undefined) return literal;
+      const relativeReceiver = eventNode.type === 'class_constant_access_expression'
+        ? eventNode.namedChildren[0]?.text.toLowerCase() : undefined;
+      const relativeOwner = relativeReceiver === 'self' ? relativeClasses.selfFqcn
+        : relativeReceiver === 'static' ? relativeClasses.staticFqcn
+        : relativeReceiver === 'parent' ? relativeClasses.parentFqcn : undefined;
+      return relativeReceiver && ['self', 'static', 'parent'].includes(relativeReceiver)
+        ? relativeOwner && eventNode.namedChildren[1] ? `${relativeOwner}::${eventNode.namedChildren[1]!.text}` : undefined
+        : classConstantIdentity(eventNode, namespace, parsed.imports, providerFqcn);
+    };
+    const entries = eventSubscriptionEntries(body, eventIdentity); if (!entries) return [];
     const listenerSpecs = (node: NodeLike): Array<{ listener: string; start: number; end: number; priority?: number }> => {
       const direct = literalTextRange(node); if (direct) return [{ listener: direct.value, start: direct.start, end: direct.end }];
       if (node.type !== 'array_creation_expression') return [];
@@ -519,7 +578,6 @@ export function analyzeSymfonyInheritedEventSubscriptions(parser: PhpSyntaxParse
       if (!values.length || values.some((value) => value!.type !== 'array_creation_expression')) return [];
       const nested = values.flatMap((value) => listenerSpecs(value!)); return nested.length === values.length ? nested : [];
     };
-    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
     const facts: SymfonyEventSubscriptionFact[] = [];
     for (const { event: eventNode, listeners: listenersNode } of entries) {
       const listeners = listenerSpecs(listenersNode);

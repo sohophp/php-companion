@@ -112,6 +112,15 @@ describe('static Symfony Controller context analysis', () => {
         }
         public function onReturned(): void {}
       }
+      final class GuaranteedSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.always' => 'onAlways'];
+          if (defined('OPTIONAL_FEATURE')) { $events['app.optional'] = 'onOptional'; }
+          return $events;
+        }
+        public function onAlways(): void {}
+        public function onOptional(): void {}
+      }
       final class PartialSubscriber implements EventSubscriberInterface {
         public static function getSubscribedEvents(): array {
           $events = [];
@@ -126,6 +135,33 @@ describe('static Symfony Controller context analysis', () => {
           else { return ['app.second' => 'onDivergent']; }
         }
         public function onDivergent(): void {}
+      }
+      final class OverwrittenSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.same' => 'onOriginal'];
+          if (defined('OPTIONAL_FEATURE')) { $events['app.same'] = 'onReplacement'; }
+          return $events;
+        }
+        public function onOriginal(): void {}
+        public function onReplacement(): void {}
+      }
+      final class ExposedSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.exposed' => 'onExposed'];
+          if (mutate($events)) { $events['app.other'] = 'onOther'; }
+          return $events;
+        }
+        public function onExposed(): void {}
+        public function onOther(): void {}
+      }
+      final class IncludedSubscriber implements EventSubscriberInterface {
+        public static function getSubscribedEvents(): array {
+          $events = ['app.included' => 'onIncluded'];
+          if (include 'optional.php') { $events['app.include-optional'] = 'onIncludeOptional'; }
+          return $events;
+        }
+        public function onIncluded(): void {}
+        public function onIncludeOptional(): void {}
       }`;
     const facts = analyzeSymfonyEventSubscriptions(parser, 'file:///src/BranchedSubscriber.php', source);
     expect(facts.map(({ subscriberFqcn, event, listener, priority }) => [subscriberFqcn, event, listener, priority])).toEqual([
@@ -135,6 +171,7 @@ describe('static Symfony Controller context analysis', () => {
       ['App\\BranchedSubscriber', 'Symfony\\Component\\HttpKernel\\KernelEvents::REQUEST', 'onRequest', 8],
       ['App\\ReturnedSubscriber', 'app.returned', 'onReturned', undefined],
       ['App\\ReturnedSubscriber', 'app.returned', 'onReturned', undefined],
+      ['App\\GuaranteedSubscriber', 'app.always', 'onAlways', undefined],
     ]);
     expect(facts.filter((fact) => fact.event.endsWith('REQUEST')).map((fact) => source.slice(fact.eventStart, fact.eventEnd)))
       .toEqual(['KernelEvents::REQUEST', 'KernelEvents::REQUEST', 'KernelEvents::REQUEST']);

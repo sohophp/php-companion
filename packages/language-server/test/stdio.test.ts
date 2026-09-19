@@ -115,6 +115,7 @@ describe('language server stdio', () => {
               $events['app.built'] = 'onReady';
               if ($feature) { $events['app.branch'] = 'onReady'; }
               else { $events['app.branch'] = 'onReady'; }
+              if (defined('OPTIONAL_SUBSCRIPTION')) { $events['app.optional'] = 'onReady'; }
               return $events;
             }
             public function onReady(): void {}
@@ -235,6 +236,8 @@ describe('language server stdio', () => {
         reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === '$message')).toBe(false);
       expect(classReferences.filter((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
         reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === 'app.branch')).toHaveLength(2);
+      expect(classReferences.some((reference: { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }) =>
+        reference.uri === sourceUri && source.slice(lspOffset(source, reference.range.start), lspOffset(source, reference.range.end)) === 'app.optional')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('onAttribute') + 2), context: { includeDeclaration: false },
       } }));
