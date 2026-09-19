@@ -1,4 +1,5 @@
 - Symfony Route Attribute 现在按显式工作区环境筛选类级和方法级 `env` 字符串/字符串数组；未选择环境时只发布无环境限制的声明，被过滤的未命名 Attribute 不会错误消耗自动名称序号。
+- 提交 `6f18f29` 完成 Route Attribute 环境筛选，候选 `php-companion-alpha-0.4.5-6f18f29c` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，候选语言服务器已原子覆盖到 WSL RockyLinux8，并以已安装 bundle 实测 none/dev/prod 切换。
 - Symfony 路由参数数组现在可补全唯一实际路径中的 `{id}`、`{slug}` 等参数名；调用必须唯一解析到受支持的 Symfony 生成方法，路由名和数组结构必须可证明，已有键、动态键、歧义路由及同名业务方法不会产生候选。
 - 提交 `ca8ed34` 完成 Symfony 路由参数补全，候选 `php-companion-alpha-0.4.5-ca8ed34d` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装语言服务器用真实 Winstar runtime Provider 返回唯一 `id` 候选。
 - 新增可独立发布并随核心 VSIX 打包的 `@php-companion/provider-winstar-routes`。显式启用 `phpCompanion.symfony.winstarRoutes.enabled` 后，适配器执行项目 `bin/php-runtime bin/console debug:router` 获取实际启用集合，再把直接模块路由和 `admin_defaults` 生成路由映射回唯一 YAML 名称范围。
