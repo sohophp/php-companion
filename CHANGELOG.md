@@ -1,5 +1,6 @@
 - 新增可独立发布的 `@php-companion/route-provider` 与 `@php-companion/route-provider-host`。自定义 Symfony loader 可通过显式可信命令提供完整动态路由快照，进入路由补全、Definition 与 References；每次查询重新取值，配置变化不会继续使用旧快照。
 - 动态路由继续服从 Symfony Language Tools 的工作区能力所有权；外部运行时索引启用时 PHP Companion 不启动自定义 route provider。重复路由名、错误身份、不完整响应、超时、崩溃与超限输出均不产生导航结果。
+- 提交 `7ed5bba` 完成动态路由 Provider 契约与一次性宿主，候选 `php-companion-alpha-0.4.5-7ed5bbac` 的三份 VSIX 已验证；18 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8 并核对 bundle 哈希，Reload Window 后加载。
 - 同一路由文件通过约定入口和 Kernel 重复到达时按真实路径及加载上下文去重；不同前缀或 loader 的合法重复导入仍分别生效。
 - Symfony 静态路由补全现在覆盖无条件 `Kernel::configureRoutes()` 入口、PHP `RoutingConfigurator` 声明/导入，以及通用注册且路径可证明的 `@Bundle/.../*.php` 路由资源；环境条件和动态集合保持 unknown。
 - 提交 `864a38a` 完成 Symfony PHP 静态路由配置，`6acb8e1` 修复约定入口与 Kernel 重复到达；最终候选 `php-companion-alpha-0.4.5-6acb8e1a` 的三份 VSIX 已验证，候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。

@@ -23,4 +23,12 @@ Winstar 的 `ModuleRouteLoader` 会读取 `src/Modules/*/Routes/*.yaml`，按应
 - Language Server：186 项通过。新增真实 stdio 用例验证动态路由补全、Definition 精确范围，以及修改 provider 输入后下一查询立即得到新名称。
 - 全仓 TypeScript 类型检查及相关 ESLint 通过。
 
+18 个组件 tarball 已在隔离消费者安装并执行 smoke test。功能提交为 `7ed5bba`，Alpha 候选目录为 `artifacts/php-companion-alpha-0.4.5-7ed5bbac/`：
+
+- 核心 VSIX：`b44848c8b5e2cee64433c7cbc1d2541b751b87f19e56870d39cfea8b37d40823`
+- Open Source Pack：`07cd3ed271b0eb766e9dba1224401c63bebccdb7ee71b449f9eec94824f099bd`
+- Recommended Pack：`76c08dc28f9f27a94e52da1a3b5b22107f1e02c3cb71dc0b3048a76f4f4d65ee`
+
+三份 VSIX 内容与候选 SHA-256 复核通过，Winstar PHP 8.5 和 CoreRepo PHP 7.2 的 WSL 确定性预检通过。核心候选已安装到 WSL RockyLinux8；已安装 `extension.js` 与 `language-server.js` 分别以 `4b3c43564b9b41adda84185cdefab71a8cd0a1f5595b9e676e33bf2125abd0c5`、`07b08c6dc97bbd6920164edb69b03effd082f325d2f985dc746fc2c19edcd432` 与构建输出核对。编辑器需要 Reload Window 才会载入本候选。
+
 下一步实现明确配置的 Winstar 适配器，由项目自身的 `ModuleRouteDefinitionProvider` 或 Router 输出实际启用路由，并把生成路由映射回对应模块 YAML 的来源范围；不会把 Winstar 私有格式写入通用语言服务器。
