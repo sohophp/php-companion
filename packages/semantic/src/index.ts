@@ -2586,6 +2586,11 @@ export class SemanticWorkspace {
     return this.publicConcreteMethod(fqcn, methodName, true);
   }
 
+  /** List effective concrete public static methods on a complete parent/Trait hierarchy. */
+  publicStaticMethods(fqcn: string): MemberInfo[] {
+    return this.publicConcreteMethods(fqcn, true);
+  }
+
   /** Resolve one directly extended class without traversing the hierarchy. */
   directParentClass(fqcn: string): string | undefined {
     const owner = this.fileAndDeclaration(fqcn);

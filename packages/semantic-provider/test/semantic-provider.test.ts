@@ -31,6 +31,15 @@ describe('semantic provider contract', () => {
     expect(isSemanticFactsContribution({ ...semanticFacts('symfony.services', '9'), containerServices: [] })).toBe(false);
   });
 
+  it('accepts complete framework-neutral event relation facts', () => {
+    expect(isSemanticFactsContribution(semanticFacts('symfony.events', '10', {
+      eventSubscriptions: [{ subscriberFqcn: 'App\\Subscriber', event: 'app.ready', listener: 'onReady', priority: 4,
+        uri: 'file:///Subscriber.php', eventStart: 10, eventEnd: 19, listenerStart: 24, listenerEnd: 31 }],
+      eventDispatches: [{ event: 'app.ready', uri: 'file:///Dispatch.php', eventStart: 20, eventEnd: 30, dispatchStart: 8, dispatchEnd: 16 }],
+    }))).toBe(true);
+    expect(isSemanticFactsContribution({ ...semanticFacts('symfony.events', '10'), eventSubscriptions: [] })).toBe(false);
+  });
+
   it('rejects malformed identities, locations and visibility values', () => {
     expect(isSemanticFactsContribution({ ...semanticFacts('', '1'), providerId: '' })).toBe(false);
     expect(isSemanticFactsContribution({ ...semanticFacts('valid', '1'), methods: [{ ownerFqcn: 'A', name: 'm', uri: 'file:///A.php', start: 3, end: 2 }] })).toBe(false);
@@ -39,7 +48,8 @@ describe('semantic provider contract', () => {
 
   it('validates bounded executable descriptors', () => {
     expect(isSemanticProviderDescriptor({ providerId: 'vendor.framework', command: '/opt/provider', args: ['--stdio'], timeoutMs: 5000, maxOutputBytes: 4096,
-      requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true })).toBe(true);
+      requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true,
+      requiresContainerServices: true, replacesEventRelations: true })).toBe(true);
     expect(isSemanticProviderDescriptor({ providerId: 'symfony!', command: 'provider' })).toBe(false);
     expect(isSemanticProviderDescriptor({ providerId: 'vendor', command: 'provider', timeoutMs: 31_000 })).toBe(false);
   });
@@ -51,6 +61,7 @@ describe('semantic provider contract', () => {
     expect(isSemanticProviderRequest(request)).toBe(true);
     expect(isSemanticProviderRequest({ ...request, params: { ...request.params, documents: [{ ...request.params.documents[0], languageId: 'twig' }] } })).toBe(false);
     expect(isSemanticProviderRequest({ ...request, params: { ...request.params, projectTypes: [{ ...request.params.projectTypes[0], end: 2 }] } })).toBe(false);
+    expect(isSemanticProviderRequest({ ...request, params: { ...request.params, containerServices: [{ id: 'app.mailer' }] } })).toBe(false);
     expect(isSemanticProviderResponse({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id, result: semanticFacts('vendor', '1') })).toBe(true);
     expect(isSemanticProviderResponse({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id })).toBe(false);
     expect(isSemanticProviderResponse({ protocolVersion: 2, id: request.id, error: { code: 'failed', message: 'failed' } })).toBe(false);

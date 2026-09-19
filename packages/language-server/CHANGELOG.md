@@ -14,6 +14,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Consume one authoritative standalone Symfony event snapshot for subscriber, Attribute, inherited/Trait listener and dispatch candidates; retain generic PHP method identity and EventDispatcher receiver proof, with core fallback on provider failure.
+- Limit semantic-provider project type catalogs to Composer project sources while retaining exact dependency hydration, avoiding dependency-wide event reanalysis.
 - Retry empty member completion by loading at most four successive exact Composer PSR-4 owner types, allowing cold `onDemand` chains such as Doctrine `EntityManagerInterface::getRepository(Entity::class)->find()` without scanning dependencies.
 - Compose localized YAML import prefixes across nested string/map imports and expose only exact locale-suffixed route names and paths.
 - Include exact locale-suffixed Attribute route names and combined localized paths in completion, Definition and References through the existing static Symfony graph.

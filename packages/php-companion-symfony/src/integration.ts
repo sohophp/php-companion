@@ -2,6 +2,7 @@ import type { PhpCompanionPluginApi, PhpCompanionPluginRegistration } from '@php
 
 export const SYMFONY_INTEGRATION_ID = 'php-companion.symfony';
 export const SERVICE_PROVIDER_ID = 'php-companion.symfony.services';
+export const EVENT_PROVIDER_ID = 'php-companion.symfony.events';
 export const STATIC_ROUTE_PROVIDER_ID = 'php-companion.symfony.static-routes';
 export const WINSTAR_ROUTE_PROVIDER_ID = 'php-companion.symfony.winstar-routes';
 
@@ -9,7 +10,8 @@ export class SymfonyIntegration {
   private registration: PhpCompanionPluginRegistration | undefined;
   private winstarRoutesEnabled = false;
 
-  constructor(private readonly core: PhpCompanionPluginApi, private readonly serviceProviderPath: string, private readonly staticProviderPath: string,
+  constructor(private readonly core: PhpCompanionPluginApi, private readonly serviceProviderPath: string, private readonly eventProviderPath: string,
+    private readonly staticProviderPath: string,
     private readonly winstarProviderPath: string, private readonly parserCoreWasmPath: string,
     private readonly phpWasmPath: string, private readonly executable = process.execPath) {
     if (core.version !== 1) throw new Error(`PHP Companion plugin API ${core.version} is not supported; expected version 1.`);
@@ -34,6 +36,16 @@ export class SymfonyIntegration {
         requiresProjectTypes: true,
         acceptsDocumentSnapshots: true,
         replacesContainerServices: true,
+      }, {
+        providerId: EVENT_PROVIDER_ID,
+        command: this.executable,
+        args: [this.eventProviderPath, '--parser-core-wasm', this.parserCoreWasmPath, '--php-wasm', this.phpWasmPath],
+        timeoutMs: 30_000,
+        maxOutputBytes: 16 * 1024 * 1024,
+        requiresProjectTypes: true,
+        requiresContainerServices: true,
+        acceptsDocumentSnapshots: true,
+        replacesEventRelations: true,
       }],
       routeProviders: [{
         providerId: STATIC_ROUTE_PROVIDER_ID,
@@ -52,8 +64,9 @@ export class SymfonyIntegration {
     });
   }
 
-  status(): { apiVersion: number; serviceProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean } {
-    return { apiVersion: this.core.version, serviceProviderRegistered: Boolean(this.registration), staticRouteProviderRegistered: Boolean(this.registration), winstarRouteProviderRegistered: this.winstarRoutesEnabled };
+  status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean } {
+    return { apiVersion: this.core.version, serviceProviderRegistered: Boolean(this.registration), eventProviderRegistered: Boolean(this.registration),
+      staticRouteProviderRegistered: Boolean(this.registration), winstarRouteProviderRegistered: this.winstarRoutesEnabled };
   }
 
   dispose(): void { this.registration?.dispose(); this.registration = undefined; this.winstarRoutesEnabled = false; }

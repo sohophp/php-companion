@@ -1,0 +1,18 @@
+{
+  "name": "@php-companion/provider-symfony-events",
+  "version": "0.1.0-alpha.1",
+  "description": "Authoritative Symfony event-relation provider for PHP Companion.",
+  "type": "module", "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/provider-symfony-events" },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "bin": { "php-companion-symfony-events": "./dist/cli.js" },
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "scripts": { "build": "tsc -p tsconfig.json", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "vitest run" },
+  "dependencies": {
+    "@php-companion/framework-symfony": "workspace:^",
+    "@php-companion/parser": "workspace:^",
+    "@php-companion/semantic-provider": "workspace:^"
+  },
+  "devDependencies": { "@types/node": "^22.15.0", "typescript": "^5.9.3", "vitest": "^4.1.10" },
+  "publishConfig": { "access": "public" }, "engines": { "node": ">=20" }
+}

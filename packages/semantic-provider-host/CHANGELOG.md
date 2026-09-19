@@ -1,5 +1,6 @@
 # Changelog
 
+- Forward validated container service catalogs to dependent isolated semantic providers.
 - Forward bounded open-document snapshots and project type catalogs to isolated semantic providers.
 
 ## 0.1.0-alpha.1

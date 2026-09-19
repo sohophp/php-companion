@@ -4,7 +4,7 @@ import { SymfonyIntegration } from './integration.js';
 
 export interface PhpCompanionSymfonyApi {
   version: 1;
-  status(): { apiVersion: number; serviceProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean };
+  status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean };
 }
 
 function winstarRoutesEnabled(): boolean {
@@ -18,6 +18,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   const core = await coreExtension.activate();
   const integration = new SymfonyIntegration(core,
     context.asAbsolutePath('dist/service-provider.js'),
+    context.asAbsolutePath('dist/event-provider.js'),
     context.asAbsolutePath('dist/static-route-provider.js'), context.asAbsolutePath('dist/winstar-route-provider.js'),
     context.asAbsolutePath('dist/web-tree-sitter.wasm'), context.asAbsolutePath('dist/tree-sitter-php.wasm'));
   const synchronize = (): void => integration.setWinstarRoutesEnabled(winstarRoutesEnabled());
@@ -31,8 +32,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     vscode.commands.registerCommand('phpCompanionSymfony.showStatus', async () => {
       const status = integration.status();
       await vscode.window.showInformationMessage(status.winstarRouteProviderRegistered
-        ? 'PHP Companion Symfony is active; services, static routes, and Winstar routes are registered.'
-        : 'PHP Companion Symfony is active; services and static routes are registered, and Winstar runtime routes are disabled.');
+        ? 'PHP Companion Symfony is active; services, events, static routes, and Winstar routes are registered.'
+        : 'PHP Companion Symfony is active; services, events, and static routes are registered, and Winstar runtime routes are disabled.');
     }),
   );
   return Object.freeze({ version: 1 as const, status: () => integration.status() });

@@ -7,7 +7,9 @@ describe('plugin API', () => {
     expect(isPhpCompanionIntegrationContribution({
       integrationId: 'vendor.symfony',
       semanticProviders: [{ providerId: 'vendor.symfony.services', command: '/extension/provider', requiresProjectTypes: true,
-        acceptsDocumentSnapshots: true, replacesContainerServices: true }],
+        acceptsDocumentSnapshots: true, replacesContainerServices: true },
+      { providerId: 'vendor.symfony.events', command: '/extension/events', requiresProjectTypes: true,
+        requiresContainerServices: true, acceptsDocumentSnapshots: true, replacesEventRelations: true }],
       routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/extension/routes', timeoutMs: 1000, maxOutputBytes: 4096 }],
     })).toBe(true);
   });

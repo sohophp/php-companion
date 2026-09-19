@@ -10,6 +10,8 @@ export interface SemanticProviderDescriptor {
   requiresProjectTypes?: boolean;
   acceptsDocumentSnapshots?: boolean;
   replacesContainerServices?: boolean;
+  requiresContainerServices?: boolean;
+  replacesEventRelations?: boolean;
 }
 
 export interface SemanticProviderDocument {
@@ -18,12 +20,23 @@ export interface SemanticProviderDocument {
   source: string;
   snapshotVersion: string;
 }
+export interface SemanticProviderEffectiveMethod extends SemanticFactLocation {
+  name: string;
+  fqcn: string;
+  static: boolean;
+  declarationFqcn?: string;
+  declarationName?: string;
+  typeScopeFqcn?: string;
+}
 
 export interface SemanticProviderProjectType extends SemanticFactLocation {
   fqcn: string;
   kind: 'class' | 'interface' | 'trait' | 'enum';
   abstract: boolean;
   path: string;
+  directParentFqcn?: string;
+  supertypes?: readonly string[];
+  effectiveMethods?: readonly SemanticProviderEffectiveMethod[];
 }
 
 export interface SemanticProviderRequest {
@@ -31,7 +44,8 @@ export interface SemanticProviderRequest {
   id: string;
   method: 'facts';
   params: { rootUri: string; rootPath: string; generation: string; phpVersion: string;
-    documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[] };
+    documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[];
+    containerServices?: readonly ExternalContainerServiceFact[] };
 }
 
 export interface SemanticProviderResponse {
@@ -70,6 +84,13 @@ export interface ExternalContainerMethodArgumentFact extends SemanticFactLocatio
 export interface ExternalContainerPropertyArgumentFact extends SemanticFactLocation {
   ownerFqcn: string; property: string; serviceId: string; className: string;
 }
+export interface ExternalEventSubscriptionFact {
+  subscriberFqcn: string; event: string; listener: string; priority?: number; uri: string;
+  eventStart: number; eventEnd: number; listenerStart: number; listenerEnd: number;
+}
+export interface ExternalEventDispatchFact {
+  event: string; uri: string; eventStart: number; eventEnd: number; dispatchStart: number; dispatchEnd: number;
+}
 
 export interface SemanticFactsContribution {
   schema: typeof SEMANTIC_FACTS_SCHEMA;
@@ -83,10 +104,13 @@ export interface SemanticFactsContribution {
   containerMethodArguments?: readonly ExternalContainerMethodArgumentFact[];
   containerPropertyArguments?: readonly ExternalContainerPropertyArgumentFact[];
   containerConfigurationUris?: readonly string[];
+  eventSubscriptions?: readonly ExternalEventSubscriptionFact[];
+  eventDispatches?: readonly ExternalEventDispatchFact[];
 }
 
 type SemanticFactInput = Partial<Pick<SemanticFactsContribution, 'complete' | 'methods' | 'properties' | 'literalMethodReturns'
-  | 'containerServices' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'>>;
+  | 'containerServices' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'
+  | 'eventSubscriptions' | 'eventDispatches'>>;
 
 export function semanticFacts(providerId: string, generation: string, facts: SemanticFactInput = {}): SemanticFactsContribution {
   return {
@@ -101,6 +125,8 @@ export function semanticFacts(providerId: string, generation: string, facts: Sem
     ...(facts.containerMethodArguments ? { containerMethodArguments: facts.containerMethodArguments } : {}),
     ...(facts.containerPropertyArguments ? { containerPropertyArguments: facts.containerPropertyArguments } : {}),
     ...(facts.containerConfigurationUris ? { containerConfigurationUris: facts.containerConfigurationUris } : {}),
+    ...(facts.eventSubscriptions ? { eventSubscriptions: facts.eventSubscriptions } : {}),
+    ...(facts.eventDispatches ? { eventDispatches: facts.eventDispatches } : {}),
   };
 }
 
@@ -174,12 +200,38 @@ function containerPropertyArgument(value: unknown): value is ExternalContainerPr
   return Boolean(location(value) && item && text(item.ownerFqcn, 4096) && text(item.property, 512)
     && text(item.serviceId, 4096) && text(item.className, 4096));
 }
+function eventSubscription(value: unknown): value is ExternalEventSubscriptionFact {
+  const item = value as Partial<ExternalEventSubscriptionFact> | null;
+  return Boolean(item && text(item.subscriberFqcn, 4096) && text(item.event, 4096) && text(item.listener, 512)
+    && (item.priority === undefined || Number.isSafeInteger(item.priority)) && text(item.uri, 32_768)
+    && Number.isSafeInteger(item.eventStart) && Number.isSafeInteger(item.eventEnd)
+    && Number.isSafeInteger(item.listenerStart) && Number.isSafeInteger(item.listenerEnd)
+    && item.eventStart! >= 0 && item.eventEnd! >= item.eventStart! && item.listenerStart! >= 0 && item.listenerEnd! >= item.listenerStart!);
+}
+function eventDispatch(value: unknown): value is ExternalEventDispatchFact {
+  const item = value as Partial<ExternalEventDispatchFact> | null;
+  return Boolean(item && text(item.event, 4096) && text(item.uri, 32_768)
+    && Number.isSafeInteger(item.eventStart) && Number.isSafeInteger(item.eventEnd)
+    && Number.isSafeInteger(item.dispatchStart) && Number.isSafeInteger(item.dispatchEnd)
+    && item.eventStart! >= 0 && item.eventEnd! >= item.eventStart! && item.dispatchStart! >= 0 && item.dispatchEnd! >= item.dispatchStart!);
+}
 
 function projectType(value: unknown): value is SemanticProviderProjectType {
   const item = value as Partial<SemanticProviderProjectType> | null;
   return Boolean(location(value) && item && boundedString(item.fqcn)
     && ['class', 'interface', 'trait', 'enum'].includes(item.kind ?? '')
-    && typeof item.abstract === 'boolean' && boundedString(item.path, 32_768));
+    && typeof item.abstract === 'boolean' && boundedString(item.path, 32_768)
+    && (item.directParentFqcn === undefined || boundedString(item.directParentFqcn))
+    && (item.supertypes === undefined || Array.isArray(item.supertypes) && item.supertypes.length <= 256
+      && item.supertypes.every((entry) => boundedString(entry)))
+    && (item.effectiveMethods === undefined || Array.isArray(item.effectiveMethods) && item.effectiveMethods.length <= 4096
+      && item.effectiveMethods.every((value) => {
+        const method = value as Partial<SemanticProviderEffectiveMethod>;
+        return location(value) && boundedString(method.name, 512) && boundedString(method.fqcn)
+          && typeof method.static === 'boolean' && (method.declarationFqcn === undefined || boundedString(method.declarationFqcn))
+          && (method.declarationName === undefined || boundedString(method.declarationName, 512))
+          && (method.typeScopeFqcn === undefined || boundedString(method.typeScopeFqcn));
+      })));
 }
 
 export function isSemanticFactsContribution(value: unknown): value is SemanticFactsContribution {
@@ -194,7 +246,11 @@ export function isSemanticFactsContribution(value: unknown): value is SemanticFa
       && Array.isArray(item.containerPropertyArguments) && item.containerPropertyArguments.length <= factLimit && item.containerPropertyArguments.every(containerPropertyArgument)
       && Array.isArray(item.containerConfigurationUris) && item.containerConfigurationUris.length <= 1024
       && item.containerConfigurationUris.every((uri) => text(uri, 32_768));
-  return item.methods.every(methodFact) && item.properties.every(propertyFact) && item.literalMethodReturns.every(literalMethodReturnFact) && containerArrays;
+  const eventArrays = item.eventSubscriptions === undefined && item.eventDispatches === undefined
+    || Array.isArray(item.eventSubscriptions) && item.eventSubscriptions.length <= factLimit && item.eventSubscriptions.every(eventSubscription)
+      && Array.isArray(item.eventDispatches) && item.eventDispatches.length <= factLimit && item.eventDispatches.every(eventDispatch);
+  return item.methods.every(methodFact) && item.properties.every(propertyFact) && item.literalMethodReturns.every(literalMethodReturnFact)
+    && containerArrays && eventArrays;
 }
 
 const providerIdPattern = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
@@ -208,7 +264,9 @@ export function isSemanticProviderDescriptor(value: unknown): value is SemanticP
     && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes) && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
     && (item.requiresProjectTypes === undefined || typeof item.requiresProjectTypes === 'boolean')
     && (item.acceptsDocumentSnapshots === undefined || typeof item.acceptsDocumentSnapshots === 'boolean')
-    && (item.replacesContainerServices === undefined || typeof item.replacesContainerServices === 'boolean'));
+    && (item.replacesContainerServices === undefined || typeof item.replacesContainerServices === 'boolean')
+    && (item.requiresContainerServices === undefined || typeof item.requiresContainerServices === 'boolean')
+    && (item.replacesEventRelations === undefined || typeof item.replacesEventRelations === 'boolean'));
 }
 
 export function isSemanticProviderRequest(value: unknown): value is SemanticProviderRequest {
@@ -222,11 +280,16 @@ export function isSemanticProviderRequest(value: unknown): value is SemanticProv
   const projectTypes = params?.projectTypes;
   const validProjectTypes = projectTypes === undefined || (Array.isArray(projectTypes) && projectTypes.length <= factLimit
     && projectTypes.reduce((characters, type) => characters + (typeof type?.fqcn === 'string' ? type.fqcn.length : 0)
-      + (typeof type?.uri === 'string' ? type.uri.length : 0) + (typeof type?.path === 'string' ? type.path.length : 0), 0) <= 16 * 1024 * 1024
+      + (typeof type?.uri === 'string' ? type.uri.length : 0) + (typeof type?.path === 'string' ? type.path.length : 0)
+      + (Array.isArray(type?.effectiveMethods) ? type.effectiveMethods.reduce((sum: number, method: SemanticProviderEffectiveMethod) => sum + (typeof method?.fqcn === 'string' ? method.fqcn.length : 0)
+        + (typeof method?.uri === 'string' ? method.uri.length : 0), 0) : 0), 0) <= 16 * 1024 * 1024
     && projectTypes.every(projectType));
+  const containerServices = params?.containerServices;
+  const validContainerServices = containerServices === undefined || (Array.isArray(containerServices)
+    && containerServices.length <= factLimit && containerServices.every(containerService));
   return Boolean(item?.protocolVersion === SEMANTIC_PROVIDER_PROTOCOL_VERSION && boundedString(item.id, 128) && item.method === 'facts'
     && params && boundedString(params.rootUri) && boundedString(params.rootPath) && boundedString(params.generation, 128) && boundedString(params.phpVersion, 32)
-    && validDocuments && validProjectTypes);
+    && validDocuments && validProjectTypes && validContainerServices);
 }
 
 export function isSemanticProviderResponse(value: unknown): value is SemanticProviderResponse {

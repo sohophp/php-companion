@@ -14,6 +14,7 @@ const artifacts = [
       'extension/package.json',
       'extension/dist/extension.js',
       'extension/dist/service-provider.js',
+      'extension/dist/event-provider.js',
       'extension/dist/static-route-provider.js',
       'extension/dist/winstar-route-provider.js',
       'extension/dist/tree-sitter-php.wasm',
@@ -122,7 +123,7 @@ for (const artifact of artifacts) {
     if (JSON.stringify(manifest.extensionDependencies) !== JSON.stringify(['sohophp.php-companion'])) {
       throw new Error(`${artifact.path} must depend only on the PHP Companion core extension.`);
     }
-    for (const entry of ['extension/dist/extension.js', 'extension/dist/service-provider.js', 'extension/dist/static-route-provider.js', 'extension/dist/winstar-route-provider.js']) {
+    for (const entry of ['extension/dist/extension.js', 'extension/dist/service-provider.js', 'extension/dist/event-provider.js', 'extension/dist/static-route-provider.js', 'extension/dist/winstar-route-provider.js']) {
       const bundle = await textEntry(artifact.path, entry);
       if (/require\(["']@php-companion\//.test(bundle)) throw new Error(`${artifact.path} leaves a workspace package as a runtime dependency in ${entry}.`);
     }

@@ -1,5 +1,6 @@
 # Changelog
 
+- Expose the complete effective concrete public static method set for bounded framework-provider snapshots.
 - Infer callable templates declared on real methods from exact `class-string<T>` arguments, preserve the specialized generic result through direct local assignments, and accept a nullable template return only when its bound refines the complete native nullable type.
 - Restore declaration-first snapshots by validating canonical callable ownership, fact ordering, reference candidates and type dependencies without eagerly merging and reserializing deferred implementation facts.
 - Resolve a unique direct parent class for framework metadata whose relative class constants bind against either a declaration owner or a Trait consumer.

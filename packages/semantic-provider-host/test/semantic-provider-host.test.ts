@@ -19,12 +19,16 @@ describe('semantic provider process host', () => {
     await expect(runSemanticProvider({ providerId: 'vendor.test', command: process.execPath, args: [path] }, context)).resolves.toMatchObject({ ok: true, contribution: { providerId: 'vendor.test', generation: '7' } });
   });
 
-  it('passes bounded document snapshots and project types to the provider', async () => {
-    const path = await script(`let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const ok=request.params.documents?.[0]?.source==='services: {}'&&request.params.projectTypes?.[0]?.fqcn==='App\\\\Mailer'; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.test',generation:request.params.generation,complete:ok,methods:[],properties:[],literalMethodReturns:[]}}));`);
+  it('passes bounded document snapshots, project types, and container services to the provider', async () => {
+    const path = await script(`let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const ok=request.params.documents?.[0]?.source==='services: {}'&&request.params.projectTypes?.[0]?.fqcn==='App\\\\Mailer'&&request.params.containerServices?.[0]?.id==='app.mailer'; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.test',generation:request.params.generation,complete:ok,methods:[],properties:[],literalMethodReturns:[]}}));`);
     await expect(runSemanticProvider({ providerId: 'vendor.test', command: process.execPath, args: [path] }, {
       ...context,
       documents: [{ uri: 'file:///project/config/services.yaml', languageId: 'yaml', source: 'services: {}', snapshotVersion: '2' }],
       projectTypes: [{ fqcn: 'App\\Mailer', kind: 'class', abstract: false, path: '/project/src/Mailer.php', uri: 'file:///project/src/Mailer.php', start: 6, end: 12 }],
+      containerServices: [{ id: 'app.mailer', className: 'App\\Mailer', public: false, autowire: true, autowireComplete: true,
+        bindings: [], configuredCalls: [], callsComplete: true, configuredProperties: [], propertiesComplete: true, eventListeners: [],
+        origin: 'explicit', uri: 'file:///services.yaml', start: 1, end: 2,
+        registrationUri: 'file:///services.yaml', registrationStart: 1, registrationEnd: 2 }],
     })).resolves.toMatchObject({ ok: true, contribution: { complete: true } });
   });
 

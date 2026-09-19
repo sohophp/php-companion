@@ -6,6 +6,7 @@ await build({
   entryPoints: {
     extension: 'src/extension.ts',
     'service-provider': '../provider-symfony-services/src/cli.ts',
+    'event-provider': '../provider-symfony-events/src/cli.ts',
     'static-route-provider': '../provider-symfony-routes/src/cli.ts',
     'winstar-route-provider': '../provider-winstar-routes/src/cli.ts',
   },

@@ -36,7 +36,11 @@ function providerDescriptor(value: unknown): value is SemanticProviderDescriptor
     && ((item as Partial<SemanticProviderDescriptor>).acceptsDocumentSnapshots === undefined
       || typeof (item as Partial<SemanticProviderDescriptor>).acceptsDocumentSnapshots === 'boolean')
     && ((item as Partial<SemanticProviderDescriptor>).replacesContainerServices === undefined
-      || typeof (item as Partial<SemanticProviderDescriptor>).replacesContainerServices === 'boolean'));
+      || typeof (item as Partial<SemanticProviderDescriptor>).replacesContainerServices === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).requiresContainerServices === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).requiresContainerServices === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).replacesEventRelations === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).replacesEventRelations === 'boolean'));
 }
 
 function ownedProviderId(integrationId: string, providerId: string): boolean {
