@@ -1,3 +1,4 @@
+- Resolve bounded `@Bundle/...` YAML/XML/PHP service imports only from universal static registrations, one conventional Bundle inheritance path and a contained real resource path; refresh on registration, bundle-class and imported-file changes.
 - Map deterministic Symfony positional service arguments to semantic constructor parameter indexes, keep scalar overrides local to one parameter, and advance the validated Symfony fact cache to v8.
 - Add incremental file-event draining, timed query logs, precise type candidate scans, cancellation errors, and immutable Safe Move source snapshots.
 - Bind Safe Move reconciliation ranges to their source text and return source snapshots for client stale-edit rejection.

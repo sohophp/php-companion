@@ -575,19 +575,31 @@ describe('language server stdio', () => {
     try {
       const cacheDirectory = join(root, '.cache'); const sourceDirectory = join(root, 'src');
       const configDirectory = join(root, 'config'); const containerDirectory = join(root, 'var', 'cache', 'dev');
-      await mkdir(sourceDirectory); await mkdir(configDirectory); await mkdir(containerDirectory, { recursive: true });
+      const bundleDirectory = join(root, 'bundle'); const bundleConfigDirectory = join(bundleDirectory, 'Resources', 'config');
+      await mkdir(sourceDirectory); await mkdir(configDirectory); await mkdir(containerDirectory, { recursive: true }); await mkdir(bundleConfigDirectory, { recursive: true });
       const source = `<?php namespace Psr\\Container { interface ContainerInterface { public function get(string $id): mixed; } }
         namespace App { class Mailer { public function send(): void {} }
-        function run(\\Psr\\Container\\ContainerInterface $container): void { $container->get('app.mailer')->se; } }`;
+        function run(\\Psr\\Container\\ContainerInterface $container): void { $container->get('app.mailer')->se; $container->get('app.bundled')->se; } }`;
       const sourcePath = join(sourceDirectory, 'App.php'); const sourceUri = pathToFileURL(sourcePath).toString();
-      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/App.php'] } }));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/App.php', 'bundle/Bundles.php'] } }));
       await writeFile(join(root, 'composer.lock'), '{}');
       await writeFile(sourcePath, source);
+      await writeFile(join(bundleDirectory, 'Bundles.php'), '<?php namespace Symfony\\Component\\HttpKernel\\Bundle { abstract class Bundle {} } namespace Vendor\\Shared { final class SharedBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} final class CustomBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle { public function getPath(): string { return __DIR__; } } final class ConstructedBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle { public function __construct() {} } }');
+      await writeFile(join(configDirectory, 'bundles.php'), "<?php return [Vendor\\Shared\\SharedBundle::class => ['all' => true], Vendor\\Shared\\CustomBundle::class => ['all' => true], Vendor\\Shared\\ConstructedBundle::class => ['all' => true]];");
+      const bundledPath = join(bundleConfigDirectory, 'bundled.php'); const bundledUri = pathToFileURL(bundledPath).toString();
+      await writeFile(bundledPath, `<?php
+        use App\\Mailer;
+        use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+        return static function (ContainerConfigurator $container): void { $container->services()->set('app.bundled', Mailer::class)->public(); };`);
+      await writeFile(join(bundleConfigDirectory, 'ignored.php'), `<?php
+        use App\\Mailer;
+        use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+        return static function (ContainerConfigurator $container): void { $container->services()->set('app.ignored', Mailer::class)->public(); };`);
       const serviceXmlPath = join(configDirectory, 'services.xml');
       const importedDirectory = join(configDirectory, 'services'); await mkdir(importedDirectory);
       const importedPath = join(importedDirectory, 'mailer.php'); const importedUri = pathToFileURL(importedPath).toString();
       const importedYamlPath = join(importedDirectory, 'imports.yaml');
-      await writeFile(serviceXmlPath, '<container><imports><import resource="services/imports.yaml"/></imports></container>');
+      await writeFile(serviceXmlPath, '<container><imports><import resource="services/imports.yaml"/><import resource="@SharedBundle/Resources/config/bundled.php"/><import resource="@CustomBundle/Resources/config/ignored.php"/><import resource="@ConstructedBundle/Resources/config/ignored.php"/></imports></container>');
       await writeFile(importedYamlPath, 'imports:\n  - { resource: mailer.php }\n');
       await writeFile(importedPath, `<?php
         use App\\Mailer;
@@ -608,7 +620,7 @@ describe('language server stdio', () => {
         await output.waitFor((message) => message.id === id);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         await output.waitFor((message) => message.method === 'window/logMessage'
-          && message.params?.message?.includes(`Loaded Symfony facts from 4 sources (${expectedCached} cached)`));
+          && message.params?.message?.includes(`Loaded Symfony facts from 5 sources (${expectedCached} cached)`));
         return output;
       };
       const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
@@ -619,7 +631,7 @@ describe('language server stdio', () => {
       };
 
       const cold = await start(220, 0); await stop(cold, 221);
-      const hot = await start(222, 4);
+      const hot = await start(222, 5);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
@@ -629,11 +641,17 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
       expect((await hot.waitFor((message) => message.id === 223)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
+      const bundledOffset = source.lastIndexOf('->se') + 4;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 227, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, bundledOffset),
+      } }));
+      expect((await hot.waitFor((message) => message.id === 227)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 225, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('class Mailer') + 7), context: { includeDeclaration: false },
       } }));
       const references = (await hot.waitFor((message) => message.id === 225)).result;
       expect(references).toContainEqual(expect.objectContaining({ uri: importedUri }));
+      expect(references).toContainEqual(expect.objectContaining({ uri: bundledUri }));
       await writeFile(importedPath, `<?php
         use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
         return static function (ContainerConfigurator $container): void {};
@@ -642,7 +660,7 @@ describe('language server stdio', () => {
         changes: [{ uri: importedUri, type: 2 }],
       } }));
       await hot.waitFor((message) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('Loaded Symfony facts from 3 sources'));
+        && message.params?.message?.includes('Loaded Symfony facts from 4 sources'));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));

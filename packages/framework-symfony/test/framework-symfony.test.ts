@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -452,6 +452,32 @@ services:
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(false);
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="child.yaml"/></imports></container>').imports)
       .toMatchObject([{ resource: 'child.yaml' }]);
+  });
+
+  it('extracts only universal bundle-map entries and unconditional Kernel yields', () => {
+    const bundleMap = `<?php
+      use Vendor\\Shared\\SharedBundle;
+      return [
+        SharedBundle::class => ['all' => true],
+        Vendor\\Dev\\DevBundle::class => ['dev' => true],
+        dynamic_bundle() => ['all' => true],
+      ];`;
+    expect(analyzeSymfonyBundleRegistrations(parser, 'file:///project/config/bundles.php', bundleMap)).toMatchObject({ complete: true, bundles: [
+      { bundleName: 'SharedBundle', className: 'Vendor\\Shared\\SharedBundle' },
+    ] });
+    const kernel = `<?php namespace App;
+      use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
+      use Vendor\\Shared\\SharedBundle;
+      final class Kernel extends BaseKernel {
+        public function registerBundles(): iterable {
+          yield new SharedBundle();
+          if ($this->environment === 'dev') { yield new \\Vendor\\Dev\\DevBundle(); }
+          yield from dynamic_bundles();
+        }
+      }`;
+    const facts = analyzeSymfonyBundleRegistrations(parser, 'file:///project/src/Kernel.php', kernel);
+    expect(facts).toMatchObject({ complete: true, bundles: [{ bundleName: 'SharedBundle', className: 'Vendor\\Shared\\SharedBundle' }] });
+    expect(kernel.slice(facts.bundles[0]!.start, facts.bundles[0]!.end)).toBe('SharedBundle');
   });
 
   it('extracts the deterministic Symfony PHP Configurator service DSL', () => {
