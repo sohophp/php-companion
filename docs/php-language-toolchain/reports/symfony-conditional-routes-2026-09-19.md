@@ -21,4 +21,8 @@
 
 - framework-symfony 覆盖通用/多环境 bundle map、简单 Kernel 环境条件、复杂条件反例和精确来源范围。
 - Language Server stdio 覆盖空环境、`dev` 条件 Kernel import、`dev` Bundle PHP 路由、非法快照保持上一状态、切换 `prod` 撤回，以及外部 provider 抑制。
-- 完整验证结果和最终候选 SHA-256 在功能提交与打包完成后记录到实施状态。
+- 全仓 TypeScript 与 ESLint 通过；framework-symfony 35/35、semantic 268/268、Language Server 185/185、根扩展单元测试 39/39 通过。Language Server 最终复跑耗时 222.98 秒。
+- 16 个组件 tarball 通过仓库外消费者安装/导入验证；核心、Open Source Pack、Recommended Pack 三份 VSIX 内容验证通过。
+- 功能提交为 `a69e3d68f9498dbe93124be72ee8f4b46b020ad0`，候选目录为 `artifacts/php-companion-alpha-0.4.5-a69e3d68/`。三个 SHA-256 依次为 `cf41e025a1190d251204a4071920b39aae8ea9a623b352006c432ccfb1e852ab`、`ed0aee89b96662b48bce7d2be840e59464d74566d5972131fc3c3cef538e9cf4`、`40bcfa939d4ab4a46bac43d99d1575b2e82b1b17e9cf3cebb787078919a2acaa`。
+- 核心 VSIX 已由 Remote CLI 完整安装到 WSL RockyLinux8。已安装 adapter/server 与候选分别以 `f3195f639ab9f0d1f801c151468099acac0e69185e5c70fa1e4a357d774b8381`、`939ea115e7a3ba190a4c6e2a67300794271468a4f595272d946d88e36d403511` 核对；installed manifest 含新环境设置。Reload Window 后生效。
+- Winstar `bin/php-runtime` 8.5 和 CoreRepo `phpbin` 7.2 的只读确定性 Alpha 预检均通过。当前 shell 不是 VS Code 集成终端，因此 Extension Host 所有权、竞争 provider 禁用状态和两小时真实编辑会话仍是人工门槛。

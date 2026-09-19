@@ -241,6 +241,7 @@
 
 ## Unreleased
 
+- 提交 `a69e3d6` 完成 Symfony 显式环境路由，候选 `php-companion-alpha-0.4.5-a69e3d68` 的三份 VSIX 和 16 个独立组件包已验证；核心 VSIX 已完整安装到 WSL RockyLinux8 并核对 adapter/server 哈希，Reload Window 后加载。
 - Add resource-scoped `phpCompanion.symfony.environment` selection for exact environment-gated Symfony route imports and Bundle resources; keep the default limited to unconditional routes and preserve Symfony Language Tools runtime-provider ownership.
 - 构造器参数已经验证的 PHPDoc 精化现在会复用于同名提升属性：`@param Service $service` 可精化 `public mixed $service` 的属性读取、补全与 Definition；与原生属性类型冲突的文档仍不会进入查询模型。Semantic snapshot 升至 schema 54。
 
