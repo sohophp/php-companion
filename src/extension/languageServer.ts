@@ -62,12 +62,16 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       ],
     },
   };
-  const symfonyRouteProviders = (): Array<{ uri: string; external: boolean }> => {
+  const symfonyRouteProviders = (): Array<{ uri: string; external: boolean; environment?: string }> => {
     const available = vscode.extensions.getExtension('symfony.language-tools') !== undefined;
-    return (vscode.workspace.workspaceFolders ?? []).map((folder) => ({
-      uri: folder.uri.toString(),
-      external: available && vscode.workspace.getConfiguration('symfonyLsp', folder.uri).get<boolean>('runtimeIndexing', true),
-    }));
+    return (vscode.workspace.workspaceFolders ?? []).map((folder) => {
+      const environment = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string | null>('symfony.environment', null)?.trim();
+      return {
+        uri: folder.uri.toString(),
+        external: available && vscode.workspace.getConfiguration('symfonyLsp', folder.uri).get<boolean>('runtimeIndexing', true),
+        ...(environment && /^[A-Za-z0-9_.-]{1,64}$/.test(environment) ? { environment } : {}),
+      };
+    });
   };
   const stateRootUri = (state: FolderState): vscode.Uri => state.projectRoot
     ? state.folder.uri.scheme === 'file' ? vscode.Uri.file(state.projectRoot) : state.folder.uri.with({ path: state.projectRoot.replaceAll('\\', '/') })
@@ -156,7 +160,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   context.subscriptions.push(
     versions.onDidChangeState(updatePhpExtensionAvailability),
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('symfonyLsp.runtimeIndexing')) updateRouteProviders();
+      if (event.affectsConfiguration('symfonyLsp.runtimeIndexing') || event.affectsConfiguration('phpCompanion.symfony.environment')) updateRouteProviders();
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
       if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
         void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));

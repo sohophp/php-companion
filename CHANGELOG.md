@@ -241,6 +241,7 @@
 
 ## Unreleased
 
+- Add resource-scoped `phpCompanion.symfony.environment` selection for exact environment-gated Symfony route imports and Bundle resources; keep the default limited to unconditional routes and preserve Symfony Language Tools runtime-provider ownership.
 - 构造器参数已经验证的 PHPDoc 精化现在会复用于同名提升属性：`@param Service $service` 可精化 `public mixed $service` 的属性读取、补全与 Definition；与原生属性类型冲突的文档仍不会进入查询模型。Semantic snapshot 升至 schema 54。
 
 - 多属性声明中的 `@var Type $property` 现在只绑定指定属性，类型索引与 PHPDoc/原生冲突诊断使用同一身份规则；未带变量名的 `@var Type` 仍应用到整条声明。Semantic snapshot 升至 schema 53。

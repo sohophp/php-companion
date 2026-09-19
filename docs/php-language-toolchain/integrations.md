@@ -112,9 +112,11 @@ PHP Debug 负责 Xdebug，现有 PHPUnit/Pest 扩展负责测试执行。Compani
 
 ## 路由补全 Provider 切换
 
-VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检测到 Symfony Language Tools 且该值为 true 时，将该根目录的路由补全交给外部插件；否则保留 Companion 静态 YAML 候选。配置、工作区目录或扩展清单改变时发送完整配置快照；服务器重启时重新读取当前配置。最深目录配置优先，其他 PHP 补全不受影响。
+VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检测到 Symfony Language Tools 且该值为 true 时，将该根目录的路由补全交给外部插件；否则保留 Companion 静态路由候选。配置、工作区目录或扩展清单改变时发送完整配置快照；服务器重启时重新读取当前配置。最深目录配置优先，其他 PHP 补全不受影响。
 
-服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external }] }` 对象。非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
+`phpCompanion.symfony.environment` 是 resource scope 的显式环境身份，默认 `null`。空值只发布无条件路由；例如设为 `dev` 后，静态图才会加入可证明的 dev Kernel import 和 dev Bundle。Companion 不读取 `.env.local`、不推断 `APP_ENV`、不执行配置文件，也不启动 Kernel。外部运行时 provider 开启时，即使配置了环境，Companion 仍不提供该根的静态路由候选。
+
+服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external, environment? }] }` 对象。环境只接受 1–64 个 ASCII 字母、数字、点、下划线或连字符；非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
 
 
 ## 静态路由 glob 支持范围
@@ -127,7 +129,9 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 framework-symfony 可静态读取唯一返回且参数类型明确为 `RoutingConfigurator` 的 PHP closure。顶层字面量 `add(name, path)` 和 `import(resource[, type])` 可进入路由图；导入链上的字面量 `prefix()` 与 `namePrefix()` 会按顺序叠加。Configurator 重赋值、动态参数、嵌套调用和未知 Configurator 方法会保守撤销可能受影响的事实，不执行配置文件。
 
-Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提取顶层无条件 `import()`。当前只接受字面量路径，以及 `__DIR__` / `dirname(__DIR__)` 与字面量的确定性拼接。项目外 PHP 路由只允许经通用 bundle 注册、唯一类文件、默认 Bundle 路径和 realpath containment 全部证明的 `@Bundle/...` 资源；环境条件导入、环境专属 bundle、动态 Kernel 表达式和返回 `RouteCollection` 的业务 factory 保持 unknown，并由启用运行时索引的 Symfony Language Tools 接管。
+Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提取顶层无条件 `import()`，以及由单一 `$this->environment === 'literal'` 顶层分支保护的 import。当前只接受字面量路径，以及 `__DIR__` / `dirname(__DIR__)` 与字面量的确定性拼接。`config/bundles.php` 中值为 true 的环境键和相同形式保护的 `registerBundles()` yield 可在环境匹配时建立 Bundle 根；服务配置仍只使用全环境 Bundle。项目外 PHP 路由还要求唯一类文件、默认 Bundle 路径和 realpath containment 全部成立。复合/嵌套环境条件、动态 Kernel 表达式和返回 `RouteCollection` 的业务 factory 保持 unknown，并可由启用运行时索引的 Symfony Language Tools 接管。
+
+选中的环境 Kernel 根先进入单请求 64 次资源/遍历预算，随后处理无条件 Kernel 根和约定根；同一实际资源及加载上下文仍去重，同名声明仍拒绝作为唯一候选。Bundle 解析会按需读取 Composer 元数据和 PSR-4 映射，但不扫描或执行 vendor 源码。
 
 同一真实资源若同时从约定入口和 Kernel 入口以相同前缀、loader、exclude 与 namespace 上下文到达，只分析一次；前缀或加载上下文不同的重复导入保持独立，避免把合法的多入口路由合并掉。
 

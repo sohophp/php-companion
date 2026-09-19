@@ -454,16 +454,20 @@ services:
       .toMatchObject([{ resource: 'child.yaml' }]);
   });
 
-  it('extracts only universal bundle-map entries and unconditional Kernel yields', () => {
+  it('extracts universal and exact environment-gated bundle registrations', () => {
     const bundleMap = `<?php
       use Vendor\\Shared\\SharedBundle;
       return [
         SharedBundle::class => ['all' => true],
-        Vendor\\Dev\\DevBundle::class => ['dev' => true],
+        Vendor\\Dev\\DevBundle::class => ['test' => true, 'dev' => true, 'prod' => false],
+        Vendor\\Mostly\\MostlyBundle::class => ['all' => true, 'prod' => false],
+        Vendor\\Dynamic\\DynamicBundle::class => ['all' => true, 'prod' => enabled()],
         dynamic_bundle() => ['all' => true],
       ];`;
     expect(analyzeSymfonyBundleRegistrations(parser, 'file:///project/config/bundles.php', bundleMap)).toMatchObject({ complete: true, bundles: [
       { bundleName: 'SharedBundle', className: 'Vendor\\Shared\\SharedBundle' },
+      { bundleName: 'DevBundle', className: 'Vendor\\Dev\\DevBundle', environments: ['dev', 'test'] },
+      { bundleName: 'MostlyBundle', className: 'Vendor\\Mostly\\MostlyBundle', excludedEnvironments: ['prod'] },
     ] });
     const kernel = `<?php namespace App;
       use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
@@ -476,7 +480,10 @@ services:
         }
       }`;
     const facts = analyzeSymfonyBundleRegistrations(parser, 'file:///project/src/Kernel.php', kernel);
-    expect(facts).toMatchObject({ complete: true, bundles: [{ bundleName: 'SharedBundle', className: 'Vendor\\Shared\\SharedBundle' }] });
+    expect(facts).toMatchObject({ complete: true, bundles: [
+      { bundleName: 'SharedBundle', className: 'Vendor\\Shared\\SharedBundle' },
+      { bundleName: 'DevBundle', className: 'Vendor\\Dev\\DevBundle', environments: ['dev'] },
+    ] });
     expect(kernel.slice(facts.bundles[0]!.start, facts.bundles[0]!.end)).toBe('SharedBundle');
   });
 

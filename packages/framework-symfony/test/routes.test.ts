@@ -67,7 +67,7 @@ describe('static Symfony routes', () => {
     expect(analyzeSymfonyRoutePhp(parser, 'file:///routes.php', `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator; return static function (RoutingConfigurator $routes): void { $routes->add(path: '/wrong', name: 'swapped'); };`).routes).toEqual([]);
     parser.dispose();
   });
-  it('extracts only unconditional Kernel route imports with deterministic Kernel-relative paths', async () => {
+  it('extracts unconditional and exact environment-gated Kernel route imports', async () => {
     const parser = await PhpSyntaxParser.createDefault();
     const source = `<?php namespace App;
       use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
@@ -79,6 +79,12 @@ describe('static Symfony routes', () => {
         }
       }`;
     expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', source).imports)
+      .toEqual([
+        { resource: './../config/symfony/routes.yaml', namePrefix: '', pathPrefix: '' },
+        { resource: './../config/symfony/routes/dev.yaml', namePrefix: '', pathPrefix: '', environments: ['dev'] },
+      ]);
+    const complex = source.replace("$this->environment === 'dev'", "$this->environment === 'dev' && enabled()");
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', complex).imports)
       .toEqual([{ resource: './../config/symfony/routes.yaml', namePrefix: '', pathPrefix: '' }]);
     parser.dispose();
   });

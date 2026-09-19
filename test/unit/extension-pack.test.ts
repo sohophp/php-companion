@@ -42,6 +42,7 @@ describe('PHP Companion manifests', () => {
     expect(value.main).toBe('./dist/extension.js');
     const defaults = (value.contributes as { configuration?: { properties?: Record<string, { default?: unknown }> } }).configuration?.properties;
     expect(defaults?.['phpCompanion.languageServer.enabled']?.default).toBe(true);
+    expect(defaults?.['phpCompanion.symfony.environment']?.default).toBeNull();
   });
 
   it('ships both focused packs without another PHP language server', async () => {

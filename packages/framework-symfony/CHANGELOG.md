@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extract exact enabled environments from `config/bundles.php` and direct `$this->environment === 'literal'` guards in Kernel bundle and route registration while leaving compound or nested conditions unknown.
 - Extract unconditional custom Kernel route imports and the deterministic PHP `RoutingConfigurator` subset for literal `add()` and chained `import()` declarations, while retaining only safe unconditional facts around unsupported control flow.
 - Extract universal `config/bundles.php` registrations and unconditional top-level `Kernel::registerBundles()` yields with exact class ranges, leaving environment-only and dynamic registrations unknown.
 - Resolve positional PHP Configurator, YAML and XML service arguments by exact constructor index, preserve per-position scalar suppression, and honor explicit arguments before binds or inferred autowiring even when autowiring is disabled.

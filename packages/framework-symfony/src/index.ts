@@ -13,7 +13,7 @@ export interface SymfonyServiceResourceFact { namespacePrefix: string; resource:
 export interface SymfonyServiceImportFact { resource: string; uri: string; start: number; end: number; }
 export interface SymfonyServiceClassCandidate { fqcn: string; kind: 'class' | 'interface' | 'trait' | 'enum'; abstract: boolean; uri: string; start: number; end: number; }
 export interface SymfonyServiceDocumentFacts { complete: boolean; services: SymfonyServiceFact[]; resources: SymfonyServiceResourceFact[]; imports?: SymfonyServiceImportFact[]; }
-export interface SymfonyBundleRegistrationFact { bundleName: string; className: string; uri: string; start: number; end: number; }
+export interface SymfonyBundleRegistrationFact { bundleName: string; className: string; uri: string; start: number; end: number; environments?: string[]; excludedEnvironments?: string[]; }
 export interface SymfonyBundleRegistrationFacts { complete: boolean; bundles: SymfonyBundleRegistrationFact[]; }
 export type SymfonyLiteralMethodReturnFact = ExternalLiteralMethodReturnFact;
 export interface SymfonyServiceIdReference { value: string; start: number; end: number; }
@@ -1066,7 +1066,7 @@ function phpConfiguratorIndex(node: NodeLike | undefined): number | undefined {
   const value = Number(node.text); return Number.isSafeInteger(value) ? value : undefined;
 }
 
-/** Extract universal config/bundles.php entries and unconditional Kernel::registerBundles() yields without booting the Kernel. */
+/** Extract deterministic config/bundles.php entries and direct Kernel::registerBundles() yields without booting the Kernel. */
 export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: string, source: string): SymfonyBundleRegistrationFacts {
   const parsed = parser.parse(source, undefined, uri); const result: SymfonyBundleRegistrationFacts = { complete: true, bundles: [] };
   try {
@@ -1077,9 +1077,10 @@ export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: 
       const owner = node.namedChildren[0]; if (!owner || ['self', 'static', 'parent'].includes(owner.text.toLowerCase())) return undefined;
       return { value: resolveName(owner.text, parsed.namespace, parsed.imports), start: owner.startIndex, end: owner.endIndex };
     };
-    const add = (item: { value: string; start: number; end: number }): void => {
+    const add = (item: { value: string; start: number; end: number }, environments?: string[], excludedEnvironments?: string[]): void => {
       const bundleName = item.value.split('\\').at(-1);
-      if (bundleName?.endsWith('Bundle')) result.bundles.push({ bundleName, className: item.value, uri, start: item.start, end: item.end });
+      if (bundleName?.endsWith('Bundle')) result.bundles.push({ bundleName, className: item.value, uri, start: item.start, end: item.end,
+        ...(environments?.length ? { environments } : {}), ...(excludedEnvironments?.length ? { excludedEnvironments } : {}) });
     };
     const returned = root.namedChildren.filter((node) => node.type === 'return_statement');
     const array = returned.length === 1 ? returned[0]!.namedChildren[0] : undefined;
@@ -1088,9 +1089,21 @@ export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: 
         if (element.type !== 'array_element_initializer' || element.namedChildren.length !== 2) continue;
         const registered = classValue(element.namedChildren[0]); const environments = element.namedChildren[1];
         if (!registered || environments?.type !== 'array_creation_expression') continue;
-        const universal = environments.namedChildren.some((entry) => entry.type === 'array_element_initializer' && entry.namedChildren.length === 2
-          && phpConfiguratorLiteral(entry.namedChildren[0])?.value === 'all' && entry.namedChildren[1]?.text.toLowerCase() === 'true');
-        if (universal) add(registered);
+        const states = new Map<string, boolean>(); let valid = true;
+        for (const entry of environments.namedChildren) {
+          const environment = entry.type === 'array_element_initializer' && entry.namedChildren.length === 2
+            ? phpConfiguratorLiteral(entry.namedChildren[0])?.value : undefined;
+          const value = entry.namedChildren[1]?.text.toLowerCase();
+          if (!environment || !['true', 'false'].includes(value ?? '') || states.has(environment)) { valid = false; break; }
+          states.set(environment, value === 'true');
+        }
+        if (!valid) continue;
+        if (states.get('all') === true) add(registered, undefined,
+          [...states].filter(([environment, enabled]) => environment !== 'all' && !enabled).map(([environment]) => environment).sort());
+        else {
+          const enabled = [...states].filter(([environment, value]) => environment !== 'all' && value).map(([environment]) => environment).sort();
+          if (enabled.length) add(registered, enabled);
+        }
       }
     }
     const collect = (node: NodeLike, type: string, found: NodeLike[] = []): NodeLike[] => {
@@ -1105,15 +1118,52 @@ export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: 
       if (!owner || !owner.extendsNames.some((name) => resolveName(name, namespace, parsed.imports).toLowerCase() === 'symfony\\component\\httpkernel\\kernel')) continue;
       const method = collect(root, 'method_declaration').find((node) => node.startIndex <= callable.start && node.endIndex >= callable.end);
       const body = method?.namedChildren.find((node) => node.type === 'compound_statement');
-      for (const statement of body?.namedChildren ?? []) {
-        if (statement.type !== 'expression_statement') continue;
-        const yields = collect(statement, 'yield_expression'); if (yields.length !== 1) continue;
-        const creations = collect(yields[0]!, 'object_creation_expression'); if (creations.length !== 1) continue;
+      const environmentCondition = (statement: NodeLike): { environments: string[]; body: NodeLike } | undefined => {
+        if (statement.type !== 'if_statement' || statement.namedChildren.length !== 2) return undefined;
+        const [parenthesized, conditionalBody] = statement.namedChildren;
+        const condition = parenthesized?.type === 'parenthesized_expression' ? parenthesized.namedChildren[0] : undefined;
+        if (condition?.type !== 'binary_expression' || conditionalBody?.type !== 'compound_statement' || condition.namedChildren.length !== 2) return undefined;
+        const [left, right] = condition.namedChildren;
+        const operator = source.slice(left!.endIndex, right!.startIndex).trim();
+        const member = left?.type === 'member_access_expression' && left.namedChildren[0]?.text === '$this'
+          && left.namedChildren[1]?.text === 'environment' ? left : undefined;
+        const environment = member && operator === '===' ? phpConfiguratorLiteral(right)?.value : undefined;
+        return environment ? { environments: [environment], body: conditionalBody } : undefined;
+      };
+      const inspect = (statement: NodeLike, environments?: string[]): void => {
+        const conditional = environmentCondition(statement);
+        if (conditional) {
+          if (environments) return;
+          for (const nested of conditional.body.namedChildren) inspect(nested, conditional.environments);
+          return;
+        }
+        if (statement.type !== 'expression_statement') return;
+        const yields = collect(statement, 'yield_expression'); if (yields.length !== 1) return;
+        const creations = collect(yields[0]!, 'object_creation_expression'); if (creations.length !== 1) return;
         const name = creations[0]!.namedChildren.find((node) => ['name', 'qualified_name'].includes(node.type));
-        if (name) add({ value: resolveName(name.text, namespace, parsed.imports), start: name.startIndex, end: name.endIndex });
-      }
+        if (name) add({ value: resolveName(name.text, namespace, parsed.imports), start: name.startIndex, end: name.endIndex }, environments);
+      };
+      for (const statement of body?.namedChildren ?? []) inspect(statement);
     }
-    result.bundles = [...new Map(result.bundles.map((item) => [`${item.bundleName.toLowerCase()}\0${item.className.toLowerCase()}`, item])).values()];
+    const unique = new Map<string, SymfonyBundleRegistrationFact>();
+    for (const item of result.bundles) {
+      const key = `${item.bundleName.toLowerCase()}\0${item.className.toLowerCase()}`; const previous = unique.get(key);
+      if (!previous) unique.set(key, item);
+      else if (!previous.environments && !previous.excludedEnvironments) unique.set(key, previous);
+      else if (!item.environments && !item.excludedEnvironments) unique.set(key, item);
+      else if (previous.excludedEnvironments && item.excludedEnvironments) {
+        const excluded = previous.excludedEnvironments.filter((environment) => item.excludedEnvironments!.includes(environment));
+        unique.set(key, { ...previous, excludedEnvironments: excluded.length ? excluded : undefined });
+      } else if (previous.excludedEnvironments && item.environments) {
+        const excluded = previous.excludedEnvironments.filter((environment) => !item.environments!.includes(environment));
+        unique.set(key, { ...previous, excludedEnvironments: excluded.length ? excluded : undefined });
+      } else if (previous.environments && item.excludedEnvironments) {
+        const excluded = item.excludedEnvironments.filter((environment) => !previous.environments!.includes(environment));
+        unique.set(key, { ...item, excludedEnvironments: excluded.length ? excluded : undefined });
+      }
+      else unique.set(key, { ...previous, environments: [...new Set([...previous.environments!, ...item.environments!])].sort() });
+    }
+    result.bundles = [...unique.values()];
     return result;
   } finally { parsed.tree.delete(); }
 }

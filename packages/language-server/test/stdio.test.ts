@@ -1056,12 +1056,15 @@ describe('language server stdio', () => {
       await mkdir(join(root, 'config', 'routes'), { recursive: true });
       await mkdir(join(root, 'config', 'symfony'), { recursive: true });
       await mkdir(join(root, 'bundle', 'Resources', 'config', 'routing'), { recursive: true });
+      await mkdir(join(root, 'dev-bundle', 'Resources', 'config', 'routing'), { recursive: true });
       await mkdir(join(root, 'src'), { recursive: true });
-      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Controller.php', 'bundle/SharedBundle.php'] } }));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: {
+        'psr-4': { 'Vendor\\Shared\\': 'bundle/', 'Vendor\\Dev\\': 'dev-bundle/' }, classmap: ['./Controller.php'],
+      } }));
       const source = String.raw`<?php
 namespace Symfony\Bundle\FrameworkBundle\Controller { abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string {} } }
 namespace App {
-#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } }
+#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
 class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } }
 }`;
       const uri = pathToFileURL(join(root, 'Controller.php')).toString();
@@ -1070,7 +1073,8 @@ class Other { public function generateUrl(string $route, array $parameters = [])
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\n');
       await writeFile(join(root, 'config', 'routes', 'admin.yaml'), 'home: {path: /admin}\n');
       await writeFile(join(root, 'bundle', 'SharedBundle.php'), '<?php namespace Symfony\\Component\\HttpKernel\\Bundle { abstract class Bundle {} } namespace Vendor\\Shared { final class SharedBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
-      await writeFile(join(root, 'config', 'bundles.php'), "<?php return [Vendor\\Shared\\SharedBundle::class => ['all' => true]];");
+      await writeFile(join(root, 'dev-bundle', 'DevBundle.php'), '<?php namespace Vendor\\Dev { final class DevBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
+      await writeFile(join(root, 'config', 'bundles.php'), "<?php return [Vendor\\Shared\\SharedBundle::class => ['all' => true], Vendor\\Dev\\DevBundle::class => ['dev' => true]];");
       await writeFile(join(root, 'src', 'Kernel.php'), `<?php namespace App;
         use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
         use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
@@ -1085,8 +1089,13 @@ bundle_php: {resource: '@SharedBundle/Resources/config/routing/routes.php', pref
 `);
       await writeFile(join(root, 'config', 'symfony', 'local.php'), `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
         return static function (RoutingConfigurator $routes): void { $routes->add('route', '/route'); };`);
+      await writeFile(join(root, 'config', 'symfony', 'dev.yaml'), `dev.page: {path: /dev}
+dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_prefix: dev_vendor_}
+`);
       await writeFile(join(root, 'bundle', 'Resources', 'config', 'routing', 'routes.php'), `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
         return static function (RoutingConfigurator $routes): void { $routes->add('bundle', '/bundle')->controller('service'); };`);
+      await writeFile(join(root, 'dev-bundle', 'Resources', 'config', 'routing', 'routes.php'), `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
+        return static function (RoutingConfigurator $routes): void { $routes->add('bundle', '/dev-bundle'); };`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString() } }));
@@ -1113,6 +1122,18 @@ bundle_php: {resource: '@SharedBundle/Resources/config/routing/routes.php', pref
       const bundleOffset = source.indexOf("'vendor_'") + 8;
       expect((await query(25, bundleOffset)).map((item) => [item.label, item.detail]))
         .toEqual([['vendor_bundle', '/vendor/bundle (source declaration)']]);
+      const devOffset = source.indexOf("'dev.'") + 5;
+      const devBundleOffset = source.indexOf("'dev_vendor_'") + 12;
+      expect((await query(26, devOffset)).map((item) => item.label)).toEqual([]);
+      expect((await query(27, devBundleOffset)).map((item) => item.label)).toEqual([]);
+      const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: false, environment: 'dev' }] } }));
+      expect((await query(28, devOffset)).map((item) => item.label)).toEqual(['dev.page']);
+      expect((await query(29, devBundleOffset)).map((item) => item.label)).toEqual(['dev_vendor_bundle']);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: false, environment: '../dev' }] } }));
+      expect((await query(291, devOffset)).map((item) => item.label)).toEqual(['dev.page']);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: false, environment: 'prod' }] } }));
+      expect((await query(292, devOffset)).map((item) => item.label)).toEqual([]);
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\ncontroller:\n  resource: ../Controller.php\n  type: attribute\n  name_prefix: admin.\n  prefix: /prefix\n');
       const imported = await query(30, offset);
       expect(imported.map((item) => item.label)).toEqual(['admin.class_attribute', 'admin.home']);
@@ -1162,7 +1183,6 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect((await query(43, offset)).map((item) => item.label)).toEqual(['admin.app_nested_valid_index']);
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\n');
 
-      const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: true }] } }));
       expect((await query(20, offset)).some((item) => item.label === 'admin.home')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: 'invalid' }] } }));

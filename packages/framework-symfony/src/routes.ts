@@ -2,7 +2,7 @@ import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
 
 export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; }
-export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: string; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; }
+export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: string; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; environments?: string[]; }
 export interface SymfonyRouteDocument { complete: boolean; routes: SymfonyRouteFact[]; imports: SymfonyRouteImport[]; }
 
 function resolvePhpName(name: string, namespace: string, imports: ParsedImport[]): string {
@@ -164,7 +164,7 @@ export function analyzeSymfonyRoutePhp(parser: PhpSyntaxParser, uri: string, sou
   } finally { parsed.tree.delete(); }
 }
 
-/** Extract only top-level, unconditional Kernel::configureRoutes() imports with a deterministic Kernel-relative path. */
+/** Extract top-level unconditional and exact environment-gated Kernel imports with deterministic Kernel-relative paths. */
 export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: string, source: string): SymfonyRouteDocument {
   const parsed = parser.parse(source, undefined, uri); const result: SymfonyRouteDocument = { complete: true, routes: [], imports: [] };
   try {
@@ -195,15 +195,34 @@ export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: s
         !== 'symfony\\component\\routing\\loader\\configurator\\routingconfigurator') continue;
       const method = collectNodes(root, 'method_declaration').find((node) => node.startIndex <= callable.start && node.endIndex >= callable.end);
       const body = method?.namedChildren.find((node) => node.type === 'compound_statement');
-      for (const statement of body?.namedChildren ?? []) {
-        if (statement.type !== 'expression_statement') continue;
+      const environmentCondition = (statement: SyntaxNode): { environments: string[]; body: SyntaxNode } | undefined => {
+        if (statement.type !== 'if_statement' || statement.namedChildren.length !== 2) return undefined;
+        const [parenthesized, conditionalBody] = statement.namedChildren;
+        const condition = parenthesized?.type === 'parenthesized_expression' ? parenthesized.namedChildren[0] : undefined;
+        if (condition?.type !== 'binary_expression' || conditionalBody?.type !== 'compound_statement' || condition.namedChildren.length !== 2) return undefined;
+        const [left, right] = condition.namedChildren;
+        const operator = source.slice(left!.endIndex, right!.startIndex).trim();
+        const member = left?.type === 'member_access_expression' && left.namedChildren[0]?.text === '$this'
+          && left.namedChildren[1]?.text === 'environment' ? left : undefined;
+        const environment = member && operator === '===' ? phpString(right)?.value : undefined;
+        return environment ? { environments: [environment], body: conditionalBody } : undefined;
+      };
+      const inspect = (statement: SyntaxNode, environments?: string[]): void => {
+        const conditional = environmentCondition(statement);
+        if (conditional) {
+          if (environments) return;
+          for (const nested of conditional.body.namedChildren) inspect(nested, conditional.environments);
+          return;
+        }
+        if (statement.type !== 'expression_statement') return;
         const chain = routingCallChain(statement, `$${parameter.name}`); const first = chain?.[0];
-        if (!first || first.method.toLowerCase() !== 'import' || first.arguments.length !== 1) continue;
+        if (!first || first.method.toLowerCase() !== 'import' || first.arguments.length !== 1) return;
         const argument = first.arguments[0]?.namedChildren.length === 1 ? first.arguments[0].namedChildren[0] : undefined;
         const resource = pathExpression(argument);
-        if (!resource || !/\.(?:ya?ml|php)$/.test(resource)) { result.complete = false; continue; }
-        result.imports.push({ resource, namePrefix: '', pathPrefix: '', ...(resource.endsWith('.php') ? { php: true } : {}) });
-      }
+        if (!resource || !/\.(?:ya?ml|php)$/.test(resource)) { result.complete = false; return; }
+        result.imports.push({ resource, namePrefix: '', pathPrefix: '', ...(resource.endsWith('.php') ? { php: true } : {}), ...(environments ? { environments } : {}) });
+      };
+      for (const statement of body?.namedChildren ?? []) inspect(statement);
     }
     return result;
   } finally { parsed.tree.delete(); }
