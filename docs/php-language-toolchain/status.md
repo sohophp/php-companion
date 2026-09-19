@@ -1,6 +1,8 @@
 # 实施状态
 
-最后更新：2026-09-18。状态必须以源码和本页列出的验证命令为依据。
+最后更新：2026-09-19。状态必须以源码和本页列出的验证命令为依据。
+
+2026-09-19 P8 必然基础订阅增量：非收敛条件分支只在基础键与追加键均为不重叠字符串字面量、条件由 `defined/class_exists/interface_exists/trait_exists/enum_exists/function_exists/extension_loaded` 等无局部符号表副作用的白名单检查组成、且分支只含静态追加时，保留分支外必定存在的订阅事实；条件条目不发布。类常量可能共享运行时字符串值，覆盖基础键、订阅变量暴露、include/require/yield、动态变量和非白名单函数调用均整体拒绝。framework-symfony 29 项、Language Server 185 项及根扩展 39 项测试通过，全仓 TypeScript 与 ESLint、16 个隔离 tarball 和三份 VSIX 内容验证通过。功能提交 `e737ff8`，候选目录 `artifacts/php-companion-alpha-0.4.5-e737ff85/`；候选语言服务器 bundle 已原子覆盖到 WSL 现有扩展目录并以 `7faa212a16a54620baee0e879e46a19f64fb3b8f63afe6867f334a4f9def69ea` 核对，须 Reload Window。P8 下一步处理缓存缺失/过期时仍可证明的静态服务关系；订阅辅助调用因 Winstar/Symfony 当前样本没有需求而暂缓。证据继续记录在 [Symfony 事件订阅 References](reports/symfony-event-subscriptions-2026-09-16.md)。
 
 2026-09-18 P8 订阅分支收敛增量：framework-symfony 接受 `getSubscribedEvents()` 直接返回静态 map 或向单一局部 map 追加条目的完整 `if/elseif/else`，但每个分支的条目数量、顺序和源码文本必须完全相同；所有分支的事件键与回调范围都会进入类/监听方法 References。缺失 `else`、分歧条目、动态键、辅助调用或额外语句保持 unknown。同一提取器覆盖本类、父类与 Trait 提供者。framework-symfony 29 项、Language Server 185 项及根扩展 39 项测试通过，全仓 TypeScript 与 ESLint、16 个隔离 tarball 和三份 VSIX 内容验证通过。功能提交 `5c4efd1`，候选目录 `artifacts/php-companion-alpha-0.4.5-5c4efd19/`；候选语言服务器 bundle 已原子覆盖到 WSL 现有扩展目录并以 `0143432c100f2230b3678dc3a3abbb4cf32fdc98704cd117da8a127ef292e750` 核对，须 Reload Window。P8 下一步评估可证明的纯静态订阅辅助方法，以及缓存缺失/过期时的静态服务覆盖。证据继续记录在 [Symfony 事件订阅 References](reports/symfony-event-subscriptions-2026-09-16.md)。
 

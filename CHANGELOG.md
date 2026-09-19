@@ -1,3 +1,4 @@
+- 提交 `e737ff8` 完成 Symfony 必然基础订阅 References，候选 `php-companion-alpha-0.4.5-e737ff85` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony subscriber map 会在安全的环境条件追加中保留必定存在的基础订阅：条件只能使用 `defined/class_exists/function_exists` 等白名单检查，基础与可选事件必须是不重叠的字符串字面量键；可选关系、类常量键、覆盖、变量暴露或动态调用保持 unknown。
 - 提交 `5c4efd1` 完成 Symfony 订阅分支收敛 References，候选 `php-companion-alpha-0.4.5-5c4efd19` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony subscriber map References 支持严格收敛的完整 `if/elseif/else`：各分支必须返回文本相同的静态 map，或向同一局部 map 追加文本相同的静态条目；每个分支的事件键和回调源码范围都会进入类/监听方法 References，部分、分歧或动态分支保持 unknown。
