@@ -1,4 +1,5 @@
 - Move authoritative Symfony service-container discovery into the standalone Symfony extension through a bounded framework-neutral provider contract, with core fallback on provider failure.
+- 提交 `004fbcf` 完成独立 Symfony 服务容器迁移；候选 `php-companion-alpha-0.4.5-004fbcf3` 的四份 VSIX、22 个组件 723 项测试、22 个隔离 tarball、双扩展 Extension Host、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和真实 844 个服务均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Move authoritative static Symfony route discovery into `sohophp.php-companion-symfony`; the separately publishable provider preserves YAML/PHP/Attribute imports, Bundle resources, environments, localized prefixes and bounded unsaved document snapshots without starting project PHP.
 - Route providers can explicitly replace the compatibility static scan after a successful complete snapshot; failure, timeout, protocol rejection or snapshot overflow falls back to the core, so only one static owner publishes results at a time.
 - 提交 `e4f3ff1` 完成独立 Symfony 静态路由迁移；候选 `php-companion-alpha-0.4.5-e4f3ff1c` 的四份 VSIX、21 个组件 717 项测试、21 个隔离 tarball、双扩展 Extension Host、Winstar PHP 8.5/CoreRepo PHP 7.2 预检和真实 17 条静态路由均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
