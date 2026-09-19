@@ -1,3 +1,5 @@
+- 提交 `abb5ed6` 完成 Symfony YAML/XML 确定性本地服务导入图，候选 `php-companion-alpha-0.4.5-abb5ed64` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
+- 服务配置导入只跟随 Composer 根真实路径内、明确 YAML/XML 扩展名且无参数、通配符或 `@Bundle` 别名的相对文件；导入先于当前文件应用，循环和 32 层深度有界，导入文件变化会单独绕过缓存并刷新服务事实。事实缓存升级为 v6。
 - 提交 `6fbdf5e` 完成传统 Symfony `services.xml` 静态服务索引，候选 `php-companion-alpha-0.4.5-6fbdf5e0` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 无需新鲜编译容器即可静态读取约定位置的 XML defaults、service/alias、bind、具名 argument、call/property、prototype/exclude 和 `kernel.event_listener`；PHP 类型 References 返回精确 XML 注册范围，事实缓存升级为 v5。DOCTYPE、环境 `<when>`、动态参数和无法证明 class 的 factory 保持 unknown。
 - 提交 `e737ff8` 完成 Symfony 必然基础订阅 References，候选 `php-companion-alpha-0.4.5-e737ff85` 的三份 VSIX 已验证；候选语言服务器 bundle 已覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
