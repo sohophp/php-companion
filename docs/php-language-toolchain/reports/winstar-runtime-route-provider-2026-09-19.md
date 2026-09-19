@@ -22,4 +22,12 @@
 - Language Server 186 项通过；扩展 manifest 设置测试 3 项通过。
 - 全仓 TypeScript、ESLint 与生产 bundle 构建通过；bundle 中 `winstar-route-provider.js` 为独立入口。
 
+19 个组件 tarball 已在隔离消费者安装并执行 smoke test。功能提交为 `1ac2be2`，Alpha 候选目录为 `artifacts/php-companion-alpha-0.4.5-1ac2be20/`：
+
+- 核心 VSIX：`f4bff40a1df72645860aaf5692edc779822b3a72e6728f6e82ba7449315567aa`
+- Open Source Pack：`ce687348ac748749d971ee5a203f6cc2c0907062c062159389e2d4c83eb064a2`
+- Recommended Pack：`9ba21a6b566df2bb94cd027d47e3b989d8aa99c6f6ad882f1f189ddc73a57ab4`
+
+三份 VSIX 内容与候选 SHA-256 复核通过，Winstar PHP 8.5 和 CoreRepo PHP 7.2 的 WSL 确定性预检通过。核心候选已安装到 WSL RockyLinux8；已安装 adapter、Language Server 和 Winstar provider bundle 分别以 `e7169e05f37abf9c87edaa0e867c6e921ea9a2ea633916e829d5384348e778df`、`6db3c50c6fad94b6635e84cd4269540fb757d9d09c137b99358dfb6556365782`、`f048ee8753ca6c95b7caf9e9d3b6ca2d7780fa1d02fa5f6e2e3e881e082c0ed5` 与构建输出核对。使用当前 WSL Extension Host 的 Node 直接运行已安装 provider，同样返回 362 条及正确 `admin.login` 来源。Reload Window 后才会由扩展设置启动新版本。
+
 该设置会启动项目 Symfony Kernel，等同于授权执行项目代码。route-provider-host 提供无 shell 子进程、30 秒和 16 MiB 边界，但不是安全沙箱。默认保持关闭。
