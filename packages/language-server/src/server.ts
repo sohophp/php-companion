@@ -2009,7 +2009,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
       const source = open?.getText() ?? await readFile(path, 'utf8');
       if (source.length > 1_000_000 || cancelled()) return;
       if (attribute) {
-        const facts = analyzeSymfonyRouteAttributes(syntaxParser, uri, source, defaultNameStyle);
+        const facts = analyzeSymfonyRouteAttributes(syntaxParser, uri, source, defaultNameStyle, environment);
         const expectedOwner = mapping ? `${mapping.namespace}\\${relative(mapping.root, path).slice(0, -4).split(sep).join('\\')}` : undefined;
         routes.push(...facts.routes.filter((route) => !expectedOwner || route.ownerFqcn === expectedOwner)
           .map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));

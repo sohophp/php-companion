@@ -338,7 +338,7 @@ export interface SymfonyAttributeRouteFact extends SymfonyRouteFact { ownerFqcn:
 export interface SymfonyAttributeRoutes { complete: boolean; routes: SymfonyAttributeRouteFact[]; }
 
 /** Extract local Route declarations; generated names require an explicit loader strategy and do not prove runtime registration. */
-export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: string, source: string, defaultNameStyle?: 'framework' | 'routing'): SymfonyAttributeRoutes {
+export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: string, source: string, defaultNameStyle?: 'framework' | 'routing', environment?: string): SymfonyAttributeRoutes {
   const parsed = parser.parse(source, undefined, uri);
   const result: SymfonyAttributeRoutes = { complete: true, routes: [] };
   try {
@@ -369,7 +369,18 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             return fqcn.toLowerCase() === 'symfony\\component\\routing\\attribute\\route';
           });
         };
-        const values = (attribute: SyntaxNode): { name?: string; path: string; start: number; end: number } | undefined => {
+        const environmentList = (node: SyntaxNode | undefined): string[] | undefined => {
+          const single = literal(node); if (single !== undefined) return [single];
+          if (node?.type !== 'array_creation_expression') return undefined;
+          const values: string[] = [];
+          for (const element of node.namedChildren) {
+            if (element.type !== 'array_element_initializer' || element.namedChildren.length !== 1) return undefined;
+            const value = literal(element.namedChildren[0]); if (value === undefined) return undefined;
+            values.push(value);
+          }
+          return values;
+        };
+        const values = (attribute: SyntaxNode): { name?: string; path: string; start: number; end: number; environments?: string[] } | undefined => {
           const args = attribute.namedChildren.find((child) => child.type === 'arguments')?.namedChildren ?? [];
           const found = new Map<string, SyntaxNode>(); let position = 0; let named = false;
           for (const argument of args) {
@@ -380,17 +391,20 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             named ||= isNamed;
             found.set(key, children.at(-1)!);
           }
-          // Environment and locale can change which names exist. Keep their declarations unresolved.
-          if (['env', 'locale', 'alias'].some((key) => found.has(key))) return undefined;
+          // Locale and aliases can change which names exist. Keep their declarations unresolved.
+          if (['locale', 'alias'].some((key) => found.has(key))) return undefined;
+          const environments = found.has('env') ? environmentList(found.get('env')) : undefined;
+          if (found.has('env') && environments === undefined) return undefined;
           const path = found.has('path') ? literal(found.get('path')) : '';
           const name = found.has('name') ? literal(found.get('name')) : undefined;
           if (path === undefined || (found.has('name') && name === undefined) || path.includes('%') || name?.includes('%')) return undefined;
           const origin = found.get('name') ?? attribute;
-          return { path, name, start: origin.startIndex, end: origin.endIndex };
+          return { path, name, start: origin.startIndex, end: origin.endIndex, ...(environments ? { environments } : {}) };
         };
         const classAttributes = routeAttributes(node);
-        const globals = classAttributes[0] ? values(classAttributes[0]) : { path: '', name: '' };
+        const globals = classAttributes[0] ? values(classAttributes[0]) : { path: '', name: '', environments: undefined };
         if (!globals) { result.complete = false; return; }
+        if (globals.environments?.length && (!environment || !globals.environments.includes(environment))) return;
         const methods = node.namedChildren.find((child) => child.type === 'declaration_list')?.namedChildren.filter((child) => child.type === 'method_declaration') ?? [];
         const defaultName = (method: string, index: number): string | undefined => {
           // Non-ASCII case conversion depends on PHP's optional mbstring extension.
@@ -412,9 +426,11 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             hasMethodRoutes = true;
             const route = values(attribute);
             if (!route || !methodName) { uncertainDefaultIndex = true; result.complete = false; continue; }
+            if (route.environments?.length && (!environment || !route.environments.includes(environment))) continue;
             const name = route.name ?? (!uncertainDefaultIndex ? defaultName(methodName, defaultIndex++) : undefined);
             if (name === undefined) { result.complete = false; continue; }
-            result.routes.push({ ...route, name: (globals.name ?? '') + name, path: globals.path + route.path, uri, ownerFqcn: declaration.fqcn, method: methodName });
+            result.routes.push({ name: (globals.name ?? '') + name, path: globals.path + route.path,
+              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: methodName });
           }
         }
         if (!hasMethodRoutes && methods.some((method) => method.namedChildren.some((child) => child.type === 'name' && child.text === '__invoke'))) {
@@ -423,9 +439,11 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
           for (const attribute of classAttributes) {
             const route = values(attribute);
             if (!route) { uncertainDefaultIndex = true; result.complete = false; continue; }
+            if (route.environments?.length && (!environment || !route.environments.includes(environment))) continue;
             const name = route.name ?? (!uncertainDefaultIndex ? defaultName('__invoke', defaultIndex++) : undefined);
             if (name === undefined) { result.complete = false; continue; }
-            result.routes.push({ ...route, name, uri, ownerFqcn: declaration.fqcn, method: '__invoke' });
+            result.routes.push({ name, path: route.path, uri, start: route.start, end: route.end,
+              ownerFqcn: declaration.fqcn, method: '__invoke' });
           }
         }
         return;

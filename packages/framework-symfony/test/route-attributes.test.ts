@@ -28,14 +28,31 @@ class Invokable { public function __invoke() {} }
   expect(analyzeSymfonyRouteAttributes(parser, 'file:///Controller.php', source).routes.map((route) => [route.name, route.path, route.method])).toEqual([['invoke', '/invoke', '__invoke']]);
 });
 
-it('does not invent names for dynamic, environment-specific or malformed route attributes', async () => {
+it('does not invent names for dynamic or malformed route attributes', async () => {
   const parser = await PhpSyntaxParser.createDefault();
-  for (const attribute of ["R('/path', name: self::NAME)", "R('/path', name: 'dev', env: 'dev')", "R(['/en'], name: 'localized')", "R('/path')", "R('/path', name: 'a', name: 'b')"]) {
+  for (const attribute of ["R('/path', name: self::NAME)", "R('/path', name: 'dev', env: env())", "R(['/en'], name: 'localized')", "R('/path')", "R('/path', name: 'a', name: 'b')"]) {
     const source = `<?php use Symfony\\Component\\Routing\\Attribute\\Route as R; class C { #[${attribute}] public function f() {} }`;
     const result = analyzeSymfonyRouteAttributes(parser, 'file:///Controller.php', source);
     expect(result.complete).toBe(false);
     expect(result.routes).toEqual([]);
   }
+});
+
+it('selects literal class and method environments without consuming skipped default-name indexes', async () => {
+  const parser = await PhpSyntaxParser.createDefault();
+  const source = String.raw`<?php namespace App\Controller;
+use Symfony\Component\Routing\Attribute\Route as R;
+#[R('/base', name: 'prefix_', env: ['dev', 'test'])] class DemoController {
+  #[R('/dev', env: 'dev'), R('/prod', env: 'prod'), R('/all')] public function showAction() {}
+}`;
+  expect(analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source, 'framework').routes).toEqual([]);
+  expect(analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source, 'framework', 'prod').routes).toEqual([]);
+  const dev = analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source, 'framework', 'dev');
+  expect(dev.complete).toBe(true);
+  expect(dev.routes.map(({ name, path }) => ({ name, path }))).toEqual([
+    { name: 'prefix_app_demo_show', path: '/base/dev' },
+    { name: 'prefix_app_demo_show_1', path: '/base/all' },
+  ]);
 });
 
 it('generates loader-specific names, counting only unnamed attributes per method', async () => {
@@ -57,11 +74,11 @@ use Symfony\Component\Routing\Attribute\Route as R;
   expect(source.slice(framework.routes[0]!.start, framework.routes[0]!.end)).toBe("R('/one')");
 });
 
-it('does not guess an unnamed index after unsupported attributes', async () => {
+it('does not consume an unnamed index for an excluded environment attribute', async () => {
   const parser = await PhpSyntaxParser.createDefault();
   const source = String.raw`<?php use Symfony\Component\Routing\Attribute\Route as R;
 class C { #[R('/a', env: 'dev'), R('/b'), R('/c', name: 'fixed')] public function run() {} }`;
-  const result = analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source, 'framework');
-  expect(result.complete).toBe(false);
-  expect(result.routes.map(({ name }) => name)).toEqual(['fixed']);
+  const result = analyzeSymfonyRouteAttributes(parser, 'file:///C.php', source, 'framework', 'prod');
+  expect(result.complete).toBe(true);
+  expect(result.routes.map(({ name }) => name)).toEqual(['c_run', 'fixed']);
 });

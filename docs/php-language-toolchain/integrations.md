@@ -116,6 +116,8 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 `phpCompanion.symfony.environment` 是 resource scope 的显式环境身份，默认 `null`。空值只发布无条件路由；例如设为 `dev` 后，静态图才会加入可证明的 dev Kernel import 和 dev Bundle。Companion 不读取 `.env.local`、不推断 `APP_ENV`、不执行配置文件，也不启动 Kernel。外部运行时 provider 开启时，即使配置了环境，Companion 仍不提供该根的静态路由候选。
 
+同一环境身份也筛选 `#[Route(env: ...)]`。支持类级和方法级的字面量字符串或字符串数组：类级不匹配时整个 Controller 不发布，类级匹配后再逐条筛选方法 Attribute；被排除的未命名 Attribute 不消耗 Symfony 自动名称序号。动态表达式、非字符串数组、localized path/locale 与 alias 仍保持 unknown。未显式选择环境时只发布没有 `env` 限制的 Attribute 路由。
+
 服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external, environment? }] }` 对象。环境只接受 1–64 个 ASCII 字母、数字、点、下划线或连字符；非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
 
 项目自定义 loader 使用独立设置 `phpCompanion.routeProviders`，只接受用户显式配置的 `{ providerId, command, args?, timeoutMs?, maxOutputBytes? }`。`@php-companion/route-provider` 定义 schema 1 完整快照：每条事实必须给出 `name`、`path`、声明 `uri` 及 UTF-16 文本换算前的字节/字符偏移范围；`@php-companion/route-provider-host` 以项目根为 cwd、关闭 shell，并校验请求 ID、provider 身份、generation、完整性、超时和输出上限。核心不会从 Composer 或项目文件自动发现命令。

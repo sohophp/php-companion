@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Select literal string or string-array `Route` Attribute environments at class and method scope, matching Symfony's class-first filtering and preserving automatic-name indexes across excluded declarations.
 - Locate direct literal keys inside Symfony route parameter arrays, retaining the exact route argument, formal-argument positions, existing keys and replacement range while rejecting dynamic keys, unpacking and structurally unknown arrays.
 - Extract exact enabled environments from `config/bundles.php` and direct `$this->environment === 'literal'` guards in Kernel bundle and route registration while leaving compound or nested conditions unknown.
 - Extract unconditional custom Kernel route imports and the deterministic PHP `RoutingConfigurator` subset for literal `add()` and chained `import()` declarations, while retaining only safe unconditional facts around unsupported control flow.
