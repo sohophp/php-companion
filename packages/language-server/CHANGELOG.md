@@ -11,6 +11,7 @@
 # Changelog
 
 - 新增显式 `phpCompanion.routeProviders`：每次路由查询经独立无 shell 子进程读取一份完整、有来源位置的动态路由快照，并与静态 Symfony 路由按名称唯一性合并；失败快照不会缓存或成为否定依据。
+- 区分用户配置与 VSIX 内置路由 Provider 快照，保留动态配置更新，并为明确启用的 Winstar 适配器保留不可被同身份用户项覆盖的能力边界。
 
 - Navigate exact Symfony route literals to unique YAML, Attribute or PHP Configurator declarations, and find only semantically proven project PHP usages while honoring environment selection and external provider ownership.
 - Select exact environment-gated Kernel and Bundle route sources from the resource-scoped provider snapshot, prioritize selected Kernel roots within the bounded static graph, and load Composer PSR-4 mappings on demand without booting project PHP.

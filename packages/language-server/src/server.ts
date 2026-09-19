@@ -83,6 +83,8 @@ let testMode = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
 let routeProviders: RouteProviderDescriptor[] = [];
+let configuredRouteProviders: RouteProviderDescriptor[] = [];
+let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
@@ -256,15 +258,28 @@ function setSemanticProviders(value: unknown): void {
   semanticProviders = accepted;
 }
 
-function setRouteProviders(value: unknown): void {
+function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
   const seen = new Set<string>(); const accepted: RouteProviderDescriptor[] = [];
   for (const candidate of Array.isArray(value) ? value : []) {
-    if (!isRouteProviderDescriptor(candidate)) { connection.console.warn('Ignored invalid route provider configuration.'); continue; }
+    if (!isRouteProviderDescriptor(candidate)) { connection.console.warn(`Ignored invalid ${source} route provider configuration.`); continue; }
     const key = candidate.providerId.toLowerCase();
-    if (seen.has(key)) { connection.console.warn(`Ignored duplicate route provider ${candidate.providerId}.`); continue; }
+    if (seen.has(key)) { connection.console.warn(`Ignored duplicate ${source} route provider ${candidate.providerId}.`); continue; }
     seen.add(key); accepted.push(candidate);
   }
-  routeProviders = accepted;
+  return accepted;
+}
+function rebuildRouteProviders(): void {
+  const bundledIds = new Set(bundledRouteProviders.map((provider) => provider.providerId.toLowerCase()));
+  routeProviders = [...bundledRouteProviders, ...configuredRouteProviders.filter((provider) => {
+    if (!bundledIds.has(provider.providerId.toLowerCase())) return true;
+    connection.console.warn(`Ignored configured route provider ${provider.providerId}: the bundled identity is reserved.`); return false;
+  })];
+}
+function setConfiguredRouteProviders(value: unknown): void {
+  configuredRouteProviders = acceptedRouteProviders(value, 'configured'); rebuildRouteProviders();
+}
+function setBundledRouteProviders(value: unknown): void {
+  bundledRouteProviders = acceptedRouteProviders(value, 'bundled'); rebuildRouteProviders();
 }
 
 async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean): Promise<void> {
@@ -321,6 +336,7 @@ function symfonyRouteProvider(uri: string): { path: string; external: boolean; e
 }
 function externalSymfonyRoutes(uri: string): boolean { return symfonyRouteProvider(uri)?.external === true; }
 connection.onNotification('phpCompanion/symfonyRouteProviders', (params: { providers?: unknown } | undefined) => setSymfonyRouteProviders(params?.providers));
+connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => setBundledRouteProviders(params?.providers));
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
   setConfiguredExtensionAvailability(params?.roots);
   await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
@@ -1419,7 +1435,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; routeProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -1433,7 +1449,8 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setDisabledDiagnosticCodes(initialization?.disabledDiagnosticCodes);
   setDiagnosticSeverityOverrides(initialization?.diagnosticSeverity);
   setSemanticProviders(initialization?.semanticProviders);
-  setRouteProviders(initialization?.routeProviders);
+  setConfiguredRouteProviders(initialization?.routeProviders);
+  setBundledRouteProviders(initialization?.bundledRouteProviders);
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
@@ -1747,7 +1764,7 @@ connection.onDidChangeConfiguration(async ({ settings }) => {
   setDiagnosticSeverityOverrides(phpCompanion?.diagnostics?.severity);
   const previousProviderIds = new Map(semanticProviders.map((provider) => [provider.providerId.toLowerCase(), provider.providerId]));
   setSemanticProviders(phpCompanion?.semanticProviders);
-  setRouteProviders(phpCompanion?.routeProviders);
+  setConfiguredRouteProviders(phpCompanion?.routeProviders);
   const currentProviderIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
   const removedProviderIds = [...previousProviderIds].filter(([key]) => !currentProviderIds.has(key)).map(([, providerId]) => providerId);
   const diagnosticsChanged = previousDiagnostics !== JSON.stringify({ disabled: [...disabledDiagnosticCodes].sort(), severity: [...diagnosticSeverityOverrides].sort(([left], [right]) => left.localeCompare(right)) });

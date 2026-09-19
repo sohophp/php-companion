@@ -8,6 +8,7 @@ const options = {
   entryPoints: {
     extension: 'src/extension/extension.ts',
     'language-server': 'packages/language-server/src/server.ts',
+    'winstar-route-provider': 'packages/provider-winstar-routes/src/cli.ts',
   },
   bundle: true,
   outdir: 'dist',

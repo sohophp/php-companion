@@ -14,6 +14,7 @@ const artifacts = [
       'extension/package.json',
       'extension/dist/extension.js',
       'extension/dist/language-server.js',
+      'extension/dist/winstar-route-provider.js',
       'extension/resources/icon.png',
     ],
   },

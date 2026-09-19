@@ -1,0 +1,14 @@
+{
+  "name": "@php-companion/provider-winstar-routes",
+  "version": "0.1.0-alpha.1",
+  "description": "Explicit runtime route provider for Winstar module route loaders.",
+  "type": "module", "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/provider-winstar-routes" },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "bin": { "php-companion-winstar-routes": "./dist/cli.js" },
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "scripts": { "build": "tsc -p tsconfig.json", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "vitest run" },
+  "dependencies": { "@php-companion/route-provider": "workspace:^", "yaml": "^2.9.0" },
+  "devDependencies": { "@types/node": "^22.15.0", "typescript": "^5.9.3", "vitest": "^4.1.10" },
+  "publishConfig": { "access": "public" }, "engines": { "node": ">=20" }
+}

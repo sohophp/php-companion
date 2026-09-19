@@ -122,6 +122,10 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 
 动态快照不跨路由查询缓存。补全、Definition 或 References 每次都重新启动一次 provider，因此配置或自定义路由文件变化后不会继续返回旧事实；provider 失败只让该次动态贡献缺席，并记录输出诊断。多个静态/动态来源出现同名路由时整体按歧义处理，不提供该名称的 Companion 跳转。外部 Symfony runtime provider 拥有该工作区路由能力时，语义调用门禁会在启动自定义 provider 前退出。
 
+Winstar 项目可在可信工作区内显式设置 `phpCompanion.symfony.winstarRoutes.enabled: true`。核心 VSIX 内置的 `@php-companion/provider-winstar-routes` 会执行项目根的 `bin/php-runtime bin/console debug:router --format=json`，用 Symfony 实际路由表决定启用集合；随后只读取 `src/Modules/*/Routes/*.yaml` 来定位直接 `name` 和 `admin_defaults` 的基础 `name`。生成路由使用 `admin.<base>.<action>` 关系回到基础条目；若一个运行时名称有多个可能来源，适配器保持歧义并拒绝发布。它不会发布标准 Symfony 路由，因为这些路由继续由静态图或外部 runtime provider 负责。
+
+启用该设置等同于授权执行当前项目的 Symfony Console。适配器仍运行在 route-provider-host 的一次性无 shell 子进程、30 秒和 16 MiB 上限内，但 Symfony Kernel 本身会加载项目代码；只应在可信仓库使用。关闭设置即撤销内置 provider 快照，不影响静态路由能力。
+
 
 ## 静态路由 glob 支持范围
 
