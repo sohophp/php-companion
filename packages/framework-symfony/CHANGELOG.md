@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Expand literal localized YAML route paths and import prefixes into locale-tagged facts while rejecting dynamic values.
 - Expand literal localized `Route` Attribute path maps into `.locale` route names across class prefixes, method paths and invokable classes, rejecting mismatched or dynamic locale maps.
 - Select only the exact literal YAML `when@environment` block for an explicit environment, preserve nested declaration ranges and model later same-file direct-route replacement.
 - Select literal string or string-array `Route` Attribute environments at class and method scope, matching Symfony's class-first filtering and preserving automatic-name indexes across excluded declarations.

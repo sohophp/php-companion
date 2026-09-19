@@ -26,7 +26,7 @@ Symfony Language Tools 官方定位是补充通用 PHP LS，覆盖 PHP、Twig �
 
 Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat；通用 Twig 解析、模板变量、导航和格式化归 TwigPlus；PHP 通用语义及当前 Symfony/Doctrine 静态能力归 Companion。Symfony Language Tools 只保留历史评估与未来上游修复后的候选资格。
 
-追加审计确认 Symfony Language Tools 0.19.0 的路由名称补全依赖运行时路由表。默认关闭 runtime indexing 时，PHP Companion 在可证明的 YAML/Attribute 加载范围内补齐源码路由候选，并按显式环境处理 Kernel/Bundle、YAML `when@env` 和 Route Attribute `env`，展开字面量 Attribute 本地化 path map；动态 Loader、动态 locale map 和其它运行时生成路由保持 unknown。启用外部运行时索引后，自研候选按工作区停止，由 Symfony Language Tools 接管。支持域与真实组合证据见 Symfony 组合报告。
+追加审计确认 Symfony Language Tools 0.19.0 的路由名称补全依赖运行时路由表。默认关闭 runtime indexing 时，PHP Companion 在可证明的 YAML/Attribute 加载范围内补齐源码路由候选，并按显式环境处理 Kernel/Bundle、YAML `when@env` 和 Route Attribute `env`，展开字面量 YAML/Attribute 本地化 path map 及 YAML import prefix map；动态 Loader、动态 locale map 和其它运行时生成路由保持 unknown。启用外部运行时索引后，自研候选按工作区停止，由 Symfony Language Tools 接管。支持域与真实组合证据见 Symfony 组合报告。
 
 Phpactor 只作为提前交付组合的开源候选。官方明确披露性能/准确性局限；PHP 运行时要求、Windows/WSL 与目标 PHP 语法需实测，不承诺适合全部环境。没有合格临时核心时，R0 不宣称完整 PHP 编码可用，优先完成 R1。
 
@@ -119,6 +119,8 @@ VS Code adapter 按 workspace folder 读取 `symfonyLsp.runtimeIndexing`。检�
 同一环境身份也筛选 `#[Route(env: ...)]`。支持类级和方法级的字面量字符串或字符串数组：类级不匹配时整个 Controller 不发布，类级匹配后再逐条筛选方法 Attribute；被排除的未命名 Attribute 不消耗 Symfony 自动名称序号。动态环境表达式、非字符串环境数组与 alias 仍保持 unknown。未显式选择环境时只发布没有 `env` 限制的 Attribute 路由。
 
 Attribute `path` 还支持字面量 locale→path map。类级 map 与方法字符串、类字符串与方法 map、两级具有完全相同 locale 键的 map，以及 invokable 类都会按 Symfony 规则展开为 `name.locale`；最终路径由对应 locale 的类前缀和方法 path 拼接。显式字面量 `locale` 在不改变名称/路径时可安全接受；动态键值、重复 locale、两级键集合不一致和 alias 保持 unknown。
+
+YAML route 的 `path` 也支持字面量 locale→path map，并输出共享声明范围的 `name.locale`。YAML import 的 `prefix` map 会把未本地化子路由按每个 locale 克隆；子路由已经本地化时只拼接同名 locale，额外父 locale 不制造不存在的子路由。嵌套 import 支持 string+string、string+map、map+string 和 locale 可对应的 map+map 组合；内层 map 包含外层缺失的 locale 时整条导入分支保持 unknown。参数化或非字符串 path/prefix 不进入静态图。
 
 YAML 路由文件中的顶层 `when@<env>` 使用相同环境身份。分析器只展开名称与当前环境精确相等的 map，保留块外无条件 route/import，并使用内层键的真实源码范围；未选择环境和其它环境块在结构验证前跳过，与 Symfony `YamlFileLoader` 一致。同一文件中后出现的直接路由会覆盖前面的同名直接路由；跨 import 或不同资源产生的同名名称仍保守视为歧义。
 

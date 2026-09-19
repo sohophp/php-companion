@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -1929,6 +1929,26 @@ function excludedRoutePath(path: string, patterns: string[]): boolean {
   }
 }
 
+function composeSymfonyPathPrefix(outer: SymfonyRoutePathPrefix, inner: SymfonyRoutePathPrefix): SymfonyRoutePathPrefix | undefined {
+  if (typeof outer === 'string') {
+    if (typeof inner === 'string') return outer + inner;
+    return inner.map((entry) => ({ ...entry, path: outer + entry.path }));
+  }
+  if (typeof inner === 'string') return outer.map((entry) => ({ ...entry, path: entry.path + inner }));
+  const outerByLocale = new Map(outer.map((entry) => [entry.locale, entry.path]));
+  if (inner.some((entry) => !outerByLocale.has(entry.locale))) return undefined;
+  return inner.map((entry) => ({ ...entry, path: outerByLocale.get(entry.locale)! + entry.path }));
+}
+
+function applySymfonyPathPrefix(route: SymfonyRouteFact, prefix: SymfonyRoutePathPrefix): SymfonyRouteFact[] {
+  if (typeof prefix === 'string') return [{ ...route, path: prefix + route.path }];
+  if (route.locale !== undefined) {
+    const localized = prefix.find((entry) => entry.locale === route.locale);
+    return localized ? [{ ...route, path: localized.path + route.path }] : [];
+  }
+  return prefix.map((entry) => ({ ...route, name: `${route.name}.${entry.locale}`, path: entry.path + route.path, locale: entry.locale }));
+}
+
 /** Read only conventional routing roots and bounded explicit YAML imports; open buffers win. */
 async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
   const routes: SymfonyRouteFact[] = [];
@@ -1952,7 +1972,7 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
     const composer = JSON.parse(await readFile(resolve(root, 'composer.json'), 'utf8'));
     if (typeof composer.require?.['symfony/framework-bundle'] === 'string') defaultNameStyle = 'framework';
   } catch { /* Unknown loader configuration does not authorize generated route names. */ }
-  const read = async (path: string, prefix: string, pathPrefix: string, ancestors: Set<string>, attribute = false, php = false,
+  const read = async (path: string, prefix: string, pathPrefix: SymfonyRoutePathPrefix, ancestors: Set<string>, attribute = false, php = false,
     excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope): Promise<void> => {
     const local = relative(scope.path, path);
     if (excludedRoutePath(path, excludedPaths)) return;
@@ -2012,11 +2032,12 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
         const facts = analyzeSymfonyRouteAttributes(syntaxParser, uri, source, defaultNameStyle, environment);
         const expectedOwner = mapping ? `${mapping.namespace}\\${relative(mapping.root, path).slice(0, -4).split(sep).join('\\')}` : undefined;
         routes.push(...facts.routes.filter((route) => !expectedOwner || route.ownerFqcn === expectedOwner)
-          .map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
+          .flatMap((route) => applySymfonyPathPrefix(route, pathPrefix).map((candidate) => ({ ...candidate, name: prefix + candidate.name }))));
         return;
       }
       const facts = php ? analyzeSymfonyRoutePhp(syntaxParser, uri, source) : analyzeSymfonyRouteYaml(uri, source, environment);
-      routes.push(...facts.routes.map((route) => ({ ...route, name: prefix + route.name, path: pathPrefix + route.path })));
+      routes.push(...facts.routes.flatMap((route) => applySymfonyPathPrefix(route, pathPrefix)
+        .map((candidate) => ({ ...candidate, name: prefix + candidate.name }))));
       const next = new Set([...ancestors, path, actualPath]);
       for (const entry of facts.imports) {
         const bundle = /^@([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*Bundle)[\\/](.+)$/.exec(entry.resource);
@@ -2024,7 +2045,9 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
         if (entry.resource.startsWith('@') && !bundleRoot) continue;
         const importedScope = bundleRoot ?? scope;
         const importedPath = resolve(bundleRoot?.path ?? dirname(path), (bundle?.[2] ?? entry.resource).replace(/[\\/]/g, sep));
-        await read(importedPath, prefix + entry.namePrefix, pathPrefix + entry.pathPrefix, next, entry.attribute, entry.php,
+        const importedPathPrefix = composeSymfonyPathPrefix(pathPrefix, entry.pathPrefix);
+        if (importedPathPrefix === undefined) continue;
+        await read(importedPath, prefix + entry.namePrefix, importedPathPrefix, next, entry.attribute, entry.php,
           (entry.exclude ?? []).map((excluded) => resolve(dirname(path), excluded)),
           entry.namespace ? { root: importedPath, namespace: entry.namespace } : undefined, importedScope);
       }

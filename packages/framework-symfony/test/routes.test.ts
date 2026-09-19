@@ -41,12 +41,25 @@ describe('static Symfony routes', () => {
       expect(analyzeSymfonyRouteYaml('file:///routes.yaml', `routes: {resource: "${resource}"}`).complete).toBe(false);
     }
   });
-  it('rejects duplicate keys and leaves dynamic or localized routing incomplete', () => {
+  it('expands localized paths and import prefixes while rejecting dynamic values', () => {
     expect(analyzeSymfonyRouteYaml('file:///routes.yaml', 'a: {path: /a}\na: {path: /b}').routes).toEqual([]);
-    const facts = analyzeSymfonyRouteYaml('file:///routes.yaml', 'a: {path: "%prefix%/a"}\nb: {path: {en: /b}}\nwhen@dev: {c: {path: /c}}\nd: {resource: "%routes%/*.yaml"}\ne: {path: /e}\n');
+    const source = 'a: {path: "%prefix%/a"}\nb: {path: {en: /english, fr: /francais}}\nwhen@dev: {c: {path: /c}}\nd: {resource: "%routes%/*.yaml"}\nlocalized_import: {resource: child.yaml, name_prefix: site., prefix: {en: /en, fr: /fr}}\ne: {path: /e}\n';
+    const facts = analyzeSymfonyRouteYaml('file:///routes.yaml', source);
     expect(facts.complete).toBe(false);
-    expect(facts.routes.map((route) => route.name)).toEqual(['e']);
-    expect(facts.imports).toEqual([]);
+    expect(facts.routes.map(({ name, path, locale, start, end }) => ({ name, path, locale, text: source.slice(start, end) }))).toEqual([
+      { name: 'b.en', path: '/english', locale: 'en', text: 'b' },
+      { name: 'b.fr', path: '/francais', locale: 'fr', text: 'b' },
+      { name: 'e', path: '/e', locale: undefined, text: 'e' },
+    ]);
+    expect(facts.imports).toEqual([{ resource: 'child.yaml', namePrefix: 'site.', pathPrefix: [
+      { locale: 'en', path: '/en' }, { locale: 'fr', path: '/fr' },
+    ] }]);
+    for (const invalid of ['bad: {path: {en: "%prefix%/bad"}}', 'bad: {path: {en: 42}}', 'bad: {resource: child.yaml, prefix: {en: "%prefix%"}}']) {
+      const result = analyzeSymfonyRouteYaml('file:///routes.yaml', invalid);
+      expect(result.complete).toBe(false);
+      expect(result.routes).toEqual([]);
+      expect(result.imports).toEqual([]);
+    }
   });
   it('selects an exact YAML environment block and preserves nested source ranges', () => {
     const source = `base: {path: /base}

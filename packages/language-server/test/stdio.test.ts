@@ -1064,7 +1064,7 @@ describe('language server stdio', () => {
       const source = String.raw`<?php
 namespace Symfony\Bundle\FrameworkBundle\Controller { abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string {} } }
 namespace App {
-#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } #[\Symfony\Component\Routing\Attribute\Route('/dev', name: 'dev_only', env: ['dev', 'test'])] public function devOnly(): void {} #[\Symfony\Component\Routing\Attribute\Route(path: ['en' => '/english', 'fr' => '/francais'], name: 'localized')] public function localized(): string { return $this->generateUrl('admin.class_localized.'); } public function devAttributeUrl(): string { return $this->generateUrl('admin.class_dev_'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function exactNamedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.home'); } public function parameterUrl(): string { return $this->generateUrl('admin.home', ['i' => 1]); } public function namedParameterUrl(): string { return $this->generateUrl(parameters: ['s' => 1, 'id' => 2], route: 'admin.home'); } public function exactLocalUrl(): string { return $this->generateUrl('local_route'); } public function exactBundleUrl(): string { return $this->generateUrl('vendor_bundle'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function conditionalUrl(): string { return $this->generateUrl('conditional.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
+#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } #[\Symfony\Component\Routing\Attribute\Route('/dev', name: 'dev_only', env: ['dev', 'test'])] public function devOnly(): void {} #[\Symfony\Component\Routing\Attribute\Route(path: ['en' => '/english', 'fr' => '/francais'], name: 'localized')] public function localized(): string { return $this->generateUrl('admin.class_localized.'); } public function devAttributeUrl(): string { return $this->generateUrl('admin.class_dev_'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function exactNamedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.home'); } public function parameterUrl(): string { return $this->generateUrl('admin.home', ['i' => 1]); } public function namedParameterUrl(): string { return $this->generateUrl(parameters: ['s' => 1, 'id' => 2], route: 'admin.home'); } public function exactLocalUrl(): string { return $this->generateUrl('local_route'); } public function exactBundleUrl(): string { return $this->generateUrl('vendor_bundle'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function yamlLocalizedUrl(): string { return $this->generateUrl('localized.page.'); } public function importedLocalizedUrl(): string { return $this->generateUrl('localized_page.'); } public function matchedLocalizedUrl(): string { return $this->generateUrl('localized_child.'); } public function nestedStringUrl(): string { return $this->generateUrl('localized_nested_'); } public function nestedMapUrl(): string { return $this->generateUrl('localized_map_'); } public function wrappedLocalizedUrl(): string { return $this->generateUrl('wrapped_page.'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function conditionalUrl(): string { return $this->generateUrl('conditional.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
 class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function parameterUrl(): string { return $this->generateUrl('admin.home', ['i' => 1]); } }
 }`;
       const uri = pathToFileURL(join(root, 'Controller.php')).toString();
@@ -1086,9 +1086,19 @@ class Other { public function generateUrl(string $route, array $parameters = [])
       await writeFile(join(root, 'config', 'symfony', 'routes.yaml'), `kernel.home: {path: /kernel}
 local_php: {resource: local.php, prefix: /local, name_prefix: local_}
 bundle_php: {resource: '@SharedBundle/Resources/config/routing/routes.php', prefix: /vendor, name_prefix: vendor_}
+localized.page: {path: {en: /english, fr: /francais}}
+localized_import: {resource: localized.yaml, prefix: {en: /en, fr: /fr, de: /de}, name_prefix: localized_}
+string_wrapper: {resource: wrapper.yaml, prefix: /outer}
 when@dev:
   conditional.page: {path: /conditional}
 `);
+      await writeFile(join(root, 'config', 'symfony', 'localized.yaml'), `page: {path: /page}
+child: {path: {en: /english-child, fr: /francais-child}}
+nested_string: {resource: grand.yaml, prefix: /nested, name_prefix: nested_}
+nested_map: {resource: grand.yaml, prefix: {en: /inner-en, fr: /inner-fr}, name_prefix: map_}
+`);
+      await writeFile(join(root, 'config', 'symfony', 'wrapper.yaml'), 'localized: {resource: grand.yaml, prefix: {en: /en, fr: /fr}, name_prefix: wrapped_}\n');
+      await writeFile(join(root, 'config', 'symfony', 'grand.yaml'), 'page: {path: /page}\n');
       await writeFile(join(root, 'config', 'symfony', 'local.php'), `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
         return static function (RoutingConfigurator $routes): void { $routes->add('route', '/route'); };`);
       await writeFile(join(root, 'config', 'symfony', 'dev.yaml'), `dev.page: {path: /dev}
@@ -1155,6 +1165,38 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
       const bundleOffset = source.indexOf("'vendor_'") + 8;
       expect((await query(25, bundleOffset)).map((item) => [item.label, item.detail]))
         .toEqual([['vendor_bundle', '/vendor/bundle (source declaration)']]);
+      const localizedYamlOffset = source.indexOf("'localized.page.'") + "'localized.page.".length;
+      expect((await query(2510, localizedYamlOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['localized.page.en', '/english (source declaration)'],
+        ['localized.page.fr', '/francais (source declaration)'],
+      ]);
+      const importedLocalizedOffset = source.indexOf("'localized_page.'") + "'localized_page.".length;
+      expect((await query(2511, importedLocalizedOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['localized_page.de', '/de/page (source declaration)'],
+        ['localized_page.en', '/en/page (source declaration)'],
+        ['localized_page.fr', '/fr/page (source declaration)'],
+      ]);
+      const matchedLocalizedOffset = source.indexOf("'localized_child.'") + "'localized_child.".length;
+      expect((await query(2512, matchedLocalizedOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['localized_child.en', '/en/english-child (source declaration)'],
+        ['localized_child.fr', '/fr/francais-child (source declaration)'],
+      ]);
+      const nestedStringOffset = source.indexOf("'localized_nested_'") + "'localized_nested_".length;
+      expect((await query(2513, nestedStringOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['localized_nested_page.de', '/de/nested/page (source declaration)'],
+        ['localized_nested_page.en', '/en/nested/page (source declaration)'],
+        ['localized_nested_page.fr', '/fr/nested/page (source declaration)'],
+      ]);
+      const nestedMapOffset = source.indexOf("'localized_map_'") + "'localized_map_".length;
+      expect((await query(2514, nestedMapOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['localized_map_page.en', '/en/inner-en/page (source declaration)'],
+        ['localized_map_page.fr', '/fr/inner-fr/page (source declaration)'],
+      ]);
+      const wrappedLocalizedOffset = source.indexOf("'wrapped_page.'") + "'wrapped_page.".length;
+      expect((await query(2515, wrappedLocalizedOffset)).map((item) => [item.label, item.detail])).toEqual([
+        ['wrapped_page.en', '/outer/en/page (source declaration)'],
+        ['wrapped_page.fr', '/outer/fr/page (source declaration)'],
+      ]);
       const devOffset = source.indexOf("'dev.'") + 5;
       const conditionalOffset = source.indexOf("'conditional.'") + 13;
       const devBundleOffset = source.indexOf("'dev_vendor_'") + 12;

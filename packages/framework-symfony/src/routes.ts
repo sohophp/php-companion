@@ -1,8 +1,10 @@
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
 
-export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; }
-export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: string; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; environments?: string[]; }
+export interface SymfonyLocalizedPath { locale: string; path: string; }
+export type SymfonyRoutePathPrefix = string | SymfonyLocalizedPath[];
+export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; locale?: string; }
+export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: SymfonyRoutePathPrefix; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; environments?: string[]; }
 export interface SymfonyRouteDocument { complete: boolean; routes: SymfonyRouteFact[]; imports: SymfonyRouteImport[]; }
 
 function resolvePhpName(name: string, namespace: string, imports: ParsedImport[]): string {
@@ -29,6 +31,16 @@ function supportedRoutePattern(value: unknown): value is string {
     && (value.match(/\{/g)?.length ?? 0) <= 2 && (value.match(/,/g)?.length ?? 0) <= 16;
 }
 
+function localizedYamlPaths(value: unknown): SymfonyLocalizedPath[] | undefined {
+  if (!isMap(value)) return undefined;
+  const paths: SymfonyLocalizedPath[] = [];
+  for (const pair of value.items) {
+    if (!isScalar(pair.key) || typeof pair.key.value !== 'string' || !isScalar(pair.value) || typeof pair.value.value !== 'string') return undefined;
+    paths.push({ locale: pair.key.value, path: pair.value.value });
+  }
+  return paths;
+}
+
 /** Source declarations only: completeness never implies an effective runtime route table. */
 export function analyzeSymfonyRouteYaml(uri: string, source: string, environment?: string): SymfonyRouteDocument {
   const document = parseDocument(source, { uniqueKeys: true, prettyErrors: false });
@@ -48,7 +60,8 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string, environment
     const resource = value('resource');
     if (resource !== undefined) {
       const prefix = value('name_prefix') ?? '';
-      const pathPrefix = value('prefix') ?? '';
+      const rawPathPrefix = value('prefix') ?? '';
+      const pathPrefix = typeof rawPathPrefix === 'string' ? rawPathPrefix : localizedYamlPaths(rawPathPrefix);
       const type = value('type');
       let attributeResource = resource;
       let resourceNamespace: string | undefined;
@@ -69,22 +82,28 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string, environment
       if (excludeValues.some((item) => !supportedRoutePattern(item))) { result.complete = false; continue; }
       const exclude = excludeValues as string[];
 
+      const validPathPrefix = typeof pathPrefix === 'string' ? !pathPrefix.includes('%')
+        : pathPrefix !== undefined && pathPrefix.every((item) => supportedRoutePattern(item.path) && !item.path.includes('%'));
       if (type === 'attribute' && supportedRoutePattern(attributeResource)
-        && typeof prefix === 'string' && !prefix.includes('%') && typeof pathPrefix === 'string' && !pathPrefix.includes('%')) {
+        && typeof prefix === 'string' && !prefix.includes('%') && pathPrefix !== undefined && validPathPrefix) {
         result.imports.push({ resource: attributeResource, namePrefix: prefix, pathPrefix, attribute: true, ...(resourceNamespace ? { namespace: resourceNamespace } : {}), ...(exclude.length ? { exclude } : {}) });
       } else if (supportedRoutePattern(resource) && (type === 'yaml' || /(?:\.ya?ml|\.\{yaml,yml\}|\.\{yml,yaml\})$/.test(resource))
-        && typeof pathPrefix === 'string' && !pathPrefix.includes('%') && typeof prefix === 'string' && !prefix.includes('%') && (type === undefined || type === 'yaml')) {
+        && pathPrefix !== undefined && validPathPrefix && typeof prefix === 'string' && !prefix.includes('%') && (type === undefined || type === 'yaml')) {
         result.imports.push({ resource, namePrefix: prefix, pathPrefix, ...(exclude.length ? { exclude } : {}) });
       } else if (supportedRoutePattern(resource) && resource.endsWith('.php') && (type === undefined || type === 'php')
-        && typeof pathPrefix === 'string' && !pathPrefix.includes('%') && typeof prefix === 'string' && !prefix.includes('%') && exclude.length === 0) {
+        && pathPrefix !== undefined && validPathPrefix && typeof prefix === 'string' && !prefix.includes('%') && exclude.length === 0) {
         result.imports.push({ resource, namePrefix: prefix, pathPrefix, php: true });
       } else result.complete = false;
       continue;
     }
-    const path = value('path');
-    if (typeof path !== 'string' || path.includes('%') || name.includes('%') || !pair.key.range) { result.complete = false; continue; }
-    result.routes = result.routes.filter((route) => route.name !== name);
-    result.routes.push({ name, path, uri, start: pair.key.range[0], end: pair.key.range[1] });
+    const rawPath = value('path'); const path = typeof rawPath === 'string' ? rawPath : localizedYamlPaths(rawPath);
+    if (path === undefined || (typeof path === 'string' ? path.includes('%') : path.some((item) => item.path.includes('%')))
+      || name.includes('%') || !pair.key.range) { result.complete = false; continue; }
+    const routes = typeof path === 'string' ? [{ name, path }] : path.map((item) => ({ name: `${name}.${item.locale}`, path: item.path, locale: item.locale }));
+    for (const route of routes) {
+      result.routes = result.routes.filter((candidate) => candidate.name !== route.name);
+      result.routes.push({ ...route, uri, start: pair.key.range[0], end: pair.key.range[1] });
+    }
   }
   return result;
 }
@@ -421,12 +440,12 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
           const origin = found.get('name') ?? attribute;
           return { path, name, start: origin.startIndex, end: origin.endIndex, ...(environments ? { environments } : {}) };
         };
-        const expandPaths = (prefix: SymfonyAttributePath, path: SymfonyAttributePath): Array<{ suffix: string; path: string }> | undefined => {
+        const expandPaths = (prefix: SymfonyAttributePath, path: SymfonyAttributePath): Array<{ suffix: string; path: string; locale?: string }> | undefined => {
           if (typeof prefix === 'string' && typeof path === 'string') return [{ suffix: '', path: prefix + path }];
-          if (typeof prefix === 'string') return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix + item }));
-          if (typeof path === 'string') return [...prefix].map(([locale, item]) => ({ suffix: `.${locale}`, path: item + path }));
+          if (typeof prefix === 'string') return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix + item, locale }));
+          if (typeof path === 'string') return [...prefix].map(([locale, item]) => ({ suffix: `.${locale}`, path: item + path, locale }));
           if (prefix.size !== path.size || [...prefix.keys()].some((locale) => !path.has(locale))) return undefined;
-          return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix.get(locale)! + item }));
+          return [...path].map(([locale, item]) => ({ suffix: `.${locale}`, path: prefix.get(locale)! + item, locale }));
         };
         const classAttributes = routeAttributes(node);
         const globals = classAttributes[0] ? values(classAttributes[0]) : { path: '', name: '', environments: undefined };
@@ -458,7 +477,7 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             if (name === undefined) { result.complete = false; continue; }
             const paths = expandPaths(globals.path, route.path); if (!paths) { result.complete = false; continue; }
             result.routes.push(...paths.map((item) => ({ name: (globals.name ?? '') + name + item.suffix, path: item.path,
-              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: methodName })));
+              uri, start: route.start, end: route.end, ...(item.locale ? { locale: item.locale } : {}), ownerFqcn: declaration.fqcn, method: methodName })));
           }
         }
         if (!hasMethodRoutes && methods.some((method) => method.namedChildren.some((child) => child.type === 'name' && child.text === '__invoke'))) {
@@ -472,7 +491,7 @@ export function analyzeSymfonyRouteAttributes(parser: PhpSyntaxParser, uri: stri
             if (name === undefined) { result.complete = false; continue; }
             const paths = expandPaths('', route.path); if (!paths) { result.complete = false; continue; }
             result.routes.push(...paths.map((item) => ({ name: name + item.suffix, path: item.path,
-              uri, start: route.start, end: route.end, ownerFqcn: declaration.fqcn, method: '__invoke' })));
+              uri, start: route.start, end: route.end, ...(item.locale ? { locale: item.locale } : {}), ownerFqcn: declaration.fqcn, method: '__invoke' })));
           }
         }
         return;
