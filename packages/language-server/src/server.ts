@@ -36,7 +36,8 @@ import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloa
 import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
-import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
+import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
+  type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
 import { runRouteProvider } from '@php-companion/route-provider-host';
@@ -71,6 +72,7 @@ const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
 const symfonyBundleClassPathsByRoot = new Map<string, Set<string>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
+const symfonyContainerRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const symfonyEventDispatchesByUri = new Map<string, { source: string; facts: SymfonyEventDispatchFact[] }>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -88,6 +90,8 @@ let routeProviders: RouteProviderDescriptor[] = [];
 let configuredRouteProviders: RouteProviderDescriptor[] = [];
 let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
+let frameworkDocumentSnapshots = new Map<string, SemanticProviderDocument>();
+let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
@@ -255,6 +259,10 @@ function acceptedSemanticProviders(value: unknown, source: 'configured' | 'bundl
     if (!isSemanticProviderDescriptor(candidate)) { connection.console.warn(`Ignored invalid ${source} semantic provider configuration.`); continue; }
     if (reserved.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored ${source} semantic provider ${candidate.providerId}: the identity is reserved.`); continue; }
     if (seen.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored duplicate ${source} semantic provider ${candidate.providerId}.`); continue; }
+    if (source === 'configured' && candidate.replacesContainerServices) {
+      connection.console.warn(`Ignored authoritative container capability from configured provider ${candidate.providerId}; only bundled integrations may replace core Symfony facts.`);
+      seen.add(candidate.providerId.toLowerCase()); accepted.push({ ...candidate, replacesContainerServices: false }); continue;
+    }
     seen.add(candidate.providerId.toLowerCase()); accepted.push(candidate);
   }
   return accepted;
@@ -271,6 +279,21 @@ function setConfiguredSemanticProviders(value: unknown): void {
 }
 function setBundledSemanticProviders(value: unknown): void {
   bundledSemanticProviders = acceptedSemanticProviders(value, 'bundled'); rebuildSemanticProviders();
+}
+
+function setFrameworkDocumentSnapshots(value: unknown): boolean {
+  const payload = value as { complete?: unknown; documents?: unknown } | undefined;
+  if (!payload || typeof payload.complete !== 'boolean' || !Array.isArray(payload.documents)) return false;
+  const next = new Map<string, SemanticProviderDocument>(); let characters = 0;
+  for (const candidate of payload.documents) {
+    const document = candidate as Partial<SemanticProviderDocument> | null;
+    if (!document || !['yaml', 'xml'].includes(document.languageId ?? '') || typeof document.uri !== 'string' || document.uri.length > 32_768
+      || typeof document.source !== 'string' || document.source.length > 1_000_000 || typeof document.snapshotVersion !== 'string'
+      || document.snapshotVersion.length > 128 || next.size >= 128 || (characters += document.source.length) > 8 * 1024 * 1024) return false;
+    const path = pathForUri(document.uri); if (!path || !workspaceFolderRoots.some((root) => pathWithin(root, path))) return false;
+    next.set(document.uri, document as SemanticProviderDocument);
+  }
+  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; return true;
 }
 
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
@@ -297,13 +320,105 @@ function setBundledRouteProviders(value: unknown): void {
   bundledRouteProviders = acceptedRouteProviders(value, 'bundled'); rebuildRouteProviders();
 }
 
-async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean): Promise<void> {
+function semanticProviderDocuments(root: string): { complete: boolean; documents: SemanticProviderDocument[] } {
+  const candidates = documents.all().filter((document) => document.languageId === 'php')
+    .filter((document) => { const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path); })
+    .sort((left, right) => left.uri.localeCompare(right.uri));
+  const snapshots: SemanticProviderDocument[] = [...frameworkDocumentSnapshots.values()].filter((document) => {
+    const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path);
+  }); let characters = snapshots.reduce((sum, document) => sum + document.source.length, 0);
+  if (!frameworkDocumentSnapshotsComplete || snapshots.length > 128 || characters > 8 * 1024 * 1024) return { complete: false, documents: [] };
+  for (const document of candidates) {
+    const source = document.getText();
+    if (source.length > 1_000_000 || snapshots.length >= 128 || characters + source.length > 8 * 1024 * 1024) return { complete: false, documents: [] };
+    characters += source.length; snapshots.push({ uri: document.uri, languageId: document.languageId as 'php' | 'yaml' | 'xml', source, snapshotVersion: String(document.version) });
+  }
+  return { complete: true, documents: snapshots };
+}
+
+function semanticProviderProjectTypes(root: string, workspace: SemanticWorkspace): { complete: boolean; projectTypes: SemanticProviderProjectType[] } {
+  const projectTypes: SemanticProviderProjectType[] = []; let characters = 0;
+  for (const type of workspace.workspaceTypes()) {
+    const path = pathForUri(type.uri); if (!path || !pathWithin(root, path)) continue;
+    characters += type.fqcn.length + type.uri.length + path.length;
+    if (projectTypes.length >= 100_000 || characters > 16 * 1024 * 1024) return { complete: false, projectTypes: [] };
+    projectTypes.push({ fqcn: type.fqcn, kind: type.kind, abstract: type.abstract, path, uri: type.uri, start: type.start, end: type.end });
+  }
+  return { complete: true, projectTypes };
+}
+
+function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace, contribution: SemanticFactsContribution): boolean {
+  if (!contribution.containerServices || !contribution.containerMethodArguments || !contribution.containerPropertyArguments || !contribution.containerConfigurationUris) return false;
+  const catalog = new Map<string, SymfonyServiceFact[]>();
+  for (const service of contribution.containerServices) catalog.set(service.registrationUri,
+    [...(catalog.get(service.registrationUri) ?? []), service as SymfonyServiceFact]);
+  const byFile = new Map<string, SymfonyLiteralMethodReturnFact[]>();
+  for (const fact of contribution.literalMethodReturns) byFile.set(fact.uri, [...(byFile.get(fact.uri) ?? []), fact]);
+  symfonyServiceCatalogByRoot.set(root, catalog); symfonyServicesByRoot.set(root, byFile);
+  symfonyCompiledMethodArgumentsByRoot.set(root, [...contribution.containerMethodArguments]);
+  symfonyCompiledPropertyArgumentsByRoot.set(root, [...contribution.containerPropertyArguments]);
+  const paths = contribution.containerConfigurationUris.flatMap((uri) => { try { return [resolve(fileURLToPath(uri))]; } catch { return []; } });
+  symfonyServiceConfigPathsByRoot.set(root, new Set(paths)); symfonyBundleClassPathsByRoot.set(root, new Set());
+  workspace.removeExternalFacts('symfony'); workspace.replaceExternalFacts(contribution); return true;
+}
+
+async function runContainerProvider(root: string, generation: number, workspace: SemanticWorkspace,
+  shouldContinue: () => boolean): Promise<boolean> {
+  const authoritative = semanticProviders.filter((provider) => provider.replacesContainerServices);
+  if (authoritative.length !== 1) {
+    if (authoritative.length > 1) connection.console.warn('Multiple authoritative container providers were registered; using the core Symfony fallback.');
+    return false;
+  }
+  const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
+  if (!snapshots.complete || !types.complete) {
+    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
+  }
+  const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
+    generation: String(generation), phpVersion: targetPhpVersion,
+    ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
+    ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) });
+  if (!shouldContinue()) return false;
+  if (result.ok && applyExternalContainerFacts(root, workspace, result.contribution)) {
+    connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative container generation ${generation}.`); return true;
+  }
+  workspace.removeExternalFacts(descriptor.providerId);
+  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete container snapshot; using the core Symfony fallback.`
+    : `Semantic provider ${descriptor.providerId} failed (${result.code}); using the core Symfony fallback: ${result.message}`);
+  return false;
+}
+
+async function refreshSymfonyContainerFacts(root: string, generation: number, workspace: SemanticWorkspace,
+  shouldContinue: () => boolean, bypassCachePaths = new Set<string>()): Promise<void> {
+  if (!await runContainerProvider(root, generation, workspace, shouldContinue) && shouldContinue()) await loadSymfonyServiceFacts(root, workspace, bypassCachePaths);
+}
+
+function scheduleSymfonyContainerRefresh(root: string): void {
+  const previous = symfonyContainerRefreshTimers.get(root); if (previous) clearTimeout(previous);
+  symfonyContainerRefreshTimers.set(root, setTimeout(() => {
+    symfonyContainerRefreshTimers.delete(root);
+    if (activeIndexing || !projectCompleteRoots.has(root)) return;
+    void semanticForRoot(root).then((workspace) => refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => true))
+      .catch((error: unknown) => connection.console.warn(`Symfony container refresh failed: ${String(error)}`));
+  }, 250));
+}
+
+async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean): Promise<boolean> {
+  let containerReplaced = false; const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
   for (const descriptor of semanticProviders) {
-    if (!shouldContinue()) return;
+    if (!shouldContinue()) return false;
+    if (descriptor.replacesContainerServices) {
+      if (!containerReplaced) containerReplaced = await runContainerProvider(root, generation, workspace, shouldContinue);
+      continue;
+    }
+    if ((descriptor.acceptsDocumentSnapshots && !snapshots.complete) || (descriptor.requiresProjectTypes && !types.complete)) {
+      connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); continue;
+    }
     const result = await runSemanticProvider(descriptor, {
       rootUri: indexedUriForPath(root, root), rootPath: root, generation: String(generation), phpVersion: targetPhpVersion,
+      ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
+      ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
     });
-    if (!shouldContinue()) return;
+    if (!shouldContinue()) return false;
     if (result.ok) {
       workspace.replaceExternalFacts(result.contribution);
       connection.console.info(`Semantic provider ${descriptor.providerId} committed generation ${generation}.`);
@@ -311,6 +426,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
       connection.console.warn(`Semantic provider ${descriptor.providerId} failed (${result.code}); retained its previous facts: ${result.message}`);
     }
   }
+  return containerReplaced;
 }
 
 function configuredDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
@@ -372,6 +488,15 @@ connection.onNotification('phpCompanion/symfonyRouteProviders', (params: { provi
 connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => setBundledRouteProviders(params?.providers));
 connection.onNotification('phpCompanion/bundledSemanticProviders', (params: { providers?: unknown } | undefined) => {
   void enqueueSemanticProviderChange(() => setBundledSemanticProviders(params?.providers));
+});
+connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (params: unknown) => {
+  if (!setFrameworkDocumentSnapshots(params)) return;
+  const running = activeIndexing; if (running) await running;
+  for (const root of workspaceRoots) {
+    if (!projectCompleteRoots.has(root)) continue;
+    await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
+  }
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 });
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
   setConfiguredExtensionAvailability(params?.roots);
@@ -768,8 +893,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     workspace.replaceExternalFacts(semanticFacts('doctrine', String(generation), {
       methods: [...doctrineFiles.values()].flat(), properties: [...doctrinePropertyFiles.values()].flat(),
     }));
-    await loadSymfonyServiceFacts(root, workspace);
-    await refreshSemanticProviders(root, generation, workspace, shouldContinue);
+    const containerReplaced = await refreshSemanticProviders(root, generation, workspace, shouldContinue);
+    if (!containerReplaced && shouldContinue()) await loadSymfonyServiceFacts(root, workspace);
     await loadCallableFacts(root, workspace);
     for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root)) await publishDocumentDiagnostics(document);
   }
@@ -1319,6 +1444,7 @@ async function indexWorkspace(generation: number): Promise<void> {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
       const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServicesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyBundleClassPathsByRoot.delete(oldRoot);
+      const refreshTimer = symfonyContainerRefreshTimers.get(oldRoot); if (refreshTimer) clearTimeout(refreshTimer); symfonyContainerRefreshTimers.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
       if (!key.startsWith('root:')) continue;
@@ -1471,7 +1597,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -1496,6 +1622,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   workspaceFolderLocations = uris.flatMap((uri) => { const path = pathForUri(uri); return path ? [{ uri, path }] : []; });
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
+  setFrameworkDocumentSnapshots(initialization?.frameworkDocumentSnapshots ?? { complete: true, documents: [] });
   return ({
   capabilities: {
     positionEncoding: 'utf-16',
@@ -1880,7 +2007,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') { invalidateCandidates(change.uri); composerChanged = true; continue; }
     const root = rootForUri(change.uri); if (!root) continue;
     if (affectsSymfonyCompiledContainer(root, path) || isSymfonyServiceConfig(root, path)) {
-      await loadSymfonyServiceFacts(root, await semanticForRoot(root), new Set([path])); continue;
+      await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true, new Set([path])); continue;
     }
     if (!path.toLowerCase().endsWith('.php')) continue;
     const project = await loadComposerProject(root);
@@ -1902,6 +2029,7 @@ documents.onDidOpen(async ({ document }) => {
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
   const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  const path = pathForUri(document.uri); if (root && path && (affectsSymfonyCompiledContainer(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
 });
@@ -1911,6 +2039,7 @@ documents.onDidChangeContent(async ({ document }) => {
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
   const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  const path = pathForUri(document.uri); if (root && path && (affectsSymfonyCompiledContainer(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
 });
@@ -1937,6 +2066,8 @@ documents.onDidClose(async ({ document }) => {
     workspace?.remove(document.uri);
     if (workspace && root) { interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); }
   }
+  const closedPath = pathForUri(document.uri); if (root && closedPath
+    && (affectsSymfonyCompiledContainer(root, closedPath) || isSymfonyServiceConfig(root, closedPath))) scheduleSymfonyContainerRefresh(root);
   await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
 });
 
@@ -2139,10 +2270,14 @@ async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Prom
 }
 
 function routeProviderDocuments(root: string): { complete: boolean; documents: RouteProviderDocument[] } {
-  const candidates = documents.all().filter((document) => ['php', 'yaml'].includes(document.languageId))
+  const candidates = documents.all().filter((document) => document.languageId === 'php')
     .filter((document) => { const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path); })
     .sort((left, right) => left.uri.localeCompare(right.uri));
-  const snapshots: RouteProviderDocument[] = []; let characters = 0;
+  const snapshots: RouteProviderDocument[] = [...frameworkDocumentSnapshots.values()].flatMap((document) => {
+    const path = pathForUri(document.uri); return document.languageId === 'yaml' && path !== undefined && pathWithin(root, path)
+      ? [{ uri: document.uri, languageId: 'yaml' as const, source: document.source, snapshotVersion: document.snapshotVersion }] : [];
+  }); let characters = snapshots.reduce((sum, document) => sum + document.source.length, 0);
+  if (!frameworkDocumentSnapshotsComplete || snapshots.length > 128 || characters > 8 * 1024 * 1024) return { complete: false, documents: [] };
   for (const document of candidates) {
     const source = document.getText();
     if (source.length > 1_000_000 || snapshots.length >= 128 || characters + source.length > 8 * 1024 * 1024)
@@ -2212,6 +2347,7 @@ async function provenSymfonyRouteParameterCall(document: TextDocument, offset: n
 }
 
 connection.onCompletion(async ({ textDocument, position }, token) => {
+  await semanticProviderReconciliation;
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
@@ -2520,7 +2656,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     const symfonyClassTarget = type?.fqcn ?? (member?.kind === 'method' ? member.fqcn.split('::')[0] : undefined);
     if (symfonyClassTarget && root && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
-      await loadSymfonyServiceFacts(root, workspace);
+      await refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !token.isCancellationRequested);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }

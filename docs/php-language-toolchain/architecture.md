@@ -29,6 +29,7 @@ TypeScript + Node.js 独立语言服务器进程；Tree-sitter/WASM 作为语法
 | semantic-provider-host | 显式配置 Provider 的一次性子进程、JSON 协议、超时与输出限制 | 自动执行项目元数据、提供安全沙箱或产生语义事实 |
 | route-provider / route-provider-host | 版本化路由快照、打开文档及隔离进程协议 | 自动发现或执行项目命令 |
 | provider-symfony-routes | Symfony 静态路由图、导入与 Bundle 资源编排 | 启动项目 PHP 或发布通用 PHP 语义 |
+| provider-symfony-services | Symfony 服务、别名、自动装配、事件标签与编译容器参数编排 | 启动 Kernel、加载项目 autoloader 或发布通用 PHP 语义 |
 | plugin-api | 独立 VS Code 扩展注册语义/路由 Provider 的版本化入口、身份与资源预算校验 | 暴露 Language Client、任意 LSP 通道或框架模型 |
 | semantic | 绑定、成员解析、表达式推断、控制流与诊断事实 | VS Code Provider |
 | refactor | 前置条件、冲突检测、带版本编辑计划 | 直接写磁盘 |
@@ -67,9 +68,9 @@ flowchart BT
 
 最终发行结构包含独立的 `PHP Companion: Symfony` VSIX。核心 `sohophp.php-companion` 只拥有 PHP 语法、类型、索引、导航、重构及版本化插件 API；Symfony 扩展拥有服务容器、依赖注入、事件订阅、路由、Controller 上下文和 Symfony 元数据适配。Twig 解析、模板格式化和模板作用域继续由 twig-plus 唯一拥有，YAML/XML 的通用语法与格式化继续复用成熟扩展。
 
-独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，已经接管静态 Symfony 路由图和可选 Winstar 运行时路由适配器。静态路由请求携带有界 PHP/YAML 打开文档快照；权威 Provider 成功后核心不执行兼容扫描，失败、超时或快照越界时核心回退。核心检测到独立扩展后也停止注册 Winstar 内置副本。核心不向插件暴露 Language Client。
+独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，已经接管静态 Symfony 服务容器、静态路由图和可选 Winstar 运行时路由适配器。服务请求携带有界项目类型目录及 PHP/YAML/XML 打开文档快照，返回框架中立的服务、别名、绑定、调用/属性、事件标签与编译参数事实；路由请求携带有界 PHP/YAML 打开文档快照。权威 Provider 成功后核心不执行对应兼容扫描，失败、超时、协议错误或快照越界时核心回退。核心检测到独立扩展后也停止注册 Winstar 内置副本。核心不向插件暴露 Language Client。
 
-当前迁移阶段仍把服务、事件和 Controller 上下文的 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。完成拆分还需要把这些能力逐项改为框架中立事实，并验证升级、停用及核心版本不兼容。每项迁移完成后删除核心中的对应 Symfony 组装路径，避免两个所有者同时发布结果。
+当前迁移阶段仍保留核心内的服务扫描作为失败回退，并把事件关系和 Controller 上下文的 `framework-symfony` 静态分析组装进核心 Language Server，以维持 Alpha 完整可用。下一步把事件关系与 Controller 上下文改为框架中立事实；服务回退路径会在独立插件升级、停用、协议不兼容和真实项目门禁稳定后删除。任一查询只消费一个权威服务快照，不会合并插件与回退扫描结果。
 
 Symfony 官方插件属于可选外部实现，不是自研 Symfony 扩展的运行依赖。只有在其 PHP Rename、索引所有权和版本兼容门禁通过后才可加入推荐组合；未通过时由自研 Symfony 扩展承担框架语义，通用 YAML/XML 能力仍交给各自成熟插件。
 
@@ -81,8 +82,8 @@ Symfony 官方插件属于可选外部实现，不是自研 Symfony 扩展的运
 - `Type`：标量、字面量、对象、泛型、Union/Intersection、数组形状、Callable、never；显式 mixed、未知和错误恢复分开表示。
 - `AnalysisResult`：文档/项目快照、结果、依赖、完整性和分析预算状态。
 - `PhpRuntime`：可执行文件、完整版本/版本 ID、SAPI、规范化扩展目录及 INI 来源；失败或目标次版本不一致不形成可用事实。
-- `SemanticFactsContribution`：schema、provider 身份、generation、完整性及带来源的方法/属性/字面量返回事实；同一 provider 每次提交完整快照。
-- `SemanticProviderRequest/Response`：一次请求对应一次 JSON 响应；服务器只执行用户显式配置的可信命令，并校验协议版本、请求 ID、provider 身份、generation 与完整性后提交。
+- `SemanticFactsContribution`：schema、provider 身份、generation、完整性、带来源的方法/属性/字面量返回事实，以及可选的完整容器服务、编译参数和配置 URI；同一 provider 每次提交完整快照。
+- `SemanticProviderRequest/Response`：一次请求对应一次 JSON 响应；服务器只执行用户显式配置或已安装集成注册的可信命令，并校验协议版本、请求 ID、provider 身份、generation、输入预算与完整性后提交。权威容器所有权只授予 bundled integration。
 - `EditPlan`：带版本文本编辑、文件操作、依赖顺序、冲突、无法确认的引用、预览说明。
 
 P0 固定契约和序列化版本；磁盘缓存不得直接序列化 Tree-sitter 对象或隐含引用关系。缓存失配可重建，不能返回错误结果。

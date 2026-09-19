@@ -6,7 +6,8 @@ describe('plugin API', () => {
     expect(PHP_COMPANION_PLUGIN_API_VERSION).toBe(1);
     expect(isPhpCompanionIntegrationContribution({
       integrationId: 'vendor.symfony',
-      semanticProviders: [{ providerId: 'vendor.symfony.services', command: '/extension/provider' }],
+      semanticProviders: [{ providerId: 'vendor.symfony.services', command: '/extension/provider', requiresProjectTypes: true,
+        acceptsDocumentSnapshots: true, replacesContainerServices: true }],
       routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/extension/routes', timeoutMs: 1000, maxOutputBytes: 4096 }],
     })).toBe(true);
   });

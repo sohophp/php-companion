@@ -5,6 +5,7 @@ import process from 'node:process';
 await build({
   entryPoints: {
     extension: 'src/extension.ts',
+    'service-provider': '../provider-symfony-services/src/cli.ts',
     'static-route-provider': '../provider-symfony-routes/src/cli.ts',
     'winstar-route-provider': '../provider-winstar-routes/src/cli.ts',
   },

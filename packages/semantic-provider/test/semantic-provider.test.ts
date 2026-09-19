@@ -14,6 +14,23 @@ describe('semantic provider contract', () => {
     }))).toBe(true);
   });
 
+  it('accepts complete framework-neutral container facts', () => {
+    expect(isSemanticFactsContribution(semanticFacts('symfony.services', '9', {
+      containerServices: [{
+        id: 'app.mailer', className: 'App\\Mailer', public: false, autowire: true, autowireComplete: true,
+        bindings: [{ type: 'Psr\\Log\\LoggerInterface', serviceId: 'logger' }], configuredCalls: ['setLogger'], callsComplete: true,
+        configuredProperties: ['clock'], propertiesComplete: true, eventListeners: [{ event: 'kernel.request', method: 'onRequest', priority: 8,
+          uri: 'file:///services.yaml', eventStart: 10, eventEnd: 24, methodStart: 30, methodEnd: 39 }], origin: 'explicit',
+        registrationUri: 'file:///services.yaml', registrationStart: 2, registrationEnd: 12,
+        uri: 'file:///services.yaml', start: 2, end: 12,
+      }],
+      containerMethodArguments: [{ callableFqcn: 'App\\Mailer::__construct', parameterIndex: 0, serviceId: 'logger', className: 'App\\Logger', uri: 'file:///container.xml', start: 4, end: 10 }],
+      containerPropertyArguments: [{ ownerFqcn: 'App\\Mailer', property: 'clock', serviceId: 'clock', className: 'App\\Clock', uri: 'file:///container.xml', start: 11, end: 16 }],
+      containerConfigurationUris: ['file:///services.yaml'],
+    }))).toBe(true);
+    expect(isSemanticFactsContribution({ ...semanticFacts('symfony.services', '9'), containerServices: [] })).toBe(false);
+  });
+
   it('rejects malformed identities, locations and visibility values', () => {
     expect(isSemanticFactsContribution({ ...semanticFacts('', '1'), providerId: '' })).toBe(false);
     expect(isSemanticFactsContribution({ ...semanticFacts('valid', '1'), methods: [{ ownerFqcn: 'A', name: 'm', uri: 'file:///A.php', start: 3, end: 2 }] })).toBe(false);
@@ -21,14 +38,19 @@ describe('semantic provider contract', () => {
   });
 
   it('validates bounded executable descriptors', () => {
-    expect(isSemanticProviderDescriptor({ providerId: 'vendor.framework', command: '/opt/provider', args: ['--stdio'], timeoutMs: 5000, maxOutputBytes: 4096 })).toBe(true);
+    expect(isSemanticProviderDescriptor({ providerId: 'vendor.framework', command: '/opt/provider', args: ['--stdio'], timeoutMs: 5000, maxOutputBytes: 4096,
+      requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true })).toBe(true);
     expect(isSemanticProviderDescriptor({ providerId: 'symfony!', command: 'provider' })).toBe(false);
     expect(isSemanticProviderDescriptor({ providerId: 'vendor', command: 'provider', timeoutMs: 31_000 })).toBe(false);
   });
 
   it('validates request and exactly-one-result response envelopes', () => {
-    const request = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts', params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5' } };
+    const request = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts', params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5',
+      documents: [{ uri: 'file:///project/config/services.yaml', languageId: 'yaml', source: 'services: {}', snapshotVersion: '2' }],
+      projectTypes: [{ fqcn: 'App\\Mailer', kind: 'class', abstract: false, path: '/project/src/Mailer.php', uri: 'file:///project/src/Mailer.php', start: 6, end: 12 }] } };
     expect(isSemanticProviderRequest(request)).toBe(true);
+    expect(isSemanticProviderRequest({ ...request, params: { ...request.params, documents: [{ ...request.params.documents[0], languageId: 'twig' }] } })).toBe(false);
+    expect(isSemanticProviderRequest({ ...request, params: { ...request.params, projectTypes: [{ ...request.params.projectTypes[0], end: 2 }] } })).toBe(false);
     expect(isSemanticProviderResponse({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id, result: semanticFacts('vendor', '1') })).toBe(true);
     expect(isSemanticProviderResponse({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id })).toBe(false);
     expect(isSemanticProviderResponse({ protocolVersion: 2, id: request.id, error: { code: 'failed', message: 'failed' } })).toBe(false);

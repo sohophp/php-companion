@@ -2,7 +2,7 @@ import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
 interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => unknown; }
-interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
+interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; serviceProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -221,7 +221,7 @@ export async function run(): Promise<void> {
     assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
     const symfonyApi = await symfonyExtension.activate();
     assert.strictEqual(symfonyApi.version, 1, 'PHP Companion Symfony did not expose API version 1');
-    assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: false });
+    assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, serviceProviderRegistered: true, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: false });
     const folder = vscode.workspace.workspaceFolders?.[0];
     assert.ok(folder, 'Fixture workspace was not opened');
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', true, vscode.ConfigurationTarget.Workspace);

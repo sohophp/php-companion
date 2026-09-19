@@ -30,7 +30,13 @@ function providerDescriptor(value: unknown): value is SemanticProviderDescriptor
     && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes)
       && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
     && ((item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === undefined
-      || typeof (item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === 'boolean'));
+      || typeof (item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).requiresProjectTypes === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).requiresProjectTypes === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).acceptsDocumentSnapshots === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).acceptsDocumentSnapshots === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).replacesContainerServices === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).replacesContainerServices === 'boolean'));
 }
 
 function ownedProviderId(integrationId: string, providerId: string): boolean {

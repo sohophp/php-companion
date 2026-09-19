@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@php-companion/plugin-api": "workspace:*",
+    "@php-companion/provider-symfony-services": "workspace:*",
     "@types/node": "^22.15.0",
     "@types/vscode": "^1.100.0",
     "@vscode/vsce": "^3.9.2",

@@ -991,3 +991,4 @@ Semantic snapshot 升至 schema 50，旧 schema 49 缓存会安全重建。详�
 带唯一 default、最多 64 个 arm 且每个值结果可证明的 PHP 8 `match` 现在合并结果 Union，`throw` arm 作为 `never` 排除，并经同块局部赋值进入补全、Definition 与参数诊断。缺少 default、unknown 值 arm 或超预算时保持 unknown。Semantic snapshot 升至 schema 66。
 
 完整证据见 [match 表达式结果类型验收](reports/match-result-flow-2026-09-09.md)。
+2026-09-20 独立 Symfony 服务容器迁移进行中：新增可独立发布的 `@php-companion/provider-symfony-services`，由 `sohophp.php-companion-symfony` 打包并始终注册；静态读取 YAML/XML/PHP Configurator、确定性导入、Bundle 资源和新鲜 debug-container XML，不启动 Kernel 或项目 PHP。框架中立 semantic-provider 契约新增有界项目类型目录、PHP/YAML/XML 打开文档快照及服务/别名/绑定/事件标签/编译参数完整事实；权威插件成功时核心只消费该快照，失败、超时、协议错误或输入不完整时回退。组件、tarball、VSIX、真实 Winstar 与打包宿主的最终证据将在本阶段完成后记录。

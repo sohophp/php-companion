@@ -3,11 +3,14 @@ import {
   SEMANTIC_PROVIDER_PROTOCOL_VERSION,
   isSemanticProviderResponse,
   type SemanticFactsContribution,
+  type SemanticProviderDocument,
   type SemanticProviderDescriptor,
+  type SemanticProviderProjectType,
   type SemanticProviderRequest,
 } from '@php-companion/semantic-provider';
 
-export interface SemanticProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string; }
+export interface SemanticProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string;
+  documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[]; }
 export type SemanticProviderFailureCode = 'spawn' | 'timeout' | 'output-limit' | 'exit' | 'protocol' | 'provider';
 export type SemanticProviderRunResult = { ok: true; contribution: SemanticFactsContribution }
   | { ok: false; code: SemanticProviderFailureCode; message: string };

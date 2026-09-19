@@ -13,6 +13,20 @@ interface PhpExtensionAvailabilityEntry {
   };
 }
 
+interface FrameworkDocumentSnapshot { uri: string; languageId: 'yaml' | 'xml'; source: string; snapshotVersion: string; }
+
+function openFrameworkDocuments(): { complete: boolean; documents: FrameworkDocumentSnapshot[] } {
+  const documents: FrameworkDocumentSnapshot[] = []; let characters = 0;
+  for (const document of vscode.workspace.textDocuments.filter((candidate) => ['yaml', 'xml'].includes(candidate.languageId) && !candidate.isUntitled)
+    .sort((left, right) => left.uri.toString().localeCompare(right.uri.toString()))) {
+    const source = document.getText();
+    if (source.length > 1_000_000 || documents.length >= 128 || characters + source.length > 8 * 1024 * 1024) return { complete: false, documents: [] };
+    characters += source.length; documents.push({ uri: document.uri.toString(), languageId: document.languageId as 'yaml' | 'xml',
+      source, snapshotVersion: String(document.version) });
+  }
+  return { complete: true, documents };
+}
+
 function hasExplicitLanguageServerSetting(configuration: vscode.WorkspaceConfiguration): boolean {
   const inspected = configuration.inspect<boolean>('languageServer.enabled');
   return inspected !== undefined && [
@@ -124,6 +138,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       bundledRouteProviders: bundledRouteProviders(),
       symfonyRouteProviders: symfonyRouteProviders(),
       phpExtensionAvailability: phpExtensionAvailability(),
+      frameworkDocumentSnapshots: openFrameworkDocuments(),
       testMode: context.extensionMode === vscode.ExtensionMode.Test,
       // PHP Companion stages declaration edits through onWillRenameFiles so a
       // PSR-4 file rename and its text changes remain one undoable operation.
@@ -184,6 +199,17 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       output.warn(`Unable to update PHP extension availability: ${String(error)}`);
     });
   };
+  let frameworkSnapshotTimer: ReturnType<typeof setTimeout> | undefined;
+  const updateFrameworkDocumentSnapshots = (): void => {
+    if (stopping) return;
+    if (frameworkSnapshotTimer) clearTimeout(frameworkSnapshotTimer);
+    frameworkSnapshotTimer = setTimeout(() => {
+      frameworkSnapshotTimer = undefined;
+      void client.sendNotification('phpCompanion/frameworkDocumentSnapshots', openFrameworkDocuments()).catch((error: unknown) => {
+        if (!stopping) output.warn(`Unable to update framework document snapshots: ${String(error)}`);
+      });
+    }, 250);
+  };
   context.subscriptions.push(
     integrations.onDidChange(updateIntegrationProviders),
     versions.onDidChangeState(updatePhpExtensionAvailability),
@@ -197,6 +223,10 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => { updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability(); }),
     vscode.extensions.onDidChange(() => { updateRouteProviders(); updateBundledRouteProviders(); }),
+    vscode.workspace.onDidOpenTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),
+    vscode.workspace.onDidChangeTextDocument((event) => { if (['yaml', 'xml'].includes(event.document.languageId)) updateFrameworkDocumentSnapshots(); }),
+    vscode.workspace.onDidCloseTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),
+    { dispose: () => { if (frameworkSnapshotTimer) clearTimeout(frameworkSnapshotTimer); } },
   );
   updateRouteProviders();
   updateIntegrationProviders();

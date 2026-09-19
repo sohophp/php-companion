@@ -23,6 +23,9 @@ importers:
       '@php-companion/provider-symfony-routes':
         specifier: workspace:*
         version: link:packages/provider-symfony-routes
+      '@php-companion/provider-symfony-services':
+        specifier: workspace:*
+        version: link:packages/provider-symfony-services
       '@php-companion/provider-winstar-routes':
         specifier: workspace:*
         version: link:packages/provider-winstar-routes
@@ -262,6 +265,9 @@ importers:
       '@php-companion/plugin-api':
         specifier: workspace:*
         version: link:../plugin-api
+      '@php-companion/provider-symfony-services':
+        specifier: workspace:*
+        version: link:../provider-symfony-services
       '@types/node':
         specifier: ^22.15.0
         version: 22.20.1
@@ -335,6 +341,31 @@ importers:
       minimatch:
         specifier: ^10.2.4
         version: 10.2.5
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
+
+  packages/provider-symfony-services:
+    dependencies:
+      '@php-companion/framework-symfony':
+        specifier: workspace:^
+        version: link:../framework-symfony
+      '@php-companion/parser':
+        specifier: workspace:^
+        version: link:../parser
+      '@php-companion/project':
+        specifier: workspace:^
+        version: link:../project
+      '@php-companion/semantic-provider':
+        specifier: workspace:^
+        version: link:../semantic-provider
     devDependencies:
       '@types/node':
         specifier: ^22.15.0
