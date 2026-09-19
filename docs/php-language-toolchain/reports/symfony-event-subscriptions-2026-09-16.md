@@ -56,17 +56,17 @@ Winstar 只读实测：
 - PHP 8.5 Reflection 对照和 semantic/stdin 回归覆盖 Trait 原方法与 alias 同时保留 Attribute；alias 调用返回 Attribute 位置及匹配派发。
 - PHP 8.5 Reflection 对照覆盖父类/Trait 方法 `self` 与 `parent` 的四种绑定和非法 `static`；framework/stdin 回归使用唯一直接父类结果验证事件关系。
 - PHP 8.5 静态调用对照覆盖继承/Trait subscriber map 的 `self/static/parent`，Symfony 源码确认编译阶段按实际 service class 调用 `getSubscribedEvents()`；Reflection 与最小 AttributeAutoconfigurationPass 容器确认父类/Trait 类级 Attribute 不继承。
-- framework-symfony 28 项和 semantic 268 项测试通过。
-- Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 213.28 秒。
+- framework-symfony 29 项和 semantic 268 项测试通过。
+- Language Server 最新完整套件 6 个测试文件、185 项测试通过，耗时 214.43 秒。
 - 根级 TypeScript、ESLint 和 39 项扩展单元测试通过。
 - 16 个 monorepo 组件 tarball 从隔离消费者安装验证通过。
 - 三份 0.4.5 VSIX 已完成打包并通过 `verify:vsix` 内容检查。
 
 ## Alpha 候选
 
-- 功能提交：`7f29d6b5650ac52f9e59d0ed3e8d78e2d3366609`。
-- 候选目录：`artifacts/php-companion-alpha-0.4.5-7f29d6b5/`。
-- 核心 VSIX SHA-256：`4a2d840adf5cff9e69b134160ab2bca7bd5f4f7d1f4f32a80baf6d421c73745a`。
-- Open Source Pack SHA-256：`3f288592ded706fef21765308a965635b0986b0a604c2c2e45df1299ffbf54d8`。
-- Recommended Pack SHA-256：`6db2aab618f947381e3e68c3a7726aeae6c733a068e23c73b8c68d4c4677399a`。
-- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `7ae9ed6240fe6c25755086ffa34ab47e80bf81d636d09f9a4f8aa6630611c883`。须 Reload Window 后加载新进程。
+- 功能提交：`5c4efd196580d770d96bb1c87f944c001b4e6af8`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-5c4efd19/`。
+- 核心 VSIX SHA-256：`2335e48c3a3029eb40bb33c2ffb255711d3096c21e3d53f9957e2f19bd362036`。
+- Open Source Pack SHA-256：`560eedbc6227fc760fe738a725d89556aa209296c98cedd2896e7c0f09d0e0b5`。
+- Recommended Pack SHA-256：`f52399263bf6fb0a51b8487bc919050ef582c3f8214021190591c588adca9c38`。
+- 当前 Remote CLI 安装通道此前已确认挂起；由于版本仍为 0.4.5 且客户端 `extension.js` 未变化，候选 `language-server.js` 已原子覆盖到现有 WSL RockyLinux8 扩展目录。安装目录与候选 bundle SHA-256 均为 `0143432c100f2230b3678dc3a3abbb4cf32fdc98704cd117da8a127ef292e750`。须 Reload Window 后加载新进程。
