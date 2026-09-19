@@ -19,3 +19,12 @@
 ## 真实源码审计
 
 对 Winstar 当前安装的 Symfony 7.4 vendor 进行只读分析，只选择文本上返回 `ContainerConfigurator` closure 的 PHP 文件：91/91 个文件完成语法分析，共提取 558 个可证明服务。较大的真实样本包括 FrameworkBundle `console.php` 50 个、`translation.php` 40 个、`asset_mapper.php` 39 个，TwigBundle `twig.php` 35 个以及 MakerBundle `makers.php` 30 个。该数字只代表静态支持子集，不等同于运行时容器服务总数。
+
+## 验收结果
+
+- framework-symfony：3 个测试文件、31 项全部通过。
+- Language Server：6 个测试文件、185 项全部通过，耗时 220.19 秒。
+- 根扩展：9 个测试文件、39 项全部通过；全仓 TypeScript 与 ESLint 通过。
+- 16 个 monorepo 组件 tarball 在隔离消费者中安装验证通过；三份 VSIX 均通过内容检查。
+
+功能提交为 `4c44c9db6703e8af9331f72bfe54d9f240320aa2`，候选目录为 `artifacts/php-companion-alpha-0.4.5-4c44c9db/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `f0d303cd9cf308da709599277b1a5d1d4811303c34e8c2ab3f9997d4bfd87a8b`、`60563df7f3f31a860434f5396251e6eb43821f3a7e9a1e48b91e9b5114072416`、`a1c49296899b55ffd446152382598ffa8d09b88071065686b847408f00fee244`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `9b328aff27d3abf1df0280ca41a34a23c6bc32bef53668c61fcd1fd8f2c23737`，Reload Window 后加载。

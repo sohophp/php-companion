@@ -1,3 +1,5 @@
+- 提交 `4c44c9d` 完成 Symfony PHP Configurator 静态服务索引，候选 `php-companion-alpha-0.4.5-4c44c9db` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
+- 约定 `services.php` 和确定性 PHP 导入无需执行即可进入服务、别名、resource、具名注入、配置方法/属性、监听标签、Container 返回和类型 References；重赋值、factory/parent 和动态值保持 unknown，事实缓存升级为 v7。当前 Symfony 7.4 vendor 真实审计中 91/91 个官方 Configurator 文件可解析并提取 558 个可证明服务。
 - 提交 `abb5ed6` 完成 Symfony YAML/XML 确定性本地服务导入图，候选 `php-companion-alpha-0.4.5-abb5ed64` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 服务配置导入只跟随 Composer 根真实路径内、明确 YAML/XML 扩展名且无参数、通配符或 `@Bundle` 别名的相对文件；导入先于当前文件应用，循环和 32 层深度有界，导入文件变化会单独绕过缓存并刷新服务事实。事实缓存升级为 v6。
 - 提交 `6fbdf5e` 完成传统 Symfony `services.xml` 静态服务索引，候选 `php-companion-alpha-0.4.5-6fbdf5e0` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
