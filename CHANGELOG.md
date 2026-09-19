@@ -1,5 +1,6 @@
 - Symfony YAML route `controller` and `defaults._controller` literals now appear in PHP controller class and method References after semantic identity checks; explicitly enabled route providers can publish the same optional controller relation without changing the framework-neutral route contract.
 - Service IDs, escaped/dynamic YAML scalars, generated routes without direct controller text and unresolved methods remain unknown instead of producing approximate references.
+- 提交 `0db9711` 完成 Symfony 路由控制器 References，候选 `php-companion-alpha-0.4.5-0db97115` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装 bundle 实测标准和 Winstar 模块控制器关系。
 - Symfony YAML 的字面量本地化 `path` 与 import `prefix` map 现在按 locale 展开为精确的 `route.locale` 名称和最终路径；嵌套字符串/map 前缀按 Symfony 加载顺序组合，缺失 locale 或动态值保持 unknown。
 - 提交 `b55cb35` 完成 YAML 本地化路由，候选 `php-companion-alpha-0.4.5-b55cb35a` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装 bundle 实测直接 path map、import 克隆和同 locale 匹配。
 - Symfony Route Attribute 的字面量本地化 path map 现在展开为精确的 `route.locale` 名称和最终路径；支持类级本地化前缀、方法级本地化路径与 invokable 类，locale 键不对应或动态 map 保持 unknown。
