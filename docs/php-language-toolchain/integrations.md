@@ -143,6 +143,8 @@ Language Server 还会从直接继承 Symfony Kernel 的 `configureRoutes()` 提
 
 同一静态图也为 PHP 路由字面量提供 Definition 与 References。调用必须唯一解析到 FrameworkBundle `AbstractController::generateUrl()` / `redirectToRoute()`、Routing `UrlGeneratorInterface::generate()` 或 `RouterInterface::generate()`，且选中的参数必须是该方法首个路由参数。Definition 只跳到唯一名称的 YAML、Attribute 或 PHP Configurator 声明；References 先按精确名称有界扫描项目 PHP，再逐个验证调用语义，可按 LSP `includeDeclaration` 附加声明。项目索引不完整时明确失败，同名业务方法、普通字符串、动态名称、重复声明和外部 provider 所有权均不返回 Companion 结果。
 
+同一语义门禁也用于路由参数名补全。直接参数数组的字符串键可从唯一最终路径中的 `{identifier}` 占位符补全；位置参数和重排后的命名参数均按目标方法的前两个形参核对，已存在的键会排除。路由名、键或数组结构为动态值，数组包含 unpack，路由名称有多个来源，或调用解析到同名业务方法时保持 unknown。动态 Provider 的最终运行时路径也适用，因此 Winstar 生成路由可补全实际 `{id}`，但核心不会据此推断默认值、requirements 或控制器签名。
+
 同一真实资源若同时从约定入口和 Kernel 入口以相同前缀、loader、exclude 与 namespace 上下文到达，只分析一次；前缀或加载上下文不同的重复导入保持独立，避免把合法的多入口路由合并掉。
 
 

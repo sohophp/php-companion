@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText } from '../src/index.js';
+import { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, symfonyRouteParameterCallAt } from '../src/index.js';
 
 describe('static Symfony routes', () => {
   it('preserves literal route names, locations and import prefixes without inventing runtime routes', () => {
@@ -116,5 +116,29 @@ describe('static Symfony routes', () => {
       const source = `<?php ${expression}`;
       expect(symfonyRouteCallAt(parser, 'file:///route.php', source, source.indexOf('route_name') + 6)).toBeUndefined();
     }
+  });
+  it('locates direct route parameter string keys and records existing keys', async () => {
+    const parser = await PhpSyntaxParser.createDefault();
+    const source = "<?php $router->generate('article.show', ['slug' => $slug, 'lo' => 1]);";
+    expect(symfonyRouteParameterCallAt(parser, 'file:///route.php', source, source.indexOf("'lo'") + 2)).toMatchObject({
+      routeName: 'article.show', routeArgumentPosition: 0, parametersArgumentPosition: 1,
+      prefix: 'l', existingKeys: ['slug'], quote: "'",
+    });
+    const named = "<?php $this->generateUrl(parameters: ['i' => 1], route: 'article.show');";
+    expect(symfonyRouteParameterCallAt(parser, 'file:///route.php', named, named.indexOf("'i'") + 2)).toMatchObject({
+      routeName: 'article.show', routeArgumentName: 'route', parametersArgumentName: 'parameters', existingKeys: [],
+    });
+    parser.dispose();
+  });
+  it('rejects dynamic route names, dynamic parameter keys and non-array parameters', async () => {
+    const parser = await PhpSyntaxParser.createDefault();
+    for (const expression of [
+      "$router->generate($route, ['id' => 1])", "$router->generate('show', [$key => 1, 'id' => 2])",
+      "$router->generate('show', $parameters)", "$router->generate('show', [...$parameters, 'id' => 2])",
+    ]) {
+      const source = `<?php ${expression};`; const offset = source.lastIndexOf("'id'") + 2;
+      expect(symfonyRouteParameterCallAt(parser, 'file:///route.php', source, offset)).toBeUndefined();
+    }
+    parser.dispose();
   });
 });

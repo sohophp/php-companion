@@ -10,6 +10,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Complete missing path parameter names for a unique Symfony route only after resolving the call to a supported Symfony generator method and proving its route and parameters arguments; exclude existing keys, ambiguous routes and same-named business APIs.
 - 新增显式 `phpCompanion.routeProviders`：每次路由查询经独立无 shell 子进程读取一份完整、有来源位置的动态路由快照，并与静态 Symfony 路由按名称唯一性合并；失败快照不会缓存或成为否定依据。
 - 区分用户配置与 VSIX 内置路由 Provider 快照，保留动态配置更新，并为明确启用的 Winstar 适配器保留不可被同身份用户项覆盖的能力边界。
 

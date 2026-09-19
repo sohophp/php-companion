@@ -1,3 +1,4 @@
+- Symfony 路由参数数组现在可补全唯一实际路径中的 `{id}`、`{slug}` 等参数名；调用必须唯一解析到受支持的 Symfony 生成方法，路由名和数组结构必须可证明，已有键、动态键、歧义路由及同名业务方法不会产生候选。
 - 新增可独立发布并随核心 VSIX 打包的 `@php-companion/provider-winstar-routes`。显式启用 `phpCompanion.symfony.winstarRoutes.enabled` 后，适配器执行项目 `bin/php-runtime bin/console debug:router` 获取实际启用集合，再把直接模块路由和 `admin_defaults` 生成路由映射回唯一 YAML 名称范围。
 - Winstar 真实 dev 路由表 704 条中，362 条模块路由具备唯一来源并进入动态候选；`admin.login` 与 `admin.CompanyPage.edit` 已分别验证直接声明和生成声明 Definition。无来源、重复可能来源及普通 Symfony 静态路由不由该适配器发布。
 - 提交 `1ac2be2` 完成 Winstar 运行时路由适配器，候选 `php-companion-alpha-0.4.5-1ac2be20` 的三份 VSIX 已验证；19 个独立组件 tarball 通过隔离消费者验证，核心候选已安装到 WSL RockyLinux8，已安装 provider 也通过 Extension Host Node 真实执行。

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Locate direct literal keys inside Symfony route parameter arrays, retaining the exact route argument, formal-argument positions, existing keys and replacement range while rejecting dynamic keys, unpacking and structurally unknown arrays.
 - Extract exact enabled environments from `config/bundles.php` and direct `$this->environment === 'literal'` guards in Kernel bundle and route registration while leaving compound or nested conditions unknown.
 - Extract unconditional custom Kernel route imports and the deterministic PHP `RoutingConfigurator` subset for literal `add()` and chained `import()` declarations, while retaining only safe unconditional facts around unsupported control flow.
 - Extract universal `config/bundles.php` registrations and unconditional top-level `Kernel::registerBundles()` yields with exact class ranges, leaving environment-only and dynamic registrations unknown.

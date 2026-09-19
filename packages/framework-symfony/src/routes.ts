@@ -84,6 +84,12 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string): SymfonyRou
 
 interface SyntaxNode { type: string; text: string; startIndex: number; endIndex: number; namedChildren: SyntaxNode[]; }
 export interface SymfonyRouteCall { start: number; end: number; methodOffset: number; prefix: string; argumentName?: string; namedArguments: string[]; quote: "\"" | "'"; }
+export interface SymfonyRouteParameterCall {
+  start: number; end: number; methodOffset: number; prefix: string; routeName: string;
+  routeArgumentName?: string; routeArgumentPosition: number;
+  parametersArgumentName?: string; parametersArgumentPosition: number;
+  namedArguments: string[]; existingKeys: string[]; quote: "\"" | "'";
+}
 
 function collectNodes(node: SyntaxNode, type: string, found: SyntaxNode[] = []): SyntaxNode[] {
   if (node.type === type) found.push(node);
@@ -267,6 +273,57 @@ export function symfonyRouteCallAt(parser: PhpSyntaxParser, uri: string, source:
     };
     visit(parsed.tree.rootNode as unknown as SyntaxNode);
     return result;
+  } finally { parsed.tree.delete(); }
+}
+
+/** Locate a direct string key inside the direct route-parameters array; semantic ownership and formal parameters are checked by the caller. */
+export function symfonyRouteParameterCallAt(parser: PhpSyntaxParser, uri: string, source: string, offset: number): SymfonyRouteParameterCall | undefined {
+  if (!/(?:generateUrl|redirectToRoute|generate)\s*\(/i.test(source.slice(0, offset))) return undefined;
+  const parsed = parser.parse(source, undefined, uri);
+  try {
+    let result: SymfonyRouteParameterCall | undefined;
+    const visit = (node: SyntaxNode): void => {
+      if (result || offset < node.startIndex || offset > node.endIndex) return;
+      if (node.type === 'member_call_expression') {
+        const [, method, args] = node.namedChildren;
+        if (!method || !['generateurl', 'redirecttoroute', 'generate'].includes(method.text.toLowerCase())) return;
+        const arguments_ = args?.namedChildren ?? []; const namedArguments: string[] = [];
+        const normalized: Array<{ node: SyntaxNode; value: SyntaxNode; name?: string; position: number }> = [];
+        let positional = 0; let named = false; let valid = true;
+        for (const argument of arguments_) {
+          const children = argument.namedChildren; const isNamed = children.length === 2 && children[0]?.type === 'name';
+          if (isNamed) {
+            const name = children[0]!.text; if (namedArguments.includes(name)) valid = false;
+            namedArguments.push(name); named = true; normalized.push({ node: argument, value: children[1]!, name, position: -1 });
+          } else if (children.length === 1 && children[0]?.type !== 'variadic_unpacking' && !named) {
+            normalized.push({ node: argument, value: children[0]!, position: positional++ });
+          } else valid = false;
+        }
+        const parameters = normalized.find((argument) => offset >= argument.value.startIndex && offset <= argument.value.endIndex);
+        if (!valid || !parameters || parameters.value.type !== 'array_creation_expression') return;
+        const selected = parameters.value.namedChildren.find((element) => offset >= element.startIndex && offset <= element.endIndex);
+        const key = selected?.type === 'array_element_initializer' && selected.namedChildren.length === 2 ? selected.namedChildren[0] : undefined;
+        const keyLiteral = phpString(key); if (!keyLiteral || offset < keyLiteral.start || offset > keyLiteral.end) return;
+        const existingKeys: string[] = [];
+        for (const element of parameters.value.namedChildren) {
+          if (element.type !== 'array_element_initializer' || element.namedChildren.length !== 2) return;
+          const literal = phpString(element.namedChildren[0]); if (!literal) return;
+          if (element !== selected) existingKeys.push(literal.value);
+        }
+        const route = normalized.find((argument) => argument.position === 0)
+          ?? normalized.find((argument) => argument !== parameters && phpString(argument.value) !== undefined);
+        const routeLiteral = route && phpString(route.value); if (!route || !routeLiteral) return;
+        result = {
+          start: keyLiteral.start, end: keyLiteral.end, methodOffset: method.startIndex + 1,
+          prefix: source.slice(keyLiteral.start, offset), routeName: routeLiteral.value,
+          ...(route.name ? { routeArgumentName: route.name } : {}), routeArgumentPosition: route.position,
+          ...(parameters.name ? { parametersArgumentName: parameters.name } : {}), parametersArgumentPosition: parameters.position,
+          namedArguments, existingKeys, quote: key!.text[0] as "\"" | "'",
+        };
+      }
+      for (const child of node.namedChildren) visit(child);
+    };
+    visit(parsed.tree.rootNode as unknown as SyntaxNode); return result;
   } finally { parsed.tree.delete(); }
 }
 

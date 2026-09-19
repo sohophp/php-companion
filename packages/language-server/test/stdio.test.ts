@@ -1064,14 +1064,14 @@ describe('language server stdio', () => {
       const source = String.raw`<?php
 namespace Symfony\Bundle\FrameworkBundle\Controller { abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string {} } }
 namespace App {
-#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function exactNamedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.home'); } public function exactLocalUrl(): string { return $this->generateUrl('local_route'); } public function exactBundleUrl(): string { return $this->generateUrl('vendor_bundle'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
-class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } }
+#[\Symfony\Component\Routing\Attribute\Route('/base', name: 'class_')] class Controller extends \Symfony\Bundle\FrameworkBundle\Controller\AbstractController { #[\Symfony\Component\Routing\Attribute\Route('/attribute', name: 'attribute')] public function url(): string { return $this->GENERATEURL('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function exactNamedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.home'); } public function parameterUrl(): string { return $this->generateUrl('admin.home', ['i' => 1]); } public function namedParameterUrl(): string { return $this->generateUrl(parameters: ['s' => 1, 'id' => 2], route: 'admin.home'); } public function exactLocalUrl(): string { return $this->generateUrl('local_route'); } public function exactBundleUrl(): string { return $this->generateUrl('vendor_bundle'); } public function namedUrl(): string { return $this->generateUrl(parameters: [], route: 'admin.'); } public function wrongName(): string { return $this->generateUrl(name: 'admin.'); } public function doubleUrl(): string { return $this->generateUrl("admin."); } public function kernelUrl(): string { return $this->generateUrl('kernel.'); } public function localPhpUrl(): string { return $this->generateUrl('local_'); } public function bundleUrl(): string { return $this->generateUrl('vendor_'); } public function devUrl(): string { return $this->generateUrl('dev.'); } public function devBundleUrl(): string { return $this->generateUrl('dev_vendor_'); } }
+class Other { public function generateUrl(string $route, array $parameters = []): string {} public function url(): string { return $this->generateUrl('admin.'); } public function exactUrl(): string { return $this->generateUrl('admin.home'); } public function parameterUrl(): string { return $this->generateUrl('admin.home', ['i' => 1]); } }
 }`;
       const uri = pathToFileURL(join(root, 'Controller.php')).toString();
       const routeUri = pathToFileURL(join(root, 'config', 'routes', 'admin.yaml')).toString();
       await writeFile(join(root, 'Controller.php'), source);
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\n');
-      await writeFile(join(root, 'config', 'routes', 'admin.yaml'), 'home: {path: /admin}\n');
+      await writeFile(join(root, 'config', 'routes', 'admin.yaml'), 'home: {path: "/admin/{id}/{slug}"}\n');
       await writeFile(join(root, 'bundle', 'SharedBundle.php'), '<?php namespace Symfony\\Component\\HttpKernel\\Bundle { abstract class Bundle {} } namespace Vendor\\Shared { final class SharedBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
       await writeFile(join(root, 'dev-bundle', 'DevBundle.php'), '<?php namespace Vendor\\Dev { final class DevBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
       await writeFile(join(root, 'config', 'bundles.php'), "<?php return [Vendor\\Shared\\SharedBundle::class => ['all' => true], Vendor\\Dev\\DevBundle::class => ['dev' => true]];");
@@ -1123,6 +1123,12 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
       const items = await query(2, offset);
       expect(items.map((item) => item.label)).toEqual(['admin.home']);
       expect(items[0].textEdit.newText).toBe('admin.home');
+      const parameterOffset = source.indexOf("['i'") + 3;
+      expect((await query(249, parameterOffset)).map((item) => item.label)).toEqual(['id']);
+      const namedParameterOffset = source.indexOf("['s'") + 3;
+      expect((await query(250, namedParameterOffset)).map((item) => item.label)).toEqual(['slug']);
+      const businessParameterOffset = source.lastIndexOf("['i'") + 3;
+      expect((await query(2501, businessParameterOffset)).some((item) => item.detail === 'admin.home path parameter')).toBe(false);
       const exactOffset = source.indexOf("'admin.home'") + 4;
       expect(await definition(251, exactOffset)).toEqual([{ uri: routeUri, range: {
         start: { line: 0, character: 0 }, end: { line: 0, character: 4 },
@@ -1133,11 +1139,11 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
       expect(await definition(253, source.indexOf("'vendor_bundle'") + 4)).toEqual([expect.objectContaining({ uri: bundleRouteUri })]);
       expect(await definition(254, source.lastIndexOf("'admin.home'") + 4)).toEqual([]);
       const routeReferences = await references(255, exactOffset, true);
-      expect(routeReferences.filter((item) => item.uri === uri)).toHaveLength(2);
+      expect(routeReferences.filter((item) => item.uri === uri)).toHaveLength(4);
       expect(routeReferences.filter((item) => item.uri === routeUri)).toEqual([{ uri: routeUri, range: {
         start: { line: 0, character: 0 }, end: { line: 0, character: 4 },
       } }]);
-      expect(await references(256, exactOffset, false)).toHaveLength(2);
+      expect(await references(256, exactOffset, false)).toHaveLength(4);
       const kernelOffset = source.indexOf("'kernel.'") + 8;
       expect((await query(23, kernelOffset)).map((item) => [item.label, item.detail]))
         .toEqual([['kernel.home', '/kernel (source declaration)']]);

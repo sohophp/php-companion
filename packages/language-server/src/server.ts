@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -2088,12 +2088,39 @@ async function provenSymfonyRouteCall(document: TextDocument, offset: number, wo
   return method && SYMFONY_ROUTE_METHODS.has(method.fqcn.toLowerCase()) && correctArgument ? call : undefined;
 }
 
+async function provenSymfonyRouteParameterCall(document: TextDocument, offset: number, workspace: SemanticWorkspace): Promise<SymfonyRouteParameterCall | undefined> {
+  if (document.languageId !== 'php' || externalSymfonyRoutes(document.uri)) return undefined;
+  const call = symfonyRouteParameterCallAt(await parser(), document.uri, document.getText(), offset); if (!call) return undefined;
+  const method = workspace.memberAt(document.uri, call.methodOffset);
+  if (!method || !SYMFONY_ROUTE_METHODS.has(method.fqcn.toLowerCase()) || method.parameters.length < 2) return undefined;
+  const routeParameter = method.parameters[0]!.name; const parametersParameter = method.parameters[1]!.name;
+  const correctRoute = call.routeArgumentName !== undefined ? call.routeArgumentName === routeParameter : call.routeArgumentPosition === 0;
+  const correctParameters = call.parametersArgumentName !== undefined
+    ? call.parametersArgumentName === parametersParameter : call.parametersArgumentPosition === 1;
+  return correctRoute && correctParameters ? call : undefined;
+}
+
 connection.onCompletion(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
   const offset = document.offsetAt(position);
+  const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
+  if (routeParameterCall) {
+    const root = rootForUri(document.uri);
+    if (root) {
+      const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
+      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
+      const route = routes.find((candidate) => candidate.name === routeParameterCall.routeName); if (!route) return [];
+      const existing = new Set(routeParameterCall.existingKeys);
+      const parameters = [...new Set([...route.path.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((match) => match[1]!))];
+      return parameters.filter((name) => name.startsWith(routeParameterCall.prefix) && !existing.has(name)).map((name) => ({
+        label: name, kind: CompletionItemKind.Field, detail: `${route.name} path parameter`,
+        textEdit: { range: { start: document.positionAt(routeParameterCall.start), end: document.positionAt(routeParameterCall.end) }, newText: symfonyRouteNameText(name, routeParameterCall.quote) },
+      }));
+    }
+  }
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (routeCall) {
     const root = rootForUri(document.uri);
