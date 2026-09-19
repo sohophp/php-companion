@@ -20,4 +20,11 @@
 - 真实 stdio 冷/热测试从 XML 经 `@SharedBundle/Resources/config/bundled.php` 加载公开服务，Container 返回补全和 PHP 类型 References 均指向 bundle 配置；同目录但覆盖 `getPath()` 的 CustomBundle 和声明构造器的 ConstructedBundle 导入都不进入来源计数。
 - Winstar 当前 `src/Kernel.php` 静态得到 14 个无条件 bundle 注册。当前服务配置没有 `@Bundle` 导入；`config/symfony/routes/dev/web_profiler.yaml` 的两个 `@WebProfilerBundle` PHP 路由资源保留给后续路由 PHP Configurator 增量。
 
-完整仓库门禁、候选和安装证据在功能提交后补记。
+## 验收结果
+
+- framework-symfony：3 个测试文件、33 项全部通过。
+- Language Server：6 个测试文件、185 项全部通过，耗时 221.08 秒。
+- 语义内核：1 个测试文件、268 项全部通过；根扩展：9 个测试文件、39 项全部通过。
+- 全仓 TypeScript、ESLint 和三个 VSIX 内容校验通过；16 个 monorepo 组件 tarball 均在隔离消费者中安装验证通过。
+
+功能提交为 `dc80af5e5870335983005151a6c86fec4a86a272`，候选目录为 `artifacts/php-companion-alpha-0.4.5-dc80af5e/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `270e5b0dc2b8a93cf78dbbe9b233cb920f492c732ab5608eabb4eaf8704b3493`、`87cf55869658fcc449d8a0450e966282c4736766610428f2dd0ea6b2d3d422d1`、`85dee34be7aa03c838f8dadaba74d284e7682e360d073657ce9725ecf1c7fce9`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `19f668c440380648da196c4f1110a4c4d65ea7fef81e0fc4c2de3c8e23723888`，Reload Window 后加载。
