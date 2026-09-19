@@ -1,5 +1,6 @@
 {
   "phpCompanion.languageServer.enabled": true,
+  "phpCompanion.indexing.mode": "experimental",
   "symfonyLsp.runtimeIndexing": false,
   "symfonyLsp.releaseMetadata": false
 }

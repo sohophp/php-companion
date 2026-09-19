@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Locate the exact literal controller class or method segment under a YAML cursor only inside a route map with a `path`, including sequence-based module declarations.
 - Extract exact class and method ranges from literal YAML `controller` and `defaults._controller` values while rejecting service IDs and escaped or dynamic scalars.
 - Expand literal localized YAML route paths and import prefixes into locale-tagged facts while rejecting dynamic values.
 - Expand literal localized `Route` Attribute path maps into `.locale` route names across class prefixes, method paths and invokable classes, rejecting mismatched or dynamic locale maps.

@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyLiteralMethodReturnFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticProviderDescriptor } from '@php-companion/semantic-provider';
@@ -1496,11 +1496,48 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
   return true;
 });
 
+connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown;
+}, token): Promise<Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }>> => {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.ya?ml$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
+    || token.isCancellationRequested || externalSymfonyRoutes(uri)) return [];
+  const root = rootForUri(uri); if (!root) return [];
+  const document = TextDocument.create(uri, 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const controller = symfonyYamlRouteControllerAt(uri, params.source, offset); if (!controller) return [];
+  const workspace = await semanticForRoot(root);
+  await hydrateCanonicalTypes(workspace, root, [controller.className]);
+  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller navigation cancelled.');
+  const target = controller.method && controller.methodStart !== undefined && controller.methodEnd !== undefined
+    && offset >= controller.methodStart && offset < controller.methodEnd
+    ? workspace.publicInstanceMethod(controller.className, controller.method)
+    : canonicalTypeDeclaration(workspace, root, controller.className);
+  if (!target) return [];
+  const targetPath = pathForUri(target.uri);
+  const targetSource = documents.get(target.uri)?.getText() ?? workspace.source(target.uri)
+    ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+  if (targetSource === undefined) return [];
+  const targetDocument = documents.get(target.uri) ?? TextDocument.create(target.uri, 'php', 0, targetSource);
+  return [{ uri: target.uri, range: { start: targetDocument.positionAt(target.start), end: targetDocument.positionAt(target.end) } }];
+});
+
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }): Promise<ControllerContextPayload | null> => {
   if (typeof params?.rootUri !== 'string') return null;
   const requestedPath = pathForUri(params.rootUri);
   const root = requestedPath && workspaceRoots.find((candidate) => sameFilesystemPath(candidate, requestedPath));
-  if (!root || !completeRoots.has(root)) return null;
+  if (!root) return null;
+  const ready = indexingMode === 'experimental'
+    ? await ensureCompleteRoot(root, () => false)
+    : await ensureProjectCompleteRoot(root, () => false);
+  if (!ready) return null;
+  // Project completion is signalled before indexRoot publishes its derived
+  // controller-context snapshot. In on-demand mode, wait for that bounded
+  // project scan to finish so the first interop response is complete.
+  if (indexingMode !== 'experimental') await activeIndexing?.catch(() => undefined);
+  if (!projectCompleteRoots.has(root)) return null;
   const projectId = indexedUriForPath(root, root);
   const contexts = mergedInteropContexts(root);
   const workspace = await semanticForRoot(root);

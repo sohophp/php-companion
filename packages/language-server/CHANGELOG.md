@@ -1,3 +1,5 @@
+- Resolve exact Symfony YAML controller segments to unique Composer PHP class or effective public method declarations through a source-snapshot request, while yielding to external runtime-provider ownership.
+- Start the bounded project-source index when Twig interop is first requested in `onDemand` mode; dependency-complete indexing remains exclusive to `experimental` mode.
 - Merge exact Symfony YAML and explicitly configured route-provider controller locations into PHP class and effective public method References while honoring external runtime-provider ownership.
 - Deduplicate identical route-source traversal contexts reached through both conventional and Kernel roots while preserving intentional reimports with different prefixes, loaders or exclusions.
 - Complete source-declared routes from deterministic PHP Configurator files and unconditional custom Kernel roots, including contained `@Bundle/...` PHP resources whose universal registration and conventional path are proven.

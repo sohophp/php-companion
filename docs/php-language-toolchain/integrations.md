@@ -26,6 +26,8 @@ Symfony Language Tools 官方定位是补充通用 PHP LS，覆盖 PHP、Twig �
 
 Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat；通用 Twig 解析、模板变量、导航和格式化归 TwigPlus；PHP 通用语义及当前 Symfony/Doctrine 静态能力归 Companion。Symfony Language Tools 只保留历史评估与未来上游修复后的候选资格。
 
+Companion 只为 YAML 中可证明的 Symfony 控制器值追加 Definition Provider，不接管 YAML 文档同步、诊断、补全、Schema 或格式化。光标必须位于带 `path` 的路由 map 中字面量 `controller` / `defaults._controller` 的 FQCN 类段或方法段；目标按 Composer PSR-4 唯一加载，方法还须解析为有效公开实例方法。服务 ID、转义后才成立的值、动态值、普通配置中的同名键和无法唯一证明的目标保持无结果。启用外部 Symfony runtime 所有权时该导航同样让出。
+
 追加审计确认 Symfony Language Tools 0.19.0 的路由名称补全依赖运行时路由表。默认关闭 runtime indexing 时，PHP Companion 在可证明的 YAML/Attribute 加载范围内补齐源码路由候选，并按显式环境处理 Kernel/Bundle、YAML `when@env` 和 Route Attribute `env`，展开字面量 YAML/Attribute 本地化 path map 及 YAML import prefix map；动态 Loader、动态 locale map 和其它运行时生成路由保持 unknown。启用外部运行时索引后，自研候选按工作区停止，由 Symfony Language Tools 接管。支持域与真实组合证据见 Symfony 组合报告。
 
 Phpactor 只作为提前交付组合的开源候选。官方明确披露性能/准确性局限；PHP 运行时要求、Windows/WSL 与目标 PHP 语法需实测，不承诺适合全部环境。没有合格临时核心时，R0 不宣称完整 PHP 编码可用，优先完成 R1。

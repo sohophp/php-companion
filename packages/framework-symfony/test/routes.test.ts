@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, symfonyRouteParameterCallAt } from '../src/index.js';
+import { analyzeSymfonyKernelRouteImports, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteNameText, symfonyRouteParameterCallAt, symfonyYamlRouteControllerAt } from '../src/index.js';
 
 describe('static Symfony routes', () => {
   it('preserves literal route names, locations and import prefixes without inventing runtime routes', () => {
@@ -37,6 +37,31 @@ escaped: {path: /escaped, controller: "App\\\\Controller\\\\EscapedController::r
       { name: 'service', controller: undefined },
       { name: 'escaped', controller: undefined },
     ]);
+  });
+  it('selects a literal controller segment at the cursor in standard and module route YAML', () => {
+    const source = `standard:
+  path: /standard
+  controller: App\\Controller\\StandardController::show
+module:
+  - name: module.route
+    path: /module
+    defaults: {_controller: 'App\\Controller\\ModuleController::run'}
+unrelated:
+  defaults: {_controller: 'App\\Controller\\NotARoute::run'}
+service: {path: /service, controller: app.controller::run}
+`;
+    for (const [token, className, method] of [
+      ['StandardController', 'App\\Controller\\StandardController', 'show'],
+      ['show', 'App\\Controller\\StandardController', 'show'],
+      ['ModuleController', 'App\\Controller\\ModuleController', 'run'],
+      ['run\'}', 'App\\Controller\\ModuleController', 'run'],
+    ] as const) {
+      const offset = source.indexOf(token) + (token === "run'}" ? 1 : 2);
+      expect(symfonyYamlRouteControllerAt('file:///routes.yaml', source, offset)).toMatchObject({ className, method });
+    }
+    for (const token of ['standard:', 'NotARoute', 'app.controller']) {
+      expect(symfonyYamlRouteControllerAt('file:///routes.yaml', source, source.indexOf(token) + 2)).toBeUndefined();
+    }
   });
   it('records explicit attribute directories with bounded glob imports and exclusions', () => {
     expect(analyzeSymfonyRouteYaml('file:///routes.yaml', 'controllers: {resource: ../src/Controller/, type: attribute}').imports)

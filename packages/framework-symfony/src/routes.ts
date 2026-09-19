@@ -69,6 +69,29 @@ function yamlRouteController(source: string, uri: string, map: YAMLMap): Symfony
     ...(method === undefined ? {} : { method, methodStart: range.end - method.length, methodEnd: range.end }) };
 }
 
+/** Locate only a literal route controller segment under the cursor; YAML language services keep syntax/schema ownership. */
+export function symfonyYamlRouteControllerAt(uri: string, source: string, offset: number): SymfonyRouteControllerFact | undefined {
+  if (!Number.isSafeInteger(offset) || offset < 0 || offset > source.length) return undefined;
+  const document = parseDocument(source, { uniqueKeys: true, prettyErrors: false });
+  if (document.errors.length || !document.contents) return undefined;
+  const pending: unknown[] = [document.contents]; let visited = 0;
+  while (pending.length) {
+    const node = pending.pop(); if (++visited > 10_000) return undefined;
+    if (isMap(node)) {
+      if (yamlMapNode(node, 'path') !== undefined) {
+        const controller = yamlRouteController(source, uri, node);
+        if (controller && (offset >= controller.classStart && offset < controller.classEnd
+          || controller.methodStart !== undefined && controller.methodEnd !== undefined
+            && offset >= controller.methodStart && offset < controller.methodEnd)) return controller;
+      }
+      for (const item of node.items) if (item.value) pending.push(item.value);
+    } else if (isSeq(node)) {
+      for (const item of node.items) if (item) pending.push(item);
+    }
+  }
+  return undefined;
+}
+
 /** Source declarations only: completeness never implies an effective runtime route table. */
 export function analyzeSymfonyRouteYaml(uri: string, source: string, environment?: string): SymfonyRouteDocument {
   const document = parseDocument(source, { uniqueKeys: true, prettyErrors: false });

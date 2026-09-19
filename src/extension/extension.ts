@@ -70,6 +70,7 @@ type ProtocolTextEdit = { range: { start: { line: number; character: number }; e
 type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; options?: { overwrite?: boolean } }
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
+type ProtocolLocation = { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } };
 
 function fileOperationUriKey(value: vscode.Uri | string): string {
   const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
@@ -605,6 +606,21 @@ export function activate(context: vscode.ExtensionContext): void {
   void vscode.commands.executeCommand('setContext', 'phpCompanion.hasPhpNavigation', selfLanguageServer || Boolean(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client')));
 
   const phpSelector: vscode.DocumentSelector = [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }];
+  const yamlSelector: vscode.DocumentSelector = [{ language: 'yaml', scheme: 'file' }, { language: 'yaml', scheme: 'vscode-remote' }];
+  const yamlControllerDefinition: vscode.DefinitionProvider = {
+    provideDefinition: async (document, position, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyControllerDefinition', {
+        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
+      }, token);
+      if (token.isCancellationRequested || document.version !== version) return undefined;
+      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
+        new vscode.Position(location.range.start.line, location.range.start.character),
+        new vscode.Position(location.range.end.line, location.range.end.character),
+      )));
+    },
+  };
   const renameProvider = async (document: vscode.TextDocument): Promise<PhpRenameProvider | undefined> => {
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
@@ -744,6 +760,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.languages.registerCodeActionsProvider(phpSelector, new ImportClassCodeActions(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }),
     vscode.languages.registerRenameProvider(phpSelector, lazyRename),
     vscode.languages.registerDocumentPasteEditProvider(phpSelector, lazyPaste, phpPasteMetadata),
+    vscode.languages.registerDefinitionProvider(yamlSelector, yamlControllerDefinition),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

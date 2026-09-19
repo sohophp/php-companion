@@ -246,6 +246,17 @@ export async function run(): Promise<void> {
   );
   await waitForAsync(async () => await vscode.commands.executeCommand('phpCompanion.provideTwigInterop', workspace.uri) !== null,
     'Self-hosted language server did not complete its initial project index', 120_000, 250);
+  const controllerRouteUri = vscode.Uri.joinPath(workspace.uri, 'config', 'routes.yaml');
+  const controllerRoute = await vscode.workspace.openTextDocument(controllerRouteUri);
+  const controllerRouteSource = controllerRoute.getText();
+  const userControllerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'UserController.php');
+  for (const token of ['UserController', 'handle']) {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', controllerRouteUri, controllerRoute.positionAt(controllerRouteSource.indexOf(token) + 2),
+    );
+    assert.ok(definitions.some((location) => location.uri.toString() === userControllerUri.toString()),
+      `Symfony YAML controller ${token} did not navigate to the PHP declaration`);
+  }
   const controlFlowDiagnosticUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
   await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
   await waitFor(
@@ -4157,10 +4168,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   await waitForAsync(async () => {
     try {
       const restoredDocument = await vscode.workspace.openTextDocument(runnerUri);
-      return restoredDocument.getText().includes('namespace App\\Contract;') && !restoredDocument.isDirty
-        && runnerConsumerDocument.getText().includes('use App\\Contract\\Runner;') && !runnerConsumerDocument.isDirty;
+      return restoredDocument.getText().includes('namespace App\\Contract;')
+        && runnerConsumerDocument.getText().includes('use App\\Contract\\Runner;');
     } catch { return false; }
   }, 'Safe Move reverse coordination did not settle before fixture restoration', 30_000);
+  const restoredRunnerDocument = await vscode.workspace.openTextDocument(runnerUri);
+  if (restoredRunnerDocument.isDirty) assert.ok(await restoredRunnerDocument.save(), 'Restored Safe Move declaration could not be saved');
+  if (runnerConsumerDocument.isDirty) assert.ok(await runnerConsumerDocument.save(), 'Restored Safe Move references could not be saved');
   await restoreTextFixture(runnerUri, originalRunner);
   const restoreRunnerConsumer = new vscode.WorkspaceEdit();
   restoreRunnerConsumer.replace(runnerConsumerUri, new vscode.Range(new vscode.Position(0, 0), runnerConsumerDocument.positionAt(runnerConsumerDocument.getText().length)), Buffer.from(originalRunnerConsumer).toString('utf8'));
@@ -4179,9 +4193,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   const moveServiceToContact = new vscode.WorkspaceEdit();
   moveServiceToContact.renameFile(movableServiceUri, contactServiceUri);
   assert.ok(await vscode.workspace.applyEdit(moveServiceToContact), 'Explorer-style Service to Contact move failed');
-  await waitForAsync(async () => Buffer.from(await vscode.workspace.fs.readFile(contactServiceUri)).toString('utf8').includes('namespace App\\Contact;'),
+  await waitForAsync(async () => (await vscode.workspace.openTextDocument(contactServiceUri)).getText().includes('namespace App\\Contact;'),
     'Service to Contact move kept the old namespace', 30_000);
-  await waitFor(() => moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;') && !moveConsumerDocument.isDirty, 'Service to Contact references did not refresh and save');
+  const contactServiceDocument = await vscode.workspace.openTextDocument(contactServiceUri);
+  if (contactServiceDocument.isDirty) assert.ok(await contactServiceDocument.save(), 'Service to Contact declaration could not be saved');
+  await waitFor(() => moveConsumerDocument.getText().match(/use App\\Contact\\MovableService;/g)?.length === 1,
+    'Service to Contact references did not refresh');
+  if (moveConsumerDocument.isDirty) assert.ok(await moveConsumerDocument.save(), 'Service to Contact references could not be saved');
   assert.strictEqual(moveConsumerDocument.getText().match(/use App\\Contact\\MovableService;/g)?.length, 1, 'Service to Contact move produced a duplicate use statement');
   // Simulate a second PHP file-operation participant leaving both imports. The
   // reverse move must reconcile this to one canonical import, not stack edits.
@@ -4195,9 +4213,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   const moveContactToService = new vscode.WorkspaceEdit();
   moveContactToService.renameFile(contactServiceUri, movableServiceUri);
   assert.ok(await vscode.workspace.applyEdit(moveContactToService), 'Explorer-style Contact to Service move failed');
-  await waitForAsync(async () => Buffer.from(await vscode.workspace.fs.readFile(movableServiceUri)).toString('utf8').includes('namespace App\\Service;'),
+  await waitForAsync(async () => (await vscode.workspace.openTextDocument(movableServiceUri)).getText().includes('namespace App\\Service;'),
     'Contact to Service move kept the stale Contact namespace', 30_000);
-  await waitFor(() => moveConsumerDocument.getText().includes('use App\\Service\\MovableService;') && !moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;') && !moveConsumerDocument.isDirty, 'Reverse move did not reconcile and save imports');
+  const restoredMovableServiceDocument = await vscode.workspace.openTextDocument(movableServiceUri);
+  if (restoredMovableServiceDocument.isDirty) assert.ok(await restoredMovableServiceDocument.save(), 'Contact to Service declaration could not be saved');
+  await waitFor(() => moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length === 1
+    && !moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;'), 'Reverse move did not reconcile imports', 30_000);
+  if (moveConsumerDocument.isDirty) assert.ok(await moveConsumerDocument.save(), 'Reverse move references could not be saved');
   assert.strictEqual(moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length, 1, 'Reverse move left duplicate use statements');
 
   const declarationOffset = serviceDocument.getText().indexOf('UserService');

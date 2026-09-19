@@ -4111,6 +4111,46 @@ echo RANKED_LSP_CONSTANT;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('navigates exact YAML controller segments to PHP without taking over YAML documents', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-yaml-controller-definition-'));
+    try {
+      await mkdir(join(root, 'src', 'Controller'), { recursive: true });
+      const rootUri = pathToFileURL(root).toString();
+      const controllerPath = join(root, 'src', 'Controller', 'DemoController.php'); const controllerUri = pathToFileURL(controllerPath).toString();
+      const controller = '<?php namespace App\\Controller; final class DemoController { public function show(): void {} }';
+      const yamlPath = join(root, 'config', 'routes.yaml'); const yamlUri = pathToFileURL(yamlPath).toString();
+      const yaml = `standard: {path: /standard, controller: App\\Controller\\DemoController::show}\nmodule:\n  - name: module.route\n    path: /module\n    defaults: {_controller: 'App\\Controller\\DemoController::show'}\n`;
+      await mkdir(join(root, 'config'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(controllerPath, controller); await writeFile(yamlPath, yaml);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1131, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand', symfonyRouteProviders: [{ uri: rootUri, external: false }] },
+      } }));
+      await output.waitFor((message) => message.id === 1131); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1135, method: 'phpCompanion/interop/contexts', params: { rootUri } }));
+      expect((await output.waitFor((message) => message.id === 1135)).result).toMatchObject({
+        hello: { providerId: 'php-companion' }, contexts: [],
+      });
+      const query = async (id: number, marker: string, expectedStart: number, expectedEnd: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/symfonyControllerDefinition', params: {
+          textDocument: { uri: yamlUri, version: 1 }, source: yaml, position: lspPosition(yaml, yaml.indexOf(marker) + 2),
+        } }));
+        expect((await output.waitFor((message) => message.id === id)).result).toEqual([{ uri: controllerUri, range: {
+          start: lspPosition(controller, expectedStart), end: lspPosition(controller, expectedEnd),
+        } }]);
+      };
+      const classStart = controller.indexOf('DemoController'); const methodStart = controller.indexOf('show');
+      await query(1132, 'DemoController', classStart, classStart + 'DemoController'.length);
+      await query(1133, 'show', methodStart, methodStart + 'show'.length);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: { providers: [{ uri: rootUri, external: true }] } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1134, method: 'phpCompanion/symfonyControllerDefinition', params: {
+        textDocument: { uri: yamlUri, version: 1 }, source: yaml, position: lspPosition(yaml, yaml.lastIndexOf('DemoController') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 1134)).result).toEqual([]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads fresh complete route-provider snapshots for Symfony route navigation', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-route-provider-'));
     try {
