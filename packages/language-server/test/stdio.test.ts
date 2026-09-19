@@ -570,6 +570,72 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('progressively loads exact dependency owners for generic member completion', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-generic-completion-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const doctrineDirectory = join(root, 'vendor', 'doctrine', 'orm', 'src');
+      await mkdir(sourceDirectory); await mkdir(doctrineDirectory, { recursive: true }); await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      const source = `<?php namespace App;
+        use Doctrine\\ORM\\EntityManagerInterface;
+        final class Item { public function label(): string {} }
+        function valid(EntityManagerInterface $manager): void {
+          $repository = $manager->getRepository(Item::class); $repository->fi;
+          $item = $repository->find(1); $item?->lab;
+        }
+        function dynamic(EntityManagerInterface $manager, string $class): void {
+          $repository = $manager->getRepository($class); $item = $repository->find(1); $item?->lab;
+        }`;
+      const sourcePath = join(sourceDirectory, 'Consumer.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'doctrine/orm', autoload: { 'psr-4': { 'Doctrine\\ORM\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'doctrine/orm', install_path: '../doctrine/orm' }] }));
+      await writeFile(sourcePath, source);
+      await writeFile(join(doctrineDirectory, 'EntityManagerInterface.php'), `<?php namespace Doctrine\\ORM;
+        interface EntityManagerInterface {
+          /** @template T of object
+           * @param class-string<T> $className
+           * @return EntityRepository<T> */
+          public function getRepository(string $className): EntityRepository;
+        }`);
+      await writeFile(join(doctrineDirectory, 'EntityRepository.php'), `<?php namespace Doctrine\\ORM;
+        /** @template TEntity of object */ class EntityRepository {
+          /** @return object|null
+           * @phpstan-return TEntity|null */
+          public function find(mixed $id): object|null {}
+        }`);
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 256, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 256);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 257, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('fi;') + 2),
+      } }));
+      const completion = await output.waitFor((message) => message.id === 257);
+      expect(completion.result).toMatchObject([
+        { label: 'find', detail: expect.stringContaining('App\\Item|null') },
+      ]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 258, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('lab;') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 258)).result).toMatchObject([{ label: 'label' }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('lab;') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 259)).result).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 260, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 260);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores Symfony XML and compiled-container facts on a hot language-server start', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {

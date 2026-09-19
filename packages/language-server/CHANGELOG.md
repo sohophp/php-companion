@@ -14,6 +14,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Retry empty member completion by loading at most four successive exact Composer PSR-4 owner types, allowing cold `onDemand` chains such as Doctrine `EntityManagerInterface::getRepository(Entity::class)->find()` without scanning dependencies.
 - Compose localized YAML import prefixes across nested string/map imports and expose only exact locale-suffixed route names and paths.
 - Include exact locale-suffixed Attribute route names and combined localized paths in completion, Definition and References through the existing static Symfony graph.
 - Apply the resource-scoped Symfony environment to YAML `when@environment` routes and imports while retaining unconditional entries and immediate provider-snapshot switching.

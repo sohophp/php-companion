@@ -1135,6 +1135,10 @@ export class SemanticWorkspace {
             const refinesClassString = native === 'string'
               && ((docReturn?.kind === 'name' && docReturn.name.toLowerCase() === 'class-string') || documentedBase === 'class-string');
             const refinesTemplateBound = docReturn?.kind === 'name' && returnTemplateBounds.get(docReturn.name) === native;
+            const nullableTemplateName = docReturn?.kind === 'nullable' && docReturn.type.kind === 'name' ? docReturn.type.name : undefined;
+            const refinesNullableTemplateBound = nullableTemplateName !== undefined
+              && nativeParts.length === 2 && nativeParts.includes('null')
+              && nativeParts.some((part) => part !== 'null' && returnTemplateBounds.get(nullableTemplateName) === part);
             const documentedRefinesNativePart = (type: PhpDocType, nativePart: string): boolean => {
               if (type.kind === 'array') return nativePart === 'array' || nativePart === 'iterable';
               if (type.kind === 'shape') return type.shapeKind === 'array' && (nativePart === 'array' || nativePart === 'iterable');
@@ -1174,7 +1178,7 @@ export class SemanticWorkspace {
               && documentedLateStaticParts.every((part) => part.kind === 'name' && ['static', 'null'].includes(part.name.toLowerCase()))
               && (!documentedLateStaticParts.some((part) => part.kind === 'name' && part.name.toLowerCase() === 'null') || nativeParts.includes('null')));
             return !callable.returnType || native === 'mixed' || (documentedBase !== undefined && documentedBase === native)
-              || refinesArray || refinesIterable || refinesNullableArrayKey || refinesClassString || refinesTemplateBound || refinesNativeUnion
+              || refinesArray || refinesIterable || refinesNullableArrayKey || refinesClassString || refinesTemplateBound || refinesNullableTemplateBound || refinesNativeUnion
               || refinesNativeLiteralUnion || refinesConditionalNative || refinesLateStatic
               ? documented ?? callable.returnType : callable.returnType;
           })(),
@@ -6382,7 +6386,7 @@ export class SemanticWorkspace {
   }
 
   private specializedMagicMethod(file: SemanticFile, member: MemberInfo, argumentsStart: number | undefined): MemberInfo | undefined {
-    const templates = member.synthetic === 'phpdoc-magic' ? member.callableTemplates ?? [] : [];
+    const templates = member.callableTemplates ?? [];
     const referenced = templates.filter((template) => member.returnType
       && new RegExp(`(?<![A-Za-z0-9_\\\\])${template.name}(?![A-Za-z0-9_])`).test(member.returnType));
     if (!referenced.length) return member;
@@ -7738,7 +7742,7 @@ export class SemanticWorkspace {
       return { fqcn, nullable: false, typeArguments };
     }
     if (assignment?.sourceVariable) return this.variableClass(file, assignment.sourceVariable, assignment.start, visited, allowNullable);
-    if (assignment?.sourceChain) {
+    if (assignment?.sourceChain && !assignment.sourceCall) {
       const sourceChain = assignment.sourceChain; const initial = this.variableClass(file, sourceChain.variable, assignment.start, visited, true);
       if (!initial) return undefined; let target: ObjectClass = initial; let directPropertyPath: string[] | undefined = [];
       for (const step of sourceChain.steps) {

@@ -2207,7 +2207,21 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     detail: parameter.type ? `${parameter.name}: ${parameter.type}` : parameter.name,
   }));
   if (namedArguments.length) return namedArguments;
-  const members = workspace.completeMembers(document.uri, offset).map((member) => ({
+  let resolvedMembers = workspace.completeMembers(document.uri, offset);
+  if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
+    const root = rootForUri(document.uri); const version = document.version;
+    for (let depth = 0; root && depth < 4 && !resolvedMembers.length && !token.isCancellationRequested; depth += 1) {
+      const owners = workspace.memberOwnerTypeNamesAt(document.uri, offset);
+      const candidates = owners.length ? owners
+        : depth === 0 ? workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn) : [];
+      if (!candidates.length) break;
+      const loaded = await hydrateCanonicalTypes(workspace, root, candidates);
+      if (!loaded || token.isCancellationRequested || documents.get(document.uri)?.version !== version) break;
+      resolvedMembers = workspace.completeMembers(document.uri, offset);
+    }
+    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+  }
+  const members = resolvedMembers.map((member) => ({
     label: member.kind === 'property' && member.static ? `$${member.name}` : member.name,
     kind: member.kind === 'method' ? CompletionItemKind.Method : member.kind === 'property' ? CompletionItemKind.Property
       : member.constantKind === 'enum-case' ? CompletionItemKind.EnumMember : CompletionItemKind.Constant,

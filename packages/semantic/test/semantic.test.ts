@@ -6530,6 +6530,33 @@ use const Vendor\\ACTIVE;
       .toBe('Generics\\User');
     expect(workspace.completeMembers('file:///GenericUse.php', source.indexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
   });
+  it('infers a real method template from a class-string argument and preserves its generic return', () => {
+    workspace.update('file:///MethodTemplateTypes.php', `<?php namespace MethodTemplates;
+      class Item { public function label(): string {} }
+      /** @template TEntity of object */ class Repository {
+        /** @return object|null
+         * @phpstan-return ?TEntity */
+        public function find(int $id): object|null {}
+      }
+      class Manager {
+        /** @template T of object
+         * @param class-string<T> $class
+         * @return Repository<T> */
+        public function getRepository(string $class): Repository {}
+      }
+    `);
+    const source = `<?php namespace MethodTemplates;
+      function valid(Manager $manager): void {
+        $repository = $manager->getRepository(Item::class); $item = $repository->find(1); $item?->lab;
+      }
+      function dynamic(Manager $manager, string $class): void {
+        $repository = $manager->getRepository($class); $item = $repository->find(1); $item?->lab;
+      }
+    `;
+    workspace.update('file:///MethodTemplateUse.php', source);
+    expect(workspace.completeMembers('file:///MethodTemplateUse.php', source.indexOf('lab;') + 3).map((item) => item.name)).toEqual(['label']);
+    expect(workspace.completeMembers('file:///MethodTemplateUse.php', source.lastIndexOf('lab;') + 3)).toEqual([]);
+  });
   it('infers class templates from a constructor class-string or object witness', () => {
     const source = `<?php namespace ConstructorTemplates;
       class Product { public function productOnly(): void {} }
