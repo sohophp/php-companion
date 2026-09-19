@@ -1,6 +1,6 @@
 - 同一路由文件通过约定入口和 Kernel 重复到达时按真实路径及加载上下文去重；不同前缀或 loader 的合法重复导入仍分别生效。
 - Symfony 静态路由补全现在覆盖无条件 `Kernel::configureRoutes()` 入口、PHP `RoutingConfigurator` 声明/导入，以及通用注册且路径可证明的 `@Bundle/.../*.php` 路由资源；环境条件和动态集合保持 unknown。
-- 提交 `864a38a` 完成 Symfony PHP 静态路由配置，候选 `php-companion-alpha-0.4.5-864a38a6` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
+- 提交 `864a38a` 完成 Symfony PHP 静态路由配置，`6acb8e1` 修复约定入口与 Kernel 重复到达；最终候选 `php-companion-alpha-0.4.5-6acb8e1a` 的三份 VSIX 已验证，候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - Symfony 服务导入现在可从已证明的通用 bundle 注册和标准 Bundle 路径解析 `@BundleName/...`；声明构造器、自定义 `getPath()`、条件注册、歧义类和越界路径保持 unknown。
 - 提交 `dc80af5` 完成 Symfony `@Bundle` 服务导入，候选 `php-companion-alpha-0.4.5-dc80af5e` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。
 - 提交 `7b8aead` 完成 Symfony 位置服务参数映射，候选 `php-companion-alpha-0.4.5-7b8aead1` 的三份 VSIX 已验证；候选语言服务器 bundle 已原子覆盖到 WSL RockyLinux8 并核对哈希，Reload Window 后加载。

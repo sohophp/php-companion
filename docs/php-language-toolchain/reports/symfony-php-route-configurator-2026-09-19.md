@@ -29,5 +29,6 @@
 - Language Server：6 个测试文件、185 项全部通过，耗时 219.99 秒。
 - 语义内核：1 个测试文件、268 项全部通过；根扩展：9 个测试文件、39 项全部通过。
 - 全仓 TypeScript、ESLint 和三个 VSIX 内容校验通过；16 个 monorepo 组件 tarball 均在隔离消费者中安装验证通过。
+- 重复入口修复后，语言服务器构建、ESLint 与包含“约定入口 + Kernel 同一路径”的真实 stdio 路由测试再次通过；修复后的三份 VSIX 重新打包并校验。
 
-功能提交为 `864a38a6a0fe9be68fdd71a530d9749c2e48037c`，候选目录为 `artifacts/php-companion-alpha-0.4.5-864a38a6/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `133a66b954a010042b1a5d8ca54694747ad29e62b77eefb5a6b9cf787c43c644`、`a808a0252e3496db2c8a0b0e2b5b75c147b5e07e30ec6d9f7ab967becc21ccf9`、`d07660f8f7ea31ae25ad8193caa714afe3e0dbced891f92a5237f7c691618fc9`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `9fdb7e160c4a515cd978900ab56e0c8015a6f431f68a386139d30545825f0d40`，Reload Window 后加载。
+功能提交为 `864a38a6a0fe9be68fdd71a530d9749c2e48037c`，重复入口修复提交为 `6acb8e1a30ee3fb6735bd0d2835c1dc42078e536`，最终候选目录为 `artifacts/php-companion-alpha-0.4.5-6acb8e1a/`。核心、Open Source Pack、Recommended Pack 的 SHA-256 依次为 `77aa03ae74bad02a938e0ef2c5e8ecdbda72b08e429de4e6a5fa30c9ca08ba20`、`0394210356dcc80b71903db94989943893fe7d6b9616510ecb4e4462e2442d17`、`767b22b95124a7c74582fc26f5c4d9ee305a69e60f8e5805886fdeebd7c0386c`。候选语言服务器已原子覆盖到 WSL 现有扩展目录，源码 bundle 与安装目标均为 `87e2230da074b9efb78ae9ecd54293f08ccbf80c074110df8f253f5fb079a819`，Reload Window 后加载。
