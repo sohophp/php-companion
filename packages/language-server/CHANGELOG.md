@@ -1,3 +1,4 @@
+- Merge exact Symfony YAML and explicitly configured route-provider controller locations into PHP class and effective public method References while honoring external runtime-provider ownership.
 - Deduplicate identical route-source traversal contexts reached through both conventional and Kernel roots while preserving intentional reimports with different prefixes, loaders or exclusions.
 - Complete source-declared routes from deterministic PHP Configurator files and unconditional custom Kernel roots, including contained `@Bundle/...` PHP resources whose universal registration and conventional path are proven.
 - Resolve bounded `@Bundle/...` YAML/XML/PHP service imports only from universal static registrations, one conventional Bundle inheritance path and a contained real resource path; refresh on registration, bundle-class and imported-file changes.

@@ -4,12 +4,12 @@ import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type Scalar, type YAMLMap } from 'yaml';
-import type { RouteFact } from '@php-companion/route-provider';
+import type { RouteControllerFact, RouteFact } from '@php-companion/route-provider';
 
 const execute = promisify(execFile);
 export interface RuntimeRoute { path: string; }
 export interface WinstarProviderOptions { php?: string; console?: string; timeoutMs?: number; }
-interface LocatedName { value: string; uri: string; start: number; end: number; generated: boolean; }
+interface LocatedName { value: string; uri: string; start: number; end: number; generated: boolean; controller?: RouteControllerFact; }
 
 function scalarTextRange(source: string, scalar: Scalar): { start: number; end: number } | undefined {
   const range = scalar.range; if (!range) return undefined;
@@ -17,10 +17,28 @@ function scalarTextRange(source: string, scalar: Scalar): { start: number; end: 
   if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"'))) { start += 1; end -= 1; }
   return start <= end ? { start, end } : undefined;
 }
+function mapNode(map: YAMLMap, key: string): unknown {
+  return map.items.find((item: Pair) => isScalar(item.key) && item.key.value === key)?.value;
+}
+function routeController(source: string, uri: string, map: YAMLMap): RouteControllerFact | undefined {
+  const direct = mapNode(map, 'controller'); const defaults = mapNode(map, 'defaults');
+  const nested = isMap(defaults) ? mapNode(defaults, '_controller') : undefined; const selected = direct ?? nested;
+  if ((direct !== undefined && nested !== undefined) || !isScalar(selected) || typeof selected.value !== 'string') return undefined;
+  const range = scalarTextRange(source, selected); if (!range || source.slice(range.start, range.end) !== selected.value) return undefined;
+  const value = selected.value; const normalized = value.startsWith('\\') ? value.slice(1) : value;
+  const parts = normalized.split('::'); if (parts.length > 2) return undefined;
+  const className = parts[0]!; const method = parts[1]; const identifier = '[A-Za-z_\\u0080-\\uffff][A-Za-z0-9_\\u0080-\\uffff]*';
+  if (!new RegExp(`^${identifier}(?:\\\\${identifier})+$`, 'u').test(className)
+    || (method !== undefined && !new RegExp(`^${identifier}$`, 'u').test(method))) return undefined;
+  const classStart = range.start + (value.startsWith('\\') ? 1 : 0);
+  return { className, uri, classStart, classEnd: classStart + className.length,
+    ...(method === undefined ? {} : { method, methodStart: range.end - method.length, methodEnd: range.end }) };
+}
 function mapName(source: string, uri: string, map: YAMLMap, generated: boolean): LocatedName | undefined {
   const pair = map.items.find((item: Pair) => isScalar(item.key) && item.key.value === 'name');
   if (!pair || !isScalar(pair.value) || typeof pair.value.value !== 'string') return undefined;
-  const range = scalarTextRange(source, pair.value); return range ? { value: pair.value.value, uri, ...range, generated } : undefined;
+  const range = scalarTextRange(source, pair.value); const controller = generated ? undefined : routeController(source, uri, map);
+  return range ? { value: pair.value.value, uri, ...range, generated, ...(controller ? { controller } : {}) } : undefined;
 }
 function namesFromDocument(source: string, uri: string): LocatedName[] {
   const document = parseDocument(source, { uniqueKeys: true });
@@ -58,7 +76,8 @@ export async function collectWinstarModuleRouteFacts(root: string, runtimeRoutes
     const declarations = located.filter((item) => item.generated ? name.startsWith(`admin.${item.value}.`) : item.value === name);
     if (declarations.length === 1) {
       const declaration = declarations[0]!;
-      result.push({ name, path: route.path, uri: declaration.uri, start: declaration.start, end: declaration.end });
+      result.push({ name, path: route.path, uri: declaration.uri, start: declaration.start, end: declaration.end,
+        ...(declaration.controller ? { controller: declaration.controller } : {}) });
     }
   }
   return result;

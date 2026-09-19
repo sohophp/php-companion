@@ -3,10 +3,15 @@ import { isRouteFactsContribution, isRouteProviderDescriptor, isRouteProviderReq
 
 describe('route provider contract', () => {
   it('accepts a complete sourced route snapshot', () => {
-    expect(isRouteFactsContribution(routeFacts('vendor.routes', '7', [{ name: 'admin.login', path: '/admin/login', uri: 'file:///routes.yaml', start: 2, end: 13 }]))).toBe(true);
+    expect(isRouteFactsContribution(routeFacts('vendor.routes', '7', [{ name: 'admin.login', path: '/admin/login', uri: 'file:///routes.yaml', start: 2, end: 13,
+      controller: { className: 'App\\LoginController', method: 'login', uri: 'file:///routes.yaml', classStart: 30, classEnd: 49, methodStart: 51, methodEnd: 56 } }]))).toBe(true);
   });
   it('rejects malformed facts and unbounded descriptors', () => {
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 3, end: 2 }] })).toBe(false);
+    expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
+      controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18 } }] })).toBe(false);
+    expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
+      controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18, methodStart: 20, methodEnd: 24 } }] })).toBe(false);
     expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', timeoutMs: 5000 })).toBe(true);
     expect(isRouteProviderDescriptor({ providerId: 'bad!', command: '/provider' })).toBe(false);
   });

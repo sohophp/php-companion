@@ -2426,6 +2426,19 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const serviceLocations = type ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
       .map((service) => ({ uri: service.registrationUri, start: service.registrationStart, end: service.registrationEnd })) : [];
+    const controllerRoutes = symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)
+      ? await availableSymfonyRoutes(root, () => token.isCancellationRequested) : [];
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    const controllerLocations = type ? controllerRoutes.flatMap((route) => route.controller
+      && route.controller.className.toLowerCase() === type.fqcn.toLowerCase()
+      ? [{ uri: route.controller.uri, start: route.controller.classStart, end: route.controller.classEnd }] : [])
+      : member?.kind === 'method' ? controllerRoutes.flatMap((route) => {
+        const controller = route.controller; if (!controller?.method || controller.methodStart === undefined || controller.methodEnd === undefined) return [];
+        const effective = workspace.publicInstanceMethod(controller.className, controller.method);
+        return effective?.fqcn.toLowerCase() === member.fqcn.toLowerCase()
+          ? [{ uri: controller.uri, start: controller.methodStart, end: controller.methodEnd }] : [];
+      }) : [];
     const eventTarget = type ?? (member?.kind === 'method' ? member : undefined);
     const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
     const syntaxParser = eventTarget && eventSource ? await parser() : undefined;
@@ -2523,7 +2536,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           || workspace.isSubtype(owner, 'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
       }).map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd }));
     }) : [];
-    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
+    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...controllerLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);

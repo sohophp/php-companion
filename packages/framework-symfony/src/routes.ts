@@ -1,9 +1,10 @@
-import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
+import { isMap, isScalar, isSeq, parseDocument, type Scalar, type YAMLMap } from 'yaml';
 import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
 
 export interface SymfonyLocalizedPath { locale: string; path: string; }
 export type SymfonyRoutePathPrefix = string | SymfonyLocalizedPath[];
-export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; locale?: string; }
+export interface SymfonyRouteControllerFact { className: string; method?: string; uri: string; classStart: number; classEnd: number; methodStart?: number; methodEnd?: number; }
+export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; locale?: string; controller?: SymfonyRouteControllerFact; }
 export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: SymfonyRoutePathPrefix; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; environments?: string[]; }
 export interface SymfonyRouteDocument { complete: boolean; routes: SymfonyRouteFact[]; imports: SymfonyRouteImport[]; }
 
@@ -39,6 +40,33 @@ function localizedYamlPaths(value: unknown): SymfonyLocalizedPath[] | undefined 
     paths.push({ locale: pair.key.value, path: pair.value.value });
   }
   return paths;
+}
+
+function yamlScalarValueRange(source: string, scalar: Scalar): { start: number; end: number } | undefined {
+  if (!scalar.range || typeof scalar.value !== 'string') return undefined;
+  let start = scalar.range[0]; let end = scalar.range[1]; const raw = source.slice(start, end);
+  if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"'))) { start += 1; end -= 1; }
+  return source.slice(start, end) === scalar.value ? { start, end } : undefined;
+}
+
+function yamlMapNode(map: YAMLMap, key: string): unknown {
+  return map.items.find((item) => isScalar(item.key) && item.key.value === key)?.value;
+}
+
+function yamlRouteController(source: string, uri: string, map: YAMLMap): SymfonyRouteControllerFact | undefined {
+  const direct = yamlMapNode(map, 'controller'); const defaults = yamlMapNode(map, 'defaults');
+  const nested = isMap(defaults) ? yamlMapNode(defaults, '_controller') : undefined; const selected = direct ?? nested;
+  if ((direct !== undefined && nested !== undefined) || !isScalar(selected) || typeof selected.value !== 'string') return undefined;
+  const scalar = selected; const range = yamlScalarValueRange(source, scalar); if (!range) return undefined;
+  const value = scalar.value as string; const normalized = value.startsWith('\\') ? value.slice(1) : value;
+  const parts = normalized.split('::'); if (parts.length > 2) return undefined;
+  const className = parts[0]!; const method = parts[1];
+  const identifier = '[A-Za-z_\\u0080-\\uffff][A-Za-z0-9_\\u0080-\\uffff]*';
+  if (!new RegExp(`^${identifier}(?:\\\\${identifier})+$`, 'u').test(className)
+    || (method !== undefined && !new RegExp(`^${identifier}$`, 'u').test(method))) return undefined;
+  const leading = value.startsWith('\\') ? 1 : 0; const classStart = range.start + leading;
+  return { className, uri, classStart, classEnd: classStart + className.length,
+    ...(method === undefined ? {} : { method, methodStart: range.end - method.length, methodEnd: range.end }) };
 }
 
 /** Source declarations only: completeness never implies an effective runtime route table. */
@@ -99,10 +127,11 @@ export function analyzeSymfonyRouteYaml(uri: string, source: string, environment
     const rawPath = value('path'); const path = typeof rawPath === 'string' ? rawPath : localizedYamlPaths(rawPath);
     if (path === undefined || (typeof path === 'string' ? path.includes('%') : path.some((item) => item.path.includes('%')))
       || name.includes('%') || !pair.key.range) { result.complete = false; continue; }
+    const controller = yamlRouteController(source, uri, pair.value);
     const routes = typeof path === 'string' ? [{ name, path }] : path.map((item) => ({ name: `${name}.${item.locale}`, path: item.path, locale: item.locale }));
     for (const route of routes) {
       result.routes = result.routes.filter((candidate) => candidate.name !== route.name);
-      result.routes.push({ ...route, uri, start: pair.key.range[0], end: pair.key.range[1] });
+      result.routes.push({ ...route, uri, start: pair.key.range[0], end: pair.key.range[1], ...(controller ? { controller } : {}) });
     }
   }
   return result;

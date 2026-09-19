@@ -16,7 +16,16 @@ export interface RouteProviderRequest {
   params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string };
 }
 
-export interface RouteFact { name: string; path: string; uri: string; start: number; end: number; }
+export interface RouteControllerFact {
+  className: string;
+  method?: string;
+  uri: string;
+  classStart: number;
+  classEnd: number;
+  methodStart?: number;
+  methodEnd?: number;
+}
+export interface RouteFact { name: string; path: string; uri: string; start: number; end: number; controller?: RouteControllerFact; }
 export interface RouteFactsContribution {
   schema: typeof ROUTE_FACTS_SCHEMA;
   providerId: string;
@@ -39,9 +48,16 @@ const providerIdPattern = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const boundedString = (value: unknown, limit = 4096): value is string => typeof value === 'string' && value.length > 0 && value.length <= limit;
 function routeFact(value: unknown): value is RouteFact {
   const item = value as Partial<RouteFact> | null;
+  const controller = item?.controller as Partial<RouteControllerFact> | undefined;
+  const validController = controller === undefined || (boundedString(controller.className, 4096) && boundedString(controller.uri, 32_768)
+    && Number.isSafeInteger(controller.classStart) && Number.isSafeInteger(controller.classEnd)
+    && controller.classStart! >= 0 && controller.classEnd! - controller.classStart! === controller.className.length
+    && ((controller.method === undefined && controller.methodStart === undefined && controller.methodEnd === undefined)
+      || (boundedString(controller.method, 512) && Number.isSafeInteger(controller.methodStart) && Number.isSafeInteger(controller.methodEnd)
+        && controller.methodStart! >= controller.classEnd! + 2 && controller.methodEnd! - controller.methodStart! === controller.method.length)));
   return Boolean(item && boundedString(item.name, 4096) && typeof item.path === 'string' && item.path.length <= 32_768
     && boundedString(item.uri, 32_768) && Number.isSafeInteger(item.start) && Number.isSafeInteger(item.end)
-    && item.start! >= 0 && item.end! >= item.start!);
+    && item.start! >= 0 && item.end! >= item.start! && validController);
 }
 export function isRouteFactsContribution(value: unknown): value is RouteFactsContribution {
   const item = value as Partial<RouteFactsContribution> | null;

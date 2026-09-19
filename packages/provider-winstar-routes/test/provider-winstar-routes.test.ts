@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'; import { tmpdir } from 'node:os'; import { join } from 'node:path'; import { pathToFileURL } from 'node:url';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'; import { tmpdir } from 'node:os'; import { join } from 'node:path'; import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest'; import { collectWinstarModuleRouteFacts } from '../src/index.js';
 
 describe('Winstar module route provider', () => {
@@ -6,11 +6,16 @@ describe('Winstar module route provider', () => {
   it('intersects runtime routes with exact and generated YAML declarations', async () => {
     const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root); const routes = join(root, 'src', 'Modules', 'Admin', 'Routes'); await mkdir(routes, { recursive: true });
     const direct = join(routes, 'routes.yaml'); const defaults = join(routes, 'admin_defaults.yaml');
-    await writeFile(direct, "- name: 'admin.login'\n  path: /login\n"); await writeFile(defaults, 'admin_defaults:\n  - name: CompanyPage\n');
+    await writeFile(direct, "- name: 'admin.login'\n  path: /login\n  defaults: {_controller: 'App\\Controller\\LoginController::login'}\n"); await writeFile(defaults, 'admin_defaults:\n  - name: CompanyPage\n');
     const facts = await collectWinstarModuleRouteFacts(root, { 'admin.login': { path: '/control/login' }, 'admin.CompanyPage.edit': { path: '/control/CompanyPage/edit/{id}' }, disabled: { path: '/disabled' } });
     expect(facts.map(({ name, path }) => [name, path])).toEqual([['admin.CompanyPage.edit', '/control/CompanyPage/edit/{id}'], ['admin.login', '/control/login']]);
     expect(facts[0]).toMatchObject({ uri: pathToFileURL(defaults).toString(), start: 26, end: 37 });
-    expect(facts[1]).toMatchObject({ uri: pathToFileURL(direct).toString(), start: 9, end: 20 });
+    expect(facts[1]).toMatchObject({ uri: pathToFileURL(direct).toString(), start: 9, end: 20, controller: {
+      className: 'App\\Controller\\LoginController', method: 'login', uri: pathToFileURL(direct).toString(),
+    } });
+    const controller = facts[1]!.controller!; const source = await readFile(direct, 'utf8');
+    expect(source.slice(controller.classStart, controller.classEnd)).toBe('App\\Controller\\LoginController');
+    expect(source.slice(controller.methodStart, controller.methodEnd)).toBe('login');
   });
   it('rejects malformed YAML files instead of publishing partial names', async () => {
     const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root); const routes = join(root, 'src', 'Modules', 'Broken', 'Routes'); await mkdir(routes, { recursive: true });

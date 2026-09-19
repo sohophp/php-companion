@@ -1069,9 +1069,10 @@ class Other { public function generateUrl(string $route, array $parameters = [])
 }`;
       const uri = pathToFileURL(join(root, 'Controller.php')).toString();
       const routeUri = pathToFileURL(join(root, 'config', 'routes', 'admin.yaml')).toString();
+      const adminRoutesSource = 'home: {path: "/admin/{id}/{slug}", controller: App\\Controller::exactUrl}\n';
       await writeFile(join(root, 'Controller.php'), source);
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\n');
-      await writeFile(join(root, 'config', 'routes', 'admin.yaml'), 'home: {path: "/admin/{id}/{slug}"}\n');
+      await writeFile(join(root, 'config', 'routes', 'admin.yaml'), adminRoutesSource);
       await writeFile(join(root, 'bundle', 'SharedBundle.php'), '<?php namespace Symfony\\Component\\HttpKernel\\Bundle { abstract class Bundle {} } namespace Vendor\\Shared { final class SharedBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
       await writeFile(join(root, 'dev-bundle', 'DevBundle.php'), '<?php namespace Vendor\\Dev { final class DevBundle extends \\Symfony\\Component\\HttpKernel\\Bundle\\Bundle {} }');
       await writeFile(join(root, 'config', 'bundles.php'), "<?php return [Vendor\\Shared\\SharedBundle::class => ['all' => true], Vendor\\Dev\\DevBundle::class => ['dev' => true]];");
@@ -1141,6 +1142,11 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
       expect((await query(250, namedParameterOffset)).map((item) => item.label)).toEqual(['slug']);
       const businessParameterOffset = source.lastIndexOf("['i'") + 3;
       expect((await query(2501, businessParameterOffset)).some((item) => item.detail === 'admin.home path parameter')).toBe(false);
+      const controllerMethodOffset = source.indexOf('exactUrl(): string') + 3;
+      expect(await references(2502, controllerMethodOffset, false)).toEqual([{ uri: routeUri, range: {
+        start: lspPosition(adminRoutesSource, adminRoutesSource.indexOf('exactUrl')),
+        end: lspPosition(adminRoutesSource, adminRoutesSource.indexOf('exactUrl') + 'exactUrl'.length),
+      } }]);
       const exactOffset = source.indexOf("'admin.home'") + 4;
       expect(await definition(251, exactOffset)).toEqual([{ uri: routeUri, range: {
         start: { line: 0, character: 0 }, end: { line: 0, character: 4 },
@@ -4113,14 +4119,19 @@ namespace Symfony\\Component\\Routing { interface RouterInterface { public funct
 namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(RouterInterface $router): void {
   $router->generate('dynamic.');
   $router->generate('dynamic.home');
-} }`;
+} final class DynamicController { public function home(): void {} } }`;
       const consumerPath = join(root, 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
       const declarationPath = join(root, 'runtime-routes.txt'); const declarationUri = pathToFileURL(declarationPath).toString();
       const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs');
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
-      await writeFile(consumerPath, source); await writeFile(declarationPath, 'dynamic.home\n');
-      await writeFile(statePath, JSON.stringify({ name: 'dynamic.home', path: '/dynamic' }));
-      await writeFile(provider, `import {readFile} from 'node:fs/promises'; import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'winstar.routes',generation:request.params.generation,complete:true,routes:[{...route,uri:pathToFileURL(${JSON.stringify(declarationPath)}).toString(),start:0,end:route.name.length}]}}));`);
+      const declaration = 'dynamic.home\nApp\\DynamicController::home\n';
+      const controllerStart = declaration.indexOf('App\\DynamicController'); const methodStart = declaration.indexOf('home', controllerStart);
+      await writeFile(consumerPath, source); await writeFile(declarationPath, declaration);
+      await writeFile(statePath, JSON.stringify({ name: 'dynamic.home', path: '/dynamic', controller: {
+        className: 'App\\DynamicController', method: 'home', classStart: controllerStart,
+        classEnd: controllerStart + 'App\\DynamicController'.length, methodStart, methodEnd: methodStart + 4,
+      } }));
+      await writeFile(provider, `import {readFile} from 'node:fs/promises'; import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); const uri=pathToFileURL(${JSON.stringify(declarationPath)}).toString(); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'winstar.routes',generation:request.params.generation,complete:true,routes:[{...route,uri,start:0,end:route.name.length,...(route.controller?{controller:{...route.controller,uri}}:{})}]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
@@ -4135,6 +4146,17 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const definitionOffset = source.indexOf("'dynamic.home'") + 4;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 116, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, definitionOffset) } }));
       expect((await output.waitFor((message) => message.id === 116)).result).toEqual([{ uri: declarationUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 12 } } }]);
+      for (const [id, symbol, expectedStart, expectedEnd] of [
+        [1161, 'DynamicController', controllerStart, controllerStart + 'App\\DynamicController'.length],
+        [1162, 'home(): void', methodStart, methodStart + 4],
+      ] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf(symbol) + 2), context: { includeDeclaration: false },
+        } }));
+        expect((await output.waitFor((message) => message.id === id)).result).toEqual([{ uri: declarationUri, range: {
+          start: lspPosition(declaration, expectedStart), end: lspPosition(declaration, expectedEnd),
+        } }]);
+      }
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.changed', path: '/changed' })); await writeFile(declarationPath, 'dynamic.changed\n');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
       const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;

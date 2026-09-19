@@ -12,6 +12,32 @@ describe('static Symfony routes', () => {
     ]);
     expect(facts.imports).toEqual([{ resource: 'routes/child.yaml', namePrefix: 'admin.', pathPrefix: '/admin' }]);
   });
+  it('locates exact class and method segments in literal YAML controllers', () => {
+    const source = `direct:
+  path: /direct
+  controller: App\\Controller\\DirectController::run
+defaults:
+  path: {en: /english, fr: /francais}
+  defaults: {_controller: 'App\\Controller\\LocalizedController::show'}
+invokable: {path: /invoke, controller: App\\Controller\\InvokableController}
+service: {path: /service, controller: app.controller::run}
+escaped: {path: /escaped, controller: "App\\\\Controller\\\\EscapedController::run"}
+`;
+    const facts = analyzeSymfonyRouteYaml('file:///routes.yaml', source);
+    const controllers = facts.routes.map(({ name, controller }) => ({ name, controller: controller && {
+      className: controller.className, method: controller.method,
+      classText: source.slice(controller.classStart, controller.classEnd),
+      methodText: controller.methodStart === undefined ? undefined : source.slice(controller.methodStart, controller.methodEnd),
+    } }));
+    expect(controllers).toEqual([
+      { name: 'direct', controller: { className: 'App\\Controller\\DirectController', method: 'run', classText: 'App\\Controller\\DirectController', methodText: 'run' } },
+      { name: 'defaults.en', controller: { className: 'App\\Controller\\LocalizedController', method: 'show', classText: 'App\\Controller\\LocalizedController', methodText: 'show' } },
+      { name: 'defaults.fr', controller: { className: 'App\\Controller\\LocalizedController', method: 'show', classText: 'App\\Controller\\LocalizedController', methodText: 'show' } },
+      { name: 'invokable', controller: { className: 'App\\Controller\\InvokableController', method: undefined, classText: 'App\\Controller\\InvokableController', methodText: undefined } },
+      { name: 'service', controller: undefined },
+      { name: 'escaped', controller: undefined },
+    ]);
+  });
   it('records explicit attribute directories with bounded glob imports and exclusions', () => {
     expect(analyzeSymfonyRouteYaml('file:///routes.yaml', 'controllers: {resource: ../src/Controller/, type: attribute}').imports)
       .toEqual([{ resource: '../src/Controller/', namePrefix: '', pathPrefix: '', attribute: true }]);

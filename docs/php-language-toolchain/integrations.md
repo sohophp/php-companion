@@ -126,11 +126,11 @@ YAML 路由文件中的顶层 `when@<env>` 使用相同环境身份。分析器�
 
 服务器协议使用初始化字段 `symfonyRouteProviders`，以及通知 `phpCompanion/symfonyRouteProviders` 的 `{ providers: [{ uri, external, environment? }] }` 对象。环境只接受 1–64 个 ASCII 字母、数字、点、下划线或连字符；非法快照不改变现有状态，清空列表恢复独立服务器的静态默认行为。该机制表示用户选择的能力所有权，不证明外部插件的运行时索引已成功或全部路由功能可用。
 
-项目自定义 loader 使用独立设置 `phpCompanion.routeProviders`，只接受用户显式配置的 `{ providerId, command, args?, timeoutMs?, maxOutputBytes? }`。`@php-companion/route-provider` 定义 schema 1 完整快照：每条事实必须给出 `name`、`path`、声明 `uri` 及 UTF-16 文本换算前的字节/字符偏移范围；`@php-companion/route-provider-host` 以项目根为 cwd、关闭 shell，并校验请求 ID、provider 身份、generation、完整性、超时和输出上限。核心不会从 Composer 或项目文件自动发现命令。
+项目自定义 loader 使用独立设置 `phpCompanion.routeProviders`，只接受用户显式配置的 `{ providerId, command, args?, timeoutMs?, maxOutputBytes? }`。`@php-companion/route-provider` 定义 schema 1 完整快照：每条事实必须给出 `name`、`path`、声明 `uri` 及 UTF-16 文本换算前的字节/字符偏移范围；可选 `controller` 关系还必须给出 FQCN、控制器声明 URI 和精确类范围，具名方法必须成组给出方法名及其范围。`@php-companion/route-provider-host` 以项目根为 cwd、关闭 shell，并校验请求 ID、provider 身份、generation、完整性、超时和输出上限。核心不会从 Composer 或项目文件自动发现命令。
 
 动态快照不跨路由查询缓存。补全、Definition 或 References 每次都重新启动一次 provider，因此配置或自定义路由文件变化后不会继续返回旧事实；provider 失败只让该次动态贡献缺席，并记录输出诊断。多个静态/动态来源出现同名路由时整体按歧义处理，不提供该名称的 Companion 跳转。外部 Symfony runtime provider 拥有该工作区路由能力时，语义调用门禁会在启动自定义 provider 前退出。
 
-Winstar 项目可在可信工作区内显式设置 `phpCompanion.symfony.winstarRoutes.enabled: true`。核心 VSIX 内置的 `@php-companion/provider-winstar-routes` 会执行项目根的 `bin/php-runtime bin/console debug:router --format=json`，用 Symfony 实际路由表决定启用集合；随后只读取 `src/Modules/*/Routes/*.yaml` 来定位直接 `name` 和 `admin_defaults` 的基础 `name`。生成路由使用 `admin.<base>.<action>` 关系回到基础条目；若一个运行时名称有多个可能来源，适配器保持歧义并拒绝发布。它不会发布标准 Symfony 路由，因为这些路由继续由静态图或外部 runtime provider 负责。
+Winstar 项目可在可信工作区内显式设置 `phpCompanion.symfony.winstarRoutes.enabled: true`。核心 VSIX 内置的 `@php-companion/provider-winstar-routes` 会执行项目根的 `bin/php-runtime bin/console debug:router --format=json`，用 Symfony 实际路由表决定启用集合；随后只读取 `src/Modules/*/Routes/*.yaml` 来定位直接 `name` 和 `admin_defaults` 的基础 `name`。直接模块路由中可精确读取的 `controller` 或 `defaults._controller` FQCN 会进入 PHP 类/方法 References；生成路由使用 `admin.<base>.<action>` 关系回到基础条目，但没有直接控制器文本时不会制造引用。若一个运行时名称有多个可能来源，适配器保持歧义并拒绝发布。它不会发布标准 Symfony 路由，因为这些路由继续由静态图或外部 runtime provider 负责。
 
 启用该设置等同于授权执行当前项目的 Symfony Console。适配器仍运行在 route-provider-host 的一次性无 shell 子进程、30 秒和 16 MiB 上限内，但 Symfony Kernel 本身会加载项目代码；只应在可信仓库使用。关闭设置即撤销内置 provider 快照，不影响静态路由能力。
 
