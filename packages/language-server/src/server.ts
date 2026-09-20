@@ -34,7 +34,7 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -1888,6 +1888,31 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
     }
   }
   return [...new Map(locations.map((location) => [JSON.stringify(location), location])).values()];
+});
+
+connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown;
+}, token): Promise<{ isIncomplete: boolean; items: Array<{ label: string; detail: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }> }> => {
+  const empty = { isIncomplete: false, items: [] };
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.ya?ml$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
+    || token.isCancellationRequested) return empty;
+  const root = rootForUri(uri); const sourcePath = pathForUri(uri);
+  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return empty;
+  await semanticForRoot(root);
+  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service completion cancelled.');
+  const document = TextDocument.create(uri, 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const reference = symfonyYamlServiceReferencePrefixAt(params.source, offset); if (!reference) return empty;
+  const matches = symfonyServiceCatalog(root).filter((service) => service.id.startsWith(reference.prefix))
+    .filter((service) => uniqueSymfonyServiceRegistration(root, service.id) !== undefined);
+  const limit = 200;
+  return { isIncomplete: matches.length > limit, items: matches.slice(0, limit).map((service) => ({
+    label: service.id, detail: `${service.className} (${service.origin}, ${service.public ? 'public' : 'private'})`,
+    range: { start: document.positionAt(reference.start), end: document.positionAt(reference.end) },
+  })) };
 });
 
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }): Promise<ControllerContextPayload | null> => {

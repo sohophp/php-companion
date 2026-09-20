@@ -17,6 +17,7 @@ export interface SymfonyBundleRegistrationFact { bundleName: string; className: 
 export interface SymfonyBundleRegistrationFacts { complete: boolean; bundles: SymfonyBundleRegistrationFact[]; }
 export type SymfonyLiteralMethodReturnFact = ExternalLiteralMethodReturnFact;
 export interface SymfonyServiceIdReference { value: string; start: number; end: number; }
+export interface SymfonyServiceIdPrefix { prefix: string; start: number; end: number; }
 export interface SymfonyAutowireResolution { serviceId: string; className: string; uri: string; start: number; end: number; kind: 'exact' | 'named-alias' | 'binding' | 'inferred' | 'compiled'; inferredAlias: boolean; }
 export interface SymfonyCompiledMethodArgumentFact { callableFqcn: string; parameter?: string; parameterIndex?: number; serviceId: string; className: string; uri: string; start: number; end: number; }
 export interface SymfonyCompiledPropertyArgumentFact { ownerFqcn: string; property: string; serviceId: string; className: string; uri: string; start: number; end: number; }
@@ -914,6 +915,31 @@ export function symfonyYamlServiceReferences(source: string): SymfonyServiceIdRe
 export function symfonyYamlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
   if (offset < 0 || offset > source.length) return undefined;
   return symfonyYamlServiceReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+}
+
+/** Locate the editable id segment of a valid YAML @service scalar at a cursor. */
+export function symfonyYamlServiceReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+  const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
+  if (document.errors.length || offset < 0 || offset > source.length) return undefined;
+  const visit = (node: Node | null | undefined): SymfonyServiceIdPrefix | undefined => {
+    if (!node) return undefined;
+    if (isScalar(node)) {
+      const range = scalarRange(node, source); const value = scalarValue(node);
+      if (!range || typeof value !== 'string') return undefined;
+      const markerLength = value.startsWith('@?') ? 2 : value.startsWith('@') ? 1 : 0;
+      const id = value.slice(markerLength); const start = range.start + markerLength;
+      if (!markerLength || value.startsWith('@@') || /[%\s@=]/.test(id)
+        || source.slice(range.start, range.end) !== value || offset < start || offset > range.end) return undefined;
+      return { prefix: source.slice(start, offset), start, end: range.end };
+    }
+    if (isSeq(node)) {
+      for (const item of node.items) { const found = visit(item as Node | null); if (found) return found; }
+    } else if (isMap(node)) {
+      for (const pair of node.items as Pair[]) { const found = visit(pair.value as Node | null); if (found) return found; }
+    }
+    return undefined;
+  };
+  return visit(document.contents);
 }
 
 function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {

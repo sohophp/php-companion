@@ -4624,6 +4624,20 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           end: lspPosition(configSource, configSource.lastIndexOf('@app.service') + '@app.service'.length) } },
         { uri: configUri, range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } },
       ]);
+      const serviceValueStart = configSource.lastIndexOf('@app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 72, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, serviceValueStart + '@app.se'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 72)).result).toEqual({ isIncomplete: false, items: [{
+        label: 'app.service', detail: 'App\\Service (explicit, private)',
+        range: { start: lspPosition(configSource, serviceValueStart + 1), end: lspPosition(configSource, serviceValueStart + '@app.service'.length) },
+      }] });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 73, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, configSource.indexOf('app.service') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 73)).result).toEqual({ isIncomplete: false, items: [] });
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/references', params: {

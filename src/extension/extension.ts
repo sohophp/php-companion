@@ -98,6 +98,8 @@ type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; 
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
 type ProtocolLocation = { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } };
+type ProtocolCompletionList = { isIncomplete: boolean; items: Array<{ label: string; detail: string;
+  range: { start: { line: number; character: number }; end: { line: number; character: number } } }> };
 
 function fileOperationUriKey(value: vscode.Uri | string): string {
   const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
@@ -665,6 +667,23 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       )));
     },
   };
+  const yamlSymfonyCompletions: vscode.CompletionItemProvider = {
+    provideCompletionItems: async (document, position, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const result = await client.sendRequest<ProtocolCompletionList>('phpCompanion/symfonyServiceCompletions', {
+        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
+      }, token);
+      if (token.isCancellationRequested || document.version !== version) return undefined;
+      return new vscode.CompletionList(result.items.map((candidate) => {
+        const item = new vscode.CompletionItem(candidate.label, vscode.CompletionItemKind.Reference);
+        item.detail = candidate.detail; item.insertText = candidate.label;
+        item.range = new vscode.Range(candidate.range.start.line, candidate.range.start.character,
+          candidate.range.end.line, candidate.range.end.character);
+        return item;
+      }), result.isIncomplete);
+    },
+  };
   const renameProvider = async (document: vscode.TextDocument): Promise<PhpRenameProvider | undefined> => {
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
@@ -806,6 +825,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerDocumentPasteEditProvider(phpSelector, lazyPaste, phpPasteMetadata),
     vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(yamlSelector, yamlSymfonyReferences),
+    vscode.languages.registerCompletionItemProvider(yamlSelector, yamlSymfonyCompletions, '@', '?'),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

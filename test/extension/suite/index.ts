@@ -309,6 +309,15 @@ export async function run(): Promise<void> {
   assert.deepStrictEqual(uniqueYamlServiceReferences().map((location) => servicesDocument.getText(location.range)),
     ['App\\Service\\Mailer', 'App\\Service\\Mailer'],
   'Symfony YAML service References returned an imprecise range');
+  const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
+  );
+  const serviceCompletion = serviceCompletionList.items.find((item) => item.label === 'App\\Service\\Mailer'
+    && item.detail?.includes('App\\Service\\Mailer'));
+  assert.ok(serviceCompletion, 'Symfony YAML service completion did not return the authoritative service id');
+  assert.ok(serviceCompletion.range instanceof vscode.Range, 'Symfony YAML service completion did not return one replacement range');
+  assert.strictEqual(servicesDocument.getText(serviceCompletion.range), 'App\\Service\\Mailer',
+    'Symfony YAML service completion did not replace only the id segment');
   const routeConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'RouteConsumer.php');
   const routeConsumer = await vscode.workspace.openTextDocument(routeConsumerUri);
   const routeConsumerSource = routeConsumer.getText();
