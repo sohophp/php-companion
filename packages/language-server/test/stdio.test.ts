@@ -1032,6 +1032,8 @@ describe('language server stdio', () => {
           && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('[index:delta] complete')).length >= completedDeltas);
       };
       await waitForNextIndex();
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Loaded Composer project snapshot for'))).toHaveLength(1);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: openSource } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
       const completion = async (id: number, marker: string): Promise<any[]> => {
@@ -1060,6 +1062,8 @@ describe('language server stdio', () => {
       completedDeltas += 1; // delete plus create
       await waitForNextDelta();
       expect(output.messages.filter((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('start reason='))).toHaveLength(1);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Loaded Composer project snapshot for'))).toHaveLength(1);
       const serviceOffset = openSource.indexOf('Service $service') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 219, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, serviceOffset) } }));
       expect((await output.waitFor((message) => message.id === 219)).result).toMatchObject([{ uri: movedServiceUri }]);
@@ -1071,6 +1075,8 @@ describe('language server stdio', () => {
       await writeFile(composerPath, JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Mapped\\': 'mapped/' } } }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(composerPath).toString(), type: 2 }] } }));
       await waitForNextIndex();
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Loaded Composer project snapshot for'))).toHaveLength(2);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 222, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, mappedOffset) } }));
       expect((await output.waitFor((message) => message.id === 222)).result).toMatchObject([{ uri: mappedUri }]);
       expect(await completion(223, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);

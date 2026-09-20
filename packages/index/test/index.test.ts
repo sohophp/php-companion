@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DocumentKeyIndex, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision } from '../src/index.js';
+import { loadComposerProject } from '@php-companion/project';
 
 describe('incremental document-key inverted index', () => {
   it('replaces and removes document postings without disturbing shared keys', () => {
@@ -52,6 +53,16 @@ describe('bounded project source index', () => {
     await writeFile(join(root, 'src', 'User.php'), '<?php class User {}'); const sources: string[] = [];
     const result = await indexComposerSources(root, { onSource: ({ source }) => { sources.push(source); } });
     expect(result).toMatchObject({ files: 1, complete: true }); expect(sources).toEqual(['<?php class User {}']);
+  });
+  it('reuses a caller-owned immutable Composer project snapshot', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-snapshot-')); await mkdir(join(root, 'src'));
+    const composerPath = join(root, 'composer.json');
+    await writeFile(composerPath, JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'User.php'), '<?php class User {}');
+    const project = await loadComposerProject(root); expect(project).toBeTruthy(); await rm(composerPath);
+    const sources: string[] = [];
+    const result = await indexComposerSources(root, { project, onSource: ({ source }) => { sources.push(source); } });
+    expect(result).toMatchObject({ files: 1, projectComplete: true }); expect(sources).toEqual(['<?php class User {}']);
   });
   it('lets an adapter preserve its remote document URI scheme', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-uri-')); await mkdir(join(root, 'src'));

@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promi
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
-import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '@php-companion/project';
+import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths, type ComposerProject } from '@php-companion/project';
 
 export { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS,
   type DocumentKeyIndexLimits, type DocumentKeyIndexStats } from './inverted.js';
@@ -17,7 +17,7 @@ export interface IndexedSource { uri: string; path: string; source: string; byte
 export type ProjectIndexCacheRestoreResult = boolean | 'source';
 export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
-export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; }
+export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
 function validateLimits(limits: ProjectIndexLimits): void {
@@ -41,7 +41,7 @@ async function phpFiles(directory: string, output: Set<string>, limit: number, i
 }
 
 export async function indexComposerSources(root: string, options: ProjectIndexOptions): Promise<ProjectIndexResult> {
-  const limits = options.limits ?? DEFAULT_INDEX_LIMITS; const project = await loadComposerProject(root);
+  const limits = options.limits ?? DEFAULT_INDEX_LIMITS; const project = options.project ?? await loadComposerProject(root);
   validateLimits(limits);
   const readConcurrency = options.readConcurrency ?? 1;
   if (!Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 64) throw new RangeError('readConcurrency must be a safe integer between 1 and 64.');

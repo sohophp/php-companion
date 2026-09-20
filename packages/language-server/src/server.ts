@@ -32,7 +32,8 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
   type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
-import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
+import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
+  type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
@@ -55,6 +56,7 @@ let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
 const projectIndexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
+const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefined>>();
 const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
 const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
@@ -95,6 +97,21 @@ let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
+
+function composerProjectForRoot(root: string): Promise<ComposerProject | undefined> {
+  let project = composerProjectsByRoot.get(root);
+  if (!project) {
+    project = loadComposerProject(root)
+      .then((loaded) => { connection.console.info(`Loaded Composer project snapshot for ${root}.`); return loaded; })
+      .catch((error) => { composerProjectsByRoot.delete(root); throw error; });
+    composerProjectsByRoot.set(root, project);
+  }
+  return project;
+}
+
+function invalidateComposerProject(root: string): void {
+  composerProjectsByRoot.delete(root); projectMappingsByRoot.delete(root);
+}
 interface DetectedPhpRuntime {
   executable: string;
   version: string;
@@ -791,7 +808,7 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
   completeRoots.delete(root);
   projectCompleteRoots.delete(root);
-  const project = await loadComposerProject(root);
+  const project = await composerProjectForRoot(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
   updateBuiltinForRoot(workspace, root);
@@ -804,6 +821,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (facts.doctrineProperties.length) doctrinePropertyFiles.set(uri, facts.doctrineProperties);
   };
   const result = await indexComposerSources(root, {
+    project,
     limits: indexLimits,
     onProgress,
     includeDependencies: indexingMode === 'experimental',
@@ -1380,7 +1398,7 @@ async function expectedNamespace(uri: string): Promise<string | undefined> {
   if (!root) return undefined;
   let mappings = projectMappingsByRoot.get(root);
   if (!mappings) {
-    const project = await loadComposerProject(root);
+    const project = await composerProjectForRoot(root);
     mappings = project ? allPsr4Mappings(project) : [];
     projectMappingsByRoot.set(root, mappings);
   }
@@ -1401,7 +1419,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
       const refreshTimer = symfonyContainerRefreshTimers.get(oldRoot); if (refreshTimer) clearTimeout(refreshTimer); symfonyContainerRefreshTimers.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
@@ -1516,7 +1534,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
-  const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits, readConcurrency: 32,
+  const scan = await indexComposerSources(root, { project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     onSource: ({ uri, source }) => {
@@ -1550,7 +1568,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
 
 async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[]): Promise<boolean> {
   if (!projectMappingsByRoot.has(root)) {
-    const project = await loadComposerProject(root); projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
+    const project = await composerProjectForRoot(root); projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   }
   const candidates = [...new Set(typeNames.map((fqcn) => fqcn.replace(/^\\/, '')).filter((fqcn) => fqcn && !workspace.typeByFqcn(fqcn)))]
     .flatMap((fqcn) => resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? [])).slice(0, 16);
@@ -1799,7 +1817,7 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
   }
   if (indexingMode === 'off') return { error: 'Safe Move requires project indexing to be enabled.' };
   const workspace = await semanticForRoot(root);
-  const project = await loadComposerProject(root); const mappings = project ? allPsr4Mappings(project) : [];
+  const project = await composerProjectForRoot(root); const mappings = project ? allPsr4Mappings(project) : [];
   projectMappingsByRoot.set(root, mappings);
   if (!projectCompleteRoots.has(root)) {
     // Moving a type only needs files mentioning its declared short name (an
@@ -1974,20 +1992,25 @@ async function applyPendingFiles(): Promise<void> {
 }
 connection.onDidChangeWatchedFiles(async ({ changes }) => {
   let composerChanged = false;
+  const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
     const root = rootForUri(change.uri); if (root) invalidateRouteProviderCache(root);
-    if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') { invalidateCandidates(change.uri); composerChanged = true; continue; }
+    if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') {
+      if (root) invalidateComposerProject(root);
+      invalidateCandidates(change.uri); composerChanged = true; continue;
+    }
     if (!root) continue;
     if (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path)) {
-      await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true); continue;
+      containerRefreshRoots.add(root); continue;
     }
     if (!path.toLowerCase().endsWith('.php')) continue;
-    const project = await loadComposerProject(root);
+    const project = await composerProjectForRoot(root);
     if (project && !isPlannedSafeMovePath(path) && (!allAutoloadPaths(project).some((sourceRoot) => pathWithin(sourceRoot, path)) || isAutoloadPathExcluded(project, path))) continue;
     invalidateCandidates(change.uri);
     pendingFiles.set(filesystemPathKey(path), { uri: indexedUriForPath(root, path), root }); pendingRoots.add(root);
   }
+  for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
   if (composerChanged) {
     // A changed Composer graph needs a fresh scan even if one was already running.
     const running = activeIndexing; if (running) await running;
