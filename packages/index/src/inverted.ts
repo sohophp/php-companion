@@ -41,8 +41,9 @@ export class DocumentKeyIndex {
     if (!next.size) return true;
     this.keysByDocument.set(uri, next);
     for (const key of next) {
-      const documents = this.documentsByKey.get(key) ?? new Set<string>();
-      documents.add(uri); this.documentsByKey.set(key, documents);
+      const documents = this.documentsByKey.get(key);
+      if (documents) documents.add(uri);
+      else this.documentsByKey.set(key, new Set([uri]));
     }
     return true;
   }

@@ -58,9 +58,11 @@ export class DocumentDependencyGraph {
     if (!next.size) return true;
     this.nodesByDocument.set(uri, next);
     for (const node of next.values()) for (const dependency of node.dependencies) {
-      const dependents = this.dependentsByDependency.get(dependency) ?? new Map<string, Set<string>>();
-      const documents = dependents.get(node.key) ?? new Set<string>();
-      documents.add(uri); dependents.set(node.key, documents); this.dependentsByDependency.set(dependency, dependents);
+      let dependents = this.dependentsByDependency.get(dependency);
+      if (!dependents) { dependents = new Map(); this.dependentsByDependency.set(dependency, dependents); }
+      const documents = dependents.get(node.key);
+      if (documents) documents.add(uri);
+      else dependents.set(node.key, new Set([uri]));
     }
     return true;
   }
