@@ -1982,11 +1982,12 @@ async function applyPendingFiles(): Promise<void> {
     source = open?.getText() ?? source;
     if (source === undefined) {
       workspace.remove(uri); scanFilesByRoot.get(root)?.delete(uri); indexedUrisByRoot.get(root)?.delete(uri); projectIndexedUrisByRoot.get(root)?.delete(uri);
-      interopContextsByRoot.get(root)?.delete(uri); removeDoctrineDocument(root, uri, workspace);
+      interopContextsByRoot.get(root)?.delete(uri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, uri, workspace);
     } else {
       const update = workspace.update(uri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(uri);
       const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(uri); indexedUrisByRoot.set(root, indexed);
       if (update.kind !== 'none') {
+        externalSymfonyEventsByRoot.delete(root);
         const scopes = controllerScopesByRoot.get(root) ?? [];
         scopes.push({ uri, source, snapshotVersion: String(indexingGeneration) });
         controllerScopesByRoot.set(root, scopes);

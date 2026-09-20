@@ -4539,22 +4539,26 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
   it('uses a bundled authoritative event provider for listener and dispatch references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-event-provider-'));
     try {
-      await mkdir(join(root, 'src')); await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/Events.php'] } }));
+      await mkdir(join(root, 'src')); await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/'] } }));
       const path = join(root, 'src', 'Events.php'); const uri = pathToFileURL(path).toString();
       const source = `<?php
 namespace Symfony\\Contracts\\EventDispatcher { interface EventDispatcherInterface { public function dispatch(object $event, ?string $eventName = null): object; } }
 namespace App {
- use Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface;
  final class Subscriber { public function onReady(): void {} }
  final class ReadyEvent {}
- final class Dispatching { public function __construct(private EventDispatcherInterface $dispatcher) {} public function run(): void { $this->dispatcher->dispatch(new ReadyEvent()); } }
+ final class OtherEvent {}
 }`;
       await writeFile(path, source);
-      const listenerStart = source.indexOf('onReady'); const dispatchStart = source.indexOf('dispatch(new');
-      const dispatchedStart = source.indexOf('new ReadyEvent()');
+      const dispatchPath = join(root, 'src', 'Dispatching.php'); const dispatchUri = pathToFileURL(dispatchPath).toString();
+      const dispatchSource = (event: 'ReadyEvent' | 'OtherEvent'): string => `<?php namespace App;
+use Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface;
+final class Dispatching { public function __construct(private EventDispatcherInterface $dispatcher) {} public function run(): void { $this->dispatcher->dispatch(new ${event}()); } }`;
+      await writeFile(dispatchPath, dispatchSource('ReadyEvent'));
+      const listenerStart = source.indexOf('onReady'); const initialDispatchSource = dispatchSource('ReadyEvent');
+      const dispatchedStart = initialDispatchSource.indexOf('new ReadyEvent()');
       const serviceProvider = join(root, 'services.mjs'); const eventProvider = join(root, 'events.mjs');
       await writeFile(serviceProvider, `let input=''; for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service={id:'App\\\\Subscriber',className:'App\\\\Subscriber',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'resource',uri:type.uri,start:type.start,end:type.end,registrationUri:type.uri,registrationStart:type.start,registrationEnd:type.end};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:Boolean(type),methods:[],properties:[],literalMethodReturns:[],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`);
-      await writeFile(eventProvider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service=request.params.containerServices?.find((item)=>item.className==='App\\\\Subscriber');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.events',generation:request.params.generation,complete:Boolean(type&&service),methods:[],properties:[],literalMethodReturns:[],eventSubscriptions:[{subscriberFqcn:'App\\\\Subscriber',event:'provider.event',listener:'onReady',uri:type.uri,eventStart:${listenerStart},eventEnd:${listenerStart + 7},listenerStart:${listenerStart},listenerEnd:${listenerStart + 7}}],eventDispatches:[{event:'provider.event',uri:type.uri,eventStart:${dispatchedStart},eventEnd:${dispatchedStart + 16},dispatchStart:${dispatchStart},dispatchEnd:${dispatchStart + 8}}]}}));`);
+      await writeFile(eventProvider, `import{readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service=request.params.containerServices?.find((item)=>item.className==='App\\\\Subscriber');const dispatchSource=readFileSync(${JSON.stringify(dispatchPath)},'utf8');const ready=dispatchSource.includes('ReadyEvent');const eventStart=dispatchSource.indexOf(ready?'new ReadyEvent()':'new OtherEvent()');const dispatchStart=dispatchSource.indexOf('dispatch(new');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.events',generation:request.params.generation,complete:Boolean(type&&service),methods:[],properties:[],literalMethodReturns:[],eventSubscriptions:[{subscriberFqcn:'App\\\\Subscriber',event:'provider.event',listener:'onReady',uri:type.uri,eventStart:${listenerStart},eventEnd:${listenerStart + 7},listenerStart:${listenerStart},listenerEnd:${listenerStart + 7}}],eventDispatches:[{event:ready?'provider.event':'updated.event',uri:${JSON.stringify(dispatchUri)},eventStart,eventEnd:eventStart+16,dispatchStart,dispatchEnd:dispatchStart+8}]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 661, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
@@ -4574,7 +4578,16 @@ namespace App {
       } }));
       const result = (await output.waitFor((message) => message.id === 662)).result;
       expect(result).toContainEqual({ uri, range: { start: lspPosition(source, listenerStart), end: lspPosition(source, listenerStart + 7) } });
-      expect(result).toContainEqual({ uri, range: { start: lspPosition(source, dispatchedStart), end: lspPosition(source, dispatchedStart + 16) } });
+      expect(result).toContainEqual({ uri: dispatchUri,
+        range: { start: lspPosition(initialDispatchSource, dispatchedStart), end: lspPosition(initialDispatchSource, dispatchedStart + 16) } });
+      await writeFile(dispatchPath, dispatchSource('OtherEvent'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: dispatchUri, type: 2 }] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${dispatchUri}`));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 664, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, listenerStart + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 664)).result)
+        .not.toContainEqual(expect.objectContaining({ uri: dispatchUri }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [
         { providerId: 'php-companion.symfony.services', command: process.execPath, args: [serviceProvider], timeoutMs: 5000,
           requiresProjectTypes: true, replacesContainerServices: true },
