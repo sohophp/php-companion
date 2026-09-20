@@ -11,7 +11,7 @@ export interface ProjectPhpFileFacts {
 }
 
 export interface CachedProjectPhpFile {
-  schema: 4;
+  schema: 5;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
   checksums: {
@@ -25,12 +25,12 @@ export interface CachedProjectPhpFile {
   checksum: string;
 }
 
-function payloadChecksum(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): string {
-  return createHash('sha256').update(JSON.stringify({ semantic, facts })).digest('hex');
-}
-
 function recordChecksum(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function payloadChecksum(checksums: CachedProjectPhpFile['checksums']): string {
+  return recordChecksum(checksums);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -72,17 +72,18 @@ export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string,
 }
 
 export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): CachedProjectPhpFile {
-  return { schema: 4, semantic, facts, checksums: {
+  const checksums: CachedProjectPhpFile['checksums'] = {
     source: recordChecksum(semantic.implementation.source), declaration: recordChecksum(semantic.declaration),
     implementationFile: recordChecksum(semantic.implementation.file),
     callableImplementations: semantic.implementation.callables.map((record) => ({ identity: record.identity, checksum: recordChecksum(record) })),
     layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
-  }, checksum: payloadChecksum(semantic, facts) };
+  };
+  return { schema: 5, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 4 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+  if (!isRecord(value) || value.schema !== 5 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
     || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
@@ -109,6 +110,6 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
     || !Array.isArray(facts.doctrineProperties) || facts.doctrineProperties.length > 10_000
     || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
     || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
-    || payloadChecksum(semantic, facts) !== value.checksum) return undefined;
-  return { schema: 4, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
+    || payloadChecksum(checksums as unknown as CachedProjectPhpFile['checksums']) !== value.checksum) return undefined;
+  return { schema: 5, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
 }

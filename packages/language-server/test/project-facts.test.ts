@@ -22,7 +22,7 @@ describe('persistent project PHP facts', () => {
     const facts = analyzeProjectPhpFileFacts(parser, uri, source);
     expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
-    expect(cached).toMatchObject({ schema: 4, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 5, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),
@@ -53,9 +53,11 @@ describe('persistent project PHP facts', () => {
     expect(restoreCachedProjectPhpFile(tamperedRecordChecksum, uri)).toBeUndefined();
     const tamperedCallableChecksum = structuredClone(cached); tamperedCallableChecksum.checksums.callableImplementations[0]!.checksum = '0'.repeat(64);
     expect(restoreCachedProjectPhpFile(tamperedCallableChecksum, uri)).toBeUndefined();
+    const tamperedEnvelopeChecksum = structuredClone(cached); tamperedEnvelopeChecksum.checksum = '0'.repeat(64);
+    expect(restoreCachedProjectPhpFile(tamperedEnvelopeChecksum, uri)).toBeUndefined();
     expect(restoreCachedProjectPhpFile(cached, 'file:///src/Other.php')).toBeUndefined();
     expect(restoreCachedProjectPhpFile(cached, uri, `${source}\n// unsaved`)).toBeUndefined();
-    expect(restoreCachedProjectPhpFile({ ...cached, schema: 3 }, uri)).toBeUndefined();
+    expect(restoreCachedProjectPhpFile({ ...cached, schema: 4 }, uri)).toBeUndefined();
     workspace.dispose();
   });
 });

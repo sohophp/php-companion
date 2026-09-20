@@ -95,7 +95,7 @@ try {
     || baseEntry.payload.semantic.implementation.callables.length === 0
     || baseEntry.payload.checksums.callableImplementations.length !== baseEntry.payload.semantic.implementation.callables.length
     || !baseEntry.payload.checksums.callableImplementations.every((record) => typeof record.identity === 'string' && /^[0-9a-f]{64}$/.test(record.checksum)))
-    throw new Error('Persistent cache did not contain separately checksummed source, declaration, file implementation, callable implementation, derived, and framework records.');
+    throw new Error('Persistent cache did not contain separately checksummed source, declaration, file implementation, callable implementation, derived, and Doctrine records.');
   baseEntry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
   await writeFile(cacheFile, JSON.stringify(persisted));
   const recoveredWorkspace = new SemanticWorkspace(parser); const recovered = await load(recoveredWorkspace);

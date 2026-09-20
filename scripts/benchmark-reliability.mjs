@@ -16,10 +16,10 @@ try {
     const result = await indexComposerSources(root, { includeDependencies: false,
       onSource: ({ uri, source }) => {
         workspace.update(uri, source);
-        return createCachedProjectPhpFile(workspace.snapshot(uri), analyzeProjectPhpFileFacts(parser, uri, source, 'benchmark'));
+        return createCachedProjectPhpFile(workspace.snapshotForPersistence(uri), analyzeProjectPhpFileFacts(parser, uri, source));
       },
       cache: { directory: cache, version: 'benchmark-v1', restore: (value, { uri }) => {
-        const record = restoreCachedProjectPhpFile(value, uri, 'benchmark');
+        const record = restoreCachedProjectPhpFile(value, uri);
         return Boolean(record && workspace.restoreDeclaration(record.semantic, uri));
       } },
     });
