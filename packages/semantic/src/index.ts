@@ -5239,7 +5239,10 @@ export class SemanticWorkspace {
     for (const candidateFile of this.files.values()) for (const call of candidateFile.calls) {
       const named = call.arguments.filter((argument) => argument.name === parameter.name && argument.nameStart !== undefined && argument.nameEnd !== undefined);
       if (!named.length) continue;
-      const signature = this.signature(candidateFile.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+      // Anchor resolution on the named argument itself. The end of the outer
+      // argument list can belong to a nested call such as `new Value()` and
+      // would otherwise resolve that inner constructor instead.
+      const signature = this.signature(candidateFile.uri, named[0]!.nameStart!);
       if (signature?.fqcn.toLowerCase() === constructor.fqcn.toLowerCase()) locations.push(...named.map((argument) => ({
         uri: candidateFile.uri, start: argument.nameStart!, end: argument.nameEnd!,
       })));

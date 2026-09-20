@@ -15,7 +15,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
-- Resolve local-variable and final private promoted-property Prepare Rename/Rename from the current semantic document without starting a project index; retry after project-source indexing only when the target is not yet locally provable.
+- Resolve local-variable Prepare Rename/Rename from the current semantic document, and resolve final private promoted properties through a bounded same-name project scan without starting a full index; include constructor named-argument edits and retry broader targets only behind their existing completeness gate.
 
 - Cache only route providers that explicitly opt in, and invalidate their complete snapshots on provider/environment changes, watched PHP/YAML changes, and open PHP/YAML snapshot changes.
 

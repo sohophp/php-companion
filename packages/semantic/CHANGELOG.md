@@ -1,5 +1,6 @@
 # Changelog
 
+- Resolve promoted-property constructor named arguments from the argument-name position so nested argument calls cannot hide cross-file Rename locations.
 - Expose the complete effective concrete public static method set for bounded framework-provider snapshots.
 - Infer callable templates declared on real methods from exact `class-string<T>` arguments, preserve the specialized generic result through direct local assignments, and accept a nullable template return only when its bound refines the complete native nullable type.
 - Restore declaration-first snapshots by validating canonical callable ownership, fact ordering, reference candidates and type dependencies without eagerly merging and reserializing deferred implementation facts.

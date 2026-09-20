@@ -4475,6 +4475,23 @@ final class Imported { public const TYPE = Stable::class; }`);
     const namedStart = source.indexOf('token', source.indexOf('new Secret'));
     expect(workspace.localVariableRename('file:///PrivatePromoted.php', namedStart + 1, 'secret')).toMatchObject({ start: namedStart, end: namedStart + 5, locations: rename?.locations });
   });
+  it('renames a final private promoted property through cross-file named construction with a nested value call', () => {
+    const declaration = `<?php namespace App; final class Service {
+      public function __construct(private object $dependency) {}
+      public function dependency(): object { return $this->dependency; }
+    }`;
+    const consumer = `<?php namespace App; final class Consumer {
+      public function make(): Service { return new Service(dependency: new \\stdClass()); }
+    }`;
+    workspace.update('file:///Service.php', declaration);
+    workspace.update('file:///Consumer.php', consumer);
+    const offset = declaration.indexOf('$dependency') + 2;
+    const rename = workspace.closedPromotedPropertyRename('file:///Service.php', offset, 'service');
+    expect(rename?.locations.filter((item) => item.uri === 'file:///Service.php')).toHaveLength(2);
+    expect(rename?.locations.filter((item) => item.uri === 'file:///Consumer.php')).toEqual([{
+      uri: 'file:///Consumer.php', start: consumer.indexOf('dependency:'), end: consumer.indexOf('dependency:') + 'dependency'.length,
+    }]);
+  });
   it('renames a unique named function across resolved calls and import paths while retaining explicit aliases', () => {
     workspace.update('file:///FunctionDefinition.php', '<?php namespace Functions; function formatValue(string $value): string { return $value; } function occupied(): void {}');
     const source = `<?php namespace Consumer; use function Functions\\formatValue; use function Functions\\formatValue as formatAlias;
