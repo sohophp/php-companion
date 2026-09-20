@@ -19,6 +19,22 @@ Twig 语法仍只由 TwigPlus 分析。PHP Companion 仅检测项目是否可能
 - PHP Companion 全仓 26 组共 806 项测试通过；Language Server 198 项、独立 Symfony 扩展 4 项；
 - TypeScript 与 ESLint 通过；
 - stdio 回归覆盖运行时权威全集加静态源码、从 PHP 调用与 YAML 声明 Prepare、PHP/声明/Twig 合并、无 Twig 项目、Twig 不完整拒绝和非法名称拒绝；
-- TwigPlus Language Server 59 项及 VS Code adapter 63 项通过；新增回归覆盖 `path()`/`url()`、打开缓冲区覆盖磁盘、文件数上限和 WSL Remote URI 映射。
+- TwigPlus Language Server 60 项及 VS Code adapter 63 项通过；新增回归覆盖 `path()`/`url()`、打开缓冲区覆盖磁盘、文件数上限、符号链接不完整扫描拒绝和 WSL Remote URI 映射；
+- VS Code 1.138.0 隔离 Profile 的打包宿主测试通过：核心、独立 Symfony 与本地 TwigPlus VSIX 同时加载，YAML 声明、PHP 调用和两个 Twig 引用作为一个 WorkspaceEdit 应用，一次 Undo 全部恢复；
+- Winstar2024（PHP 8.5）与 CoreRepo（PHP 7.2）Alpha preflight 均通过 WSL、候选摘要、Composer 根目录和项目 PHP 包装器确定性检查。
 
-打包 VSIX、Extension Host、Winstar 实际项目和 Alpha 候选摘要将在功能提交后补充。自动测试不替代 Windows 客户端连接 WSL Remote 的人工 Apply、Undo/Redo 验收。
+## Alpha 候选
+
+候选目录：`artifacts/php-companion-alpha-0.4.5-bef09212/`，源码提交 `bef0921229296ee7e2a202640c5b7bcb043e9b73`。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `f646ce39db4eb2a32b6418d646e73ead03a510c74428090b2d9013a7c91c3554` |
+| `php-companion-symfony-0.4.5.vsix` | `5147ccff3b644308b6a5cf514f46f37f6996f3929b25f50c262ece0928ed8546` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `7e01c227091bfe4606aa445f67ca78b4408e49939800b59ff6f2550a21fbf6d7` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `b6fc25eb5ff9050b16406fbaf12c4f31e8d58e72a5e5131806ab1be8201a095d` |
+| `twig-plus-1.3.7-496f514.vsix` | `0162f5151972faee4a68f57a2d49bd749d743a0f70211422eec6302a99c7ae05` |
+
+TwigPlus 桥接代码位于提交 `901b7c0`，符号链接完整性修复位于 `496f514`。Marketplace 的同版本包在正式发布前不包含这些提交，因此当前候选明确附带本地 TwigPlus VSIX，安装说明要求覆盖 Marketplace 版本。
+
+自动测试不替代 Windows 客户端连接 WSL Remote 的人工 Apply、Undo/Redo 和持续真实编码验收。
