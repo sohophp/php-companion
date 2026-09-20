@@ -1,3 +1,4 @@
+- Reject superseded Symfony semantic-provider results before they can commit or clear container, event or controller-context facts; controller-context refreshes track each changed PHP document independently so concurrent edits in different files remain valid.
 - Refresh resource-expanded Symfony container facts once per workspace root after PHP declaration changes or deletion, while implementation-only watcher updates retain the current service snapshot.
 - Invalidate cached authoritative Symfony event relations after actual watched PHP source changes or deletion, preventing stale listener and dispatch References when declaration ranges remain unchanged.
 - Refresh authoritative Symfony controller contexts once per workspace root for each watched-file batch, passing all changed PHP snapshots together while replacing each file's contexts independently.

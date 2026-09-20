@@ -74,6 +74,11 @@ const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPr
 const symfonyContainerRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const externalSymfonyEventsByRoot = new Map<string, { providerId: string; inputSignature: string;
   subscriptions: ExternalEventSubscriptionFact[]; dispatches: ExternalEventDispatchFact[] }>();
+type RootSemanticProviderChannel = 'container' | 'events';
+interface RootSemanticProviderRevisions { container: number; events: number }
+const semanticProviderRevisionsByRoot = new Map<string, RootSemanticProviderRevisions>();
+interface ControllerContextProviderRevisions { full: number; scoped: number; uris: Map<string, number> }
+const controllerContextProviderRevisionsByRoot = new Map<string, ControllerContextProviderRevisions>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
@@ -97,6 +102,51 @@ let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
+
+function beginRootSemanticProviderRequest(root: string, channel: RootSemanticProviderChannel): number {
+  const revisions = semanticProviderRevisionsByRoot.get(root) ?? { container: 0, events: 0 };
+  revisions[channel] += 1; semanticProviderRevisionsByRoot.set(root, revisions); return revisions[channel];
+}
+
+function isCurrentRootSemanticProviderRequest(root: string, channel: RootSemanticProviderChannel, revision: number): boolean {
+  return semanticProviderRevisionsByRoot.get(root)?.[channel] === revision;
+}
+
+type ControllerContextProviderRequest =
+  | { kind: 'full'; full: number; scoped: number }
+  | { kind: 'scoped'; full: number; uris: Map<string, number> };
+
+function controllerContextProviderRevisions(root: string): ControllerContextProviderRevisions {
+  const current = controllerContextProviderRevisionsByRoot.get(root) ?? { full: 0, scoped: 0, uris: new Map<string, number>() };
+  controllerContextProviderRevisionsByRoot.set(root, current); return current;
+}
+
+function beginControllerContextProviderRequest(root: string, scopes?: readonly { uri: string }[]): ControllerContextProviderRequest {
+  const revisions = controllerContextProviderRevisions(root);
+  if (!scopes) {
+    revisions.full += 1;
+    return { kind: 'full', full: revisions.full, scoped: revisions.scoped };
+  }
+  revisions.scoped += 1;
+  const uris = new Map<string, number>();
+  for (const { uri } of scopes) {
+    const revision = (revisions.uris.get(uri) ?? 0) + 1;
+    revisions.uris.set(uri, revision); uris.set(uri, revision);
+  }
+  return { kind: 'scoped', full: revisions.full, uris };
+}
+
+function currentControllerContextProviderUris(root: string, request: ControllerContextProviderRequest): ReadonlySet<string> | undefined {
+  const revisions = controllerContextProviderRevisionsByRoot.get(root);
+  if (!revisions || revisions.full !== request.full) return new Set();
+  if (request.kind === 'full') return revisions.scoped === request.scoped ? undefined : new Set();
+  return new Set([...request.uris].filter(([uri, revision]) => revisions.uris.get(uri) === revision).map(([uri]) => uri));
+}
+
+function invalidateSemanticProviderRequests(): void {
+  for (const revisions of semanticProviderRevisionsByRoot.values()) { revisions.container += 1; revisions.events += 1; }
+  for (const revisions of controllerContextProviderRevisionsByRoot.values()) { revisions.full += 1; revisions.scoped += 1; }
+}
 
 function composerProjectForRoot(root: string): Promise<ComposerProject | undefined> {
   let project = composerProjectsByRoot.get(root);
@@ -410,6 +460,8 @@ function clearContainerFacts(root: string, workspace: SemanticWorkspace, provide
 
 async function runContainerProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean): Promise<boolean> {
+  const requestRevision = beginRootSemanticProviderRequest(root, 'container');
+  const stillCurrent = (): boolean => shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'container', requestRevision);
   const authoritative = semanticProviders.filter((provider) => provider.replacesContainerServices);
   if (authoritative.length !== 1) {
     clearContainerFacts(root, workspace);
@@ -425,7 +477,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
     generation: String(generation), phpVersion: targetPhpVersion,
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) });
-  if (!shouldContinue()) return false;
+  if (!stillCurrent()) return false;
   if (result.ok && applyExternalContainerFacts(root, workspace, result.contribution)) {
     connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative container generation ${generation}.`); return true;
   }
@@ -450,6 +502,8 @@ function eventProviderInputSignature(generation: number, documentsSnapshot: read
 
 async function runEventProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, onlyIfStale = false): Promise<boolean> {
+  const requestRevision = beginRootSemanticProviderRequest(root, 'events');
+  const stillCurrent = (): boolean => shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'events', requestRevision);
   const authoritative = semanticProviders.filter((provider) => provider.replacesEventRelations);
   if (authoritative.length !== 1) {
     externalSymfonyEventsByRoot.delete(root);
@@ -458,6 +512,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   }
   const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root);
   await hydrateCanonicalTypes(workspace, root, ['Symfony\\Component\\EventDispatcher\\EventSubscriberInterface']);
+  if (!stillCurrent()) return false;
   const services = symfonyServiceCatalog(root);
   const types = semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
   if (!snapshots.complete || !types.complete) {
@@ -472,7 +527,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
     ...(descriptor.requiresContainerServices ? { containerServices: services } : {}) });
-  if (!shouldContinue()) return false;
+  if (!stillCurrent()) return false;
   if (result.ok && result.contribution.eventSubscriptions && result.contribution.eventDispatches) {
     externalSymfonyEventsByRoot.set(root, { providerId: descriptor.providerId, inputSignature,
       subscriptions: [...result.contribution.eventSubscriptions], dispatches: [...result.contribution.eventDispatches] });
@@ -501,6 +556,7 @@ function controllerContextMap(contexts: readonly ControllerTemplateContext[], al
 
 async function runControllerContextProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, scopes?: readonly { uri: string; source: string; snapshotVersion: string }[]): Promise<boolean> {
+  const request = beginControllerContextProviderRequest(root, scopes);
   const authoritative = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (authoritative.length !== 1) {
     if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
@@ -521,22 +577,26 @@ async function runControllerContextProvider(root: string, generation: number, wo
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
   if (!shouldContinue()) return false;
+  const currentUris = currentControllerContextProviderUris(root, request);
+  if (currentUris?.size === 0) return false;
   if (result.ok && result.contribution.controllerContexts) {
     const sourcesByUri = scopes ? new Map(scopes.map((scope) => [scope.uri, scope.source])) : undefined;
     const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(scopes?.map((scope) => scope.uri) ?? [])]);
     const sourceFor = (uri: string): string | undefined => sourcesByUri?.get(uri) ?? workspace.source(uri);
     const contexts = controllerContextMap(result.contribution.controllerContexts, allowedUris, sourceFor);
     if (contexts) {
-      if (scopes) {
+      if (scopes && currentUris) {
         const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        for (const scope of scopes) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
+        for (const scope of scopes) if (currentUris.has(scope.uri)) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
         interopContextsByRoot.set(root, byFile);
       } else interopContextsByRoot.set(root, contexts);
       connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative controller contexts for generation ${generation}.`);
       return true;
     }
   }
-  if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
+  if (scopes && currentUris) for (const scope of scopes) {
+    if (currentUris.has(scope.uri)) interopContextsByRoot.get(root)?.delete(scope.uri);
+  } else interopContextsByRoot.delete(root);
   connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete controller-context snapshot; controller contexts are unavailable.`
     : `Semantic provider ${descriptor.providerId} failed (${result.code}); controller contexts are unavailable: ${result.message}`);
   return false;
@@ -627,6 +687,7 @@ function symfonyRouteProvider(uri: string): { path: string; external: boolean; e
 function externalSymfonyRoutes(uri: string): boolean { return symfonyRouteProvider(uri)?.external === true; }
 async function reconcileSemanticProviderChange(previous: readonly SemanticProviderDescriptor[]): Promise<void> {
   if (JSON.stringify(previous) === JSON.stringify(semanticProviders)) return;
+  invalidateSemanticProviderRequests();
   const currentIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
   const removed = previous.filter((provider) => !currentIds.has(provider.providerId.toLowerCase()));
   if (removed.some((provider) => provider.replacesEventRelations)) externalSymfonyEventsByRoot.clear();
@@ -2996,6 +3057,8 @@ connection.onShutdown(async () => {
   parserPromise = undefined;
   semanticWorkspaces.clear();
   externalSymfonyEventsByRoot.clear();
+  semanticProviderRevisionsByRoot.clear();
+  controllerContextProviderRevisionsByRoot.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();
   for (const waiters of projectCompleteWaiters.values()) for (const resolveReady of waiters) resolveReady();
