@@ -45,6 +45,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   assert.ok(phpExecutable, 'Open Source Profile test requires PHP_COMPANION_PHP_EXECUTABLE');
   assert.ok(phpunitExecutable, 'Open Source Profile test requires PHP_COMPANION_PHPUNIT_EXECUTABLE');
   const extensionIds = [
+    'sohophp.php-companion-symfony',
     'sohophp.twig-plus',
     'redhat.vscode-yaml',
     'redhat.vscode-xml',

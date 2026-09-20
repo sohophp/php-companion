@@ -26,9 +26,6 @@ importers:
       '@php-companion/provider-symfony-services':
         specifier: workspace:*
         version: link:packages/provider-symfony-services
-      '@php-companion/provider-winstar-routes':
-        specifier: workspace:*
-        version: link:packages/provider-winstar-routes
       '@php-companion/refactor':
         specifier: workspace:*
         version: link:packages/refactor

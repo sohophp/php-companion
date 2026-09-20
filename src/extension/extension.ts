@@ -21,6 +21,7 @@ import { buildAddImportEdit, buildOptimizeImportsEdit, rankedImportCandidates } 
 import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
 import { withBoundedRetry } from '../refactor/retry.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
+import { composerRequiresSymfony } from './languageServerPolicy.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
@@ -38,6 +39,30 @@ function offsetAt(source: string, position: vscode.Position): number {
 function positionAt(source: string, offset: number): vscode.Position {
   const lines = source.slice(0, offset).split('\n');
   return new vscode.Position(lines.length - 1, lines.at(-1)!.length);
+}
+
+async function recommendStandaloneSymfony(context: vscode.ExtensionContext, output: vscode.LogOutputChannel): Promise<void> {
+  const extensionId = 'sohophp.php-companion-symfony';
+  const stateKey = 'phpCompanion.symfonyExtensionRecommendation.v1';
+  if (vscode.extensions.getExtension(extensionId) || context.workspaceState.get<boolean>(stateKey, false)) return;
+  let detected = false;
+  for (const folder of vscode.workspace.workspaceFolders ?? []) {
+    try {
+      const bytes = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(folder.uri, 'composer.json'));
+      if (composerRequiresSymfony(JSON.parse(Buffer.from(bytes).toString('utf8')))) { detected = true; break; }
+    } catch {
+      // Missing or invalid Composer manifests are handled by the normal project diagnostics.
+    }
+  }
+  if (!detected) return;
+  await context.workspaceState.update(stateKey, true);
+  output.warn('Symfony FrameworkBundle detected without the standalone PHP Companion Symfony extension.');
+  const action = 'Show PHP Companion: Symfony';
+  if (await vscode.window.showInformationMessage(
+    'This Symfony project needs PHP Companion: Symfony for precise services, routes, events, and Controller-to-Twig support.', action,
+  ) === action) {
+    await vscode.commands.executeCommand('workbench.extensions.search', `@id:${extensionId}`);
+  }
 }
 
 function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source: string }[], versions: VersionManager, parser: PhpSyntaxParser): vscode.WorkspaceEdit {
@@ -171,6 +196,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     void vscode.window.showErrorMessage('PHP Companion language server failed to start. See the PHP Companion output channel.');
     return undefined;
   });
+  void recommendStandaloneSymfony(context, output);
   type PasteSymbol = { fqcn: string; alias: string; selectedAlias?: string };
   type ImportPlanResponse = { replacements: Record<string, string>; conflict?: { fqcn: string; sourceAlias: string }; edit?: ProtocolWorkspaceEdit };
   type SafeMoveResponse = { edit?: ProtocolWorkspaceEdit; error?: string; sources?: Record<string, string>; reconciliation?: ServerMoveReconciliation[] };

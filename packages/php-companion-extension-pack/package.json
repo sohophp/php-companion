@@ -63,6 +63,7 @@
   },
   "extensionPack": [
     "sohophp.php-companion",
+    "sohophp.php-companion-symfony",
     "sohophp.twig-plus",
     "redhat.vscode-yaml",
     "redhat.vscode-xml",

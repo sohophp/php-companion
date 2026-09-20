@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRestartBudget, resolveLanguageServerActivation, useBundledWinstarRouteProvider } from '../../src/extension/languageServerPolicy.js';
+import { composerRequiresSymfony, createRestartBudget, resolveLanguageServerActivation } from '../../src/extension/languageServerPolicy.js';
 
 describe('language server restart policy', () => {
   it('allows three restarts in a minute and stops a crash loop', () => {
@@ -12,11 +12,12 @@ describe('language server restart policy', () => {
   });
 });
 
-describe('Symfony provider ownership policy', () => {
-  it('keeps the Alpha fallback only until the standalone Symfony extension is installed', () => {
-    expect(useBundledWinstarRouteProvider(true, false)).toBe(true);
-    expect(useBundledWinstarRouteProvider(true, true)).toBe(false);
-    expect(useBundledWinstarRouteProvider(false, false)).toBe(false);
+describe('Symfony project detection', () => {
+  it('recognizes framework projects without treating individual components as full Symfony applications', () => {
+    expect(composerRequiresSymfony({ require: { 'symfony/framework-bundle': '^7.4' } })).toBe(true);
+    expect(composerRequiresSymfony({ 'require-dev': { 'SYMFONY/SYMFONY': '^7.4' } })).toBe(true);
+    expect(composerRequiresSymfony({ require: { 'symfony/console': '^7.4' } })).toBe(false);
+    expect(composerRequiresSymfony({ require: [] })).toBe(false);
   });
 });
 

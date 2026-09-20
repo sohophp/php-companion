@@ -19,9 +19,16 @@ export function resolveLanguageServerActivation(input: LanguageServerActivationI
   return { start: input.enabled && !blockedByCompetingServer, blockedByCompetingServer };
 }
 
-/** The standalone Symfony extension owns its bundled providers once installed. */
-export function useBundledWinstarRouteProvider(enabled: boolean, standaloneSymfonyInstalled: boolean): boolean {
-  return enabled && !standaloneSymfonyInstalled;
+export function composerRequiresSymfony(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const manifest = value as Record<string, unknown>;
+  for (const section of ['require', 'require-dev']) {
+    const dependencies = manifest[section];
+    if (!dependencies || typeof dependencies !== 'object' || Array.isArray(dependencies)) continue;
+    const names = Object.keys(dependencies as Record<string, unknown>).map((name) => name.toLowerCase());
+    if (names.includes('symfony/framework-bundle') || names.includes('symfony/symfony')) return true;
+  }
+  return false;
 }
 
 export function createRestartBudget(options: { maxRestarts?: number; windowMs?: number; now?: () => number } = {}): RestartBudget {

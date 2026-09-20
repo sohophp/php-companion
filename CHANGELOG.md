@@ -1,3 +1,5 @@
+- Both supported extension packs now install `sohophp.php-companion-symfony`; direct core installs detect FrameworkBundle projects missing that extension and provide a one-time extension-search action.
+- Remove the Winstar runtime route provider bundle from the core VSIX; the standalone Symfony extension is now its only product owner.
 - Standalone integrations can atomically update an existing plugin API registration; invalid upgrades retain the last proven provider set, disposal is idempotent, and API-incompatible Symfony extensions fail before registering partial capabilities.
 - 提交 `9339f35` 完成独立 Symfony 扩展生命周期门禁；候选 `php-companion-alpha-0.4.5-9339f353` 的四份 VSIX、24 个组件 729 项测试、24 个隔离 tarball、双扩展 Extension Host 和 Winstar PHP 8.5/CoreRepo PHP 7.2 预检均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Move authoritative Symfony controller-to-template context discovery into `sohophp.php-companion-symfony`; the separately publishable provider returns bounded literal render contexts while twig-plus remains the only Twig language implementation.

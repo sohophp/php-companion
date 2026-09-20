@@ -31,7 +31,6 @@ const artifacts = [
       'extension/package.json',
       'extension/dist/extension.js',
       'extension/dist/language-server.js',
-      'extension/dist/winstar-route-provider.js',
       'extension/resources/icon.png',
     ],
   },
@@ -105,6 +104,9 @@ for (const artifact of artifacts) {
     throw new Error(`${artifact.path} is missing: ${missing.join(', ')}`);
   }
   if (artifact.core) {
+    if (names.has('extension/dist/winstar-route-provider.js')) {
+      throw new Error(`${artifact.path} must not bundle the standalone Symfony Winstar route provider.`);
+    }
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
     if (manifest.contributes?.configuration?.properties?.['phpCompanion.languageServer.enabled']?.default !== true) {
       throw new Error(`${artifact.path} must enable the self-hosted PHP language server by default.`);
@@ -131,7 +133,7 @@ for (const artifact of artifacts) {
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    const expectedExtensions = ['sohophp.php-companion', ...openSourceProfile.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)]
+    const expectedExtensions = ['sohophp.php-companion', 'sohophp.php-companion-symfony', ...openSourceProfile.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)]
       .map((id) => id.toLowerCase()).sort();
     const actualExtensions = Array.isArray(manifest.extensionPack)
       ? manifest.extensionPack.map((id) => String(id).toLowerCase()).sort() : [];

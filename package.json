@@ -166,7 +166,6 @@
     "@php-companion/runtime-probe": "workspace:*",
     "@php-companion/parser": "workspace:*",
     "@php-companion/project": "workspace:*",
-    "@php-companion/provider-winstar-routes": "workspace:*",
     "@php-companion/provider-symfony-routes": "workspace:*",
     "@php-companion/provider-symfony-services": "workspace:*",
     "@php-companion/refactor": "workspace:*",

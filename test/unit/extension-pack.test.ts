@@ -16,7 +16,7 @@ interface ExtensionManifest {
 
 async function openSourceExtensions(): Promise<string[]> {
   const entries = JSON.parse(await readFile(resolve('test/extension/open-source-profile.extensions.json'), 'utf8')) as Array<{ id: string; defaultPack?: boolean }>;
-  return ['sohophp.php-companion', ...entries.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)];
+  return ['sohophp.php-companion', 'sohophp.php-companion-symfony', ...entries.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)];
 }
 
 async function manifest(path: string): Promise<ExtensionManifest> {
@@ -64,6 +64,8 @@ describe('PHP Companion manifests', () => {
     expect(recommended.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.extensionPack).not.toContain('symfony.language-tools');
     expect(recommended.extensionPack).not.toContain('symfony.language-tools');
+    expect(openSource.extensionPack).toContain('sohophp.php-companion-symfony');
+    expect(recommended.extensionPack).toContain('sohophp.php-companion-symfony');
     expect(openSource.contributes).toBeDefined();
     expect(recommended.contributes).toEqual(openSource.contributes);
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
