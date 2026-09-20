@@ -25,6 +25,15 @@
 - `pnpm lint`
 - `git diff --check`
 
+功能提交为 `65c6d1f0900ede58862d505ba64d693bf57b1ddf`。对应私有候选位于 `artifacts/php-companion-alpha-0.4.5-65c6d1f0/`，四份 VSIX 的 `SHA256SUMS` 全部通过：
+
+- Core：`d3d5dea46893d417bd69a59cbc39339915c25a98bf79ff00bbf0fdc13d6bc4c9`
+- Symfony：`fed171ec6605c79939069f0e3c765125eaa3e589487527fb2e04374e16f1c1ec`
+- Open Source Pack：`4732c282a8d746591bcacd3e9397ea96edfc0157961bb122748c7b498edab7f7`
+- Recommended Pack：`6be9a8b6d9ba57c7bacb988e137c5d3147cd4fe8b45e6a0a7e5cfc384b7ac6bf`
+
+Winstar PHP 8.5 与 CoreRepo PHP 7.2 的 WSL 确定性 Alpha preflight 均通过。当前命令不在 VS Code 集成终端内，因此 Extension Host 归属、竞争 Provider 状态和连续编辑会话仍由人工门禁判定。
+
 ## 剩余边界
 
 含有字符串或注释文本 `render` 的文件仍可能进入 Provider；Provider 会继续通过 PHP AST 拒绝不匹配的调用。这是有意保留的低成本保守边界，避免在核心中复制 Symfony Controller 语法判断。实际 Alpha Profile 仍需安装包含本修改的候选并完成连续编辑验收。
