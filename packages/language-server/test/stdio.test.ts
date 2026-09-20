@@ -20,6 +20,20 @@ function lspOffset(source: string, position: { line: number; character: number }
   return lines.slice(0, position.line).reduce((total, line) => total + line.length + 1, 0) + position.character;
 }
 
+const symfonyServiceProviderDescriptor = {
+  providerId: 'php-companion.symfony.services',
+  command: process.execPath,
+  args: [
+    resolve('../provider-symfony-services/dist/cli.js'),
+    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
+    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
+  ],
+  timeoutMs: 10_000,
+  requiresProjectTypes: true,
+  acceptsDocumentSnapshots: true,
+  replacesContainerServices: true,
+} as const;
+
 function messagesFrom(process: ChildProcessWithoutNullStreams): {
   messages: object[];
   waitFor: (predicate: (message: any) => boolean, timeoutMs?: number) => Promise<any>;
@@ -94,7 +108,7 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('loads Symfony resource registrations for cold on-demand type references', async () => {
+  it('consumes Symfony provider resource registrations for cold on-demand type references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-symfony-references-'));
     try {
       const sourceDirectory = join(root, 'src'); const configDirectory = join(root, 'config');
@@ -204,7 +218,10 @@ describe('language server stdio', () => {
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+        processId: null, capabilities: {}, rootUri, initializationOptions: {
+          indexingMode: 'onDemand',
+          bundledSemanticProviders: [{ ...symfonyServiceProviderDescriptor, acceptsDocumentSnapshots: false }],
+        },
       } }));
       await output.waitFor((message) => message.id === 233);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -636,10 +653,10 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('restores Symfony XML and compiled-container facts on a hot language-server start', async () => {
+  it('refreshes Symfony XML service facts through the authoritative provider', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
     try {
-      const cacheDirectory = join(root, '.cache'); const sourceDirectory = join(root, 'src');
+      const sourceDirectory = join(root, 'src');
       const configDirectory = join(root, 'config'); const containerDirectory = join(root, 'var', 'cache', 'dev');
       const bundleDirectory = join(root, 'bundle'); const bundleConfigDirectory = join(bundleDirectory, 'Resources', 'config');
       await mkdir(sourceDirectory); await mkdir(configDirectory); await mkdir(containerDirectory, { recursive: true }); await mkdir(bundleConfigDirectory, { recursive: true });
@@ -677,16 +694,18 @@ describe('language server stdio', () => {
       await writeFile(join(containerDirectory, 'App_KernelDevDebugContainer.xml'),
         '<?xml version="1.0"?><container><services><service id="app.compiled" class="App\\Mailer" public="true"/></services></container>');
       const rootUri = pathToFileURL(root).toString();
-      const start = async (id: number, expectedCached: number): Promise<ReturnType<typeof messagesFrom>> => {
+      const start = async (id: number): Promise<ReturnType<typeof messagesFrom>> => {
         server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
-          processId: null, capabilities: {}, rootUri, initializationOptions: { cacheDirectory },
+          processId: null, capabilities: {}, rootUri, initializationOptions: {
+            bundledSemanticProviders: [symfonyServiceProviderDescriptor],
+          },
         } }));
         await output.waitFor((message) => message.id === id);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         await output.waitFor((message) => message.method === 'window/logMessage'
-          && message.params?.message?.includes(`Loaded Symfony facts from 5 sources (${expectedCached} cached)`));
+          && message.params?.message?.includes('committed authoritative container generation'), 10_000);
         return output;
       };
       const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
@@ -696,8 +715,7 @@ describe('language server stdio', () => {
         await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
       };
 
-      const cold = await start(220, 0); await stop(cold, 221);
-      const hot = await start(222, 5);
+      const hot = await start(222);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
@@ -725,8 +743,7 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
         changes: [{ uri: importedUri, type: 2 }],
       } }));
-      await hot.waitFor((message) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('Loaded Symfony facts from 4 sources'));
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 500));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
@@ -1863,7 +1880,12 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       </services></container>`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 10, method: 'initialize', params: { processId: null, capabilities: { window: { workDoneProgress: true }, workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } }, rootUri } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 10, method: 'initialize', params: {
+        processId: null,
+        capabilities: { window: { workDoneProgress: true }, workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } },
+        rootUri,
+        initializationOptions: { bundledSemanticProviders: [symfonyServiceProviderDescriptor] },
+      } }));
       await output.waitFor((message) => message.id === 10);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       const progressCreate = await output.waitFor((message) => message.method === 'window/workDoneProgress/create');
@@ -2020,7 +2042,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect((await output.waitFor((message) => message.id === 65)).result).toMatchObject([{ label: 'deliver' }]);
       await writeFile(servicesPath, 'services: {}\n');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(servicesPath).toString(), type: 2 }] } }));
-      await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, 500));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleOffset) } }));
       expect((await output.waitFor((message) => message.id === 64)).result).toMatchObject({ contents: { value: expect.not.stringContaining('(compiled)') } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 66, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleMember) } }));
@@ -4371,6 +4393,13 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       } }));
       expect((await output.waitFor((message) => message.id === 66)).result).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/references', params: {
+        textDocument: { uri: serviceUri }, position: lspPosition(source, source.indexOf('Service') + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 67)).result)
+        .not.toContainEqual(expect.objectContaining({ uri: configUri }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
