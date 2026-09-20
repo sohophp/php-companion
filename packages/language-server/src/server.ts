@@ -29,7 +29,8 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
-import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
+import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
+  type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
 import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
@@ -1515,7 +1516,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
-  const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits, readConcurrency: 16,
+  const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits, readConcurrency: 32,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     onSource: ({ uri, source }) => {
@@ -1524,11 +1525,19 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
         : normalizedNames.some((name) => effective.toLowerCase().includes(name));
       if (matches) { workspace.update(uri, effective, Boolean(open)); candidates += 1; }
+      return createSourceCandidateSummary(source);
     },
+    cache: cacheDirectory ? {
+      directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+      restore: (payload): boolean | 'source' => {
+        const decision = sourceCandidateSummaryDecision(payload, names, mode);
+        return decision === 'skip' ? true : decision === 'source' ? 'source' : false;
+      },
+    } : undefined,
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
-  connection.console.info(`[named-candidates] files=${scan.files} parsed=${candidates} elapsedMs=${Date.now() - started}`);
+  connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {

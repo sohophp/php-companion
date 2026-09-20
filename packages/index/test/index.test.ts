@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, readdir, rm, writeFile, stat, utimes } from 'node:fs/pr
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { DocumentKeyIndex, indexComposerSources } from '../src/index.js';
+import { DocumentKeyIndex, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision } from '../src/index.js';
 
 describe('incremental document-key inverted index', () => {
   it('replaces and removes document postings without disturbing shared keys', () => {
@@ -27,6 +27,19 @@ describe('incremental document-key inverted index', () => {
     expect(index.replace('file:///A.php', ['too-long-key'])).toBe(false);
     expect(index.documentKeys('file:///A.php')).toEqual(['one', 'two']);
     expect(() => new DocumentKeyIndex({ maxKeysPerDocument: 0, maxKeyLength: 1 })).toThrow(RangeError);
+  });
+});
+
+describe('bounded source candidate summaries', () => {
+  it('separates symbol and named-argument candidates including comments', () => {
+    const summary = createSourceCandidateSummary('<?php new Service(dependency /* named */ : $dependency); $other = dependency;');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'symbol')).toBe('source');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'named-argument')).toBe('source');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['other']), 'named-argument')).toBe('skip');
+  });
+  it('rebuilds invalid payloads and reads incomplete summaries conservatively', () => {
+    expect(sourceCandidateSummaryDecision({}, new Set(['dependency']), 'symbol')).toBe('rebuild');
+    expect(sourceCandidateSummaryDecision({ schema: 1, complete: false, symbols: [], namedArguments: [] }, new Set(['missing']), 'symbol')).toBe('source');
   });
 });
 
@@ -152,6 +165,16 @@ describe('bounded project source index', () => {
     const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);
     const result = await indexComposerSources(root, options);
     expect(result.cached).toBe(1); expect((await stat(cacheFile)).mtimeMs).toBe(fixed.getTime());
+  });
+  it('reads only cache-selected sources while restoring skipped files concurrently', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-source-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'A.php'), '<?php class A {}'); await writeFile(join(root, 'src', 'B.php'), '<?php class B {}');
+    const cacheOptions = { directory: cache, version: 'candidate-v1', key: 'candidates', restore: (payload: unknown): true | 'source' => (payload as { selected?: boolean }).selected ? 'source' : true };
+    await indexComposerSources(root, { cache: cacheOptions, onSource: ({ path }) => ({ selected: path.endsWith('B.php') }) });
+    const read: string[] = [];
+    const result = await indexComposerSources(root, { readConcurrency: 4, cache: cacheOptions, onSource: ({ path }) => { read.push(path.split(sep).at(-1)!); return { selected: true }; } });
+    expect(read).toEqual(['B.php']); expect(result).toMatchObject({ files: 2, cached: 1, projectComplete: true });
   });
   it('rebuilds a cache entry when its restore adapter rejects the payload', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-entry-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');

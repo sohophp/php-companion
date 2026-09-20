@@ -85,16 +85,30 @@ function exclusionPattern(pattern: string): RegExp {
   return new RegExp(`^${source}(?:$|/.*)`);
 }
 
-function excludedInPackage(filePath: string, root: string, patterns: string[]): boolean {
-  const packageRelative = relative(resolve(root), resolve(filePath));
+type ExclusionScope = { root: string; patterns: RegExp[] };
+const exclusionScopes = new WeakMap<ComposerProject, ExclusionScope[]>();
+
+function compiledExclusionScopes(project: ComposerProject): ExclusionScope[] {
+  const cached = exclusionScopes.get(project); if (cached) return cached;
+  const scopes = [{ root: project.root, patterns: project.excludeFromClassmap },
+    ...project.dependencies.map((dependency) => ({ root: dependency.root, patterns: dependency.excludeFromClassmap }))]
+    .flatMap(({ root, patterns }) => {
+      const compiled = patterns.filter((pattern) => pattern.trim() !== '').map(exclusionPattern);
+      return compiled.length ? [{ root: resolve(root), patterns: compiled }] : [];
+    });
+  exclusionScopes.set(project, scopes); return scopes;
+}
+
+function excludedInScope(resolvedFilePath: string, scope: ExclusionScope): boolean {
+  const packageRelative = relative(scope.root, resolvedFilePath);
   if (packageRelative === '..' || packageRelative.startsWith(`..${sep}`) || isAbsolute(packageRelative)) return false;
   const portable = packageRelative.split(sep).join('/');
-  return patterns.some((pattern) => pattern.trim() !== '' && exclusionPattern(pattern).test(portable));
+  return scope.patterns.some((pattern) => pattern.test(portable));
 }
 
 export function isAutoloadPathExcluded(project: ComposerProject, filePath: string): boolean {
-  if (excludedInPackage(filePath, project.root, project.excludeFromClassmap)) return true;
-  return project.dependencies.some((dependency) => excludedInPackage(filePath, dependency.root, dependency.excludeFromClassmap));
+  const resolvedFilePath = resolve(filePath);
+  return compiledExclusionScopes(project).some((scope) => excludedInScope(resolvedFilePath, scope));
 }
 
 export function resolvePsr4Class(fqcn: string, mappings: Psr4Mapping[]): string[] {

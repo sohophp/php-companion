@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Persist bounded lexical source summaries under an independent cache key and let validated cache adapters request source only for matching candidates; unchanged non-candidates now need metadata checks instead of source reads. Discover each Composer source tree with one deterministic recursive directory read before applying existing exclusions and limits.
 - Allow cache-free candidate scans to prefetch source reads with bounded concurrency while preserving deterministic callback order and existing resource budgets.
 - Restore entries directly when size, mtime and ctime are unchanged, and avoid rewriting a fully unchanged persistent cache while retaining digest fallback for metadata changes.
 - Support a project-only phase for on-demand clients without discovering or parsing Composer dependency sources.

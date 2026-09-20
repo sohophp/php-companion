@@ -109,6 +109,7 @@ describe('language server stdio', () => {
   it('keeps reload and closed promoted-property rename free of project indexing in on-demand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-startup-'));
     try {
+      const cacheDirectory = join(root, '.cache');
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const source = '<?php namespace App; final class Service { public function __construct(private object $dependency) {} public function dependency(): object { return $this->dependency; } }';
       const consumer = '<?php namespace App; final class Consumer { public function make(): Service { return new Service(dependency /* named */ : new \\stdClass()); } }';
@@ -119,7 +120,7 @@ describe('language server stdio', () => {
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 230, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand', cacheDirectory },
       } }));
       await output.waitFor((message) => message.id === 230);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -140,10 +141,33 @@ describe('language server stdio', () => {
       expect(rename.changes[consumerUri]).toHaveLength(1);
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates] files=2 parsed=1'))).toBe(true);
+        && message.params?.message?.includes('[named-candidates] files=2 cached=0 parsed=1'))).toBe(true);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 232);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const reloaded = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand', cacheDirectory },
+      } }));
+      await reloaded.waitFor((message) => message.id === 234);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'textDocument/rename', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2), newName: 'service',
+      } }));
+      const reloadedRename = (await reloaded.waitFor((message) => message.id === 235)).result;
+      expect(reloadedRename.changes[sourceUri]).toHaveLength(2);
+      expect(reloadedRename.changes[consumerUri]).toHaveLength(1);
+      expect((await reloaded.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates] files=2 cached=1 parsed=1'))).params.message).toContain('cached=1 parsed=1');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'shutdown', params: null })); await reloaded.waitFor((message) => message.id === 236);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
