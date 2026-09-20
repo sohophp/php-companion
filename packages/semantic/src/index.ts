@@ -7020,6 +7020,11 @@ export class SemanticWorkspace {
           if (negated) { if (!candidateMatches) retained.push(candidate); continue; }
           if (candidateMatches) retained.push(candidate);
           else if (!strictSubclass && compatibility(target, candidate, this.typeRelationContext()) === 'yes') retained.push(target);
+          else if (narrowing.kind === 'instanceof' && target.kind === 'named' && candidate.kind === 'generic'
+            && candidate.base.kind === 'named' && this.isSubclassOf(target.name, candidate.base.name)) {
+            const projected = this.genericSupertype(target.name, [], candidate.base.name);
+            if (!projected || compatibility(projected, candidate, this.typeRelationContext()) !== 'no') retained.push(target);
+          }
         }
         narrowed = !uncertainComplement && retained.length ? union(...retained) : undefined;
       }

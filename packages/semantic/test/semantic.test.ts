@@ -1071,6 +1071,25 @@ describe('conservative semantic workspace', () => {
     expect(workspace.incompatibleReturns('file:///NativeAssertUse.php').map((item) => [item.actualType, item.expectedType]))
       .toEqual([['false', 'true']]);
   });
+  it('narrows a generic parent value to a concrete subclass after a native instanceof assertion', () => {
+    workspace.update('file:///NativeAssertGenericTypes.php', `<?php namespace NativeAssertGeneric;
+      class Entity {}
+      /** @template T */ class Repository {}
+      class CustomRepository extends Repository { public function custom(): void {} }
+      /** @return Repository<Entity> */ function repository(): Repository {}`);
+    const source = `<?php namespace NativeAssertGeneric;
+      function run(): void {
+        $repository = repository();
+        assert($repository instanceof CustomRepository);
+        $repository->custom();
+      }`;
+    workspace.update('file:///NativeAssertGenericUse.php', source);
+    const position = source.indexOf('custom();') + 3;
+    expect(workspace.completeMembers('file:///NativeAssertGenericUse.php', position).map((item) => item.name))
+      .toContain('custom');
+    expect(workspace.definition('file:///NativeAssertGenericUse.php', position))
+      .toEqual([expect.objectContaining({ uri: 'file:///NativeAssertGenericTypes.php' })]);
+  });
   it('narrows strict boolean literals in branches and terminating guards', () => {
     workspace.update('file:///BooleanBranchTypes.php', `<?php namespace BooleanBranch;
       class Ready { public function onlyReady(): void {} } class Other {}
