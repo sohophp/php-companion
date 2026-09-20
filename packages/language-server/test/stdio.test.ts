@@ -4611,8 +4611,14 @@ return static function (ContainerConfigurator $container): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 66, method: 'textDocument/references', params: {
         textDocument: { uri: serviceUri }, position: lspPosition(source, source.indexOf('Service') + 2), context: { includeDeclaration: false },
       } }));
-      expect((await output.waitFor((message) => message.id === 66)).result).toContainEqual({ uri: configUri,
+      const classServiceReferences = (await output.waitFor((message) => message.id === 66)).result;
+      expect(classServiceReferences).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
+      for (const [referenceUri, referenceSource] of [[configUri, configSource], [xmlUri, xmlSource], [phpUri, phpSource]] as const) {
+        const start = referenceSource.lastIndexOf('app.service');
+        expect(classServiceReferences).toContainEqual({ uri: referenceUri,
+          range: { start: lspPosition(referenceSource, start), end: lspPosition(referenceSource, start + 'app.service'.length) } });
+      }
       server.stdin.write(encode({ jsonrpc: '2.0', id: 68, method: 'phpCompanion/symfonyControllerDefinition', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
         position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5),

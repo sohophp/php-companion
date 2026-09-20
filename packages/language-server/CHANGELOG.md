@@ -1,3 +1,4 @@
+- Include exact YAML/XML/PHP service-id usages in PHP class References when an authoritative unique service registration maps the id to that class.
 - Resolve Definition, References and completion for exact service ids in provider-confirmed Symfony PHP Configurator files across the authoritative YAML/XML/PHP configuration graph.
 - Complete unique authoritative Symfony service ids inside exact XML service-reference attributes while preserving the attribute and quotes.
 - Resolve Definition and References for exact Symfony XML service attributes across the authoritative provider's YAML/XML configuration graph.

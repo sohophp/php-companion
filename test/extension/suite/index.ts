@@ -1341,6 +1341,15 @@ export async function run(): Promise<void> {
     ) ?? [];
     return definitions.some((location) => location.uri.toString() === mailerUri.toString());
   }, 'Self-hosted language server did not navigate from an autowired constructor type to its service implementation');
+  const mailerDocument = await vscode.workspace.openTextDocument(mailerUri);
+  const mailerClassOffset = mailerDocument.getText().indexOf('class Mailer') + 'class '.length + 2;
+  await waitForAsync(async () => {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', mailerUri, mailerDocument.positionAt(mailerClassOffset),
+    ) ?? [];
+    return references.some((location) => location.uri.toString() === phpServicesUri.toString()
+      && phpServicesDocument.getText(location.range) === 'App\\Service\\Mailer');
+  }, 'PHP class References did not include the exact PHP Configurator service usage', 30_000, 100);
   for (const [needle, expected] of [['Mailer $audit', '(named alias)'], ['Mailer $bound', '(binding)']] as const) {
     const offset = autowiredConsumer.getText().indexOf(needle) + 2;
     await waitForAsync(async () => {

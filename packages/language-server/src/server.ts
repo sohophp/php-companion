@@ -2820,6 +2820,26 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const serviceLocations = type ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
       .map((service) => ({ uri: service.registrationUri, start: service.registrationStart, end: service.registrationEnd })) : [];
+    const serviceReferenceLocations: Array<{ uri: string; start: number; end: number }> = [];
+    if (type && root) {
+      const serviceIds = new Set(symfonyServiceCatalog(root)
+        .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
+        .filter((service) => uniqueSymfonyServiceRegistration(root, service.id)?.className.toLowerCase() === type.fqcn.toLowerCase())
+        .map((service) => service.id));
+      const syntaxParser = serviceIds.size ? await parser() : undefined;
+      for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
+        if (!serviceIds.size || !/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
+        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+        const configUri = pathToFileURL(configPath).toString();
+        const source = frameworkDocumentSnapshots.get(configUri)?.source ?? documents.get(configUri)?.getText()
+          ?? await readFile(configPath, 'utf8').catch(() => undefined);
+        if (source === undefined || source.length > indexLimits.maxFileSizeBytes) continue;
+        const references = /\.php$/i.test(configPath) ? symfonyPhpServiceReferences(syntaxParser!, source)
+          : /\.xml$/i.test(configPath) ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source);
+        serviceReferenceLocations.push(...references.filter((reference) => serviceIds.has(reference.value))
+          .map((reference) => ({ uri: configUri, start: reference.start, end: reference.end })));
+      }
+    }
     const controllerRoutes = symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)
       ? await availableSymfonyRoutes(root, () => token.isCancellationRequested) : [];
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -2879,7 +2899,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           || workspace.isSubtype(owner, 'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface')
           || workspace.isSubtype(owner, 'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
       }).map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd })) : [];
-    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...controllerLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
+    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...serviceReferenceLocations, ...controllerLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);
