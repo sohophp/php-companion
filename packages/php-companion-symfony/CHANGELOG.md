@@ -1,5 +1,7 @@
 # Changelog
 
+- Core static-route fallback has been removed; this extension's complete authoritative route provider is now required for Symfony route completion, Definition and References.
+
 - Update the complete Symfony provider set atomically on configuration changes when supported by the core, with a compatible withdraw/register fallback for older plugin API v1 cores.
 
 - Register and package the authoritative Symfony controller-to-template context provider.

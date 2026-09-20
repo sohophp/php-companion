@@ -62,7 +62,7 @@
     "pretest:integration:php": "pnpm --filter @php-companion/runtime-probe build && pnpm --filter @php-companion/language-spec build",
     "test:integration:php": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest",
-    "test:extension": "pnpm build && node scripts/run-extension-test.mjs ./dist-test/runTest.js",
+    "test:extension": "pnpm build && pnpm --dir packages/php-companion-symfony build && node scripts/run-extension-test.mjs ./dist-test/runTest.js",
     "test:extension:intelephense": "PHP_COMPANION_TEST_WITH_INTELEPHENSE=1 pnpm test:extension",
     "test:extension:packaged": "pnpm package && pnpm package:symfony && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
     "test:extension:open-source-profile": "pnpm package && pnpm package:symfony && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",

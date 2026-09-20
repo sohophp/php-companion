@@ -2,7 +2,7 @@
 
 PHP Companion 自研 Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语言核心，负责服务容器、依赖注入、事件订阅、路由和 Controller → Twig 上下文编排。Twig 语法、模板补全、导航和格式化继续由 twig-plus 负责。
 
-扩展始终注册独立服务容器、事件关系与静态路由 Provider。服务 Provider 静态读取 YAML/XML/PHP Configurator、确定性导入、Bundle 资源及新鲜的 debug-container XML，返回服务/别名、自动装配、显式调用/属性、事件标签和编译参数事实；事件 Provider 提取 subscriber map、`AsEventListener`、继承/Trait 监听关系及 `dispatch()` 候选，核心再验证有效 PHP 方法与 Symfony EventDispatcher 接收者；路由 Provider 覆盖 YAML、PHP Configurator、Route Attribute、Kernel 导入、Bundle 资源、环境与本地化前缀。打开文档以有界快照覆盖磁盘。服务容器和 PHP 事件关系只由对应 Provider 发现；Provider 缺失、冲突、失败或快照越界时对应能力明确不可用。
+扩展始终注册独立服务容器、事件关系与静态路由 Provider。服务 Provider 静态读取 YAML/XML/PHP Configurator、确定性导入、Bundle 资源及新鲜的 debug-container XML，返回服务/别名、自动装配、显式调用/属性、事件标签和编译参数事实；事件 Provider 提取 subscriber map、`AsEventListener`、继承/Trait 监听关系及 `dispatch()` 候选，核心再验证有效 PHP 方法与 Symfony EventDispatcher 接收者；路由 Provider 覆盖 YAML、PHP Configurator、Route Attribute、Kernel 导入、Bundle 资源、环境与本地化前缀。打开文档以有界快照覆盖磁盘。服务容器、PHP 事件关系和静态路由只由对应 Provider 发现；Provider 缺失、冲突、失败或快照越界时对应能力明确不可用。
 
 配置切换通过 plugin API registration 的原子更新一次替换完整 Provider 集；旧 plugin API v1 核心不提供该操作时回退为撤销后重注册。停用或卸载扩展会释放 registration 并由核心清除外部事实；不兼容 API 会在任何 Provider 注册前拒绝激活。
 

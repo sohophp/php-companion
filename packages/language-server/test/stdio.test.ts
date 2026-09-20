@@ -49,6 +49,18 @@ const symfonyEventProviderDescriptor = {
   replacesEventRelations: true,
 } as const;
 
+const symfonyStaticRouteProviderDescriptor = {
+  providerId: 'php-companion.symfony.static-routes',
+  command: process.execPath,
+  args: [
+    resolve('../provider-symfony-routes/dist/cli.js'),
+    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
+    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
+  ],
+  timeoutMs: 10_000,
+  replacesStaticRoutes: true,
+} as const;
+
 function messagesFrom(process: ChildProcessWithoutNullStreams): {
   messages: object[];
   waitFor: (predicate: (message: any) => boolean, timeoutMs?: number) => Promise<any>;
@@ -1212,7 +1224,10 @@ dev_bundle: {resource: '@DevBundle/Resources/config/routing/routes.php', name_pr
         return static function (RoutingConfigurator $routes): void { $routes->add('bundle', '/dev-bundle'); };`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString() } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { bundledRouteProviders: [symfonyStaticRouteProviderDescriptor] },
+      } }));
       await output.waitFor((message) => message.id === 1);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
@@ -1400,17 +1415,26 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
 
       expect((await query(3, source.lastIndexOf("'admin.'") + 7)).some((item) => item.label === 'admin.home')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: routeUri, languageId: 'yaml', version: 1, text: 'edited: {path: /edited}\n' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: routeUri, languageId: 'yaml', source: 'edited: {path: /edited}\n', snapshotVersion: '1' }],
+      } }));
       expect((await query(4, offset)).map((item) => item.label)).toEqual(['admin.edited']);
       const unusualName = String.raw`account.'"$id\end`;
-      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: routeUri, version: 2 }, contentChanges: [{ text: `${JSON.stringify(unusualName)}: {path: /escaped}\n` }] } }));
+      const unusualRouteSource = `${JSON.stringify(unusualName)}: {path: /escaped}\n`;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: routeUri, version: 2 }, contentChanges: [{ text: unusualRouteSource }] } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: routeUri, languageId: 'yaml', source: unusualRouteSource, snapshotVersion: '2' }],
+      } }));
       const singleQuoted = await query(5, offset);
       expect(singleQuoted.map((item) => item.label)).toEqual([`admin.${unusualName}`]);
       expect(singleQuoted[0].textEdit.newText).toBe(String.raw`admin.account.\'"$id\\end`);
       const doubleQuoted = await query(6, source.indexOf('"admin."') + 7);
       expect(doubleQuoted[0].textEdit.newText).toBe(String.raw`admin.account.'\"\$id\\end`);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledRouteProviders', params: { providers: [] } }));
+      expect(await query(60, offset)).toEqual([]);
 
     } finally { await rm(root, { recursive: true, force: true }); }
-  });
+  }, 60_000);
 
   it('negotiates capabilities and serves diagnostics and symbols', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
@@ -4317,8 +4341,16 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect(refreshed.map((item) => item.label)).toEqual(['dynamic.changed']);
       await writeFile(statePath, '{broken');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      const fallback = (await output.waitFor((message) => message.id === 118)).result as Array<{ label: string }>;
-      expect(fallback.map((item) => item.label)).toEqual(['dynamic.static']);
+      const unavailable = (await output.waitFor((message) => message.id === 118)).result as Array<{ label: string }>;
+      expect(unavailable).toEqual([]);
+      await writeFile(statePath, JSON.stringify({ name: 'dynamic.restored', path: '/restored' }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledRouteProviders', params: { providers: [{
+        providerId: 'other.static', command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true,
+      }] } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 119, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
+      expect((await output.waitFor((message) => message.id === 119)).result).toEqual([]);
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('multiple authoritative route providers'));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

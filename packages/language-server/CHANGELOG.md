@@ -15,6 +15,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Remove in-process Symfony static route discovery and its Bundle/import traversal. Static route completion, Definition and References now require one complete authoritative route provider; missing, conflicting, failed or incomplete providers yield no static route facts.
+
 - Remove core Symfony subscriber, listener, inherited/Trait and dispatch-candidate scanning. Event relations now come only from one complete authoritative provider snapshot; core still validates PHP method identity, container listener tags and EventDispatcher receiver types.
 
 - Remove the core Symfony YAML/XML/PHP Configurator and DebugContainer service scan plus its dedicated fact cache. Container facts now come only from one complete authoritative provider snapshot; missing, conflicting or failed providers clear the capability instead of returning stale or duplicate framework results.

@@ -2,8 +2,7 @@
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { minimatch } from 'minimatch';
-import { readdir, readFile, realpath, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
 import {
@@ -33,7 +32,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -710,74 +709,6 @@ function isSymfonyServiceConfig(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
   return SYMFONY_SERVICE_CONFIGS.includes(normalized) || SYMFONY_SERVICE_XML_CONFIGS.includes(normalized) || SYMFONY_SERVICE_PHP_CONFIGS.includes(normalized)
     || symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(path)) === true;
-}
-interface SymfonyBundleResourceRoot { path: string; realPath: string; }
-async function registeredSymfonyBundleRoots(root: string, syntaxParser: PhpSyntaxParser,
-  candidates: Array<{ fqcn: string; uri: string }>, environment?: string): Promise<Map<string, SymfonyBundleResourceRoot>> {
-  const registrations: SymfonyBundleRegistrationFact[] = [];
-  for (const relativePath of ['config/bundles.php', 'src/Kernel.php', 'app/AppKernel.php']) {
-    const path = resolve(root, relativePath);
-    try {
-      const uri = indexedUriForPath(root, path); const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-      const source = open?.getText() ?? await readFile(path, 'utf8');
-      registrations.push(...analyzeSymfonyBundleRegistrations(syntaxParser, uri, source).bundles.filter((fact) => fact.environments
-        ? environment !== undefined && fact.environments.includes(environment)
-        : fact.excludedEnvironments ? environment !== undefined && !fact.excludedEnvironments.includes(environment) : true));
-    } catch { /* Projects may use either bundle-registration convention or neither. */ }
-  }
-  let mappings = projectMappingsByRoot.get(root);
-  if (!mappings) {
-    const project = await loadComposerProject(root); mappings = project ? allPsr4Mappings(project) : [];
-    projectMappingsByRoot.set(root, mappings);
-  }
-  const classPath = async (fqcn: string): Promise<string | undefined> => {
-    const paths = [...candidates.filter((candidate) => candidate.fqcn.toLowerCase() === fqcn.toLowerCase())
-      .flatMap((candidate) => pathForUri(candidate.uri) ?? []), ...resolvePsr4Class(fqcn, mappings)];
-    const existing = new Set<string>();
-    for (const path of paths) {
-      try { if ((await stat(path)).isFile()) existing.add(await realpath(path)); } catch { /* Missing PSR-4 alternatives are not candidates. */ }
-    }
-    return existing.size === 1 ? [...existing][0] : undefined;
-  };
-  const resolveNameIn = (name: string, namespace: string, imports: Array<{ kind: string; namespace: string; alias: string; fqcn: string }>): string | undefined => {
-    if (name.startsWith('\\')) return name.slice(1);
-    if (name.toLowerCase().startsWith('namespace\\')) return [namespace, name.slice(10)].filter(Boolean).join('\\');
-    const [head, ...tail] = name.split('\\');
-    const imported = imports.filter((item) => item.kind === 'class' && item.namespace === namespace && item.alias.toLowerCase() === head!.toLowerCase());
-    return imported.length > 1 ? undefined : imported.length ? [imported[0]!.fqcn, ...tail].join('\\') : [namespace, name].filter(Boolean).join('\\');
-  };
-  const conventionalRoot = async (fqcn: string): Promise<SymfonyBundleResourceRoot | undefined> => {
-    const registeredPath = await classPath(fqcn); if (!registeredPath) return undefined;
-    let current = fqcn; const visited = new Set<string>();
-    for (let depth = 0; depth < 16; depth++) {
-      const key = current.toLowerCase(); if (visited.has(key)) return undefined; visited.add(key);
-      if (key === 'symfony\\component\\httpkernel\\bundle\\bundle') {
-        const bundlePath = dirname(registeredPath);
-        return { path: bundlePath, realPath: await realpath(bundlePath) };
-      }
-      const path = await classPath(current); if (!path) return undefined;
-      const source = await readFile(path, 'utf8'); const parsed = syntaxParser.parse(source, undefined, pathToFileURL(path).toString());
-      try {
-        if (parsed.errors.length || parsed.tree.rootNode.hasError) return undefined;
-        const declaration = parsed.declarations.find((item) => item.kind === 'class' && item.fqcn.toLowerCase() === key);
-        if (!declaration || parsed.callables.some((item) => item.containerFqcn?.toLowerCase() === key
-          && ['__construct', 'getpath'].includes(item.name.toLowerCase()))
-          || declaration.extendsNames.length !== 1) return undefined;
-        const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
-        const parent = resolveNameIn(declaration.extendsNames[0]!, namespace, parsed.imports); if (!parent) return undefined; current = parent;
-      } finally { parsed.tree.delete(); }
-    }
-    return undefined;
-  };
-  const roots = new Map<string, SymfonyBundleResourceRoot>();
-  const grouped = new Map<string, SymfonyBundleRegistrationFact[]>();
-  for (const fact of registrations) grouped.set(fact.bundleName.toLowerCase(), [...(grouped.get(fact.bundleName.toLowerCase()) ?? []), fact]);
-  for (const [name, facts] of grouped) {
-    const classes = [...new Set(facts.map((fact) => fact.className.toLowerCase()))]; if (classes.length !== 1) continue;
-    const fact = facts.find((item) => item.className.toLowerCase() === classes[0])!; const bundleRoot = await conventionalRoot(fact.className);
-    if (bundleRoot) roots.set(name, bundleRoot);
-  }
-  return roots;
 }
 function affectsSymfonyContainerProvider(root: string, path: string): boolean {
   const normalized = relative(root, path).split(sep).join('/');
@@ -2131,160 +2062,6 @@ connection.onWorkspaceSymbol(async ({ query }, token) => {
   });
 });
 
-function routePathMatches(path: string, pattern: string): boolean {
-  return minimatch(path.split(sep).join('/'), pattern.split(sep).join('/'), {
-    dot: false, nonegate: true, nocomment: true, noext: true, nocase: process.platform === 'win32',
-  });
-}
-function excludedRoutePath(path: string, patterns: string[]): boolean {
-  for (let candidate = path; ; candidate = dirname(candidate)) {
-    if (patterns.some((pattern) => routePathMatches(candidate, pattern))) return true;
-    if (dirname(candidate) === candidate) return false;
-  }
-}
-
-function composeSymfonyPathPrefix(outer: SymfonyRoutePathPrefix, inner: SymfonyRoutePathPrefix): SymfonyRoutePathPrefix | undefined {
-  if (typeof outer === 'string') {
-    if (typeof inner === 'string') return outer + inner;
-    return inner.map((entry) => ({ ...entry, path: outer + entry.path }));
-  }
-  if (typeof inner === 'string') return outer.map((entry) => ({ ...entry, path: entry.path + inner }));
-  const outerByLocale = new Map(outer.map((entry) => [entry.locale, entry.path]));
-  if (inner.some((entry) => !outerByLocale.has(entry.locale))) return undefined;
-  return inner.map((entry) => ({ ...entry, path: outerByLocale.get(entry.locale)! + entry.path }));
-}
-
-function applySymfonyPathPrefix(route: SymfonyRouteFact, prefix: SymfonyRoutePathPrefix): SymfonyRouteFact[] {
-  if (typeof prefix === 'string') return [{ ...route, path: prefix + route.path }];
-  if (route.locale !== undefined) {
-    const localized = prefix.find((entry) => entry.locale === route.locale);
-    return localized ? [{ ...route, path: localized.path + route.path }] : [];
-  }
-  return prefix.map((entry) => ({ ...route, name: `${route.name}.${entry.locale}`, path: entry.path + route.path, locale: entry.locale }));
-}
-
-/** Read only conventional routing roots and bounded explicit YAML imports; open buffers win. */
-async function staticSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
-  const routes: SymfonyRouteFact[] = [];
-  let remaining = 64;
-  const visitedContexts = new Set<string>();
-  const actualRoot = await realpath(root);
-  const syntaxParser = await parser();
-  const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
-  let bundleRoots: Map<string, SymfonyBundleResourceRoot> | undefined;
-  const resolveBundleRoot = async (name: string): Promise<SymfonyBundleResourceRoot | undefined> => {
-    if (!bundleRoots) {
-      const workspace = await semanticForRoot(root);
-      const candidates = workspace.workspaceTypes().map(({ fqcn, uri }) => ({ fqcn, uri }));
-      bundleRoots = await registeredSymfonyBundleRoots(root, syntaxParser, candidates, environment);
-    }
-    return bundleRoots.get(name.toLowerCase());
-  };
-  const projectScope: SymfonyBundleResourceRoot = { path: root, realPath: actualRoot };
-  let defaultNameStyle: 'framework' | undefined;
-  try {
-    const composer = JSON.parse(await readFile(resolve(root, 'composer.json'), 'utf8'));
-    if (typeof composer.require?.['symfony/framework-bundle'] === 'string') defaultNameStyle = 'framework';
-  } catch { /* Unknown loader configuration does not authorize generated route names. */ }
-  const read = async (path: string, prefix: string, pathPrefix: SymfonyRoutePathPrefix, ancestors: Set<string>, attribute = false, php = false,
-    excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope): Promise<void> => {
-    const local = relative(scope.path, path);
-    if (excludedRoutePath(path, excludedPaths)) return;
-    if (cancelled() || remaining-- <= 0 || ancestors.has(path) || isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`)) return;
-    try {
-      if (/[*?{[]/.test(path)) {
-        const segments = path.split(sep);
-        const firstMagic = segments.findIndex((segment) => /[*?{[]/.test(segment));
-        const base = segments.slice(0, firstMagic).join(sep) || sep;
-        const walk = async (candidate: string, seen: Set<string>): Promise<void> => {
-          if (cancelled() || remaining-- <= 0 || excludedRoutePath(candidate, excludedPaths)) return;
-          try {
-            const actual = await realpath(candidate);
-            if (seen.has(actual) || !pathWithin(scope.realPath, actual)) return;
-            const info = await stat(candidate);
-            if (routePathMatches(candidate, path)) {
-              await read(candidate, prefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope);
-              return;
-            }
-            if (!info.isDirectory()) return;
-            const next = new Set([...seen, actual]);
-            const entries = (await readdir(candidate, { withFileTypes: true })).sort((left, right) => left.name.localeCompare(right.name));
-            for (const entry of entries) {
-              if (cancelled() || remaining <= 0) break;
-              if (!entry.name.startsWith('.')) await walk(resolve(candidate, entry.name), next);
-            }
-          } catch { /* Unreadable glob branches add no route declarations. */ }
-        };
-        await walk(base, new Set(ancestors));
-        return;
-      }
-      const actualPath = await realpath(path);
-      if (ancestors.has(actualPath)) return;
-      const actualLocal = relative(scope.realPath, actualPath);
-      if (isAbsolute(actualLocal) || actualLocal === '..' || actualLocal.startsWith(`..${sep}`)) return;
-      const contextKey = JSON.stringify([actualPath, prefix, pathPrefix, attribute, php, [...excludedPaths].sort(), mapping?.root, mapping?.namespace]);
-      if (visitedContexts.has(contextKey)) return; visitedContexts.add(contextKey);
-      const info = await stat(path);
-      if (mapping && path === mapping.root && !info.isDirectory()) return;
-      if (attribute && info.isDirectory()) {
-        const next = new Set([...ancestors, path, actualPath]);
-        const entries = (await readdir(path, { withFileTypes: true })).sort((left, right) => left.name.localeCompare(right.name));
-        for (const entry of entries) {
-          if (cancelled() || remaining <= 0) break;
-          if (!entry.name.startsWith('.') && (entry.isDirectory() || entry.isSymbolicLink() || entry.name.endsWith('.php'))) {
-            await read(resolve(path, entry.name), prefix, pathPrefix, next, true, false, excludedPaths, mapping, scope);
-          }
-        }
-        return;
-      }
-      if (!info.isFile() || (attribute && !path.endsWith('.php')) || info.size > 1_000_000) return;
-      const uri = indexedUriForPath(root, path);
-      const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-      const source = open?.getText() ?? await readFile(path, 'utf8');
-      if (source.length > 1_000_000 || cancelled()) return;
-      if (attribute) {
-        const facts = analyzeSymfonyRouteAttributes(syntaxParser, uri, source, defaultNameStyle, environment);
-        const expectedOwner = mapping ? `${mapping.namespace}\\${relative(mapping.root, path).slice(0, -4).split(sep).join('\\')}` : undefined;
-        routes.push(...facts.routes.filter((route) => !expectedOwner || route.ownerFqcn === expectedOwner)
-          .flatMap((route) => applySymfonyPathPrefix(route, pathPrefix).map((candidate) => ({ ...candidate, name: prefix + candidate.name }))));
-        return;
-      }
-      const facts = php ? analyzeSymfonyRoutePhp(syntaxParser, uri, source) : analyzeSymfonyRouteYaml(uri, source, environment);
-      routes.push(...facts.routes.flatMap((route) => applySymfonyPathPrefix(route, pathPrefix)
-        .map((candidate) => ({ ...candidate, name: prefix + candidate.name }))));
-      const next = new Set([...ancestors, path, actualPath]);
-      for (const entry of facts.imports) {
-        const bundle = /^@([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*Bundle)[\\/](.+)$/.exec(entry.resource);
-        const bundleRoot = bundle ? await resolveBundleRoot(bundle[1]!) : undefined;
-        if (entry.resource.startsWith('@') && !bundleRoot) continue;
-        const importedScope = bundleRoot ?? scope;
-        const importedPath = resolve(bundleRoot?.path ?? dirname(path), (bundle?.[2] ?? entry.resource).replace(/[\\/]/g, sep));
-        const importedPathPrefix = composeSymfonyPathPrefix(pathPrefix, entry.pathPrefix);
-        if (importedPathPrefix === undefined) continue;
-        await read(importedPath, prefix + entry.namePrefix, importedPathPrefix, next, entry.attribute, entry.php,
-          (entry.exclude ?? []).map((excluded) => resolve(dirname(path), excluded)),
-          entry.namespace ? { root: importedPath, namespace: entry.namespace } : undefined, importedScope);
-      }
-    } catch { /* Missing or unreadable route sources contribute no candidates. */ }
-  };
-  for (const filename of ['src/Kernel.php', 'app/AppKernel.php']) {
-    const kernelPath = resolve(root, filename);
-    try {
-      const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), kernelPath));
-      const source = open?.getText() ?? await readFile(kernelPath, 'utf8');
-      const facts = analyzeSymfonyKernelRouteImports(syntaxParser, indexedUriForPath(root, kernelPath), source);
-      const imports = facts.imports.filter((item) => !item.environments || (environment !== undefined && item.environments.includes(environment)))
-        .sort((left, right) => Number(Boolean(right.environments)) - Number(Boolean(left.environments)));
-      for (const entry of imports) await read(resolve(dirname(kernelPath), entry.resource), entry.namePrefix, entry.pathPrefix,
-        new Set(), false, entry.php, [], undefined, projectScope);
-    } catch { /* Projects may use conventional route roots or no Kernel route configurator. */ }
-  }
-  for (const filename of ['config/routes.yaml', 'config/routes.yml']) await read(resolve(root, filename), '', '', new Set(), false, false, [], undefined, projectScope);
-  const counts = new Map<string, number>();
-  for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
-  return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
-}
-
 function routeProviderDocuments(root: string): { complete: boolean; documents: RouteProviderDocument[] } {
   const candidates = documents.all().filter((document) => document.languageId === 'php')
     .filter((document) => { const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path); })
@@ -2304,12 +2081,15 @@ function routeProviderDocuments(root: string): { complete: boolean; documents: R
   return { complete: true, documents: snapshots };
 }
 
-async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<{ routes: RouteFact[]; replacesStaticRoutes: boolean }> {
+async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
   const routes: RouteFact[] = [];
   const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
-  const snapshots = routeProviderDocuments(root); let replacesStaticRoutes = false;
-  for (const descriptor of routeProviders) {
-    if (cancelled()) return { routes: [], replacesStaticRoutes: false };
+  const snapshots = routeProviderDocuments(root);
+  const authoritative = routeProviders.filter((descriptor) => descriptor.replacesStaticRoutes);
+  if (authoritative.length > 1) connection.console.warn('Static Symfony routes are unavailable because multiple authoritative route providers are configured.');
+  const active = routeProviders.filter((descriptor) => !descriptor.replacesStaticRoutes || (authoritative.length === 1 && descriptor === authoritative[0]));
+  for (const descriptor of active) {
+    if (cancelled()) return [];
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
       connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`); continue;
     }
@@ -2318,16 +2098,15 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
       rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion,
       ...(environment ? { environment } : {}), ...(snapshots.documents.length ? { documents: snapshots.documents } : {}),
     });
-    if (cancelled()) return { routes: [], replacesStaticRoutes: false };
-    if (result.ok) { routes.push(...result.contribution.routes); replacesStaticRoutes ||= descriptor.replacesStaticRoutes === true; }
+    if (cancelled()) return [];
+    if (result.ok) routes.push(...result.contribution.routes);
     else connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
   }
-  return { routes, replacesStaticRoutes };
+  return routes;
 }
 
 async function availableSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
-  const provided = await providedSymfonyRoutes(root, cancelled);
-  const routes = [...(provided.replacesStaticRoutes ? [] : await staticSymfonyRoutes(root, cancelled)), ...provided.routes];
+  const routes = await providedSymfonyRoutes(root, cancelled);
   if (cancelled()) return [];
   const counts = new Map<string, number>();
   for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);

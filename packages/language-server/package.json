@@ -43,7 +43,6 @@
     "@php-companion/semantic": "workspace:^",
     "@php-companion/semantic-provider": "workspace:^",
     "@php-companion/semantic-provider-host": "workspace:^",
-    "minimatch": "^10.2.5",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12"
   },

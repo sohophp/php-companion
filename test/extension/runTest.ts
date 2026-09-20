@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
   try {
     await runTests({
-      extensionDevelopmentPath: resolve(__dirname, '..'),
+      extensionDevelopmentPath: [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [fixture, ...(withIntelephense ? [] : ['--disable-extensions'])],
       extensionTestsEnv: {
