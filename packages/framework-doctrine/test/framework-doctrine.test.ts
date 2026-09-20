@@ -52,4 +52,24 @@ describe('static Doctrine facts', () => {
       ['findAll', 'array<int, App\\Language>'], ['findBy', 'array<int, App\\Language>'],
     ]);
   });
+
+  it('binds an exact ServiceEntityRepository PHPDoc generic and rejects conflicting evidence', () => {
+    const source = `<?php namespace App\\Repository;
+      use App\\Entity\\Invoice;
+      use App\\Entity\\Order;
+      use Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository as BaseRepository;
+      /** @extends BaseRepository<Invoice> */
+      class InvoiceRepository extends BaseRepository {}
+      /** @phpstan-extends BaseRepository<Order> */
+      class ConflictingRepository extends BaseRepository {
+        public function __construct($registry) { parent::__construct($registry, Invoice::class); }
+      }
+      /** @extends UnknownBase<Order> */
+      class UnrelatedRepository extends BaseRepository {}
+    `;
+    const facts = analyzeDoctrineDocument(parser, 'file:///GenericRepositories.php', source);
+    expect(facts.repositories).toMatchObject([
+      { fqcn: 'App\\Repository\\InvoiceRepository', entity: 'App\\Entity\\Invoice' },
+    ]);
+  });
 });

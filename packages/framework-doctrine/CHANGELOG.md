@@ -1,5 +1,6 @@
 # Changelog
 
+- Bind exact `@extends ServiceEntityRepository<Entity>` repository generics while rejecting conflicts with constructor evidence.
 - Bind the stable `find`, `findOneBy`, `findAll` and `findBy` entity return shapes from a literal `#[Entity(repositoryClass: Repository::class)]`, including custom repositories that do not use the official ServiceEntityRepository constructor pattern.
 ## Unreleased
 

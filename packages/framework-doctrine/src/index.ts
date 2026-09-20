@@ -22,6 +22,18 @@ function mappingAttribute(prefix: string, name: string, imports: ParsedImport[])
   return prefix.match(new RegExp(`#\\[\\s*(?:${forms.map((form) => form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b([^\\]]*)\\]`, 'i'));
 }
 
+function documentedRepositoryEntity(prefix: string, namespace: string, imports: ParsedImport[]): string | undefined {
+  const matches = [...prefix.matchAll(/\/\*\*[\s\S]*?\*\//g)];
+  const match = matches.at(-1);
+  if (!match || !/^\s*$/.test(prefix.slice((match.index ?? 0) + match[0].length))) return undefined;
+  const doc = match[0];
+  const relation = /@(?:phpstan-|psalm-)?extends\s+([\\A-Za-z_][A-Za-z0-9_\\]*)\s*<\s*([\\A-Za-z_][A-Za-z0-9_\\]*)\s*>/i.exec(doc);
+  if (!relation) return undefined;
+  if (resolveName(relation[1]!, namespace, imports).toLowerCase()
+    !== 'doctrine\\bundle\\doctrinebundle\\repository\\serviceentityrepository') return undefined;
+  return resolveName(relation[2]!, namespace, imports);
+}
+
 export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, source: string): DoctrineDocumentFacts {
   const parsed = parser.parse(source, undefined, uri);
   try {
@@ -60,7 +72,11 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
         const constructor = parsed.callables.find((item) => item.containerFqcn === declaration.fqcn && item.name.toLowerCase() === '__construct');
         const body = constructor && source.slice(constructor.declarationStart, constructor.declarationEnd);
         const entityName = body && /parent\s*::\s*__construct\s*\([^,]+,\s*([\\A-Za-z_][A-Za-z0-9_\\]*)::class\s*\)/i.exec(body)?.[1];
-        if (entityName) repositories.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, entity: resolveName(entityName, namespace, parsed.imports) });
+        const constructorEntity = entityName ? resolveName(entityName, namespace, parsed.imports) : undefined;
+        const phpDocEntity = documentedRepositoryEntity(source.slice(0, declaration.declarationStart), namespace, parsed.imports);
+        if (constructorEntity && phpDocEntity && constructorEntity.toLowerCase() !== phpDocEntity.toLowerCase()) continue;
+        const entity = constructorEntity ?? phpDocEntity;
+        if (entity) repositories.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, entity });
       }
     }
     return { entities, repositories: [...new Map(repositories.map((repository) => [
