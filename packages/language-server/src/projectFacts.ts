@@ -11,7 +11,7 @@ export interface ProjectPhpFileFacts {
 }
 
 export interface CachedProjectPhpFile {
-  schema: 5;
+  schema: 6;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
   checksums: {
@@ -27,6 +27,10 @@ export interface CachedProjectPhpFile {
 
 function recordChecksum(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function sourceChecksum(source: string): string {
+  return createHash('sha256').update(source).digest('hex');
 }
 
 function payloadChecksum(checksums: CachedProjectPhpFile['checksums']): string {
@@ -71,19 +75,23 @@ export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string,
   };
 }
 
-export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts): CachedProjectPhpFile {
+export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: ProjectPhpFileFacts,
+  precomputedSourceChecksum?: string): CachedProjectPhpFile {
+  if (precomputedSourceChecksum !== undefined && !isChecksum(precomputedSourceChecksum)) {
+    throw new RangeError('Precomputed source checksum must be a lowercase SHA-256 digest.');
+  }
   const checksums: CachedProjectPhpFile['checksums'] = {
-    source: recordChecksum(semantic.implementation.source), declaration: recordChecksum(semantic.declaration),
+    source: precomputedSourceChecksum ?? sourceChecksum(semantic.implementation.source), declaration: recordChecksum(semantic.declaration),
     implementationFile: recordChecksum(semantic.implementation.file),
     callableImplementations: semantic.implementation.callables.map((record) => ({ identity: record.identity, checksum: recordChecksum(record) })),
     layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
   };
-  return { schema: 5, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
+  return { schema: 6, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 5 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+  if (!isRecord(value) || value.schema !== 6 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
     || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
@@ -95,7 +103,7 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
     || !isString(implementation.source, Number.MAX_SAFE_INTEGER)
     || !isRecord(implementation.file) || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
     || expectedSource !== undefined && implementation.source !== expectedSource
-    || !isChecksum(checksums.source) || checksums.source !== recordChecksum(implementation.source)
+    || !isChecksum(checksums.source) || checksums.source !== sourceChecksum(implementation.source)
     || !isChecksum(checksums.declaration) || checksums.declaration !== recordChecksum(declaration)
     || !isChecksum(checksums.implementationFile) || checksums.implementationFile !== recordChecksum(implementation.file)
     || !Array.isArray(checksums.callableImplementations)
@@ -111,5 +119,5 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
     || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
     || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
     || payloadChecksum(checksums as unknown as CachedProjectPhpFile['checksums']) !== value.checksum) return undefined;
-  return { schema: 5, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
+  return { schema: 6, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
 }

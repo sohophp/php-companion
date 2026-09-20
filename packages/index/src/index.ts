@@ -13,7 +13,7 @@ export { createSourceCandidateSummary, sourceCandidateSummaryDecision,
 
 export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number; maxTotalBytes: number; }
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
-export interface IndexedSource { uri: string; path: string; source: string; bytes: number; }
+export interface IndexedSource { uri: string; path: string; source: string; bytes: number; hash: string; }
 export type ProjectIndexCacheRestoreResult = boolean | 'source';
 export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
@@ -101,7 +101,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs && options.cache) {
         restoreAttempted = true;
         try {
-          const decision = await options.cache.restore(old.payload, { uri, path, bytes: size });
+          const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash });
           if (decision === true) {
             next.set(path, old); cached += 1; bytes += size; indexed += 1;
             options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
@@ -115,7 +115,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       const hash = createHash('sha256').update(source).digest('hex');
       let restored = false;
       if (!restoreAttempted && old && old.size === size && old.hash === hash && options.cache) {
-        try { restored = await options.cache.restore(old.payload, { uri, path, bytes: size }) === true; }
+        try { restored = await options.cache.restore(old.payload, { uri, path, bytes: size, hash }) === true; }
         catch { warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`); }
       }
       if (old && restored) {
@@ -124,7 +124,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
         return 'indexed';
       }
-      const payload = await options.onSource({ uri, path, source, bytes: size });
+      const payload = await options.onSource({ uri, path, source, bytes: size, hash });
       if (payload !== undefined) { next.set(path, { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload }); cacheChanged = true; }
       bytes += size; indexed += 1;
       options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });

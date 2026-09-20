@@ -14,9 +14,9 @@ try {
   for (const mode of ['cold', 'warm']) {
     const workspace = new SemanticWorkspace(parser); const started = performance.now();
     const result = await indexComposerSources(root, { includeDependencies: false,
-      onSource: ({ uri, source }) => {
+      onSource: ({ uri, source, hash }) => {
         workspace.update(uri, source);
-        return createCachedProjectPhpFile(workspace.snapshotForPersistence(uri), analyzeProjectPhpFileFacts(parser, uri, source));
+        return createCachedProjectPhpFile(workspace.snapshotForPersistence(uri), analyzeProjectPhpFileFacts(parser, uri, source), hash);
       },
       cache: { directory: cache, version: 'benchmark-v1', restore: (value, { uri }) => {
         const record = restoreCachedProjectPhpFile(value, uri);

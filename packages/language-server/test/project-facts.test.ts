@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { SemanticWorkspace } from '@php-companion/semantic';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../src/projectFacts.js';
@@ -22,7 +23,8 @@ describe('persistent project PHP facts', () => {
     const facts = analyzeProjectPhpFileFacts(parser, uri, source);
     expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
-    expect(cached).toMatchObject({ schema: 5, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
+    expect(cached.checksums.source).toBe(createHash('sha256').update(source).digest('hex'));
+    expect(cached).toMatchObject({ schema: 6, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),
@@ -30,6 +32,11 @@ describe('persistent project PHP facts', () => {
         layers: expect.stringMatching(/^[0-9a-f]{64}$/), facts: expect.stringMatching(/^[0-9a-f]{64}$/) } });
     const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri);
     expect(restored?.facts.doctrineProperties).toEqual(facts.doctrineProperties);
+    const checksum = createCachedProjectPhpFile(semantic, facts, cached.checksums.source);
+    expect(checksum.checksums.source).toBe(cached.checksums.source);
+    const wrongChecksum = createCachedProjectPhpFile(semantic, facts, '0'.repeat(64));
+    expect(restoreCachedProjectPhpFile(wrongChecksum, uri)).toBeUndefined();
+    expect(() => createCachedProjectPhpFile(semantic, facts, 'invalid')).toThrow(RangeError);
     workspace.dispose();
   });
 

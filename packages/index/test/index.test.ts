@@ -1,4 +1,5 @@
 import { mkdtemp, mkdir, readdir, rm, writeFile, stat, utimes } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -176,11 +177,17 @@ describe('bounded project source index', () => {
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
-    await writeFile(join(root, 'src', 'User.php'), '<?php class User {}');
-    const first = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => false }, onSource: ({ source }) => ({ sourceLength: source.length }) });
-    expect(first.cached).toBe(0);
-    let parsed = 0; const second = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (payload) => (payload as { sourceLength?: number }).sourceLength === 19 }, onSource: () => { parsed += 1; } });
-    expect(second.cached).toBe(1); expect(parsed).toBe(0);
+    const source = '<?php class User {}'; const expectedHash = createHash('sha256').update(source).digest('hex');
+    await writeFile(join(root, 'src', 'User.php'), source);
+    let indexedHash: string | undefined;
+    const first = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: () => false },
+      onSource: ({ source, hash }) => { indexedHash = hash; return { sourceLength: source.length }; } });
+    expect(first.cached).toBe(0); expect(indexedHash).toBe(expectedHash);
+    let parsed = 0; let restoredHash: string | undefined;
+    const second = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (payload, source) => {
+      restoredHash = source.hash; return (payload as { sourceLength?: number }).sourceLength === 19;
+    } }, onSource: () => { parsed += 1; } });
+    expect(second.cached).toBe(1); expect(parsed).toBe(0); expect(restoredHash).toBe(expectedHash);
     const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');
     const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: () => { parsed += 1; return {}; } });
     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');

@@ -29,11 +29,11 @@ async function load(workspace) {
   const acceptFacts = (facts) => { doctrineProperties += facts.doctrineProperties.length; };
   const result = await indexComposerSources(root, {
     limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 512) },
-    onSource: ({ uri: sourceUri, source }) => {
+    onSource: ({ uri: sourceUri, source, hash }) => {
       parsed += 1; workspace.update(sourceUri, source);
       if (source.includes('Doctrine') || source.includes('ServiceEntityRepository')) doctrineParsed += 1;
       const facts = analyzeProjectPhpFileFacts(parser, sourceUri, source); acceptFacts(facts);
-      return createCachedProjectPhpFile(workspace.snapshotForPersistence(sourceUri), facts);
+      return createCachedProjectPhpFile(workspace.snapshotForPersistence(sourceUri), facts, hash);
     },
     cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {
       const restored = restoreCachedProjectPhpFile(payload, source.uri);

@@ -930,16 +930,16 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     includeDependencies: indexingMode === 'experimental',
     shouldContinue,
     uriForPath: (path) => indexedUriForPath(root, path),
-    onSource: ({ uri, path, source }) => {
+    onSource: ({ uri, path, source, hash }) => {
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
       current.add(uri); workspace.update(uri, effectiveSource, Boolean(open));
       const facts = analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource); acceptFacts(uri, facts);
       const snapshot = workspace.snapshotForPersistence(uri);
-      return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts) : undefined;
+      return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts, hash) : undefined;
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v53-php-${targetPhpVersion}`,
+      version: `semantic-v54-php-${targetPhpVersion}`,
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());

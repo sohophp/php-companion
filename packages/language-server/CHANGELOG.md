@@ -205,6 +205,7 @@
 
 ## Unreleased
 
+- Reuse the indexer's source SHA-256 when creating cold persistent records while continuing to verify embedded source during restore; persistent cache schema 6/v54 replaces the incompatible source checksum encoding.
 - Surface versioned PHP type predicates, true `isset` operands, false `empty` paths, direct truthy guards, strict and loose null checks, and property `instanceof` facts for parameters, proven local aliases, mixed properties, direct visible property paths, and safe literal array paths up to 16 levels. Multi-operand `isset`, negated terminating guards, argument diagnostics, member completion, and Definition share the same facts; false `isset`, true `empty`, direct falsy paths, and null-equality true paths do not invent a null-only type. Root/path/offset writes, method calls, reference escape, or passing the root value to a completed call invalidate affected facts.
 - Use strict non-null and instanceof control-flow facts in published argument diagnostics so member navigation and call validation agree on the same proven branch type.
 - Surface the audited class/object inspection catalog, PHP 8.1 `enum_exists` gate, precise collection returns, builtin navigation, and object-specific `get_class` results.

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Expose the already computed source SHA-256 to index consumers and cache restore adapters so downstream persistence layers can reuse it.
 - Reuse existing inverted-index and dependency-graph posting containers without redundant map writes during cold bulk population.
 - Accept an immutable caller-owned Composer project snapshot so repeated bounded scans do not reload the complete dependency graph.
 - Persist bounded lexical source summaries under an independent cache key and let validated cache adapters request source only for matching candidates; unchanged non-candidates now need metadata checks instead of source reads. Discover each Composer source tree with one deterministic recursive directory read before applying existing exclusions and limits.
