@@ -650,6 +650,21 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       )));
     },
   };
+  const yamlSymfonyReferences: vscode.ReferenceProvider = {
+    provideReferences: async (document, position, context, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyServiceReferences', {
+        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
+        context: { includeDeclaration: context.includeDeclaration },
+      }, token);
+      if (token.isCancellationRequested || document.version !== version) return undefined;
+      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
+        new vscode.Position(location.range.start.line, location.range.start.character),
+        new vscode.Position(location.range.end.line, location.range.end.character),
+      )));
+    },
+  };
   const renameProvider = async (document: vscode.TextDocument): Promise<PhpRenameProvider | undefined> => {
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
@@ -790,6 +805,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerRenameProvider(phpSelector, lazyRename),
     vscode.languages.registerDocumentPasteEditProvider(phpSelector, lazyPaste, phpPasteMetadata),
     vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
+    vscode.languages.registerReferenceProvider(yamlSelector, yamlSymfonyReferences),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

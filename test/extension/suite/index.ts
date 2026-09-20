@@ -292,6 +292,23 @@ export async function run(): Promise<void> {
     assert.ok(definitions.some((location) => location.uri.toString() === userControllerUri.toString()),
       `Symfony YAML controller ${token} did not navigate to the PHP declaration`);
   }
+  const servicesUri = vscode.Uri.joinPath(workspace.uri, 'config', 'services.yaml');
+  const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
+  const servicesSource = servicesDocument.getText(); const serviceReferenceOffset = servicesSource.indexOf('@App\\Service\\Mailer') + 5;
+  let yamlServiceReferences: vscode.Location[] = [];
+  const uniqueYamlServiceReferences = (): vscode.Location[] => [...new Map(yamlServiceReferences
+    .filter((location) => location.uri.toString() === servicesUri.toString())
+    .filter((location) => servicesDocument.getText(location.range) === 'App\\Service\\Mailer')
+    .map((location) => [`${location.uri}:${location.range.start.line}:${location.range.start.character}:${location.range.end.line}:${location.range.end.character}`, location])).values()];
+  await waitForAsync(async () => {
+    yamlServiceReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
+    ) ?? [];
+    return uniqueYamlServiceReferences().length === 2;
+  }, () => `Symfony YAML service reference provider did not return both exact @service usages: ${JSON.stringify(yamlServiceReferences)}`, 30_000, 100);
+  assert.deepStrictEqual(uniqueYamlServiceReferences().map((location) => servicesDocument.getText(location.range)),
+    ['App\\Service\\Mailer', 'App\\Service\\Mailer'],
+  'Symfony YAML service References returned an imprecise range');
   const routeConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'RouteConsumer.php');
   const routeConsumer = await vscode.workspace.openTextDocument(routeConsumerUri);
   const routeConsumerSource = routeConsumer.getText();

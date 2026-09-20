@@ -4608,6 +4608,22 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         position: lspPosition(configSource, configSource.indexOf('app.service') + 3),
       } }));
       expect((await output.waitFor((message) => message.id === 69)).result).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 70, method: 'phpCompanion/symfonyServiceReferences', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 70)).result).toEqual([{ uri: configUri,
+        range: { start: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 1),
+          end: lspPosition(configSource, configSource.lastIndexOf('@app.service') + '@app.service'.length) } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 71, method: 'phpCompanion/symfonyServiceReferences', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, configSource.indexOf('app.service') + 3), context: { includeDeclaration: true },
+      } }));
+      expect((await output.waitFor((message) => message.id === 71)).result).toEqual([
+        { uri: configUri, range: { start: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 1),
+          end: lspPosition(configSource, configSource.lastIndexOf('@app.service') + '@app.service'.length) } },
+        { uri: configUri, range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } },
+      ]);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/references', params: {

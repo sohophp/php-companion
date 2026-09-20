@@ -885,29 +885,35 @@ function scalarRange(node: Node, source: string): { start: number; end: number }
 }
 
 /** Locate an exact @service or @?service YAML scalar without interpreting expressions or escaped @ values. */
-export function symfonyYamlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
+export function symfonyYamlServiceReferences(source: string): SymfonyServiceIdReference[] {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
-  if (document.errors.length || offset < 0 || offset > source.length) return undefined;
-  const visit = (node: Node | null | undefined): SymfonyServiceIdReference | undefined => {
-    if (!node) return undefined;
+  if (document.errors.length) return [];
+  const references: SymfonyServiceIdReference[] = [];
+  const visit = (node: Node | null | undefined): void => {
+    if (!node) return;
     if (isScalar(node)) {
       const range = scalarRange(node, source); const value = scalarValue(node);
-      if (!range || typeof value !== 'string' || offset < range.start || offset > range.end) return undefined;
+      if (!range || typeof value !== 'string') return;
       const prefix = value.startsWith('@?') ? 2 : value.startsWith('@') ? 1 : 0;
       const id = value.slice(prefix);
       if (!prefix || value.startsWith('@@') || !id || /[%\s@=]/.test(id)
-        || source.slice(range.start, range.end) !== value) return undefined;
-      return { value: id, start: range.start + prefix, end: range.end };
+        || source.slice(range.start, range.end) !== value) return;
+      references.push({ value: id, start: range.start + prefix, end: range.end }); return;
     }
     if (isSeq(node)) {
-      for (const item of node.items) { const found = visit(item as Node | null); if (found) return found; }
+      for (const item of node.items) visit(item as Node | null);
     } else if (isMap(node)) {
       // Service declaration keys are destinations, so only inspect values.
-      for (const pair of node.items as Pair[]) { const found = visit(pair.value as Node | null); if (found) return found; }
+      for (const pair of node.items as Pair[]) visit(pair.value as Node | null);
     }
-    return undefined;
   };
-  return visit(document.contents);
+  visit(document.contents); return references;
+}
+
+/** Locate one exact YAML service reference at the requested source offset. */
+export function symfonyYamlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
+  if (offset < 0 || offset > source.length) return undefined;
+  return symfonyYamlServiceReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {

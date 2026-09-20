@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyYamlServiceReferenceAt } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -415,6 +415,11 @@ services:
     expect(symfonyYamlServiceReferenceAt(source, source.indexOf('@@literal') + 3)).toBeUndefined();
     expect(symfonyYamlServiceReferenceAt(source, source.indexOf('@=service') + 3)).toBeUndefined();
     expect(symfonyYamlServiceReferenceAt('services: [', 4)).toBeUndefined();
+    expect(symfonyYamlServiceReferences(source)).toEqual([
+      { value: 'app.mailer', start: source.indexOf('@app.mailer') + 1, end: source.indexOf('@app.mailer') + '@app.mailer'.length },
+      { value: 'app.optional', start: source.indexOf('@?app.optional') + 2, end: source.indexOf('@?app.optional') + '@?app.optional'.length },
+    ]);
+    expect(symfonyYamlServiceReferences('services: [')).toEqual([]);
   });
 
   it('extracts conventional XML services, prototypes and exact listener ranges', () => {
