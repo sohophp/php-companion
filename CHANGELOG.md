@@ -1,3 +1,5 @@
+- Invalidate authoritative Symfony event snapshots after actual watched PHP source changes or deletion, so listener and dispatch References cannot reuse stale relations when declarations stay unchanged.
+- 提交 `4727726` 修复关闭 PHP 文件修改方法体后 Symfony 事件 References 继续返回旧 dispatch 关系的问题；同长度事件类替换回归、192 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-47277266` 已安装到 WSL。
 - Batch changed PHP snapshots per Composer root before refreshing authoritative Symfony Controller contexts, starting one provider process per watcher notification while retaining per-file replacement and failure cleanup.
 - 提交 `783ac2c` 将同批 PHP watcher 变化合并为一次独立 Symfony Controller Provider 调用；两个 Controller 的 stdio 回归、192 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-783ac2c9` 已安装到 WSL。
 - Reuse one immutable Composer project snapshot across indexing, on-demand candidates, namespace resolution, declaration hydration, Safe Move and ordinary watcher deltas; only Composer manifest changes invalidate it.
