@@ -1,7 +1,8 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
-interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => unknown; }
+interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => void; dispose(): void; }
+interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; }
 interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
@@ -217,6 +218,20 @@ export async function run(): Promise<void> {
   assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
   assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
   if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
+    const lifecycleRegistration = api.registerIntegration({ integrationId: 'php-companion.lifecycle-test', routeProviders: [{
+      providerId: 'php-companion.lifecycle-test.routes', command: process.execPath, args: ['lifecycle-a'],
+    }] });
+    assert.strictEqual(typeof lifecycleRegistration.update, 'function', 'PHP Companion did not expose atomic integration updates');
+    lifecycleRegistration.update!({ integrationId: 'PHP-COMPANION.LIFECYCLE-TEST', routeProviders: [{
+      providerId: 'php-companion.lifecycle-test.routes', command: process.execPath, args: ['lifecycle-b'],
+    }] });
+    assert.throws(() => lifecycleRegistration.update!({ integrationId: 'php-companion.foreign', routeProviders: [{
+      providerId: 'php-companion.foreign.routes', command: process.execPath,
+    }] }), /Invalid update/, 'PHP Companion accepted an integration identity change during update');
+    lifecycleRegistration.dispose(); lifecycleRegistration.dispose();
+    assert.throws(() => lifecycleRegistration.update!({ integrationId: 'php-companion.lifecycle-test', routeProviders: [{
+      providerId: 'php-companion.lifecycle-test.routes', command: process.execPath,
+    }] }), /already disposed/, 'PHP Companion updated a disposed integration');
     const symfonyExtension = vscode.extensions.getExtension<PhpCompanionSymfonyApi>('sohophp.php-companion-symfony');
     assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
     const symfonyApi = await symfonyExtension.activate();

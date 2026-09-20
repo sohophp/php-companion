@@ -11,7 +11,11 @@ export interface PhpCompanionIntegrationContribution {
   routeProviders?: readonly RouteProviderDescriptor[];
 }
 
-export interface PhpCompanionPluginRegistration { dispose(): void; }
+export interface PhpCompanionPluginRegistration {
+  /** Atomically replace this integration without exposing a withdrawn interval. */
+  update?(contribution: PhpCompanionIntegrationContribution): void;
+  dispose(): void;
+}
 
 export interface PhpCompanionPluginApi {
   version: typeof PHP_COMPANION_PLUGIN_API_VERSION;

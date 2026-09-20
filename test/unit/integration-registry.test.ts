@@ -10,9 +10,17 @@ describe('IntegrationRegistry', () => {
     expect(registry.api.version).toBe(1);
     expect(registry.semanticProviders()).toEqual([{ providerId: 'vendor.symfony.services', command: '/provider', args: ['facts'] }]);
     expect(changed).toHaveBeenCalledTimes(1);
+    registration.update?.({ integrationId: 'VENDOR.SYMFONY', routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/routes' }] });
+    expect(registry.semanticProviders()).toEqual([]);
+    expect(registry.routeProviders()).toEqual([{ providerId: 'vendor.symfony.routes', command: '/routes' }]);
+    expect(changed).toHaveBeenCalledTimes(2);
+    expect(() => registration.update?.({ integrationId: 'vendor.other', routeProviders: [{ providerId: 'vendor.other.routes', command: '/other' }] })).toThrow(/Invalid update/);
+    expect(registry.routeProviders()).toEqual([{ providerId: 'vendor.symfony.routes', command: '/routes' }]);
     registration.dispose(); registration.dispose();
     expect(registry.semanticProviders()).toEqual([]);
-    expect(changed).toHaveBeenCalledTimes(2);
+    expect(registry.routeProviders()).toEqual([]);
+    expect(changed).toHaveBeenCalledTimes(3);
+    expect(() => registration.update?.({ integrationId: 'vendor.symfony', routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/routes' }] })).toThrow(/already disposed/);
   });
 
   it('rejects duplicate integration identities and foreign provider IDs', () => {

@@ -1,5 +1,7 @@
 # Changelog
 
+- Add an optional atomic registration update operation while preserving compatibility with existing plugin API v1 cores.
+
 - Allow a bundled integration to claim authoritative controller-to-template context ownership.
 
 - Allow bundled integrations to declare dependent container input and authoritative event-relation ownership.

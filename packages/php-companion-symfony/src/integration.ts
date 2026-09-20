@@ -1,4 +1,4 @@
-import type { PhpCompanionPluginApi, PhpCompanionPluginRegistration } from '@php-companion/plugin-api';
+import type { PhpCompanionIntegrationContribution, PhpCompanionPluginApi, PhpCompanionPluginRegistration } from '@php-companion/plugin-api';
 
 export const SYMFONY_INTEGRATION_ID = 'php-companion.symfony';
 export const SERVICE_PROVIDER_ID = 'php-companion.symfony.services';
@@ -26,8 +26,7 @@ export class SymfonyIntegration {
   }
 
   private reconcile(): void {
-    this.registration?.dispose();
-    this.registration = this.core.registerIntegration({
+    const contribution: PhpCompanionIntegrationContribution = {
       integrationId: SYMFONY_INTEGRATION_ID,
       semanticProviders: [{
         providerId: SERVICE_PROVIDER_ID,
@@ -72,7 +71,12 @@ export class SymfonyIntegration {
         timeoutMs: 30_000,
         maxOutputBytes: 16 * 1024 * 1024,
       }] : [])],
-    });
+    };
+    if (this.registration?.update) {
+      this.registration.update(contribution); return;
+    }
+    this.registration?.dispose(); this.registration = undefined;
+    this.registration = this.core.registerIntegration(contribution);
   }
 
   status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean } {

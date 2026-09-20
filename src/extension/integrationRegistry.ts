@@ -33,10 +33,21 @@ export class IntegrationRegistry {
     if (this.integrations.has(key)) throw new Error(`PHP Companion integration ${contribution.integrationId} is already registered.`);
     this.integrations.set(key, snapshot(contribution)); this.emit();
     let disposed = false;
-    return Object.freeze({ dispose: (): void => {
+    return Object.freeze({
+      update: (next: PhpCompanionIntegrationContribution): void => {
+        if (disposed) throw new Error(`PHP Companion integration ${contribution.integrationId} is already disposed.`);
+        if (!isPhpCompanionIntegrationContribution(next) || next.integrationId.toLowerCase() !== key) {
+          throw new TypeError(`Invalid update for PHP Companion integration ${contribution.integrationId}.`);
+        }
+        // Validate and snapshot before replacing the active contribution so a
+        // rejected upgrade leaves the last proven provider set intact.
+        this.integrations.set(key, snapshot(next)); this.emit();
+      },
+      dispose: (): void => {
       if (disposed) return; disposed = true;
       this.integrations.delete(key); this.emit();
-    } });
+      },
+    });
   }
 
   semanticProviders(): SemanticProviderDescriptor[] {
