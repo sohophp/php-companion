@@ -4768,6 +4768,49 @@ final class Dispatching { public function __construct(private EventDispatcherInt
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('merges unchanged files from a full controller refresh with a newer scoped result', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-partial-full-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory); await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = (className: string, template: string): string => `<?php namespace App; final class ${className} { public function show(): void { $this->render('${template}'); } }`;
+      const firstPath = join(sourceDirectory, 'FirstController.php'); const secondPath = join(sourceDirectory, 'SecondController.php');
+      const firstUri = pathToFileURL(firstPath).toString();
+      await writeFile(firstPath, source('FirstController', 'first-initial.html.twig'));
+      await writeFile(secondPath, source('SecondController', 'second-initial.html.twig'));
+      const configurationUri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+      const started = join(root, 'provider-started.txt'); const provider = join(root, 'controllers.mjs');
+      await writeFile(provider, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const documents=new Map((request.params.documents??[]).map((item)=>[item.uri,item]));const yaml=(request.params.documents??[]).find((item)=>item.languageId==='yaml');const php=(request.params.documents??[]).find((item)=>item.languageId==='php');const state=yaml?.source??(php?.source.includes('first-fast.html.twig')?'fast':'initial');appendFileSync(${JSON.stringify(started)},state+'\\n');await new Promise((resolve)=>setTimeout(resolve,state==='full'?300:10));const contexts=(request.params.projectTypes??[]).map((type)=>{const short=type.fqcn.split('\\\\').at(-1).replace('Controller','').toLowerCase();const template=state==='fast'?'fast-first.html.twig':state+'-'+short+'.html.twig';return{template,complete:true,variables:[],sources:[{symbol:type.fqcn+'::show',location:{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}}]}});process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:contexts}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 673, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
+        ] },
+      } }));
+      await output.waitFor((message) => message.id === 673); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('authoritative controller contexts'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: configurationUri, languageId: 'yaml', source: 'full', snapshotVersion: '1' }],
+      } }));
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const contents = await readFile(started, 'utf8').catch(() => '');
+        if (contents.includes('full')) break;
+        await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 10));
+      }
+      expect(await readFile(started, 'utf8')).toContain('full');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: firstUri, languageId: 'php', version: 2, text: source('FirstController', 'first-fast.html.twig') },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated' && message.params.changedUris.includes(firstUri));
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 350));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 674, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 674)).result.contexts.map((context: { template: string }) => context.template).sort())
+        .toEqual(['fast-first.html.twig', 'full-second.html.twig']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('refreshes changed Symfony controller contexts once per watched-file batch', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-watch-batch-'));
     try {

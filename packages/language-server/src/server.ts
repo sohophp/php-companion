@@ -78,7 +78,7 @@ type RootSemanticProviderChannel = 'container' | 'events';
 interface RootSemanticProviderRevisions { container: number; events: number }
 const semanticProviderRevisionsByRoot = new Map<string, RootSemanticProviderRevisions>();
 const genericSemanticProviderRevisionsByRoot = new Map<string, Map<string, number>>();
-interface ControllerContextProviderRevisions { full: number; scoped: number; uris: Map<string, number> }
+interface ControllerContextProviderRevisions { full: number; uris: Map<string, number> }
 const controllerContextProviderRevisionsByRoot = new Map<string, ControllerContextProviderRevisions>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -124,11 +124,14 @@ function isCurrentGenericSemanticProviderRequest(root: string, providerId: strin
 }
 
 type ControllerContextProviderRequest =
-  | { kind: 'full'; full: number; scoped: number }
+  | { kind: 'full'; full: number; uris: Map<string, number> }
   | { kind: 'scoped'; full: number; uris: Map<string, number> };
+type ControllerContextProviderCommitScope =
+  | { kind: 'full'; staleUris: ReadonlySet<string> }
+  | { kind: 'scoped'; currentUris: ReadonlySet<string> };
 
 function controllerContextProviderRevisions(root: string): ControllerContextProviderRevisions {
-  const current = controllerContextProviderRevisionsByRoot.get(root) ?? { full: 0, scoped: 0, uris: new Map<string, number>() };
+  const current = controllerContextProviderRevisionsByRoot.get(root) ?? { full: 0, uris: new Map<string, number>() };
   controllerContextProviderRevisionsByRoot.set(root, current); return current;
 }
 
@@ -136,9 +139,8 @@ function beginControllerContextProviderRequest(root: string, scopes?: readonly {
   const revisions = controllerContextProviderRevisions(root);
   if (!scopes) {
     revisions.full += 1;
-    return { kind: 'full', full: revisions.full, scoped: revisions.scoped };
+    return { kind: 'full', full: revisions.full, uris: new Map(revisions.uris) };
   }
-  revisions.scoped += 1;
   const uris = new Map<string, number>();
   for (const { uri } of scopes) {
     const revision = (revisions.uris.get(uri) ?? 0) + 1;
@@ -147,11 +149,17 @@ function beginControllerContextProviderRequest(root: string, scopes?: readonly {
   return { kind: 'scoped', full: revisions.full, uris };
 }
 
-function currentControllerContextProviderUris(root: string, request: ControllerContextProviderRequest): ReadonlySet<string> | undefined {
+function controllerContextProviderCommitScope(root: string,
+  request: ControllerContextProviderRequest): ControllerContextProviderCommitScope | undefined {
   const revisions = controllerContextProviderRevisionsByRoot.get(root);
-  if (!revisions || revisions.full !== request.full) return new Set();
-  if (request.kind === 'full') return revisions.scoped === request.scoped ? undefined : new Set();
-  return new Set([...request.uris].filter(([uri, revision]) => revisions.uris.get(uri) === revision).map(([uri]) => uri));
+  if (!revisions || revisions.full !== request.full) return undefined;
+  if (request.kind === 'full') {
+    const staleUris = new Set<string>();
+    for (const [uri, revision] of revisions.uris) if (request.uris.get(uri) !== revision) staleUris.add(uri);
+    return { kind: 'full', staleUris };
+  }
+  return { kind: 'scoped', currentUris: new Set([...request.uris]
+    .filter(([uri, revision]) => revisions.uris.get(uri) === revision).map(([uri]) => uri)) };
 }
 
 function invalidateSemanticProviderRequests(): void {
@@ -159,7 +167,7 @@ function invalidateSemanticProviderRequests(): void {
   for (const revisions of genericSemanticProviderRevisionsByRoot.values()) {
     for (const [providerId, revision] of revisions) revisions.set(providerId, revision + 1);
   }
-  for (const revisions of controllerContextProviderRevisionsByRoot.values()) { revisions.full += 1; revisions.scoped += 1; }
+  for (const revisions of controllerContextProviderRevisionsByRoot.values()) revisions.full += 1;
 }
 
 function composerProjectForRoot(root: string): Promise<ComposerProject | undefined> {
@@ -591,26 +599,41 @@ async function runControllerContextProvider(root: string, generation: number, wo
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
   if (!shouldContinue()) return false;
-  const currentUris = currentControllerContextProviderUris(root, request);
-  if (currentUris?.size === 0) return false;
+  const commitScope = controllerContextProviderCommitScope(root, request);
+  if (!commitScope || (commitScope.kind === 'scoped' && commitScope.currentUris.size === 0)) return false;
   if (result.ok && result.contribution.controllerContexts) {
     const sourcesByUri = scopes ? new Map(scopes.map((scope) => [scope.uri, scope.source])) : undefined;
     const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(scopes?.map((scope) => scope.uri) ?? [])]);
     const sourceFor = (uri: string): string | undefined => sourcesByUri?.get(uri) ?? workspace.source(uri);
-    const contexts = controllerContextMap(result.contribution.controllerContexts, allowedUris, sourceFor);
+    const contributedContexts = commitScope.kind === 'full' && commitScope.staleUris.size
+      ? result.contribution.controllerContexts.filter((context) => context.sources.every((source) => !commitScope.staleUris.has(source.location.uri)))
+      : result.contribution.controllerContexts;
+    const contexts = controllerContextMap(contributedContexts, allowedUris, sourceFor);
     if (contexts) {
-      if (scopes && currentUris) {
+      if (commitScope.kind === 'scoped') {
         const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        for (const scope of scopes) if (currentUris.has(scope.uri)) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
+        for (const scope of scopes ?? []) if (commitScope.currentUris.has(scope.uri)) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
         interopContextsByRoot.set(root, byFile);
-      } else interopContextsByRoot.set(root, contexts);
+      } else {
+        const current = interopContextsByRoot.get(root);
+        for (const uri of commitScope.staleUris) {
+          const preserved = current?.get(uri); if (preserved) contexts.set(uri, preserved); else contexts.delete(uri);
+        }
+        interopContextsByRoot.set(root, contexts);
+      }
       connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative controller contexts for generation ${generation}.`);
       return true;
     }
   }
-  if (scopes && currentUris) for (const scope of scopes) {
-    if (currentUris.has(scope.uri)) interopContextsByRoot.get(root)?.delete(scope.uri);
-  } else interopContextsByRoot.delete(root);
+  if (commitScope.kind === 'scoped') {
+    for (const scope of scopes ?? []) if (commitScope.currentUris.has(scope.uri)) interopContextsByRoot.get(root)?.delete(scope.uri);
+  } else {
+    const current = interopContextsByRoot.get(root); const preserved = new Map<string, ControllerTemplateContext[]>();
+    for (const uri of commitScope.staleUris) {
+      const contexts = current?.get(uri); if (contexts) preserved.set(uri, contexts);
+    }
+    if (preserved.size) interopContextsByRoot.set(root, preserved); else interopContextsByRoot.delete(root);
+  }
   connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete controller-context snapshot; controller contexts are unavailable.`
     : `Semantic provider ${descriptor.providerId} failed (${result.code}); controller contexts are unavailable: ${result.message}`);
   return false;
