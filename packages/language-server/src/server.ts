@@ -2577,14 +2577,17 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
 
 connection.onPrepareRename(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
-  if (!document || !root || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
+  if (!document || !root || token.isCancellationRequested) return null;
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
-  const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
+  let scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
+    ?? workspace.localVariableRename(document.uri, offset);
+  if (scopedTarget) return { range: { start: document.positionAt(scopedTarget.start), end: document.positionAt(scopedTarget.end) }, placeholder: scopedTarget.name };
+  if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
+  scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
     ?? workspace.localVariableRename(document.uri, offset);
   if (!scopedTarget && !completeRoots.has(root)) return null;
-  const target = scopedTarget
-    ?? canonicalTypeRename(workspace, root, document.uri, offset)
+  const target = scopedTarget ?? canonicalTypeRename(workspace, root, document.uri, offset)
     ?? workspace.methodRename(document.uri, offset)
     ?? workspace.propertyRename(document.uri, offset)
     ?? workspace.functionRename(document.uri, offset)
@@ -2599,13 +2602,17 @@ connection.onRenameRequest(async (params, token) => {
   const renameFile = requested.phpCompanion?.renameFile !== false;
   const includePhpDoc = requested.phpCompanion?.includePhpDoc !== false;
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
-  if (!document || !root || !isValidPhpIdentifier(newName) || token.isCancellationRequested
-    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
+  if (!document || !root || !isValidPhpIdentifier(newName) || token.isCancellationRequested) return null;
   const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;
   const offset = document.offsetAt(position);
-  const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
+  let scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
     ?? workspace.localVariableRename(document.uri, offset, newName);
-  if (!scopedTarget && !completeRoots.has(root)) return null;
+  if (!scopedTarget) {
+    if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
+      ?? workspace.localVariableRename(document.uri, offset, newName);
+    if (!scopedTarget && !completeRoots.has(root)) return null;
+  }
   const typeTarget = scopedTarget ? undefined : canonicalTypeRename(workspace, root, document.uri, offset, newName, includePhpDoc);
   const target = scopedTarget ?? typeTarget
     ?? workspace.methodRename(document.uri, offset, newName)

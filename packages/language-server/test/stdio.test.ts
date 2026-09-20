@@ -106,7 +106,7 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
-  it('defers project indexing on reload in on-demand mode', async () => {
+  it('keeps reload and closed promoted-property rename free of project indexing in on-demand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-startup-'));
     try {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
@@ -129,7 +129,12 @@ describe('language server stdio', () => {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2),
       } }));
       expect((await output.waitFor((message) => message.id === 231)).result).toBeTruthy();
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed 1 PHP files'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'textDocument/rename', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$dependency') + 2), newName: 'service',
+      } }));
+      expect((await output.waitFor((message) => message.id === 233)).result.changes[sourceUri]).toHaveLength(2);
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 232);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
     } finally { await rm(root, { recursive: true, force: true }); }
