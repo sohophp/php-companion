@@ -1,4 +1,5 @@
 - Remove Symfony service-container discovery and its dedicated persistent cache from the core Language Server; service registrations, aliases, autowiring and compiled-container facts now require the standalone Symfony provider.
+- 提交 `b741af9` 移除 Symfony 服务容器核心回退；候选 `php-companion-alpha-0.4.5-b741af92` 的四份 VSIX、24 个组件 728 项测试、24 个隔离 tarball、双扩展 Extension Host、Winstar PHP 8.5/CoreRepo PHP 7.2 预检及真实 844 个服务均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Remove Symfony Controller/Twig discovery from the core Language Server and its persistent project facts; the standalone controller-context provider now owns disk, open-document, and newly created file analysis exclusively.
 - 提交 `5a5f52f` 移除 Symfony Controller 上下文核心回退；候选 `php-companion-alpha-0.4.5-5a5f52fc` 的四份 VSIX、24 个组件 730 项测试、双扩展 Extension Host、Winstar PHP 8.5/CoreRepo PHP 7.2 预检及真实 11 个上下文/9 个模板均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Both supported extension packs now install `sohophp.php-companion-symfony`; direct core installs detect FrameworkBundle projects missing that extension and provide a one-time extension-search action.
