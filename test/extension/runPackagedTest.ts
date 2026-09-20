@@ -41,8 +41,10 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const vsix = join(repository, 'php-companion-0.4.5.vsix');
   const symfonyVsix = join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.5.vsix');
+  const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
   await stat(vsix);
   await stat(symfonyVsix);
+  if (twigVsix) await stat(twigVsix);
   // macOS limits Unix-domain socket paths to roughly 104 bytes. GitHub's
   // per-user tmpdir is already long enough that VS Code's profile socket can
   // exceed that limit before the tests start.
@@ -50,6 +52,7 @@ async function main(): Promise<void> {
   const fixture = join(temporary, 'workspace');
   const extracted = join(temporary, 'vsix');
   const symfonyExtracted = join(temporary, 'symfony-vsix');
+  const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
@@ -123,14 +126,30 @@ namespace Symfony\\Bundle\\FrameworkBundle\\Controller;
 abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string { return ''; } }
 `);
     }
+    if (twigVsix && !externalExtensions) {
+      const routesPath = join(fixture, 'config', 'routes.yaml');
+      await writeFile(routesPath, `${await readFile(routesPath, 'utf8')}\nprofile_route_attribute:\n  path: /profile/attribute\n  controller: App\\Controller\\ProfileRoute::url\n`);
+      await writeFile(join(fixture, 'src', 'Controller', 'ProfileRoute.php'), `<?php
+namespace App\\Controller;
+use Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;
+final class ProfileRoute extends AbstractController {
+    public function url(): string { return $this->generateUrl('profile_route_attribute'); }
+}
+namespace Symfony\\Bundle\\FrameworkBundle\\Controller;
+abstract class AbstractController { public function generateUrl(string $route, array $parameters = []): string { return ''; } }
+`);
+    }
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
     await mkdir(extracted, { recursive: true });
     await mkdir(symfonyExtracted, { recursive: true });
+    if (twigVsix) await mkdir(twigExtracted, { recursive: true });
     execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
     execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
+    if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
     await runTests({
       vscodeExecutablePath: await macOSExecutablePath(),
-      extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension')],
+      extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension'),
+        ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [
         fixture,
@@ -150,6 +169,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
         PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunitExecutable,
+        PHP_COMPANION_TWIG_ROUTE_RENAME: twigVsix ? '1' : undefined,
       },
     });
     console.log(`Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);

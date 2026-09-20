@@ -1910,6 +1910,7 @@ async function projectMayContainTwig(root: string, cancelled: () => boolean): Pr
     try { children = await readdir(directory, { withFileTypes: true }); } catch { return undefined; }
     for (const child of children) {
       if (cancelled() || ++entries > indexLimits.maxFiles * 4) return undefined;
+      if (child.isSymbolicLink()) return undefined;
       if (child.isDirectory()) {
         if (!TWIG_SCAN_EXCLUDED_DIRECTORIES.has(child.name)) directories.push(resolve(directory, child.name));
       } else if (child.isFile() && child.name.toLowerCase().endsWith('.twig')) return true;

@@ -166,6 +166,7 @@ final class ProfileTest extends TestCase {
         self::assertTrue(true);
     }
 }
+
 `));
   const testDocument = await vscode.workspace.openTextDocument(testUri); await vscode.window.showTextDocument(testDocument);
   await vscode.extensions.getExtension('recca0120.vscode-phpunit')!.activate();
@@ -210,6 +211,43 @@ final class ProfileTest extends TestCase {
   await vscode.commands.executeCommand('redo');
   await waitForAsync(async () => { await vscode.workspace.fs.stat(movedTestUri); return true; }, 'Could not redo PHPUnit fixture move');
   await verifyMovedSuite('MovedProfileTest.php');
+}
+
+async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const phpUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'ProfileRoute.php');
+  const routeUri = vscode.Uri.joinPath(workspace.uri, 'config', 'routes.yaml');
+  const twigUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'route.html.twig');
+  await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(workspace.uri, 'templates'));
+  const twigSource = "{{ path('profile_route_attribute') }} {{ url('profile_route_attribute') }}\n";
+  await vscode.workspace.fs.writeFile(twigUri, Buffer.from(twigSource));
+  const twigDocument = await vscode.workspace.openTextDocument(twigUri);
+  type TwigRouteRenameResult = { complete: boolean; edits: Array<{ uri: string; start: number; end: number }> };
+  await waitForAsync(async () => {
+    const result = await vscode.commands.executeCommand<TwigRouteRenameResult>('twigPlus.provideSymfonyRouteRename', {
+      rootUri: workspace.uri.toString(), oldName: 'profile_route_attribute', newName: 'profile_route_renamed',
+    });
+    return result?.complete === true && result.edits.length === 2;
+  }, 'TwigPlus route Rename bridge did not return both exact Twig references', 30_000, 100);
+  const phpDocument = await vscode.workspace.openTextDocument(phpUri); await vscode.window.showTextDocument(phpDocument);
+  const routeDocument = await vscode.workspace.openTextDocument(routeUri);
+  const phpSource = phpDocument.getText(); const useOffset = phpSource.lastIndexOf('profile_route_attribute') + 2;
+  let edit: vscode.WorkspaceEdit | undefined;
+  await waitForAsync(async () => {
+    edit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>('vscode.executeDocumentRenameProvider', phpUri,
+      phpDocument.positionAt(useOffset), 'profile_route_renamed');
+    return edit instanceof vscode.WorkspaceEdit && edit.get(phpUri).length === 1
+      && edit.get(routeUri).length === 1 && edit.get(twigUri).length === 2;
+  }, 'Symfony route Rename did not merge the declaration, PHP call, and TwigPlus references', 30_000, 100);
+  assert.ok(edit && await vscode.workspace.applyEdit(edit), 'Symfony route Rename edit could not be applied');
+  assert.strictEqual(phpDocument.getText().match(/profile_route_renamed/g)?.length, 1);
+  assert.strictEqual(routeDocument.getText().match(/profile_route_renamed/g)?.length, 1);
+  assert.strictEqual(twigDocument.getText().match(/profile_route_renamed/g)?.length, 2);
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => phpDocument.getText().match(/profile_route_attribute/g)?.length === 1
+    && routeDocument.getText().match(/profile_route_attribute/g)?.length === 1
+    && twigDocument.getText().match(/profile_route_attribute/g)?.length === 2, 'Symfony route Rename was not one Undo transaction', 10_000);
+  await restoreTextFixture(phpUri, Buffer.from(phpSource));
+  await vscode.workspace.fs.delete(twigUri);
 }
 
 export async function run(): Promise<void> {
@@ -4571,5 +4609,6 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     renamedReferences: ['use App\\Service\\ShipmentState;', '@return ShipmentState', 'ShipmentState::Ready', 'ShipmentState::from'],
     ordinaryText: "'DeliveryState'",
   });
+  if (process.env.PHP_COMPANION_TWIG_ROUTE_RENAME === '1') await verifySymfonyRouteRenameWithTwig(workspace);
   if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') await verifyOpenSourceProfile(workspace);
 }
