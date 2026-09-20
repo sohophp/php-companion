@@ -4536,6 +4536,50 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('refreshes resource-expanded Symfony services after watched PHP declaration changes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-container-provider-watch-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const servicePath = join(sourceDirectory, 'Service.php'); const serviceUri = pathToFileURL(servicePath).toString();
+      await writeFile(servicePath, '<?php namespace App; final class Service {}');
+      const consumerPath = join(sourceDirectory, 'Consumer.php'); const consumerUri = pathToFileURL(consumerPath).toString();
+      const consumer = '<?php namespace App; final class Consumer { public function __construct(#[\\Symfony\\Component\\DependencyInjection\\Attribute\\Autowire(service: "App")] object $service) {} }';
+      await writeFile(consumerPath, consumer);
+      const counter = join(root, 'provider-count.txt'); const provider = join(root, 'services.mjs');
+      await writeFile(provider, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(counter)},'1\\n');const services=(request.params.projectTypes??[]).filter((type)=>type.fqcn.endsWith('Service')).map((type)=>({id:type.fqcn,className:type.fqcn,public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'resource',uri:type.uri,start:type.start,end:type.end,registrationUri:type.uri,registrationStart:type.start,registrationEnd:type.end}));process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],containerServices:services,containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 669, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.services', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, replacesContainerServices: true },
+        ] },
+      } }));
+      await output.waitFor((message) => message.id === 669); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
+      const completionOffset = consumer.indexOf('service: "App') + 'service: "App'.length;
+      const complete = async (id: number): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: consumerUri }, position: lspPosition(consumer, completionOffset),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect(await complete(670)).toContainEqual(expect.objectContaining({ label: 'App\\Service' }));
+      const before = (await readFile(counter, 'utf8')).trim().split('\n').length;
+      await writeFile(servicePath, '<?php namespace App; final class RenamedService {}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 2 }] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${serviceUri}`));
+      expect((await readFile(counter, 'utf8')).trim().split('\n')).toHaveLength(before + 1);
+      const refreshed = await complete(671);
+      expect(refreshed).toContainEqual(expect.objectContaining({ label: 'App\\RenamedService' }));
+      expect(refreshed).not.toContainEqual(expect.objectContaining({ label: 'App\\Service' }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('uses a bundled authoritative event provider for listener and dispatch references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-event-provider-'));
     try {

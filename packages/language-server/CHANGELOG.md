@@ -1,3 +1,4 @@
+- Refresh resource-expanded Symfony container facts once per workspace root after PHP declaration changes or deletion, while implementation-only watcher updates retain the current service snapshot.
 - Invalidate cached authoritative Symfony event relations after actual watched PHP source changes or deletion, preventing stale listener and dispatch References when declaration ranges remain unchanged.
 - Refresh authoritative Symfony controller contexts once per workspace root for each watched-file batch, passing all changed PHP snapshots together while replacing each file's contexts independently.
 - Remove the in-process Symfony Controller/Twig analyzer and its persistent facts; controller contexts now require the standalone provider, including for new open files, and cache schema 4/v52 rejects snapshots that still embed framework contexts.

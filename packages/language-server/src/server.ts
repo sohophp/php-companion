@@ -1968,7 +1968,7 @@ connection.onDidChangeConfiguration(async ({ settings }) => {
 const pendingFiles = new PendingChanges<{ uri: string; root: string }>();
 const pendingRoots = new Set<string>();
 const scanFilesByRoot = new Map<string, Set<string>>();
-async function applyPendingFiles(): Promise<void> {
+async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Promise<void> {
   const controllerScopesByRoot = new Map<string, Array<{ uri: string; source: string; snapshotVersion: string }>>();
   const completedByRoot = new Map<string, string[]>();
   await pendingFiles.drain(async (_key, { uri, root }) => {
@@ -1983,6 +1983,7 @@ async function applyPendingFiles(): Promise<void> {
     if (source === undefined) {
       workspace.remove(uri); scanFilesByRoot.get(root)?.delete(uri); indexedUrisByRoot.get(root)?.delete(uri); projectIndexedUrisByRoot.get(root)?.delete(uri);
       interopContextsByRoot.get(root)?.delete(uri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, uri, workspace);
+      containerRefreshRoots.add(root);
     } else {
       const update = workspace.update(uri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(uri);
       const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(uri); indexedUrisByRoot.set(root, indexed);
@@ -1992,12 +1993,17 @@ async function applyPendingFiles(): Promise<void> {
         scopes.push({ uri, source, snapshotVersion: String(indexingGeneration) });
         controllerScopesByRoot.set(root, scopes);
       }
-      if (update.kind === 'declaration') await refreshDoctrineDocument(root, uri, source, workspace);
+      if (update.kind === 'declaration') {
+        containerRefreshRoots.add(root); await refreshDoctrineDocument(root, uri, source, workspace);
+      }
     }
     const completed = completedByRoot.get(root) ?? []; completed.push(uri); completedByRoot.set(root, completed);
   });
   for (const [root, scopes] of controllerScopesByRoot) {
     await runControllerContextProvider(root, indexingGeneration, await semanticForRoot(root), () => true, scopes);
+  }
+  for (const root of containerRefreshRoots) {
+    if (projectCompleteRoots.has(root)) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
   }
   for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
@@ -2021,13 +2027,16 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     invalidateCandidates(change.uri);
     pendingFiles.set(filesystemPathKey(path), { uri: indexedUriForPath(root, path), root }); pendingRoots.add(root);
   }
-  for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
   if (composerChanged) {
     // A changed Composer graph needs a fresh scan even if one was already running.
     const running = activeIndexing; if (running) await running;
     await startIndexWorkspace('composer-change');
-  } else if (!activeIndexing && pendingFiles.size) {
-    await applyPendingFiles(); pendingRoots.clear();
+  } else if (!activeIndexing && (pendingFiles.size || containerRefreshRoots.size)) {
+    if (pendingFiles.size) await applyPendingFiles(containerRefreshRoots);
+    else for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
+    pendingRoots.clear();
+  } else if (activeIndexing) {
+    for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
   }
 });
 
@@ -2038,6 +2047,7 @@ documents.onDidOpen(async ({ document }) => {
   const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
+  else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
 });
@@ -2049,6 +2059,7 @@ documents.onDidChangeContent(async ({ document }) => {
   const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
+  else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
 });
@@ -2070,10 +2081,16 @@ documents.onDidClose(async ({ document }) => {
           [{ uri: document.uri, source, snapshotVersion: String(indexingGeneration) }]);
       }
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, source, workspace);
-    } catch { if (!documents.get(document.uri)) { workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); } }
+      if (update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
+    } catch { if (!documents.get(document.uri)) {
+      workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace);
+      scheduleSymfonyContainerRefresh(root);
+    } }
   } else {
     workspace?.remove(document.uri);
-    if (workspace && root) { interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); }
+    if (workspace && root) {
+      interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); scheduleSymfonyContainerRefresh(root);
+    }
   }
   const closedPath = pathForUri(document.uri); if (root && closedPath
     && (affectsSymfonyContainerProvider(root, closedPath) || isSymfonyServiceConfig(root, closedPath))) scheduleSymfonyContainerRefresh(root);
