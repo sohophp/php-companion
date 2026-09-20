@@ -20,6 +20,8 @@ export interface PhpCompanionPluginRegistration {
 export interface PhpCompanionPluginApi {
   version: typeof PHP_COMPANION_PLUGIN_API_VERSION;
   registerIntegration(contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration;
+  /** Send a namespaced feature request through the core language-server lifecycle. Added compatibly to API v1. */
+  requestLanguageServer?<T>(method: string, params: unknown): Promise<T>;
 }
 
 const identityPattern = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;

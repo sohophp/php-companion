@@ -24,7 +24,7 @@ Open Source Pack 已在 VS Code 1.136.1 / WSL 的隔离扩展目录完成实际�
 
 Symfony Language Tools 官方定位是补充通用 PHP LS，覆盖 PHP、Twig 和 YAML 中的 Symfony 框架值；它不提供通用 Twig 语法高亮、格式化或内建符号补全。0.20.1 Linux x64 曾在安装完整 Composer 依赖的 Winstar 中把源码索引推进到 `ready`，也曾通过本地 F2/Safe Move 组合，但随后在冻结版本的 Ubuntu CI 中同样为普通 PHP 声明参与 Rename 并返回拒绝；0.20.2 可稳定复现相同问题。该扩展没有关闭 Rename 的配置，VS Code 又会聚合同分值 Provider，所以目前不能进入默认 Pack、受支持 Profile 或手动推荐清单。历史 ready 证据只保留为能力评估，不再作为兼容结论。上游提供可关闭的 Rename Provider 或稳定修复后，必须重新通过三平台完整组合门禁。
 
-Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat；通用 Twig 解析、模板变量、导航和格式化归 TwigPlus；PHP 通用语义及当前 Symfony/Doctrine 静态能力归 Companion。Symfony Language Tools 只保留历史评估与未来上游修复后的候选资格。独立 Symfony 扩展还为权威配置图中的唯一显式字符串 service ID 提供跨 YAML/XML/PHP Configurator Rename；任一配置不可读、ID 需要解码、注册来自 resource、注册歧义或表达式动态时整次拒绝，不返回部分编辑。
+Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat；通用 Twig 解析、模板变量、导航和格式化归 TwigPlus；PHP 通用语义归核心 Companion，Symfony 的 YAML/XML/PHP 配置 Definition、References、Completion 和 YAML/XML Rename 注册归独立 Companion Symfony 扩展。后者通过 plugin API v1 的可选命名空间请求桥复用核心 Language Server 生命周期；只安装核心的 Profile 不注册 Symfony 编辑器能力。Symfony Language Tools 只保留历史评估与未来上游修复后的候选资格。独立 Symfony 扩展还为权威配置图中的唯一显式字符串 service ID 提供跨 YAML/XML/PHP Configurator Rename；任一配置不可读、ID 需要解码、注册来自 resource、注册歧义或表达式动态时整次拒绝，不返回部分编辑。
 
 Companion 只为 YAML 中可证明的 Symfony 控制器值追加 Definition Provider，不接管 YAML 文档同步、诊断、补全、Schema 或格式化。光标必须位于带 `path` 的路由 map 中字面量 `controller` / `defaults._controller` 的 FQCN 类段或方法段；目标按 Composer PSR-4 唯一加载，方法还须解析为有效公开实例方法。服务 ID、转义后才成立的值、动态值、普通配置中的同名键和无法唯一证明的目标保持无结果。启用外部 Symfony runtime 所有权时该导航同样让出。
 

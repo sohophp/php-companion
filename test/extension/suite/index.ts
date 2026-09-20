@@ -2,8 +2,8 @@ import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
 interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => void; dispose(): void; }
-interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; }
-interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
+interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; requestLanguageServer?: (method: string, params: unknown) => Promise<unknown>; }
+interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; languageFeaturesRegistered: boolean; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -218,6 +218,25 @@ export async function run(): Promise<void> {
   const api = await extension.activate() as PhpCompanionPluginApi;
   assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
   assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
+  assert.strictEqual(typeof api.requestLanguageServer, 'function', 'PHP Companion did not expose its bounded language-server request bridge');
+  if (process.env.PHP_COMPANION_TEST_CORE_ONLY === '1') {
+    assert.strictEqual(vscode.extensions.getExtension('sohophp.php-companion-symfony'), undefined,
+      'Core-only profile unexpectedly loaded PHP Companion Symfony');
+    const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder, 'Fixture workspace was not opened');
+    const servicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.yaml');
+    const document = await vscode.workspace.openTextDocument(servicesUri); const source = document.getText();
+    const position = document.positionAt(source.indexOf('@App\\Service\\Mailer') + 5);
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', servicesUri, position) ?? [];
+    const references = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', servicesUri, position) ?? [];
+    const completions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', servicesUri, position);
+    assert.deepStrictEqual(definitions, [], 'Core-only profile registered a Symfony YAML Definition provider');
+    assert.deepStrictEqual(references, [], 'Core-only profile registered a Symfony YAML References provider');
+    assert.ok(!completions || !completions.items.some((item) => item.label === 'App\\Service\\Mailer'),
+      'Core-only profile registered Symfony service completion');
+    const rename = await vscode.commands.executeCommand<vscode.WorkspaceEdit>('vscode.executeDocumentRenameProvider', servicesUri, position, 'app.renamed');
+    assert.strictEqual(rename?.entries().length ?? 0, 0, 'Core-only profile returned Symfony YAML Rename edits');
+    return;
+  }
   if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
     const lifecycleRegistration = api.registerIntegration({ integrationId: 'php-companion.lifecycle-test', routeProviders: [{
       providerId: 'php-companion.lifecycle-test.routes', command: process.execPath, args: ['lifecycle-a'],
@@ -237,7 +256,7 @@ export async function run(): Promise<void> {
     assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
     const symfonyApi = await symfonyExtension.activate();
     assert.strictEqual(symfonyApi.version, 1, 'PHP Companion Symfony did not expose API version 1');
-    assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, serviceProviderRegistered: true, eventProviderRegistered: true,
+    assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, languageFeaturesRegistered: true, serviceProviderRegistered: true, eventProviderRegistered: true,
       controllerContextProviderRegistered: true, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: false });
     const folder = vscode.workspace.workspaceFolders?.[0];
     assert.ok(folder, 'Fixture workspace was not opened');

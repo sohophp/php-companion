@@ -21,11 +21,19 @@ function snapshot(contribution: PhpCompanionIntegrationContribution): PhpCompani
 export class IntegrationRegistry {
   private readonly integrations = new Map<string, PhpCompanionIntegrationContribution>();
   private readonly listeners = new Set<Listener>();
+  private requestHandler: ((method: string, params: unknown) => Promise<unknown>) | undefined;
 
   readonly api: PhpCompanionPluginApi = Object.freeze({
     version: PHP_COMPANION_PLUGIN_API_VERSION,
     registerIntegration: (contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration => this.register(contribution),
+    requestLanguageServer: <T>(method: string, params: unknown): Promise<T> => {
+      if (!/^phpCompanion\/[A-Za-z0-9._/-]{1,128}$/.test(method)) return Promise.reject(new TypeError('Invalid PHP Companion language-server request method.'));
+      if (!this.requestHandler) return Promise.reject(new Error('PHP Companion language server is not available.'));
+      return this.requestHandler(method, params) as Promise<T>;
+    },
   });
+
+  setRequestHandler(handler: (method: string, params: unknown) => Promise<unknown>): void { this.requestHandler = handler; }
 
   register(contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration {
     if (!isPhpCompanionIntegrationContribution(contribution)) throw new TypeError('Invalid PHP Companion integration contribution.');

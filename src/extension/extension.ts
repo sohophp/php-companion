@@ -97,9 +97,6 @@ type ProtocolTextEdit = { range: { start: { line: number; character: number }; e
 type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; options?: { overwrite?: boolean } }
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
-type ProtocolLocation = { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } };
-type ProtocolCompletionList = { isIncomplete: boolean; items: Array<{ label: string; detail: string;
-  range: { start: { line: number; character: number }; end: { line: number; character: number } } }> };
 
 function fileOperationUriKey(value: vscode.Uri | string): string {
   const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
@@ -197,6 +194,11 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);
     void vscode.window.showErrorMessage('PHP Companion language server failed to start. See the PHP Companion output channel.');
     return undefined;
+  });
+  integrations.setRequestHandler(async (method: string, params: unknown): Promise<unknown> => {
+    const client = await languageServer;
+    if (!client) throw new Error('PHP Companion language server is not available.');
+    return client.sendRequest<unknown>(method, params);
   });
   void recommendStandaloneSymfony(context, output);
   type PasteSymbol = { fqcn: string; alias: string; selectedAlias?: string };
@@ -637,92 +639,6 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   void vscode.commands.executeCommand('setContext', 'phpCompanion.hasPhpNavigation', selfLanguageServer || Boolean(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client')));
 
   const phpSelector: vscode.DocumentSelector = [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }];
-  const yamlSelector: vscode.DocumentSelector = [{ language: 'yaml', scheme: 'file' }, { language: 'yaml', scheme: 'vscode-remote' }];
-  const xmlSelector: vscode.DocumentSelector = [{ language: 'xml', scheme: 'file' }, { language: 'xml', scheme: 'vscode-remote' }];
-  const yamlSymfonyDefinition: vscode.DefinitionProvider = {
-    provideDefinition: async (document, position, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyControllerDefinition', {
-        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
-      }, token);
-      if (token.isCancellationRequested || document.version !== version) return undefined;
-      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
-        new vscode.Position(location.range.start.line, location.range.start.character),
-        new vscode.Position(location.range.end.line, location.range.end.character),
-      )));
-    },
-  };
-  const yamlSymfonyReferences: vscode.ReferenceProvider = {
-    provideReferences: async (document, position, context, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyServiceReferences', {
-        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
-        context: { includeDeclaration: context.includeDeclaration },
-      }, token);
-      if (token.isCancellationRequested || document.version !== version) return undefined;
-      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
-        new vscode.Position(location.range.start.line, location.range.start.character),
-        new vscode.Position(location.range.end.line, location.range.end.character),
-      )));
-    },
-  };
-  const xmlSymfonyDefinition: vscode.DefinitionProvider = {
-    provideDefinition: async (document, position, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyServiceDefinition', {
-        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
-      }, token);
-      if (token.isCancellationRequested || document.version !== version) return undefined;
-      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
-        new vscode.Position(location.range.start.line, location.range.start.character),
-        new vscode.Position(location.range.end.line, location.range.end.character),
-      )));
-    },
-  };
-  const yamlSymfonyCompletions: vscode.CompletionItemProvider = {
-    provideCompletionItems: async (document, position, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const result = await client.sendRequest<ProtocolCompletionList>('phpCompanion/symfonyServiceCompletions', {
-        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
-      }, token);
-      if (token.isCancellationRequested || document.version !== version) return undefined;
-      return new vscode.CompletionList(result.items.map((candidate) => {
-        const item = new vscode.CompletionItem(candidate.label, vscode.CompletionItemKind.Reference);
-        item.detail = candidate.detail; item.insertText = candidate.label;
-        item.range = new vscode.Range(candidate.range.start.line, candidate.range.start.character,
-          candidate.range.end.line, candidate.range.end.character);
-        return item;
-      }), result.isIncomplete);
-    },
-  };
-  const symfonyServiceRename: vscode.RenameProvider = {
-    prepareRename: async (document, position, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const prepared = await client.sendRequest<null | { range: { start: { line: number; character: number }; end: { line: number; character: number } }; placeholder?: string }>(
-        'phpCompanion/symfonyServicePrepareRename', {
-          textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
-        }, token,
-      );
-      if (!prepared || token.isCancellationRequested || document.version !== version) return undefined;
-      const range = new vscode.Range(prepared.range.start.line, prepared.range.start.character,
-        prepared.range.end.line, prepared.range.end.character);
-      return prepared.placeholder ? { range, placeholder: prepared.placeholder } : range;
-    },
-    provideRenameEdits: async (document, position, newName, token) => {
-      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
-      const version = document.version;
-      const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
-        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(), newName,
-      }, token);
-      if (token.isCancellationRequested || document.version !== version) return undefined;
-      return fromProtocolWorkspaceEdit(result);
-    },
-  };
   const renameProvider = async (document: vscode.TextDocument): Promise<PhpRenameProvider | undefined> => {
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
@@ -862,17 +778,6 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerCodeActionsProvider(phpSelector, new ImportClassCodeActions(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }),
     vscode.languages.registerRenameProvider(phpSelector, lazyRename),
     vscode.languages.registerDocumentPasteEditProvider(phpSelector, lazyPaste, phpPasteMetadata),
-    vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
-    vscode.languages.registerReferenceProvider(yamlSelector, yamlSymfonyReferences),
-    vscode.languages.registerCompletionItemProvider(yamlSelector, yamlSymfonyCompletions, '@', '?'),
-    vscode.languages.registerRenameProvider(yamlSelector, symfonyServiceRename),
-    vscode.languages.registerDefinitionProvider(xmlSelector, xmlSymfonyDefinition),
-    vscode.languages.registerReferenceProvider(xmlSelector, yamlSymfonyReferences),
-    vscode.languages.registerCompletionItemProvider(xmlSelector, yamlSymfonyCompletions, '"', "'", '.'),
-    vscode.languages.registerRenameProvider(xmlSelector, symfonyServiceRename),
-    vscode.languages.registerDefinitionProvider(phpSelector, xmlSymfonyDefinition),
-    vscode.languages.registerReferenceProvider(phpSelector, yamlSymfonyReferences),
-    vscode.languages.registerCompletionItemProvider(phpSelector, yamlSymfonyCompletions, '"', "'", '.'),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

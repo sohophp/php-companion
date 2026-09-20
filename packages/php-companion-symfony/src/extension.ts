@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { SymfonyIntegration } from './integration.js';
+import { registerSymfonyLanguageFeatures } from './languageFeatures.js';
 
 export interface PhpCompanionSymfonyApi {
   version: 1;
-  status(): { apiVersion: number; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean };
+  status(): { apiVersion: number; languageFeaturesRegistered: boolean; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean };
 }
 
 function winstarRoutesEnabled(): boolean {
@@ -23,6 +24,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     context.asAbsolutePath('dist/static-route-provider.js'), context.asAbsolutePath('dist/winstar-route-provider.js'),
     context.asAbsolutePath('dist/web-tree-sitter.wasm'), context.asAbsolutePath('dist/tree-sitter-php.wasm'));
   const synchronize = (): void => integration.setWinstarRoutesEnabled(winstarRoutesEnabled());
+  const languageFeaturesRegistered = registerSymfonyLanguageFeatures(context, core);
   synchronize();
   context.subscriptions.push(
     integration,
@@ -37,7 +39,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         : 'PHP Companion Symfony is active; services, events, controller contexts, and static routes are registered, and Winstar runtime routes are disabled.');
     }),
   );
-  return Object.freeze({ version: 1 as const, status: () => integration.status() });
+  return Object.freeze({ version: 1 as const, status: () => ({ languageFeaturesRegistered, ...integration.status() }) });
 }
 
 export function deactivate(): void {}

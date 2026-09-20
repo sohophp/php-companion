@@ -29,4 +29,15 @@ describe('IntegrationRegistry', () => {
     expect(() => registry.register({ integrationId: 'VENDOR.SYMFONY', routeProviders: [{ providerId: 'vendor.symfony.other', command: '/other' }] })).toThrow(/already registered/);
     expect(() => registry.register({ integrationId: 'vendor.doctrine', routeProviders: [{ providerId: 'other.routes', command: '/other' }] })).toThrow(/Invalid/);
   });
+
+  it('proxies only bounded PHP Companion language-server requests', async () => {
+    const registry = new IntegrationRegistry();
+    await expect(registry.api.requestLanguageServer?.('phpCompanion/example', {})).rejects.toThrow(/not available/);
+    const request = vi.fn(async (method: string, params: unknown) => ({ method, params }));
+    registry.setRequestHandler(request);
+    await expect(registry.api.requestLanguageServer?.<{ method: string }>('phpCompanion/symfonyServiceDefinition', { value: 1 }))
+      .resolves.toEqual({ method: 'phpCompanion/symfonyServiceDefinition', params: { value: 1 } });
+    await expect(registry.api.requestLanguageServer?.('workspace/executeCommand', {})).rejects.toThrow(/Invalid/);
+    expect(request).toHaveBeenCalledOnce();
+  });
 });

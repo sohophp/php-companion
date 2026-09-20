@@ -1,5 +1,7 @@
 # Changelog
 
+- Own the Symfony YAML/XML/PHP Definition, References and completion providers plus YAML/XML service Rename registration; the core-only extension no longer registers Symfony editor features.
+
 - Enable precise service-id Rename from provider-confirmed YAML and XML declarations or references, with one workspace edit spanning YAML, XML and PHP Configurator files.
 
 - Expose provider-confirmed PHP Configurator files to exact service Definition, References and completion while retaining the standalone Symfony extension as the owner of the configuration graph.

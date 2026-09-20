@@ -1,5 +1,7 @@
 # Changelog
 
+- Add an optional namespaced language-server request bridge so independently installed plugins can own their editor-facing VS Code providers without accessing the core Language Client.
+
 - Allow route providers to opt into complete snapshot reuse through validated `cacheUntilInvalidated` metadata.
 
 - Add an optional atomic registration update operation while preserving compatibility with existing plugin API v1 cores.
