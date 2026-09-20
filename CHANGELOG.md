@@ -1,3 +1,6 @@
+- Reuse one immutable Composer project snapshot across indexing, on-demand candidates, namespace resolution, declaration hydration, Safe Move and ordinary watcher deltas; only Composer manifest changes invalidate it.
+- Coalesce Symfony container refreshes per workspace root within one watcher batch, preventing repeated framework refreshes for related configuration changes.
+- 提交 `bad3c0b` 修复真实 Winstar 索引结束后普通 watcher 事件重复遍历 Composer 依赖图的问题；候选 `php-companion-alpha-0.4.5-bad3c0b9` 已通过 26 项 index、191 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检，并已安装到 WSL 自动重启的语言服务器。
 - Persist bounded lexical candidate summaries for cold on-demand References and promoted-property Rename. Reloaded Winstar queries validate file metadata, read only matching sources, and retain exact semantic results without starting the full PHP index.
 - Cache compiled Composer `exclude-from-classmap` scopes and enumerate each source tree recursively, reducing unchanged Winstar candidate scans while preserving deterministic ordering, exclusions and resource limits.
 - Restrict final private promoted-property References/Rename scans to constructor named-argument candidates, including comments between the parameter name and colon, and prefetch candidate-only source reads with bounded concurrency while preserving deterministic semantic update order.
