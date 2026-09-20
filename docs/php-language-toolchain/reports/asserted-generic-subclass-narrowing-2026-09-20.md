@@ -29,7 +29,7 @@
 
 Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL 预检均通过，分别见 [Winstar 预检](alpha-preflight-winstar-asserted-repository.json) 和 [CoreRepo 预检](alpha-preflight-corerepo-asserted-repository.json)。后台 shell 不属于 VS Code 集成终端，所以 Extension Host 所有权、竞争 PHP Provider 和两小时真实编辑仍为人工门槛。
 
-尝试从后台 WSL shell 覆盖安装核心与 Symfony VSIX 时，VS Code Server CLI 超过两分钟未响应；已只终止本次 CLI 进程。磁盘哈希表明 Symfony bundle 已与候选一致，核心 `dist/language-server.js` 仍是上一候选，因此不得宣称当前窗口已加载本修复。应从 Alpha Profile 的 WSL 集成终端重新执行本地核心与 Symfony VSIX 安装并 Reload Window。
+尝试从后台 WSL shell 覆盖安装核心与 Symfony VSIX 时，VS Code Server CLI 超过两分钟未响应；已只终止本次 CLI 进程。后续原子安装实际完成：磁盘上的核心 `dist/language-server.js` SHA-256 为 `252d7eeaace64e2c140022d6e7f5b3d8bfb7c4517ff09ee0f3d9936eba978c43`，Symfony `dist/extension.js` 为 `1bb5d069e0214174d04c3555647676653956b2a290a8ac8dd8b4cf4c628b751a`，均与该候选 VSIX 内文件一致。不过当前语言服务器 PID `2129571` 启动于 21:08，早于核心文件 21:51 的安装时间，因此当前窗口仍未加载这份 bundle；须执行 Reload Window，之后再进行人工 Alpha 验收。
 
 ## 发布边界与剩余时间
 

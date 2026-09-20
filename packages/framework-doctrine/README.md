@@ -5,3 +5,5 @@ Doctrine ORM 的静态事实组件，不启动 EntityManager、项目 autoloader
 已证明 repository 实体后，`repositoryMethodReturnType` 为 `find`/`findOneBy` 返回 `Entity|null`，为 `findAll`/`findBy` 返回 `array<int, Entity>`。因此继承普通 `Doctrine\ORM\EntityRepository` 的自定义 repository 也可由实体上的字面量 `repositoryClass` 获得这四个稳定返回类型。相同映射让 `EntityManagerInterface`/`ObjectManager::getRepository(Entity::class)` 精确返回自定义 repository；动态类参数继续使用通用结果。动态 target、动态 `repositoryClass`、动态 repository 构造、冲突绑定或其他自定义查询保持未知。
 
 默认对象查询链会保留已证明的实体泛型：`Repository<Entity> -> QueryBuilder<Entity> -> Query<Entity>`，无参数 `getResult()` 返回 `array<int, Entity>`，无参数 `getOneOrNullResult()` 返回 `Entity|null`，无参数 `getSingleResult()` 返回 `Entity`，无参数 `toIterable()` 返回 `iterable<int, Entity>`。`select`、`from`、`delete`、`update`、显式 hydration 参数和 `getArrayResult()` 会停止实体传播，组件不分析 DQL 字符串。
+
+项目内声明原生 `QueryBuilder` 返回类型的方法，也可在一个严格子集中保留实体泛型：接收者必须是声明为 `EntityManagerInterface` 或 `ObjectManager` 的本类属性，来源必须是字面量 `getRepository(Entity::class)->createQueryBuilder('alias')`。支持直接返回链，以及方法首条语句创建唯一局部 builder、随后只追加普通 builder 条件并原样返回；动态类/别名、条件初始化、重赋值、局部别名、嵌套闭包捕获、传给未知调用、动态方法和 `select/from/delete/update` 均保持未知。

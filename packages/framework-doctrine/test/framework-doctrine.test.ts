@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
+import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryFactoryMethodFact, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
 
 describe('static Doctrine facts', () => {
   let parser: PhpSyntaxParser;
@@ -92,5 +92,53 @@ describe('static Doctrine facts', () => {
     expect(facts.repositories).toMatchObject([
       { fqcn: 'App\\Repository\\InvoiceRepository', entity: 'App\\Entity\\Invoice' },
     ]);
+  });
+
+  it('infers entity-preserving project QueryBuilder factories from exact manager chains', () => {
+    const source = `<?php namespace App\\Read;
+      use App\\Entity\\Order;
+      use App\\Entity\\User;
+      use Doctrine\\ORM\\EntityManagerInterface;
+      use Doctrine\\ORM\\QueryBuilder;
+      final class ReadService {
+        public function __construct(private readonly EntityManagerInterface $em) {}
+        private function users(): QueryBuilder {
+          return $this->em->getRepository(User::class)->createQueryBuilder('user')->andWhere('user.active = 1');
+        }
+        private function orders(bool $active): QueryBuilder {
+          $qb = $this->em->getRepository(Order::class)->createQueryBuilder('orders');
+          if ($active) { $qb->andWhere('orders.active = 1')->setParameter('active', true); }
+          return $qb;
+        }
+      }
+    `;
+    const facts = analyzeDoctrineDocument(parser, 'file:///ReadService.php', source);
+    expect(facts.queryFactories).toMatchObject([
+      { ownerFqcn: 'App\\Read\\ReadService', method: 'users', entity: 'App\\Entity\\User' },
+      { ownerFqcn: 'App\\Read\\ReadService', method: 'orders', entity: 'App\\Entity\\Order' },
+    ]);
+    expect(facts.queryFactories.map(doctrineQueryFactoryMethodFact)).toMatchObject([
+      { ownerFqcn: 'App\\Read\\ReadService', name: 'users', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\User>', returnTypeTemplates: ['TEntity'] },
+      { ownerFqcn: 'App\\Read\\ReadService', name: 'orders', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\Order>', returnTypeTemplates: ['TEntity'] },
+    ]);
+  });
+
+  it('keeps unsafe or result-shaping QueryBuilder factories unknown', () => {
+    const source = `<?php namespace App\\Read;
+      use App\\Entity\\User;
+      use Doctrine\\ORM\\EntityManagerInterface;
+      use Doctrine\\ORM\\QueryBuilder;
+      final class UnsafeReadService {
+        public function __construct(private EntityManagerInterface $em) {}
+        private function dynamicClass(string $class): QueryBuilder { return $this->em->getRepository($class)->createQueryBuilder('user'); }
+        private function dynamicAlias(string $alias): QueryBuilder { return $this->em->getRepository(User::class)->createQueryBuilder($alias); }
+        private function selected(): QueryBuilder { return $this->em->getRepository(User::class)->createQueryBuilder('user')->select('user.id'); }
+        private function reassigned(): QueryBuilder { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); $qb = new QueryBuilder($this->em); return $qb; }
+        private function escaped(): QueryBuilder { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); $this->mutate($qb); return $qb; }
+        private function aliased(): QueryBuilder { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); $copy = $qb; return $qb; }
+        private function conditional(bool $active): QueryBuilder { if ($active) { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); } return $qb; }
+      }
+    `;
+    expect(analyzeDoctrineDocument(parser, 'file:///UnsafeReadService.php', source).queryFactories).toEqual([]);
   });
 });

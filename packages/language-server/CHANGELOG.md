@@ -22,6 +22,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Advance the persistent project-fact cache to v58/schema 10 and restore source-proven project QueryBuilder factory entity generics after a warm start.
+
 - Derive the cache-envelope checksum from the already verified per-layer checksums instead of serializing the complete semantic payload a second time; advance project cache payloads to schema 5/v53.
 - Build cold persistent-cache payloads from immutable-lifetime semantic snapshots without redundantly serializing and reparsing every file before the cache writer serializes the completed index.
 - Reuse one Composer project snapshot per workspace root across indexing, candidate queries, Safe Move and watcher deltas; invalidate on Composer metadata changes and coalesce container refreshes within a watcher batch.

@@ -35,7 +35,7 @@ import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
-import { type DoctrineAssociationPropertyFact, type DoctrineRepositoryLookupFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
+import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
   type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
@@ -65,12 +65,12 @@ const projectCompleteRoots = new Set<string>();
 const projectCompleteWaiters = new Map<string, Set<() => void>>();
 const plannedSafeMovePaths = new Map<string, number>();
 const interopContextsByRoot = new Map<string, Map<string, ControllerTemplateContext[]>>();
-const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineRepositoryMethodFact[]>>();
+const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineMethodFact[]>>();
 const doctrinePropertiesByRoot = new Map<string, Map<string, DoctrineAssociationPropertyFact[]>>();
 const doctrineRepositoryLookupsByRoot = new Map<string, Map<string, DoctrineRepositoryLookupFact[]>>();
 
-function mergedDoctrineMethods(files: Map<string, DoctrineRepositoryMethodFact[]> | undefined): DoctrineRepositoryMethodFact[] {
-  const unique = new Map<string, DoctrineRepositoryMethodFact>();
+function mergedDoctrineMethods(files: Map<string, DoctrineMethodFact[]> | undefined): DoctrineMethodFact[] {
+  const unique = new Map<string, DoctrineMethodFact>();
   for (const fact of [...(files?.values() ?? [])].flat()) {
     const key = JSON.stringify([fact.ownerFqcn.toLowerCase(), fact.name.toLowerCase(), fact.returnType, Boolean(fact.static),
       fact.returnTypeTemplates ?? [], fact.receiverTypeTemplates ?? [], Boolean(fact.defaultArgumentsOnly)]);
@@ -927,7 +927,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
   updateBuiltinForRoot(workspace, root);
   const current = new Set<string>(); scanFilesByRoot.set(root, current);
-  const doctrineFiles = new Map<string, DoctrineRepositoryMethodFact[]>();
+  const doctrineFiles = new Map<string, DoctrineMethodFact[]>();
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
   const doctrineRepositoryLookupFiles = new Map<string, DoctrineRepositoryLookupFact[]>();
   const syntaxParser = await parser();
@@ -952,7 +952,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v57-php-${targetPhpVersion}`,
+      version: `semantic-v58-php-${targetPhpVersion}`,
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
@@ -1052,7 +1052,7 @@ async function refreshInteropDocument(document: TextDocument): Promise<void> {
 }
 
 async function refreshDoctrineDocument(root: string, uri: string, source: string, workspace: SemanticWorkspace): Promise<void> {
-  const byFile = doctrineMethodsByRoot.get(root) ?? new Map<string, DoctrineRepositoryMethodFact[]>();
+  const byFile = doctrineMethodsByRoot.get(root) ?? new Map<string, DoctrineMethodFact[]>();
   const propertiesByFile = doctrinePropertiesByRoot.get(root) ?? new Map<string, DoctrineAssociationPropertyFact[]>();
   const lookupsByFile = doctrineRepositoryLookupsByRoot.get(root) ?? new Map<string, DoctrineRepositoryLookupFact[]>();
   const facts = analyzeProjectPhpFileFacts(await parser(), uri, source);

@@ -4,13 +4,16 @@ import type { ExternalLiteralMethodReturnFact, ExternalMethodFact, ExternalPrope
 export interface DoctrineAssociation { property: string; kind: 'one-to-one' | 'many-to-one' | 'one-to-many' | 'many-to-many'; target: string; many: boolean; declaredType?: string; nullable?: boolean; visibility: 'public' | 'protected' | 'private'; start: number; end: number; }
 export interface DoctrineEntityInfo { fqcn: string; uri: string; start: number; end: number; repository?: string; associations: DoctrineAssociation[]; }
 export interface DoctrineRepositoryInfo { fqcn: string; uri: string; start: number; end: number; entity: string; }
-export interface DoctrineDocumentFacts { entities: DoctrineEntityInfo[]; repositories: DoctrineRepositoryInfo[]; }
+export interface DoctrineQueryFactoryInfo { ownerFqcn: string; method: string; entity: string; uri: string; start: number; end: number; }
+export interface DoctrineDocumentFacts { entities: DoctrineEntityInfo[]; repositories: DoctrineRepositoryInfo[]; queryFactories: DoctrineQueryFactoryInfo[]; }
 export interface DoctrineRepositoryMethodFact extends ExternalMethodFact {
   name: 'find' | 'findOneBy' | 'findAll' | 'findBy' | 'createQueryBuilder' | 'getQuery' | 'getResult' | 'getOneOrNullResult'
     | 'getSingleResult' | 'toIterable'
     | 'select' | 'from' | 'delete' | 'update';
   returnType: string;
 }
+export interface DoctrineQueryFactoryMethodFact extends ExternalMethodFact { name: string; returnType: string; }
+export type DoctrineMethodFact = DoctrineRepositoryMethodFact | DoctrineQueryFactoryMethodFact;
 export interface DoctrineAssociationPropertyFact extends ExternalPropertyFact { returnType: string; }
 export type DoctrineRepositoryLookupFact = ExternalLiteralMethodReturnFact;
 
@@ -40,11 +43,72 @@ function documentedRepositoryEntity(prefix: string, namespace: string, imports: 
   return resolveName(relation[2]!, namespace, imports);
 }
 
+const QUERY_BUILDER = 'doctrine\\orm\\querybuilder';
+const MANAGER_TYPES = new Set(['doctrine\\orm\\entitymanagerinterface', 'doctrine\\persistence\\objectmanager']);
+const SHAPE_CHANGING_QUERY_METHOD = /->\s*(?:select|from|delete|update)\s*\(/i;
+
+function queryFactoryEntity(parser: PhpSyntaxParser, expression: string, namespace: string, imports: ParsedImport[],
+  managerProperties: Set<string>): string | undefined {
+  const synthetic = parser.parse(`<?php function queryFactoryProbe(): void { $result = ${expression}; }`);
+  try {
+    if (synthetic.errors.length > 0) return undefined;
+    const chain = synthetic.assignments.find((assignment) => assignment.variable === '$result')?.sourceChain;
+    if (!chain || chain.variable !== '$this' || chain.steps.some((step) => step.nullsafe)) return undefined;
+    const repositoryIndex = chain.steps.findIndex((step) => step.kind === 'method' && step.name.toLowerCase() === 'getrepository');
+    const repository = chain.steps[repositoryIndex]; const builder = chain.steps[repositoryIndex + 1];
+    if (repositoryIndex !== 1 || chain.steps[0]?.kind !== 'property' || !managerProperties.has(chain.steps[0].name.toLowerCase())
+      || repository?.kind !== 'method' || repository.argumentCount !== 1 || !repository.literalClassArgument
+      || builder?.kind !== 'method' || builder.name.toLowerCase() !== 'createquerybuilder' || builder.argumentCount !== 1
+      || !builder.literalArgument || chain.steps.slice(repositoryIndex + 2).some((step) => step.kind !== 'method')) return undefined;
+    if (chain.steps.slice(repositoryIndex + 2).some((step) => step.kind === 'method'
+      && ['select', 'from', 'delete', 'update'].includes(step.name.toLowerCase()))) return undefined;
+    return resolveName(repository.literalClassArgument, namespace, imports);
+  } finally { synthetic.tree.delete(); }
+}
+
+function queryFactoryForMethod(parser: PhpSyntaxParser, source: string, parsed: ReturnType<PhpSyntaxParser['parse']>,
+  callable: ReturnType<PhpSyntaxParser['parse']>['callables'][number], uri: string): DoctrineQueryFactoryInfo | undefined {
+  if (!callable.containerFqcn || !callable.nativeReturnType) return undefined;
+  const namespace = callable.containerFqcn.split('\\').slice(0, -1).join('\\');
+  if (resolveName(callable.nativeReturnType, namespace, parsed.imports).toLowerCase() !== QUERY_BUILDER) return undefined;
+  const managerProperties = new Set(parsed.properties.filter((property) => property.containerFqcn === callable.containerFqcn && property.type
+    && MANAGER_TYPES.has(resolveName(property.type, namespace, parsed.imports).toLowerCase())).map((property) => property.name.toLowerCase()));
+  if (managerProperties.size === 0) return undefined;
+  const returns = parsed.returns.filter((statement) => statement.scopeId === callable.fqcn
+    && statement.start >= callable.declarationStart && statement.end <= callable.declarationEnd);
+  if (returns.length !== 1 || returns[0]?.expressionStart === undefined || returns[0].expressionEnd === undefined) return undefined;
+  const returned = source.slice(returns[0].expressionStart, returns[0].expressionEnd).trim();
+  const directEntity = queryFactoryEntity(parser, returned, namespace, parsed.imports, managerProperties);
+  if (directEntity) return { ownerFqcn: callable.containerFqcn, method: callable.name, entity: directEntity,
+    uri, start: callable.start, end: callable.end };
+  if (!/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(returned)) return undefined;
+  const assignments = parsed.assignments.filter((assignment) => assignment.scopeId === callable.fqcn && assignment.variable === returned);
+  if (assignments.length !== 1 || !assignments[0]?.sourceChain) return undefined;
+  const assignment = assignments[0];
+  const openingBrace = source.indexOf('{', callable.end);
+  const prefix = openingBrace >= 0 ? source.slice(openingBrace + 1, assignment.start)
+    .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*|#[^\n]*/g, '').trim() : 'invalid';
+  if (prefix !== '') return undefined;
+  const expression = source.slice(assignment.start, assignment.end).replace(/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*=\s*/u, '');
+  const entity = queryFactoryEntity(parser, expression, namespace, parsed.imports, managerProperties);
+  if (!entity) return undefined;
+  const methodBody = source.slice(assignment.end, callable.declarationEnd);
+  if (SHAPE_CHANGING_QUERY_METHOD.test(methodBody)
+    || new RegExp(`(?:&\\s*${returned.replace('$', '\\$')}\\b|unset\\s*\\(\\s*${returned.replace('$', '\\$')}\\b|${returned.replace('$', '\\$')}\\s*->\\s*\\{)`, 'i').test(methodBody)
+    || parsed.assignments.some((candidate) => candidate.scopeId === callable.fqcn && candidate.sourceVariable === returned)
+    || parsed.variableReferences.some((reference) => reference.variable === returned && reference.start >= callable.declarationStart
+      && reference.end <= callable.declarationEnd && reference.scopeId !== callable.fqcn)
+    || parsed.calls.some((call) => call.start >= callable.declarationStart && call.end <= callable.declarationEnd
+      && call.arguments.some((argument) => source.slice(argument.start, argument.end).replace(/^\s*[^:]+:\s*/, '').trim() === returned))) return undefined;
+  return { ownerFqcn: callable.containerFqcn, method: callable.name, entity, uri, start: callable.start, end: callable.end };
+}
+
 export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, source: string): DoctrineDocumentFacts {
   const parsed = parser.parse(source, undefined, uri);
   try {
     const entities: DoctrineEntityInfo[] = [];
     const repositories: DoctrineRepositoryInfo[] = [];
+    const queryFactories: DoctrineQueryFactoryInfo[] = [];
     for (const declaration of parsed.declarations.filter((item) => item.kind === 'class' && !item.anonymous)) {
       const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
       const prefix = source.slice(declaration.declarationStart, declaration.start);
@@ -85,10 +149,21 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
         if (entity) repositories.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, entity });
       }
     }
-    return { entities, repositories: [...new Map(repositories.map((repository) => [
+    for (const callable of parsed.callables.filter((item) => item.kind === 'method')) {
+      const factory = queryFactoryForMethod(parser, source, parsed, callable, uri); if (factory) queryFactories.push(factory);
+    }
+    return { entities, queryFactories, repositories: [...new Map(repositories.map((repository) => [
       `${repository.fqcn.toLowerCase()}\0${repository.entity.toLowerCase()}`, repository,
     ])).values()] };
   } finally { parsed.tree.delete(); }
+}
+
+/** Convert a source-proven project QueryBuilder factory into a generic method return fact. */
+export function doctrineQueryFactoryMethodFact(factory: DoctrineQueryFactoryInfo): DoctrineQueryFactoryMethodFact {
+  return { ownerFqcn: factory.ownerFqcn, name: factory.method,
+    returnType: `\\Doctrine\\ORM\\QueryBuilder<\\${factory.entity.replace(/^\\/, '')}>`,
+    returnTypeTemplates: ['TEntity'],
+    uri: factory.uri, start: factory.start, end: factory.end };
 }
 
 export function repositoryMethodReturnType(repository: DoctrineRepositoryInfo, method: string): string | undefined {
