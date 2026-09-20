@@ -4463,6 +4463,52 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('keeps the newest generic semantic-provider facts when an older request finishes last', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-provider-order-'));
+    try {
+      await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      await writeFile(join(root, 'Service.php'), '<?php namespace App; class Service {}');
+      const uri = pathToFileURL(join(root, 'Consumer.php')).toString();
+      const source = '<?php namespace App; function consume(Service $service): void { $service->met; }';
+      await writeFile(join(root, 'Consumer.php'), source);
+      const configurationUri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+      const started = join(root, 'provider-started.txt'); const provider = join(root, 'provider.mjs');
+      await writeFile(provider, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const document=request.params.documents?.find((item)=>item.languageId==='yaml');const state=document?.source??'initial';appendFileSync(${JSON.stringify(started)},state+'\\n');await new Promise((resolve)=>setTimeout(resolve,state==='slow'?300:10));const name=state==='slow'?'methodSlow':state==='fast'?'methodFast':'methodInitial';process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.ordered',generation:request.params.generation,complete:true,methods:[{ownerFqcn:'App\\\\Service',name,returnType:'string',uri:request.params.rootUri,start:0,end:1}],properties:[],literalMethodReturns:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 671, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { semanticProviders: [
+          { providerId: 'vendor.ordered', command: process.execPath, args: [provider], timeoutMs: 5000, acceptsDocumentSnapshots: true },
+        ] },
+      } }));
+      await output.waitFor((message) => message.id === 671); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('vendor.ordered committed'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const sendSnapshot = (state: string, snapshotVersion: string): void => server!.stdin.write(encode({
+        jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: { complete: true, documents: [
+          { uri: configurationUri, languageId: 'yaml', source: state, snapshotVersion },
+        ] },
+      }));
+      sendSnapshot('slow', '1');
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const contents = await readFile(started, 'utf8').catch(() => '');
+        if (contents.includes('slow')) break;
+        await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 10));
+      }
+      expect(await readFile(started, 'utf8')).toContain('slow');
+      sendSnapshot('fast', '2');
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 450));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 672, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('met') + 3),
+      } }));
+      const labels = (await output.waitFor((message) => message.id === 672)).result.map((item: { label: string }) => item.label);
+      expect(labels).toContain('methodFast'); expect(labels).not.toContain('methodSlow'); expect(labels).not.toContain('methodInitial');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('registers and withdraws a bundled semantic provider without restarting', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-plugin-provider-'));
     try {

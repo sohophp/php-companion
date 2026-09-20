@@ -77,6 +77,7 @@ const externalSymfonyEventsByRoot = new Map<string, { providerId: string; inputS
 type RootSemanticProviderChannel = 'container' | 'events';
 interface RootSemanticProviderRevisions { container: number; events: number }
 const semanticProviderRevisionsByRoot = new Map<string, RootSemanticProviderRevisions>();
+const genericSemanticProviderRevisionsByRoot = new Map<string, Map<string, number>>();
 interface ControllerContextProviderRevisions { full: number; scoped: number; uris: Map<string, number> }
 const controllerContextProviderRevisionsByRoot = new Map<string, ControllerContextProviderRevisions>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
@@ -112,6 +113,16 @@ function isCurrentRootSemanticProviderRequest(root: string, channel: RootSemanti
   return semanticProviderRevisionsByRoot.get(root)?.[channel] === revision;
 }
 
+function beginGenericSemanticProviderRequest(root: string, providerId: string): number {
+  const revisions = genericSemanticProviderRevisionsByRoot.get(root) ?? new Map<string, number>();
+  const key = providerId.toLowerCase(); const revision = (revisions.get(key) ?? 0) + 1;
+  revisions.set(key, revision); genericSemanticProviderRevisionsByRoot.set(root, revisions); return revision;
+}
+
+function isCurrentGenericSemanticProviderRequest(root: string, providerId: string, revision: number): boolean {
+  return genericSemanticProviderRevisionsByRoot.get(root)?.get(providerId.toLowerCase()) === revision;
+}
+
 type ControllerContextProviderRequest =
   | { kind: 'full'; full: number; scoped: number }
   | { kind: 'scoped'; full: number; uris: Map<string, number> };
@@ -145,6 +156,9 @@ function currentControllerContextProviderUris(root: string, request: ControllerC
 
 function invalidateSemanticProviderRequests(): void {
   for (const revisions of semanticProviderRevisionsByRoot.values()) { revisions.container += 1; revisions.events += 1; }
+  for (const revisions of genericSemanticProviderRevisionsByRoot.values()) {
+    for (const [providerId, revision] of revisions) revisions.set(providerId, revision + 1);
+  }
   for (const revisions of controllerContextProviderRevisionsByRoot.values()) { revisions.full += 1; revisions.scoped += 1; }
 }
 
@@ -631,6 +645,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
     if ((descriptor.acceptsDocumentSnapshots && !snapshots.complete) || (descriptor.requiresProjectTypes && !types.complete)) {
       connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); continue;
     }
+    const requestRevision = beginGenericSemanticProviderRequest(root, descriptor.providerId);
     const result = await runSemanticProvider(descriptor, {
       rootUri: indexedUriForPath(root, root), rootPath: root, generation: String(generation), phpVersion: targetPhpVersion,
       ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
@@ -638,6 +653,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
       ...(descriptor.requiresContainerServices ? { containerServices: symfonyServiceCatalog(root) } : {}),
     });
     if (!shouldContinue()) return;
+    if (!isCurrentGenericSemanticProviderRequest(root, descriptor.providerId, requestRevision)) continue;
     if (result.ok) {
       workspace.replaceExternalFacts(result.contribution);
       connection.console.info(`Semantic provider ${descriptor.providerId} committed generation ${generation}.`);
@@ -3058,6 +3074,7 @@ connection.onShutdown(async () => {
   semanticWorkspaces.clear();
   externalSymfonyEventsByRoot.clear();
   semanticProviderRevisionsByRoot.clear();
+  genericSemanticProviderRevisionsByRoot.clear();
   controllerContextProviderRevisionsByRoot.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();

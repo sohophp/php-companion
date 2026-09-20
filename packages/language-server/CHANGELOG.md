@@ -1,3 +1,4 @@
+- Reject superseded generic semantic-provider contributions per workspace root and provider identity, preventing a slower extension process from replacing newer third-party method, property or literal-return facts.
 - Reject superseded Symfony semantic-provider results before they can commit or clear container, event or controller-context facts; controller-context refreshes track each changed PHP document independently so concurrent edits in different files remain valid.
 - Refresh resource-expanded Symfony container facts once per workspace root after PHP declaration changes or deletion, while implementation-only watcher updates retain the current service snapshot.
 - Invalidate cached authoritative Symfony event relations after actual watched PHP source changes or deletion, preventing stale listener and dispatch References when declaration ranges remain unchanged.
