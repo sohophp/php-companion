@@ -4663,6 +4663,12 @@ use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\serv
 return static function (ContainerConfigurator $container): void {
     $container->services()->set('app.php.consumer')->arg('$service', service('app.service'));
 };`; await writeFile(phpPath, phpSource);
+      const attributePath = join(root, 'src', 'Consumer.php'); const attributeUri = pathToFileURL(attributePath).toString();
+      const attributeSource = `<?php
+namespace App;
+use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+final class Consumer { public function __construct(#[Autowire(service: 'app.service')] private object $service) {} }`;
+      await writeFile(attributePath, attributeSource);
       const provider = join(root, 'provider.mjs');
       await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const uri=request.params.rootUri+'/config/services.yaml'; const xmlUri=request.params.rootUri+'/config/services.xml'; const phpUri=request.params.rootUri+'/config/services.php'; const service={id:'app.service',className:'App\\\\Service',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'explicit',uri,start:12,end:23,registrationUri:uri,registrationStart:12,registrationEnd:23}; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[{ownerFqcn:'Psr\\\\Container\\\\ContainerInterface',name:'get',argument:'app.service',returnType:'App\\\\Service',uri,start:12,end:23}],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[uri,xmlUri,phpUri]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
@@ -4710,7 +4716,7 @@ return static function (ContainerConfigurator $container): void {
         position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5), context: { includeDeclaration: false },
       } }));
       const crossFormatReferences = (await output.waitFor((message) => message.id === 70)).result;
-      expect(crossFormatReferences).toHaveLength(3);
+      expect(crossFormatReferences).toHaveLength(4);
       expect(crossFormatReferences).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 1),
           end: lspPosition(configSource, configSource.lastIndexOf('@app.service') + '@app.service'.length) } });
@@ -4720,12 +4726,15 @@ return static function (ContainerConfigurator $container): void {
       expect(crossFormatReferences).toContainEqual({ uri: phpUri,
         range: { start: lspPosition(phpSource, phpSource.lastIndexOf('app.service')),
           end: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 'app.service'.length) } });
+      expect(crossFormatReferences).toContainEqual({ uri: attributeUri,
+        range: { start: lspPosition(attributeSource, attributeSource.indexOf('app.service')),
+          end: lspPosition(attributeSource, attributeSource.indexOf('app.service') + 'app.service'.length) } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 71, method: 'phpCompanion/symfonyServiceReferences', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
         position: lspPosition(configSource, configSource.indexOf('app.service') + 3), context: { includeDeclaration: true },
       } }));
       const referencesWithDeclaration = (await output.waitFor((message) => message.id === 71)).result;
-      expect(referencesWithDeclaration).toHaveLength(4);
+      expect(referencesWithDeclaration).toHaveLength(5);
       expect(referencesWithDeclaration).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 74, method: 'phpCompanion/symfonyServiceDefinition', params: {
@@ -4750,6 +4759,26 @@ return static function (ContainerConfigurator $container): void {
         position: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 4), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 79)).result).toEqual(crossFormatReferences);
+      const attributeServiceStart = attributeSource.indexOf('app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7901, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: attributeUri, version: 1 }, source: attributeSource,
+        position: lspPosition(attributeSource, attributeServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7901)).result).toEqual([{ uri: configUri,
+        range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7902, method: 'phpCompanion/symfonyServiceReferences', params: {
+        textDocument: { uri: attributeUri, version: 1 }, source: attributeSource,
+        position: lspPosition(attributeSource, attributeServiceStart + 4), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 7902)).result).toEqual(crossFormatReferences);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7903, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: attributeUri, version: 1 }, source: attributeSource,
+        position: lspPosition(attributeSource, attributeServiceStart + 'app.se'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7903)).result).toEqual({ isIncomplete: false, items: [{
+        label: 'app.service', detail: 'App\\Service (explicit, private)',
+        range: { start: lspPosition(attributeSource, attributeServiceStart), end: lspPosition(attributeSource, attributeServiceStart + 'app.service'.length) },
+      }] });
       const phpServiceValueStart = phpSource.lastIndexOf('app.service');
       const xmlServiceValueStart = xmlSource.lastIndexOf('app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'phpCompanion/symfonyServiceCompletions', params: {
@@ -4772,10 +4801,11 @@ return static function (ContainerConfigurator $container): void {
         position: lspPosition(xmlSource, xmlServiceValueStart + 4), newName: 'app.renamed-service',
       } }));
       const serviceRename = (await output.waitFor((message) => message.id === 82)).result.changes;
-      expect(Object.values(serviceRename).flat()).toHaveLength(4);
+      expect(Object.values(serviceRename).flat()).toHaveLength(5);
       expect(serviceRename[configUri]).toHaveLength(2);
       expect(serviceRename[xmlUri]).toHaveLength(1);
       expect(serviceRename[phpUri]).toHaveLength(1);
+      expect(serviceRename[attributeUri]).toHaveLength(1);
       expect(Object.values(serviceRename).flat()).toEqual(expect.arrayContaining([
         expect.objectContaining({ newText: 'app.renamed-service' }),
       ]));
@@ -4797,7 +4827,21 @@ return static function (ContainerConfigurator $container): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 85, method: 'textDocument/rename', params: {
         textDocument: { uri: phpUri }, position: lspPosition(phpSource, phpServiceValueStart + 4), newName: 'app.renamed',
       } }));
-      expect(Object.values((await output.waitFor((message) => message.id === 85)).result.changes).flat()).toHaveLength(4);
+      expect(Object.values((await output.waitFor((message) => message.id === 85)).result.changes).flat()).toHaveLength(5);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: attributeUri, languageId: 'php', version: 1, text: attributeSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === attributeUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 8501, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri: attributeUri }, position: lspPosition(attributeSource, attributeServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 8501)).result).toEqual({ placeholder: 'app.service', range: {
+        start: lspPosition(attributeSource, attributeServiceStart), end: lspPosition(attributeSource, attributeServiceStart + 'app.service'.length),
+      } });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 8502, method: 'textDocument/rename', params: {
+        textDocument: { uri: attributeUri }, position: lspPosition(attributeSource, attributeServiceStart + 4), newName: 'app.attribute-renamed',
+      } }));
+      expect(Object.values((await output.waitFor((message) => message.id === 8502)).result.changes).flat()).toHaveLength(5);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 76, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
         position: lspPosition(xmlSource, xmlServiceValueStart + 'app.se'.length),

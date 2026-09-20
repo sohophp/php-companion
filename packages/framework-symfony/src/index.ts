@@ -144,23 +144,70 @@ export function analyzeSymfonyContainerXml(uri: string, source: string): Symfony
   return { complete: true, services, methodArguments, propertyArguments };
 }
 
+function maskPhpCommentsAndStrings(source: string): string {
+  const masked = source.split('');
+  const blank = (start: number, end: number): void => {
+    for (let index = start; index < end; index += 1) if (masked[index] !== '\n' && masked[index] !== '\r') masked[index] = ' ';
+  };
+  for (let index = 0; index < source.length;) {
+    if (source.startsWith('//', index) || source[index] === '#' && source[index + 1] !== '[') {
+      const end = source.indexOf('\n', index + 1); blank(index, end < 0 ? source.length : end); index = end < 0 ? source.length : end; continue;
+    }
+    if (source.startsWith('/*', index)) {
+      const close = source.indexOf('*/', index + 2); const end = close < 0 ? source.length : close + 2;
+      blank(index, end); index = end; continue;
+    }
+    const quote = source[index];
+    if (quote === "'" || quote === '"' || quote === '`') {
+      let end = index + 1;
+      while (end < source.length) {
+        if (source[end] === '\\') { end += 2; continue; }
+        if (source[end++] === quote) break;
+      }
+      blank(index, Math.min(end, source.length)); index = end; continue;
+    }
+    if (source.startsWith('<<<', index)) {
+      const headerEnd = source.indexOf('\n', index + 3);
+      const header = headerEnd < 0 ? '' : source.slice(index + 3, headerEnd).trim();
+      const label = /^(?:['"])?([A-Za-z_][A-Za-z0-9_]*)(?:['"])?$/.exec(header)?.[1];
+      if (label) {
+        const terminator = new RegExp(`^${label};?\\r?$`, 'm'); const body = source.slice(headerEnd + 1); const match = terminator.exec(body);
+        const end = match?.index === undefined ? source.length : headerEnd + 1 + match.index + match[0].length;
+        blank(index, end); index = end; continue;
+      }
+    }
+    index += 1;
+  }
+  return masked.join('');
+}
+
+/** Enumerate exact #[Autowire(service: ...)] string literal source ranges. */
+export function symfonyAutowireServiceIdReferences(source: string): SymfonyServiceIdReference[] {
+  const canonical = 'symfony\\component\\dependencyinjection\\attribute\\autowire';
+  const acceptedNames = new Set([canonical]);
+  const code = maskPhpCommentsAndStrings(source);
+  const namespaces = [...code.matchAll(/\bnamespace\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*[;{]/gi)];
+  if (namespaces.length <= 1) {
+    for (const match of code.matchAll(/\buse\s+\\?Symfony\\Component\\DependencyInjection\\Attribute\\Autowire(?:\s+as\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*))?\s*;/gi)) {
+      acceptedNames.add((match[1] ?? 'Autowire').toLowerCase());
+    }
+    if (/\bnamespace\s+Symfony\\Component\\DependencyInjection\\Attribute\s*[;{]/i.test(code)) acceptedNames.add('autowire');
+  }
+  const pattern = /#\[\s*(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\((?:(?!\)\s*\]).){0,2000}?\bservice\s*:\s*(['"])((?:\\(?!['"])|[^\\'"\r\n])*)\2/gs;
+  const references: SymfonyServiceIdReference[] = [];
+  for (let match = pattern.exec(source); match; match = pattern.exec(source)) {
+    if (code.slice(match.index, match.index + 2) !== '#[') continue;
+    if (!acceptedNames.has(match[1]!.replace(/^\\/, '').toLowerCase())) continue;
+    const value = match[3]!; const end = match.index + match[0].length - 1; const start = end - value.length;
+    references.push({ value, start, end });
+  }
+  return references;
+}
+
 /** Locate the quoted value of Symfony's #[Autowire(service: ...)] named argument. */
 export function symfonyAutowireServiceIdAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
   if (offset < 0 || offset > source.length) return undefined;
-  let quoteStart = -1; let quote = '';
-  for (let index = offset - 1; index >= Math.max(0, offset - 2_000); index -= 1) {
-    const character = source[index]!;
-    if ((character === "'" || character === '"') && source[index - 1] !== '\\') { quoteStart = index; quote = character; break; }
-    if (character === ';' || character === '{' || character === '}') break;
-  }
-  if (quoteStart < 0 || !/#\[\s*(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\\)?Autowire\s*\([^)]*\bservice\s*:\s*$/s.test(source.slice(Math.max(0, quoteStart - 2_000), quoteStart))) return undefined;
-  let quoteEnd = source.length;
-  for (let index = quoteStart + 1; index < source.length; index += 1) {
-    if (source[index] === quote && source[index - 1] !== '\\') { quoteEnd = index; break; }
-    if (source[index] === '\n') return undefined;
-  }
-  if (offset < quoteStart + 1 || offset > quoteEnd) return undefined;
-  return { value: source.slice(quoteStart + 1, quoteEnd), start: quoteStart + 1, end: quoteEnd };
+  return symfonyAutowireServiceIdReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 function literalString(node: NodeLike | undefined): string | undefined {

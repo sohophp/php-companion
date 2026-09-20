@@ -1,3 +1,4 @@
+- Include exact project `#[Autowire(service: '...')]` literals in Symfony service Definition, References, completion and atomic Rename through a bounded cached project-source scan; refuse partial edits when that scan is incomplete.
 - Preserve cached static Symfony route snapshots when unrelated PHP documents open, change, or close, while retaining conservative invalidation for route-bearing sources and uncertain deletions; label source-less runtime route completions accurately.
 - Include exact YAML/XML/PHP service-id usages in PHP class References when an authoritative unique service registration maps the id to that class.
 - Resolve Definition, References and completion for exact service ids in provider-confirmed Symfony PHP Configurator files across the authoritative YAML/XML/PHP configuration graph.

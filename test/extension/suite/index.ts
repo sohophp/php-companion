@@ -375,6 +375,10 @@ export async function run(): Promise<void> {
   const phpServicesDocument = await vscode.workspace.openTextDocument(phpServicesUri);
   const phpServicesSource = phpServicesDocument.getText();
   const phpServiceReferenceOffset = phpServicesSource.lastIndexOf('App\\Service\\Mailer') + 5;
+  const attributeConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'AttributeConsumer.php');
+  const attributeConsumerDocument = await vscode.workspace.openTextDocument(attributeConsumerUri);
+  const attributeConsumerSource = attributeConsumerDocument.getText();
+  const attributeServiceReferenceOffset = attributeConsumerSource.indexOf('app.mailer') + 4;
   let xmlServiceDefinitions: vscode.Location[] = [];
   await waitForAsync(async () => {
     xmlServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
@@ -384,9 +388,11 @@ export async function run(): Promise<void> {
   }, () => `Symfony XML service Definition did not reach the authoritative YAML registration: ${JSON.stringify(xmlServiceDefinitions)}`, 30_000, 100);
   let xmlServiceReferences: vscode.Location[] = [];
   const exactCrossFormatServiceReferences = (): vscode.Location[] => [...new Map(xmlServiceReferences
-    .filter((location) => [servicesUri, xmlServicesUri, phpServicesUri].some((uri) => location.uri.toString() === uri.toString()))
+    .filter((location) => [servicesUri, xmlServicesUri, phpServicesUri, attributeConsumerUri]
+      .some((uri) => location.uri.toString() === uri.toString()))
     .filter((location) => (location.uri.toString() === servicesUri.toString() ? servicesDocument
-      : location.uri.toString() === xmlServicesUri.toString() ? xmlServicesDocument : phpServicesDocument)
+      : location.uri.toString() === xmlServicesUri.toString() ? xmlServicesDocument
+        : location.uri.toString() === phpServicesUri.toString() ? phpServicesDocument : attributeConsumerDocument)
       .getText(location.range) === 'App\\Service\\Mailer')
     .map((location) => [`${location.uri}:${location.range.start.line}:${location.range.start.character}:${location.range.end.line}:${location.range.end.character}`, location])).values()];
   await waitForAsync(async () => {
@@ -424,6 +430,23 @@ export async function run(): Promise<void> {
   assert.ok(phpServiceCompletion.range instanceof vscode.Range, 'Symfony PHP Configurator completion did not return one replacement range');
   assert.strictEqual(phpServicesDocument.getText(phpServiceCompletion.range), 'App\\Service\\Mailer',
     'Symfony PHP Configurator completion did not replace only the service() string value');
+  const attributeServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', attributeConsumerUri, attributeConsumerDocument.positionAt(attributeServiceReferenceOffset),
+  );
+  assert.ok(attributeServiceDefinitions.some((location) => location.uri.toString() === servicesUri.toString()
+    && servicesDocument.getText(location.range) === 'app.mailer'),
+  'Symfony Autowire Attribute service Definition did not reach the authoritative YAML registration');
+  const attributeServiceReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', attributeConsumerUri, attributeConsumerDocument.positionAt(attributeServiceReferenceOffset),
+  );
+  assert.ok(attributeServiceReferences.some((location) => location.uri.toString() === attributeConsumerUri.toString()
+    && attributeConsumerDocument.getText(location.range) === 'app.mailer'),
+  'Symfony Autowire Attribute service References did not return its exact string literal');
+  const attributeServiceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', attributeConsumerUri, attributeConsumerDocument.positionAt(attributeServiceReferenceOffset),
+  );
+  assert.ok(attributeServiceCompletionList.items.some((item) => item.label === 'app.mailer'),
+    'Symfony Autowire Attribute completion did not return the authoritative service id');
   const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
   const serviceRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(yamlServiceIdOffset), 'app.renamed-mailer',
@@ -432,15 +455,30 @@ export async function run(): Promise<void> {
   assert.strictEqual(serviceRenameEdit.get(servicesUri).length, 2, 'Symfony service ID Rename missed the YAML declaration or reference');
   assert.strictEqual(serviceRenameEdit.get(xmlServicesUri).length, 1, 'Symfony service ID Rename missed the XML reference');
   assert.strictEqual(serviceRenameEdit.get(phpServicesUri).length, 1, 'Symfony service ID Rename missed the PHP Configurator reference');
+  assert.strictEqual(serviceRenameEdit.get(attributeConsumerUri).length, 1, 'Symfony service ID Rename missed the Autowire Attribute reference');
   await vscode.window.showTextDocument(servicesDocument);
   assert.ok(await vscode.workspace.applyEdit(serviceRenameEdit), 'Symfony service ID Rename edit could not be applied');
   assert.strictEqual(servicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 2, 'Symfony service ID Rename changed the wrong YAML ranges');
   assert.strictEqual(xmlServicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 1, 'Symfony service ID Rename changed the wrong XML range');
   assert.strictEqual(phpServicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 1, 'Symfony service ID Rename changed the wrong PHP range');
+  assert.strictEqual(attributeConsumerDocument.getText().match(/app\.renamed-mailer/g)?.length, 1,
+    'Symfony service ID Rename changed the wrong Autowire Attribute range');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => servicesDocument.getText().includes('app.mailer:')
     && xmlServicesDocument.getText().includes('id="app.mailer"')
-    && phpServicesDocument.getText().includes("service('app.mailer')"), 'Symfony service ID Rename could not be undone as one workspace edit');
+    && phpServicesDocument.getText().includes("service('app.mailer')")
+    && attributeConsumerDocument.getText().includes("service: 'app.mailer'"),
+  'Symfony service ID Rename could not be undone as one workspace edit');
+  const attributeRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', attributeConsumerUri,
+    attributeConsumerDocument.positionAt(attributeServiceReferenceOffset), 'app.attribute-renamed',
+  );
+  assert.ok(attributeRenameEdit, 'Standard F2 Rename returned no edit from the Autowire Attribute');
+  assert.strictEqual(attributeRenameEdit.get(servicesUri).length, 2,
+    'Autowire Attribute F2 Rename missed the YAML declaration or reference');
+  assert.strictEqual(attributeRenameEdit.get(xmlServicesUri).length, 1, 'Autowire Attribute F2 Rename missed the XML reference');
+  assert.strictEqual(attributeRenameEdit.get(phpServicesUri).length, 1, 'Autowire Attribute F2 Rename missed the PHP Configurator reference');
+  assert.strictEqual(attributeRenameEdit.get(attributeConsumerUri).length, 1, 'Autowire Attribute F2 Rename missed its source literal');
   const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
   );

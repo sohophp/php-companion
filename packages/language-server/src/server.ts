@@ -35,7 +35,7 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -1583,6 +1583,9 @@ async function indexWorkspace(generation: number): Promise<void> {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
       const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
+      for (const query of symfonyAutowireReferenceQueries.keys()) {
+        if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
+      }
       const refreshTimer = symfonyContainerRefreshTimers.get(oldRoot); if (refreshTimer) clearTimeout(refreshTimer); symfonyContainerRefreshTimers.delete(oldRoot);
     }
     for (const [key, candidate] of semanticWorkspaces) {
@@ -1684,6 +1687,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
+const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
@@ -1728,6 +1732,55 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode) : false;
   }
   candidateQueries.set(key, epoch); return true;
+  } finally { progress?.done(); }
+}
+
+async function scanSymfonyAutowireServiceReferences(root: string, serviceId: string, cancelled: () => boolean, retries = 2): Promise<Array<{ uri: string; source: string; start: number; end: number }> | undefined> {
+  if (indexingMode === 'off') return undefined;
+  const key = `${root}:${serviceId}`; const epoch = projectEpochs.get(root) ?? 0;
+  const cached = symfonyAutowireReferenceQueries.get(key);
+  if (cached?.epoch === epoch) return cached.references;
+  const references: Array<{ uri: string; source: string; start: number; end: number }> = [];
+  const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
+  progress?.begin('Finding Symfony service references', 0, 'Scanning project PHP attributes', true);
+  try {
+    const scan = await indexComposerSources(root, {
+      project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
+      shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true,
+      uriForPath: (file) => indexedUriForPath(root, file),
+      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
+      onSource: ({ uri, source }) => {
+        const effective = documents.get(uri)?.getText() ?? source;
+        if (effective.includes(serviceId)) for (const reference of symfonyAutowireServiceIdReferences(effective)) {
+          if (reference.value === serviceId) references.push({ uri, source: effective, start: reference.start, end: reference.end });
+        }
+        return createSourceCandidateSummary(source);
+      },
+      cache: cacheDirectory ? {
+        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+        restore: (payload): boolean | 'source' => {
+          const decision = sourceCandidateSummaryDecision(payload, new Set(['autowire']), 'symbol');
+          return decision === 'skip' ? true : decision === 'source' ? 'source' : false;
+        },
+      } : undefined,
+    });
+    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
+    if (!scan.projectComplete || cancelled()) return undefined;
+    for (const document of documents.all().filter((item) => item.languageId === 'php' && rootForUri(item.uri) === root)) {
+      const source = document.getText();
+      if (!source.includes(serviceId)) continue;
+      for (const reference of symfonyAutowireServiceIdReferences(source)) if (reference.value === serviceId) {
+        references.push({ uri: document.uri, source, start: reference.start, end: reference.end });
+      }
+    }
+    if ((projectEpochs.get(root) ?? 0) !== epoch) {
+      await applyPendingFiles();
+      return retries > 0 ? scanSymfonyAutowireServiceReferences(root, serviceId, cancelled, retries - 1) : undefined;
+    }
+    const unique = [...new Map(references.map((reference) => [`${reference.uri}:${reference.start}:${reference.end}`, reference])).values()]
+      .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
+    symfonyAutowireReferenceQueries.set(key, { epoch, references: unique });
+    return unique;
   } finally { progress?.done(); }
 }
 
@@ -1867,11 +1920,14 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
     || token.isCancellationRequested) return [];
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
-  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  if (!root || !sourcePath) return [];
   const sourceIsPhp = /\.php$/i.test(uri);
   const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : 'xml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const reference = sourceIsPhp ? symfonyPhpServiceReferenceAt(await parser(), params.source, offset)
+  const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
+  if (!sourceIsPhp && !configSource) return [];
+  const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferenceAt(await parser(), params.source, offset) : undefined)
+      ?? symfonyAutowireServiceIdAt(params.source, offset)
     : symfonyXmlServiceReferenceAt(params.source, offset); if (!reference) return [];
   const workspace = await semanticForRoot(root); const target = uniqueSymfonyServiceRegistration(root, reference.value);
   if (!target || token.isCancellationRequested) return [];
@@ -1935,13 +1991,19 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
     || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0 || cancelled()) return undefined;
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
-  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return undefined;
+  if (!root || !sourcePath) return undefined;
+  const isPhp = /\.php$/i.test(uri); const isXml = /\.xml$/i.test(uri);
+  const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
+  const attributeReference = isPhp ? symfonyAutowireServiceIdAt(params.source, TextDocument.create(uri, 'php',
+    typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source)
+    .offsetAt({ line: Number(position.line), character: Number(position.character) })) : undefined;
+  if (!configSource && !attributeReference) return undefined;
   await semanticForRoot(root); if (cancelled()) return undefined;
-  const isPhp = /\.php$/i.test(uri); const isXml = /\.xml$/i.test(uri); const syntaxParser = isPhp ? await parser() : undefined;
+  const syntaxParser = isPhp && configSource ? await parser() : undefined;
   const sourceDocument = TextDocument.create(uri, isPhp ? 'php' : isXml ? 'xml' : 'yaml',
     typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const reference = isPhp ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset)
+  const reference = isPhp ? (configSource ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset) : undefined) ?? attributeReference
     : isXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset);
   const declarationIds = symfonyServiceRegistrations(root)
     .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
@@ -1963,6 +2025,8 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
     : TextDocument.create(target.registrationUri, targetLanguage, documents.get(target.registrationUri)?.version ?? 0, targetSource);
   const newName = typeof params.newName === 'string' ? params.newName : serviceId;
   if (!/^[A-Za-z_.][A-Za-z0-9_.-]*$/.test(newName)) return undefined;
+  const attributeReferences = await scanSymfonyAutowireServiceReferences(root, serviceId, cancelled);
+  if (!attributeReferences || cancelled()) return undefined;
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {
     [target.registrationUri]: [{ range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) }, newText: newName }],
   };
@@ -1986,6 +2050,13 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
       }
       (changes[configUri] ??= []).push({ range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) }, newText: newName });
     }
+  }
+  for (const candidate of attributeReferences) {
+    if (candidate.source.slice(candidate.start, candidate.end) !== serviceId) return undefined;
+    const document = documents.get(candidate.uri) ?? TextDocument.create(candidate.uri, 'php', 0, candidate.source);
+    (changes[candidate.uri] ??= []).push({
+      range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) }, newText: newName,
+    });
   }
   for (const [changeUri, edits] of Object.entries(changes)) changes[changeUri] = [...new Map(edits.map((edit) => [JSON.stringify(edit.range), edit])).values()];
   const selected = reference ?? { value: serviceId, start: target.registrationStart, end: target.registrationEnd };
@@ -2106,13 +2177,16 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
     || token.isCancellationRequested) return [];
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
-  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  if (!root || !sourcePath) return [];
   await semanticForRoot(root);
   if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
   const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri); const syntaxParser = sourceIsPhp ? await parser() : undefined;
   const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const reference = sourceIsPhp ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset)
+  const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
+  if (!sourceIsPhp && !configSource) return [];
+  const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset) : undefined)
+      ?? symfonyAutowireServiceIdAt(params.source, offset)
     : sourceIsXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset);
   const declarationIds = symfonyServiceRegistrations(root)
     .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
@@ -2121,6 +2195,8 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   if (ids.size !== 1) return [];
   const serviceId = [...ids][0]!; const target = uniqueSymfonyServiceRegistration(root, serviceId);
   if (!target) return [];
+  const attributeReferences = await scanSymfonyAutowireServiceReferences(root, serviceId, () => token.isCancellationRequested);
+  if (!attributeReferences || token.isCancellationRequested) return [];
   const locations: Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }> = [];
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
     if (!/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
@@ -2137,6 +2213,11 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
       if (candidate.value !== serviceId) continue;
       locations.push({ uri: configUri, range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) } });
     }
+  }
+  for (const candidate of attributeReferences) {
+    const document = documents.get(candidate.uri) ?? TextDocument.create(candidate.uri, 'php', 0, candidate.source);
+    locations.push({ uri: candidate.uri,
+      range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) } });
   }
   if (params.context?.includeDeclaration === true) {
     const targetPath = pathForUri(target.registrationUri);
@@ -2162,13 +2243,17 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
     || token.isCancellationRequested) return empty;
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
-  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return empty;
+  if (!root || !sourcePath) return empty;
   await semanticForRoot(root);
   if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service completion cancelled.');
   const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri);
   const document = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const reference = sourceIsPhp ? symfonyPhpServiceReferencePrefixAt(await parser(), params.source, offset)
+  const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
+  if (!sourceIsPhp && !configSource) return empty;
+  const attributeReference = sourceIsPhp ? symfonyAutowireServiceIdAt(params.source, offset) : undefined;
+  const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferencePrefixAt(await parser(), params.source, offset) : undefined)
+      ?? (attributeReference ? { prefix: params.source.slice(attributeReference.start, offset), start: attributeReference.start, end: attributeReference.end } : undefined)
     : sourceIsXml ? symfonyXmlServiceReferencePrefixAt(params.source, offset)
     : symfonyYamlServiceReferencePrefixAt(params.source, offset);
   if (!reference) return empty;
@@ -3586,6 +3671,7 @@ connection.onShutdown(async () => {
   for (const waiters of projectCompleteWaiters.values()) for (const resolveReady of waiters) resolveReady();
   projectCompleteWaiters.clear();
   projectIndexedUrisByRoot.clear();
+  symfonyAutowireReferenceQueries.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
 });

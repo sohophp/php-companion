@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Enumerate exact `#[Autowire(service: '...')]` service-id ranges for the canonical Symfony Attribute, including imported aliases, while rejecting unrelated attributes and ambiguous multi-namespace imports.
 - Locate exact service-id references and completion ranges in proven PHP Configurator closures, including imported `service()`, service collection lookups, alias targets, parents and decorators, while invalidating reassigned DSL variables.
 - Locate the editable value and typed prefix inside exact conventional XML service-reference attributes, including an empty quoted value.
 - Locate exact service ids in conventional XML `argument`, `property`, `bind`, alias, parent, decorator, factory and configurator attributes while rejecting declarations and dynamic or structurally unsafe XML.

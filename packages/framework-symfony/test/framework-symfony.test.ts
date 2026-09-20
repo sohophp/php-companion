@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -739,7 +739,40 @@ services:
     expect(symfonyAutowireServiceIdAt(source, offset)).toMatchObject({ value: 'app.mail' });
     const other = source.replaceAll('Autowire', 'Other');
     expect(symfonyAutowireServiceIdAt(other, other.indexOf('app.mail') + 4)).toBeUndefined();
+    const custom = `<?php use App\\Autowire; final class Consumer { #[Autowire(service: 'app.mail')] public object $mailer; }`;
+    expect(symfonyAutowireServiceIdAt(custom, custom.indexOf('app.mail') + 4)).toBeUndefined();
     expect(symfonyAutowireServiceIdAt(`<?php $container->get('app.mail');`, 25)).toBeUndefined();
+    const multiple = `<?php
+      use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+      use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire as InjectService;
+      #[Autowire(env: 'MAILER', service: 'app.mail')]
+      private object $mailer;
+      public function set(#[\\Symfony\\Component\\DependencyInjection\\Attribute\\Autowire(service: "app.audit")] object $audit): void {}
+      #[InjectService(service: 'app.alias')]
+      private object $alias;
+      private string $label = '😀';
+      #[Autowire(service: 'app.unicode-offset')]
+      private object $unicodeOffset;
+      #[Other(service: 'app.other')]
+      private object $other;
+      #[Autowire(service: 'app\\\\escaped')]
+      private object $escaped;
+      #[\\App\\Autowire(service: 'app.false-positive')]
+      private object $custom;
+    `;
+    const references = symfonyAutowireServiceIdReferences(multiple);
+    expect(references.map(({ value }) => value)).toEqual(['app.mail', 'app.audit', 'app.alias', 'app.unicode-offset', 'app\\\\escaped']);
+    const unicode = references.find(({ value }) => value === 'app.unicode-offset')!;
+    expect(multiple.slice(unicode.start, unicode.end)).toBe('app.unicode-offset');
+    const decoys = `<?php
+      // use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+      // #[\\Symfony\\Component\\DependencyInjection\\Attribute\\Autowire(service: 'app.comment')]
+      $text = "#[\\\\Symfony\\\\Component\\\\DependencyInjection\\\\Attribute\\\\Autowire(service: 'app.string')]";
+      $escaped = #[\\Symfony\\Component\\DependencyInjection\\Attribute\\Autowire(service: 'app\\'encoded')];
+      #[Autowire(service: 'app.unrelated')]
+      final class Decoy {}
+    `;
+    expect(symfonyAutowireServiceIdReferences(decoys)).toEqual([]);
   });
 
   it('reads compiled bundle services, aliases and controller method locators from debug-container XML', () => {
