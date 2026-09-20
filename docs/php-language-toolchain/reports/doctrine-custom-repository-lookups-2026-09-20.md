@@ -23,4 +23,8 @@ Language Server 项目事实升级为 schema 4，持久 wrapper 升级为 schema
 - Language Server 196 项完整回归通过。
 - 10,000 文件持久缓存门禁冷索引 18,326.26 ms、热恢复 6,237.28 ms，热/冷比 0.3403；热恢复 10,000/10,000，19,999 条 callable 记录保持延迟，聚焦查询只加载 3 个实现，派生层或 callable 单记录损坏均只重建 1 个文件。
 
-候选 VSIX、打包 Extension Host、双项目 WSL 预检与安装摘要将在功能提交后补充。
+## 候选与 WSL
+
+功能提交为 `e54250eaf962267d2682ed6da798b50c536a59d8`，候选目录为 `artifacts/php-companion-alpha-0.4.5-e54250ea/`。Core、Symfony、Open Source Pack、Recommended Pack SHA-256 分别为 `bc277f247c499730d7fd1a1a29d85098a814af5c85dfc407f17d8c23214bdafe`、`32aa752d44bcd7f873485b26181e3225546fea9530690de74ad5e92b3c7b052b`、`e42c5d220f2a3e60494799a80b92ffb773c099e60777ae909eb72a94f10d2455`、`a5a374b19806db75abadf95ad8b86772305f4d837d3c72002e07ffce75e9eb94`。
+
+VS Code 1.138.0 隔离 Profile 的双扩展打包宿主退出码为 0；Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL 预检通过。候选已原子更新到 WSL Alpha Profile，核心语言服务器摘要为 `2057d10b62788f70962bd0f79fc04b39621d5630f0f5c87daced4f9ebe51eb3b`，旧进程退出后客户端自动启动新进程。严格 Profile 与两小时真实编辑仍属于人工验收。
