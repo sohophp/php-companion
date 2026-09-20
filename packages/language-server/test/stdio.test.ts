@@ -4676,6 +4676,7 @@ return static function (ContainerConfigurator $container): void {
       } }));
       expect((await output.waitFor((message) => message.id === 79)).result).toEqual(crossFormatReferences);
       const phpServiceValueStart = phpSource.lastIndexOf('app.service');
+      const xmlServiceValueStart = xmlSource.lastIndexOf('app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: phpUri, version: 1 }, source: phpSource,
         position: lspPosition(phpSource, phpServiceValueStart + 'app.se'.length),
@@ -4684,7 +4685,44 @@ return static function (ContainerConfigurator $container): void {
         label: 'app.service', detail: 'App\\Service (explicit, private)',
         range: { start: lspPosition(phpSource, phpServiceValueStart), end: lspPosition(phpSource, phpServiceValueStart + 'app.service'.length) },
       }] });
-      const xmlServiceValueStart = xmlSource.lastIndexOf('app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 81, method: 'phpCompanion/symfonyServicePrepareRename', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, xmlServiceValueStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 81)).result).toEqual({ placeholder: 'app.service', range: {
+        start: lspPosition(xmlSource, xmlServiceValueStart), end: lspPosition(xmlSource, xmlServiceValueStart + 'app.service'.length),
+      } });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 82, method: 'phpCompanion/symfonyServiceRename', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, xmlServiceValueStart + 4), newName: 'app.renamed-service',
+      } }));
+      const serviceRename = (await output.waitFor((message) => message.id === 82)).result.changes;
+      expect(Object.values(serviceRename).flat()).toHaveLength(4);
+      expect(serviceRename[configUri]).toHaveLength(2);
+      expect(serviceRename[xmlUri]).toHaveLength(1);
+      expect(serviceRename[phpUri]).toHaveLength(1);
+      expect(Object.values(serviceRename).flat()).toEqual(expect.arrayContaining([
+        expect.objectContaining({ newText: 'app.renamed-service' }),
+      ]));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 83, method: 'phpCompanion/symfonyServiceRename', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, xmlServiceValueStart + 4), newName: 'invalid service',
+      } }));
+      expect((await output.waitFor((message) => message.id === 83)).result).toBeNull();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: phpUri, languageId: 'php', version: 1, text: phpSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === phpUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 84, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri: phpUri }, position: lspPosition(phpSource, phpServiceValueStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 84)).result).toEqual({ placeholder: 'app.service', range: {
+        start: lspPosition(phpSource, phpServiceValueStart), end: lspPosition(phpSource, phpServiceValueStart + 'app.service'.length),
+      } });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 85, method: 'textDocument/rename', params: {
+        textDocument: { uri: phpUri }, position: lspPosition(phpSource, phpServiceValueStart + 4), newName: 'app.renamed',
+      } }));
+      expect(Object.values((await output.waitFor((message) => message.id === 85)).result.changes).flat()).toHaveLength(4);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 76, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
         position: lspPosition(xmlSource, xmlServiceValueStart + 'app.se'.length),

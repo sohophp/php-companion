@@ -1867,6 +1867,86 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
   return [{ uri: target.registrationUri, range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) } }];
 });
 
+interface SymfonyServiceRenameParams {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; newName?: unknown;
+}
+
+async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
+  serviceId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
+  changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+} | undefined> {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.(?:ya?ml|xml|php)$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0 || cancelled()) return undefined;
+  const root = rootForUri(uri); const sourcePath = pathForUri(uri);
+  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return undefined;
+  await semanticForRoot(root); if (cancelled()) return undefined;
+  const isPhp = /\.php$/i.test(uri); const isXml = /\.xml$/i.test(uri); const syntaxParser = isPhp ? await parser() : undefined;
+  const sourceDocument = TextDocument.create(uri, isPhp ? 'php' : isXml ? 'xml' : 'yaml',
+    typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const reference = isPhp ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset)
+    : isXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset);
+  const declarationIds = symfonyServiceRegistrations(root)
+    .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
+    .map((service) => service.id);
+  const ids = new Set(reference ? [reference.value] : declarationIds);
+  if (ids.size !== 1) return undefined;
+  const serviceId = [...ids][0]!;
+  if (!/^[A-Za-z_.\\][A-Za-z0-9_.\\-]*$/.test(serviceId)) return undefined;
+  const target = uniqueSymfonyServiceRegistration(root, serviceId);
+  if (!target) return undefined;
+  const targetPath = pathForUri(target.registrationUri);
+  const targetSource = target.registrationUri === uri ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source
+    ?? documents.get(target.registrationUri)?.getText() ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+  if (targetSource === undefined || targetSource.slice(target.registrationStart, target.registrationEnd) !== serviceId) {
+    return undefined;
+  }
+  const targetLanguage = target.registrationUri.endsWith('.php') ? 'php' : target.registrationUri.endsWith('.xml') ? 'xml' : 'yaml';
+  const targetDocument = target.registrationUri === uri ? sourceDocument
+    : TextDocument.create(target.registrationUri, targetLanguage, documents.get(target.registrationUri)?.version ?? 0, targetSource);
+  const newName = typeof params.newName === 'string' ? params.newName : serviceId;
+  if (!/^[A-Za-z_.][A-Za-z0-9_.-]*$/.test(newName)) return undefined;
+  const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {
+    [target.registrationUri]: [{ range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) }, newText: newName }],
+  };
+  for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
+    if (!/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
+    if (cancelled()) return undefined;
+    const configUri = resolve(configPath) === resolve(sourcePath) ? uri : pathToFileURL(configPath).toString();
+    const source = configUri === uri ? params.source : frameworkDocumentSnapshots.get(configUri)?.source
+      ?? documents.get(configUri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
+    if (source === undefined || source.length > indexLimits.maxFileSizeBytes) {
+      return undefined;
+    }
+    const configIsPhp = /\.php$/i.test(configPath); const configIsXml = /\.xml$/i.test(configPath);
+    const document = configUri === uri ? sourceDocument
+      : TextDocument.create(configUri, configIsPhp ? 'php' : configIsXml ? 'xml' : 'yaml', documents.get(configUri)?.version ?? 0, source);
+    const references = configIsPhp ? symfonyPhpServiceReferences(syntaxParser ?? await parser(), source)
+      : configIsXml ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source);
+    for (const candidate of references.filter((item) => item.value === serviceId)) {
+      if (source.slice(candidate.start, candidate.end) !== serviceId) {
+        return undefined;
+      }
+      (changes[configUri] ??= []).push({ range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) }, newText: newName });
+    }
+  }
+  for (const [changeUri, edits] of Object.entries(changes)) changes[changeUri] = [...new Map(edits.map((edit) => [JSON.stringify(edit.range), edit])).values()];
+  const selected = reference ?? { value: serviceId, start: target.registrationStart, end: target.registrationEnd };
+  return { serviceId, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
+}
+
+connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: SymfonyServiceRenameParams, token) => {
+  const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { range: plan.range, placeholder: plan.serviceId } : null;
+});
+
+connection.onRequest('phpCompanion/symfonyServiceRename', async (params: SymfonyServiceRenameParams, token) => {
+  const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { changes: plan.changes } : null;
+});
+
 connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; context?: { includeDeclaration?: unknown };
 }, token): Promise<Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }>> => {
@@ -2936,6 +3016,11 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
 connection.onPrepareRename(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
   if (!document || !root || token.isCancellationRequested) return null;
+  if (/\.php$/i.test(document.uri)) {
+    const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
+      position, source: document.getText() }, () => token.isCancellationRequested);
+    if (service) return { range: service.range, placeholder: service.serviceId };
+  }
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
   const localTarget = workspace.localVariableRename(document.uri, offset);
@@ -2965,7 +3050,13 @@ connection.onRenameRequest(async (params, token) => {
   const renameFile = requested.phpCompanion?.renameFile !== false;
   const includePhpDoc = requested.phpCompanion?.includePhpDoc !== false;
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
-  if (!document || !root || !isValidPhpIdentifier(newName) || token.isCancellationRequested) return null;
+  if (!document || !root || token.isCancellationRequested) return null;
+  if (/\.php$/i.test(document.uri)) {
+    const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
+      position, source: document.getText(), newName }, () => token.isCancellationRequested);
+    if (service) return { changes: service.changes };
+  }
+  if (!isValidPhpIdentifier(newName)) return null;
   const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;
   const offset = document.offsetAt(position);
   let scopedTarget: ReturnType<SemanticWorkspace['localVariableRename']> | ReturnType<SemanticWorkspace['closedPromotedPropertyRename']>

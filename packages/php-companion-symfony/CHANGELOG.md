@@ -1,5 +1,7 @@
 # Changelog
 
+- Enable precise service-id Rename from provider-confirmed YAML and XML declarations or references, with one workspace edit spanning YAML, XML and PHP Configurator files.
+
 - Expose provider-confirmed PHP Configurator files to exact service Definition, References and completion while retaining the standalone Symfony extension as the owner of the configuration graph.
 
 - Reuse the complete static-route snapshot until PHP/YAML, environment, open-document, or provider configuration invalidation instead of starting the provider for every route query.

@@ -36,6 +36,8 @@ describe('standalone Symfony service provider', () => {
     expect(facts.services.map((service) => service.id)).not.toContain('app.disk');
     expect(facts.literalMethodReturns).toContainEqual(expect.objectContaining({ argument: 'app.snapshot', returnType: 'App\\Mailer' }));
     expect(facts.configurationUris).toContain(pathToFileURL(extra).toString());
+    expect(facts.configurationUris).toContain(pathToFileURL(join(root, 'config', 'services.yaml')).toString());
+    expect(facts.configurationUris).not.toContain(pathToFileURL(join(root, 'app', 'config', 'services.php')).toString());
   });
 
   it('uses only fresh compiled container arguments and rejects them when an open source snapshot exists', async () => {

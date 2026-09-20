@@ -1,3 +1,4 @@
+- Symfony service IDs with one explicit authoritative registration can now be renamed atomically across YAML, XML and PHP Configurator configuration; the operation refuses partial or ambiguous graphs and supports one-step Undo in VS Code.
 - PHP class References now include exact service-id usages from the provider-confirmed YAML/XML/PHP configuration graph for every uniquely registered service implemented by that class.
 - Symfony PHP Configurator `service()`, `get()`, `remove()`, alias targets, parents and decorators now support exact Definition, References and service-id completion across the authoritative YAML/XML/PHP configuration graph.
 - Symfony XML service-reference attributes now complete unique authoritative service ids and replace only the attribute value; Red Hat XML continues to own generic XML completion.

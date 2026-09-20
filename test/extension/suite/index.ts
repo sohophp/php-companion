@@ -367,6 +367,23 @@ export async function run(): Promise<void> {
   assert.ok(phpServiceCompletion.range instanceof vscode.Range, 'Symfony PHP Configurator completion did not return one replacement range');
   assert.strictEqual(phpServicesDocument.getText(phpServiceCompletion.range), 'App\\Service\\Mailer',
     'Symfony PHP Configurator completion did not replace only the service() string value');
+  const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
+  const serviceRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(yamlServiceIdOffset), 'app.renamed-mailer',
+  );
+  assert.ok(serviceRenameEdit, 'Symfony service ID Rename returned no edit from the YAML declaration');
+  assert.strictEqual(serviceRenameEdit.get(servicesUri).length, 2, 'Symfony service ID Rename missed the YAML declaration or reference');
+  assert.strictEqual(serviceRenameEdit.get(xmlServicesUri).length, 1, 'Symfony service ID Rename missed the XML reference');
+  assert.strictEqual(serviceRenameEdit.get(phpServicesUri).length, 1, 'Symfony service ID Rename missed the PHP Configurator reference');
+  await vscode.window.showTextDocument(servicesDocument);
+  assert.ok(await vscode.workspace.applyEdit(serviceRenameEdit), 'Symfony service ID Rename edit could not be applied');
+  assert.strictEqual(servicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 2, 'Symfony service ID Rename changed the wrong YAML ranges');
+  assert.strictEqual(xmlServicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 1, 'Symfony service ID Rename changed the wrong XML range');
+  assert.strictEqual(phpServicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 1, 'Symfony service ID Rename changed the wrong PHP range');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => servicesDocument.getText().includes('app.mailer:')
+    && xmlServicesDocument.getText().includes('id="app.mailer"')
+    && phpServicesDocument.getText().includes("service('app.mailer')"), 'Symfony service ID Rename could not be undone as one workspace edit');
   const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
   );

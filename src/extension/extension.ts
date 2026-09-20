@@ -699,6 +699,30 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       }), result.isIncomplete);
     },
   };
+  const symfonyServiceRename: vscode.RenameProvider = {
+    prepareRename: async (document, position, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const prepared = await client.sendRequest<null | { range: { start: { line: number; character: number }; end: { line: number; character: number } }; placeholder?: string }>(
+        'phpCompanion/symfonyServicePrepareRename', {
+          textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
+        }, token,
+      );
+      if (!prepared || token.isCancellationRequested || document.version !== version) return undefined;
+      const range = new vscode.Range(prepared.range.start.line, prepared.range.start.character,
+        prepared.range.end.line, prepared.range.end.character);
+      return prepared.placeholder ? { range, placeholder: prepared.placeholder } : range;
+    },
+    provideRenameEdits: async (document, position, newName, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
+        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(), newName,
+      }, token);
+      if (token.isCancellationRequested || document.version !== version) return undefined;
+      return fromProtocolWorkspaceEdit(result);
+    },
+  };
   const renameProvider = async (document: vscode.TextDocument): Promise<PhpRenameProvider | undefined> => {
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
@@ -841,9 +865,11 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(yamlSelector, yamlSymfonyReferences),
     vscode.languages.registerCompletionItemProvider(yamlSelector, yamlSymfonyCompletions, '@', '?'),
+    vscode.languages.registerRenameProvider(yamlSelector, symfonyServiceRename),
     vscode.languages.registerDefinitionProvider(xmlSelector, xmlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(xmlSelector, yamlSymfonyReferences),
     vscode.languages.registerCompletionItemProvider(xmlSelector, yamlSymfonyCompletions, '"', "'", '.'),
+    vscode.languages.registerRenameProvider(xmlSelector, symfonyServiceRename),
     vscode.languages.registerDefinitionProvider(phpSelector, xmlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(phpSelector, yamlSymfonyReferences),
     vscode.languages.registerCompletionItemProvider(phpSelector, yamlSymfonyCompletions, '"', "'", '.'),

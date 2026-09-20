@@ -15,3 +15,8 @@ services:
     alias: App\Service\Mailer
 
   'App\Contract\Mailer $audit': '@App\Service\Mailer'
+
+  app.mailer: { class: App\Service\Mailer }
+  app.rename_consumer:
+    arguments:
+      $mailer: '@app.mailer'

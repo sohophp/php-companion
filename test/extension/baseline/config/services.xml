@@ -3,6 +3,7 @@
   <services>
     <service id="app.xml.consumer" class="App\Service\Mailer">
       <argument type="service" id="App\Service\Mailer"/>
+      <argument type="service" id="app.mailer"/>
     </service>
   </services>
 </container>

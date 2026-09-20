@@ -30,6 +30,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Rename unique explicit Symfony service ids across every provider-confirmed YAML, XML and PHP configuration file, rejecting ambiguous, encoded, resource-derived, unreadable and dynamic cases instead of returning a partial edit.
+
 - Advance the persistent project-fact cache to v58/schema 10 and restore source-proven project QueryBuilder factory entity generics after a warm start.
 
 - Derive the cache-envelope checksum from the already verified per-layer checksums instead of serializing the complete semantic payload a second time; advance project cache payloads to schema 5/v53.
