@@ -1,4 +1,5 @@
 - Resolve local-variable and final private promoted-property Rename before starting a project index, so F2 on a proven closed scope returns immediately in `onDemand` mode while broader symbols keep their completeness gate.
+- 提交 `2d8c3ea` 修复封闭局部/提升属性 F2 先启动项目索引的问题；候选 `php-companion-alpha-0.4.5-2d8c3ea2` 的 Language Server 191 项、24 个隔离 tarball、四份 VSIX、双扩展打包宿主、Winstar/CoreRepo 预检及真实 `$urlGenerator` 零索引 Rename 均已验证，核心 Language Server 已原子覆盖到 WSL RockyLinux8。
 - Allow trusted route providers to opt into validated snapshot reuse; the standalone Symfony static-route provider now avoids a new process and full route traversal on every completion/navigation query while invalidating on provider, environment, disk, or open-document changes.
 - 提交 `ff41aa0` 为独立 Symfony 静态路由 Provider 增加显式快照缓存；候选 `php-companion-alpha-0.4.5-ff41aa03` 的 191 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主、Winstar/CoreRepo 预检及真实 Winstar 缓存命中/失效均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Remove static Symfony YAML/PHP/Attribute/Kernel/Bundle route discovery from the core Language Server; static routes now require one standalone authoritative route provider.
