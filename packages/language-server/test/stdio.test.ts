@@ -4626,6 +4626,42 @@ namespace App {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('refreshes changed Symfony controller contexts once per watched-file batch', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-watch-batch-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const firstPath = join(sourceDirectory, 'FirstController.php'); const secondPath = join(sourceDirectory, 'SecondController.php');
+      const firstUri = pathToFileURL(firstPath).toString(); const secondUri = pathToFileURL(secondPath).toString();
+      const source = (className: string, template: string): string => `<?php namespace App; final class ${className} { public function show(): void { $this->render('${template}'); } }`;
+      await writeFile(firstPath, source('FirstController', 'first.html.twig'));
+      await writeFile(secondPath, source('SecondController', 'second.html.twig'));
+      const counter = join(root, 'provider-count.txt'); const provider = join(root, 'controllers.mjs');
+      await writeFile(provider, `import{appendFileSync,readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(counter)},'1\\n');const documents=new Map((request.params.documents??[]).map((item)=>[item.uri,item.source]));const contexts=(request.params.projectTypes??[]).flatMap((type)=>{const source=documents.get(type.uri)??readFileSync(type.path,'utf8');const template=/render\\('([^']+)'/.exec(source)?.[1];return template?[{template,complete:true,variables:[],sources:[{symbol:type.fqcn+'::show',location:{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}}]}]:[]});process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:contexts}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 667, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
+        ] },
+      } }));
+      await output.waitFor((message) => message.id === 667); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('authoritative controller contexts'), 10_000);
+      const before = (await readFile(counter, 'utf8')).trim().split('\n').length;
+      await writeFile(firstPath, source('FirstController', 'first-edited.html.twig'));
+      await writeFile(secondPath, source('SecondController', 'second-edited.html.twig'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [
+        { uri: firstUri, type: 2 }, { uri: secondUri, type: 2 },
+      ] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${secondUri}`));
+      expect((await readFile(counter, 'utf8')).trim().split('\n')).toHaveLength(before + 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 668, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 668)).result.contexts.map((context: { template: string }) => context.template).sort())
+        .toEqual(['first-edited.html.twig', 'second-edited.html.twig']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('serves first-class callable invocation signatures, diagnostics, and return completion through stdio', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-first-class-callable-'));
     try {

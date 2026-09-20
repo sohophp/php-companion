@@ -500,17 +500,18 @@ function controllerContextMap(contexts: readonly ControllerTemplateContext[], al
 }
 
 async function runControllerContextProvider(root: string, generation: number, workspace: SemanticWorkspace,
-  shouldContinue: () => boolean, scope?: { uri: string; source: string; snapshotVersion: string }): Promise<boolean> {
+  shouldContinue: () => boolean, scopes?: readonly { uri: string; source: string; snapshotVersion: string }[]): Promise<boolean> {
   const authoritative = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (authoritative.length !== 1) {
-    if (scope) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
+    if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
     if (authoritative.length > 1) connection.console.warn('Multiple authoritative controller-context providers were registered; controller contexts are unavailable.');
     return false;
   }
   const descriptor = authoritative[0]!; const allTypes = semanticProviderProjectTypes(root, workspace);
-  const projectTypes = scope ? allTypes.projectTypes.filter((type) => type.uri === scope.uri) : allTypes.projectTypes;
-  const snapshots = scope
-    ? { complete: true, documents: [{ uri: scope.uri, languageId: 'php' as const, source: scope.source, snapshotVersion: scope.snapshotVersion }] }
+  const scopedUris = scopes ? new Set(scopes.map((scope) => scope.uri)) : undefined;
+  const projectTypes = scopedUris ? allTypes.projectTypes.filter((type) => scopedUris.has(type.uri)) : allTypes.projectTypes;
+  const snapshots = scopes
+    ? { complete: true, documents: scopes.map((scope) => ({ ...scope, languageId: 'php' as const })) }
     : semanticProviderDocuments(root);
   if (!allTypes.complete || !snapshots.complete) {
     connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
@@ -521,19 +522,21 @@ async function runControllerContextProvider(root: string, generation: number, wo
     ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
   if (!shouldContinue()) return false;
   if (result.ok && result.contribution.controllerContexts) {
-    const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(scope ? [scope.uri] : [])]);
-    const sourceFor = (uri: string): string | undefined => scope?.uri === uri ? scope.source : workspace.source(uri);
+    const sourcesByUri = scopes ? new Map(scopes.map((scope) => [scope.uri, scope.source])) : undefined;
+    const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(scopes?.map((scope) => scope.uri) ?? [])]);
+    const sourceFor = (uri: string): string | undefined => sourcesByUri?.get(uri) ?? workspace.source(uri);
     const contexts = controllerContextMap(result.contribution.controllerContexts, allowedUris, sourceFor);
     if (contexts) {
-      if (scope) {
+      if (scopes) {
         const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        byFile.set(scope.uri, contexts.get(scope.uri) ?? []); interopContextsByRoot.set(root, byFile);
+        for (const scope of scopes) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
+        interopContextsByRoot.set(root, byFile);
       } else interopContextsByRoot.set(root, contexts);
       connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative controller contexts for generation ${generation}.`);
       return true;
     }
   }
-  if (scope) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
+  if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
   connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete controller-context snapshot; controller contexts are unavailable.`
     : `Semantic provider ${descriptor.providerId} failed (${result.code}); controller contexts are unavailable: ${result.message}`);
   return false;
@@ -929,7 +932,7 @@ async function refreshInteropDocument(document: TextDocument): Promise<void> {
   const root = rootForUri(document.uri); if (!root) return;
   const workspace = await semanticForRoot(root); const source = document.getText(); const snapshotVersion = String(document.version);
   await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
-    { uri: document.uri, source, snapshotVersion });
+    [{ uri: document.uri, source, snapshotVersion }]);
   connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION, projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: [document.uri] });
 }
 
@@ -1966,6 +1969,8 @@ const pendingFiles = new PendingChanges<{ uri: string; root: string }>();
 const pendingRoots = new Set<string>();
 const scanFilesByRoot = new Map<string, Set<string>>();
 async function applyPendingFiles(): Promise<void> {
+  const controllerScopesByRoot = new Map<string, Array<{ uri: string; source: string; snapshotVersion: string }>>();
+  const completedByRoot = new Map<string, string[]>();
   await pendingFiles.drain(async (_key, { uri, root }) => {
     const path = pathForUri(uri); if (!path) return;
     const workspace = await semanticForRoot(root);
@@ -1982,13 +1987,18 @@ async function applyPendingFiles(): Promise<void> {
       const update = workspace.update(uri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(uri);
       const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(uri); indexedUrisByRoot.set(root, indexed);
       if (update.kind !== 'none') {
-        await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
-          { uri, source, snapshotVersion: String(indexingGeneration) });
+        const scopes = controllerScopesByRoot.get(root) ?? [];
+        scopes.push({ uri, source, snapshotVersion: String(indexingGeneration) });
+        controllerScopesByRoot.set(root, scopes);
       }
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, uri, source, workspace);
     }
-    connection.console.info(`[index:delta] complete uri=${uri}`);
+    const completed = completedByRoot.get(root) ?? []; completed.push(uri); completedByRoot.set(root, completed);
   });
+  for (const [root, scopes] of controllerScopesByRoot) {
+    await runControllerContextProvider(root, indexingGeneration, await semanticForRoot(root), () => true, scopes);
+  }
+  for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
 connection.onDidChangeWatchedFiles(async ({ changes }) => {
   let composerChanged = false;
@@ -2056,7 +2066,7 @@ documents.onDidClose(async ({ document }) => {
       const source = reopened?.getText() ?? diskSource; const update = workspace.update(document.uri, source, Boolean(reopened));
       if (update.kind !== 'none') {
         await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
-          { uri: document.uri, source, snapshotVersion: String(indexingGeneration) });
+          [{ uri: document.uri, source, snapshotVersion: String(indexingGeneration) }]);
       }
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, source, workspace);
     } catch { if (!documents.get(document.uri)) { workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); } }
