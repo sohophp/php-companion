@@ -37,3 +37,5 @@ Winstar 的读服务把重复查询封装为原生返回类型 `QueryBuilder` �
 | Recommended Pack | `c1712378c7f67ffdaf8e9dcca992ebe1d269ca62d4e2f7f05e0cb8f832c11937` |
 
 Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL 预检均通过，见 [Winstar 预检](alpha-preflight-winstar-query-factories.json) 和 [CoreRepo 预检](alpha-preflight-corerepo-query-factories.json)。VS Code 1.138.0 打包 Extension Host 从 VSIX 同时加载核心与独立 Symfony 扩展，完成编辑、导航和重构门禁后以退出码 0 结束。后台预检不属于 VS Code WSL 集成终端，因此 Extension Host 所有权、竞争 Provider 和持续真实编辑仍须在 Alpha Profile 中人工确认。
+
+从当前后台 WSL shell 执行核心 VSIX 覆盖安装时，Remote CLI 在 150 秒内没有输出并由有界超时结束；安装目录中的语言服务器 SHA-256 仍为上一候选的 `252d7eeaace64e2c140022d6e7f5b3d8bfb7c4517ff09ee0f3d9936eba978c43`，新候选 bundle 为 `85f7413385fda2e7945112b078b50f115e482bcbd4c6cac296e9aee03d0a41c9`，因此没有把本次超时记作成功，也没有继续安装 Symfony。应从 Alpha Profile 的 VS Code WSL 集成终端安装本候选后执行 Reload Window。
