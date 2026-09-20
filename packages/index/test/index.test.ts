@@ -1,6 +1,6 @@
 import { mkdtemp, mkdir, readdir, rm, writeFile, stat, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DocumentKeyIndex, indexComposerSources } from '../src/index.js';
 
@@ -120,6 +120,16 @@ describe('bounded project source index', () => {
     const result = await indexComposerSources(root, { includeDependencies: false, onSource: ({ path }) => { indexed.push(path); } });
     expect(result).toMatchObject({ files: 1, complete: false, projectComplete: true, warnings: [] });
     expect(indexed).toEqual([projectPath]);
+  });
+  it('prefetches source reads concurrently while preserving deterministic callback order', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-prefetch-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['C', 'A', 'B'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const visited: string[] = [];
+    const result = await indexComposerSources(root, { readConcurrency: 4, onSource: ({ path }) => { visited.push(path.split(sep).at(-1)!); } });
+    expect(result.projectComplete).toBe(true);
+    expect(visited).toEqual(['A.php', 'B.php', 'C.php']);
+    await expect(indexComposerSources(root, { readConcurrency: 0, onSource: () => undefined })).rejects.toThrow(RangeError);
   });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');

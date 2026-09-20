@@ -1503,20 +1503,27 @@ const candidateQueries = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
-async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2): Promise<boolean> {
+async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
+  mode: 'symbol' | 'named-argument' = 'symbol'): Promise<boolean> {
   if (indexingMode === 'off') return false;
-  const key = `${root}:${[...names].sort().join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
+  const normalizedNames = [...names].sort();
+  const namedArgumentPatterns = mode === 'named-argument' ? normalizedNames.map((name) => new RegExp(
+    `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
+  const key = `${root}:${mode}:${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
   const started = Date.now(); let candidates = 0;
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
-  const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits,
+  const scan = await indexComposerSources(root, { includeDependencies: false, limits: indexLimits, readConcurrency: 16,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     onSource: ({ uri, source }) => {
       const open = documents.get(uri); const effective = open?.getText() ?? source;
-      if ([...names].some((name) => effective.toLowerCase().includes(name))) { workspace.update(uri, effective, Boolean(open)); candidates += 1; }
+      const matches = mode === 'named-argument'
+        ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
+        : normalizedNames.some((name) => effective.toLowerCase().includes(name));
+      if (matches) { workspace.update(uri, effective, Boolean(open)); candidates += 1; }
     },
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
@@ -1526,7 +1533,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
-    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1) : false;
+    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode) : false;
   }
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
@@ -2457,13 +2464,15 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   connection.console.info(`[references:${id}] start scope=${scope}`);
   try {
     const root = rootForUri(document.uri);
-    const type = scope === 'project' ? workspace.typeAt(document.uri, offset) : undefined;
-    const member = scope === 'project' && !type ? workspace.referenceMemberAt(document.uri, offset) : undefined;
-    const namedTarget = type?.name ?? member?.name;
+    const closedPromotedTarget = scope === 'project' ? workspace.closedPromotedPropertyRename(document.uri, offset) : undefined;
+    const type = scope === 'project' && !closedPromotedTarget ? workspace.typeAt(document.uri, offset) : undefined;
+    const member = scope === 'project' && !closedPromotedTarget && !type ? workspace.referenceMemberAt(document.uri, offset) : undefined;
+    const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
     const ready = scope === 'document' || !root || (namedTarget && !projectCompleteRoots.has(root)
-      ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested)
+      ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
+        closedPromotedTarget ? 'named-argument' : 'symbol')
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -2584,7 +2593,7 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   if (localTarget) return { range: { start: document.positionAt(localTarget.start), end: document.positionAt(localTarget.end) }, placeholder: localTarget.name };
   const promotedProbe = workspace.closedPromotedPropertyRename(document.uri, offset);
   if (promotedProbe) {
-    if (!await scanNamedCandidates(workspace, root, new Set([promotedProbe.name.toLowerCase()]), () => token.isCancellationRequested)) return null;
+    if (!await scanNamedCandidates(workspace, root, new Set([promotedProbe.name.toLowerCase()]), () => token.isCancellationRequested, 2, 'named-argument')) return null;
     const promotedTarget = workspace.closedPromotedPropertyRename(document.uri, offset);
     return promotedTarget ? { range: { start: document.positionAt(promotedTarget.start), end: document.positionAt(promotedTarget.end) }, placeholder: promotedTarget.name } : null;
   }
@@ -2615,7 +2624,7 @@ connection.onRenameRequest(async (params, token) => {
   if (!scopedTarget) {
     const promotedProbe = workspace.closedPromotedPropertyRename(document.uri, offset);
     if (promotedProbe) {
-      if (!await scanNamedCandidates(workspace, root, new Set([promotedProbe.name.toLowerCase()]), () => token.isCancellationRequested)) return null;
+      if (!await scanNamedCandidates(workspace, root, new Set([promotedProbe.name.toLowerCase()]), () => token.isCancellationRequested, 2, 'named-argument')) return null;
       scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName);
       if (!scopedTarget) return null;
     } else {

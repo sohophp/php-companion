@@ -111,7 +111,7 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const source = '<?php namespace App; final class Service { public function __construct(private object $dependency) {} public function dependency(): object { return $this->dependency; } }';
-      const consumer = '<?php namespace App; final class Consumer { public function make(): Service { return new Service(dependency: new \\stdClass()); } }';
+      const consumer = '<?php namespace App; final class Consumer { public function make(): Service { return new Service(dependency /* named */ : new \\stdClass()); } }';
       const sourcePath = join(sourceDirectory, 'Service.php'); const sourceUri = pathToFileURL(sourcePath).toString();
       const consumerPath = join(sourceDirectory, 'Consumer.php'); const consumerUri = pathToFileURL(consumerPath).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -139,6 +139,8 @@ describe('language server stdio', () => {
       expect(rename.changes[sourceUri]).toHaveLength(2);
       expect(rename.changes[consumerUri]).toHaveLength(1);
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates] files=2 parsed=1'))).toBe(true);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'shutdown', params: null })); await output.waitFor((message) => message.id === 232);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

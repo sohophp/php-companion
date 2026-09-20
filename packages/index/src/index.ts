@@ -14,7 +14,7 @@ export interface ProjectIndexResult { files: number; bytes: number; cached: numb
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; }
 export interface ProjectIndexCacheOptions { directory: string; version: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => boolean | Promise<boolean>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
-export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; cache?: ProjectIndexCacheOptions; }
+export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
 function validateLimits(limits: ProjectIndexLimits): void {
@@ -41,6 +41,9 @@ async function phpFiles(directory: string, output: Set<string>, limit: number, i
 export async function indexComposerSources(root: string, options: ProjectIndexOptions): Promise<ProjectIndexResult> {
   const limits = options.limits ?? DEFAULT_INDEX_LIMITS; const project = await loadComposerProject(root);
   validateLimits(limits);
+  const readConcurrency = options.readConcurrency ?? 1;
+  if (!Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 64) throw new RangeError('readConcurrency must be a safe integer between 1 and 64.');
+  if (readConcurrency > 1 && options.cache) throw new RangeError('Concurrent source prefetch cannot be combined with persistent cache restore.');
   if (!project) return { files: 0, bytes: 0, cached: 0, complete: true, projectComplete: true, warnings: ['composer.json was not readable.'] };
   const warnings = [...project.warnings];
   const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(root).digest('hex')}.json`) : undefined;
@@ -68,10 +71,20 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
     warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
   };
-  const indexCandidate = async (candidate: { path: string; project: boolean }): Promise<'indexed' | 'skipped' | 'cancelled' | 'budget'> => {
+  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; inspectFailed?: boolean; readFailed?: boolean };
+  const prefetch = async (path: string): Promise<PrefetchedSource> => {
+    let information;
+    try { information = await stat(path); } catch { return { inspectFailed: true }; }
+    const info = { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs };
+    if (info.size > limits.maxFileSizeBytes) return { info };
+    try { return { info, source: await readFile(path, 'utf8') }; } catch { return { info, readFailed: true }; }
+  };
+  const indexCandidate = async (candidate: { path: string; project: boolean }, prefetched?: PrefetchedSource): Promise<'indexed' | 'skipped' | 'cancelled' | 'budget'> => {
     const path = candidate.path;
     if (options.shouldContinue?.() === false) return 'cancelled';
-    let info; try { info = await stat(path); } catch { skipped(candidate, 'could not be inspected and was skipped.'); return 'skipped'; } const size = info.size;
+    let info;
+    if (prefetched?.inspectFailed) { skipped(candidate, 'could not be inspected and was skipped.'); return 'skipped'; }
+    try { info = prefetched?.info ?? await stat(path); } catch { skipped(candidate, 'could not be inspected and was skipped.'); return 'skipped'; } const size = info.size;
     if (size > limits.maxFileSizeBytes) { skipped(candidate, `exceeded the ${limits.maxFileSizeBytes}-byte per-file budget and was skipped.`); return 'skipped'; }
     if (bytes + size > limits.maxTotalBytes) {
       if (candidate.project) warnings.push(`Project source index exceeded ${limits.maxTotalBytes} bytes.`);
@@ -92,7 +105,8 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
           }
         } catch { warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`); }
       }
-      const source = await readFile(path, 'utf8');
+      if (prefetched?.readFailed) throw new Error('Source prefetch failed.');
+      const source = prefetched?.source ?? await readFile(path, 'utf8');
       const hash = createHash('sha256').update(source).digest('hex');
       let restored = false;
       if (!restoreAttempted && old && old.size === size && old.hash === hash && options.cache) {
@@ -113,10 +127,14 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     } catch { skipped(candidate, 'could not be read or analyzed and was skipped.'); }
     return 'indexed';
   };
-  for (const path of projectFiles) {
-    const status = await indexCandidate({ path, project: true });
-    if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };
-    if (status === 'budget') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings };
+  for (let start = 0; start < projectFiles.length; start += readConcurrency) {
+    const paths = projectFiles.slice(start, start + readConcurrency);
+    const sources = readConcurrency === 1 ? [undefined] : await Promise.all(paths.map(prefetch));
+    for (const [index, path] of paths.entries()) {
+      const status = await indexCandidate({ path, project: true }, sources[index]);
+      if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };
+      if (status === 'budget') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings };
+    }
   }
   if (!projectIncomplete && options.shouldContinue?.() !== false) await options.onProjectComplete?.();
   if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
@@ -141,10 +159,16 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const dependencyTruncatedByCount = uniqueDependencies.length > remaining;
   dependencyIncomplete = dependencyTruncatedByCount;
   if (dependencyTruncatedByCount) warnings.push(`Dependency index was truncated to fit the ${limits.maxFiles}-file budget after indexing ${projectFiles.length} project files.`);
-  for (const path of uniqueDependencies.slice(0, remaining)) {
-    const status = await indexCandidate({ path, project: false });
-    if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
-    if (status === 'budget') break;
+  const dependencies = uniqueDependencies.slice(0, remaining);
+  let dependencyBudgetReached = false;
+  for (let start = 0; start < dependencies.length && !dependencyBudgetReached; start += readConcurrency) {
+    const paths = dependencies.slice(start, start + readConcurrency);
+    const sources = readConcurrency === 1 ? [undefined] : await Promise.all(paths.map(prefetch));
+    for (const [index, path] of paths.entries()) {
+      const status = await indexCandidate({ path, project: false }, sources[index]);
+      if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
+      if (status === 'budget') { dependencyBudgetReached = true; break; }
+    }
   }
   await commitCache();
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
