@@ -4366,7 +4366,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
   $router->generate('dynamic.home');
 } final class DynamicController { public function home(): void {} } }`;
       const consumerPath = join(root, 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
-      const declarationPath = join(root, 'runtime-routes.txt'); const declarationUri = pathToFileURL(declarationPath).toString();
+      const declarationPath = join(root, 'config', 'runtime-routes.yaml'); const declarationUri = pathToFileURL(declarationPath).toString();
       const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs'); const staticProvider = join(root, 'static-route-provider.mjs');
       await mkdir(join(root, 'config'), { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
@@ -4397,6 +4397,56 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const definitionOffset = source.indexOf("'dynamic.home'") + 4;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 116, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, definitionOffset) } }));
       expect((await output.waitFor((message) => message.id === 116)).result).toEqual([{ uri: declarationUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 12 } } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11601, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri }, position: lspPosition(source, definitionOffset),
+      } }));
+      expect((await output.waitFor((message) => message.id === 11601)).result).toEqual({
+        range: { start: lspPosition(source, source.indexOf('dynamic.home')), end: lspPosition(source, source.indexOf('dynamic.home') + 12) },
+        placeholder: 'dynamic.home',
+      });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11602, method: 'textDocument/rename', params: {
+        textDocument: { uri }, position: lspPosition(source, definitionOffset), newName: 'dynamic.renamed',
+      } }));
+      const routeRename = (await output.waitFor((message) => message.id === 11602, 10_000)).result.changes;
+      expect(routeRename[uri]).toEqual([{ range: {
+        start: lspPosition(source, source.indexOf('dynamic.home')), end: lspPosition(source, source.indexOf('dynamic.home') + 12),
+      }, newText: 'dynamic.renamed' }]);
+      expect(routeRename[declarationUri]).toEqual([{ range: {
+        start: { line: 0, character: 0 }, end: { line: 0, character: 12 },
+      }, newText: 'dynamic.renamed' }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11603, method: 'phpCompanion/symfonyRoutePrepareRename', params: {
+        textDocument: { uri: declarationUri, version: 1 }, source: declaration,
+        position: { line: 0, character: 3 },
+      } }));
+      expect((await output.waitFor((message) => message.id === 11603)).result).toEqual({
+        range: { start: { line: 0, character: 0 }, end: { line: 0, character: 12 } }, placeholder: 'dynamic.home',
+      });
+      const twigDirectory = join(root, 'templates'); await mkdir(twigDirectory);
+      const twig = "{{ path('dynamic.home') }}"; const twigPath = join(twigDirectory, 'home.html.twig'); const twigUri = pathToFileURL(twigPath).toString();
+      await writeFile(twigPath, twig);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11604, method: 'textDocument/rename', params: {
+        textDocument: { uri }, position: lspPosition(source, definitionOffset), newName: 'dynamic.with_twig',
+      } }));
+      const bridgeRequest = await output.waitFor((message) => message.method === 'phpCompanion/resolveSymfonyRouteRename');
+      expect(bridgeRequest.params).toEqual({ rootUri: pathToFileURL(root).toString(), oldName: 'dynamic.home', newName: 'dynamic.with_twig' });
+      const twigStart = twig.indexOf('dynamic.home');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: bridgeRequest.id, result: {
+        complete: true, edits: [{ uri: twigUri, start: twigStart, end: twigStart + 12 }],
+      } }));
+      const bridgedRename = (await output.waitFor((message) => message.id === 11604)).result.changes;
+      expect(bridgedRename[twigUri]).toEqual([{ range: {
+        start: lspPosition(twig, twigStart), end: lspPosition(twig, twigStart + 12),
+      }, newText: 'dynamic.with_twig' }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11605, method: 'textDocument/rename', params: {
+        textDocument: { uri }, position: lspPosition(source, definitionOffset), newName: 'dynamic.incomplete',
+      } }));
+      const incompleteBridge = await output.waitFor((message) => message.method === 'phpCompanion/resolveSymfonyRouteRename' && message.id !== bridgeRequest.id);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: incompleteBridge.id, result: { complete: false, edits: [] } }));
+      expect((await output.waitFor((message) => message.id === 11605)).result).toBeNull();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11606, method: 'textDocument/rename', params: {
+        textDocument: { uri }, position: lspPosition(source, definitionOffset), newName: 'invalid route',
+      } }));
+      expect((await output.waitFor((message) => message.id === 11606)).result).toBeNull();
       for (const [id, symbol, expectedStart, expectedEnd] of [
         [1161, 'DynamicController', controllerStart, controllerStart + 'App\\DynamicController'.length],
         [1162, 'home(): void', methodStart, methodStart + 4],

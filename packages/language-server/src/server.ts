@@ -2,7 +2,8 @@
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
 import {
@@ -1888,6 +1889,42 @@ interface SymfonyServiceRenameParams {
   textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; newName?: unknown;
 }
 
+interface SymfonyRouteRenameParams {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; newName?: unknown;
+}
+
+interface SymfonyRouteRenameBridgeResponse {
+  complete: boolean;
+  edits: Array<{ uri: string; start: number; end: number }>;
+}
+
+const ROUTE_NAME_PATTERN = /^[A-Za-z0-9_.:-]+$/;
+const TWIG_SCAN_EXCLUDED_DIRECTORIES = new Set(['.git', '.hg', '.svn', '.idea', '.vscode', 'node_modules', 'vendor', 'var', 'cache', 'dist', 'build']);
+
+async function projectMayContainTwig(root: string, cancelled: () => boolean): Promise<boolean | undefined> {
+  const directories = [root]; let entries = 0;
+  while (directories.length) {
+    if (cancelled()) return undefined;
+    const directory = directories.pop()!;
+    let children: Dirent<string>[];
+    try { children = await readdir(directory, { withFileTypes: true }); } catch { return undefined; }
+    for (const child of children) {
+      if (cancelled() || ++entries > indexLimits.maxFiles * 4) return undefined;
+      if (child.isDirectory()) {
+        if (!TWIG_SCAN_EXCLUDED_DIRECTORIES.has(child.name)) directories.push(resolve(directory, child.name));
+      } else if (child.isFile() && child.name.toLowerCase().endsWith('.twig')) return true;
+    }
+  }
+  return false;
+}
+
+function isSymfonyRouteRenameBridgeResponse(value: unknown): value is SymfonyRouteRenameBridgeResponse {
+  const response = value as Partial<SymfonyRouteRenameBridgeResponse> | null;
+  return Boolean(response && typeof response.complete === 'boolean' && Array.isArray(response.edits) && response.edits.length <= 10_000
+    && response.edits.every((edit) => edit && typeof edit.uri === 'string' && edit.uri.length > 0 && edit.uri.length <= 32_768
+      && Number.isSafeInteger(edit.start) && Number(edit.start) >= 0 && Number.isSafeInteger(edit.end) && Number(edit.end) >= Number(edit.start)));
+}
+
 async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
   serviceId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
@@ -1954,6 +1991,91 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   return { serviceId, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
 }
 
+async function symfonyRouteRenamePlan(params: SymfonyRouteRenameParams, cancelled: () => boolean): Promise<{
+  routeName: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
+  changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+} | undefined> {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.(?:ya?ml|xml|php)$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0 || cancelled()) return undefined;
+  const root = rootForUri(uri); const sourcePath = pathForUri(uri);
+  if (!root || !sourcePath || !pathWithin(root, sourcePath)) return undefined;
+  const languageId = uri.endsWith('.php') ? 'php' : uri.endsWith('.xml') ? 'xml' : 'yaml';
+  const sourceDocument = TextDocument.create(uri, languageId, typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const workspace = await semanticForRoot(root); if (cancelled()) return undefined;
+  const routes = await availableSymfonyRoutes(root, cancelled); if (cancelled() || !routes.length) return undefined;
+  const call = languageId === 'php' ? await provenSymfonyRouteCall(sourceDocument, offset, workspace) : undefined;
+  const declarationNames = routes.filter((route) => sameFilesystemPath(pathForUri(route.uri ?? ''), sourcePath)
+    && route.start !== undefined && route.end !== undefined
+    && offset >= route.start && offset <= route.end).map((route) => route.name);
+  const names = new Set(call ? [params.source.slice(call.start, call.end)] : declarationNames);
+  if (names.size !== 1) return undefined;
+  const routeName = [...names][0]!; const route = routes.find((candidate) => candidate.name === routeName);
+  if (!route || !ROUTE_NAME_PATTERN.test(routeName) || !route.uri || route.start === undefined || route.end === undefined) return undefined;
+  const declarationPath = pathForUri(route.uri);
+  if (!declarationPath || !pathWithin(root, declarationPath)) return undefined;
+  const declarationUri = indexedUriForPath(root, declarationPath);
+  let declarationSource = sameFilesystemPath(sourcePath, declarationPath) ? params.source
+    : documents.get(declarationUri)?.getText() ?? workspace.source(declarationUri) ?? documents.get(route.uri)?.getText() ?? workspace.source(route.uri);
+  if (declarationSource === undefined) declarationSource = await readFile(declarationPath, 'utf8').catch(() => undefined);
+  if (declarationSource === undefined || declarationSource.length > indexLimits.maxFileSizeBytes
+    || declarationSource.slice(route.start, route.end) !== routeName) return undefined;
+  const newName = typeof params.newName === 'string' ? params.newName : routeName;
+  if (!ROUTE_NAME_PATTERN.test(newName) || newName !== routeName && routes.some((candidate) => candidate.name === newName)) return undefined;
+  if (!await scanNamedCandidates(workspace, root, new Set([routeName.toLowerCase()]), cancelled)) return undefined;
+
+  const edits: Array<{ uri: string; start: number; end: number; source: string; languageId: string }> = [
+    { uri: declarationUri, start: route.start, end: route.end, source: declarationSource,
+      languageId: declarationUri.endsWith('.php') ? 'php' : declarationUri.endsWith('.xml') ? 'xml' : 'yaml' },
+  ];
+  for (const candidateUri of workspace.documentUris()) {
+    if (cancelled()) return undefined;
+    const candidateSource = documents.get(candidateUri)?.getText() ?? workspace.source(candidateUri);
+    if (!candidateSource?.includes(routeName) || externalSymfonyRoutes(candidateUri)) continue;
+    const candidate = documents.get(candidateUri) ?? TextDocument.create(candidateUri, 'php', 0, candidateSource);
+    for (let start = candidateSource.indexOf(routeName); start >= 0; start = candidateSource.indexOf(routeName, start + Math.max(1, routeName.length))) {
+      const routeCall = await provenSymfonyRouteCall(candidate, start, workspace);
+      if (routeCall && candidateSource.slice(routeCall.start, routeCall.end) === routeName) {
+        edits.push({ uri: candidateUri, start: routeCall.start, end: routeCall.end, source: candidateSource, languageId: 'php' });
+      }
+    }
+  }
+
+  const twig = await projectMayContainTwig(root, cancelled);
+  if (twig !== false) {
+    let response: unknown;
+    try {
+      response = await connection.sendRequest('phpCompanion/resolveSymfonyRouteRename', {
+        rootUri: indexedUriForPath(root, root), oldName: routeName, newName,
+      });
+    } catch { return undefined; }
+    if (!isSymfonyRouteRenameBridgeResponse(response) || !response.complete) return undefined;
+    for (const edit of response.edits) {
+      const path = pathForUri(edit.uri);
+      if (!path || !pathWithin(root, path) || !/\.twig$/i.test(path)) return undefined;
+      const open = documents.get(edit.uri); let source = open?.getText();
+      if (source === undefined) source = await readFile(path, 'utf8').catch(() => undefined);
+      if (source === undefined || source.length > indexLimits.maxFileSizeBytes || source.slice(edit.start, edit.end) !== routeName) return undefined;
+      edits.push({ uri: edit.uri, start: edit.start, end: edit.end, source, languageId: 'twig' });
+    }
+  }
+  const unique = [...new Map(edits.map((edit) => [`${edit.uri}:${edit.start}:${edit.end}`, edit])).values()]
+    .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start || left.end - right.end);
+  for (let index = 1; index < unique.length; index += 1) {
+    if (unique[index - 1]!.uri === unique[index]!.uri && unique[index]!.start < unique[index - 1]!.end) return undefined;
+  }
+  const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  for (const edit of unique) {
+    if (edit.source.slice(edit.start, edit.end) !== routeName) return undefined;
+    const target = documents.get(edit.uri) ?? TextDocument.create(edit.uri, edit.languageId, 0, edit.source);
+    (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: newName });
+  }
+  const selected = call ?? { start: route.start, end: route.end };
+  return { routeName, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
+}
+
 connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
   return plan ? { range: plan.range, placeholder: plan.serviceId } : null;
@@ -1961,6 +2083,16 @@ connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: 
 
 connection.onRequest('phpCompanion/symfonyServiceRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { changes: plan.changes } : null;
+});
+
+connection.onRequest('phpCompanion/symfonyRoutePrepareRename', async (params: SymfonyRouteRenameParams, token) => {
+  const plan = await symfonyRouteRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { range: plan.range, placeholder: plan.routeName } : null;
+});
+
+connection.onRequest('phpCompanion/symfonyRouteRename', async (params: SymfonyRouteRenameParams, token) => {
+  const plan = await symfonyRouteRenamePlan(params, () => token.isCancellationRequested);
   return plan ? { changes: plan.changes } : null;
 });
 
@@ -3083,6 +3215,9 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
     const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText() }, () => token.isCancellationRequested);
     if (service) return { range: service.range, placeholder: service.serviceId };
+    const route = await symfonyRouteRenamePlan({ textDocument: { uri: document.uri, version: document.version },
+      position, source: document.getText() }, () => token.isCancellationRequested);
+    if (route) return { range: route.range, placeholder: route.routeName };
   }
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
@@ -3118,6 +3253,9 @@ connection.onRenameRequest(async (params, token) => {
     const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText(), newName }, () => token.isCancellationRequested);
     if (service) return { changes: service.changes };
+    const route = await symfonyRouteRenamePlan({ textDocument: { uri: document.uri, version: document.version },
+      position, source: document.getText(), newName }, () => token.isCancellationRequested);
+    if (route) return { changes: route.changes };
   }
   if (!isValidPhpIdentifier(newName)) return null;
   const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;

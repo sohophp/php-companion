@@ -73,15 +73,20 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
     prepareRename: async (document, position, token) => {
       if (token.isCancellationRequested) return undefined;
       const version = document.version;
-      const result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
+      let result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
         'phpCompanion/symfonyServicePrepareRename', requestParams(document, position));
+      if (!result && current(document, version, token)) result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
+        'phpCompanion/symfonyRoutePrepareRename', requestParams(document, position));
       if (!result || !current(document, version, token)) return undefined;
       const target = range(result.range); return result.placeholder ? { range: target, placeholder: result.placeholder } : target;
     },
     provideRenameEdits: async (document, position, newName, token) => {
       if (token.isCancellationRequested) return undefined;
       const version = document.version;
-      const result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
+      let result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
+        ...requestParams(document, position), newName,
+      });
+      if (!result && current(document, version, token)) result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyRouteRename', {
         ...requestParams(document, position), newName,
       });
       return result !== undefined && current(document, version, token) ? workspaceEdit(result) : undefined;

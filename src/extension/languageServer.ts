@@ -162,6 +162,19 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   // disposes subscriptions in reverse order, so notification sources are
   // removed before the stdio transport is closed.
   context.subscriptions.push(client);
+  context.subscriptions.push(client.onRequest('phpCompanion/resolveSymfonyRouteRename', async (params: unknown): Promise<unknown> => {
+    const request = params as { rootUri?: unknown; oldName?: unknown; newName?: unknown } | null;
+    if (!request || typeof request.rootUri !== 'string' || typeof request.oldName !== 'string' || typeof request.newName !== 'string') {
+      return { complete: false, edits: [] };
+    }
+    const command = 'twigPlus.provideSymfonyRouteRename';
+    try {
+      return await vscode.commands.executeCommand(command, request);
+    } catch (error) {
+      output.warn(`TwigPlus could not provide complete Symfony route rename edits: ${String(error)}`);
+      return { complete: false, edits: [] };
+    }
+  }));
   let stopping = false;
   const updateRouteProviders = (): void => {
     if (stopping) return;
