@@ -71,14 +71,14 @@ export interface ParsedAssignment extends SourceRange {
   sourceMember?: { variable: string; member: string; nullsafe: boolean };
   sourceChain?: { variable: string; steps: Array<
     | { kind: 'property'; name: string; nullsafe: boolean }
-    | { kind: 'method'; name: string; nullsafe: boolean; argumentCount: number; callback?: { parameterType: string; returnType: string }; literalArgument?: string }
+    | { kind: 'method'; name: string; nullsafe: boolean; argumentCount: number; callback?: { parameterType: string; returnType: string }; literalArgument?: string; literalClassArgument?: string }
   > };
   sourceArrayElement?: { variable: string; key: string };
   sourceIterable?: ({ kind: 'variable'; variable: string; part: 'value' }
     | { kind: 'member'; variable: string; member: string; memberKind: 'property' | 'method'; part: 'value' }
     | { kind: 'expression'; part: 'value' }) & SourceRange;
   validRange?: SourceRange;
-  sourceCall?: { kind: 'function'; name: string } | { kind: 'callable-variable'; variable: string } | { kind: 'static'; typeName: string; method: string } | { kind: 'member'; variable: string; method: string; argumentCount: number; dynamic?: 'literal' | 'variable' | 'expression' | 'constant'; callback?: { parameterType: string; returnType: string }; literalArgument?: string };
+  sourceCall?: { kind: 'function'; name: string } | { kind: 'callable-variable'; variable: string } | { kind: 'static'; typeName: string; method: string } | { kind: 'member'; variable: string; method: string; argumentCount: number; dynamic?: 'literal' | 'variable' | 'expression' | 'constant'; callback?: { parameterType: string; returnType: string }; literalArgument?: string; literalClassArgument?: string };
 }
 
 export interface ParsedScope {
@@ -1157,8 +1157,10 @@ export class PhpSyntaxParser {
           const argumentsNode = value.childForFieldName('arguments'); const arguments_ = argumentsNode?.namedChildren.filter((child) => child.type === 'argument') ?? [];
           const literal = arguments_.length === 1 ? arguments_[0]?.namedChildren[0] : undefined;
           const literalArgument = literal && ['string', 'encapsed_string'].includes(literal.type) && /^(['"])[^'"\\]*\1$/.test(literal.text) ? literal.text.slice(1, -1) : undefined;
+          const literalClassArgument = literal?.type === 'class_constant_access_expression' && literal.namedChildren[1]?.text.toLowerCase() === 'class'
+            ? literal.namedChildren[0]?.text : undefined;
           return { ...base, steps: [...base.steps, { kind: 'method', name: nameNode.text, nullsafe, argumentCount: arguments_.length,
-            callback: arguments_.length === 1 ? callbackFacts(literal) : undefined, literalArgument }] };
+            callback: arguments_.length === 1 ? callbackFacts(literal) : undefined, literalArgument, literalClassArgument }] };
         };
         const sourceChain = memberChain(right);
         if (right.type === 'array_creation_expression') {
@@ -1199,10 +1201,12 @@ export class PhpSyntaxParser {
             const callback = callbackFacts(firstArgument);
             const literal = arguments_.length === 1 ? arguments_[0]?.namedChildren[0] : undefined;
             const literalArgument = literal && ['string', 'encapsed_string'].includes(literal.type) && /^(['"])[^'"\\]*\1$/.test(literal.text) ? literal.text.slice(1, -1) : undefined;
+            const literalClassArgument = literal?.type === 'class_constant_access_expression' && literal.namedChildren[1]?.text.toLowerCase() === 'class'
+              ? literal.namedChildren[0]?.text : undefined;
             const dynamicName = /\{\s*$/.test(source.slice(objectNode.endIndex, methodNode.startIndex)) ? dynamicMemberName(methodNode) : undefined;
             if (methodNode.type === 'name' || dynamicName) sourceCall = {
               kind: 'member', variable: objectNode.text, method: dynamicName?.name ?? methodNode.text, argumentCount: arguments_.length,
-              dynamic: dynamicName?.kind, callback, literalArgument,
+              dynamic: dynamicName?.kind, callback, literalArgument, literalClassArgument,
             };
           }
         } else if (right.type === 'member_access_expression' || right.type === 'nullsafe_member_access_expression') {

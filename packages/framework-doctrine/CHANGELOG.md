@@ -1,5 +1,6 @@
 # Changelog
 
+- Resolve exact entity `repositoryClass` mappings through class-literal EntityManager/ObjectManager repository lookups without specializing dynamic class arguments.
 - Preserve proven repository entity types through the default Doctrine QueryBuilder and Query object-hydration chain, including `getSingleResult()` and `toIterable()`, while dropping precision for shape-changing operations and explicit hydration modes.
 - Bind exact `@extends ServiceEntityRepository<Entity>` repository generics while rejecting conflicts with constructor evidence.
 - Bind the stable `find`, `findOneBy`, `findAll` and `findBy` entity return shapes from a literal `#[Entity(repositoryClass: Repository::class)]`, including custom repositories that do not use the official ServiceEntityRepository constructor pattern.

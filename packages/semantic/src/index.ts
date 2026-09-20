@@ -6687,6 +6687,7 @@ export class SemanticWorkspace {
         argumentsStart: match[3] ? chainStart + match.index! + match[0].indexOf('(') + 1 : undefined,
         callback: match[3] ? this.callbackSignature(match[3].slice(1, -1)) : undefined,
         literalArgument: match[3] ? this.literalStringArgument(match[3].slice(1, -1)) : undefined,
+        literalClassArgument: match[3] ? this.literalClassArgument(match[3].slice(1, -1)) : undefined,
       }));
       const finalOperator = chained[4]!; const allowNullable = (calls[0]?.operator ?? finalOperator) === '?->';
       const arrayElement = this.directArrayElement(`${chained[1]!}${chained[2]!}`);
@@ -6730,11 +6731,13 @@ export class SemanticWorkspace {
           ? this.assertedPropertyPathClass(file, chained[1]!, directPropertyPath, offset, lexicalScope, true) : undefined;
         if (assertedProperty) { target = assertedProperty; groups = assertedProperty.groups; continue; }
         const methodArguments: Record<string, string> | undefined = member && call.callback ? this.methodTemplateArguments(file, offset, member, call.callback) : undefined;
-        const compositeReturn = member && call.literalArgument === undefined
+        const literalArgument = this.resolvedLiteralMethodArgument(file, call.literalArgument, call.literalClassArgument,
+          call.argumentsStart ?? offset, accessFrom);
+        const compositeReturn = member && literalArgument === undefined
           ? groups ? this.commonMemberReturnGroups(groups, member, accessFrom) : this.memberReturnGroups(member)
           : undefined;
-        const returned: ObjectClass | undefined = member && call.literalArgument !== undefined
-          ? this.literalMethodReturnClass(current.fqcn, member.name, call.literalArgument)
+        const returned: ObjectClass | undefined = member && literalArgument !== undefined
+          ? this.literalMethodReturnClass(current.fqcn, member.name, literalArgument)
             ?? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true)
           : member ? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true) : undefined;
         if (!returned && !compositeReturn) { if (!member) unresolvedOwners?.add(current.fqcn); return undefined; }
@@ -7258,6 +7261,16 @@ export class SemanticWorkspace {
   private literalStringArgument(source: string): string | undefined {
     const match = /^\s*(['"])([^'"\\]*)\1\s*$/.exec(source);
     return match?.[2];
+  }
+
+  private literalClassArgument(source: string): string | undefined {
+    return /^\s*([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*::\s*class\s*$/iu.exec(source)?.[1];
+  }
+
+  private resolvedLiteralMethodArgument(file: SemanticFile, literal: string | undefined, className: string | undefined,
+    offset: number, accessFrom?: string): string | undefined {
+    if (literal !== undefined) return literal;
+    return className ? this.resolveSourceType(file, className, this.namespaceAt(file, offset), accessFrom) : undefined;
   }
 
   private literalMethodReturnClass(receiverFqcn: string, method: string, argument: string): ObjectClass | undefined {
@@ -7794,8 +7807,10 @@ export class SemanticWorkspace {
           ? this.assertedPropertyPathClass(file, sourceChain.variable, directPropertyPath, assignment.start, scope) : undefined;
         if (assertedProperty) { target = assertedProperty; continue; }
         const methodArguments = step.kind === 'method' && step.callback ? this.methodTemplateArguments(file, assignment.start, member, step.callback) : undefined;
-        const returned: ObjectClass | undefined = step.kind === 'method' && step.literalArgument !== undefined
-          ? this.literalMethodReturnClass(target.fqcn, member.name, step.literalArgument)
+        const literalArgument = step.kind === 'method'
+          ? this.resolvedLiteralMethodArgument(file, step.literalArgument, step.literalClassArgument, assignment.start, scope.containerFqcn) : undefined;
+        const returned: ObjectClass | undefined = step.kind === 'method' && literalArgument !== undefined
+          ? this.literalMethodReturnClass(target.fqcn, member.name, literalArgument)
             ?? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true)
           : this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, true);
         if (!returned) return undefined;
@@ -7864,6 +7879,20 @@ export class SemanticWorkspace {
       return undefined;
     }
     if (assignment?.sourceCall) {
+      const sourceCall = assignment.sourceCall;
+      if (sourceCall.kind === 'member' && !sourceCall.dynamic) {
+        const literalArgument = this.resolvedLiteralMethodArgument(file, sourceCall.literalArgument, sourceCall.literalClassArgument,
+          assignment.start, scope.containerFqcn);
+        const hasLiteralFact = literalArgument !== undefined && [...this.externalFacts.values()].some((contribution) =>
+          contribution.literalMethodReturns.some((fact) => fact.name.toLowerCase() === sourceCall.method.toLowerCase()
+            && fact.argument === literalArgument));
+        const owner = !hasLiteralFact ? undefined : this.variableClass(file, sourceCall.variable, assignment.start, visited);
+        const member = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
+          .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+        const literalReturn = member && literalArgument !== undefined
+          ? this.literalMethodReturnClass(owner!.fqcn, member.name, literalArgument) : undefined;
+        if (literalReturn) return literalReturn;
+      }
       const call = file.calls.filter((candidate) => candidate.start >= assignment.start && candidate.end <= assignment.end)
         .sort((left, right) => right.end - right.start - (left.end - left.start))[0];
       const result = call
@@ -7910,8 +7939,10 @@ export class SemanticWorkspace {
         .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
       const member = declaredMember && this.memberForArgumentCount(declaredMember, sourceCall.argumentCount);
       const methodArguments: Record<string, string> | undefined = member && sourceCall.callback ? this.methodTemplateArguments(file, assignment.start, member, sourceCall.callback) : undefined;
-      const returned = member && sourceCall.literalArgument !== undefined
-        ? this.literalMethodReturnClass(owner!.fqcn, member.name, sourceCall.literalArgument)
+      const literalArgument = this.resolvedLiteralMethodArgument(file, sourceCall.literalArgument, sourceCall.literalClassArgument,
+        assignment.start, scope.containerFqcn);
+      const returned = member && literalArgument !== undefined
+        ? this.literalMethodReturnClass(owner!.fqcn, member.name, literalArgument)
           ?? this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, allowNullable)
         : member && this.memberReturnClass({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }, allowNullable);
       if (returned) return returned;

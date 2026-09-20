@@ -1,17 +1,18 @@
 import { createHash } from 'node:crypto';
 import type { PhpSyntaxParser } from '@php-companion/parser';
 import type { SemanticSnapshot } from '@php-companion/semantic';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryMethodFacts,
-  type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
+import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts,
+  type DoctrineAssociationPropertyFact, type DoctrineRepositoryLookupFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 
 export interface ProjectPhpFileFacts {
-  schema: 3;
+  schema: 4;
   doctrineMethods: DoctrineRepositoryMethodFact[];
   doctrineProperties: DoctrineAssociationPropertyFact[];
+  doctrineRepositoryLookups: DoctrineRepositoryLookupFact[];
 }
 
 export interface CachedProjectPhpFile {
-  schema: 8;
+  schema: 9;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
   checksums: {
@@ -68,17 +69,26 @@ function isDoctrineProperty(value: unknown, uri: string, sourceLength: number): 
     && Number(value.start) >= 0 && Number(value.end) >= Number(value.start) && Number(value.end) <= sourceLength;
 }
 
+function isDoctrineRepositoryLookup(value: unknown, uri: string, sourceLength: number): value is DoctrineRepositoryLookupFact {
+  return isRecord(value) && ['Doctrine\\ORM\\EntityManagerInterface', 'Doctrine\\Persistence\\ObjectManager'].includes(String(value.ownerFqcn))
+    && value.name === 'getRepository' && isString(value.argument) && value.argument.length > 0
+    && isString(value.returnType) && value.returnType.length > 0 && value.uri === uri
+    && Number.isSafeInteger(value.start) && Number.isSafeInteger(value.end)
+    && Number(value.start) >= 0 && Number(value.end) >= Number(value.start) && Number(value.end) <= sourceLength;
+}
+
 export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string, source: string): ProjectPhpFileFacts {
   const doctrine = source.includes('Doctrine') || source.includes('ServiceEntityRepository')
     ? analyzeDoctrineDocument(parser, uri, source) : { entities: [], repositories: [] };
   const queryLocation = doctrine.entities[0] ?? doctrine.repositories[0];
   return {
-    schema: 3,
+    schema: 4,
     doctrineMethods: [
       ...doctrine.repositories.flatMap(doctrineRepositoryMethodFacts),
       ...(queryLocation ? doctrineQueryMethodFacts(queryLocation) : []),
     ],
     doctrineProperties: doctrine.entities.flatMap(doctrineAssociationPropertyFacts),
+    doctrineRepositoryLookups: doctrine.entities.flatMap(doctrineRepositoryLookupFacts),
   };
 }
 
@@ -93,12 +103,12 @@ export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: Pr
     callableImplementations: semantic.implementation.callables.map((record) => ({ identity: record.identity, checksum: recordChecksum(record) })),
     layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
   };
-  return { schema: 8, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
+  return { schema: 9, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 8 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+  if (!isRecord(value) || value.schema !== 9 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
     || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
@@ -121,10 +131,12 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
       && entry.checksum === recordChecksum(implementation.callables[index]))
     || !isChecksum(checksums.layers) || checksums.layers !== recordChecksum(layers)
     || !isChecksum(checksums.facts) || checksums.facts !== recordChecksum(facts)
-    || facts.schema !== 3 || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000
+    || facts.schema !== 4 || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000
     || !Array.isArray(facts.doctrineProperties) || facts.doctrineProperties.length > 10_000
+    || !Array.isArray(facts.doctrineRepositoryLookups) || facts.doctrineRepositoryLookups.length > 10_000
     || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
     || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
+    || !facts.doctrineRepositoryLookups.every((fact) => isDoctrineRepositoryLookup(fact, expectedUri, implementation.source.length))
     || payloadChecksum(checksums as unknown as CachedProjectPhpFile['checksums']) !== value.checksum) return undefined;
-  return { schema: 8, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
+  return { schema: 9, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
 }

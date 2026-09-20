@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
+import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
 
 describe('static Doctrine facts', () => {
   let parser: PhpSyntaxParser;
@@ -67,6 +67,10 @@ describe('static Doctrine facts', () => {
     expect(doctrineRepositoryMethodFacts(facts.repositories[0]!).slice(0, 4).map((item) => [item.name, item.returnType])).toEqual([
       ['find', 'App\\Language|null'], ['findOneBy', 'App\\Language|null'],
       ['findAll', 'array<int, App\\Language>'], ['findBy', 'array<int, App\\Language>'],
+    ]);
+    expect(doctrineRepositoryLookupFacts(facts.entities[0]!)).toMatchObject([
+      { ownerFqcn: 'Doctrine\\ORM\\EntityManagerInterface', name: 'getRepository', argument: 'App\\Language', returnType: 'App\\LanguageRepository' },
+      { ownerFqcn: 'Doctrine\\Persistence\\ObjectManager', name: 'getRepository', argument: 'App\\Language', returnType: 'App\\LanguageRepository' },
     ]);
   });
 

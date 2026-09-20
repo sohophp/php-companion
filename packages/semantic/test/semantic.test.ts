@@ -4370,6 +4370,21 @@ final class Imported { public const TYPE = Stable::class; }`);
     workspace.replaceExternalLiteralMethodReturns('symfony', []);
     expect(workspace.completeMembers('file:///ContainerUse.php', positions[0]!)).toEqual([]);
   });
+  it('uses exact class literals for literal method return facts', () => {
+    workspace.update('file:///RepositoryTypes.php', `<?php namespace Doctrine\\ORM; interface EntityManagerInterface { public function getRepository(string $class): EntityRepository; } class EntityRepository {}
+      namespace App; class Language {} class LanguageRepository extends \\Doctrine\\ORM\\EntityRepository { public function published(): array {} }`);
+    workspace.replaceExternalLiteralMethodReturns('doctrine', [{ ownerFqcn: 'Doctrine\\ORM\\EntityManagerInterface', name: 'getRepository', argument: 'App\\Language', returnType: 'App\\LanguageRepository', uri: 'file:///Language.php', start: 0, end: 1 }]);
+    const source = `<?php namespace App; function run(\\Doctrine\\ORM\\EntityManagerInterface $manager, string $class): void {
+      $manager->getRepository(Language::class)->pub; $repo = $manager->getRepository(Language::class); $repo->pub;
+      $manager->getRepository($class)->pub;
+    }`;
+    workspace.update('file:///RepositoryUse.php', source);
+    const positions = [...source.matchAll(/pub;/g)].map((item) => item.index + 3);
+    expect(workspace.completeMembers('file:///RepositoryUse.php', positions[0]!).map((item) => item.name)).toEqual(['published']);
+    expect(workspace.completeMembers('file:///RepositoryUse.php', positions[1]!).map((item) => item.name)).toEqual(['published']);
+    expect(workspace.completeMembers('file:///RepositoryUse.php', positions[2]!)).toEqual([]);
+    workspace.removeExternalFacts('doctrine');
+  });
   it('renames local parameters and variables only inside one safe named scope', () => {
     const source = `<?php /** @param string $value */
       function one(string $value): void { $copy = $value; echo $copy; }

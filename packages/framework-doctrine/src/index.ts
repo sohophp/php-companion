@@ -1,5 +1,5 @@
 import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
-import type { ExternalMethodFact, ExternalPropertyFact } from '@php-companion/semantic-provider';
+import type { ExternalLiteralMethodReturnFact, ExternalMethodFact, ExternalPropertyFact } from '@php-companion/semantic-provider';
 
 export interface DoctrineAssociation { property: string; kind: 'one-to-one' | 'many-to-one' | 'one-to-many' | 'many-to-many'; target: string; many: boolean; declaredType?: string; nullable?: boolean; visibility: 'public' | 'protected' | 'private'; start: number; end: number; }
 export interface DoctrineEntityInfo { fqcn: string; uri: string; start: number; end: number; repository?: string; associations: DoctrineAssociation[]; }
@@ -12,6 +12,7 @@ export interface DoctrineRepositoryMethodFact extends ExternalMethodFact {
   returnType: string;
 }
 export interface DoctrineAssociationPropertyFact extends ExternalPropertyFact { returnType: string; }
+export type DoctrineRepositoryLookupFact = ExternalLiteralMethodReturnFact;
 
 function resolveName(name: string, namespace: string, imports: ParsedImport[]): string {
   const clean = name.replace(/^\\/, ''); if (name.startsWith('\\')) return clean;
@@ -107,6 +108,17 @@ export function doctrineRepositoryMethodFacts(repository: DoctrineRepositoryInfo
   return [...repositoryMethods,
     { ownerFqcn: repository.fqcn, name: 'createQueryBuilder', returnType: `\\Doctrine\\ORM\\QueryBuilder<${entity}>`,
       returnTypeTemplates: ['TEntity'], uri: repository.uri, start: repository.start, end: repository.end },
+  ];
+}
+
+/** Resolve only explicit entity repositoryClass mappings for class-string repository lookups. */
+export function doctrineRepositoryLookupFacts(entity: DoctrineEntityInfo): DoctrineRepositoryLookupFact[] {
+  if (!entity.repository) return [];
+  return [
+    { ownerFqcn: 'Doctrine\\ORM\\EntityManagerInterface', name: 'getRepository', argument: entity.fqcn,
+      returnType: entity.repository, uri: entity.uri, start: entity.start, end: entity.end },
+    { ownerFqcn: 'Doctrine\\Persistence\\ObjectManager', name: 'getRepository', argument: entity.fqcn,
+      returnType: entity.repository, uri: entity.uri, start: entity.start, end: entity.end },
   ];
 }
 

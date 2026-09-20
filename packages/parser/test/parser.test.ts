@@ -237,6 +237,12 @@ class Child extends ParentBase implements Contract {
     });
     result.tree.delete();
   });
+  it('records exact class literals on direct and chained member assignments', () => {
+    const result = parser.parse('<?php function run($manager): void { $repo = $manager->getRepository(User::class); $query = $manager->getRepository(\\App\\Order::class)->createQueryBuilder("o"); }');
+    expect(result.assignments.find((item) => item.variable === '$repo')?.sourceCall).toMatchObject({ literalClassArgument: 'User' });
+    expect(result.assignments.find((item) => item.variable === '$query')?.sourceChain?.steps[0]).toMatchObject({ literalClassArgument: '\\App\\Order' });
+    result.tree.delete();
+  });
   it('extracts call arguments and reference or variadic parameter facts', () => {
     const result = parser.parse('<?php function collect(int &$first, string ...$rest): void {} collect(first: 1); $service->run(1, name: "x"); Service::build(); new /* comment */ Service();');
     expect(result.callables[0]?.parameters).toMatchObject([
