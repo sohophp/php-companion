@@ -37,11 +37,14 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
     const path = resolve(type.path); if (!within(root, path)) throw new Error(`Project type path escapes the project root: ${type.path}`);
     if (!unique.has(path)) unique.set(path, type.uri || pathToFileURL(path).toString());
   }
+  for (const [path, document] of snapshots) if (!unique.has(path)) unique.set(path, document.uri);
   if (unique.size > maxFiles) throw new Error(`Symfony controller source count exceeds ${maxFiles}.`);
   const result: ProjectSource[] = []; let bytes = 0;
   for (const [path, uri] of [...unique].sort(([left], [right]) => left.localeCompare(right))) {
-    const actual = await realpath(path); if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
-    const snapshot = snapshots.get(path); const source = snapshot?.source ?? await readFile(actual, 'utf8');
+    const snapshot = snapshots.get(path);
+    const actual = snapshot ? path : await realpath(path);
+    if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+    const source = snapshot?.source ?? await readFile(actual, 'utf8');
     bytes += Buffer.byteLength(source); if (source.length > 1_000_000 || bytes > maxTotalBytes) {
       throw new Error(`Symfony controller source budget exceeds ${maxTotalBytes} bytes.`);
     }

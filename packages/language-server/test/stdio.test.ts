@@ -3321,8 +3321,8 @@ class Example {
       const interop = (await output.waitFor((message) => message.id === 47)).result;
       expect(interop).toMatchObject({
         hello: { protocolVersion: 1, providerId: 'php-companion', capabilities: expect.arrayContaining(['controller-contexts', 'php-symbols', 'rename-prepare']) },
-        contexts: [{ template: 'site/page.html.twig', complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' }, sources: [expect.objectContaining({ uri: pathToFileURL(join(root, 'src', 'PageController.php')).toString(), start: expect.any(Number), end: expect.any(Number), line: expect.any(Number), character: expect.any(Number) })] }] }],
-        types: { 'App\\User': { members: expect.arrayContaining([expect.objectContaining({ name: 'name', kind: 'property', type: { kind: 'primitive', name: 'string' } })]) } },
+        contexts: [],
+        types: {},
       });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 41, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('Worker') }, end: { line: 0, character: source.indexOf('Worker') + 6 } }, context: { diagnostics: [] } } }));
       const actions = (await output.waitFor((message) => message.id === 41)).result;
@@ -4423,7 +4423,7 @@ namespace App {
       const path = join(root, 'src', 'PageController.php'); const uri = pathToFileURL(path).toString();
       const source = "<?php namespace App; final class PageController { public function show(User $user): void { $this->render('core.html.twig', ['user' => $user]); } }";
       await writeFile(path, source); const provider = join(root, 'controllers.mjs');
-      await writeFile(provider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const edited=request.params.documents?.some((item)=>item.source.includes('edited.html.twig'));const location={uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:Boolean(type),methods:[],properties:[],literalMethodReturns:[],controllerContexts:[{template:edited?'edited-provider.html.twig':'provider.html.twig',complete:true,variables:[{name:'user',type:{kind:'named',name:'App\\\\User'},optional:false}],sources:[{symbol:'App\\\\PageController::show',location}]}]}}));`);
+      await writeFile(provider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const document=request.params.documents?.find((item)=>item.languageId==='php');const target=type??(document?{uri:document.uri,start:document.source.indexOf('class ')+6,end:document.source.indexOf(' {',document.source.indexOf('class '))}:undefined);const edited=document?.source.includes('edited.html.twig');const created=document?.source.includes('new-core.html.twig');const location=target?{uri:target.uri,start:target.start,end:target.end,snapshotVersion:request.params.generation}:undefined;process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:Boolean(target),methods:[],properties:[],literalMethodReturns:[],controllerContexts:target?[{template:created?'new-provider.html.twig':edited?'edited-provider.html.twig':'provider.html.twig',complete:true,variables:[{name:'user',type:{kind:'named',name:'App\\\\User'},optional:false}],sources:[{symbol:'App\\\\PageController::show',location}]}]:[]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 663, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
@@ -4450,7 +4450,7 @@ namespace App {
       await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated' && message.params.changedUris.includes(newUri));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 666, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
       expect((await output.waitFor((message) => message.id === 666)).result).toMatchObject({ contexts: expect.arrayContaining([
-        expect.objectContaining({ template: 'new-core.html.twig' }),
+        expect.objectContaining({ template: 'new-provider.html.twig' }),
       ]) });
     } finally { await rm(root, { recursive: true, force: true }); }
   });

@@ -24,4 +24,14 @@ describe('Symfony controller context provider', () => {
       variables: [{ name: 'user', type: { kind: 'named', name: 'User' } }],
       sources: [{ symbol: 'PageController::show', location: { snapshotVersion: 'open:2' } }] }]);
   });
+
+  it('analyzes a new open document before it has a project type entry', async () => {
+    const path = join(root, 'NewController.php'); const uri = pathToFileURL(path).toString();
+    const facts = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents: [{
+      uri, languageId: 'php', snapshotVersion: 'open:1',
+      source: "<?php class NewController { function show(User $user) { return $this->render('new.html.twig', ['user' => $user]); } }",
+    }] });
+    expect(facts.sourceUris).toEqual([uri]);
+    expect(facts.contexts).toMatchObject([{ template: 'new.html.twig', sources: [{ location: { uri, snapshotVersion: 'open:1' } }] }]);
+  });
 });

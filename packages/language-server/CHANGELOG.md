@@ -1,3 +1,4 @@
+- Remove the in-process Symfony Controller/Twig analyzer and its persistent facts; controller contexts now require the standalone provider, including for new open files, and cache schema 4/v52 rejects snapshots that still embed framework contexts.
 - Rebuild persistent PHP project facts with cache version v51 so literal Doctrine `Entity(repositoryClass: ...)` bindings are available after an upgrade instead of retaining an older incomplete framework snapshot.
 - Resolve exact Symfony YAML controller segments to unique Composer PHP class or effective public method declarations through a source-snapshot request, while yielding to external runtime-provider ownership.
 - Start the bounded project-source index when Twig interop is first requested in `onDemand` mode; dependency-complete indexing remains exclusive to `experimental` mode.

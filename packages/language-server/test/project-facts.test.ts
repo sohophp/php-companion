@@ -8,7 +8,7 @@ describe('persistent project PHP facts', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
-  it('round-trips controller and Doctrine facts while rebasing the interop generation', () => {
+  it('round-trips Doctrine facts without caching framework controller contexts', () => {
     const uri = 'file:///src/PageController.php';
     const source = `<?php namespace App;
       use Doctrine\\ORM\\Mapping as ORM;
@@ -19,18 +19,16 @@ describe('persistent project PHP facts', () => {
       }`;
     const workspace = new SemanticWorkspace(parser); workspace.update(uri, source);
     const semantic = workspace.snapshot(uri)!;
-    const facts = analyzeProjectPhpFileFacts(parser, uri, source, 'generation-1');
-    expect(facts.controllerContexts).toHaveLength(1); expect(facts.doctrineProperties).toHaveLength(1);
+    const facts = analyzeProjectPhpFileFacts(parser, uri, source);
+    expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
-    expect(cached).toMatchObject({ schema: 3, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 4, semantic: { schema: 77, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),
         callableImplementations: [{ identity: 'app\\pagecontroller::show', checksum: expect.stringMatching(/^[0-9a-f]{64}$/) }],
         layers: expect.stringMatching(/^[0-9a-f]{64}$/), facts: expect.stringMatching(/^[0-9a-f]{64}$/) } });
-    const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri, 'generation-2');
-    expect(restored?.facts.controllerContexts[0]?.sources[0]?.location.snapshotVersion).toBe('generation-2');
-    expect(restored?.facts.controllerContexts[0]?.variables[0]?.sources?.[0]?.snapshotVersion).toBe('generation-2');
+    const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri);
     expect(restored?.facts.doctrineProperties).toEqual(facts.doctrineProperties);
     workspace.dispose();
   });
@@ -38,26 +36,26 @@ describe('persistent project PHP facts', () => {
   it('rejects tampered facts, a mismatched URI, and an unsupported wrapper schema', () => {
     const uri = 'file:///src/Entity.php'; const source = '<?php namespace App; class Entity { public function run(): void {} }';
     const workspace = new SemanticWorkspace(parser); workspace.update(uri, source);
-    const cached = createCachedProjectPhpFile(workspace.snapshot(uri)!, analyzeProjectPhpFileFacts(parser, uri, source, 'one'));
+    const cached = createCachedProjectPhpFile(workspace.snapshot(uri)!, analyzeProjectPhpFileFacts(parser, uri, source));
     const tampered = structuredClone(cached); tampered.facts.doctrineMethods.push({
       ownerFqcn: 'App\\Repository', name: 'find', returnType: 'App\\Other|null', uri, start: 0, end: 5,
     });
-    expect(restoreCachedProjectPhpFile(tampered, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tampered, uri)).toBeUndefined();
     const tamperedDeclaration = structuredClone(cached); tamperedDeclaration.semantic.declaration.namespace = 'Other';
-    expect(restoreCachedProjectPhpFile(tamperedDeclaration, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedDeclaration, uri)).toBeUndefined();
     const tamperedImplementation = structuredClone(cached); tamperedImplementation.semantic.implementation.source += ' ';
-    expect(restoreCachedProjectPhpFile(tamperedImplementation, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedImplementation, uri)).toBeUndefined();
     const tamperedCallable = structuredClone(cached); tamperedCallable.semantic.implementation.callables[0]!.facts.calls.push({ start: 0, end: 1 } as never);
-    expect(restoreCachedProjectPhpFile(tamperedCallable, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedCallable, uri)).toBeUndefined();
     const tamperedLayers = structuredClone(cached); tamperedLayers.semantic.layers.referenceCandidates.keys.push('raw-ci:tampered');
-    expect(restoreCachedProjectPhpFile(tamperedLayers, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedLayers, uri)).toBeUndefined();
     const tamperedRecordChecksum = structuredClone(cached); tamperedRecordChecksum.checksums.declaration = '0'.repeat(64);
-    expect(restoreCachedProjectPhpFile(tamperedRecordChecksum, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedRecordChecksum, uri)).toBeUndefined();
     const tamperedCallableChecksum = structuredClone(cached); tamperedCallableChecksum.checksums.callableImplementations[0]!.checksum = '0'.repeat(64);
-    expect(restoreCachedProjectPhpFile(tamperedCallableChecksum, uri, 'two')).toBeUndefined();
-    expect(restoreCachedProjectPhpFile(cached, 'file:///src/Other.php', 'two')).toBeUndefined();
-    expect(restoreCachedProjectPhpFile(cached, uri, 'two', `${source}\n// unsaved`)).toBeUndefined();
-    expect(restoreCachedProjectPhpFile({ ...cached, schema: 1 }, uri, 'two')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(tamperedCallableChecksum, uri)).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(cached, 'file:///src/Other.php')).toBeUndefined();
+    expect(restoreCachedProjectPhpFile(cached, uri, `${source}\n// unsaved`)).toBeUndefined();
+    expect(restoreCachedProjectPhpFile({ ...cached, schema: 3 }, uri)).toBeUndefined();
     workspace.dispose();
   });
 });
