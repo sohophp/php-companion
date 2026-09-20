@@ -4410,8 +4410,8 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       }
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.changed', path: '/changed' })); await writeFile(declarationPath, 'dynamic.changed\n');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;
-      expect(refreshed.map((item) => item.label)).toEqual(['dynamic.changed']);
+      const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string; detail: string }>;
+      expect(refreshed.map((item) => [item.label, item.detail])).toEqual([['dynamic.changed', '/changed (runtime route)']]);
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.partial', path: '/partial', complete: false }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1171, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
       expect((await output.waitFor((message) => message.id === 1171)).result).toEqual([]);
@@ -4465,11 +4465,25 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect((await query(1192)).map((item) => item.label)).toEqual(['cached.one']);
       expect(await readFile(countPath, 'utf8')).toBe('1');
       await writeFile(statePath, JSON.stringify({ name: 'cached.two', path: '/two' }));
+      const changedSource = source.replace('cached.', 'cached.t');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changedSource }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 2);
       expect((await query(1193)).map((item) => item.label)).toEqual(['cached.one']);
       expect(await readFile(countPath, 'utf8')).toBe('1');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: configUri, type: 2 }] } }));
       expect((await query(1194)).map((item) => item.label)).toEqual(['cached.two']);
       expect(await readFile(countPath, 'utf8')).toBe('2');
+      await writeFile(statePath, JSON.stringify({ name: 'cached.three', path: '/three' }));
+      const controllerUri = pathToFileURL(join(root, 'Controller.php')).toString();
+      const controllerSource = "<?php #[Route('/three', name: 'cached.three')] final class Controller {}";
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: controllerUri, languageId: 'php', version: 1, text: controllerSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === controllerUri);
+      expect((await query(1195)).map((item) => item.label)).toEqual(['cached.three']);
+      expect(await readFile(countPath, 'utf8')).toBe('3');
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

@@ -1,3 +1,4 @@
+- Avoid discarding cached static Symfony route snapshots for ordinary PHP editing; route-bearing PHP/config files and YAML/XML changes still invalidate them, and runtime-only completion items no longer claim a source declaration.
 - Move editor-facing Symfony YAML/XML/PHP configuration providers from the core extension into the independently installed Symfony extension through plugin API v1's optional namespaced request bridge.
 - Symfony service IDs with one explicit authoritative registration can now be renamed atomically across YAML, XML and PHP Configurator configuration; the operation refuses partial or ambiguous graphs and supports one-step Undo in VS Code.
 - PHP class References now include exact service-id usages from the provider-confirmed YAML/XML/PHP configuration graph for every uniquely registered service implemented by that class.

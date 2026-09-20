@@ -401,6 +401,23 @@ function invalidateRouteProviderCache(root?: string): void {
   if (root) routeProviderCacheByRoot.delete(root); else routeProviderCacheByRoot.clear();
 }
 
+function phpPathMayAffectSymfonyRoutes(root: string, path: string): boolean {
+  const local = relative(root, path).split(sep).join('/').toLowerCase();
+  return local === 'src/kernel.php' || local === 'app/appkernel.php' || local === 'config/bundles.php'
+    || /^(?:app\/)?config\/(?:.+\/)?routes?\.php$/u.test(local)
+    || /^config\/routes\/.+\.php$/u.test(local);
+}
+
+function phpSourceMayAffectSymfonyRoutes(source: string | undefined): boolean {
+  return source !== undefined && (/\bRoute\b/u.test(source) || /\bconfigureRoutes\b/u.test(source)
+    || /\bRoutingConfigurator\b/u.test(source));
+}
+
+function phpDocumentMayAffectSymfonyRoutes(root: string, uri: string, ...sources: Array<string | undefined>): boolean {
+  const path = pathForUri(uri);
+  return Boolean(path && phpPathMayAffectSymfonyRoutes(root, path)) || sources.some(phpSourceMayAffectSymfonyRoutes);
+}
+
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
   const seen = new Set<string>(); const accepted: RouteProviderDescriptor[] = [];
   for (const candidate of Array.isArray(value) ? value : []) {
@@ -2361,7 +2378,20 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
   const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
-    const root = rootForUri(change.uri); if (root) invalidateRouteProviderCache(root);
+    const root = rootForUri(change.uri);
+    if (root) {
+      const extension = path.toLowerCase().slice(path.lastIndexOf('.'));
+      if (extension !== '.php' || phpPathMayAffectSymfonyRoutes(root, path)) invalidateRouteProviderCache(root);
+      else {
+        const workspace = await semanticWorkspaces.get(`root:${root}`);
+        const previousSource = workspace?.source(change.uri) ?? workspace?.source(indexedUriForPath(root, path));
+        let currentSource: string | undefined;
+        let uncertain = false;
+        try { if ((await stat(path)).size <= indexLimits.maxFileSizeBytes) currentSource = await readFile(path, 'utf8'); }
+        catch { uncertain = true; }
+        if (uncertain || phpSourceMayAffectSymfonyRoutes(previousSource) || phpSourceMayAffectSymfonyRoutes(currentSource)) invalidateRouteProviderCache(root);
+      }
+    }
     if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') {
       if (root) invalidateComposerProject(root);
       invalidateCandidates(change.uri); composerChanged = true; continue;
@@ -2392,8 +2422,10 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
-  const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const update = workspace.update(document.uri, document.getText(), true);
+  const root = rootForUri(document.uri);
+  if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
@@ -2404,8 +2436,10 @@ documents.onDidOpen(async ({ document }) => {
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
-  const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const update = workspace.update(document.uri, document.getText(), true);
+  const root = rootForUri(document.uri);
+  if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
@@ -2416,7 +2450,8 @@ documents.onDidChangeContent(async ({ document }) => {
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
-  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  const root = rootForUri(document.uri);
+  if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);
   const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
   if (workspace && root && indexedUrisByRoot.get(root)?.has(document.uri)) {
     const path = pathForUri(document.uri);
@@ -2493,6 +2528,7 @@ connection.onWorkspaceSymbol(async ({ query }, token) => {
 function routeProviderDocuments(root: string): { complete: boolean; documents: RouteProviderDocument[] } {
   const candidates = documents.all().filter((document) => document.languageId === 'php')
     .filter((document) => { const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path); })
+    .filter((document) => phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText()))
     .sort((left, right) => left.uri.localeCompare(right.uri));
   const snapshots: RouteProviderDocument[] = [...frameworkDocumentSnapshots.values()].flatMap((document) => {
     const path = pathForUri(document.uri); return document.languageId === 'yaml' && path !== undefined && pathWithin(root, path)
@@ -2633,7 +2669,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
       if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
       return routes.filter((route) => route.name.startsWith(routeCall.prefix)).map((route) => ({
-        label: route.name, kind: CompletionItemKind.Reference, detail: `${route.path} (source declaration)`,
+        label: route.name, kind: CompletionItemKind.Reference,
+        detail: `${route.path} (${route.uri !== undefined ? 'source declaration' : 'runtime route'})`,
         textEdit: { range: { start: document.positionAt(routeCall.start), end: document.positionAt(routeCall.end) }, newText: symfonyRouteNameText(route.name, routeCall.quote) },
       }));
     }
