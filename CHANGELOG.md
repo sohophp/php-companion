@@ -1,3 +1,5 @@
+- Batch changed PHP snapshots per Composer root before refreshing authoritative Symfony Controller contexts, starting one provider process per watcher notification while retaining per-file replacement and failure cleanup.
+- 提交 `783ac2c` 将同批 PHP watcher 变化合并为一次独立 Symfony Controller Provider 调用；两个 Controller 的 stdio 回归、192 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-783ac2c9` 已安装到 WSL。
 - Reuse one immutable Composer project snapshot across indexing, on-demand candidates, namespace resolution, declaration hydration, Safe Move and ordinary watcher deltas; only Composer manifest changes invalidate it.
 - Coalesce Symfony container refreshes per workspace root within one watcher batch, preventing repeated framework refreshes for related configuration changes.
 - 提交 `bad3c0b` 修复真实 Winstar 索引结束后普通 watcher 事件重复遍历 Composer 依赖图的问题；候选 `php-companion-alpha-0.4.5-bad3c0b9` 已通过 26 项 index、191 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检，并已安装到 WSL 自动重启的语言服务器。
