@@ -1470,6 +1470,105 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
   }) };
 }
 
+function symfonyPhpServiceReferenceCandidates(parser: PhpSyntaxParser, source: string, allowEmpty: boolean): SymfonyServiceIdReference[] {
+  const parsed = parser.parse(source); if (parsed.errors.length) return [];
+  const root = parsed.tree.rootNode as unknown as NodeLike;
+  const returns = root.namedChildren.filter((node) => node.type === 'return_statement');
+  const closure = returns.length === 1 ? returns[0]!.namedChildren[0] : undefined;
+  const parameters = closure?.type === 'anonymous_function' ? closure.namedChildren.find((node) => node.type === 'formal_parameters') : undefined;
+  const parameter = parameters?.namedChildren.length === 1 ? parameters.namedChildren[0] : undefined;
+  const typeNode = parameter?.namedChildren.find((node) => node.type === 'named_type')?.namedChildren[0];
+  const variableNode = parameter?.namedChildren.find((node) => node.type === 'variable_name');
+  if (!closure || !typeNode || !variableNode || parameter.text.includes('&') || parameter.text.includes('...')
+    || resolveName(typeNode.text, parsed.namespace, parsed.imports) !== 'Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator') return [];
+  const body = closure.namedChildren.find((node) => node.type === 'compound_statement'); if (!body) return [];
+  interface ChainCall { name: string; args: NodeLike[]; }
+  const chain = (node: NodeLike): { base: NodeLike; calls: ChainCall[] } | undefined => {
+    if (node.type !== 'member_call_expression') return { base: node, calls: [] };
+    const receiver = node.namedChildren[0]; const name = node.namedChildren[1]; const args = node.namedChildren[2];
+    if (!receiver || name?.type !== 'name' || args?.type !== 'arguments') return undefined;
+    const previous = chain(receiver); return previous
+      ? { base: previous.base, calls: [...previous.calls, { name: name.text, args: args.namedChildren.map((arg) => arg.namedChildren.at(-1) ?? arg) }] }
+      : undefined;
+  };
+  const identifier = (node: NodeLike | undefined): SymfonyServiceIdReference | undefined => {
+    if (node?.type === 'class_constant_access_expression' && node.namedChildren[1]?.text.toLowerCase() === 'class') {
+      const owner = node.namedChildren[0];
+      if (owner && !['self', 'static', 'parent'].includes(owner.text.toLowerCase())) {
+        return { value: resolveName(owner.text, parsed.namespace, parsed.imports), start: owner.startIndex, end: owner.endIndex };
+      }
+    }
+    const literal = phpConfiguratorLiteral(node);
+    return literal && (allowEmpty || literal.value.length > 0) ? literal : undefined;
+  };
+  const functionIdentity = (name: string): string => {
+    if (name.startsWith('\\')) return name.slice(1);
+    const imported = parsed.imports.find((item) => item.kind === 'function' && item.alias.toLowerCase() === name.toLowerCase());
+    return imported?.fqcn ?? [parsed.namespace, name].filter(Boolean).join('\\');
+  };
+  const serviceFunctionReference = (node: NodeLike): SymfonyServiceIdReference | undefined => {
+    const referenceChain = chain(node); const base = referenceChain?.base ?? node;
+    if (base.type !== 'function_call_expression'
+      || referenceChain?.calls.some((call) => !['ignoreOnInvalid', 'nullOnInvalid', 'ignoreOnUninitialized'].includes(call.name) || call.args.length)) return undefined;
+    const name = base.namedChildren[0]; const args = base.namedChildren.find((child) => child.type === 'arguments');
+    return name && functionIdentity(name.text).toLowerCase() === 'symfony\\component\\dependencyinjection\\loader\\configurator\\service'
+      && args?.namedChildren.length === 1 ? identifier(args.namedChildren[0]!.namedChildren.at(-1) ?? args.namedChildren[0]) : undefined;
+  };
+  const nestedServiceReferences = (node: NodeLike | undefined, found: SymfonyServiceIdReference[] = []): SymfonyServiceIdReference[] => {
+    if (!node) return found;
+    const reference = serviceFunctionReference(node); if (reference) { found.push(reference); return found; }
+    for (const child of node.namedChildren) nestedServiceReferences(child, found);
+    return found;
+  };
+  const references: SymfonyServiceIdReference[] = []; const serviceVariables = new Set<string>();
+  const containerVariable = variableNode.text; let containerValid = true;
+  for (const statement of body.namedChildren) {
+    const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+    if (expression?.type === 'assignment_expression' && expression.namedChildren[0]?.type === 'variable_name') {
+      const assignedVariable = expression.namedChildren[0]!.text; const assigned = chain(expression.namedChildren[1]!);
+      const servicesAssignment = containerValid && assigned?.base.text === containerVariable && assigned.calls.length === 1
+        && assigned.calls[0]!.name === 'services' && assigned.calls[0]!.args.length === 0;
+      if (assignedVariable === containerVariable) containerValid = false;
+      if (servicesAssignment) serviceVariables.add(assignedVariable); else serviceVariables.delete(assignedVariable);
+      continue;
+    }
+    const candidate = expression ? chain(expression) : undefined; if (!candidate) continue;
+    let calls = candidate.calls;
+    if (containerValid && candidate.base.text === containerVariable && calls[0]?.name === 'services' && calls[0].args.length === 0) calls = calls.slice(1);
+    else if (!serviceVariables.has(candidate.base.text)) continue;
+    for (const call of calls) {
+      if (['get', 'remove', 'parent', 'decorate'].includes(call.name)) {
+        const reference = identifier(call.args[0]); if (reference) references.push(reference);
+      } else if (call.name === 'alias') {
+        const reference = identifier(call.args[1]); if (reference) references.push(reference);
+      }
+      const valueArguments = call.name === 'bind' || call.name === 'arg' || call.name === 'property' ? call.args.slice(1)
+        : ['args', 'call', 'factory', 'configurator'].includes(call.name) ? call.args.slice(call.name === 'call' ? 1 : 0) : [];
+      for (const argument of valueArguments) nestedServiceReferences(argument, references);
+    }
+  }
+  return [...new Map(references.map((reference) => [`${reference.start}:${reference.end}:${reference.value}`, reference])).values()];
+}
+
+/** Locate exact service-id references inside a proven Symfony PHP Configurator closure. */
+export function symfonyPhpServiceReferences(parser: PhpSyntaxParser, source: string): SymfonyServiceIdReference[] {
+  return symfonyPhpServiceReferenceCandidates(parser, source, false);
+}
+
+/** Locate the exact Symfony PHP Configurator service-id reference under an editor offset. */
+export function symfonyPhpServiceReferenceAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyServiceIdReference | undefined {
+  return symfonyPhpServiceReferenceCandidates(parser, source, false)
+    .find((reference) => offset >= reference.start && offset <= reference.end);
+}
+
+/** Locate the replace range and typed prefix for PHP Configurator service-id completion. */
+export function symfonyPhpServiceReferencePrefixAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+  const reference = symfonyPhpServiceReferenceCandidates(parser, source, true)
+    .find((candidate) => offset >= candidate.start && offset <= candidate.end);
+  return reference && ["'", '"'].includes(source[reference.start - 1] ?? '')
+    ? { prefix: source.slice(reference.start, offset), start: reference.start, end: reference.end } : undefined;
+}
+
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */
 export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });

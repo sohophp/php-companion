@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Locate exact service-id references and completion ranges in proven PHP Configurator closures, including imported `service()`, service collection lookups, alias targets, parents and decorators, while invalidating reassigned DSL variables.
 - Locate the editable value and typed prefix inside exact conventional XML service-reference attributes, including an empty quoted value.
 - Locate exact service ids in conventional XML `argument`, `property`, `bind`, alias, parent, decorator, factory and configurator attributes while rejecting declarations and dynamic or structurally unsafe XML.
 - Locate the exact literal controller class or method segment under a YAML cursor only inside a route map with a `path`, including sequence-based module declarations.

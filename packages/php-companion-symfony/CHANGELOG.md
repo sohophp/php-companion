@@ -1,5 +1,7 @@
 # Changelog
 
+- Expose provider-confirmed PHP Configurator files to exact service Definition, References and completion while retaining the standalone Symfony extension as the owner of the configuration graph.
+
 - Reuse the complete static-route snapshot until PHP/YAML, environment, open-document, or provider configuration invalidation instead of starting the provider for every route query.
 
 - Core static-route fallback has been removed; this extension's complete authoritative route provider is now required for Symfony route completion, Definition and References.

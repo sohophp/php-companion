@@ -1,3 +1,4 @@
+- Symfony PHP Configurator `service()`, `get()`, `remove()`, alias targets, parents and decorators now support exact Definition, References and service-id completion across the authoritative YAML/XML/PHP configuration graph.
 - Symfony XML service-reference attributes now complete unique authoritative service ids and replace only the attribute value; Red Hat XML continues to own generic XML completion.
 - Symfony service Definition and References now work from exact conventional XML service attributes and return precise usages across the authoritative YAML/XML configuration graph; Red Hat XML remains the generic XML language and formatting provider.
 - Refresh resource-expanded Symfony services once per Composer root after PHP declaration changes or deletion; implementation-only watcher changes keep the current container snapshot.

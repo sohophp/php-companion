@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -636,6 +636,42 @@ services:
       .toMatchObject({ serviceId: 'app.mailer', className: 'App\\Mailer', kind: 'binding' });
     expect(resolveSymfonyAutowireTarget(services, 'App\\Consumer', 'App\\Transport', subtype, 'disabled', undefined, undefined, undefined, 1))
       .toBeUndefined();
+  });
+
+  it('locates exact PHP Configurator service references and completion ranges', () => {
+    const source = `<?php
+      use App\\Contract\\MailerInterface;
+      use App\\Service\\Mailer;
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\service;
+      return static function (ContainerConfigurator $container): void {
+        $services = $container->services();
+        $services->set('app.consumer')->arg('$mailer', service('app.mailer')->nullOnInvalid())
+          ->property('fallback', service(Mailer::class))->call('setLogger', [service('app.logger')]);
+        $services->alias(MailerInterface::class, 'app.mailer')->public();
+        $services->get('app.consumer')->parent('app.base')->decorate('app.inner');
+        $services->remove('app.removed');
+        $services->set('app.empty')->arg('$value', service(''));
+        $dynamic = $container->services();
+        $dynamic = other();
+        $dynamic->get('ignored.reassigned');
+        $container = other();
+        $container->services()->get('ignored.container');
+      };`;
+    expect(symfonyPhpServiceReferences(parser, source).map(({ value }) => value)).toEqual([
+      'app.mailer', 'App\\Service\\Mailer', 'app.logger', 'app.mailer', 'app.consumer', 'app.base', 'app.inner', 'app.removed',
+    ]);
+    const mailer = source.indexOf("service('app.mailer')") + "service('app.ma".length;
+    expect(symfonyPhpServiceReferenceAt(parser, source, mailer)?.value).toBe('app.mailer');
+    const mailerStart = source.indexOf("service('app.mailer')") + "service('".length;
+    expect(symfonyPhpServiceReferencePrefixAt(parser, source, mailer)).toEqual({
+      prefix: 'app.ma', start: mailerStart, end: mailerStart + 'app.mailer'.length,
+    });
+    const empty = source.indexOf("service('')") + "service('".length;
+    expect(symfonyPhpServiceReferencePrefixAt(parser, source, empty)).toEqual({ prefix: '', start: empty, end: empty });
+    expect(symfonyPhpServiceReferencePrefixAt(parser, source, source.indexOf('Mailer::class') + 3)).toBeUndefined();
+    expect(symfonyPhpServiceReferenceAt(parser, source, source.indexOf("set('app.consumer')") + 7)).toBeUndefined();
+    expect(symfonyPhpServiceReferences(parser, source.replace('ContainerConfigurator $container', 'object $container'))).toEqual([]);
   });
 
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
