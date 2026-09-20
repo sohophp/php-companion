@@ -22,6 +22,7 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Build cold persistent-cache payloads from immutable-lifetime semantic snapshots without redundantly serializing and reparsing every file before the cache writer serializes the completed index.
 - Reuse one Composer project snapshot per workspace root across indexing, candidate queries, Safe Move and watcher deltas; invalidate on Composer metadata changes and coalesce container refreshes within a watcher batch.
 - Reuse validated persistent lexical summaries for cold on-demand symbol scans, reading and semantically parsing only matching PHP files while rebuilding corrupt, changed or incomplete summaries conservatively.
 - Restrict final private promoted-property project scans to constructor named-argument syntax before exact signature validation, including token comments, and use bounded concurrent reads without changing semantic update order.

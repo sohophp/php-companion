@@ -7419,6 +7419,16 @@ class Worker {
     expect(workspace.restore(staleDependencies, uri)).toBe(false);
     expect(workspace.restoreDeclaration(staleDependencies, uri)).toBe(false);
   });
+  it('creates an equivalent persistence snapshot without detaching immutable parsed facts', () => {
+    const uri = 'file:///PersistentSnapshot.php';
+    const source = '<?php namespace Cache; class Before { public function run(string $value): void { echo $value; } }';
+    workspace.update(uri, source);
+    const persistent = workspace.snapshotForPersistence(uri);
+    expect(persistent).toEqual(workspace.snapshot(uri));
+    workspace.update(uri, '<?php namespace Cache; class After {}');
+    expect(persistent).toMatchObject({ declaration: { declarations: [expect.objectContaining({ fqcn: 'Cache\\Before' })] }, implementation: { source } });
+    expect(workspace.workspaceTypes().filter((item) => item.uri === uri).map((item) => item.fqcn)).toEqual(['Cache\\After']);
+  });
   it('loads only the callable selected by focused semantic queries', () => {
     const uri = 'file:///FocusedCached.php';
     const source = `<?php namespace Cache;

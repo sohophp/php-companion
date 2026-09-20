@@ -934,7 +934,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
       current.add(uri); workspace.update(uri, effectiveSource, Boolean(open));
       const facts = analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource); acceptFacts(uri, facts);
-      const snapshot = workspace.snapshot(uri);
+      const snapshot = workspace.snapshotForPersistence(uri);
       return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts) : undefined;
     },
     cache: cacheDirectory ? {

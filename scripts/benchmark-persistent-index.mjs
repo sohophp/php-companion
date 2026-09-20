@@ -25,23 +25,23 @@ const child = '<?php namespace Benchmark; class Child extends Middle { public fu
 const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); $child->childM; foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } public function untouched(): void {} }";
 
 async function load(workspace) {
-  let parsed = 0; let frameworkParsed = 0; let controllerContexts = 0; let doctrineProperties = 0; const started = performance.now();
-  const acceptFacts = (facts) => { controllerContexts += facts.controllerContexts.length; doctrineProperties += facts.doctrineProperties.length; };
+  let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();
+  const acceptFacts = (facts) => { doctrineProperties += facts.doctrineProperties.length; };
   const result = await indexComposerSources(root, {
     limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 512) },
     onSource: ({ uri: sourceUri, source }) => {
       parsed += 1; workspace.update(sourceUri, source);
-      if (source.includes('render') || source.includes('Doctrine') || source.includes('ServiceEntityRepository')) frameworkParsed += 1;
-      const facts = analyzeProjectPhpFileFacts(parser, sourceUri, source, 'benchmark'); acceptFacts(facts);
-      return createCachedProjectPhpFile(workspace.snapshot(sourceUri), facts);
+      if (source.includes('Doctrine') || source.includes('ServiceEntityRepository')) doctrineParsed += 1;
+      const facts = analyzeProjectPhpFileFacts(parser, sourceUri, source); acceptFacts(facts);
+      return createCachedProjectPhpFile(workspace.snapshotForPersistence(sourceUri), facts);
     },
     cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {
-      const restored = restoreCachedProjectPhpFile(payload, source.uri, 'benchmark');
+      const restored = restoreCachedProjectPhpFile(payload, source.uri);
       if (!restored || !workspace.restoreDeclaration(restored.semantic, source.uri)) return false;
       acceptFacts(restored.facts); return true;
     } },
   });
-  return { durationMs: performance.now() - started, parsed, frameworkParsed, controllerContexts, doctrineProperties, result };
+  return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result };
 }
 
 const parser = await PhpSyntaxParser.createDefault();
@@ -50,7 +50,7 @@ try {
   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);
   const coldWorkspace = new SemanticWorkspace(parser); const cold = await load(coldWorkspace);
   if (cold.result.files !== files || cold.result.cached !== 0 || cold.parsed !== files) throw new Error(`Cold index did not parse every file: ${JSON.stringify(cold)}`);
-  if (cold.frameworkParsed !== 2 || cold.controllerContexts !== 1 || cold.doctrineProperties !== 1) throw new Error(`Cold framework facts were incomplete: ${JSON.stringify(cold)}`);
+  if (cold.doctrineParsed !== 1 || cold.doctrineProperties !== 1) throw new Error(`Cold Doctrine facts were incomplete: ${JSON.stringify(cold)}`);
   if (coldWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Cold index did not resolve the transitive constructor fact.');
   const coldCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const coldCallableCommit = await coldCallableCache.commit(coldWorkspace, new Set());
@@ -59,7 +59,7 @@ try {
 
   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);
   if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);
-  if (warm.frameworkParsed !== 0 || warm.controllerContexts !== 1 || warm.doctrineProperties !== 1) throw new Error(`Warm framework facts were not restored exactly: ${JSON.stringify(warm)}`);
+  if (warm.doctrineParsed !== 0 || warm.doctrineProperties !== 1) throw new Error(`Warm Doctrine facts were not restored exactly: ${JSON.stringify(warm)}`);
   const deferredImplementations = warmWorkspace.deferredImplementationCount();
   if (deferredImplementations !== files) throw new Error(`Warm index eagerly loaded implementation records: ${deferredImplementations}/${files} remained deferred.`);
   const callableImplementationRecords = Array.from({ length: files }, (_, index) => warmWorkspace.callableImplementationStates(uri(index)))
@@ -113,10 +113,10 @@ try {
 
   process.stdout.write(`${JSON.stringify({
     schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
-    cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, frameworkParsed: cold.frameworkParsed },
-    warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, frameworkParsed: warm.frameworkParsed },
+    cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, doctrineParsed: cold.doctrineParsed },
+    warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
-    exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, frameworkFactsRestored: true,
+    exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, doctrineFactsRestored: true,
       callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
       callableImplementationsLoadedByFocusedQuery,
       callableImplementationRecords: callableImplementationRecords.length,

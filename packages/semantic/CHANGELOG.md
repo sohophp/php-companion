@@ -1,5 +1,6 @@
 # Changelog
 
+- Expose an immutable-lifetime persistence snapshot path that skips redundant JSON detachment while retaining the detached public snapshot contract.
 - Resolve promoted-property constructor named arguments from the argument-name position so nested argument calls cannot hide cross-file Rename locations.
 - Expose the complete effective concrete public static method set for bounded framework-provider snapshots.
 - Infer callable templates declared on real methods from exact `class-string<T>` arguments, preserve the specialized generic result through direct local assignments, and accept a nullable template return only when its bound refines the complete native nullable type.

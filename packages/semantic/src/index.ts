@@ -1367,18 +1367,24 @@ export class SemanticWorkspace {
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
 
   documentUris(): string[] { return [...this.files.keys()]; }
-  snapshot(uri: string): SemanticSnapshot | undefined {
+  private createSnapshot(uri: string, detached: boolean): SemanticSnapshot | undefined {
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
-    const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri); return file ? {
+    const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri);
+    if (!file) return undefined;
+    const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
+    return {
       schema: 77,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
       },
-      declaration: JSON.parse(JSON.stringify(declarationSnapshot(file))) as SemanticDeclarationSnapshot,
-      implementation: JSON.parse(JSON.stringify(implementationSnapshot(file, this.controlFlowAssignments.get(uri)))) as SemanticImplementationSnapshot,
-    } : undefined;
+      declaration: detached ? JSON.parse(JSON.stringify(declaration)) as SemanticDeclarationSnapshot : declaration,
+      implementation: detached ? JSON.parse(JSON.stringify(implementation)) as SemanticImplementationSnapshot : implementation,
+    };
   }
+  snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
+  /** Cache-writer snapshot whose nested records must be treated as immutable for its lifetime. */
+  snapshotForPersistence(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, false); }
   callableConstructionFacts(uri?: string): CallableConstructionFactDocument[] {
     const documents = uri === undefined ? [...this.callableDependenciesByUri] : [[uri, this.callableDependenciesByUri.get(uri)] as const];
     return documents.flatMap(([documentUri, dependencies]) => {
