@@ -18,6 +18,8 @@ PHP Companion 已有的窄 YAML Definition Provider 除路由 Controller 外，�
 - stdio 回归通过真实独立容器 Provider 契约返回 `app.service`，从同一 YAML 的 `@app.service` 精确跳到注册键；在声明键上请求返回空结果。
 - 真实 Winstar `config/symfony/services.yaml` 中第一个 `@app.current_language_entity` 被解析为范围 `18603..18630`，并唯一对应 `App\\Modules\\LocalLanguages\\ORM\\Entity\\Language` 的显式注册键，注册范围起点 `44070`。
 
+功能提交为 `d5db8aab0d74b6df921be6cf9843fc9008859c61`。私有候选位于 `artifacts/php-companion-alpha-0.4.5-d5db8aab/`；四份 VSIX 内容验证、`SHA256SUMS`、Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL preflight 均通过。Core、Symfony、Open Source Pack、Recommended Pack 的 SHA-256 分别为 `6b54078a1c5e3d0c31778b6d87b7c3e221b0810cbfcaf685feb36f944a3cf25e`、`e5107d5ee19da1c70246ab87676fa2d93da233024321fb28c80f9a2b06a9fc0a`、`6ee5af92e1a80604417bc3e944ce9aeb4f61c7c50c6ecffa42b01ed0a58480e1`、`789deea991c8f41d52841f522d9b7ca1f1220d4903fffca62632517df38683e4`。
+
 ## 边界
 
 本增量只提供 Definition。服务 ID 补全、Find References、Rename、XML/PHP Configurator 中的服务引用导航及 YAML `alias`/`decorates`/`parent` 等未带 `@` 的关系仍分别验收后接入，避免用字符串搜索制造错误结果。
