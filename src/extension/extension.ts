@@ -638,6 +638,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
 
   const phpSelector: vscode.DocumentSelector = [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }];
   const yamlSelector: vscode.DocumentSelector = [{ language: 'yaml', scheme: 'file' }, { language: 'yaml', scheme: 'vscode-remote' }];
+  const xmlSelector: vscode.DocumentSelector = [{ language: 'xml', scheme: 'file' }, { language: 'xml', scheme: 'vscode-remote' }];
   const yamlSymfonyDefinition: vscode.DefinitionProvider = {
     provideDefinition: async (document, position, token) => {
       const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
@@ -659,6 +660,20 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyServiceReferences', {
         textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
         context: { includeDeclaration: context.includeDeclaration },
+      }, token);
+      if (token.isCancellationRequested || document.version !== version) return undefined;
+      return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
+        new vscode.Position(location.range.start.line, location.range.start.character),
+        new vscode.Position(location.range.end.line, location.range.end.character),
+      )));
+    },
+  };
+  const xmlSymfonyDefinition: vscode.DefinitionProvider = {
+    provideDefinition: async (document, position, token) => {
+      const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
+      const version = document.version;
+      const locations = await client.sendRequest<ProtocolLocation[]>('phpCompanion/symfonyServiceDefinition', {
+        textDocument: { uri: document.uri.toString(), version }, position, source: document.getText(),
       }, token);
       if (token.isCancellationRequested || document.version !== version) return undefined;
       return locations.map((location) => new vscode.Location(vscode.Uri.parse(location.uri), new vscode.Range(
@@ -826,6 +841,8 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(yamlSelector, yamlSymfonyReferences),
     vscode.languages.registerCompletionItemProvider(yamlSelector, yamlSymfonyCompletions, '@', '?'),
+    vscode.languages.registerDefinitionProvider(xmlSelector, xmlSymfonyDefinition),
+    vscode.languages.registerReferenceProvider(xmlSelector, yamlSymfonyReferences),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

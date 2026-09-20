@@ -34,7 +34,7 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -1840,11 +1840,36 @@ connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: 
   return [{ uri: target.registrationUri, range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) } }];
 });
 
+connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown;
+}, token): Promise<Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }>> => {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.xml$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
+    || token.isCancellationRequested) return [];
+  const root = rootForUri(uri); const sourcePath = pathForUri(uri);
+  if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  const sourceDocument = TextDocument.create(uri, 'xml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const reference = symfonyXmlServiceReferenceAt(params.source, offset); if (!reference) return [];
+  const workspace = await semanticForRoot(root); const target = uniqueSymfonyServiceRegistration(root, reference.value);
+  if (!target || token.isCancellationRequested) return [];
+  const targetPath = pathForUri(target.registrationUri);
+  const targetSource = (target.registrationUri === uri ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source)
+    ?? documents.get(target.registrationUri)?.getText() ?? workspace.source(target.registrationUri)
+    ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+  if (targetSource === undefined) return [];
+  const languageId = target.registrationUri.endsWith('.php') ? 'php' : target.registrationUri.endsWith('.xml') ? 'xml' : 'yaml';
+  const targetDocument = documents.get(target.registrationUri) ?? TextDocument.create(target.registrationUri, languageId, 0, targetSource);
+  return [{ uri: target.registrationUri, range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) } }];
+});
+
 connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; context?: { includeDeclaration?: unknown };
 }, token): Promise<Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }>> => {
   const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
-  if (typeof uri !== 'string' || !/\.ya?ml$/i.test(uri) || typeof params.source !== 'string'
+  if (typeof uri !== 'string' || !/\.(?:ya?ml|xml)$/i.test(uri) || typeof params.source !== 'string'
     || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
     || token.isCancellationRequested) return [];
@@ -1852,9 +1877,10 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   if (!root || !sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
   await semanticForRoot(root);
   if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
-  const sourceDocument = TextDocument.create(uri, 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const sourceIsXml = /\.xml$/i.test(uri);
+  const sourceDocument = TextDocument.create(uri, sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const reference = symfonyYamlServiceReferenceAt(params.source, offset);
+  const reference = sourceIsXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset);
   const declarationIds = symfonyServiceRegistrations(root)
     .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
     .map((service) => service.id);
@@ -1864,14 +1890,16 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   if (!target) return [];
   const locations: Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }> = [];
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
-    if (!/\.ya?ml$/i.test(configPath)) continue;
+    if (!/\.(?:ya?ml|xml)$/i.test(configPath)) continue;
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
     const configUri = resolve(configPath) === resolve(sourcePath) ? uri : pathToFileURL(configPath).toString();
     const source = configUri === uri ? params.source : frameworkDocumentSnapshots.get(configUri)?.source
       ?? documents.get(configUri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
     if (source === undefined || source.length > indexLimits.maxFileSizeBytes) continue;
-    const document = configUri === uri ? sourceDocument : TextDocument.create(configUri, 'yaml', 0, source);
-    for (const candidate of symfonyYamlServiceReferences(source)) {
+    const configIsXml = /\.xml$/i.test(configPath);
+    const document = configUri === uri ? sourceDocument : TextDocument.create(configUri, configIsXml ? 'xml' : 'yaml', 0, source);
+    const candidates = configIsXml ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source);
+    for (const candidate of candidates) {
       if (candidate.value !== serviceId) continue;
       locations.push({ uri: configUri, range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) } });
     }

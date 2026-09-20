@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -489,6 +489,37 @@ services:
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(false);
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="child.yaml"/></imports></container>').imports)
       .toMatchObject([{ resource: 'child.yaml' }]);
+  });
+
+  it('locates only exact Symfony XML service reference attributes', () => {
+    const source = `<?xml version="1.0"?>
+      <container>
+        <services>
+          <!-- <argument type="service" id="commented.service"/> -->
+          <defaults><bind key="$clock" type="service" id="app.clock"/></defaults>
+          <service id="app.consumer" class="App\\Consumer" parent="app.base" decorates="app.inner">
+            <argument type="service" id="app.transport"/>
+            <argument type="string" id="not.a.service"/>
+            <property name="fallback" type="service_closure" id="app.fallback"/>
+            <factory service="app.factory" method="create"/>
+            <configurator service="app.configurator" method="configure"/>
+          </service>
+          <service id="app.alias" alias="app.mailer"/>
+          <service id="dynamic" alias="%dynamic.service%"/>
+        </services>
+      </container>`;
+    const expected = ['app.clock', 'app.base', 'app.inner', 'app.transport', 'app.fallback',
+      'app.factory', 'app.configurator', 'app.mailer'];
+    const references = symfonyXmlServiceReferences(source);
+    expect(references.map((reference) => reference.value)).toEqual(expected);
+    for (const reference of references) expect(source.slice(reference.start, reference.end)).toBe(reference.value);
+    const transport = source.indexOf('app.transport') + 4;
+    expect(symfonyXmlServiceReferenceAt(source, transport)).toEqual(references[3]);
+    expect(symfonyXmlServiceReferenceAt(source, source.indexOf('app.consumer') + 4)).toBeUndefined();
+    expect(symfonyXmlServiceReferenceAt(source, source.indexOf('not.a.service') + 4)).toBeUndefined();
+    expect(symfonyXmlServiceReferences('<!DOCTYPE foo><container/>')).toEqual([]);
+    expect(symfonyXmlServiceReferences('<container><when env="dev"><services/></when></container>')).toEqual([]);
+    expect(symfonyXmlServiceReferences('<container><services>')).toEqual([]);
   });
 
   it('extracts universal and exact environment-gated bundle registrations', () => {

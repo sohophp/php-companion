@@ -1,3 +1,4 @@
+- Symfony service Definition and References now work from exact conventional XML service attributes and return precise usages across the authoritative YAML/XML configuration graph; Red Hat XML remains the generic XML language and formatting provider.
 - Refresh resource-expanded Symfony services once per Composer root after PHP declaration changes or deletion; implementation-only watcher changes keep the current container snapshot.
 - 提交 `954dfc4` 修复 resource 自动注册类新增、删除或改名后服务补全继续使用旧目录的问题；193 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-954dfc46` 已安装到 WSL。
 - Invalidate authoritative Symfony event snapshots after actual watched PHP source changes or deletion, so listener and dispatch References cannot reuse stale relations when declarations stay unchanged.

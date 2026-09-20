@@ -309,6 +309,30 @@ export async function run(): Promise<void> {
   assert.deepStrictEqual(uniqueYamlServiceReferences().map((location) => servicesDocument.getText(location.range)),
     ['App\\Service\\Mailer', 'App\\Service\\Mailer'],
   'Symfony YAML service References returned an imprecise range');
+  const xmlServicesUri = vscode.Uri.joinPath(workspace.uri, 'config', 'services.xml');
+  const xmlServicesDocument = await vscode.workspace.openTextDocument(xmlServicesUri);
+  assert.strictEqual(xmlServicesDocument.languageId, 'xml', 'Red Hat XML did not own the Symfony XML document');
+  const xmlServicesSource = xmlServicesDocument.getText();
+  const xmlServiceReferenceOffset = xmlServicesSource.lastIndexOf('App\\Service\\Mailer') + 5;
+  let xmlServiceDefinitions: vscode.Location[] = [];
+  await waitForAsync(async () => {
+    xmlServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlServiceReferenceOffset),
+    ) ?? [];
+    return xmlServiceDefinitions.some((location) => location.uri.toString() === servicesUri.toString());
+  }, () => `Symfony XML service Definition did not reach the authoritative YAML registration: ${JSON.stringify(xmlServiceDefinitions)}`, 30_000, 100);
+  let xmlServiceReferences: vscode.Location[] = [];
+  const exactCrossFormatServiceReferences = (): vscode.Location[] => [...new Map(xmlServiceReferences
+    .filter((location) => location.uri.toString() === servicesUri.toString() || location.uri.toString() === xmlServicesUri.toString())
+    .filter((location) => (location.uri.toString() === servicesUri.toString() ? servicesDocument : xmlServicesDocument)
+      .getText(location.range) === 'App\\Service\\Mailer')
+    .map((location) => [`${location.uri}:${location.range.start.line}:${location.range.start.character}:${location.range.end.line}:${location.range.end.character}`, location])).values()];
+  await waitForAsync(async () => {
+    xmlServiceReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlServiceReferenceOffset),
+    ) ?? [];
+    return exactCrossFormatServiceReferences().length === 3;
+  }, () => `Symfony XML service References did not return two YAML and one XML usage: ${JSON.stringify(xmlServiceReferences)}`, 30_000, 100);
   const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
   );

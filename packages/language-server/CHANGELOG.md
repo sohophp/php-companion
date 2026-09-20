@@ -1,3 +1,4 @@
+- Resolve Definition and References for exact Symfony XML service attributes across the authoritative provider's YAML/XML configuration graph.
 - Resolve exact Symfony YAML `@service` references to one authoritative static or compiled registration while leaving YAML syntax, schema and formatting to the configured YAML extension.
 - Find exact Symfony YAML service usages from a reference or authoritative registration, scan only the independent container provider's configuration graph, and reject ambiguous registrations.
 - Complete unique authoritative service ids inside exact Symfony YAML `@service` values, replacing only the id segment and leaving generic YAML completion to the configured YAML extension.

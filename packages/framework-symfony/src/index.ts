@@ -981,6 +981,33 @@ function xmlElementRanges(source: string): XmlElementRange[] | undefined {
   return stack.length ? undefined : elements.sort((left, right) => left.start - right.start);
 }
 
+/** Enumerate exact Symfony XML service-id attributes without interpreting parameters. */
+export function symfonyXmlServiceReferences(source: string): SymfonyServiceIdReference[] {
+  if (/<!DOCTYPE/i.test(source) || XMLValidator.validate(source) !== true) return [];
+  const elements = xmlElementRanges(source); if (!elements || elements.some((element) => element.name === 'when')) return [];
+  const references: SymfonyServiceIdReference[] = [];
+  const append = (element: XmlElementRange, name: string): void => {
+    const attribute = xmlAttribute(element.tag, name, element.start);
+    if (!attribute || !attribute.value || /[%\s]/.test(attribute.value)) return;
+    references.push({ value: attribute.value, start: attribute.start, end: attribute.end });
+  };
+  for (const element of elements) {
+    if (['argument', 'property', 'bind'].includes(element.name)) {
+      const type = xmlAttribute(element.tag, 'type', element.start)?.value;
+      if (type === 'service' || type === 'service_closure') append(element, 'id');
+    } else if (element.name === 'service') {
+      for (const name of ['alias', 'parent', 'decorates']) append(element, name);
+    } else if (element.name === 'factory' || element.name === 'configurator') append(element, 'service');
+  }
+  return references;
+}
+
+/** Locate one exact Symfony XML service reference at the requested source offset. */
+export function symfonyXmlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
+  if (offset < 0 || offset > source.length) return undefined;
+  return symfonyXmlServiceReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+}
+
 function xmlBoolean(value: string | undefined): boolean | undefined {
   return value === 'true' || value === '1' ? true : value === 'false' || value === '0' ? false : undefined;
 }
