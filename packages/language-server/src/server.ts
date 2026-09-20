@@ -1537,7 +1537,9 @@ async function indexWorkspace(generation: number): Promise<void> {
       await indexRoot(await semanticForRoot(root), root, generation, shouldContinue, (state) => {
         if (Date.now() - lastProgress < 250 && state.files !== state.total) return;
         lastProgress = Date.now();
-        progress?.report(Math.min(95, Math.round(state.files / Math.max(1, state.total) * 90)), `${state.phase}: ${state.files}/${state.total} files, ${state.cached} cached`);
+        const ratio = state.files / Math.max(1, state.total);
+        const percentage = state.phase === 'project' ? 10 + ratio * 50 : 60 + ratio * 35;
+        progress?.report(Math.min(95, Math.round(percentage)), `${state.phase}: ${state.files}/${state.total} files, ${state.cached} cached`);
       });
     }
     if (shouldContinue()) progress?.report(100, 'PHP symbol index ready');

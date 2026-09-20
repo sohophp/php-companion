@@ -1,3 +1,4 @@
+- Report dependency indexing against the complete planned file count and use monotonic project/dependency progress bands, avoiding impossible counts and a status indicator pinned at 95% throughout dependency scanning.
 - Merge still-current files from an authoritative full controller-context refresh when newer per-document refreshes overlap it, preserving newer edited contexts without discarding valid updates for other controllers.
 - Reject superseded generic semantic-provider contributions per workspace root and provider identity, preventing a slower extension process from replacing newer third-party method, property or literal-return facts.
 - Reject superseded Symfony semantic-provider results before they can commit or clear container, event or controller-context facts; controller-context refreshes track each changed PHP document independently so concurrent edits in different files remain valid.

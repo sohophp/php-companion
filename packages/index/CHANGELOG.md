@@ -18,3 +18,4 @@ This package uses Changesets for versioning.
 ## 0.1.0-alpha.1
 
 - Initial independently consumable alpha API extracted from the PHP Companion monorepo.
+- Report cumulative dependency progress against the full project-plus-dependency plan instead of reusing the project-only file count.

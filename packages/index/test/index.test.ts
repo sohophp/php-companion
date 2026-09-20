@@ -117,6 +117,24 @@ describe('bounded project source index', () => {
     expect(result).toMatchObject({ files: 2, complete: false, projectComplete: true, warnings: [expect.stringContaining('Dependency index was truncated')] });
     expect(indexed).toEqual([join(root, 'src', 'Project.php'), join(root, 'vendor', 'acme', 'lib', 'src', 'A.php')]);
   });
+  it('reports cumulative dependency progress against the full planned file count', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-progress-total-'));
+    await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+    await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+    await writeFile(join(root, 'src', 'Project.php'), '<?php class Project {}');
+    await writeFile(join(root, 'vendor', 'acme', 'lib', 'src', 'A.php'), '<?php class A {}');
+    await writeFile(join(root, 'vendor', 'acme', 'lib', 'src', 'B.php'), '<?php class B {}');
+    const progress: Array<{ files: number; total: number; phase: string }> = [];
+    await indexComposerSources(root, { onSource: () => undefined, onProgress: (state) => { progress.push(state); } });
+    expect(progress).toEqual([
+      expect.objectContaining({ files: 1, total: 1, phase: 'project' }),
+      expect.objectContaining({ files: 2, total: 3, phase: 'dependencies' }),
+      expect.objectContaining({ files: 3, total: 3, phase: 'dependencies' }),
+    ]);
+    expect(progress.every((state) => state.files <= state.total)).toBe(true);
+  });
   it('signals project completeness before dependency sources are discovered and indexed', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-ready-'));
     await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
