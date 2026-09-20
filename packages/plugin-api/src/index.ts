@@ -40,7 +40,9 @@ function providerDescriptor(value: unknown): value is SemanticProviderDescriptor
     && ((item as Partial<SemanticProviderDescriptor>).requiresContainerServices === undefined
       || typeof (item as Partial<SemanticProviderDescriptor>).requiresContainerServices === 'boolean')
     && ((item as Partial<SemanticProviderDescriptor>).replacesEventRelations === undefined
-      || typeof (item as Partial<SemanticProviderDescriptor>).replacesEventRelations === 'boolean'));
+      || typeof (item as Partial<SemanticProviderDescriptor>).replacesEventRelations === 'boolean')
+    && ((item as Partial<SemanticProviderDescriptor>).replacesControllerContexts === undefined
+      || typeof (item as Partial<SemanticProviderDescriptor>).replacesControllerContexts === 'boolean'));
 }
 
 function ownedProviderId(integrationId: string, providerId: string): boolean {

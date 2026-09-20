@@ -40,6 +40,14 @@ describe('semantic provider contract', () => {
     expect(isSemanticFactsContribution({ ...semanticFacts('symfony.events', '10'), eventSubscriptions: [] })).toBe(false);
   });
 
+  it('accepts complete controller template contexts', () => {
+    const context = { template: 'page.html.twig', complete: true, variables: [{ name: 'user', optional: false,
+      type: { kind: 'named' as const, name: 'App\\User' }, sources: [{ uri: 'file:///Controller.php', start: 20, end: 24, snapshotVersion: '1' }] }],
+      sources: [{ symbol: 'App\\Controller::show', location: { uri: 'file:///Controller.php', start: 4, end: 8, snapshotVersion: '1' } }] };
+    expect(isSemanticFactsContribution(semanticFacts('symfony.controllers', '11', { controllerContexts: [context] }))).toBe(true);
+    expect(isSemanticFactsContribution(semanticFacts('symfony.controllers', '11', { controllerContexts: [{ ...context, sources: [] }] }))).toBe(false);
+  });
+
   it('rejects malformed identities, locations and visibility values', () => {
     expect(isSemanticFactsContribution({ ...semanticFacts('', '1'), providerId: '' })).toBe(false);
     expect(isSemanticFactsContribution({ ...semanticFacts('valid', '1'), methods: [{ ownerFqcn: 'A', name: 'm', uri: 'file:///A.php', start: 3, end: 2 }] })).toBe(false);
@@ -49,7 +57,7 @@ describe('semantic provider contract', () => {
   it('validates bounded executable descriptors', () => {
     expect(isSemanticProviderDescriptor({ providerId: 'vendor.framework', command: '/opt/provider', args: ['--stdio'], timeoutMs: 5000, maxOutputBytes: 4096,
       requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true,
-      requiresContainerServices: true, replacesEventRelations: true })).toBe(true);
+      requiresContainerServices: true, replacesEventRelations: true, replacesControllerContexts: true })).toBe(true);
     expect(isSemanticProviderDescriptor({ providerId: 'symfony!', command: 'provider' })).toBe(false);
     expect(isSemanticProviderDescriptor({ providerId: 'vendor', command: 'provider', timeoutMs: 31_000 })).toBe(false);
   });

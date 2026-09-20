@@ -265,6 +265,9 @@ importers:
       '@php-companion/plugin-api':
         specifier: workspace:*
         version: link:../plugin-api
+      '@php-companion/provider-symfony-controller-contexts':
+        specifier: workspace:*
+        version: link:../provider-symfony-controller-contexts
       '@php-companion/provider-symfony-events':
         specifier: workspace:*
         version: link:../provider-symfony-events
@@ -316,6 +319,31 @@ importers:
         version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
 
   packages/project:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
+
+  packages/provider-symfony-controller-contexts:
+    dependencies:
+      '@php-companion/framework-symfony':
+        specifier: workspace:^
+        version: link:../framework-symfony
+      '@php-companion/interop':
+        specifier: workspace:^
+        version: link:../interop
+      '@php-companion/parser':
+        specifier: workspace:^
+        version: link:../parser
+      '@php-companion/semantic-provider':
+        specifier: workspace:^
+        version: link:../semantic-provider
     devDependencies:
       '@types/node':
         specifier: ^22.15.0
@@ -493,6 +521,10 @@ importers:
         version: 4.1.10(@types/node@22.20.1)(vite@8.1.4(@types/node@22.20.1)(esbuild@0.28.1)(yaml@2.9.0))
 
   packages/semantic-provider:
+    dependencies:
+      '@php-companion/interop':
+        specifier: workspace:^
+        version: link:../interop
     devDependencies:
       typescript:
         specifier: ^5.9.3

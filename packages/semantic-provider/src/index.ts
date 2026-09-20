@@ -1,3 +1,5 @@
+import { isControllerTemplateContext, type ControllerTemplateContext } from '@php-companion/interop';
+
 export const SEMANTIC_FACTS_SCHEMA = 1 as const;
 export const SEMANTIC_PROVIDER_PROTOCOL_VERSION = 1 as const;
 
@@ -12,6 +14,7 @@ export interface SemanticProviderDescriptor {
   replacesContainerServices?: boolean;
   requiresContainerServices?: boolean;
   replacesEventRelations?: boolean;
+  replacesControllerContexts?: boolean;
 }
 
 export interface SemanticProviderDocument {
@@ -106,11 +109,12 @@ export interface SemanticFactsContribution {
   containerConfigurationUris?: readonly string[];
   eventSubscriptions?: readonly ExternalEventSubscriptionFact[];
   eventDispatches?: readonly ExternalEventDispatchFact[];
+  controllerContexts?: readonly ControllerTemplateContext[];
 }
 
 type SemanticFactInput = Partial<Pick<SemanticFactsContribution, 'complete' | 'methods' | 'properties' | 'literalMethodReturns'
   | 'containerServices' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'
-  | 'eventSubscriptions' | 'eventDispatches'>>;
+  | 'eventSubscriptions' | 'eventDispatches' | 'controllerContexts'>>;
 
 export function semanticFacts(providerId: string, generation: string, facts: SemanticFactInput = {}): SemanticFactsContribution {
   return {
@@ -127,6 +131,7 @@ export function semanticFacts(providerId: string, generation: string, facts: Sem
     ...(facts.containerConfigurationUris ? { containerConfigurationUris: facts.containerConfigurationUris } : {}),
     ...(facts.eventSubscriptions ? { eventSubscriptions: facts.eventSubscriptions } : {}),
     ...(facts.eventDispatches ? { eventDispatches: facts.eventDispatches } : {}),
+    ...(facts.controllerContexts ? { controllerContexts: facts.controllerContexts } : {}),
   };
 }
 
@@ -249,8 +254,10 @@ export function isSemanticFactsContribution(value: unknown): value is SemanticFa
   const eventArrays = item.eventSubscriptions === undefined && item.eventDispatches === undefined
     || Array.isArray(item.eventSubscriptions) && item.eventSubscriptions.length <= factLimit && item.eventSubscriptions.every(eventSubscription)
       && Array.isArray(item.eventDispatches) && item.eventDispatches.length <= factLimit && item.eventDispatches.every(eventDispatch);
+  const controllerContexts = item.controllerContexts === undefined || Array.isArray(item.controllerContexts)
+    && item.controllerContexts.length <= 10_000 && item.controllerContexts.every(isControllerTemplateContext);
   return item.methods.every(methodFact) && item.properties.every(propertyFact) && item.literalMethodReturns.every(literalMethodReturnFact)
-    && containerArrays && eventArrays;
+    && containerArrays && eventArrays && controllerContexts;
 }
 
 const providerIdPattern = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
@@ -266,7 +273,8 @@ export function isSemanticProviderDescriptor(value: unknown): value is SemanticP
     && (item.acceptsDocumentSnapshots === undefined || typeof item.acceptsDocumentSnapshots === 'boolean')
     && (item.replacesContainerServices === undefined || typeof item.replacesContainerServices === 'boolean')
     && (item.requiresContainerServices === undefined || typeof item.requiresContainerServices === 'boolean')
-    && (item.replacesEventRelations === undefined || typeof item.replacesEventRelations === 'boolean'));
+    && (item.replacesEventRelations === undefined || typeof item.replacesEventRelations === 'boolean')
+    && (item.replacesControllerContexts === undefined || typeof item.replacesControllerContexts === 'boolean'));
 }
 
 export function isSemanticProviderRequest(value: unknown): value is SemanticProviderRequest {

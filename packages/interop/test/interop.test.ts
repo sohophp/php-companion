@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { INTEROP_PROTOCOL_VERSION, isInteropHello, mergeControllerContexts, negotiateInterop, toTwigMetadataContext, type ControllerTemplateContext, type InteropHello } from '../src/index.js';
+import { INTEROP_PROTOCOL_VERSION, isControllerTemplateContext, isInteropHello, mergeControllerContexts, negotiateInterop, toTwigMetadataContext, type ControllerTemplateContext, type InteropHello } from '../src/index.js';
 
 const hello = (providerId: string, capabilities: InteropHello['capabilities']): InteropHello => ({ protocolVersion: INTEROP_PROTOCOL_VERSION, providerId, projectId: 'workspace-1', snapshotVersion: 'sha256:1', capabilities });
 const context = (variables: ControllerTemplateContext['variables'], symbol: string): ControllerTemplateContext => ({
@@ -8,6 +8,14 @@ const context = (variables: ControllerTemplateContext['variables'], symbol: stri
 });
 
 describe('versioned PHP/template interop contract', () => {
+  it('validates bounded controller contexts', () => {
+    const valid = context([{ name: 'user', type: { kind: 'named', name: 'App\\User' }, optional: false,
+      sources: [{ uri: 'file:///src/Page.php', start: 30, end: 34, snapshotVersion: '1' }] }], 'PageController::show');
+    expect(isControllerTemplateContext(valid)).toBe(true);
+    expect(isControllerTemplateContext({ ...valid, sources: [] })).toBe(false);
+    expect(isControllerTemplateContext({ ...valid, variables: [{ ...valid.variables[0], type: { kind: 'union', types: [] } }] })).toBe(false);
+  });
+
   it('negotiates only shared capabilities for the same project', () => {
     const local = hello('php-companion', ['controller-contexts', 'definitions']);
     expect(negotiateInterop(local, hello('twig-plus', ['controller-contexts']), ['controller-contexts'])).toEqual({ compatible: true, capabilities: ['controller-contexts'] });

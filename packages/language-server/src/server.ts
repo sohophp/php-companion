@@ -455,6 +455,64 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   return false;
 }
 
+function controllerContextMap(contexts: readonly ControllerTemplateContext[], allowedUris: ReadonlySet<string>,
+  sourceFor: (uri: string) => string | undefined): Map<string, ControllerTemplateContext[]> | undefined {
+  const result = new Map<string, ControllerTemplateContext[]>();
+  for (const context of contexts) {
+    const uris = new Set(context.sources.map((source) => source.location.uri));
+    if (uris.size !== 1) return undefined;
+    const uri = [...uris][0]!; const source = sourceFor(uri);
+    if (!allowedUris.has(uri) || source === undefined
+      || context.sources.some((item) => item.location.end > source.length)
+      || context.variables.some((variable) => variable.sources?.some((item) => item.uri !== uri || item.end > source.length))) return undefined;
+    result.set(uri, [...(result.get(uri) ?? []), context]);
+  }
+  return result;
+}
+
+async function runControllerContextProvider(root: string, generation: number, workspace: SemanticWorkspace,
+  shouldContinue: () => boolean, scope?: { uri: string; source: string; snapshotVersion: string }): Promise<boolean> {
+  const authoritative = semanticProviders.filter((provider) => provider.replacesControllerContexts);
+  if (authoritative.length !== 1) {
+    if (authoritative.length > 1) connection.console.warn('Multiple authoritative controller-context providers were registered; using the core Symfony fallback.');
+    return false;
+  }
+  const descriptor = authoritative[0]!; const allTypes = semanticProviderProjectTypes(root, workspace);
+  const projectTypes = scope ? allTypes.projectTypes.filter((type) => type.uri === scope.uri) : allTypes.projectTypes;
+  // A newly created open PHP file is not part of the completed project URI set
+  // yet. Keep the in-process analyzer authoritative for that snapshot instead
+  // of asking an external provider to interpret an empty project type set as a
+  // valid empty result.
+  if (scope && projectTypes.length === 0) return false;
+  const snapshots = scope
+    ? { complete: true, documents: [{ uri: scope.uri, languageId: 'php' as const, source: scope.source, snapshotVersion: scope.snapshotVersion }] }
+    : semanticProviderDocuments(root);
+  if (!allTypes.complete || !snapshots.complete) {
+    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
+  }
+  const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
+    generation: String(generation), phpVersion: targetPhpVersion,
+    ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
+    ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
+  if (!shouldContinue()) return false;
+  if (result.ok && result.contribution.controllerContexts) {
+    const allowedUris = new Set(projectTypes.map((type) => type.uri));
+    const sourceFor = (uri: string): string | undefined => scope?.uri === uri ? scope.source : workspace.source(uri);
+    const contexts = controllerContextMap(result.contribution.controllerContexts, allowedUris, sourceFor);
+    if (contexts) {
+      if (scope) {
+        const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+        byFile.set(scope.uri, contexts.get(scope.uri) ?? []); interopContextsByRoot.set(root, byFile);
+      } else interopContextsByRoot.set(root, contexts);
+      connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative controller contexts for generation ${generation}.`);
+      return true;
+    }
+  }
+  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete controller-context snapshot; using the core Symfony fallback.`
+    : `Semantic provider ${descriptor.providerId} failed (${result.code}); using the core Symfony fallback: ${result.message}`);
+  return false;
+}
+
 async function refreshSymfonyContainerFacts(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, bypassCachePaths = new Set<string>()): Promise<void> {
   if (!await runContainerProvider(root, generation, workspace, shouldContinue) && shouldContinue()) await loadSymfonyServiceFacts(root, workspace, bypassCachePaths);
@@ -479,9 +537,12 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
   if (semanticProviders.some((provider) => provider.replacesEventRelations)) {
     await runEventProvider(root, generation, workspace, shouldContinue);
   } else externalSymfonyEventsByRoot.delete(root);
+  if (semanticProviders.some((provider) => provider.replacesControllerContexts)) {
+    await runControllerContextProvider(root, generation, workspace, shouldContinue);
+  }
   for (const descriptor of semanticProviders) {
     if (!shouldContinue()) return false;
-    if (descriptor.replacesContainerServices || descriptor.replacesEventRelations) continue;
+    if (descriptor.replacesContainerServices || descriptor.replacesEventRelations || descriptor.replacesControllerContexts) continue;
     if ((descriptor.acceptsDocumentSnapshots && !snapshots.complete) || (descriptor.requiresProjectTypes && !types.complete)) {
       connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); continue;
     }
@@ -972,7 +1033,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     const containerReplaced = await refreshSemanticProviders(root, generation, workspace, shouldContinue);
     if (!containerReplaced && shouldContinue()) await loadSymfonyServiceFacts(root, workspace);
     await loadCallableFacts(root, workspace);
-    for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root)) await publishDocumentDiagnostics(document);
+    await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map(publishDocumentDiagnostics));
   }
   connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
   for (const warning of result.warnings) connection.console.warn(warning);
@@ -1026,10 +1087,15 @@ function interopTypes(workspace: SemanticWorkspace, contexts: ControllerTemplate
 
 async function refreshInteropDocument(document: TextDocument): Promise<void> {
   const root = rootForUri(document.uri); if (!root) return;
-  const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-  byFile.set(document.uri, document.getText().includes('render')
-    ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source: document.getText(), snapshotVersion: String(indexingGeneration) }) : []);
-  interopContextsByRoot.set(root, byFile);
+  const workspace = await semanticForRoot(root); const source = document.getText(); const snapshotVersion = String(document.version);
+  const replaced = source.includes('render') && await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
+    { uri: document.uri, source, snapshotVersion });
+  if (!replaced) {
+    const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+    byFile.set(document.uri, source.includes('render')
+      ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source, snapshotVersion }) : []);
+    interopContextsByRoot.set(root, byFile);
+  }
   connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION, projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: [document.uri] });
 }
 
@@ -2067,9 +2133,13 @@ async function applyPendingFiles(): Promise<void> {
       const update = workspace.update(uri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(uri);
       const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(uri); indexedUrisByRoot.set(root, indexed);
       if (update.kind !== 'none') {
-        const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        byFile.set(uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri, source, snapshotVersion: String(indexingGeneration) }) : []);
-        interopContextsByRoot.set(root, byFile);
+        const replaced = source.includes('render') && await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
+          { uri, source, snapshotVersion: String(indexingGeneration) });
+        if (!replaced) {
+          const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+          byFile.set(uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri, source, snapshotVersion: String(indexingGeneration) }) : []);
+          interopContextsByRoot.set(root, byFile);
+        }
       }
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, uri, source, workspace);
     }
@@ -2106,8 +2176,8 @@ documents.onDidOpen(async ({ document }) => {
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
   const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyCompiledContainer(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
-  if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
+  if (update.kind !== 'none') await refreshInteropDocument(document);
 });
 
 documents.onDidChangeContent(async ({ document }) => {
@@ -2116,8 +2186,8 @@ documents.onDidChangeContent(async ({ document }) => {
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
   const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyCompiledContainer(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
-  if (update.kind !== 'none') await refreshInteropDocument(document);
   await publishDocumentDiagnostics(document);
+  if (update.kind !== 'none') await refreshInteropDocument(document);
 });
 
 documents.onDidClose(async ({ document }) => {
@@ -2132,9 +2202,13 @@ documents.onDidClose(async ({ document }) => {
       const reopened = documents.get(document.uri);
       const source = reopened?.getText() ?? diskSource; const update = workspace.update(document.uri, source, Boolean(reopened));
       if (update.kind !== 'none') {
-        const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
-        byFile.set(document.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
-        interopContextsByRoot.set(root, byFile);
+        const replaced = source.includes('render') && await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
+          { uri: document.uri, source, snapshotVersion: String(indexingGeneration) });
+        if (!replaced) {
+          const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
+          byFile.set(document.uri, source.includes('render') ? analyzeSymfonyControllerContexts(await parser(), { uri: document.uri, source, snapshotVersion: String(indexingGeneration) }) : []);
+          interopContextsByRoot.set(root, byFile);
+        }
       }
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, source, workspace);
     } catch { if (!documents.get(document.uri)) { workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); } }

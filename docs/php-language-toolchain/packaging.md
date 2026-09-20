@@ -1,6 +1,6 @@
 # Monorepo 与独立组件发布
 
-状态：二十三个当前组件已通过 K01–K06 的本地发布边界验收；公开 npm 发布仍须在候选版按实际版本重跑并获得单独授权。首发不要求全部包公开发布，但边界从开始设计。
+状态：二十四个当前组件正在执行 K01–K06 的本地发布边界验收；公开 npm 发布仍须在候选版按实际版本重跑并获得单独授权。首发不要求全部包公开发布，但边界从开始设计。
 
 ## 布局与交付边界
 
@@ -20,6 +20,7 @@ TwigPlus 保留原仓库，通过公开契约/包版本协作，不搬入 PHP mo
 | semantic-provider-host | 显式可信可执行文件的一次性进程主机；限制时间/输出并校验响应，不承诺 OS 沙箱 |
 | provider-symfony-services | 输入项目根、PHP parser、完整项目类型目录和可选打开文档快照，返回完整静态容器事实；不执行项目 PHP |
 | provider-symfony-events | 输入项目源码、有效公开方法/继承目录、服务目录和可选打开文档快照，返回完整事件关系及派发候选；不执行项目 PHP |
+| provider-symfony-controller-contexts | 输入有界项目 PHP 源码和可选打开文档快照，返回字面量 Controller render 上下文；不解析 Twig、不执行项目 PHP |
 | semantic | 快照/索引查询接口，可供 CLI 或其他编辑器消费，无需启动 LSP |
 | refactor | 返回带版本编辑计划，由消费者应用，不直接改写工作区 |
 | language-server | npm bin 提供 stdio PHP LS，可由非 VS Code 客户端启动 |

@@ -1,5 +1,7 @@
 # Changelog
 
+- Add reusable bounded runtime validation for controller template contexts and serialized PHP types.
+
 ## Unreleased
 
 - Preserve exact, deduplicated PHP context-key source ranges on merged controller variables for bounded cross-language edits.

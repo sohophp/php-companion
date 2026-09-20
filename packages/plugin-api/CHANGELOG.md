@@ -1,5 +1,7 @@
 # Changelog
 
+- Allow a bundled integration to claim authoritative controller-to-template context ownership.
+
 - Allow bundled integrations to declare dependent container input and authoritative event-relation ownership.
 - Allow bundled integrations to declare bounded document/type inputs and authoritative container-service ownership.
 

@@ -21,6 +21,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@php-companion/interop": "workspace:^"
+  },
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"

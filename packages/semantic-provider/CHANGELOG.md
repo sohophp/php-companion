@@ -1,5 +1,7 @@
 # Changelog
 
+- Add authoritative controller-context ownership and validated controller template context contributions.
+
 ## 0.1.0-alpha.1
 
 - 建立 schema 1 的框架无关语义事实契约，覆盖方法、属性和字面量方法返回类型。

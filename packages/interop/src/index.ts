@@ -37,6 +37,37 @@ export interface InteropInvalidation { protocolVersion: typeof INTEROP_PROTOCOL_
 const CAPABILITIES = new Set<InteropCapability>(['controller-contexts', 'php-symbols', 'definitions', 'invalidation', 'rename-prepare']);
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
+export function isSerializedPhpType(value: unknown, depth = 0): value is SerializedPhpType {
+  if (depth > 32 || !isRecord(value) || typeof value.kind !== 'string') return false;
+  if (value.kind === 'unknown') return value.reason === undefined || typeof value.reason === 'string';
+  if (value.kind === 'primitive') return typeof value.name === 'string'
+    && ['bool', 'int', 'float', 'string', 'array', 'object', 'callable', 'iterable', 'resource', 'null', 'void', 'never', 'mixed'].includes(value.name);
+  if (value.kind === 'named') return typeof value.name === 'string' && value.name.length > 0 && value.name.length <= 8_192;
+  return (value.kind === 'union' || value.kind === 'intersection') && Array.isArray(value.types)
+    && value.types.length > 0 && value.types.length <= 256 && value.types.every((type) => isSerializedPhpType(type, depth + 1));
+}
+
+export function isInteropLocation(value: unknown): value is InteropLocation {
+  if (!isRecord(value) || typeof value.uri !== 'string' || !value.uri || value.uri.length > 16_384
+    || typeof value.snapshotVersion !== 'string' || !value.snapshotVersion || value.snapshotVersion.length > 256
+    || !Number.isSafeInteger(value.start) || !Number.isSafeInteger(value.end)
+    || Number(value.start) < 0 || Number(value.end) < Number(value.start)) return false;
+  return (value.line === undefined || Number.isSafeInteger(value.line) && Number(value.line) >= 0)
+    && (value.character === undefined || Number.isSafeInteger(value.character) && Number(value.character) >= 0);
+}
+
+export function isControllerTemplateContext(value: unknown): value is ControllerTemplateContext {
+  if (!isRecord(value) || typeof value.template !== 'string' || !value.template || value.template.length > 8_192
+    || typeof value.complete !== 'boolean' || !Array.isArray(value.variables) || value.variables.length > 10_000
+    || !Array.isArray(value.sources) || value.sources.length < 1 || value.sources.length > 10_000) return false;
+  return value.variables.every((variable) => isRecord(variable) && typeof variable.name === 'string'
+      && variable.name.length > 0 && variable.name.length <= 8_192 && typeof variable.optional === 'boolean'
+      && isSerializedPhpType(variable.type) && (variable.sources === undefined || Array.isArray(variable.sources)
+        && variable.sources.length <= 10_000 && variable.sources.every(isInteropLocation)))
+    && value.sources.every((source) => isRecord(source) && typeof source.symbol === 'string'
+      && source.symbol.length > 0 && source.symbol.length <= 8_192 && isInteropLocation(source.location));
+}
+
 export function isInteropHello(value: unknown): value is InteropHello {
   if (!isRecord(value) || value.protocolVersion !== INTEROP_PROTOCOL_VERSION || typeof value.providerId !== 'string' || !value.providerId
     || typeof value.projectId !== 'string' || !value.projectId || typeof value.snapshotVersion !== 'string' || !value.snapshotVersion
