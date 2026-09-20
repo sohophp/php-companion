@@ -1,5 +1,7 @@
 # Changelog
 
+- Make the Winstar runtime provider authoritative when enabled and retain the static provider as source enrichment for runtime-confirmed name/path pairs.
+
 - Own the Symfony YAML/XML/PHP Definition, References and completion providers plus YAML/XML service Rename registration; the core-only extension no longer registers Symfony editor features.
 
 - Enable precise service-id Rename from provider-confirmed YAML and XML declarations or references, with one workspace edit spanning YAML, XML and PHP Configurator files.

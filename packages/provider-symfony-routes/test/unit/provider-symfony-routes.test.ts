@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { collectSymfonyStaticRouteFacts } from '../../src/index.js';
+import { collectSymfonyStaticRouteFacts, collectSymfonyStaticRouteSnapshot } from '../../src/index.js';
 
 describe('Symfony static route provider', () => {
   let parser: PhpSyntaxParser; const roots: string[] = [];
@@ -30,10 +30,12 @@ admin:
 `);
     const adminPath = join(root, 'config', 'routes', 'admin.yaml');
     await writeFile(adminPath, 'dashboard: {path: /dashboard, controller: App\\Controller\\HomeController::home}\n');
-    const routes = await collectSymfonyStaticRouteFacts(root, parser, { environment: 'prod', documents: [{
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser, { environment: 'prod', documents: [{
       uri: pathToFileURL(adminPath).toString(), languageId: 'yaml', snapshotVersion: '2',
       source: 'edited: {path: /edited, controller: App\\Controller\\HomeController::home}\n',
     }] });
+    expect(snapshot.complete).toBe(true);
+    const routes = snapshot.routes;
     expect(routes.map((route) => [route.name, route.path])).toEqual([
       ['admin.edited', '/edited'], ['site.home', '/base/home/{id}'],
     ]);
@@ -50,5 +52,20 @@ admin:
     await writeFile(join(root, 'bundle', 'Resources', 'config', 'routes.yaml'), 'home: {path: /bundle}\n');
     expect((await collectSymfonyStaticRouteFacts(root, parser)).map((route) => [route.name, route.path]))
       .toEqual([['demo.home', '/bundle']]);
+  });
+
+  it('marks partial static graphs incomplete instead of publishing authoritative omissions', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-routes-incomplete-')); roots.push(root);
+    await mkdir(join(root, 'config', 'routes'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'one: {resource: routes/one.yaml}\ntwo: {resource: routes/two.yaml}\n');
+    await writeFile(join(root, 'config', 'routes', 'one.yaml'), 'one: {path: /one}\n');
+    await writeFile(join(root, 'config', 'routes', 'two.yaml'), 'two: {path: /two}\n');
+    const bounded = await collectSymfonyStaticRouteSnapshot(root, parser, { maxEntries: 2 });
+    expect(bounded.complete).toBe(false);
+    const malformed = await collectSymfonyStaticRouteSnapshot(root, parser, { documents: [{
+      uri: pathToFileURL(join(root, 'config', 'routes', 'one.yaml')).toString(), languageId: 'yaml', snapshotVersion: '3', source: 'broken: [',
+    }] });
+    expect(malformed.complete).toBe(false);
   });
 });

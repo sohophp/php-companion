@@ -63,7 +63,7 @@ export class SymfonyIntegration {
         args: [this.staticProviderPath, '--parser-core-wasm', this.parserCoreWasmPath, '--php-wasm', this.phpWasmPath],
         timeoutMs: 30_000,
         maxOutputBytes: 16 * 1024 * 1024,
-        replacesStaticRoutes: true,
+        replacesStaticRoutes: !this.winstarRoutesEnabled,
         cacheUntilInvalidated: true,
       }, ...(this.winstarRoutesEnabled ? [{
         providerId: WINSTAR_ROUTE_PROVIDER_ID,
@@ -71,6 +71,7 @@ export class SymfonyIntegration {
         args: [this.winstarProviderPath],
         timeoutMs: 30_000,
         maxOutputBytes: 16 * 1024 * 1024,
+        replacesStaticRoutes: true,
       }] : [])],
     };
     if (this.registration?.update) {

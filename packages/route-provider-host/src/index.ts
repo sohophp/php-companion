@@ -23,7 +23,7 @@ export async function runRouteProvider(descriptor: RouteProviderDescriptor, cont
       if (!isRouteProviderResponse(response) || response.id !== request.id) return finish({ ok: false, code: 'protocol', message: 'Provider returned an invalid or mismatched response.' });
       if (response.error) return finish({ ok: false, code: 'provider', message: `${response.error.code}: ${response.error.message}` });
       const contribution = response.result!;
-      if (contribution.providerId !== descriptor.providerId || contribution.generation !== context.generation || !contribution.complete) return finish({ ok: false, code: 'protocol', message: 'Provider contribution identity, generation, or completeness did not match the request.' });
+      if (contribution.providerId !== descriptor.providerId || contribution.generation !== context.generation) return finish({ ok: false, code: 'protocol', message: 'Provider contribution identity or generation did not match the request.' });
       finish({ ok: true, contribution });
     });
     child.stdin.end(`${JSON.stringify(request)}\n`);

@@ -672,3 +672,4 @@
 [0.4.3]: https://github.com/sohophp/php-companion/compare/v0.4.2...v0.4.3
 [0.4.4]: https://github.com/sohophp/php-companion/compare/v0.4.3...v0.4.4
 [0.4.5]: https://github.com/sohophp/php-companion/compare/v0.4.4...v0.4.5
+- Route completion now follows a complete authoritative runtime catalog when Winstar routing is enabled; static facts only add exact source locations to matching runtime routes, and incomplete authoritative snapshots no longer produce partial navigation results.

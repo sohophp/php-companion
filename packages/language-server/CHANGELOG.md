@@ -358,3 +358,4 @@ This package uses Changesets for versioning.
 - Include named Attribute routes only when their PHP file is explicitly imported by YAML routing configuration.
 - Traverse imported Attribute directories recursively with stable order, realpath cycle detection and existing resource budgets.
 - Apply route import exclusions relative to the declaring YAML file before traversing matching files or directory subtrees.
+- Reject incomplete authoritative route snapshots, and merge source locations from partial static providers only into a complete runtime-confirmed route catalog with the same name and path.

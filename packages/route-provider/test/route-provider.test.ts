@@ -5,9 +5,12 @@ describe('route provider contract', () => {
   it('accepts a complete sourced route snapshot', () => {
     expect(isRouteFactsContribution(routeFacts('vendor.routes', '7', [{ name: 'admin.login', path: '/admin/login', uri: 'file:///routes.yaml', start: 2, end: 13,
       controller: { className: 'App\\LoginController', method: 'login', uri: 'file:///routes.yaml', classStart: 30, classEnd: 49, methodStart: 51, methodEnd: 56 } }]))).toBe(true);
+    expect(routeFacts('vendor.routes', '8', [], false)).toMatchObject({ complete: false, routes: [] });
+    expect(isRouteFactsContribution(routeFacts('runtime.routes', '9', [{ name: 'runtime.only', path: '/runtime' }]))).toBe(true);
   });
   it('rejects malformed facts and unbounded descriptors', () => {
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 3, end: 2 }] })).toBe(false);
+    expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r' }] })).toBe(false);
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
       controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18 } }] })).toBe(false);
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,

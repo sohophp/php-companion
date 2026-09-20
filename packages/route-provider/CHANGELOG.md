@@ -1,5 +1,7 @@
 # Changelog
 
+- Allow complete runtime route catalogs to omit an unprovable source location while validating sourced facts as an all-or-none URI/range tuple.
+
 - Add explicit `cacheUntilInvalidated` descriptor metadata for complete trusted snapshots; uncached dynamic providers retain per-query freshness.
 
 - Add bounded PHP/YAML document snapshots and explicit static-route replacement ownership for standalone framework integrations.

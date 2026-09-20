@@ -34,7 +34,7 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -108,7 +108,7 @@ let configuredRouteProviders: RouteProviderDescriptor[] = [];
 let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
 let routeProviderCacheRevision = 0;
-const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; routes: readonly RouteFact[] }>>();
+const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[] }>>();
 let frameworkDocumentSnapshots = new Map<string, SemanticProviderDocument>();
 let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
@@ -2510,20 +2510,24 @@ function routeProviderDocuments(root: string): { complete: boolean; documents: R
 }
 
 async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
-  const routes: RouteFact[] = [];
+  const contributions: Array<{ descriptor: RouteProviderDescriptor; complete: boolean; routes: readonly RouteFact[] }> = [];
   const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
   const snapshots = routeProviderDocuments(root);
   const authoritative = routeProviders.filter((descriptor) => descriptor.replacesStaticRoutes);
-  if (authoritative.length > 1) connection.console.warn('Static Symfony routes are unavailable because multiple authoritative route providers are configured.');
+  if (authoritative.length > 1) {
+    connection.console.warn('Static Symfony routes are unavailable because multiple authoritative route providers are configured.');
+    return [];
+  }
   const active = routeProviders.filter((descriptor) => !descriptor.replacesStaticRoutes || (authoritative.length === 1 && descriptor === authoritative[0]));
   for (const descriptor of active) {
     if (cancelled()) return [];
     const cacheKey = descriptor.providerId.toLowerCase();
     const cacheSignature = JSON.stringify({ descriptor, environment });
     const cached = descriptor.cacheUntilInvalidated ? routeProviderCacheByRoot.get(root)?.get(cacheKey) : undefined;
-    if (cached?.signature === cacheSignature) { routes.push(...cached.routes); continue; }
+    if (cached?.signature === cacheSignature) { contributions.push({ descriptor, complete: cached.complete, routes: cached.routes }); continue; }
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
-      connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`); continue;
+      connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`);
+      return [];
     }
     const cacheRevision = routeProviderCacheRevision;
     const generation = String(++routeProviderGeneration);
@@ -2533,18 +2537,38 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     });
     if (cancelled()) return [];
     if (result.ok) {
-      routes.push(...result.contribution.routes);
+      contributions.push({ descriptor, complete: result.contribution.complete, routes: result.contribution.routes });
       if (descriptor.cacheUntilInvalidated && cacheRevision === routeProviderCacheRevision) {
-        const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; routes: readonly RouteFact[] }>();
-        rootCache.set(cacheKey, { signature: cacheSignature, routes: [...result.contribution.routes] }); routeProviderCacheByRoot.set(root, rootCache);
+        const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[] }>();
+        rootCache.set(cacheKey, { signature: cacheSignature, complete: result.contribution.complete, routes: [...result.contribution.routes] }); routeProviderCacheByRoot.set(root, rootCache);
       }
+    } else {
+      connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
+      if (descriptor.replacesStaticRoutes || authoritative.length === 0) return [];
     }
-    else connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
   }
-  return routes;
+  const owner = authoritative[0] && contributions.find((entry) => entry.descriptor === authoritative[0]);
+  if (authoritative.length === 1) {
+    if (!owner?.complete) {
+      connection.console.warn(`Authoritative route provider ${authoritative[0]!.providerId} returned an incomplete snapshot; ignored this query.`);
+      return [];
+    }
+    const supplemental = contributions.filter((entry) => entry !== owner).flatMap((entry) => entry.routes);
+    return owner.routes.map((route) => {
+      if (route.uri !== undefined) return route;
+      const sources = supplemental.filter((candidate) => candidate.name === route.name && candidate.path === route.path && candidate.uri !== undefined);
+      return sources.length === 1 ? { ...route, uri: sources[0]!.uri, start: sources[0]!.start, end: sources[0]!.end,
+        ...(sources[0]!.controller ? { controller: sources[0]!.controller } : {}) } : route;
+    });
+  }
+  if (contributions.some((entry) => !entry.complete)) {
+    connection.console.warn('Symfony routes are unavailable because a route provider returned an incomplete snapshot.');
+    return [];
+  }
+  return contributions.flatMap((entry) => entry.routes);
 }
 
-async function availableSymfonyRoutes(root: string, cancelled: () => boolean): Promise<SymfonyRouteFact[]> {
+async function availableSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
   const routes = await providedSymfonyRoutes(root, cancelled);
   if (cancelled()) return [];
   const counts = new Map<string, number>();
@@ -2723,7 +2747,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     const version = document.version; const name = document.getText().slice(routeCall.start, routeCall.end);
     const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
     if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== version) return [];
-    const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
+    const route = routes.find((candidate) => candidate.name === name); if (!route?.uri || route.start === undefined || route.end === undefined) return [];
     const openTarget = documents.get(route.uri); let source = openTarget?.getText() ?? workspace.source(route.uri);
     if (source === undefined) { const path = pathForUri(route.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }
     const languageId = route.uri.endsWith('.php') ? 'php' : 'yaml';
@@ -2834,7 +2858,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const root = rootForUri(document.uri); if (!root) return [];
     const name = document.getText().slice(routeCall.start, routeCall.end);
     const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-    const declaration = routes.find((candidate) => candidate.name === name); if (!declaration) return [];
+    const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
     const ready = await scanNamedCandidates(workspace, root, new Set([name.toLowerCase()]), () => token.isCancellationRequested);
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
@@ -2857,7 +2881,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
     if (externalSymfonyRoutes(document.uri)) return [];
-    const raw = context.includeDeclaration ? [...uses, declaration] : uses;
+    const declaration = route.uri !== undefined && route.start !== undefined && route.end !== undefined
+      ? { uri: route.uri, start: route.start, end: route.end } : undefined;
+    const raw = context.includeDeclaration && declaration ? [...uses, declaration] : uses;
     const locations = await Promise.all(raw.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);
       if (source === undefined) { const path = pathForUri(location.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }

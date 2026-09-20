@@ -95,7 +95,7 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
       const existing = messages.find(predicate);
       if (existing) return Promise.resolve(existing);
       return new Promise((resolvePromise, reject) => {
-        const timer = setTimeout(() => reject(new Error('Timed out waiting for language server response.')), timeoutMs);
+        const timer = setTimeout(() => reject(new Error(`Timed out waiting for language server response; recent messages: ${JSON.stringify(messages.slice(-5))}`)), timeoutMs);
         waiters.push({ predicate, resolve: (message) => { clearTimeout(timer); resolvePromise(message); } });
       });
     },
@@ -1434,7 +1434,9 @@ class Extra { #[\Symfony\Component\Routing\Attribute\Route('/extra', name: 'extr
 class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public function indexAction() {} }`);
       await writeFile(join(root, 'config', 'routes.yaml'), "controllers:\n  resource: {path: ../mapped, namespace: App}\n  type: attribute\n  name_prefix: admin.\n");
       expect((await query(42, offset)).map((item) => item.label)).toEqual([]);
-      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' }, autoload: { classmap: ['./Controller.php'] } }));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' }, autoload: {
+        'psr-4': { 'Vendor\\Shared\\': 'bundle/', 'Vendor\\Dev\\': 'dev-bundle/' }, classmap: ['./Controller.php'],
+      } }));
       expect((await query(43, offset)).map((item) => item.label)).toEqual(['admin.app_nested_valid_index']);
       await writeFile(join(root, 'config', 'routes.yaml'), 'admin:\n  resource: routes/admin.yaml\n  name_prefix: admin.\n');
 
@@ -4365,7 +4367,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
 } final class DynamicController { public function home(): void {} } }`;
       const consumerPath = join(root, 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
       const declarationPath = join(root, 'runtime-routes.txt'); const declarationUri = pathToFileURL(declarationPath).toString();
-      const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs');
+      const statePath = join(root, 'route-state.json'); const provider = join(root, 'route-provider.mjs'); const staticProvider = join(root, 'static-route-provider.mjs');
       await mkdir(join(root, 'config'), { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
       await writeFile(join(root, 'config', 'routes.yaml'), 'dynamic.static: {path: /static}\n');
@@ -4376,11 +4378,15 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         className: 'App\\DynamicController', method: 'home', classStart: controllerStart,
         classEnd: controllerStart + 'App\\DynamicController'.length, methodStart, methodEnd: methodStart + 4,
       } }));
-      await writeFile(provider, `import {readFile} from 'node:fs/promises'; import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); const uri=pathToFileURL(${JSON.stringify(declarationPath)}).toString(); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'winstar.routes',generation:request.params.generation,complete:true,routes:[{...route,uri,start:0,end:route.name.length,...(route.controller?{controller:{...route.controller,uri}}:{})}]}}));`);
+      await writeFile(provider, `import {readFile} from 'node:fs/promises'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'winstar.routes',generation:request.params.generation,complete:route.complete!==false,routes:[{name:route.name,path:route.path}]}}));`);
+      await writeFile(staticProvider, `import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const uri=pathToFileURL(${JSON.stringify(declarationPath)}).toString(); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'static.routes',generation:request.params.generation,complete:false,routes:[{name:'dynamic.home',path:'/dynamic',uri,start:0,end:12,controller:{className:'App\\\\DynamicController',method:'home',uri,classStart:${controllerStart},classEnd:${controllerStart + 'App\\DynamicController'.length},methodStart:${methodStart},methodEnd:${methodStart + 4}}}]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { routeProviders: [{ providerId: 'winstar.routes', command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true }] },
+        initializationOptions: { routeProviders: [
+          { providerId: 'winstar.routes', command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true },
+          { providerId: 'static.routes', command: process.execPath, args: [staticProvider], timeoutMs: 1000 },
+        ] },
       } }));
       await output.waitFor((message) => message.id === 114); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
@@ -4406,6 +4412,11 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
       const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;
       expect(refreshed.map((item) => item.label)).toEqual(['dynamic.changed']);
+      await writeFile(statePath, JSON.stringify({ name: 'dynamic.partial', path: '/partial', complete: false }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1171, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
+      expect((await output.waitFor((message) => message.id === 1171)).result).toEqual([]);
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('returned an incomplete snapshot'));
       await writeFile(statePath, '{broken');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
       const unavailable = (await output.waitFor((message) => message.id === 118)).result as Array<{ label: string }>;

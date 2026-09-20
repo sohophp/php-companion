@@ -78,7 +78,7 @@ export async function collectWinstarModuleRouteFacts(root: string, runtimeRoutes
       const declaration = declarations[0]!;
       result.push({ name, path: route.path, uri: declaration.uri, start: declaration.start, end: declaration.end,
         ...(declaration.controller ? { controller: declaration.controller } : {}) });
-    }
+    } else result.push({ name, path: route.path });
   }
   return result;
 }

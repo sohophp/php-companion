@@ -8,7 +8,7 @@ describe('Winstar module route provider', () => {
     const direct = join(routes, 'routes.yaml'); const defaults = join(routes, 'admin_defaults.yaml');
     await writeFile(direct, "- name: 'admin.login'\n  path: /login\n  defaults: {_controller: 'App\\Controller\\LoginController::login'}\n"); await writeFile(defaults, 'admin_defaults:\n  - name: CompanyPage\n');
     const facts = await collectWinstarModuleRouteFacts(root, { 'admin.login': { path: '/control/login' }, 'admin.CompanyPage.edit': { path: '/control/CompanyPage/edit/{id}' }, disabled: { path: '/disabled' } });
-    expect(facts.map(({ name, path }) => [name, path])).toEqual([['admin.CompanyPage.edit', '/control/CompanyPage/edit/{id}'], ['admin.login', '/control/login']]);
+    expect(facts.map(({ name, path }) => [name, path])).toEqual([['admin.CompanyPage.edit', '/control/CompanyPage/edit/{id}'], ['admin.login', '/control/login'], ['disabled', '/disabled']]);
     expect(facts[0]).toMatchObject({ uri: pathToFileURL(defaults).toString(), start: 26, end: 37 });
     expect(facts[1]).toMatchObject({ uri: pathToFileURL(direct).toString(), start: 9, end: 20, controller: {
       className: 'App\\Controller\\LoginController', method: 'login', uri: pathToFileURL(direct).toString(),
@@ -17,13 +17,13 @@ describe('Winstar module route provider', () => {
     expect(source.slice(controller.classStart, controller.classEnd)).toBe('App\\Controller\\LoginController');
     expect(source.slice(controller.methodStart, controller.methodEnd)).toBe('login');
   });
-  it('rejects malformed YAML files instead of publishing partial names', async () => {
+  it('keeps runtime names available without inventing a source for malformed YAML', async () => {
     const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root); const routes = join(root, 'src', 'Modules', 'Broken', 'Routes'); await mkdir(routes, { recursive: true });
-    await writeFile(join(routes, 'routes.yaml'), '- name: [broken\n'); expect(await collectWinstarModuleRouteFacts(root, { broken: { path: '/' } })).toEqual([]);
+    await writeFile(join(routes, 'routes.yaml'), '- name: [broken\n'); expect(await collectWinstarModuleRouteFacts(root, { broken: { path: '/' } })).toEqual([{ name: 'broken', path: '/' }]);
   });
   it('keeps duplicate possible declarations ambiguous even when runtime has one name', async () => {
     const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root);
     for (const module of ['One', 'Two']) { const routes = join(root, 'src', 'Modules', module, 'Routes'); await mkdir(routes, { recursive: true }); await writeFile(join(routes, 'routes.yaml'), '- name: duplicate\n'); }
-    expect(await collectWinstarModuleRouteFacts(root, { duplicate: { path: '/' } })).toEqual([]);
+    expect(await collectWinstarModuleRouteFacts(root, { duplicate: { path: '/' } })).toEqual([{ name: 'duplicate', path: '/' }]);
   });
 });

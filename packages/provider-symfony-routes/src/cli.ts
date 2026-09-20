@@ -2,7 +2,7 @@
 import process from 'node:process';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { isRouteProviderRequest, routeFacts, ROUTE_PROVIDER_PROTOCOL_VERSION, type RouteProviderResponse } from '@php-companion/route-provider';
-import { collectSymfonyStaticRouteFacts } from './index.js';
+import { collectSymfonyStaticRouteSnapshot } from './index.js';
 
 function option(name: string): string | undefined { const index = process.argv.indexOf(name); return index >= 0 ? process.argv[index + 1] : undefined; }
 
@@ -16,12 +16,12 @@ async function main(): Promise<void> {
     const coreWasmPath = option('--parser-core-wasm'); const phpWasmPath = option('--php-wasm');
     if (!coreWasmPath || !phpWasmPath) throw new Error('Both --parser-core-wasm and --php-wasm are required.');
     const parser = await PhpSyntaxParser.create({ coreWasmPath, phpWasmPath });
-    const routes = await collectSymfonyStaticRouteFacts(request.params.rootPath, parser, {
+    const snapshot = await collectSymfonyStaticRouteSnapshot(request.params.rootPath, parser, {
       ...(request.params.environment ? { environment: request.params.environment } : {}),
       ...(request.params.documents ? { documents: request.params.documents } : {}),
     });
     response = { protocolVersion: ROUTE_PROVIDER_PROTOCOL_VERSION, id: request.id,
-      result: routeFacts(request.id.split(':')[0]!, request.params.generation, routes) };
+      result: routeFacts(request.id.split(':')[0]!, request.params.generation, snapshot.routes, snapshot.complete) };
   } catch (error) {
     response = { protocolVersion: ROUTE_PROVIDER_PROTOCOL_VERSION, id: request.id,
       error: { code: 'symfony-static-routes', message: error instanceof Error ? error.message : String(error) } };

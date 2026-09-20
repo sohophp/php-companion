@@ -11,9 +11,9 @@ describe('route provider process host', () => {
     const path = await script(`let input=''; for await (const part of process.stdin) input+=part; const r=JSON.parse(input); const name=r.params.documents?.[0]?.languageId==='yaml'?'home':'missing'; process.stdout.write(JSON.stringify({protocolVersion:1,id:r.id,result:{schema:1,providerId:'vendor.routes',generation:r.params.generation,complete:true,routes:[{name,path:'/',uri:'file:///routes.yaml',start:0,end:name.length}]}}));`);
     await expect(runRouteProvider({ providerId: 'vendor.routes', command: process.execPath, args: [path] }, context)).resolves.toMatchObject({ ok: true, contribution: { routes: [{ name: 'home' }] } });
   });
-  it('rejects incomplete snapshots and enforces limits', async () => {
+  it('preserves incomplete snapshots for conservative consumers and enforces limits', async () => {
     const incomplete = await script(`let input=''; for await (const part of process.stdin) input+=part; const r=JSON.parse(input); process.stdout.write(JSON.stringify({protocolVersion:1,id:r.id,result:{schema:1,providerId:'vendor.routes',generation:r.params.generation,complete:false,routes:[]}}));`);
-    await expect(runRouteProvider({ providerId: 'vendor.routes', command: process.execPath, args: [incomplete] }, context)).resolves.toMatchObject({ ok: false, code: 'protocol' });
+    await expect(runRouteProvider({ providerId: 'vendor.routes', command: process.execPath, args: [incomplete] }, context)).resolves.toMatchObject({ ok: true, contribution: { complete: false, routes: [] } });
     const slow = await script(`setTimeout(()=>{}, 10000);`); await expect(runRouteProvider({ providerId: 'vendor.routes', command: process.execPath, args: [slow], timeoutMs: 100 }, context)).resolves.toMatchObject({ ok: false, code: 'timeout' });
   });
 });

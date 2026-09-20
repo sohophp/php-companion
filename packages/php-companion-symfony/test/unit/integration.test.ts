@@ -20,8 +20,8 @@ describe('SymfonyIntegration', () => {
       { providerId: CONTROLLER_CONTEXT_PROVIDER_ID, command: '/node', args: ['/extension/controllers.js', '--parser-core-wasm', '/extension/core.wasm', '--php-wasm', '/extension/php.wasm'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024,
         requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }],
       routeProviders: [
-        { providerId: STATIC_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/static.js', '--parser-core-wasm', '/extension/core.wasm', '--php-wasm', '/extension/php.wasm'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024, replacesStaticRoutes: true, cacheUntilInvalidated: true },
-        { providerId: WINSTAR_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/winstar.js'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024 },
+        { providerId: STATIC_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/static.js', '--parser-core-wasm', '/extension/core.wasm', '--php-wasm', '/extension/php.wasm'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024, replacesStaticRoutes: false, cacheUntilInvalidated: true },
+        { providerId: WINSTAR_ROUTE_PROVIDER_ID, command: '/node', args: ['/extension/winstar.js'], timeoutMs: 30_000, maxOutputBytes: 16 * 1024 * 1024, replacesStaticRoutes: true },
       ],
     });
     expect(integration.status()).toEqual({ apiVersion: 1, serviceProviderRegistered: true, eventProviderRegistered: true,
