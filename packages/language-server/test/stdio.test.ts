@@ -34,6 +34,21 @@ const symfonyServiceProviderDescriptor = {
   replacesContainerServices: true,
 } as const;
 
+const symfonyEventProviderDescriptor = {
+  providerId: 'php-companion.symfony.events',
+  command: process.execPath,
+  args: [
+    resolve('../provider-symfony-events/dist/cli.js'),
+    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
+    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
+  ],
+  timeoutMs: 10_000,
+  requiresProjectTypes: true,
+  requiresContainerServices: true,
+  acceptsDocumentSnapshots: true,
+  replacesEventRelations: true,
+} as const;
+
 function messagesFrom(process: ChildProcessWithoutNullStreams): {
   messages: object[];
   waitFor: (predicate: (message: any) => boolean, timeoutMs?: number) => Promise<any>;
@@ -220,7 +235,10 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 233, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri, initializationOptions: {
           indexingMode: 'onDemand',
-          bundledSemanticProviders: [{ ...symfonyServiceProviderDescriptor, acceptsDocumentSnapshots: false }],
+          bundledSemanticProviders: [
+            { ...symfonyServiceProviderDescriptor, acceptsDocumentSnapshots: false },
+            { ...symfonyEventProviderDescriptor, acceptsDocumentSnapshots: false },
+          ],
         },
       } }));
       await output.waitFor((message) => message.id === 233);
@@ -4442,6 +4460,15 @@ namespace App {
       const result = (await output.waitFor((message) => message.id === 662)).result;
       expect(result).toContainEqual({ uri, range: { start: lspPosition(source, listenerStart), end: lspPosition(source, listenerStart + 7) } });
       expect(result).toContainEqual({ uri, range: { start: lspPosition(source, dispatchedStart), end: lspPosition(source, dispatchedStart + 16) } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [
+        { providerId: 'php-companion.symfony.services', command: process.execPath, args: [serviceProvider], timeoutMs: 5000,
+          requiresProjectTypes: true, replacesContainerServices: true },
+      ] } }));
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 663, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, listenerStart + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 663)).result).toEqual([]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

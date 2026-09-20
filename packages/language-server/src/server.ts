@@ -33,7 +33,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, indexComposerSources, type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces, type Psr4Mapping } from '@php-companion/project';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyEventDispatchFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyKernelRouteImports, analyzeSymfonyRouteAttributes, analyzeSymfonyRoutePhp, analyzeSymfonyRouteYaml, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, type SymfonyRoutePathPrefix, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyBundleRegistrationFact, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -70,7 +70,6 @@ const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
 const symfonyContainerRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
-const symfonyEventDispatchesByUri = new Map<string, { source: string; facts: SymfonyEventDispatchFact[] }>();
 const externalSymfonyEventsByRoot = new Map<string, { providerId: string; inputSignature: string;
   subscriptions: ExternalEventSubscriptionFact[]; dispatches: ExternalEventDispatchFact[] }>();
 const callableFactCachesByRoot = new Map<string, CallableFactCache>();
@@ -430,7 +429,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const authoritative = semanticProviders.filter((provider) => provider.replacesEventRelations);
   if (authoritative.length !== 1) {
     externalSymfonyEventsByRoot.delete(root);
-    if (authoritative.length > 1) connection.console.warn('Multiple authoritative event providers were registered; using the core Symfony fallback.');
+    if (authoritative.length > 1) connection.console.warn('Multiple authoritative event providers were registered; Symfony event relations are unavailable.');
     return false;
   }
   const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root);
@@ -439,7 +438,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const types = semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
   if (!snapshots.complete || !types.complete) {
     externalSymfonyEventsByRoot.delete(root);
-    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
+    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed; Symfony event relations are unavailable.`); return false;
   }
   const inputSignature = eventProviderInputSignature(generation, snapshots.documents, types.projectTypes, services);
   const current = externalSymfonyEventsByRoot.get(root);
@@ -456,8 +455,8 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
     connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative event generation ${generation}.`); return true;
   }
   externalSymfonyEventsByRoot.delete(root);
-  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete event snapshot; using the core Symfony fallback.`
-    : `Semantic provider ${descriptor.providerId} failed (${result.code}); using the core Symfony fallback: ${result.message}`);
+  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete event snapshot; Symfony event relations are unavailable.`
+    : `Semantic provider ${descriptor.providerId} failed (${result.code}); Symfony event relations are unavailable: ${result.message}`);
   return false;
 }
 
@@ -535,9 +534,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
   const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
   await runContainerProvider(root, generation, workspace, shouldContinue);
   if (!shouldContinue()) return;
-  if (semanticProviders.some((provider) => provider.replacesEventRelations)) {
-    await runEventProvider(root, generation, workspace, shouldContinue);
-  } else externalSymfonyEventsByRoot.delete(root);
+  await runEventProvider(root, generation, workspace, shouldContinue);
   if (semanticProviders.some((provider) => provider.replacesControllerContexts)) {
     await runControllerContextProvider(root, generation, workspace, shouldContinue);
   }
@@ -791,10 +788,6 @@ function symfonyServiceCatalog(root: string | undefined): SymfonyServiceFact[] {
   if (!root) return [];
   const entries = [...(symfonyServiceCatalogByRoot.get(root)?.values() ?? [])].flat();
   return [...new Map(entries.map((service) => [service.id, service])).values()].sort((left, right) => left.id.localeCompare(right.id));
-}
-function symfonyEventDispatches(parser: PhpSyntaxParser, uri: string, source: string): SymfonyEventDispatchFact[] {
-  const cached = symfonyEventDispatchesByUri.get(uri); if (cached?.source === source) return cached.facts;
-  const facts = analyzeSymfonyEventDispatches(parser, uri, source); symfonyEventDispatchesByUri.set(uri, { source, facts }); return facts;
 }
 function symfonyAutowireAt(document: TextDocument, offset: number, workspace: SemanticWorkspace): SymfonyAutowireResolution | undefined {
   const root = rootForUri(document.uri); if (!root || !projectCompleteRoots.has(root)) return undefined;
@@ -2700,69 +2693,13 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         return effective?.fqcn.toLowerCase() === member.fqcn.toLowerCase()
           ? [{ uri: controller.uri, start: controller.methodStart, end: controller.methodEnd }] : [];
       }) : [];
-    if (root && semanticProviders.some((provider) => provider.replacesEventRelations)) {
+    if (root) {
       await runEventProvider(root, indexingGeneration, workspace, () => !token.isCancellationRequested, true);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }
     const externalEvents = root ? externalSymfonyEventsByRoot.get(root) : undefined;
-    const eventTarget = type ?? (member?.kind === 'method' ? member : undefined);
-    const eventSource = eventTarget ? workspace.source(eventTarget.uri) : undefined;
-    const syntaxParser = eventTarget && eventSource && !externalEvents ? await parser() : undefined;
-    const subscriberInterface = 'Symfony\\Component\\EventDispatcher\\EventSubscriberInterface';
-    const subscriptionSources = syntaxParser && eventTarget ? (member?.kind === 'method'
-      ? workspace.documentUris().flatMap((uri) => {
-        const source = workspace.source(uri);
-        return source?.toLowerCase().includes(member.name.toLowerCase())
-          && (source.includes('getSubscribedEvents') || source.includes('AsEventListener')) ? [{ uri, source }] : [];
-      })
-      : eventSource ? [{ uri: eventTarget.uri, source: eventSource }] : []) : [];
-    const inspectInheritedSubscriptions = subscriptionSources.length > 0
-      || Boolean(type && workspace.publicStaticMethod(type.fqcn, 'getSubscribedEvents'));
-    if (root && syntaxParser && inspectInheritedSubscriptions) {
-      await hydrateCanonicalTypes(workspace, root, [subscriberInterface]);
-    }
-    const directSubscriptions = syntaxParser ? subscriptionSources.flatMap(({ uri, source }) => analyzeSymfonyEventSubscriptions(
-      syntaxParser, uri, source, (subscriber, listener) => workspace.publicInstanceMethod(subscriber, listener) !== undefined)) : [];
-    const subscriberClasses = syntaxParser && inspectInheritedSubscriptions ? [...new Set(symfonyServiceCatalog(root).map((service) => service.className))]
-      .filter((fqcn) => workspace.isSubtype(fqcn, subscriberInterface)) : [];
-    const inheritedSubscriptions = syntaxParser ? subscriberClasses.flatMap((subscriber) => {
-      const provider = workspace.publicStaticMethod(subscriber, 'getSubscribedEvents');
-      const providerIdentity = provider?.declarationFqcn ?? provider?.fqcn;
-      const providerFqcn = providerIdentity?.split('::')[0];
-      const providerMethodName = provider?.declarationName ?? provider?.name;
-      if (!provider || !providerFqcn || providerFqcn.toLowerCase() === subscriber.toLowerCase()) return [];
-      const source = workspace.source(provider.uri); if (!source) return [];
-      return analyzeSymfonyInheritedEventSubscriptions(syntaxParser, provider.uri, source, providerFqcn, subscriber,
-        (owner, listener) => workspace.publicInstanceMethod(owner, listener) !== undefined, {
-          selfFqcn: provider.typeScopeFqcn,
-          staticFqcn: subscriber,
-          parentFqcn: workspace.directParentClass(provider.typeScopeFqcn),
-        }, providerMethodName);
-    }) : [];
-    const registeredClasses = [...new Set(symfonyServiceCatalog(root).map((service) => service.className))];
-    const inspectInheritedAttributes = Boolean(type || eventSource?.toLowerCase().includes('aseventlistener'));
-    const inheritedAttributeTargets = syntaxParser && inspectInheritedAttributes ? (type
-      ? registeredClasses.filter((subscriber) => subscriber.toLowerCase() === type.fqcn.toLowerCase())
-        .flatMap((subscriber) => workspace.publicInstanceMethods(subscriber).map((method) => ({ subscriber, method })))
-      : member?.kind === 'method' ? registeredClasses.flatMap((subscriber) => {
-        const method = workspace.publicInstanceMethod(subscriber, member.name);
-        return method?.fqcn.toLowerCase() === member.fqcn.toLowerCase() ? [{ subscriber, method }] : [];
-      }) : []) : [];
-    const inheritedAttributeSubscriptions = syntaxParser ? [...new Map(inheritedAttributeTargets.map((target) => [
-      target.subscriber.toLowerCase() + ':' + target.method.fqcn.toLowerCase() + ':' + target.method.name.toLowerCase(), target,
-    ])).values()].flatMap(({ subscriber, method }) => {
-      const providerFqcn = (method.declarationFqcn ?? method.fqcn).split('::')[0];
-      const sourceMethodName = method.declarationName ?? method.name;
-      if (!providerFqcn || (!method.declarationFqcn && providerFqcn.toLowerCase() === subscriber.toLowerCase())) return [];
-      const source = workspace.source(method.uri); if (!source?.toLowerCase().includes('aseventlistener')) return [];
-      return analyzeSymfonyInheritedEventListenerAttributes(syntaxParser, method.uri, source,
-        providerFqcn, subscriber, sourceMethodName, method.name, {
-          providerParentFqcn: workspace.directParentClass(providerFqcn),
-          subscriberParentFqcn: workspace.directParentClass(subscriber),
-        });
-    }) : [];
-    const subscriptions = (externalEvents?.subscriptions ?? [...directSubscriptions, ...inheritedSubscriptions, ...inheritedAttributeSubscriptions])
+    const subscriptions = (externalEvents?.subscriptions ?? [])
       .filter((fact) => workspace.publicInstanceMethod(fact.subscriberFqcn, fact.listener) !== undefined);
     const matchingSubscriptions = type
       ? subscriptions.filter((fact) => fact.subscriberFqcn.toLowerCase() === type.fqcn.toLowerCase())
@@ -2792,9 +2729,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       'symfony\\contracts\\eventdispatcher\\eventdispatcherinterface',
       'symfony\\component\\eventdispatcher\\eventdispatcherinterface',
     ]);
-    const dispatchCandidates = externalEvents?.dispatches ?? (syntaxParser ? workspace.documentUris().flatMap((uri) => {
-      const source = workspace.source(uri); return source?.toLowerCase().includes('dispatch') ? symfonyEventDispatches(syntaxParser, uri, source) : [];
-    }) : []);
+    const dispatchCandidates = externalEvents?.dispatches ?? [];
     const dispatchLocations = subscribedEvents.size ? dispatchCandidates.filter((fact) => {
         if (!subscribedEvents.has(fact.event.toLowerCase())) return false;
         const target = workspace.referenceMemberAt(fact.uri, fact.dispatchStart);
@@ -3170,7 +3105,6 @@ connection.onShutdown(async () => {
   (await parserPromise)?.dispose();
   parserPromise = undefined;
   semanticWorkspaces.clear();
-  symfonyEventDispatchesByUri.clear();
   externalSymfonyEventsByRoot.clear();
   completeRoots.clear();
   projectCompleteRoots.clear();

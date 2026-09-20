@@ -15,6 +15,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Remove core Symfony subscriber, listener, inherited/Trait and dispatch-candidate scanning. Event relations now come only from one complete authoritative provider snapshot; core still validates PHP method identity, container listener tags and EventDispatcher receiver types.
+
 - Remove the core Symfony YAML/XML/PHP Configurator and DebugContainer service scan plus its dedicated fact cache. Container facts now come only from one complete authoritative provider snapshot; missing, conflicting or failed providers clear the capability instead of returning stale or duplicate framework results.
 
 - Consume authoritative controller-template contexts from the standalone Symfony extension, including bounded per-document refresh with core fallback.
