@@ -1,4 +1,5 @@
 - Remove Symfony Controller/Twig discovery from the core Language Server and its persistent project facts; the standalone controller-context provider now owns disk, open-document, and newly created file analysis exclusively.
+- 提交 `5a5f52f` 移除 Symfony Controller 上下文核心回退；候选 `php-companion-alpha-0.4.5-5a5f52fc` 的四份 VSIX、24 个组件 730 项测试、双扩展 Extension Host、Winstar PHP 8.5/CoreRepo PHP 7.2 预检及真实 11 个上下文/9 个模板均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
 - Both supported extension packs now install `sohophp.php-companion-symfony`; direct core installs detect FrameworkBundle projects missing that extension and provide a one-time extension-search action.
 - Remove the Winstar runtime route provider bundle from the core VSIX; the standalone Symfony extension is now its only product owner.
 - 提交 `f7204a4` 完成独立 Symfony 扩展默认安装接线；候选 `php-companion-alpha-0.4.5-f7204a45` 的四份 VSIX、24 个组件 729 项测试、双扩展 Extension Host 及 Winstar PHP 8.5/CoreRepo PHP 7.2 预检均已验证，核心与 Symfony 候选已安装到 WSL RockyLinux8。
