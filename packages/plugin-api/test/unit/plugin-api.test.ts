@@ -10,7 +10,8 @@ describe('plugin API', () => {
         acceptsDocumentSnapshots: true, replacesContainerServices: true },
       { providerId: 'vendor.symfony.events', command: '/extension/events', requiresProjectTypes: true,
         requiresContainerServices: true, acceptsDocumentSnapshots: true, replacesEventRelations: true }],
-      routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/extension/routes', timeoutMs: 1000, maxOutputBytes: 4096 }],
+      routeProviders: [{ providerId: 'vendor.symfony.routes', command: '/extension/routes', timeoutMs: 1000, maxOutputBytes: 4096,
+        cacheUntilInvalidated: true }],
     })).toBe(true);
   });
 
@@ -19,5 +20,6 @@ describe('plugin API', () => {
     expect(isPhpCompanionIntegrationContribution({ integrationId: 'vendor.symfony', routeProviders: [{ providerId: 'other.routes', command: 'node' }] })).toBe(false);
     expect(isPhpCompanionIntegrationContribution({ integrationId: 'vendor.symfony', semanticProviders: [{ providerId: 'vendor.symfony.shared', command: 'node' }], routeProviders: [{ providerId: 'vendor.symfony.shared', command: 'node' }] })).toBe(false);
     expect(isPhpCompanionIntegrationContribution({ integrationId: 'vendor.symfony', semanticProviders: [{ providerId: 'vendor.symfony.services', command: 'node', timeoutMs: 30_001 }] })).toBe(false);
+    expect(isPhpCompanionIntegrationContribution({ integrationId: 'vendor.symfony', routeProviders: [{ providerId: 'vendor.symfony.routes', command: 'node', cacheUntilInvalidated: 'yes' }] })).toBe(false);
   });
 });

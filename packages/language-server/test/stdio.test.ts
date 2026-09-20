@@ -4354,6 +4354,47 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reuses an opted-in route snapshot until a watched source invalidates it', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-route-provider-cache-'));
+    try {
+      const source = `<?php
+namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } }
+namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(RouterInterface $router): void { $router->generate('cached.'); } }`;
+      const sourcePath = join(root, 'Consumer.php'); const uri = pathToFileURL(sourcePath).toString();
+      const configPath = join(root, 'config', 'routes.yaml'); const configUri = pathToFileURL(configPath).toString();
+      const statePath = join(root, 'route-state.json'); const countPath = join(root, 'provider-count.txt'); const provider = join(root, 'route-provider.mjs');
+      await mkdir(join(root, 'config'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['./Consumer.php'] } }));
+      await writeFile(sourcePath, source); await writeFile(configPath, 'cache_probe: {path: /probe}\n');
+      await writeFile(statePath, JSON.stringify({ name: 'cached.one', path: '/one' })); await writeFile(countPath, '0');
+      await writeFile(provider, `import {readFile,writeFile} from 'node:fs/promises'; import {pathToFileURL} from 'node:url'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const count=Number(await readFile(${JSON.stringify(countPath)},'utf8'))+1; await writeFile(${JSON.stringify(countPath)},String(count)); const route=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'cache.routes',generation:request.params.generation,complete:true,routes:[{...route,uri:pathToFileURL(${JSON.stringify(configPath)}).toString(),start:0,end:route.name.length}]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1190, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledRouteProviders: [{
+          providerId: 'cache.routes', command: process.execPath, args: [provider], timeoutMs: 1000,
+          replacesStaticRoutes: true, cacheUntilInvalidated: true,
+        }] },
+      } }));
+      await output.waitFor((message) => message.id === 1190); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const position = lspPosition(source, source.indexOf("'cached.'") + "'cached.".length);
+      const query = async (id: number): Promise<Array<{ label: string }>> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect((await query(1191)).map((item) => item.label)).toEqual(['cached.one']);
+      expect((await query(1192)).map((item) => item.label)).toEqual(['cached.one']);
+      expect(await readFile(countPath, 'utf8')).toBe('1');
+      await writeFile(statePath, JSON.stringify({ name: 'cached.two', path: '/two' }));
+      expect((await query(1193)).map((item) => item.label)).toEqual(['cached.one']);
+      expect(await readFile(countPath, 'utf8')).toBe('1');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: configUri, type: 2 }] } }));
+      expect((await query(1194)).map((item) => item.label)).toEqual(['cached.two']);
+      expect(await readFile(countPath, 'utf8')).toBe('2');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads an explicitly configured semantic provider through the isolated process host', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-provider-'));
     try {

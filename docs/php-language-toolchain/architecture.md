@@ -70,7 +70,7 @@ flowchart BT
 
 最终发行结构包含独立的 `PHP Companion: Symfony` VSIX。核心 `sohophp.php-companion` 只拥有 PHP 语法、类型、索引、导航、重构及版本化插件 API；Symfony 扩展拥有服务容器、依赖注入、事件订阅、路由、Controller 上下文和 Symfony 元数据适配。Twig 解析、模板格式化和模板作用域继续由 twig-plus 唯一拥有，YAML/XML 的通用语法与格式化继续复用成熟扩展。
 
-独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，已经接管静态 Symfony 服务容器、事件关系、静态路由图和可选 Winstar 运行时路由适配器。服务请求携带有界项目类型目录及 PHP/YAML/XML 打开文档快照，返回框架中立的服务、别名、绑定、调用/属性、事件标签与编译参数事实；事件请求复用已确定的服务目录及核心已经计算的有效公开方法/继承关系，只解析项目 PHP 中的 subscriber、`AsEventListener` 和 `dispatch()` 候选；路由请求携带有界 PHP/YAML 打开文档快照。三类 Symfony 项目发现都不存在核心扫描；对应 Provider 缺失、冲突、失败或输入不完整时能力明确不可用。核心仍以通用 PHP 类型身份验证有效监听方法、容器监听标签、EventDispatcher 接收者和路由调用，从而排除无效回调、Messenger 与同名业务 API。核心不向插件暴露 Language Client。
+独立 `sohophp.php-companion-symfony` VSIX 已建立并依赖核心扩展。它通过 schema 1 `plugin-api` 注册和撤销命名空间隔离的 provider，已经接管静态 Symfony 服务容器、事件关系、静态路由图和可选 Winstar 运行时路由适配器。服务请求携带有界项目类型目录及 PHP/YAML/XML 打开文档快照，返回框架中立的服务、别名、绑定、调用/属性、事件标签与编译参数事实；事件请求复用已确定的服务目录及核心已经计算的有效公开方法/继承关系，只解析项目 PHP 中的 subscriber、`AsEventListener` 和 `dispatch()` 候选；路由请求携带有界 PHP/YAML 打开文档快照。独立静态路由 Provider 显式允许复用完整快照，并在 Provider/环境、磁盘 PHP/YAML 或打开文档快照变化时失效；Winstar 运行时路由仍逐次执行。三类 Symfony 项目发现都不存在核心扫描；对应 Provider 缺失、冲突、失败或输入不完整时能力明确不可用。核心仍以通用 PHP 类型身份验证有效监听方法、容器监听标签、EventDispatcher 接收者和路由调用，从而排除无效回调、Messenger 与同名业务 API。核心不向插件暴露 Language Client。
 
 Controller 上下文也已通过框架中立事实由独立 Symfony 扩展接管；打开文档只刷新对应 PHP 文件，Twig 语言能力仍由 twig-plus 唯一拥有。核心不再保留 Symfony 服务、事件、Controller 上下文或静态路由的项目扫描回退。独立插件升级、停用、协议不兼容或 Provider 失败时，相应能力明确不可用；任一查询只消费一份经过验证的权威框架快照。
 

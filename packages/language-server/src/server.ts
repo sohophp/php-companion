@@ -87,6 +87,8 @@ let routeProviders: RouteProviderDescriptor[] = [];
 let configuredRouteProviders: RouteProviderDescriptor[] = [];
 let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
+let routeProviderCacheRevision = 0;
+const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; routes: readonly RouteFact[] }>>();
 let frameworkDocumentSnapshots = new Map<string, SemanticProviderDocument>();
 let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
@@ -290,7 +292,12 @@ function setFrameworkDocumentSnapshots(value: unknown): boolean {
     const path = pathForUri(document.uri); if (!path || !workspaceFolderRoots.some((root) => pathWithin(root, path))) return false;
     next.set(document.uri, document as SemanticProviderDocument);
   }
-  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; return true;
+  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; invalidateRouteProviderCache(); return true;
+}
+
+function invalidateRouteProviderCache(root?: string): void {
+  routeProviderCacheRevision++;
+  if (root) routeProviderCacheByRoot.delete(root); else routeProviderCacheByRoot.clear();
 }
 
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
@@ -311,10 +318,10 @@ function rebuildRouteProviders(): void {
   })];
 }
 function setConfiguredRouteProviders(value: unknown): void {
-  configuredRouteProviders = acceptedRouteProviders(value, 'configured'); rebuildRouteProviders();
+  configuredRouteProviders = acceptedRouteProviders(value, 'configured'); rebuildRouteProviders(); invalidateRouteProviderCache();
 }
 function setBundledRouteProviders(value: unknown): void {
-  bundledRouteProviders = acceptedRouteProviders(value, 'bundled'); rebuildRouteProviders();
+  bundledRouteProviders = acceptedRouteProviders(value, 'bundled'); rebuildRouteProviders(); invalidateRouteProviderCache();
 }
 
 function semanticProviderDocuments(root: string): { complete: boolean; documents: SemanticProviderDocument[] } {
@@ -589,6 +596,7 @@ function setSymfonyRouteProviders(value: unknown): void {
   symfonyRouteProviders = value.map((entry: { uri: string; external: boolean; environment?: string }) => ({
     path: pathForUri(entry.uri)!, external: entry.external, ...(entry.environment ? { environment: entry.environment } : {}),
   }));
+  invalidateRouteProviderCache();
 }
 function symfonyRouteProvider(uri: string): { path: string; external: boolean; environment?: string } | undefined {
   const path = pathForUri(uri);
@@ -1598,8 +1606,8 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 connection.onInitialized(() => {
   if (indexingMode === 'experimental') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
-    { globPattern: '**/*.php' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' }, { globPattern: '**/services*.{yaml,yml}' },
-    { globPattern: '**/config/**/*.{yaml,yml,xml,php}' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
+    { globPattern: '**/*.php' }, { globPattern: '**/*.{yaml,yml}' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' },
+    { globPattern: '**/config/**/*.xml' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
   ] }).catch((error) => connection.console.warn(`File watcher registration failed: ${error instanceof Error ? error.message : String(error)}`));
 });
 
@@ -1952,8 +1960,9 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
   let composerChanged = false;
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
+    const root = rootForUri(change.uri); if (root) invalidateRouteProviderCache(root);
     if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') { invalidateCandidates(change.uri); composerChanged = true; continue; }
-    const root = rootForUri(change.uri); if (!root) continue;
+    if (!root) continue;
     if (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path)) {
       await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true); continue;
     }
@@ -1976,7 +1985,8 @@ documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
@@ -1986,7 +1996,8 @@ documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri); if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
@@ -1995,7 +2006,8 @@ documents.onDidChangeContent(async ({ document }) => {
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
   invalidateCandidates(document.uri);
-  const root = rootForUri(document.uri); const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
+  const root = rootForUri(document.uri); if (root) invalidateRouteProviderCache(root);
+  const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
   if (workspace && root && indexedUrisByRoot.get(root)?.has(document.uri)) {
     const path = pathForUri(document.uri);
     try {
@@ -2090,16 +2102,27 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
   const active = routeProviders.filter((descriptor) => !descriptor.replacesStaticRoutes || (authoritative.length === 1 && descriptor === authoritative[0]));
   for (const descriptor of active) {
     if (cancelled()) return [];
+    const cacheKey = descriptor.providerId.toLowerCase();
+    const cacheSignature = JSON.stringify({ descriptor, environment });
+    const cached = descriptor.cacheUntilInvalidated ? routeProviderCacheByRoot.get(root)?.get(cacheKey) : undefined;
+    if (cached?.signature === cacheSignature) { routes.push(...cached.routes); continue; }
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
       connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`); continue;
     }
+    const cacheRevision = routeProviderCacheRevision;
     const generation = String(++routeProviderGeneration);
     const result = await runRouteProvider(descriptor, {
       rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion,
       ...(environment ? { environment } : {}), ...(snapshots.documents.length ? { documents: snapshots.documents } : {}),
     });
     if (cancelled()) return [];
-    if (result.ok) routes.push(...result.contribution.routes);
+    if (result.ok) {
+      routes.push(...result.contribution.routes);
+      if (descriptor.cacheUntilInvalidated && cacheRevision === routeProviderCacheRevision) {
+        const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; routes: readonly RouteFact[] }>();
+        rootCache.set(cacheKey, { signature: cacheSignature, routes: [...result.contribution.routes] }); routeProviderCacheByRoot.set(root, rootCache);
+      }
+    }
     else connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
   }
   return routes;

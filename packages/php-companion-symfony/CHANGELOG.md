@@ -1,5 +1,7 @@
 # Changelog
 
+- Reuse the complete static-route snapshot until PHP/YAML, environment, open-document, or provider configuration invalidation instead of starting the provider for every route query.
+
 - Core static-route fallback has been removed; this extension's complete authoritative route provider is now required for Symfony route completion, Definition and References.
 
 - Update the complete Symfony provider set atomically on configuration changes when supported by the core, with a compatible withdraw/register fallback for older plugin API v1 cores.

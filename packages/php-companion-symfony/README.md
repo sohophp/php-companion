@@ -6,7 +6,7 @@ PHP Companion 自研 Symfony 集成扩展。它依赖 `sohophp.php-companion` �
 
 配置切换通过 plugin API registration 的原子更新一次替换完整 Provider 集；旧 plugin API v1 核心不提供该操作时回退为撤销后重注册。停用或卸载扩展会释放 registration 并由核心清除外部事实；不兼容 API 会在任何 Provider 注册前拒绝激活。
 
-启用 `phpCompanion.symfony.winstarRoutes.enabled` 后，扩展还会注册可选 Winstar 模块运行时路由 Provider；停用设置或扩展时会撤销对应注册。所有 Provider 都在独立无 shell 子进程中运行。静态服务与路由 Provider 不启动项目 PHP，也不加载项目 Composer autoloader。
+静态路由 Provider 的完整结果会复用到 Provider/环境、磁盘 PHP/YAML 或打开文档快照变化为止，避免每次补全、Definition 和 References 都重新启动进程；任一失效事件后的首个查询会重建快照。启用 `phpCompanion.symfony.winstarRoutes.enabled` 后，扩展还会注册可选 Winstar 模块运行时路由 Provider；它保持逐次执行，以反映真实运行时集合。停用设置或扩展时会撤销对应注册。所有 Provider 都在独立无 shell 子进程中运行。静态服务与路由 Provider 不启动项目 PHP，也不加载项目 Composer autoloader。
 
 Twig 语言能力继续由 TwigPlus 提供，通用 YAML/XML 语法和格式化继续由 Red Hat YAML/XML 提供。本扩展不复制这些能力。
 

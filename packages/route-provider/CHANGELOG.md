@@ -1,5 +1,7 @@
 # Changelog
 
+- Add explicit `cacheUntilInvalidated` descriptor metadata for complete trusted snapshots; uncached dynamic providers retain per-query freshness.
+
 - Add bounded PHP/YAML document snapshots and explicit static-route replacement ownership for standalone framework integrations.
 
 ## Unreleased

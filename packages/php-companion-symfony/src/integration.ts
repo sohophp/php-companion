@@ -64,6 +64,7 @@ export class SymfonyIntegration {
         timeoutMs: 30_000,
         maxOutputBytes: 16 * 1024 * 1024,
         replacesStaticRoutes: true,
+        cacheUntilInvalidated: true,
       }, ...(this.winstarRoutesEnabled ? [{
         providerId: WINSTAR_ROUTE_PROVIDER_ID,
         command: this.executable,

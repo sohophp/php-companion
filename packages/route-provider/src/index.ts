@@ -9,6 +9,8 @@ export interface RouteProviderDescriptor {
   maxOutputBytes?: number;
   /** When this provider succeeds, its snapshot replaces the language server's built-in static route scan. */
   replacesStaticRoutes?: boolean;
+  /** Reuse a complete snapshot until provider, workspace-file, or open-document invalidation. */
+  cacheUntilInvalidated?: boolean;
 }
 
 export interface RouteProviderDocument {
@@ -80,7 +82,8 @@ export function isRouteProviderDescriptor(value: unknown): value is RouteProvide
     && (item.args === undefined || (Array.isArray(item.args) && item.args.length <= 64 && item.args.every((arg) => typeof arg === 'string' && arg.length <= 4096)))
     && (item.timeoutMs === undefined || (Number.isSafeInteger(item.timeoutMs) && item.timeoutMs! >= 100 && item.timeoutMs! <= 30_000))
     && (item.maxOutputBytes === undefined || (Number.isSafeInteger(item.maxOutputBytes) && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
-    && (item.replacesStaticRoutes === undefined || typeof item.replacesStaticRoutes === 'boolean'));
+    && (item.replacesStaticRoutes === undefined || typeof item.replacesStaticRoutes === 'boolean')
+    && (item.cacheUntilInvalidated === undefined || typeof item.cacheUntilInvalidated === 'boolean'));
 }
 export function isRouteProviderRequest(value: unknown): value is RouteProviderRequest {
   const item = value as Partial<RouteProviderRequest> | null;

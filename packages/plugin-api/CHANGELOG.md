@@ -1,5 +1,7 @@
 # Changelog
 
+- Allow route providers to opt into complete snapshot reuse through validated `cacheUntilInvalidated` metadata.
+
 - Add an optional atomic registration update operation while preserving compatibility with existing plugin API v1 cores.
 
 - Allow a bundled integration to claim authoritative controller-to-template context ownership.

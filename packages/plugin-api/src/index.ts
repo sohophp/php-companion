@@ -35,6 +35,8 @@ function providerDescriptor(value: unknown): value is SemanticProviderDescriptor
       && item.maxOutputBytes! >= 1024 && item.maxOutputBytes! <= 16 * 1024 * 1024))
     && ((item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === undefined
       || typeof (item as Partial<RouteProviderDescriptor>).replacesStaticRoutes === 'boolean')
+    && ((item as Partial<RouteProviderDescriptor>).cacheUntilInvalidated === undefined
+      || typeof (item as Partial<RouteProviderDescriptor>).cacheUntilInvalidated === 'boolean')
     && ((item as Partial<SemanticProviderDescriptor>).requiresProjectTypes === undefined
       || typeof (item as Partial<SemanticProviderDescriptor>).requiresProjectTypes === 'boolean')
     && ((item as Partial<SemanticProviderDescriptor>).acceptsDocumentSnapshots === undefined

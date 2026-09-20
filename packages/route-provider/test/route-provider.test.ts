@@ -12,7 +12,8 @@ describe('route provider contract', () => {
       controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18 } }] })).toBe(false);
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
       controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18, methodStart: 20, methodEnd: 24 } }] })).toBe(false);
-    expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', timeoutMs: 5000, replacesStaticRoutes: true })).toBe(true);
+    expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', timeoutMs: 5000, replacesStaticRoutes: true, cacheUntilInvalidated: true })).toBe(true);
+    expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', cacheUntilInvalidated: 'yes' })).toBe(false);
     expect(isRouteProviderDescriptor({ providerId: 'bad!', command: '/provider' })).toBe(false);
   });
   it('validates request and exactly-one-result response envelopes', () => {
