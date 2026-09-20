@@ -34,7 +34,7 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -1793,25 +1793,45 @@ connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: 
   if (typeof uri !== 'string' || !/\.ya?ml$/i.test(uri) || typeof params.source !== 'string'
     || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
     || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
-    || token.isCancellationRequested || externalSymfonyRoutes(uri)) return [];
+    || token.isCancellationRequested) return [];
   const root = rootForUri(uri); if (!root) return [];
   const document = TextDocument.create(uri, 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
-  const controller = symfonyYamlRouteControllerAt(uri, params.source, offset); if (!controller) return [];
+  const controller = symfonyYamlRouteControllerAt(uri, params.source, offset);
   const workspace = await semanticForRoot(root);
-  await hydrateCanonicalTypes(workspace, root, [controller.className]);
-  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller navigation cancelled.');
-  const target = controller.method && controller.methodStart !== undefined && controller.methodEnd !== undefined
-    && offset >= controller.methodStart && offset < controller.methodEnd
-    ? workspace.publicInstanceMethod(controller.className, controller.method)
-    : canonicalTypeDeclaration(workspace, root, controller.className);
-  if (!target) return [];
-  const targetPath = pathForUri(target.uri);
-  const targetSource = documents.get(target.uri)?.getText() ?? workspace.source(target.uri)
+  if (controller) {
+    if (externalSymfonyRoutes(uri)) return [];
+    await hydrateCanonicalTypes(workspace, root, [controller.className]);
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller navigation cancelled.');
+    const target = controller.method && controller.methodStart !== undefined && controller.methodEnd !== undefined
+      && offset >= controller.methodStart && offset < controller.methodEnd
+      ? workspace.publicInstanceMethod(controller.className, controller.method)
+      : canonicalTypeDeclaration(workspace, root, controller.className);
+    if (!target) return [];
+    const targetPath = pathForUri(target.uri);
+    const targetSource = documents.get(target.uri)?.getText() ?? workspace.source(target.uri)
+      ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+    if (targetSource === undefined) return [];
+    const targetDocument = documents.get(target.uri) ?? TextDocument.create(target.uri, 'php', 0, targetSource);
+    return [{ uri: target.uri, range: { start: targetDocument.positionAt(target.start), end: targetDocument.positionAt(target.end) } }];
+  }
+  const sourcePath = pathForUri(uri); const serviceReference = symfonyYamlServiceReferenceAt(params.source, offset);
+  if (!sourcePath || !serviceReference || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  const matching = symfonyServiceCatalog(root).filter((service) => service.id === serviceReference.value);
+  const preferred = matching.some((service) => service.origin !== 'compiled')
+    ? matching.filter((service) => service.origin !== 'compiled') : matching;
+  const targets = [...new Map(preferred.map((service) => [
+    `${service.registrationUri}:${service.registrationStart}:${service.registrationEnd}`, service,
+  ])).values()];
+  if (targets.length !== 1) return [];
+  const target = targets[0]!; const targetPath = pathForUri(target.registrationUri);
+  const targetSource = (target.registrationUri === uri ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source)
+    ?? documents.get(target.registrationUri)?.getText() ?? workspace.source(target.registrationUri)
     ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
-  if (targetSource === undefined) return [];
-  const targetDocument = documents.get(target.uri) ?? TextDocument.create(target.uri, 'php', 0, targetSource);
-  return [{ uri: target.uri, range: { start: targetDocument.positionAt(target.start), end: targetDocument.positionAt(target.end) } }];
+  if (targetSource === undefined || token.isCancellationRequested) return [];
+  const languageId = target.registrationUri.endsWith('.php') ? 'php' : target.registrationUri.endsWith('.xml') ? 'xml' : 'yaml';
+  const targetDocument = documents.get(target.registrationUri) ?? TextDocument.create(target.registrationUri, languageId, 0, targetSource);
+  return [{ uri: target.registrationUri, range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) } }];
 });
 
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }): Promise<ControllerContextPayload | null> => {

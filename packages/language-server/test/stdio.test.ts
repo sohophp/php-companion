@@ -4575,7 +4575,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const servicePath = join(root, 'src', 'Service.php'); const serviceUri = pathToFileURL(servicePath).toString();
       const source = '<?php namespace App; final class Service {}'; await writeFile(servicePath, source);
       const configPath = join(root, 'config', 'services.yaml'); const configUri = pathToFileURL(configPath).toString();
-      const configSource = "services:\n  app.service: { class: App\\Service }\n"; await writeFile(configPath, configSource);
+      const configSource = "services:\n  app.service: { class: App\\Service }\n  app.consumer:\n    arguments:\n      $service: '@app.service'\n"; await writeFile(configPath, configSource);
       const provider = join(root, 'provider.mjs');
       await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Service'); const document=request.params.documents?.find((item)=>item.languageId==='yaml'&&item.source.includes('app.service')); const uri=request.params.rootUri+'/config/services.yaml'; const service={id:'app.service',className:'App\\\\Service',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'explicit',uri,start:12,end:23,registrationUri:uri,registrationStart:12,registrationEnd:23}; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:Boolean(type&&document),methods:[],properties:[],literalMethodReturns:[{ownerFqcn:'Psr\\\\Container\\\\ContainerInterface',name:'get',argument:'app.service',returnType:'App\\\\Service',uri,start:12,end:23}],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[uri]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
@@ -4597,6 +4597,17 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       } }));
       expect((await output.waitFor((message) => message.id === 66)).result).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 68, method: 'phpCompanion/symfonyControllerDefinition', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5),
+      } }));
+      expect((await output.waitFor((message) => message.id === 68)).result).toEqual([{ uri: configUri,
+        range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 69, method: 'phpCompanion/symfonyControllerDefinition', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, configSource.indexOf('app.service') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 69)).result).toEqual([]);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/references', params: {

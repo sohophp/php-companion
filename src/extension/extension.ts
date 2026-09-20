@@ -636,7 +636,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
 
   const phpSelector: vscode.DocumentSelector = [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }];
   const yamlSelector: vscode.DocumentSelector = [{ language: 'yaml', scheme: 'file' }, { language: 'yaml', scheme: 'vscode-remote' }];
-  const yamlControllerDefinition: vscode.DefinitionProvider = {
+  const yamlSymfonyDefinition: vscode.DefinitionProvider = {
     provideDefinition: async (document, position, token) => {
       const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
       const version = document.version;
@@ -789,7 +789,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerCodeActionsProvider(phpSelector, new ImportClassCodeActions(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }),
     vscode.languages.registerRenameProvider(phpSelector, lazyRename),
     vscode.languages.registerDocumentPasteEditProvider(phpSelector, lazyPaste, phpPasteMetadata),
-    vscode.languages.registerDefinitionProvider(yamlSelector, yamlControllerDefinition),
+    vscode.languages.registerDefinitionProvider(yamlSelector, yamlSymfonyDefinition),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;
