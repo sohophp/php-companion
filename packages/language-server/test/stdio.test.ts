@@ -4647,6 +4647,20 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         position: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service') + 4), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 75)).result).toEqual(crossFormatReferences);
+      const xmlServiceValueStart = xmlSource.lastIndexOf('app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 76, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, xmlServiceValueStart + 'app.se'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 76)).result).toEqual({ isIncomplete: false, items: [{
+        label: 'app.service', detail: 'App\\Service (explicit, private)',
+        range: { start: lspPosition(xmlSource, xmlServiceValueStart), end: lspPosition(xmlSource, xmlServiceValueStart + 'app.service'.length) },
+      }] });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 77, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, xmlSource.indexOf('app.xml.consumer') + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 77)).result).toEqual({ isIncomplete: false, items: [] });
       const serviceValueStart = configSource.lastIndexOf('@app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 72, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,

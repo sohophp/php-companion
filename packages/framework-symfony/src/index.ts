@@ -981,14 +981,13 @@ function xmlElementRanges(source: string): XmlElementRange[] | undefined {
   return stack.length ? undefined : elements.sort((left, right) => left.start - right.start);
 }
 
-/** Enumerate exact Symfony XML service-id attributes without interpreting parameters. */
-export function symfonyXmlServiceReferences(source: string): SymfonyServiceIdReference[] {
+function symfonyXmlServiceReferenceAttributes(source: string, allowEmpty: boolean): SymfonyServiceIdReference[] {
   if (/<!DOCTYPE/i.test(source) || XMLValidator.validate(source) !== true) return [];
   const elements = xmlElementRanges(source); if (!elements || elements.some((element) => element.name === 'when')) return [];
   const references: SymfonyServiceIdReference[] = [];
   const append = (element: XmlElementRange, name: string): void => {
     const attribute = xmlAttribute(element.tag, name, element.start);
-    if (!attribute || !attribute.value || /[%\s]/.test(attribute.value)) return;
+    if (!attribute || (!allowEmpty && !attribute.value) || /[%\s]/.test(attribute.value)) return;
     references.push({ value: attribute.value, start: attribute.start, end: attribute.end });
   };
   for (const element of elements) {
@@ -1002,10 +1001,24 @@ export function symfonyXmlServiceReferences(source: string): SymfonyServiceIdRef
   return references;
 }
 
+/** Enumerate exact Symfony XML service-id attributes without interpreting parameters. */
+export function symfonyXmlServiceReferences(source: string): SymfonyServiceIdReference[] {
+  return symfonyXmlServiceReferenceAttributes(source, false);
+}
+
 /** Locate one exact Symfony XML service reference at the requested source offset. */
 export function symfonyXmlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
   if (offset < 0 || offset > source.length) return undefined;
   return symfonyXmlServiceReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+}
+
+/** Locate the editable id segment and typed prefix of a valid Symfony XML service attribute. */
+export function symfonyXmlServiceReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+  if (offset < 0 || offset > source.length) return undefined;
+  const reference = symfonyXmlServiceReferenceAttributes(source, true)
+    .find((candidate) => offset >= candidate.start && offset <= candidate.end);
+  if (!reference || source.slice(reference.start, reference.end) !== reference.value) return undefined;
+  return { prefix: source.slice(reference.start, offset), start: reference.start, end: reference.end };
 }
 
 function xmlBoolean(value: string | undefined): boolean | undefined {

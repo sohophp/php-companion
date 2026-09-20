@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Locate the editable value and typed prefix inside exact conventional XML service-reference attributes, including an empty quoted value.
 - Locate exact service ids in conventional XML `argument`, `property`, `bind`, alias, parent, decorator, factory and configurator attributes while rejecting declarations and dynamic or structurally unsafe XML.
 - Locate the exact literal controller class or method segment under a YAML cursor only inside a route map with a `path`, including sequence-based module declarations.
 - Locate exact `@service` and `@?service` scalar references in Symfony YAML values while rejecting declaration keys, escaped values, expressions, parameters and malformed YAML.

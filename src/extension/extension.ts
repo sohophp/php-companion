@@ -843,6 +843,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     vscode.languages.registerCompletionItemProvider(yamlSelector, yamlSymfonyCompletions, '@', '?'),
     vscode.languages.registerDefinitionProvider(xmlSelector, xmlSymfonyDefinition),
     vscode.languages.registerReferenceProvider(xmlSelector, yamlSymfonyReferences),
+    vscode.languages.registerCompletionItemProvider(xmlSelector, yamlSymfonyCompletions, '"', "'", '.'),
     vscode.workspace.onWillRenameFiles((event) => {
       const files = event.files.filter((file) => file.oldUri.path.endsWith('.php') && file.newUri.path.endsWith('.php'));
       if (!files.length) return;

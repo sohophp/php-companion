@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyContainerMethodReturnFacts, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -515,8 +515,16 @@ services:
     for (const reference of references) expect(source.slice(reference.start, reference.end)).toBe(reference.value);
     const transport = source.indexOf('app.transport') + 4;
     expect(symfonyXmlServiceReferenceAt(source, transport)).toEqual(references[3]);
+    expect(symfonyXmlServiceReferencePrefixAt(source, source.indexOf('app.transport') + 'app.tra'.length)).toEqual({
+      prefix: 'app.tra', start: source.indexOf('app.transport'), end: source.indexOf('app.transport') + 'app.transport'.length,
+    });
+    const empty = '<container><services><service id="consumer"><argument type="service" id=""/></service></services></container>';
+    expect(symfonyXmlServiceReferencePrefixAt(empty, empty.indexOf('id=""') + 4)).toEqual({
+      prefix: '', start: empty.indexOf('id=""') + 4, end: empty.indexOf('id=""') + 4,
+    });
     expect(symfonyXmlServiceReferenceAt(source, source.indexOf('app.consumer') + 4)).toBeUndefined();
     expect(symfonyXmlServiceReferenceAt(source, source.indexOf('not.a.service') + 4)).toBeUndefined();
+    expect(symfonyXmlServiceReferencePrefixAt(source, source.indexOf('app.consumer') + 4)).toBeUndefined();
     expect(symfonyXmlServiceReferences('<!DOCTYPE foo><container/>')).toEqual([]);
     expect(symfonyXmlServiceReferences('<container><when env="dev"><services/></when></container>')).toEqual([]);
     expect(symfonyXmlServiceReferences('<container><services>')).toEqual([]);

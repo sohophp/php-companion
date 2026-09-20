@@ -333,6 +333,15 @@ export async function run(): Promise<void> {
     ) ?? [];
     return exactCrossFormatServiceReferences().length === 3;
   }, () => `Symfony XML service References did not return two YAML and one XML usage: ${JSON.stringify(xmlServiceReferences)}`, 30_000, 100);
+  const xmlServiceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlServiceReferenceOffset),
+  );
+  const xmlServiceCompletion = xmlServiceCompletionList.items.find((item) => item.label === 'App\\Service\\Mailer'
+    && item.detail?.includes('App\\Service\\Mailer'));
+  assert.ok(xmlServiceCompletion, 'Symfony XML service completion did not return the authoritative service id');
+  assert.ok(xmlServiceCompletion.range instanceof vscode.Range, 'Symfony XML service completion did not return one replacement range');
+  assert.strictEqual(xmlServicesDocument.getText(xmlServiceCompletion.range), 'App\\Service\\Mailer',
+    'Symfony XML service completion did not replace only the service id attribute value');
   const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
   );

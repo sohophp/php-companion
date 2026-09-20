@@ -4,7 +4,7 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 # @php-companion/language-server
 
-由权威容器 Provider 确认的 YAML/XML 配置图支持跨格式服务 Definition 和 References。XML 入口只识别传统服务配置中明确的 service/service_closure、alias、parent、decorates、factory 与 configurator 服务属性；声明、参数表达式和普通 XML 不产生结果。Red Hat XML 继续负责通用 XML 语言能力。
+由权威容器 Provider 确认的 YAML/XML 配置图支持服务 ID 补全和跨格式 Definition/References。XML 入口只识别传统服务配置中明确的 service/service_closure、alias、parent、decorates、factory 与 configurator 服务属性；声明、参数表达式和普通 XML 不产生结果。Red Hat XML 继续负责通用 XML 语言能力。
 
 Composer 索引缓存使用 v58/schema 10 校验封装：schema 77 的源码、声明/签名、文件级实现、每个唯一 callable 实现、引用候选/类型依赖，以及 Doctrine 事实分别计算 SHA-256，再由整体摘要封装。schema 10 为项目内精确 QueryBuilder 工厂返回事实提供新鲜度边界，旧 v57/schema 9 记录保守重建。冷写入复用索引器对相同原始源码已经计算的 SHA-256；恢复仍重新校验缓存内嵌源码，不能以外层元数据代替载荷完整性。Symfony Controller/Twig 上下文只来自独立 Provider，不进入核心持久缓存。全部记录核对通过后先注册声明表，未打开文件的实现记录保持延迟；工作区类型、函数、常量和符号目录不装载正文。成员补全、Definition、Type Definition、Signature Help 和区间 Inlay Hint 只把目标 callable 及文件级事实合并进活动语义视图；整文件诊断、重构和无法证明局部边界的正文扫描自动完整水合。索引日志报告仍含未加载记录的文件数。单个缓存条目损坏时只重建对应文件；已打开且内容不同的文档拒绝磁盘缓存，未保存内容不会写入以磁盘时间戳为键的缓存。
 
