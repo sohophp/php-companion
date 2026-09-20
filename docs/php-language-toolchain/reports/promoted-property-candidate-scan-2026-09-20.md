@@ -33,6 +33,8 @@ final class 的 private 提升属性只能在声明类内部作为属性访问�
 
 Prepare/Rename 复用 References 已建立的同名候选 generation。单独首先执行 F2 时也使用相同的命名参数扫描，不会回退完整项目索引。
 
+同一 WSL 安装同时加载独立 Symfony service/event Provider 后，从 `final class AdminSecuritySubscriber` 声明执行不含声明自身的 References：首次用时 7.529 秒，精确返回 `config/symfony/services.yaml` 的 `App\\Bridge\\` resource 注册和类内 `KernelEvents::CONTROLLER` 订阅关系两项，全量索引日志为 0。这证明类声明 References 不是依靠核心伪造框架关系，缺少 `sohophp.php-companion-symfony` 时相应框架位置会明确不可用。
+
 ## 候选与安装
 
 候选目录：`artifacts/php-companion-alpha-0.4.5-64ea40de/`
