@@ -4142,7 +4142,9 @@ final class Imported { public const TYPE = Stable::class; }`);
   });
   it('preserves an externally proven entity through the default Doctrine query chain', () => {
     workspace.update('file:///DoctrineQuery.php', `<?php namespace Doctrine\\ORM;
-      class Query { public function getResult(): mixed {} public function getOneOrNullResult(): mixed {} public function getArrayResult(): array {} }
+      class Query { public function getResult(int $hydrationMode = 1): mixed {} public function getOneOrNullResult(int $hydrationMode = 1): mixed {}
+        public function getSingleResult(int $hydrationMode = 1): mixed {} public function toIterable(array $parameters = [], int $hydrationMode = 1): iterable {}
+        public function getArrayResult(): array {} }
       class QueryBuilder { public function andWhere(string $where): static { return $this; } public function select(mixed ...$select): static { return $this; }
         public function from(string $from, string $alias): static { return $this; } public function delete(?string $delete = null): static { return $this; }
         public function update(?string $update = null): static { return $this; } public function getQuery(): Query {} }
@@ -4162,6 +4164,8 @@ final class Imported { public const TYPE = Stable::class; }`);
       { ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name: 'getQuery', returnType: '\\Doctrine\\ORM\\Query<TEntity>', receiverTypeTemplates: ['TEntity'], returnTypeTemplates: ['TEntity'], ...location },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleResult', returnType: 'TEntity', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
       ...['select', 'from', 'delete', 'update'].map((name) => ({ ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder', ...location })),
     ] }))).toBe(true);
     const source = `<?php namespace QueryFlow; function run(UserRepository $repo): void {
@@ -4169,10 +4173,14 @@ final class Imported { public const TYPE = Stable::class; }`);
       $users = $repo->createQueryBuilder('user')->andWhere('user.active = 1')->getQuery()->getResult();
       foreach ($users as $user) { $user->na; }
       $one = $repo->createQueryBuilder('user')->getQuery()->getOneOrNullResult(); $one?->na;
+      $single = $repo->createQueryBuilder('user')->getQuery()->getSingleResult(); $single->na;
       foreach ($repo->createQueryBuilder('user')->getQuery()->getResult() as $direct) { $direct->na; }
+      foreach ($repo->createQueryBuilder('user')->getQuery()->toIterable() as $iterated) { $iterated->na; }
       $arrays = $repo->createQueryBuilder('user')->getQuery()->getArrayResult(); foreach ($arrays as $row) { $row->na; }
       $scalars = $repo->createQueryBuilder('user')->select('COUNT(user.id)')->getQuery()->getResult(); foreach ($scalars as $scalar) { $scalar->na; }
       $hydrated = $repo->createQueryBuilder('user')->getQuery()->getResult(2); foreach ($hydrated as $arrayHydrated) { $arrayHydrated->na; }
+      $hydratedSingle = $repo->createQueryBuilder('user')->getQuery()->getSingleResult(2); $hydratedSingle->na;
+      foreach ($repo->createQueryBuilder('user')->getQuery()->toIterable([], 2) as $hydratedIterable) { $hydratedIterable->na; }
     }
     function managed(\\Doctrine\\ORM\\EntityManagerInterface $manager): void {
       foreach ($manager->getRepository(User::class)->createQueryBuilder('user')->getQuery()->getResult() as $managed) { $managed->na; }
@@ -4181,12 +4189,14 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('$repo->cr') + '$repo->cr'.length).map((item) => item.name)).toEqual(['createQueryBuilder']);
     expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('->an') + '->an'.length).map((item) => item.name)).toEqual(['andWhere']);
     expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('->getR') + '->getR'.length).map((item) => item.name)).toEqual(['getResult']);
-    for (const marker of ['$user->na', '$one?->na', '$direct->na', '$managed->na']) {
+    for (const marker of ['$user->na', '$one?->na', '$single->na', '$direct->na', '$iterated->na', '$managed->na']) {
       expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf(marker) + marker.length).map((item) => item.name), marker).toEqual(['name']);
     }
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$row->na') + '$row->na'.length)).toEqual([]);
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$scalar->na') + '$scalar->na'.length)).toEqual([]);
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$arrayHydrated->na') + '$arrayHydrated->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$hydratedSingle->na') + '$hydratedSingle->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$hydratedIterable->na') + '$hydratedIterable->na'.length)).toEqual([]);
   });
   it('atomically replaces, validates and removes one semantic provider contribution', () => {
     workspace.update('file:///ProviderTypes.php', '<?php namespace ProviderFacts; class Item { public function label(): string {} } class Model {}');

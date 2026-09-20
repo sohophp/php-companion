@@ -4,4 +4,4 @@ Doctrine ORM 的静态事实组件，不启动 EntityManager、项目 autoloader
 
 已证明 repository 实体后，`repositoryMethodReturnType` 为 `find`/`findOneBy` 返回 `Entity|null`，为 `findAll`/`findBy` 返回 `array<int, Entity>`。因此继承普通 `Doctrine\ORM\EntityRepository` 的自定义 repository 也可由实体上的字面量 `repositoryClass` 获得这四个稳定返回类型。动态 target、动态 `repositoryClass`、动态 repository 构造、冲突绑定或其他自定义查询保持未知。
 
-默认对象查询链会保留已证明的实体泛型：`Repository<Entity> -> QueryBuilder<Entity> -> Query<Entity>`，无参数 `getResult()` 返回 `array<int, Entity>`，无参数 `getOneOrNullResult()` 返回 `Entity|null`。`select`、`from`、`delete`、`update`、显式 hydration 参数和 `getArrayResult()` 会停止实体传播，组件不分析 DQL 字符串。
+默认对象查询链会保留已证明的实体泛型：`Repository<Entity> -> QueryBuilder<Entity> -> Query<Entity>`，无参数 `getResult()` 返回 `array<int, Entity>`，无参数 `getOneOrNullResult()` 返回 `Entity|null`，无参数 `getSingleResult()` 返回 `Entity`，无参数 `toIterable()` 返回 `iterable<int, Entity>`。`select`、`from`、`delete`、`update`、显式 hydration 参数和 `getArrayResult()` 会停止实体传播，组件不分析 DQL 字符串。

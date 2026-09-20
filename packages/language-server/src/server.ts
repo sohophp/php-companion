@@ -949,7 +949,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v55-php-${targetPhpVersion}`,
+      version: `semantic-v56-php-${targetPhpVersion}`,
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());

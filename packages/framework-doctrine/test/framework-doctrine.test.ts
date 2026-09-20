@@ -31,13 +31,15 @@ describe('static Doctrine facts', () => {
       { ownerFqcn: 'App\\UserRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\User>', returnTypeTemplates: ['TEntity'] },
     ]);
     const queryFacts = doctrineQueryMethodFacts(facts.entities[0]!);
-    expect(queryFacts.slice(0, 4)).toMatchObject([
+    expect(queryFacts.slice(0, 6)).toMatchObject([
       { ownerFqcn: 'Doctrine\\ORM\\EntityRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<T>', receiverTypeTemplates: ['T'], returnTypeTemplates: ['TEntity'] },
       { ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name: 'getQuery', returnType: '\\Doctrine\\ORM\\Query<TEntity>', receiverTypeTemplates: ['TEntity'], returnTypeTemplates: ['TEntity'] },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleResult', returnType: 'TEntity', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
     ]);
-    expect(queryFacts.slice(4).map((item) => [item.name, item.returnType])).toEqual([
+    expect(queryFacts.slice(6).map((item) => [item.name, item.returnType])).toEqual([
       ['select', '\\Doctrine\\ORM\\QueryBuilder'], ['from', '\\Doctrine\\ORM\\QueryBuilder'],
       ['delete', '\\Doctrine\\ORM\\QueryBuilder'], ['update', '\\Doctrine\\ORM\\QueryBuilder'],
     ]);

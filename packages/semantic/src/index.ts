@@ -6306,14 +6306,7 @@ export class SemanticWorkspace {
 
   private methodCandidatesForArguments(candidates: MemberInfo[], argumentsText: string, complete: boolean,
     callerFile?: SemanticFile, argumentsStart?: number): MemberInfo[] {
-    if (argumentsText.trim()) {
-      candidates = candidates.map((candidate) => candidate.externalReturnDefaultArgumentsOnly ? {
-        ...candidate,
-        returnType: candidate.externalBaseReturnType,
-        returnTypeTemplates: candidate.externalBaseReturnTypeTemplates,
-        externalReturnFact: false,
-      } : candidate);
-    }
+    if (argumentsText.trim()) candidates = candidates.map((candidate) => this.memberForArgumentCount(candidate, 1));
     const segments: Array<{ text: string; start: number }> = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
     for (let index = 0; index < argumentsText.length; index += 1) {
       const character = argumentsText[index]!;
@@ -6395,6 +6388,15 @@ export class SemanticWorkspace {
     if (!ranked.length) return shaped;
     const maximum = Math.max(...ranked.map((item) => item.score));
     return ranked.filter((item) => item.score === maximum).map((item) => item.candidate);
+  }
+
+  private memberForArgumentCount(member: MemberInfo, argumentCount: number): MemberInfo {
+    return argumentCount > 0 && member.externalReturnDefaultArgumentsOnly ? {
+      ...member,
+      returnType: member.externalBaseReturnType,
+      returnTypeTemplates: member.externalBaseReturnTypeTemplates,
+      externalReturnFact: false,
+    } : member;
   }
 
   private directScalarLiteralType(expression: string): PhpType | undefined {
@@ -6844,8 +6846,9 @@ export class SemanticWorkspace {
       if (sourceCall.dynamic) return undefined;
       const owner = this.variableClass(file, sourceCall.variable, assignment.start, new Set(visited));
       if (owner) {
-        const member = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
+        const declaredMember = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
           .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+        const member = declaredMember && this.memberForArgumentCount(declaredMember, sourceCall.argumentCount);
         const methodArguments = member && sourceCall.callback ? this.methodTemplateArguments(file, assignment.start, member, sourceCall.callback) : undefined;
         return member ? this.memberReturnGroups({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }) : undefined;
       }
@@ -7782,7 +7785,8 @@ export class SemanticWorkspace {
         if (target.nullable && !step.nullsafe) return undefined;
         const declaredMember = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
           .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
-        const member = declaredMember && step.kind === 'method' ? this.withInferredGeneratorReturn(declaredMember) : declaredMember;
+        const effectiveMember = declaredMember && step.kind === 'method' ? this.memberForArgumentCount(declaredMember, step.argumentCount) : declaredMember;
+        const member = effectiveMember && step.kind === 'method' ? this.withInferredGeneratorReturn(effectiveMember) : effectiveMember;
         if (!member) return undefined;
         if (directPropertyPath && step.kind === 'property') directPropertyPath.push(step.name);
         else directPropertyPath = undefined;
@@ -7902,8 +7906,9 @@ export class SemanticWorkspace {
       const sourceCall = assignment.sourceCall;
       if (sourceCall.dynamic) return undefined;
       const owner = this.variableClass(file, sourceCall.variable, assignment.start, visited);
-      const member = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
+      const declaredMember = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
         .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+      const member = declaredMember && this.memberForArgumentCount(declaredMember, sourceCall.argumentCount);
       const methodArguments: Record<string, string> | undefined = member && sourceCall.callback ? this.methodTemplateArguments(file, assignment.start, member, sourceCall.callback) : undefined;
       const returned = member && sourceCall.literalArgument !== undefined
         ? this.literalMethodReturnClass(owner!.fqcn, member.name, sourceCall.literalArgument)

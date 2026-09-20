@@ -7,6 +7,7 @@ export interface DoctrineRepositoryInfo { fqcn: string; uri: string; start: numb
 export interface DoctrineDocumentFacts { entities: DoctrineEntityInfo[]; repositories: DoctrineRepositoryInfo[]; }
 export interface DoctrineRepositoryMethodFact extends ExternalMethodFact {
   name: 'find' | 'findOneBy' | 'findAll' | 'findBy' | 'createQueryBuilder' | 'getQuery' | 'getResult' | 'getOneOrNullResult'
+    | 'getSingleResult' | 'toIterable'
     | 'select' | 'from' | 'delete' | 'update';
   returnType: string;
 }
@@ -119,6 +120,10 @@ export function doctrineQueryMethodFacts(location: { uri: string; start: number;
     { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>',
       receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
     { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null',
+      receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleResult', returnType: 'TEntity',
+      receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>',
       receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
     ...(['select', 'from', 'delete', 'update'] as const).map((name): DoctrineRepositoryMethodFact => ({
       ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder',
