@@ -85,8 +85,12 @@ function exclusionPattern(pattern: string): RegExp {
   return new RegExp(`^${source}(?:$|/.*)`);
 }
 
-type ExclusionScope = { root: string; patterns: RegExp[] };
+type ExclusionScope = { root: string; comparableRoot: string; comparablePrefix: string; patterns: RegExp[] };
 const exclusionScopes = new WeakMap<ComposerProject, ExclusionScope[]>();
+
+function comparablePath(path: string): string {
+  return process.platform === 'win32' ? path.toLowerCase() : path;
+}
 
 function compiledExclusionScopes(project: ComposerProject): ExclusionScope[] {
   const cached = exclusionScopes.get(project); if (cached) return cached;
@@ -94,12 +98,15 @@ function compiledExclusionScopes(project: ComposerProject): ExclusionScope[] {
     ...project.dependencies.map((dependency) => ({ root: dependency.root, patterns: dependency.excludeFromClassmap }))]
     .flatMap(({ root, patterns }) => {
       const compiled = patterns.filter((pattern) => pattern.trim() !== '').map(exclusionPattern);
-      return compiled.length ? [{ root: resolve(root), patterns: compiled }] : [];
+      const resolvedRoot = resolve(root); const comparableRoot = comparablePath(resolvedRoot);
+      const comparablePrefix = comparableRoot.endsWith(sep) ? comparableRoot : `${comparableRoot}${sep}`;
+      return compiled.length ? [{ root: resolvedRoot, comparableRoot, comparablePrefix, patterns: compiled }] : [];
     });
   exclusionScopes.set(project, scopes); return scopes;
 }
 
-function excludedInScope(resolvedFilePath: string, scope: ExclusionScope): boolean {
+function excludedInScope(resolvedFilePath: string, comparableFilePath: string, scope: ExclusionScope): boolean {
+  if (comparableFilePath !== scope.comparableRoot && !comparableFilePath.startsWith(scope.comparablePrefix)) return false;
   const packageRelative = relative(scope.root, resolvedFilePath);
   if (packageRelative === '..' || packageRelative.startsWith(`..${sep}`) || isAbsolute(packageRelative)) return false;
   const portable = packageRelative.split(sep).join('/');
@@ -108,7 +115,8 @@ function excludedInScope(resolvedFilePath: string, scope: ExclusionScope): boole
 
 export function isAutoloadPathExcluded(project: ComposerProject, filePath: string): boolean {
   const resolvedFilePath = resolve(filePath);
-  return compiledExclusionScopes(project).some((scope) => excludedInScope(resolvedFilePath, scope));
+  const comparableFilePath = comparablePath(resolvedFilePath);
+  return compiledExclusionScopes(project).some((scope) => excludedInScope(resolvedFilePath, comparableFilePath, scope));
 }
 
 export function resolvePsr4Class(fqcn: string, mappings: Psr4Mapping[]): string[] {

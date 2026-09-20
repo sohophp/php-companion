@@ -45,6 +45,22 @@ describe('Composer dependency discovery', () => {
     expect(isAutoloadPathExcluded(project, join(root, 'src', 'generated', 'v1', 'nested', 'Legacy.php'))).toBe(false);
     expect(isAutoloadPathExcluded(project, join(root, 'src', 'cache', 'deep', 'Cached.php'))).toBe(true);
     expect(isAutoloadPathExcluded(project, join(root, 'src', 'Testsuite', 'Fixture.php'))).toBe(false);
+    expect(isAutoloadPathExcluded(project, join(`${root}-sibling`, 'src', 'Tests', 'Fixture.php'))).toBe(false);
+  });
+  it('checks dependency exclusions only inside the owning package root', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-project-dependency-excludes-'));
+    const dependency = join(root, 'vendor', 'vendor', 'package');
+    await mkdir(dependency, { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{
+      name: 'vendor/package', autoload: { 'psr-4': { 'Vendor\\Package\\': 'src/' }, 'exclude-from-classmap': ['/src/Internal/'] },
+    }] }));
+    await writeFile(join(dependency, 'composer.json'), JSON.stringify({
+      autoload: { 'psr-4': { 'Vendor\\Package\\': 'src/' }, 'exclude-from-classmap': ['/src/Internal/'] },
+    }));
+    const project = (await loadComposerProject(root))!;
+    expect(isAutoloadPathExcluded(project, join(dependency, 'src', 'Internal', 'Hidden.php'))).toBe(true);
+    expect(isAutoloadPathExcluded(project, join(root, 'src', 'Internal', 'Visible.php'))).toBe(false);
   });
   it('returns every namespace candidate for overlapping PSR-4 mappings', () => {
     const directory = join('/workspace', 'src'); const file = join(directory, 'Model', 'User.php');
