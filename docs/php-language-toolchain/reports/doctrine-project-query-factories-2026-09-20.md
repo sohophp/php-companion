@@ -24,3 +24,16 @@ Winstar 的读服务把重复查询封装为原生返回类型 `QueryBuilder` �
 - CoreRepo PHP 7.2 只读审计载入 9,999 文件和 1,128 个项目类型，100/100 抽样声明、70 个跨文件样本、1,562 个返回位置，References p95 20.98 ms，冻结 Oracle 失败 0。原始数据见 [CoreRepo v59](real-workspace-corerepo-v59-2026-09-20.json)。
 
 两个真实项目均为 `projectComplete=true`；vendor 依赖受 10,000 文件预算截断且各有一个超过 512 KiB 的 Google API Client 文件，因此全依赖 `complete=false`，需要封闭世界的负向结论继续保持静默。
+
+## Alpha 候选
+
+功能提交为 `8f3ed0c`。候选目录 `artifacts/php-companion-alpha-0.4.5-8f3ed0cd/` 的 `SHA256SUMS` 四项均通过：
+
+| 角色 | SHA-256 |
+| --- | --- |
+| PHP 核心 | `7b8f25ee9a6f338ffa49b76b1da58b5b178e24d067ed5b5df45b0ef412219ec6` |
+| Symfony | `bb2f1c10b4321e4f3d11a8cfac5d35bfb3f35e7cd9b7ae9936f140bbb9958269` |
+| Open Source Pack | `38bcbfdd886c5967bd096358a8a7f14adecf77096a2f6d69f6d04c3f5913b4e7` |
+| Recommended Pack | `c1712378c7f67ffdaf8e9dcca992ebe1d269ca62d4e2f7f05e0cb8f832c11937` |
+
+Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL 预检均通过，见 [Winstar 预检](alpha-preflight-winstar-query-factories.json) 和 [CoreRepo 预检](alpha-preflight-corerepo-query-factories.json)。VS Code 1.138.0 打包 Extension Host 从 VSIX 同时加载核心与独立 Symfony 扩展，完成编辑、导航和重构门禁后以退出码 0 结束。后台预检不属于 VS Code WSL 集成终端，因此 Extension Host 所有权、竞争 Provider 和持续真实编辑仍须在 Alpha Profile 中人工确认。
