@@ -75,7 +75,8 @@ export interface ParsedAssignment extends SourceRange {
   > };
   sourceArrayElement?: { variable: string; key: string };
   sourceIterable?: ({ kind: 'variable'; variable: string; part: 'value' }
-    | { kind: 'member'; variable: string; member: string; memberKind: 'property' | 'method'; part: 'value' }) & SourceRange;
+    | { kind: 'member'; variable: string; member: string; memberKind: 'property' | 'method'; part: 'value' }
+    | { kind: 'expression'; part: 'value' }) & SourceRange;
   validRange?: SourceRange;
   sourceCall?: { kind: 'function'; name: string } | { kind: 'callable-variable'; variable: string } | { kind: 'static'; typeName: string; method: string } | { kind: 'member'; variable: string; method: string; dynamic?: 'literal' | 'variable' | 'expression' | 'constant'; callback?: { parameterType: string; returnType: string }; literalArgument?: string };
 }
@@ -1236,6 +1237,7 @@ export class PhpSyntaxParser {
           const object = collection.childForFieldName('object'); const member = collection.childForFieldName('name');
           if (object?.type === 'variable_name' && member) sourceIterable = { ...nodeRange(source, collection), kind: 'member', variable: object.text, member: member.text, memberKind: collection.type === 'member_call_expression' ? 'method' : 'property', part: 'value' };
         }
+        sourceIterable ??= { ...nodeRange(source, collection), kind: 'expression', part: 'value' };
         if (sourceIterable) assignments.push({ ...nodeRange(source, value), variable: value.text, callableFqcn: scope.id, scopeId: scope.id, sourceIterable, validRange: nodeRange(source, body) });
       }
       if (node.type === 'catch_clause') {

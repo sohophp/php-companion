@@ -149,6 +149,11 @@ export interface MemberInfo extends SemanticLocation {
   templateArguments?: Record<string, string>;
   calledOnTemplateArguments?: Record<string, string>;
   callableTemplates?: SemanticTemplate[];
+  returnTypeTemplates?: readonly string[];
+  externalReturnFact?: boolean;
+  externalReturnDefaultArgumentsOnly?: boolean;
+  externalBaseReturnType?: string;
+  externalBaseReturnTypeTemplates?: readonly string[];
   iterableValueType?: string;
   readable?: boolean;
   writable?: boolean;
@@ -6301,6 +6306,14 @@ export class SemanticWorkspace {
 
   private methodCandidatesForArguments(candidates: MemberInfo[], argumentsText: string, complete: boolean,
     callerFile?: SemanticFile, argumentsStart?: number): MemberInfo[] {
+    if (argumentsText.trim()) {
+      candidates = candidates.map((candidate) => candidate.externalReturnDefaultArgumentsOnly ? {
+        ...candidate,
+        returnType: candidate.externalBaseReturnType,
+        returnTypeTemplates: candidate.externalBaseReturnTypeTemplates,
+        externalReturnFact: false,
+      } : candidate);
+    }
     const segments: Array<{ text: string; start: number }> = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
     for (let index = 0; index < argumentsText.length; index += 1) {
       const character = argumentsText[index]!;
@@ -7185,7 +7198,13 @@ export class SemanticWorkspace {
     const ownerNamespace = member.typeScopeFqcn.split('\\').slice(0, -1).join('\\');
     const fqcn = this.resolveType(file, type.name, ownerNamespace, member.typeScopeFqcn);
     if (!fqcn) return undefined;
-    const typeArguments = this.templateArgumentsFor(fqcn, type.arguments, file, ownerNamespace, member.typeScopeFqcn);
+    let typeArguments = this.templateArgumentsFor(fqcn, type.arguments, file, ownerNamespace, member.typeScopeFqcn);
+    if (!typeArguments && member.returnTypeTemplates?.length === type.arguments.length && type.arguments.length > 0) {
+      const resolved = type.arguments.map((argument) => this.resolveType(file, argument, ownerNamespace, member.typeScopeFqcn));
+      if (resolved.every((argument): argument is string => Boolean(argument))) {
+        typeArguments = Object.fromEntries(member.returnTypeTemplates.map((template, index) => [template, resolved[index]!]));
+      }
+    }
     return { fqcn, nullable: type.nullable, typeArguments };
   }
 
@@ -7823,6 +7842,7 @@ export class SemanticWorkspace {
         if (inferred) return inferred;
         return undefined;
       }
+      if (sourceIterable.kind === 'expression') return undefined;
       const owner = this.variableClass(file, sourceIterable.variable, assignment.start, visited, true);
       const valueType = owner && !owner.nullable && owner.typeArguments
         ? this.genericIterableValueType(owner.fqcn, owner.typeArguments) : undefined;
@@ -9969,7 +9989,8 @@ export class SemanticWorkspace {
   }
 
   private memberChainResultType(file: SemanticFile, start: number, end: number): PhpType | undefined {
-    type ChainStep = { kind: 'property' | 'method'; name: string; nullsafe: boolean; argumentCount: number };
+    type ChainStep = { kind: 'property' | 'method'; name: string; nullsafe: boolean; argumentCount: number;
+      argumentsText?: string; argumentsStart?: number };
     const retainedTree = this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
     const tree = retainedTree ?? temporaryTree!;
@@ -9983,14 +10004,17 @@ export class SemanticWorkspace {
         if (!property && !method) return undefined;
         const object = node.childForFieldName('object'); const name = node.childForFieldName('name');
         const base = object && parse(object, depth + 1); if (!base || name?.type !== 'name') return undefined;
-        let argumentCount = 0;
+        let argumentCount = 0; let argumentsText: string | undefined; let argumentsStart: number | undefined;
         if (method) {
           const argumentsNode = node.childForFieldName('arguments');
           const arguments_ = argumentsNode?.namedChildren.filter((child) => child.type === 'argument'); if (!arguments_) return undefined;
           if (arguments_.some((argument) => Boolean(argument.childForFieldName('name')) || argument.text.trimStart().startsWith('...'))) return undefined;
           argumentCount = arguments_.length;
+          argumentsStart = argumentsNode!.startIndex + 1;
+          argumentsText = file.source.slice(argumentsStart, Math.max(argumentsStart, argumentsNode!.endIndex - 1));
         }
-        return { variable: base.variable, steps: [...base.steps, { kind: property ? 'property' : 'method', name: name.text, nullsafe: node.type.startsWith('nullsafe_'), argumentCount }] };
+        return { variable: base.variable, steps: [...base.steps, { kind: property ? 'property' : 'method', name: name.text,
+          nullsafe: node.type.startsWith('nullsafe_'), argumentCount, argumentsText, argumentsStart }] };
       };
       const exactNode = deepestLocalSyntax(tree.rootNode, start, end,
         (node) => node.startIndex === start && node.endIndex === end);
@@ -10046,8 +10070,12 @@ export class SemanticWorkspace {
     }
     for (const [index, step] of chain.steps.entries()) {
       if (target.nullable && !step.nullsafe) return undefined;
-      const member = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
-        .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+      const namedMembers = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
+        .filter((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+      const selected = step.kind === 'method'
+        ? this.methodCandidatesForArguments(namedMembers, step.argumentsText ?? '', true, file, step.argumentsStart) : namedMembers;
+      const rawMember = selected.length === 1 ? selected[0] : undefined;
+      const member = rawMember && step.kind === 'method' ? this.specializedMagicMethod(file, rawMember, step.argumentsStart) : rawMember;
       if (!member) return undefined;
       if (step.kind === 'method') {
         const required = member.parameters.filter((parameter) => parameter.defaultValue === undefined && !parameter.variadic).length;
@@ -10758,11 +10786,19 @@ export class SemanticWorkspace {
         parameters: item.parameters.map((parameter) => ({ ...parameter, type: specializedReturn(parameter.type) })), returnType: specializedReturn(item.returnType), nativeReturnType: specializedReturn(item.nativeReturnType),
         visibility: item.visibility, static: item.static, typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments,
         callableTemplates: ownerFile.templates.filter((template) => template.ownerFqcn.toLowerCase() === item.fqcn.toLowerCase()) }));
-    const externalMethodFacts = [...this.externalFacts.values()].flatMap((contribution) => contribution.methods).filter((item) => item.ownerFqcn.toLowerCase() === key);
+    const externalMethodFacts = [...this.externalFacts.values()].flatMap((contribution) => contribution.methods)
+      .filter((item) => item.ownerFqcn.toLowerCase() === key
+        && (item.receiverTypeTemplates === undefined || item.receiverTypeTemplates.every((template) => templateArguments?.[template] !== undefined)));
     const externalMethods: MemberInfo[] = externalMethodFacts.filter((item) => externalMethodFacts
       .filter((candidate) => candidate.name.toLowerCase() === item.name.toLowerCase())
-      .every((candidate) => (candidate.returnType ?? '').toLowerCase() === (item.returnType ?? '').toLowerCase() && Boolean(candidate.static) === Boolean(item.static)))
-      .map((item) => ({ kind: 'method', uri: item.uri, start: item.start, end: item.end, name: item.name, fqcn: `${fqcn}::${item.name}`, parameters: [], returnType: specializedReturn(item.returnType), visibility: 'public', static: item.static ?? false, typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments }));
+      .every((candidate) => (candidate.returnType ?? '').toLowerCase() === (item.returnType ?? '').toLowerCase()
+        && JSON.stringify(candidate.returnTypeTemplates ?? []) === JSON.stringify(item.returnTypeTemplates ?? [])
+        && JSON.stringify(candidate.receiverTypeTemplates ?? []) === JSON.stringify(item.receiverTypeTemplates ?? [])
+        && Boolean(candidate.defaultArgumentsOnly) === Boolean(item.defaultArgumentsOnly)
+        && Boolean(candidate.static) === Boolean(item.static)))
+      .map((item) => ({ kind: 'method', uri: item.uri, start: item.start, end: item.end, name: item.name, fqcn: `${fqcn}::${item.name}`, parameters: [], returnType: specializedReturn(item.returnType), returnTypeTemplates: item.returnTypeTemplates,
+        visibility: 'public', static: item.static ?? false, typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments, externalReturnFact: true,
+        externalReturnDefaultArgumentsOnly: item.defaultArgumentsOnly }));
     const enumMethods: MemberInfo[] = [];
     if (declaration.kind === 'enum') {
       enumMethods.push({ kind: 'method', uri: ownerFile.uri, start: declaration.start, end: declaration.end, name: 'cases', fqcn: `${fqcn}::cases`, parameters: [],
@@ -10883,11 +10919,20 @@ export class SemanticWorkspace {
     }) : rawCombined;
     const concrete = new Set(combined.filter((member) => member.synthetic !== 'phpdoc-magic')
       .map((member) => `${member.kind}:${memberNameKey(member.kind, member.name)}`));
-    return [...new Map(combined.flatMap((member) => {
+    const resolvedMembers = new Map<string, MemberInfo>();
+    for (const member of combined) {
       const identity = `${member.kind}:${memberNameKey(member.kind, member.name)}`;
-      if (member.synthetic === 'phpdoc-magic' && concrete.has(identity)) return [];
-      return [[member.synthetic === 'phpdoc-magic' && member.kind === 'method' ? `${identity}:${this.memberSignature(member)}` : identity, member] as const];
-    })).values()];
+      if (member.synthetic === 'phpdoc-magic' && concrete.has(identity)) continue;
+      const key = member.synthetic === 'phpdoc-magic' && member.kind === 'method' ? `${identity}:${this.memberSignature(member)}` : identity;
+      const existing = resolvedMembers.get(key);
+      if (member.externalReturnFact && existing?.kind === 'method') {
+        resolvedMembers.set(key, { ...existing, returnType: member.returnType, returnTypeTemplates: member.returnTypeTemplates,
+          calledOnFqcn: fqcn, calledOnTemplateArguments: templateArguments, templateArguments,
+          externalReturnDefaultArgumentsOnly: member.externalReturnDefaultArgumentsOnly,
+          externalBaseReturnType: existing.returnType, externalBaseReturnTypeTemplates: existing.returnTypeTemplates });
+      } else resolvedMembers.set(key, member);
+    }
+    return [...resolvedMembers.values()];
   }
 
   private isSubclassOf(candidate: string, target: string, visited = new Set<string>()): boolean {

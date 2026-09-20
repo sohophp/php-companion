@@ -35,7 +35,7 @@ import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyYamlRouteControllerAt, type SymfonyRouteCall, type SymfonyRouteParameterCall, type SymfonyRouteFact, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
+import { type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
   type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
@@ -67,6 +67,16 @@ const plannedSafeMovePaths = new Map<string, number>();
 const interopContextsByRoot = new Map<string, Map<string, ControllerTemplateContext[]>>();
 const doctrineMethodsByRoot = new Map<string, Map<string, DoctrineRepositoryMethodFact[]>>();
 const doctrinePropertiesByRoot = new Map<string, Map<string, DoctrineAssociationPropertyFact[]>>();
+
+function mergedDoctrineMethods(files: Map<string, DoctrineRepositoryMethodFact[]> | undefined): DoctrineRepositoryMethodFact[] {
+  const unique = new Map<string, DoctrineRepositoryMethodFact>();
+  for (const fact of [...(files?.values() ?? [])].flat()) {
+    const key = JSON.stringify([fact.ownerFqcn.toLowerCase(), fact.name.toLowerCase(), fact.returnType, Boolean(fact.static),
+      fact.returnTypeTemplates ?? [], fact.receiverTypeTemplates ?? [], Boolean(fact.defaultArgumentsOnly)]);
+    if (!unique.has(key)) unique.set(key, fact);
+  }
+  return [...unique.values()];
+}
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
 const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
@@ -939,7 +949,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: `semantic-v54-php-${targetPhpVersion}`,
+      version: `semantic-v55-php-${targetPhpVersion}`,
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
@@ -972,7 +982,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     doctrineMethodsByRoot.set(root, doctrineFiles);
     doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
     workspace.replaceExternalFacts(semanticFacts('doctrine', String(generation), {
-      methods: [...doctrineFiles.values()].flat(), properties: [...doctrinePropertyFiles.values()].flat(),
+      methods: mergedDoctrineMethods(doctrineFiles), properties: [...doctrinePropertyFiles.values()].flat(),
     }));
     await refreshSemanticProviders(root, generation, workspace, shouldContinue);
     await loadCallableFacts(root, workspace);
@@ -1039,13 +1049,13 @@ async function refreshInteropDocument(document: TextDocument): Promise<void> {
 async function refreshDoctrineDocument(root: string, uri: string, source: string, workspace: SemanticWorkspace): Promise<void> {
   const byFile = doctrineMethodsByRoot.get(root) ?? new Map<string, DoctrineRepositoryMethodFact[]>();
   const propertiesByFile = doctrinePropertiesByRoot.get(root) ?? new Map<string, DoctrineAssociationPropertyFact[]>();
-  const facts = source.includes('Doctrine') || source.includes('ServiceEntityRepository') ? analyzeDoctrineDocument(await parser(), uri, source) : undefined;
-  byFile.set(uri, facts?.repositories.flatMap(doctrineRepositoryMethodFacts) ?? []);
-  propertiesByFile.set(uri, facts?.entities.flatMap(doctrineAssociationPropertyFacts) ?? []);
+  const facts = analyzeProjectPhpFileFacts(await parser(), uri, source);
+  byFile.set(uri, facts.doctrineMethods);
+  propertiesByFile.set(uri, facts.doctrineProperties);
   doctrineMethodsByRoot.set(root, byFile);
   doctrinePropertiesByRoot.set(root, propertiesByFile);
   workspace.replaceExternalFacts(semanticFacts('doctrine', String(indexingGeneration), {
-    methods: [...byFile.values()].flat(), properties: [...propertiesByFile.values()].flat(),
+    methods: mergedDoctrineMethods(byFile), properties: [...propertiesByFile.values()].flat(),
   }));
 }
 
@@ -1053,7 +1063,7 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   const byFile = doctrineMethodsByRoot.get(root); byFile?.delete(uri);
   const propertiesByFile = doctrinePropertiesByRoot.get(root); propertiesByFile?.delete(uri);
   workspace.replaceExternalFacts(semanticFacts('doctrine', String(indexingGeneration), {
-    methods: [...(byFile?.values() ?? [])].flat(), properties: [...(propertiesByFile?.values() ?? [])].flat(),
+    methods: mergedDoctrineMethods(byFile), properties: [...(propertiesByFile?.values() ?? [])].flat(),
   }));
 }
 

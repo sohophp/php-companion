@@ -5,7 +5,11 @@ export interface DoctrineAssociation { property: string; kind: 'one-to-one' | 'm
 export interface DoctrineEntityInfo { fqcn: string; uri: string; start: number; end: number; repository?: string; associations: DoctrineAssociation[]; }
 export interface DoctrineRepositoryInfo { fqcn: string; uri: string; start: number; end: number; entity: string; }
 export interface DoctrineDocumentFacts { entities: DoctrineEntityInfo[]; repositories: DoctrineRepositoryInfo[]; }
-export interface DoctrineRepositoryMethodFact extends ExternalMethodFact { name: 'find' | 'findOneBy' | 'findAll' | 'findBy'; returnType: string; }
+export interface DoctrineRepositoryMethodFact extends ExternalMethodFact {
+  name: 'find' | 'findOneBy' | 'findAll' | 'findBy' | 'createQueryBuilder' | 'getQuery' | 'getResult' | 'getOneOrNullResult'
+    | 'select' | 'from' | 'delete' | 'update';
+  returnType: string;
+}
 export interface DoctrineAssociationPropertyFact extends ExternalPropertyFact { returnType: string; }
 
 function resolveName(name: string, namespace: string, imports: ParsedImport[]): string {
@@ -94,10 +98,33 @@ export function repositoryMethodReturnType(repository: DoctrineRepositoryInfo, m
 
 /** Return only Doctrine repository methods whose result shape is stable and entity-specific. */
 export function doctrineRepositoryMethodFacts(repository: DoctrineRepositoryInfo): DoctrineRepositoryMethodFact[] {
-  return (['find', 'findOneBy', 'findAll', 'findBy'] as const).map((name) => ({
+  const repositoryMethods: DoctrineRepositoryMethodFact[] = (['find', 'findOneBy', 'findAll', 'findBy'] as const).map((name) => ({
     ownerFqcn: repository.fqcn, name, returnType: repositoryMethodReturnType(repository, name)!,
     uri: repository.uri, start: repository.start, end: repository.end,
   }));
+  const entity = `\\${repository.entity.replace(/^\\/, '')}`;
+  return [...repositoryMethods,
+    { ownerFqcn: repository.fqcn, name: 'createQueryBuilder', returnType: `\\Doctrine\\ORM\\QueryBuilder<${entity}>`,
+      returnTypeTemplates: ['TEntity'], uri: repository.uri, start: repository.start, end: repository.end },
+  ];
+}
+
+/** Generic Doctrine ORM query flow shared by all statically known entities and repositories. */
+export function doctrineQueryMethodFacts(location: { uri: string; start: number; end: number }): DoctrineRepositoryMethodFact[] {
+  return [
+    { ownerFqcn: 'Doctrine\\ORM\\EntityRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<T>',
+      receiverTypeTemplates: ['T'], returnTypeTemplates: ['TEntity'], ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name: 'getQuery', returnType: '\\Doctrine\\ORM\\Query<TEntity>',
+      receiverTypeTemplates: ['TEntity'], returnTypeTemplates: ['TEntity'], ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>',
+      receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null',
+      receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+    ...(['select', 'from', 'delete', 'update'] as const).map((name): DoctrineRepositoryMethodFact => ({
+      ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder',
+      ...location,
+    })),
+  ];
 }
 
 /** Return association properties only when their runtime container/nullability is declared. */

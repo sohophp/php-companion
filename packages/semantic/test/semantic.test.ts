@@ -4140,6 +4140,54 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.replaceExternalFacts(semanticFacts('doctrine', '2'))).toBe(true);
     expect(workspace.completeMembers('file:///DoctrineUse.php', source.indexOf('fi;') + 2)).toEqual([]);
   });
+  it('preserves an externally proven entity through the default Doctrine query chain', () => {
+    workspace.update('file:///DoctrineQuery.php', `<?php namespace Doctrine\\ORM;
+      class Query { public function getResult(): mixed {} public function getOneOrNullResult(): mixed {} public function getArrayResult(): array {} }
+      class QueryBuilder { public function andWhere(string $where): static { return $this; } public function select(mixed ...$select): static { return $this; }
+        public function from(string $from, string $alias): static { return $this; } public function delete(?string $delete = null): static { return $this; }
+        public function update(?string $update = null): static { return $this; } public function getQuery(): Query {} }
+      /** @template T of object */ class EntityRepository { public function createQueryBuilder(string $alias): QueryBuilder {} }
+      interface EntityManagerInterface { /** @template T of object
+        * @param class-string<T> $className
+        * @return EntityRepository<T> */ public function getRepository(string $className): EntityRepository; }
+    `);
+    workspace.update('file:///QueryEntity.php', `<?php namespace QueryFlow;
+      class User { public function name(): string {} }
+      /** @extends \\Doctrine\\ORM\\EntityRepository<User> */
+      class UserRepository extends \\Doctrine\\ORM\\EntityRepository {}
+    `);
+    const location = { uri: 'file:///QueryEntity.php', start: 70, end: 84 };
+    expect(workspace.replaceExternalFacts(semanticFacts('doctrine-query', '1', { methods: [
+      { ownerFqcn: 'Doctrine\\ORM\\EntityRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<T>', receiverTypeTemplates: ['T'], returnTypeTemplates: ['TEntity'], ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name: 'getQuery', returnType: '\\Doctrine\\ORM\\Query<TEntity>', receiverTypeTemplates: ['TEntity'], returnTypeTemplates: ['TEntity'], ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+      ...['select', 'from', 'delete', 'update'].map((name) => ({ ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder', ...location })),
+    ] }))).toBe(true);
+    const source = `<?php namespace QueryFlow; function run(UserRepository $repo): void {
+      $repo->cr; $repo->createQueryBuilder('user')->an; $repo->createQueryBuilder('user')->getQuery()->getR;
+      $users = $repo->createQueryBuilder('user')->andWhere('user.active = 1')->getQuery()->getResult();
+      foreach ($users as $user) { $user->na; }
+      $one = $repo->createQueryBuilder('user')->getQuery()->getOneOrNullResult(); $one?->na;
+      foreach ($repo->createQueryBuilder('user')->getQuery()->getResult() as $direct) { $direct->na; }
+      $arrays = $repo->createQueryBuilder('user')->getQuery()->getArrayResult(); foreach ($arrays as $row) { $row->na; }
+      $scalars = $repo->createQueryBuilder('user')->select('COUNT(user.id)')->getQuery()->getResult(); foreach ($scalars as $scalar) { $scalar->na; }
+      $hydrated = $repo->createQueryBuilder('user')->getQuery()->getResult(2); foreach ($hydrated as $arrayHydrated) { $arrayHydrated->na; }
+    }
+    function managed(\\Doctrine\\ORM\\EntityManagerInterface $manager): void {
+      foreach ($manager->getRepository(User::class)->createQueryBuilder('user')->getQuery()->getResult() as $managed) { $managed->na; }
+    }`;
+    workspace.update('file:///QueryUse.php', source);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('$repo->cr') + '$repo->cr'.length).map((item) => item.name)).toEqual(['createQueryBuilder']);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('->an') + '->an'.length).map((item) => item.name)).toEqual(['andWhere']);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf('->getR') + '->getR'.length).map((item) => item.name)).toEqual(['getResult']);
+    for (const marker of ['$user->na', '$one?->na', '$direct->na', '$managed->na']) {
+      expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf(marker) + marker.length).map((item) => item.name), marker).toEqual(['name']);
+    }
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$row->na') + '$row->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$scalar->na') + '$scalar->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$arrayHydrated->na') + '$arrayHydrated->na'.length)).toEqual([]);
+  });
   it('atomically replaces, validates and removes one semantic provider contribution', () => {
     workspace.update('file:///ProviderTypes.php', '<?php namespace ProviderFacts; class Item { public function label(): string {} } class Model {}');
     const source = '<?php namespace ProviderFacts; function useModel(Model $model): void { $model->old; $model->current; }';

@@ -1,17 +1,17 @@
 import { createHash } from 'node:crypto';
 import type { PhpSyntaxParser } from '@php-companion/parser';
 import type { SemanticSnapshot } from '@php-companion/semantic';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts,
+import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryMethodFacts,
   type DoctrineAssociationPropertyFact, type DoctrineRepositoryMethodFact } from '@php-companion/framework-doctrine';
 
 export interface ProjectPhpFileFacts {
-  schema: 1;
+  schema: 2;
   doctrineMethods: DoctrineRepositoryMethodFact[];
   doctrineProperties: DoctrineAssociationPropertyFact[];
 }
 
 export interface CachedProjectPhpFile {
-  schema: 6;
+  schema: 7;
   semantic: SemanticSnapshot;
   facts: ProjectPhpFileFacts;
   checksums: {
@@ -51,7 +51,10 @@ function isChecksum(value: unknown): value is string {
 
 function isDoctrineMethod(value: unknown, uri: string, sourceLength: number): value is DoctrineRepositoryMethodFact {
   return isRecord(value) && isString(value.ownerFqcn) && value.ownerFqcn.length > 0
-    && ['find', 'findOneBy', 'findAll', 'findBy'].includes(String(value.name)) && isString(value.returnType)
+    && ['find', 'findOneBy', 'findAll', 'findBy', 'createQueryBuilder', 'getQuery', 'getResult', 'getOneOrNullResult', 'select', 'from', 'delete', 'update'].includes(String(value.name)) && isString(value.returnType)
+    && (value.defaultArgumentsOnly === undefined || typeof value.defaultArgumentsOnly === 'boolean')
+    && [value.returnTypeTemplates, value.receiverTypeTemplates].every((templates) => templates === undefined || Array.isArray(templates) && templates.length <= 16
+      && templates.every((template) => isString(template, 128) && /^[A-Za-z_][A-Za-z0-9_]*$/.test(template)))
     && value.uri === uri && Number.isSafeInteger(value.start) && Number.isSafeInteger(value.end)
     && Number(value.start) >= 0 && Number(value.end) >= Number(value.start) && Number(value.end) <= sourceLength;
 }
@@ -68,9 +71,13 @@ function isDoctrineProperty(value: unknown, uri: string, sourceLength: number): 
 export function analyzeProjectPhpFileFacts(parser: PhpSyntaxParser, uri: string, source: string): ProjectPhpFileFacts {
   const doctrine = source.includes('Doctrine') || source.includes('ServiceEntityRepository')
     ? analyzeDoctrineDocument(parser, uri, source) : { entities: [], repositories: [] };
+  const queryLocation = doctrine.entities[0] ?? doctrine.repositories[0];
   return {
-    schema: 1,
-    doctrineMethods: doctrine.repositories.flatMap(doctrineRepositoryMethodFacts),
+    schema: 2,
+    doctrineMethods: [
+      ...doctrine.repositories.flatMap(doctrineRepositoryMethodFacts),
+      ...(queryLocation ? doctrineQueryMethodFacts(queryLocation) : []),
+    ],
     doctrineProperties: doctrine.entities.flatMap(doctrineAssociationPropertyFacts),
   };
 }
@@ -86,12 +93,12 @@ export function createCachedProjectPhpFile(semantic: SemanticSnapshot, facts: Pr
     callableImplementations: semantic.implementation.callables.map((record) => ({ identity: record.identity, checksum: recordChecksum(record) })),
     layers: recordChecksum(semantic.layers), facts: recordChecksum(facts),
   };
-  return { schema: 6, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
+  return { schema: 7, semantic, facts, checksums, checksum: payloadChecksum(checksums) };
 }
 
 export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   expectedSource?: string): CachedProjectPhpFile | undefined {
-  if (!isRecord(value) || value.schema !== 6 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
+  if (!isRecord(value) || value.schema !== 7 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)
     || !isChecksum(value.checksum)) return undefined;
   const semantic = value.semantic as unknown as SemanticSnapshot;
   const facts = value.facts as unknown as ProjectPhpFileFacts;
@@ -114,10 +121,10 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
       && entry.checksum === recordChecksum(implementation.callables[index]))
     || !isChecksum(checksums.layers) || checksums.layers !== recordChecksum(layers)
     || !isChecksum(checksums.facts) || checksums.facts !== recordChecksum(facts)
-    || facts.schema !== 1 || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000
+    || facts.schema !== 2 || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000
     || !Array.isArray(facts.doctrineProperties) || facts.doctrineProperties.length > 10_000
     || !facts.doctrineMethods.every((fact) => isDoctrineMethod(fact, expectedUri, implementation.source.length))
     || !facts.doctrineProperties.every((fact) => isDoctrineProperty(fact, expectedUri, implementation.source.length))
     || payloadChecksum(checksums as unknown as CachedProjectPhpFile['checksums']) !== value.checksum) return undefined;
-  return { schema: 6, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
+  return { schema: 7, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };
 }

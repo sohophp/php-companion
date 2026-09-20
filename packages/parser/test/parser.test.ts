@@ -450,6 +450,15 @@ class Child extends ParentBase implements Contract {
     ]);
     result.tree.delete();
   });
+  it('records a bounded foreach collection expression for semantic proof', () => {
+    const source = '<?php function run($repo): void { foreach ($repo->query()->getResult() as $item) { $item->name(); } }';
+    const result = parser.parse(source);
+    const assignment = result.assignments.find((item) => item.variable === '$item');
+    expect(assignment?.sourceIterable).toEqual(expect.objectContaining({
+      kind: 'expression', part: 'value', start: source.indexOf('$repo->query()'), end: source.indexOf(' as $item'),
+    }));
+    result.tree.delete();
+  });
   it('records only directly representable dynamic member names and receivers', () => {
     const result = parser.parse(`<?php function run(User $user, string $name): void { $user->{'load'}(); $user->{$name}(); $user->{makeName()}(); User::{'build'}(); $user->; $name->; }`);
     const dynamicAccesses = result.memberAccesses.filter((access) => access.dynamic);

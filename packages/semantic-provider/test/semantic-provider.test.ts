@@ -12,6 +12,16 @@ describe('semantic provider contract', () => {
       properties: [{ ownerFqcn: 'App\\Entity', name: 'items', visibility: 'private', iterableValueType: 'App\\Item', uri: 'file:///Entity.php', start: 20, end: 26 }],
       literalMethodReturns: [{ ownerFqcn: 'Psr\\Container\\ContainerInterface', name: 'get', argument: 'app.mailer', returnType: 'App\\Mailer', uri: 'file:///services.yaml', start: 2, end: 12 }],
     }))).toBe(true);
+    expect(isSemanticFactsContribution(semanticFacts('doctrine', 'index:2', {
+      methods: [{ ownerFqcn: 'App\\Repository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity>',
+        returnTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, uri: 'file:///Entity.php', start: 4, end: 10 }],
+    }))).toBe(true);
+    expect(isSemanticFactsContribution(semanticFacts('doctrine', 'index:3', {
+      methods: [{ ownerFqcn: 'App\\Repository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity>',
+        returnTypeTemplates: ['invalid-template'], uri: 'file:///Entity.php', start: 4, end: 10 }],
+    }))).toBe(false);
+    expect(isSemanticFactsContribution({ ...semanticFacts('doctrine', 'index:4'), methods: [{ ownerFqcn: 'App\\Repository', name: 'find',
+      returnType: 'App\\Entity', defaultArgumentsOnly: 'yes', uri: 'file:///Entity.php', start: 4, end: 10 }] })).toBe(false);
   });
 
   it('accepts complete framework-neutral container facts', () => {

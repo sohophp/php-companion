@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
-import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
+import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryMethodFacts, doctrineRepositoryMethodFacts, repositoryMethodReturnType } from '../src/index.js';
 
 describe('static Doctrine facts', () => {
   let parser: PhpSyntaxParser;
@@ -23,8 +23,23 @@ describe('static Doctrine facts', () => {
     expect(facts.repositories).toMatchObject([{ fqcn: 'App\\UserRepository', entity: 'App\\User' }]);
     expect(repositoryMethodReturnType(facts.repositories[0]!, 'findOneBy')).toBe('App\\User|null');
     expect(repositoryMethodReturnType(facts.repositories[0]!, 'findBy')).toBe('array<int, App\\User>');
-    expect(doctrineRepositoryMethodFacts(facts.repositories[0]!).map((item) => [item.name, item.returnType])).toEqual([
+    const methodFacts = doctrineRepositoryMethodFacts(facts.repositories[0]!);
+    expect(methodFacts.slice(0, 4).map((item) => [item.name, item.returnType])).toEqual([
       ['find', 'App\\User|null'], ['findOneBy', 'App\\User|null'], ['findAll', 'array<int, App\\User>'], ['findBy', 'array<int, App\\User>'],
+    ]);
+    expect(methodFacts.slice(4)).toMatchObject([
+      { ownerFqcn: 'App\\UserRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\User>', returnTypeTemplates: ['TEntity'] },
+    ]);
+    const queryFacts = doctrineQueryMethodFacts(facts.entities[0]!);
+    expect(queryFacts.slice(0, 4)).toMatchObject([
+      { ownerFqcn: 'Doctrine\\ORM\\EntityRepository', name: 'createQueryBuilder', returnType: '\\Doctrine\\ORM\\QueryBuilder<T>', receiverTypeTemplates: ['T'], returnTypeTemplates: ['TEntity'] },
+      { ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name: 'getQuery', returnType: '\\Doctrine\\ORM\\Query<TEntity>', receiverTypeTemplates: ['TEntity'], returnTypeTemplates: ['TEntity'] },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getResult', returnType: 'array<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
+    ]);
+    expect(queryFacts.slice(4).map((item) => [item.name, item.returnType])).toEqual([
+      ['select', '\\Doctrine\\ORM\\QueryBuilder'], ['from', '\\Doctrine\\ORM\\QueryBuilder'],
+      ['delete', '\\Doctrine\\ORM\\QueryBuilder'], ['update', '\\Doctrine\\ORM\\QueryBuilder'],
     ]);
     expect(doctrineAssociationPropertyFacts(facts.entities[0]!).map((item) => [item.name, item.returnType])).toEqual([
       ['team', 'App\\Team|null'], ['orders', 'iterable<int, App\\Order>'],
@@ -47,7 +62,7 @@ describe('static Doctrine facts', () => {
     `;
     const facts = analyzeDoctrineDocument(parser, 'file:///CustomRepository.php', source);
     expect(facts.repositories).toMatchObject([{ fqcn: 'App\\LanguageRepository', entity: 'App\\Language' }]);
-    expect(doctrineRepositoryMethodFacts(facts.repositories[0]!).map((item) => [item.name, item.returnType])).toEqual([
+    expect(doctrineRepositoryMethodFacts(facts.repositories[0]!).slice(0, 4).map((item) => [item.name, item.returnType])).toEqual([
       ['find', 'App\\Language|null'], ['findOneBy', 'App\\Language|null'],
       ['findAll', 'array<int, App\\Language>'], ['findBy', 'array<int, App\\Language>'],
     ]);

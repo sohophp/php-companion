@@ -59,7 +59,18 @@ export interface SemanticProviderResponse {
 }
 
 export interface SemanticFactLocation { uri: string; start: number; end: number; }
-export interface ExternalMethodFact extends SemanticFactLocation { ownerFqcn: string; name: string; returnType?: string; static?: boolean; }
+export interface ExternalMethodFact extends SemanticFactLocation {
+  ownerFqcn: string;
+  name: string;
+  returnType?: string;
+  static?: boolean;
+  /** Template names assigned positionally to a generic object returned by this method. */
+  returnTypeTemplates?: readonly string[];
+  /** Receiver template arguments required before this return override is applicable. */
+  receiverTypeTemplates?: readonly string[];
+  /** Apply the external return override only when the call supplies no arguments. */
+  defaultArgumentsOnly?: boolean;
+}
 export interface ExternalPropertyFact extends SemanticFactLocation {
   ownerFqcn: string;
   name: string;
@@ -149,7 +160,10 @@ function named(value: unknown): value is SemanticFactLocation & { ownerFqcn: str
 function methodFact(value: unknown): value is ExternalMethodFact {
   if (!named(value)) return false;
   const fact = value as Partial<ExternalMethodFact>;
-  return (fact.returnType === undefined || typeof fact.returnType === 'string') && (fact.static === undefined || typeof fact.static === 'boolean');
+  return (fact.returnType === undefined || typeof fact.returnType === 'string') && (fact.static === undefined || typeof fact.static === 'boolean')
+    && (fact.defaultArgumentsOnly === undefined || typeof fact.defaultArgumentsOnly === 'boolean')
+    && [fact.returnTypeTemplates, fact.receiverTypeTemplates].every((templates) => templates === undefined || Array.isArray(templates) && templates.length <= 16
+      && templates.every((template) => typeof template === 'string' && /^[A-Za-z_][A-Za-z0-9_]*$/.test(template)));
 }
 
 function propertyFact(value: unknown): value is ExternalPropertyFact {
