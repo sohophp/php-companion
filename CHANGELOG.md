@@ -1,3 +1,5 @@
+- Refresh resource-expanded Symfony services once per Composer root after PHP declaration changes or deletion; implementation-only watcher changes keep the current container snapshot.
+- 提交 `954dfc4` 修复 resource 自动注册类新增、删除或改名后服务补全继续使用旧目录的问题；193 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-954dfc46` 已安装到 WSL。
 - Invalidate authoritative Symfony event snapshots after actual watched PHP source changes or deletion, so listener and dispatch References cannot reuse stale relations when declarations stay unchanged.
 - 提交 `4727726` 修复关闭 PHP 文件修改方法体后 Symfony 事件 References 继续返回旧 dispatch 关系的问题；同长度事件类替换回归、192 项 Language Server、24 个隔离 tarball、四份 VSIX、双扩展打包宿主和 Winstar/CoreRepo 预检均通过，候选 `php-companion-alpha-0.4.5-47277266` 已安装到 WSL。
 - Batch changed PHP snapshots per Composer root before refreshing authoritative Symfony Controller contexts, starting one provider process per watcher notification while retaining per-file replacement and failure cleanup.
