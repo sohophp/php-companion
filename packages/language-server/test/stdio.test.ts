@@ -4754,6 +4754,39 @@ final class Dispatching { public function __construct(private EventDispatcherInt
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('clears removed controller contexts without spawning the provider for an ineligible PHP edit', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-prefilter-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const path = join(sourceDirectory, 'PageController.php'); const uri = pathToFileURL(path).toString();
+      const source = "<?php namespace App; final class PageController { public function show(): void { $this->render('page.html.twig'); } }";
+      await writeFile(path, source);
+      const counter = join(root, 'provider-count.txt'); const provider = join(root, 'controllers.mjs');
+      await writeFile(provider, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(counter)},'1\\n');const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const location={uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:[{template:'page.html.twig',complete:true,variables:[],sources:[{symbol:'App\\\\PageController::show',location}]}]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 675, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
+        ] },
+      } }));
+      await output.waitFor((message) => message.id === 675); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('authoritative controller contexts'), 10_000);
+      const before = (await readFile(counter, 'utf8')).trim().split('\n').length;
+      const edited = "<?php namespace App; final class PageController { public function show(): void {} }";
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 2, text: edited },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated' && message.params.changedUris.includes(uri));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 676, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 676)).result.contexts).toEqual([]);
+      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 100));
+      expect((await readFile(counter, 'utf8')).trim().split('\n')).toHaveLength(before);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('keeps the newest controller context when an older provider request finishes last', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-order-'));
     try {

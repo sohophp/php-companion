@@ -590,6 +590,17 @@ function controllerContextMap(contexts: readonly ControllerTemplateContext[], al
 async function runControllerContextProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, scopes?: readonly { uri: string; source: string; snapshotVersion: string }[]): Promise<boolean> {
   const request = beginControllerContextProviderRequest(root, scopes);
+  const providerScopes = scopes?.filter((scope) => scope.source.includes('render'));
+  if (scopes && providerScopes?.length !== scopes.length) {
+    const byFile = interopContextsByRoot.get(root);
+    for (const scope of scopes) if (!scope.source.includes('render')) byFile?.delete(scope.uri);
+    if (byFile?.size === 0) interopContextsByRoot.delete(root);
+  }
+  // The standalone provider applies the same conservative prefilter before
+  // parsing. Avoid spawning it for ordinary PHP edits, while the revision
+  // recorded above prevents an older full/scoped request from restoring a
+  // context after render() was removed.
+  if (scopes && providerScopes?.length === 0) return true;
   const authoritative = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (authoritative.length !== 1) {
     if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
@@ -597,10 +608,10 @@ async function runControllerContextProvider(root: string, generation: number, wo
     return false;
   }
   const descriptor = authoritative[0]!; const allTypes = semanticProviderProjectTypes(root, workspace);
-  const scopedUris = scopes ? new Set(scopes.map((scope) => scope.uri)) : undefined;
+  const scopedUris = providerScopes ? new Set(providerScopes.map((scope) => scope.uri)) : undefined;
   const projectTypes = scopedUris ? allTypes.projectTypes.filter((type) => scopedUris.has(type.uri)) : allTypes.projectTypes;
-  const snapshots = scopes
-    ? { complete: true, documents: scopes.map((scope) => ({ ...scope, languageId: 'php' as const })) }
+  const snapshots = providerScopes
+    ? { complete: true, documents: providerScopes.map((scope) => ({ ...scope, languageId: 'php' as const })) }
     : semanticProviderDocuments(root);
   if (!allTypes.complete || !snapshots.complete) {
     connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
@@ -614,7 +625,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
   if (!commitScope || (commitScope.kind === 'scoped' && commitScope.currentUris.size === 0)) return false;
   if (result.ok && result.contribution.controllerContexts) {
     const sourcesByUri = scopes ? new Map(scopes.map((scope) => [scope.uri, scope.source])) : undefined;
-    const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(scopes?.map((scope) => scope.uri) ?? [])]);
+    const allowedUris = new Set([...projectTypes.map((type) => type.uri), ...(providerScopes?.map((scope) => scope.uri) ?? [])]);
     const sourceFor = (uri: string): string | undefined => sourcesByUri?.get(uri) ?? workspace.source(uri);
     const contributedContexts = commitScope.kind === 'full' && commitScope.staleUris.size
       ? result.contribution.controllerContexts.filter((context) => context.sources.every((source) => !commitScope.staleUris.has(source.location.uri)))
