@@ -23,5 +23,18 @@
 - 全仓 26 个测试组共 806 项通过。
 - TypeScript 与 ESLint 通过。
 - VS Code 打包 Extension Host 覆盖普通业务 PHP Attribute 的 Definition、References、Completion、标准 F2 Rename，以及 YAML/XML/PHP/Attribute 五处编辑的一次 Apply 和单步 Undo。
+- Winstar PHP 8.5 与 CoreRepo PHP 7.2 候选预检通过，见 [Winstar JSON](alpha-preflight-winstar-autowire-service-references.json) 与 [CoreRepo JSON](alpha-preflight-corerepo-autowire-service-references.json)。
+
+## Alpha 候选
+
+功能提交为 `2dbd300`，候选目录为 `artifacts/php-companion-alpha-0.4.5-2dbd300f/`。目录内 `SHA256SUMS` 五项通过：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `bae735e244c297b2f8ed39b092842312c5ad4ad5ac0e98f14957cbc5424baea8` |
+| `php-companion-symfony-0.4.5.vsix` | `93c641af36d871713171c5d63713ff03a215b8049e12b7e8acb5cb10f3a58bba` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `ea2299f87fa49f8c35fb07f04488f1df193fa626d0ca40de80207c6a83c929f3` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `1edde04a5e142ce5ecc7cdff557cd184c80aa259044cee63a57041bd606fec73` |
+| `twig-plus-1.3.7-496f514.vsix` | `0162f5151972faee4a68f57a2d49bd749d743a0f70211422eec6302a99c7ae05` |
 
 自动测试不替代 Windows 客户端连接 WSL Remote 的持续真实编辑验收。实际 Profile 仍应验证首次查询耗时、缓存后的重复查询、Cancel、Reload Window 后不出现无终点索引，以及上述两个真实服务 ID 的结果完整性。
