@@ -1884,7 +1884,7 @@ function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
 async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
-  mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false): Promise<boolean> {
+  mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies): Promise<boolean> {
   if (indexingMode === 'off') return false;
   const normalizedNames = [...names].sort();
   const namedArgumentPatterns = mode === 'named-argument' ? normalizedNames.map((name) => new RegExp(
@@ -1906,7 +1906,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   const scan = await indexComposerSources(root, { project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 64,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
-    prepareSource: deferBodies ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies }) : undefined,
+    prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies }) : undefined,
     onSource: ({ uri, path, source, hash, prepared }) => {
       recordCandidateRead(path, hash);
       const open = documents.get(uri); const effective = open?.getText() ?? source;
@@ -1987,7 +1987,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
-    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies) : false;
+    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers) : false;
   }
   if (candidateReadsComplete && candidateReads.size === scan.files) referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads });
   candidateQueries.set(key, epoch); return true;
@@ -3764,7 +3764,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
     const ready = scope === 'document' || !root || (namedTarget && !projectCompleteRoots.has(root)
       ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
-        closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method')
+        closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method', true)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');

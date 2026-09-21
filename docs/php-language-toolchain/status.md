@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 类首次 References 并发准备：类查询接入既有 CandidateWorkers，使源码读取、摘要与匹配文件解析脱离主线程串行路径。Winstar `AdminSecuritySubscriber` 同轮原版/修改版首次为 7.579/5.877 秒，候选扫描 4.230/2.568 秒；两处服务/事件引用完整位置一致。新增 Reload 后未保存消费者优先回归，相关 stdio 4 项在 16.96 秒内通过，构建/ESLint 通过。方法 `get` 仍为正确 112 处、首次 12.623 秒，不宣称其提速；未更新安装版，Goal 继续。见 [类 References 并发准备](reports/class-reference-worker-preparation-2026-09-22.md)。
+
 2026-09-22 Symfony References 缓存和事件 IO：基准接入独立 Symfony 扩展的真实默认注册，修复相同外部事实及后置类型加载反复清空引用缓存。Winstar 同一方法重复查询由约 3.43 秒降至 0.92–1.01 秒；事件文件按每批 8 个读取，两组首次旧/新为 13.617/12.449 秒、13.406/12.519 秒，112 处完整位置摘要一致。`AdminSecuritySubscriber` 返回精确服务注册和事件订阅两处，首次 7.560 秒。语义 3、事件 Provider 3、Symfony stdio 5、正式 bundle 持久化 1 项及构建/ESLint 通过。首次延迟仍待降低，Winstar 默认静态路由快照仍 incomplete；未更新安装版，Goal 继续。见 [Symfony 引用缓存与事件读取](reports/symfony-reference-cache-and-io-2026-09-22.md)。
 
 2026-09-22 References 输入验证继续收口：移除由最终核对覆盖的逐文件重复 stat，并对近期修改文件再次比对内容，处理实际复现的同长度改写、mtime 恢复且 ctime 同时钟粒度不变的情况。两组原版/修改版 Reload 为 2.917/2.504 秒、2.903/2.712 秒，112 处完整位置均一致；空缓存首次仍约 9 秒。21 项底层和正式 stdio 3 项（32.57 秒）、构建/ESLint 通过。候选缓存后台写入实验因收益不明确撤回；基准驱动器退出后多等五秒的问题已修复，减少冷+Reload 循环约十秒空等，最终真实完整对照共 14.39 秒（冷 8.908 秒、Reload 2.676 秒）。未更新安装版，Goal 继续。见 [最终输入核对及验证循环](reports/reference-input-final-validation-2026-09-22.md)。
