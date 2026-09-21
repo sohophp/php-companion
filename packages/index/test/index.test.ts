@@ -33,6 +33,16 @@ describe('incremental document-key inverted index', () => {
 });
 
 describe('bounded source candidate summaries', () => {
+  it('keeps Unicode case mappings and repeated mixed-case lookups consistent', () => {
+    const summary = createSourceCandidateSummary('<?php class ΟΣ { function İTEM($ÄRG) {} } new ΟΣ(ÄRG: 1);');
+    expect(summary.symbols).toEqual(expect.arrayContaining(['ος', 'i̇tem', 'ärg']));
+    for (let repeat = 0; repeat < 2; repeat += 1) {
+      expect(sourceCandidateSummaryDecision(summary, new Set(['ΟΣ']), 'symbol')).toBe('source');
+      expect(sourceCandidateSummaryDecision(summary, new Set(['İT']), 'substring-symbol')).toBe('source');
+      expect(sourceCandidateSummaryDecision(summary, new Set(['ÄRG']), 'named-argument')).toBe('source');
+      expect(sourceCandidateSummaryDecision(summary, new Set(['ARG']), 'named-argument')).toBe('skip');
+    }
+  });
   it('separates symbol and named-argument candidates including comments', () => {
     const summary = createSourceCandidateSummary('<?php new Service(dependency /* named */ : $dependency); $other = dependency;');
     expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'symbol')).toBe('source');

@@ -10994,9 +10994,8 @@ export class SemanticWorkspace {
     const imported = file.imports.find((item) => item.kind === 'class' && item.namespace === namespace && item.alias.toLowerCase() === head!.toLowerCase());
     if (imported) return [imported.fqcn, ...tail].join('\\');
     const namespaced = [namespace, normalized].filter(Boolean).join('\\');
-    const declarations = [...this.files.values()].flatMap((item) => item.declarations);
-    if (declarations.some((item) => item.fqcn.toLowerCase() === namespaced.toLowerCase())) return namespaced;
-    if (declarations.some((item) => item.fqcn.toLowerCase() === normalized.toLowerCase())) return normalized;
+    if (this.fileAndDeclaration(namespaced)) return namespaced;
+    if (this.fileAndDeclaration(normalized)) return normalized;
     return namespaced;
   }
 

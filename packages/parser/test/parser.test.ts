@@ -6,6 +6,17 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('distinguishes string type keywords from string expressions when extracting facts', () => {
+    const source = '<?php function format(string $value): string { return "literal"; }';
+    const parsed = parser.parse(source);
+    try {
+      expect(parsed.stringRanges.map(({ start, end }) => source.slice(start, end))).toEqual(['"literal"']);
+      expect(parsed.rawNames.filter(({ text }) => text === 'string')).toHaveLength(2);
+      expect(parsed.callables[0]?.parameters[0]?.type).toBe('string');
+      expect(parsed.callables[0]?.returnType).toBe('string');
+    } finally { parsed.tree.delete(); }
+  });
+
   it.each(['\n', '\r\n'])('keeps namespace delimiters and misleading comments intact with %j', (eol) => {
     const source = ['<?php', '// namespace Wrong; 中文 😀', 'namespace App\\Bridge /* retain */;', 'class C {}'].join(eol);
     const parsed = parser.parse(source);

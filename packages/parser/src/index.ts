@@ -264,6 +264,14 @@ const DECLARATION_TYPES: Record<string, PhpSymbolKind> = {
 const STRING_TYPES = new Set(['string', 'encapsed_string', 'heredoc', 'nowdoc', 'shell_command_expression']);
 const DECLARATION_NODE_TYPES = [...Object.keys(DECLARATION_TYPES), 'anonymous_class', 'namespace_use_declaration',
   'function_definition', 'method_declaration', 'property_declaration', 'const_declaration', 'enum_case', 'comment'];
+const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES,
+  'named_type', 'base_clause', 'class_interface_clause', 'use_declaration', 'attribute', 'binary_expression',
+  'variable_name', 'conditional_expression', 'return_statement',
+  'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression',
+  'member_access_expression', 'nullsafe_member_access_expression', 'scoped_property_access_expression',
+  'class_constant_access_expression', 'function_call_expression', 'object_creation_expression',
+  'anonymous_function', 'arrow_function', 'assignment_expression', 'foreach_statement', 'catch_clause',
+  'while_statement', 'for_statement', 'do_statement', 'if_statement'];
 const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
 
 function traitAdaptations(node: SyntaxNode): ParsedTraitAdaptation[] {
@@ -1502,6 +1510,13 @@ export class PhpSyntaxParser {
     };
     if (declarationsOnly) {
       for (const node of tree.rootNode.descendantsOfType(DECLARATION_NODE_TYPES)) visitNode(node, node.parent ?? undefined);
+    } else if (!hasSyntaxErrors) {
+      // Tree-sitter visits all descendants natively, returning only nodes that
+      // contribute facts. Keep source order and the actual (unfiltered) parent.
+      for (const node of tree.rootNode.descendantsOfType(FACT_NODE_TYPES)) {
+        // Anonymous keyword tokens can share a type name (notably `string`).
+        if (node.isNamed) visitNode(node, node.parent ?? undefined);
+      }
     } else walk(tree.rootNode, visitNode);
 
     for (const fact of conditionalCalls) {

@@ -1,0 +1,84 @@
+{
+  "baseline": "2fd7b7d",
+  "audit": {
+    "files": 2278,
+    "mismatches": 0,
+    "summaryMismatches": 0,
+    "projectComplete": true,
+    "sha256": "1373e8ee6e6c722d789fa26337e493f07ee95d81e768f0f90709ee4220d69900"
+  },
+  "runs": [
+    {
+      "label": "before-cold",
+      "queries": [
+        {
+          "method": "textDocument/definition",
+          "elapsedMs": 1568,
+          "results": 1,
+          "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+        },
+        {
+          "method": "textDocument/references",
+          "elapsedMs": 22519,
+          "results": 112,
+          "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+        }
+      ],
+      "logs": "[references:2] start scope=project\n[named-candidates] files=2278 cached=0 parsed=1647 restored=0 declarations=1196 restoredDeclarations=0 elapsedMs=16988\n[references:2] semantic count=112 elapsedMs=5486\n[references:2] result count=112 coverage=project-and-loaded-dependencies\n[references:2] end elapsedMs=22495\n"
+    },
+    {
+      "label": "before-reload",
+      "queries": [
+        {
+          "method": "textDocument/definition",
+          "elapsedMs": 1714,
+          "results": 1,
+          "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+        },
+        {
+          "method": "textDocument/references",
+          "elapsedMs": 9287,
+          "results": 112,
+          "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+        }
+      ],
+      "logs": "[references:2] start scope=project\n[named-candidates] files=2278 cached=2277 parsed=1 restored=1646 declarations=0 restoredDeclarations=1196 elapsedMs=3984\n[references:2] semantic count=112 elapsedMs=5253\n[references:2] result count=112 coverage=project-and-loaded-dependencies\n[references:2] end elapsedMs=9265\n"
+    },
+    {
+      "label": "final-cold",
+      "queries": [
+        {
+          "method": "textDocument/definition",
+          "elapsedMs": 1716,
+          "results": 1,
+          "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+        },
+        {
+          "method": "textDocument/references",
+          "elapsedMs": 20380,
+          "results": 112,
+          "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+        }
+      ],
+      "logs": "[references:2] start scope=project\n[named-candidates] files=2278 cached=0 parsed=1647 restored=0 declarations=1196 restoredDeclarations=0 elapsedMs=16044\n[references:2] semantic count=112 elapsedMs=4296\n[references:2] result count=112 coverage=project-and-loaded-dependencies\n[references:2] end elapsedMs=20361\n"
+    },
+    {
+      "label": "final-reload",
+      "queries": [
+        {
+          "method": "textDocument/definition",
+          "elapsedMs": 1817,
+          "results": 1,
+          "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+        },
+        {
+          "method": "textDocument/references",
+          "elapsedMs": 8704,
+          "results": 112,
+          "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+        }
+      ],
+      "logs": "[references:2] start scope=project\n[named-candidates] files=2278 cached=2277 parsed=1 restored=1646 declarations=0 restoredDeclarations=1196 elapsedMs=3936\n[references:2] semantic count=112 elapsedMs=4709\n[references:2] result count=112 coverage=project-and-loaded-dependencies\n[references:2] end elapsedMs=8671\n"
+    }
+  ]
+}

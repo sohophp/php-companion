@@ -24,6 +24,27 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeMembers('file:///C.php', source.indexOf('na }') + 2).map((item) => item.name)).toEqual(['name']);
     expect(workspace.definition('file:///C.php', source.indexOf('User $') + 1)).toMatchObject([{ uri: 'file:///User.php' }]);
   });
+  it('refreshes return-type declaration lookup after local declarations are added, restored, and removed', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///IndexedLookupUse.php';
+    const source = '<?php namespace Lookup; class Factory { function make(): Target {} } function run(Factory $factory) { $factory->make()->go(); }';
+    const targetUri = 'file:///IndexedLookupTarget.php';
+    const target = '<?php namespace Lookup; class Target { function go(): void {} }';
+    try {
+      local.update(uri, source);
+      const offset = source.indexOf('go();') + 1;
+      expect(local.definition(uri, offset)).toEqual([]);
+      local.updateDeclarations(targetUri, target);
+      expect(local.definition(uri, offset)).toMatchObject([{ uri: targetUri }]);
+      const snapshot = local.sourceDeclarationSnapshot(targetUri)!;
+      local.remove(targetUri);
+      expect(local.definition(uri, offset)).toEqual([]);
+      expect(local.restoreSourceDeclaration(snapshot, targetUri)).toBe(true);
+      expect(local.definition(uri, offset)).toMatchObject([{ uri: targetUri }]);
+      local.update(targetUri, '<?php namespace Elsewhere; class Target { function go(): void {} }');
+      expect(local.definition(uri, offset)).toEqual([]);
+    } finally { local.dispose(); }
+  });
   it('identifies the declared owner type of an unresolved member access', () => {
     const source = `<?php namespace App;
       final class Subscriber {
