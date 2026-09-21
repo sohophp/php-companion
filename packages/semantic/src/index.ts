@@ -6806,6 +6806,7 @@ export class SemanticWorkspace {
   }
 
   private dynamicCallMemberTarget(file: SemanticFile, offset: number, statementStart = 0): MemberTarget | undefined {
+    if (!file.memberAccesses.some((access) => access.dynamic && access.kind === 'method')) return undefined;
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn;
     const candidates = file.calls.filter((call) => call.end <= offset && call.start >= statementStart && this.dynamicCallFor(file, call))
       .sort((left, right) => right.end - left.end);
@@ -6861,7 +6862,9 @@ export class SemanticWorkspace {
     const before = file.source.slice(statementStart, offset);
     const dynamicTarget = this.dynamicCallMemberTarget(file, offset, statementStart);
     if (dynamicTarget) return dynamicTarget;
-    const staticChain = /([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*::\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(((?:[^()]|\([^()]*\))*)\)((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
+    const staticChain = before.includes('::')
+      ? /([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*::\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(((?:[^()]|\([^()]*\))*)\)((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before)
+      : null;
     const chained = /(\$[A-Za-z_][A-Za-z0-9_]*)((?:\s*\[\s*(?:'[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*'|"[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*"|-?(?:0|[1-9][0-9]*))\s*\]){0,16})((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn;
     const lexicalScope = this.containingScope(file, offset);
@@ -7655,6 +7658,8 @@ export class SemanticWorkspace {
     const inferred = (() : ObjectClass | undefined => {
     const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const candidates = file.calls.flatMap((call): Array<{ call: ParsedCall; tag: PhpDocTag['name']; factStart: number; inspection?: SourceRange }> => {
+      if (!call.arguments.some((argument) => file.source.slice(argument.start, argument.end).includes(variable))
+        && call.receiver?.variable !== variable) return [];
       if (this.containingScope(file, call.start)?.id !== scope.id) return [];
       const guard = call.guardContinuation;
       if (guard && offset >= guard.range.start && offset <= guard.range.end) {
