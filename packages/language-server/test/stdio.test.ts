@@ -4641,6 +4641,67 @@ echo RANKED_LSP_CONSTANT;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('overlaps independent container and route providers while keeping watched route references current', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-parallel-reference-providers-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = '<?php namespace App; final class TargetController { public function index(): void {} }';
+      const uri = pathToFileURL(join(root, 'src', 'TargetController.php')).toString();
+      const routePath = join(root, 'config', 'routes.yaml'); const routeUri = pathToFileURL(routePath).toString();
+      const routeSource = 'demo: {path: /demo, controller: App\\TargetController::index}\n';
+      await writeFile(join(root, 'src', 'TargetController.php'), source); await writeFile(routePath, routeSource);
+      const servicePath = join(root, 'services.mjs'); const providerPath = join(root, 'routes.mjs');
+      const timelinePath = join(root, 'provider-timeline.jsonl');
+      const serviceSource = `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(timelinePath)},JSON.stringify({provider:'service',phase:'start',time:Date.now()})+'\\n');await new Promise((done)=>setTimeout(done,250));appendFileSync(${JSON.stringify(timelinePath)},JSON.stringify({provider:'service',phase:'end',time:Date.now()})+'\\n');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.services',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],containerServices:[],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`;
+      const routeProviderSource = `import{appendFileSync,readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(timelinePath)},JSON.stringify({provider:'route',phase:'start',time:Date.now()})+'\\n');await new Promise((done)=>setTimeout(done,250));const source=readFileSync(${JSON.stringify(routePath)},'utf8');const name=source.startsWith('changed:')?'changed':'demo';const classStart=source.indexOf(${JSON.stringify('App\\TargetController')});const methodStart=source.indexOf('index');appendFileSync(${JSON.stringify(timelinePath)},JSON.stringify({provider:'route',phase:'end',time:Date.now()})+'\\n');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.routes',generation:request.params.generation,complete:true,routes:[{name,path:'/demo',uri:${JSON.stringify(routeUri)},start:0,end:name.length,controller:{className:${JSON.stringify('App\\TargetController')},method:'index',uri:${JSON.stringify(routeUri)},classStart,classEnd:classStart+${'App\\TargetController'.length},methodStart,methodEnd:methodStart+5}}]}}));`;
+      await writeFile(servicePath, serviceSource); await writeFile(providerPath, routeProviderSource);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1200, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'onDemand', bundledSemanticProviders: [{ providerId: 'test.services', command: process.execPath,
+            args: [servicePath], timeoutMs: 5000, replacesContainerServices: true, requiresProjectTypes: true }],
+          routeProviders: [{ providerId: 'test.routes', command: process.execPath, args: [providerPath], timeoutMs: 5000,
+            replacesStaticRoutes: true, cacheUntilInvalidated: true }],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 1200);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const query = async (id: number, expected: string): Promise<void> => {
+        const currentRouteSource = await readFile(routePath, 'utf8');
+        const currentClassStart = currentRouteSource.indexOf('App\\TargetController');
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('TargetController') + 1),
+          context: { includeDeclaration: false },
+        } }));
+        expect((await output.waitFor((message) => message.id === id, 10_000)).result).toEqual([{ uri: routeUri, range: {
+          start: lspPosition(currentRouteSource, currentClassStart),
+          end: lspPosition(currentRouteSource, currentClassStart + 'App\\TargetController'.length),
+        } }]);
+        expect((await readFile(routePath, 'utf8')).startsWith(expected)).toBe(true);
+      };
+      await query(1201, 'demo:');
+      const timeline = (await readFile(timelinePath, 'utf8')).trim().split('\n').map((line) => JSON.parse(line)) as Array<{
+        provider: string; phase: string; time: number;
+      }>;
+      const interval = (provider: string): { start: number; end: number } => ({
+        start: timeline.filter((entry) => entry.provider === provider && entry.phase === 'start').at(-1)!.time,
+        end: timeline.filter((entry) => entry.provider === provider && entry.phase === 'end').at(-1)!.time,
+      });
+      const service = interval('service'); const route = interval('route');
+      expect(Math.max(service.start, route.start)).toBeLessThan(Math.min(service.end, route.end));
+      await writeFile(routePath, routeSource.replace('demo:', 'changed:'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: routeUri, type: 2 }],
+      } }));
+      await query(1202, 'changed:');
+      expect((await readFile(timelinePath, 'utf8')).match(/"provider":"route","phase":"start"/g)).toHaveLength(2);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads fresh complete route-provider snapshots for Symfony route navigation', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-route-provider-'));
     try {

@@ -3773,8 +3773,15 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
-    const containerStarted = Date.now();
     const symfonyClassTarget = type?.fqcn ?? (member?.kind === 'method' ? member.fqcn.split('::')[0] : undefined);
+    // Route snapshots and container facts have independent providers. Launch
+    // both after candidate indexing, then validate route edits before use.
+    const routesStarted = Date.now();
+    const routeRevision = routeProviderCacheRevision;
+    const routeTask = symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)
+      ? availableSymfonyRoutes(root, () => token.isCancellationRequested) : Promise.resolve([] as RouteFact[]);
+    void routeTask.catch(() => { /* The request may be cancelled before awaiting routes. */ });
+    const containerStarted = Date.now();
     if (symfonyClassTarget && root && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
       await refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !token.isCancellationRequested);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -3804,9 +3811,13 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       }
     }
     connection.console.info(`[references:${id}] container elapsedMs=${Date.now() - containerStarted}`);
-    const routesStarted = Date.now();
-    const controllerRoutes = symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)
-      ? await availableSymfonyRoutes(root, () => token.isCancellationRequested) : [];
+    let controllerRoutes = await routeTask;
+    if (routeRevision !== routeProviderCacheRevision && symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)) {
+      const refreshedRevision = routeProviderCacheRevision;
+      controllerRoutes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
+      if (refreshedRevision !== routeProviderCacheRevision) throw new ResponseError(LSPErrorCodes.ContentModified, 'Route documents changed during reference query.');
+    }
+    const routesUsedRevision = routeProviderCacheRevision;
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     const controllerLocations = type ? controllerRoutes.flatMap((route) => route.controller
@@ -3888,6 +3899,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const locations = resolvedLocations.flatMap((location) => location ? [location] : []);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (symfonyClassTarget && root && routesUsedRevision !== routeProviderCacheRevision) {
+      throw new ResponseError(LSPErrorCodes.ContentModified, 'Route documents changed during reference query.');
+    }
     writeReferenceResult?.(locations);
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;

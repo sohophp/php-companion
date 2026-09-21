@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 首次 References 并发 Symfony Provider：服务容器与路由读取重叠，路由变化时重新读取并在返回前校验修订号。Winstar 正式 bundle 两组交叉冷查询旧/新为 12.809/11.193 秒、12.454/11.784 秒，四次均为相同 112 处完整位置；`AdminSecuritySubscriber` 仍准确返回服务/事件两处。四项相关 stdio 测试及 TypeScript/ESLint 通过。首次仍约 11–12 秒，未更新安装版，Goal 继续。见 [并发 Symfony Provider](reports/reference-parallel-symfony-providers-2026-09-22.md)。
+
 2026-09-22 方法 References CPU 采样：撤回无收益的单查询完整成员缓存；保留同一次成员组装中 protected 继承关系的局部复用。两组语义阶段分别减少 103/83 ms，112 处完整位置一致，但首次总耗时仍约 12 秒、未证明稳定整体提速。22 项相关语义测试在 2.64 秒内通过，构建/ESLint 通过。下一步检查候选事实提交和缓存快照传输；未更新安装版，Goal 继续。见 [成员可见性成本](reports/reference-member-visibility-cost-2026-09-22.md)。
 
 2026-09-22 类首次 References 并发准备：类查询接入既有 CandidateWorkers，使源码读取、摘要与匹配文件解析脱离主线程串行路径。Winstar `AdminSecuritySubscriber` 同轮原版/修改版首次为 7.579/5.877 秒，候选扫描 4.230/2.568 秒；两处服务/事件引用完整位置一致。新增 Reload 后未保存消费者优先回归，相关 stdio 4 项在 16.96 秒内通过，构建/ESLint 通过。方法 `get` 仍为正确 112 处、首次 12.623 秒，不宣称其提速；未更新安装版，Goal 继续。见 [类 References 并发准备](reports/class-reference-worker-preparation-2026-09-22.md)。
