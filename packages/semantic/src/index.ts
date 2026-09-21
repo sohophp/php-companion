@@ -5815,10 +5815,22 @@ export class SemanticWorkspace {
       const marker = target.kind === 'property' && target.static ? '\\$?' : '';
       const pattern = new RegExp(`(?:->|::)\\s*${marker}(${target.name})\\b`, 'gi');
       for (const file of this.filesForReferenceKeys(memberCandidateKey(target.kind === 'function' ? 'method' : target.kind, target.name))) {
-        for (const match of file.source.matchAll(pattern)) {
-          const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
-          const resolved = this.memberAt(file.uri, start + 1);
-          if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end: start + match[1]!.length });
+        let queryTree: SyntaxTree | undefined;
+        try {
+          for (const match of file.source.matchAll(pattern)) {
+            if (!this.trees.has(file.uri)) {
+              queryTree = this.parser.parse(file.source, undefined, file.uri).tree;
+              this.trees.set(file.uri, queryTree);
+            }
+            const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
+            const resolved = this.memberAt(file.uri, start + 1);
+            if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end: start + match[1]!.length });
+          }
+        } finally {
+          if (queryTree) {
+            if (this.trees.get(file.uri) === queryTree) this.trees.delete(file.uri);
+            queryTree.delete();
+          }
         }
       }
       return locations;
@@ -10896,8 +10908,9 @@ export class SemanticWorkspace {
     const key = fqcn.toLowerCase();
     if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return [];
     visited.add(key);
-    const ownerFile = [...this.files.values()].find((file) => file.declarations.some((item) => item.fqcn.toLowerCase() === key));
-    const declaration = ownerFile?.declarations.find((item) => item.fqcn.toLowerCase() === key);
+    const owner = this.fileAndDeclaration(fqcn);
+    const ownerFile = owner?.file;
+    const declaration = owner?.declaration;
     if (!ownerFile || !declaration) return [];
     const visible = (item: { visibility: ParsedCallableDeclaration['visibility'] }): boolean => {
       if (includeInvisible) return true;
@@ -11096,8 +11109,9 @@ export class SemanticWorkspace {
     if (key === targetKey) return true;
     if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return false;
     visited.add(key);
-    const file = [...this.files.values()].find((item) => item.declarations.some((declaration) => declaration.fqcn.toLowerCase() === key));
-    const declaration = file?.declarations.find((item) => item.fqcn.toLowerCase() === key);
+    const owner = this.fileAndDeclaration(candidate);
+    const file = owner?.file;
+    const declaration = owner?.declaration;
     if (!file || !declaration) return false;
     if (this.fileAndDeclaration(target)) {
       if (targetKey === 'unitenum' && declaration.kind === 'enum') return true;

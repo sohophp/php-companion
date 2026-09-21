@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { semanticFacts } from '@php-companion/semantic-provider';
 import { SemanticWorkspace, type SemanticCallableImplementationState } from '../src/index.js';
@@ -3470,6 +3470,27 @@ describe('conservative semantic workspace', () => {
     expect(fromDeclaration).toHaveLength(2);
     expect(workspace.referenceMemberAt('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1)?.fqcn).toBe('App\\One::run');
     expect(workspace.referenceMemberAt('file:///Calls.php', source.indexOf('run();') + 1)?.fqcn).toBe('App\\One::run');
+  });
+  it('reuses one syntax tree per candidate file during a multi-use member reference query', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const parse = vi.spyOn(parser, 'parse');
+    try {
+      const declaration = '<?php namespace Refs; final class Target { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace Refs; final class Consumer { public function run(Target $target): int { return $target->get() + $target->get() + $target->get(); } }';
+      isolated.update('file:///RefsTarget.php', declaration);
+      isolated.update('file:///RefsConsumer.php', consumer);
+      const before = parse.mock.calls.length;
+      const references = isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false);
+      expect(references).toHaveLength(3);
+      expect(references.every((location) => location.uri === 'file:///RefsConsumer.php')).toBe(true);
+      expect(parse.mock.calls.length - before).toBeLessThanOrEqual(2);
+      const retained = new SemanticWorkspace(parser);
+      try {
+        retained.update('file:///RefsTarget.php', declaration, true);
+        retained.update('file:///RefsConsumer.php', consumer, true);
+        expect(references).toEqual(retained.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false));
+      } finally { retained.dispose(); }
+    } finally { parse.mockRestore(); isolated.dispose(); }
   });
   it('finds local variable references only inside the selected function scope', () => {
     const source = `<?php

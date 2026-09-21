@@ -1,17 +1,27 @@
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import { setTimeout, clearTimeout } from 'node:timers';
 import process from 'node:process';
 import { performance } from 'node:perf_hooks';
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 const root = resolve(process.argv[2]); const file = resolve(process.argv[3]); const name = process.argv[4]; const occurrence = process.argv[5] ?? 'first';
 const cacheDirectory = process.argv[6] ? resolve(process.argv[6]) : undefined;
 const once = process.argv[7] === 'once';
-const server = spawn(process.execPath, ['packages/language-server/dist/server.js', '--stdio'], { stdio: ['pipe', 'pipe', 'pipe'] });
-const pending = new Map(); let sequence = 0; let buffer = Buffer.alloc(0);
+const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/language-server/dist/server.js';
+const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
+const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${resolve(profileDirectory)}`] : []),
+  serverEntrypoint, '--stdio', ...(process.argv[8] ? ['--parser-core-wasm', join(dirname(serverEntrypoint), 'web-tree-sitter.wasm'),
+    '--php-wasm', join(dirname(serverEntrypoint), 'tree-sitter-php.wasm')] : [])], { stdio: ['pipe', 'pipe', 'pipe'] });
+const pending = new Map(); let sequence = 0; let buffer = Buffer.alloc(0); let serverStderr = '';
 const send = (message) => { const body = JSON.stringify(message); server.stdin.write(`Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`); };
+server.stderr.on('data', (data) => { serverStderr = `${serverStderr}${data}`.slice(-8_192); });
+server.once('exit', (code, signal) => {
+  for (const done of pending.values()) done({ error: { message: `LSP exited code=${code} signal=${signal}: ${serverStderr}` } });
+  pending.clear();
+});
 server.stdout.on('data', (data) => {
   buffer = Buffer.concat([buffer, data]);
   while (true) {
@@ -20,6 +30,9 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
+    if (message.method === 'window/logMessage' && /\[(?:named-candidates|references:)/.test(message.params?.message ?? '')) {
+      process.stderr.write(`${message.params.message}\n`);
+    }
     else if (pending.has(message.id)) { pending.get(message.id)(message); pending.delete(message.id); }
   }
 });
@@ -38,7 +51,19 @@ try {
   send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
   for (const method of (once ? ['textDocument/definition', 'textDocument/references'] : ['textDocument/definition', 'textDocument/references', 'textDocument/references'])) {
     const started = performance.now(); const result = await request(method, { textDocument: { uri }, position, context: { includeDeclaration: false } });
+    const locationSha256 = createHash('sha256').update(JSON.stringify([...result].sort((a, b) =>
+      a.uri.localeCompare(b.uri) || a.range.start.line - b.range.start.line
+      || a.range.start.character - b.range.start.character))).digest('hex');
     process.stdout.write(JSON.stringify({ method, elapsedMs: Math.round(performance.now() - started), results: result.length,
-      uris: [...new Set(result.map((location) => location.uri))].sort() }) + '\n');
+      uris: [...new Set(result.map((location) => location.uri))].sort(), locationSha256 }) + '\n');
   }
-} finally { server.kill(); }
+} finally {
+  if (server.exitCode === null) {
+    try {
+      await request('shutdown', null);
+      send({ jsonrpc: '2.0', method: 'exit', params: null });
+      await Promise.race([new Promise((done) => server.once('exit', done)), new Promise((done) => setTimeout(done, 5_000))]);
+    } catch { /* A failed query may leave the server unable to shut down. */ }
+    if (server.exitCode === null) server.kill();
+  }
+}
