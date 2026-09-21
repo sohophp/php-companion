@@ -1435,10 +1435,23 @@ export class SemanticWorkspace {
       });
       const scopes = parsed.scopes.map((scope) => ({ ...scope, parameters: callables.find((callable) => callable.fqcn === scope.id)?.parameters ?? scope.parameters }));
       const nextFile: SemanticFile = { uri, source, namespace: parsed.namespace, declarations: parsed.declarations, callables, scopes, variableReferences: parsed.variableReferences, returns: parsed.returns, narrowings: parsed.narrowings, properties, constants: parsed.constants, imports: parsed.imports, typeReferences: parsed.typeReferences, assignments: parsed.assignments, rawNames: parsed.rawNames, memberAccesses: parsed.memberAccesses, calls: parsed.calls, templates, genericParents, mixins, magicMembers, syntaxErrors: parsed.errors, commentRanges: parsed.commentRanges, stringRanges: parsed.stringRanges };
-      const oldTypeSurfaces = semanticTypeSurfaces(oldFile); const nextTypeSurfaces = semanticTypeSurfaces(nextFile);
-      const changedTypes = changedMapKeys(oldTypeSurfaces, nextTypeSurfaces);
-      const declarationChanged = semanticFileSurface(oldFile, oldTypeSurfaces) !== semanticFileSurface(nextFile, nextTypeSurfaces);
-      const changedCallables = changedMapKeys(implementationSlices(oldFile), implementationSlices(nextFile));
+      // A newly seen file has no previous surface to compare. The ordinary
+      // serialized comparison is needed for edits, but only its keys matter
+      // for first registration and the invalidation that follows it.
+      const oldTypeSurfaces = semanticTypeSurfaces(oldFile);
+      const nextTypeSurfaces = oldFile ? semanticTypeSurfaces(nextFile)
+        : new Map(nextFile.declarations.filter((item) => !item.anonymous)
+          .map((item) => [item.fqcn.toLowerCase(), '']));
+      const changedTypes = oldFile ? changedMapKeys(oldTypeSurfaces, nextTypeSurfaces)
+        : new Set(nextTypeSurfaces.keys());
+      const declarationChanged = !oldFile
+        || semanticFileSurface(oldFile, oldTypeSurfaces) !== semanticFileSurface(nextFile, nextTypeSurfaces);
+      const changedCallables = oldFile ? changedMapKeys(implementationSlices(oldFile), implementationSlices(nextFile))
+        : new Set([
+          ...nextFile.callables.map((item) => item.fqcn.toLowerCase()),
+          ...nextFile.properties.filter((item) => item.hooks?.some((hook) => !hook.abstract))
+            .map((item) => `${item.containerFqcn.toLowerCase()}::$${item.name}`),
+        ]);
       const implementationChanged = changedCallables.size > 0
         || (oldFile !== undefined && oldFile.source.trimEnd() !== nextFile.source.trimEnd());
       if (declarationChanged) {
