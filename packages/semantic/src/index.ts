@@ -11090,11 +11090,12 @@ export class SemanticWorkspace {
     const ownerFile = owner?.file;
     const declaration = owner?.declaration;
     if (!ownerFile || !declaration) return [];
+    let protectedVisible: boolean | undefined;
     const visible = (item: { visibility: ParsedCallableDeclaration['visibility'] }): boolean => {
       if (includeInvisible) return true;
       if (item.visibility === 'public') return true;
       if (accessFrom?.toLowerCase() === key) return true;
-      return item.visibility === 'protected' && accessFrom !== undefined && this.isSubclassOf(accessFrom, fqcn);
+      return item.visibility === 'protected' && accessFrom !== undefined && (protectedVisible ??= this.isSubclassOf(accessFrom, fqcn));
     };
     const specializedReturn = (value: string | undefined): string | undefined => specializeTemplateType(value, templateArguments);
     const magicMembers: MemberInfo[] = ownerFile.magicMembers.filter((item) => item.ownerFqcn.toLowerCase() === key)

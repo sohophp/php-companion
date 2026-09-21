@@ -2530,13 +2530,16 @@ describe('conservative semantic workspace', () => {
     expect(workspace.unresolvedMembers('file:///Catch.php').map((item) => item.name)).toEqual(['onlyFirst']);
   });
   it('includes inherited public members and hides inaccessible members', () => {
-    workspace.update('file:///Base.php', '<?php namespace App; class Base { public function shown(): void {} protected function family(): void {} private function hidden(): void {} }');
+    workspace.update('file:///Base.php', '<?php namespace App; class Base { public function shown(): void {} protected function family(): void {} protected function otherFamily(): void {} protected int $familyId; private function hidden(): void {} }');
     workspace.update('file:///Child.php', '<?php namespace App; class Child extends Base { function own(): void { $this-> } }');
     const external = '<?php namespace App; function useIt(Child $child): void { $child-> }';
     workspace.update('file:///External.php', external);
     expect(workspace.completeMembers('file:///External.php', external.indexOf('->') + 2).map((item) => item.name).sort()).toEqual(['own', 'shown']);
     const child = workspace.source('file:///Child.php')!;
-    expect(workspace.completeMembers('file:///Child.php', child.indexOf('->') + 2).map((item) => item.name).sort()).toEqual(['family', 'own', 'shown']);
+    expect(workspace.completeMembers('file:///Child.php', child.indexOf('->') + 2).map((item) => item.name).sort()).toEqual(['family', 'familyId', 'otherFamily', 'own', 'shown']);
+    const unrelated = '<?php namespace App; class Outsider { function call(Base $base): void { $base-> } }';
+    workspace.update('file:///Outsider.php', unrelated);
+    expect(workspace.completeMembers('file:///Outsider.php', unrelated.indexOf('->') + 2).map((item) => item.name)).toEqual(['shown']);
   });
   it('composes traits with precedence, aliases and host visibility', () => {
     workspace.update('file:///Traits.php', `<?php namespace App;

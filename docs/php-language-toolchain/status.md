@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 方法 References CPU 采样：撤回无收益的单查询完整成员缓存；保留同一次成员组装中 protected 继承关系的局部复用。两组语义阶段分别减少 103/83 ms，112 处完整位置一致，但首次总耗时仍约 12 秒、未证明稳定整体提速。22 项相关语义测试在 2.64 秒内通过，构建/ESLint 通过。下一步检查候选事实提交和缓存快照传输；未更新安装版，Goal 继续。见 [成员可见性成本](reports/reference-member-visibility-cost-2026-09-22.md)。
+
 2026-09-22 类首次 References 并发准备：类查询接入既有 CandidateWorkers，使源码读取、摘要与匹配文件解析脱离主线程串行路径。Winstar `AdminSecuritySubscriber` 同轮原版/修改版首次为 7.579/5.877 秒，候选扫描 4.230/2.568 秒；两处服务/事件引用完整位置一致。新增 Reload 后未保存消费者优先回归，相关 stdio 4 项在 16.96 秒内通过，构建/ESLint 通过。方法 `get` 仍为正确 112 处、首次 12.623 秒，不宣称其提速；未更新安装版，Goal 继续。见 [类 References 并发准备](reports/class-reference-worker-preparation-2026-09-22.md)。
 
 2026-09-22 Symfony References 缓存和事件 IO：基准接入独立 Symfony 扩展的真实默认注册，修复相同外部事实及后置类型加载反复清空引用缓存。Winstar 同一方法重复查询由约 3.43 秒降至 0.92–1.01 秒；事件文件按每批 8 个读取，两组首次旧/新为 13.617/12.449 秒、13.406/12.519 秒，112 处完整位置摘要一致。`AdminSecuritySubscriber` 返回精确服务注册和事件订阅两处，首次 7.560 秒。语义 3、事件 Provider 3、Symfony stdio 5、正式 bundle 持久化 1 项及构建/ESLint 通过。首次延迟仍待降低，Winstar 默认静态路由快照仍 incomplete；未更新安装版，Goal 继续。见 [Symfony 引用缓存与事件读取](reports/symfony-reference-cache-and-io-2026-09-22.md)。
