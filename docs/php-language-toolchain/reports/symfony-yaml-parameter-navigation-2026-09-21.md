@@ -25,6 +25,16 @@
 - Language Server：198 项通过；stdio 集成覆盖声明和引用起点的 Definition、References、Completion 与双位置 Rename。
 - `pnpm test:extension:packaged`：VS Code 1.138.0 在隔离 Profile 中安装实际核心与 Symfony VSIX，验证参数 Definition、References、Completion 和标准 F2 的两处原子编辑；Extension Host 状态码 0。
 - Winstar 只读样本：`config/` 中存在 3 个顶层 `parameters` 区块及 5 个不同的静态 `%parameter.id%` 占位符，可供后续 WSL 人工验收。检查只统计参数身份，没有输出参数值。
+- 功能提交：`8b03597a49bf41651288ce74c9f95e0093bfe934`。
+- Alpha 候选：`artifacts/php-companion-alpha-0.4.5-8b03597a/`；四份 VSIX 内容验证和 `SHA256SUMS` 通过。
+- Winstar PHP 8.5 与 CoreRepo PHP 7.2 的 WSL 确定性 `alpha:preflight` 均通过；实际 Remote Extension Host、竞争 Provider 禁用状态及持续两小时编辑仍是人工验收项。
+
+候选 SHA-256：
+
+- Core：`02f7615802563f79149b343f39c4a0ea3386228a6b9ee69bd820511ccf7282d1`
+- Symfony：`5b42e235f87aa6d2722e286c37a7356cc3c480d6010428a6465e115c14120d42`
+- Open Source Pack：`8133c6e45e844ade2d2cdebd285c4761830a6034ea6fc94236a97ddb2b0f2026`
+- Recommended Pack：`456ea41fcb90b54206d2c7909a55b3a6933cdd533fc2aecee3bd1a6109e4c0ca`
 
 ## 后续范围
 
