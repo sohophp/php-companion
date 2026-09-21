@@ -1132,3 +1132,4 @@ Semantic snapshot 升至 schema 50，旧 schema 49 缓存会安全重建。详�
 带唯一 default、最多 64 个 arm 且每个值结果可证明的 PHP 8 `match` 现在合并结果 Union，`throw` arm 作为 `never` 排除，并经同块局部赋值进入补全、Definition 与参数诊断。缺少 default、unknown 值 arm 或超预算时保持 unknown。Semantic snapshot 升至 schema 66。
 
 完整证据见 [match 表达式结果类型验收](reports/match-result-flow-2026-09-09.md)。
+2026-09-21 首次 References 验证内循环：语义成员目标在保留语法树时从当前语句起点解析，候选准备上限从 4 个工作线程调整为 8 个；收益不足的批次重叠和 12 线程方案已撤回。Winstar 两轮空缓存成对测试为 14.439→13.478 秒、14.305→13.360 秒，四轮均为相同 112 处完整引用；Semantic 285、Index 31、Language Server 200 项及改动文件 ESLint 通过。首次查询仍约 13–14 秒，尚未满足交互目标。证据见 [首次 References 验证内循环](reports/cold-references-iteration-2026-09-21.md)。

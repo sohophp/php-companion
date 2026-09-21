@@ -6805,9 +6805,9 @@ export class SemanticWorkspace {
     return result;
   }
 
-  private dynamicCallMemberTarget(file: SemanticFile, offset: number): MemberTarget | undefined {
+  private dynamicCallMemberTarget(file: SemanticFile, offset: number, statementStart = 0): MemberTarget | undefined {
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn;
-    const candidates = file.calls.filter((call) => call.end <= offset && this.dynamicCallFor(file, call))
+    const candidates = file.calls.filter((call) => call.end <= offset && call.start >= statementStart && this.dynamicCallFor(file, call))
       .sort((left, right) => right.end - left.end);
     for (const call of candidates) {
       const suffix = file.source.slice(call.end, offset);
@@ -6847,8 +6847,19 @@ export class SemanticWorkspace {
   private memberTarget(uri: string, offset: number, unresolvedOwners?: Set<string>): MemberTarget | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
-    const before = file.source.slice(0, offset);
-    const dynamicTarget = this.dynamicCallMemberTarget(file, offset);
+    const tree = this.trees.get(uri);
+    let statementStart = 0;
+    if (tree && !tree.rootNode.hasError && offset > 0 && offset <= file.source.length) {
+      let node: SyntaxNode | null = tree.rootNode.namedDescendantForIndex(offset - 1);
+      while (node && node !== tree.rootNode) {
+        if (node.type.endsWith('_statement') && node.type !== 'compound_statement') {
+          statementStart = node.startIndex; break;
+        }
+        node = node.parent;
+      }
+    }
+    const before = file.source.slice(statementStart, offset);
+    const dynamicTarget = this.dynamicCallMemberTarget(file, offset, statementStart);
     if (dynamicTarget) return dynamicTarget;
     const staticChain = /([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*::\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(((?:[^()]|\([^()]*\))*)\)((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
     const chained = /(\$[A-Za-z_][A-Za-z0-9_]*)((?:\s*\[\s*(?:'[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*'|"[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*"|-?(?:0|[1-9][0-9]*))\s*\]){0,16})((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
@@ -6859,13 +6870,13 @@ export class SemanticWorkspace {
       const owner = this.resolveSourceType(file, staticChain[1]!, namespace, accessFrom);
       const initialCandidates = owner ? this.members(owner, accessFrom).filter((item) => item.kind === 'method' && item.static
         && item.name.toLowerCase() === staticChain[2]!.toLowerCase() && this.validAccess(item, true)) : [];
-      const initialArgumentsStart = staticChain.index! + staticChain[0].indexOf('(') + 1;
+      const initialArgumentsStart = statementStart + staticChain.index! + staticChain[0].indexOf('(') + 1;
       const selectedInitial = this.methodCandidatesForArguments(initialCandidates, staticChain[3]!, true, file, initialArgumentsStart);
       const rawInitial: MemberInfo | undefined = selectedInitial.length === 1 ? selectedInitial[0] : undefined;
       const initial = rawInitial && this.specializedMagicMethod(file, rawInitial, initialArgumentsStart);
       let target: ObjectClass | undefined = initial ? this.memberReturnClass(initial, true) : undefined;
       if (!target) { if (!rawInitial && owner) unresolvedOwners?.add(owner); return undefined; }
-      const staticTailStart = staticChain.index! + staticChain[0].indexOf(staticChain[4]!);
+      const staticTailStart = statementStart + staticChain.index! + staticChain[0].indexOf(staticChain[4]!);
       const calls = [...staticChain[4]!.matchAll(/(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)(\s*\((?:[^()]|\([^()]*\))*\))?/g)].map((match) => ({
         operator: match[1]!, name: match[2]!, kind: match[3] ? 'method' as const : 'property' as const,
         argumentsText: match[3]?.slice(1, -1),
@@ -6887,7 +6898,7 @@ export class SemanticWorkspace {
       return { fqcn: target.fqcn, member: staticChain[6] ?? '', accessFrom, static: false, typeArguments: target.typeArguments };
     }
     if (chained) {
-      const chainStart = chained.index! + chained[0].indexOf(chained[3]!);
+      const chainStart = statementStart + chained.index! + chained[0].indexOf(chained[3]!);
       const calls = [...chained[3]!.matchAll(/(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)(\s*\((?:[^()]|\([^()]*\))*\))?/g)].map((match) => ({
         operator: match[1]!, name: match[2]!, kind: match[3] ? 'method' as const : 'property' as const,
         argumentsText: match[3]?.slice(1, -1),

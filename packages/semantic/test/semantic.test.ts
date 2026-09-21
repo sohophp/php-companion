@@ -33,6 +33,29 @@ describe('conservative semantic workspace', () => {
       expect(prepared.references(declarationUri, declaration.indexOf('get()') + 1)).toEqual(eager.references(declarationUri, declaration.indexOf('get()') + 1));
     } finally { eager.dispose(); prepared.dispose(); }
   });
+  it('resolves members the same way with a retained syntax tree across statements and multiline chains', () => {
+    const uncached = new SemanticWorkspace(parser); const retained = new SemanticWorkspace(parser);
+    const ownerUri = 'file:///StatementMembers.php'; const useUri = 'file:///StatementMemberUses.php';
+    const owner = '<?php class Bag { public function get(): int { return 1; } } class Factory { public static function make(): Bag { return new Bag(); } }';
+    const source = `<?php function consume(Bag $bag): void {
+      $bag->get();
+      if (true) { $bag\n        ->get(); }
+      Factory::make()\n        ->get();
+    }`;
+    try {
+      for (const workspace of [uncached, retained]) workspace.update(ownerUri, owner);
+      uncached.update(useUri, source);
+      retained.update(useUri, source, true);
+      for (const match of source.matchAll(/->get\(/g)) {
+        const offset = match.index + 3;
+        expect(retained.memberAt(useUri, offset)).toEqual(uncached.memberAt(useUri, offset));
+        expect(retained.memberAt(useUri, offset)).toMatchObject({ fqcn: 'Bag::get' });
+      }
+      const offset = owner.indexOf('get()') + 1;
+      expect(retained.references(ownerUri, offset)).toEqual(uncached.references(ownerUri, offset));
+      expect(retained.references(ownerUri, offset)).toHaveLength(4);
+    } finally { uncached.dispose(); retained.dispose(); }
+  });
   it('completes only proven parameter and this members across open files', () => {
     workspace.update('file:///User.php', '<?php namespace App; class User { public function name(): string {} public function rename(string $name): void {} }');
     const source = '<?php namespace App\\Controller; use App\\User; class C { function show(User $user): void { $user->na } }';
