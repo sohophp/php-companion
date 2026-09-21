@@ -51,6 +51,8 @@ const request = (method, params) => new Promise((done, reject) => {
 try {
   await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory, testMode: auditInputs || persistReferences, ...frameworkInitialization } });
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
+  const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
+  if (Number.isSafeInteger(initialIdleMs) && initialIdleMs > 0 && initialIdleMs <= 5_000) await new Promise((done) => setTimeout(done, initialIdleMs));
   const source = await readFile(file, 'utf8'); const uri = pathToFileURL(file).toString();
   const match = occurrence === 'last' ? source.lastIndexOf(name) : source.indexOf(name); const offset = match + 1;
   if (offset < 1) throw new Error('Symbol missing');

@@ -2209,6 +2209,14 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 
 connection.onInitialized(() => {
   if (indexingMode === 'experimental') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
+  if (indexingMode === 'onDemand') void (async (): Promise<void> => {
+    // Prepare builtins ahead of the first editor query without starting a project scan.
+    // Bound startup work for multi-root workspaces; remaining roots stay lazy.
+    for (const root of workspaceRoots.slice(0, 2)) {
+      await semanticForRoot(root);
+      await yieldToEventLoop();
+    }
+  })().catch((error) => connection.console.warn(`PHP semantic warm-up failed: ${error instanceof Error ? error.message : String(error)}`));
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
     { globPattern: '**/*.php' }, { globPattern: '**/*.{yaml,yml}' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' },
     { globPattern: '**/config/**/*.xml' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
