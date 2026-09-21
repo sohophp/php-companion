@@ -4,7 +4,7 @@ import { setTimeout, clearTimeout } from 'node:timers';
 import process from 'node:process';
 import { performance } from 'node:perf_hooks';
 import { spawn } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 const root = resolve(process.argv[2]); const file = resolve(process.argv[3]); const name = process.argv[4]; const occurrence = process.argv[5] ?? 'first';
@@ -68,6 +68,9 @@ try {
       a.uri.localeCompare(b.uri) || a.range.start.line - b.range.start.line
       || a.range.start.character - b.range.start.character))).digest('hex');
     const elapsedMs = Math.round(performance.now() - started);
+    if (method === 'textDocument/references' && process.env.PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH) {
+      await writeFile(resolve(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH), JSON.stringify(result));
+    }
     let peakRssKiB;
     if (process.env.PHP_COMPANION_BENCHMARK_RSS === '1' && process.platform === 'linux') {
       try {
