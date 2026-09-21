@@ -15,6 +15,9 @@ const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
 const indexingMode = process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'experimental' ? 'experimental' : 'onDemand';
 const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const persistReferences = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE === '1';
+if ((persistReferences || auditInputs) && !process.argv[8]) {
+  throw new Error('Reference persistence and input audits require an explicit bundled language server path with parser WASM files.');
+}
 const symfonyProfile = process.env.PHP_COMPANION_BENCHMARK_SYMFONY === '1';
 const frameworkInitialization = symfonyProfile
   ? await (await import('./benchmark-symfony-profile.mjs')).symfonyBenchmarkInitialization(

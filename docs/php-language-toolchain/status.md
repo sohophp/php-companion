@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 Symfony 类引用的正式 bundle 跨进程复测：`AdminSecuritySubscriber` 首次约 2.73 秒并写入 2 处完整结果，重载后仍约 2.81 秒，重新执行候选扫描与 Provider，再写入同一结果。首次恢复缺少预先可验证的框架输入指纹；缓存文件存在不等于可以安全跳过 Provider。基准驱动现要求持久化/输入审计显式指定正式 bundle，防止包内入口缺少引擎身份造成误判。性能 Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 延后候选缓存压缩/提交的两组正反序冷查询只比正式路径快约 0.06–0.19 秒，112 处位置不变；试验已撤回。缓存写盘不是数秒级首查瓶颈，继续解决短名字候选准备与语义判定；当前产品提交仍为 `9c5aaf7`，Goal 保持开放。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
 2026-09-22 首次 References 的工作区基础事实改在语言服务器初始化时建立，不扫描项目源码。Winstar 两组空缓存交叉对照中，`get` 点击等待由 7.635/7.683 秒降为 6.831/7.075 秒，初始化由约 0.19 秒升至 1.02–1.07 秒；112 处完整位置不变。Symfony Provider 下类引用 3.787→2.866 秒、2 处不变，`get` 8.773→8.092 秒、112 处不变。Language Server 235 项通过、1 项跳过，隔离 VS Code 1.138.0 Core Only 与打包 Core + Symfony 宿主均 exit 0。只缩短了点击后的等待，未减少总计算量；用户 WSL Alpha Profile 尚未安装，本 Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
