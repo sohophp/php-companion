@@ -114,7 +114,7 @@ let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let experimentalReferenceClosure = false;
-let experimentalRipgrepCandidates = false;
+let referenceRipgrepMode: 'off' | 'system' | 'test' = 'off';
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -1926,16 +1926,16 @@ function invalidateCandidates(uri: string): void {
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
-async function ripgrepCandidatePaths(project: ComposerProject, names: string[]): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
+async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
   if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
   const paths = projectAutoloadPaths(project);
   if (!paths.length) return undefined;
   const startedAt = Date.now() - 1_000;
   return new Promise((done) => {
-    const child = spawn('rg', ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
+    const child = spawn(executable, ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
       '--glob', '*.php', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
     const chunks: Buffer[] = []; let size = 0; let failed = false;
-    const timer = setTimeout(() => { failed = true; child.kill(); }, 10_000);
+    const timer = setTimeout(() => { failed = true; child.kill(); }, 1_500);
     child.stdout.on('data', (chunk: Buffer) => { size += chunk.length; if (size > 8 * 1024 * 1024) { failed = true; child.kill(); } else chunks.push(chunk); });
     child.once('error', () => { failed = true; });
     child.once('close', (code) => {
@@ -1974,8 +1974,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   try {
   const project = await composerProjectForRoot(root);
   const rgStarted = Date.now();
-  const rgCandidates = experimentalRipgrepCandidates && !forceFull && project && mode === 'symbol'
-    ? await ripgrepCandidatePaths(project, normalizedNames) : undefined;
+  const rgCandidates = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
+    ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg') : undefined;
   if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies: false, limits: indexLimits, readConcurrency: 128,
     skipSource: rgCandidates ? (path, info): boolean => {
@@ -2410,7 +2410,9 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
-  experimentalRipgrepCandidates = testMode && initialization?.experimentalRipgrepCandidates === true;
+  referenceRipgrepMode = initialization?.experimentalRipgrepCandidates === false ? 'off'
+    : testMode && initialization?.experimentalRipgrepCandidates === true ? 'test'
+      : process.platform === 'linux' ? 'system' : 'off';
   testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);

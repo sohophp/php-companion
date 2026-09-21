@@ -13,14 +13,15 @@ const compareClosure = process.env.PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLO
 const compareRg = process.env.PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_RG === '1';
 if (compareClosure && compareRg) throw new Error('Select only one reference candidate comparison mode.');
 const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
-  rg = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1') => {
+  rg = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' ? true
+    : process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0' ? false : undefined) => {
   const cache = await mkdtemp(join(tmpdir(), 'php-companion-first-references-'));
   try {
     const child = spawn(process.execPath, ['scripts/benchmark-language-queries.mjs', resolve(root), resolve(file), symbol,
       occurrence, cache, 'once', resolve(bundle)], {
       env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE: closure ? '1' : '0',
-        PHP_COMPANION_BENCHMARK_REFERENCE_RG: rg ? '1' : '0' }, stdio: ['ignore', 'pipe', 'pipe'],
+        ...(rg === undefined ? {} : { PHP_COMPANION_BENCHMARK_REFERENCE_RG: rg ? '1' : '0' }) }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = ''; let stderr = '';
     child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
@@ -62,8 +63,10 @@ if ((compareClosure || compareRg) && baseline) throw new Error('Compare candidat
 const hasReference = compareClosure || compareRg || Boolean(baseline);
 const reverse = hasReference && process.env.PHP_COMPANION_BENCHMARK_REVERSE === '1';
 const runReference = () => compareClosure || compareRg ? run(candidate, false, false) : run(baseline);
+const candidateRg = compareRg ? true : process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' ? true
+  : process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0' ? false : undefined;
 const runCandidate = () => run(candidate, compareClosure || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
-  compareRg || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1');
+  candidateRg);
 const result = reverse ? await runCandidate() : undefined;
 const reference = hasReference ? await runReference() : undefined;
 const candidateResult = result ?? await runCandidate();

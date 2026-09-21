@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 Linux 正式路径现对至少 8 个 ASCII 字符的 References 查询尝试可信 `/usr/bin/rg` 源码预筛，异常或超时自动完整扫描；此前已补齐被跳过文件的缓存变化证明。Winstar `AdminSecuritySubscriber` 冷首查 4.162 秒、2 处原位置；磁盘无类名而未保存缓冲区新增引用的 stdio 回归通过。短名字 `get` 仍走原路径，空缓存复测 7.781 秒/112 处原位置。Language Server 235 项通过、1 项跳过；Windows/macOS、新版 VSIX 和用户 WSL Alpha Profile 尚未验证，Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 受控长名字预筛已补齐缓存证据：对未读取文件记录扫描时的大小、mtime/ctime，结果快照前后再核对；完整快照仍对全部 Composer PHP 源码哈希。Winstar `shouldRedirect` 首查 2.197 秒/1 处，后台成功存储结果，重启后同位置恢复为 2.380 秒；输入审计 `captured=true`、`engineVerified=true`。带 Symfony Provider 的服务类虽写入结果，重启仍重新扫描，框架事实恢复仍待解决。Language Server 235 项（1 项跳过）、ESLint、构建通过；预筛仍只在测试模式，短名字 `get` 仍约 8 秒，Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
 2026-09-22 首次 `get` 继续验证：把长名字预筛临时扩至短名字，一组 8.136→7.418 秒，但反向顺序为 7.740/7.768 秒，未复现稳定收益，已撤回。语句边界复用试验保持 112 处位置却使语义阶段升至 5.667 秒，亦已撤回并重建 bundle；恢复后 `get` 为 7.831 秒、原位置摘要。验证脚本现支持 `PHP_COMPANION_BENCHMARK_REVERSE=1` 的反向串行对测。Goal 继续，见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。

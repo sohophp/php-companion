@@ -144,3 +144,11 @@ Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber`
 在 Winstar 无 Symfony Provider 的 `shouldRedirect` 样本中，试验性 `rg` 预筛首查 2,197 ms、1 处，后台日志确认 `[reference-cache] stored count=1`；重启语言服务器后返回相同位置，日志为 `restored count=1`，点击等待 2,380 ms。独立 `phpCompanion/testReferenceInputs` 审计返回 `captured=true`、`engineVerified=true`、2,537 个快照文件，候选已读文件 33 个。带 Symfony Provider 的 `AdminSecuritySubscriber` 首查 3,730 ms、2 处，也确认写入结果缓存；重启后的同一请求仍进行了候选扫描并重新写入，说明其框架事实恢复条件尚未满足，不能把“已写入”当作该场景“已快速恢复”。
 
 证据改动后的默认（无实验标志）`get` 冷查询复测为 8,057 ms，候选 4,470 ms、语义 1,969 ms，仍是 112 处及原位置摘要；短名字瓶颈未改变。
+
+## 有界预筛进入 Linux 正式路径
+
+完整文件变化证据已通过单元、Winstar 输入审计与跨进程缓存恢复验证后，Linux 语言服务器默认对至少 8 个 ASCII 字符的普通符号查询尝试 `/usr/bin/rg`。使用绝对系统路径避免从工作区 `PATH` 执行未知程序；缺少该工具、退出异常、超过 1.5 秒或输出过大时自动回到原候选扫描。macOS/Windows 仍走原路径。基准驱动可用 `PHP_COMPANION_BENCHMARK_REFERENCE_RG=0` 强制原路径、`=1` 强制试验路径，以便差分；普通启动不传该内部初始化选项。
+
+正式路径在 Winstar、Symfony Provider、`AdminSecuritySubscriber` 类声明空缓存首次查询测得 4,162 ms、2 处，完整位置摘要仍为 `c0d5d86b7e083c6f21354d508f2897712e0b7b6a8663efd6cf2066788ff221fd`，候选 1,337 ms，其中 `rg` 104 ms、筛出 31 个文件。已有 stdio 用例扩展为“磁盘文件不含类名、未保存缓冲区新增类引用”，仍返回磁盘与缓冲区中的完整引用。此优化尚未发布成新版 VSIX，也未在用户当前 WSL Alpha Profile 验证。它改善长名字，短名字 `get` 仍沿完整扫描，不满足最终目标。
+
+正式路径改动后的完整 Language Server 测试为 235 项通过、1 项跳过；ESLint、TypeScript 构建通过。`get` 空缓存复测 7,781 ms、112 处，候选 4,450 ms、语义 1,850 ms，无 `rg` 预筛日志，位置摘要仍为 `bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2`。

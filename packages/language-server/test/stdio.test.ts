@@ -452,11 +452,14 @@ describe('language server stdio', () => {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const target = '<?php namespace App; final class TargetService {}';
       const consumer = '<?php namespace App; function run(TargetService $service): void { new TargetService(); }';
+      const unsaved = '<?php namespace App; function unsaved(TargetService $service): void {}';
       const targetUri = pathToFileURL(join(sourceDirectory, 'TargetService.php')).toString();
       const consumerUri = pathToFileURL(join(sourceDirectory, 'Consumer.php')).toString();
+      const unsavedUri = pathToFileURL(join(sourceDirectory, 'Unsaved.php')).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(sourceDirectory, 'TargetService.php'), target);
       await writeFile(join(sourceDirectory, 'Consumer.php'), consumer);
+      await writeFile(join(sourceDirectory, 'Unsaved.php'), '<?php namespace App; function unsaved(): void {}');
       await writeFile(join(sourceDirectory, 'Noise.php'), '<?php namespace App; final class Noise {}');
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -470,14 +473,18 @@ describe('language server stdio', () => {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: targetUri, languageId: 'php', version: 1, text: target },
       } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: unsavedUri, languageId: 'php', version: 1, text: unsaved },
+      } }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
         textDocument: { uri: targetUri }, position: lspPosition(target, target.indexOf('TargetService') + 1),
         context: { includeDeclaration: false },
       } }));
       const references = (await output.waitFor((message) => message.id === 241)).result;
-      expect(references).toEqual([consumer.indexOf('TargetService'), consumer.lastIndexOf('TargetService')].map((offset) => ({
+      expect(references).toEqual([...([consumer.indexOf('TargetService'), consumer.lastIndexOf('TargetService')].map((offset) => ({
         uri: consumerUri, range: { start: lspPosition(consumer, offset), end: lspPosition(consumer, offset + 'TargetService'.length) },
-      })));
+      }))), { uri: unsavedUri, range: { start: lspPosition(unsaved, unsaved.indexOf('TargetService')),
+        end: lspPosition(unsaved, unsaved.indexOf('TargetService') + 'TargetService'.length) } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
       await output.waitFor((message) => message.id === 242);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
