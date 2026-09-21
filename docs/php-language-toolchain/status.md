@@ -1,6 +1,6 @@
 # 实施状态
 
-2026-09-22 新 Alpha 候选 `artifacts/php-companion-alpha-0.4.5-a48b5177` 从干净提交 `a48b5177` 生成；核心、Symfony、开源包、推荐包四个 VSIX 的 `SHA256SUMS` 全部通过，`verify:vsix` 通过。Winstar 的 `alpha:preflight` 确认 WSL2、PHP 8.5 包装器和候选文件完整性；不带 `--check-editor`，因当前远程 CLI 的扩展列表调用未返回。此前隔离的 VS Code 1.138.0 Core Only 与包含 Symfony 的 Extension Host 测试均 exit 0。候选尚未安装进用户当前 Alpha Profile；WSL Extension Host 所属、竞争 Provider、真实项目编码与 References 体感仍待人工验收，Goal 保持开放。
+2026-09-22 新 Alpha 候选 `artifacts/php-companion-alpha-0.4.5-a48b5177` 从干净提交 `a48b5177` 生成；核心、Symfony、开源包、推荐包四个 VSIX 的 `SHA256SUMS` 全部通过，`verify:vsix` 通过。Winstar 的 `alpha:preflight` 确认 WSL2、PHP 8.5 包装器和候选文件完整性；不带 `--check-editor`，因当前远程 CLI 的扩展列表调用未返回。隔离的 VS Code 1.138.0 Core Only、包含 Symfony 的开发模式及从 VSIX 解包的 Extension Host 测试均 exit 0；重新打包后再次核对归档候选四份 SHA-256，仍全部通过。候选尚未安装进用户当前 Alpha Profile；WSL Extension Host 所属、竞争 Provider、真实项目编码与 References 体感仍待人工验收，Goal 保持开放。
 
 2026-09-22 首次 References 最新界限：选中符号后提前静默预热；Winstar 独立空缓存、模拟编辑器 300 ms 光标通知、打开后停留 2.5 秒再点击，`get` 为 6.4–6.9 秒/112 处，服务类为 4.3–4.5 秒/2 处，两者每次只扫描一次且位置 SHA-256 与基线一致。停留 8 秒再点击为 2.36/0.96 秒；立即点击 `get` 仍为 9.46 秒。预取窗口扩至 256、普通符号查询略去命名参数摘要均未带来稳定收益，已撤回。当前产品提交 `d3ff2ce`；隔离的 VS Code 1.138.0 Core Only 与包含 Symfony 的 Extension Host 测试均 exit 0，真实用户 WSL Profile 尚未验收，Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
