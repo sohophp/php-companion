@@ -12,6 +12,7 @@ const cacheDirectory = process.argv[6] ? resolve(process.argv[6]) : undefined;
 const once = process.argv[7] === 'once';
 const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/language-server/dist/server.js';
 const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
+const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${resolve(profileDirectory)}`] : []),
   serverEntrypoint, '--stdio', ...(process.argv[8] ? ['--parser-core-wasm', join(dirname(serverEntrypoint), 'web-tree-sitter.wasm'),
     '--php-wasm', join(dirname(serverEntrypoint), 'tree-sitter-php.wasm')] : [])], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -42,7 +43,7 @@ const request = (method, params) => new Promise((done, reject) => {
   send({ jsonrpc: '2.0', id, method, params });
 });
 try {
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory } });
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory, testMode: auditInputs } });
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const source = await readFile(file, 'utf8'); const uri = pathToFileURL(file).toString();
   const match = occurrence === 'last' ? source.lastIndexOf(name) : source.indexOf(name); const offset = match + 1;
@@ -68,6 +69,10 @@ try {
     }
     process.stdout.write(JSON.stringify({ method, elapsedMs, results: result.length, peakRssKiB,
       uris: [...new Set(result.map((location) => location.uri))].sort(), locationSha256 }) + '\n');
+  }
+  if (auditInputs) {
+    const started = performance.now(); const evidence = await request('phpCompanion/testReferenceInputs', { uri });
+    process.stdout.write(JSON.stringify({ method: 'phpCompanion/testReferenceInputs', elapsedMs: Math.round(performance.now() - started), ...evidence }) + '\n');
   }
 } finally {
   if (server.exitCode === null) {

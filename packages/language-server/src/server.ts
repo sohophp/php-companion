@@ -34,7 +34,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
   type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
-import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
+import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, projectAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, symfonyPhpParameterReferences, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
@@ -48,6 +48,8 @@ import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCache
   restoreCachedProjectPhpFile, restoreCachedSourceDeclaration, type ProjectPhpFileFacts } from './projectFacts.js';
 import { CallableFactCache } from './callableFactsCache.js';
 import { CandidateWorkers, type PreparedCandidate, type PreparedCandidateRestore } from './candidateWorkers.js';
+import { ReferenceDependencyEvidence, referenceDependencyEvidenceMatches, referenceSourceHash, type ReferenceDependencyRead } from './referenceDependencyEvidence.js';
+import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -64,6 +66,7 @@ const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefin
 const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
 const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
+const referenceDependencyEvidence = new WeakMap<SemanticWorkspace, ReferenceDependencyEvidence>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
 const projectCompleteWaiters = new Map<string, Set<() => void>>();
@@ -1967,22 +1970,30 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
 }
 
 async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[]): Promise<boolean> {
+  let evidence = referenceDependencyEvidence.get(workspace);
+  if (!evidence) { evidence = new ReferenceDependencyEvidence(); referenceDependencyEvidence.set(workspace, evidence); }
   if (!projectMappingsByRoot.has(root)) {
     const project = await composerProjectForRoot(root); projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   }
   const candidates = [...new Set(typeNames.map((fqcn) => fqcn.replace(/^\\/, '')).filter((fqcn) => fqcn && !workspace.typeByFqcn(fqcn)))]
-    .flatMap((fqcn) => resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? [])).slice(0, 16);
+    .flatMap((fqcn) => resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? []));
+  if (candidates.length > 16) evidence.reject();
   let loaded = false;
-  for (const path of candidates) {
+  for (const path of candidates.slice(0, 16)) {
     try {
       const information = await stat(path);
-      if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) continue;
+      if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { evidence.reject(); continue; }
       const targetUri = indexedUriForPath(root, path);
       const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
       workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
+      evidence.source(path, targetUri, source);
       indexedUrisByRoot.get(root)?.add(targetUri);
       loaded = true;
-    } catch { /* Missing or unreadable PSR-4 candidates remain unresolved. */ }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') evidence.missing(path);
+      else evidence.reject();
+      /* Missing or unreadable PSR-4 candidates remain unresolved. */
+    }
   }
   return loaded;
 }
@@ -2049,6 +2060,56 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
   if (!testMode) return false;
   setTimeout(() => process.exit(70), 10);
   return true;
+});
+
+// Audit only: this endpoint neither restores nor publishes cached query results.
+connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: unknown }, token) => {
+  const unavailable = (reason: string): { captured: false; reason: string } => ({ captured: false, reason });
+  if (!testMode || typeof params.uri !== 'string') return unavailable('disabled');
+  const root = rootForUri(params.uri); if (!root) return unavailable('no-project');
+  if (semanticProviders.length || routeProviders.length) return unavailable('provider-inputs-unproven');
+  const workspace = await semanticForUri(params.uri);
+  const dependencyReads = (): ReferenceDependencyRead[] | undefined => {
+    const evidence = referenceDependencyEvidence.get(workspace); return evidence ? evidence.snapshot() : [];
+  };
+  const attempted = dependencyReads();
+  if (!attempted) return unavailable('canonical-reads-incomplete');
+  const project = await composerProjectForRoot(root); if (!project) return unavailable('no-composer');
+  const generation = indexingGeneration; const epoch = projectEpochs.get(root);
+  const revision = (): string => JSON.stringify(documents.all().map((document) => [document.uri, document.version]).sort());
+  const initialRevision = revision();
+  const stable = (): boolean => !token.isCancellationRequested && generation === indexingGeneration
+    && epoch === projectEpochs.get(root) && initialRevision === revision() && !semanticProviders.length && !routeProviders.length;
+  const buffers = documents.all().map((document) => ({ uri: document.uri, source: document.getText() }));
+  const loadedSources = (): Array<{ uri: string; hash: string }> => workspace.documentUris().map((uri) => ({ uri,
+    hash: referenceSourceHash(workspace.source(uri) ?? '') })).sort((left, right) => left.uri.localeCompare(right.uri));
+  const loaded = loadedSources(); const reads: ReferenceDependencyRead[] = [...attempted];
+  for (const file of loaded) {
+    const path = pathForUri(file.uri);
+    if (path) reads.push({ kind: 'source', path: resolve(path), uri: file.uri, hash: file.hash });
+    else if (file.uri !== BUILTIN_DOCUMENT_URI) return unavailable('unmodeled-source');
+  }
+  let vendorDirectory: string;
+  try {
+    const composer = JSON.parse(await readFile(project.composerPath, 'utf8')) as { config?: { 'vendor-dir'?: unknown } };
+    const configured = composer.config?.['vendor-dir'];
+    if (configured !== undefined && typeof configured !== 'string') return unavailable('invalid-vendor-directory');
+    vendorDirectory = resolve(root, configured ?? 'vendor');
+  } catch { return unavailable('composer-unreadable'); }
+  const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
+    additionalFiles: [project.composerPath, resolve(root, 'composer.lock'), resolve(vendorDirectory, 'composer/installed.json'),
+      ...project.dependencies.map((dependency) => resolve(dependency.root, 'composer.json')), ...reads.map((read) => read.path)],
+    context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), project, indexLimits,
+      disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted }), documents: buffers, shouldContinue: stable,
+  });
+  if (!snapshot || !stable()) return unavailable('inputs-changed-or-unreadable');
+  if (JSON.stringify(project) !== JSON.stringify(await loadComposerProject(root))) return unavailable('composer-snapshot-changed');
+  if (!stable() || JSON.stringify(loaded) !== JSON.stringify(loadedSources())
+    || JSON.stringify(attempted) !== JSON.stringify(dependencyReads())) return unavailable('semantic-state-changed');
+  if (!referenceDependencyEvidenceMatches(snapshot, reads, buffers)) return unavailable('consumed-source-mismatch');
+  return { captured: true, semanticCoverageVerified: false, files: snapshot.files.length,
+    loadedSources: loaded.length, canonicalSources: attempted.filter((read) => read.kind === 'source').length,
+    missingLookups: attempted.filter((read) => read.kind === 'missing').length, fingerprint: snapshot.fingerprint };
 });
 
 connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: {

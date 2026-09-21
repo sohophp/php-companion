@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 References 实际依赖证据：规范类型读取记录成功来源摘要及 ENOENT 路径，截断/错误/超限拒绝；测试审计自动核对工作区来源、Composer 元数据和未保存文档。真实 Winstar 自动取得 2 个依赖、1 个缺失查找、共 2,535 文件，审计 3.866 秒；63 项 LSP 定向回归及 TypeScript/ESLint/正式构建通过，真实首次基线 9.044 秒、112 处摘要一致。仍未启用旧结果返回，Provider 和引擎身份尚需闭合；下一步消除重复 Composer 配置读取。证据见 [依赖读取证据](reports/reference-dependency-evidence-2026-09-21.md)。
+
 2026-09-21 持久化 References 复用的输入校验基础：新增有界文件集合/内容/未保存文档指纹捕获，拒绝扫描中变更、取消、超限和不完整符号链接遍历；7 项定向回归、TypeScript/ESLint 通过。真实 Composer 全依赖达 54,907 PHP 文件、约 247 MB，超过默认校验上限；项目源码加手工指定依赖样本 2,290 文件校验约 1.694 秒，但依赖覆盖尚未证明。模块及基准工具尚未接入查询结果返回，不宣称首次 References 已加速。下一步自动收集实际依赖、失败查找及 Provider 证据。详见 [输入校验基础](reports/reference-input-snapshot-2026-09-21.md)。
 
 2026-09-21 References 按声明恢复缓存：method candidate 使用既有声明恢复路径，方法体按需加载；已经加载的 callable 不再重复合并和失效引用缓存。正式 bundle 的 Reload 首次查询从同轮原版 7.567 / 7.470 秒降至 7.195 秒，112 处完整位置摘要一致，导航后重复 14 ms。语义包 290 项、LSP 定向 52 项（54.84 秒）、相关 TypeScript/ESLint 和正式构建通过。仅改善 Reload 恢复成本，空缓存首次与持久化查询结果复用仍未解决，未更新 WSL VSIX。证据见 [References 声明恢复](reports/reference-deferred-restore-2026-09-21.md)。

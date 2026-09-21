@@ -20,6 +20,8 @@ export interface ReferenceInputSnapshotOptions {
 export interface ReferenceInputSnapshot {
   fingerprint: string;
   files: ReadonlyArray<{ path: string; hash: string }>;
+  /** Explicitly requested paths whose absence was verified, not unvisited paths. */
+  missingPaths: readonly string[];
 }
 
 interface InputFile { path: string; hash: string; stamp: string; }
@@ -114,6 +116,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     }
     if (!active()) return undefined;
     const inputs = files.map(({ path, hash }) => ({ path, hash }));
-    return { files: inputs, fingerprint: digest(JSON.stringify({ schema: 1, context, roots: after.roots, files: inputs, documents })) };
+    return { files: inputs, missingPaths: after.roots.filter(([, target]) => target === null).map(([path]) => path),
+      fingerprint: digest(JSON.stringify({ schema: 1, context, roots: after.roots, files: inputs, documents })) };
   } catch { return undefined; }
 }

@@ -112,7 +112,7 @@ describe('language server stdio', () => {
       const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
       await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
-      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': ['missing/', 'src/'] } } }] }));
       await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
       await writeFile(join(dependencyDirectory, 'Request.php'), '<?php namespace Acme; class Request { public ParameterBag $attributes; public function getSession(): SessionBag {} }');
       for (const bag of ['ParameterBag', 'SessionBag']) await writeFile(join(dependencyDirectory, `${bag}.php`), `<?php namespace Acme; class ${bag} { public function get(): int { return 1; } }`);
@@ -131,7 +131,7 @@ describe('language server stdio', () => {
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 280, method: 'initialize', params: {
           processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache') },
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true },
         } }));
         await output.waitFor((message) => message.id === 280);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -146,6 +146,20 @@ describe('language server stdio', () => {
         expect(response.result.sort((a: { uri: string }, b: { uri: string }) => a.uri.localeCompare(b.uri))).toEqual(expected);
         expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[named-candidates]'))).toBe(true);
         expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
+        const audit = async (id: number): Promise<any> => {
+          server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/testReferenceInputs', params: { uri } }));
+          const result = await output.waitFor((message) => message.id === id);
+          expect(result.error).toBeUndefined(); return result.result;
+        };
+        const evidence = await audit(283);
+        expect(evidence).toMatchObject({ captured: true, semanticCoverageVerified: false, canonicalSources: 2 });
+        expect(evidence.missingLookups).toBeGreaterThanOrEqual(2);
+        const newlyPresent = join(root, 'vendor', 'acme', 'lib', 'missing', 'Request.php');
+        await mkdir(join(root, 'vendor', 'acme', 'lib', 'missing'), { recursive: true });
+        await writeFile(newlyPresent, '<?php namespace Acme; class Request {}');
+        expect(await audit(284)).toEqual({ captured: false, reason: 'consumed-source-mismatch' });
+        await rm(newlyPresent);
+        expect((await audit(285)).fingerprint).toBe(evidence.fingerprint);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 282, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 282);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
