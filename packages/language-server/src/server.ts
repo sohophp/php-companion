@@ -51,6 +51,9 @@ import { CandidateWorkers, type PreparedCandidate, type PreparedCandidateRestore
 import { ReferenceDependencyEvidence, referenceDependencyEvidenceMatches, referenceSourceHash, type ReferenceDependencyRead } from './referenceDependencyEvidence.js';
 import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
 import { referenceCandidateEvidenceMatches } from './referenceCandidateEvidence.js';
+import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
+
+declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -759,6 +762,13 @@ function parserPaths(): PhpParserPaths | undefined {
   return coreWasmPath && phpWasmPath ? { coreWasmPath, phpWasmPath } : undefined;
 }
 const candidateWorkers = new CandidateWorkers(parserPaths());
+const engineParserPaths = parserPaths();
+const referenceEngineInputs: ReferenceEngineInputs | undefined = typeof __PHP_COMPANION_ENGINE_BUILD__ === 'string' && engineParserPaths && process.argv[1]
+  ? { buildId: __PHP_COMPANION_ENGINE_BUILD__, serverPath: resolve(process.argv[1]),
+    workerPath: resolve(dirname(process.argv[1]), 'candidateWorker.js'), ...engineParserPaths,
+    runtime: JSON.stringify({ versions: process.versions, platform: process.platform, arch: process.arch,
+      collation: new Intl.Collator().resolvedOptions() }) } : undefined;
+const initialReferenceEngineIdentity = referenceEngineInputs ? captureReferenceEngineIdentity(referenceEngineInputs) : Promise.resolve(undefined);
 function parser(): Promise<PhpSyntaxParser> {
   const paths = parserPaths();
   parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault();
@@ -2088,6 +2098,8 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   const attempted = dependencyReads();
   if (!attempted) return unavailable('canonical-reads-incomplete');
   const project = await composerProjectForRoot(root); if (!project) return unavailable('no-composer');
+  const engineIdentity = await initialReferenceEngineIdentity;
+  if (referenceEngineInputs && (!engineIdentity || await captureReferenceEngineIdentity(referenceEngineInputs) !== engineIdentity)) return unavailable('engine-inputs-changed-or-unreadable');
   const candidates = referenceCandidateReads.get(workspace);
   if (!candidates || candidates.root !== root || candidates.epoch !== (projectEpochs.get(root) ?? 0)) return unavailable('candidate-reads-incomplete');
   if (!project.inputEvidence?.complete) return unavailable('composer-reads-incomplete');
@@ -2109,7 +2121,7 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   }
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
     additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],
-    context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), project, indexLimits,
+    context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), engineIdentity, project, indexLimits,
       disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted,
       candidates: { key: candidates.key, reads: [...candidates.reads].sort(([left], [right]) => left.localeCompare(right)) } }), documents: buffers, shouldContinue: stable,
   });
@@ -2120,7 +2132,11 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   if (!referenceDependencyEvidenceMatches(snapshot, reads, buffers)) return unavailable('consumed-source-mismatch');
   if (referenceCandidateReads.get(workspace) !== candidates || !referenceCandidateEvidenceMatches(snapshot, candidates.reads,
     (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path))) return unavailable('candidate-snapshot-changed');
-  return { captured: true, semanticCoverageVerified: false, files: snapshot.files.length,
+  if (referenceEngineInputs && await captureReferenceEngineIdentity(referenceEngineInputs) !== engineIdentity) return unavailable('engine-inputs-changed-or-unreadable');
+  if (!stable()) return unavailable('inputs-changed-or-unreadable');
+  if (referenceCandidateReads.get(workspace) !== candidates || JSON.stringify(loaded) !== JSON.stringify(loadedSources())
+    || JSON.stringify(attempted) !== JSON.stringify(dependencyReads())) return unavailable('semantic-state-changed');
+  return { captured: true, semanticCoverageVerified: false, engineVerified: Boolean(engineIdentity), files: snapshot.files.length,
     candidateSources: candidates.reads.size,
     loadedSources: loaded.length, canonicalSources: attempted.filter((read) => read.kind === 'source').length,
     missingLookups: attempted.filter((read) => read.kind === 'missing').length, fingerprint: snapshot.fingerprint };

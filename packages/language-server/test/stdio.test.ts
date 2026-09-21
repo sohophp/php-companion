@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { join, resolve, sep } from 'node:path';
-import { mkdtemp, mkdir, readFile, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve, sep } from 'node:path';
+import { copyFile, mkdtemp, mkdir, readFile, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -109,6 +109,13 @@ describe('language server stdio', () => {
   it.each(['attributes', 'getSession()'])('resolves first cold and reloaded references through unloaded vendor %s without Definition warm-up', async (receiver) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-first-references-'));
     try {
+      const bundle = process.env.PHP_COMPANION_TEST_REFERENCE_BUNDLE;
+      const bundleDirectory = join(root, 'bundle');
+      if (bundle) {
+        await mkdir(bundleDirectory);
+        await Promise.all(['language-server.js', 'candidateWorker.js', 'web-tree-sitter.wasm', 'tree-sitter-php.wasm']
+          .map((name) => copyFile(join(dirname(resolve(bundle)), name), join(bundleDirectory, name))));
+      }
       const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
       await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, 'exclude-from-classmap': ['/src/Generated/'] } }));
@@ -130,7 +137,9 @@ describe('language server stdio', () => {
         return { uri: item.uri, range: { start: lspPosition(item.text, offset), end: lspPosition(item.text, offset + 3) } };
       }).sort((a, b) => a.uri.localeCompare(b.uri));
       for (let run = 0; run < 2; run += 1) {
-        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        server = spawn(process.execPath, bundle ? [join(bundleDirectory, 'language-server.js'), '--stdio',
+          '--parser-core-wasm', join(bundleDirectory, 'web-tree-sitter.wasm'), '--php-wasm', join(bundleDirectory, 'tree-sitter-php.wasm')]
+          : [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 280, method: 'initialize', params: {
           processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
@@ -155,7 +164,7 @@ describe('language server stdio', () => {
           expect(result.error).toBeUndefined(); return result.result;
         };
         const evidence = await audit(283);
-        expect(evidence).toMatchObject({ captured: true, semanticCoverageVerified: false, canonicalSources: 2, candidateSources: 4 });
+        expect(evidence).toMatchObject({ captured: true, semanticCoverageVerified: false, engineVerified: Boolean(bundle), canonicalSources: 2, candidateSources: 4 });
         expect(evidence.missingLookups).toBeGreaterThanOrEqual(2);
         const newlyPresent = join(root, 'vendor', 'acme', 'lib', 'missing', 'Request.php');
         await mkdir(join(root, 'vendor', 'acme', 'lib', 'missing'), { recursive: true });
@@ -184,6 +193,16 @@ describe('language server stdio', () => {
         expect(await audit(292)).toEqual({ captured: false, reason: 'candidate-snapshot-changed' });
         await rm(movedPath);
         expect((await audit(293)).fingerprint).toBe(evidence.fingerprint);
+        if (bundle) {
+          let id = 294;
+          for (const name of ['candidateWorker.js', 'tree-sitter-php.wasm']) {
+            const path = join(bundleDirectory, name); const original = await readFile(path);
+            await writeFile(path, Buffer.concat([original, Buffer.from('changed-engine')]));
+            expect(await audit(id++)).toEqual({ captured: false, reason: 'engine-inputs-changed-or-unreadable' });
+            await writeFile(path, original);
+            expect((await audit(id++)).fingerprint).toBe(evidence.fingerprint);
+          }
+        }
         server.stdin.write(encode({ jsonrpc: '2.0', id: 282, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 282);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

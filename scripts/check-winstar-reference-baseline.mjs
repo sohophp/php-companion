@@ -6,6 +6,9 @@ import process from 'node:process';
 import { URL } from 'node:url';
 
 const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
+// Validate the same bundled entrypoint and parser assets shipped in the VSIX.
+// Build it first; package-level TypeScript output is a separate test target.
+const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const expected = new Map([
@@ -15,9 +18,9 @@ const expected = new Map([
 
 try {
   const child = spawn(process.execPath, [
-    'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once',
+    'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
   ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'inherit'],
-    env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1' } });
+    env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1', PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0' } });
   let output = '';
   child.stdout.setEncoding('utf8');
   child.stdout.on('data', (chunk) => { output += chunk; });

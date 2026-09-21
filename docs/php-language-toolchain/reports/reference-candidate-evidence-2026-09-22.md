@@ -39,7 +39,7 @@
 - 冷启动和 Reload 均验证：无文件通知时，原来跳过的文件新增调用、移动、删除或新增文件，审计拒绝；恢复原文件后恢复原指纹。
 - Composer 排除、源码与明确依赖的集合区分、跨 32 项窗口的文件/目录遍历、缺失输入、空目录预算、扫描中变化、取消及链接检查通过。
 - Language Server TypeScript、6 个改动源码/测试文件 ESLint、正式 esbuild 构建通过。
-- 最终 bundle 的 `pnpm check:references:winstar` 通过：空缓存首次 References 9,386 ms、112 处；随后 Definition 8 ms、1 处，完整位置摘要均匹配。并行目录改动前同命令为 8,702 ms；本轮没有改变正常查询返回流程，不将该波动视为提速。
+- 包级编译输出的 `pnpm check:references:winstar` 通过：空缓存首次 References 9,386 ms、112 处；随后 Definition 8 ms、1 处，完整位置摘要均匹配。并行目录改动前同命令为 8,702 ms；本轮没有改变正常查询返回流程，不将该波动视为提速。入口说明由后续[引擎身份审计](reference-engine-identity-2026-09-22.md)更正；上方显式 bundle 的成对测量不受影响。
 - 原有宽 LSP/完整发布检查不在每个内部审计改动后重复执行。
 
 本轮未冻结/安装新 VSIX；基准未注册 Provider，不能替代完整 Symfony WSL Profile 的实际编码验收。首次 References 仍需继续优化。

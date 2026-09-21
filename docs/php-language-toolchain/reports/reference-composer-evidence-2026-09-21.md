@@ -16,7 +16,7 @@ Composer 加载器在第一次读取时保留实际元数据路径与原始字�
 - Language Server 构建、4 个改动文件 ESLint 通过。
 - 首次 References stdio 两项通过（8.25 秒），覆盖属性链、返回链、冷启动和 Reload，并增加 Composer 文件变化/恢复审计。
 - 阶段扩展回归 128 项通过、89 项跳过，用时 87.49 秒。
-- 正式 bundle 的 `pnpm check:references:winstar` 通过：冷 References 9,938 ms、112 处；Definition 9 ms、1 处，完整位置摘要均符合基线。
+- 包级编译输出的 `pnpm check:references:winstar` 通过：冷 References 9,938 ms、112 处；Definition 9 ms、1 处，完整位置摘要均符合基线。入口说明由后续[引擎身份审计](reference-engine-identity-2026-09-22.md)更正；下方显式 bundle 的成对测量不受影响。
 
 日常修改先按改动包构建，再执行直接相关文件/用例，例如：
 
