@@ -390,6 +390,14 @@ export class PhpSyntaxParser {
     const stringRanges: SourceRange[] = [];
     const namespaceDefinitions: Array<{ name: string; start: number; end: number; braced: boolean }> = [];
     const typeReferenceKeys = new Set<string>();
+    const scopeAt = (start: number, end: number, strictStart = false): ParsedScope | undefined => {
+      let best: ParsedScope | undefined;
+      for (const candidate of scopes) {
+        if ((strictStart ? start <= candidate.start : start < candidate.start) || end > candidate.end) continue;
+        if (!best || candidate.end - candidate.start < best.end - best.start) best = candidate;
+      }
+      return best;
+    };
     const addTypeReference = (node: SyntaxNode | undefined, context: ParsedTypeReference['context']): void => {
       if (!node || (!['name', 'qualified_name'].includes(node.type) && !(context === 'static-receiver' && node.type === 'relative_scope'))) return;
       const range = nodeRange(source, node); const key = `${range.start}:${range.end}`;
@@ -620,8 +628,7 @@ export class PhpSyntaxParser {
       const left = node.childForFieldName('left'); const right = node.childForFieldName('right');
       const operator = binaryOperator(node);
       if (!left || !right || (operator !== '&&' && operator !== '||')) return;
-      const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end)
-        .sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+      const scope = scopeAt(node.startIndex, node.endIndex);
       const impliedPredicateFacts = (candidate: SyntaxNode, truthy: boolean, end: number, inspectionEnd: number): ParsedTypeNarrowing[] => {
         const unwrapped = unwrapCondition(candidate); const nested = unwrapped.node;
         const effectiveTruthy = unwrapped.negated ? !truthy : truthy;
@@ -712,65 +719,64 @@ export class PhpSyntaxParser {
       });
     };
 
+    const memberKinds: Record<string, ParsedMemberAccess['kind']> = {
+      member_call_expression: 'method', nullsafe_member_call_expression: 'method', scoped_call_expression: 'method',
+      member_access_expression: 'property', nullsafe_member_access_expression: 'property', scoped_property_access_expression: 'property',
+      class_constant_access_expression: 'constant',
+    };
+    const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
     walk(tree.rootNode, (node) => {
-      if (node.type === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
-      if (node.type === 'base_clause' || node.type === 'class_interface_clause') {
+      const nodeType = node.type;
+      if (nodeType === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
+      if (nodeType === 'base_clause' || nodeType === 'class_interface_clause') {
         for (const child of node.namedChildren) addTypeReference(child, 'inheritance');
       }
-      if (node.type === 'use_declaration') for (const child of node.namedChildren) addTypeReference(child, 'trait');
-      if (node.type === 'attribute') addTypeReference(node.childForFieldName('name') ?? node.namedChildren[0], 'attribute');
-      if (node.type === 'binary_expression') {
+      if (nodeType === 'use_declaration') for (const child of node.namedChildren) addTypeReference(child, 'trait');
+      if (nodeType === 'attribute') addTypeReference(node.childForFieldName('name') ?? node.namedChildren[0], 'attribute');
+      if (nodeType === 'binary_expression') {
         const left = node.childForFieldName('left') ?? node.namedChildren[0];
         const right = node.childForFieldName('right') ?? node.namedChildren.at(-1);
         if (left && right && /^\s*instanceof\s*$/iu.test(source.slice(left.endIndex, right.startIndex))) addTypeReference(right, 'instanceof');
       }
-      if (['scoped_call_expression', 'scoped_property_access_expression', 'class_constant_access_expression'].includes(node.type)) {
+      if (['scoped_call_expression', 'scoped_property_access_expression', 'class_constant_access_expression'].includes(nodeType)) {
         addTypeReference(node.childForFieldName('scope') ?? node.namedChildren[0], 'static-receiver');
       }
-      if (node.type === 'comment') commentRanges.push(nodeRange(source, node));
-      if (STRING_TYPES.has(node.type)) stringRanges.push(nodeRange(source, node));
+      if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
+      if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
       if (node.isError || node.isMissing) errors.push(nodeRange(source, node));
-      if (node.type === 'variable_name' && node.parent?.type !== 'scoped_property_access_expression') {
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end)
-          .sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+      if (nodeType === 'variable_name' && node.parent?.type !== 'scoped_property_access_expression') {
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
       }
-      if (node.type === 'conditional_expression') {
+      if (nodeType === 'conditional_expression') {
         const condition = node.childForFieldName('condition');
         const body = node.childForFieldName('body');
         const alternative = node.childForFieldName('alternative');
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end)
-          .sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (condition && body && alternative && scope) {
           narrowings.push(...predicateConditionFacts(condition, true, scope.id, body.startIndex, body.endIndex));
           narrowings.push(...predicateConditionFacts(condition, false, scope.id, alternative.startIndex, alternative.endIndex));
         }
       }
-      if (node.type === 'return_statement') {
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end)
-          .sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+      if (nodeType === 'return_statement') {
+        const scope = scopeAt(node.startIndex, node.endIndex);
         const expression = node.namedChildren[0];
         if (scope) returns.push({ ...nodeRange(source, node), scopeId: scope.id,
           expressionStart: expression ? nodeRange(source, expression).start : undefined,
           expressionEnd: expression ? nodeRange(source, expression).end : undefined });
       }
-      const memberKinds: Record<string, ParsedMemberAccess['kind']> = {
-        member_call_expression: 'method', nullsafe_member_call_expression: 'method', scoped_call_expression: 'method',
-        member_access_expression: 'property', nullsafe_member_access_expression: 'property', scoped_property_access_expression: 'property',
-        class_constant_access_expression: 'constant',
-      };
-      const memberKind = memberKinds[node.type];
+      const memberKind = memberKinds[nodeType];
       if (memberKind) {
         const explicitCandidate = node.childForFieldName('name');
         const candidate = explicitCandidate ?? node.namedChildren.at(-1);
         const receiverCandidate = node.childForFieldName('object') ?? node.childForFieldName('scope')
-          ?? ((node.type.startsWith('scoped_') || node.type === 'class_constant_access_expression') ? node.namedChildren[0] : undefined);
+          ?? ((nodeType.startsWith('scoped_') || nodeType === 'class_constant_access_expression') ? node.namedChildren[0] : undefined);
         const braced = Boolean(candidate && receiverCandidate && /\{\s*$/.test(source.slice(receiverCandidate.endIndex, candidate.startIndex)));
         const valid = candidate && !braced && ((candidate.type === 'name' && candidate.namedChildren.length === 0)
-          || (node.type === 'scoped_property_access_expression' && candidate.type === 'variable_name'));
+          || (nodeType === 'scoped_property_access_expression' && candidate.type === 'variable_name'));
         if (valid) {
           const memberRange = nodeRange(source, candidate!);
-          memberAccesses.push({ ...memberRange, name: candidate!.text.replace(/^\$/, ''), kind: memberKind, static: node.type.startsWith('scoped_') || node.type === 'class_constant_access_expression' });
+          memberAccesses.push({ ...memberRange, name: candidate!.text.replace(/^\$/, ''), kind: memberKind, static: nodeType.startsWith('scoped_') || nodeType === 'class_constant_access_expression' });
         } else if (candidate) {
           const dynamicName = dynamicMemberName(candidate);
           const object = node.childForFieldName('object'); const scope = node.childForFieldName('scope');
@@ -779,36 +785,35 @@ export class PhpSyntaxParser {
           if (candidate.type === 'variable_name' && receiverNode?.type === 'variable_name' && candidate.text === receiverNode.text) return;
           if (receiverNode && !/^\s*(?:\?->|->|::)\s*\{?\s*$/.test(source.slice(receiverNode.endIndex, candidate.startIndex))) return;
           const receiver = receiverNode?.type === 'variable_name'
-            ? { kind: 'variable' as const, name: receiverNode.text, nullsafe: node.type.startsWith('nullsafe_') }
+            ? { kind: 'variable' as const, name: receiverNode.text, nullsafe: nodeType.startsWith('nullsafe_') }
             : receiverNode && ['name', 'qualified_name'].includes(receiverNode.type)
               ? { kind: 'type' as const, name: receiverNode.text, nullsafe: false } : undefined;
           if (receiver) {
             memberAccesses.push({ ...(dynamicName?.range ?? nodeRange(source, candidate)), name: dynamicName?.name ?? candidate.text, kind: memberKind,
-              static: node.type.startsWith('scoped_') || node.type === 'class_constant_access_expression', dynamic: dynamicName?.kind ?? 'unknown', receiver });
+              static: nodeType.startsWith('scoped_') || nodeType === 'class_constant_access_expression', dynamic: dynamicName?.kind ?? 'unknown', receiver });
           }
         }
       }
-      const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
-      if (callTypes.has(node.type)) {
+      if (callTypes.has(nodeType)) {
         const argumentsNode = node.childForFieldName('arguments') ?? node.namedChildren.find((child) => child.type === 'arguments');
-        const nameNode = node.childForFieldName('name') ?? (node.type === 'function_call_expression'
+        const nameNode = node.childForFieldName('name') ?? (nodeType === 'function_call_expression'
           ? node.childForFieldName('function') ?? node.namedChildren.find((child) => child.type === 'name' || child.type === 'qualified_name'
             || child.type === 'relative_name' || child.type === 'variable_name')
-          : node.type === 'object_creation_expression'
+          : nodeType === 'object_creation_expression'
             ? node.namedChildren.find((child) => child.type === 'name' || child.type === 'qualified_name' || child.type === 'relative_name') : undefined);
         const callReceiverNode = node.childForFieldName('object') ?? node.childForFieldName('scope');
         const bracedCallName = Boolean(nameNode && callReceiverNode && /\{\s*$/.test(source.slice(callReceiverNode.endIndex, nameNode.startIndex)));
         const preciseDynamicName = nameNode && bracedCallName ? dynamicMemberName(nameNode) : undefined;
         if (argumentsNode && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
-          || (node.type === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
+          || (nodeType === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
           const arguments_ = argumentsNode.namedChildren.filter((child) => child.type === 'argument');
           const firstClassCallable = argumentsNode.namedChildren.some((child) => child.type === 'variadic_placeholder');
           const nestedCall = (candidate: SyntaxNode): boolean => candidate.namedChildren.some((child) => callTypes.has(child.type) || nestedCall(child));
           const nameRange = preciseDynamicName?.range ?? nodeRange(source, nameNode); const argumentsRange = nodeRange(source, argumentsNode);
-          const receiverNode = node.type === 'member_call_expression' || node.type === 'nullsafe_member_call_expression'
+          const receiverNode = nodeType === 'member_call_expression' || nodeType === 'nullsafe_member_call_expression'
             ? node.childForFieldName('object') ?? node.namedChildren[0] : undefined;
           const guaranteedExpression = (): SourceRange | undefined => {
-            if (node.type === 'nullsafe_member_call_expression') return undefined;
+            if (nodeType === 'nullsafe_member_call_expression') return undefined;
             const inside = (candidate: SyntaxNode | null | undefined, container: SyntaxNode | null | undefined): boolean => Boolean(candidate && container
               && candidate.startIndex >= container.startIndex && candidate.endIndex <= container.endIndex);
             let current: SyntaxNode = node;
@@ -882,9 +887,9 @@ export class PhpSyntaxParser {
             ? nodeRange(source, inlinePrevious) : undefined;
           calls.push({
             ...nodeRange(source, node), nameStart: nameRange.start, nameEnd: nameRange.end,
-            kind: node.type === 'function_call_expression' ? (nameNode.type === 'variable_name' ? undefined : 'function')
-              : node.type === 'object_creation_expression' ? 'constructor'
-                : node.type === 'scoped_call_expression' ? 'static-method' : 'method',
+            kind: nodeType === 'function_call_expression' ? (nameNode.type === 'variable_name' ? undefined : 'function')
+              : nodeType === 'object_creation_expression' ? 'constructor'
+                : nodeType === 'scoped_call_expression' ? 'static-method' : 'method',
             argumentsStart: argumentsRange.start, argumentsEnd: argumentsRange.end,
             firstClassCallable,
             arguments: arguments_.map((argument) => {
@@ -905,11 +910,11 @@ export class PhpSyntaxParser {
             intentionalVoidCast: voidCastPrefix ?? inlineVoidCastPrefix,
             terminatingExpression: guaranteedExpression(),
             receiver: receiverNode?.type === 'variable_name'
-              ? { variable: receiverNode.text, nullsafe: node.type === 'nullsafe_member_call_expression' } : undefined,
+              ? { variable: receiverNode.text, nullsafe: nodeType === 'nullsafe_member_call_expression' } : undefined,
           });
           const statement = expressionStatement;
           const block = statement?.parent?.type === 'compound_statement' ? statement.parent : undefined;
-          const builtinName = node.type === 'function_call_expression' ? nameNode.text.replace(/^\\+/, '').toLowerCase() : '';
+          const builtinName = nodeType === 'function_call_expression' ? nameNode.text.replace(/^\\+/, '').toLowerCase() : '';
           if (builtinName === 'assert' && statement && block
             && statement.namedChildren[0]?.startIndex === node.startIndex && statement.namedChildren[0]?.endIndex === node.endIndex
             && arguments_.length >= 1 && arguments_.length <= 2
@@ -929,8 +934,7 @@ export class PhpSyntaxParser {
               else validArguments = false;
               positional += 1;
             }
-            const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end)
-              .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
+            const scope = scopeAt(node.startIndex, node.endIndex);
             if (validArguments && assertion && (!description || staticAssertDescription(description)) && scope) {
               const start = statement.endIndex; const end = Math.max(start, block.endIndex - 1);
               const facts = [...predicateConditionFacts(assertion, true, scope.id, start, end),
@@ -940,7 +944,7 @@ export class PhpSyntaxParser {
           }
         }
       }
-      const kind = DECLARATION_TYPES[node.type];
+      const kind = DECLARATION_TYPES[nodeType];
       if (kind) {
         const nameNode = node.childForFieldName('name');
         if (nameNode) {
@@ -962,7 +966,7 @@ export class PhpSyntaxParser {
             enumBackingType: kind === 'enum' ? node.namedChildren.find((child) => child.type === 'primitive_type')?.text as 'int' | 'string' | undefined : undefined,
           });
         }
-      } else if (node.type === 'anonymous_class') {
+      } else if (nodeType === 'anonymous_class') {
         const fqcn = anonymousFqcn(node); const name = fqcn.split('\\').at(-1)!;
         declarations.push({
           ...nodeRange(source, node), name, fqcn, kind: 'class', anonymous: true,
@@ -974,15 +978,15 @@ export class PhpSyntaxParser {
           readonlyClass: false,
         });
       }
-      if (node.type === 'namespace_use_declaration') {
+      if (nodeType === 'namespace_use_declaration') {
         const range = nodeRange(source, node);
         imports.push(...parseUseClause(source.slice(range.start, range.end), range.start, namespaceAt(node.startIndex)));
       }
-      if (node.type === 'function_definition' || node.type === 'method_declaration') {
+      if (nodeType === 'function_definition' || nodeType === 'method_declaration') {
         const nameNode = node.childForFieldName('name');
         if (!nameNode) return;
-        const owner = node.type === 'method_declaration' ? containingType(node) : undefined;
-        if (node.type === 'method_declaration' && !owner) return;
+        const owner = nodeType === 'method_declaration' ? containingType(node) : undefined;
+        if (nodeType === 'method_declaration' && !owner) return;
         const callableNamespace = namespaceAt(node.startIndex);
         const name = nameNode.text;
         const range = nodeRange(source, nameNode);
@@ -1025,17 +1029,17 @@ export class PhpSyntaxParser {
           }
         }
       }
-      if (node.type === 'anonymous_function' || node.type === 'arrow_function') {
+      if (nodeType === 'anonymous_function' || nodeType === 'arrow_function') {
         const owner = containingType(node);
-        const parent = scopes.filter((item) => node.startIndex > item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const parent = scopeAt(node.startIndex, node.endIndex, true);
         const useClause = node.namedChildren.find((child) => child.type === 'anonymous_function_use_clause');
         const captures = useClause?.namedChildren.flatMap((capture) => {
           const variable = capture.type === 'variable_name' ? capture : capture.namedChildren.find((child) => child.type === 'variable_name');
           return variable ? [{ variable: variable.text, byReference: capture.type === 'by_ref' }] : [];
         }) ?? [];
-        scopes.push({ id: `${node.type === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: node.type === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
+        scopes.push({ id: `${nodeType === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: nodeType === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
       }
-      if (node.type === 'property_declaration') {
+      if (nodeType === 'property_declaration') {
         const owner = containingType(node);
         if (!owner) return;
         const visibilityNodes = node.namedChildren.filter((child) => child.type === 'visibility_modifier');
@@ -1094,7 +1098,7 @@ export class PhpSyntaxParser {
           });
         }
       }
-      if (node.type === 'const_declaration') {
+      if (nodeType === 'const_declaration') {
         const owner = containingType(node);
         const visibility = (node.namedChildren.find((child) => child.type === 'visibility_modifier')?.text as ParsedConstantDeclaration['visibility'] | undefined) ?? 'public';
         const type = node.childForFieldName('type')?.text;
@@ -1112,7 +1116,7 @@ export class PhpSyntaxParser {
           });
         }
       }
-      if (node.type === 'enum_case') {
+      if (nodeType === 'enum_case') {
         const owner = containingType(node);
         const nameNode = node.childForFieldName('name');
         if (!owner || owner.kind !== 'enum' || !nameNode) return;
@@ -1124,11 +1128,11 @@ export class PhpSyntaxParser {
           declarationStart: node.startIndex, declarationEnd: node.endIndex,
         });
       }
-      if (node.type === 'assignment_expression') {
+      if (nodeType === 'assignment_expression') {
         const left = node.childForFieldName('left');
         const right = node.childForFieldName('right');
         if (left?.type !== 'variable_name' || !right) return;
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (!scope) return;
         const anonymous = right.type === 'object_creation_expression' ? right.namedChildren.find((child) => child.type === 'anonymous_class') : undefined;
         const createdType = anonymous
@@ -1239,11 +1243,11 @@ export class PhpSyntaxParser {
           sourceCall,
         });
       }
-      if (node.type === 'foreach_statement') {
+      if (nodeType === 'foreach_statement') {
         const [collection, target] = node.namedChildren; if (!collection || !target) return;
         const value = target.type === 'pair' ? target.namedChildren.at(-1) : target;
         const body = node.childForFieldName('body'); if (value?.type !== 'variable_name' || !body) return;
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (!scope) return;
         let sourceIterable: ParsedAssignment['sourceIterable'];
         if (collection.type === 'variable_name') sourceIterable = { ...nodeRange(source, collection), kind: 'variable', variable: collection.text, part: 'value' };
@@ -1254,17 +1258,17 @@ export class PhpSyntaxParser {
         sourceIterable ??= { ...nodeRange(source, collection), kind: 'expression', part: 'value' };
         if (sourceIterable) assignments.push({ ...nodeRange(source, value), variable: value.text, callableFqcn: scope.id, scopeId: scope.id, sourceIterable, validRange: nodeRange(source, body) });
       }
-      if (node.type === 'catch_clause') {
+      if (nodeType === 'catch_clause') {
         const type = node.childForFieldName('type'); const variable = node.childForFieldName('name'); const body = node.childForFieldName('body');
         const namedTypes = type?.namedChildren.filter((child) => child.type === 'named_type') ?? [];
         const typeNames = namedTypes.map((namedType) => namedType.namedChildren.find((child) => child.type === 'qualified_name' || child.type === 'name')?.text).filter((name): name is string => Boolean(name));
         if (variable?.type !== 'variable_name' || !body || typeNames.length !== namedTypes.length || typeNames.length === 0) return;
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (!scope) return;
         assignments.push({ ...nodeRange(source, variable), variable: variable.text, callableFqcn: scope.id, scopeId: scope.id,
           typeName: typeNames.length === 1 ? typeNames[0] : undefined, typeNames: typeNames.length > 1 ? typeNames : undefined, validRange: nodeRange(source, body) });
       }
-      if (node.type === 'while_statement') {
+      if (nodeType === 'while_statement') {
         const rawCondition = node.childForFieldName('condition');
         let condition = rawCondition;
         while (condition?.type === 'parenthesized_expression' && condition.namedChildren.length === 1) condition = condition.namedChildren[0]!;
@@ -1277,7 +1281,7 @@ export class PhpSyntaxParser {
           }
         }
         const body = node.childForFieldName('body');
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (rawCondition && body && scope) {
           const range = body.type === 'compound_statement'
             ? { start: body.startIndex + 1, end: Math.max(body.startIndex + 1, body.endIndex - 1) }
@@ -1301,9 +1305,9 @@ export class PhpSyntaxParser {
           narrowings.push({ kind: 'instanceof', ...instanceSubject, typeName: right.text, scopeId: scope.id, start: body.startIndex, end: body.endIndex });
         }
       }
-      if (node.type === 'for_statement') {
+      if (nodeType === 'for_statement') {
         const condition = node.childForFieldName('condition'); const body = node.childForFieldName('body');
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         if (condition && body && scope) {
           const range = body.type === 'compound_statement'
             ? { start: body.startIndex + 1, end: Math.max(body.startIndex + 1, body.endIndex - 1) }
@@ -1314,11 +1318,11 @@ export class PhpSyntaxParser {
           narrowings.push(...positiveConditionFacts(condition, scope.id, body.startIndex, body.endIndex));
         }
       }
-      if (node.type === 'do_statement') {
+      if (nodeType === 'do_statement') {
         const condition = node.childForFieldName('condition');
         if (condition) shortCircuitCallFacts(condition);
       }
-      if (node.type === 'if_statement') {
+      if (nodeType === 'if_statement') {
         const rawCondition = node.childForFieldName('condition');
         let condition = rawCondition;
         while (condition?.type === 'parenthesized_expression' && condition.namedChildren.length === 1) {
@@ -1333,7 +1337,7 @@ export class PhpSyntaxParser {
           }
         }
         const body = node.childForFieldName('body');
-        const scope = scopes.filter((item) => node.startIndex >= item.start && node.endIndex <= item.end).sort((a, b) => a.end - a.start - (b.end - b.start))[0];
+        const scope = scopeAt(node.startIndex, node.endIndex);
         const containsGoto = (candidate: SyntaxNode): boolean => candidate.type === 'goto_statement'
           || candidate.namedChildren.some(containsGoto);
         const containsLoopExit = (candidate: SyntaxNode): boolean => candidate.type === 'break_statement'
