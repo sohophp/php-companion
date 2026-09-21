@@ -1783,8 +1783,21 @@ function referenceDocumentRevision(): string {
 }
 function reusableReferenceMode(): boolean {
   return Boolean(cacheDirectory && referenceEngineInputs && indexingMode === 'onDemand' && !testDisablePersistentReferences
-    && !semanticProviders.length && !routeProviders.length && !symfonyRouteProviders.length
     && frameworkDocumentSnapshotsComplete && !frameworkDocumentSnapshots.size);
+}
+function referenceHasFrameworkProviders(): boolean {
+  return Boolean(semanticProviders.length || routeProviders.length || symfonyRouteProviders.length);
+}
+function referenceFrameworkRevision(root: string, workspace: SemanticWorkspace): string {
+  const events = externalSymfonyEventsByRoot.get(root);
+  return referenceSourceHash(JSON.stringify({ semanticProviders, routeProviders, symfonyRouteProviders,
+    containerFactsRevision, routeProviderCacheRevision, externalFacts: workspace.externalFactsIdentity(),
+    services: symfonyServiceCatalog(root), subscriptions: events?.subscriptions, dispatches: events?.dispatches }));
+}
+function referenceFrameworkFingerprint(workspace: SemanticWorkspace,
+  locations: readonly { uri: string; start: number; end: number }[]): string {
+  return referenceSourceHash(JSON.stringify({ schema: 1, externalFacts: workspace.externalFactsIdentity(),
+    locations: locations.map(({ uri, start, end }) => [uri, start, end]).sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right))) }));
 }
 function referenceLoadedSources(workspace: SemanticWorkspace): Array<{ uri: string; hash: string }> {
   return workspace.documentUris().map((uri) => ({ uri, hash: referenceSourceHash(workspace.source(uri) ?? '') }))
@@ -1799,8 +1812,11 @@ function referenceQueryKey(uri: string, offset: number, includeDeclaration: bool
   return referenceSourceHash(JSON.stringify([uri, offset, includeDeclaration]));
 }
 async function restoreReferenceResult(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
-  includeDeclaration: boolean, sequence: number, cancelled: () => boolean): Promise<ReferenceLocation[] | undefined> {
-  if (!reusableReferenceMode() || referenceCandidateReads.has(workspace) || projectCompleteRoots.has(root)) return undefined;
+  includeDeclaration: boolean, sequence: number, cancelled: () => boolean,
+  frameworkFingerprint?: string): Promise<ReferenceLocation[] | undefined> {
+  if (!reusableReferenceMode() || projectCompleteRoots.has(root)
+    || referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)
+    || (!frameworkFingerprint && referenceCandidateReads.has(workspace))) return undefined;
   const key = referenceQueryKey(uri, offset, includeDeclaration);
   const engineIdentity = await initialReferenceEngineIdentity; if (!engineIdentity) return undefined;
   const project = await composerProjectForRoot(root); if (!project?.inputEvidence?.complete) return undefined;
@@ -1813,12 +1829,14 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
     return referenceLoadedSources(workspace).every((source) => proven.get(source.uri) === source.hash);
   };
   const memory = restoredReferenceResults.get(workspace);
-  if (memory?.proof.key === key && memory.proof.environment === environment && memory.epoch === epoch
+  if (memory?.proof.key === key && memory.proof.environment === environment
+    && memory.proof.frameworkFingerprint === frameworkFingerprint && memory.epoch === epoch
     && memory.generation === generation && memory.revision === revision && current() && supportsCurrentSources(memory.proof)) {
     return structuredClone(memory.proof.locations);
   }
   const proof = await new ReferenceResultStore(cacheDirectory!).read(key);
-  if (!proof || proof.environment !== environment || !current() || !supportsCurrentSources(proof)) return undefined;
+  if (!proof || proof.environment !== environment || proof.frameworkFingerprint !== frameworkFingerprint
+    || !current() || !supportsCurrentSources(proof)) return undefined;
   if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()) return undefined;
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: proof.sourceRoots, additionalFiles: proof.additionalFiles,
     context: proof.context, documents: documents.all().map((document) => ({ uri: document.uri, source: document.getText() })), shouldContinue: current });
@@ -1831,17 +1849,20 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
 }
 
 function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
-  includeDeclaration: boolean, sequence: number): ((locations: ReferenceLocation[]) => void) | undefined {
+  includeDeclaration: boolean, sequence: number, frameworkFingerprint?: string): ((locations: ReferenceLocation[]) => void) | undefined {
   if (!reusableReferenceMode()) return undefined;
+  if (referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)) return undefined;
   const candidates = referenceCandidateReads.get(workspace); if (!candidates || candidates.root !== root) return undefined;
   const epoch = projectEpochs.get(root) ?? 0; if (candidates.epoch !== epoch) return undefined;
   const generation = indexingGeneration; const revision = referenceDocumentRevision();
   const loaded = referenceLoadedSources(workspace); const externalFacts = workspace.externalFactsIdentity();
+  const frameworkRevision = frameworkFingerprint ? referenceFrameworkRevision(root, workspace) : undefined;
   const attempted = referenceDependencyEvidence.get(workspace)?.snapshot() ?? [];
   if (referenceDependencyEvidence.has(workspace) && !referenceDependencyEvidence.get(workspace)!.snapshot()) return undefined;
   const current = (): boolean => reusableReferenceMode() && sequence === querySequence && generation === indexingGeneration
     && epoch === (projectEpochs.get(root) ?? 0) && revision === referenceDocumentRevision()
-    && referenceCandidateReads.get(workspace) === candidates;
+    && referenceCandidateReads.get(workspace) === candidates
+    && (!frameworkRevision || referenceFrameworkRevision(root, workspace) === frameworkRevision);
   const semanticCurrent = (): boolean => {
     const ledger = referenceDependencyEvidence.get(workspace); const reads = ledger?.snapshot();
     return (!ledger || reads !== undefined) && current() && externalFacts === workspace.externalFactsIdentity()
@@ -1882,7 +1903,8 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()
         || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
       if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots, additionalFiles, context,
-        loaded, fingerprint: snapshot.fingerprint, locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
+        loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), fingerprint: snapshot.fingerprint,
+        locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };
     startReferenceWrite();
   };
@@ -3909,12 +3931,32 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     connection.console.info(`[references:${id}] events elapsedMs=${Date.now() - eventsStarted}`);
     // Framework queries can hydrate declarations and invalidate PHP query
     // caches. Finish that work before computing the reusable semantic result.
+    const frameworkLocations = [...serviceLocations, ...serviceReferenceLocations, ...controllerLocations,
+      ...eventLocations, ...taggedEventLocations, ...dispatchLocations];
+    const frameworkFingerprint = referenceHasFrameworkProviders()
+      ? referenceFrameworkFingerprint(workspace, frameworkLocations) : undefined;
+    // The after-scan proof costs a complete source snapshot. Class references
+    // already resolve in milliseconds after scanning, so only method queries
+    // can recover enough semantic work to justify that extra validation.
+    const frameworkCacheEligible = !frameworkFingerprint || member?.kind === 'method';
+    if (frameworkFingerprint && frameworkCacheEligible && root && scope === 'project') {
+      const restored = await restoreReferenceResult(root, workspace, document.uri, offset, context.includeDeclaration,
+        id, () => token.isCancellationRequested, frameworkFingerprint);
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+      if (documents.get(document.uri)?.version !== version || routesUsedRevision !== routeProviderCacheRevision) {
+        throw new ResponseError(LSPErrorCodes.ContentModified, 'Reference inputs changed during query.');
+      }
+      if (restored) {
+        connection.console.info(`[references:${id}] result count=${restored.length} coverage=validated-persistent-query elapsedMs=${Date.now() - started}`);
+        return restored;
+      }
+    }
     const semanticStarted = Date.now();
-    const writeReferenceResult = root && scope === 'project'
-      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id) : undefined;
+    const writeReferenceResult = root && scope === 'project' && frameworkCacheEligible
+      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id, frameworkFingerprint) : undefined;
     const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
     connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
-    const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...serviceReferenceLocations, ...controllerLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
+    const rawLocations = [...new Map([...semanticLocations, ...frameworkLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {
       const openTarget = documents.get(location.uri); let source = openTarget?.getText() ?? workspace.source(location.uri);

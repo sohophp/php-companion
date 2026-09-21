@@ -136,7 +136,7 @@ describe('language server stdio', () => {
         };
         await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
           initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
-            ...(options.provider ? { semanticProviders: [symfonyServiceProviderDescriptor] } : {}) } });
+            ...(options.provider ? { bundledSemanticProviders: [symfonyServiceProviderDescriptor] } : {}) } });
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         const text = options.text ?? source;
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -148,10 +148,10 @@ describe('language server stdio', () => {
         expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
         const logs = (): string => output.messages.filter((message: any) => message.method === 'window/logMessage').map((message: any) => message.params.message).join('\n');
         expect(logs().includes('[reference-cache] restored')).toBe(restored);
-        expect(logs().includes('[named-candidates]')).toBe(!restored);
+        expect(logs().includes('[named-candidates]')).toBe(!restored || Boolean(options.provider));
         if (options.repeat) expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
         await request('phpCompanion/testWaitReferencePersistence', {});
-        if (!restored && !options.provider) expect(logs()).toContain('[reference-cache] stored');
+        if (!restored) expect(logs()).toContain('[reference-cache] stored');
         await request('shutdown', null);
         const exited = new Promise<void>((done) => server!.once('exit', () => done()));
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null })); await exited;
@@ -174,6 +174,11 @@ describe('language server stdio', () => {
       await run(expected, false, { text: unsaved });
       await run(expected, false); await run(expected, true);
       await run(expected, false, { provider: true });
+      await run(expected, true, { provider: true });
+      await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'config', 'services.yaml'), 'services:\n  Lib\\Target:\n    public: true\n');
+      await run(expected, false, { provider: true });
+      await run(expected, true, { provider: true });
       await writeFile(join(dependency, 'Target.php'), `${declaration}\n// dependency changed`);
       await run(expected, false); await run(expected, true);
       const composerPath = join(root, 'composer.json'); await writeFile(composerPath, `${await readFile(composerPath, 'utf8')}\n`);

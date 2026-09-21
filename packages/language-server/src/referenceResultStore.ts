@@ -12,6 +12,7 @@ export interface ReferenceResultProof {
   additionalFiles: string[];
   context: string;
   loaded: Array<{ uri: string; hash: string }>;
+  frameworkFingerprint?: string;
   fingerprint: string;
   locations: ReferenceLocation[];
 }
@@ -29,6 +30,7 @@ function validProof(value: unknown): value is ReferenceResultProof {
   };
   return Boolean(proof && proof.schema === 1 && digest(proof.key) && digest(proof.fingerprint)
     && digest(proof.environment)
+    && (proof.frameworkFingerprint === undefined || digest(proof.frameworkFingerprint))
     && typeof proof.context === 'string' && proof.context.length <= MAX_BYTES
     && pathList(proof.sourceRoots) && pathList(proof.additionalFiles)
     && Array.isArray(proof.loaded) && proof.loaded.length <= 50_000
