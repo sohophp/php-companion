@@ -86,3 +86,9 @@ Winstar 的 `get` 样本在已有同版本缓存、打开文件后空闲 8 秒�
 Winstar 只读样本、独立空缓存、打开后空闲 8 秒、Symfony Provider 的双场景基准：`get` 首次点击 3,050 ms / 112 处，`AdminSecuritySubscriber` 972 ms / 2 处；位置 SHA-256 分别仍为 `bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2` 和 `c0d5d86b7e083c6f21354d508f2897712e0b7b6a8663efd6cf2066788ff221fd`。另一次 `get` 为 2,417 ms；波动主要取决于点击时 Symfony 准备是否已结束。可用 `PHP_COMPANION_BENCHMARK_SELECTION_PREWARM=1 PHP_COMPANION_BENCHMARK_DOCUMENT_IDLE_MS=8000 node scripts/benchmark-reference-suite.mjs /var/www/php/8.5/winstar2024` 复测。这个优化把工作移到点击前，首次打开到可交互的总计算时间并未缩短；用户打开后立即点击仍走原有约 9 秒的精确查询路径。
 
 最后一次构建后的复测为 `get` 2,673 ms / 112 处、服务类 946 ms / 2 处，SHA-256 均未变化。聚焦 LSP 5 项、TypeScript 类型检查、ESLint 和构建通过；尚未在真实 WSL VS Code Extension Host 验证光标空闲与点击行为。
+
+## 点击发生在预热中途
+
+活动编辑器选中符号的服务器端等待由 1.5 秒缩至 250 毫秒；客户端仍等待光标稳定 300 毫秒。基准驱动新增 `PHP_COMPANION_BENCHMARK_SELECTION_DELAY_MS=300`，让光标通知时序接近扩展的真实行为，并输出实际候选扫描次数。打开文件后 2.5 秒点击的两次独立空缓存测量中，`get` 为 6,404 / 6,948 ms（112 处），服务类为 4,466 / 4,262 ms（2 处）；每次只有一次候选扫描，位置哈希与原基线相同。先前 1.5 秒等待且立即发送光标通知的测量分别为 8,188 / 5,802 ms；两组通知时序不同，不能把差值当成严格 A/B 收益。打开后空闲 8 秒再点击为 `get` 2,361 ms、服务类 958 ms。
+
+对立即点击另试过跳过无目标子串文件的 worker 准备，Winstar `get` 9,067 → 9,205 ms、服务类 4,986 → 5,913 ms，已撤回；直接遍历解析出的成员访问事实替代正则筛选，`get` 的语义阶段从 2,088 ms 升至 9,897 ms，亦已撤回。两项试验的完整引用位置哈希均未变化，说明当前热路径仍依赖现有 worker 预取与廉价正则预筛。250 毫秒预热提前消耗 CPU，并未解决打开后立即点击约 9 秒的等待；真实 WSL 编辑器的体感仍需验证。

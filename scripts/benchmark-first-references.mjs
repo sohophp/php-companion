@@ -28,6 +28,7 @@ const run = async (bundle) => {
     return {
       bundle, elapsedMs: query.elapsedMs, results: query.results, locationSha256: query.locationSha256,
       ...(query.peakRssKiB ? { peakRssKiB: query.peakRssKiB } : {}),
+      namedCandidateScans: [...stderr.matchAll(/\[named-candidates\]/g)].length,
       phasesMs: {
         candidates: phase(/\[named-candidates\][^\n]*elapsedMs=(\d+)/),
         container: phase(/\[references:\d+\] container elapsedMs=(\d+)/),
@@ -43,6 +44,9 @@ const reference = baseline ? await run(baseline) : undefined;
 const result = await run(candidate);
 const expectedHash = process.env.PHP_COMPANION_EXPECTED_REFERENCES_SHA256;
 if (expectedHash && result.locationSha256 !== expectedHash) throw new Error(`References locations changed: ${result.locationSha256}`);
+if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && result.namedCandidateScans !== 1) {
+  throw new Error(`Expected one shared candidate scan, observed ${result.namedCandidateScans}.`);
+}
 if (reference && (reference.results !== result.results || reference.locationSha256 !== result.locationSha256)) {
   process.stdout.write(`${JSON.stringify({ baseline: reference, candidate: result }, null, 2)}\n`);
   throw new Error('References result count or locations changed.');

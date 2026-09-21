@@ -2133,7 +2133,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       frameworkPrewarmTasks.set(root, warm);
       await warm.promise;
     })().catch((error: unknown) => connection.console.warn(`Reference prewarm failed: ${String(error)}`));
-  }, 1_500);
+  }, position ? 250 : 1_500);
   referencePrewarmTimers.set(uri, timer);
 }
 
