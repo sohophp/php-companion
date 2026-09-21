@@ -115,4 +115,6 @@ Winstar 独立空缓存 `get` 试验：精确候选解析 453 个文件，递归
 
 完成构建和全套测试后再次串行复测：默认路径 8,106 ms、实验路径 7,128 ms；两者各做一次空缓存扫描，分别解析 1,656/453 个文件，结果仍为相同的 112 处及完整位置摘要。Semantic 292 项、Language Server 233 项（另 1 项跳过）、改动文件 ESLint 与构建通过。该对测量支持约一秒量级的潜在收益，但仍只是单次样本。
 
+为缩短下一轮验证，`benchmark-first-references.mjs` 新增 `PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLOSURE=1`：同一 bundle 串行运行默认和闭包试验，各用独立空缓存，自动核对引用数量与位置摘要。命令为 `PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLOSURE=1 PHP_COMPANION_EXPECTED_REFERENCES_SHA256=bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2 node scripts/benchmark-first-references.mjs /var/www/php/8.5/winstar2024 /var/www/php/8.5/winstar2024/src/Security/AdminPasswordChangeGuard.php get last`。首次运行 7,842/7,264 ms，差值 578 ms，仍为相同的 112 处。这个差值小于各轮环境波动，不作为上线收益承诺。
+
 构造了一个非标准文件名的父类：`Consumer extends Base`，`Base` 的属性为 `Bag`，而 `Base` 声明在 `Legacy.php`。仅按精确 `get` 过滤时会漏掉 `Base` 并返回 0 处；新增回退后恢复为 1 处，完整位置摘要与正式扫描一致，并有 stdio 回归测试。这个例子证明回退必要，但不足以证明任意 Composer 项目的精确路径完整；尤其不能仅凭 PSR-4 解析成功就断言不存在其他动态或混合自动加载来源。正式启用前需要建立声明目录与可验证的覆盖条件，或采用更保守的回退策略，并对多种 Composer 布局及真实工作区做差分测试。
