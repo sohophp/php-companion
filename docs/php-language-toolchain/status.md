@@ -1,5 +1,9 @@
 # 实施状态
 
+2026-09-22 受控长名字预筛已补齐缓存证据：对未读取文件记录扫描时的大小、mtime/ctime，结果快照前后再核对；完整快照仍对全部 Composer PHP 源码哈希。Winstar `shouldRedirect` 首查 2.197 秒/1 处，后台成功存储结果，重启后同位置恢复为 2.380 秒；输入审计 `captured=true`、`engineVerified=true`。带 Symfony Provider 的服务类虽写入结果，重启仍重新扫描，框架事实恢复仍待解决。Language Server 235 项（1 项跳过）、ESLint、构建通过；预筛仍只在测试模式，短名字 `get` 仍约 8 秒，Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
+2026-09-22 首次 `get` 继续验证：把长名字预筛临时扩至短名字，一组 8.136→7.418 秒，但反向顺序为 7.740/7.768 秒，未复现稳定收益，已撤回。语句边界复用试验保持 112 处位置却使语义阶段升至 5.667 秒，亦已撤回并重建 bundle；恢复后 `get` 为 7.831 秒、原位置摘要。验证脚本现支持 `PHP_COMPANION_BENCHMARK_REVERSE=1` 的反向串行对测。Goal 继续，见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 长名字 References 源码预筛试验：内部测试模式下，Winstar `AdminSecuritySubscriber` 首次查询 5.095→3.811 秒，反向顺序 5.001/3.764 秒；`shouldRedirect` 4.721→3.572 秒，引用位置均与正式路径完全一致。`rg` 缺失时自动回退为 4.842 秒、同样 2 处。Index 36、Language Server 234 项（1 项跳过）通过。短名字 `get` 不适用；预筛目前无法生成完整文件哈希证明，直接默认启用会影响重载后的结果缓存，故仍仅供测试，Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
 2026-09-22 首次 References 的通用继承闭包试验已限定为内部测试模式：Winstar `get` 独立空缓存约 7.6–8.0 秒，解析 453 个精确候选并补 80 个声明依赖，仍为 112 处且位置摘要不变；默认路径一次为 8,676 ms、解析 1,656 个候选。非 PSR-4 文件中的父类会触发完整扫描回退，已补 stdio 回归测试。该试验尚不能证明任意项目的结果完整，正式路径没有启用，性能 Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。

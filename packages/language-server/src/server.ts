@@ -51,7 +51,7 @@ import { CallableFactCache } from './callableFactsCache.js';
 import { CandidateWorkers, type PreparedCandidate, type PreparedCandidateRestore } from './candidateWorkers.js';
 import { ReferenceDependencyEvidence, referenceDependencyEvidenceMatches, referenceSourceHash, type ReferenceDependencyRead } from './referenceDependencyEvidence.js';
 import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
-import { referenceCandidateEvidenceMatches } from './referenceCandidateEvidence.js';
+import { referenceCandidateEvidenceMatches, skippedCandidateEvidenceMatches, type SkippedCandidateStamp } from './referenceCandidateEvidence.js';
 import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
 import { ReferenceResultStore, type ReferenceLocation, type ReferenceResultProof } from './referenceResultStore.js';
 
@@ -1770,7 +1770,8 @@ const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
 const candidateScanTasks = new Map<string, { epoch: number; workspace: SemanticWorkspace;
   waiters: Set<() => boolean>; promise: Promise<boolean> }>();
-const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number; reads: ReadonlyMap<string, string> }>();
+const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number;
+  reads: ReadonlyMap<string, string>; skipped: ReadonlyMap<string, SkippedCandidateStamp> }>();
 const restoredReferenceResults = new WeakMap<SemanticWorkspace, { proof: ReferenceResultProof; revision: string; epoch: number; generation: number }>();
 let pendingReferenceWrite: (() => Promise<void>) | undefined;
 let referenceWriteTask: Promise<void> | undefined;
@@ -1899,13 +1900,17 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       const additionalFiles = [...new Set([...metadata.map((read) => read.path),
         ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
       const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
-        candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)) } });
+        candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)),
+          skipped: [...candidates.skipped].sort(([a], [b]) => a.localeCompare(b)) } });
       const buffers = documents.all().map((document) => ({ uri: document.uri, source: document.getText() }));
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()) return;
+      if (!await skippedCandidateEvidenceMatches(candidates.skipped, current)) return;
       const snapshot = await captureReferenceInputSnapshot({ sourceRoots, additionalFiles, context, documents: buffers, shouldContinue: current });
       if (!snapshot || !semanticCurrent() || !referenceDependencyEvidenceMatches(snapshot, metadata, [])
         || !referenceDependencyEvidenceMatches(snapshot, reads, buffers)
-        || !referenceCandidateEvidenceMatches(snapshot, candidates.reads, (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path))) return;
+        || !referenceCandidateEvidenceMatches(snapshot, candidates.reads,
+          (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path), candidates.skipped)
+        || !await skippedCandidateEvidenceMatches(candidates.skipped, current)) return;
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()
         || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
       if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots, additionalFiles, context,
@@ -1953,12 +1958,14 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
   referenceCandidateReads.delete(workspace);
-  const candidateReads = new Map<string, string>(); let candidateReadsComplete = true;
+  const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
+  let candidateReadsComplete = true;
   const recordCandidateRead = (path: string, hash: string): void => {
     if (!candidateReadsComplete) return;
     const normalized = resolve(path);
-    if (!candidateReads.has(normalized) && candidateReads.size >= 50_000) { candidateReadsComplete = false; return; }
+    if (!candidateReads.has(normalized) && candidateReads.size + skippedCandidateStamps.size >= 50_000) { candidateReadsComplete = false; return; }
     candidateReads.set(normalized, hash);
+    skippedCandidateStamps.delete(normalized);
   };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
   const fullCandidateTypes = new Set<string>();
@@ -1971,8 +1978,15 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     ? await ripgrepCandidatePaths(project, normalizedNames) : undefined;
   if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies: false, limits: indexLimits, readConcurrency: 128,
-    skipSource: rgCandidates ? (path, info): boolean => !rgCandidates.paths.has(resolve(path))
-      && info.mtimeMs < rgCandidates.startedAt && info.ctimeMs < rgCandidates.startedAt : undefined,
+    skipSource: rgCandidates ? (path, info): boolean => {
+      const normalized = resolve(path);
+      if (rgCandidates.paths.has(normalized) || info.mtimeMs >= rgCandidates.startedAt || info.ctimeMs >= rgCandidates.startedAt) return false;
+      if (!skippedCandidateStamps.has(normalized) && candidateReads.size + skippedCandidateStamps.size >= 50_000) {
+        candidateReadsComplete = false; return false;
+      }
+      skippedCandidateStamps.set(normalized, { size: info.size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs });
+      return true;
+    } : undefined,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => exactSymbols
@@ -2091,7 +2105,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     return retries > 0 ? performNamedCandidateScan(workspace, root, names, cancelled, retries - 1,
       mode, deferBodies, prepareInWorkers, showProgress) : false;
   }
-  if (candidateReadsComplete && candidateReads.size === scan.files) referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads });
+  if (candidateReadsComplete && candidateReads.size + skippedCandidateStamps.size === scan.files) {
+    referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps });
+  }
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
 }
@@ -2491,7 +2507,8 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
     additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],
     context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), engineIdentity, project, indexLimits,
       disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted,
-      candidates: { key: candidates.key, reads: [...candidates.reads].sort(([left], [right]) => left.localeCompare(right)) } }), documents: buffers, shouldContinue: stable,
+      candidates: { key: candidates.key, reads: [...candidates.reads].sort(([left], [right]) => left.localeCompare(right)),
+        skipped: [...candidates.skipped].sort(([left], [right]) => left.localeCompare(right)) } }), documents: buffers, shouldContinue: stable,
   });
   if (!snapshot || !stable()) return unavailable('inputs-changed-or-unreadable');
   if (!referenceDependencyEvidenceMatches(snapshot, metadata, [])) return unavailable('composer-snapshot-changed');
@@ -2499,7 +2516,8 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
     || JSON.stringify(attempted) !== JSON.stringify(dependencyReads())) return unavailable('semantic-state-changed');
   if (!referenceDependencyEvidenceMatches(snapshot, reads, buffers)) return unavailable('consumed-source-mismatch');
   if (referenceCandidateReads.get(workspace) !== candidates || !referenceCandidateEvidenceMatches(snapshot, candidates.reads,
-    (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path))) return unavailable('candidate-snapshot-changed');
+    (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path), candidates.skipped)
+    || !await skippedCandidateEvidenceMatches(candidates.skipped, stable)) return unavailable('candidate-snapshot-changed');
   if (referenceEngineInputs && await captureReferenceEngineIdentity(referenceEngineInputs) !== engineIdentity) return unavailable('engine-inputs-changed-or-unreadable');
   if (!stable()) return unavailable('inputs-changed-or-unreadable');
   if (referenceCandidateReads.get(workspace) !== candidates || JSON.stringify(loaded) !== JSON.stringify(loadedSources())
