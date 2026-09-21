@@ -2075,6 +2075,9 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   const attempted = dependencyReads();
   if (!attempted) return unavailable('canonical-reads-incomplete');
   const project = await composerProjectForRoot(root); if (!project) return unavailable('no-composer');
+  if (!project.inputEvidence?.complete) return unavailable('composer-reads-incomplete');
+  const metadata: ReferenceDependencyRead[] = project.inputEvidence.reads.map((read) => read.kind === 'missing' ? read
+    : { ...read, uri: pathToFileURL(read.path).toString() });
   const generation = indexingGeneration; const epoch = projectEpochs.get(root);
   const revision = (): string => JSON.stringify(documents.all().map((document) => [document.uri, document.version]).sort());
   const initialRevision = revision();
@@ -2089,21 +2092,13 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
     if (path) reads.push({ kind: 'source', path: resolve(path), uri: file.uri, hash: file.hash });
     else if (file.uri !== BUILTIN_DOCUMENT_URI) return unavailable('unmodeled-source');
   }
-  let vendorDirectory: string;
-  try {
-    const composer = JSON.parse(await readFile(project.composerPath, 'utf8')) as { config?: { 'vendor-dir'?: unknown } };
-    const configured = composer.config?.['vendor-dir'];
-    if (configured !== undefined && typeof configured !== 'string') return unavailable('invalid-vendor-directory');
-    vendorDirectory = resolve(root, configured ?? 'vendor');
-  } catch { return unavailable('composer-unreadable'); }
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
-    additionalFiles: [project.composerPath, resolve(root, 'composer.lock'), resolve(vendorDirectory, 'composer/installed.json'),
-      ...project.dependencies.map((dependency) => resolve(dependency.root, 'composer.json')), ...reads.map((read) => read.path)],
+    additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],
     context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), project, indexLimits,
       disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted }), documents: buffers, shouldContinue: stable,
   });
   if (!snapshot || !stable()) return unavailable('inputs-changed-or-unreadable');
-  if (JSON.stringify(project) !== JSON.stringify(await loadComposerProject(root))) return unavailable('composer-snapshot-changed');
+  if (!referenceDependencyEvidenceMatches(snapshot, metadata, [])) return unavailable('composer-snapshot-changed');
   if (!stable() || JSON.stringify(loaded) !== JSON.stringify(loadedSources())
     || JSON.stringify(attempted) !== JSON.stringify(dependencyReads())) return unavailable('semantic-state-changed');
   if (!referenceDependencyEvidenceMatches(snapshot, reads, buffers)) return unavailable('consumed-source-mismatch');

@@ -160,6 +160,11 @@ describe('language server stdio', () => {
         expect(await audit(284)).toEqual({ captured: false, reason: 'consumed-source-mismatch' });
         await rm(newlyPresent);
         expect((await audit(285)).fingerprint).toBe(evidence.fingerprint);
+        const composerPath = join(root, 'composer.json'); const composerSource = await readFile(composerPath, 'utf8');
+        await writeFile(composerPath, `${composerSource}\n`);
+        expect(await audit(286)).toEqual({ captured: false, reason: 'composer-snapshot-changed' });
+        await writeFile(composerPath, composerSource);
+        expect((await audit(287)).fingerprint).toBe(evidence.fingerprint);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 282, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 282);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

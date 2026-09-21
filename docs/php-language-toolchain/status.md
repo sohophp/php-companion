@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 References Composer 输入核对：首次加载时记录实际元数据字节摘要和缺失路径，审计不再重复加载 Composer 项目；相同配置语义但不同字节也能拒绝旧证据。Project 11 项、首次 References stdio 2 项、扩展 LSP 回归 128 项及相关构建/ESLint 通过；真实冷查询 9.938 秒、112 处完整位置摘要一致。旧/新审计单次 3.798/3.424 秒，但项目文件数变化，不宣称性能收益。日常循环收窄到直接相关用例，广回归仅阶段收口；接下来补齐候选扫描中跳过文件的读取与文件集合证据。持久化结果返回尚未启用，未更新 WSL VSIX，Goal 继续。证据见 [Composer 读取证据](reports/reference-composer-evidence-2026-09-21.md)。
+
 2026-09-21 References 实际依赖证据：规范类型读取记录成功来源摘要及 ENOENT 路径，截断/错误/超限拒绝；测试审计自动核对工作区来源、Composer 元数据和未保存文档。真实 Winstar 自动取得 2 个依赖、1 个缺失查找、共 2,535 文件，审计 3.866 秒；63 项 LSP 定向回归及 TypeScript/ESLint/正式构建通过，真实首次基线 9.044 秒、112 处摘要一致。仍未启用旧结果返回，Provider 和引擎身份尚需闭合；下一步消除重复 Composer 配置读取。证据见 [依赖读取证据](reports/reference-dependency-evidence-2026-09-21.md)。
 
 2026-09-21 持久化 References 复用的输入校验基础：新增有界文件集合/内容/未保存文档指纹捕获，拒绝扫描中变更、取消、超限和不完整符号链接遍历；7 项定向回归、TypeScript/ESLint 通过。真实 Composer 全依赖达 54,907 PHP 文件、约 247 MB，超过默认校验上限；项目源码加手工指定依赖样本 2,290 文件校验约 1.694 秒，但依赖覆盖尚未证明。模块及基准工具尚未接入查询结果返回，不宣称首次 References 已加速。下一步自动收集实际依赖、失败查找及 Provider 证据。详见 [输入校验基础](reports/reference-input-snapshot-2026-09-21.md)。

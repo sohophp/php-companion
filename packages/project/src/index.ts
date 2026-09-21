@@ -1,4 +1,5 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { dirname, extname, isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 
 export interface Psr4Mapping {
@@ -22,7 +23,12 @@ export interface ComposerProject {
   excludeFromClassmap: string[];
   dependencies: ComposerDependency[];
   warnings: string[];
+  /** Exact metadata consumed by this load; absent on manually constructed projects. */
+  inputEvidence?: ComposerInputEvidence;
 }
+
+export type ComposerMetadataRead = { kind: 'source'; path: string; hash: string } | { kind: 'missing'; path: string };
+export interface ComposerInputEvidence { complete: boolean; reads: ComposerMetadataRead[]; }
 
 export interface ComposerDependency {
   name: string;
@@ -151,12 +157,24 @@ export function resolvePsr4Namespace(filePath: string, mappings: Psr4Mapping[]):
   return resolvePsr4Namespaces(filePath, mappings)[0];
 }
 
-async function readJson(path: string): Promise<Record<string, any> | undefined> {
+function recordMetadataRead(evidence: ComposerInputEvidence, read: ComposerMetadataRead): void {
+  if (!evidence.complete) return;
+  if (evidence.reads.length >= 4_096) { evidence.complete = false; return; }
+  evidence.reads.push(read);
+}
+
+async function readJson(path: string, evidence: ComposerInputEvidence): Promise<Record<string, any> | undefined> {
+  let source: Buffer;
   try {
-    return JSON.parse(await readFile(path, 'utf8')) as Record<string, any>;
-  } catch {
+    source = await readFile(path);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') recordMetadataRead(evidence, { kind: 'missing', path: resolve(path) });
+    else evidence.complete = false;
     return undefined;
   }
+  if (evidence.complete) recordMetadataRead(evidence, { kind: 'source', path: resolve(path), hash: createHash('sha256').update(source).digest('hex') });
+  try { return JSON.parse(source.toString('utf8')) as Record<string, any>; }
+  catch { return undefined; }
 }
 
 async function isFile(path: string): Promise<boolean> {
@@ -186,8 +204,8 @@ export async function discoverComposerRoots(workspaceRoot: string, options: Comp
   return { roots: roots.sort(), directories, complete: true, warnings: [] };
 }
 
-async function installedPackageRoots(vendorDirectory: string): Promise<Map<string, string>> {
-  const installedPath = join(vendorDirectory, 'composer', 'installed.json'); const data = await readJson(installedPath);
+async function installedPackageRoots(vendorDirectory: string, evidence: ComposerInputEvidence): Promise<Map<string, string>> {
+  const installedPath = join(vendorDirectory, 'composer', 'installed.json'); const data = await readJson(installedPath, evidence);
   const packages = Array.isArray(data) ? data.flatMap((entry) => Array.isArray(entry?.packages) ? entry.packages : []) : (Array.isArray(data?.packages) ? data.packages : []);
   return new Map(packages.flatMap((item: Record<string, unknown>): Array<[string, string]> => {
     if (typeof item.name !== 'string' || typeof item.install_path !== 'string') return [];
@@ -231,11 +249,12 @@ function collectPaths(root: string, section: unknown, key: 'classmap' | 'files' 
 }
 
 export async function loadComposerProject(root: string, includeDev = true): Promise<ComposerProject | undefined> {
+  const inputEvidence: ComposerInputEvidence = { complete: true, reads: [] };
   const composerPath = join(root, 'composer.json');
-  const composer = await readJson(composerPath);
+  const composer = await readJson(composerPath, inputEvidence);
   if (!composer) return undefined;
   const lockPathCandidate = join(root, 'composer.lock');
-  const lock = await readJson(lockPathCandidate);
+  const lock = await readJson(lockPathCandidate, inputEvidence);
   const warnings: string[] = [];
   const psr4 = [
     ...collectMapping(root, composer.autoload, 'psr-4', false),
@@ -253,12 +272,12 @@ export async function loadComposerProject(root: string, includeDev = true): Prom
     ...(Array.isArray(lock?.packages) ? lock.packages.map((item: Record<string, unknown>) => ({ item, development: false })) : []),
     ...(includeDev && Array.isArray(lock?.['packages-dev']) ? lock['packages-dev'].map((item: Record<string, unknown>) => ({ item, development: true })) : []),
   ];
-  const installedRoots = await installedPackageRoots(vendorDirectory);
+  const installedRoots = await installedPackageRoots(vendorDirectory, inputEvidence);
   const dependencies: ComposerDependency[] = [];
   for (const { item, development } of lockedPackages) {
     if (typeof item.name !== 'string' || !/^[a-z0-9_.-]+\/[a-z0-9_.-]+$/i.test(item.name)) continue;
     const packageRoot = installedRoots.get(item.name.toLowerCase()) ?? resolve(vendorDirectory, item.name);
-    const installed = await readJson(join(packageRoot, 'composer.json'));
+    const installed = await readJson(join(packageRoot, 'composer.json'), inputEvidence);
     const autoload = installed?.autoload ?? item.autoload;
     const dependencyPsr4 = collectMapping(packageRoot, autoload, 'psr-4', development);
     dependencies.push({ name: item.name, root: packageRoot, development, psr4: dependencyPsr4, psr0: collectMapping(packageRoot, autoload, 'psr-0', development), classmap: collectPaths(packageRoot, autoload, 'classmap'), files: collectPaths(packageRoot, autoload, 'files'), excludeFromClassmap: collectPaths(packageRoot, autoload, 'exclude-from-classmap') });
@@ -282,5 +301,6 @@ export async function loadComposerProject(root: string, includeDev = true): Prom
     excludeFromClassmap,
     dependencies,
     warnings,
+    inputEvidence,
   };
 }

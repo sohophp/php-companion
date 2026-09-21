@@ -1,4 +1,5 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -6,6 +7,51 @@ import { allAutoloadPaths, allPsr4Mappings, discoverComposerRoots, isAutoloadPat
 describe('Composer dependency discovery', () => {
   let root: string | undefined;
   afterEach(async () => { if (root) await rm(root, { recursive: true, force: true }); });
+  it('records the exact metadata consumed with custom vendor and installed package paths', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-project-inputs-'));
+    await mkdir(join(root, 'deps', 'composer'), { recursive: true }); await mkdir(join(root, 'local'), { recursive: true });
+    const inputs = new Map([
+      [join(root, 'composer.json'), JSON.stringify({ config: { 'vendor-dir': 'deps' }, autoload: { 'psr-4': { 'App\\': 'src/' } } })],
+      [join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'local/package' }] })],
+      [join(root, 'deps', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'local/package', install_path: '../../local' }] })],
+      [join(root, 'local', 'composer.json'), JSON.stringify({ description: 'evidence-content-marker', autoload: { 'psr-4': { 'Local\\': 'src/' } } })],
+    ]);
+    for (const [path, source] of inputs) await writeFile(path, source);
+    const project = (await loadComposerProject(root))!;
+    expect(project.dependencies[0]?.root).toBe(join(root, 'local'));
+    expect(project.inputEvidence).toEqual({ complete: true, reads: [...inputs].map(([path, source]) => ({
+      kind: 'source', path, hash: createHash('sha256').update(source).digest('hex'),
+    })) });
+    expect(JSON.stringify(project.inputEvidence)).not.toContain('evidence-content-marker');
+    const path = join(root, 'composer.json'); await writeFile(path, `${inputs.get(path)}\n`);
+    const refreshed = (await loadComposerProject(root))!;
+    expect(refreshed.psr4).toEqual(project.psr4);
+    expect(refreshed.inputEvidence).not.toEqual(project.inputEvidence);
+  });
+  it('distinguishes missing metadata from malformed JSON with readable source', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-project-missing-inputs-'));
+    await writeFile(join(root, 'composer.json'), '{}');
+    const first = (await loadComposerProject(root))!;
+    expect(first.inputEvidence).toMatchObject({ complete: true, reads: expect.arrayContaining([
+      { kind: 'missing', path: join(root, 'composer.lock') },
+      { kind: 'missing', path: join(root, 'vendor', 'composer', 'installed.json') },
+    ]) });
+    await writeFile(join(root, 'composer.lock'), '{malformed');
+    const second = (await loadComposerProject(root))!;
+    expect(second.dependencies).toEqual([]);
+    expect(second.inputEvidence).toMatchObject({ complete: true, reads: expect.arrayContaining([
+      { kind: 'source', path: join(root, 'composer.lock'), hash: createHash('sha256').update('{malformed').digest('hex') },
+    ]) });
+  });
+  it('marks metadata I/O errors incomplete while retaining existing Composer fallback behavior', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-project-input-error-'));
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'local/package', autoload: { 'psr-4': { 'Fallback\\': 'lib/' } } }] }));
+    await mkdir(join(root, 'vendor', 'local', 'package', 'composer.json'), { recursive: true });
+    const project = (await loadComposerProject(root))!;
+    expect(project.dependencies[0]?.psr4[0]?.prefix).toBe('Fallback\\');
+    expect(project.inputEvidence?.complete).toBe(false);
+  });
   it('reads root and installed dependency mappings without executing Composer PHP', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-project-'));
     await mkdir(join(root, 'vendor', 'vendor', 'package'), { recursive: true });
