@@ -4680,6 +4680,10 @@ return static function (ContainerConfigurator $container): void {
     $container->parameters()->set('app.php_transport', 'private');
     $container->services()->set('app.php.consumer')->arg('$service', service('app.service'));
     $container->services()->get('app.php.consumer')->arg('$transport', param('app.transport'))->arg('$fallback', param('app.php_transport'));
+    if ($container->env() === 'prod') {
+        $container->services()->get('app.php.consumer')->arg('$prod', service('app.service'))->arg('$prodParam', param('app.prod_php'));
+        $container->parameters()->set('app.prod_php', 'private');
+    }
 };`; await writeFile(phpPath, phpSource);
       const phpParameterRegistrationStart = phpSource.indexOf('app.php_transport');
       const attributePath = join(root, 'src', 'Consumer.php'); const attributeUri = pathToFileURL(attributePath).toString();
@@ -4732,8 +4736,7 @@ namespace App {
       expect(classServiceReferences).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
       for (const [referenceUri, referenceSource] of [[configUri, configSource], [xmlUri, xmlSource], [phpUri, phpSource]] as const) {
-        const start = referenceUri === configUri ? referenceSource.indexOf('@app.service') + 1
-          : referenceUri === xmlUri ? referenceSource.indexOf('app.service') : referenceSource.lastIndexOf('app.service');
+        const start = referenceUri === configUri ? referenceSource.indexOf('@app.service') + 1 : referenceSource.indexOf('app.service');
         expect(classServiceReferences).toContainEqual({ uri: referenceUri,
           range: { start: lspPosition(referenceSource, start), end: lspPosition(referenceSource, start + 'app.service'.length) } });
       }
@@ -4859,8 +4862,8 @@ namespace App {
         range: { start: lspPosition(xmlSource, xmlSource.indexOf('app.service')),
           end: lspPosition(xmlSource, xmlSource.indexOf('app.service') + 'app.service'.length) } });
       expect(crossFormatReferences).toContainEqual({ uri: phpUri,
-        range: { start: lspPosition(phpSource, phpSource.lastIndexOf('app.service')),
-          end: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 'app.service'.length) } });
+        range: { start: lspPosition(phpSource, phpSource.indexOf('app.service')),
+          end: lspPosition(phpSource, phpSource.indexOf('app.service') + 'app.service'.length) } });
       expect(crossFormatReferences).toContainEqual({ uri: attributeUri,
         range: { start: lspPosition(attributeSource, attributeSource.indexOf('app.service')),
           end: lspPosition(attributeSource, attributeSource.indexOf('app.service') + 'app.service'.length) } });
@@ -4893,13 +4896,13 @@ namespace App {
       expect((await output.waitFor((message) => message.id === 75)).result).toEqual(crossFormatReferences);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 78, method: 'phpCompanion/symfonyServiceDefinition', params: {
         textDocument: { uri: phpUri, version: 1 }, source: phpSource,
-        position: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 4),
+        position: lspPosition(phpSource, phpSource.indexOf('app.service') + 4),
       } }));
       expect((await output.waitFor((message) => message.id === 78)).result).toEqual([{ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 79, method: 'phpCompanion/symfonyServiceReferences', params: {
         textDocument: { uri: phpUri, version: 1 }, source: phpSource,
-        position: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 4), context: { includeDeclaration: false },
+        position: lspPosition(phpSource, phpSource.indexOf('app.service') + 4), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 79)).result).toEqual(crossFormatReferences);
       const attributeServiceStart = attributeSource.indexOf('app.service');
@@ -4942,7 +4945,7 @@ namespace App {
         label: 'app.service', detail: 'App\\Service (explicit, private)',
         range: { start: lspPosition(attributeSource, attributeServiceStart), end: lspPosition(attributeSource, attributeServiceStart + 'app.service'.length) },
       }] });
-      const phpServiceValueStart = phpSource.lastIndexOf('app.service');
+      const phpServiceValueStart = phpSource.indexOf('app.service');
       const xmlServiceValueStart = xmlSource.indexOf('app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: phpUri, version: 1 }, source: phpSource,
@@ -5039,6 +5042,12 @@ namespace App {
         position: lspPosition(xmlSource, inactiveXmlServiceStart + 4),
       } }));
       expect((await output.waitFor((message) => message.id === 7300)).result).toEqual([]);
+      const inactivePhpServiceStart = phpSource.lastIndexOf('app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7304, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: phpUri, version: 1 }, source: phpSource,
+        position: lspPosition(phpSource, inactivePhpServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7304)).result).toEqual([]);
       const commitCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('committed authoritative container')).length;
       const switchEnvironment = async (environment: string): Promise<void> => {
@@ -5057,6 +5066,12 @@ namespace App {
         position: lspPosition(xmlSource, inactiveXmlServiceStart + 4),
       } }));
       expect((await output.waitFor((message) => message.id === 7303)).result).toEqual([{ uri: configUri,
+        range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7305, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: phpUri, version: 1 }, source: phpSource,
+        position: lspPosition(phpSource, inactivePhpServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7305)).result).toEqual([{ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 7301, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,

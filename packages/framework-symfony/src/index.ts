@@ -1434,6 +1434,32 @@ function phpConfiguratorIndex(node: NodeLike | undefined): number | undefined {
   const value = Number(node.text); return Number.isSafeInteger(value) ? value : undefined;
 }
 
+function activePhpConfiguratorStatements(body: NodeLike, containerVariable: string, source: string,
+  environment?: string): { complete: boolean; statements: NodeLike[] } {
+  const statements: NodeLike[] = [];
+  const environmentCall = (node: NodeLike | undefined): boolean => node?.type === 'member_call_expression'
+    && node.namedChildren[0]?.type === 'variable_name' && node.namedChildren[0]?.text === containerVariable
+    && node.namedChildren[1]?.type === 'name' && node.namedChildren[1]?.text === 'env'
+    && node.namedChildren[2]?.type === 'arguments' && node.namedChildren[2]?.namedChildren.length === 0;
+  for (const statement of body.namedChildren) {
+    if (statement.type !== 'if_statement') { statements.push(statement); continue; }
+    if (statement.namedChildren.length !== 2) return { complete: false, statements: [] };
+    const [parenthesized, conditionalBody] = statement.namedChildren;
+    const condition = parenthesized?.type === 'parenthesized_expression' ? parenthesized.namedChildren[0] : undefined;
+    if (condition?.type !== 'binary_expression' || condition.namedChildren.length !== 2 || conditionalBody?.type !== 'compound_statement')
+      return { complete: false, statements: [] };
+    const [left, right] = condition.namedChildren; const operator = source.slice(left!.endIndex, right!.startIndex).trim();
+    const selected = operator === '===' && environmentCall(left) ? phpConfiguratorLiteral(right)?.value
+      : operator === '===' && environmentCall(right) ? phpConfiguratorLiteral(left)?.value : undefined;
+    if (!selected) return { complete: false, statements: [] };
+    if (environment === selected) {
+      if (conditionalBody.namedChildren.some((nested) => nested.type === 'if_statement')) return { complete: false, statements: [] };
+      statements.push(...conditionalBody.namedChildren);
+    }
+  }
+  return { complete: true, statements };
+}
+
 /** Extract deterministic config/bundles.php entries and direct Kernel::registerBundles() yields without booting the Kernel. */
 export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: string, source: string): SymfonyBundleRegistrationFacts {
   const parsed = parser.parse(source, undefined, uri); const result: SymfonyBundleRegistrationFacts = { complete: true, bundles: [] };
@@ -1537,7 +1563,7 @@ export function analyzeSymfonyBundleRegistrations(parser: PhpSyntaxParser, uri: 
 }
 
 /** Parse the static subset of Symfony's PHP service Configurator DSL without executing the returned closure. */
-export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, source: string): SymfonyServiceDocumentFacts {
+export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, source: string, environment?: string): SymfonyServiceDocumentFacts {
   const parsed = parser.parse(source); if (parsed.errors.length) return { complete: false, services: [], resources: [] };
   const root = parsed.tree.rootNode as unknown as NodeLike;
   const returns = root.namedChildren.filter((node) => node.type === 'return_statement');
@@ -1553,6 +1579,8 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
   const body = closure.namedChildren.find((node) => node.type === 'compound_statement');
   if (!body) return { complete: false, services: [], resources: [] };
   const containerVariable = variableNode.text; let containerValid = true;
+  const active = activePhpConfiguratorStatements(body, containerVariable, source, environment);
+  if (!active.complete) return { complete: false, services: [], resources: [] };
   const serviceVariables = new Set<string>(); const imports: SymfonyServiceImportFact[] = [];
   interface ChainCall { name: string; args: NodeLike[]; node: NodeLike; }
   const chain = (node: NodeLike): { base: NodeLike; calls: ChainCall[] } | undefined => {
@@ -1607,7 +1635,7 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
       ? { event: event.value, method: method.value, priority, uri, eventStart: event.start, eventEnd: event.end,
         methodStart: method.start, methodEnd: method.end } : undefined;
   };
-  for (const statement of body.namedChildren) {
+  for (const statement of active.statements) {
     const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
     if (expression?.type === 'assignment_expression' && expression.namedChildren[0]?.type === 'variable_name') {
       const assignedVariable = expression.namedChildren[0]!.text; const assigned = chain(expression.namedChildren[1]!);
@@ -1740,7 +1768,7 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
   }) };
 }
 
-function symfonyPhpServiceReferenceCandidates(parser: PhpSyntaxParser, source: string, allowEmpty: boolean): SymfonyServiceIdReference[] {
+function symfonyPhpServiceReferenceCandidates(parser: PhpSyntaxParser, source: string, allowEmpty: boolean, environment?: string): SymfonyServiceIdReference[] {
   const parsed = parser.parse(source); if (parsed.errors.length) return [];
   const root = parsed.tree.rootNode as unknown as NodeLike;
   const returns = root.namedChildren.filter((node) => node.type === 'return_statement');
@@ -1792,7 +1820,8 @@ function symfonyPhpServiceReferenceCandidates(parser: PhpSyntaxParser, source: s
   };
   const references: SymfonyServiceIdReference[] = []; const serviceVariables = new Set<string>();
   const containerVariable = variableNode.text; let containerValid = true;
-  for (const statement of body.namedChildren) {
+  const active = activePhpConfiguratorStatements(body, containerVariable, source, environment); if (!active.complete) return [];
+  for (const statement of active.statements) {
     const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
     if (expression?.type === 'assignment_expression' && expression.namedChildren[0]?.type === 'variable_name') {
       const assignedVariable = expression.namedChildren[0]!.text; const assigned = chain(expression.namedChildren[1]!);
@@ -1821,25 +1850,25 @@ function symfonyPhpServiceReferenceCandidates(parser: PhpSyntaxParser, source: s
 }
 
 /** Locate exact service-id references inside a proven Symfony PHP Configurator closure. */
-export function symfonyPhpServiceReferences(parser: PhpSyntaxParser, source: string): SymfonyServiceIdReference[] {
-  return symfonyPhpServiceReferenceCandidates(parser, source, false);
+export function symfonyPhpServiceReferences(parser: PhpSyntaxParser, source: string, environment?: string): SymfonyServiceIdReference[] {
+  return symfonyPhpServiceReferenceCandidates(parser, source, false, environment);
 }
 
 /** Locate the exact Symfony PHP Configurator service-id reference under an editor offset. */
-export function symfonyPhpServiceReferenceAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyServiceIdReference | undefined {
-  return symfonyPhpServiceReferenceCandidates(parser, source, false)
+export function symfonyPhpServiceReferenceAt(parser: PhpSyntaxParser, source: string, offset: number, environment?: string): SymfonyServiceIdReference | undefined {
+  return symfonyPhpServiceReferenceCandidates(parser, source, false, environment)
     .find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 /** Locate the replace range and typed prefix for PHP Configurator service-id completion. */
-export function symfonyPhpServiceReferencePrefixAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyServiceIdPrefix | undefined {
-  const reference = symfonyPhpServiceReferenceCandidates(parser, source, true)
+export function symfonyPhpServiceReferencePrefixAt(parser: PhpSyntaxParser, source: string, offset: number, environment?: string): SymfonyServiceIdPrefix | undefined {
+  const reference = symfonyPhpServiceReferenceCandidates(parser, source, true, environment)
     .find((candidate) => offset >= candidate.start && offset <= candidate.end);
   return reference && ["'", '"'].includes(source[reference.start - 1] ?? '')
     ? { prefix: source.slice(reference.start, offset), start: reference.start, end: reference.end } : undefined;
 }
 
-function symfonyPhpParameterFacts(parser: PhpSyntaxParser, source: string, allowEmpty: boolean): {
+function symfonyPhpParameterFacts(parser: PhpSyntaxParser, source: string, allowEmpty: boolean, environment?: string): {
   declarations: SymfonyParameterIdLocation[]; references: SymfonyParameterIdLocation[];
 } {
   const empty = { declarations: [], references: [] }; const parsed = parser.parse(source);
@@ -1855,6 +1884,7 @@ function symfonyPhpParameterFacts(parser: PhpSyntaxParser, source: string, allow
     if (!closure || !typeNode || !variableNode || parameter.text.includes('&') || parameter.text.includes('...')
       || resolveName(typeNode.text, parsed.namespace, parsed.imports) !== 'Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator') return empty;
     const body = closure.namedChildren.find((node) => node.type === 'compound_statement'); if (!body) return empty;
+    const active = activePhpConfiguratorStatements(body, variableNode.text, source, environment); if (!active.complete) return empty;
     interface ChainCall { name: string; args: NodeLike[]; }
     const chain = (node: NodeLike): { base: NodeLike; calls: ChainCall[] } | undefined => {
       if (node.type !== 'member_call_expression') return { base: node, calls: [] };
@@ -1885,10 +1915,10 @@ function symfonyPhpParameterFacts(parser: PhpSyntaxParser, source: string, allow
       }
       for (const child of node.namedChildren) visit(child);
     };
-    visit(body);
+    for (const statement of active.statements) visit(statement);
     const declarations: SymfonyParameterIdLocation[] = []; const parameterVariables = new Set<string>();
     const containerVariable = variableNode.text; let containerValid = true;
-    for (const statement of body.namedChildren) {
+    for (const statement of active.statements) {
       const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
       if (expression?.type === 'assignment_expression' && expression.namedChildren[0]?.type === 'variable_name') {
         const variable = expression.namedChildren[0]!.text; const assigned = chain(expression.namedChildren[1]!);
@@ -1908,24 +1938,26 @@ function symfonyPhpParameterFacts(parser: PhpSyntaxParser, source: string, allow
     }
     const unique = (items: SymfonyParameterIdLocation[]): SymfonyParameterIdLocation[] =>
       [...new Map(items.map((item) => [`${item.start}:${item.end}:${item.value}`, item])).values()];
-    return { declarations: unique(declarations), references: unique(references) };
+    const selectedDeclarations = new Map<string, SymfonyParameterIdLocation>();
+    for (const declaration of declarations) selectedDeclarations.set(declaration.value, declaration);
+    return { declarations: [...selectedDeclarations.values()], references: unique(references) };
   } finally { parsed.tree.delete(); }
 }
 
-export function symfonyPhpParameterDeclarations(parser: PhpSyntaxParser, source: string): SymfonyParameterIdLocation[] {
-  return symfonyPhpParameterFacts(parser, source, false).declarations;
+export function symfonyPhpParameterDeclarations(parser: PhpSyntaxParser, source: string, environment?: string): SymfonyParameterIdLocation[] {
+  return symfonyPhpParameterFacts(parser, source, false, environment).declarations;
 }
 
-export function symfonyPhpParameterReferences(parser: PhpSyntaxParser, source: string): SymfonyParameterIdLocation[] {
-  return symfonyPhpParameterFacts(parser, source, false).references;
+export function symfonyPhpParameterReferences(parser: PhpSyntaxParser, source: string, environment?: string): SymfonyParameterIdLocation[] {
+  return symfonyPhpParameterFacts(parser, source, false, environment).references;
 }
 
-export function symfonyPhpParameterReferenceAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyParameterIdLocation | undefined {
-  return symfonyPhpParameterReferences(parser, source).find((reference) => offset >= reference.start && offset <= reference.end);
+export function symfonyPhpParameterReferenceAt(parser: PhpSyntaxParser, source: string, offset: number, environment?: string): SymfonyParameterIdLocation | undefined {
+  return symfonyPhpParameterReferences(parser, source, environment).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
-export function symfonyPhpParameterReferencePrefixAt(parser: PhpSyntaxParser, source: string, offset: number): SymfonyServiceIdPrefix | undefined {
-  const reference = symfonyPhpParameterFacts(parser, source, true).references
+export function symfonyPhpParameterReferencePrefixAt(parser: PhpSyntaxParser, source: string, offset: number, environment?: string): SymfonyServiceIdPrefix | undefined {
+  const reference = symfonyPhpParameterFacts(parser, source, true, environment).references
     .find((candidate) => offset >= candidate.start && offset <= candidate.end);
   return reference && ["'", '"'].includes(source[reference.start - 1] ?? '')
     ? { prefix: source.slice(reference.start, offset), start: reference.start, end: reference.end } : undefined;

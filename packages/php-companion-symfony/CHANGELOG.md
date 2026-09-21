@@ -1,5 +1,7 @@
 # Changelog
 
+- Select exact `$container->env() === 'literal'` PHP Configurator branches and keep service or parameter navigation, completion and Rename aligned with runtime environment changes.
+
 - Select unconditional plus exact-environment Symfony XML service graphs and keep Definition, References, completion and Rename aligned with runtime environment changes.
 
 - Register YAML, XML and PHP Configurator parameter Definition, References, completion and Rename through the standalone Symfony extension, with service, parameter and route Rename fallbacks sharing VS Code's standard F2 flow.

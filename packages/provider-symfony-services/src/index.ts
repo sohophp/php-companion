@@ -182,8 +182,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
       const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) return;
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source, options.environment)
-        : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source, options.environment);
-      const parameterDeclarations = extension === 'php' ? symfonyPhpParameterDeclarations(parser, source)
+        : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source, options.environment) : analyzeSymfonyServiceYaml(uri, source, options.environment);
+      const parameterDeclarations = extension === 'php' ? symfonyPhpParameterDeclarations(parser, source, options.environment)
         : extension === 'xml' ? symfonyXmlParameterDeclarations(source, options.environment)
         : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source, options.environment) : [];
       parameters.push(...parameterDeclarations.map((parameter) => ({ ...parameter, id: parameter.value, uri })));

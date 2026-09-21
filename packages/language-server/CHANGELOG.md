@@ -1,3 +1,5 @@
+- Apply each workspace root's validated Symfony environment to PHP Configurator service Definition, References, completion and atomic Rename, excluding inactive guarded statements from every editor request.
+
 - Apply each workspace root's validated Symfony environment to XML service Definition, References, completion and atomic Rename, and refresh the same active XML view at runtime without reloading the window.
 
 - Pass each workspace root's validated Symfony environment to the authoritative container provider, refresh container and event facts when it changes, and exclude inactive YAML `when@environment` service and parameter references from navigation, completion and atomic Rename.

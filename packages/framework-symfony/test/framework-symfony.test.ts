@@ -872,6 +872,55 @@ when@prod:
     expect(symfonyPhpParameterDeclarations(parser, reassigned).map((item) => item.value)).toEqual(['app.host']);
   });
 
+  it('selects exact PHP Configurator environment guards without leaking inactive facts', () => {
+    const source = `<?php
+      use App\\BaseService;
+      use App\\DevService;
+      use App\\ProdService;
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\param;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\service;
+      return static function (ContainerConfigurator $container): void {
+        $services = $container->services();
+        $services->set('shared.service', BaseService::class)->arg('$dependency', service('base.dependency'));
+        $container->parameters()->set('shared.parameter', 'base');
+        if ($container->env() === 'dev') {
+          $services->set('shared.service', DevService::class)->arg('$dependency', service('dev.dependency'));
+          $services->set('dev.consumer', DevService::class)->arg('$value', param('dev.parameter'));
+          $container->parameters()->set('shared.parameter', 'dev');
+          $container->parameters()->set('dev.parameter', 'dev');
+        }
+        if ('prod' === $container->env()) {
+          $services->set('shared.service', ProdService::class)->arg('$dependency', service('prod.dependency'));
+          $services->set('prod.consumer', ProdService::class)->arg('$value', param('prod.parameter'));
+          $container->parameters()->set('shared.parameter', 'prod');
+          $container->parameters()->set('prod.parameter', 'prod');
+        }
+      };`;
+    const base = analyzeSymfonyServicePhp(parser, 'file:///services.php', source);
+    expect(base.services.map(({ id, className }) => ({ id, className }))).toEqual([
+      { id: 'shared.service', className: 'App\\BaseService' },
+    ]);
+    const dev = analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'dev');
+    expect(dev.complete).toBe(true);
+    expect(dev.services.map(({ id, className }) => ({ id, className }))).toEqual([
+      { id: 'shared.service', className: 'App\\DevService' }, { id: 'dev.consumer', className: 'App\\DevService' },
+    ]);
+    expect(symfonyPhpServiceReferences(parser, source, 'dev').map((item) => item.value)).toEqual(['base.dependency', 'dev.dependency']);
+    expect(symfonyPhpServiceReferences(parser, source, 'prod').map((item) => item.value)).toEqual(['base.dependency', 'prod.dependency']);
+    const declarations = symfonyPhpParameterDeclarations(parser, source, 'dev');
+    expect(declarations.map((item) => item.value)).toEqual(['shared.parameter', 'dev.parameter']);
+    expect(declarations[0]!.start).toBe(source.indexOf('shared.parameter', source.indexOf("=== 'dev'")));
+    expect(symfonyPhpParameterReferences(parser, source, 'dev').map((item) => item.value)).toEqual(['dev.parameter']);
+    expect(symfonyPhpParameterReferences(parser, source, 'prod').map((item) => item.value)).toEqual(['prod.parameter']);
+    expect(symfonyPhpServiceReferenceAt(parser, source, source.indexOf('prod.dependency') + 4, 'dev')).toBeUndefined();
+    expect(symfonyPhpParameterReferenceAt(parser, source, source.indexOf('prod.parameter') + 4, 'dev')).toBeUndefined();
+    const dynamic = source.replace("if ($container->env() === 'dev')", 'if (enabled())');
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', dynamic, 'dev').complete).toBe(false);
+    expect(symfonyPhpServiceReferences(parser, dynamic, 'dev')).toEqual([]);
+    expect(symfonyPhpParameterReferences(parser, dynamic, 'dev')).toEqual([]);
+  });
+
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
     const source = `services:
       _defaults:

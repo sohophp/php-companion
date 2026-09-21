@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Select unconditional plus exact-environment PHP Configurator statements guarded by `$container->env() === 'literal'` or its literal-first equivalent; apply the active view to services, imports, parameters and references while rejecting compound, nested or alternative control flow.
+
 - Select unconditional plus exact `<when env="environment">` XML imports, parameters, services and references; active declarations override same-id base declarations while inactive environments remain invisible. Recognize attribute-free self-closing XML elements when validating structure.
 
 - Select unconditional plus exact `when@environment` YAML service, import, parameter and reference facts; active declarations override same-id base declarations while inactive environments remain invisible.
