@@ -80,10 +80,10 @@ export interface SemanticImplementationSnapshot {
 }
 export interface SemanticTemplate { ownerFqcn: string; name: string; bound?: string; default?: string; variance: GenericVariance; }
 export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'implements'; parentName: string; arguments: string[]; }
-export interface SemanticMixin { ownerFqcn: string; targetName: string; start: number; end: number; }
+export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 78;
+  schema: 79;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -548,7 +548,7 @@ function semanticTypeSurfaces(file: SemanticFile | undefined): Map<string, strin
       templates: file.templates.filter((item) => item.ownerFqcn.toLowerCase() === key || item.ownerFqcn.toLowerCase().startsWith(`${key}::`)),
       genericParents: file.genericParents.filter((item) => item.ownerFqcn.toLowerCase() === key),
       mixins: file.mixins.filter((item) => item.ownerFqcn.toLowerCase() === key)
-        .map(({ ownerFqcn, targetName }) => ({ ownerFqcn, targetName })),
+        .map(({ ownerFqcn, targetName, arguments: arguments_ }) => ({ ownerFqcn, targetName, arguments: arguments_ })),
       magicMembers: file.magicMembers.filter((item) => item.ownerFqcn.toLowerCase() === key).map((item) => ({
         ownerFqcn: item.ownerFqcn, kind: item.kind, name: item.name,
         parameters: item.parameters.map(semanticParameter), returnType: item.returnType, writeType: item.writeType,
@@ -709,10 +709,12 @@ function validSemanticMixins(value: unknown, sourceLength: number, declarations:
     const mixin = item as Partial<SemanticMixin>;
     if (typeof mixin.ownerFqcn !== 'string' || mixin.ownerFqcn.length < 1 || mixin.ownerFqcn.length > 1_024
       || typeof mixin.targetName !== 'string' || mixin.targetName.length < 1 || mixin.targetName.length > 1_024
+      || !Array.isArray(mixin.arguments) || mixin.arguments.length > 64
+      || !mixin.arguments.every((argument) => typeof argument === 'string' && argument.length > 0 && argument.length <= 8_192)
       || !owners.has(mixin.ownerFqcn.toLowerCase())
       || !Number.isSafeInteger(mixin.start) || !Number.isSafeInteger(mixin.end)
       || mixin.start! < 0 || mixin.end! < mixin.start! || mixin.end! > sourceLength) return false;
-    const identity = `${mixin.ownerFqcn.toLowerCase()}\0${mixin.targetName.toLowerCase()}`;
+    const identity = `${mixin.ownerFqcn.toLowerCase()}\0${mixin.targetName.toLowerCase()}\0${JSON.stringify(mixin.arguments)}`;
     if (identities.has(identity)) return false;
     identities.add(identity);
   }
@@ -1233,9 +1235,15 @@ export class SemanticWorkspace {
         const documentedBase = documentedType?.kind === 'generic' && documentedType.base.kind === 'name'
           ? documentedType.base.name.replace(/^\\/, '').toLowerCase()
           : documentedType?.kind === 'name' ? documentedType.name.replace(/^\\/, '').toLowerCase() : undefined;
+        const container = parsed.declarations.find((declaration) => declaration.fqcn.toLowerCase() === property.containerFqcn.toLowerCase());
+        const templateBound = documentedType?.kind === 'name' && container
+          ? preferredDocTags(docBefore(container.declarationStart), (tag) => tag.name === 'template' && tag.variable === documentedType.name,
+            (tag) => tag.variable ?? '').at(-1)?.type : undefined;
+        const refinesTemplateBound = templateBound?.kind === 'name'
+          && templateBound.name.replace(/^\\/, '').toLowerCase() === native;
         const collection = documentedType?.kind === 'array' || documentedType?.kind === 'shape'
           || ['array', 'list', 'non-empty-array', 'non-empty-list'].includes(documentedBase ?? '');
-        const refinesNative = !property.type || native === 'mixed' || documentedBase === native
+        const refinesNative = !property.type || native === 'mixed' || documentedBase === native || refinesTemplateBound
           || (native === 'array' && collection)
           || (native === 'iterable' && (collection || documentedBase === 'iterable'))
           || (native === 'string' && documentedBase === 'class-string')
@@ -1261,11 +1269,19 @@ export class SemanticWorkspace {
       });
       const mixins = parsed.declarations.flatMap((declaration): SemanticMixin[] => {
         if (declaration.anonymous) return [];
-        return preferredDocTags(docBefore(declaration.declarationStart), (tag) => tag.name === 'mixin' && tag.type?.kind === 'name',
-          (tag) => tag.type?.kind === 'name' ? tag.type.name.toLowerCase() : tag.name)
-          .flatMap((tag) => tag.type?.kind === 'name'
-            ? [{ ownerFqcn: declaration.fqcn, targetName: tag.type.name, start: tag.type.start, end: tag.type.end }]
-            : []);
+        const doc = docBefore(declaration.declarationStart);
+        return preferredDocTags(doc, (tag) => tag.name === 'mixin'
+          && !doc?.errors.some((error) => error.start >= tag.start && error.start < tag.end)
+          && (tag.type?.kind === 'name' || tag.type?.kind === 'generic' && tag.type.base.kind === 'name'),
+        (tag) => tag.type ? displayPhpDocType(tag.type).toLowerCase() : tag.name)
+          .flatMap((tag) => {
+            const type = tag.type;
+            if (type?.kind === 'name') return [{ ownerFqcn: declaration.fqcn, targetName: type.name,
+              arguments: [], start: type.start, end: type.end }];
+            if (type?.kind === 'generic' && type.base.kind === 'name') return [{ ownerFqcn: declaration.fqcn,
+              targetName: type.base.name, arguments: type.arguments.map(displayPhpDocType), start: type.start, end: type.end }];
+            return [];
+          });
       });
       const magicMembers = parsed.declarations.flatMap((declaration): SemanticMagicMember[] => {
         if (declaration.anonymous) return [];
@@ -1437,7 +1453,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 78,
+      schema: 79,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1531,7 +1547,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 78 || !declaration || !implementation
+    if (value?.schema !== 79 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -1587,7 +1603,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 78 || !declaration || !implementation
+    if (value?.schema !== 79 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -10972,7 +10988,14 @@ export class SemanticWorkspace {
       const owners = this.filesForReferenceKeys(`declaration:type:${target.toLowerCase()}`).flatMap((file) =>
         file.declarations.filter((item) => !item.anonymous && item.fqcn.toLowerCase() === target.toLowerCase()));
       if (owners.length !== 1) return [];
-      return this.members(target, undefined, new Set(visited), false)
+      const targetTemplates = this.fileAndDeclaration(target)?.file.templates.filter((item) => item.ownerFqcn.toLowerCase() === target.toLowerCase()) ?? [];
+      if (mixin.arguments.length !== targetTemplates.length) return [];
+      const arguments_ = mixin.arguments.map((argument) => specializeTemplateType(argument, templateArguments));
+      if (arguments_.some((argument) => !argument)) return [];
+      const targetArguments = targetTemplates.length
+        ? this.templateArgumentsFor(target, arguments_ as string[], ownerFile, namespace, fqcn) : undefined;
+      if (targetTemplates.length && !targetArguments) return [];
+      return this.members(target, undefined, new Set(visited), false, targetArguments)
         .filter((member) => (member.kind === 'method' || member.kind === 'property') && !member.static);
     });
     const mixinCounts = new Map<string, number>();
