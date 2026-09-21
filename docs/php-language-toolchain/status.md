@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 References 输入验证继续收口：移除由最终核对覆盖的逐文件重复 stat，并对近期修改文件再次比对内容，处理实际复现的同长度改写、mtime 恢复且 ctime 同时钟粒度不变的情况。两组原版/修改版 Reload 为 2.917/2.504 秒、2.903/2.712 秒，112 处完整位置均一致；空缓存首次仍约 9 秒。21 项底层和正式 stdio 3 项（32.57 秒）、构建/ESLint 通过。候选缓存后台写入实验因收益不明确撤回；基准驱动器退出后多等五秒的问题已修复，减少冷+Reload 循环约十秒空等，最终真实完整对照共 14.39 秒（冷 8.908 秒、Reload 2.676 秒）。未更新安装版，Goal 继续。见 [最终输入核对及验证循环](reports/reference-input-final-validation-2026-09-22.md)。
+
 2026-09-22 References 结果复用已接入核心 on-demand 正式 bundle：后台保存绑定完整候选、依赖/缺失查找、Composer、文档、外部事实、工作区映射和引擎身份的查询结果；重启后核对通过才返回。最终 Winstar 空缓存首次 9.275 秒、Reload 首次 3.053 秒（同轮样本约 2.9–3.1 秒），两轮均为 112 处且完整位置摘要一致；已有重复查询样本 5 ms。底层 19 项和最终跨进程失效用例（24.82 秒）、相关构建/ESLint 通过，新增单命令冷/Reload 位置与实际复用检查。框架 Provider 配置仍回退原流程，空缓存首次和完整 Symfony Profile 尚未达标；Goal 继续，未更新安装版。证据及短验证命令见 [持久化结果复用](reports/reference-result-reuse-2026-09-22.md)。
 
 2026-09-22 References 构建身份：从实际服务器/worker 输出与两份 WASM 生成确定性 ID，启动和审计前后核对运行时及资产；真实 bundle 审计返回 `engineVerified: true`。构建与运行时单元测试、未打包/正式 bundle 冷启动及 Reload 用例、资产变化拒绝、TypeScript/ESLint、watch 初次构建及两次生产构建字节一致性验证通过。基准命令已由包级编译输出改为默认 VSIX bundle，并更正两处旧报告的入口说明；实际冷 References 8.945 秒、112 处完整位置一致，输入审计 2.198 秒。查询结果绑定及框架输入尚未闭合，缓存结果返回未启用；Goal 继续，未更新安装版。证据见 [引擎身份与实际 bundle 验证](reports/reference-engine-identity-2026-09-22.md)。

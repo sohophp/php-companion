@@ -1,5 +1,5 @@
 import { mkdtemp, mkdir, rename, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises';
-import { writeFileSync } from 'node:fs';
+import { renameSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -144,5 +144,21 @@ describe('reference input snapshot', () => {
     } });
     expect(changed).toBe(true);
     expect(snapshot).toBeUndefined();
+  });
+
+  it.each(['rewrite', 'replace'])('rejects same-size %s after reading even when the original mtime is restored', async (change) => {
+    const fixed = new Date('2001-01-01T00:00:00Z'); await utimes(source, fixed, fixed);
+    let checkpoints = 0; let changed = false;
+    const snapshot = await captureReferenceInputSnapshot({ sourceRoots: [sourceRoot], context: 'final-identity', shouldContinue: () => {
+      if (++checkpoints === 6) {
+        const target = change === 'replace' ? join(root, 'Replacement.php') : source;
+        writeFileSync(target, '<?php new DependenCy();');
+        utimesSync(target, fixed, fixed);
+        if (change === 'replace') renameSync(target, source);
+        changed = true;
+      }
+      return true;
+    } });
+    expect(changed).toBe(true); expect(snapshot).toBeUndefined();
   });
 });

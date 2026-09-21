@@ -81,7 +81,11 @@ try {
     try {
       await request('shutdown', null);
       send({ jsonrpc: '2.0', method: 'exit', params: null });
-      await Promise.race([new Promise((done) => server.once('exit', done)), new Promise((done) => setTimeout(done, 5_000))]);
+      let shutdownTimer;
+      try {
+        await Promise.race([new Promise((done) => server.once('exit', done)),
+          new Promise((done) => { shutdownTimer = setTimeout(done, 5_000); })]);
+      } finally { clearTimeout(shutdownTimer); }
     } catch { /* A failed query may leave the server unable to shut down. */ }
     if (server.exitCode === null) server.kill();
   }

@@ -26,7 +26,7 @@ export interface ReferenceInputSnapshot {
   missingPaths: readonly string[];
 }
 
-interface InputFile { path: string; hash: string; stamp: string; }
+interface InputFile { path: string; hash: string; stamp: string; verifyContent: boolean; }
 interface Discovery { files: string[]; sourceFiles: string[]; roots: Array<[string, string | null]>; }
 
 function digest(value: string): string { return createHash('sha256').update(value).digest('hex'); }
@@ -50,6 +50,9 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     .sort(([left], [right]) => left.localeCompare(right));
   if (new Set(documents.map(([uri]) => uri)).size !== documents.length) return undefined;
   const context = options.context;
+  // Filesystem change timestamps can share one clock tick even when exposed
+  // in nanoseconds. Recent files need a second content read, not more stats.
+  const recentThreshold = (BigInt(Date.now()) - 2_000n) * 1_000_000n;
   const discover = async (): Promise<Discovery | undefined> => {
     const files = new Set<string>(); const identities: Discovery['roots'] = []; let directories = 0;
     for (const path of roots) {
@@ -108,28 +111,33 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   try {
     const before = await discover(); if (!before) return undefined;
     let totalBytes = 0; const files: InputFile[] = [];
+    const readInput = async (path: string, countBytes: boolean): Promise<InputFile | undefined> => {
+      // Explicit roots may themselves be links; nested links were rejected.
+      const handle = await open(path, 'r');
+      try {
+        const initial = await handle.stat({ bigint: true });
+        if (!initial.isFile() || initial.size > BigInt(maxFileBytes)) return undefined;
+        if (countBytes) totalBytes += Number(initial.size);
+        if (totalBytes > maxTotalBytes) return undefined;
+        // Bound allocation/read size even if a file grows during the scan.
+        const source = Buffer.alloc(Number(initial.size));
+        let read = 0;
+        while (read < source.length) {
+          const part = await handle.read(source, read, source.length - read, read);
+          if (!part.bytesRead) return undefined;
+          read += part.bytesRead;
+        }
+        // The final path-stat pass below compares every file against this
+        // original descriptor identity, size and nanosecond timestamps. It
+        // also catches replacement, growth or edits while reading, so two
+        // extra per-file stats here would duplicate that verification.
+        return { path, hash: createHash('sha256').update(source).digest('hex'), stamp: stamp(initial),
+          verifyContent: initial.ctimeNs >= recentThreshold || initial.mtimeNs >= recentThreshold };
+      } finally { await handle.close(); }
+    };
     for (let offset = 0; offset < before.files.length; offset += 32) {
       if (!active()) return undefined;
-      const batch = await Promise.all(before.files.slice(offset, offset + 32).map(async (path): Promise<InputFile | undefined> => {
-        // Explicit roots may themselves be links; nested links were rejected.
-        const handle = await open(path, 'r');
-        try {
-          const initial = await handle.stat({ bigint: true });
-          if (!initial.isFile() || initial.size > BigInt(maxFileBytes)) return undefined;
-          totalBytes += Number(initial.size); if (totalBytes > maxTotalBytes) return undefined;
-          // Bound allocation/read size even if a file grows during the scan.
-          const source = Buffer.alloc(Number(initial.size));
-          let read = 0;
-          while (read < source.length) {
-            const part = await handle.read(source, read, source.length - read, read);
-            if (!part.bytesRead) return undefined;
-            read += part.bytesRead;
-          }
-          const final = await handle.stat({ bigint: true }); const current = await stat(path, { bigint: true });
-          if (stamp(initial) !== stamp(final) || stamp(final) !== stamp(current) || source.length !== Number(final.size)) return undefined;
-          return { path, hash: createHash('sha256').update(source).digest('hex'), stamp: stamp(final) };
-        } finally { await handle.close(); }
-      }));
+      const batch = await Promise.all(before.files.slice(offset, offset + 32).map((path) => readInput(path, true)));
       if (batch.some((file) => !file)) return undefined;
       files.push(...batch as InputFile[]);
     }
@@ -138,7 +146,13 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     // A file read early in the scan must still describe the same disk object.
     for (let offset = 0; offset < files.length; offset += 32) {
       if (!active()) return undefined;
-      const unchanged = await Promise.all(files.slice(offset, offset + 32).map(async (file) => stamp(await stat(file.path, { bigint: true })) === file.stamp));
+      const unchanged = await Promise.all(files.slice(offset, offset + 32).map(async (file) => {
+        if (stamp(await stat(file.path, { bigint: true })) !== file.stamp) return false;
+        if (!file.verifyContent) return true;
+        const verified = await readInput(file.path, false);
+        return verified?.hash === file.hash && verified.stamp === file.stamp
+          && stamp(await stat(file.path, { bigint: true })) === file.stamp;
+      }));
       if (unchanged.some((value) => !value)) return undefined;
     }
     if (!active()) return undefined;
