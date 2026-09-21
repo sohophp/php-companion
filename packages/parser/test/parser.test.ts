@@ -94,6 +94,13 @@ function helper(User $user): string { return $user->label(1); }
     }
   });
 
+  it('keeps namespace ownership while recovering from an incomplete class', () => {
+    const result = parser.parse('<?php namespace First; class One { public function broken( } namespace Second; class Two {}');
+    expect(result.tree.rootNode.hasError).toBe(true);
+    expect(result.declarations.map((item) => item.fqcn)).toEqual(['First\\One', 'Second\\Two']);
+    result.tree.delete();
+  });
+
   it('extracts inheritance, traits, visibility and static method facts', () => {
     const result = parser.parse('<?php namespace App; class Child extends Base implements One, Two { use Shared; private static function secret(): void {} protected function inherited(): void {} }');
     expect(result.declarations[0]).toMatchObject({ extendsNames: ['Base'], implementsNames: ['One', 'Two'], traitNames: ['Shared'] });

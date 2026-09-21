@@ -397,22 +397,16 @@ export class PhpSyntaxParser {
       typeReferenceKeys.add(key); typeReferences.push({ ...range, context });
     };
 
-    walk(tree.rootNode, (node) => {
-      if (node.type === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
-      if (node.type === 'base_clause' || node.type === 'class_interface_clause') {
-        for (const child of node.namedChildren) addTypeReference(child, 'inheritance');
-      }
-      if (node.type === 'use_declaration') for (const child of node.namedChildren) addTypeReference(child, 'trait');
-      if (node.type === 'attribute') addTypeReference(node.childForFieldName('name') ?? node.namedChildren[0], 'attribute');
-      if (node.type === 'binary_expression') {
-        const left = node.childForFieldName('left') ?? node.namedChildren[0];
-        const right = node.childForFieldName('right') ?? node.namedChildren.at(-1);
-        if (left && right && /^\s*instanceof\s*$/iu.test(source.slice(left.endIndex, right.startIndex))) addTypeReference(right, 'instanceof');
-      }
-      if (['scoped_call_expression', 'scoped_property_access_expression', 'class_constant_access_expression'].includes(node.type)) {
-        addTypeReference(node.childForFieldName('scope') ?? node.namedChildren[0], 'static-receiver');
-      }
-      if (node.type !== 'namespace_definition') return;
+    const namespaceNodes: SyntaxNode[] = [];
+    // Valid PHP namespace declarations are top-level. Keep a full recovery
+    // walk for incomplete edits whose error nodes may contain a namespace.
+    if (tree.rootNode.hasError) walk(tree.rootNode, (node) => {
+      if (node.type === 'namespace_definition') namespaceNodes.push(node);
+    });
+    else for (const node of tree.rootNode.namedChildren) {
+      if (node.type === 'namespace_definition') namespaceNodes.push(node);
+    }
+    for (const node of namespaceNodes) {
       const body = node.childForFieldName('body');
       namespaceDefinitions.push({
         name: node.childForFieldName('name')?.text.replace(/^\\+|\\+$/g, '') ?? '',
@@ -420,7 +414,7 @@ export class PhpSyntaxParser {
         end: body?.endIndex ?? source.length,
         braced: Boolean(body),
       });
-    });
+    }
     namespaceDefinitions.sort((left, right) => left.start - right.start);
     for (let index = 0; index < namespaceDefinitions.length; index += 1) {
       const current = namespaceDefinitions[index]!;
@@ -719,6 +713,20 @@ export class PhpSyntaxParser {
     };
 
     walk(tree.rootNode, (node) => {
+      if (node.type === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
+      if (node.type === 'base_clause' || node.type === 'class_interface_clause') {
+        for (const child of node.namedChildren) addTypeReference(child, 'inheritance');
+      }
+      if (node.type === 'use_declaration') for (const child of node.namedChildren) addTypeReference(child, 'trait');
+      if (node.type === 'attribute') addTypeReference(node.childForFieldName('name') ?? node.namedChildren[0], 'attribute');
+      if (node.type === 'binary_expression') {
+        const left = node.childForFieldName('left') ?? node.namedChildren[0];
+        const right = node.childForFieldName('right') ?? node.namedChildren.at(-1);
+        if (left && right && /^\s*instanceof\s*$/iu.test(source.slice(left.endIndex, right.startIndex))) addTypeReference(right, 'instanceof');
+      }
+      if (['scoped_call_expression', 'scoped_property_access_expression', 'class_constant_access_expression'].includes(node.type)) {
+        addTypeReference(node.childForFieldName('scope') ?? node.namedChildren[0], 'static-receiver');
+      }
       if (node.type === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(node.type)) stringRanges.push(nodeRange(source, node));
       if (node.isError || node.isMissing) errors.push(nodeRange(source, node));
