@@ -6694,7 +6694,21 @@ export class SemanticWorkspace {
     return undefined;
   }
 
+  private functionDeclarations(fqcn: string): Array<{ file: SemanticFile; item: ParsedCallableDeclaration }> {
+    const name = fqcn.toLowerCase();
+    const candidates = new Set(this.filesForReferenceKeys(`declaration:function:${name}`));
+    if (!candidates.size) return [];
+    // Preserve workspace insertion order for existing first-match consumers.
+    return [...this.files.values()].filter((file) => candidates.has(file)).flatMap((file) =>
+      file.callables.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === name)
+        .map((item) => ({ file, item })));
+  }
+
   private callableDeclarationsForSignature(signature: Pick<SignatureInfo, 'kind' | 'fqcn' | 'uri' | 'start'>): Array<{ file: SemanticFile; item: ParsedCallableDeclaration }> {
+    const source = this.files.get(signature.uri);
+    const located = source?.callables.filter((item) => item.start === signature.start
+      && item.kind === signature.kind && item.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
+    if (source && located?.length === 1) return [{ file: source, item: located[0]! }];
     const matching = [...this.files.values()].flatMap((file) => file.callables.map((item) => ({ file, item })))
       .filter(({ item }) => item.kind === signature.kind && item.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
     const exact = matching.filter(({ file, item }) => file.uri === signature.uri && item.start === signature.start);
@@ -7058,8 +7072,7 @@ export class SemanticWorkspace {
     }
     if (assignment?.sourceCall?.kind === 'function') {
       const fqfn = this.resolveFunction(file, assignment.sourceCall.name, this.namespaceAt(file, assignment.start));
-      const matches = [...this.files.values()].flatMap((candidate) => candidate.callables.map((item) => ({ file: candidate, item })))
-        .filter(({ item }) => item.kind === 'function' && item.fqcn.toLowerCase() === fqfn.toLowerCase());
+      const matches = this.functionDeclarations(fqfn);
       const found = matches.length === 1 ? matches[0] : undefined;
       const type = found?.item.nativeReturnType ? this.nativeSourceType(found.file, found.item.nativeReturnType, found.item.fqcn) : undefined;
       const result = type && this.objectGroups(type);
@@ -8142,8 +8155,7 @@ export class SemanticWorkspace {
     }
     if (assignment?.sourceCall?.kind === 'function') {
       const fqfn = this.resolveFunction(file, assignment.sourceCall.name, this.namespaceAt(file, assignment.start));
-      const found = [...this.files.values()].flatMap((candidate) => candidate.callables.map((item) => ({ file: candidate, item })))
-        .find(({ item }) => item.kind === 'function' && item.fqcn.toLowerCase() === fqfn.toLowerCase());
+      const found = this.functionDeclarations(fqfn)[0];
       const returned = found && this.callableReturnClass(found.file, found.item.returnType, found.item.fqcn, allowNullable);
       if (returned) return returned;
     }

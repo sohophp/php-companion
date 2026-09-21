@@ -85,6 +85,30 @@ describe('conservative semantic workspace', () => {
       expect(local.definition(uri, offset)).toEqual([]);
     } finally { local.dispose(); }
   });
+  it('refreshes indexed function-return lookup across declaration restore, removal, and namespace edits', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///IndexedFunctionUse.php'; const factoryUri = 'file:///IndexedFunctionFactory.php';
+    const source = `<?php namespace IndexedFunctionUse;
+      use function LookupFactory\\create as make;
+      function run($unknown): void { $value = make($unknown); $value->go(); }
+    `;
+    const factory = '<?php namespace LookupFactory; class Target { function go(): void {} } function create(int $value): Target {}';
+    const offset = source.indexOf('go();') + 1;
+    try {
+      local.update(uri, source);
+      local.update('file:///OtherFunctionFactory.php', '<?php namespace OtherFactory; class Other { function go(): void {} } function create(int $value): Other {}');
+      expect(local.definition(uri, offset)).toEqual([]);
+      local.updateDeclarations(factoryUri, factory);
+      expect(local.definition(uri, offset)).toMatchObject([{ uri: factoryUri, fqcn: 'LookupFactory\\Target::go' }]);
+      const snapshot = local.sourceDeclarationSnapshot(factoryUri)!;
+      local.remove(factoryUri);
+      expect(local.definition(uri, offset)).toEqual([]);
+      expect(local.restoreSourceDeclaration(snapshot, factoryUri)).toBe(true);
+      expect(local.definition(uri, offset)).toMatchObject([{ uri: factoryUri, fqcn: 'LookupFactory\\Target::go' }]);
+      local.updateDeclarations(factoryUri, factory.replace('namespace LookupFactory;', 'namespace MovedFactory;'));
+      expect(local.definition(uri, offset)).toEqual([]);
+    } finally { local.dispose(); }
+  });
   it('identifies the declared owner type of an unresolved member access', () => {
     const source = `<?php namespace App;
       final class Subscriber {

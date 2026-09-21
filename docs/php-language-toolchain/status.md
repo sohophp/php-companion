@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 References 调用声明查找：优先按签名 URI/位置精确定位，缺失或歧义保留原回退；两处函数返回推断使用已有声明索引并保留文件顺序。冷查询同轮对照 8.132→7.709 秒，完整 112 处位置一致；正式 bundle 冷查询 7.942 秒、Reload 首次 6.166 秒。语义包 288 项、LSP 定向 48 项（43.94 秒，156 项未重跑）、相关 TypeScript/ESLint、正式构建和默认基线命令通过。缓存压缩 JSON 传输实验因变慢未保留；Goal 继续。证据见 [调用声明查找](reports/reference-callable-lookup-2026-09-21.md)。
+
 2026-09-21 References 候选流水线与传输：候选预读窗口改为已有上限 64，语法事实由 worker JSON 序列化后传输，单文件更新复用 PHPDoc，并将 worker 上限降为 4。同轮实验冷查询 9.289→8.004 秒、峰值 RSS 894,400→729,928 KiB；正式 bundle 冷查询 8.249 秒、Reload 首次 6.481 秒，两次仍为相同 112 处完整引用。语义包 287、Language Server 204 项、相关 TypeScript/ESLint、正式构建和默认基线命令通过。基准支持可选峰值 RSS 输出；未冻结新 VSIX，首次查询仍须优化。证据见 [候选流水线与语法事实传输](reports/reference-preparation-transport-2026-09-21.md)。
 
 2026-09-21 References 局部语法查找范围裁剪：跳过范围外子树、无 yield 候选的函数跳过生成器分析。Winstar 冷查询语义阶段同机对照 3.326→2.874 秒，保持相同 112 处完整引用；正式 bundle 冷查询 9.203 秒、Reload 首次 6.332 秒。语义包 286、Language Server 200 项、相关 TypeScript/ESLint、正式构建和真实项目摘要基线命令通过；首次交互仍慢，Goal 继续。证据见 [限制局部语法查找范围](reports/ranged-reference-syntax-2026-09-21.md)。
