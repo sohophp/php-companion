@@ -393,7 +393,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 77, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 78, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -404,6 +404,66 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeMembers('file:///MagicUse.php', source.indexOf('$model->find(1)->na') + '$model->find(1)->na'.length)).toEqual([]);
     expect(workspace.restore(snapshot, 'file:///MagicDefinitions.php')).toBe(true);
     expect(workspace.completeMembers('file:///MagicUse.php', source.indexOf('$model->find(1)->na') + '$model->find(1)->na'.length).map((item) => item.name)).toEqual(['name']);
+  });
+  it('delegates only unique public instance members through exact PHPDoc mixins', () => {
+    const definitions = `<?php namespace MixinMembers;
+      class Result { public function done(): void {} }
+      class FirstDelegate {
+        public Result $result;
+        public function find(int $id): Result { return new Result(); }
+        public function collision(): Result { return new Result(); }
+        protected function hidden(): void {}
+        public static function staticOnly(): void {}
+      }
+      class SecondDelegate {
+        public function second(): Result { return new Result(); }
+        public function collision(): Result { return new Result(); }
+      }
+      /** @mixin FirstDelegate */
+      class Proxy { public function find(string $slug): Result { return new Result(); } }
+      /** @mixin FirstDelegate\n       * @mixin SecondDelegate */
+      class AmbiguousProxy {}
+      /** @mixin MissingDelegate */
+      class MissingProxy { public function own(): void {} }
+      /** @mixin CycleB */ class CycleA {}
+      /** @mixin CycleA */ class CycleB { public function leaf(): Result { return new Result(); } }
+    `;
+    workspace.update('file:///MixinDefinitions.php', definitions);
+    const source = `<?php namespace MixinMembers;
+      function run(Proxy $proxy, AmbiguousProxy $ambiguous, MissingProxy $missing, CycleA $cycle): void {
+        $proxy->; $proxy->find('slug')->do; $proxy->result->do;
+        $ambiguous->; $ambiguous->find(1)->do; $ambiguous->second()->do; $ambiguous->collision()->do;
+        $missing->; $cycle->leaf()->do;
+      }`;
+    workspace.update('file:///MixinUse.php', source);
+    expect(workspace.completeMembers('file:///MixinUse.php', source.indexOf('$proxy->;') + '$proxy->'.length).map((item) => item.name))
+      .toEqual(['find', 'collision', 'result']);
+    expect(workspace.signature('file:///MixinUse.php', source.indexOf("find('slug')") + 'find('.length)).toMatchObject({
+      fqcn: 'MixinMembers\\Proxy::find', parameters: [{ name: 'slug', type: 'string' }],
+    });
+    expect(workspace.completeMembers('file:///MixinUse.php', source.indexOf('$ambiguous->;') + '$ambiguous->'.length).map((item) => item.name))
+      .toEqual(['find', 'result', 'second']);
+    expect(workspace.completeMembers('file:///MixinUse.php', source.indexOf('$missing->;') + '$missing->'.length).map((item) => item.name))
+      .toEqual(['own']);
+    for (const marker of ['$proxy->find(\'slug\')->do', '$proxy->result->do', '$ambiguous->find(1)->do', '$ambiguous->second()->do', '$cycle->leaf()->do']) {
+      expect(workspace.completeMembers('file:///MixinUse.php', source.indexOf(marker) + marker.length).map((item) => item.name), marker)
+        .toEqual(['done']);
+    }
+    expect(workspace.definition('file:///MixinUse.php', source.indexOf('$ambiguous->find') + '$ambiguous->'.length + 2)).toMatchObject([
+      { uri: 'file:///MixinDefinitions.php' },
+    ]);
+    expect(workspace.definition('file:///MixinDefinitions.php', definitions.indexOf('@mixin FirstDelegate') + '@mixin '.length + 2)).toMatchObject([
+      { uri: 'file:///MixinDefinitions.php' },
+    ]);
+    expect(workspace.unresolvedMembers('file:///MixinUse.php').map((item) => item.name)).toEqual(['collision']);
+    const snapshot = workspace.snapshot('file:///MixinDefinitions.php');
+    expect(snapshot).toMatchObject({ schema: 78, declaration: { mixins: expect.arrayContaining([
+      expect.objectContaining({ ownerFqcn: 'MixinMembers\\Proxy', targetName: 'FirstDelegate' }),
+    ]) } });
+    workspace.remove('file:///MixinDefinitions.php');
+    expect(workspace.restoreDeclaration(snapshot, 'file:///MixinDefinitions.php')).toBe(true);
+    expect(workspace.completeMembers('file:///MixinUse.php', source.indexOf('$ambiguous->;') + '$ambiguous->'.length).map((item) => item.name))
+      .toEqual(['find', 'result', 'second']);
   });
   it('reports missing members only for proven receivers with complete non-magic hierarchies', () => {
     workspace.update('file:///DiagnosticTypes.php', `<?php namespace Diagnostics;
@@ -5155,7 +5215,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 77, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 78, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -5573,7 +5633,7 @@ final class Imported { public const TYPE = Stable::class; }`);
       expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf(marker) + marker.indexOf('(') + 1), marker).toEqual([]);
     }
     const snapshot = workspace.snapshot('file:///CallableArrayContracts.php')!;
-    expect(snapshot.schema).toBe(77);
+    expect(snapshot.schema).toBe(78);
     workspace.remove('file:///CallableArrayContracts.php');
     expect(workspace.restoreDeclaration(snapshot, 'file:///CallableArrayContracts.php')).toBe(true);
     expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
@@ -6808,7 +6868,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 77, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 78, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -7477,7 +7537,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 77, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 78, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },
@@ -7517,6 +7577,9 @@ class Worker {
     const invalidControlFlow = structuredClone(snapshot!); invalidControlFlow.implementation.callables.find((record) => record.identity === 'cache\\run')!.facts.controlFlowAssignments = [source.length + 1];
     expect(workspace.restore(invalidControlFlow, uri)).toBe(false);
     expect(workspace.restoreDeclaration(invalidControlFlow, uri)).toBe(false);
+    const invalidMixin = structuredClone(snapshot!); invalidMixin.declaration.mixins = [{ ownerFqcn: 'Cache\\Missing', targetName: 'Other', start: 0, end: source.length + 1 }];
+    expect(workspace.restore(invalidMixin, uri)).toBe(false);
+    expect(workspace.restoreDeclaration(invalidMixin, uri)).toBe(false);
     const relocatedFact = structuredClone(snapshot!); const relocatedRun = relocatedFact.implementation.callables.find((record) => record.identity === 'cache\\run')!;
     relocatedFact.implementation.file.assignments.push(relocatedRun.facts.assignments.shift()!);
     expect(workspace.restore(relocatedFact, uri)).toBe(false);

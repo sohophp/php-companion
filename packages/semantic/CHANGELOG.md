@@ -1,5 +1,6 @@
 # Changelog
 
+- Parse exact class-level PHPDoc `@mixin` relations and expose only uniquely resolved public instance methods and properties. Real, inherited, and Trait members retain precedence; conflicting mixin members, missing or duplicate targets, static/private members, and cycles stay unknown. Persist the relation in validated snapshot schema 78.
 - Identify a literal argument only when its instance call resolves to one exact allowed method family, exposing the value, typed prefix and source range while rejecting same-named business methods, named/unpacked arguments and escaped strings.
 
 - Expose an immutable-lifetime persistence snapshot path that skips redundant JSON detachment while retaining the detached public snapshot contract.

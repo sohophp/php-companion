@@ -130,6 +130,14 @@ describe('PHPDoc parser', () => {
       ] },
     ]);
   });
+  it('parses a PHPDoc mixin target as a typed class relation', () => {
+    const result = parsePhpDoc('/** @mixin App\\Support\\DelegatedModel proxy members */');
+    expect(result.errors).toEqual([]);
+    expect(result.tags).toMatchObject([{
+      name: 'mixin', dialect: 'phpdoc', type: { kind: 'name', name: 'App\\Support\\DelegatedModel' },
+      description: 'proxy members',
+    }]);
+  });
   it('normalizes PHPStan, Psalm, variance and template inheritance tags', () => {
     const result = parsePhpDoc(`/**
       * @phpstan-template TKey of array-key

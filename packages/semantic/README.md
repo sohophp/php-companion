@@ -4,7 +4,7 @@
 
 References 与 Rename 使用随 `update()`、`remove()`、`restore()` 同步替换的有界候选倒排表。类型、全局函数、全局常量和静态成员先按 PHP 大小写规则定位少量声明及使用文件，再在候选文件中执行既有语义解析；候选表不直接产出结果。单文档超过预算时进入保守全查询回退，避免为了性能牺牲完整性。
 
-schema 74 快照把全局声明/签名、文件级实现事实、每个唯一函数/方法/Property Hook 的实现事实、引用候选与类型依赖拆为独立记录。重复 callable 身份保守留在文件记录；规范分区要求身份、种类、声明范围、事实归属和原始解析顺序都可从声明与实现重组结果重新推出，记录搬移、复制或越界均拒绝恢复。`restoreDeclaration()` 先注册声明表，并把所有实现记录置于延迟装载边界；工作区类型、函数、常量和符号目录只读取声明。成员补全、Definition、Type Definition、Signature Help 与区间 Inlay Hint 在有界查询作用域内只水合文件级事实和目标 callable，多个查询可逐条累积；未显式限定范围的诊断、重构或正文扫描自动装载完整文件，避免部分数组造成假阴性。完整快照会先完成剩余水合并保持原规范顺序。`implementationState()`、`deferredImplementationCount()` 与 `callableImplementationStates()` 提供可测试的文件及 callable 完整性状态。继承、接口和 Trait 的反向依赖图用于传递失效构造器摘要；图不完整时清空派生缓存，不发布可能过期的结果。
+schema 78 快照把全局声明/签名、类级 mixin 关系、文件级实现事实、每个唯一函数/方法/Property Hook 的实现事实、引用候选与类型依赖拆为独立记录。重复 callable 身份保守留在文件记录；规范分区要求身份、种类、声明范围、事实归属和原始解析顺序都可从声明与实现重组结果重新推出，记录搬移、复制或越界均拒绝恢复。`restoreDeclaration()` 先注册声明表，并把所有实现记录置于延迟装载边界；工作区类型、函数、常量和符号目录只读取声明。成员补全、Definition、Type Definition、Signature Help 与区间 Inlay Hint 在有界查询作用域内只水合文件级事实和目标 callable，多个查询可逐条累积；未显式限定范围的诊断、重构或正文扫描自动装载完整文件，避免部分数组造成假阴性。完整快照会先完成剩余水合并保持原规范顺序。`implementationState()`、`deferredImplementationCount()` 与 `callableImplementationStates()` 提供可测试的文件及 callable 完整性状态。继承、接口、Trait 和 mixin 的反向依赖图用于传递失效构造器摘要；图不完整时清空派生缓存，不发布可能过期的结果。
 
 工厂构造摘要会记录唯一解析的直接 Callable 调用边。`outer() -> middle() -> inner()` 可传递复用确定的直接构造结果；`inner()` 实现变化会沿有界反向图失效 `middle()` 和 `outer()`，而无关 callable 及调用边移除后的旧被调用方变化不会触发重算。组件可导出和恢复已消费的正向构造事实；恢复要求调用者、结果类型和每条直接依赖身份唯一，并由依赖叶节点向调用者逐层接受。缺失、歧义、循环、返回类型不一致、动态调用和预算耗尽保持 unknown。
 
@@ -69,6 +69,8 @@ PHP Companion 的编辑器无关语义查询组件。`declare(strict_types=1)` �
 `class-string<T>` 使用共享类型代数：已解析的 `SomeClass::class` 会按完整索引继承关系检查 PHPDoc 参数 bound；子类可赋值，无关类报告不兼容，普通字符串和动态字符串保持未知。
 
 类级 PHPDoc `@property`、`@property-read`、`@property-write` 与 `@method` 作为有来源范围的合成公开成员参与补全、签名、链式返回和 Definition，真实 PHP 声明同名时优先。只读属性允许读取但所有写入均报告；只写属性按独立写入类型检查赋值，却不产生可读返回链；成对读写标签合并并保留不同类型。动态名称和未声明成员保持 unknown。
+
+类级 PHPDoc `@mixin Type` 只在目标类型唯一、已索引且关系有界时代理其公开实例方法和属性。真实、继承或 Trait 成员优先于 mixin；多个 mixin 提供同名成员时整项保持 unknown。静态、protected/private、缺失或重复目标、循环关系和非名称类型不会被猜测，补全、Signature Help、返回链和 Definition 都保留实际目标声明身份。
 
 PHPStan/Psalm 条件返回类型支持参数或模板主题的 `is` / `is not`。唯一函数、静态方法和实例方法只有在调用形状及全部已声明实参兼容后才求值；未被提前读取、重赋值或按引用传递的 PHPDoc Callable 参数也按其位置或具名实参求值条件返回。字面量布尔实参和完整对象层级可选择确定分支，模板先执行现有 bound 校验与替换，无法确定的条件合并两侧返回 Union。嵌套条件会把同一参数的布尔或有限 Union 分支约束传入内层；位置或具名映射证明不同形参绑定同一个直接变量实参时也共享约束，从而排除逻辑上不可能的返回类型。不同变量、复杂表达式和父类型可能落入目标子类的场景保持 unknown。结果沿局部赋值进入成员补全、导航和参数诊断；分支类型无法解析、目标层级不完整、Callable 绑定不稳定或调用不唯一时保持 unknown。
 

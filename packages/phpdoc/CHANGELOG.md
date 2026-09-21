@@ -8,6 +8,7 @@ This package uses Changesets for versioning.
 
 ## Unreleased
 
+- 将类级 `@mixin Type` 解析为带精确源码范围的类型关系，供语义消费者保守组合代理成员。
 - 将类级 `@property`、`@property-read`、`@property-write` 和 `@method` 解析为结构化成员名称、访问方向、属性/返回类型、静态状态与 Callable 参数。
 - 按 PHPStan 语法解析 `@method Return method<T of Bound, U = Default>(...)` 的方法级模板、bound 与默认类型。
 - 使用独立 AST 节点解析并显示参数或模板主题的 PHPStan/Psalm 条件类型，覆盖 `is`、`is not`、嵌套分支及不完整条件的结构化错误。
