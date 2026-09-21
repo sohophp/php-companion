@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 首次 References 候选阶段归因：2,289 文件的候选扫描 5.153 秒，主线程来源回调累计 1.647 秒（事实提交 0.939 秒、快照 0.314 秒）；CPU 采样提示 worker 并非持续忙碌。提前启动路由 Provider 的两组交叉冷缓存对照没有稳定收益（旧/新 11.684/11.590 秒、11.766/11.904 秒），试验已撤回；四次仍为相同 112 处完整位置。下一步拆分文件枚举、预读等待和缓存写入，Goal 继续。见 [候选阶段归因](reports/reference-candidate-stage-profile-2026-09-22.md)。
+
 2026-09-22 首次 References 并发 Symfony Provider：服务容器与路由读取重叠，路由变化时重新读取并在返回前校验修订号。Winstar 正式 bundle 两组交叉冷查询旧/新为 12.809/11.193 秒、12.454/11.784 秒，四次均为相同 112 处完整位置；`AdminSecuritySubscriber` 仍准确返回服务/事件两处。四项相关 stdio 测试及 TypeScript/ESLint 通过。首次仍约 11–12 秒，未更新安装版，Goal 继续。见 [并发 Symfony Provider](reports/reference-parallel-symfony-providers-2026-09-22.md)。
 
 2026-09-22 方法 References CPU 采样：撤回无收益的单查询完整成员缓存；保留同一次成员组装中 protected 继承关系的局部复用。两组语义阶段分别减少 103/83 ms，112 处完整位置一致，但首次总耗时仍约 12 秒、未证明稳定整体提速。22 项相关语义测试在 2.64 秒内通过，构建/ESLint 通过。下一步检查候选事实提交和缓存快照传输；未更新安装版，Goal 继续。见 [成员可见性成本](reports/reference-member-visibility-cost-2026-09-22.md)。

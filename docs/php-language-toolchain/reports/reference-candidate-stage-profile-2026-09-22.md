@@ -1,0 +1,22 @@
+# 首次 References 候选阶段归因
+
+产品基线 `0e127a8`，Winstar 只读，默认 Symfony Provider 注册，正式 bundle，空缓存，References-first 查询 `AdminPasswordChangeGuard.php` 最后一个 `get`。
+
+## 阶段测量
+
+临时诊断计时在 2,289 个项目文件的候选扫描中得到 5,153 ms。主线程 `onSource` 回调累计 1,647 ms，其中工作区事实提交 939 ms、提取缓存快照 314 ms；这些是包含关系，不应相加。扫描尚有约 3.5 秒在回调之外，包括读取、worker 语法准备、按文件顺序等待和缓存收尾。诊断构建的完整查询为 11,473 ms、112 处完整位置，摘要 `bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2`。
+
+对正式 bundle 的独立 CPU 采样生成主线程和四个 worker 的 profile。主线程样本中 idle 约 3,158/10,358；四个 worker 分别 idle 约 5,578–5,992/8,544–8,612。采样包含整个查询，不能据此把所有 idle 时间算作候选阶段，但说明简单增加 worker 数量缺少依据。主线程还显示 worker 消息发送、结构化复制和文件 stat/read；worker 显示 PHP WASM 解析、语法事实处理及压缩。采样文件在 `/tmp/php-companion-candidate-cpu-20260922/`。
+
+## 提前路由试验（撤回）
+
+把独立的路由 Provider 从候选扫描后提前到扫描前启动，4 项相关 stdio 用例、构建与 ESLint 通过。以同一提交生成的旧版正式 bundle 作交叉冷缓存对照：
+
+| 顺序 | 原版首次 | 试验版首次 |
+| --- | ---: | ---: |
+| 原版→试验版 | 11,684 ms | 11,590 ms |
+| 试验版→原版 | 11,766 ms | 11,904 ms |
+
+四次均为相同的 112 处引用与完整位置摘要；反向运行未复现收益。候选扫描各为约 5.2–5.5 秒。提前路由的代码、对应测试改动及诊断计时已撤回，正式 bundle 恢复到 `0e127a8`。原始记录在 `/tmp/php-companion-early-route-{1-old,2-new,3-new,4-old}.{jsonl,log}`。
+
+下一步应分别量化项目文件枚举、预读/worker 等待、缓存最终写入的墙钟时间，再改动最大的部分。仍不能把首次约 11–12 秒称为达标；没有冻结或安装新版 VSIX。
