@@ -29,6 +29,22 @@ describe('reference input snapshot', () => {
     expect((await capture())?.fingerprint).not.toBe(first?.fingerprint);
   });
 
+  it('tracks configured YAML and XML additions without treating unrelated assets as provider inputs', async () => {
+    const config = join(root, 'config'); await mkdir(config);
+    const options = { sourceRoots: [config], sourceExtensions: ['.php', '.yaml', '.yml', '.xml'], context: 'symfony-config' };
+    const first = (await captureReferenceInputSnapshot(options))!;
+    const yaml = join(config, 'services.yaml'); await writeFile(yaml, 'services: {}');
+    const second = (await captureReferenceInputSnapshot(options))!;
+    expect(second.sourceFiles).toEqual([yaml]); expect(second.fingerprint).not.toBe(first.fingerprint);
+    const css = join(config, 'theme.css'); await writeFile(css, 'body {}');
+    expect(await captureReferenceInputSnapshot(options)).toEqual(second);
+    const xml = join(config, 'services.xml'); await writeFile(xml, '<container/>');
+    const third = (await captureReferenceInputSnapshot(options))!;
+    expect(third.sourceFiles).toEqual([xml, yaml].sort()); expect(third.fingerprint).not.toBe(second.fingerprint);
+    expect((await captureReferenceInputSnapshot({ ...options, sourceExtensions: ['.php'] }))?.fingerprint).not.toBe(third.fingerprint);
+    expect(await captureReferenceInputSnapshot({ ...options, sourceExtensions: ['yaml'] })).toBeUndefined();
+  });
+
   it('invalidates on additions, moves, deletions and newly present roots/configuration', async () => {
     const first = await capture();
     const added = join(sourceRoot, 'New.php'); await writeFile(added, '<?php new Dependency();');

@@ -4,8 +4,10 @@ import { open, readdir, realpath, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 export interface ReferenceInputSnapshotOptions {
-  /** Composer source roots, including dependency roots. Only PHP files are selected. */
+  /** Composer source roots, including dependency roots. PHP files are selected by default. */
   sourceRoots: readonly string[];
+  /** File extensions to discover under source roots; omitted means PHP only. */
+  sourceExtensions?: readonly string[];
   /** Explicit configuration/provider inputs, irrespective of extension. */
   additionalFiles?: readonly string[];
   /** Include the engine identity, query, configuration and authoritative provider identities. */
@@ -44,6 +46,8 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   const active = (): boolean => options.shouldContinue?.() !== false;
   // Copy caller-owned data before the first await; changes require a new capture.
   const roots = [...new Set(options.sourceRoots.map((path) => resolve(path)))].sort();
+  const extensions = [...new Set((options.sourceExtensions ?? ['.php']).map((extension) => extension.toLowerCase()))].sort();
+  if (!extensions.length || extensions.some((extension) => !/^\.[a-z0-9]{1,16}$/.test(extension))) return undefined;
   const additional = [...new Set((options.additionalFiles ?? []).map((path) => resolve(path)))].sort();
   if (roots.length + additional.length > maxFiles) return undefined;
   const documents = (options.documents ?? []).map(({ uri, source }) => [uri, digest(source)] as const)
@@ -78,7 +82,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
               if (entry.isSymbolicLink()) return undefined;
               const child = join(listing.directory, entry.name);
               if (entry.isDirectory()) pending.push(child);
-              else if (entry.isFile() && entry.name.toLowerCase().endsWith('.php')) files.add(child);
+              else if (entry.isFile() && extensions.some((extension) => entry.name.toLowerCase().endsWith(extension))) files.add(child);
               if (files.size > maxFiles || directories + pending.length > maxFiles) return undefined;
             }
           }
@@ -159,6 +163,6 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     const inputs = files.map(({ path, hash }) => ({ path, hash }));
     return { files: inputs, sourceFiles: after.sourceFiles,
       missingPaths: after.roots.filter(([, target]) => target === null).map(([path]) => path),
-      fingerprint: digest(JSON.stringify({ schema: 2, context, roots: after.roots, sourceFiles: after.sourceFiles, files: inputs, documents })) };
+      fingerprint: digest(JSON.stringify({ schema: 3, context, extensions, roots: after.roots, sourceFiles: after.sourceFiles, files: inputs, documents })) };
   } catch { return undefined; }
 }

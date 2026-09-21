@@ -42,3 +42,5 @@ node scripts/benchmark-first-references.mjs \
 Winstar 2,289 个项目 PHP 文件，用现有 `indexComposerSources` 和完整语义更新做一次项目范围预索引，耗时 15,850 ms（不含完整扩展的 Doctrine/Symfony 分析）。把语言服务器直接切到现有 `experimental` 后立即发 References，查询仍为 9,575 ms、112 处；后台索引与按需候选扫描同时运行，未形成可复用的单一路径。未经任务合并与取消设计，不能默认开启完整后台索引，否则可能重新出现长时间“Indexing PHP symbols”。
 
 相同缓存目录连续启动两次 on-demand 语言服务器：第一次 References 9,457 ms，第二次 7,445 ms，位置哈希相同。第二次候选扫描已恢复 1,655 个缓存候选，但仍花 2,947 ms，之后 Symfony 容器约 0.88 秒、语义查找约 2.22 秒。当前持久化的完整 References 结果只对没有语义/路由 Provider 的模式启用；在实际 Symfony 配置下，即使等待持久化任务，重载也不能直接复用完整查询结果。下一阶段若扩展持久化范围，必须先建立 Provider 输入和版本的完整证据校验，不能直接放宽开关。
+
+Provider 输入审查确认 Symfony 服务分析读取项目配置 YAML/XML/PHP、编译容器 XML、Composer 元数据和依赖包配置资源。现有引用输入快照此前只发现目录中的 PHP 文件，无法证明新配置文件未出现。本轮扩展快照的可选文件扩展名选择，并测试 YAML/XML 的新增、修改及选择集变化会改变指纹；默认仍只选 PHP。Winstar `config/` 的 41 个匹配文件做一次完整快照约 37 ms。这个基础设施尚未使带 Symfony Provider 的结果缓存可用：仍需完整记录 Provider 命令/构建身份、所有实际与潜在配置目录、环境选择及其外部依赖，并验证结果缓存恢复时这些证据未变化。
