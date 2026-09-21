@@ -3831,12 +3831,19 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       }) : [];
     connection.console.info(`[references:${id}] routes elapsedMs=${Date.now() - routesStarted}`);
     const eventsStarted = Date.now();
-    if (root) {
+    // Every event reference we can return must belong to a registered service
+    // whose effective method resolves to the requested declaration. Check that
+    // inexpensive condition before running the project-wide event provider.
+    const registeredClasses = root ? [...new Set(symfonyServiceCatalog(root).map((service) => service.className))] : [];
+    const eventRelevant = type ? registeredClasses.some((fqcn) => fqcn.toLowerCase() === type.fqcn.toLowerCase())
+      : member?.kind === 'method' ? registeredClasses.some((fqcn) =>
+        workspace.publicInstanceMethod(fqcn, member.name)?.fqcn.toLowerCase() === member.fqcn.toLowerCase()) : false;
+    if (root && eventRelevant) {
       await runEventProvider(root, indexingGeneration, workspace, () => !token.isCancellationRequested, true);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }
-    const externalEvents = root ? externalSymfonyEventsByRoot.get(root) : undefined;
+    const externalEvents = eventRelevant && root ? externalSymfonyEventsByRoot.get(root) : undefined;
     const subscriptions = (externalEvents?.subscriptions ?? [])
       .filter((fact) => workspace.publicInstanceMethod(fact.subscriberFqcn, fact.listener) !== undefined);
     const matchingSubscriptions = type
