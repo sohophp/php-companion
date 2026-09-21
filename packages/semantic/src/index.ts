@@ -1521,6 +1521,13 @@ export class SemanticWorkspace {
   }
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
 
+  /** The externally supplied facts that can affect semantic query results. */
+  externalFactsIdentity(): string {
+    return JSON.stringify([...this.externalFacts.values()]
+      .filter((facts) => facts.methods.length || facts.properties.length || facts.literalMethodReturns.length)
+      .map(({ methods, properties, literalMethodReturns }) => ({ methods, properties, literalMethodReturns })));
+  }
+
   /** Syntax only: a candidate does not prove the receiver type or method identity. */
   literalMethodArgumentCandidateAt(uri: string, offset: number): LiteralMethodArgumentCandidate | undefined {
     return this.withImplementationAt(uri, offset, () => {

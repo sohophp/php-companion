@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { dirname, join, resolve, sep } from 'node:path';
-import { copyFile, mkdtemp, mkdir, readFile, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -106,6 +106,84 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it.skipIf(!process.env.PHP_COMPANION_TEST_REFERENCE_BUNDLE)('restores proven references across processes and rejects changed query inputs', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-persistent-references-'));
+    try {
+      const bundle = resolve(process.env.PHP_COMPANION_TEST_REFERENCE_BUNDLE!);
+      const src = join(root, 'src'); await mkdir(src);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const dependency = join(root, 'vendor', 'acme', 'lib', 'src'); await mkdir(dependency, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Lib\\': ['missing/', 'src/'] } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const declaration = '<?php namespace Lib; class Target { public function get(): int { return 1; } }';
+      const source = '<?php namespace App; use Lib\\Target; function run(Target $target): int { return $target->get(); }';
+      const other = source.replace('function run(', 'function second(');
+      await writeFile(join(dependency, 'Target.php'), declaration); await writeFile(join(src, 'Use.php'), source);
+      await writeFile(join(src, 'Other.php'), other);
+      const uri = pathToFileURL(join(src, 'Use.php')).toString();
+      const location = (name: string, text: string): { uri: string; range: { start: ReturnType<typeof lspPosition>; end: ReturnType<typeof lspPosition> } } => ({ uri: pathToFileURL(join(src, name)).toString(),
+        range: { start: lspPosition(text, text.lastIndexOf('get(')), end: lspPosition(text, text.lastIndexOf('get(') + 3) } });
+      const expected = [location('Use.php', source), location('Other.php', other)];
+      const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean; provider?: boolean; repeat?: boolean } = {}): Promise<void> => {
+        server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
+          '--php-wasm', join(dirname(bundle), 'tree-sitter-php.wasm')], { stdio: 'pipe' });
+        const output = messagesFrom(server); let id = 0;
+        const request = async (method: string, params: unknown): Promise<any> => {
+          const requestId = ++id; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+          const response = await output.waitFor((message) => message.id === requestId, 10_000);
+          expect(response.error).toBeUndefined(); return response.result;
+        };
+        await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
+            ...(options.provider ? { semanticProviders: [symfonyServiceProviderDescriptor] } : {}) } });
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        const text = options.text ?? source;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+        const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
+          context: { includeDeclaration: options.includeDeclaration ?? false } };
+        const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
+        expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
+        const logs = (): string => output.messages.filter((message: any) => message.method === 'window/logMessage').map((message: any) => message.params.message).join('\n');
+        expect(logs().includes('[reference-cache] restored')).toBe(restored);
+        expect(logs().includes('[named-candidates]')).toBe(!restored);
+        if (options.repeat) expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
+        await request('phpCompanion/testWaitReferencePersistence', {});
+        if (!restored && !options.provider) expect(logs()).toContain('[reference-cache] stored');
+        await request('shutdown', null);
+        const exited = new Promise<void>((done) => server!.once('exit', () => done()));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null })); await exited;
+      };
+      await run(expected, false);
+      await run(expected, true, { repeat: true });
+      await run([...expected, { ...location('Target.php', declaration), uri: pathToFileURL(join(dependency, 'Target.php')).toString() }], false, { includeDeclaration: true });
+      // Separate keys preserve the original no-declaration query.
+      await run(expected, true);
+      const added = source.replace('function run(', 'function added(');
+      await writeFile(join(src, 'Added.php'), added);
+      await run([...expected, location('Added.php', added)], false);
+      await rename(join(src, 'Added.php'), join(src, 'Moved.php'));
+      await run([...expected, location('Moved.php', added)], false);
+      await rm(join(src, 'Moved.php')); await run(expected, false);
+      const changed = other.replace('get();', 'other();'); await writeFile(join(src, 'Other.php'), changed);
+      await run([location('Use.php', source)], false);
+      await writeFile(join(src, 'Other.php'), other); await run(expected, false);
+      const unsaved = `${source}\n// unsaved buffer`;
+      await run(expected, false, { text: unsaved });
+      await run(expected, false); await run(expected, true);
+      await run(expected, false, { provider: true });
+      await writeFile(join(dependency, 'Target.php'), `${declaration}\n// dependency changed`);
+      await run(expected, false); await run(expected, true);
+      const composerPath = join(root, 'composer.json'); await writeFile(composerPath, `${await readFile(composerPath, 'utf8')}\n`);
+      await run(expected, false);
+      const storeDirectory = join(root, '.cache', 'reference-results-v1');
+      for (const file of await readdir(storeDirectory)) await writeFile(join(storeDirectory, file), '{truncated');
+      await run(expected, false);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['attributes', 'getSession()'])('resolves first cold and reloaded references through unloaded vendor %s without Definition warm-up', async (receiver) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-first-references-'));
     try {
@@ -143,7 +221,7 @@ describe('language server stdio', () => {
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 280, method: 'initialize', params: {
           processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true },
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true, testDisablePersistentReferences: true },
         } }));
         await output.waitFor((message) => message.id === 280);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));

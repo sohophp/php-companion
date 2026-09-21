@@ -52,6 +52,7 @@ import { ReferenceDependencyEvidence, referenceDependencyEvidenceMatches, refere
 import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
 import { referenceCandidateEvidenceMatches } from './referenceCandidateEvidence.js';
 import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
+import { ReferenceResultStore, type ReferenceLocation, type ReferenceResultProof } from './referenceResultStore.js';
 
 declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
@@ -111,6 +112,7 @@ let indexingMode: 'off' | 'onDemand' | 'experimental' = 'experimental';
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
+let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
 let configuredSemanticProviders: SemanticProviderDescriptor[] = [];
@@ -1753,6 +1755,127 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
 const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number; reads: ReadonlyMap<string, string> }>();
+const restoredReferenceResults = new WeakMap<SemanticWorkspace, { proof: ReferenceResultProof; revision: string; epoch: number; generation: number }>();
+let pendingReferenceWrite: (() => Promise<void>) | undefined;
+let referenceWriteTask: Promise<void> | undefined;
+function startReferenceWrite(): void {
+  if (referenceWriteTask || !pendingReferenceWrite) return;
+  referenceWriteTask = (async (): Promise<void> => {
+    while (pendingReferenceWrite) {
+      const write = pendingReferenceWrite; pendingReferenceWrite = undefined;
+      try { await write(); } catch { /* Optional persistence never fails a query. */ }
+    }
+  })().finally(() => { referenceWriteTask = undefined; startReferenceWrite(); });
+}
+function referenceDocumentRevision(): string {
+  return JSON.stringify(documents.all().map((document) => [document.uri, document.version]).sort());
+}
+function reusableReferenceMode(): boolean {
+  return Boolean(cacheDirectory && referenceEngineInputs && indexingMode === 'onDemand' && !testDisablePersistentReferences
+    && !semanticProviders.length && !routeProviders.length && !symfonyRouteProviders.length
+    && frameworkDocumentSnapshotsComplete && !frameworkDocumentSnapshots.size);
+}
+function referenceLoadedSources(workspace: SemanticWorkspace): Array<{ uri: string; hash: string }> {
+  return workspace.documentUris().map((uri) => ({ uri, hash: referenceSourceHash(workspace.source(uri) ?? '') }))
+    .sort((a, b) => a.uri.localeCompare(b.uri));
+}
+function referenceEnvironment(root: string, project: ComposerProject, workspace: SemanticWorkspace, engineIdentity: string): string {
+  return referenceSourceHash(JSON.stringify({ schema: 1, root, project, workspaceFolderLocations, engineIdentity, phpVersion: targetPhpVersion,
+    indexLimits, disabledExtensions: disabledExtensionsForRoot(root), externalFacts: workspace.externalFactsIdentity(),
+    documents: documents.all().map((document) => [document.uri, referenceSourceHash(document.getText())]).sort() }));
+}
+function referenceQueryKey(uri: string, offset: number, includeDeclaration: boolean): string {
+  return referenceSourceHash(JSON.stringify([uri, offset, includeDeclaration]));
+}
+async function restoreReferenceResult(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
+  includeDeclaration: boolean, sequence: number, cancelled: () => boolean): Promise<ReferenceLocation[] | undefined> {
+  if (!reusableReferenceMode() || referenceCandidateReads.has(workspace) || projectCompleteRoots.has(root)) return undefined;
+  const key = referenceQueryKey(uri, offset, includeDeclaration);
+  const engineIdentity = await initialReferenceEngineIdentity; if (!engineIdentity) return undefined;
+  const project = await composerProjectForRoot(root); if (!project?.inputEvidence?.complete) return undefined;
+  const environment = referenceEnvironment(root, project, workspace, engineIdentity);
+  const epoch = projectEpochs.get(root) ?? 0; const generation = indexingGeneration; const revision = referenceDocumentRevision();
+  const current = (): boolean => reusableReferenceMode() && !cancelled() && sequence === querySequence
+    && epoch === (projectEpochs.get(root) ?? 0) && generation === indexingGeneration && revision === referenceDocumentRevision();
+  const supportsCurrentSources = (proof: ReferenceResultProof): boolean => {
+    const proven = new Map(proof.loaded.map((source) => [source.uri, source.hash]));
+    return referenceLoadedSources(workspace).every((source) => proven.get(source.uri) === source.hash);
+  };
+  const memory = restoredReferenceResults.get(workspace);
+  if (memory?.proof.key === key && memory.proof.environment === environment && memory.epoch === epoch
+    && memory.generation === generation && memory.revision === revision && current() && supportsCurrentSources(memory.proof)) {
+    return structuredClone(memory.proof.locations);
+  }
+  const proof = await new ReferenceResultStore(cacheDirectory!).read(key);
+  if (!proof || proof.environment !== environment || !current() || !supportsCurrentSources(proof)) return undefined;
+  if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()) return undefined;
+  const snapshot = await captureReferenceInputSnapshot({ sourceRoots: proof.sourceRoots, additionalFiles: proof.additionalFiles,
+    context: proof.context, documents: documents.all().map((document) => ({ uri: document.uri, source: document.getText() })), shouldContinue: current });
+  if (!snapshot || snapshot.fingerprint !== proof.fingerprint || !current()) return undefined;
+  if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()
+    || referenceEnvironment(root, project, workspace, engineIdentity) !== environment || !supportsCurrentSources(proof)) return undefined;
+  restoredReferenceResults.set(workspace, { proof, epoch, generation, revision });
+  connection.console.info(`[reference-cache] restored count=${proof.locations.length}`);
+  return structuredClone(proof.locations);
+}
+
+function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
+  includeDeclaration: boolean, sequence: number): ((locations: ReferenceLocation[]) => void) | undefined {
+  if (!reusableReferenceMode()) return undefined;
+  const candidates = referenceCandidateReads.get(workspace); if (!candidates || candidates.root !== root) return undefined;
+  const epoch = projectEpochs.get(root) ?? 0; if (candidates.epoch !== epoch) return undefined;
+  const generation = indexingGeneration; const revision = referenceDocumentRevision();
+  const loaded = referenceLoadedSources(workspace); const externalFacts = workspace.externalFactsIdentity();
+  const attempted = referenceDependencyEvidence.get(workspace)?.snapshot() ?? [];
+  if (referenceDependencyEvidence.has(workspace) && !referenceDependencyEvidence.get(workspace)!.snapshot()) return undefined;
+  const current = (): boolean => reusableReferenceMode() && sequence === querySequence && generation === indexingGeneration
+    && epoch === (projectEpochs.get(root) ?? 0) && revision === referenceDocumentRevision()
+    && referenceCandidateReads.get(workspace) === candidates;
+  const semanticCurrent = (): boolean => {
+    const ledger = referenceDependencyEvidence.get(workspace); const reads = ledger?.snapshot();
+    return (!ledger || reads !== undefined) && current() && externalFacts === workspace.externalFactsIdentity()
+      && JSON.stringify(loaded) === JSON.stringify(referenceLoadedSources(workspace))
+      && JSON.stringify(attempted) === JSON.stringify(reads ?? []);
+  };
+  return (locations): void => {
+    if (!semanticCurrent() || locations.length > 2_048) return;
+    const result = structuredClone(locations);
+    pendingReferenceWrite = async (): Promise<void> => {
+      if (!semanticCurrent()) return;
+      const project = await composerProjectForRoot(root); const engineIdentity = await initialReferenceEngineIdentity;
+      if (!project?.inputEvidence?.complete || !engineIdentity || !semanticCurrent()) return;
+      const environment = referenceEnvironment(root, project, workspace, engineIdentity);
+      const metadata: ReferenceDependencyRead[] = project.inputEvidence.reads.map((read) => read.kind === 'missing' ? read
+        : { ...read, uri: pathToFileURL(read.path).toString() });
+      const reads: ReferenceDependencyRead[] = [...attempted];
+      for (const file of loaded) {
+        const path = pathForUri(file.uri);
+        if (path) reads.push({ kind: 'source', path: resolve(path), uri: file.uri, hash: file.hash });
+        else if (file.uri !== BUILTIN_DOCUMENT_URI) return;
+      }
+      const key = referenceQueryKey(uri, offset, includeDeclaration);
+      const sourceRoots = projectAutoloadPaths(project);
+      // Complete candidate reads are already covered by recursive source-root
+      // discovery and content hashing. Keep explicit paths only for metadata,
+      // dependencies and negative lookups outside that set.
+      const additionalFiles = [...new Set([...metadata.map((read) => read.path),
+        ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
+      const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
+        candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)) } });
+      const buffers = documents.all().map((document) => ({ uri: document.uri, source: document.getText() }));
+      if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()) return;
+      const snapshot = await captureReferenceInputSnapshot({ sourceRoots, additionalFiles, context, documents: buffers, shouldContinue: current });
+      if (!snapshot || !semanticCurrent() || !referenceDependencyEvidenceMatches(snapshot, metadata, [])
+        || !referenceDependencyEvidenceMatches(snapshot, reads, buffers)
+        || !referenceCandidateEvidenceMatches(snapshot, candidates.reads, (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path))) return;
+      if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()
+        || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
+      if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots, additionalFiles, context,
+        loaded, fingerprint: snapshot.fingerprint, locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
+    };
+    startReferenceWrite();
+  };
+}
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
@@ -2022,7 +2145,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2042,6 +2165,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
+  testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);
   workspaceFolderLocations = uris.flatMap((uri) => { const path = pathForUri(uri); return path ? [{ uri, path }] : []; });
@@ -2082,6 +2206,12 @@ connection.onInitialized(() => {
 connection.onRequest('phpCompanion/testCrash', (): boolean => {
   if (!testMode) return false;
   setTimeout(() => process.exit(70), 10);
+  return true;
+});
+
+connection.onRequest('phpCompanion/testWaitReferencePersistence', async (): Promise<boolean> => {
+  if (!testMode) return false;
+  while (referenceWriteTask) await referenceWriteTask;
   return true;
 });
 
@@ -3550,6 +3680,17 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const version = document.version;
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
+  const referenceRoot = rootForUri(document.uri);
+  if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project') {
+    const restored = await restoreReferenceResult(referenceRoot, workspace, document.uri, offset, context.includeDeclaration,
+      id, () => token.isCancellationRequested);
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (restored) {
+      connection.console.info(`[references:${id}] result count=${restored.length} coverage=validated-persistent-query elapsedMs=${Date.now() - started}`);
+      return restored;
+    }
+  }
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (routeCall) {
     const root = rootForUri(document.uri); if (!root) return [];
@@ -3637,6 +3778,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }
     const semanticStarted = Date.now();
+    const writeReferenceResult = root && scope === 'project'
+      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id) : undefined;
     const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
     connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
     const serviceLocations = type ? symfonyServiceCatalog(root)
@@ -3733,6 +3876,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       return target ? { uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } } : undefined;
     }));
     const locations = resolvedLocations.flatMap((location) => location ? [location] : []);
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    writeReferenceResult?.(locations);
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;
   } finally { connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`); }
