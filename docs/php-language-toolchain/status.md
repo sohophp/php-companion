@@ -1,6 +1,6 @@
 # 实施状态
 
-2026-09-21 按需 References 候选缓存修复：冷扫描与热缓存恢复现在对原有子串候选使用相同判断，超长标识符标为不完整并升级共享摘要缓存版本；完整标识符模式保持独立。索引包 28 项、Language Server 199 项、全仓 TypeScript/ESLint 和 24 个隔离组件 tarball 验证通过。真实 Winstar 的 `attributes->get()` 在两个独立 LSP 进程中均返回 112 处 References、相同的 43 个文件 URI；冷/热用时约 95/99 秒，仍须优化，结果未核对全部行列坐标。证据见 [按需 References 候选缓存与冷/热一致性](reports/on-demand-substring-candidate-cache-2026-09-21.md)。
+2026-09-21 按需 References 候选缓存修复：冷扫描与热缓存恢复现在对原有子串候选使用相同判断，超长标识符标为不完整并升级共享摘要缓存版本；完整标识符模式保持独立。索引包 28 项、Language Server 199 项、全仓 TypeScript/ESLint、24 个隔离组件 tarball 及 VS Code 1.138.0 打包双扩展宿主验证通过。真实 Winstar 的 `attributes->get()` 在两个独立 LSP 进程中均返回 112 处 References、相同的 43 个文件 URI；冷/热用时约 95/99 秒，仍须优化，结果未核对全部行列坐标。功能提交 `8922119`，候选 `artifacts/php-companion-alpha-0.4.5-89221196/`，四份 VSIX SHA 与 Winstar 确定性 WSL preflight 通过。证据见 [按需 References 候选缓存与冷/热一致性](reports/on-demand-substring-candidate-cache-2026-09-21.md)。
 
 2026-09-21 Winstar 按需导航复核：真实 Language Server stdio 冷/热进程在独立 Symfony service/event Provider 启用时，从 `AdminSecuritySubscriber` 类声明得到精确 2 处 References 和声明 Definition；`$urlGenerator` 得到 3 处 References 及 3 处 F2 编辑。冷/热类查询约 9.2/5.0 秒，两轮全量索引进度和启动日志均为零。此为只读进程审计，实际 VS Code WSL Alpha Profile 的长时间交互仍待验收。证据见 [Winstar 按需导航与引用复核](reports/on-demand-navigation-winstar-2026-09-21.md)。
 
