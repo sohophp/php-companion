@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 References 完整容器快照复用：未注册的目标类不再在每次查询重复启动约 0.8 秒的服务 Provider；PHP、配置、Provider 与环境变化使快照失效。Winstar 同进程两次重复查询由 0.867/0.922 秒降至 0.040/0.036 秒，112 处完整位置一致；首次仍约 9–10 秒。六项相关 stdio 测试、构建/ESLint 通过。未更新安装版，Goal 继续。见 [完整容器快照](reports/reference-complete-container-snapshot-2026-09-22.md)。
+
 2026-09-22 首次 References 按目标判定事件 Provider：无已注册服务能贡献该类型或精确方法引用时跳过项目范围事件扫描。Winstar 正式 bundle 两组交叉冷查询旧/新为 11.570/9.330 秒、11.604/9.362 秒，四次均为相同 112 处完整位置；重复查询 0.867/0.922 秒。`AdminSecuritySubscriber` 仍运行事件 Provider 并返回原有两处引用。三项相关 stdio 测试、构建/ESLint 通过。首次仍约 9–10 秒，未更新安装版，Goal 继续。见 [事件相关性门控](reports/reference-event-relevance-gate-2026-09-22.md)。
 
 2026-09-22 首次 References 候选阶段归因：2,289 文件的候选扫描 5.153 秒，主线程来源回调累计 1.647 秒（事实提交 0.939 秒、快照 0.314 秒）；CPU 采样提示 worker 并非持续忙碌。提前启动路由 Provider 的两组交叉冷缓存对照没有稳定收益（旧/新 11.684/11.590 秒、11.766/11.904 秒），试验已撤回；四次仍为相同 112 处完整位置。下一步拆分文件枚举、预读等待和缓存写入，Goal 继续。见 [候选阶段归因](reports/reference-candidate-stage-profile-2026-09-22.md)。

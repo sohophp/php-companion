@@ -123,6 +123,9 @@ let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
 let routeProviderCacheRevision = 0;
 const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[] }>>();
+let containerFactsRevision = 0;
+const completeContainerFactsByRoot = new Map<string, { revision: number; generation: number }>();
+function invalidateContainerFacts(): void { containerFactsRevision += 1; completeContainerFactsByRoot.clear(); }
 let frameworkDocumentSnapshots = new Map<string, SemanticProviderDocument>();
 let frameworkDocumentSnapshotsComplete = true;
 let disabledDiagnosticCodes = new Set<string>();
@@ -382,6 +385,7 @@ function acceptedSemanticProviders(value: unknown, source: 'configured' | 'bundl
   return accepted;
 }
 function rebuildSemanticProviders(): void {
+  invalidateContainerFacts();
   const bundledIds = new Set(bundledSemanticProviders.map((provider) => provider.providerId.toLowerCase()));
   semanticProviders = [...bundledSemanticProviders, ...configuredSemanticProviders.filter((provider) => {
     if (!bundledIds.has(provider.providerId.toLowerCase())) return true;
@@ -407,7 +411,7 @@ function setFrameworkDocumentSnapshots(value: unknown): boolean {
     const path = pathForUri(document.uri); if (!path || !workspaceFolderRoots.some((root) => pathWithin(root, path))) return false;
     next.set(document.uri, document as SemanticProviderDocument);
   }
-  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; invalidateRouteProviderCache(); return true;
+  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; invalidateRouteProviderCache(); invalidateContainerFacts(); return true;
 }
 
 function invalidateRouteProviderCache(root?: string): void {
@@ -515,6 +519,7 @@ function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace,
 }
 
 function clearContainerFacts(root: string, workspace: SemanticWorkspace, providerId?: string): void {
+  completeContainerFactsByRoot.delete(root);
   symfonyServiceCatalogByRoot.delete(root);
   symfonyParameterCatalogByRoot.delete(root);
   symfonyServiceConfigPathsByRoot.delete(root);
@@ -526,8 +531,10 @@ function clearContainerFacts(root: string, workspace: SemanticWorkspace, provide
 
 async function runContainerProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean): Promise<boolean> {
+  const inputRevision = containerFactsRevision;
   const requestRevision = beginRootSemanticProviderRequest(root, 'container');
-  const stillCurrent = (): boolean => shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'container', requestRevision);
+  const stillCurrent = (): boolean => shouldContinue() && inputRevision === containerFactsRevision
+    && isCurrentRootSemanticProviderRequest(root, 'container', requestRevision);
   const authoritative = semanticProviders.filter((provider) => provider.replacesContainerServices);
   if (authoritative.length !== 1) {
     clearContainerFacts(root, workspace);
@@ -547,6 +554,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) });
   if (!stillCurrent()) return false;
   if (result.ok && applyExternalContainerFacts(root, workspace, result.contribution)) {
+    completeContainerFactsByRoot.set(root, { revision: inputRevision, generation });
     connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative container generation ${generation}.`); return true;
   }
   clearContainerFacts(root, workspace, descriptor.providerId);
@@ -788,6 +796,7 @@ function setSymfonyRouteProviders(value: unknown): boolean {
     path: pathForUri(entry.uri)!, external: entry.external, ...(entry.environment ? { environment: entry.environment } : {}),
   }));
   invalidateRouteProviderCache();
+  invalidateContainerFacts();
   return previousEnvironments !== JSON.stringify(symfonyRouteProviders.map(({ path, environment }) => ({ path, environment })));
 }
 function symfonyRouteProvider(uri: string): { path: string; external: boolean; environment?: string } | undefined {
@@ -1881,6 +1890,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
+  invalidateContainerFacts();
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
 async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
@@ -3146,6 +3156,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     const path = pathForUri(change.uri); if (!path) continue;
     const root = rootForUri(change.uri);
     if (root) {
+      invalidateContainerFacts();
       const extension = path.toLowerCase().slice(path.lastIndexOf('.'));
       if (extension !== '.php' || phpPathMayAffectSymfonyRoutes(root, path)) invalidateRouteProviderCache(root);
       else {
@@ -3782,7 +3793,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       ? availableSymfonyRoutes(root, () => token.isCancellationRequested) : Promise.resolve([] as RouteFact[]);
     void routeTask.catch(() => { /* The request may be cancelled before awaiting routes. */ });
     const containerStarted = Date.now();
-    if (symfonyClassTarget && root && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
+    const completeContainerFacts = root ? completeContainerFactsByRoot.get(root) : undefined;
+    if (symfonyClassTarget && root && (completeContainerFacts?.revision !== containerFactsRevision
+      || completeContainerFacts?.generation !== indexingGeneration)
+      && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
       await refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !token.isCancellationRequested);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');

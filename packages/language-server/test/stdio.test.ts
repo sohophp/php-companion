@@ -5490,8 +5490,8 @@ namespace App {
       const uri = pathToFileURL(join(root, 'src', 'Classes.php')).toString();
       await writeFile(join(root, 'src', 'Classes.php'), source);
       const servicePath = join(root, 'services.mjs'); const eventPath = join(root, 'events.mjs');
-      const eventCalls = join(root, 'event-calls.txt');
-      await writeFile(servicePath, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service={id:'App\\\\Subscriber',className:'App\\\\Subscriber',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'resource',uri:type.uri,start:type.start,end:type.end,registrationUri:type.uri,registrationStart:type.start,registrationEnd:type.end};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.services',generation:request.params.generation,complete:Boolean(type),methods:[],properties:[],literalMethodReturns:[],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`);
+      const eventCalls = join(root, 'event-calls.txt'); const serviceCalls = join(root, 'service-calls.txt');
+      await writeFile(servicePath, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(serviceCalls)},'called\\n');const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service={id:'App\\\\Subscriber',className:'App\\\\Subscriber',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'resource',uri:type.uri,start:type.start,end:type.end,registrationUri:type.uri,registrationStart:type.start,registrationEnd:type.end};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.services',generation:request.params.generation,complete:Boolean(type),methods:[],properties:[],literalMethodReturns:[],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`);
       const listenerStart = source.indexOf('onReady');
       await writeFile(eventPath, `import{appendFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(eventCalls)},'called\\n');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.events',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],eventSubscriptions:[{subscriberFqcn:'App\\\\Subscriber',event:'app.ready',listener:'onReady',uri:${JSON.stringify(uri)},eventStart:${listenerStart},eventEnd:${listenerStart + 7},listenerStart:${listenerStart},listenerEnd:${listenerStart + 7}}],eventDispatches:[]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
@@ -5522,6 +5522,14 @@ namespace App {
         start: lspPosition(source, source.indexOf('->get') + 2),
         end: lspPosition(source, source.indexOf('->get') + 5),
       } }]);
+      expect((await readFile(serviceCalls, 'utf8')).trim().split('\n')).toHaveLength(1);
+      expect(await references(674, 'get():')).toEqual(other);
+      expect((await readFile(serviceCalls, 'utf8')).trim().split('\n')).toHaveLength(1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: `${source}\n// changed` }],
+      } }));
+      expect(await references(675, 'get():')).toEqual(other);
+      expect((await readFile(serviceCalls, 'utf8')).trim().split('\n')).toHaveLength(2);
       await expect(readFile(eventCalls, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
       await references(673, 'onReady');
       expect((await readFile(eventCalls, 'utf8')).trim()).toBe('called');
