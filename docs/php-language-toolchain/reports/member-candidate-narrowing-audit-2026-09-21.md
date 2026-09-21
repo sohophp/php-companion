@@ -18,3 +18,4 @@
 CPU 采样显示首次候选阶段主要耗在 Tree-sitter 解析和语义构造，摘要扫描与压缩只占较小部分。语义更新中另有一处跨文件 `value-of<Enum>` 声明查找改为现有倒排索引；Winstar 的 112 处位置摘要保持不变。单次查询时间差异不足以把这项微优化报告为显著提速。下一步应建立可验证的类型/继承依赖闭包，或改进解析调度；未知成员访问仍须保守回退。
 
 语义包 279 项、Language Server 199 项、根 TypeScript/ESLint 和 24 个独立 tarball 消费验证通过。
+四份 VSIX 已冻结于 `artifacts/php-companion-alpha-0.4.5-7df60a26/`，VSIX 内容与 `SHA256SUMS` 通过，Winstar PHP 8.5 确定性 WSL preflight 通过。VS Code 1.138.0 隔离 Profile 的打包核心与独立 Symfony 扩展宿主测试以退出码 0 结束。真实 WSL Profile 的扩展宿主所有权、竞争 Provider 状态和持续编辑尚未验收。
