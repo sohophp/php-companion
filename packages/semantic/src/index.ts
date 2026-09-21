@@ -125,6 +125,11 @@ export interface SemanticUpdateResult {
 }
 
 export interface SemanticLocation { uri: string; start: number; end: number; }
+export interface LiteralMethodArgumentInfo extends SemanticLocation {
+  value: string;
+  prefix: string;
+  methodFqcn: string;
+}
 export interface MemberInfo extends SemanticLocation {
   kind: 'method' | 'function' | 'property' | 'constant';
   name: string;
@@ -1370,6 +1375,25 @@ export class SemanticWorkspace {
     const current = this.externalFacts.get(provider); this.replaceExternalFacts(semanticFacts(provider, current?.generation ?? 'legacy', { complete: current?.complete, methods: current?.methods, properties: current?.properties, literalMethodReturns: facts }));
   }
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
+
+  literalMethodArgumentAt(uri: string, offset: number, methods: ReadonlySet<string>): LiteralMethodArgumentInfo | undefined {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri); if (!file) return undefined;
+      const normalized = new Set([...methods].map((method) => method.toLowerCase()));
+      for (const call of file.calls) {
+        if (call.kind !== 'method' || call.arguments.length !== 1 || call.arguments[0]!.unpacked || call.arguments[0]!.name) continue;
+        const argument = call.arguments[0]!;
+        const raw = file.source.slice(argument.start, argument.end);
+        const literal = /^(\s*)(['"])([^'"\\]*)\2(\s*)$/.exec(raw); if (!literal) continue;
+        const start = argument.start + literal[1]!.length + 1; const end = start + literal[3]!.length;
+        if (offset < start || offset > end) continue;
+        const member = this.memberAt(uri, call.nameStart + Math.min(1, call.nameEnd - call.nameStart));
+        if (!member || member.kind !== 'method' || !normalized.has(member.fqcn.toLowerCase())) continue;
+        return { uri, start, end, value: literal[3]!, prefix: file.source.slice(start, offset), methodFqcn: member.fqcn };
+      }
+      return undefined;
+    });
+  }
 
   documentUris(): string[] { return [...this.files.keys()]; }
   private createSnapshot(uri: string, detached: boolean): SemanticSnapshot | undefined {

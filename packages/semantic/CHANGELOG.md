@@ -1,5 +1,7 @@
 # Changelog
 
+- Identify a literal argument only when its instance call resolves to one exact allowed method family, exposing the value, typed prefix and source range while rejecting same-named business methods, named/unpacked arguments and escaped strings.
+
 - Expose an immutable-lifetime persistence snapshot path that skips redundant JSON detachment while retaining the detached public snapshot contract.
 - Resolve promoted-property constructor named arguments from the argument-name position so nested argument calls cannot hide cross-file Rename locations.
 - Expose the complete effective concrete public static method set for bounded framework-provider snapshots.

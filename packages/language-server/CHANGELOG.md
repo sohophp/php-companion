@@ -33,6 +33,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Resolve, complete, find and atomically rename authoritative Symfony service ids in literal `Psr\\Container\\ContainerInterface::get()` and Symfony container-interface calls; prove the receiver method semantically and exclude ordinary same-named `get()` APIs.
+
 - Rename unique explicit Symfony service ids across every provider-confirmed YAML, XML and PHP configuration file, rejecting ambiguous, encoded, resource-derived, unreadable and dynamic cases instead of returning a partial edit.
 
 - Advance the persistent project-fact cache to v58/schema 10 and restore source-proven project QueryBuilder factory entity generics after a warm start.

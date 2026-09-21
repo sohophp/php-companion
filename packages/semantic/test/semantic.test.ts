@@ -4389,6 +4389,29 @@ final class Imported { public const TYPE = Stable::class; }`);
     workspace.replaceExternalLiteralMethodReturns('symfony', []);
     expect(workspace.completeMembers('file:///ContainerUse.php', positions[0]!)).toEqual([]);
   });
+  it('identifies literal arguments only for an exact resolved method family', () => {
+    workspace.update('file:///Container.php', `<?php namespace Psr\\Container;
+      interface ContainerInterface { public function get(string $id): mixed; }
+      namespace App;
+      final class Business { public function get(string $id): mixed {} }
+    `);
+    const source = `<?php namespace App;
+      function useContainer(\\Psr\\Container\\ContainerInterface $container, Business $business): void {
+        $container->get('app.mailer');
+        $business->get('app.mailer');
+        $container->get('escaped\\\\value');
+      }`;
+    workspace.update('file:///Consumer.php', source);
+    const methods = new Set(['Psr\\Container\\ContainerInterface::get']);
+    const service = source.indexOf('app.mailer');
+    expect(workspace.literalMethodArgumentAt('file:///Consumer.php', service + 4, methods)).toMatchObject({
+      value: 'app.mailer', prefix: 'app.', start: service, end: service + 'app.mailer'.length,
+      methodFqcn: 'Psr\\Container\\ContainerInterface::get',
+    });
+    const business = source.indexOf('app.mailer', service + 1);
+    expect(workspace.literalMethodArgumentAt('file:///Consumer.php', business + 4, methods)).toBeUndefined();
+    expect(workspace.literalMethodArgumentAt('file:///Consumer.php', source.indexOf('escaped') + 2, methods)).toBeUndefined();
+  });
   it('uses exact class literals for literal method return facts', () => {
     workspace.update('file:///RepositoryTypes.php', `<?php namespace Doctrine\\ORM; interface EntityManagerInterface { public function getRepository(string $class): EntityRepository; } class EntityRepository {}
       namespace App; class Language {} class LanguageRepository extends \\Doctrine\\ORM\\EntityRepository { public function published(): array {} }`);
