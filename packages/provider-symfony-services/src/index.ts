@@ -8,6 +8,7 @@ import {
   analyzeSymfonyServiceXml,
   analyzeSymfonyServiceYaml,
   expandSymfonyServiceResources,
+  symfonyPhpParameterDeclarations,
   symfonyXmlParameterDeclarations,
   symfonyYamlParameterDeclarations,
   symfonyContainerMethodReturnFacts,
@@ -180,7 +181,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source)
         : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source);
-      const parameterDeclarations = extension === 'xml' ? symfonyXmlParameterDeclarations(source)
+      const parameterDeclarations = extension === 'php' ? symfonyPhpParameterDeclarations(parser, source)
+        : extension === 'xml' ? symfonyXmlParameterDeclarations(source)
         : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source) : [];
       parameters.push(...parameterDeclarations.map((parameter) => ({ ...parameter, id: parameter.value, uri })));
       for (const imported of facts.imports ?? []) {

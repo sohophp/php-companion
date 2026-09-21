@@ -1,5 +1,7 @@
 # Changelog
 
+- Publish exact PHP Configurator `parameters()->set()` declaration identities alongside YAML and XML parameters without reading or serializing values.
+
 - Publish exact XML parameter declaration identities alongside YAML parameters without reading or serializing parameter values.
 
 - Publish exact YAML parameter declaration identities from every file in the authoritative service configuration graph without publishing parameter values.

@@ -4,7 +4,7 @@ PHP Companion 自研 Symfony 集成扩展。它依赖 `sohophp.php-companion` �
 
 权威服务 ID 的编辑能力覆盖 YAML、XML、PHP Configurator 和项目 PHP 中可证明属于 Symfony 的 `#[Autowire(service: '...')]` 字面量。Definition、References、Completion 与 Rename 共用同一服务目录；Rename 只有在配置图和项目 Attribute 扫描都完整时才返回一次可撤销的跨文件编辑。
 
-静态 YAML/XML 参数支持从顶层 `parameters` 声明或精确 `%parameter.id%` 占位符执行跨格式 Definition、References、Completion 与 Rename。Provider 只向核心发布参数 ID 和源码范围，不读取或传递参数值；声明不唯一、配置图不完整、文件不可读、`%env(...)%`、`%%escaped%%`、XML Entity 及需要解码的字符串都保持无结果。
+静态 YAML/XML/PHP Configurator 参数支持从 `parameters`、`<parameter key>`、已证明的 `parameters()->set()` 声明，或精确 `%parameter.id%` 与官方 `param()` 引用执行跨格式 Definition、References、Completion 与 Rename。Provider 只向核心发布参数 ID 和源码范围，不读取或传递参数值；声明不唯一、配置图不完整、文件不可读、`%env(...)%`、`%%escaped%%`、XML Entity、需要解码的字符串、重赋值 DSL 变量和普通业务 `param()` 都保持无结果。
 
 扩展始终注册独立服务容器、事件关系与静态路由 Provider。服务 Provider 静态读取 YAML/XML/PHP Configurator、确定性导入、Bundle 资源及新鲜的 debug-container XML，返回服务/别名、自动装配、显式调用/属性、事件标签和编译参数事实；事件 Provider 提取 subscriber map、`AsEventListener`、继承/Trait 监听关系及 `dispatch()` 候选，核心再验证有效 PHP 方法与 Symfony EventDispatcher 接收者；路由 Provider 覆盖 YAML、PHP Configurator、Route Attribute、Kernel 导入、Bundle 资源、环境与本地化前缀。打开文档以有界快照覆盖磁盘。服务容器、PHP 事件关系和静态路由只由对应 Provider 发现；Provider 缺失、冲突、失败或快照越界时对应能力明确不可用。
 

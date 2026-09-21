@@ -1,4 +1,4 @@
-- Resolve, complete, find and atomically rename exact Symfony YAML and XML parameter ids across the standalone provider's authoritative configuration graph; require one unique declaration and a complete readable cross-format reference scan, and never consume parameter values.
+- Resolve, complete, find and atomically rename exact Symfony YAML, XML and PHP Configurator parameter ids across the standalone provider's authoritative configuration graph; require one unique declaration and a complete readable cross-format reference scan, and never consume parameter values.
 
 - Keep `onDemand` reload and standalone Symfony provider registration free of full project indexing; satisfy Twig interop with a bounded cached scan of exact `render` identifier candidates and targeted PSR-4 type hydration.
 - Include exact project `#[Autowire(service: '...')]` literals in Symfony service Definition, References, completion and atomic Rename through a bounded cached project-source scan; refuse partial edits when that scan is incomplete.

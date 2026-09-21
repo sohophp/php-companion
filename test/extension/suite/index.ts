@@ -479,6 +479,8 @@ export async function run(): Promise<void> {
     'Symfony YAML parameter F2 Rename did not include exactly its declaration and reference');
   assert.strictEqual(parameterRenameEdit.get(xmlServicesUri).length, 1,
     'Symfony YAML parameter F2 Rename missed its XML placeholder');
+  assert.strictEqual(parameterRenameEdit.get(phpServicesUri).length, 1,
+    'Symfony YAML parameter F2 Rename missed its PHP Configurator param() reference');
   const xmlParameterRegistrationOffset = xmlServicesSource.indexOf('app.xml_transport') + 4;
   const xmlParameterReferenceOffset = xmlServicesSource.indexOf('%app.xml_transport%') + 1 + 4;
   const xmlParameterDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
@@ -504,6 +506,31 @@ export async function run(): Promise<void> {
   assert.ok(xmlParameterRenameEdit, 'Standard F2 Rename returned no edit from a Symfony XML parameter declaration');
   assert.strictEqual(xmlParameterRenameEdit.get(xmlServicesUri).length, 2,
     'Symfony XML parameter F2 Rename did not include exactly its declaration and reference');
+  const phpParameterRegistrationOffset = phpServicesSource.indexOf('app.php_transport') + 4;
+  const phpParameterReferenceOffset = phpServicesSource.lastIndexOf('app.php_transport') + 4;
+  const phpParameterDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', phpServicesUri, phpServicesDocument.positionAt(phpParameterReferenceOffset),
+  );
+  assert.ok(phpParameterDefinitions.some((location) => location.uri.toString() === phpServicesUri.toString()
+    && phpServicesDocument.getText(location.range) === 'app.php_transport'),
+  'Symfony PHP Configurator param() did not navigate to its authoritative declaration');
+  const phpParameterReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', phpServicesUri, phpServicesDocument.positionAt(phpParameterRegistrationOffset),
+  );
+  assert.ok(phpParameterReferences.some((location) => location.uri.toString() === phpServicesUri.toString()
+    && phpServicesDocument.getText(location.range) === 'app.php_transport'),
+  'Symfony PHP Configurator parameter References missed its exact param() call');
+  const phpParameterCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', phpServicesUri, phpServicesDocument.positionAt(phpParameterReferenceOffset),
+  );
+  assert.ok(phpParameterCompletionList.items.some((item) => item.label === 'app.php_transport'),
+    'Symfony PHP Configurator parameter completion did not return the authoritative parameter id');
+  const phpParameterRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', phpServicesUri, phpServicesDocument.positionAt(phpParameterRegistrationOffset), 'app.renamed_php_transport',
+  );
+  assert.ok(phpParameterRenameEdit, 'Standard F2 Rename returned no edit from a Symfony PHP Configurator parameter declaration');
+  assert.strictEqual(phpParameterRenameEdit.get(phpServicesUri).length, 2,
+    'Symfony PHP Configurator parameter F2 Rename did not include exactly its declaration and param() reference');
   const containerServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
     'vscode.executeDefinitionProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
   );

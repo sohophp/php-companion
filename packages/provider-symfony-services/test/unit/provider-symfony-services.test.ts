@@ -27,6 +27,11 @@ describe('standalone Symfony service provider', () => {
     await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.xml }\nparameters:\n  app.transport: smtp\nservices:\n  App\\:\n    resource: '../src/'\n");
     const extra = join(root, 'config', 'services', 'extra.xml');
     await writeFile(extra, '<container><services><service id="app.disk" class="App\\Mailer" public="true"/></services></container>');
+    await writeFile(join(root, 'config', 'services.php'), `<?php
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      return static function (ContainerConfigurator $container): void {
+        $container->parameters()->set('app.php_transport', 'private');
+      };`);
     const facts = await collectSymfonyServiceFacts(root, parser, {
       projectTypes: [type(root, 'App\\Mailer', 'Mailer.php'), type(root, 'App\\Worker', 'Worker.php')],
       documents: [{ uri: pathToFileURL(extra).toString(), languageId: 'xml', snapshotVersion: '2',
@@ -38,6 +43,7 @@ describe('standalone Symfony service provider', () => {
     expect(facts.parameters).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'app.transport', uri: pathToFileURL(join(root, 'config', 'services.yaml')).toString() }),
       expect.objectContaining({ id: 'app.xml_transport', uri: pathToFileURL(extra).toString() }),
+      expect.objectContaining({ id: 'app.php_transport', uri: pathToFileURL(join(root, 'config', 'services.php')).toString() }),
     ]));
     expect(facts.configurationUris).toContain(pathToFileURL(extra).toString());
     expect(facts.configurationUris).toContain(pathToFileURL(join(root, 'config', 'services.yaml')).toString());
