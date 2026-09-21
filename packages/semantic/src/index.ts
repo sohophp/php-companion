@@ -45,6 +45,11 @@ export interface SemanticDeclarationSnapshot {
   mixins: SemanticMixin[];
   magicMembers: SemanticMagicMember[];
 }
+export interface SemanticSourceDeclarationSnapshot {
+  schema: 1;
+  source: string;
+  declaration: SemanticDeclarationSnapshot;
+}
 export interface SemanticImplementationFacts {
   typeReferences: ParsedTypeReference[];
   assignments: ParsedAssignment[];
@@ -827,6 +832,7 @@ function validDeferredImplementation(file: SemanticFile, implementation: Semanti
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
   private readonly deferredImplementations = new Map<string, DeferredImplementation>();
+  private readonly deferredSources = new Map<string, SemanticFile>();
   private readonly targetedImplementationQueries = new Map<string, number>();
   private readonly referenceCandidates = new DocumentKeyIndex();
   private readonly unindexedReferenceCandidateUris = new Set<string>();
@@ -847,6 +853,42 @@ export class SemanticWorkspace {
   private readonly assertedTargetInferenceCache = new Map<string, ObjectClass | null>();
   private readonly referenceResultCache = new Map<string, SemanticLocation[]>();
   constructor(private readonly parser: PhpSyntaxParser) {}
+
+  private deferSourceImplementation(file: SemanticFile): void {
+    this.deferredSources.set(file.uri, file);
+    // Declaration keys remain available; absent body keys must never exclude
+    // this file from a reference query until its implementation is loaded.
+    for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {
+      configurable: true, enumerable: true,
+      get: () => { this.loadSourceImplementation(file.uri); return file[field]; },
+    });
+  }
+
+  private clearSourceImplementation(uri: string): SemanticFile | undefined {
+    const file = this.deferredSources.get(uri);
+    if (!file) return undefined;
+    this.deferredSources.delete(uri);
+    for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {
+      configurable: true, enumerable: true, writable: true, value: [],
+    });
+    return file;
+  }
+
+  private loadSourceImplementation(uri: string): void {
+    const file = this.clearSourceImplementation(uri);
+    if (!file) return;
+    const retainedTree = this.trees.get(uri);
+    try {
+      this.update(uri, file.source);
+      // A query may already hold the declaration object whose getter caused
+      // this load. Publish the complete facts to that same object as well.
+      Object.assign(file, this.files.get(uri)!); this.files.set(uri, file);
+      if (retainedTree) this.trees.set(uri, retainedTree);
+    } catch (error) {
+      if (retainedTree) this.trees.set(uri, retainedTree);
+      this.files.set(uri, file); this.deferSourceImplementation(file); throw error;
+    }
+  }
 
   private deferredSemanticFile(declaration: SemanticDeclarationSnapshot, implementation: SemanticImplementationSnapshot): SemanticFile {
     const initial = { ...implementation, file: emptyImplementationFacts(), callables: [] };
@@ -888,11 +930,13 @@ export class SemanticWorkspace {
   }
 
   private loadImplementation(uri: string): void {
+    this.loadSourceImplementation(uri);
     const deferred = this.deferredImplementations.get(uri);
     if (deferred) this.loadCallableImplementations(uri, deferred.snapshot.callables.map((record) => record.identity));
   }
 
   private withImplementationAt<T>(uri: string, offset: number, query: () => T): T {
+    this.loadSourceImplementation(uri);
     const deferred = this.deferredImplementations.get(uri);
     if (!deferred) return query();
     const target = deferred.snapshot.callables.filter((record) => offset >= record.start && offset <= record.end)
@@ -908,6 +952,7 @@ export class SemanticWorkspace {
   }
 
   private withImplementationRange<T>(uri: string, start: number, end: number, query: () => T): T {
+    this.loadSourceImplementation(uri);
     const deferred = this.deferredImplementations.get(uri);
     if (!deferred) return query();
     this.loadCallableImplementations(uri, deferred.snapshot.callables
@@ -922,12 +967,14 @@ export class SemanticWorkspace {
   }
 
   implementationState(uri: string): 'absent' | 'deferred' | 'loaded' {
-    return !this.files.has(uri) ? 'absent' : this.deferredImplementations.has(uri) ? 'deferred' : 'loaded';
+    return !this.files.has(uri) ? 'absent' : this.deferredImplementations.has(uri) || this.deferredSources.has(uri) ? 'deferred' : 'loaded';
   }
 
-  deferredImplementationCount(): number { return this.deferredImplementations.size; }
+  deferredImplementationCount(): number { return this.deferredImplementations.size + this.deferredSources.size; }
 
   callableImplementationStates(uri: string): SemanticCallableImplementationState[] {
+    const source = this.deferredSources.get(uri);
+    if (source) return callableImplementationRanges(source).map(({ identity, kind }) => ({ identity, kind, state: 'deferred' }));
     const deferred = this.deferredImplementations.get(uri);
     if (deferred) return deferred.snapshot.callables.map(({ identity, kind }) => ({
       identity, kind, state: deferred.loadedCallables.has(identity) ? 'loaded' : 'deferred',
@@ -958,7 +1005,9 @@ export class SemanticWorkspace {
   }
 
   private filesForReferenceKeys(...keys: string[]): SemanticFile[] {
+    const declarationsOnly = keys.every((key) => key.startsWith('declaration:') || key.startsWith('import:'));
     const uris = new Set(this.unindexedReferenceCandidateUris);
+    if (!declarationsOnly) for (const uri of this.deferredSources.keys()) uris.add(uri);
     for (const key of keys) for (const uri of this.referenceCandidates.documents(key)) uris.add(uri);
     return [...uris].sort().flatMap((uri) => {
       const file = this.files.get(uri); return file ? [file] : [];
@@ -1047,12 +1096,24 @@ export class SemanticWorkspace {
   }
 
   update(uri: string, source: string, retainTree = false): SemanticUpdateResult {
+    return this.updateSource(uri, source, retainTree, false);
+  }
+
+  /** Index every declaration now and load complete source facts when a query needs them. */
+  updateDeclarations(uri: string, source: string): SemanticUpdateResult {
+    return this.updateSource(uri, source, false, true);
+  }
+
+  private updateSource(uri: string, source: string, retainTree: boolean, deferImplementation: boolean): SemanticUpdateResult {
     this.referenceResultCache.clear();
+    this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
     const oldSource = oldFile?.source; const oldTree = retainTree ? this.trees.get(uri) : undefined;
     if (oldTree && oldSource !== undefined) oldTree.edit(createIncrementalEdit(oldSource, source));
-    const parsed = this.parser.parse(source, oldTree, uri);
+    const parsed = deferImplementation ? {
+      ...emptyImplementationFacts(), ...this.parser.parseDeclarations(source, uri), errors: [],
+    } : this.parser.parse(source, oldTree, uri);
     const changedRanges = oldTree ? oldTree.getChangedRanges(parsed.tree).length : 0;
     try {
       const docBefore = (offset: number): ParsedPhpDoc | undefined => adjacentPhpDoc({ source, commentRanges: parsed.commentRanges }, offset);
@@ -1373,7 +1434,7 @@ export class SemanticWorkspace {
         }
         return low < assignmentStarts.length && assignmentStarts[low]! < end;
       };
-      const syntaxStack: Array<{ node: SyntaxNode; inControlFlow: boolean }> = [{ node: parsed.tree.rootNode, inControlFlow: false }];
+      const syntaxStack: Array<{ node: SyntaxNode; inControlFlow: boolean }> = deferImplementation ? [] : [{ node: parsed.tree.rootNode, inControlFlow: false }];
       while (syntaxStack.length) {
         const current = syntaxStack.pop()!;
         if (!containsAssignment(current.node.startIndex, current.node.endIndex)) continue;
@@ -1392,6 +1453,7 @@ export class SemanticWorkspace {
       }
       this.trees.delete(uri);
       if (retainTree) this.trees.set(uri, parsed.tree);
+      if (deferImplementation) this.deferSourceImplementation(nextFile);
       return {
         incremental: Boolean(oldTree), changedRanges,
         kind: declarationChanged ? 'declaration' : implementationChanged ? 'implementation' : 'none',
@@ -1404,6 +1466,7 @@ export class SemanticWorkspace {
   }
   remove(uri: string): void {
     this.referenceResultCache.clear();
+    this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
     const affectedTypes = new Set((oldFile?.declarations ?? []).map((item) => item.fqcn.toLowerCase()));
@@ -1416,7 +1479,7 @@ export class SemanticWorkspace {
     this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     this.assertedTargetInferenceCache.clear();
@@ -1469,6 +1532,7 @@ export class SemanticWorkspace {
 
   documentUris(): string[] { return [...this.files.keys()]; }
   private createSnapshot(uri: string, detached: boolean): SemanticSnapshot | undefined {
+    this.loadSourceImplementation(uri);
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
     const dependenciesIndexed = !this.unindexedTypeDependencyUris.has(uri);
     if (!file) return undefined;
@@ -1484,6 +1548,28 @@ export class SemanticWorkspace {
     };
   }
   snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
+  sourceDeclarationSnapshot(uri: string): SemanticSourceDeclarationSnapshot | undefined {
+    const file = this.files.get(uri);
+    return file ? { schema: 1, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
+  }
+  restoreSourceDeclaration(snapshot: unknown, expectedUri?: string): boolean {
+    const value = snapshot as Partial<SemanticSourceDeclarationSnapshot> | null;
+    const declaration = value?.declaration;
+    if (value?.schema !== 1 || typeof value.source !== 'string' || !declaration
+      || typeof declaration.uri !== 'string' || typeof declaration.namespace !== 'string'
+      || expectedUri !== undefined && declaration.uri !== expectedUri
+      || ![declaration.declarations, declaration.callables, declaration.properties, declaration.constants,
+        declaration.imports, declaration.templates, declaration.genericParents, declaration.mixins, declaration.magicMembers].every(Array.isArray)) return false;
+    try {
+      const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
+      const prepared: SemanticSnapshot = {
+        schema: 81, declaration, implementation: implementationSnapshot(file),
+        layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
+      };
+      if (!this.restore(prepared, expectedUri)) return false;
+      this.deferSourceImplementation(this.files.get(declaration.uri)!); return true;
+    } catch { return false; }
+  }
   /** Cache-writer snapshot whose nested records must be treated as immutable for its lifetime. */
   snapshotForPersistence(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, false); }
   callableConstructionFacts(uri?: string): CallableConstructionFactDocument[] {
@@ -1605,6 +1691,7 @@ export class SemanticWorkspace {
       || !references.indexed && references.keys.length > 0
       || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
+    this.clearSourceImplementation(restoredFile.uri);
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
     this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
@@ -1656,6 +1743,7 @@ export class SemanticWorkspace {
       || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
     const uri = declarationSnapshot.uri;
+    this.clearSourceImplementation(uri);
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(declarationSnapshot, implementationSnapshotValue));
     this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);

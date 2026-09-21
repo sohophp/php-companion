@@ -1,15 +1,44 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createHash } from 'node:crypto';
+import { deflateRawSync } from 'node:zlib';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { SemanticWorkspace } from '@php-companion/semantic';
 import { semanticFacts } from '@php-companion/semantic-provider';
-import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, createCachedProjectPhpFile,
-  decompressCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../src/projectFacts.js';
+import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile,
+  decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from '../src/projectFacts.js';
 
 describe('persistent project PHP facts', () => {
   let parser: PhpSyntaxParser;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
+
+  it('restores checked source declarations lazily and rejects corrupt or stale cache entries', () => {
+    const uri = 'file:///CachedDeclarations.php';
+    const source = '<?php namespace Cached; class Target { function get(): int { return 1; } } function run(Target $target): int { return $target->get(); }';
+    const workspace = new SemanticWorkspace(parser); const restored = new SemanticWorkspace(parser);
+    try {
+      workspace.updateDeclarations(uri, source);
+      const snapshot = workspace.sourceDeclarationSnapshot(uri)!;
+      expect(workspace.implementationState(uri)).toBe('deferred');
+      const hash = createHash('sha256').update(source).digest('hex');
+      const payload = compressCachedSourceDeclaration(snapshot, hash);
+      const decoded = restoreCachedSourceDeclaration(payload, uri, hash);
+      expect(decoded).toEqual(snapshot);
+      expect(restored.restoreSourceDeclaration(decoded, uri)).toBe(true);
+      expect(restored.implementationState(uri)).toBe('deferred');
+      expect(restored.restoreSourceDeclaration({ ...decoded, schema: 2 }, uri)).toBe(false);
+      expect(restored.restoreSourceDeclaration(decoded, 'file:///Wrong.php')).toBe(false);
+      expect(restored.references(uri, source.indexOf('get()') + 1, false)).toHaveLength(1);
+      expect(restored.snapshot(uri)).toEqual(workspace.snapshot(uri));
+      expect(restoreCachedSourceDeclaration(payload, 'file:///Wrong.php', hash)).toBeUndefined();
+      expect(restoreCachedSourceDeclaration(payload, uri, '0'.repeat(64))).toBeUndefined();
+      expect(restoreCachedSourceDeclaration({ ...payload, bytes: payload.bytes + 1 }, uri, hash)).toBeUndefined();
+      const damaged = decompressCachedProjectPhpFile(payload) as { snapshot: { declaration: { namespace: string } } };
+      damaged.snapshot.declaration.namespace = 'Wrong';
+      const bytes = Buffer.from(JSON.stringify(damaged));
+      expect(restoreCachedSourceDeclaration({ schema: 1, bytes: bytes.length, data: deflateRawSync(bytes).toString('base64') }, uri, hash)).toBeUndefined();
+    } finally { workspace.dispose(); restored.dispose(); }
+  });
 
   it('round-trips Doctrine facts without caching framework controller contexts', () => {
     const uri = 'file:///src/PageController.php';

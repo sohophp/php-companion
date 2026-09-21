@@ -112,8 +112,8 @@ describe('language server stdio', () => {
       const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
       const cacheDirectory = join(root, '.cache');
       const declaration = '<?php namespace App; final class Target { public function get(): int { return 1; } }';
-      const consumer = '<?php namespace App; final class Consumer { public function use(Target $target): int { return $target->get(); } }';
-      const substring = '<?php namespace App; final class Getter { public function helper(): int { return 0; } }';
+      const consumer = '<?php namespace App; final class Consumer extends Getter { public function use(): int { return $this->target->get(); } }';
+      const substring = '<?php namespace App; class Getter { protected Target $target; public function helper(): int { return 0; } }';
       const noise = '<?php namespace App; final class Noise {}';
       const declarationUri = pathToFileURL(join(sourceDirectory, 'Target.php')).toString();
       const consumerUri = pathToFileURL(join(sourceDirectory, 'Consumer.php')).toString();
@@ -144,6 +144,8 @@ describe('language server stdio', () => {
           && message.params?.message?.includes('[named-candidates] files=4'));
         expect(scan.params.message).toContain(run === 0 ? 'parsed=3 restored=0' : run === 1 ? 'parsed=1 restored=2' : 'parsed=2 restored=1');
         expect(scan.params.message).toContain(run === 0 ? 'cached=0' : run === 1 ? 'cached=3' : 'cached=2');
+        expect(scan.params.message).toContain(run === 1 ? 'declarations=0' : 'declarations=1');
+        expect(scan.params.message).toContain(run === 0 ? 'restoredDeclarations=0' : 'restoredDeclarations=1');
         server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 242);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));

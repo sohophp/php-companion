@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 首次 References 延迟方法体：保留完整候选和继承声明，只为需要的文件构建方法体事实，并保存经过校验的独立声明缓存。Winstar 2,278 文件声明与完整解析零差异；同机旧/新冷 References 为 27.944/23.151 秒，当前 Reload 首次为 9.333 秒，均为相同 112 处完整位置。Parser 73、Semantic 282、缓存 4 项、关键 LSP 7 项、改动 ESLint、受影响包构建及 24 个独立 tarball 消费通过。本轮沿用短验证循环、未重新冻结 VSIX；冷查询及 Reload 延迟仍待降低。证据见 [声明提取与延迟方法体](reports/deferred-reference-declarations-2026-09-21.md)。
+
 2026-09-21 首次 References 避免重复事实提取：Parser 新增只创建语法树的 `parseTree()`，Semantic 中 23 处只需语法树的查询不再重复构造完整声明/作用域/控制流事实；完整解析复用遍历父节点、按根错误状态选择错误检查，并按顺序处理名称排除范围。Winstar 2,278 个项目 PHP 文件的全部解析数据与旧版逐一比较为零差异；同机旧/新冷 References 为 36.330/29.257 秒，新进程复用缓存后首次 References 为 11.811 秒，均保持相同 112 处完整位置。Parser 70、Semantic 279、10 项关键 LSP 回归、受影响包构建/ESLint 和 24 个独立 tarball 消费通过。本轮采用短验证循环，未重新冻结 VSIX；首次延迟与真实 WSL Profile 验收仍待继续。证据见 [首次 References：避免重复语义提取](reports/tree-only-reference-queries-2026-09-21.md)。
 
 2026-09-21 Parser 节点访问优化：主遍历每个节点只读一次 Tree-sitter 类型，成员/调用种类集合每个文档只建一次，作用域查找改用保持原先同长度次序的单次循环。真实 Winstar `attributes->get()` 独立冷缓存首次 References 从上一候选 44.472 秒降至 37.350 秒，均为相同 112 处完整位置；候选阶段 33.123→27.665 秒。Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 与 24 个独立 tarball 通过。功能提交 `f25a34f`，候选 `artifacts/php-companion-alpha-0.4.5-76e99553/`；四份 VSIX SHA、Winstar 确定性 WSL/PHP 8.5 preflight 及 VS Code 1.138.0 打包双扩展宿主通过。首次查询仍约 37 秒，不能视为交互性能问题结束。证据见 [PHP Parser 节点访问成本与首次 References](reports/parser-node-access-references-2026-09-21.md)。

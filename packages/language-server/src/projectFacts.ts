@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import type { PhpSyntaxParser } from '@php-companion/parser';
-import type { SemanticSnapshot } from '@php-companion/semantic';
+import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryFactoryMethodFact, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts,
   type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 
@@ -32,6 +32,10 @@ const MAX_COMPRESSED_SEMANTIC_BYTES = 8 * 1024 * 1024;
 
 /** Compact transport for the checksum-validated semantic payload in on-demand candidate caches. */
 export function compressCachedProjectPhpFile(payload: CachedProjectPhpFile): { schema: 1; bytes: number; data: string } {
+  return compressCachePayload(payload);
+}
+
+function compressCachePayload(payload: unknown): { schema: 1; bytes: number; data: string } {
   const source = Buffer.from(JSON.stringify(payload));
   if (source.length > MAX_CACHED_SEMANTIC_BYTES) throw new RangeError('Semantic candidate cache entry exceeded its size limit.');
   const compressed = deflateRawSync(source, { level: 1 });
@@ -57,6 +61,19 @@ function recordChecksum(value: unknown): string {
 
 function sourceChecksum(source: string): string {
   return createHash('sha256').update(source).digest('hex');
+}
+
+export function compressCachedSourceDeclaration(snapshot: SemanticSourceDeclarationSnapshot, hash: string): { schema: 1; bytes: number; data: string } {
+  return compressCachePayload({ schema: 1, snapshot, hash, checksum: recordChecksum(snapshot) });
+}
+
+export function restoreCachedSourceDeclaration(value: unknown, uri: string, hash: string): SemanticSourceDeclarationSnapshot | undefined {
+  const payload = decompressCachedProjectPhpFile(value);
+  if (!isRecord(payload) || payload.schema !== 1 || payload.hash !== hash || !isChecksum(payload.checksum)
+    || !isRecord(payload.snapshot) || payload.snapshot.schema !== 1 || typeof payload.snapshot.source !== 'string'
+    || !isRecord(payload.snapshot.declaration) || payload.snapshot.declaration.uri !== uri
+    || sourceChecksum(payload.snapshot.source) !== hash || recordChecksum(payload.snapshot) !== payload.checksum) return undefined;
+  return payload.snapshot as unknown as SemanticSourceDeclarationSnapshot;
 }
 
 function payloadChecksum(checksums: CachedProjectPhpFile['checksums']): string {

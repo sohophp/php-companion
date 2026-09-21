@@ -226,6 +226,9 @@ export interface ParsedPhpDocument {
   tree: Tree;
 }
 
+export type ParsedPhpDeclarationDocument = Pick<ParsedPhpDocument,
+  'namespace' | 'declarations' | 'callables' | 'properties' | 'constants' | 'imports' | 'commentRanges' | 'tree'>;
+
 export interface PhpParserPaths {
   coreWasmPath: string;
   phpWasmPath: string;
@@ -259,6 +262,8 @@ const DECLARATION_TYPES: Record<string, PhpSymbolKind> = {
 };
 
 const STRING_TYPES = new Set(['string', 'encapsed_string', 'heredoc', 'nowdoc', 'shell_command_expression']);
+const DECLARATION_NODE_TYPES = [...Object.keys(DECLARATION_TYPES), 'anonymous_class', 'namespace_use_declaration',
+  'function_definition', 'method_declaration', 'property_declaration', 'const_declaration', 'enum_case', 'comment'];
 const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
 
 function traitAdaptations(node: SyntaxNode): ParsedTraitAdaptation[] {
@@ -374,6 +379,17 @@ export class PhpSyntaxParser {
   }
 
   parse(source: string, oldTree?: Tree, documentIdentity = ''): ParsedPhpDocument {
+    return this.parseDocument(source, oldTree, documentIdentity);
+  }
+
+  /** Extract declarations throughout the tree, including declarations nested inside bodies. */
+  parseDeclarations(source: string, documentIdentity = ''): ParsedPhpDeclarationDocument {
+    const { namespace, declarations, callables, properties, constants, imports, commentRanges, tree } =
+      this.parseDocument(source, undefined, documentIdentity, true);
+    return { namespace, declarations, callables, properties, constants, imports, commentRanges, tree };
+  }
+
+  private parseDocument(source: string, oldTree?: Tree, documentIdentity = '', declarationsOnly = false): ParsedPhpDocument {
     const tree = this.parseTree(source, oldTree);
     const hasSyntaxErrors = tree.rootNode.hasError;
     const declarations: ParsedDeclaration[] = [];
@@ -732,7 +748,7 @@ export class PhpSyntaxParser {
       class_constant_access_expression: 'constant',
     };
     const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
-    walk(tree.rootNode, (node, nodeParent) => {
+    const visitNode = (node: SyntaxNode, nodeParent?: SyntaxNode): void => {
       const nodeType = node.type;
       if (nodeType === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
       if (nodeType === 'base_clause' || nodeType === 'class_interface_clause') {
@@ -1483,7 +1499,10 @@ export class PhpSyntaxParser {
           else if (simpleContinuationRange) narrowings.push({ kind: 'instanceof', ...instanceSubject, typeName: right.text, scopeId: scope.id, ...simpleContinuationRange });
         }
       }
-    });
+    };
+    if (declarationsOnly) {
+      for (const node of tree.rootNode.descendantsOfType(DECLARATION_NODE_TYPES)) visitNode(node, node.parent ?? undefined);
+    } else walk(tree.rootNode, visitNode);
 
     for (const fact of conditionalCalls) {
       const call = calls.find((candidate) => candidate.start === fact.start && candidate.end === fact.end);
@@ -1507,7 +1526,7 @@ export class PhpSyntaxParser {
     const rawNames: RawName[] = commentRanges.flatMap((range) => parsePhpDocNames(source, range));
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
     let excludedIndex = 0; let excludedEnd = -1;
-    for (const match of source.matchAll(pattern)) {
+    for (const match of declarationsOnly ? [] : source.matchAll(pattern)) {
       const start = match.index;
       const end = start + match[0].length;
       // Both the matches and ranges are ordered by start. A monotonic sweep

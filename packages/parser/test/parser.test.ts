@@ -24,6 +24,20 @@ describe('@php-companion/parser', () => {
     expect(result.declarations).toMatchObject([{ name: 'Clock', fqcn: 'App\\Clock', kind: 'interface' }]);
     result.tree.delete();
   });
+  it.each([
+    '<?php namespace App; /** @template T */ class C { public function __construct(public readonly int $id) {} public function run(): void { if (true) { function nested(): int { return 1; } class Nested extends C {} } $obj = new class extends C { public function own(): string { return "ok"; } }; } }',
+    '<?php namespace A { use X\\Y; trait T { public string $value { get => "x"; set { $this->value = $value; } } } } namespace B { enum E: string { case A = "a"; } }',
+    '<?php namespace App; class C { public function broken( { return new class { public const KEY = 1; }; }',
+  ])('extracts the same complete declarations without implementation facts: %s', (source) => {
+    const full = parser.parse(source, undefined, 'file:///Declarations.php');
+    const declarations = parser.parseDeclarations(source, 'file:///Declarations.php');
+    try {
+      for (const field of ['namespace', 'declarations', 'callables', 'properties', 'constants', 'imports', 'commentRanges'] as const) {
+        expect(declarations[field]).toEqual(full[field]);
+      }
+      expect(declarations.tree.rootNode.toString()).toBe(full.tree.rootNode.toString());
+    } finally { full.tree.delete(); declarations.tree.delete(); }
+  });
   it.each(['\n', '\r\n'])('keeps tree-only query ranges and incremental recovery identical with %j', (eol) => {
     const source = ['<?php', '// 中文 😀', 'namespace App;', 'function run(Request $request) { return $request->get(); }'].join(eol);
     const incomplete = source.replace('->get()', '->get(');

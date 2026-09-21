@@ -3471,6 +3471,66 @@ describe('conservative semantic workspace', () => {
     expect(workspace.referenceMemberAt('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1)?.fqcn).toBe('App\\One::run');
     expect(workspace.referenceMemberAt('file:///Calls.php', source.indexOf('run();') + 1)?.fqcn).toBe('App\\One::run');
   });
+  it('keeps inherited member ownership from deferred source declarations and invalidates edits', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const targetUri = 'file:///DeferredTarget.php'; const baseUri = 'file:///DeferredBase.php';
+    const target = '<?php namespace DeferredRefs; class Target { function get(): int { return 1; } } class Other { function get(): int { return 2; } }';
+    const base = '<?php namespace DeferredRefs; class Base { protected Target $target; } class Middle extends Base {}';
+    const consumer = '<?php namespace DeferredRefs; class Consumer extends Middle { function run(Other $other): int { return $this->target->get() + $other->get(); } }';
+    try {
+      isolated.update(targetUri, target);
+      isolated.updateDeclarations(baseUri, base);
+      isolated.update('file:///DeferredConsumer.php', consumer);
+      expect(isolated.implementationState(baseUri)).toBe('deferred');
+      expect(isolated.typeDeclarationsNamed('Base')).toHaveLength(1);
+      const references = isolated.references(targetUri, target.indexOf('get()') + 1, false);
+      expect(references).toEqual([{ uri: 'file:///DeferredConsumer.php', start: consumer.indexOf('get()'), end: consumer.indexOf('get()') + 3 }]);
+      expect(isolated.implementationState(baseUri)).toBe('deferred');
+      isolated.updateDeclarations(baseUri, base.replace('protected Target', 'protected Other'));
+      expect(isolated.references(targetUri, target.indexOf('get()') + 1, false)).toEqual([]);
+      isolated.remove(baseUri);
+      expect(isolated.implementationState(baseUri)).toBe('absent');
+      expect(isolated.typeDeclarationsNamed('Base')).toEqual([]);
+    } finally { isolated.dispose(); }
+  });
+  it('hydrates deferred bodies on demand and only persists complete source facts', () => {
+    const isolated = new SemanticWorkspace(parser); const eager = new SemanticWorkspace(parser);
+    const uri = 'file:///DeferredBody.php';
+    const source = '<?php namespace DeferredBody; class Target { function get(): int { return 1; } } function run(Target $target, bool $flag): int { if ($flag) { $x = $target; return $x->get(); } return $target->get(); }';
+    try {
+      eager.update(uri, source); isolated.updateDeclarations(uri, source);
+      expect(isolated.callableImplementationStates(uri).every((state) => state.state === 'deferred')).toBe(true);
+      expect(isolated.references(uri, source.indexOf('get()') + 1, false)).toEqual(eager.references(uri, source.indexOf('get()') + 1, false));
+      expect(isolated.implementationState(uri)).toBe('loaded');
+      expect(isolated.snapshot(uri)).toEqual(eager.snapshot(uri));
+      isolated.updateDeclarations(uri, source);
+      expect(isolated.implementationState(uri)).toBe('deferred');
+      expect(isolated.snapshot(uri)).toEqual(eager.snapshot(uri));
+      isolated.updateDeclarations(uri, source.replace('$x = $target', '$x = unknown()'));
+      const snapshot = eager.snapshot(uri)!;
+      expect(isolated.restoreDeclaration(snapshot, uri)).toBe(true);
+      expect(isolated.references(uri, source.indexOf('get()') + 1, false)).toEqual(eager.references(uri, source.indexOf('get()') + 1, false));
+      isolated.updateDeclarations(uri, source);
+      expect(isolated.restore(snapshot, uri)).toBe(true);
+      expect(isolated.snapshot(uri)).toEqual(snapshot);
+    } finally { isolated.dispose(); eager.dispose(); }
+  });
+  it('preserves and releases the query tree while a deferred reference consumer loads', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const target = '<?php namespace LazyTree; class Target { function get(): int { return 1; } }';
+    const consumer = '<?php namespace LazyTree; function run(Target $target): int { return $target->get() + $target->get() + $target->get(); }';
+    isolated.update('file:///LazyTarget.php', target);
+    isolated.updateDeclarations('file:///LazyConsumer.php', consumer);
+    const original = parser.parseTree.bind(parser); const trees: ReturnType<PhpSyntaxParser['parseTree']>[] = [];
+    const parseTree = vi.spyOn(parser, 'parseTree').mockImplementation((...args) => {
+      const tree = original(...args); vi.spyOn(tree, 'delete'); trees.push(tree); return tree;
+    });
+    try {
+      expect(isolated.references('file:///LazyTarget.php', target.indexOf('get()') + 1, false)).toHaveLength(3);
+      expect(trees).toHaveLength(2);
+      for (const tree of trees) expect(tree.delete).toHaveBeenCalledTimes(1);
+    } finally { parseTree.mockRestore(); for (const tree of trees) vi.mocked(tree.delete).mockRestore(); isolated.dispose(); }
+  });
   it('reuses one syntax tree per candidate file during a multi-use member reference query', () => {
     const isolated = new SemanticWorkspace(parser);
     const parse = vi.spyOn(parser, 'parse');
