@@ -96,6 +96,29 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     try { return { info, source, hash, prepared: await options.prepareSource({ uri, path, source, bytes: info.size, hash }) }; }
     catch { return { info, source, hash }; }
   };
+  // Keep at most one bounded window in flight, without a slow-file batch barrier.
+  // Preparation is speculative; semantic callbacks still run in file order.
+  const preparedSources = async function* (paths: string[]): AsyncGenerator<{ path: string; source?: PrefetchedSource }> {
+    if (readConcurrency === 1) {
+      for (const path of paths) yield { path };
+      return;
+    }
+    const pending = new Map<number, Promise<PrefetchedSource>>();
+    let nextPath = 0;
+    const fill = (): void => {
+      while (nextPath < paths.length && pending.size < readConcurrency && options.shouldContinue?.() !== false) {
+        const index = nextPath++;
+        pending.set(index, prefetch(paths[index]!).catch(() => ({ readFailed: true })));
+      }
+    };
+    fill();
+    for (const [index, path] of paths.entries()) {
+      const source = await pending.get(index);
+      pending.delete(index);
+      fill();
+      yield { path, source };
+    }
+  };
   const indexCandidate = async (candidate: { path: string; project: boolean }, progressTotal: number,
     prefetched?: PrefetchedSource): Promise<'indexed' | 'skipped' | 'cancelled' | 'budget'> => {
     const path = candidate.path;
@@ -155,14 +178,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     } catch { skipped(candidate, 'could not be read or analyzed and was skipped.'); }
     return 'indexed';
   };
-  for (let start = 0; start < projectFiles.length; start += readConcurrency) {
-    const paths = projectFiles.slice(start, start + readConcurrency);
-    const sources = readConcurrency === 1 ? [undefined] : await Promise.all(paths.map(prefetch));
-    for (const [index, path] of paths.entries()) {
-      const status = await indexCandidate({ path, project: true }, projectFiles.length, sources[index]);
-      if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };
-      if (status === 'budget') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings };
-    }
+  for await (const { path, source } of preparedSources(projectFiles)) {
+    const status = await indexCandidate({ path, project: true }, projectFiles.length, source);
+    if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };
+    if (status === 'budget') return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings };
   }
   if (!projectIncomplete && options.shouldContinue?.() !== false) await options.onProjectComplete?.();
   if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
@@ -190,15 +209,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   if (dependencyTruncatedByCount) warnings.push(`Dependency index was truncated to fit the ${limits.maxFiles}-file budget after indexing ${projectFiles.length} project files.`);
   const dependencies = uniqueDependencies.slice(0, remaining);
   const dependencyProgressTotal = projectFiles.length + dependencies.length;
-  let dependencyBudgetReached = false;
-  for (let start = 0; start < dependencies.length && !dependencyBudgetReached; start += readConcurrency) {
-    const paths = dependencies.slice(start, start + readConcurrency);
-    const sources = readConcurrency === 1 ? [undefined] : await Promise.all(paths.map(prefetch));
-    for (const [index, path] of paths.entries()) {
-      const status = await indexCandidate({ path, project: false }, dependencyProgressTotal, sources[index]);
-      if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
-      if (status === 'budget') { dependencyBudgetReached = true; break; }
-    }
+  for await (const { path, source } of preparedSources(dependencies)) {
+    const status = await indexCandidate({ path, project: false }, dependencyProgressTotal, source);
+    if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
+    if (status === 'budget') break;
   }
   await commitCache();
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };

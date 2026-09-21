@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 首次 References 有界连续预读：移除每批 32 文件的整批等待，保持语义提交顺序与候选范围。Winstar 同文件数冷对照 11.518→9.826 秒，完整 112 处引用摘要一致；正式 bundle 冷查询 9.731 秒、Reload 首次 7.263 秒，结果仍一致。Index 34、Language Server 200 项、相关 TypeScript/ESLint 和正式构建通过。验证按聚焦迭代加一次 LSP 全量回归执行，未重新冻结 VSIX；交互耗时目标仍未达成。证据见 [有界连续预读](reports/rolling-reference-prefetch-2026-09-21.md)。
+
 2026-09-21 首次 References 缓存压缩改为 worker 延迟完成：语义事实仍按文件顺序提交，全部缓存负载完成后才写盘。Winstar 两轮空缓存成对测试中首次 References 13.241→11.451 秒、13.078→11.615 秒，四轮均为相同 112 处引用；正式扩展 bundle 冷查询 11.621 秒、Reload 6.875 秒，位置仍一致。Index 32、Language Server 200 项、改动 lint 和正式构建通过；仍未达到最终交互目标。证据见 [缓存压缩与语义提交重叠](reports/deferred-reference-cache-compression-2026-09-21.md)。
 
 2026-09-21 References 持久缓存预恢复：缓存条目由最多 8 个工作线程并行解压和校验，主线程仍按文件顺序提交，失败回退同步恢复。Winstar 两轮成对 Reload 对照中候选阶段 4.586→3.985 秒、4.430→4.111 秒，四次均为相同 112 处引用；Index 31、Language Server 全套 200 项通过，正式扩展 bundle 再次得到相同 112 处引用。冷查询仍约 13–14 秒。证据见 [并行准备缓存恢复](reports/parallel-reference-cache-restore-2026-09-21.md)。

@@ -208,6 +208,43 @@ describe('bounded project source index', () => {
     const warm = await indexComposerSources(root, options);
     expect(warm.cached).toBe(4); expect(committed).toEqual([]);
   });
+  it('commits a ready source without waiting for later preparation while keeping the window bounded', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-rolling-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C', 'D', 'E'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    let release!: () => void;
+    const firstCommitted = new Promise<void>((resolve) => { release = resolve; });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<string>((resolve) => { timer = setTimeout(() => resolve('blocked'), 2_000); });
+    let active = 0; let peak = 0; const committed: string[] = [];
+    try {
+      const result = await indexComposerSources(root, { readConcurrency: 2,
+        prepareSource: async ({ path }) => {
+          active += 1; peak = Math.max(peak, active);
+          const name = path.split(sep).at(-1)!;
+          const prepared = name === 'B.php' ? await Promise.race([firstCommitted.then(() => name), timeout]) : name;
+          active -= 1; return prepared;
+        },
+        onSource: ({ path, prepared }) => { committed.push(`${path.split(sep).at(-1)}:${prepared}`); if (path.endsWith('A.php')) release(); },
+      });
+      expect(result.complete).toBe(true);
+      expect(peak).toBeLessThanOrEqual(2);
+      expect(committed).toEqual(['A.php:A.php', 'B.php:B.php', 'C.php:C.php', 'D.php:D.php', 'E.php:E.php']);
+    } finally { release(); clearTimeout(timer); }
+  });
+  it('stops ordered commits after cancellation with speculative preparations still in flight', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-rolling-cancel-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C', 'D'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    let cancelled = false; const committed: string[] = [];
+    const result = await indexComposerSources(root, { readConcurrency: 2, shouldContinue: () => !cancelled,
+      prepareSource: ({ path }) => path,
+      onSource: ({ path }) => { committed.push(path.split(sep).at(-1)!); cancelled = true; },
+    });
+    expect(committed).toEqual(['A.php']);
+    expect(result).toMatchObject({ files: 1, complete: false, projectComplete: false,
+      warnings: expect.arrayContaining(['Project indexing was cancelled.']) });
+  });
   it('prepares warm restores concurrently and commits them in path order with fallback', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-restore-prefetch-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
