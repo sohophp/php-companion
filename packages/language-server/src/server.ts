@@ -3167,6 +3167,10 @@ const SYMFONY_CONTAINER_GET_METHODS = new Set([
 
 async function provenSymfonyContainerServiceReference(document: TextDocument, offset: number, workspace: SemanticWorkspace,
   root: string): Promise<{ value: string; prefix: string; start: number; end: number } | undefined> {
+  // Ordinary navigation must not load unrelated container declarations and
+  // invalidate already computed reference results. Syntax only gates hydration;
+  // a service reference still requires the exact resolved container method.
+  if (!workspace.literalMethodArgumentCandidateAt(document.uri, offset)) return undefined;
   let reference = workspace.literalMethodArgumentAt(document.uri, offset, SYMFONY_CONTAINER_GET_METHODS);
   if (reference) return reference;
   await hydrateCanonicalTypes(workspace, root, [

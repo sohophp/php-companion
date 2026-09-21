@@ -4711,6 +4711,34 @@ final class Imported { public const TYPE = Stable::class; }`);
     workspace.replaceExternalLiteralMethodReturns('symfony', []);
     expect(workspace.completeMembers('file:///ContainerUse.php', positions[0]!)).toEqual([]);
   });
+  it('identifies literal method candidates before resolving unloaded receiver declarations', () => {
+    const uri = 'file:///LiteralCandidate.php';
+    const source = `<?php function candidate(\\Unloaded\\Container $container, $id): void {
+      $container->get('app.mailer');
+      $container->get('');
+      $container->get(id: 'named');
+      $container->get('first', 'second');
+      $container->get('escaped\\\\value');
+      $container->get($id);
+      $container->get(...['unpacked']);
+      get('function');
+    }`;
+    workspace.update(uri, source);
+    const start = source.indexOf('app.mailer');
+    expect(workspace.literalMethodArgumentCandidateAt(uri, start + 4)).toEqual({
+      uri, start, end: start + 'app.mailer'.length, value: 'app.mailer', prefix: 'app.',
+      methodOffset: source.indexOf('get(') + 1,
+    });
+    expect(workspace.literalMethodArgumentAt(uri, start + 4, new Set(['Unloaded\\Container::get']))).toBeUndefined();
+    expect(workspace.literalMethodArgumentCandidateAt(uri, source.indexOf("''") + 1)?.value).toBe('');
+    for (const text of ['get(', 'named', 'first', 'second', 'escaped', '$id);', 'unpacked', 'function\'']) {
+      expect(workspace.literalMethodArgumentCandidateAt(uri, source.indexOf(text) + 1), text).toBeUndefined();
+    }
+    const restored = new SemanticWorkspace(parser);
+    expect(restored.restoreDeclaration(workspace.snapshot(uri), uri)).toBe(true);
+    expect(restored.literalMethodArgumentCandidateAt(uri, start + 4)).toEqual(workspace.literalMethodArgumentCandidateAt(uri, start + 4));
+    restored.dispose();
+  });
   it('identifies literal arguments only for an exact resolved method family', () => {
     workspace.update('file:///Container.php', `<?php namespace Psr\\Container;
       interface ContainerInterface { public function get(string $id): mixed; }

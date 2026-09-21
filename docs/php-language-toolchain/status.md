@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 普通导航保留 References 缓存：先用语法判断是否处于字面量方法参数内，再执行原有容器服务身份解析，避免普通 Definition/Hover/Completion 加载无关容器接口。正式 bundle 的 References → References → Definition → References 序列保持完整 112 处引用，最后一次查询从 2.679 秒变为 13 ms（语义日志 0 ms）；首次耗时仍待优化。语义包 289 项、LSP 定向 54 项（57.22 秒）、相关 TypeScript/ESLint 和正式构建通过。未更新 WSL VSIX。证据见 [普通导航与引用缓存](reports/reference-navigation-cache-2026-09-21.md)。
+
 2026-09-21 真正首次 References 修复与基准纠正：旧基准先做 Definition，掩盖了未加载 vendor 接收者时 References 全项目扫描后返回空结果的问题。现在先按需解析目标类型链；同一 Winstar 查询从旧版直接首次 27.975 秒、错误 0 处，变为正式 bundle 9.138 秒、正确 112 处。新基线强制 References-first，9.041 秒通过完整位置摘要；Reload 首次 7.483 秒、直接重复 16 ms，但 Definition 后重复仍需 2.679 秒，继续定位。新增冷启动/Reload 属性链与返回链回归，LSP 定向 50 项通过（48.36 秒）、TypeScript/ESLint/正式构建通过。以下历史耗时凡先做 Definition 者仅代表预热路径。未更新用户 WSL VSIX，Goal 保持开放。证据见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。
 
 2026-09-21 References 调用声明查找：优先按签名 URI/位置精确定位，缺失或歧义保留原回退；两处函数返回推断使用已有声明索引并保留文件顺序。冷查询同轮对照 8.132→7.709 秒，完整 112 处位置一致；正式 bundle 冷查询 7.942 秒、Reload 首次 6.166 秒。语义包 288 项、LSP 定向 48 项（43.94 秒，156 项未重跑）、相关 TypeScript/ESLint、正式构建和默认基线命令通过。缓存压缩 JSON 传输实验因变慢未保留；Goal 继续。证据见 [调用声明查找](reports/reference-callable-lookup-2026-09-21.md)。

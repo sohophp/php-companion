@@ -138,6 +138,11 @@ export interface LiteralMethodArgumentInfo extends SemanticLocation {
   prefix: string;
   methodFqcn: string;
 }
+export interface LiteralMethodArgumentCandidate extends SemanticLocation {
+  value: string;
+  prefix: string;
+  methodOffset: number;
+}
 export interface MemberInfo extends SemanticLocation {
   kind: 'method' | 'function' | 'property' | 'constant';
   name: string;
@@ -1508,10 +1513,10 @@ export class SemanticWorkspace {
   }
   source(uri: string): string | undefined { return this.files.get(uri)?.source; }
 
-  literalMethodArgumentAt(uri: string, offset: number, methods: ReadonlySet<string>): LiteralMethodArgumentInfo | undefined {
+  /** Syntax only: a candidate does not prove the receiver type or method identity. */
+  literalMethodArgumentCandidateAt(uri: string, offset: number): LiteralMethodArgumentCandidate | undefined {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); if (!file) return undefined;
-      const normalized = new Set([...methods].map((method) => method.toLowerCase()));
       for (const call of file.calls) {
         if (call.kind !== 'method' || call.arguments.length !== 1 || call.arguments[0]!.unpacked || call.arguments[0]!.name) continue;
         const argument = call.arguments[0]!;
@@ -1519,12 +1524,18 @@ export class SemanticWorkspace {
         const literal = /^(\s*)(['"])([^'"\\]*)\2(\s*)$/.exec(raw); if (!literal) continue;
         const start = argument.start + literal[1]!.length + 1; const end = start + literal[3]!.length;
         if (offset < start || offset > end) continue;
-        const member = this.memberAt(uri, call.nameStart + Math.min(1, call.nameEnd - call.nameStart));
-        if (!member || member.kind !== 'method' || !normalized.has(member.fqcn.toLowerCase())) continue;
-        return { uri, start, end, value: literal[3]!, prefix: file.source.slice(start, offset), methodFqcn: member.fqcn };
+        return { uri, start, end, value: literal[3]!, prefix: file.source.slice(start, offset),
+          methodOffset: call.nameStart + Math.min(1, call.nameEnd - call.nameStart) };
       }
       return undefined;
     });
+  }
+
+  literalMethodArgumentAt(uri: string, offset: number, methods: ReadonlySet<string>): LiteralMethodArgumentInfo | undefined {
+    const candidate = this.literalMethodArgumentCandidateAt(uri, offset); if (!candidate) return undefined;
+    const member = this.memberAt(uri, candidate.methodOffset);
+    if (!member || member.kind !== 'method' || ![...methods].some((method) => method.toLowerCase() === member.fqcn.toLowerCase())) return undefined;
+    return { uri, start: candidate.start, end: candidate.end, value: candidate.value, prefix: candidate.prefix, methodFqcn: member.fqcn };
   }
 
   documentUris(): string[] { return [...this.files.keys()]; }
