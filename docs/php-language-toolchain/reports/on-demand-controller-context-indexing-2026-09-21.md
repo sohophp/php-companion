@@ -38,3 +38,24 @@
 ## 边界
 
 该路径只负责 Controller → Twig 上下文发现，不建立 PHP 全项目引用图。用户明确执行 Find All References、F2 Rename 或其他需要完整证明的项目级操作时，仍会按该能力的精度和完整性规则执行有界项目扫描。Twig 解析、模板补全、格式化和模板作用域继续由 TwigPlus 独立拥有。
+
+## 完整验证与候选
+
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test`：26 个测试组、806 项通过，其中 Language Server 198 项、framework-symfony 45 项。
+- `pnpm test:extension:packaged`：VS Code 1.138.0 隔离 Profile 同时加载打包 Core 与 Symfony VSIX，Extension Host 以状态码 0 退出。
+- Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL Alpha preflight 均通过。
+- `git diff --check`
+
+功能提交为 `85c9a4fc59ba5b8f5688faa348f95bb7e4e5920a`。候选目录为 `artifacts/php-companion-alpha-0.4.5-85c9a4fc/`：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `php-companion-0.4.5.vsix` | `49c85c6aa81f0755122d58d5fff0c6409735155809b8bd76be8ba3a6ccf4758e` |
+| `php-companion-symfony-0.4.5.vsix` | `c6e21ac144b3964b84caf2e8cbcf5c52648a2047bafee91ffcd3ff05a89577ff` |
+| `php-companion-open-source-pack-0.4.5.vsix` | `661ce6e95d6fdd23e8bb923e9554572451f3b00652e86ccea9a56a0440a59650` |
+| `php-companion-recommended-pack-0.4.5.vsix` | `37fb31b08403bb061ee1600b350adf7b122ec128e9e2f8e3302187fae0c0bba1` |
+| `twig-plus-1.3.7-496f514.vsix` | `0162f5151972faee4a68f57a2d49bd749d743a0f70211422eec6302a99c7ae05` |
+
+自动宿主与后台 preflight 不能替代用户在 WSL Remote Alpha Profile 中 Reload 后的持续真实编辑验收；Extension Host 归属、竞争 PHP Provider 状态及两小时会话仍是人工门禁。
