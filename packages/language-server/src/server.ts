@@ -1761,9 +1761,9 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
       return createSourceCandidateSummary(source);
     },
     cache: cacheDirectory ? {
-      directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+      directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v2',
       restore: (payload): boolean | 'source' => {
-        const decision = sourceCandidateSummaryDecision(payload, names, mode);
+        const decision = sourceCandidateSummaryDecision(payload, names, mode === 'symbol' ? 'substring-symbol' : mode);
         return decision === 'skip' ? true : decision === 'source' ? 'source' : false;
       },
     } : undefined,
@@ -1813,7 +1813,7 @@ async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, 
         return summary;
       },
       cache: cacheDirectory ? {
-        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v2',
         restore: (payload): boolean | 'source' => {
           const decision = sourceCandidateSummaryDecision(payload, candidateNames, 'symbol');
           return decision === 'skip' ? true : decision === 'source' ? 'source' : false;
@@ -1872,7 +1872,7 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
         return summary;
       },
       cache: cacheDirectory ? {
-        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v2',
         restore: (payload): boolean | 'source' => {
           const decision = sourceCandidateSummaryDecision(payload, new Set(['render']), 'symbol');
           return decision === 'skip' ? true : decision === 'source' ? 'source' : false;

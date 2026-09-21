@@ -43,6 +43,14 @@ describe('bounded source candidate summaries', () => {
     expect(sourceCandidateSummaryDecision({}, new Set(['dependency']), 'symbol')).toBe('rebuild');
     expect(sourceCandidateSummaryDecision({ schema: 1, complete: false, symbols: [], namedArguments: [] }, new Set(['missing']), 'symbol')).toBe('source');
   });
+  it('preserves cold substring candidates after reload and treats oversized tokens as incomplete', () => {
+    const summary = createSourceCandidateSummary('<?php final class Getter { public function helper(): void {} }');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['get']), 'symbol')).toBe('skip');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['get']), 'substring-symbol')).toBe('source');
+    const oversized = createSourceCandidateSummary(`<?php $${'x'.repeat(129)} = 1;`);
+    expect(oversized.complete).toBe(false);
+    expect(sourceCandidateSummaryDecision(oversized, new Set(['get']), 'substring-symbol')).toBe('source');
+  });
 });
 
 describe('bounded project source index', () => {

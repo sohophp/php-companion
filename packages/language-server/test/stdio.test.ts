@@ -106,6 +106,52 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('restores broad on-demand method candidates consistently across reload', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-substring-candidates-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const cacheDirectory = join(root, '.cache');
+      const declaration = '<?php namespace App; final class Target { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace App; final class Consumer { public function use(Target $target): int { return $target->get(); } }';
+      const substring = '<?php namespace App; final class Getter { public function helper(): int { return 0; } }';
+      const noise = '<?php namespace App; final class Noise {}';
+      const declarationUri = pathToFileURL(join(sourceDirectory, 'Target.php')).toString();
+      const consumerUri = pathToFileURL(join(sourceDirectory, 'Consumer.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(sourceDirectory, 'Target.php'), declaration);
+      await writeFile(join(sourceDirectory, 'Consumer.php'), consumer);
+      await writeFile(join(sourceDirectory, 'Getter.php'), substring);
+      await writeFile(join(sourceDirectory, 'Noise.php'), noise);
+      for (let run = 0; run < 2; run += 1) {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory },
+        } }));
+        await output.waitFor((message) => message.id === 240);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: declaration },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
+          textDocument: { uri: declarationUri }, position: lspPosition(declaration, declaration.indexOf('get()') + 1),
+          context: { includeDeclaration: false },
+        } }));
+        const references = (await output.waitFor((message) => message.id === 241)).result;
+        expect(references).toEqual([expect.objectContaining({ uri: consumerUri })]);
+        const scan = await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes('[named-candidates] files=4'));
+        expect(scan.params.message).toContain('parsed=3');
+        expect(scan.params.message).toContain(run === 0 ? 'cached=0' : 'cached=1');
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === 242);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('keeps reload and closed promoted-property rename free of project indexing in on-demand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-startup-'));
     try {

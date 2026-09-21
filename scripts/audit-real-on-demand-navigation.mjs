@@ -3,6 +3,8 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import process from 'node:process';
+import { clearTimeout, setTimeout } from 'node:timers';
 import { pathToFileURL } from 'node:url';
 import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/index.js';
 
@@ -45,7 +47,9 @@ async function run(label) {
       if (message.id !== undefined && message.method) send({ jsonrpc: '2.0', id: message.id, result: null });
       else if (pending.has(message.id)) {
         const waiter = pending.get(message.id); pending.delete(message.id);
-        clearTimeout(waiter.timer); message.error ? waiter.reject(new Error(JSON.stringify(message.error))) : waiter.resolve(message.result);
+        clearTimeout(waiter.timer);
+        if (message.error) waiter.reject(new Error(JSON.stringify(message.error)));
+        else waiter.resolve(message.result);
       }
     }
   });

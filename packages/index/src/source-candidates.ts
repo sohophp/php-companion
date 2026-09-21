@@ -1,4 +1,4 @@
-export type SourceCandidateMode = 'symbol' | 'named-argument';
+export type SourceCandidateMode = 'symbol' | 'substring-symbol' | 'named-argument';
 export type SourceCandidateSummaryDecision = 'skip' | 'source' | 'rebuild';
 
 export interface SourceCandidateSummary {
@@ -17,7 +17,7 @@ function collect(pattern: RegExp, source: string, group = 0): { keys: string[]; 
   const keys = new Set<string>(); pattern.lastIndex = 0;
   for (let match = pattern.exec(source); match; match = pattern.exec(source)) {
     const key = match[group]!.toLocaleLowerCase('en-US');
-    if (key.length > MAX_KEY_LENGTH) continue;
+    if (key.length > MAX_KEY_LENGTH) return { keys: [], complete: false };
     keys.add(key);
     if (keys.size > MAX_KEYS) return { keys: [], complete: false };
   }
@@ -39,5 +39,7 @@ export function sourceCandidateSummaryDecision(payload: unknown, names: Readonly
   if (summary.schema !== 1 || typeof summary.complete !== 'boolean' || !validKeys(summary.symbols) || !validKeys(summary.namedArguments)) return 'rebuild';
   if (!summary.complete) return 'source';
   const keys = mode === 'named-argument' ? summary.namedArguments : summary.symbols;
-  return [...names].some((name) => keys.includes(name.toLocaleLowerCase('en-US'))) ? 'source' : 'skip';
+  return [...names].some((name) => mode === 'substring-symbol'
+    ? keys.some((key) => key.includes(name.toLocaleLowerCase('en-US')))
+    : keys.includes(name.toLocaleLowerCase('en-US'))) ? 'source' : 'skip';
 }
