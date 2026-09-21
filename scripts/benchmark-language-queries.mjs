@@ -37,7 +37,7 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
-    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache|reference-prewarm|reference-closure)/.test(message.params?.message ?? '')
+    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
     }
@@ -50,7 +50,7 @@ const request = (method, params) => new Promise((done, reject) => {
   send({ jsonrpc: '2.0', id, method, params });
 });
 try {
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', ...frameworkInitialization } });
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1', experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1', ...frameworkInitialization } });
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
   if (Number.isSafeInteger(initialIdleMs) && initialIdleMs > 0 && initialIdleMs <= 30_000) await new Promise((done) => setTimeout(done, initialIdleMs));

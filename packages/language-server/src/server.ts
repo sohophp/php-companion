@@ -3,6 +3,7 @@ import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readFile, readdir, stat } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 import type { Dirent } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
@@ -113,6 +114,7 @@ let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let experimentalReferenceClosure = false;
+let experimentalRipgrepCandidates = false;
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -1919,6 +1921,26 @@ function invalidateCandidates(uri: string): void {
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
+async function ripgrepCandidatePaths(project: ComposerProject, names: string[]): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
+  if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
+  const paths = projectAutoloadPaths(project);
+  if (!paths.length) return undefined;
+  const startedAt = Date.now() - 1_000;
+  return new Promise((done) => {
+    const child = spawn('rg', ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
+      '--glob', '*.php', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const chunks: Buffer[] = []; let size = 0; let failed = false;
+    const timer = setTimeout(() => { failed = true; child.kill(); }, 10_000);
+    child.stdout.on('data', (chunk: Buffer) => { size += chunk.length; if (size > 8 * 1024 * 1024) { failed = true; child.kill(); } else chunks.push(chunk); });
+    child.once('error', () => { failed = true; });
+    child.once('close', (code) => {
+      clearTimeout(timer);
+      if (failed || code !== 0 && code !== 1) { done(undefined); return; }
+      done({ paths: new Set(Buffer.concat(chunks).toString('utf8').split('\0').filter(Boolean).map((path) => resolve(path))), startedAt });
+    });
+  });
+}
+
 async function performNamedCandidateScan(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries: number,
   mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean, forceFull = false): Promise<boolean> {
   if (indexingMode === 'off') return false;
@@ -1944,7 +1966,13 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
   const project = await composerProjectForRoot(root);
+  const rgStarted = Date.now();
+  const rgCandidates = experimentalRipgrepCandidates && !forceFull && project && mode === 'symbol'
+    ? await ripgrepCandidatePaths(project, normalizedNames) : undefined;
+  if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies: false, limits: indexLimits, readConcurrency: 128,
+    skipSource: rgCandidates ? (path, info): boolean => !rgCandidates.paths.has(resolve(path))
+      && info.mtimeMs < rgCandidates.startedAt && info.ctimeMs < rgCandidates.startedAt : undefined,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => exactSymbols
@@ -2345,7 +2373,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2366,6 +2394,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
+  experimentalRipgrepCandidates = testMode && initialization?.experimentalRipgrepCandidates === true;
   testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);

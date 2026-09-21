@@ -10,13 +10,17 @@ if (!root || !file || !symbol || !['first', 'last'].includes(occurrence)) {
 }
 
 const compareClosure = process.env.PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLOSURE === '1';
-const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1') => {
+const compareRg = process.env.PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_RG === '1';
+if (compareClosure && compareRg) throw new Error('Select only one reference candidate comparison mode.');
+const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
+  rg = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1') => {
   const cache = await mkdtemp(join(tmpdir(), 'php-companion-first-references-'));
   try {
     const child = spawn(process.execPath, ['scripts/benchmark-language-queries.mjs', resolve(root), resolve(file), symbol,
       occurrence, cache, 'once', resolve(bundle)], {
       env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
-        PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE: closure ? '1' : '0' }, stdio: ['ignore', 'pipe', 'pipe'],
+        PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE: closure ? '1' : '0',
+        PHP_COMPANION_BENCHMARK_REFERENCE_RG: rg ? '1' : '0' }, stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = ''; let stderr = '';
     child.stdout.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
@@ -29,8 +33,9 @@ const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFEREN
     const phase = (pattern) => Number(pattern.exec(stderr)?.[1] ?? NaN);
     const candidateScan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+) restored=(\d+) declarations=(\d+) restoredDeclarations=(\d+) prepared=(\d+) preparedRestores=(\d+)/.exec(stderr);
     const closureResult = /\[reference-closure\] roots=(\d+) loaded=(\d+) unresolved=(\d+) missing=(\[[^\n]*\])/.exec(stderr);
+    const rgResult = /\[reference-rg\] paths=(\d+) elapsedMs=(\d+)/.exec(stderr);
     return {
-      bundle, ...(compareClosure ? { referenceClosure: closure } : {}), elapsedMs: query.elapsedMs,
+      bundle, ...(compareClosure ? { referenceClosure: closure } : {}), ...(compareRg ? { ripgrepCandidates: rg } : {}), elapsedMs: query.elapsedMs,
       results: query.results, locationSha256: query.locationSha256,
       ...(query.peakRssKiB ? { peakRssKiB: query.peakRssKiB } : {}),
       namedCandidateScans: [...stderr.matchAll(/\[named-candidates\]/g)].length,
@@ -41,6 +46,7 @@ const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFEREN
         preparedRestores: Number(candidateScan[8]),
       } } : {}),
       ...(closureResult ? { closure: { roots: Number(closureResult[1]), loaded: Number(closureResult[2]), unresolved: Number(closureResult[3]), missing: JSON.parse(closureResult[4]) } } : {}),
+      ...(rgResult ? { rg: { paths: Number(rgResult[1]), elapsedMs: Number(rgResult[2]) } } : {}),
       phasesMs: {
         candidates: phase(/\[named-candidates\][^\n]*elapsedMs=(\d+)/),
         container: phase(/\[references:\d+\] container elapsedMs=(\d+)/),
@@ -52,9 +58,10 @@ const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFEREN
   } finally { await rm(cache, { recursive: true, force: true }); }
 };
 
-if (compareClosure && baseline) throw new Error('Compare the reference-closure mode with the same bundle; omit the baseline bundle.');
-const reference = compareClosure ? await run(candidate, false) : baseline ? await run(baseline) : undefined;
-const result = await run(candidate, compareClosure || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1');
+if ((compareClosure || compareRg) && baseline) throw new Error('Compare candidate modes with the same bundle; omit the baseline bundle.');
+const reference = compareClosure || compareRg ? await run(candidate, false, false) : baseline ? await run(baseline) : undefined;
+const result = await run(candidate, compareClosure || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
+  compareRg || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1');
 const expectedHash = process.env.PHP_COMPANION_EXPECTED_REFERENCES_SHA256;
 if (expectedHash && result.locationSha256 !== expectedHash) throw new Error(`References locations changed: ${result.locationSha256}`);
 if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && result.namedCandidateScans !== 1) {

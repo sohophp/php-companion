@@ -73,6 +73,33 @@ describe('bounded project source index', () => {
     const result = await indexComposerSources(root, { onSource: ({ source }) => { sources.push(source); } });
     expect(result).toMatchObject({ files: 1, complete: true }); expect(sources).toEqual(['<?php class User {}']);
   });
+  it('accounts for filtered files without preparing or emitting their source', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-filtered-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'Target.php'), '<?php class Target {}');
+    await writeFile(join(root, 'src', 'Noise.php'), '<?php class Noise {}');
+    const prepared: string[] = []; const emitted: string[] = [];
+    const result = await indexComposerSources(root, { readConcurrency: 2,
+      skipSource: (path) => path.endsWith('Noise.php'),
+      prepareSource: async ({ path }) => { prepared.push(path); },
+      onSource: ({ path }) => { emitted.push(path); },
+    });
+    expect(result).toMatchObject({ files: 2, projectComplete: true });
+    expect(prepared).toEqual([join(root, 'src', 'Target.php')]);
+    expect(emitted).toEqual(prepared);
+  });
+  it('retains unchanged cache entries for files omitted by a source prefilter', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-filter-cache-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'Target.php'), '<?php class Target {}');
+    await writeFile(join(root, 'src', 'Noise.php'), '<?php class Noise {}');
+    const cache = { directory: join(root, '.cache'), version: 'prefilter-v1', restore: (): boolean => true };
+    await indexComposerSources(root, { cache, onSource: ({ path }) => ({ path }) });
+    const filtered = await indexComposerSources(root, { cache, skipSource: (path) => path.endsWith('Noise.php'), onSource: () => undefined });
+    expect(filtered).toMatchObject({ files: 2, cached: 1, projectComplete: true });
+    const reused = await indexComposerSources(root, { cache, onSource: () => undefined });
+    expect(reused).toMatchObject({ files: 2, cached: 2, projectComplete: true });
+  });
   it('reuses a caller-owned immutable Composer project snapshot', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-project-snapshot-')); await mkdir(join(root, 'src'));
     const composerPath = join(root, 'composer.json');

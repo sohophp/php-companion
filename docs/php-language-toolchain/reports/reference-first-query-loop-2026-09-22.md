@@ -118,3 +118,13 @@ Winstar 独立空缓存 `get` 试验：精确候选解析 453 个文件，递归
 为缩短下一轮验证，`benchmark-first-references.mjs` 新增 `PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLOSURE=1`：同一 bundle 串行运行默认和闭包试验，各用独立空缓存，自动核对引用数量与位置摘要。命令为 `PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_CLOSURE=1 PHP_COMPANION_EXPECTED_REFERENCES_SHA256=bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2 node scripts/benchmark-first-references.mjs /var/www/php/8.5/winstar2024 /var/www/php/8.5/winstar2024/src/Security/AdminPasswordChangeGuard.php get last`。首次运行 7,842/7,264 ms，差值 578 ms，仍为相同的 112 处。这个差值小于各轮环境波动，不作为上线收益承诺。
 
 构造了一个非标准文件名的父类：`Consumer extends Base`，`Base` 的属性为 `Bag`，而 `Base` 声明在 `Legacy.php`。仅按精确 `get` 过滤时会漏掉 `Base` 并返回 0 处；新增回退后恢复为 1 处，完整位置摘要与正式扫描一致，并有 stdio 回归测试。这个例子证明回退必要，但不足以证明任意 Composer 项目的精确路径完整；尤其不能仅凭 PSR-4 解析成功就断言不存在其他动态或混合自动加载来源。正式启用前需要建立声明目录与可验证的覆盖条件，或采用更保守的回退策略，并对多种 Composer 布局及真实工作区做差分测试。
+
+## 长名字源码预筛试验（仅测试模式）
+
+对至少 8 个 ASCII 字符的查询名，实验性地先用本机 `rg` 对 Composer 项目自动加载路径执行不受 ignore 配置限制、包含隐藏文件和符号链接的固定子串搜索，再让原来的候选扫描只读取命中的 PHP 源码。项目文件仍逐一计数并检查大小预算；未命中的文件只有在修改时间与状态变更时间都早于预筛开始前 1 秒时才跳过读取。`rg` 缺失、超时、报错或输出超过预算时自动使用完整扫描。已存在且元数据未变化的候选缓存项保留。该路径须由内部 `testMode` 加 `experimentalRipgrepCandidates` 显式启用，正式扩展未启用，也不要求用户安装 `rg`。
+
+Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber` 类声明 5,095→3,811 ms，完整 2 处位置摘要均为 `c0d5d86b7e083c6f21354d508f2897712e0b7b6a8663efd6cf2066788ff221fd`；反向顺序再测，试验 3,764 ms、默认 5,001 ms。`shouldRedirect` 方法声明 4,721→3,572 ms，完整 1 处位置摘要一致。类名场景中 `rg` 用 82 ms 筛出 31 个文件，候选阶段从 2,614 降至 1,222 ms；方法场景筛出 33 个文件，候选阶段从 2,488 降至 1,232 ms。两场景解析文件数与默认路径一致，说明收益来自避免读取原本也不会加入语义工作区的源码。短名字 `get` 未启用该试验，仍需单独解决其约 8 秒首次等待。`PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_RG=1` 可在同一 bundle 上串行复测并自动核对位置。
+
+这仍只是受控 WSL 基准。推广到正式路径前，需覆盖不同 Composer 自动加载布局、符号链接、文件变化窗口、缓存重载、`rg` 缺失以及真实 VS Code Extension Host；若无法证明预筛的文件集合完整，应继续走原扫描。即使这些条件通过，类名场景约 3.7 秒也尚未达到理想的首次交互速度，后续要进一步缩短 Symfony Provider 和语义准备时间。
+
+已用清空 `PATH` 的独立进程验证 `rg` 缺失：`AdminSecuritySubscriber` 仍走原候选扫描，4,842 ms、2 处及相同位置摘要。项目索引包 36 项、Language Server 234 项（另 1 项跳过）、改动文件 ESLint 通过。预筛路径会少记录未读取文件的内容哈希，因此现有完整 References 结果的持久化证明不会生成；目前不能直接把这个局部加速默认打开，否则可能让重载后的已证实结果恢复退化。正式化需要为预筛集合建立同等严格的完整性证据或在后台补齐哈希，随后复测冷启动与重载两种场景。

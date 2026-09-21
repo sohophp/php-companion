@@ -17,7 +17,10 @@ export interface IndexedSource { uri: string; path: string; source: string; byte
 export type ProjectIndexCacheRestoreResult = boolean | 'source';
 export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; prepareRestore?: (payload: unknown, source: Omit<IndexedSource, 'source'>) => unknown | Promise<unknown>; finalizePayload?: (payload: unknown) => unknown | Promise<unknown>; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>, prepared?: unknown) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
-export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; prepareSource?: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
+export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; prepareSource?: (source: IndexedSource) => unknown | Promise<unknown>;
+  /** Use only with a conservative, complete source prefilter. Skipped files still count toward project limits. */
+  skipSource?: (path: string, info: { size: number; mtimeMs: number; ctimeMs: number }) => boolean;
+  onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
 function validateLimits(limits: ProjectIndexLimits): void {
@@ -74,12 +77,13 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
     warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
   };
-  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; inspectFailed?: boolean; readFailed?: boolean };
+  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; inspectFailed?: boolean; readFailed?: boolean; omitted?: boolean };
   const prefetch = async (path: string): Promise<PrefetchedSource> => {
     let information;
     try { information = await stat(path); } catch { return { inspectFailed: true }; }
     const info = { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs };
     if (info.size > limits.maxFileSizeBytes) return { info };
+    if (options.skipSource?.(path, info)) return { info, omitted: true };
     const old = previous.get(path);
     if (options.cache && old && old.size === info.size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs) {
       if (!options.cache.prepareRestore || options.shouldContinue?.() === false) return { info };
@@ -132,6 +136,14 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       else warnings.push(`Dependency index was truncated to fit the ${limits.maxTotalBytes}-byte budget.`);
       if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
       return 'budget';
+    }
+    if (prefetched?.omitted || !prefetched && options.skipSource?.(path, info)) {
+      const old = previous.get(path);
+      if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs) next.set(path, old);
+      bytes += size; indexed += 1;
+      options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
+      if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
+      return 'indexed';
     }
     try {
       const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString(); const old = previous.get(path); let restoreAttempted = false;
