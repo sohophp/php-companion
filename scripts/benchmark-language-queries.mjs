@@ -12,6 +12,7 @@ const cacheDirectory = process.argv[6] ? resolve(process.argv[6]) : undefined;
 const once = process.argv[7] === 'once';
 const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/language-server/dist/server.js';
 const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
+const indexingMode = process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'experimental' ? 'experimental' : 'onDemand';
 const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const persistReferences = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE === '1';
 const symfonyProfile = process.env.PHP_COMPANION_BENCHMARK_SYMFONY === '1';
@@ -49,7 +50,7 @@ const request = (method, params) => new Promise((done, reject) => {
   send({ jsonrpc: '2.0', id, method, params });
 });
 try {
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory, testMode: auditInputs || persistReferences, ...frameworkInitialization } });
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences, ...frameworkInitialization } });
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
   if (Number.isSafeInteger(initialIdleMs) && initialIdleMs > 0 && initialIdleMs <= 5_000) await new Promise((done) => setTimeout(done, initialIdleMs));
