@@ -1492,13 +1492,26 @@ export class SemanticWorkspace {
   dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
-    this.assertedTargetInferenceCache.clear();
-    this.externalFacts.set(contribution.providerId, semanticFacts(contribution.providerId, contribution.generation, {
+    const previous = this.externalFacts.get(contribution.providerId);
+    const next = semanticFacts(contribution.providerId, contribution.generation, {
       complete: contribution.complete,
-      methods: contribution.methods.map((fact) => ({ ...fact })),
+      methods: contribution.methods.map((fact) => ({ ...fact,
+        ...(fact.returnTypeTemplates ? { returnTypeTemplates: [...fact.returnTypeTemplates] } : {}),
+        ...(fact.receiverTypeTemplates ? { receiverTypeTemplates: [...fact.receiverTypeTemplates] } : {}),
+      })),
       properties: contribution.properties.map((fact) => ({ ...fact })),
       literalMethodReturns: contribution.literalMethodReturns.map((fact) => ({ ...fact })),
-    }));
+    });
+    let unchanged = false;
+    if (previous) try {
+      unchanged = JSON.stringify([previous.methods, previous.properties, previous.literalMethodReturns])
+        === JSON.stringify([next.methods, next.properties, next.literalMethodReturns]);
+    } catch { /* Non-serializable extras must not permit cache reuse. */ }
+    this.externalFacts.set(contribution.providerId, next);
+    // Provider generation and registration metadata are not semantic inputs.
+    // Preserve completed queries only when all consumed facts are identical.
+    if (unchanged) return true;
+    this.assertedTargetInferenceCache.clear();
     this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches();
     return true;
   }

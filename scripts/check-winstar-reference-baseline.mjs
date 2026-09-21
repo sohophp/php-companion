@@ -22,7 +22,7 @@ try {
     const child = spawn(process.execPath, [
       'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
     ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1', PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
+      env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1', PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });

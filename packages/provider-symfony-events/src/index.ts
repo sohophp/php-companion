@@ -59,13 +59,20 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
   }
   if (unique.size > maxFiles) throw new Error(`Symfony event source count exceeds ${maxFiles}.`);
   const result: ProjectSource[] = []; let bytes = 0;
-  for (const [path, uri] of [...unique].sort(([left], [right]) => left.localeCompare(right))) {
-    const actual = await realpath(path); if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
-    const snapshot = snapshots.get(path); const source = snapshot?.source ?? await readFile(actual, 'utf8');
-    bytes += Buffer.byteLength(source); if (source.length > 1_000_000 || bytes > maxTotalBytes) {
-      throw new Error(`Symfony event source budget exceeds ${maxTotalBytes} bytes.`);
+  const paths = [...unique].sort(([left], [right]) => left.localeCompare(right));
+  // Bound concurrent IO while preserving source order and all-or-nothing facts.
+  for (let index = 0; index < paths.length; index += 8) {
+    const batch = await Promise.all(paths.slice(index, index + 8).map(async ([path, uri]) => {
+      const actual = await realpath(path); if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+      const snapshot = snapshots.get(path); const source = snapshot?.source ?? await readFile(actual, 'utf8');
+      if (source.length > 1_000_000) throw new Error(`Symfony event source budget exceeds ${maxTotalBytes} bytes.`);
+      return { path, uri: snapshot?.uri ?? uri, source };
+    }));
+    for (const source of batch) {
+      bytes += Buffer.byteLength(source.source);
+      if (bytes > maxTotalBytes) throw new Error(`Symfony event source budget exceeds ${maxTotalBytes} bytes.`);
+      result.push(source);
     }
-    result.push({ path, uri: snapshot?.uri ?? uri, source });
   }
   return result;
 }

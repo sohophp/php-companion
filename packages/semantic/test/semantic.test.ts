@@ -7,6 +7,26 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('keeps reference results for identical provider facts but invalidates changed and removed return types', () => {
+    const local = new SemanticWorkspace(parser); const uri = 'file:///ProviderReferenceReuse.php';
+    const source = `<?php class Item { function label(): void {} } class Other { function label(): void {} }
+      class Model { public function fetch(): mixed {} } function useModel(Model $model): void { $model->fetch()->label(); }`;
+    local.update(uri, source);
+    const fact = { ownerFqcn: 'Model', name: 'fetch', returnType: 'Item', uri: 'file:///services.yaml', start: 0, end: 1 };
+    expect(local.replaceExternalFacts(semanticFacts('provider', '1', { methods: [fact] }))).toBe(true);
+    const offset = source.indexOf('label()') + 1;
+    const expected = local.references(uri, offset, false); expect(expected).toHaveLength(1);
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      expect(local.replaceExternalFacts(semanticFacts('provider', '2', { methods: [{ ...fact }] }))).toBe(true);
+      expect(local.references(uri, offset, false)).toEqual(expected); expect(parseTree).not.toHaveBeenCalled();
+      expect(local.replaceExternalFacts(semanticFacts('provider', '3', { methods: [{ ...fact, returnType: 'Other' }] }))).toBe(true);
+      expect(local.references(uri, offset, false)).toEqual([]); expect(parseTree).toHaveBeenCalled();
+      const otherOffset = source.indexOf('label()', source.indexOf('class Other')) + 1;
+      expect(local.references(uri, otherOffset, false)).toHaveLength(1);
+      local.removeExternalFacts('provider'); expect(local.references(uri, otherOffset, false)).toEqual([]);
+    } finally { parseTree.mockRestore(); local.dispose(); }
+  });
   it('reuses restored callable facts without invalidating references until another callable is loaded', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///DeferredOnce.php';
@@ -4575,13 +4595,15 @@ final class Imported { public const TYPE = Stable::class; }`);
     const source = '<?php namespace ProviderFacts; function useModel(Model $model): void { $model->old(); $model->current; }';
     workspace.update('file:///ProviderUse.php', source);
     const location = { uri: 'file:///provider.json', start: 0, end: 1 };
-    const first = semanticFacts('vendor.provider', '1', { methods: [{ ownerFqcn: 'ProviderFacts\\Model', name: 'old', returnType: 'ProviderFacts\\Item', ...location }] });
+    const templateNames = ['T'];
+    const first = semanticFacts('vendor.provider', '1', { methods: [{ ownerFqcn: 'ProviderFacts\\Model', name: 'old', returnType: 'ProviderFacts\\Item', returnTypeTemplates: templateNames, ...location }] });
     const emptyIdentity = workspace.externalFactsIdentity();
     expect(workspace.replaceExternalFacts(first)).toBe(true);
     const methodIdentity = workspace.externalFactsIdentity(); expect(methodIdentity).not.toBe(emptyIdentity);
     expect(workspace.replaceExternalFacts({ ...first, generation: 'repeated' })).toBe(true);
     expect(workspace.externalFactsIdentity()).toBe(methodIdentity);
     (first.methods as Array<{ name: string }>)[0]!.name = 'mutated';
+    templateNames[0] = 'Mutated';
     expect(workspace.externalFactsIdentity()).toBe(methodIdentity);
     expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('old();') + 3).map((item) => item.name)).toEqual(['old']);
     expect(workspace.references('file:///ProviderUse.php', source.indexOf('old();') + 1)).toContainEqual(

@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -12,6 +12,40 @@ describe('standalone Symfony event provider', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
   afterEach(async () => Promise.all(roots.splice(0).map((path) => rm(path, { recursive: true, force: true }))));
+
+  it('retains every source across read batches, honors snapshots and rejects incomplete or over-budget input', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'symfony-events-batches-')); roots.push(root);
+    const types: SemanticProviderProjectType[] = [];
+    for (let index = 0; index < 17; index += 1) {
+      const path = join(root, `${String(index).padStart(2, '0')}.php`);
+      await writeFile(path, `<?php namespace App; class Dispatch${index} { function run($dispatcher) { $dispatcher->dispatch(new Event${index}()); } }`);
+      types.push({ fqcn: `App\\Dispatch${index}`, kind: 'class', abstract: false, path,
+        uri: pathToFileURL(path).toString(), start: 27, end: 37 });
+    }
+    const options = { projectTypes: [...types].reverse().concat(types[0]!), containerServices: [], documents: [{
+      uri: types[16]!.uri, languageId: 'php' as const, snapshotVersion: '2',
+      source: '<?php namespace App; class Dispatch16 { function run($dispatcher) { $dispatcher->dispatch(new EditedEvent()); } }',
+    }] };
+    const facts = await collectSymfonyEventFacts(root, parser, options);
+    expect(facts.sourceUris).toEqual(types.map((type) => type.uri));
+    expect(facts.dispatches.map((fact) => fact.event)).toEqual([
+      ...Array.from({ length: 16 }, (_, index) => `App\\Event${index}`), 'App\\EditedEvent',
+    ]);
+    await expect(collectSymfonyEventFacts(root, parser, { ...options, maxFiles: 16 })).rejects.toThrow('source count');
+    await expect(collectSymfonyEventFacts(root, parser, { ...options, maxTotalBytes: 100 })).rejects.toThrow('source budget');
+    await rm(types[12]!.path);
+    await expect(collectSymfonyEventFacts(root, parser, options)).rejects.toThrow('ENOENT');
+  });
+
+  it('rejects a symlink that escapes the project instead of returning partial event facts', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'symfony-events-contained-')); roots.push(root);
+    const outside = await mkdtemp(join(tmpdir(), 'symfony-events-outside-')); roots.push(outside);
+    const target = join(outside, 'Outside.php'); await writeFile(target, '<?php class Outside {}');
+    const path = join(root, 'Linked.php'); await symlink(target, path);
+    await expect(collectSymfonyEventFacts(root, parser, { containerServices: [], projectTypes: [{
+      fqcn: 'Outside', kind: 'class', abstract: false, path, uri: pathToFileURL(path).toString(), start: 12, end: 19,
+    }] })).rejects.toThrow('outside the project root');
+  });
 
   it('extracts registered direct and inherited subscriptions plus dispatch candidates from open snapshots', async () => {
     const root = await mkdtemp(join(tmpdir(), 'symfony-events-provider-')); roots.push(root); await mkdir(join(root, 'src'));

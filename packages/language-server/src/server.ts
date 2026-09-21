@@ -570,6 +570,7 @@ function eventProviderInputSignature(generation: number, documentsSnapshot: read
 
 async function runEventProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, onlyIfStale = false): Promise<boolean> {
+  const started = Date.now();
   const requestRevision = beginRootSemanticProviderRequest(root, 'events');
   const stillCurrent = (): boolean => shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'events', requestRevision);
   const authoritative = semanticProviders.filter((provider) => provider.replacesEventRelations);
@@ -590,6 +591,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const inputSignature = eventProviderInputSignature(generation, snapshots.documents, types.projectTypes, services);
   const current = externalSymfonyEventsByRoot.get(root);
   if (onlyIfStale && current?.providerId === descriptor.providerId && current.inputSignature === inputSignature) return true;
+  const providerStarted = Date.now();
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
     generation: String(generation), phpVersion: targetPhpVersion,
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
@@ -599,7 +601,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   if (result.ok && result.contribution.eventSubscriptions && result.contribution.eventDispatches) {
     externalSymfonyEventsByRoot.set(root, { providerId: descriptor.providerId, inputSignature,
       subscriptions: [...result.contribution.eventSubscriptions], dispatches: [...result.contribution.eventDispatches] });
-    connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative event generation ${generation}.`); return true;
+    connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative event generation ${generation}. prepareMs=${providerStarted - started} runMs=${Date.now() - providerStarted}`); return true;
   }
   externalSymfonyEventsByRoot.delete(root);
   connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete event snapshot; Symfony event relations are unavailable.`
@@ -3771,17 +3773,13 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    const containerStarted = Date.now();
     const symfonyClassTarget = type?.fqcn ?? (member?.kind === 'method' ? member.fqcn.split('::')[0] : undefined);
     if (symfonyClassTarget && root && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
       await refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !token.isCancellationRequested);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     }
-    const semanticStarted = Date.now();
-    const writeReferenceResult = root && scope === 'project'
-      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id) : undefined;
-    const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
-    connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
     const serviceLocations = type ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
       .map((service) => ({ uri: service.registrationUri, start: service.registrationStart, end: service.registrationEnd })) : [];
@@ -3805,6 +3803,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           .map((reference) => ({ uri: configUri, start: reference.start, end: reference.end })));
       }
     }
+    connection.console.info(`[references:${id}] container elapsedMs=${Date.now() - containerStarted}`);
+    const routesStarted = Date.now();
     const controllerRoutes = symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)
       ? await availableSymfonyRoutes(root, () => token.isCancellationRequested) : [];
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -3818,6 +3818,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         return effective?.fqcn.toLowerCase() === member.fqcn.toLowerCase()
           ? [{ uri: controller.uri, start: controller.methodStart, end: controller.methodEnd }] : [];
       }) : [];
+    connection.console.info(`[references:${id}] routes elapsedMs=${Date.now() - routesStarted}`);
+    const eventsStarted = Date.now();
     if (root) {
       await runEventProvider(root, indexingGeneration, workspace, () => !token.isCancellationRequested, true);
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
@@ -3864,6 +3866,14 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           || workspace.isSubtype(owner, 'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface')
           || workspace.isSubtype(owner, 'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
       }).map((fact) => ({ uri: fact.uri, start: fact.eventStart, end: fact.eventEnd })) : [];
+    connection.console.info(`[references:${id}] events elapsedMs=${Date.now() - eventsStarted}`);
+    // Framework queries can hydrate declarations and invalidate PHP query
+    // caches. Finish that work before computing the reusable semantic result.
+    const semanticStarted = Date.now();
+    const writeReferenceResult = root && scope === 'project'
+      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id) : undefined;
+    const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
+    connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
     const rawLocations = [...new Map([...semanticLocations, ...serviceLocations, ...serviceReferenceLocations, ...controllerLocations, ...eventLocations, ...taggedEventLocations, ...dispatchLocations]
       .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
     const resolvedLocations = await Promise.all(rawLocations.map(async (location) => {

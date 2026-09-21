@@ -5419,6 +5419,10 @@ final class Dispatching { public function __construct(private EventDispatcherInt
       expect(result).toContainEqual({ uri, range: { start: lspPosition(source, listenerStart), end: lspPosition(source, listenerStart + 7) } });
       expect(result).toContainEqual({ uri: dispatchUri,
         range: { start: lspPosition(initialDispatchSource, dispatchedStart), end: lspPosition(initialDispatchSource, dispatchedStart + 16) } });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 665, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, listenerStart + 2), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 665)).result).toEqual(result);
       await writeFile(dispatchPath, dispatchSource('OtherEvent'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: dispatchUri, type: 2 }] } }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${dispatchUri}`));

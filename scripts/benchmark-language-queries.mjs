@@ -14,6 +14,10 @@ const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/
 const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
 const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const persistReferences = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE === '1';
+const symfonyProfile = process.env.PHP_COMPANION_BENCHMARK_SYMFONY === '1';
+const frameworkInitialization = symfonyProfile
+  ? await (await import('./benchmark-symfony-profile.mjs')).symfonyBenchmarkInitialization(
+    process.env.PHP_COMPANION_BENCHMARK_SYMFONY_BUNDLE_DIR ? resolve(process.env.PHP_COMPANION_BENCHMARK_SYMFONY_BUNDLE_DIR) : undefined) : {};
 const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${resolve(profileDirectory)}`] : []),
   serverEntrypoint, '--stdio', ...(process.argv[8] ? ['--parser-core-wasm', join(dirname(serverEntrypoint), 'web-tree-sitter.wasm'),
     '--php-wasm', join(dirname(serverEntrypoint), 'tree-sitter-php.wasm')] : [])], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -32,7 +36,8 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
-    if (message.method === 'window/logMessage' && /\[(?:named-candidates|references:|reference-cache)/.test(message.params?.message ?? '')) {
+    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache)/.test(message.params?.message ?? '')
+      || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
     }
     else if (pending.has(message.id)) { pending.get(message.id)(message); pending.delete(message.id); }
@@ -44,7 +49,7 @@ const request = (method, params) => new Promise((done, reject) => {
   send({ jsonrpc: '2.0', id, method, params });
 });
 try {
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory, testMode: auditInputs || persistReferences } });
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode: 'onDemand', cacheDirectory, testMode: auditInputs || persistReferences, ...frameworkInitialization } });
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const source = await readFile(file, 'utf8'); const uri = pathToFileURL(file).toString();
   const match = occurrence === 'last' ? source.lastIndexOf(name) : source.indexOf(name); const offset = match + 1;
