@@ -18,6 +18,7 @@ export interface SymfonyBundleRegistrationFacts { complete: boolean; bundles: Sy
 export type SymfonyLiteralMethodReturnFact = ExternalLiteralMethodReturnFact;
 export interface SymfonyServiceIdReference { value: string; start: number; end: number; }
 export interface SymfonyServiceIdPrefix { prefix: string; start: number; end: number; }
+export interface SymfonyParameterIdLocation { value: string; start: number; end: number; }
 export interface SymfonyAutowireResolution { serviceId: string; className: string; uri: string; start: number; end: number; kind: 'exact' | 'named-alias' | 'binding' | 'inferred' | 'compiled'; inferredAlias: boolean; }
 export interface SymfonyCompiledMethodArgumentFact { callableFqcn: string; parameter?: string; parameterIndex?: number; serviceId: string; className: string; uri: string; start: number; end: number; }
 export interface SymfonyCompiledPropertyArgumentFact { ownerFqcn: string; property: string; serviceId: string; className: string; uri: string; start: number; end: number; }
@@ -987,6 +988,50 @@ export function symfonyYamlServiceReferencePrefixAt(source: string, offset: numb
     return undefined;
   };
   return visit(document.contents);
+}
+
+const SYMFONY_PARAMETER_ID = /^[A-Za-z0-9_.-]+$/;
+
+/** Enumerate exact top-level YAML parameter declaration keys without reading their values. */
+export function symfonyYamlParameterDeclarations(source: string): SymfonyParameterIdLocation[] {
+  const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
+  if (document.errors.length || !isMap(document.contents)) return [];
+  const parameters = mapValue(document.contents, 'parameters'); if (!isMap(parameters)) return [];
+  return (parameters.items as Pair[]).flatMap((pair): SymfonyParameterIdLocation[] => {
+    const key = pair.key as Node | null; const value = scalarValue(key); const range = key ? scalarRange(key, source) : undefined;
+    if (typeof value !== 'string' || !SYMFONY_PARAMETER_ID.test(value) || !range
+      || source.slice(range.start, range.end) !== value) return [];
+    return [{ value, start: range.start, end: range.end }];
+  });
+}
+
+/** Enumerate exact `%parameter.id%` placeholders in YAML scalar values, excluding escaped and env expressions. */
+export function symfonyYamlParameterReferences(source: string): SymfonyParameterIdLocation[] {
+  const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
+  if (document.errors.length) return [];
+  const references: SymfonyParameterIdLocation[] = [];
+  const visit = (node: Node | null | undefined): void => {
+    if (!node) return;
+    if (isScalar(node)) {
+      const range = scalarRange(node, source); const value = scalarValue(node);
+      if (!range || typeof value !== 'string' || source.slice(range.start, range.end) !== value) return;
+      for (const match of value.matchAll(/%([A-Za-z0-9_.-]+)%/g)) {
+        if (match.index === undefined || value[match.index - 1] === '%' || value[match.index + match[0].length] === '%') continue;
+        const start = range.start + match.index + 1;
+        references.push({ value: match[1]!, start, end: start + match[1]!.length });
+      }
+      return;
+    }
+    if (isSeq(node)) for (const item of node.items) visit(item as Node | null);
+    else if (isMap(node)) for (const pair of node.items as Pair[]) visit(pair.value as Node | null);
+  };
+  visit(document.contents); return references;
+}
+
+/** Locate one exact YAML `%parameter.id%` placeholder at the requested source offset. */
+export function symfonyYamlParameterReferenceAt(source: string, offset: number): SymfonyParameterIdLocation | undefined {
+  if (offset < 0 || offset > source.length) return undefined;
+  return symfonyYamlParameterReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {

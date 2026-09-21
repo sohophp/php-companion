@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -428,6 +428,37 @@ services:
     expect(symfonyYamlServiceReferencePrefixAt(source, source.indexOf('@@literal') + 3)).toBeUndefined();
     expect(symfonyYamlServiceReferencePrefixAt(source, source.indexOf('@=service') + 3)).toBeUndefined();
     expect(symfonyYamlServiceReferencePrefixAt('services: [', 4)).toBeUndefined();
+  });
+
+  it('locates static YAML parameter declarations and exact value placeholders without exposing values', () => {
+    const source = `parameters:
+  app.mailer_host: 'smtp.internal'
+  'app.retry-count': 3
+  dynamic%name: ignored
+  app.endpoint: 'https://%app.mailer_host%/%app.retry-count%'
+services:
+  app.consumer:
+    arguments:
+      $host: '%app.mailer_host%'
+      $escaped: '%%app.mailer_host%%'
+      $env: '%env(MAILER_DSN)%'
+      $encoded: "prefix\\n%app.retry-count%"
+`;
+    expect(symfonyYamlParameterDeclarations(source)).toEqual([
+      { value: 'app.mailer_host', start: source.indexOf('app.mailer_host:'), end: source.indexOf('app.mailer_host:') + 'app.mailer_host'.length },
+      { value: 'app.retry-count', start: source.indexOf("'app.retry-count'") + 1, end: source.indexOf("'app.retry-count'") + 1 + 'app.retry-count'.length },
+      { value: 'app.endpoint', start: source.indexOf('app.endpoint:'), end: source.indexOf('app.endpoint:') + 'app.endpoint'.length },
+    ]);
+    const references = symfonyYamlParameterReferences(source);
+    const hostReferences = references.filter((item) => item.value === 'app.mailer_host');
+    expect(hostReferences).toHaveLength(2);
+    expect(hostReferences.every((item) => source.slice(item.start, item.end) === 'app.mailer_host')).toBe(true);
+    expect(references.filter((item) => item.value === 'app.retry-count')).toHaveLength(1);
+    expect(references.some((item) => item.value.includes('env'))).toBe(false);
+    expect(symfonyYamlParameterReferenceAt(source, hostReferences[1]!.start + 4)).toEqual(hostReferences[1]);
+    expect(symfonyYamlParameterReferenceAt(source, source.indexOf('app.mailer_host:') + 4)).toBeUndefined();
+    expect(symfonyYamlParameterDeclarations('parameters: [')).toEqual([]);
+    expect(symfonyYamlParameterReferences('parameters: [')).toEqual([]);
   });
 
   it('extracts conventional XML services, prototypes and exact listener ranges', () => {
