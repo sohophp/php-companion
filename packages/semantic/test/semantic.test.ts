@@ -3481,14 +3481,22 @@ describe('conservative semantic workspace', () => {
       isolated.update('file:///RefsConsumer.php', consumer);
       const before = parse.mock.calls.length;
       const references = isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false);
+      const originalReferences = references.map((location) => ({ ...location }));
       expect(references).toHaveLength(3);
       expect(references.every((location) => location.uri === 'file:///RefsConsumer.php')).toBe(true);
       expect(parse.mock.calls.length - before).toBeLessThanOrEqual(2);
+      const afterFirst = parse.mock.calls.length;
+      expect(isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false)).toEqual(references);
+      expect(parse.mock.calls.length).toBe(afterFirst);
+      references[0]!.start = -1;
+      expect(isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false)[0]!.start).toBeGreaterThan(0);
+      isolated.update('file:///RefsConsumer.php', consumer.replace(' + $target->get()', ''));
+      expect(isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false)).toHaveLength(2);
       const retained = new SemanticWorkspace(parser);
       try {
         retained.update('file:///RefsTarget.php', declaration, true);
         retained.update('file:///RefsConsumer.php', consumer, true);
-        expect(references).toEqual(retained.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false));
+        expect(originalReferences).toEqual(retained.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false));
       } finally { retained.dispose(); }
     } finally { parse.mockRestore(); isolated.dispose(); }
   });
@@ -4381,15 +4389,18 @@ final class Imported { public const TYPE = Stable::class; }`);
   });
   it('atomically replaces, validates and removes one semantic provider contribution', () => {
     workspace.update('file:///ProviderTypes.php', '<?php namespace ProviderFacts; class Item { public function label(): string {} } class Model {}');
-    const source = '<?php namespace ProviderFacts; function useModel(Model $model): void { $model->old; $model->current; }';
+    const source = '<?php namespace ProviderFacts; function useModel(Model $model): void { $model->old(); $model->current; }';
     workspace.update('file:///ProviderUse.php', source);
     const location = { uri: 'file:///provider.json', start: 0, end: 1 };
     const first = semanticFacts('vendor.provider', '1', { methods: [{ ownerFqcn: 'ProviderFacts\\Model', name: 'old', returnType: 'ProviderFacts\\Item', ...location }] });
     expect(workspace.replaceExternalFacts(first)).toBe(true);
     (first.methods as Array<{ name: string }>)[0]!.name = 'mutated';
-    expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('old;') + 3).map((item) => item.name)).toEqual(['old']);
+    expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('old();') + 3).map((item) => item.name)).toEqual(['old']);
+    expect(workspace.references('file:///ProviderUse.php', source.indexOf('old();') + 1)).toContainEqual(
+      expect.objectContaining({ uri: 'file:///ProviderUse.php' }));
     expect(workspace.replaceExternalFacts(semanticFacts('vendor.provider', '2', { properties: [{ ownerFqcn: 'ProviderFacts\\Model', name: 'current', returnType: 'ProviderFacts\\Item', visibility: 'public', ...location }] }))).toBe(true);
-    expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('old;') + 3)).toEqual([]);
+    expect(workspace.references('file:///ProviderUse.php', source.indexOf('old();') + 1)).toEqual([]);
+    expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('old();') + 3)).toEqual([]);
     expect(workspace.completeMembers('file:///ProviderUse.php', source.indexOf('current;') + 7).map((item) => item.name)).toEqual(['current']);
     const malformed = { ...semanticFacts('vendor.provider', '3'), methods: [{ ownerFqcn: 'ProviderFacts\\Model', name: 'broken', uri: '', start: 2, end: 1 }] };
     expect(workspace.replaceExternalFacts(malformed)).toBe(false);

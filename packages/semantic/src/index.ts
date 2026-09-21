@@ -351,6 +351,8 @@ const MAX_LOCAL_CONTROL_FLOW_DEPTH = 16;
 const MAX_MATCH_RESULT_ARMS = 64;
 const MAX_LOCAL_SYNTAX_DEPTH = 256;
 const MAX_LOCAL_SYNTAX_NODES = 100_000;
+const MAX_CACHED_REFERENCE_QUERIES = 32;
+const MAX_CACHED_REFERENCE_LOCATIONS = 2_048;
 
 type SyntaxWalkDecision = 'descend' | 'skip' | 'stop';
 
@@ -843,6 +845,7 @@ export class SemanticWorkspace {
   private readonly contextualClosureInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceCache = new Map<string, ObjectClass | null>();
+  private readonly referenceResultCache = new Map<string, SemanticLocation[]>();
   constructor(private readonly parser: PhpSyntaxParser) {}
 
   private deferredSemanticFile(declaration: SemanticDeclarationSnapshot, implementation: SemanticImplementationSnapshot): SemanticFile {
@@ -872,6 +875,7 @@ export class SemanticWorkspace {
   private loadCallableImplementations(uri: string, identities: Iterable<string>): void {
     const deferred = this.deferredImplementations.get(uri); const file = this.files.get(uri);
     if (!deferred || !file) return;
+    this.referenceResultCache.clear();
     for (const identity of identities) deferred.loadedCallables.add(identity);
     const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));
     deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });
@@ -1017,6 +1021,7 @@ export class SemanticWorkspace {
   }
 
   private clearFactoryConstructionCaches(): void {
+    this.referenceResultCache.clear();
     this.factoryConstructionSummaries.clear();
     this.callableDependencies.clear();
     this.callableDependenciesByUri.clear();
@@ -1042,6 +1047,7 @@ export class SemanticWorkspace {
   }
 
   update(uri: string, source: string, retainTree = false): SemanticUpdateResult {
+    this.referenceResultCache.clear();
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
     const oldSource = oldFile?.source; const oldTree = retainTree ? this.trees.get(uri) : undefined;
@@ -1397,6 +1403,7 @@ export class SemanticWorkspace {
     }
   }
   remove(uri: string): void {
+    this.referenceResultCache.clear();
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
     const affectedTypes = new Set((oldFile?.declarations ?? []).map((item) => item.fqcn.toLowerCase()));
@@ -1491,6 +1498,7 @@ export class SemanticWorkspace {
     }).sort((left, right) => left.uri.localeCompare(right.uri));
   }
   restoreCallableConstructionFacts(documents: unknown): number {
+    this.referenceResultCache.clear();
     this.clearFactoryConstructionCaches();
     if (!Array.isArray(documents) || documents.length > 10_000) return 0;
     let totalFacts = 0;
@@ -1598,6 +1606,7 @@ export class SemanticWorkspace {
       || dependencies.indexed && JSON.stringify(dependencies.nodes.map((node) => ({ key: node.key, dependencies: [...new Set(node.dependencies)].sort() })).sort((left, right) => left.key.localeCompare(right.key))) !== JSON.stringify(expectedDependencyNodes)
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
+    this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
     if (references.indexed) {
       this.referenceCandidates.replace(restoredFile.uri, references.keys); this.unindexedReferenceCandidateUris.delete(restoredFile.uri);
@@ -1648,6 +1657,7 @@ export class SemanticWorkspace {
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
     const uri = declarationSnapshot.uri;
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(declarationSnapshot, implementationSnapshotValue));
+    this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);
     if (references.indexed) {
       this.referenceCandidates.replace(uri, references.keys); this.unindexedReferenceCandidateUris.delete(uri);
@@ -5787,6 +5797,21 @@ export class SemanticWorkspace {
   }
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
+    const key = JSON.stringify([uri, offset, includeDeclaration]);
+    const cached = this.referenceResultCache.get(key);
+    if (cached) {
+      this.referenceResultCache.delete(key); this.referenceResultCache.set(key, cached);
+      return cached.map((location) => ({ ...location }));
+    }
+    const locations = this.referencesUncached(uri, offset, includeDeclaration);
+    if (locations.length <= MAX_CACHED_REFERENCE_LOCATIONS) {
+      this.referenceResultCache.set(key, locations.map((location) => ({ ...location })));
+      if (this.referenceResultCache.size > MAX_CACHED_REFERENCE_QUERIES) this.referenceResultCache.delete(this.referenceResultCache.keys().next().value!);
+    }
+    return locations;
+  }
+
+  private referencesUncached(uri: string, offset: number, includeDeclaration: boolean): SemanticLocation[] {
     const file = this.files.get(uri);
     const promoted = file?.properties.find((item) => item.promoted && offset >= item.start && offset <= item.end);
     const promotedReferences = promoted ? this.promotedPropertyReferences(file!, promoted) : undefined;
