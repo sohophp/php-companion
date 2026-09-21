@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 References 候选流水线与传输：候选预读窗口改为已有上限 64，语法事实由 worker JSON 序列化后传输，单文件更新复用 PHPDoc，并将 worker 上限降为 4。同轮实验冷查询 9.289→8.004 秒、峰值 RSS 894,400→729,928 KiB；正式 bundle 冷查询 8.249 秒、Reload 首次 6.481 秒，两次仍为相同 112 处完整引用。语义包 287、Language Server 204 项、相关 TypeScript/ESLint、正式构建和默认基线命令通过。基准支持可选峰值 RSS 输出；未冻结新 VSIX，首次查询仍须优化。证据见 [候选流水线与语法事实传输](reports/reference-preparation-transport-2026-09-21.md)。
+
 2026-09-21 References 局部语法查找范围裁剪：跳过范围外子树、无 yield 候选的函数跳过生成器分析。Winstar 冷查询语义阶段同机对照 3.326→2.874 秒，保持相同 112 处完整引用；正式 bundle 冷查询 9.203 秒、Reload 首次 6.332 秒。语义包 286、Language Server 200 项、相关 TypeScript/ESLint、正式构建和真实项目摘要基线命令通过；首次交互仍慢，Goal 继续。证据见 [限制局部语法查找范围](reports/ranged-reference-syntax-2026-09-21.md)。
 
 2026-09-21 首次 References 有界连续预读：移除每批 32 文件的整批等待，保持语义提交顺序与候选范围。Winstar 同文件数冷对照 11.518→9.826 秒，完整 112 处引用摘要一致；正式 bundle 冷查询 9.731 秒、Reload 首次 7.263 秒，结果仍一致。Index 34、Language Server 200 项、相关 TypeScript/ESLint 和正式构建通过。验证按聚焦迭代加一次 LSP 全量回归执行，未重新冻结 VSIX；交互耗时目标仍未达成。证据见 [有界连续预读](reports/rolling-reference-prefetch-2026-09-21.md)。

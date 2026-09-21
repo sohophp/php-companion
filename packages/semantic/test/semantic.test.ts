@@ -17,16 +17,17 @@ describe('conservative semantic workspace', () => {
     expect(restored.definition(uri, source.indexOf('CacheRoundTrip') + 1)).toEqual(workspace.definition(uri, source.indexOf('CacheRoundTrip') + 1));
     restored.dispose();
   });
-  it('matches ordered workspace facts when syntax was prepared on another thread', () => {
+  it.each(['structured-clone', 'json'] as const)('matches ordered workspace facts after %s transport', (transport) => {
+    const transfer = <T>(value: T): T => transport === 'json' ? JSON.parse(JSON.stringify(value)) as T : structuredClone(value);
     const eager = new SemanticWorkspace(parser); const prepared = new SemanticWorkspace(parser);
     const declarationUri = 'file:///PreparedBase.php'; const useUri = 'file:///PreparedUse.php';
     const declaration = '<?php namespace App; class Base { public function get(): string { return "ok"; } }';
     const use = '<?php namespace App; class Child extends Base { function run(): string { if (true) { $value = $this->get(); } return $value; } }';
     try {
       eager.updateDeclarations(declarationUri, declaration);
-      prepared.updatePrepared(declarationUri, declaration, structuredClone(parser.prepare(declaration, declarationUri, true)));
+      prepared.updatePrepared(declarationUri, declaration, transfer(parser.prepare(declaration, declarationUri, true)));
       eager.update(useUri, use);
-      prepared.updatePrepared(useUri, use, structuredClone(parser.prepare(use, useUri, false)));
+      prepared.updatePrepared(useUri, use, transfer(parser.prepare(use, useUri, false)));
       expect(prepared.snapshot(useUri)).toEqual(eager.snapshot(useUri));
       expect(prepared.snapshot(declarationUri)).toEqual(eager.snapshot(declarationUri));
       expect(prepared.definition(useUri, use.indexOf('get();') + 1)).toEqual(eager.definition(useUri, use.indexOf('get();') + 1));

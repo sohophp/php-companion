@@ -1127,7 +1127,12 @@ export class SemanticWorkspace {
     } : this.parser.parse(source, oldTree, uri);
     const changedRanges = oldTree && parsed.tree ? oldTree.getChangedRanges(parsed.tree).length : 0;
     try {
-      const docBefore = (offset: number): ParsedPhpDoc | undefined => adjacentPhpDoc({ source, commentRanges: parsed.commentRanges }, offset);
+      // All consumers in this update see the same source and comment ranges.
+      const docsByOffset = new Map<number, ParsedPhpDoc | undefined>();
+      const docBefore = (offset: number): ParsedPhpDoc | undefined => {
+        if (!docsByOffset.has(offset)) docsByOffset.set(offset, adjacentPhpDoc({ source, commentRanges: parsed.commentRanges }, offset));
+        return docsByOffset.get(offset);
+      };
       const callables = parsed.callables.map((callable) => {
         const doc = docBefore(callable.declarationStart);
         const docReturn = preferredDocTags(doc, (tag) => tag.name === 'return', () => 'return').at(-1)?.type;

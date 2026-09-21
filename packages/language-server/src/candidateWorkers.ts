@@ -26,6 +26,8 @@ export interface PreparedCandidate {
   facts?: PreparedPhpDocument;
 }
 
+export interface SerializedPreparedCandidate { id: number; json: string; }
+
 export interface CandidateRestore {
   kind: 'restore'; id: number; uri: string; hash: string; payload: unknown; deferBodies: boolean;
 }
@@ -61,16 +63,22 @@ export class CandidateWorkers {
   private start(): void {
     if (this.slots.length || this.disabled) return;
     const path = resolve(dirname(process.argv[1] ?? ''), 'candidateWorker.js');
-    for (let index = 0; index < Math.min(8, availableParallelism()); index += 1) {
+    for (let index = 0; index < Math.min(4, availableParallelism()); index += 1) {
       try {
         const worker = new Worker(path, { workerData: { paths: this.paths } });
         worker.unref();
         const slot: WorkerSlot = { worker, pending: 0, alive: true };
-        worker.on('message', (result: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore> | Partial<PreparedCandidateCompression>) & { id: number }) => {
+        worker.on('message', (message: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore> | Partial<PreparedCandidateCompression> | SerializedPreparedCandidate) & { id: number }) => {
           slot.pending = Math.max(0, slot.pending - 1);
-          const resolve = this.waiting.get(result.id); this.waiting.delete(result.id); this.owners.delete(result.id);
-          resolve?.(('kind' in result && (result.kind === 'restored' || result.kind === 'compressed'))
-            || 'facts' in result || 'summary' in result ? result : undefined);
+          const resolve = this.waiting.get(message.id); this.waiting.delete(message.id); this.owners.delete(message.id);
+          let result: unknown = message;
+          if ('json' in message) {
+            try { result = JSON.parse(message.json); } catch { result = undefined; }
+          }
+          const valid = result !== null && typeof result === 'object' && 'id' in result && result.id === message.id
+            && (('kind' in result && (result.kind === 'restored' || result.kind === 'compressed'))
+              || 'facts' in result || 'summary' in result);
+          resolve?.(valid ? result : undefined);
         });
         const fail = (): void => {
           if (!slot.alive) return;

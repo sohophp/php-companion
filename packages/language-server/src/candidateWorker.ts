@@ -5,7 +5,7 @@ import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-c
 import { compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile,
   decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from './projectFacts.js';
 import type { CandidateCompression, CandidatePreparation, CandidateRestore, PreparedCandidate,
-  PreparedCandidateCompression, PreparedCandidateRestore } from './candidateWorkers.js';
+  PreparedCandidateCompression, PreparedCandidateRestore, SerializedPreparedCandidate } from './candidateWorkers.js';
 
 const paths = (workerData as { paths?: PhpParserPaths }).paths;
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
@@ -42,7 +42,9 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
       id: task.id, uri: task.uri, hash: task.hash, summary, matches, declarationsOnly,
       facts: matches ? parser.prepare(task.source, task.uri, declarationsOnly) : undefined,
     };
-    parentPort?.postMessage(prepared);
+    // Serialize syntax facts off the main thread; JSON parsing avoids the cost
+    // of reconstructing their deeply nested structured clone on the caller.
+    parentPort?.postMessage({ id: task.id, json: JSON.stringify(prepared) } satisfies SerializedPreparedCandidate);
   } catch {
     parentPort?.postMessage({ id: task.id });
   }

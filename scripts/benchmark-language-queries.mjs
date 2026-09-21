@@ -54,7 +54,16 @@ try {
     const locationSha256 = createHash('sha256').update(JSON.stringify([...result].sort((a, b) =>
       a.uri.localeCompare(b.uri) || a.range.start.line - b.range.start.line
       || a.range.start.character - b.range.start.character))).digest('hex');
-    process.stdout.write(JSON.stringify({ method, elapsedMs: Math.round(performance.now() - started), results: result.length,
+    const elapsedMs = Math.round(performance.now() - started);
+    let peakRssKiB;
+    if (process.env.PHP_COMPANION_BENCHMARK_RSS === '1' && process.platform === 'linux') {
+      try {
+        const status = await readFile(`/proc/${server.pid}/status`, 'utf8');
+        const match = /^VmHWM:\s+(\d+) kB$/m.exec(status);
+        if (match) peakRssKiB = Number(match[1]);
+      } catch { /* Optional measurement must not change query correctness checks. */ }
+    }
+    process.stdout.write(JSON.stringify({ method, elapsedMs, results: result.length, peakRssKiB,
       uris: [...new Set(result.map((location) => location.uri))].sort(), locationSha256 }) + '\n');
   }
 } finally {
