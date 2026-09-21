@@ -1,15 +1,27 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '@php-companion/index';
-import { decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from './projectFacts.js';
-import type { CandidatePreparation, CandidateRestore, PreparedCandidate, PreparedCandidateRestore } from './candidateWorkers.js';
+import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
+import { compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile,
+  decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from './projectFacts.js';
+import type { CandidateCompression, CandidatePreparation, CandidateRestore, PreparedCandidate,
+  PreparedCandidateCompression, PreparedCandidateRestore } from './candidateWorkers.js';
 
 const paths = (workerData as { paths?: PhpParserPaths }).paths;
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
 
-parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore) => {
+parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore | CandidateCompression) => {
   try {
     if ('kind' in task) {
+      if (task.kind === 'compress') {
+        const result: PreparedCandidateCompression = task.declarationsOnly
+          ? { kind: 'compressed', id: task.id,
+            declarations: compressCachedSourceDeclaration(task.snapshot as SemanticSourceDeclarationSnapshot, task.hash) }
+          : { kind: 'compressed', id: task.id,
+            semantic: compressCachedProjectPhpFile(createCachedProjectPhpFile(task.snapshot as SemanticSnapshot,
+              { schema: 5, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, task.hash)) };
+        parentPort?.postMessage(result); return;
+      }
       const payload = task.payload as { declarations?: unknown; semantic?: unknown } | null;
       const declaration = task.deferBodies ? restoreCachedSourceDeclaration(payload?.declarations, task.uri, task.hash) : undefined;
       const semantic = declaration ? undefined : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload?.semantic), task.uri);

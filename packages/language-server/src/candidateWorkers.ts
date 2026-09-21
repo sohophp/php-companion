@@ -3,7 +3,7 @@ import { Worker } from 'node:worker_threads';
 import { dirname, resolve } from 'node:path';
 import type { PhpParserPaths, PreparedPhpDocument } from '@php-companion/parser';
 import type { SourceCandidateSummary } from '@php-companion/index';
-import type { SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
+import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
 import type { CachedProjectPhpFile } from './projectFacts.js';
 
 export interface CandidatePreparation {
@@ -36,6 +36,16 @@ export interface PreparedCandidateRestore {
   semantic?: CachedProjectPhpFile;
 }
 
+export interface CandidateCompression {
+  kind: 'compress'; id: number; hash: string; snapshot: SemanticSnapshot | SemanticSourceDeclarationSnapshot; declarationsOnly: boolean;
+}
+
+export interface PreparedCandidateCompression {
+  kind: 'compressed'; id: number;
+  semantic?: { schema: 1; bytes: number; data: string };
+  declarations?: { schema: 1; bytes: number; data: string };
+}
+
 interface WorkerSlot { worker: Worker; pending: number; alive: boolean; }
 
 /** Bounded speculative syntax preparation. Workspace updates remain on the caller's thread. */
@@ -56,10 +66,11 @@ export class CandidateWorkers {
         const worker = new Worker(path, { workerData: { paths: this.paths } });
         worker.unref();
         const slot: WorkerSlot = { worker, pending: 0, alive: true };
-        worker.on('message', (result: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore>) & { id: number }) => {
+        worker.on('message', (result: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore> | Partial<PreparedCandidateCompression>) & { id: number }) => {
           slot.pending = Math.max(0, slot.pending - 1);
           const resolve = this.waiting.get(result.id); this.waiting.delete(result.id); this.owners.delete(result.id);
-          resolve?.(('kind' in result && result.kind === 'restored') || 'facts' in result || 'summary' in result ? result : undefined);
+          resolve?.(('kind' in result && (result.kind === 'restored' || result.kind === 'compressed'))
+            || 'facts' in result || 'summary' in result ? result : undefined);
         });
         const fail = (): void => {
           if (!slot.alive) return;
@@ -105,6 +116,18 @@ export class CandidateWorkers {
     return new Promise((done) => {
       this.waiting.set(id, (value) => done(value as PreparedCandidateRestore | undefined)); this.owners.set(id, slot);
       try { slot.worker.postMessage({ kind: 'restore', id, ...task } satisfies CandidateRestore); }
+      catch { slot.pending -= 1; this.waiting.delete(id); this.owners.delete(id); done(undefined); }
+    });
+  }
+
+  compress(task: Omit<CandidateCompression, 'id' | 'kind'>): Promise<PreparedCandidateCompression | undefined> {
+    this.start();
+    const slot = this.slots.filter((candidate) => candidate.alive).sort((left, right) => left.pending - right.pending)[0];
+    if (!slot) return Promise.resolve(undefined);
+    const id = ++this.nextId; slot.pending += 1;
+    return new Promise((done) => {
+      this.waiting.set(id, (value) => done(value as PreparedCandidateCompression | undefined)); this.owners.set(id, slot);
+      try { slot.worker.postMessage({ kind: 'compress', id, ...task } satisfies CandidateCompression); }
       catch { slot.pending -= 1; this.waiting.delete(id); this.owners.delete(id); done(undefined); }
     });
   }

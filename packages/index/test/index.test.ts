@@ -230,6 +230,25 @@ describe('bounded project source index', () => {
     expect(warm.cached).toBe(3); expect(peak).toBeGreaterThan(1);
     expect(commits).toEqual(['A.php:A.php', 'B.php:fallback', 'C.php:C.php']);
   });
+  it('waits for deferred cache payloads before persisting ordered source entries', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-finalize-cache-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const restored: string[] = [];
+    const cache = { directory: join(root, 'cache'), version: 'finalize-v1',
+      finalizePayload: async (payload: unknown): Promise<{ ready: string }> => {
+        const name = (payload as { name: string }).name;
+        await new Promise((done) => setTimeout(done, name === 'A.php' ? 15 : 1));
+        return { ready: name };
+      },
+      restore: (payload: unknown): boolean => { restored.push((payload as { ready: string }).ready); return true; } };
+    const cold = await indexComposerSources(root, { includeDependencies: false, readConcurrency: 2, cache,
+      onSource: ({ path }) => ({ name: path.split(sep).at(-1)! }) });
+    expect(cold.projectComplete).toBe(true); expect(cold.warnings).toEqual([]);
+    const warm = await indexComposerSources(root, { includeDependencies: false, readConcurrency: 2, cache,
+      onSource: () => { throw new Error('Finalized cache entries should restore.'); } });
+    expect(warm.cached).toBe(2); expect(restored).toEqual(['A.php', 'B.php']);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

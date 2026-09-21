@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 首次 References 缓存压缩改为 worker 延迟完成：语义事实仍按文件顺序提交，全部缓存负载完成后才写盘。Winstar 两轮空缓存成对测试中首次 References 13.241→11.451 秒、13.078→11.615 秒，四轮均为相同 112 处引用；正式扩展 bundle 冷查询 11.621 秒、Reload 6.875 秒，位置仍一致。Index 32、Language Server 200 项、改动 lint 和正式构建通过；仍未达到最终交互目标。证据见 [缓存压缩与语义提交重叠](reports/deferred-reference-cache-compression-2026-09-21.md)。
+
 2026-09-21 References 持久缓存预恢复：缓存条目由最多 8 个工作线程并行解压和校验，主线程仍按文件顺序提交，失败回退同步恢复。Winstar 两轮成对 Reload 对照中候选阶段 4.586→3.985 秒、4.430→4.111 秒，四次均为相同 112 处引用；Index 31、Language Server 全套 200 项通过，正式扩展 bundle 再次得到相同 112 处引用。冷查询仍约 13–14 秒。证据见 [并行准备缓存恢复](reports/parallel-reference-cache-restore-2026-09-21.md)。
 
 2026-09-21 References 精确匹配去除无关断言调用：Winstar `get()` 单轮冷 References 14.770→13.826 秒，Reload 首次 7.826→7.142 秒；四次均为相同 112 处完整引用。语义全套 285 项通过；首次响应仍慢，未冻结新 Alpha 候选。证据见 [断言调用预筛选](reports/reference-assertion-pruning-2026-09-21.md)。

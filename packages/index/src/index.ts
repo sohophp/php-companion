@@ -15,7 +15,7 @@ export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; hash: string; prepared?: unknown; }
 export type ProjectIndexCacheRestoreResult = boolean | 'source';
-export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; prepareRestore?: (payload: unknown, source: Omit<IndexedSource, 'source'>) => unknown | Promise<unknown>; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>, prepared?: unknown) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
+export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; prepareRestore?: (payload: unknown, source: Omit<IndexedSource, 'source'>) => unknown | Promise<unknown>; finalizePayload?: (payload: unknown) => unknown | Promise<unknown>; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>, prepared?: unknown) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
 export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; prepareSource?: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
@@ -68,6 +68,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const projectFiles = [...projectCandidates];
   if (projectFiles.length > limits.maxFiles) return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, `Project source index exceeded ${limits.maxFiles} files.`] };
   let bytes = 0; let indexed = 0; let cached = 0; let cacheChanged = false; const next = new Map<string, CacheEntry>();
+  const pendingPayloads: Promise<void>[] = [];
   let projectIncomplete = false; let dependencyIncomplete = false;
   const skipped = (candidate: { path: string; project: boolean }, reason: string): void => {
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
@@ -138,7 +139,16 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
         return 'indexed';
       }
       const payload = await options.onSource({ uri, path, source, bytes: size, hash, prepared: prefetched?.prepared });
-      if (payload !== undefined) { next.set(path, { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload }); cacheChanged = true; }
+      if (payload !== undefined) {
+        const entry: CacheEntry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload };
+        next.set(path, entry); cacheChanged = true;
+        if (options.cache?.finalizePayload) {
+          const finish = Promise.resolve().then(() => options.cache!.finalizePayload!(payload))
+            .then((finalized) => { if (finalized === undefined) next.delete(path); else entry.payload = finalized; })
+            .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); });
+          pendingPayloads.push(finish);
+        }
+      }
       bytes += size; indexed += 1;
       options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
       if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
@@ -158,6 +168,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
   const commitCache = async (): Promise<void> => {
     if (!cachePath || !options.cache) return;
+    await Promise.all(pendingPayloads);
     if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return;
     try { await mkdir(options.cache.directory, { recursive: true }); const temporary = `${cachePath}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify({ schema: 1, version: options.cache.version, root, entries: Object.fromEntries(next) })); await rename(temporary, cachePath); }
     catch { warnings.push('Persistent index cache could not be written.'); }

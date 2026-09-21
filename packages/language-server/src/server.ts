@@ -1779,21 +1779,28 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
         candidates += 1;
       }
       const snapshot = matches && !declarationsOnly && effective === source ? workspace.snapshotForPersistence(uri) : undefined;
-      let semantic: ReturnType<typeof compressCachedProjectPhpFile> | undefined;
-      let declarations: ReturnType<typeof compressCachedSourceDeclaration> | undefined;
-      if (snapshot) try {
-        semantic = compressCachedProjectPhpFile(createCachedProjectPhpFile(snapshot,
-          { schema: 5, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, hash));
-      } catch { /* Oversized snapshots remain source candidates and are reparsed on the next query. */ }
-      if (declarationsOnly) {
-        const declarationSnapshot = workspace.sourceDeclarationSnapshot(uri);
-        if (declarationSnapshot) try { declarations = compressCachedSourceDeclaration(declarationSnapshot, hash); }
-        catch { /* Oversized declarations are rebuilt from source on the next query. */ }
-      }
-      return { summary, semantic, declarations };
+      const declarationSnapshot = declarationsOnly ? workspace.sourceDeclarationSnapshot(uri) : undefined;
+      const pending = cacheDirectory && (snapshot || declarationSnapshot)
+        ? candidateWorkers.compress({ hash, snapshot: snapshot ?? declarationSnapshot!, declarationsOnly: !snapshot })
+          .then((result) => {
+            if (result?.kind === 'compressed' && (snapshot ? result.semantic : result.declarations)) return result;
+            try {
+              return snapshot
+                ? { semantic: compressCachedProjectPhpFile(createCachedProjectPhpFile(snapshot,
+                  { schema: 5, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, hash)) }
+                : { declarations: compressCachedSourceDeclaration(declarationSnapshot!, hash) };
+            } catch { return {}; /* Oversized snapshots remain candidates and are reparsed next query. */ }
+          }) : undefined;
+      return { summary, pending };
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v4',
+      finalizePayload: async (payload): Promise<unknown> => {
+        const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; pending?: Promise<{
+          semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };
+        const compressed = await entry.pending;
+        return { summary: entry.summary, semantic: compressed?.semantic, declarations: compressed?.declarations };
+      },
       prepareRestore: (payload, { uri, hash }): Promise<PreparedCandidateRestore | undefined> | undefined => {
         const entry = payload as { summary?: unknown } | null;
         const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
