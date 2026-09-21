@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 Winstar 按需导航复核：真实 Language Server stdio 冷/热进程在独立 Symfony service/event Provider 启用时，从 `AdminSecuritySubscriber` 类声明得到精确 2 处 References 和声明 Definition；`$urlGenerator` 得到 3 处 References 及 3 处 F2 编辑。冷/热类查询约 9.2/5.0 秒，两轮全量索引进度和启动日志均为零。此为只读进程审计，实际 VS Code WSL Alpha Profile 的长时间交互仍待验收。证据见 [Winstar 按需导航与引用复核](reports/on-demand-navigation-winstar-2026-09-21.md)。
+
 2026-09-21 真实 LSP 索引进度复核：新增只读协议审计，Winstar PHP 8.5 与 CoreRepo PHP 7.2 在 `experimental` 完整索引模式下，冷/热两轮均发出 “Indexing PHP symbols” begin、100% 和 end；热缓存各为 9,999/9,999，最终 `pending=0`。冷启动分别约 122/79 秒，热启动约 19/14 秒。依赖预算截断的 `complete=false` 不会使进度悬挂；默认 `onDemand` 不会在 Reload 时主动全量索引。结果只证明独立 LSP 进程，不代表用户 Alpha Profile 的实际设置或持续编辑验收。证据见 [真实 LSP 索引进度报告](reports/real-lsp-progress-2026-09-21.md)。
 
 2026-09-21 主索引元数据有界预取：Language Server 改用索引器已有的并发 32 元数据预取，语义提交顺序、缓存格式和类型结果不变。真实 Winstar 9,999 文件热索引单次测量 19.9→17.1 秒，CoreRepo 14.9→12.6 秒；两项目均 9,999/9,999 缓存命中、零重解析，20 个抽样类型的 References 分别 180/113 个位置一致。索引包 27 项、语言服务器 198 项、根扩展 45 项、TypeScript、ESLint、24 个隔离 tarball、四份 VSIX、VS Code 1.138.0 打包宿主与双项目确定性 WSL preflight 通过；功能提交 `a557e43`，候选 `artifacts/php-companion-alpha-0.4.5-a557e434/`。真实 WSL 手工验收边界见 [有界索引预取报告](reports/bounded-index-prefetch-2026-09-21.md)。
