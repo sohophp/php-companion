@@ -19,6 +19,8 @@ Symfony 能力继续由 monorepo 内可独立安装和发布的 `sohophp.php-com
 - Language Server：198 项全部通过；端到端用例覆盖 YAML/XML/PHP Configurator、`#[Autowire]`、容器 `get()` 的五处引用、Definition、Completion 和六处原子 Rename，并确认业务 `get()` 不进入结果。
 - TypeScript 全仓构建与类型检查通过。
 - ESLint 全仓检查通过。
+- 功能提交：`462b3d4`。
+- Alpha 候选：`artifacts/php-companion-alpha-0.4.5-462b3d46/`；四份 VSIX 内容和 SHA-256 通过，Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL preflight 通过。Extension Host 归属、竞争 Provider 禁用状态和两小时真实编辑仍须在 VS Code Alpha Profile 中人工确认。
 
 真实 Winstar 只读搜索发现大量 Request、Session、配置、AWS Result 等对象的字面量 `get()`，但 `src/` 当前没有 PSR/Symfony ContainerInterface 接收者。这组代码作为重要负样本：新能力不会仅凭方法名和字符串内容把它们误识别为 Symfony 服务引用。
 
