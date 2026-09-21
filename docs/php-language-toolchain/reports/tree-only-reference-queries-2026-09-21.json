@@ -1,0 +1,53 @@
+[
+  {
+    "label": "before-cold",
+    "queries": [
+      {
+        "method": "textDocument/definition",
+        "elapsedMs": 2184,
+        "results": 1,
+        "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+      },
+      {
+        "method": "textDocument/references",
+        "elapsedMs": 36330,
+        "results": 112,
+        "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+      }
+    ]
+  },
+  {
+    "label": "after-cold",
+    "queries": [
+      {
+        "method": "textDocument/definition",
+        "elapsedMs": 1625,
+        "results": 1,
+        "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+      },
+      {
+        "method": "textDocument/references",
+        "elapsedMs": 29257,
+        "results": 112,
+        "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+      }
+    ]
+  },
+  {
+    "label": "after-reload",
+    "queries": [
+      {
+        "method": "textDocument/definition",
+        "elapsedMs": 1644,
+        "results": 1,
+        "locationSha256": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1"
+      },
+      {
+        "method": "textDocument/references",
+        "elapsedMs": 11811,
+        "results": 112,
+        "locationSha256": "bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2"
+      }
+    ]
+  }
+]

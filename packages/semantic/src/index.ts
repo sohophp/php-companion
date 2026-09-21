@@ -2275,7 +2275,7 @@ export class SemanticWorkspace {
   invalidAllowDynamicProperties(uri: string): InvalidAllowDynamicProperties[] {
     const file = this.files.get(uri); if (!file) return [];
     let incomplete = false;
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const root = (retainedTree ?? temporaryTree!).rootNode;
     const traversal = walkLocalSyntax(root, (node) => {
       if (node.isError || node.isMissing) incomplete = true;
@@ -3397,7 +3397,7 @@ export class SemanticWorkspace {
 
   undefinedVariables(uri: string): UndefinedVariableInfo[] {
     const file = this.files.get(uri); if (!file || file.syntaxErrors.length) return [];
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const root = (retainedTree ?? temporaryTree!).rootNode;
     const predefined = new Set(['$GLOBALS', '$_SERVER', '$_GET', '$_POST', '$_FILES', '$_COOKIE', '$_SESSION', '$_REQUEST', '$_ENV']);
     const result: UndefinedVariableInfo[] = [];
@@ -3658,7 +3658,7 @@ export class SemanticWorkspace {
   invalidHookedObjectReferenceIterations(uri: string): InvalidHookedObjectReferenceIteration[] {
     const file = this.files.get(uri); if (!file) return [];
     const retainedTree = this.trees.get(uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const results: InvalidHookedObjectReferenceIteration[] = []; let complete = true;
     try {
       const traversal = walkLocalSyntax((retainedTree ?? temporaryTree!).rootNode, (node) => {
@@ -3953,7 +3953,7 @@ export class SemanticWorkspace {
       const key = `${access.start}:${access.end}`; if (reported.has(key)) return; reported.add(key);
       results.push({ uri, start: access.start, end: access.end, name: access.name, ownerFqcn: target.fqcn });
     };
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const traversal = walkLocalSyntax(tree.rootNode, (node) => {
@@ -3975,7 +3975,7 @@ export class SemanticWorkspace {
       .filter((declaration) => !declaration.anonymous && declaration.fqcn.toLowerCase() === creation.ownerFqcn.toLowerCase())
       .map((declaration) => ({ file: candidate, declaration })));
     if (owners.length !== 1) return undefined;
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       const member = deepestLocalSyntax((retainedTree ?? temporaryTree!).rootNode, creation.start, creation.end,
         (node) => node.type === 'member_access_expression' && node.childForFieldName('name')?.startIndex === creation.start);
@@ -4065,7 +4065,7 @@ export class SemanticWorkspace {
       });
       if (!traversal.complete) localSyntaxIncomplete = true;
     };
-    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, uri).tree;
+    const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       visit(tree.rootNode);
@@ -4090,7 +4090,7 @@ export class SemanticWorkspace {
         factoryInProgress.add(cacheKey);
         const dependencies = new Set<string>();
         const retainedTargetTree = this.trees.get(target.file.uri);
-        const temporaryTargetTree = retainedTargetTree ? undefined : this.parser.parse(target.file.source, undefined, target.file.uri).tree;
+        const temporaryTargetTree = retainedTargetTree ? undefined : this.parser.parseTree(target.file.source);
         const targetTree = retainedTargetTree ?? temporaryTargetTree!;
         try {
           const resolvedConstruction = ((): string | undefined => {
@@ -5096,7 +5096,7 @@ export class SemanticWorkspace {
     for (const file of this.files.values()) {
       const matches = [...file.source.matchAll(candidate)]; if (!matches.length) continue;
       const retainedTree = this.trees.get(file.uri);
-      const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+      const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
       const tree = retainedTree ?? temporaryTree!;
       try {
         for (const match of matches) {
@@ -5844,7 +5844,7 @@ export class SemanticWorkspace {
         try {
           for (const match of file.source.matchAll(pattern)) {
             if (!this.trees.has(file.uri)) {
-              queryTree = this.parser.parse(file.source, undefined, file.uri).tree;
+              queryTree = this.parser.parseTree(file.source);
               this.trees.set(file.uri, queryTree);
             }
             const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
@@ -6334,7 +6334,7 @@ export class SemanticWorkspace {
     delayedValidation: boolean;
   }> {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const root = (retainedTree ?? temporaryTree!).rootNode;
     try {
       const subjects = file.typeReferences.flatMap((reference) => {
@@ -7229,7 +7229,7 @@ export class SemanticWorkspace {
       .sort((left, right) => right.end - left.end).slice(0, 256);
     if (!ranges.length) return undefined;
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
@@ -7453,7 +7453,7 @@ export class SemanticWorkspace {
 
   private propertyAccessModes(file: SemanticFile, access: ParsedMemberAccess): { read: boolean; write: boolean; indirectWrite?: boolean; referenceAssignment?: boolean } {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       const member = deepestLocalSyntax((retainedTree ?? temporaryTree!).rootNode, access.start, access.end,
         (node) => ['member_access_expression', 'scoped_property_access_expression'].includes(node.type)
@@ -8792,7 +8792,7 @@ export class SemanticWorkspace {
 
   private structuredListLiteralType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     const budget = { remaining: 256 };
     try {
@@ -8826,7 +8826,7 @@ export class SemanticWorkspace {
   private linearLocalValueType(file: SemanticFile, variable: string, offset: number, allowMixed = false): PhpType | undefined {
     const scope = this.containingScope(file, offset); if (!scope) return undefined;
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
@@ -9170,7 +9170,7 @@ export class SemanticWorkspace {
 
   private closureLiteralType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const node = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start
@@ -9415,7 +9415,7 @@ export class SemanticWorkspace {
     const inferenceKey = `${file.uri}:${callable.fqcn.toLowerCase()}`;
     if (this.generatorInferenceInProgress.has(inferenceKey)) return undefined;
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     this.generatorInferenceInProgress.add(inferenceKey);
     try {
@@ -9575,7 +9575,7 @@ export class SemanticWorkspace {
 
   private pipeExpressionType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const root = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start
@@ -9717,7 +9717,7 @@ export class SemanticWorkspace {
 
   private expandedCallArguments(file: SemanticFile, start: number, end: number): Array<{ name?: string; start: number; end: number; type?: PhpType }> | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     type ExpandedArgument = { name?: string; start: number; end: number; type?: PhpType };
     try {
@@ -10064,7 +10064,7 @@ export class SemanticWorkspace {
 
   private callableVariableResultType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     type CallableArgument = { name?: string; start: number; end: number; type?: PhpType };
     let variable: string | undefined; let callStart = start; let callEnd = end;
@@ -10161,7 +10161,7 @@ export class SemanticWorkspace {
     type ChainStep = { kind: 'property' | 'method'; name: string; nullsafe: boolean; argumentCount: number;
       argumentsText?: string; argumentsStart?: number };
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     let chain: { variable: string; steps: ChainStep[] } | undefined;
     try {
@@ -10299,7 +10299,7 @@ export class SemanticWorkspace {
     operator?: string;
   } | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const syntax = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start
@@ -10350,7 +10350,7 @@ export class SemanticWorkspace {
 
   private matchExpressionType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const expression = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start
@@ -10372,7 +10372,7 @@ export class SemanticWorkspace {
 
   private cloneExpressionType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
-    const temporaryTree = retainedTree ? undefined : this.parser.parse(file.source, undefined, file.uri).tree;
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const clone = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start

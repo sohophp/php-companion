@@ -3474,20 +3474,24 @@ describe('conservative semantic workspace', () => {
   it('reuses one syntax tree per candidate file during a multi-use member reference query', () => {
     const isolated = new SemanticWorkspace(parser);
     const parse = vi.spyOn(parser, 'parse');
+    const parseTree = vi.spyOn(parser, 'parseTree');
     try {
       const declaration = '<?php namespace Refs; final class Target { public function get(): int { return 1; } }';
       const consumer = '<?php namespace Refs; final class Consumer { public function run(Target $target): int { return $target->get() + $target->get() + $target->get(); } }';
       isolated.update('file:///RefsTarget.php', declaration);
       isolated.update('file:///RefsConsumer.php', consumer);
       const before = parse.mock.calls.length;
+      const treesBefore = parseTree.mock.calls.length;
       const references = isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false);
       const originalReferences = references.map((location) => ({ ...location }));
       expect(references).toHaveLength(3);
       expect(references.every((location) => location.uri === 'file:///RefsConsumer.php')).toBe(true);
-      expect(parse.mock.calls.length - before).toBeLessThanOrEqual(2);
-      const afterFirst = parse.mock.calls.length;
+      expect(parse.mock.calls.length).toBe(before);
+      expect(parseTree.mock.calls.length - treesBefore).toBeGreaterThan(0);
+      expect(parseTree.mock.calls.length - treesBefore).toBeLessThanOrEqual(2);
+      const afterFirst = parseTree.mock.calls.length;
       expect(isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false)).toEqual(references);
-      expect(parse.mock.calls.length).toBe(afterFirst);
+      expect(parseTree.mock.calls.length).toBe(afterFirst);
       references[0]!.start = -1;
       expect(isolated.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false)[0]!.start).toBeGreaterThan(0);
       isolated.update('file:///RefsConsumer.php', consumer.replace(' + $target->get()', ''));
@@ -3498,7 +3502,7 @@ describe('conservative semantic workspace', () => {
         retained.update('file:///RefsConsumer.php', consumer, true);
         expect(originalReferences).toEqual(retained.references('file:///RefsTarget.php', declaration.indexOf('get()') + 1, false));
       } finally { retained.dispose(); }
-    } finally { parse.mockRestore(); isolated.dispose(); }
+    } finally { parse.mockRestore(); parseTree.mockRestore(); isolated.dispose(); }
   });
   it('finds local variable references only inside the selected function scope', () => {
     const source = `<?php
@@ -6486,6 +6490,10 @@ final class Imported { public const TYPE = Stable::class; }`);
         if (arguments_[2] === factoryUri) factoryParses += 1;
         return parser.parse(...arguments_);
       },
+      parseTree: (...arguments_: Parameters<PhpSyntaxParser['parseTree']>) => {
+        if (arguments_[0].includes('function make(): State')) factoryParses += 1;
+        return parser.parseTree(...arguments_);
+      },
     } as PhpSyntaxParser;
     const isolated = new SemanticWorkspace(countingParser);
     const factorySource = `<?php namespace TargetedCache;
@@ -6526,6 +6534,10 @@ final class Imported { public const TYPE = Stable::class; }`);
       parse: (...arguments_: Parameters<PhpSyntaxParser['parse']>) => {
         if (arguments_[2] === outerUri) outerParses += 1;
         return parser.parse(...arguments_);
+      },
+      parseTree: (...arguments_: Parameters<PhpSyntaxParser['parseTree']>) => {
+        if (arguments_[0].includes('function outer(): State')) outerParses += 1;
+        return parser.parseTree(...arguments_);
       },
     } as PhpSyntaxParser;
     const isolated = new SemanticWorkspace(countingParser);
@@ -6595,10 +6607,16 @@ final class Imported { public const TYPE = Stable::class; }`);
     const snapshots = [...sources].map(([uri]) => [uri, original.snapshot(uri)] as const); original.dispose();
 
     let factoryParses = 0;
-    const countingParser = { parse: (...arguments_: Parameters<PhpSyntaxParser['parse']>) => {
-      if (arguments_[2] === outerUri) factoryParses += 1;
-      return parser.parse(...arguments_);
-    } } as PhpSyntaxParser;
+    const countingParser = {
+      parse: (...arguments_: Parameters<PhpSyntaxParser['parse']>) => {
+        if (arguments_[2] === outerUri) factoryParses += 1;
+        return parser.parse(...arguments_);
+      },
+      parseTree: (...arguments_: Parameters<PhpSyntaxParser['parseTree']>) => {
+        if (arguments_[0].includes('function outer(): State')) factoryParses += 1;
+        return parser.parseTree(...arguments_);
+      },
+    } as PhpSyntaxParser;
     const restored = new SemanticWorkspace(countingParser);
     for (const [uri, snapshot] of snapshots) expect(restored.restore(snapshot, uri)).toBe(true);
     expect(restored.restoreCallableConstructionFacts(facts)).toBe(4);

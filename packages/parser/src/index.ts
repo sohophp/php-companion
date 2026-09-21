@@ -286,9 +286,9 @@ function nodeRange(_source: string, node: SyntaxNode): SourceRange {
   return { start: node.startIndex, end: node.endIndex };
 }
 
-function walk(node: SyntaxNode, callback: (node: SyntaxNode) => void): void {
-  callback(node);
-  for (const child of node.namedChildren) walk(child, callback);
+function walk(node: SyntaxNode, callback: (node: SyntaxNode, parent?: SyntaxNode) => void, parent?: SyntaxNode): void {
+  callback(node, parent);
+  for (const child of node.namedChildren) walk(child, callback, node);
 }
 
 function parsePhpDocNames(source: string, range: SourceRange): RawName[] {
@@ -366,9 +366,16 @@ export class PhpSyntaxParser {
     return this.create(defaultPhpParserPaths());
   }
 
-  parse(source: string, oldTree?: Tree, documentIdentity = ''): ParsedPhpDocument {
+  /** Build only the syntax tree. The caller owns and must delete the returned tree. */
+  parseTree(source: string, oldTree?: Tree): Tree {
     const tree = this.parser.parse(source, oldTree);
     if (!tree) throw new Error('Tree-sitter returned no parse tree.');
+    return tree;
+  }
+
+  parse(source: string, oldTree?: Tree, documentIdentity = ''): ParsedPhpDocument {
+    const tree = this.parseTree(source, oldTree);
+    const hasSyntaxErrors = tree.rootNode.hasError;
     const declarations: ParsedDeclaration[] = [];
     const callables: ParsedCallableDeclaration[] = [];
     const assignments: ParsedAssignment[] = [];
@@ -408,7 +415,7 @@ export class PhpSyntaxParser {
     const namespaceNodes: SyntaxNode[] = [];
     // Valid PHP namespace declarations are top-level. Keep a full recovery
     // walk for incomplete edits whose error nodes may contain a namespace.
-    if (tree.rootNode.hasError) walk(tree.rootNode, (node) => {
+    if (hasSyntaxErrors) walk(tree.rootNode, (node) => {
       if (node.type === 'namespace_definition') namespaceNodes.push(node);
     });
     else for (const node of tree.rootNode.namedChildren) {
@@ -725,7 +732,7 @@ export class PhpSyntaxParser {
       class_constant_access_expression: 'constant',
     };
     const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
-    walk(tree.rootNode, (node) => {
+    walk(tree.rootNode, (node, nodeParent) => {
       const nodeType = node.type;
       if (nodeType === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
       if (nodeType === 'base_clause' || nodeType === 'class_interface_clause') {
@@ -743,8 +750,8 @@ export class PhpSyntaxParser {
       }
       if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
-      if (node.isError || node.isMissing) errors.push(nodeRange(source, node));
-      if (nodeType === 'variable_name' && node.parent?.type !== 'scoped_property_access_expression') {
+      if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
+      if (nodeType === 'variable_name' && nodeParent?.type !== 'scoped_property_access_expression') {
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
       }
@@ -817,8 +824,8 @@ export class PhpSyntaxParser {
             const inside = (candidate: SyntaxNode | null | undefined, container: SyntaxNode | null | undefined): boolean => Boolean(candidate && container
               && candidate.startIndex >= container.startIndex && candidate.endIndex <= container.endIndex);
             let current: SyntaxNode = node;
-            while (current.parent && current.parent.type !== 'expression_statement') {
-              const parent = current.parent;
+            let parent = nodeParent;
+            while (parent && parent.type !== 'expression_statement') {
               if (parent.type === 'binary_expression') {
                 const right = parent.childForFieldName('right') ?? parent.namedChildren.at(-1);
                 const operator = binaryOperator(parent);
@@ -854,12 +861,13 @@ export class PhpSyntaxParser {
               }
               if (parent.type === 'do_statement') return undefined;
               current = parent;
+              parent = current.parent ?? undefined;
             }
-            const statement = current.parent;
+            const statement = parent;
             const expression = statement?.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
             return expression ? nodeRange(source, expression) : undefined;
           };
-          const expressionStatement = node.parent?.type === 'expression_statement' ? node.parent : undefined;
+          const expressionStatement = nodeParent?.type === 'expression_statement' ? nodeParent : undefined;
           const directExpressionStatement = Boolean(expressionStatement
             && expressionStatement.namedChildren[0]?.startIndex === node.startIndex
             && expressionStatement.namedChildren[0]?.endIndex === node.endIndex);
@@ -871,15 +879,18 @@ export class PhpSyntaxParser {
             && source.slice(previousStatement.endIndex, node.startIndex).trim() === ''
             ? nodeRange(source, previousStatement) : undefined;
           let forClauseRoot: SyntaxNode = node;
-          while (forClauseRoot.parent && forClauseRoot.parent.type !== 'for_statement'
-            && forClauseRoot.parent.type !== 'expression_statement') forClauseRoot = forClauseRoot.parent;
-          const forStatement = forClauseRoot.parent?.type === 'for_statement' ? forClauseRoot.parent : undefined;
+          let forClauseParent = nodeParent;
+          while (forClauseParent && forClauseParent.type !== 'for_statement' && forClauseParent.type !== 'expression_statement') {
+            forClauseRoot = forClauseParent;
+            forClauseParent = forClauseRoot.parent ?? undefined;
+          }
+          const forStatement = forClauseParent?.type === 'for_statement' ? forClauseParent : undefined;
           const forInitialize = forStatement?.childForFieldName('initialize');
           const forUpdate = forStatement?.childForFieldName('update');
           const discardedForClause = Boolean(forStatement
             && (forClauseRoot.id === forInitialize?.id || forClauseRoot.id === forUpdate?.id)
-            && (forClauseRoot.id === node.id || (forClauseRoot.type === 'sequence_expression' && node.parent?.id === forClauseRoot.id)));
-          const expressionSiblings = node.parent?.namedChildren ?? [];
+            && (forClauseRoot.id === node.id || (forClauseRoot.type === 'sequence_expression' && nodeParent?.id === forClauseRoot.id)));
+          const expressionSiblings = nodeParent?.namedChildren ?? [];
           const expressionIndex = expressionSiblings.findIndex((candidate) => candidate.id === node.id);
           const inlinePrevious = expressionIndex > 0 ? expressionSiblings[expressionIndex - 1] : undefined;
           const inlineVoidCastPrefix = inlinePrevious?.type === 'ERROR' && /^\(\s*void\s*\)$/i.test(inlinePrevious.text)
@@ -904,8 +915,8 @@ export class PhpSyntaxParser {
               };
             }),
             flat: arguments_.every((argument) => !nestedCall(argument)),
-            standalone: node.parent?.type === 'expression_statement' && node.parent.parent?.type === 'compound_statement'
-              && node.parent.namedChildren[0]?.startIndex === node.startIndex && node.parent.namedChildren[0]?.endIndex === node.endIndex,
+            standalone: nodeParent?.type === 'expression_statement' && nodeParent.parent?.type === 'compound_statement'
+              && nodeParent.namedChildren[0]?.startIndex === node.startIndex && nodeParent.namedChildren[0]?.endIndex === node.endIndex,
             resultDiscarded: (directExpressionStatement || discardedForClause) && !voidCastPrefix && !inlineVoidCastPrefix,
             intentionalVoidCast: voidCastPrefix ?? inlineVoidCastPrefix,
             terminatingExpression: guaranteedExpression(),
@@ -1404,8 +1415,8 @@ export class PhpSyntaxParser {
         const terminates = terminatesBody(body);
         const alternatives = node.namedChildren.filter((child) => child.type === 'else_if_clause' || child.type === 'else_clause');
         const hasAlternative = alternatives.length > 0;
-        const simpleContinuationRange = terminates && !hasAlternative && node.parent?.type === 'compound_statement'
-          ? { start: node.endIndex, end: Math.max(node.endIndex, node.parent.endIndex - 1) } : undefined;
+        const simpleContinuationRange = terminates && !hasAlternative && nodeParent?.type === 'compound_statement'
+          ? { start: node.endIndex, end: Math.max(node.endIndex, nodeParent.endIndex - 1) } : undefined;
         if (condition && body && scope) {
           const contentRange = (value: SyntaxNode): SourceRange => value.type === 'compound_statement'
             ? { start: value.startIndex + 1, end: Math.max(value.startIndex + 1, value.endIndex - 1) } : nodeRange(source, value);
@@ -1415,8 +1426,8 @@ export class PhpSyntaxParser {
             contentRange(body), alternativeBody ? contentRange(alternativeBody) : undefined);
           shortCircuitCallFacts(rawCondition!);
           narrowings.push(...predicateConditionFacts(rawCondition!, true, scope.id, body.startIndex, body.endIndex));
-          const continuationRange = node.parent?.type === 'compound_statement'
-            ? { start: node.endIndex, end: Math.max(node.endIndex, node.parent.endIndex - 1) } : undefined;
+          const continuationRange = nodeParent?.type === 'compound_statement'
+            ? { start: node.endIndex, end: Math.max(node.endIndex, nodeParent.endIndex - 1) } : undefined;
           const elseIfs = alternatives.filter((item) => item.type === 'else_if_clause');
           const conditions = [rawCondition!, ...elseIfs.flatMap((item) => {
             const value = item.childForFieldName('condition'); return value ? [value] : [];
@@ -1495,10 +1506,16 @@ export class PhpSyntaxParser {
       .sort((a, b) => a.start - b.start);
     const rawNames: RawName[] = commentRanges.flatMap((range) => parsePhpDocNames(source, range));
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
+    let excludedIndex = 0; let excludedEnd = -1;
     for (const match of source.matchAll(pattern)) {
       const start = match.index;
       const end = start + match[0].length;
-      if (excluded.some((range) => start >= range.start && end <= range.end)) continue;
+      // Both the matches and ranges are ordered by start. A monotonic sweep
+      // preserves containment even when string/comment/import ranges overlap.
+      while (excludedIndex < excluded.length && excluded[excludedIndex]!.start <= start) {
+        excludedEnd = Math.max(excludedEnd, excluded[excludedIndex]!.end); excludedIndex += 1;
+      }
+      if (end <= excludedEnd) continue;
       const before = source.slice(Math.max(0, start - 16), start);
       if (/(?:->|::|\$|function\s+|const\s+)\s*$/.test(before)) continue;
       rawNames.push({ text: match[0], start, end, context: 'code' });

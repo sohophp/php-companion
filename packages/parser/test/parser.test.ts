@@ -24,9 +24,40 @@ describe('@php-companion/parser', () => {
     expect(result.declarations).toMatchObject([{ name: 'Clock', fqcn: 'App\\Clock', kind: 'interface' }]);
     result.tree.delete();
   });
+  it.each(['\n', '\r\n'])('keeps tree-only query ranges and incremental recovery identical with %j', (eol) => {
+    const source = ['<?php', '// 中文 😀', 'namespace App;', 'function run(Request $request) { return $request->get(); }'].join(eol);
+    const incomplete = source.replace('->get()', '->get(');
+    const tree = parser.parseTree(incomplete);
+    expect(tree.rootNode.hasError).toBe(true);
+    tree.edit(createIncrementalEdit(incomplete, source));
+    const updated = parser.parseTree(source, tree);
+    const full = parser.parse(source);
+    const offset = source.indexOf('get()');
+    try {
+      expect(updated.rootNode.toString()).toBe(full.tree.rootNode.toString());
+      expect(updated.rootNode.hasError).toBe(false);
+      expect(updated.rootNode.descendantForIndex(offset, offset + 3)).toMatchObject({ startIndex: offset, endIndex: offset + 3, text: 'get' });
+      expect(updated.rootNode.endIndex).toBe(source.length);
+    } finally { tree.delete(); updated.delete(); full.tree.delete(); }
+  });
   it('creates an exact UTF-16 incremental edit across multiple lines', () => {
     const edit = createIncrementalEdit("a😀\nold\n", "a😀\nnew value\n");
     expect(edit).toMatchObject({ startIndex: 4, oldEndIndex: 7, newEndIndex: 13, startPosition: { row: 1, column: 0 }, oldEndPosition: { row: 1, column: 3 }, newEndPosition: { row: 1, column: 9 } });
+  });
+  it('keeps names after overlapping string ranges while excluding imports, comments, and declaration names', () => {
+    const source = `<?php use Library\\Imported;
+      class Visible extends Base {
+        function run() { $text = "{$obj->{'Hidden'}}"; /* Commented */ return new Imported; }
+      }
+      new After;`;
+    const parsed = parser.parse(source);
+    try {
+      expect(parsed.errors).toEqual([]);
+      const names = parsed.rawNames.map((name) => name.text);
+      expect(names).toEqual(expect.arrayContaining(['Base', 'Imported', 'After']));
+      for (const excluded of ['Library\\Imported', 'Visible', 'Hidden', 'Commented', 'obj']) expect(names).not.toContain(excluded);
+      expect(names.filter((name) => name === 'Imported')).toHaveLength(1);
+    } finally { parsed.tree.delete(); }
   });
 
   it('extracts method/function signatures and promoted parameters', () => {
