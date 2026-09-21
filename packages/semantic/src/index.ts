@@ -859,6 +859,9 @@ export class SemanticWorkspace {
   private readonly assertedTargetInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceCache = new Map<string, ObjectClass | null>();
   private readonly referenceResultCache = new Map<string, SemanticLocation[]>();
+  // Reuse inherited/member composition within one synchronous References query.
+  // Project edits and provider facts may change members between queries.
+  private referenceMemberCache?: Map<string, MemberInfo[]>;
   constructor(private readonly parser: PhpSyntaxParser) {}
 
   private deferSourceImplementation(file: SemanticFile): void {
@@ -5927,7 +5930,10 @@ export class SemanticWorkspace {
       this.referenceResultCache.delete(key); this.referenceResultCache.set(key, cached);
       return cached.map((location) => ({ ...location }));
     }
-    const locations = this.referencesUncached(uri, offset, includeDeclaration);
+    this.referenceMemberCache = new Map();
+    let locations: SemanticLocation[];
+    try { locations = this.referencesUncached(uri, offset, includeDeclaration); }
+    finally { this.referenceMemberCache = undefined; }
     if (locations.length <= MAX_CACHED_REFERENCE_LOCATIONS) {
       this.referenceResultCache.set(key, locations.map((location) => ({ ...location })));
       if (this.referenceResultCache.size > MAX_CACHED_REFERENCE_QUERIES) this.referenceResultCache.delete(this.referenceResultCache.keys().next().value!);
@@ -11085,6 +11091,11 @@ export class SemanticWorkspace {
   private members(fqcn: string, accessFrom?: string, visited = new Set<string>(), includeInvisible = false, templateArguments?: Record<string, string>): MemberInfo[] {
     const key = fqcn.toLowerCase();
     if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return [];
+    const cacheKey = this.referenceMemberCache && visited.size === 0
+      ? JSON.stringify([fqcn, accessFrom, includeInvisible,
+        templateArguments && Object.entries(templateArguments).sort(([left], [right]) => left.localeCompare(right))]) : undefined;
+    const cached = cacheKey ? this.referenceMemberCache?.get(cacheKey) : undefined;
+    if (cached) return cached;
     visited.add(key);
     const owner = this.fileAndDeclaration(fqcn);
     const ownerFile = owner?.file;
@@ -11279,7 +11290,9 @@ export class SemanticWorkspace {
           externalBaseReturnType: existing.returnType, externalBaseReturnTypeTemplates: existing.returnTypeTemplates });
       } else resolvedMembers.set(key, member);
     }
-    return [...resolvedMembers.values()];
+    const result = [...resolvedMembers.values()];
+    if (cacheKey) this.referenceMemberCache?.set(cacheKey, result);
+    return result;
   }
 
   private isSubclassOf(candidate: string, target: string, visited = new Set<string>()): boolean {
