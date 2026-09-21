@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 条件同名声明的 `@mixin` 缓存恢复：Gedmo ORM 2/3 兼容文件的同名条件 Trait 原先产生重复 mixin 关系，Winstar v61 热启动每次重解析 3 个文件；现对无法静态唯一确定的 owner 不发布 mixin，语义快照升 schema 81、索引缓存升 v62。真实 Winstar 和 CoreRepo 各 9,999 文件的冷/热审计均达到 9,999/9,999 热缓存命中、零重解析，20 个抽样类型的 References 分别 180/113 个位置全部一致；全仓 822 项测试、TypeScript、ESLint、24 个隔离 tarball、四份 VSIX、VS Code 1.138.0 打包宿主和双项目确定性 WSL preflight 通过。功能提交 `fc19158`，候选 `artifacts/php-companion-alpha-0.4.5-fc191583/`；真实 WSL 手工验收边界见 [条件 mixin 缓存恢复报告](reports/conditional-mixin-cache-2026-09-21.md)。
+
 2026-09-21 PHPDoc 可空模板属性：`@template T of object` 下的 `@var T|null` 现在能精确细化原生 `?object` 属性，泛型 mixin 的空安全成员链得到具体实参类型；非空 `object` 不接受可空文档类型。语义快照升至 schema 80、索引缓存升至 v61，避免旧缓存回放宽泛类型。全仓 821 项测试、TypeScript、ESLint、24 个隔离 tarball、四份 VSIX 校验和、VS Code 1.138.0 打包宿主及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性 WSL preflight 通过；功能提交 `4647ef9`，候选 `artifacts/php-companion-alpha-0.4.5-4647ef97/`。真实 WSL Remote 持续编辑仍待人工验收。证据见 [可空模板属性验收](reports/phpdoc-nullable-template-properties-2026-09-21.md)。
 
 2026-09-21 PHP 核心泛型 `@mixin`：`@mixin Delegate<Result>` 现按目标模板约束特化公开实例方法和属性的返回链，`@var T` 与原生 `object` 的精确约束可保留模板类型；实参数量错误、违反 bound 或目标缺失保持 unknown。语义快照升级 schema 79，索引缓存升级 v60。全仓 821 项测试、TypeScript、ESLint、24 个隔离 tarball、VS Code 1.138.0 打包宿主，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性 WSL preflight 通过；功能提交 `b268269`，候选 `artifacts/php-companion-alpha-0.4.5-b268269e/`。真实 WSL Remote 持续编辑仍待人工验收。证据见 [PHPDoc 泛型 mixin 精准成员验收](reports/phpdoc-generic-mixin-members-2026-09-21.md)。
