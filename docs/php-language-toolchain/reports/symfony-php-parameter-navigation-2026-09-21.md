@@ -26,4 +26,18 @@ Provider 仅发布参数 ID、URI 和源码范围，不读取、执行或序列�
 - `pnpm test:extension:packaged`：首次运行发现 PHP 参数 F2 未进入核心手动 Rename Provider；修复 `textDocument/prepareRename` 与 `textDocument/rename` 的参数回退后，VS Code 1.138.0 隔离双 VSIX 宿主验证三格式 Definition、References、Completion 与 F2，并以状态码 0 退出。
 - Winstar 当前没有 PHP Configurator 参数声明样本；其大量业务 `$this->param()` 调用作为真实负样本，均不满足规范函数 import 和 Configurator 闭包门禁。
 
-提交和候选 SHA-256 将在干净提交生成 Alpha 候选后追加。
+## Alpha 候选
+
+- 框架解析提交：`1a2c4533`。
+- 完整功能提交：`30444313000229d1159cdfb610436bcc4e6e6191`。
+- 候选目录：`artifacts/php-companion-alpha-0.4.5-30444313/`。
+- 四份 `SHA256SUMS`、Winstar PHP 8.5 WSL preflight 和 CoreRepo PHP 7.2 WSL preflight：通过。
+
+候选 SHA-256：
+
+- Core：`3c18857bd14b2a9d64233f6754ab3bbc096d22ad4382dfef57ad725a992f7424`
+- Symfony：`194f57c018de3c21d81059d483d8033e8f9e43c03ba1c1c8bc5cebb9fdc0570a`
+- Open Source Pack：`1c1b67cb5ea8bf09b8b7bc1cae04298a1dd4e5bf217ad338e5cb368fa52e1fba`
+- Recommended Pack：`317e1dc957707edc442de3fa262a524066810e9388e4f4815fb7a2424d644d2b`
+
+实际 WSL Remote Extension Host 归属、竞争 PHP Provider 禁用状态和持续两小时编辑仍属于人工 Alpha 验收项。
