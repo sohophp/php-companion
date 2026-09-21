@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "root": "/var/www/php/7.2/CoreRepo",
+  "cacheVersion": "semantic-v62-php-7.2",
+  "maxFiles": 10000,
+  "cold": {
+    "result": {
+      "files": 9999,
+      "bytes": 29871417,
+      "cached": 0,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 1137 project files.",
+        "Dependency source /var/www/php/7.2/CoreRepo/vendor/google/apiclient-services/src/Compute.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 9999,
+    "durationMs": 84277.11,
+    "projectReadyMs": 18374.94,
+    "peakRssMb": 1657.3,
+    "invalidProgress": 0,
+    "unpersisted": [],
+    "rejected": []
+  },
+  "warm": {
+    "result": {
+      "files": 9999,
+      "bytes": 29871417,
+      "cached": 9999,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 1137 project files.",
+        "Dependency source /var/www/php/7.2/CoreRepo/vendor/google/apiclient-services/src/Compute.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 0,
+    "durationMs": 14933.91,
+    "projectReadyMs": 6332.14,
+    "peakRssMb": 3078.9,
+    "invalidProgress": 0,
+    "unpersisted": [],
+    "rejected": []
+  },
+  "references": {
+    "sampled": 20,
+    "equal": true,
+    "totalLocations": 113
+  },
+  "passed": true
+}

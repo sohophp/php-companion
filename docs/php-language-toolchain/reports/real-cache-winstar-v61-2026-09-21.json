@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "root": "/var/www/php/8.5/winstar2024",
+  "cacheVersion": "semantic-v61-php-8.5",
+  "maxFiles": 10000,
+  "cold": {
+    "result": {
+      "files": 9999,
+      "bytes": 38975268,
+      "cached": 0,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 2278 project files.",
+        "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 9999,
+    "durationMs": 115420.23,
+    "projectReadyMs": 43887.82,
+    "peakRssMb": 1901.3,
+    "invalidProgress": 0,
+    "unpersisted": [],
+    "rejected": []
+  },
+  "warm": {
+    "result": {
+      "files": 9999,
+      "bytes": 38975268,
+      "cached": 9996,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 2278 project files.",
+        "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 3,
+    "durationMs": 25246.69,
+    "projectReadyMs": 11173.99,
+    "peakRssMb": 2446.8,
+    "invalidProgress": 0,
+    "unpersisted": [],
+    "rejected": [
+      {
+        "uri": "file:///var/www/php/8.5/winstar2024/vendor/gedmo/doctrine-extensions/src/Tool/ORM/Hydration/HydratorCompat.php",
+        "stage": "semantic"
+      },
+      {
+        "uri": "file:///var/www/php/8.5/winstar2024/vendor/gedmo/doctrine-extensions/src/Tool/ORM/Repository/EntityRepositoryCompat.php",
+        "stage": "semantic"
+      },
+      {
+        "uri": "file:///var/www/php/8.5/winstar2024/vendor/gedmo/doctrine-extensions/src/Tool/ORM/Walker/SqlWalkerCompat.php",
+        "stage": "semantic"
+      }
+    ]
+  },
+  "references": {
+    "sampled": 20,
+    "equal": true,
+    "totalLocations": 180
+  },
+  "passed": false
+}

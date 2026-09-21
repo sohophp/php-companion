@@ -83,6 +83,7 @@
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
     "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
+    "audit:real-cache": "pnpm build:packages && node scripts/audit-real-cache.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
   },
   "contributes": {

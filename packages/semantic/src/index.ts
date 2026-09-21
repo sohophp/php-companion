@@ -83,7 +83,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 80;
+  schema: 81;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1275,8 +1275,14 @@ export class SemanticWorkspace {
           return [{ ownerFqcn: declaration.fqcn, kind: tag.name, parentName: tag.type.base.name, arguments: tag.type.arguments.map(displayPhpDocType) }];
         });
       });
+      const declarationCounts = new Map<string, number>();
+      for (const declaration of parsed.declarations) {
+        if (declaration.anonymous) continue;
+        const key = declaration.fqcn.toLowerCase();
+        declarationCounts.set(key, (declarationCounts.get(key) ?? 0) + 1);
+      }
       const mixins = parsed.declarations.flatMap((declaration): SemanticMixin[] => {
-        if (declaration.anonymous) return [];
+        if (declaration.anonymous || declarationCounts.get(declaration.fqcn.toLowerCase()) !== 1) return [];
         const doc = docBefore(declaration.declarationStart);
         return preferredDocTags(doc, (tag) => tag.name === 'mixin'
           && !doc?.errors.some((error) => error.start >= tag.start && error.start < tag.end)
@@ -1461,7 +1467,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 80,
+      schema: 81,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1555,7 +1561,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 80 || !declaration || !implementation
+    if (value?.schema !== 81 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -1611,7 +1617,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 80 || !declaration || !implementation
+    if (value?.schema !== 81 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
