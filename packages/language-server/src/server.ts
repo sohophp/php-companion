@@ -35,11 +35,11 @@ import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, ind
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
-import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
-  type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
+  type ExternalContainerParameterFact, type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
 import { runRouteProvider } from '@php-companion/route-provider-host';
@@ -80,6 +80,7 @@ function mergedDoctrineMethods(files: Map<string, DoctrineMethodFact[]> | undefi
   return [...unique.values()];
 }
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
+const symfonyParameterCatalogByRoot = new Map<string, ExternalContainerParameterFact[]>();
 const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
@@ -493,6 +494,7 @@ function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace,
   for (const service of contribution.containerServices) catalog.set(service.registrationUri,
     [...(catalog.get(service.registrationUri) ?? []), service as SymfonyServiceFact]);
   symfonyServiceCatalogByRoot.set(root, catalog);
+  symfonyParameterCatalogByRoot.set(root, [...(contribution.containerParameters ?? [])]);
   symfonyCompiledMethodArgumentsByRoot.set(root, [...contribution.containerMethodArguments]);
   symfonyCompiledPropertyArgumentsByRoot.set(root, [...contribution.containerPropertyArguments]);
   const paths = contribution.containerConfigurationUris.flatMap((uri) => { try { return [resolve(fileURLToPath(uri))]; } catch { return []; } });
@@ -502,6 +504,7 @@ function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace,
 
 function clearContainerFacts(root: string, workspace: SemanticWorkspace, providerId?: string): void {
   symfonyServiceCatalogByRoot.delete(root);
+  symfonyParameterCatalogByRoot.delete(root);
   symfonyServiceConfigPathsByRoot.delete(root);
   symfonyCompiledMethodArgumentsByRoot.delete(root);
   symfonyCompiledPropertyArgumentsByRoot.delete(root);
@@ -910,6 +913,16 @@ function uniqueSymfonyServiceRegistration(root: string, serviceId: string): Symf
   const unique = [...new Map(preferred.map((service) => [
     `${service.registrationUri}:${service.registrationStart}:${service.registrationEnd}`, service,
   ])).values()];
+  return unique.length === 1 ? unique[0] : undefined;
+}
+function symfonyParameterCatalog(root: string | undefined): ExternalContainerParameterFact[] {
+  if (!root) return [];
+  return [...(symfonyParameterCatalogByRoot.get(root) ?? [])].sort((left, right) => left.id.localeCompare(right.id)
+    || left.uri.localeCompare(right.uri) || left.start - right.start);
+}
+function uniqueSymfonyParameterRegistration(root: string, parameterId: string): ExternalContainerParameterFact | undefined {
+  const matches = symfonyParameterCatalog(root).filter((parameter) => parameter.id === parameterId);
+  const unique = [...new Map(matches.map((parameter) => [`${parameter.uri}:${parameter.start}:${parameter.end}`, parameter])).values()];
   return unique.length === 1 ? unique[0] : undefined;
 }
 function symfonyAutowireAt(document: TextDocument, offset: number, workspace: SemanticWorkspace): SymfonyAutowireResolution | undefined {
@@ -1594,7 +1607,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
       }
@@ -1985,8 +1998,19 @@ connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: 
     const targetDocument = documents.get(target.uri) ?? TextDocument.create(target.uri, 'php', 0, targetSource);
     return [{ uri: target.uri, range: { start: targetDocument.positionAt(target.start), end: targetDocument.positionAt(target.end) } }];
   }
-  const sourcePath = pathForUri(uri); const serviceReference = symfonyYamlServiceReferenceAt(params.source, offset);
-  if (!sourcePath || !serviceReference || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  const sourcePath = pathForUri(uri); if (!sourcePath || !symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath))) return [];
+  const parameterReference = symfonyYamlParameterReferenceAt(params.source, offset);
+  if (parameterReference) {
+    const parameter = uniqueSymfonyParameterRegistration(root, parameterReference.value); if (!parameter) return [];
+    const targetPath = pathForUri(parameter.uri);
+    const targetSource = (parameter.uri === uri ? params.source : frameworkDocumentSnapshots.get(parameter.uri)?.source)
+      ?? documents.get(parameter.uri)?.getText() ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+    if (targetSource === undefined || token.isCancellationRequested) return [];
+    const targetDocument = documents.get(parameter.uri) ?? TextDocument.create(parameter.uri, 'yaml', 0, targetSource);
+    return [{ uri: parameter.uri, range: { start: targetDocument.positionAt(parameter.start), end: targetDocument.positionAt(parameter.end) } }];
+  }
+  const serviceReference = symfonyYamlServiceReferenceAt(params.source, offset);
+  if (!serviceReference) return [];
   const target = uniqueSymfonyServiceRegistration(root, serviceReference.value); if (!target) return [];
   const targetPath = pathForUri(target.registrationUri);
   const targetSource = (target.registrationUri === uri ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source)
@@ -2237,6 +2261,42 @@ async function symfonyRouteRenamePlan(params: SymfonyRouteRenameParams, cancelle
   return { routeName, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
 }
 
+async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
+  parameterId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
+  changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+} | undefined> {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.ya?ml$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0 || cancelled()) return undefined;
+  const root = rootForUri(uri); const sourcePath = pathForUri(uri); if (!root || !sourcePath
+    || symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) !== true) return undefined;
+  const document = TextDocument.create(uri, 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const reference = symfonyYamlParameterReferenceAt(params.source, offset);
+  const declarations = symfonyParameterCatalog(root).filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end);
+  const ids = new Set(reference ? [reference.value] : declarations.map((parameter) => parameter.id)); if (ids.size !== 1) return undefined;
+  const parameterId = [...ids][0]!; const target = uniqueSymfonyParameterRegistration(root, parameterId); if (!target) return undefined;
+  const newName = typeof params.newName === 'string' ? params.newName : parameterId;
+  if (!/^[A-Za-z0-9_.-]+$/.test(newName) || newName !== parameterId && symfonyParameterCatalog(root).some((parameter) => parameter.id === newName)) return undefined;
+  const references = await scanSymfonyYamlParameterReferences(root, parameterId, uri, params.source, cancelled); if (!references || cancelled()) return undefined;
+  const targetPath = pathForUri(target.uri); const targetSource = target.uri === uri ? params.source
+    : frameworkDocumentSnapshots.get(target.uri)?.source ?? documents.get(target.uri)?.getText()
+      ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+  if (targetSource === undefined || targetSource.slice(target.start, target.end) !== parameterId) return undefined;
+  const edits = [{ uri: target.uri, source: targetSource, start: target.start, end: target.end }, ...references];
+  const unique = [...new Map(edits.map((edit) => [`${edit.uri}:${edit.start}:${edit.end}`, edit])).values()]
+    .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
+  const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  for (const edit of unique) {
+    if (edit.source.slice(edit.start, edit.end) !== parameterId) return undefined;
+    const targetDocument = edit.uri === uri ? document : documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'yaml', 0, edit.source);
+    (changes[edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: newName });
+  }
+  const selected = reference ?? declarations[0]; if (!selected) return undefined;
+  return { parameterId, range: { start: document.positionAt(selected.start), end: document.positionAt(selected.end) }, changes };
+}
+
 connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
   return plan ? { range: plan.range, placeholder: plan.serviceId } : null;
@@ -2244,6 +2304,16 @@ connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: 
 
 connection.onRequest('phpCompanion/symfonyServiceRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { changes: plan.changes } : null;
+});
+
+connection.onRequest('phpCompanion/symfonyParameterPrepareRename', async (params: SymfonyServiceRenameParams, token) => {
+  const plan = await symfonyParameterRenamePlan(params, () => token.isCancellationRequested);
+  return plan ? { range: plan.range, placeholder: plan.parameterId } : null;
+});
+
+connection.onRequest('phpCompanion/symfonyParameterRename', async (params: SymfonyServiceRenameParams, token) => {
+  const plan = await symfonyParameterRenamePlan(params, () => token.isCancellationRequested);
   return plan ? { changes: plan.changes } : null;
 });
 
@@ -2256,6 +2326,24 @@ connection.onRequest('phpCompanion/symfonyRouteRename', async (params: SymfonyRo
   const plan = await symfonyRouteRenamePlan(params, () => token.isCancellationRequested);
   return plan ? { changes: plan.changes } : null;
 });
+
+async function scanSymfonyYamlParameterReferences(root: string, parameterId: string, currentUri: string, currentSource: string,
+  cancelled: () => boolean): Promise<Array<{ uri: string; source: string; start: number; end: number }> | undefined> {
+  const references: Array<{ uri: string; source: string; start: number; end: number }> = [];
+  const currentPath = pathForUri(currentUri);
+  for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].filter((path) => /\.ya?ml$/i.test(path)).sort()) {
+    if (cancelled()) return undefined;
+    const uri = currentPath && resolve(configPath) === resolve(currentPath) ? currentUri : pathToFileURL(configPath).toString();
+    const source = uri === currentUri ? currentSource : frameworkDocumentSnapshots.get(uri)?.source
+      ?? documents.get(uri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
+    if (source === undefined || source.length > indexLimits.maxFileSizeBytes) return undefined;
+    for (const reference of symfonyYamlParameterReferences(source)) if (reference.value === parameterId) {
+      references.push({ uri, source, start: reference.start, end: reference.end });
+    }
+  }
+  return [...new Map(references.map((reference) => [`${reference.uri}:${reference.start}:${reference.end}`, reference])).values()]
+    .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
+}
 
 connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown; context?: { includeDeclaration?: unknown };
@@ -2274,6 +2362,31 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
   const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
   if (!sourceIsPhp && !configSource) return [];
+  if (!sourceIsPhp && !sourceIsXml) {
+    const parameterReference = symfonyYamlParameterReferenceAt(params.source, offset);
+    const declarationIds = symfonyParameterCatalog(root)
+      .filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end).map((parameter) => parameter.id);
+    const parameterIds = new Set(parameterReference ? [parameterReference.value] : declarationIds);
+    if (parameterIds.size === 1) {
+      const parameterId = [...parameterIds][0]!; const target = uniqueSymfonyParameterRegistration(root, parameterId);
+      if (!target) return [];
+      const references = await scanSymfonyYamlParameterReferences(root, parameterId, uri, params.source, () => token.isCancellationRequested);
+      if (!references) return [];
+      const locations = references.map((reference) => {
+        const document = documents.get(reference.uri) ?? TextDocument.create(reference.uri, 'yaml', 0, reference.source);
+        return { uri: reference.uri, range: { start: document.positionAt(reference.start), end: document.positionAt(reference.end) } };
+      });
+      if (params.context?.includeDeclaration === true) {
+        const targetPath = pathForUri(target.uri); const source = target.uri === uri ? params.source
+          : frameworkDocumentSnapshots.get(target.uri)?.source ?? documents.get(target.uri)?.getText()
+            ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+        if (source === undefined) return [];
+        const document = documents.get(target.uri) ?? TextDocument.create(target.uri, 'yaml', 0, source);
+        locations.push({ uri: target.uri, range: { start: document.positionAt(target.start), end: document.positionAt(target.end) } });
+      }
+      return [...new Map(locations.map((location) => [JSON.stringify(location), location])).values()];
+    }
+  }
   const workspace = await semanticForRoot(root);
   const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset) : undefined)
       ?? symfonyAutowireServiceIdAt(params.source, offset)
@@ -2342,6 +2455,18 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
   const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
   if (!sourceIsPhp && !configSource) return empty;
+  if (!sourceIsPhp && !sourceIsXml) {
+    const parameter = symfonyYamlParameterReferencePrefixAt(params.source, offset);
+    if (parameter) {
+      const matches = [...new Set(symfonyParameterCatalog(root).map((candidate) => candidate.id))]
+        .filter((id) => id.startsWith(parameter.prefix) && uniqueSymfonyParameterRegistration(root, id));
+      const limit = 200;
+      return { isIncomplete: matches.length > limit, items: matches.slice(0, limit).map((id) => ({
+        label: id, detail: 'Symfony parameter',
+        range: { start: document.positionAt(parameter.start), end: document.positionAt(parameter.end) },
+      })) };
+    }
+  }
   const workspace = await semanticForRoot(root);
   const attributeReference = sourceIsPhp ? symfonyAutowireServiceIdAt(params.source, offset) : undefined;
   const containerReference = sourceIsPhp ? await provenSymfonyContainerServiceReference(document, offset, workspace, root) : undefined;

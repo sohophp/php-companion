@@ -92,6 +92,7 @@ export interface ExternalContainerServiceFact extends SemanticFactLocation {
   configuredProperties: readonly string[]; propertiesComplete: boolean; eventListeners: readonly ExternalContainerEventListener[];
   origin: 'explicit' | 'resource' | 'compiled'; registrationUri: string; registrationStart: number; registrationEnd: number;
 }
+export interface ExternalContainerParameterFact extends SemanticFactLocation { id: string; }
 export interface ExternalContainerMethodArgumentFact extends SemanticFactLocation {
   callableFqcn: string; parameter?: string; parameterIndex?: number; serviceId: string; className: string;
 }
@@ -115,6 +116,7 @@ export interface SemanticFactsContribution {
   properties: readonly ExternalPropertyFact[];
   literalMethodReturns: readonly ExternalLiteralMethodReturnFact[];
   containerServices?: readonly ExternalContainerServiceFact[];
+  containerParameters?: readonly ExternalContainerParameterFact[];
   containerMethodArguments?: readonly ExternalContainerMethodArgumentFact[];
   containerPropertyArguments?: readonly ExternalContainerPropertyArgumentFact[];
   containerConfigurationUris?: readonly string[];
@@ -124,7 +126,7 @@ export interface SemanticFactsContribution {
 }
 
 type SemanticFactInput = Partial<Pick<SemanticFactsContribution, 'complete' | 'methods' | 'properties' | 'literalMethodReturns'
-  | 'containerServices' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'
+  | 'containerServices' | 'containerParameters' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'
   | 'eventSubscriptions' | 'eventDispatches' | 'controllerContexts'>>;
 
 export function semanticFacts(providerId: string, generation: string, facts: SemanticFactInput = {}): SemanticFactsContribution {
@@ -137,6 +139,7 @@ export function semanticFacts(providerId: string, generation: string, facts: Sem
     properties: facts.properties ?? [],
     literalMethodReturns: facts.literalMethodReturns ?? [],
     ...(facts.containerServices ? { containerServices: facts.containerServices } : {}),
+    ...(facts.containerParameters ? { containerParameters: facts.containerParameters } : {}),
     ...(facts.containerMethodArguments ? { containerMethodArguments: facts.containerMethodArguments } : {}),
     ...(facts.containerPropertyArguments ? { containerPropertyArguments: facts.containerPropertyArguments } : {}),
     ...(facts.containerConfigurationUris ? { containerConfigurationUris: facts.containerConfigurationUris } : {}),
@@ -208,6 +211,10 @@ function containerService(value: unknown): value is ExternalContainerServiceFact
     && Number.isSafeInteger(item.registrationStart) && Number.isSafeInteger(item.registrationEnd)
     && item.registrationStart! >= 0 && item.registrationEnd! >= item.registrationStart!);
 }
+function containerParameter(value: unknown): value is ExternalContainerParameterFact {
+  const item = value as Partial<ExternalContainerParameterFact> | null;
+  return Boolean(location(value) && item && text(item.id, 4096));
+}
 function containerMethodArgument(value: unknown): value is ExternalContainerMethodArgumentFact {
   const item = value as Partial<ExternalContainerMethodArgumentFact> | null;
   return Boolean(location(value) && item && text(item.callableFqcn, 4096) && (item.parameter === undefined || text(item.parameter, 512))
@@ -258,9 +265,11 @@ export function isSemanticFactsContribution(value: unknown): value is SemanticFa
   if (!item || item.schema !== SEMANTIC_FACTS_SCHEMA || typeof item.providerId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(item.providerId)
     || typeof item.generation !== 'string' || typeof item.complete !== 'boolean' || !Array.isArray(item.methods)
     || !Array.isArray(item.properties) || !Array.isArray(item.literalMethodReturns)) return false;
-  const containerArrays = item.containerServices === undefined && item.containerMethodArguments === undefined
+  const containerArrays = item.containerServices === undefined && item.containerParameters === undefined && item.containerMethodArguments === undefined
     && item.containerPropertyArguments === undefined && item.containerConfigurationUris === undefined
     || Array.isArray(item.containerServices) && item.containerServices.length <= factLimit && item.containerServices.every(containerService)
+      && (item.containerParameters === undefined || Array.isArray(item.containerParameters) && item.containerParameters.length <= factLimit
+        && item.containerParameters.every(containerParameter))
       && Array.isArray(item.containerMethodArguments) && item.containerMethodArguments.length <= factLimit && item.containerMethodArguments.every(containerMethodArgument)
       && Array.isArray(item.containerPropertyArguments) && item.containerPropertyArguments.length <= factLimit && item.containerPropertyArguments.every(containerPropertyArgument)
       && Array.isArray(item.containerConfigurationUris) && item.containerConfigurationUris.length <= 1024

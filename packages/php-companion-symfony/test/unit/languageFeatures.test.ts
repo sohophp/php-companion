@@ -52,8 +52,8 @@ describe('Symfony editor language features', () => {
     const edit = await renameProvider!.provideRenameEdits(document, position, 'admin.start', token) as unknown as { replacements: unknown[] };
     expect(edit.replacements).toHaveLength(1);
     expect(requestLanguageServer.mock.calls.map(([method]) => method)).toEqual([
-      'phpCompanion/symfonyServicePrepareRename', 'phpCompanion/symfonyRoutePrepareRename',
-      'phpCompanion/symfonyServiceRename', 'phpCompanion/symfonyRouteRename',
+      'phpCompanion/symfonyServicePrepareRename', 'phpCompanion/symfonyParameterPrepareRename', 'phpCompanion/symfonyRoutePrepareRename',
+      'phpCompanion/symfonyServiceRename', 'phpCompanion/symfonyParameterRename', 'phpCompanion/symfonyRouteRename',
     ]);
   });
 });

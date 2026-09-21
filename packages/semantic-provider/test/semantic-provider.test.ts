@@ -34,6 +34,7 @@ describe('semantic provider contract', () => {
         registrationUri: 'file:///services.yaml', registrationStart: 2, registrationEnd: 12,
         uri: 'file:///services.yaml', start: 2, end: 12,
       }],
+      containerParameters: [{ id: 'app.transport', uri: 'file:///services.yaml', start: 40, end: 53 }],
       containerMethodArguments: [{ callableFqcn: 'App\\Mailer::__construct', parameterIndex: 0, serviceId: 'logger', className: 'App\\Logger', uri: 'file:///container.xml', start: 4, end: 10 }],
       containerPropertyArguments: [{ ownerFqcn: 'App\\Mailer', property: 'clock', serviceId: 'clock', className: 'App\\Clock', uri: 'file:///container.xml', start: 11, end: 16 }],
       containerConfigurationUris: ['file:///services.yaml'],

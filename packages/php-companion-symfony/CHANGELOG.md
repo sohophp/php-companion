@@ -1,5 +1,7 @@
 # Changelog
 
+- Register YAML parameter Definition, References, completion and Rename through the standalone Symfony extension, with service, parameter and route Rename fallbacks sharing VS Code's standard F2 flow.
+
 - Make the Winstar runtime provider authoritative when enabled and retain the static provider as source enrichment for runtime-confirmed name/path pairs.
 
 - Own the Symfony YAML/XML/PHP Definition, References and completion providers plus YAML/XML service Rename registration; the core-only extension no longer registers Symfony editor features.

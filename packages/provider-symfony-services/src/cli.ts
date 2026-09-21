@@ -23,6 +23,7 @@ async function main(): Promise<void> {
     response = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id,
       result: semanticFacts(request.id.split(':')[0]!, request.params.generation, {
         literalMethodReturns: facts.literalMethodReturns, containerServices: facts.services,
+        containerParameters: facts.parameters,
         containerMethodArguments: facts.methodArguments, containerPropertyArguments: facts.propertyArguments,
         containerConfigurationUris: facts.configurationUris,
       }) };

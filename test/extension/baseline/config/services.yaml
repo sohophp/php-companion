@@ -1,3 +1,6 @@
+parameters:
+  app.transport: smtp
+
 services:
   _defaults:
     autowire: true
@@ -20,3 +23,4 @@ services:
   app.rename_consumer:
     arguments:
       $mailer: '@app.mailer'
+      $transport: '%app.transport%'

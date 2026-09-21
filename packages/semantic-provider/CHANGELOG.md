@@ -1,5 +1,7 @@
 # Changelog
 
+- Add validated optional container-parameter declaration facts so framework providers can publish identities and source ranges without exposing values.
+
 - Add authoritative controller-context ownership and validated controller template context contributions.
 
 ## 0.1.0-alpha.1

@@ -1034,6 +1034,34 @@ export function symfonyYamlParameterReferenceAt(source: string, offset: number):
   return symfonyYamlParameterReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
+/** Locate the editable id and typed prefix inside a complete or in-progress YAML `%parameter.id%` placeholder. */
+export function symfonyYamlParameterReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+  const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
+  if (document.errors.length || offset < 0 || offset > source.length) return undefined;
+  const visit = (node: Node | null | undefined): SymfonyServiceIdPrefix | undefined => {
+    if (!node) return undefined;
+    if (isScalar(node)) {
+      const range = scalarRange(node, source); const value = scalarValue(node);
+      if (!range || typeof value !== 'string' || source.slice(range.start, range.end) !== value || offset < range.start || offset > range.end) return undefined;
+      const cursor = offset - range.start;
+      for (let marker = value.lastIndexOf('%', cursor - 1); marker >= 0; marker = value.lastIndexOf('%', marker - 1)) {
+        if (value[marker - 1] === '%' || value[marker + 1] === '%') continue;
+        const close = value.indexOf('%', marker + 1); const end = close >= 0 ? close : value.length;
+        if (cursor < marker + 1 || cursor > end) continue;
+        const id = value.slice(marker + 1, end); const prefix = value.slice(marker + 1, cursor);
+        if (!/^[A-Za-z0-9_.-]*$/.test(prefix) || id && !SYMFONY_PARAMETER_ID.test(id)
+          || close >= 0 && value[close + 1] === '%') return undefined;
+        return { prefix, start: range.start + marker + 1, end: range.start + end };
+      }
+      return undefined;
+    }
+    if (isSeq(node)) for (const item of node.items) { const found = visit(item as Node | null); if (found) return found; }
+    else if (isMap(node)) for (const pair of node.items as Pair[]) { const found = visit(pair.value as Node | null); if (found) return found; }
+    return undefined;
+  };
+  return visit(document.contents);
+}
+
 function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {
   if (!isSeq(node)) return [];
   return node.items.flatMap((item): SymfonyEventListenerTagFact[] => {

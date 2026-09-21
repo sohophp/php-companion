@@ -8,6 +8,7 @@ import {
   analyzeSymfonyServiceXml,
   analyzeSymfonyServiceYaml,
   expandSymfonyServiceResources,
+  symfonyYamlParameterDeclarations,
   symfonyContainerMethodReturnFacts,
   type SymfonyBundleRegistrationFact,
   type SymfonyCompiledMethodArgumentFact,
@@ -34,6 +35,7 @@ export interface SymfonyServiceProviderFacts {
   methodArguments: SymfonyCompiledMethodArgumentFact[];
   propertyArguments: SymfonyCompiledPropertyArgumentFact[];
   literalMethodReturns: ExternalLiteralMethodReturnFact[];
+  parameters: Array<{ id: string; uri: string; start: number; end: number }>;
   configurationUris: string[];
 }
 
@@ -156,7 +158,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const project = await loadComposerProject(root); const mappings = project ? allPsr4Mappings(project) : [];
   const roots = await bundleRoots(root, parser, options.projectTypes, mappings, sources);
   const catalog: SymfonyServiceFact[] = []; const methodArguments: SymfonyCompiledMethodArgumentFact[] = [];
-  const propertyArguments: SymfonyCompiledPropertyArgumentFact[] = []; const configuredPaths = new Set<string>();
+  const propertyArguments: SymfonyCompiledPropertyArgumentFact[] = []; const parameters: Array<{ id: string; uri: string; start: number; end: number }> = [];
+  const configuredPaths = new Set<string>();
   const compiled = await freshCompiledContainer(root, options.projectTypes, sources);
   if (compiled) {
     try {
@@ -176,6 +179,7 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source)
         : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source);
+      if (extension === 'yaml' || extension === 'yml') parameters.push(...symfonyYamlParameterDeclarations(source).map((parameter) => ({ ...parameter, id: parameter.value, uri })));
       for (const imported of facts.imports ?? []) {
         const candidate = importedConfig(root, path, imported.resource, roots); if (!candidate) continue;
         const realContainment = candidate.containmentRoot === root ? actualRoot : candidate.containmentRoot;
@@ -187,7 +191,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   };
   for (const filename of [...XML_CONFIGS, ...YAML_CONFIGS, ...PHP_CONFIGS]) await load(resolve(root, filename));
   const services = [...new Map(catalog.map((service) => [`${service.registrationUri}\0${service.id}`, service])).values()];
-  return { services, methodArguments, propertyArguments, literalMethodReturns: symfonyContainerMethodReturnFacts(services),
+  return { services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
+    methodArguments, propertyArguments, literalMethodReturns: symfonyContainerMethodReturnFacts(services),
     configurationUris: [...new Set([...configuredPaths, ...[...roots.values()].flatMap((bundle) => bundle.classPaths)])]
       .sort().map((path) => pathToFileURL(path).toString()) };
 }

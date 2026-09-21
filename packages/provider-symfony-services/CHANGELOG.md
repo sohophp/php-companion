@@ -1,5 +1,7 @@
 # Changelog
 
+- Publish exact YAML parameter declaration identities from every file in the authoritative service configuration graph without publishing parameter values.
+
 - Publish only service configuration files that actually exist and participate in the authoritative graph; missing conventional candidates no longer make complete cross-file refactors fail.
 
 ## 0.1.0-alpha.1

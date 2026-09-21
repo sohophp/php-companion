@@ -24,7 +24,7 @@ describe('standalone Symfony service provider', () => {
   it('follows deterministic imports, expands resources, and honors open snapshots', async () => {
     const root = await project(); const mailer = join(root, 'src', 'Mailer.php'); const worker = join(root, 'src', 'Worker.php');
     await writeFile(mailer, '<?php namespace App; final class Mailer {}'); await writeFile(worker, '<?php namespace App; final class Worker {}');
-    await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.xml }\nservices:\n  App\\:\n    resource: '../src/'\n");
+    await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.xml }\nparameters:\n  app.transport: smtp\nservices:\n  App\\:\n    resource: '../src/'\n");
     const extra = join(root, 'config', 'services', 'extra.xml');
     await writeFile(extra, '<container><services><service id="app.disk" class="App\\Mailer" public="true"/></services></container>');
     const facts = await collectSymfonyServiceFacts(root, parser, {
@@ -35,6 +35,7 @@ describe('standalone Symfony service provider', () => {
     expect(facts.services.map((service) => service.id)).toEqual(expect.arrayContaining(['App\\Mailer', 'App\\Worker', 'app.snapshot']));
     expect(facts.services.map((service) => service.id)).not.toContain('app.disk');
     expect(facts.literalMethodReturns).toContainEqual(expect.objectContaining({ argument: 'app.snapshot', returnType: 'App\\Mailer' }));
+    expect(facts.parameters).toEqual([expect.objectContaining({ id: 'app.transport', uri: pathToFileURL(join(root, 'config', 'services.yaml')).toString() })]);
     expect(facts.configurationUris).toContain(pathToFileURL(extra).toString());
     expect(facts.configurationUris).toContain(pathToFileURL(join(root, 'config', 'services.yaml')).toString());
     expect(facts.configurationUris).not.toContain(pathToFileURL(join(root, 'app', 'config', 'services.php')).toString());

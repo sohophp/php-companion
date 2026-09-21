@@ -76,6 +76,8 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
       let result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
         'phpCompanion/symfonyServicePrepareRename', requestParams(document, position));
       if (!result && current(document, version, token)) result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
+        'phpCompanion/symfonyParameterPrepareRename', requestParams(document, position));
+      if (!result && current(document, version, token)) result = await safely<null | { range: ProtocolRange; placeholder?: string }>(
         'phpCompanion/symfonyRoutePrepareRename', requestParams(document, position));
       if (!result || !current(document, version, token)) return undefined;
       const target = range(result.range); return result.placeholder ? { range: target, placeholder: result.placeholder } : target;
@@ -84,6 +86,9 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
       if (token.isCancellationRequested) return undefined;
       const version = document.version;
       let result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
+        ...requestParams(document, position), newName,
+      });
+      if (!result && current(document, version, token)) result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyParameterRename', {
         ...requestParams(document, position), newName,
       });
       if (!result && current(document, version, token)) result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyRouteRename', {

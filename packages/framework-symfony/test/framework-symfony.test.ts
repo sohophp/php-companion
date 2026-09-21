@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -457,6 +457,14 @@ services:
     expect(references.some((item) => item.value.includes('env'))).toBe(false);
     expect(symfonyYamlParameterReferenceAt(source, hostReferences[1]!.start + 4)).toEqual(hostReferences[1]);
     expect(symfonyYamlParameterReferenceAt(source, source.indexOf('app.mailer_host:') + 4)).toBeUndefined();
+    expect(symfonyYamlParameterReferencePrefixAt(source, hostReferences[1]!.start + 'app.mail'.length)).toEqual({
+      prefix: 'app.mail', start: hostReferences[1]!.start, end: hostReferences[1]!.end,
+    });
+    const incomplete = "services:\n  app.consumer: { arguments: ['%app.mail'] }\n";
+    expect(symfonyYamlParameterReferencePrefixAt(incomplete, incomplete.indexOf('app.mail') + 'app.mail'.length)).toEqual({
+      prefix: 'app.mail', start: incomplete.indexOf('app.mail'), end: incomplete.indexOf('app.mail') + 'app.mail'.length,
+    });
+    expect(symfonyYamlParameterReferencePrefixAt(source, source.indexOf('env(MAILER') + 3)).toBeUndefined();
     expect(symfonyYamlParameterDeclarations('parameters: [')).toEqual([]);
     expect(symfonyYamlParameterReferences('parameters: [')).toEqual([]);
   });

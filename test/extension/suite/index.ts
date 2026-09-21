@@ -452,6 +452,31 @@ export async function run(): Promise<void> {
   );
   assert.ok(attributeServiceCompletionList.items.some((item) => item.label === 'app.mailer'),
     'Symfony Autowire Attribute completion did not return the authoritative service id');
+  const parameterRegistrationOffset = servicesSource.indexOf('app.transport:') + 4;
+  const parameterReferenceOffset = servicesSource.indexOf('%app.transport%') + 1 + 4;
+  const parameterDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset),
+  );
+  assert.ok(parameterDefinitions.some((location) => location.uri.toString() === servicesUri.toString()
+    && servicesDocument.getText(location.range) === 'app.transport'),
+  'Symfony YAML parameter reference did not navigate to its authoritative declaration');
+  const parameterReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', servicesUri, servicesDocument.positionAt(parameterRegistrationOffset),
+  );
+  assert.ok(parameterReferences.some((location) => location.uri.toString() === servicesUri.toString()
+    && servicesDocument.getText(location.range) === 'app.transport'),
+  'Symfony YAML parameter References missed its exact placeholder');
+  const parameterCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset),
+  );
+  assert.ok(parameterCompletionList.items.some((item) => item.label === 'app.transport'),
+    'Symfony YAML parameter completion did not return the authoritative parameter id');
+  const parameterRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset), 'app.renamed-transport',
+  );
+  assert.ok(parameterRenameEdit, 'Standard F2 Rename returned no edit from a Symfony YAML parameter reference');
+  assert.strictEqual(parameterRenameEdit.get(servicesUri).length, 2,
+    'Symfony YAML parameter F2 Rename did not include exactly its declaration and reference');
   const containerServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
     'vscode.executeDefinitionProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
   );
