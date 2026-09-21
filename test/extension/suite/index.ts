@@ -477,6 +477,33 @@ export async function run(): Promise<void> {
   assert.ok(parameterRenameEdit, 'Standard F2 Rename returned no edit from a Symfony YAML parameter reference');
   assert.strictEqual(parameterRenameEdit.get(servicesUri).length, 2,
     'Symfony YAML parameter F2 Rename did not include exactly its declaration and reference');
+  assert.strictEqual(parameterRenameEdit.get(xmlServicesUri).length, 1,
+    'Symfony YAML parameter F2 Rename missed its XML placeholder');
+  const xmlParameterRegistrationOffset = xmlServicesSource.indexOf('app.xml_transport') + 4;
+  const xmlParameterReferenceOffset = xmlServicesSource.indexOf('%app.xml_transport%') + 1 + 4;
+  const xmlParameterDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlParameterReferenceOffset),
+  );
+  assert.ok(xmlParameterDefinitions.some((location) => location.uri.toString() === xmlServicesUri.toString()
+    && xmlServicesDocument.getText(location.range) === 'app.xml_transport'),
+  'Symfony XML parameter reference did not navigate to its authoritative declaration');
+  const xmlParameterReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlParameterRegistrationOffset),
+  );
+  assert.ok(xmlParameterReferences.some((location) => location.uri.toString() === xmlServicesUri.toString()
+    && xmlServicesDocument.getText(location.range) === 'app.xml_transport'),
+  'Symfony XML parameter References missed its exact placeholder');
+  const xmlParameterCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlParameterReferenceOffset),
+  );
+  assert.ok(xmlParameterCompletionList.items.some((item) => item.label === 'app.xml_transport'),
+    'Symfony XML parameter completion did not return the authoritative parameter id');
+  const xmlParameterRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', xmlServicesUri, xmlServicesDocument.positionAt(xmlParameterRegistrationOffset), 'app.renamed_xml_transport',
+  );
+  assert.ok(xmlParameterRenameEdit, 'Standard F2 Rename returned no edit from a Symfony XML parameter declaration');
+  assert.strictEqual(xmlParameterRenameEdit.get(xmlServicesUri).length, 2,
+    'Symfony XML parameter F2 Rename did not include exactly its declaration and reference');
   const containerServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
     'vscode.executeDefinitionProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
   );

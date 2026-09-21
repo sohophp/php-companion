@@ -30,12 +30,15 @@ describe('standalone Symfony service provider', () => {
     const facts = await collectSymfonyServiceFacts(root, parser, {
       projectTypes: [type(root, 'App\\Mailer', 'Mailer.php'), type(root, 'App\\Worker', 'Worker.php')],
       documents: [{ uri: pathToFileURL(extra).toString(), languageId: 'xml', snapshotVersion: '2',
-        source: '<container><services><service id="app.snapshot" class="App\\Mailer" public="true"/></services></container>' }],
+        source: '<container><parameters><parameter key="app.xml_transport">private</parameter></parameters><services><service id="app.snapshot" class="App\\Mailer" public="true"><argument>%app.transport%</argument></service></services></container>' }],
     });
     expect(facts.services.map((service) => service.id)).toEqual(expect.arrayContaining(['App\\Mailer', 'App\\Worker', 'app.snapshot']));
     expect(facts.services.map((service) => service.id)).not.toContain('app.disk');
     expect(facts.literalMethodReturns).toContainEqual(expect.objectContaining({ argument: 'app.snapshot', returnType: 'App\\Mailer' }));
-    expect(facts.parameters).toEqual([expect.objectContaining({ id: 'app.transport', uri: pathToFileURL(join(root, 'config', 'services.yaml')).toString() })]);
+    expect(facts.parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'app.transport', uri: pathToFileURL(join(root, 'config', 'services.yaml')).toString() }),
+      expect.objectContaining({ id: 'app.xml_transport', uri: pathToFileURL(extra).toString() }),
+    ]));
     expect(facts.configurationUris).toContain(pathToFileURL(extra).toString());
     expect(facts.configurationUris).toContain(pathToFileURL(join(root, 'config', 'services.yaml')).toString());
     expect(facts.configurationUris).not.toContain(pathToFileURL(join(root, 'app', 'config', 'services.php')).toString());

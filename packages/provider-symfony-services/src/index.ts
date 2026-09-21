@@ -8,6 +8,7 @@ import {
   analyzeSymfonyServiceXml,
   analyzeSymfonyServiceYaml,
   expandSymfonyServiceResources,
+  symfonyXmlParameterDeclarations,
   symfonyYamlParameterDeclarations,
   symfonyContainerMethodReturnFacts,
   type SymfonyBundleRegistrationFact,
@@ -179,7 +180,9 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source)
         : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source);
-      if (extension === 'yaml' || extension === 'yml') parameters.push(...symfonyYamlParameterDeclarations(source).map((parameter) => ({ ...parameter, id: parameter.value, uri })));
+      const parameterDeclarations = extension === 'xml' ? symfonyXmlParameterDeclarations(source)
+        : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source) : [];
+      parameters.push(...parameterDeclarations.map((parameter) => ({ ...parameter, id: parameter.value, uri })));
       for (const imported of facts.imports ?? []) {
         const candidate = importedConfig(root, path, imported.resource, roots); if (!candidate) continue;
         const realContainment = candidate.containmentRoot === root ? actualRoot : candidate.containmentRoot;

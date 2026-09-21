@@ -1101,6 +1101,91 @@ function xmlElementRanges(source: string): XmlElementRange[] | undefined {
   return stack.length ? undefined : elements.sort((left, right) => left.start - right.start);
 }
 
+function symfonyXmlParameterContext(source: string): { elements: XmlElementRange[]; ranges: Array<{ start: number; end: number }> } | undefined {
+  if (/<!DOCTYPE/i.test(source) || XMLValidator.validate(source) !== true) return undefined;
+  const elements = xmlElementRanges(source); if (!elements || elements.some((element) => element.name === 'when')) return undefined;
+  const ignored = [...source.matchAll(/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>/g)]
+    .flatMap((match) => match.index === undefined ? [] : [{ start: match.index, end: match.index + match[0].length }]);
+  const ranges: Array<{ start: number; end: number }> = [];
+  for (const element of elements) {
+    for (const match of element.tag.matchAll(/\s([A-Za-z_][A-Za-z0-9_.:-]*)\s*=\s*(['"])(.*?)\2/gs)) {
+      if (match.index === undefined) continue;
+      const quote = match[0].indexOf(match[2]!); const start = element.start + match.index + quote + 1;
+      const raw = match[3]!;
+      if (raw !== decodeXmlAttribute(raw)) continue;
+      const declarationKey = element.name === 'parameter' && match[1]!.toLowerCase() === 'key'
+        && elements.some((candidate) => candidate.name === 'parameters' && element.parentStart === candidate.start);
+      if (!declarationKey) ranges.push({ start, end: start + raw.length });
+    }
+  }
+  const markup = [...ignored];
+  for (const element of elements) {
+    markup.push({ start: element.start, end: element.openEnd });
+    if (element.closeStart > element.openEnd) markup.push({ start: element.closeStart, end: element.end });
+  }
+  markup.sort((left, right) => left.start - right.start || left.end - right.end);
+  let cursor = 0;
+  for (const blocked of markup) {
+    if (blocked.start > cursor) ranges.push({ start: cursor, end: blocked.start });
+    cursor = Math.max(cursor, blocked.end);
+  }
+  if (cursor < source.length) ranges.push({ start: cursor, end: source.length });
+  return { elements, ranges: ranges.filter((range) => range.end >= range.start) };
+}
+
+/** Enumerate exact Symfony XML parameter declaration keys without reading their values. */
+export function symfonyXmlParameterDeclarations(source: string): SymfonyParameterIdLocation[] {
+  const context = symfonyXmlParameterContext(source); if (!context) return [];
+  const containers = context.elements.filter((element) => element.name === 'container' && element.parentStart === undefined);
+  if (containers.length !== 1) return [];
+  const roots = context.elements.filter((element) => element.name === 'parameters' && element.parentStart === containers[0]!.start);
+  if (roots.length !== 1) return [];
+  return context.elements.filter((element) => element.name === 'parameter' && element.parentStart === roots[0]!.start)
+    .flatMap((element): SymfonyParameterIdLocation[] => {
+      const key = xmlAttribute(element.tag, 'key', element.start); if (!key || !SYMFONY_PARAMETER_ID.test(key.value)) return [];
+      if (source.slice(key.start, key.end) !== key.value) return [];
+      return [{ value: key.value, start: key.start, end: key.end }];
+    });
+}
+
+/** Enumerate exact `%parameter.id%` placeholders in safe XML text and attribute values. */
+export function symfonyXmlParameterReferences(source: string): SymfonyParameterIdLocation[] {
+  const context = symfonyXmlParameterContext(source); if (!context) return [];
+  const references: SymfonyParameterIdLocation[] = [];
+  for (const range of context.ranges) {
+    const value = source.slice(range.start, range.end);
+    for (const match of value.matchAll(/%([A-Za-z0-9_.-]+)%/g)) {
+      if (match.index === undefined || value[match.index - 1] === '%' || value[match.index + match[0].length] === '%') continue;
+      const start = range.start + match.index + 1;
+      references.push({ value: match[1]!, start, end: start + match[1]!.length });
+    }
+  }
+  return references.sort((left, right) => left.start - right.start);
+}
+
+/** Locate one exact Symfony XML `%parameter.id%` placeholder at the requested source offset. */
+export function symfonyXmlParameterReferenceAt(source: string, offset: number): SymfonyParameterIdLocation | undefined {
+  if (offset < 0 || offset > source.length) return undefined;
+  return symfonyXmlParameterReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+}
+
+/** Locate the editable id and typed prefix inside a complete or in-progress XML `%parameter.id%` placeholder. */
+export function symfonyXmlParameterReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+  const context = symfonyXmlParameterContext(source); if (!context || offset < 0 || offset > source.length) return undefined;
+  const range = context.ranges.find((candidate) => offset >= candidate.start && offset <= candidate.end); if (!range) return undefined;
+  const value = source.slice(range.start, range.end); const cursor = offset - range.start;
+  for (let marker = value.lastIndexOf('%', cursor - 1); marker >= 0; marker = value.lastIndexOf('%', marker - 1)) {
+    if (value[marker - 1] === '%' || value[marker + 1] === '%') continue;
+    const close = value.indexOf('%', marker + 1); const end = close >= 0 ? close : value.length;
+    if (cursor < marker + 1 || cursor > end) continue;
+    const id = value.slice(marker + 1, end); const prefix = value.slice(marker + 1, cursor);
+    if (!/^[A-Za-z0-9_.-]*$/.test(prefix) || id && !SYMFONY_PARAMETER_ID.test(id)
+      || close >= 0 && value[close + 1] === '%') return undefined;
+    return { prefix, start: range.start + marker + 1, end: range.start + end };
+  }
+  return undefined;
+}
+
 function symfonyXmlServiceReferenceAttributes(source: string, allowEmpty: boolean): SymfonyServiceIdReference[] {
   if (/<!DOCTYPE/i.test(source) || XMLValidator.validate(source) !== true) return [];
   const elements = xmlElementRanges(source); if (!elements || elements.some((element) => element.name === 'when')) return [];

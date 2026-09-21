@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlParameterDeclarations, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -567,6 +567,43 @@ services:
     expect(symfonyXmlServiceReferences('<!DOCTYPE foo><container/>')).toEqual([]);
     expect(symfonyXmlServiceReferences('<container><when env="dev"><services/></when></container>')).toEqual([]);
     expect(symfonyXmlServiceReferences('<container><services>')).toEqual([]);
+  });
+
+  it('locates exact Symfony XML parameter declarations and placeholders without exposing values', () => {
+    const source = `<?xml version="1.0"?>
+      <container>
+        <parameters>
+          <parameter key="app.transport">smtp://private</parameter>
+          <parameter key="app.host">localhost</parameter>
+        </parameters>
+        <services>
+          <service id="app.consumer" class="App\\Consumer" factory="%app.transport%">
+            <argument>%app.host%:%app.port%</argument>
+            <argument value="%%escaped%%"/>
+            <argument value="%env(APP_SECRET)%"/>
+            <argument value="&#37;encoded&#37;"/>
+          </service>
+        </services>
+      </container>`;
+    const declarations = symfonyXmlParameterDeclarations(source);
+    expect(declarations.map((item) => item.value)).toEqual(['app.transport', 'app.host']);
+    expect(declarations.every((item) => source.slice(item.start, item.end) === item.value)).toBe(true);
+    const references = symfonyXmlParameterReferences(source);
+    expect(references.map((item) => item.value)).toEqual(['app.transport', 'app.host', 'app.port']);
+    expect(references.every((item) => source.slice(item.start, item.end) === item.value)).toBe(true);
+    expect(symfonyXmlParameterReferenceAt(source, source.lastIndexOf('app.host') + 4)).toEqual(references[1]);
+    expect(symfonyXmlParameterReferenceAt(source, source.indexOf('app.host') + 4)).toBeUndefined();
+    expect(symfonyXmlParameterReferencePrefixAt(source, source.lastIndexOf('app.transport') + 'app.tra'.length)).toEqual({
+      prefix: 'app.tra', start: source.lastIndexOf('app.transport'), end: source.lastIndexOf('app.transport') + 'app.transport'.length,
+    });
+    const unfinished = '<container><services><service id="x"><argument value="%app.tra"/></service></services></container>';
+    const start = unfinished.indexOf('app.tra');
+    expect(symfonyXmlParameterReferencePrefixAt(unfinished, start + 'app.tra'.length)).toEqual({
+      prefix: 'app.tra', start, end: start + 'app.tra'.length,
+    });
+    expect(symfonyXmlParameterDeclarations('<!DOCTYPE foo><container/>')).toEqual([]);
+    expect(symfonyXmlParameterReferences('<container><when env="dev"><parameters/></when></container>')).toEqual([]);
+    expect(symfonyXmlParameterReferences('<container><services>')).toEqual([]);
   });
 
   it('extracts universal and exact environment-gated bundle registrations', () => {

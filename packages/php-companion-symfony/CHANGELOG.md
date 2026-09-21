@@ -1,6 +1,6 @@
 # Changelog
 
-- Register YAML parameter Definition, References, completion and Rename through the standalone Symfony extension, with service, parameter and route Rename fallbacks sharing VS Code's standard F2 flow.
+- Register YAML and XML parameter Definition, References, completion and Rename through the standalone Symfony extension, with service, parameter and route Rename fallbacks sharing VS Code's standard F2 flow.
 
 - Make the Winstar runtime provider authoritative when enabled and retain the static provider as source enrichment for runtime-confirmed name/path pairs.
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Enumerate exact Symfony XML parameter declaration keys and `%parameter.id%` placeholders in raw text or attribute values; support cursor prefixes while rejecting DOCTYPE, environment branches, entities, escaped percents and malformed XML.
+
 - Enumerate exact top-level YAML parameter declaration keys and `%parameter.id%` placeholders in scalar values without materializing values; reject escaped percent sequences, env expressions, decoded strings, invalid names and malformed YAML.
 
 - Enumerate exact `#[Autowire(service: '...')]` service-id ranges for the canonical Symfony Attribute, including imported aliases, while rejecting unrelated attributes and ambiguous multi-namespace imports.

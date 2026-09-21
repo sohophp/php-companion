@@ -1,9 +1,14 @@
 <?xml version="1.0"?>
 <container xmlns="http://symfony.com/schema/dic/services">
+  <parameters>
+    <parameter key="app.xml_transport">private</parameter>
+  </parameters>
   <services>
     <service id="app.xml.consumer" class="App\Service\Mailer">
       <argument type="service" id="App\Service\Mailer"/>
       <argument type="service" id="app.mailer"/>
+      <argument>%app.transport%</argument>
+      <argument value="%app.xml_transport%"/>
     </service>
   </services>
 </container>
