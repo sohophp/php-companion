@@ -208,6 +208,28 @@ describe('bounded project source index', () => {
     const warm = await indexComposerSources(root, options);
     expect(warm.cached).toBe(4); expect(committed).toEqual([]);
   });
+  it('prepares warm restores concurrently and commits them in path order with fallback', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-restore-prefetch-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const directory = join(root, 'cache'); const commits: string[] = []; let active = 0; let peak = 0;
+    const cache = { directory, version: 'restore-prefetch-v1',
+      prepareRestore: async (_payload: unknown, source: { path: string }): Promise<string> => {
+        active += 1; peak = Math.max(peak, active);
+        await new Promise((done) => setTimeout(done, source.path.endsWith('A.php') ? 20 : 1));
+        active -= 1;
+        if (source.path.endsWith('B.php')) throw new Error('Worker unavailable');
+        return source.path.split(sep).at(-1)!;
+      },
+      restore: (_payload: unknown, source: { path: string }, prepared?: unknown): boolean => {
+        commits.push(`${source.path.split(sep).at(-1)}:${prepared ?? 'fallback'}`); return true;
+      } };
+    await indexComposerSources(root, { includeDependencies: false, cache, onSource: ({ path }) => ({ path }) });
+    const warm = await indexComposerSources(root, { includeDependencies: false, readConcurrency: 3, cache,
+      onSource: () => { throw new Error('Warm restore should not rebuild source.'); } });
+    expect(warm.cached).toBe(3); expect(peak).toBeGreaterThan(1);
+    expect(commits).toEqual(['A.php:A.php', 'B.php:fallback', 'C.php:C.php']);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

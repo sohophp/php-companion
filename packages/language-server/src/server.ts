@@ -47,7 +47,7 @@ import { runRouteProvider } from '@php-companion/route-provider-host';
 import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile, decompressCachedProjectPhpFile,
   restoreCachedProjectPhpFile, restoreCachedSourceDeclaration, type ProjectPhpFileFacts } from './projectFacts.js';
 import { CallableFactCache } from './callableFactsCache.js';
-import { CandidateWorkers, type PreparedCandidate } from './candidateWorkers.js';
+import { CandidateWorkers, type PreparedCandidate, type PreparedCandidateRestore } from './candidateWorkers.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -1751,7 +1751,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
-  const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0;
+  const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
@@ -1794,17 +1794,28 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v4',
-      restore: (payload, { uri, hash }): boolean | 'source' => {
+      prepareRestore: (payload, { uri, hash }): Promise<PreparedCandidateRestore | undefined> | undefined => {
+        const entry = payload as { summary?: unknown } | null;
+        const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
+        return decision === 'source' && !documents.get(uri)
+          ? candidateWorkers.restore({ uri, hash, payload, deferBodies }) : undefined;
+      },
+      restore: (payload, { uri, hash }, prepared): boolean | 'source' => {
         const entry = payload as { summary?: unknown; semantic?: unknown; declarations?: unknown } | null;
         const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
         if (decision === 'skip') return true;
         if (decision === 'rebuild' || documents.get(uri)) return decision === 'source' ? 'source' : false;
-        const declarations = deferBodies ? restoreCachedSourceDeclaration(entry?.declarations, uri, hash) : undefined;
+        const candidate = prepared && typeof prepared === 'object' && (prepared as PreparedCandidateRestore).kind === 'restored'
+          && (prepared as PreparedCandidateRestore).uri === uri && (prepared as PreparedCandidateRestore).hash === hash
+          ? prepared as PreparedCandidateRestore : undefined;
+        const declarations = candidate?.declaration ?? (deferBodies ? restoreCachedSourceDeclaration(entry?.declarations, uri, hash) : undefined);
         if (declarations && workspace.restoreSourceDeclaration(declarations, uri)) {
+          if (candidate?.declaration) preparedRestores += 1;
           restoredCandidates += 1; restoredDeclarations += 1; return true;
         }
-        const cached = restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(entry?.semantic), uri);
+        const cached = candidate?.semantic ?? restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(entry?.semantic), uri);
         if (cached?.checksums.source === hash && workspace.restore(cached.semantic, uri)) {
+          if (candidate?.semantic) preparedRestores += 1;
           restoredCandidates += 1; return true;
         }
         return 'source';
@@ -1813,7 +1824,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
-  connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} elapsedMs=${Date.now() - started}`);
+  connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {

@@ -3,6 +3,8 @@ import { Worker } from 'node:worker_threads';
 import { dirname, resolve } from 'node:path';
 import type { PhpParserPaths, PreparedPhpDocument } from '@php-companion/parser';
 import type { SourceCandidateSummary } from '@php-companion/index';
+import type { SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
+import type { CachedProjectPhpFile } from './projectFacts.js';
 
 export interface CandidatePreparation {
   id: number;
@@ -24,12 +26,22 @@ export interface PreparedCandidate {
   facts?: PreparedPhpDocument;
 }
 
+export interface CandidateRestore {
+  kind: 'restore'; id: number; uri: string; hash: string; payload: unknown; deferBodies: boolean;
+}
+
+export interface PreparedCandidateRestore {
+  kind: 'restored'; id: number; uri: string; hash: string;
+  declaration?: SemanticSourceDeclarationSnapshot;
+  semantic?: CachedProjectPhpFile;
+}
+
 interface WorkerSlot { worker: Worker; pending: number; alive: boolean; }
 
 /** Bounded speculative syntax preparation. Workspace updates remain on the caller's thread. */
 export class CandidateWorkers {
   private slots: WorkerSlot[] = [];
-  private waiting = new Map<number, (value: PreparedCandidate | undefined) => void>();
+  private waiting = new Map<number, (value: unknown) => void>();
   private nextId = 0;
   private disabled = false;
   private warned = false;
@@ -44,10 +56,10 @@ export class CandidateWorkers {
         const worker = new Worker(path, { workerData: { paths: this.paths } });
         worker.unref();
         const slot: WorkerSlot = { worker, pending: 0, alive: true };
-        worker.on('message', (result: Partial<PreparedCandidate> & { id: number }) => {
+        worker.on('message', (result: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore>) & { id: number }) => {
           slot.pending = Math.max(0, slot.pending - 1);
           const resolve = this.waiting.get(result.id); this.waiting.delete(result.id); this.owners.delete(result.id);
-          resolve?.(result.facts || result.summary ? result as PreparedCandidate : undefined);
+          resolve?.(('kind' in result && result.kind === 'restored') || 'facts' in result || 'summary' in result ? result : undefined);
         });
         const fail = (): void => {
           if (!slot.alive) return;
@@ -79,8 +91,20 @@ export class CandidateWorkers {
     if (!slot) return Promise.resolve(undefined);
     const id = ++this.nextId; slot.pending += 1;
     return new Promise((done) => {
-      this.waiting.set(id, done); this.owners.set(id, slot);
+      this.waiting.set(id, (value) => done(value as PreparedCandidate | undefined)); this.owners.set(id, slot);
       try { slot.worker.postMessage({ id, ...task } satisfies CandidatePreparation); }
+      catch { slot.pending -= 1; this.waiting.delete(id); this.owners.delete(id); done(undefined); }
+    });
+  }
+
+  restore(task: Omit<CandidateRestore, 'id' | 'kind'>): Promise<PreparedCandidateRestore | undefined> {
+    this.start();
+    const slot = this.slots.filter((candidate) => candidate.alive).sort((left, right) => left.pending - right.pending)[0];
+    if (!slot) return Promise.resolve(undefined);
+    const id = ++this.nextId; slot.pending += 1;
+    return new Promise((done) => {
+      this.waiting.set(id, (value) => done(value as PreparedCandidateRestore | undefined)); this.owners.set(id, slot);
+      try { slot.worker.postMessage({ kind: 'restore', id, ...task } satisfies CandidateRestore); }
       catch { slot.pending -= 1; this.waiting.delete(id); this.owners.delete(id); done(undefined); }
     });
   }

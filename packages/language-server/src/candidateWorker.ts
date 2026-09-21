@@ -1,14 +1,23 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '@php-companion/index';
-import type { CandidatePreparation, PreparedCandidate } from './candidateWorkers.js';
+import { decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from './projectFacts.js';
+import type { CandidatePreparation, CandidateRestore, PreparedCandidate, PreparedCandidateRestore } from './candidateWorkers.js';
 
 const paths = (workerData as { paths?: PhpParserPaths }).paths;
-const parserPromise = paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault();
+let parserPromise: Promise<PhpSyntaxParser> | undefined;
 
-parentPort?.on('message', async (task: CandidatePreparation) => {
+parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore) => {
   try {
-    const parser = await parserPromise;
+    if ('kind' in task) {
+      const payload = task.payload as { declarations?: unknown; semantic?: unknown } | null;
+      const declaration = task.deferBodies ? restoreCachedSourceDeclaration(payload?.declarations, task.uri, task.hash) : undefined;
+      const semantic = declaration ? undefined : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload?.semantic), task.uri);
+      const result: PreparedCandidateRestore = { kind: 'restored', id: task.id, uri: task.uri, hash: task.hash,
+        declaration, semantic: semantic?.checksums.source === task.hash ? semantic : undefined };
+      parentPort?.postMessage(result); return;
+    }
+    const parser = await (parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault());
     const summary = createSourceCandidateSummary(task.source);
     const names = new Set(task.names);
     const matches = task.mode === 'named-argument'

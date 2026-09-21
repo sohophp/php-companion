@@ -15,7 +15,7 @@ export interface ProjectIndexLimits { maxFiles: number; maxFileSizeBytes: number
 export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }
 export interface IndexedSource { uri: string; path: string; source: string; bytes: number; hash: string; prepared?: unknown; }
 export type ProjectIndexCacheRestoreResult = boolean | 'source';
-export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
+export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; prepareRestore?: (payload: unknown, source: Omit<IndexedSource, 'source'>) => unknown | Promise<unknown>; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>, prepared?: unknown) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }
 export interface IndexProgress { files: number; cached: number; total: number; phase: 'project' | 'dependencies'; }
 export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; prepareSource?: (source: IndexedSource) => unknown | Promise<unknown>; onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
@@ -73,14 +73,21 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
     warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
   };
-  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; inspectFailed?: boolean; readFailed?: boolean };
+  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; inspectFailed?: boolean; readFailed?: boolean };
   const prefetch = async (path: string): Promise<PrefetchedSource> => {
     let information;
     try { information = await stat(path); } catch { return { inspectFailed: true }; }
     const info = { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs };
     if (info.size > limits.maxFileSizeBytes) return { info };
     const old = previous.get(path);
-    if (options.cache && (!options.prepareSource || old && old.size === info.size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs)) return { info };
+    if (options.cache && old && old.size === info.size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs) {
+      if (!options.cache.prepareRestore || options.shouldContinue?.() === false) return { info };
+      try {
+        const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();
+        return { info, preparedRestore: await options.cache.prepareRestore(old.payload, { uri, path, bytes: info.size, hash: old.hash }) };
+      } catch { return { info }; }
+    }
+    if (options.cache && !options.prepareSource) return { info };
     let source: string; try { source = await readFile(path, 'utf8'); } catch { return { info, readFailed: true }; }
     if (!options.prepareSource || options.shouldContinue?.() === false) return { info, source };
     const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();
@@ -107,7 +114,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs && options.cache) {
         restoreAttempted = true;
         try {
-          const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash });
+          const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);
           if (decision === true) {
             next.set(path, old); cached += 1; bytes += size; indexed += 1;
             options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
