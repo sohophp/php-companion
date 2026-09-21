@@ -3,7 +3,8 @@ import { createHash } from 'node:crypto';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { SemanticWorkspace } from '@php-companion/semantic';
 import { semanticFacts } from '@php-companion/semantic-provider';
-import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../src/projectFacts.js';
+import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, createCachedProjectPhpFile,
+  decompressCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../src/projectFacts.js';
 
 describe('persistent project PHP facts', () => {
   let parser: PhpSyntaxParser;
@@ -33,6 +34,11 @@ describe('persistent project PHP facts', () => {
         layers: expect.stringMatching(/^[0-9a-f]{64}$/), facts: expect.stringMatching(/^[0-9a-f]{64}$/) } });
     const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri);
     expect(restored?.facts.doctrineProperties).toEqual(facts.doctrineProperties);
+    const compressed = compressCachedProjectPhpFile(cached);
+    expect(restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(compressed), uri)).toEqual(cached);
+    expect(decompressCachedProjectPhpFile({ ...compressed, bytes: compressed.bytes + 1 })).toBeUndefined();
+    expect(decompressCachedProjectPhpFile({ ...compressed, data: 'invalid!' })).toBeUndefined();
+    expect(decompressCachedProjectPhpFile({ ...compressed, bytes: 16 * 1024 * 1024 + 1 })).toBeUndefined();
     const checksum = createCachedProjectPhpFile(semantic, facts, cached.checksums.source);
     expect(checksum.checksums.source).toBe(cached.checksums.source);
     const wrongChecksum = createCachedProjectPhpFile(semantic, facts, '0'.repeat(64));

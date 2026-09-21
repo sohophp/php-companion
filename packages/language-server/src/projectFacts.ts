@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import type { PhpSyntaxParser } from '@php-companion/parser';
 import type { SemanticSnapshot } from '@php-companion/semantic';
 import { analyzeDoctrineDocument, doctrineAssociationPropertyFacts, doctrineQueryFactoryMethodFact, doctrineQueryMethodFacts, doctrineRepositoryLookupFacts, doctrineRepositoryMethodFacts,
@@ -24,6 +25,30 @@ export interface CachedProjectPhpFile {
     facts: string;
   };
   checksum: string;
+}
+
+const MAX_CACHED_SEMANTIC_BYTES = 16 * 1024 * 1024;
+const MAX_COMPRESSED_SEMANTIC_BYTES = 8 * 1024 * 1024;
+
+/** Compact transport for the checksum-validated semantic payload in on-demand candidate caches. */
+export function compressCachedProjectPhpFile(payload: CachedProjectPhpFile): { schema: 1; bytes: number; data: string } {
+  const source = Buffer.from(JSON.stringify(payload));
+  if (source.length > MAX_CACHED_SEMANTIC_BYTES) throw new RangeError('Semantic candidate cache entry exceeded its size limit.');
+  const compressed = deflateRawSync(source, { level: 1 });
+  if (compressed.length > MAX_COMPRESSED_SEMANTIC_BYTES) throw new RangeError('Compressed semantic candidate cache entry exceeded its size limit.');
+  return { schema: 1, bytes: source.length, data: compressed.toString('base64') };
+}
+
+export function decompressCachedProjectPhpFile(value: unknown): unknown {
+  if (!isRecord(value) || value.schema !== 1 || !Number.isSafeInteger(value.bytes)
+    || Number(value.bytes) < 1 || Number(value.bytes) > MAX_CACHED_SEMANTIC_BYTES
+    || typeof value.data !== 'string' || value.data.length < 1
+    || value.data.length > Math.ceil(MAX_COMPRESSED_SEMANTIC_BYTES / 3) * 4
+    || value.data.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(value.data)) return undefined;
+  try {
+    const source = inflateRawSync(Buffer.from(value.data, 'base64'), { maxOutputLength: MAX_CACHED_SEMANTIC_BYTES });
+    return source.length === value.bytes ? JSON.parse(source.toString('utf8')) as unknown : undefined;
+  } catch { return undefined; }
 }
 
 function recordChecksum(value: unknown): string {

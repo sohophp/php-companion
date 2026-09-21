@@ -122,7 +122,7 @@ describe('language server stdio', () => {
       await writeFile(join(sourceDirectory, 'Consumer.php'), consumer);
       await writeFile(join(sourceDirectory, 'Getter.php'), substring);
       await writeFile(join(sourceDirectory, 'Noise.php'), noise);
-      for (let run = 0; run < 2; run += 1) {
+      for (let run = 0; run < 3; run += 1) {
         server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
         const output = messagesFrom(server);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
@@ -139,15 +139,16 @@ describe('language server stdio', () => {
           context: { includeDeclaration: false },
         } }));
         const references = (await output.waitFor((message) => message.id === 241)).result;
-        expect(references).toEqual([expect.objectContaining({ uri: consumerUri })]);
+        expect(references).toEqual(run === 2 ? [] : [expect.objectContaining({ uri: consumerUri })]);
         const scan = await output.waitFor((message) => message.method === 'window/logMessage'
           && message.params?.message?.includes('[named-candidates] files=4'));
-        expect(scan.params.message).toContain('parsed=3');
-        expect(scan.params.message).toContain(run === 0 ? 'cached=0' : 'cached=1');
+        expect(scan.params.message).toContain(run === 0 ? 'parsed=3 restored=0' : run === 1 ? 'parsed=1 restored=2' : 'parsed=2 restored=1');
+        expect(scan.params.message).toContain(run === 0 ? 'cached=0' : run === 1 ? 'cached=3' : 'cached=2');
         server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 242);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
         await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+        if (run === 1) await writeFile(join(sourceDirectory, 'Consumer.php'), consumer.replace('->get()', '->run()'));
       }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -217,7 +218,7 @@ describe('language server stdio', () => {
       expect(reloadedRename.changes[sourceUri]).toHaveLength(2);
       expect(reloadedRename.changes[consumerUri]).toHaveLength(1);
       expect((await reloaded.waitFor((message) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates] files=2 cached=1 parsed=1'))).params.message).toContain('cached=1 parsed=1');
+        && message.params?.message?.includes('[named-candidates] files=2 cached=2 parsed=0 restored=1'))).params.message).toContain('cached=2 parsed=0 restored=1');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'shutdown', params: null })); await reloaded.waitFor((message) => message.id === 236);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
       await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
