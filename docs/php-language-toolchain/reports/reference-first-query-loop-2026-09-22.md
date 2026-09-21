@@ -78,3 +78,11 @@ Winstar 的 `get` 样本同一缓存目录连续启动：首次 9,283 ms，第�
 Winstar 的 `get` 样本在已有同版本缓存、打开文件后空闲 8 秒的独立进程中，后台候选恢复约 2.97 秒并完成框架准备，第一次点击 References 为 **1,636 ms**、112 处且位置哈希不变。点击发生在候选预热中途的 2.5 秒空闲场景只出现一次候选扫描，点击用时 5,337 ms；无匹配缓存的点击仍约 9 秒。聚焦 LSP 5 项、结果存储 3 项、构建及 ESLint 通过。以上均为 WSL 文件系统上的 LSP 基准，不是 VS Code Extension Host 实际交互验收；冷首次查询依旧不达标，Goal 继续。
 
 同样保存服务类查询的安全提示，用于下次打开文件时预热候选和框架；其完整结果仍不做点击时的昂贵快照恢复。`AdminSecuritySubscriber` 的独立空缓存首次查询为 5,093 ms / 2 处，写入完成后重载并空闲 8 秒，首次点击为 **971 ms** / 2 处，位置哈希 `c0d5d86b7e083c6f21354d508f2897712e0b7b6a8663efd6cf2066788ff221fd` 不变。此数字依赖既有提示和足够的空闲准备时间，不能代表首次打开新项目时的速度。
+
+## 光标符号的空闲预热
+
+为首次打开、尚无历史查询提示的项目，扩展在活动 PHP 编辑器的光标位置稳定 300 ms 后把文件版本和位置发给语言服务器。语言服务器只对能够精确识别的一个项目符号生成查询提示，继续等待 1.5 秒空闲，再准备对应名字的候选文件与 Symfony 事实。光标移动、文件编辑或查询开始会使过期任务失效；背景任务不显示索引进度。文件打开与内容变化事件可能同时到达，服务器保留最新选择并避免较早的打开流程覆盖它。
+
+Winstar 只读样本、独立空缓存、打开后空闲 8 秒、Symfony Provider 的双场景基准：`get` 首次点击 3,050 ms / 112 处，`AdminSecuritySubscriber` 972 ms / 2 处；位置 SHA-256 分别仍为 `bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2` 和 `c0d5d86b7e083c6f21354d508f2897712e0b7b6a8663efd6cf2066788ff221fd`。另一次 `get` 为 2,417 ms；波动主要取决于点击时 Symfony 准备是否已结束。可用 `PHP_COMPANION_BENCHMARK_SELECTION_PREWARM=1 PHP_COMPANION_BENCHMARK_DOCUMENT_IDLE_MS=8000 node scripts/benchmark-reference-suite.mjs /var/www/php/8.5/winstar2024` 复测。这个优化把工作移到点击前，首次打开到可交互的总计算时间并未缩短；用户打开后立即点击仍走原有约 9 秒的精确查询路径。
+
+最后一次构建后的复测为 `get` 2,673 ms / 112 处、服务类 946 ms / 2 处，SHA-256 均未变化。聚焦 LSP 5 项、TypeScript 类型检查、ESLint 和构建通过；尚未在真实 WSL VS Code Extension Host 验证光标空闲与点击行为。

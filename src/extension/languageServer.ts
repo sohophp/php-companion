@@ -176,6 +176,25 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }
   }));
   let stopping = false;
+  let referencePrewarmTimer: ReturnType<typeof setTimeout> | undefined;
+  const prewarmActiveReference = (): void => {
+    if (referencePrewarmTimer) clearTimeout(referencePrewarmTimer);
+    referencePrewarmTimer = undefined;
+    const editor = vscode.window.activeTextEditor;
+    const document = editor?.document;
+    if (stopping || !editor || !document || document.languageId !== 'php' || document.isUntitled
+      || !['file', 'vscode-remote'].includes(document.uri.scheme)) return;
+    const { active: position } = editor.selection;
+    referencePrewarmTimer = setTimeout(() => {
+      referencePrewarmTimer = undefined;
+      if (stopping || vscode.window.activeTextEditor !== editor || editor.document.version !== document.version
+        || !editor.selection.active.isEqual(position)) return;
+      void client.sendNotification('phpCompanion/prewarmReferenceAt', {
+        uri: document.uri.toString(), version: document.version,
+        position: { line: position.line, character: position.character },
+      }).catch((error: unknown) => { if (!stopping) output.warn(`Unable to prewarm PHP references: ${String(error)}`); });
+    }, 300);
+  };
   const updateRouteProviders = (): void => {
     if (stopping) return;
     void client.sendNotification('phpCompanion/symfonyRouteProviders', { providers: symfonyRouteProviders() }).catch((error: unknown) => {
@@ -235,7 +254,14 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     vscode.workspace.onDidChangeTextDocument((event) => { if (['yaml', 'xml'].includes(event.document.languageId)) updateFrameworkDocumentSnapshots(); }),
     vscode.workspace.onDidCloseTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),
     { dispose: () => { if (frameworkSnapshotTimer) clearTimeout(frameworkSnapshotTimer); } },
+    vscode.window.onDidChangeActiveTextEditor(prewarmActiveReference),
+    vscode.window.onDidChangeTextEditorSelection(prewarmActiveReference),
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (event.document === vscode.window.activeTextEditor?.document) prewarmActiveReference();
+    }),
+    { dispose: () => { if (referencePrewarmTimer) clearTimeout(referencePrewarmTimer); } },
   );
+  prewarmActiveReference();
   updateRouteProviders();
   updateIntegrationProviders();
   updatePhpExtensionAvailability();

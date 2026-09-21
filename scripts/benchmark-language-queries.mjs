@@ -59,6 +59,9 @@ try {
   if (offset < 1) throw new Error('Symbol missing');
   const lines = source.slice(0, offset).split('\n'); const position = { line: lines.length - 1, character: lines.at(-1).length };
   send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
+  if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1') {
+    send({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: { uri, version: 1, position } });
+  }
   const documentIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_DOCUMENT_IDLE_MS ?? 0);
   if (Number.isSafeInteger(documentIdleMs) && documentIdleMs > 0 && documentIdleMs <= 30_000) {
     await new Promise((done) => setTimeout(done, documentIdleMs));

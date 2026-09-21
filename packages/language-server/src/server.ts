@@ -2059,36 +2059,67 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
 }
 
 const referencePrewarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const referencePrewarmRevisions = new Map<string, number>();
+const pendingReferenceSelections = new Map<string, { version: number; position: { line: number; character: number } }>();
 const frameworkPrewarmTasks = new Map<string, { epoch: number; promise: Promise<void> }>();
 let recentReferenceProofs: Promise<ReferenceResultProof[]> | undefined;
 function cancelReferencePrewarm(uri: string): void {
   const timer = referencePrewarmTimers.get(uri); if (timer) clearTimeout(timer);
   referencePrewarmTimers.delete(uri);
+  referencePrewarmRevisions.set(uri, (referencePrewarmRevisions.get(uri) ?? 0) + 1);
 }
-function scheduleReferencePrewarm(document: TextDocument, root: string, workspace: SemanticWorkspace): void {
+async function selectedReferenceHint(document: TextDocument, root: string, workspace: SemanticWorkspace,
+  position: { line: number; character: number }): Promise<ReferenceResultProof['queryHint'] | undefined> {
+  const offset = document.offsetAt(position);
+  const actual = document.positionAt(offset);
+  if (actual.line !== position.line || actual.character !== position.character
+    || workspace.referenceScope(document.uri, offset) !== 'project') return undefined;
+  const promoted = workspace.closedPromotedPropertyRename(document.uri, offset);
+  let type = promoted ? undefined : workspace.typeAt(document.uri, offset);
+  let member = promoted || type ? undefined : workspace.referenceMemberAt(document.uri, offset);
+  for (let depth = 0; depth < 4 && !promoted && !type && !member; depth += 1) {
+    const loaded = await hydrateCanonicalTypes(workspace, root, [workspace.resolvedTypeNameAt(document.uri, offset),
+      ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn)));
+    if (!loaded) break;
+    type = workspace.typeAt(document.uri, offset);
+    member = type ? undefined : workspace.referenceMemberAt(document.uri, offset);
+  }
+  const name = promoted?.name ?? type?.name ?? member?.name;
+  if (!name) return undefined;
+  const names = new Set([name.toLowerCase()]);
+  if (type || member?.kind === 'method') names.add('dispatch');
+  return { uri: document.uri, names: [...names].sort(), mode: promoted ? 'named-argument' : 'symbol',
+    deferBodies: member?.kind === 'method' };
+}
+function scheduleReferencePrewarm(document: TextDocument, root: string, workspace: SemanticWorkspace,
+  position?: { line: number; character: number }): void {
   cancelReferencePrewarm(document.uri);
   if (indexingMode !== 'onDemand' || !cacheDirectory || !reusableReferenceMode()) return;
   const uri = document.uri; const version = document.version;
   const epoch = projectEpochs.get(root) ?? 0; const sequence = querySequence;
+  const revision = referencePrewarmRevisions.get(uri);
   const timer = setTimeout(() => {
     referencePrewarmTimers.delete(uri);
     void (async (): Promise<void> => {
-      if (candidateScanTasks.size || frameworkPrewarmTasks.size || querySequence !== sequence) return;
-      const proofs = await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
+      if (candidateScanTasks.size || frameworkPrewarmTasks.size || querySequence !== sequence
+        || referencePrewarmRevisions.get(uri) !== revision) return;
       const open = documents.get(uri);
       if (!open || open.version !== version || querySequence !== sequence || (projectEpochs.get(root) ?? 0) !== epoch) return;
-      const sourceHash = referenceSourceHash(open.getText());
-      const hint = proofs.find((proof) => proof.queryHint?.uri === uri
+      const selected = position ? await selectedReferenceHint(open, root, workspace, position) : undefined;
+      const proofs = selected ? [] : await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
+      const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
+      const hint = selected ?? proofs.find((proof) => proof.queryHint?.uri === uri
         && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;
-      if (!hint || candidateScanTasks.size) return;
       const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
-        || (projectEpochs.get(root) ?? 0) !== epoch;
+        || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
+      if (!hint || candidateScanTasks.size || cancelled()) return;
       const ready = await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
         hint.mode, hint.deferBodies, hint.deferBodies, false);
       if (!ready || cancelled()) return;
       connection.console.info(`[reference-prewarm] ready uri=${uri}`);
       if (!referenceHasFrameworkProviders()) return;
-      const stale = (): boolean => documents.get(uri)?.version !== version || (projectEpochs.get(root) ?? 0) !== epoch;
+      const stale = (): boolean => documents.get(uri)?.version !== version || (projectEpochs.get(root) ?? 0) !== epoch
+        || referencePrewarmRevisions.get(uri) !== revision;
       const pending = frameworkPrewarmTasks.get(root);
       if (pending?.epoch === epoch) return;
       const warm = { epoch, promise: Promise.resolve() as Promise<void> };
@@ -2105,6 +2136,22 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
   }, 1_500);
   referencePrewarmTimers.set(uri, timer);
 }
+
+connection.onNotification('phpCompanion/prewarmReferenceAt', async (params: {
+  uri?: unknown; version?: unknown; position?: { line?: unknown; character?: unknown } } | undefined) => {
+  if (typeof params?.uri !== 'string' || !Number.isSafeInteger(params.version)
+    || !Number.isSafeInteger(params.position?.line) || !Number.isSafeInteger(params.position?.character)
+    || (params.position?.line as number) < 0 || (params.position?.character as number) < 0) return;
+  const position = { line: params.position!.line as number, character: params.position!.character as number };
+  pendingReferenceSelections.set(params.uri, { version: params.version as number, position });
+  const document = documents.get(params.uri);
+  if (!document) return;
+  const root = rootForUri(params.uri);
+  if (!document || document.languageId !== 'php' || !root || document.version !== params.version) return;
+  const workspace = await semanticForUri(params.uri);
+  if (documents.get(params.uri)?.version !== params.version) return;
+  scheduleReferencePrewarm(document, root, workspace, position);
+});
 
 async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, cancelled: () => boolean, retries = 2): Promise<Array<{ uri: string; source: string; start: number; end: number }> | undefined> {
   if (indexingMode === 'off') return undefined;
@@ -3309,6 +3356,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
   cancelReferencePrewarm(document.uri);
+  const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
@@ -3319,12 +3367,16 @@ documents.onDidOpen(async ({ document }) => {
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
-  if (root) scheduleReferencePrewarm(document, root, workspace);
+  if (root && referencePrewarmRevisions.get(document.uri) === prewarmRevision) {
+    const pending = pendingReferenceSelections.get(document.uri);
+    scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
+  }
 });
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
   cancelReferencePrewarm(document.uri);
+  const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
@@ -3335,11 +3387,16 @@ documents.onDidChangeContent(async ({ document }) => {
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
+  if (root && referencePrewarmRevisions.get(document.uri) === prewarmRevision) {
+    const pending = pendingReferenceSelections.get(document.uri);
+    scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
+  }
 });
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
   cancelReferencePrewarm(document.uri);
+  pendingReferenceSelections.delete(document.uri);
   invalidateCandidates(document.uri);
   const root = rootForUri(document.uri);
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);

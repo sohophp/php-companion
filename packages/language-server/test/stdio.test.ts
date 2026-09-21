@@ -95,7 +95,7 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
       const existing = messages.find(predicate);
       if (existing) return Promise.resolve(existing);
       return new Promise((resolvePromise, reject) => {
-        const timer = setTimeout(() => reject(new Error(`Timed out waiting for language server response; recent messages: ${JSON.stringify(messages.slice(-5))}`)), timeoutMs);
+        const timer = setTimeout(() => reject(new Error(`Timed out waiting for language server response; logs: ${JSON.stringify(messages.filter((message) => message.method === 'window/logMessage').slice(-12))}; recent messages: ${JSON.stringify(messages.slice(-5))}`)), timeoutMs);
         waiters.push({ predicate, resolve: (message) => { clearTimeout(timer); resolvePromise(message); } });
       });
     },
@@ -125,8 +125,10 @@ describe('language server stdio', () => {
       const location = (name: string, text: string): { uri: string; range: { start: ReturnType<typeof lspPosition>; end: ReturnType<typeof lspPosition> } } => ({ uri: pathToFileURL(join(src, name)).toString(),
         range: { start: lspPosition(text, text.lastIndexOf('get(')), end: lspPosition(text, text.lastIndexOf('get(') + 3) } });
       const expected = [location('Use.php', source), location('Other.php', other)];
+      let runCount = 0;
       const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
-        provider?: boolean; repeat?: boolean; prewarmed?: boolean } = {}): Promise<void> => {
+        provider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean } = {}): Promise<void> => {
+        const currentRun = ++runCount;
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
           '--php-wasm', join(dirname(bundle), 'tree-sitter-php.wasm')], { stdio: 'pipe' });
         const output = messagesFrom(server); let id = 0;
@@ -143,8 +145,15 @@ describe('language server stdio', () => {
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
           textDocument: { uri, languageId: 'php', version: 1, text },
         } }));
-        if (options.prewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
-          && message.params?.message?.includes('[reference-prewarm] ready'), 10_000);
+        if (options.selectionPrewarm) server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: {
+          uri, version: 1, position: lspPosition(text, text.lastIndexOf('get(') + 1),
+        } }));
+        if (options.prewarmed) {
+          try {
+            await output.waitFor((message) => message.method === 'window/logMessage'
+              && message.params?.message?.includes('[reference-prewarm] ready'), 10_000);
+          } catch (error) { throw new Error(`Reference prewarm failed in run ${currentRun}: ${String(error)}`); }
+        }
         const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
           context: { includeDeclaration: options.includeDeclaration ?? false } };
         const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
@@ -160,7 +169,7 @@ describe('language server stdio', () => {
         const exited = new Promise<void>((done) => server!.once('exit', () => done()));
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null })); await exited;
       };
-      await run(expected, false);
+      await run(expected, false, { prewarmed: true, selectionPrewarm: true });
       await run(expected, true, { repeat: true });
       await run([...expected, { ...location('Target.php', declaration), uri: pathToFileURL(join(dependency, 'Target.php')).toString() }], false, { includeDeclaration: true });
       // Separate keys preserve the original no-declaration query.
