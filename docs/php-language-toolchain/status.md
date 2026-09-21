@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 首次路径三项实验：PHPDoc 范围索引、仅有声明的成员候选筛选、内建 stub 声明延迟加载均保持 112 处完整位置摘要，但相对 8.993 秒基线未得到明确总延迟收益（9.066 / 9.286 / 8.936 秒），全部撤回，产品仍以 `8a82269` 为基线。下一步检查可验证输入下的持久化查询结果复用，分别处理 Reload 首次与空缓存首次，不放宽准确性。证据与失效边界见 [首次路径实验](reports/reference-first-query-experiments-2026-09-21.md)。
+
 2026-09-21 普通导航保留 References 缓存：先用语法判断是否处于字面量方法参数内，再执行原有容器服务身份解析，避免普通 Definition/Hover/Completion 加载无关容器接口。正式 bundle 的 References → References → Definition → References 序列保持完整 112 处引用，最后一次查询从 2.679 秒变为 13 ms（语义日志 0 ms）；首次耗时仍待优化。语义包 289 项、LSP 定向 54 项（57.22 秒）、相关 TypeScript/ESLint 和正式构建通过。未更新 WSL VSIX。证据见 [普通导航与引用缓存](reports/reference-navigation-cache-2026-09-21.md)。
 
 2026-09-21 真正首次 References 修复与基准纠正：旧基准先做 Definition，掩盖了未加载 vendor 接收者时 References 全项目扫描后返回空结果的问题。现在先按需解析目标类型链；同一 Winstar 查询从旧版直接首次 27.975 秒、错误 0 处，变为正式 bundle 9.138 秒、正确 112 处。新基线强制 References-first，9.041 秒通过完整位置摘要；Reload 首次 7.483 秒、直接重复 16 ms，但 Definition 后重复仍需 2.679 秒，继续定位。新增冷启动/Reload 属性链与返回链回归，LSP 定向 50 项通过（48.36 秒）、TypeScript/ESLint/正式构建通过。以下历史耗时凡先做 Definition 者仅代表预热路径。未更新用户 WSL VSIX，Goal 保持开放。证据见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。
