@@ -24,3 +24,5 @@
 ## 验证和限制
 
 Parser 67 项、Semantic 279 项、Language Server 199 项、根 TypeScript 与 ESLint，以及 24 个组件的仓库外 tarball 消费验证通过。新增测试覆盖不完整类后仍能把下一命名空间的声明归属正确。首次 References 仍约 43–45 秒，热进程首次查询仍需大量候选恢复与语义匹配；真实 VS Code WSL Alpha Profile 的持续编辑和扩展宿主归属仍待人工验收。
+
+功能与报告已冻结为 `artifacts/php-companion-alpha-0.4.5-e634b421/`，包含核心、独立 Symfony 扩展与两种扩展包。四份 VSIX 的 `SHA256SUMS` 全部通过；Winstar 的 Composer 工作区、WSL 与 PHP 8.5 包装器确定性 preflight 通过；VS Code 1.138.0 隔离打包双扩展宿主测试以退出码 0 完成。该宿主测试不代替用户的实际 WSL Profile 持续编辑验收。
