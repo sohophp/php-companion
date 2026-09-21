@@ -60,8 +60,37 @@ describe('standalone Symfony service provider', () => {
     const projectTypes = [type(root, 'App\\Consumer', 'Consumer.php')];
     const fresh = await collectSymfonyServiceFacts(root, parser, { projectTypes });
     expect(fresh.methodArguments).toContainEqual(expect.objectContaining({ callableFqcn: 'App\\Consumer::__construct', serviceId: 'app.mailer' }));
+    const prod = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'prod' });
+    expect(prod.methodArguments).toEqual([]);
     const snapshot = await collectSymfonyServiceFacts(root, parser, { projectTypes, documents: [{ uri: pathToFileURL(consumer).toString(),
       languageId: 'php', snapshotVersion: 'dirty', source: '<?php namespace App; final class Consumer { public function changed(): void {} }' }] });
     expect(snapshot.methodArguments).toEqual([]);
+  });
+
+  it('selects exact YAML service environments across the provider graph', async () => {
+    const root = await project();
+    await writeFile(join(root, 'src', 'Base.php'), '<?php namespace App; final class Base {}');
+    await writeFile(join(root, 'src', 'Dev.php'), '<?php namespace App; final class Dev {}');
+    await writeFile(join(root, 'src', 'Prod.php'), '<?php namespace App; final class Prod {}');
+    await writeFile(join(root, 'config', 'services.yaml'), `parameters:
+  app.base: base
+services:
+  app.transport: { class: App\\Base }
+when@dev:
+  parameters: { app.dev: dev }
+  services:
+    app.transport: { class: App\\Dev }
+when@prod:
+  parameters: { app.prod: prod }
+  services:
+    app.transport: { class: App\\Prod }
+`);
+    const projectTypes = [type(root, 'App\\Base', 'Base.php'), type(root, 'App\\Dev', 'Dev.php'), type(root, 'App\\Prod', 'Prod.php')];
+    const dev = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'dev' });
+    expect(dev.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Dev');
+    expect(dev.parameters.map((parameter) => parameter.id)).toEqual(['app.base', 'app.dev']);
+    const universal = await collectSymfonyServiceFacts(root, parser, { projectTypes });
+    expect(universal.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Base');
+    expect(universal.parameters.map((parameter) => parameter.id)).toEqual(['app.base']);
   });
 });

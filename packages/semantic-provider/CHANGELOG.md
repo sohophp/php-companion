@@ -1,5 +1,7 @@
 # Changelog
 
+- Carry one validated optional project environment in framework-neutral provider requests so isolated integrations can select environment-specific static facts.
+
 - Add validated optional container-parameter declaration facts so framework providers can publish identities and source ranges without exposing values.
 
 - Add authoritative controller-context ownership and validated controller template context contributions.

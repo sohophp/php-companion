@@ -469,6 +469,51 @@ services:
     expect(symfonyYamlParameterReferences('parameters: [')).toEqual([]);
   });
 
+  it('selects exact Symfony YAML service environments without leaking inactive declarations or references', () => {
+    const source = `imports:
+  - { resource: base.yaml }
+parameters:
+  app.mode: base
+services:
+  app.transport: { class: App\\BaseTransport }
+  app.consumer: { arguments: ['@app.transport', '%app.mode%'] }
+when@dev:
+  imports:
+    - { resource: dev.yaml }
+  parameters:
+    app.mode: development
+    app.dev_mode: dev
+  services:
+    app.transport: { class: App\\DevTransport }
+    app.dev_consumer: { class: App\\DevConsumer, arguments: ['@app.dev_transport', '%app.dev_mode%'] }
+when@prod:
+  parameters:
+    app.prod_mode: prod
+  services:
+    app.transport: { class: App\\ProdTransport }
+    app.prod_consumer: { class: App\\ProdConsumer, arguments: ['@app.prod_transport', '%app.prod_mode%'] }
+`;
+    const dev = analyzeSymfonyServiceYaml('file:///config/services.yaml', source, 'dev');
+    expect(dev.complete).toBe(true);
+    expect(dev.imports?.map((item) => item.resource)).toEqual(['base.yaml', 'dev.yaml']);
+    expect(dev.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\DevTransport');
+    expect(dev.services.some((service) => service.id === 'app.prod_consumer')).toBe(false);
+    const devParameters = symfonyYamlParameterDeclarations(source, 'dev');
+    expect(devParameters.map((item) => item.value)).toEqual(['app.mode', 'app.dev_mode']);
+    expect(devParameters.find((item) => item.value === 'app.mode')?.start).toBe(source.lastIndexOf('app.mode:'));
+    expect(symfonyYamlParameterReferences(source, 'dev').map((item) => item.value)).toEqual(['app.mode', 'app.dev_mode']);
+    expect(symfonyYamlServiceReferences(source, 'dev').map((item) => item.value)).toEqual(['app.transport', 'app.dev_transport']);
+    expect(symfonyYamlServiceReferenceAt(source, source.indexOf('@app.prod_transport') + 3, 'dev')).toBeUndefined();
+    expect(symfonyYamlParameterReferencePrefixAt(source, source.indexOf('%app.prod_mode%') + 5, 'dev')).toBeUndefined();
+
+    const universal = analyzeSymfonyServiceYaml('file:///config/services.yaml', source);
+    expect(universal.imports?.map((item) => item.resource)).toEqual(['base.yaml']);
+    expect(universal.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\BaseTransport');
+    expect(symfonyYamlParameterDeclarations(source).map((item) => item.value)).toEqual(['app.mode']);
+    expect(symfonyYamlServiceReferences(source).map((item) => item.value)).toEqual(['app.transport']);
+    expect(analyzeSymfonyServiceYaml('file:///config/services.yaml', 'services: {}\nwhen@dev: invalid\n', 'dev').complete).toBe(false);
+  });
+
   it('extracts conventional XML services, prototypes and exact listener ranges', () => {
     const source = `<?xml version="1.0"?>
       <container xmlns="http://symfony.com/schema/dic/services">

@@ -46,7 +46,7 @@ export interface SemanticProviderRequest {
   protocolVersion: typeof SEMANTIC_PROVIDER_PROTOCOL_VERSION;
   id: string;
   method: 'facts';
-  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string;
+  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string;
     documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[];
     containerServices?: readonly ExternalContainerServiceFact[] };
 }
@@ -320,6 +320,7 @@ export function isSemanticProviderRequest(value: unknown): value is SemanticProv
     && containerServices.length <= factLimit && containerServices.every(containerService));
   return Boolean(item?.protocolVersion === SEMANTIC_PROVIDER_PROTOCOL_VERSION && boundedString(item.id, 128) && item.method === 'facts'
     && params && boundedString(params.rootUri) && boundedString(params.rootPath) && boundedString(params.generation, 128) && boundedString(params.phpVersion, 32)
+    && (params.environment === undefined || typeof params.environment === 'string' && /^[A-Za-z0-9_.-]{1,64}$/.test(params.environment))
     && validDocuments && validProjectTypes && validContainerServices);
 }
 

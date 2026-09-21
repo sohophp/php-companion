@@ -7,7 +7,7 @@ import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 
 const result = await runSemanticProvider(
   { providerId: 'vendor.framework', command: '/opt/vendor-provider', args: ['--stdio'], timeoutMs: 5000, requiresProjectTypes: true },
-  { rootUri: 'file:///workspace', rootPath: '/workspace', generation: '42', phpVersion: '8.5', projectTypes: [] },
+  { rootUri: 'file:///workspace', rootPath: '/workspace', generation: '42', phpVersion: '8.5', environment: 'dev', projectTypes: [] },
 );
 if (result.ok) semanticWorkspace.replaceExternalFacts(result.contribution);
 ```

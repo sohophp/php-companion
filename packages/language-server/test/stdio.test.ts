@@ -4653,12 +4653,13 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
   it('uses a bundled authoritative container provider for Symfony service references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-container-provider-'));
     try {
+      const rootUri = pathToFileURL(root).toString();
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await mkdir(join(root, 'src')); await mkdir(join(root, 'config'));
       const servicePath = join(root, 'src', 'Service.php'); const serviceUri = pathToFileURL(servicePath).toString();
       const source = '<?php namespace App; final class Service {}'; await writeFile(servicePath, source);
       const configPath = join(root, 'config', 'services.yaml'); const configUri = pathToFileURL(configPath).toString();
-      const configSource = "services:\n  app.service: { class: App\\Service }\n  app.consumer:\n    arguments:\n      $service: '@app.service'\n      $transport: '%app.transport%'\nparameters:\n  app.transport: smtp\n"; await writeFile(configPath, configSource);
+      const configSource = "services:\n  app.service: { class: App\\Service }\n  app.consumer:\n    arguments:\n      $service: '@app.service'\n      $transport: '%app.transport%'\nparameters:\n  app.transport: smtp\nwhen@prod:\n  services:\n    app.prod_consumer: { class: App\\ProdConsumer, arguments: ['@app.service', '%app.transport%'] }\n"; await writeFile(configPath, configSource);
       const parameterRegistrationStart = configSource.indexOf('app.transport:');
       const xmlPath = join(root, 'config', 'services.xml'); const xmlUri = pathToFileURL(xmlPath).toString();
       const xmlSource = `<?xml version="1.0"?>
@@ -4698,10 +4699,11 @@ namespace App {
 }`;
       await writeFile(containerConsumerPath, containerConsumerSource);
       const provider = join(root, 'provider.mjs');
-      await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const uri=request.params.rootUri+'/config/services.yaml'; const xmlUri=request.params.rootUri+'/config/services.xml'; const phpUri=request.params.rootUri+'/config/services.php'; const service={id:'app.service',className:'App\\\\Service',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'explicit',uri,start:12,end:23,registrationUri:uri,registrationStart:12,registrationEnd:23}; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[{ownerFqcn:'Psr\\\\Container\\\\ContainerInterface',name:'get',argument:'app.service',returnType:'App\\\\Service',uri,start:12,end:23}],containerServices:[service],containerParameters:[{id:'app.transport',uri,start:${parameterRegistrationStart},end:${parameterRegistrationStart + 'app.transport'.length}},{id:'app.xml_transport',uri:xmlUri,start:${xmlParameterRegistrationStart},end:${xmlParameterRegistrationStart + 'app.xml_transport'.length}},{id:'app.php_transport',uri:phpUri,start:${phpParameterRegistrationStart},end:${phpParameterRegistrationStart + 'app.php_transport'.length}}],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[uri,xmlUri,phpUri]}}));`);
+      await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const uri=request.params.rootUri+'/config/services.yaml'; const xmlUri=request.params.rootUri+'/config/services.xml'; const phpUri=request.params.rootUri+'/config/services.php'; const className=request.params.environment==='prod'?'App\\\\ProdService':'App\\\\Service'; const service={id:'app.service',className,public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'explicit',uri,start:12,end:23,registrationUri:uri,registrationStart:12,registrationEnd:23}; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:['dev','prod'].includes(request.params.environment),methods:[],properties:[],literalMethodReturns:[{ownerFqcn:'Psr\\\\Container\\\\ContainerInterface',name:'get',argument:'app.service',returnType:className,uri,start:12,end:23}],containerServices:[service],containerParameters:[{id:'app.transport',uri,start:${parameterRegistrationStart},end:${parameterRegistrationStart + 'app.transport'.length}},{id:'app.xml_transport',uri:xmlUri,start:${xmlParameterRegistrationStart},end:${xmlParameterRegistrationStart + 'app.xml_transport'.length}},{id:'app.php_transport',uri:phpUri,start:${phpParameterRegistrationStart},end:${phpParameterRegistrationStart + 'app.php_transport'.length}}],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[uri,xmlUri,phpUri]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 65, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: {
+          symfonyRouteProviders: [{ uri: rootUri, external: false, environment: 'dev' }],
           bundledSemanticProviders: [{ providerId: 'php-companion.symfony.services', command: process.execPath, args: [provider], timeoutMs: 1000,
             requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true }],
           frameworkDocumentSnapshots: { complete: true, documents: [
@@ -4728,13 +4730,17 @@ namespace App {
       expect(classServiceReferences).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
       for (const [referenceUri, referenceSource] of [[configUri, configSource], [xmlUri, xmlSource], [phpUri, phpSource]] as const) {
-        const start = referenceSource.lastIndexOf('app.service');
+        const start = referenceUri === configUri ? referenceSource.indexOf('@app.service') + 1 : referenceSource.lastIndexOf('app.service');
         expect(classServiceReferences).toContainEqual({ uri: referenceUri,
           range: { start: lspPosition(referenceSource, start), end: lspPosition(referenceSource, start + 'app.service'.length) } });
       }
+      const inactiveServiceStart = configSource.lastIndexOf('@app.service') + 1;
+      expect(classServiceReferences).not.toContainEqual({ uri: configUri,
+        range: { start: lspPosition(configSource, inactiveServiceStart),
+          end: lspPosition(configSource, inactiveServiceStart + 'app.service'.length) } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 68, method: 'phpCompanion/symfonyControllerDefinition', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
-        position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5),
+        position: lspPosition(configSource, configSource.indexOf('@app.service') + 5),
       } }));
       expect((await output.waitFor((message) => message.id === 68)).result).toEqual([{ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
@@ -4839,13 +4845,13 @@ namespace App {
       expect(Object.values((await output.waitFor((message) => message.id === 6912)).result.changes).flat()).toHaveLength(2);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 70, method: 'phpCompanion/symfonyServiceReferences', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
-        position: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 5), context: { includeDeclaration: false },
+        position: lspPosition(configSource, configSource.indexOf('@app.service') + 5), context: { includeDeclaration: false },
       } }));
       const crossFormatReferences = (await output.waitFor((message) => message.id === 70)).result;
       expect(crossFormatReferences).toHaveLength(5);
       expect(crossFormatReferences).toContainEqual({ uri: configUri,
-        range: { start: lspPosition(configSource, configSource.lastIndexOf('@app.service') + 1),
-          end: lspPosition(configSource, configSource.lastIndexOf('@app.service') + '@app.service'.length) } });
+        range: { start: lspPosition(configSource, configSource.indexOf('@app.service') + 1),
+          end: lspPosition(configSource, configSource.indexOf('@app.service') + '@app.service'.length) } });
       expect(crossFormatReferences).toContainEqual({ uri: xmlUri,
         range: { start: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service')),
           end: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service') + 'app.service'.length) } });
@@ -5010,7 +5016,7 @@ namespace App {
         position: lspPosition(xmlSource, xmlSource.indexOf('app.xml.consumer') + 4),
       } }));
       expect((await output.waitFor((message) => message.id === 77)).result).toEqual({ isIncomplete: false, items: [] });
-      const serviceValueStart = configSource.lastIndexOf('@app.service');
+      const serviceValueStart = configSource.indexOf('@app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 72, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
         position: lspPosition(configSource, serviceValueStart + '@app.se'.length),
@@ -5024,6 +5030,30 @@ namespace App {
         position: lspPosition(configSource, configSource.indexOf('app.service') + 3),
       } }));
       expect((await output.waitFor((message) => message.id === 73)).result).toEqual({ isIncomplete: false, items: [] });
+      const commitCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('committed authoritative container')).length;
+      const switchEnvironment = async (environment: string): Promise<void> => {
+        const before = commitCount();
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/symfonyRouteProviders', params: {
+          providers: [{ uri: rootUri, external: false, environment }],
+        } }));
+        for (let attempt = 0; attempt < 100 && commitCount() === before; attempt += 1) {
+          await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 20));
+        }
+        expect(commitCount()).toBeGreaterThan(before);
+      };
+      await switchEnvironment('prod');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7301, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, serviceValueStart + '@app.se'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7301)).result.items[0]?.detail).toBe('App\\ProdService (explicit, private)');
+      await switchEnvironment('dev');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7302, method: 'phpCompanion/symfonyServiceCompletions', params: {
+        textDocument: { uri: configUri, version: 1 }, source: configSource,
+        position: lspPosition(configSource, serviceValueStart + '@app.se'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7302)).result.items[0]?.detail).toBe('App\\Service (explicit, private)');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/references', params: {

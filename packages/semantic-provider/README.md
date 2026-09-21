@@ -12,4 +12,4 @@ const contribution: SemanticFactsContribution = semanticFacts('vendor.framework'
 
 契约只接受带来源位置的确定性事实。`complete: false` 只传达本次提供器输入不完整，不能作为“成员不存在”的依据。该包不依赖编辑器、解析器、框架运行时或语义实现。
 
-独立进程 Provider 使用 `SEMANTIC_PROVIDER_PROTOCOL_VERSION`、`SemanticProviderRequest` 与 `SemanticProviderResponse`。描述符可以声明需要有界项目类型目录、接受打开文档快照，或权威替换服务容器事实。文档限制为 128 份、单份 1,000,000 字符、总计 8 Mi 字符；类型目录限制为 100,000 项和 16 Mi 字符。进程从 stdin 读取一个 JSON 请求，并向 stdout 写出一个 JSON 响应；诊断文字应写到 stderr。响应必须原样返回请求 `id`，并以请求中的 generation 生成同身份完整快照。运行时校验器同时供 Provider 与宿主复用。
+独立进程 Provider 使用 `SEMANTIC_PROVIDER_PROTOCOL_VERSION`、`SemanticProviderRequest` 与 `SemanticProviderResponse`。请求可携带一个经过校验的项目 `environment`，供框架 Provider 选择环境专属静态事实；未提供时不得自行猜测环境。描述符可以声明需要有界项目类型目录、接受打开文档快照，或权威替换服务容器事实。文档限制为 128 份、单份 1,000,000 字符、总计 8 Mi 字符；类型目录限制为 100,000 项和 16 Mi 字符。进程从 stdin 读取一个 JSON 请求，并向 stdout 写出一个 JSON 响应；诊断文字应写到 stderr。响应必须原样返回请求 `id`，并以请求中的 generation 生成同身份完整快照。运行时校验器同时供 Provider 与宿主复用。

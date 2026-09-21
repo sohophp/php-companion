@@ -31,6 +31,7 @@ export interface SymfonyServiceProviderOptions {
   projectTypes: readonly SemanticProviderProjectType[];
   documents?: readonly SemanticProviderDocument[];
   maxImports?: number;
+  environment?: string;
 }
 export interface SymfonyServiceProviderFacts {
   services: SymfonyServiceFact[];
@@ -137,7 +138,8 @@ async function filesBelow(root: string, limit = 100_000): Promise<string[]> {
   }; await walk(root); return result;
 }
 
-async function freshCompiledContainer(root: string, projectTypes: readonly SemanticProviderProjectType[], sources: Map<string, string>): Promise<string | undefined> {
+async function freshCompiledContainer(root: string, projectTypes: readonly SemanticProviderProjectType[], sources: Map<string, string>, environment?: string): Promise<string | undefined> {
+  if (environment && environment !== 'dev') return undefined;
   // An open source/config snapshot can be newer than its disk mtime, so compiled metadata cannot be authoritative.
   if ([...sources.keys()].some((path) => /^(?:src|config)[\\/]/.test(relative(root, path)))) return undefined;
   const directory = resolve(root, 'var/cache/dev'); let entries: string[];
@@ -162,7 +164,7 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const catalog: SymfonyServiceFact[] = []; const methodArguments: SymfonyCompiledMethodArgumentFact[] = [];
   const propertyArguments: SymfonyCompiledPropertyArgumentFact[] = []; const parameters: Array<{ id: string; uri: string; start: number; end: number }> = [];
   const configuredPaths = new Set<string>();
-  const compiled = await freshCompiledContainer(root, options.projectTypes, sources);
+  const compiled = await freshCompiledContainer(root, options.projectTypes, sources, options.environment);
   if (compiled) {
     try {
       const uri = pathToFileURL(compiled).toString(); const facts = analyzeSymfonyContainerXml(uri, await sourceFor(compiled));
@@ -180,10 +182,10 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
       const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) return;
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source)
-        : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source);
+        : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source) : analyzeSymfonyServiceYaml(uri, source, options.environment);
       const parameterDeclarations = extension === 'php' ? symfonyPhpParameterDeclarations(parser, source)
         : extension === 'xml' ? symfonyXmlParameterDeclarations(source)
-        : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source) : [];
+        : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source, options.environment) : [];
       parameters.push(...parameterDeclarations.map((parameter) => ({ ...parameter, id: parameter.value, uri })));
       for (const imported of facts.imports ?? []) {
         const candidate = importedConfig(root, path, imported.resource, roots); if (!candidate) continue;

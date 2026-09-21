@@ -874,6 +874,28 @@ function serviceMap(contents: Node | null | undefined): YAMLMap | undefined {
   return isMap(nested) ? nested : undefined;
 }
 
+function activeYamlConfigurationMaps(contents: Node | null | undefined, environment?: string): { complete: boolean; maps: YAMLMap[] } {
+  if (!isMap(contents)) return { complete: false, maps: [] };
+  const maps = [contents]; let complete = true;
+  for (const pair of contents.items as Pair[]) {
+    const key = scalarValue(pair.key as Node);
+    if (typeof key !== 'string' || !key.startsWith('when@') || !environment || key !== `when@${environment}`) continue;
+    if (isMap(pair.value)) maps.push(pair.value); else complete = false;
+  }
+  return { complete, maps };
+}
+
+function activeYamlConfigurationValues(contents: Node | null | undefined, environment?: string): Node[] {
+  const active = activeYamlConfigurationMaps(contents, environment); if (!active.complete || !active.maps.length) return [];
+  const values: Node[] = [];
+  for (const [index, map] of active.maps.entries()) for (const pair of map.items as Pair[]) {
+    const key = scalarValue(pair.key as Node);
+    if (index === 0 && typeof key === 'string' && key.startsWith('when@')) continue;
+    if (pair.value) values.push(pair.value as Node);
+  }
+  return values;
+}
+
 function autowireBindings(node: Node | null | undefined, arguments_: boolean = false): { complete: boolean; bindings: SymfonyAutowireBinding[] } {
   if (node === undefined) return { complete: true, bindings: [] };
   if (arguments_ && isSeq(node)) return { complete: true, bindings: node.items.map((value, parameterIndex) => {
@@ -934,7 +956,7 @@ function scalarRange(node: Node, source: string): { start: number; end: number }
 }
 
 /** Locate an exact @service or @?service YAML scalar without interpreting expressions or escaped @ values. */
-export function symfonyYamlServiceReferences(source: string): SymfonyServiceIdReference[] {
+export function symfonyYamlServiceReferences(source: string, environment?: string): SymfonyServiceIdReference[] {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
   if (document.errors.length) return [];
   const references: SymfonyServiceIdReference[] = [];
@@ -956,17 +978,18 @@ export function symfonyYamlServiceReferences(source: string): SymfonyServiceIdRe
       for (const pair of node.items as Pair[]) visit(pair.value as Node | null);
     }
   };
-  visit(document.contents); return references;
+  for (const value of activeYamlConfigurationValues(document.contents, environment)) visit(value);
+  return references;
 }
 
 /** Locate one exact YAML service reference at the requested source offset. */
-export function symfonyYamlServiceReferenceAt(source: string, offset: number): SymfonyServiceIdReference | undefined {
+export function symfonyYamlServiceReferenceAt(source: string, offset: number, environment?: string): SymfonyServiceIdReference | undefined {
   if (offset < 0 || offset > source.length) return undefined;
-  return symfonyYamlServiceReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+  return symfonyYamlServiceReferences(source, environment).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 /** Locate the editable id segment of a valid YAML @service scalar at a cursor. */
-export function symfonyYamlServiceReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+export function symfonyYamlServiceReferencePrefixAt(source: string, offset: number, environment?: string): SymfonyServiceIdPrefix | undefined {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
   if (document.errors.length || offset < 0 || offset > source.length) return undefined;
   const visit = (node: Node | null | undefined): SymfonyServiceIdPrefix | undefined => {
@@ -987,26 +1010,32 @@ export function symfonyYamlServiceReferencePrefixAt(source: string, offset: numb
     }
     return undefined;
   };
-  return visit(document.contents);
+  for (const value of activeYamlConfigurationValues(document.contents, environment)) { const found = visit(value); if (found) return found; }
+  return undefined;
 }
 
 const SYMFONY_PARAMETER_ID = /^[A-Za-z0-9_.-]+$/;
 
 /** Enumerate exact top-level YAML parameter declaration keys without reading their values. */
-export function symfonyYamlParameterDeclarations(source: string): SymfonyParameterIdLocation[] {
+export function symfonyYamlParameterDeclarations(source: string, environment?: string): SymfonyParameterIdLocation[] {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
-  if (document.errors.length || !isMap(document.contents)) return [];
-  const parameters = mapValue(document.contents, 'parameters'); if (!isMap(parameters)) return [];
-  return (parameters.items as Pair[]).flatMap((pair): SymfonyParameterIdLocation[] => {
-    const key = pair.key as Node | null; const value = scalarValue(key); const range = key ? scalarRange(key, source) : undefined;
-    if (typeof value !== 'string' || !SYMFONY_PARAMETER_ID.test(value) || !range
-      || source.slice(range.start, range.end) !== value) return [];
-    return [{ value, start: range.start, end: range.end }];
-  });
+  if (document.errors.length) return [];
+  const active = activeYamlConfigurationMaps(document.contents, environment); if (!active.complete) return [];
+  const declarations = new Map<string, SymfonyParameterIdLocation>();
+  for (const map of active.maps) {
+    const parameters = mapValue(map, 'parameters'); if (!isMap(parameters)) continue;
+    for (const pair of parameters.items as Pair[]) {
+      const key = pair.key as Node | null; const value = scalarValue(key); const range = key ? scalarRange(key, source) : undefined;
+      if (typeof value !== 'string' || !SYMFONY_PARAMETER_ID.test(value) || !range
+        || source.slice(range.start, range.end) !== value) continue;
+      declarations.set(value, { value, start: range.start, end: range.end });
+    }
+  }
+  return [...declarations.values()];
 }
 
 /** Enumerate exact `%parameter.id%` placeholders in YAML scalar values, excluding escaped and env expressions. */
-export function symfonyYamlParameterReferences(source: string): SymfonyParameterIdLocation[] {
+export function symfonyYamlParameterReferences(source: string, environment?: string): SymfonyParameterIdLocation[] {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
   if (document.errors.length) return [];
   const references: SymfonyParameterIdLocation[] = [];
@@ -1025,17 +1054,18 @@ export function symfonyYamlParameterReferences(source: string): SymfonyParameter
     if (isSeq(node)) for (const item of node.items) visit(item as Node | null);
     else if (isMap(node)) for (const pair of node.items as Pair[]) visit(pair.value as Node | null);
   };
-  visit(document.contents); return references;
+  for (const value of activeYamlConfigurationValues(document.contents, environment)) visit(value);
+  return references;
 }
 
 /** Locate one exact YAML `%parameter.id%` placeholder at the requested source offset. */
-export function symfonyYamlParameterReferenceAt(source: string, offset: number): SymfonyParameterIdLocation | undefined {
+export function symfonyYamlParameterReferenceAt(source: string, offset: number, environment?: string): SymfonyParameterIdLocation | undefined {
   if (offset < 0 || offset > source.length) return undefined;
-  return symfonyYamlParameterReferences(source).find((reference) => offset >= reference.start && offset <= reference.end);
+  return symfonyYamlParameterReferences(source, environment).find((reference) => offset >= reference.start && offset <= reference.end);
 }
 
 /** Locate the editable id and typed prefix inside a complete or in-progress YAML `%parameter.id%` placeholder. */
-export function symfonyYamlParameterReferencePrefixAt(source: string, offset: number): SymfonyServiceIdPrefix | undefined {
+export function symfonyYamlParameterReferencePrefixAt(source: string, offset: number, environment?: string): SymfonyServiceIdPrefix | undefined {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
   if (document.errors.length || offset < 0 || offset > source.length) return undefined;
   const visit = (node: Node | null | undefined): SymfonyServiceIdPrefix | undefined => {
@@ -1059,7 +1089,8 @@ export function symfonyYamlParameterReferencePrefixAt(source: string, offset: nu
     else if (isMap(node)) for (const pair of node.items as Pair[]) { const found = visit(pair.value as Node | null); if (found) return found; }
     return undefined;
   };
-  return visit(document.contents);
+  for (const value of activeYamlConfigurationValues(document.contents, environment)) { const found = visit(value); if (found) return found; }
+  return undefined;
 }
 
 function eventListenerTags(node: Node | null | undefined, uri: string, source: string): SymfonyEventListenerTagFact[] {
@@ -1867,27 +1898,32 @@ export function symfonyPhpParameterReferencePrefixAt(parser: PhpSyntaxParser, so
 }
 
 /** Parse only explicit Symfony YAML service entries; resource expansion and dynamic expressions remain unknown. */
-export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyServiceDocumentFacts {
+export function analyzeSymfonyServiceYaml(uri: string, source: string, environment?: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
-  const topLevel = isMap(document.contents) ? document.contents : undefined;
-  const importsNode = topLevel ? mapValue(topLevel, 'imports') : undefined;
-  const imports = isSeq(importsNode) ? importsNode.items.flatMap((item): SymfonyServiceImportFact[] => {
-    if (!isMap(item)) return [];
-    const resourceNode = mapValue(item, 'resource'); const resource = scalarValue(resourceNode);
-    const range = resourceNode && scalarRange(resourceNode, source);
-    return typeof resource === 'string' && !resource.includes('%') && range
-      ? [{ resource, uri, start: range.start, end: range.end }] : [];
-  }) : [];
-  const services = serviceMap(document.contents);
-  if (document.errors.length || !services) return { complete: document.errors.length === 0, services: [], resources: [], imports };
-  const defaults = mapValue(services, '_defaults');
-  const defaultPublic = isMap(defaults) && scalarValue(mapValue(defaults, 'public')) === true;
-  const defaultAutowire = isMap(defaults) && scalarValue(mapValue(defaults, 'autowire')) === true;
-  const defaultWiring = autowireBindings(isMap(defaults) ? mapValue(defaults, 'bind') : undefined);
-  const defaultListeners = eventListenerTags(isMap(defaults) ? mapValue(defaults, 'tags') : undefined, uri, source);
+  const active = activeYamlConfigurationMaps(document.contents, environment);
+  const imports = active.maps.flatMap((map): SymfonyServiceImportFact[] => {
+    const importsNode = mapValue(map, 'imports');
+    return isSeq(importsNode) ? importsNode.items.flatMap((item): SymfonyServiceImportFact[] => {
+      if (!isMap(item)) return [];
+      const resourceNode = mapValue(item, 'resource'); const resource = scalarValue(resourceNode);
+      const range = resourceNode && scalarRange(resourceNode, source);
+      return typeof resource === 'string' && !resource.includes('%') && range
+        ? [{ resource, uri, start: range.start, end: range.end }] : [];
+    }) : [];
+  });
+  const serviceMaps = active.maps.flatMap((map) => serviceMap(map) ?? []);
+  if (document.errors.length || !active.complete || !serviceMaps.length) return {
+    complete: document.errors.length === 0 && active.complete, services: [], resources: [], imports,
+  };
   const raw = new Map<string, { id: string; className?: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number }>();
   const resources: SymfonyServiceResourceFact[] = [];
-  for (const pair of services.items as Pair[]) {
+  for (const services of serviceMaps) {
+    const defaults = mapValue(services, '_defaults');
+    const defaultPublic = isMap(defaults) && scalarValue(mapValue(defaults, 'public')) === true;
+    const defaultAutowire = isMap(defaults) && scalarValue(mapValue(defaults, 'autowire')) === true;
+    const defaultWiring = autowireBindings(isMap(defaults) ? mapValue(defaults, 'bind') : undefined);
+    const defaultListeners = eventListenerTags(isMap(defaults) ? mapValue(defaults, 'tags') : undefined, uri, source);
+    for (const pair of services.items as Pair[]) {
     const idValue = scalarValue(pair.key as Node); if (typeof idValue !== 'string' || idValue.startsWith('_')) continue;
     const range = isScalar(pair.key) ? pair.key.range : undefined; if (!range) continue;
     if (idValue.endsWith('\\') && isMap(pair.value)) {
@@ -1937,7 +1973,8 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string): SymfonyS
       configuredPropertyNames = properties.properties; propertiesComplete = properties.complete;
       eventListeners = [...eventListeners, ...listeners];
     }
-    if (className || alias) raw.set(idValue, { id: idValue, className, alias, public: isPublic, autowire, autowireComplete, bindings, configuredCalls, callsComplete, configuredProperties: configuredPropertyNames, propertiesComplete, eventListeners, uri, start: range[0], end: range[1] });
+      if (className || alias) raw.set(idValue, { id: idValue, className, alias, public: isPublic, autowire, autowireComplete, bindings, configuredCalls, callsComplete, configuredProperties: configuredPropertyNames, propertiesComplete, eventListeners, uri, start: range[0], end: range[1] });
+    }
   }
   const resolveClass = (service: { className?: string; alias?: string }, visited = new Set<string>()): string | undefined => {
     if (service.className) return service.className;

@@ -1,3 +1,5 @@
+- Pass each workspace root's validated Symfony environment to the authoritative container provider, refresh container and event facts when it changes, and exclude inactive YAML `when@environment` service and parameter references from navigation, completion and atomic Rename.
+
 - Resolve, complete, find and atomically rename exact Symfony YAML, XML and PHP Configurator parameter ids across the standalone provider's authoritative configuration graph; require one unique declaration and a complete readable cross-format reference scan, and never consume parameter values.
 
 - Keep `onDemand` reload and standalone Symfony provider registration free of full project indexing; satisfy Twig interop with a bounded cached scan of exact `render` identifier candidates and targeted PSR-4 type hydration.

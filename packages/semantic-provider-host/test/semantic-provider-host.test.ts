@@ -20,9 +20,10 @@ describe('semantic provider process host', () => {
   });
 
   it('passes bounded document snapshots, project types, and container services to the provider', async () => {
-    const path = await script(`let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const ok=request.params.documents?.[0]?.source==='services: {}'&&request.params.projectTypes?.[0]?.fqcn==='App\\\\Mailer'&&request.params.containerServices?.[0]?.id==='app.mailer'; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.test',generation:request.params.generation,complete:ok,methods:[],properties:[],literalMethodReturns:[]}}));`);
+    const path = await script(`let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const ok=request.params.environment==='dev'&&request.params.documents?.[0]?.source==='services: {}'&&request.params.projectTypes?.[0]?.fqcn==='App\\\\Mailer'&&request.params.containerServices?.[0]?.id==='app.mailer'; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.test',generation:request.params.generation,complete:ok,methods:[],properties:[],literalMethodReturns:[]}}));`);
     await expect(runSemanticProvider({ providerId: 'vendor.test', command: process.execPath, args: [path] }, {
       ...context,
+      environment: 'dev',
       documents: [{ uri: 'file:///project/config/services.yaml', languageId: 'yaml', source: 'services: {}', snapshotVersion: '2' }],
       projectTypes: [{ fqcn: 'App\\Mailer', kind: 'class', abstract: false, path: '/project/src/Mailer.php', uri: 'file:///project/src/Mailer.php', start: 6, end: 12 }],
       containerServices: [{ id: 'app.mailer', className: 'App\\Mailer', public: false, autowire: true, autowireComplete: true,

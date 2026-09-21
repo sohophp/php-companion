@@ -74,10 +74,11 @@ describe('semantic provider contract', () => {
   });
 
   it('validates request and exactly-one-result response envelopes', () => {
-    const request = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts', params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5',
+    const request = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts', params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5', environment: 'dev',
       documents: [{ uri: 'file:///project/config/services.yaml', languageId: 'yaml', source: 'services: {}', snapshotVersion: '2' }],
       projectTypes: [{ fqcn: 'App\\Mailer', kind: 'class', abstract: false, path: '/project/src/Mailer.php', uri: 'file:///project/src/Mailer.php', start: 6, end: 12 }] } };
     expect(isSemanticProviderRequest(request)).toBe(true);
+    expect(isSemanticProviderRequest({ ...request, params: { ...request.params, environment: 'dev;prod' } })).toBe(false);
     expect(isSemanticProviderRequest({ ...request, params: { ...request.params, documents: [{ ...request.params.documents[0], languageId: 'twig' }] } })).toBe(false);
     expect(isSemanticProviderRequest({ ...request, params: { ...request.params, projectTypes: [{ ...request.params.projectTypes[0], end: 2 }] } })).toBe(false);
     expect(isSemanticProviderRequest({ ...request, params: { ...request.params, containerServices: [{ id: 'app.mailer' }] } })).toBe(false);

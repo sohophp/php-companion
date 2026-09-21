@@ -19,6 +19,7 @@ async function main(): Promise<void> {
     const parser = await PhpSyntaxParser.create({ coreWasmPath, phpWasmPath });
     const facts = await collectSymfonyServiceFacts(request.params.rootPath, parser, {
       projectTypes: request.params.projectTypes, ...(request.params.documents ? { documents: request.params.documents } : {}),
+      ...(request.params.environment ? { environment: request.params.environment } : {}),
     });
     response = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id,
       result: semanticFacts(request.id.split(':')[0]!, request.params.generation, {

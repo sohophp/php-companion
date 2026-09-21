@@ -10,7 +10,7 @@ import {
   type SemanticProviderRequest,
 } from '@php-companion/semantic-provider';
 
-export interface SemanticProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string;
+export interface SemanticProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string;
   documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[];
   containerServices?: readonly ExternalContainerServiceFact[]; }
 export type SemanticProviderFailureCode = 'spawn' | 'timeout' | 'output-limit' | 'exit' | 'protocol' | 'provider';

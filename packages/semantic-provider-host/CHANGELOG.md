@@ -1,5 +1,6 @@
 # Changelog
 
+- Forward the validated project environment to isolated semantic providers without adding shell arguments or process-global state.
 - Forward validated container service catalogs to dependent isolated semantic providers.
 - Forward bounded open-document snapshots and project type catalogs to isolated semantic providers.
 
