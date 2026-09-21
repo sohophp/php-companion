@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 Parser 完整遍历合并：合法 PHP 从顶层取得 namespace，类型引用并入现有语义遍历；语法错误文件保留完整 namespace 恢复。真实 Winstar `attributes->get()` 两组独立冷缓存首次 References 从旧版 46.570/46.769 秒变为 44.532/42.742 秒，每次均返回相同的 112 个精确位置；候选文件数未缩小。Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 及 24 个隔离组件 tarball 通过。功能提交 `0ee94ad`；约 43–45 秒的首次查询仍须继续优化。证据见 [PHP 语法树单次完整遍历与首次 References](reports/parser-single-walk-references-2026-09-21.md)。
+
 2026-09-21 工作区内重复 References 结果缓存：语义工作区只缓存至多 32 项、每项至多 2,048 个精确位置，并在源码、快照、延迟实现、外部 Provider 或 Callable 构造事实变化时失效。真实 Winstar 的同位置第二次 `attributes->get()` References 从冻结旧候选的 11.311 秒降至当前 0.017 秒；首次仍约 48 秒，两版每次均为 112 处且完整位置 SHA-256 一致。专项测试覆盖候选编辑、快照恢复及外部事实替换；语义包 279 项、Language Server 199 项、TypeScript/ESLint 和 24 个组件独立消费验证通过。功能提交 `d291400`，候选 `artifacts/php-companion-alpha-0.4.5-bd5e4126/`；四份 VSIX 校验和、Winstar 确定性 WSL/PHP 8.5 preflight 与 VS Code 1.138.0 打包双扩展宿主均通过。真实 Profile 持续编辑和首次约 48 秒查询仍未解决。证据见 [工作区内重复 References 查询缓存](reports/repeated-reference-query-cache-2026-09-21.md)。
 
 2026-09-21 高频成员候选缩小审计：真实 Winstar `get()` 查询若只解析独立 token 文件，References 从 112 降到 66；补入三层 Controller 声明后该样本恢复 112，但 1,248 个 `get` 访问中仍有 524 个无法唯一解析，不能证明通用缩小规则安全。实验代码已撤回，保留原保守候选。语义更新中跨文件 `value-of<Enum>` 改用已有声明倒排索引；Winstar 完整 112 处摘要不变，语义包 279 项、Language Server 199 项、TypeScript/ESLint、24 个组件独立消费、四份 VSIX SHA、Winstar 确定性 WSL preflight，以及 VS Code 1.138.0 打包双扩展宿主退出码 0 均通过，单次时间不足以证明显著提速。功能提交 `cc874e3`，候选 `artifacts/php-companion-alpha-0.4.5-7df60a26/`。证据见 [高频成员引用候选缩小审计](reports/member-candidate-narrowing-audit-2026-09-21.md)。
