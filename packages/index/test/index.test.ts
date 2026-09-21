@@ -187,10 +187,11 @@ describe('bounded project source index', () => {
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
     await Promise.all(['C', 'A', 'B'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
     const visited: string[] = [];
-    const result = await indexComposerSources(root, { readConcurrency: 4, onSource: ({ path }) => { visited.push(path.split(sep).at(-1)!); } });
+    const result = await indexComposerSources(root, { readConcurrency: 128, onSource: ({ path }) => { visited.push(path.split(sep).at(-1)!); } });
     expect(result.projectComplete).toBe(true);
     expect(visited).toEqual(['A.php', 'B.php', 'C.php']);
     await expect(indexComposerSources(root, { readConcurrency: 0, onSource: () => undefined })).rejects.toThrow(RangeError);
+    await expect(indexComposerSources(root, { readConcurrency: 129, onSource: () => undefined })).rejects.toThrow(RangeError);
   });
   it('prepares cold sources concurrently and commits them in path order while skipping warm cache hits', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-prepared-')); await mkdir(join(root, 'src'));

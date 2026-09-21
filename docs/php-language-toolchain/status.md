@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 首次 References 预读窗口 128：按需候选扫描仍按文件顺序提交，Winstar 两组交叉冷查询候选阶段从 5.228/5.080 秒降至 4.685/4.615 秒，方法 `get` 首次总耗时旧/新为 10.065/9.018 秒、9.457/9.301 秒，四次完整 112 处位置一致。类引用仍精确两处，单组未见提速。索引 34 项、语言服务器定向 4 项、构建/ESLint 通过；未更新安装版，Goal 继续。见 [预读窗口对照](reports/reference-prefetch-window-128-2026-09-22.md)。
+
 2026-09-22 References 完整容器快照复用：未注册的目标类不再在每次查询重复启动约 0.8 秒的服务 Provider；PHP、配置、Provider 与环境变化使快照失效。Winstar 同进程两次重复查询由 0.867/0.922 秒降至 0.040/0.036 秒，112 处完整位置一致；首次仍约 9–10 秒。六项相关 stdio 测试、构建/ESLint 通过。未更新安装版，Goal 继续。见 [完整容器快照](reports/reference-complete-container-snapshot-2026-09-22.md)。
 
 2026-09-22 首次 References 按目标判定事件 Provider：无已注册服务能贡献该类型或精确方法引用时跳过项目范围事件扫描。Winstar 正式 bundle 两组交叉冷查询旧/新为 11.570/9.330 秒、11.604/9.362 秒，四次均为相同 112 处完整位置；重复查询 0.867/0.922 秒。`AdminSecuritySubscriber` 仍运行事件 Provider 并返回原有两处引用。三项相关 stdio 测试、构建/ESLint 通过。首次仍约 9–10 秒，未更新安装版，Goal 继续。见 [事件相关性门控](reports/reference-event-relevance-gate-2026-09-22.md)。

@@ -44,7 +44,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const limits = options.limits ?? DEFAULT_INDEX_LIMITS; const project = options.project ?? await loadComposerProject(root);
   validateLimits(limits);
   const readConcurrency = options.readConcurrency ?? 1;
-  if (!Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 64) throw new RangeError('readConcurrency must be a safe integer between 1 and 64.');
+  if (!Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 128) throw new RangeError('readConcurrency must be a safe integer between 1 and 128.');
   if (!project) return { files: 0, bytes: 0, cached: 0, complete: true, projectComplete: true, warnings: ['composer.json was not readable.'] };
   const warnings = [...project.warnings];
   const cacheIdentity = options.cache?.key === undefined ? root : `${root}\0${options.cache.key}`;
