@@ -1092,7 +1092,7 @@ export class SemanticWorkspace {
             })() : undefined;
             const valueOfDeclaration = valueOfCandidate
               ? parsed.declarations.find((item) => item.fqcn.toLowerCase() === valueOfCandidate.toLowerCase())
-                ?? [...this.files.values()].flatMap((item) => item.declarations).find((item) => item.fqcn.toLowerCase() === valueOfCandidate.toLowerCase())
+                ?? this.fileAndDeclaration(valueOfCandidate)?.declaration
               : undefined;
             const valueOfEnumFitsNative = valueOfDeclaration?.kind === 'enum' && Boolean(valueOfDeclaration.enumBackingType)
               && native === valueOfDeclaration.enumBackingType?.toLowerCase();
