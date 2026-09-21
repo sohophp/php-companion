@@ -25,10 +25,17 @@ const run = async (bundle) => {
       .find((item) => item.method === 'textDocument/references');
     if (!query) throw new Error(`${bundle} returned no References result: ${stderr}`);
     const phase = (pattern) => Number(pattern.exec(stderr)?.[1] ?? NaN);
+    const candidateScan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+) restored=(\d+) declarations=(\d+) restoredDeclarations=(\d+) prepared=(\d+) preparedRestores=(\d+)/.exec(stderr);
     return {
       bundle, elapsedMs: query.elapsedMs, results: query.results, locationSha256: query.locationSha256,
       ...(query.peakRssKiB ? { peakRssKiB: query.peakRssKiB } : {}),
       namedCandidateScans: [...stderr.matchAll(/\[named-candidates\]/g)].length,
+      ...(candidateScan ? { candidateScan: {
+        files: Number(candidateScan[1]), cached: Number(candidateScan[2]), parsed: Number(candidateScan[3]),
+        restored: Number(candidateScan[4]), declarations: Number(candidateScan[5]),
+        restoredDeclarations: Number(candidateScan[6]), prepared: Number(candidateScan[7]),
+        preparedRestores: Number(candidateScan[8]),
+      } } : {}),
       phasesMs: {
         candidates: phase(/\[named-candidates\][^\n]*elapsedMs=(\d+)/),
         container: phase(/\[references:\d+\] container elapsedMs=(\d+)/),
