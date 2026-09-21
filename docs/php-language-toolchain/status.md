@@ -1,6 +1,6 @@
 # 实施状态
 
-2026-09-21 Parser 节点访问优化：主遍历每个节点只读一次 Tree-sitter 类型，成员/调用种类集合每个文档只建一次，作用域查找改用保持原先同长度次序的单次循环。真实 Winstar `attributes->get()` 独立冷缓存首次 References 从上一候选 44.472 秒降至 37.350 秒，均为相同 112 处完整位置；候选阶段 33.123→27.665 秒。Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 与 24 个独立 tarball 通过。功能提交 `f25a34f`；首次查询仍约 37 秒，不能视为交互性能问题结束。证据见 [PHP Parser 节点访问成本与首次 References](reports/parser-node-access-references-2026-09-21.md)。
+2026-09-21 Parser 节点访问优化：主遍历每个节点只读一次 Tree-sitter 类型，成员/调用种类集合每个文档只建一次，作用域查找改用保持原先同长度次序的单次循环。真实 Winstar `attributes->get()` 独立冷缓存首次 References 从上一候选 44.472 秒降至 37.350 秒，均为相同 112 处完整位置；候选阶段 33.123→27.665 秒。Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 与 24 个独立 tarball 通过。功能提交 `f25a34f`，候选 `artifacts/php-companion-alpha-0.4.5-76e99553/`；四份 VSIX SHA、Winstar 确定性 WSL/PHP 8.5 preflight 及 VS Code 1.138.0 打包双扩展宿主通过。首次查询仍约 37 秒，不能视为交互性能问题结束。证据见 [PHP Parser 节点访问成本与首次 References](reports/parser-node-access-references-2026-09-21.md)。
 
 2026-09-21 Parser 完整遍历合并：合法 PHP 从顶层取得 namespace，类型引用并入现有语义遍历；语法错误文件保留完整 namespace 恢复。真实 Winstar `attributes->get()` 两组独立冷缓存首次 References 从旧版 46.570/46.769 秒变为 44.532/42.742 秒，每次均返回相同的 112 个精确位置；候选文件数未缩小。Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 及 24 个隔离组件 tarball 通过。功能提交 `0ee94ad`，候选 `artifacts/php-companion-alpha-0.4.5-e634b421/`；四份 VSIX SHA、Winstar 确定性 WSL/PHP 8.5 preflight 和 VS Code 1.138.0 打包双扩展宿主均通过。约 43–45 秒的首次查询及真实 Profile 验收仍须继续。证据见 [PHP 语法树单次完整遍历与首次 References](reports/parser-single-walk-references-2026-09-21.md)。
 

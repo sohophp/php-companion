@@ -22,3 +22,5 @@ Parser 主语法树遍历此前对每个命名节点多次读取 Tree-sitter 的
 ## 门禁与限制
 
 Parser 67、Semantic 279、Language Server 199 项、根 TypeScript/ESLint 及 24 个独立 tarball 消费验证通过。首次查询仍约 37 秒，距离交互式 References 尚有明显差距；真实 WSL Remote Alpha Profile 的扩展宿主归属、竞争 PHP Provider 与持续编辑仍需人工验收。
+
+本轮候选冻结于 `artifacts/php-companion-alpha-0.4.5-76e99553/`，包含核心、独立 Symfony 扩展和两种扩展包。四份 VSIX 的 `SHA256SUMS` 全部通过；Winstar 的 Composer 工作区、WSL 与 PHP 8.5 包装器确定性 preflight 通过；VS Code 1.138.0 隔离打包双扩展宿主以退出码 0 完成。该宿主测试不能代替实际 WSL Profile 中的长时间编辑验收。
