@@ -20,12 +20,14 @@ export interface ReferenceInputSnapshotOptions {
 export interface ReferenceInputSnapshot {
   fingerprint: string;
   files: ReadonlyArray<{ path: string; hash: string }>;
+  /** Files discovered from source roots, independently of explicit inputs. */
+  sourceFiles: readonly string[];
   /** Explicitly requested paths whose absence was verified, not unvisited paths. */
   missingPaths: readonly string[];
 }
 
 interface InputFile { path: string; hash: string; stamp: string; }
-interface Discovery { files: string[]; roots: Array<[string, string | null]>; }
+interface Discovery { files: string[]; sourceFiles: string[]; roots: Array<[string, string | null]>; }
 
 function digest(value: string): string { return createHash('sha256').update(value).digest('hex'); }
 function missing(error: unknown): boolean { return (error as NodeJS.ErrnoException).code === 'ENOENT'; }
@@ -50,7 +52,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   const context = options.context;
   const discover = async (): Promise<Discovery | undefined> => {
     const files = new Set<string>(); const identities: Discovery['roots'] = []; let directories = 0;
-    for (const path of [...roots, ...additional]) {
+    for (const path of roots) {
       if (!active()) return undefined;
       let resolved: string;
       try { resolved = await realpath(path); }
@@ -61,22 +63,47 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
       else if (info.isDirectory() && roots.includes(path)) {
         const pending = [path];
         while (pending.length) {
-          if (!active() || ++directories > maxFiles) return undefined;
-          const directory = pending.pop()!;
-          for (const entry of await readdir(directory, { withFileTypes: true })) {
-            // Nested links may hide PHP files or redirect a previous lookup.
-            // Recompute instead of claiming a complete snapshot of that graph.
-            if (entry.isSymbolicLink()) return undefined;
-            const child = join(directory, entry.name);
-            if (entry.isDirectory()) pending.push(child);
-            else if (entry.isFile() && entry.name.toLowerCase().endsWith('.php')) files.add(child);
-            if (files.size > maxFiles) return undefined;
+          const batch = await Promise.all(pending.splice(-32).map(async (directory) => {
+            if (!active() || ++directories > maxFiles) return undefined;
+            return { directory, entries: await readdir(directory, { withFileTypes: true }) };
+          }));
+          for (const listing of batch) {
+            if (!listing) return undefined;
+            for (const entry of listing.entries) {
+              // Nested links may hide PHP files or redirect a previous lookup.
+              // Recompute instead of claiming a complete snapshot of that graph.
+              if (entry.isSymbolicLink()) return undefined;
+              const child = join(listing.directory, entry.name);
+              if (entry.isDirectory()) pending.push(child);
+              else if (entry.isFile() && entry.name.toLowerCase().endsWith('.php')) files.add(child);
+              if (files.size > maxFiles || directories + pending.length > maxFiles) return undefined;
+            }
           }
         }
       } else return undefined;
       if (files.size > maxFiles) return undefined;
     }
-    return { files: [...files].sort(), roots: identities };
+    const sourceFiles = [...files].sort();
+    // Explicit dependencies often overlap the source roots. Inspect their
+    // identities concurrently in bounded windows rather than serializing
+    // thousands of realpath/stat round trips. Promise.all preserves order.
+    for (let offset = 0; offset < additional.length; offset += 32) {
+      const batch = await Promise.all(additional.slice(offset, offset + 32).map(async (path) => {
+        if (!active()) return undefined;
+        let target: string;
+        try { target = await realpath(path); }
+        catch (error) { if (!missing(error)) throw error; return { path, target: null }; }
+        if (!(await stat(path)).isFile()) return undefined;
+        return { path, target };
+      }));
+      for (const entry of batch) {
+        if (!entry) return undefined;
+        identities.push([entry.path, entry.target]);
+        if (entry.target !== null) files.add(entry.path);
+      }
+      if (files.size > maxFiles) return undefined;
+    }
+    return { files: [...files].sort(), sourceFiles, roots: identities };
   };
   try {
     const before = await discover(); if (!before) return undefined;
@@ -116,7 +143,8 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     }
     if (!active()) return undefined;
     const inputs = files.map(({ path, hash }) => ({ path, hash }));
-    return { files: inputs, missingPaths: after.roots.filter(([, target]) => target === null).map(([path]) => path),
-      fingerprint: digest(JSON.stringify({ schema: 1, context, roots: after.roots, files: inputs, documents })) };
+    return { files: inputs, sourceFiles: after.sourceFiles,
+      missingPaths: after.roots.filter(([, target]) => target === null).map(([path]) => path),
+      fingerprint: digest(JSON.stringify({ schema: 2, context, roots: after.roots, sourceFiles: after.sourceFiles, files: inputs, documents })) };
   } catch { return undefined; }
 }

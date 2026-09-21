@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { captureReferenceInputSnapshot, type ReferenceInputSnapshot } from '../src/referenceInputSnapshot.js';
+import { referenceCandidateEvidenceMatches } from '../src/referenceCandidateEvidence.js';
 
 describe('reference input snapshot', () => {
   let root: string; let sourceRoot: string; let dependencyRoot: string; let source: string; let dependency: string; let configuration: string;
@@ -50,6 +51,63 @@ describe('reference input snapshot', () => {
     expect((await captureReferenceInputSnapshot({ ...options, documents: [{ uri: 'file:///Use.php', source: 'unsaved-two' }] }))?.fingerprint).not.toBe(first?.fingerprint);
     expect((await captureReferenceInputSnapshot({ ...options, context: 'engine-2' }))?.fingerprint).not.toBe(first?.fingerprint);
     expect(await captureReferenceInputSnapshot({ ...options, documents: [...options.documents, ...options.documents] })).toBeUndefined();
+  });
+
+  it('separates scanned files from explicit dependencies and checks skipped candidates and exclusions', async () => {
+    const skipped = join(sourceRoot, 'Idle.php'); const excluded = join(sourceRoot, 'Excluded.php');
+    await writeFile(skipped, '<?php class Idle {}'); await writeFile(excluded, '<?php class Excluded {}');
+    const options = { sourceRoots: [sourceRoot], additionalFiles: [source, dependency], context: 'candidate-scan' };
+    const first = (await captureReferenceInputSnapshot(options))!;
+    expect(first.sourceFiles).toEqual([excluded, skipped, source].sort());
+    const include = (path: string): boolean => path !== excluded;
+    const reads = new Map(first.files.filter((file) => first.sourceFiles.includes(file.path) && include(file.path)).map((file) => [file.path, file.hash]));
+    expect(referenceCandidateEvidenceMatches(first, reads, include)).toBe(true);
+    expect(referenceCandidateEvidenceMatches(first, new Map([[source, reads.get(source)!]]), include)).toBe(false);
+    await writeFile(skipped, '<?php new Dependency();');
+    expect(referenceCandidateEvidenceMatches((await captureReferenceInputSnapshot(options))!, reads, include)).toBe(false);
+    await writeFile(skipped, '<?php class Idle {}');
+    const moved = join(sourceRoot, 'Moved.php'); await rename(skipped, moved);
+    expect(referenceCandidateEvidenceMatches((await captureReferenceInputSnapshot(options))!, reads, include)).toBe(false);
+    await rename(moved, skipped);
+    const added = join(sourceRoot, 'Added.php'); await writeFile(added, '<?php new Dependency();');
+    expect(referenceCandidateEvidenceMatches((await captureReferenceInputSnapshot(options))!, reads, include)).toBe(false);
+    await rm(added); await rm(skipped);
+    expect(referenceCandidateEvidenceMatches((await captureReferenceInputSnapshot(options))!, reads, include)).toBe(false);
+  });
+
+  it('preserves explicit input order and absence across bounded concurrent discovery windows', async () => {
+    const additional = Array.from({ length: 75 }, (_, index) => join(dependencyRoot, `${index}.php`));
+    await Promise.all(additional.slice(0, 70).map((path) => writeFile(path, '<?php class Explicit {}')));
+    const options = { sourceRoots: [sourceRoot], additionalFiles: additional, context: 'explicit-windows' };
+    const first = (await captureReferenceInputSnapshot(options))!;
+    expect(first.files).toHaveLength(71); expect(first.sourceFiles).toEqual([source]);
+    expect(first.missingPaths).toEqual(additional.slice(70).sort());
+    expect(await captureReferenceInputSnapshot({ ...options, additionalFiles: [...additional].reverse() })).toEqual(first);
+    await mkdir(additional[74]!);
+    expect(await captureReferenceInputSnapshot(options)).toBeUndefined();
+  });
+
+  it('includes source-set membership in the fingerprint when identical files have different input roles', async () => {
+    const scanned = (await captureReferenceInputSnapshot({ sourceRoots: [source], context: 'roles' }))!;
+    const explicit = (await captureReferenceInputSnapshot({ sourceRoots: [], additionalFiles: [source], context: 'roles' }))!;
+    expect(explicit.files).toEqual(scanned.files);
+    expect(scanned.sourceFiles).toEqual([source]); expect(explicit.sourceFiles).toEqual([]);
+    expect(explicit.fingerprint).not.toBe(scanned.fingerprint);
+  });
+
+  it('checks complete directory frontiers across discovery windows and bounds empty directories', async () => {
+    await Promise.all(Array.from({ length: 75 }, async (_, index) => {
+      const directory = join(sourceRoot, `dir-${index}`); await mkdir(directory);
+      if (index % 2 === 0) await writeFile(join(directory, 'Use.php'), '<?php new Dependency();');
+    }));
+    const options = { sourceRoots: [sourceRoot], context: 'directory-windows' };
+    const first = (await captureReferenceInputSnapshot(options))!;
+    expect(first.sourceFiles).toHaveLength(39);
+    expect(await captureReferenceInputSnapshot(options)).toEqual(first);
+    // Only 39 files, but traversing 76 directories exceeds this budget.
+    expect(await captureReferenceInputSnapshot({ ...options, maxFiles: 50 })).toBeUndefined();
+    await writeFile(join(sourceRoot, 'dir-73', 'Late.php'), '<?php new Dependency();');
+    expect((await captureReferenceInputSnapshot(options))?.sourceFiles).toHaveLength(40);
   });
 
   it('fails closed for cancellation and every input budget', async () => {

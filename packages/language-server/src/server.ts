@@ -50,6 +50,7 @@ import { CallableFactCache } from './callableFactsCache.js';
 import { CandidateWorkers, type PreparedCandidate, type PreparedCandidateRestore } from './candidateWorkers.js';
 import { ReferenceDependencyEvidence, referenceDependencyEvidenceMatches, referenceSourceHash, type ReferenceDependencyRead } from './referenceDependencyEvidence.js';
 import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
+import { referenceCandidateEvidenceMatches } from './referenceCandidateEvidence.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -1741,6 +1742,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
+const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number; reads: ReadonlyMap<string, string> }>();
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
@@ -1754,6 +1756,14 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
+  referenceCandidateReads.delete(workspace);
+  const candidateReads = new Map<string, string>(); let candidateReadsComplete = true;
+  const recordCandidateRead = (path: string, hash: string): void => {
+    if (!candidateReadsComplete) return;
+    const normalized = resolve(path);
+    if (!candidateReads.has(normalized) && candidateReads.size >= 50_000) { candidateReadsComplete = false; return; }
+    candidateReads.set(normalized, hash);
+  };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
@@ -1762,7 +1772,8 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
     prepareSource: deferBodies ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies }) : undefined,
-    onSource: ({ uri, source, hash, prepared }) => {
+    onSource: ({ uri, path, source, hash, prepared }) => {
+      recordCandidateRead(path, hash);
       const open = documents.get(uri); const effective = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
@@ -1810,7 +1821,8 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
         return decision === 'source' && !documents.get(uri)
           ? candidateWorkers.restore({ uri, hash, payload, deferBodies }) : undefined;
       },
-      restore: (payload, { uri, hash }, prepared): boolean | 'source' => {
+      restore: (payload, { uri, path, hash }, prepared): boolean | 'source' => {
+        recordCandidateRead(path, hash);
         const entry = payload as { summary?: unknown; semantic?: unknown; declarations?: unknown } | null;
         const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
         if (decision === 'skip') return true;
@@ -1842,6 +1854,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     await applyPendingFiles();
     return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies) : false;
   }
+  if (candidateReadsComplete && candidateReads.size === scan.files) referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads });
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
 }
@@ -2075,6 +2088,8 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   const attempted = dependencyReads();
   if (!attempted) return unavailable('canonical-reads-incomplete');
   const project = await composerProjectForRoot(root); if (!project) return unavailable('no-composer');
+  const candidates = referenceCandidateReads.get(workspace);
+  if (!candidates || candidates.root !== root || candidates.epoch !== (projectEpochs.get(root) ?? 0)) return unavailable('candidate-reads-incomplete');
   if (!project.inputEvidence?.complete) return unavailable('composer-reads-incomplete');
   const metadata: ReferenceDependencyRead[] = project.inputEvidence.reads.map((read) => read.kind === 'missing' ? read
     : { ...read, uri: pathToFileURL(read.path).toString() });
@@ -2095,14 +2110,18 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
     additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],
     context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), project, indexLimits,
-      disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted }), documents: buffers, shouldContinue: stable,
+      disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted,
+      candidates: { key: candidates.key, reads: [...candidates.reads].sort(([left], [right]) => left.localeCompare(right)) } }), documents: buffers, shouldContinue: stable,
   });
   if (!snapshot || !stable()) return unavailable('inputs-changed-or-unreadable');
   if (!referenceDependencyEvidenceMatches(snapshot, metadata, [])) return unavailable('composer-snapshot-changed');
   if (!stable() || JSON.stringify(loaded) !== JSON.stringify(loadedSources())
     || JSON.stringify(attempted) !== JSON.stringify(dependencyReads())) return unavailable('semantic-state-changed');
   if (!referenceDependencyEvidenceMatches(snapshot, reads, buffers)) return unavailable('consumed-source-mismatch');
+  if (referenceCandidateReads.get(workspace) !== candidates || !referenceCandidateEvidenceMatches(snapshot, candidates.reads,
+    (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path))) return unavailable('candidate-snapshot-changed');
   return { captured: true, semanticCoverageVerified: false, files: snapshot.files.length,
+    candidateSources: candidates.reads.size,
     loadedSources: loaded.length, canonicalSources: attempted.filter((read) => read.kind === 'source').length,
     missingLookups: attempted.filter((read) => read.kind === 'missing').length, fingerprint: snapshot.fingerprint };
 });

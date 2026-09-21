@@ -19,7 +19,7 @@ describe('reference dependency evidence', () => {
 
   it('does not interpret unvisited paths as verified absence', () => {
     const evidence = new ReferenceDependencyEvidence(); evidence.missing('/missing.php');
-    const snapshot: ReferenceInputSnapshot = { fingerprint: 'unused', files: [], missingPaths: [] };
+    const snapshot: ReferenceInputSnapshot = { fingerprint: 'unused', files: [], sourceFiles: [], missingPaths: [] };
     expect(referenceDependencyEvidenceMatches(snapshot, evidence.snapshot()!, [])).toBe(false);
     expect(referenceDependencyEvidenceMatches({ ...snapshot, missingPaths: [resolve('/missing.php')] }, evidence.snapshot()!, [])).toBe(true);
     expect(referenceDependencyEvidenceMatches({ ...snapshot, missingPaths: [resolve('/missing.php')], files: [{ path: resolve('/missing.php'), hash: referenceSourceHash('created') }] }, evidence.snapshot()!, [])).toBe(false);
@@ -27,7 +27,7 @@ describe('reference dependency evidence', () => {
 
   it('requires consumed source hashes to match current disk or unsaved buffers', () => {
     const evidence = new ReferenceDependencyEvidence(); evidence.source('/loaded.php', 'file:///loaded.php', 'consumed');
-    const snapshot: ReferenceInputSnapshot = { fingerprint: 'unused', files: [{ path: resolve('/loaded.php'), hash: referenceSourceHash('disk') }], missingPaths: [] };
+    const snapshot: ReferenceInputSnapshot = { fingerprint: 'unused', files: [{ path: resolve('/loaded.php'), hash: referenceSourceHash('disk') }], sourceFiles: [], missingPaths: [] };
     const reads = evidence.snapshot()!;
     expect(referenceDependencyEvidenceMatches(snapshot, reads, [])).toBe(false);
     expect(referenceDependencyEvidenceMatches(snapshot, reads, [{ uri: 'file:///loaded.php', source: 'consumed' }])).toBe(true);

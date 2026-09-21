@@ -111,7 +111,7 @@ describe('language server stdio', () => {
     try {
       const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
       await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
-      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, 'exclude-from-classmap': ['/src/Generated/'] } }));
       await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': ['missing/', 'src/'] } } }] }));
       await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
       await writeFile(join(dependencyDirectory, 'Request.php'), '<?php namespace Acme; class Request { public ParameterBag $attributes; public function getSession(): SessionBag {} }');
@@ -122,6 +122,9 @@ describe('language server stdio', () => {
       const otherUri = pathToFileURL(join(sourceDirectory, 'Other.php')).toString();
       await writeFile(join(sourceDirectory, 'Use.php'), source); await writeFile(join(sourceDirectory, 'Other.php'), other);
       await writeFile(join(sourceDirectory, 'Noise.php'), '<?php namespace App; class Noise { public function get(): int { return 0; } public function run(): int { return $this->get(); } }');
+      const skippedPath = join(sourceDirectory, 'Idle.php'); const skippedSource = '<?php namespace App; class Idle {}';
+      await writeFile(skippedPath, skippedSource);
+      await mkdir(join(sourceDirectory, 'Generated')); await writeFile(join(sourceDirectory, 'Generated', 'Excluded.php'), source);
       const expected = [{ uri, text: source }, { uri: otherUri, text: other }].map((item) => {
         const offset = item.text.lastIndexOf('get();');
         return { uri: item.uri, range: { start: lspPosition(item.text, offset), end: lspPosition(item.text, offset + 3) } };
@@ -152,7 +155,7 @@ describe('language server stdio', () => {
           expect(result.error).toBeUndefined(); return result.result;
         };
         const evidence = await audit(283);
-        expect(evidence).toMatchObject({ captured: true, semanticCoverageVerified: false, canonicalSources: 2 });
+        expect(evidence).toMatchObject({ captured: true, semanticCoverageVerified: false, canonicalSources: 2, candidateSources: 4 });
         expect(evidence.missingLookups).toBeGreaterThanOrEqual(2);
         const newlyPresent = join(root, 'vendor', 'acme', 'lib', 'missing', 'Request.php');
         await mkdir(join(root, 'vendor', 'acme', 'lib', 'missing'), { recursive: true });
@@ -165,6 +168,22 @@ describe('language server stdio', () => {
         expect(await audit(286)).toEqual({ captured: false, reason: 'composer-snapshot-changed' });
         await writeFile(composerPath, composerSource);
         expect((await audit(287)).fingerprint).toBe(evidence.fingerprint);
+        // No file notifications: the audit must inspect every consumed source,
+        // including the file rejected by the original candidate name filter.
+        await writeFile(skippedPath, source.replace('function run(', 'function added('));
+        expect(await audit(288)).toEqual({ captured: false, reason: 'candidate-snapshot-changed' });
+        await writeFile(skippedPath, skippedSource);
+        expect((await audit(289)).fingerprint).toBe(evidence.fingerprint);
+        const movedPath = join(sourceDirectory, 'Moved.php'); await rename(skippedPath, movedPath);
+        expect(await audit(290)).toEqual({ captured: false, reason: 'candidate-snapshot-changed' });
+        await rename(movedPath, skippedPath);
+        await rm(skippedPath);
+        expect(await audit(291)).toEqual({ captured: false, reason: 'candidate-snapshot-changed' });
+        await writeFile(skippedPath, skippedSource);
+        await writeFile(movedPath, other);
+        expect(await audit(292)).toEqual({ captured: false, reason: 'candidate-snapshot-changed' });
+        await rm(movedPath);
+        expect((await audit(293)).fingerprint).toBe(evidence.fingerprint);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 282, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 282);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
