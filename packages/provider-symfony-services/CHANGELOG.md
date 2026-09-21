@@ -1,5 +1,7 @@
 # Changelog
 
+- Select exact XML `<when env="environment">` service graphs from the request context, including imports and overriding service or parameter declarations.
+
 - Select exact YAML `when@environment` service graphs from the request context, including imports and overriding parameter declarations; explicit non-dev environments never reuse the dev debug-container cache.
 
 - Publish exact PHP Configurator `parameters()->set()` declaration identities alongside YAML and XML parameters without reading or serializing values.

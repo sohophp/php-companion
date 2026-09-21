@@ -93,4 +93,30 @@ when@prod:
     expect(universal.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Base');
     expect(universal.parameters.map((parameter) => parameter.id)).toEqual(['app.base']);
   });
+
+  it('selects exact XML service environments across the provider graph', async () => {
+    const root = await project();
+    await writeFile(join(root, 'src', 'Base.php'), '<?php namespace App; final class Base {}');
+    await writeFile(join(root, 'src', 'Dev.php'), '<?php namespace App; final class Dev {}');
+    await writeFile(join(root, 'src', 'Prod.php'), '<?php namespace App; final class Prod {}');
+    await writeFile(join(root, 'config', 'services.xml'), `<container>
+      <parameters><parameter key="app.base">base</parameter></parameters>
+      <services><service id="app.transport" class="App\\Base"/></services>
+      <when env="dev">
+        <parameters><parameter key="app.dev">dev</parameter></parameters>
+        <services><service id="app.transport" class="App\\Dev"/></services>
+      </when>
+      <when env="prod">
+        <parameters><parameter key="app.prod">prod</parameter></parameters>
+        <services><service id="app.transport" class="App\\Prod"/></services>
+      </when>
+    </container>`);
+    const projectTypes = [type(root, 'App\\Base', 'Base.php'), type(root, 'App\\Dev', 'Dev.php'), type(root, 'App\\Prod', 'Prod.php')];
+    const dev = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'dev' });
+    expect(dev.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Dev');
+    expect(dev.parameters.map((parameter) => parameter.id)).toEqual(['app.base', 'app.dev']);
+    const universal = await collectSymfonyServiceFacts(root, parser, { projectTypes });
+    expect(universal.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Base');
+    expect(universal.parameters.map((parameter) => parameter.id)).toEqual(['app.base']);
+  });
 });

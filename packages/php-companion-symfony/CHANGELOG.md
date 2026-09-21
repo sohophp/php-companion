@@ -1,5 +1,7 @@
 # Changelog
 
+- Select unconditional plus exact-environment Symfony XML service graphs and keep Definition, References, completion and Rename aligned with runtime environment changes.
+
 - Register YAML, XML and PHP Configurator parameter Definition, References, completion and Rename through the standalone Symfony extension, with service, parameter and route Rename fallbacks sharing VS Code's standard F2 flow.
 
 - Make the Winstar runtime provider authoritative when enabled and retain the static provider as source enrichment for runtime-confirmed name/path pairs.

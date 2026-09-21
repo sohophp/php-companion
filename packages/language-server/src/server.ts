@@ -2057,7 +2057,7 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
   if (!sourceIsPhp && !configSource) return [];
   if (configSource) {
     const parameterReference = sourceIsPhp ? symfonyPhpParameterReferenceAt(await parser(), params.source, offset)
-      : symfonyXmlParameterReferenceAt(params.source, offset);
+      : symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
     if (parameterReference) {
       const parameter = uniqueSymfonyParameterRegistration(root, parameterReference.value); if (!parameter) return [];
       const targetPath = pathForUri(parameter.uri);
@@ -2073,7 +2073,7 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
   const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferenceAt(await parser(), params.source, offset) : undefined)
       ?? symfonyAutowireServiceIdAt(params.source, offset)
       ?? await provenSymfonyContainerServiceReference(sourceDocument, offset, workspace, root)
-    : symfonyXmlServiceReferenceAt(params.source, offset); if (!reference) return [];
+    : symfonyXmlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)); if (!reference) return [];
   const target = uniqueSymfonyServiceRegistration(root, reference.value);
   if (!target || token.isCancellationRequested) return [];
   const targetPath = pathForUri(target.registrationUri);
@@ -2149,7 +2149,7 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   if (!configSource && !attributeReference && !containerReference) return undefined;
   const reference = isPhp ? (configSource ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset) : undefined)
       ?? attributeReference ?? containerReference
-    : isXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
+    : isXml ? symfonyXmlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
   const declarationIds = symfonyServiceRegistrations(root)
     .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
     .map((service) => service.id);
@@ -2188,7 +2188,7 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
     const document = configUri === uri ? sourceDocument
       : TextDocument.create(configUri, configIsPhp ? 'php' : configIsXml ? 'xml' : 'yaml', documents.get(configUri)?.version ?? 0, source);
     const references = configIsPhp ? symfonyPhpServiceReferences(syntaxParser ?? await parser(), source)
-      : configIsXml ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
+      : configIsXml ? symfonyXmlServiceReferences(source, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
     for (const candidate of references.filter((item) => item.value === serviceId)) {
       if (source.slice(candidate.start, candidate.end) !== serviceId) {
         return undefined;
@@ -2308,7 +2308,7 @@ async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, ca
   const document = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
   const reference = sourceIsPhp ? symfonyPhpParameterReferenceAt(syntaxParser!, params.source, offset)
-    : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset) : symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
+    : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)) : symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
   const declarations = symfonyParameterCatalog(root).filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end);
   const ids = new Set(reference ? [reference.value] : declarations.map((parameter) => parameter.id)); if (ids.size !== 1) return undefined;
   const parameterId = [...ids][0]!; const target = uniqueSymfonyParameterRegistration(root, parameterId); if (!target) return undefined;
@@ -2375,7 +2375,7 @@ async function scanSymfonyParameterReferences(root: string, parameterId: string,
       ?? documents.get(uri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
     if (source === undefined || source.length > indexLimits.maxFileSizeBytes) return undefined;
     const candidates = /\.php$/i.test(configPath) ? symfonyPhpParameterReferences(syntaxParser, source)
-      : /\.xml$/i.test(configPath) ? symfonyXmlParameterReferences(source) : symfonyYamlParameterReferences(source, symfonyEnvironmentForRoot(root));
+      : /\.xml$/i.test(configPath) ? symfonyXmlParameterReferences(source, symfonyEnvironmentForRoot(root)) : symfonyYamlParameterReferences(source, symfonyEnvironmentForRoot(root));
     for (const reference of candidates) if (reference.value === parameterId) {
       references.push({ uri, source, start: reference.start, end: reference.end });
     }
@@ -2403,7 +2403,7 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   if (!sourceIsPhp && !configSource) return [];
   if (configSource) {
     const parameterReference = sourceIsPhp ? symfonyPhpParameterReferenceAt(syntaxParser!, params.source, offset)
-      : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset)
+      : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root))
       : symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
     const declarationIds = symfonyParameterCatalog(root)
       .filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end).map((parameter) => parameter.id);
@@ -2434,7 +2434,7 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferenceAt(syntaxParser!, params.source, offset) : undefined)
       ?? symfonyAutowireServiceIdAt(params.source, offset)
       ?? await provenSymfonyContainerServiceReference(sourceDocument, offset, workspace, root)
-    : sourceIsXml ? symfonyXmlServiceReferenceAt(params.source, offset) : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
+    : sourceIsXml ? symfonyXmlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
   const declarationIds = symfonyServiceRegistrations(root)
     .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
     .map((service) => service.id);
@@ -2455,7 +2455,7 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
     const configIsXml = /\.xml$/i.test(configPath); const configIsPhp = /\.php$/i.test(configPath);
     const document = configUri === uri ? sourceDocument : TextDocument.create(configUri, configIsPhp ? 'php' : configIsXml ? 'xml' : 'yaml', 0, source);
     const candidates = configIsPhp ? symfonyPhpServiceReferences(syntaxParser ?? await parser(), source)
-      : configIsXml ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
+      : configIsXml ? symfonyXmlServiceReferences(source, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
     for (const candidate of candidates) {
       if (candidate.value !== serviceId) continue;
       locations.push({ uri: configUri, range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) } });
@@ -2500,7 +2500,7 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
   if (!sourceIsPhp && !configSource) return empty;
   if (configSource) {
     const parameter = sourceIsPhp ? symfonyPhpParameterReferencePrefixAt(await parser(), params.source, offset)
-      : sourceIsXml ? symfonyXmlParameterReferencePrefixAt(params.source, offset)
+      : sourceIsXml ? symfonyXmlParameterReferencePrefixAt(params.source, offset, symfonyEnvironmentForRoot(root))
       : symfonyYamlParameterReferencePrefixAt(params.source, offset, symfonyEnvironmentForRoot(root));
     if (parameter) {
       const matches = [...new Set(symfonyParameterCatalog(root).map((candidate) => candidate.id))]
@@ -2518,7 +2518,7 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
   const reference = sourceIsPhp ? (configSource ? symfonyPhpServiceReferencePrefixAt(await parser(), params.source, offset) : undefined)
       ?? (attributeReference ? { prefix: params.source.slice(attributeReference.start, offset), start: attributeReference.start, end: attributeReference.end } : undefined)
       ?? containerReference
-    : sourceIsXml ? symfonyXmlServiceReferencePrefixAt(params.source, offset)
+    : sourceIsXml ? symfonyXmlServiceReferencePrefixAt(params.source, offset, symfonyEnvironmentForRoot(root))
     : symfonyYamlServiceReferencePrefixAt(params.source, offset, symfonyEnvironmentForRoot(root));
   if (!reference) return empty;
   const matches = symfonyServiceCatalog(root).filter((service) => service.id.startsWith(reference.prefix))
@@ -3479,7 +3479,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
           ?? await readFile(configPath, 'utf8').catch(() => undefined);
         if (source === undefined || source.length > indexLimits.maxFileSizeBytes) continue;
         const references = /\.php$/i.test(configPath) ? symfonyPhpServiceReferences(syntaxParser!, source)
-          : /\.xml$/i.test(configPath) ? symfonyXmlServiceReferences(source) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
+          : /\.xml$/i.test(configPath) ? symfonyXmlServiceReferences(source, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferences(source, symfonyEnvironmentForRoot(root));
         serviceReferenceLocations.push(...references.filter((reference) => serviceIds.has(reference.value))
           .map((reference) => ({ uri: configUri, start: reference.start, end: reference.end })));
       }

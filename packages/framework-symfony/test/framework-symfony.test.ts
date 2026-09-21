@@ -570,9 +570,61 @@ when@prod:
       eventListeners: [{ event: 'app.resource', method: 'onResource' }] }]);
     expect(source.slice(result.services[2]!.registrationStart, result.services[2]!.registrationEnd)).toBe('App\\Contract\\MailerInterface');
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<!DOCTYPE foo><container/>').complete).toBe(false);
-    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(false);
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(true);
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="child.yaml"/></imports></container>').imports)
       .toMatchObject([{ resource: 'child.yaml' }]);
+  });
+
+  it('selects exact Symfony XML service environments without leaking inactive declarations or references', () => {
+    const source = `<container>
+      <imports><import resource="base.yaml"/></imports>
+      <parameters><parameter key="shared.parameter">base</parameter><parameter key="base.parameter">base</parameter></parameters>
+      <services>
+        <service id="shared.service" class="App\\BaseService"><argument type="service" id="base.dependency"/></service>
+        <service id="base.service" class="App\\BaseOnly"/>
+      </services>
+      <when env="dev">
+        <imports><import resource="dev.yaml"/></imports>
+        <parameters><parameter key="shared.parameter">dev</parameter><parameter key="dev.parameter">dev</parameter></parameters>
+        <services>
+          <defaults public="true"/>
+          <service id="shared.service" class="App\\DevService"><argument type="service" id="dev.dependency"/></service>
+          <service id="dev.service" class="App\\DevOnly"><argument value="%dev.parameter%"/></service>
+        </services>
+      </when>
+      <when env="prod">
+        <imports><import resource="prod.yaml"/></imports>
+        <parameters><parameter key="shared.parameter">prod</parameter><parameter key="prod.parameter">prod</parameter></parameters>
+        <services>
+          <service id="shared.service" class="App\\ProdService"><argument type="service" id="prod.dependency"/></service>
+          <service id="prod.service" class="App\\ProdOnly"><argument value="%prod.parameter%"/></service>
+        </services>
+      </when>
+    </container>`;
+    const base = analyzeSymfonyServiceXml('file:///services.xml', source);
+    expect(base.services.map(({ id, className }) => ({ id, className }))).toEqual([
+      { id: 'shared.service', className: 'App\\BaseService' }, { id: 'base.service', className: 'App\\BaseOnly' },
+    ]);
+    expect(base.imports?.map((item) => item.resource)).toEqual(['base.yaml']);
+    const dev = analyzeSymfonyServiceXml('file:///services.xml', source, 'dev');
+    expect(dev.services.map(({ id, className, public: isPublic }) => ({ id, className, public: isPublic }))).toEqual([
+      { id: 'shared.service', className: 'App\\DevService', public: true },
+      { id: 'base.service', className: 'App\\BaseOnly', public: false },
+      { id: 'dev.service', className: 'App\\DevOnly', public: true },
+    ]);
+    expect(dev.imports?.map((item) => item.resource)).toEqual(['base.yaml', 'dev.yaml']);
+    expect(symfonyXmlServiceReferences(source, 'dev').map((item) => item.value)).toEqual(['base.dependency', 'dev.dependency']);
+    expect(symfonyXmlServiceReferences(source, 'prod').map((item) => item.value)).toEqual(['base.dependency', 'prod.dependency']);
+    const declarations = symfonyXmlParameterDeclarations(source, 'dev');
+    expect(declarations.map((item) => item.value)).toEqual(['shared.parameter', 'base.parameter', 'dev.parameter']);
+    expect(source.slice(declarations[0]!.start, declarations[0]!.end)).toBe('shared.parameter');
+    expect(declarations[0]!.start).toBe(source.indexOf('shared.parameter', source.indexOf('<when env="dev">')));
+    expect(symfonyXmlParameterReferences(source, 'dev').map((item) => item.value)).toEqual(['dev.parameter']);
+    expect(symfonyXmlParameterReferences(source, 'prod').map((item) => item.value)).toEqual(['prod.parameter']);
+    expect(symfonyXmlServiceReferenceAt(source, source.indexOf('prod.dependency') + 4, 'dev')).toBeUndefined();
+    expect(symfonyXmlParameterReferenceAt(source, source.indexOf('prod.parameter', source.indexOf('<when env="prod">')) + 4, 'dev')).toBeUndefined();
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when><services/></when></container>', 'dev').complete).toBe(false);
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/><services/></when></container>', 'dev').complete).toBe(false);
   });
 
   it('locates only exact Symfony XML service reference attributes', () => {

@@ -4667,7 +4667,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
   <argument type="service" id="app.service"/>
   <argument>%app.transport%</argument>
   <argument value="%app.xml_transport%"/>
-</service></services></container>`; await writeFile(xmlPath, xmlSource);
+</service></services><when env="prod"><parameters><parameter key="app.prod_xml">private</parameter></parameters><services>
+  <service id="app.prod_xml_consumer" class="App\\ProdXmlConsumer"><argument type="service" id="app.service"/><argument value="%app.prod_xml%"/></service>
+</services></when></container>`; await writeFile(xmlPath, xmlSource);
       const xmlParameterRegistrationStart = xmlSource.indexOf('app.xml_transport');
       const phpPath = join(root, 'config', 'services.php'); const phpUri = pathToFileURL(phpPath).toString();
       const phpSource = `<?php
@@ -4730,7 +4732,8 @@ namespace App {
       expect(classServiceReferences).toContainEqual({ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
       for (const [referenceUri, referenceSource] of [[configUri, configSource], [xmlUri, xmlSource], [phpUri, phpSource]] as const) {
-        const start = referenceUri === configUri ? referenceSource.indexOf('@app.service') + 1 : referenceSource.lastIndexOf('app.service');
+        const start = referenceUri === configUri ? referenceSource.indexOf('@app.service') + 1
+          : referenceUri === xmlUri ? referenceSource.indexOf('app.service') : referenceSource.lastIndexOf('app.service');
         expect(classServiceReferences).toContainEqual({ uri: referenceUri,
           range: { start: lspPosition(referenceSource, start), end: lspPosition(referenceSource, start + 'app.service'.length) } });
       }
@@ -4853,8 +4856,8 @@ namespace App {
         range: { start: lspPosition(configSource, configSource.indexOf('@app.service') + 1),
           end: lspPosition(configSource, configSource.indexOf('@app.service') + '@app.service'.length) } });
       expect(crossFormatReferences).toContainEqual({ uri: xmlUri,
-        range: { start: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service')),
-          end: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service') + 'app.service'.length) } });
+        range: { start: lspPosition(xmlSource, xmlSource.indexOf('app.service')),
+          end: lspPosition(xmlSource, xmlSource.indexOf('app.service') + 'app.service'.length) } });
       expect(crossFormatReferences).toContainEqual({ uri: phpUri,
         range: { start: lspPosition(phpSource, phpSource.lastIndexOf('app.service')),
           end: lspPosition(phpSource, phpSource.lastIndexOf('app.service') + 'app.service'.length) } });
@@ -4879,13 +4882,13 @@ namespace App {
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 74, method: 'phpCompanion/symfonyServiceDefinition', params: {
         textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
-        position: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service') + 4),
+        position: lspPosition(xmlSource, xmlSource.indexOf('app.service') + 4),
       } }));
       expect((await output.waitFor((message) => message.id === 74)).result).toEqual([{ uri: configUri,
         range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 75, method: 'phpCompanion/symfonyServiceReferences', params: {
         textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
-        position: lspPosition(xmlSource, xmlSource.lastIndexOf('app.service') + 4), context: { includeDeclaration: false },
+        position: lspPosition(xmlSource, xmlSource.indexOf('app.service') + 4), context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 75)).result).toEqual(crossFormatReferences);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 78, method: 'phpCompanion/symfonyServiceDefinition', params: {
@@ -4940,7 +4943,7 @@ namespace App {
         range: { start: lspPosition(attributeSource, attributeServiceStart), end: lspPosition(attributeSource, attributeServiceStart + 'app.service'.length) },
       }] });
       const phpServiceValueStart = phpSource.lastIndexOf('app.service');
-      const xmlServiceValueStart = xmlSource.lastIndexOf('app.service');
+      const xmlServiceValueStart = xmlSource.indexOf('app.service');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: phpUri, version: 1 }, source: phpSource,
         position: lspPosition(phpSource, phpServiceValueStart + 'app.se'.length),
@@ -5030,6 +5033,12 @@ namespace App {
         position: lspPosition(configSource, configSource.indexOf('app.service') + 3),
       } }));
       expect((await output.waitFor((message) => message.id === 73)).result).toEqual({ isIncomplete: false, items: [] });
+      const inactiveXmlServiceStart = xmlSource.lastIndexOf('app.service');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7300, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, inactiveXmlServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7300)).result).toEqual([]);
       const commitCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('committed authoritative container')).length;
       const switchEnvironment = async (environment: string): Promise<void> => {
@@ -5043,6 +5052,12 @@ namespace App {
         expect(commitCount()).toBeGreaterThan(before);
       };
       await switchEnvironment('prod');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 7303, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: xmlUri, version: 1 }, source: xmlSource,
+        position: lspPosition(xmlSource, inactiveXmlServiceStart + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 7303)).result).toEqual([{ uri: configUri,
+        range: { start: lspPosition(configSource, 12), end: lspPosition(configSource, 23) } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 7301, method: 'phpCompanion/symfonyServiceCompletions', params: {
         textDocument: { uri: configUri, version: 1 }, source: configSource,
         position: lspPosition(configSource, serviceValueStart + '@app.se'.length),

@@ -2,11 +2,13 @@
 
 ## Unreleased
 
+- Select unconditional plus exact `<when env="environment">` XML imports, parameters, services and references; active declarations override same-id base declarations while inactive environments remain invisible. Recognize attribute-free self-closing XML elements when validating structure.
+
 - Select unconditional plus exact `when@environment` YAML service, import, parameter and reference facts; active declarations override same-id base declarations while inactive environments remain invisible.
 
 - Locate exact PHP Configurator parameter declarations from proven `parameters()->set()` chains and references from the canonical imported `param()` helper, rejecting reassigned aliases and ordinary same-named business calls.
 
-- Enumerate exact Symfony XML parameter declaration keys and `%parameter.id%` placeholders in raw text or attribute values; support cursor prefixes while rejecting DOCTYPE, environment branches, entities, escaped percents and malformed XML.
+- Enumerate exact Symfony XML parameter declaration keys and `%parameter.id%` placeholders in raw text or attribute values; support cursor prefixes while rejecting DOCTYPE, inactive environment branches, entities, escaped percents and malformed XML.
 
 - Enumerate exact top-level YAML parameter declaration keys and `%parameter.id%` placeholders in scalar values without materializing values; reject escaped percent sequences, env expressions, decoded strings, invalid names and malformed YAML.
 
