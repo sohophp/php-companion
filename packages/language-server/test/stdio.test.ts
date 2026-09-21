@@ -125,7 +125,8 @@ describe('language server stdio', () => {
       const location = (name: string, text: string): { uri: string; range: { start: ReturnType<typeof lspPosition>; end: ReturnType<typeof lspPosition> } } => ({ uri: pathToFileURL(join(src, name)).toString(),
         range: { start: lspPosition(text, text.lastIndexOf('get(')), end: lspPosition(text, text.lastIndexOf('get(') + 3) } });
       const expected = [location('Use.php', source), location('Other.php', other)];
-      const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean; provider?: boolean; repeat?: boolean } = {}): Promise<void> => {
+      const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
+        provider?: boolean; repeat?: boolean; prewarmed?: boolean } = {}): Promise<void> => {
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
           '--php-wasm', join(dirname(bundle), 'tree-sitter-php.wasm')], { stdio: 'pipe' });
         const output = messagesFrom(server); let id = 0;
@@ -142,6 +143,8 @@ describe('language server stdio', () => {
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
           textDocument: { uri, languageId: 'php', version: 1, text },
         } }));
+        if (options.prewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes('[reference-prewarm] ready'), 10_000);
         const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
           context: { includeDeclaration: options.includeDeclaration ?? false } };
         const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
@@ -149,6 +152,7 @@ describe('language server stdio', () => {
         const logs = (): string => output.messages.filter((message: any) => message.method === 'window/logMessage').map((message: any) => message.params.message).join('\n');
         expect(logs().includes('[reference-cache] restored')).toBe(restored);
         expect(logs().includes('[named-candidates]')).toBe(!restored || Boolean(options.provider));
+        if (options.prewarmed) expect(logs().match(/\[named-candidates\]/g)).toHaveLength(1);
         if (options.repeat) expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
         await request('phpCompanion/testWaitReferencePersistence', {});
         if (!restored) expect(logs()).toContain('[reference-cache] stored');
@@ -175,6 +179,7 @@ describe('language server stdio', () => {
       await run(expected, false); await run(expected, true);
       await run(expected, false, { provider: true });
       await run(expected, true, { provider: true });
+      await run(expected, true, { provider: true, prewarmed: true });
       await mkdir(join(root, 'config'));
       await writeFile(join(root, 'config', 'services.yaml'), 'services:\n  Lib\\Target:\n    public: true\n');
       await run(expected, false, { provider: true });

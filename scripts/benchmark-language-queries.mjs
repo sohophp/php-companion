@@ -37,7 +37,7 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
-    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache)/.test(message.params?.message ?? '')
+    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache|reference-prewarm)/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
     }
@@ -59,6 +59,10 @@ try {
   if (offset < 1) throw new Error('Symbol missing');
   const lines = source.slice(0, offset).split('\n'); const position = { line: lines.length - 1, character: lines.at(-1).length };
   send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
+  const documentIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_DOCUMENT_IDLE_MS ?? 0);
+  if (Number.isSafeInteger(documentIdleMs) && documentIdleMs > 0 && documentIdleMs <= 30_000) {
+    await new Promise((done) => setTimeout(done, documentIdleMs));
+  }
   const methods = process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'
     ? ['textDocument/references', ...(!once ? ['textDocument/references'] : []), 'textDocument/definition', ...(!once ? ['textDocument/references'] : [])]
     : ['textDocument/definition', 'textDocument/references', ...(!once ? ['textDocument/references'] : [])];
@@ -80,7 +84,8 @@ try {
       } catch { /* Optional measurement must not change query correctness checks. */ }
     }
     process.stdout.write(JSON.stringify({ method, elapsedMs, results: result.length, peakRssKiB,
-      uris: [...new Set(result.map((location) => location.uri))].sort(), locationSha256 }) + '\n');
+      ...(process.env.PHP_COMPANION_BENCHMARK_COMPACT === '1' ? {}
+        : { uris: [...new Set(result.map((location) => location.uri))].sort() }), locationSha256 }) + '\n');
     if (persistReferences && method === 'textDocument/references') await request('phpCompanion/testWaitReferencePersistence', {});
   }
   if (auditInputs) {

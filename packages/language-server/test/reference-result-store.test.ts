@@ -35,4 +35,12 @@ describe('persistent reference result store', () => {
     proof.locations[0]!.range.end.character = 1;
     expect(await store.write(proof, () => true)).toBe(false);
   });
+
+  it('only exposes authenticated bounded query hints for prewarming', async () => {
+    proof.queryHint = { uri: 'file:///src/A.php', names: ['get', 'dispatch'], mode: 'symbol', deferBodies: true };
+    expect(await store.write(proof, () => true)).toBe(true);
+    expect(await store.recent()).toEqual([proof]);
+    expect(await store.write({ ...proof, queryHint: { ...proof.queryHint, names: ['../outside'] } }, () => true)).toBe(false);
+    expect(await store.recent()).toEqual([proof]);
+  });
 });

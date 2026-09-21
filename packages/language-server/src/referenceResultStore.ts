@@ -13,6 +13,7 @@ export interface ReferenceResultProof {
   context: string;
   loaded: Array<{ uri: string; hash: string }>;
   frameworkFingerprint?: string;
+  queryHint?: { uri: string; names: string[]; mode: 'symbol' | 'named-argument'; deferBodies: boolean };
   fingerprint: string;
   locations: ReferenceLocation[];
 }
@@ -31,6 +32,12 @@ function validProof(value: unknown): value is ReferenceResultProof {
   return Boolean(proof && proof.schema === 1 && digest(proof.key) && digest(proof.fingerprint)
     && digest(proof.environment)
     && (proof.frameworkFingerprint === undefined || digest(proof.frameworkFingerprint))
+    && (proof.queryHint === undefined || Boolean(proof.queryHint && typeof proof.queryHint === 'object'
+      && typeof proof.queryHint.uri === 'string' && proof.queryHint.uri.length <= 16_384
+      && Array.isArray(proof.queryHint.names) && proof.queryHint.names.length > 0 && proof.queryHint.names.length <= 8
+      && proof.queryHint.names.every((name) => typeof name === 'string' && /^[\p{L}_][\p{L}\p{N}_]{0,127}$/u.test(name))
+      && (proof.queryHint.mode === 'symbol' || proof.queryHint.mode === 'named-argument')
+      && typeof proof.queryHint.deferBodies === 'boolean'))
     && typeof proof.context === 'string' && proof.context.length <= MAX_BYTES
     && pathList(proof.sourceRoots) && pathList(proof.additionalFiles)
     && Array.isArray(proof.loaded) && proof.loaded.length <= 50_000
@@ -46,6 +53,17 @@ function validProof(value: unknown): value is ReferenceResultProof {
 export class ReferenceResultStore {
   private readonly directory: string;
   constructor(cacheDirectory: string) { this.directory = join(cacheDirectory, 'reference-results-v1'); }
+
+  async recent(limit = 8): Promise<ReferenceResultProof[]> {
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 32) return [];
+    try {
+      const entries = await Promise.all((await readdir(this.directory)).filter((name) => /^[a-f0-9]{64}\.json$/.test(name))
+        .map(async (name) => ({ name, modified: (await stat(join(this.directory, name))).mtimeMs })));
+      const proofs = await Promise.all(entries.sort((a, b) => b.modified - a.modified).slice(0, limit)
+        .map((entry) => this.read(entry.name.slice(0, -5))));
+      return proofs.flatMap((proof) => proof ? [proof] : []);
+    } catch { return []; }
+  }
 
   async read(key: string): Promise<ReferenceResultProof | undefined> {
     if (!digest(key)) return undefined;

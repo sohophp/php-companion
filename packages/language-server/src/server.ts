@@ -1765,6 +1765,8 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
+const candidateScanTasks = new Map<string, { epoch: number; workspace: SemanticWorkspace;
+  waiters: Set<() => boolean>; promise: Promise<boolean> }>();
 const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number; reads: ReadonlyMap<string, string> }>();
 const restoredReferenceResults = new WeakMap<SemanticWorkspace, { proof: ReferenceResultProof; revision: string; epoch: number; generation: number }>();
 let pendingReferenceWrite: (() => Promise<void>) | undefined;
@@ -1849,7 +1851,8 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
 }
 
 function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
-  includeDeclaration: boolean, sequence: number, frameworkFingerprint?: string): ((locations: ReferenceLocation[]) => void) | undefined {
+  includeDeclaration: boolean, sequence: number, frameworkFingerprint?: string,
+  queryHint?: ReferenceResultProof['queryHint']): ((locations: ReferenceLocation[]) => void) | undefined {
   if (!reusableReferenceMode()) return undefined;
   if (referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)) return undefined;
   const candidates = referenceCandidateReads.get(workspace); if (!candidates || candidates.root !== root) return undefined;
@@ -1903,7 +1906,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()
         || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
       if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots, additionalFiles, context,
-        loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), fingerprint: snapshot.fingerprint,
+        loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), ...(queryHint ? { queryHint } : {}), fingerprint: snapshot.fingerprint,
         locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };
     startReferenceWrite();
@@ -1915,8 +1918,8 @@ function invalidateCandidates(uri: string): void {
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
-async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
-  mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies): Promise<boolean> {
+async function performNamedCandidateScan(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries: number,
+  mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean): Promise<boolean> {
   if (indexingMode === 'off') return false;
   const normalizedNames = [...names].sort();
   const namedArgumentPatterns = mode === 'named-argument' ? normalizedNames.map((name) => new RegExp(
@@ -1932,7 +1935,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     candidateReads.set(normalized, hash);
   };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
-  const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
+  const progress = showProgress && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
   const scan = await indexComposerSources(root, { project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 128,
@@ -2019,11 +2022,88 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
-    return retries > 0 ? scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers) : false;
+    return retries > 0 ? performNamedCandidateScan(workspace, root, names, cancelled, retries - 1,
+      mode, deferBodies, prepareInWorkers, showProgress) : false;
   }
   if (candidateReadsComplete && candidateReads.size === scan.files) referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads });
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
+}
+
+async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
+  mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies,
+  showProgress = true): Promise<boolean> {
+  const epoch = projectEpochs.get(root) ?? 0;
+  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${[...names].sort().join(',')}`;
+  if (candidateQueries.get(key) === epoch) return true;
+  let task = candidateScanTasks.get(key);
+  if (!task || task.epoch !== epoch || task.workspace !== workspace) {
+    const waiters = new Set<() => boolean>([cancelled]);
+    task = { epoch, workspace, waiters, promise: Promise.resolve(false) };
+    const running = task;
+    task.promise = performNamedCandidateScan(workspace, root, names,
+      () => [...waiters].every((isCancelled) => isCancelled()), retries, mode, deferBodies, prepareInWorkers, showProgress)
+      .finally(() => { if (candidateScanTasks.get(key) === running) candidateScanTasks.delete(key); });
+    candidateScanTasks.set(key, task);
+  } else task.waiters.add(cancelled);
+  try {
+    const ready = await new Promise<boolean>((done, fail) => {
+      const timer = setInterval(() => { if (cancelled()) { clearInterval(timer); done(false); } }, 50);
+      void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
+    });
+    if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
+      return scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers, showProgress);
+    }
+    return ready;
+  } finally { task.waiters.delete(cancelled); }
+}
+
+const referencePrewarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const frameworkPrewarmTasks = new Map<string, { epoch: number; promise: Promise<void> }>();
+let recentReferenceProofs: Promise<ReferenceResultProof[]> | undefined;
+function cancelReferencePrewarm(uri: string): void {
+  const timer = referencePrewarmTimers.get(uri); if (timer) clearTimeout(timer);
+  referencePrewarmTimers.delete(uri);
+}
+function scheduleReferencePrewarm(document: TextDocument, root: string, workspace: SemanticWorkspace): void {
+  cancelReferencePrewarm(document.uri);
+  if (indexingMode !== 'onDemand' || !cacheDirectory || !reusableReferenceMode()) return;
+  const uri = document.uri; const version = document.version;
+  const epoch = projectEpochs.get(root) ?? 0; const sequence = querySequence;
+  const timer = setTimeout(() => {
+    referencePrewarmTimers.delete(uri);
+    void (async (): Promise<void> => {
+      if (candidateScanTasks.size || frameworkPrewarmTasks.size || querySequence !== sequence) return;
+      const proofs = await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
+      const open = documents.get(uri);
+      if (!open || open.version !== version || querySequence !== sequence || (projectEpochs.get(root) ?? 0) !== epoch) return;
+      const sourceHash = referenceSourceHash(open.getText());
+      const hint = proofs.find((proof) => proof.queryHint?.uri === uri
+        && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;
+      if (!hint || candidateScanTasks.size) return;
+      const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
+        || (projectEpochs.get(root) ?? 0) !== epoch;
+      const ready = await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
+        hint.mode, hint.deferBodies, hint.deferBodies, false);
+      if (!ready || cancelled()) return;
+      connection.console.info(`[reference-prewarm] ready uri=${uri}`);
+      if (!referenceHasFrameworkProviders()) return;
+      const stale = (): boolean => documents.get(uri)?.version !== version || (projectEpochs.get(root) ?? 0) !== epoch;
+      const pending = frameworkPrewarmTasks.get(root);
+      if (pending?.epoch === epoch) return;
+      const warm = { epoch, promise: Promise.resolve() as Promise<void> };
+      warm.promise = Promise.all([
+        ...(semanticProviders.some((provider) => provider.replacesContainerServices)
+          ? [refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !stale())] : []),
+        ...(routeProviders.length ? [availableSymfonyRoutes(root, stale)] : []),
+      ]).then(() => { if (!stale()) connection.console.info(`[reference-prewarm] framework ready uri=${uri}`); })
+        .catch((error: unknown) => connection.console.warn(`Reference framework prewarm failed: ${String(error)}`))
+        .finally(() => { if (frameworkPrewarmTasks.get(root) === warm) frameworkPrewarmTasks.delete(root); });
+      frameworkPrewarmTasks.set(root, warm);
+      await warm.promise;
+    })().catch((error: unknown) => connection.console.warn(`Reference prewarm failed: ${String(error)}`));
+  }, 1_500);
+  referencePrewarmTimers.set(uri, timer);
 }
 
 async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, cancelled: () => boolean, retries = 2): Promise<Array<{ uri: string; source: string; start: number; end: number }> | undefined> {
@@ -3228,6 +3308,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
 
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  cancelReferencePrewarm(document.uri);
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
@@ -3238,10 +3319,12 @@ documents.onDidOpen(async ({ document }) => {
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
+  if (root) scheduleReferencePrewarm(document, root, workspace);
 });
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  cancelReferencePrewarm(document.uri);
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
@@ -3256,6 +3339,7 @@ documents.onDidChangeContent(async ({ document }) => {
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  cancelReferencePrewarm(document.uri);
   invalidateCandidates(document.uri);
   const root = rootForUri(document.uri);
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);
@@ -3815,6 +3899,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
     const symfonyClassTarget = type?.fqcn ?? (member?.kind === 'method' ? member.fqcn.split('::')[0] : undefined);
+    const frameworkWarm = root ? frameworkPrewarmTasks.get(root) : undefined;
+    if (frameworkWarm && frameworkWarm.epoch === (projectEpochs.get(root!) ?? 0)) await frameworkWarm.promise;
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     // Route snapshots and container facts have independent providers. Launch
     // both after candidate indexing, then validate route edits before use.
     const routesStarted = Date.now();
@@ -3952,8 +4039,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       }
     }
     const semanticStarted = Date.now();
-    const writeReferenceResult = root && scope === 'project' && frameworkCacheEligible
-      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id, frameworkFingerprint) : undefined;
+    const writeReferenceResult = root && scope === 'project'
+      ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id, frameworkFingerprint,
+        namedTarget ? { uri: document.uri, names: [...candidateNames].sort(),
+          mode: closedPromotedTarget ? 'named-argument' : 'symbol', deferBodies: member?.kind === 'method' } : undefined) : undefined;
     const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
     connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
     const rawLocations = [...new Map([...semanticLocations, ...frameworkLocations]
