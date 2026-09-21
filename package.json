@@ -81,6 +81,7 @@
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
     "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
+    "check:references:winstar": "node scripts/check-winstar-reference-baseline.mjs",
     "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
     "audit:real-cache": "pnpm build:packages && node scripts/audit-real-cache.mjs",
