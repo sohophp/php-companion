@@ -403,6 +403,49 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('falls back when an exact reference candidate inherits from a non-PSR-4 declaration', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-closure-fallback-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const target = '<?php namespace App; final class Bag { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace App; final class Consumer extends Base { public function run(): int { return $this->bag->get(); } }';
+      const legacy = '<?php namespace App; class Base { protected Bag $bag; } // target';
+      const targetUri = pathToFileURL(join(sourceDirectory, 'Bag.php')).toString();
+      const consumerUri = pathToFileURL(join(sourceDirectory, 'Consumer.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(sourceDirectory, 'Bag.php'), target);
+      await writeFile(join(sourceDirectory, 'Consumer.php'), consumer);
+      await writeFile(join(sourceDirectory, 'Legacy.php'), legacy);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
+          experimentalReferenceClosure: true },
+      } }));
+      await output.waitFor((message) => message.id === 240);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: targetUri, languageId: 'php', version: 1, text: target },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
+        textDocument: { uri: targetUri }, position: lspPosition(target, target.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 241)).result).toEqual([{
+        uri: consumerUri, range: { start: lspPosition(consumer, consumer.indexOf('get()')),
+          end: lspPosition(consumer, consumer.indexOf('get()') + 3) },
+      }]);
+      const fallback = await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-closure] falling back'));
+      expect(fallback.params.message).toContain('unresolved project declaration');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 242);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('keeps reload and closed promoted-property rename free of project indexing in on-demand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-startup-'));
     try {

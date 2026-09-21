@@ -3786,6 +3786,19 @@ describe('conservative semantic workspace', () => {
     expect(workspace.directSubtypes('Navigation\\Base')).toMatchObject([{ fqcn: 'Navigation\\Concrete' }]);
     expect(workspace.directSupertypes('Navigation\\Concrete')).toMatchObject([{ fqcn: 'Navigation\\Base' }]);
   });
+  it('reports declared parent, interface and trait dependencies before their files load', () => {
+    const local = new SemanticWorkspace(parser);
+    local.updateDeclarations('file:///Dependent.php', `<?php namespace App;
+      use Shared\\Base as ParentType;
+      use Shared\\Contract;
+      use Shared\\Reusable;
+      class Dependent extends ParentType implements Contract { use Reusable; }`);
+    expect(local.directDeclarationDependencies('App\\Dependent')).toEqual([
+      'Shared\\Base', 'Shared\\Contract', 'Shared\\Reusable',
+    ]);
+    expect(local.directSupertypes('App\\Dependent')).toEqual([]);
+    local.dispose();
+  });
   it('finds only interface methods missing from the concrete class hierarchy', () => {
     workspace.update('file:///GenerateContracts.php', '<?php namespace Generate; interface ParentContract { public function inherited(string $name): string; public function pending(): void; } interface Contract extends ParentContract { public function run(int &$count, string ...$labels): void; }');
     workspace.update('file:///GenerateBase.php', '<?php namespace Generate; abstract class Base { public function inherited(string $name): string { return $name; } abstract public function pending(): void; }');

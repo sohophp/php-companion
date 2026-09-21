@@ -4932,6 +4932,16 @@ export class SemanticWorkspace {
     return { uri: owner.file.uri, start: declaration.start, end: declaration.end, name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind };
   }
 
+  /** Resolve declared inheritance inputs even when their source has not been loaded. */
+  directDeclarationDependencies(fqcn: string): string[] {
+    const owner = this.fileAndDeclaration(fqcn); if (!owner || owner.declaration.anonymous) return [];
+    const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    return [...new Set([
+      ...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames,
+    ].map((name) => this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn))
+      .filter((name): name is string => Boolean(name)))];
+  }
+
   directSupertypes(fqcn: string): TypeInfo[] {
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');

@@ -14,6 +14,7 @@ export interface CandidatePreparation {
   names: string[];
   mode: 'symbol' | 'named-argument';
   deferBodies: boolean;
+  exactSymbols?: boolean;
 }
 
 export interface PreparedCandidate {

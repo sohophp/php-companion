@@ -35,7 +35,8 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
     const matches = task.mode === 'named-argument'
       ? task.names.some((name) => new RegExp(
         `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu').test(task.source))
-      : task.names.some((name) => task.source.toLowerCase().includes(name));
+      : task.exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'
+        : task.names.some((name) => task.source.toLowerCase().includes(name));
     const declarationsOnly = matches && task.deferBodies && task.mode === 'symbol'
       && sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
     const prepared: PreparedCandidate = {

@@ -26,6 +26,7 @@ const run = async (bundle) => {
     if (!query) throw new Error(`${bundle} returned no References result: ${stderr}`);
     const phase = (pattern) => Number(pattern.exec(stderr)?.[1] ?? NaN);
     const candidateScan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+) restored=(\d+) declarations=(\d+) restoredDeclarations=(\d+) prepared=(\d+) preparedRestores=(\d+)/.exec(stderr);
+    const closure = /\[reference-closure\] roots=(\d+) loaded=(\d+) unresolved=(\d+) missing=(\[[^\n]*\])/.exec(stderr);
     return {
       bundle, elapsedMs: query.elapsedMs, results: query.results, locationSha256: query.locationSha256,
       ...(query.peakRssKiB ? { peakRssKiB: query.peakRssKiB } : {}),
@@ -36,6 +37,7 @@ const run = async (bundle) => {
         restoredDeclarations: Number(candidateScan[6]), prepared: Number(candidateScan[7]),
         preparedRestores: Number(candidateScan[8]),
       } } : {}),
+      ...(closure ? { closure: { roots: Number(closure[1]), loaded: Number(closure[2]), unresolved: Number(closure[3]), missing: JSON.parse(closure[4]) } } : {}),
       phasesMs: {
         candidates: phase(/\[named-candidates\][^\n]*elapsedMs=(\d+)/),
         container: phase(/\[references:\d+\] container elapsedMs=(\d+)/),

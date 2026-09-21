@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 首次 References 的通用继承闭包试验已限定为内部测试模式：Winstar `get` 独立空缓存约 7.6–8.0 秒，解析 453 个精确候选并补 80 个声明依赖，仍为 112 处且位置摘要不变；默认路径一次为 8,676 ms、解析 1,656 个候选。非 PSR-4 文件中的父类会触发完整扫描回退，已补 stdio 回归测试。该试验尚不能证明任意项目的结果完整，正式路径没有启用，性能 Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 首次登记语义表面优化：对新文件直接建立声明与可调用项失效键，已有文件编辑仍做完整比较。Winstar `get` 两轮独立空缓存旧/新为 9,077/8,800 ms、8,798/8,739 ms，完整 112 处位置不变；Semantic 291、Language Server 232 项（1 项跳过）、改动文件 ESLint 和构建通过。收益较小，立即点击仍约 9 秒；Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
 2026-09-22 新 Alpha 候选 `artifacts/php-companion-alpha-0.4.5-a48b5177` 从干净提交 `a48b5177` 生成；核心、Symfony、开源包、推荐包四个 VSIX 的 `SHA256SUMS` 全部通过，`verify:vsix` 通过。Winstar 的 `alpha:preflight` 确认 WSL2、PHP 8.5 包装器和候选文件完整性；不带 `--check-editor`，因当前远程 CLI 的扩展列表调用未返回。隔离的 VS Code 1.138.0 Core Only、包含 Symfony 的开发模式及从 VSIX 解包的 Extension Host 测试均 exit 0；重新打包后再次核对归档候选四份 SHA-256，仍全部通过。候选尚未安装进用户当前 Alpha Profile；WSL Extension Host 所属、竞争 Provider、真实项目编码与 References 体感仍待人工验收，Goal 保持开放。

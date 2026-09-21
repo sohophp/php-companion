@@ -112,6 +112,7 @@ let indexingMode: 'off' | 'onDemand' | 'experimental' = 'experimental';
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
+let experimentalReferenceClosure = false;
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -1919,12 +1920,15 @@ function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
 async function performNamedCandidateScan(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries: number,
-  mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean): Promise<boolean> {
+  mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean, forceFull = false): Promise<boolean> {
   if (indexingMode === 'off') return false;
   const normalizedNames = [...names].sort();
+  const exactSymbols = experimentalReferenceClosure && !forceFull && mode === 'symbol' && deferBodies;
+  const exactPatterns = exactSymbols ? normalizedNames.map((name) => new RegExp(
+    `(?<![\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`, 'iu')) : [];
   const namedArgumentPatterns = mode === 'named-argument' ? normalizedNames.map((name) => new RegExp(
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
-  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
+  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
   referenceCandidateReads.delete(workspace);
   const candidateReads = new Map<string, string>(); let candidateReadsComplete = true;
@@ -1935,22 +1939,29 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     candidateReads.set(normalized, hash);
   };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
+  const fullCandidateTypes = new Set<string>();
   const progress = showProgress && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
-  const scan = await indexComposerSources(root, { project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 128,
+  const project = await composerProjectForRoot(root);
+  const scan = await indexComposerSources(root, { project, includeDependencies: false, limits: indexLimits, readConcurrency: 128,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
-    prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies }) : undefined,
+    prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => exactSymbols
+      && !exactPatterns.some((pattern) => pattern.test(source))
+      ? Promise.resolve({ id: 0, uri, hash, summary: { schema: 1, complete: false, symbols: [], namedArguments: [] }, matches: false, declarationsOnly: false })
+      : candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies, exactSymbols }) : undefined,
     onSource: ({ uri, path, source, hash, prepared }) => {
       recordCandidateRead(path, hash);
       const open = documents.get(uri); const effective = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
+      if (exactSymbols && candidate?.matches === false) return undefined;
       const summary = candidate?.summary ?? createSourceCandidateSummary(source);
       const matches = candidate?.matches ?? (mode === 'named-argument'
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
-        : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
+        : exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'
+          : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
       const declarationsOnly = matches && deferBodies && !open && mode === 'symbol'
         && sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
       if (matches) {
@@ -1960,6 +1971,11 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
         else if (declarationsOnly) workspace.updateDeclarations(uri, effective);
         else workspace.update(uri, effective, Boolean(open));
         if (declarationsOnly) declarationCandidates += 1;
+        if (exactSymbols && !declarationsOnly) {
+          for (const declaration of workspace.sourceDeclarationSnapshot(uri)?.declaration.declarations ?? []) {
+            if (!declaration.anonymous) fullCandidateTypes.add(declaration.fqcn);
+          }
+        }
         candidates += 1;
       }
       const snapshot = matches && !declarationsOnly && effective === source ? workspace.snapshotForPersistence(uri) : undefined;
@@ -1978,7 +1994,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       return { summary, pending };
     },
     cache: cacheDirectory ? {
-      directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v4',
+      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v4',
       finalizePayload: async (payload): Promise<unknown> => {
         const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; pending?: Promise<{
           semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };
@@ -2017,6 +2033,28 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
+  if (exactSymbols) {
+    const visited = new Set<string>(); const unresolvedDependencies = new Set<string>(); let frontier = [...fullCandidateTypes]; let loadedDependencies = 0;
+    for (let depth = 0; depth < 32 && frontier.length; depth += 1) {
+      const dependencies = [...new Set(frontier.flatMap((fqcn) => workspace.directDeclarationDependencies(fqcn)))]
+        .filter((fqcn) => !visited.has(fqcn.toLowerCase()) && !workspace.typeByFqcn(fqcn));
+      for (const fqcn of dependencies) visited.add(fqcn.toLowerCase());
+      for (let start = 0; start < dependencies.length; start += 4) {
+        if (cancelled()) return false;
+        await hydrateCanonicalTypes(workspace, root, dependencies.slice(start, start + 4), true);
+      }
+      const loaded = dependencies.filter((fqcn) => workspace.typeByFqcn(fqcn));
+      for (const fqcn of dependencies) if (!workspace.typeByFqcn(fqcn)) unresolvedDependencies.add(fqcn);
+      loadedDependencies += loaded.length; frontier = loaded;
+    }
+    connection.console.info(`[reference-closure] roots=${fullCandidateTypes.size} loaded=${loadedDependencies} unresolved=${visited.size - loadedDependencies} missing=${JSON.stringify([...unresolvedDependencies])}`);
+    const unresolvedProjectType = [...unresolvedDependencies].some((fqcn) => project?.psr4.some((mapping) =>
+      fqcn.toLowerCase().startsWith(mapping.prefix.toLowerCase())));
+    if (unresolvedProjectType || unresolvedDependencies.size && Boolean(project?.classmap.length || project?.files.length || project?.psr0.length)) {
+      connection.console.info('[reference-closure] falling back to full candidate scan for unresolved project declaration');
+      return performNamedCandidateScan(workspace, root, names, cancelled, retries, mode, deferBodies, prepareInWorkers, false, true);
+    }
+  }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
   if (!scan.projectComplete || cancelled()) return false;
@@ -2034,7 +2072,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies,
   showProgress = true): Promise<boolean> {
   const epoch = projectEpochs.get(root) ?? 0;
-  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${[...names].sort().join(',')}`;
+  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${experimentalReferenceClosure && mode === 'symbol' && deferBodies ? 'exact:' : ''}${[...names].sort().join(',')}`;
   if (candidateQueries.get(key) === epoch) return true;
   let task = candidateScanTasks.get(key);
   if (!task || task.epoch !== epoch || task.workspace !== workspace) {
@@ -2276,7 +2314,7 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
   } finally { progress?.done(); }
 }
 
-async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[]): Promise<boolean> {
+async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[], declarationsOnly = false): Promise<boolean> {
   let evidence = referenceDependencyEvidence.get(workspace);
   if (!evidence) { evidence = new ReferenceDependencyEvidence(); referenceDependencyEvidence.set(workspace, evidence); }
   if (!projectMappingsByRoot.has(root)) {
@@ -2292,7 +2330,8 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
       if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { evidence.reject(); continue; }
       const targetUri = indexedUriForPath(root, path);
       const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
-      workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
+      if (declarationsOnly && !documents.get(targetUri)) workspace.updateDeclarations(targetUri, source);
+      else workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
       evidence.source(path, targetUri, source);
       indexedUrisByRoot.get(root)?.add(targetUri);
       loaded = true;
@@ -2306,7 +2345,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2326,6 +2365,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
+  experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
   testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);
