@@ -24,3 +24,7 @@
 - Provider 方法事实被替换后，先前缓存的外部方法引用消失；无效 Provider 更新仍按原有原子门禁拒绝。
 - 语义包 279 项、Language Server 199 项、根 TypeScript/ESLint 及 24 个独立 tarball 消费验证通过。
 - 真实 VS Code WSL Alpha Profile 的连续编辑、扩展宿主所有权和竞争 PHP Provider 状态仍待人工验收。
+
+## Alpha 候选
+
+功能与上述文档已经冻结为 `artifacts/php-companion-alpha-0.4.5-bd5e4126/`，包含核心、独立 Symfony 扩展和两种扩展包，共四份 VSIX。`SHA256SUMS` 四项均通过；Winstar 的 WSL、Composer 工作区和 PHP 8.5 包装器确定性预检通过。`pnpm test:extension:packaged` 在 VS Code 1.138.0 隔离 Profile 中以退出码 0 完成，并验证打包核心与 Symfony 扩展共同加载。预检报告仍把用户的真实 WSL Extension Host 归属、竞争 PHP Provider 状态与两小时真实编辑列为人工验收项。
