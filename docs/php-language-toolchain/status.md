@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 真正首次 References 修复与基准纠正：旧基准先做 Definition，掩盖了未加载 vendor 接收者时 References 全项目扫描后返回空结果的问题。现在先按需解析目标类型链；同一 Winstar 查询从旧版直接首次 27.975 秒、错误 0 处，变为正式 bundle 9.138 秒、正确 112 处。新基线强制 References-first，9.041 秒通过完整位置摘要；Reload 首次 7.483 秒、直接重复 16 ms，但 Definition 后重复仍需 2.679 秒，继续定位。新增冷启动/Reload 属性链与返回链回归，LSP 定向 50 项通过（48.36 秒）、TypeScript/ESLint/正式构建通过。以下历史耗时凡先做 Definition 者仅代表预热路径。未更新用户 WSL VSIX，Goal 保持开放。证据见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。
+
 2026-09-21 References 调用声明查找：优先按签名 URI/位置精确定位，缺失或歧义保留原回退；两处函数返回推断使用已有声明索引并保留文件顺序。冷查询同轮对照 8.132→7.709 秒，完整 112 处位置一致；正式 bundle 冷查询 7.942 秒、Reload 首次 6.166 秒。语义包 288 项、LSP 定向 48 项（43.94 秒，156 项未重跑）、相关 TypeScript/ESLint、正式构建和默认基线命令通过。缓存压缩 JSON 传输实验因变慢未保留；Goal 继续。证据见 [调用声明查找](reports/reference-callable-lookup-2026-09-21.md)。
 
 2026-09-21 References 候选流水线与传输：候选预读窗口改为已有上限 64，语法事实由 worker JSON 序列化后传输，单文件更新复用 PHPDoc，并将 worker 上限降为 4。同轮实验冷查询 9.289→8.004 秒、峰值 RSS 894,400→729,928 KiB；正式 bundle 冷查询 8.249 秒、Reload 首次 6.481 秒，两次仍为相同 112 处完整引用。语义包 287、Language Server 204 项、相关 TypeScript/ESLint、正式构建和默认基线命令通过。基准支持可选峰值 RSS 输出；未冻结新 VSIX，首次查询仍须优化。证据见 [候选流水线与语法事实传输](reports/reference-preparation-transport-2026-09-21.md)。

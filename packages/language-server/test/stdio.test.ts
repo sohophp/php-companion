@@ -106,6 +106,54 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it.each(['attributes', 'getSession()'])('resolves first cold and reloaded references through unloaded vendor %s without Definition warm-up', async (receiver) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-first-references-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
+      await mkdir(sourceDirectory); await mkdir(join(root, 'vendor', 'composer'), { recursive: true }); await mkdir(dependencyDirectory, { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(join(dependencyDirectory, 'Request.php'), '<?php namespace Acme; class Request { public ParameterBag $attributes; public function getSession(): SessionBag {} }');
+      for (const bag of ['ParameterBag', 'SessionBag']) await writeFile(join(dependencyDirectory, `${bag}.php`), `<?php namespace Acme; class ${bag} { public function get(): int { return 1; } }`);
+      const source = `<?php namespace App; use Acme\\Request; function run(Request $request): int { return $request->${receiver}->get(); }`;
+      const other = source.replace('function run(', 'function second(');
+      const uri = pathToFileURL(join(sourceDirectory, 'Use.php')).toString();
+      const otherUri = pathToFileURL(join(sourceDirectory, 'Other.php')).toString();
+      await writeFile(join(sourceDirectory, 'Use.php'), source); await writeFile(join(sourceDirectory, 'Other.php'), other);
+      await writeFile(join(sourceDirectory, 'Noise.php'), '<?php namespace App; class Noise { public function get(): int { return 0; } public function run(): int { return $this->get(); } }');
+      const expected = [{ uri, text: source }, { uri: otherUri, text: other }].map((item) => {
+        const offset = item.text.lastIndexOf('get();');
+        return { uri: item.uri, range: { start: lspPosition(item.text, offset), end: lspPosition(item.text, offset + 3) } };
+      }).sort((a, b) => a.uri.localeCompare(b.uri));
+      for (let run = 0; run < 2; run += 1) {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 280, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache') },
+        } }));
+        await output.waitFor((message) => message.id === 280);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 281, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, source.lastIndexOf('get();') + 1), context: { includeDeclaration: false },
+        } }));
+        const response = await output.waitFor((message) => message.id === 281);
+        expect(response.error).toBeUndefined();
+        expect(response.result.sort((a: { uri: string }, b: { uri: string }) => a.uri.localeCompare(b.uri))).toEqual(expected);
+        expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[named-candidates]'))).toBe(true);
+        expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 282, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === 282);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('restores broad on-demand method candidates consistently across reload', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-substring-candidates-'));
     try {

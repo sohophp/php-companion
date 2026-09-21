@@ -3501,8 +3501,25 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   try {
     const root = rootForUri(document.uri);
     const closedPromotedTarget = scope === 'project' ? workspace.closedPromotedPropertyRename(document.uri, offset) : undefined;
-    const type = scope === 'project' && !closedPromotedTarget ? workspace.typeAt(document.uri, offset) : undefined;
-    const member = scope === 'project' && !closedPromotedTarget && !type ? workspace.referenceMemberAt(document.uri, offset) : undefined;
+    let resolvedType = scope === 'project' && !closedPromotedTarget ? workspace.typeAt(document.uri, offset) : undefined;
+    let resolvedMember = scope === 'project' && !closedPromotedTarget && !resolvedType ? workspace.referenceMemberAt(document.uri, offset) : undefined;
+    if (scope === 'project' && root && !closedPromotedTarget && document.languageId === 'php') {
+      // A first References request must resolve the same owner chain as Definition.
+      // Otherwise an unloaded vendor receiver falls into a full project scan and
+      // can still produce an incorrect empty result without its declaration.
+      for (let depth = 0; depth < 4 && !resolvedType && !resolvedMember; depth += 1) {
+        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+        const loaded = await hydrateCanonicalTypes(workspace, root, [
+          workspace.resolvedTypeNameAt(document.uri, offset),
+          ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
+        ].filter((fqcn): fqcn is string => Boolean(fqcn)));
+        if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+        if (!loaded) break;
+        resolvedType = workspace.typeAt(document.uri, offset);
+        resolvedMember = resolvedType ? undefined : workspace.referenceMemberAt(document.uri, offset);
+      }
+    }
+    const type = resolvedType; const member = resolvedMember;
     const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');

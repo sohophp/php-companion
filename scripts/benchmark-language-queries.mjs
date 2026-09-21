@@ -49,7 +49,10 @@ try {
   if (offset < 1) throw new Error('Symbol missing');
   const lines = source.slice(0, offset).split('\n'); const position = { line: lines.length - 1, character: lines.at(-1).length };
   send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
-  for (const method of (once ? ['textDocument/definition', 'textDocument/references'] : ['textDocument/definition', 'textDocument/references', 'textDocument/references'])) {
+  const methods = process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'
+    ? ['textDocument/references', ...(!once ? ['textDocument/references'] : []), 'textDocument/definition', ...(!once ? ['textDocument/references'] : [])]
+    : ['textDocument/definition', 'textDocument/references', ...(!once ? ['textDocument/references'] : [])];
+  for (const method of methods) {
     const started = performance.now(); const result = await request(method, { textDocument: { uri }, position, context: { includeDeclaration: false } });
     const locationSha256 = createHash('sha256').update(JSON.stringify([...result].sort((a, b) =>
       a.uri.localeCompare(b.uri) || a.range.start.line - b.range.start.line

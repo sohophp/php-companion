@@ -16,7 +16,8 @@ const expected = new Map([
 try {
   const child = spawn(process.execPath, [
     'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once',
-  ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'inherit'] });
+  ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'inherit'],
+    env: { ...process.env, PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1' } });
   let output = '';
   child.stdout.setEncoding('utf8');
   child.stdout.on('data', (chunk) => { output += chunk; });
@@ -27,6 +28,9 @@ try {
   if (code !== 0) throw new Error(`Benchmark exited with code ${code}`);
   const results = output.trim().split('\n').map((line) => JSON.parse(line));
   if (results.length !== expected.size) throw new Error(`Expected ${expected.size} query results, received ${results.length}`);
+  if (results[0]?.method !== 'textDocument/references' || new Set(results.map((result) => result.method)).size !== expected.size) {
+    throw new Error('Expected first References without Definition warm-up, followed by Definition');
+  }
   for (const result of results) {
     const baseline = expected.get(result.method);
     if (!baseline || result.results !== baseline.results || result.locationSha256 !== baseline.locationSha256) {
