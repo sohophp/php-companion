@@ -50,9 +50,11 @@ const request = (method, params) => new Promise((done, reject) => {
   send({ jsonrpc: '2.0', id, method, params });
 });
 try {
+  const initializeStarted = performance.now();
   await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1', experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
     ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0'
       ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization } });
+  process.stderr.write(`[benchmark-init] elapsedMs=${Math.round(performance.now() - initializeStarted)}\n`);
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
   if (Number.isSafeInteger(initialIdleMs) && initialIdleMs > 0 && initialIdleMs <= 30_000) await new Promise((done) => setTimeout(done, initialIdleMs));

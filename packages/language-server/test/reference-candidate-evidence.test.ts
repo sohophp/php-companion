@@ -21,7 +21,7 @@ describe('source prefilter reference evidence', () => {
     expect(referenceCandidateEvidenceMatches(snapshot, new Map([[matched, 'matched-hash']]), () => true, stamps)).toBe(true);
     expect(await skippedCandidateEvidenceMatches(stamps, () => true)).toBe(true);
     expect(referenceCandidateEvidenceMatches(snapshot, new Map(), () => true, stamps)).toBe(false);
-    await writeFile(skipped, '<?php class Changed {}');
+    await writeFile(skipped, '<?php class ChangedWithDifferentSize {}');
     expect(await skippedCandidateEvidenceMatches(stamps, () => true)).toBe(false);
   });
 });

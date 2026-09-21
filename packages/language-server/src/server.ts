@@ -2388,7 +2388,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
   return loaded;
 }
 
-connection.onInitialize((params: InitializeParams): InitializeResult => {
+connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
   const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
@@ -2420,6 +2420,9 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
   setFrameworkDocumentSnapshots(initialization?.frameworkDocumentSnapshots ?? { complete: true, documents: [] });
+  // Build only the in-memory PHP builtins before accepting editor requests;
+  // project sources remain on demand and do not start a reload-time index.
+  await Promise.all(workspaceFolderRoots.map((root) => semanticForRoot(root)));
   return ({
   capabilities: {
     positionEncoding: 'utf-16',

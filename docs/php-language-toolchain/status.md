@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 首次 References 的工作区基础事实改在语言服务器初始化时建立，不扫描项目源码。Winstar 两组空缓存交叉对照中，`get` 点击等待由 7.635/7.683 秒降为 6.831/7.075 秒，初始化由约 0.19 秒升至 1.02–1.07 秒；112 处完整位置不变。Symfony Provider 下类引用 3.787→2.866 秒、2 处不变，`get` 8.773→8.092 秒、112 处不变。Language Server 235 项通过、1 项跳过，隔离 VS Code 1.138.0 Core Only 与打包 Core + Symfony 宿主均 exit 0。只缩短了点击后的等待，未减少总计算量；用户 WSL Alpha Profile 尚未安装，本 Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 Linux 长名字预筛候选 `artifacts/php-companion-alpha-0.4.5-e55e9c9b/` 已从干净提交 `e55e9c9` 生成，四份 VSIX 通过 `verify:vsix` 与 `SHA256SUMS`；Winstar WSL/PHP 8.5 的 `alpha:preflight` 通过。隔离 VS Code 1.138.0 Core Only 宿主 exit 0。打包核心＋Symfony 宿主第一次在 5 秒等待内未看到 Symfony 自动注入 hover，第二次不重新打包的相同归档测试 exit 0；此初始化波动仍需追查，不能声称打包宿主稳定。候选未安装到用户当前 Alpha Profile；`get` 首查仍约 7.8 秒，Goal 继续。
 
 2026-09-22 Linux 正式路径现对至少 8 个 ASCII 字符的 References 查询尝试可信 `/usr/bin/rg` 源码预筛，异常或超时自动完整扫描；此前已补齐被跳过文件的缓存变化证明。Winstar `AdminSecuritySubscriber` 冷首查 4.162 秒、2 处原位置；磁盘无类名而未保存缓冲区新增引用的 stdio 回归通过。短名字 `get` 仍走原路径，空缓存复测 7.781 秒/112 处原位置。Language Server 235 项通过、1 项跳过；Windows/macOS、新版 VSIX 和用户 WSL Alpha Profile 尚未验证，Goal 继续。详见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。

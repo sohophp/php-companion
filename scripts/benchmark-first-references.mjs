@@ -37,6 +37,7 @@ const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFEREN
     const rgResult = /\[reference-rg\] paths=(\d+) elapsedMs=(\d+)/.exec(stderr);
     return {
       bundle, ...(compareClosure ? { referenceClosure: closure } : {}), ...(compareRg ? { ripgrepCandidates: rg } : {}), elapsedMs: query.elapsedMs,
+      initializeMs: phase(/\[benchmark-init\] elapsedMs=(\d+)/),
       results: query.results, locationSha256: query.locationSha256,
       ...(query.peakRssKiB ? { peakRssKiB: query.peakRssKiB } : {}),
       namedCandidateScans: [...stderr.matchAll(/\[named-candidates\]/g)].length,
