@@ -83,7 +83,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 79;
+  schema: 80;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1235,12 +1235,20 @@ export class SemanticWorkspace {
         const documentedBase = documentedType?.kind === 'generic' && documentedType.base.kind === 'name'
           ? documentedType.base.name.replace(/^\\/, '').toLowerCase()
           : documentedType?.kind === 'name' ? documentedType.name.replace(/^\\/, '').toLowerCase() : undefined;
+        const nullableParts = documentedType?.kind === 'union' ? documentedType.types : undefined;
+        const nullableTemplate = documentedType?.kind === 'nullable' && documentedType.type.kind === 'name'
+          ? documentedType.type : nullableParts?.length === 2 && nullableParts.some((part) => part.kind === 'name' && part.name.toLowerCase() === 'null')
+            ? nullableParts.find((part) => part.kind === 'name' && part.name.toLowerCase() !== 'null') : undefined;
+        const templateName = documentedType?.kind === 'name' ? documentedType.name
+          : nullableTemplate?.kind === 'name' ? nullableTemplate.name : undefined;
+        const documentedAllowsNull = documentedType?.kind === 'nullable' || Boolean(nullableParts);
         const container = parsed.declarations.find((declaration) => declaration.fqcn.toLowerCase() === property.containerFqcn.toLowerCase());
-        const templateBound = documentedType?.kind === 'name' && container
-          ? preferredDocTags(docBefore(container.declarationStart), (tag) => tag.name === 'template' && tag.variable === documentedType.name,
+        const templateBound = templateName && container
+          ? preferredDocTags(docBefore(container.declarationStart), (tag) => tag.name === 'template' && tag.variable === templateName,
             (tag) => tag.variable ?? '').at(-1)?.type : undefined;
         const refinesTemplateBound = templateBound?.kind === 'name'
-          && templateBound.name.replace(/^\\/, '').toLowerCase() === native;
+          && templateBound.name.replace(/^\\/, '').toLowerCase() === native
+          && (!documentedAllowsNull || property.type?.startsWith('?'));
         const collection = documentedType?.kind === 'array' || documentedType?.kind === 'shape'
           || ['array', 'list', 'non-empty-array', 'non-empty-list'].includes(documentedBase ?? '');
         const refinesNative = !property.type || native === 'mixed' || documentedBase === native || refinesTemplateBound
@@ -1453,7 +1461,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 79,
+      schema: 80,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -1547,7 +1555,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 79 || !declaration || !implementation
+    if (value?.schema !== 80 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -1603,7 +1611,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 79 || !declaration || !implementation
+    if (value?.schema !== 80 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
