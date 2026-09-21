@@ -18,3 +18,5 @@
 索引包 34 项测试、语言服务器首次/重载引用 4 项、相关 TypeScript 构建、正式 bundle、ESLint 与 diff 检查通过。原始记录位于 `/tmp/php-companion-prefetch128-{1-old,2-new,3-new,4-old,class-old,class-new}.{jsonl,log}`。未冻结或安装新版 VSIX。
 
 首次方法查询仍约 9 秒，Goal 继续。更大的预读窗口已接近文件/worker 并行准备的边界；下一步需针对声明候选的按需类型依赖与首次语义解析做结构性改进。
+
+后续一次临时入口计时（已撤回诊断代码）得到：`semanticForUri` 完成时为请求开始后 784 ms，路由调用探测后 787 ms，目标类型及其依赖加载后 1,225 ms；候选扫描 4,651 ms，容器与路由阶段重叠约 0.79 秒，事件判定 49 ms，首次语义 References 2,077 ms，请求总计 8,800 ms。入口约 0.78 秒包含解析器与内建 stub 初始化，并非重复扫描每个候选。单独解析 PHP 8.5 内建 stub 的语法事实约 460 ms、序列化约 2.67 MB；预编译它可能有帮助，但不能单独解决首次延迟。诊断样本在 `/tmp/php-companion-reference-setup-profile-2.{jsonl,log}`。
