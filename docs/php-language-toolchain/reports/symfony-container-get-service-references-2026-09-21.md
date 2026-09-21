@@ -21,6 +21,7 @@ Symfony 能力继续由 monorepo 内可独立安装和发布的 `sohophp.php-com
 - ESLint 全仓检查通过。
 - 功能提交：`462b3d4`。
 - Alpha 候选：`artifacts/php-companion-alpha-0.4.5-462b3d46/`；四份 VSIX 内容和 SHA-256 通过，Winstar PHP 8.5 与 CoreRepo PHP 7.2 的确定性 WSL preflight 通过。Extension Host 归属、竞争 Provider 禁用状态和两小时真实编辑仍须在 VS Code Alpha Profile 中人工确认。
+- VS Code 1.138.0 隔离打包双扩展宿主随后加入真实 `ContainerInterface::get()` fixture，验证服务 Definition、References、Completion、从 YAML/Attribute/容器字面量发起的 F2 Rename、单步 Undo，以及普通业务 `get()` 反例；Extension Host 以状态码 0 退出。
 
 真实 Winstar 只读搜索发现大量 Request、Session、配置、AWS Result 等对象的字面量 `get()`，但 `src/` 当前没有 PSR/Symfony ContainerInterface 接收者。这组代码作为重要负样本：新能力不会仅凭方法名和字符串内容把它们误识别为 Symfony 服务引用。
 

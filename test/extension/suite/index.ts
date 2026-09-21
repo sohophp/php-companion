@@ -379,6 +379,11 @@ export async function run(): Promise<void> {
   const attributeConsumerDocument = await vscode.workspace.openTextDocument(attributeConsumerUri);
   const attributeConsumerSource = attributeConsumerDocument.getText();
   const attributeServiceReferenceOffset = attributeConsumerSource.indexOf('app.mailer') + 4;
+  const containerConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ContainerConsumer.php');
+  const containerConsumerDocument = await vscode.workspace.openTextDocument(containerConsumerUri);
+  const containerConsumerSource = containerConsumerDocument.getText();
+  const containerServiceReferenceOffset = containerConsumerSource.indexOf('app.mailer') + 4;
+  const businessServiceReferenceOffset = containerConsumerSource.lastIndexOf('app.mailer') + 4;
   let xmlServiceDefinitions: vscode.Location[] = [];
   await waitForAsync(async () => {
     xmlServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
@@ -447,6 +452,28 @@ export async function run(): Promise<void> {
   );
   assert.ok(attributeServiceCompletionList.items.some((item) => item.label === 'app.mailer'),
     'Symfony Autowire Attribute completion did not return the authoritative service id');
+  const containerServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
+  );
+  assert.ok(containerServiceDefinitions.some((location) => location.uri.toString() === servicesUri.toString()
+    && servicesDocument.getText(location.range) === 'app.mailer'),
+  'Symfony ContainerInterface get() did not navigate to the authoritative service registration');
+  const containerServiceReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
+  );
+  assert.ok(containerServiceReferences.some((location) => location.uri.toString() === containerConsumerUri.toString()
+    && containerConsumerDocument.getText(location.range) === 'app.mailer'),
+  'Symfony ContainerInterface get() References missed its exact literal');
+  const containerServiceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', containerConsumerUri, containerConsumerDocument.positionAt(containerServiceReferenceOffset),
+  );
+  assert.ok(containerServiceCompletionList.items.some((item) => item.label === 'app.mailer'),
+    'Symfony ContainerInterface get() completion did not return the authoritative service id');
+  const businessDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', containerConsumerUri, containerConsumerDocument.positionAt(businessServiceReferenceOffset),
+  );
+  assert.ok(!businessDefinitions.some((location) => location.uri.toString() === servicesUri.toString()),
+    'Ordinary business get() was incorrectly treated as a Symfony service lookup');
   const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
   const serviceRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(yamlServiceIdOffset), 'app.renamed-mailer',
@@ -456,6 +483,7 @@ export async function run(): Promise<void> {
   assert.strictEqual(serviceRenameEdit.get(xmlServicesUri).length, 1, 'Symfony service ID Rename missed the XML reference');
   assert.strictEqual(serviceRenameEdit.get(phpServicesUri).length, 1, 'Symfony service ID Rename missed the PHP Configurator reference');
   assert.strictEqual(serviceRenameEdit.get(attributeConsumerUri).length, 1, 'Symfony service ID Rename missed the Autowire Attribute reference');
+  assert.strictEqual(serviceRenameEdit.get(containerConsumerUri).length, 1, 'Symfony service ID Rename missed the ContainerInterface get() reference');
   await vscode.window.showTextDocument(servicesDocument);
   assert.ok(await vscode.workspace.applyEdit(serviceRenameEdit), 'Symfony service ID Rename edit could not be applied');
   assert.strictEqual(servicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 2, 'Symfony service ID Rename changed the wrong YAML ranges');
@@ -463,11 +491,14 @@ export async function run(): Promise<void> {
   assert.strictEqual(phpServicesDocument.getText().match(/app\.renamed-mailer/g)?.length, 1, 'Symfony service ID Rename changed the wrong PHP range');
   assert.strictEqual(attributeConsumerDocument.getText().match(/app\.renamed-mailer/g)?.length, 1,
     'Symfony service ID Rename changed the wrong Autowire Attribute range');
+  assert.strictEqual(containerConsumerDocument.getText().match(/app\.renamed-mailer/g)?.length, 1,
+    'Symfony service ID Rename changed the business get() or missed the ContainerInterface get() range');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => servicesDocument.getText().includes('app.mailer:')
     && xmlServicesDocument.getText().includes('id="app.mailer"')
     && phpServicesDocument.getText().includes("service('app.mailer')")
-    && attributeConsumerDocument.getText().includes("service: 'app.mailer'"),
+    && attributeConsumerDocument.getText().includes("service: 'app.mailer'")
+    && containerConsumerDocument.getText().match(/app\.mailer/g)?.length === 2,
   'Symfony service ID Rename could not be undone as one workspace edit');
   const attributeRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', attributeConsumerUri,
@@ -479,6 +510,14 @@ export async function run(): Promise<void> {
   assert.strictEqual(attributeRenameEdit.get(xmlServicesUri).length, 1, 'Autowire Attribute F2 Rename missed the XML reference');
   assert.strictEqual(attributeRenameEdit.get(phpServicesUri).length, 1, 'Autowire Attribute F2 Rename missed the PHP Configurator reference');
   assert.strictEqual(attributeRenameEdit.get(attributeConsumerUri).length, 1, 'Autowire Attribute F2 Rename missed its source literal');
+  assert.strictEqual(attributeRenameEdit.get(containerConsumerUri).length, 1, 'Autowire Attribute F2 Rename missed the ContainerInterface get() literal');
+  const containerRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
+    'vscode.executeDocumentRenameProvider', containerConsumerUri,
+    containerConsumerDocument.positionAt(containerServiceReferenceOffset), 'app.container-renamed',
+  );
+  assert.ok(containerRenameEdit, 'Standard F2 Rename returned no edit from ContainerInterface get()');
+  assert.strictEqual(containerRenameEdit.get(containerConsumerUri).length, 1,
+    'ContainerInterface get() F2 Rename changed the business get() or missed its source literal');
   const serviceCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(serviceReferenceOffset),
   );
