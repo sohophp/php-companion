@@ -1,3 +1,4 @@
+- Keep `onDemand` reload and standalone Symfony provider registration free of full project indexing; satisfy Twig interop with a bounded cached scan of exact `render` identifier candidates and targeted PSR-4 type hydration.
 - Include exact project `#[Autowire(service: '...')]` literals in Symfony service Definition, References, completion and atomic Rename through a bounded cached project-source scan; refuse partial edits when that scan is incomplete.
 - Preserve cached static Symfony route snapshots when unrelated PHP documents open, change, or close, while retaining conservative invalidation for route-bearing sources and uncertain deletions; label source-less runtime route completions accurately.
 - Include exact YAML/XML/PHP service-id usages in PHP class References when an authoritative unique service registration maps the id to that class.
@@ -18,7 +19,7 @@
 - Remove the in-process Symfony Controller/Twig analyzer and its persistent facts; controller contexts now require the standalone provider, including for new open files, and cache schema 4/v52 rejects snapshots that still embed framework contexts.
 - Rebuild persistent PHP project facts with cache version v51 so literal Doctrine `Entity(repositoryClass: ...)` bindings are available after an upgrade instead of retaining an older incomplete framework snapshot.
 - Resolve exact Symfony YAML controller segments to unique Composer PHP class or effective public method declarations through a source-snapshot request, while yielding to external runtime-provider ownership.
-- Start the bounded project-source index when Twig interop is first requested in `onDemand` mode; dependency-complete indexing remains exclusive to `experimental` mode.
+- Start a bounded controller-candidate scan when Twig interop is first requested in `onDemand` mode; full project and dependency indexing remains exclusive to explicit semantic operations and `experimental` mode respectively.
 - Merge exact Symfony YAML and explicitly configured route-provider controller locations into PHP class and effective public method References while honoring external runtime-provider ownership.
 - Deduplicate identical route-source traversal contexts reached through both conventional and Kernel roots while preserving intentional reimports with different prefixes, loaders or exclusions.
 - Complete source-declared routes from deterministic PHP Configurator files and unconditional custom Kernel roots, including contained `@Bundle/...` PHP resources whose universal registration and conventional path are proven.

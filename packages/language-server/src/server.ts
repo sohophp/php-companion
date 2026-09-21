@@ -773,7 +773,18 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
   if (removed.length) for (const candidate of semanticWorkspaces.values()) {
     const workspace = await candidate; for (const provider of removed) workspace.removeExternalFacts(provider.providerId);
   }
-  if (workspaceFolderRoots.length) await startIndexWorkspace();
+  const capabilityChanged = (select: (provider: SemanticProviderDescriptor) => boolean): boolean =>
+    JSON.stringify(previous.filter(select)) !== JSON.stringify(semanticProviders.filter(select));
+  const containerChanged = capabilityChanged((provider) => provider.replacesContainerServices === true);
+  const eventsChanged = capabilityChanged((provider) => provider.replacesEventRelations === true);
+  const contextsChanged = capabilityChanged((provider) => provider.replacesControllerContexts === true);
+  if (containerChanged || eventsChanged || contextsChanged) for (const root of workspaceRoots) {
+    const workspace = await semanticForRoot(root);
+    if (containerChanged) clearContainerFacts(root, workspace);
+    if (eventsChanged) externalSymfonyEventsByRoot.delete(root);
+    if (contextsChanged) { interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root); }
+  }
+  if (workspaceFolderRoots.length && indexingMode === 'experimental') await startIndexWorkspace('semantic-provider-change');
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 }
 let semanticProviderReconciliation = Promise.resolve();
@@ -1063,11 +1074,12 @@ function namedInteropTypes(type: SerializedPhpType): string[] {
   return type.kind === 'union' || type.kind === 'intersection' ? type.types.flatMap(namedInteropTypes) : [];
 }
 
-function interopTypes(workspace: SemanticWorkspace, contexts: ControllerTemplateContext[]): Record<string, PhpInteropType> {
+async function interopTypes(workspace: SemanticWorkspace, root: string, contexts: ControllerTemplateContext[]): Promise<Record<string, PhpInteropType>> {
   const pending = contexts.flatMap((context) => context.variables.flatMap((variable) => namedInteropTypes(variable.type)));
   const result: Record<string, PhpInteropType> = {};
   while (pending.length && Object.keys(result).length < 250) {
     const fqcn = pending.shift()!; if (result[fqcn]) continue;
+    await hydrateCanonicalTypes(workspace, root, [fqcn]);
     const declaration = workspace.typeByFqcn(fqcn); if (!declaration) continue;
     const members = workspace.publicTypeMembers(fqcn).flatMap((member) => {
       if (member.kind !== 'method' && member.kind !== 'property') return [];
@@ -1582,7 +1594,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
       }
@@ -1688,6 +1700,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
+const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string): void {
   const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
 }
@@ -1781,6 +1794,64 @@ async function scanSymfonyAutowireServiceReferences(root: string, serviceId: str
       .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
     symfonyAutowireReferenceQueries.set(key, { epoch, references: unique });
     return unique;
+  } finally { progress?.done(); }
+}
+
+async function ensureOnDemandControllerContexts(root: string, cancelled: () => boolean, retries = 2): Promise<boolean> {
+  const providers = semanticProviders.filter((provider) => provider.replacesControllerContexts);
+  if (providers.length !== 1) { interopContextsByRoot.delete(root); return providers.length === 0; }
+  const epoch = projectEpochs.get(root) ?? 0;
+  if (controllerContextScanEpochs.get(root) === epoch) return true;
+  const workspace = await semanticForRoot(root);
+  const scopes = new Map<string, { uri: string; source: string; snapshotVersion: string }>();
+  const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
+  progress?.begin('Finding Symfony controller contexts', 0, 'Scanning project render calls', true);
+  try {
+    const scan = await indexComposerSources(root, {
+      project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
+      shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true,
+      uriForPath: (file) => indexedUriForPath(root, file),
+      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
+      onSource: ({ uri, source }) => {
+        const summary = createSourceCandidateSummary(source);
+        const open = documents.get(uri); const effective = open?.getText() ?? source;
+        const effectiveSummary = open ? createSourceCandidateSummary(effective) : summary;
+        if (sourceCandidateSummaryDecision(effectiveSummary, new Set(['render']), 'symbol') === 'source') {
+          workspace.update(uri, effective, Boolean(open));
+          scopes.set(uri, { uri, source: effective, snapshotVersion: String(open?.version ?? indexingGeneration) });
+        }
+        return summary;
+      },
+      cache: cacheDirectory ? {
+        directory: cacheDirectory, key: 'source-candidates', version: 'source-candidates-v1',
+        restore: (payload): boolean | 'source' => {
+          const decision = sourceCandidateSummaryDecision(payload, new Set(['render']), 'symbol');
+          return decision === 'skip' ? true : decision === 'source' ? 'source' : false;
+        },
+      } : undefined,
+    });
+    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller context search cancelled.');
+    if (!scan.projectComplete || cancelled()) return false;
+    for (const document of documents.all().filter((item) => item.languageId === 'php' && rootForUri(item.uri) === root)) {
+      const source = document.getText();
+      if (sourceCandidateSummaryDecision(createSourceCandidateSummary(source), new Set(['render']), 'symbol') === 'source') {
+        workspace.update(document.uri, source, true);
+        scopes.set(document.uri, { uri: document.uri, source, snapshotVersion: String(document.version) });
+      } else scopes.delete(document.uri);
+    }
+    if ((projectEpochs.get(root) ?? 0) !== epoch) {
+      await applyPendingFiles();
+      return retries > 0 ? ensureOnDemandControllerContexts(root, cancelled, retries - 1) : false;
+    }
+    const candidates = [...scopes.values()].sort((left, right) => left.uri.localeCompare(right.uri));
+    if (candidates.length && !await runControllerContextProvider(root, indexingGeneration, workspace, () => !cancelled(), candidates)) return false;
+    const candidateUris = new Set(candidates.map((candidate) => candidate.uri));
+    const current = interopContextsByRoot.get(root);
+    for (const uri of current?.keys() ?? []) if (!candidateUris.has(uri)) current!.delete(uri);
+    if (!candidates.length || current?.size === 0) interopContextsByRoot.delete(root);
+    controllerContextScanEpochs.set(root, epoch);
+    connection.console.info(`[controller-context-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates.length}`);
+    return true;
   } finally { progress?.done(); }
 }
 
@@ -2266,27 +2337,24 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
   })) };
 });
 
-connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }): Promise<ControllerContextPayload | null> => {
+connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }, token): Promise<ControllerContextPayload | null> => {
   if (typeof params?.rootUri !== 'string') return null;
   const requestedPath = pathForUri(params.rootUri);
   const root = requestedPath && workspaceRoots.find((candidate) => sameFilesystemPath(candidate, requestedPath));
   if (!root) return null;
+  const workspace = await semanticForRoot(root);
   const ready = indexingMode === 'experimental'
-    ? await ensureCompleteRoot(root, () => false)
-    : await ensureProjectCompleteRoot(root, () => false);
+    ? await ensureCompleteRoot(root, () => token.isCancellationRequested)
+    : indexingMode === 'onDemand'
+      ? await ensureOnDemandControllerContexts(root, () => token.isCancellationRequested)
+      : false;
   if (!ready) return null;
-  // Project completion is signalled before indexRoot publishes its derived
-  // controller-context snapshot. In on-demand mode, wait for that bounded
-  // project scan to finish so the first interop response is complete.
-  if (indexingMode !== 'experimental') await activeIndexing?.catch(() => undefined);
-  if (!projectCompleteRoots.has(root)) return null;
   const projectId = indexedUriForPath(root, root);
   const contexts = mergedInteropContexts(root);
-  const workspace = await semanticForRoot(root);
   return {
     hello: { protocolVersion: INTEROP_PROTOCOL_VERSION, providerId: 'php-companion', projectId, snapshotVersion: String(indexingGeneration), capabilities: ['controller-contexts', 'php-symbols', 'definitions', 'invalidation', 'rename-prepare'] },
     contexts,
-    types: interopTypes(workspace, contexts),
+    types: await interopTypes(workspace, root, contexts),
   };
 });
 
@@ -3672,6 +3740,7 @@ connection.onShutdown(async () => {
   projectCompleteWaiters.clear();
   projectIndexedUrisByRoot.clear();
   symfonyAutowireReferenceQueries.clear();
+  controllerContextScanEpochs.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
 });

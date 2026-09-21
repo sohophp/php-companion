@@ -124,8 +124,15 @@ describe('language server stdio', () => {
       } }));
       await output.waitFor((message) => message.id === 230);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const provider = join(root, 'controller-provider.mjs');
+      await writeFile(provider, "process.stdout.write(JSON.stringify({protocolVersion:1,id:'unused',result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:'0',complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:[]}}));");
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [{
+        providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+        requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true,
+      }] } }));
       await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 250));
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed '))).toBe(false);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
@@ -4622,19 +4629,20 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 62, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'onDemand' },
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'experimental' },
       } }));
       await output.waitFor((message) => message.id === 62);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), 20_000);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [
         { providerId: 'vendor.symfony.services', command: process.execPath, args: [provider], timeoutMs: 1000 },
       ] } }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('vendor.symfony.services committed'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('vendor.symfony.services committed'), 20_000);
       const position = lspPosition(source, source.indexOf('plug') + 4);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 63, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
-      expect((await output.waitFor((message) => message.id === 63)).result).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+      expect((await output.waitFor((message) => message.id === 63, 20_000)).result).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
@@ -4993,21 +5001,26 @@ final class Dispatching { public function __construct(private EventDispatcherInt
       await mkdir(join(root, 'src')); await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       const path = join(root, 'src', 'PageController.php'); const uri = pathToFileURL(path).toString();
       const source = "<?php namespace App; final class PageController { public function show(User $user): void { $this->render('core.html.twig', ['user' => $user]); } }";
-      await writeFile(path, source); const provider = join(root, 'controllers.mjs');
+      await writeFile(path, source);
+      await writeFile(join(root, 'src', 'User.php'), '<?php namespace App; final class User { public function getName(): string { return \'name\'; } }');
+      await writeFile(join(root, 'src', 'Unrelated.php'), '<?php namespace App; final class Unrelated { public function surrender(): void {} }');
+      const provider = join(root, 'controllers.mjs');
       await writeFile(provider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const document=request.params.documents?.find((item)=>item.languageId==='php');const target=type??(document?{uri:document.uri,start:document.source.indexOf('class ')+6,end:document.source.indexOf(' {',document.source.indexOf('class '))}:undefined);const edited=document?.source.includes('edited.html.twig');const created=document?.source.includes('new-core.html.twig');const location=target?{uri:target.uri,start:target.start,end:target.end,snapshotVersion:request.params.generation}:undefined;process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:Boolean(target),methods:[],properties:[],literalMethodReturns:[],controllerContexts:target?[{template:created?'new-provider.html.twig':edited?'edited-provider.html.twig':'provider.html.twig',complete:true,variables:[{name:'user',type:{kind:'named',name:'App\\\\User'},optional:false}],sources:[{symbol:'App\\\\PageController::show',location}]}]:[]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 663, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
           { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
             requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
-        ] },
+        ], indexingMode: 'onDemand' },
       } }));
       await output.waitFor((message) => message.id === 663); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('authoritative controller contexts'), 10_000);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 664, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
       expect((await output.waitFor((message) => message.id === 664)).result).toMatchObject({ contexts: [{ template: 'provider.html.twig',
-        variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }], sources: [{ symbol: 'App\\PageController::show' }] }] });
+        variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }], sources: [{ symbol: 'App\\PageController::show' }] }],
+      types: { 'App\\User': { members: [expect.objectContaining({ name: 'name', kind: 'property' })] } } });
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[controller-context-candidates] files=3 cached=0 parsed=1'))).toBe(true);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
       const edited = source.replace('core.html.twig', 'edited.html.twig');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 2, text: edited } } }));
       await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated' && message.params.changedUris.includes(uri));
