@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { mergeControllerContexts } from '@php-companion/interop';
-import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlParameterDeclarations, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
+import { analyzeSymfonyBundleRegistrations, analyzeSymfonyContainerXml, analyzeSymfonyControllerContexts, analyzeSymfonyEventDispatches, analyzeSymfonyEventSubscriptions, analyzeSymfonyInheritedEventListenerAttributes, analyzeSymfonyInheritedEventSubscriptions, analyzeSymfonyServicePhp, analyzeSymfonyServiceXml, analyzeSymfonyServiceYaml, expandSymfonyServiceResources, resolveSymfonyAutowireTarget, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, symfonyContainerMethodReturnFacts, symfonyPhpParameterDeclarations, symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, symfonyPhpParameterReferences, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyXmlParameterDeclarations, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterDeclarations, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences } from '../src/index.js';
 import type { SymfonyServiceClassCandidate } from '../src/index.js';
 
 describe('static Symfony Controller context analysis', () => {
@@ -748,6 +748,31 @@ services:
     expect(symfonyPhpServiceReferencePrefixAt(parser, source, source.indexOf('Mailer::class') + 3)).toBeUndefined();
     expect(symfonyPhpServiceReferenceAt(parser, source, source.indexOf("set('app.consumer')") + 7)).toBeUndefined();
     expect(symfonyPhpServiceReferences(parser, source.replace('ContainerConfigurator $container', 'object $container'))).toEqual([]);
+  });
+
+  it('locates parameters only in a proven PHP Configurator closure', () => {
+    const source = `<?php
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\param;
+      return static function (ContainerConfigurator $container): void {
+        $parameters = $container->parameters();
+        $parameters->set('app.transport', 'private');
+        $container->parameters()->set('app.host', 'localhost');
+        $container->services()->set('consumer')->args([param('app.transport'), param('app.host')]);
+      };`;
+    const declarations = symfonyPhpParameterDeclarations(parser, source);
+    expect(declarations.map((item) => item.value)).toEqual(['app.transport', 'app.host']);
+    const references = symfonyPhpParameterReferences(parser, source);
+    expect(references.map((item) => item.value)).toEqual(['app.transport', 'app.host']);
+    expect(symfonyPhpParameterReferenceAt(parser, source, source.lastIndexOf('app.transport') + 4)).toEqual(references[0]);
+    expect(symfonyPhpParameterReferenceAt(parser, source, source.indexOf('app.transport') + 4)).toBeUndefined();
+    expect(symfonyPhpParameterReferencePrefixAt(parser, source, source.lastIndexOf('app.transport') + 'app.tra'.length)).toEqual({
+      prefix: 'app.tra', start: source.lastIndexOf('app.transport'), end: source.lastIndexOf('app.transport') + 'app.transport'.length,
+    });
+    expect(symfonyPhpParameterReferences(parser, source.replace('use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\param;', ''))).toEqual([]);
+    expect(symfonyPhpParameterDeclarations(parser, source.replace('ContainerConfigurator $container', 'object $container'))).toEqual([]);
+    const reassigned = source.replace("$parameters->set('app.transport', 'private');", "$parameters = business();\n        $parameters->set('app.transport', 'private');");
+    expect(symfonyPhpParameterDeclarations(parser, reassigned).map((item) => item.value)).toEqual(['app.host']);
   });
 
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
