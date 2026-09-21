@@ -5821,6 +5821,29 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$ambiguous($input)') + '$ambiguous('.length)).toEqual([]);
     expect(workspace.signatures('file:///InvokableObjectContracts.php', source.indexOf('$hidden($input)') + '$hidden('.length)).toEqual([]);
   });
+  it('resolves callable results within their source range after unrelated syntax', () => {
+    const uri = 'file:///RangedCallable.php';
+    const source = `<?php namespace RangedCallable;
+      class Result { public function done(): void {} }
+      class Other { public function wrong(): void {} }
+      function unrelated() { $factory = fn() => new Other(); $unused = $factory(); }
+      /** @param callable():Result $factory */
+      function consume(callable $factory): void {
+        $label = "中文";
+        $result = $factory();
+        $result->done();
+      }
+      function after() { $factory = fn() => new Other(); $unused = $factory(); }
+    `;
+    workspace.update(uri, source);
+    const offset = source.indexOf('$result->done') + '$result->'.length;
+    expect(workspace.definition(uri, offset + 1)).toMatchObject([
+      { uri, start: source.indexOf('done()'), end: source.indexOf('done()') + 4, fqcn: 'RangedCallable\\Result::done' },
+    ]);
+    expect(workspace.references(uri, offset + 1, false)).toEqual([
+      { uri, start: offset, end: offset + 4 },
+    ]);
+  });
   it('uses precise instance and static callable-array contracts for variable calls', () => {
     const source = `<?php declare(strict_types=1); namespace CallableArrayContracts;
       class Input {} class Result { public function done(): void {} }

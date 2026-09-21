@@ -196,7 +196,7 @@ describe('bounded Composer indexing', () => {
         function delegated(): \\Generator { yield from [new Item(), new Item()]; }
         /** @param iterable<string, Item> $items */
         function forwarded(iterable $items) { yield from $items; }
-        function implicit() { yield new Item(); }
+        function implicit() { YIELD new Item(); }
         function nested(): \\Generator { $inner = function () { yield new Other(); }; yield new Item(); }
         /** @return \\Generator<int, Item, mixed, Result> */
         function documented(): \\Generator { yield unknown_value(); }

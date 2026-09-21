@@ -389,9 +389,10 @@ function deepestLocalSyntax(root: SyntaxNode, start: number, end: number, predic
   return traversal.complete ? result : undefined;
 }
 
-function firstLocalSyntax(root: SyntaxNode, predicate: (node: SyntaxNode) => boolean): SyntaxNode | undefined {
+function firstLocalSyntax(root: SyntaxNode, predicate: (node: SyntaxNode) => boolean, range?: { start: number; end: number }): SyntaxNode | undefined {
   let result: SyntaxNode | undefined;
   const traversal = walkLocalSyntax(root, (node) => {
+    if (range && (node.endIndex < range.start || node.startIndex > range.end)) return 'skip';
     if (!predicate(node)) return 'descend';
     result = node;
     return 'stop';
@@ -9507,6 +9508,7 @@ export class SemanticWorkspace {
   private inferredGeneratorReturnType(file: SemanticFile, callable: ParsedCallableDeclaration): string | undefined {
     const declared = callable.returnType?.trim();
     if (declared && declared.replace(/^\\/, '').toLowerCase() !== 'generator') return undefined;
+    if (!/\byield\b/i.test(file.source.slice(callable.declarationStart, callable.declarationEnd))) return undefined;
     const inferenceKey = `${file.uri}:${callable.fqcn.toLowerCase()}`;
     if (this.generatorInferenceInProgress.has(inferenceKey)) return undefined;
     const retainedTree = this.trees.get(file.uri);
@@ -9515,7 +9517,8 @@ export class SemanticWorkspace {
     this.generatorInferenceInProgress.add(inferenceKey);
     try {
       const declaration = firstLocalSyntax(tree.rootNode, (node) => node.startIndex === callable.declarationStart
-        && node.endIndex === callable.declarationEnd && (node.type === 'function_definition' || node.type === 'method_declaration'));
+        && node.endIndex === callable.declarationEnd && (node.type === 'function_definition' || node.type === 'method_declaration'),
+        { start: callable.declarationStart, end: callable.declarationEnd });
       if (!declaration) return undefined;
       const keys: PhpType[] = []; const values: PhpType[] = []; let invalid = false; let sawYield = false;
       const traversal = walkLocalSyntax(declaration, (node) => {
@@ -10166,7 +10169,7 @@ export class SemanticWorkspace {
     try {
       const call = firstLocalSyntax(tree.rootNode, (node) => node.endIndex >= start && node.startIndex <= end
         && node.startIndex >= start && node.endIndex <= end && node.type === 'function_call_expression'
-        && node.childForFieldName('function')?.type === 'variable_name');
+        && node.childForFieldName('function')?.type === 'variable_name', { start, end });
       const functionNode = call?.childForFieldName('function');
       if (functionNode?.type !== 'variable_name') return undefined;
       variable = functionNode.text; callStart = call!.startIndex; callEnd = call!.endIndex;
