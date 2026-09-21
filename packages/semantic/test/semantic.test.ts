@@ -17,6 +17,22 @@ describe('conservative semantic workspace', () => {
     expect(restored.definition(uri, source.indexOf('CacheRoundTrip') + 1)).toEqual(workspace.definition(uri, source.indexOf('CacheRoundTrip') + 1));
     restored.dispose();
   });
+  it('matches ordered workspace facts when syntax was prepared on another thread', () => {
+    const eager = new SemanticWorkspace(parser); const prepared = new SemanticWorkspace(parser);
+    const declarationUri = 'file:///PreparedBase.php'; const useUri = 'file:///PreparedUse.php';
+    const declaration = '<?php namespace App; class Base { public function get(): string { return "ok"; } }';
+    const use = '<?php namespace App; class Child extends Base { function run(): string { if (true) { $value = $this->get(); } return $value; } }';
+    try {
+      eager.updateDeclarations(declarationUri, declaration);
+      prepared.updatePrepared(declarationUri, declaration, structuredClone(parser.prepare(declaration, declarationUri, true)));
+      eager.update(useUri, use);
+      prepared.updatePrepared(useUri, use, structuredClone(parser.prepare(use, useUri, false)));
+      expect(prepared.snapshot(useUri)).toEqual(eager.snapshot(useUri));
+      expect(prepared.snapshot(declarationUri)).toEqual(eager.snapshot(declarationUri));
+      expect(prepared.definition(useUri, use.indexOf('get();') + 1)).toEqual(eager.definition(useUri, use.indexOf('get();') + 1));
+      expect(prepared.references(declarationUri, declaration.indexOf('get()') + 1)).toEqual(eager.references(declarationUri, declaration.indexOf('get()') + 1));
+    } finally { eager.dispose(); prepared.dispose(); }
+  });
   it('completes only proven parameter and this members across open files', () => {
     workspace.update('file:///User.php', '<?php namespace App; class User { public function name(): string {} public function rename(string $name): void {} }');
     const source = '<?php namespace App\\Controller; use App\\User; class C { function show(User $user): void { $user->na } }';

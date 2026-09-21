@@ -47,6 +47,7 @@ import { runRouteProvider } from '@php-companion/route-provider-host';
 import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile, decompressCachedProjectPhpFile,
   restoreCachedProjectPhpFile, restoreCachedSourceDeclaration, type ProjectPhpFileFacts } from './projectFacts.js';
 import { CallableFactCache } from './callableFactsCache.js';
+import { CandidateWorkers, type PreparedCandidate } from './candidateWorkers.js';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -744,14 +745,18 @@ function configuredDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
   });
 }
 
-function parser(): Promise<PhpSyntaxParser> {
+function parserPaths(): PhpParserPaths | undefined {
   const option = (name: string): string | undefined => {
     const index = process.argv.indexOf(name);
     return index >= 0 ? process.argv[index + 1] : undefined;
   };
   const coreWasmPath = option('--parser-core-wasm');
   const phpWasmPath = option('--php-wasm');
-  const paths: PhpParserPaths | undefined = coreWasmPath && phpWasmPath ? { coreWasmPath, phpWasmPath } : undefined;
+  return coreWasmPath && phpWasmPath ? { coreWasmPath, phpWasmPath } : undefined;
+}
+const candidateWorkers = new CandidateWorkers(parserPaths());
+function parser(): Promise<PhpSyntaxParser> {
+  const paths = parserPaths();
   parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault();
   return parserPromise;
 }
@@ -1746,24 +1751,31 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
-  const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0;
+  const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0;
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
   const scan = await indexComposerSources(root, { project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
-    onSource: ({ uri, source, hash }) => {
+    prepareSource: deferBodies ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies }) : undefined,
+    onSource: ({ uri, source, hash, prepared }) => {
       const open = documents.get(uri); const effective = open?.getText() ?? source;
-      const summary = createSourceCandidateSummary(source);
-      const matches = mode === 'named-argument'
+      const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
+        && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
+      const summary = candidate?.summary ?? createSourceCandidateSummary(source);
+      const matches = candidate?.matches ?? (mode === 'named-argument'
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
-        : normalizedNames.some((name) => effective.toLowerCase().includes(name));
+        : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
       const declarationsOnly = matches && deferBodies && !open && mode === 'symbol'
         && sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
       if (matches) {
-        if (declarationsOnly) { workspace.updateDeclarations(uri, effective); declarationCandidates += 1; }
+        if (candidate?.facts && candidate.facts.kind === (declarationsOnly ? 'declarations' : 'full')) {
+          workspace.updatePrepared(uri, effective, candidate.facts); preparedCandidates += 1;
+        }
+        else if (declarationsOnly) workspace.updateDeclarations(uri, effective);
         else workspace.update(uri, effective, Boolean(open));
+        if (declarationsOnly) declarationCandidates += 1;
         candidates += 1;
       }
       const snapshot = matches && !declarationsOnly && effective === source ? workspace.snapshotForPersistence(uri) : undefined;
@@ -1801,7 +1813,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
-  connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} elapsedMs=${Date.now() - started}`);
+  connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {

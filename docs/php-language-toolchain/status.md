@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 首次 References 有界并行语法准备：冷缓存候选由至多四个工作线程解析，再按路径顺序提交语义事实；热缓存跳过线程，失败时回退原解析。Winstar 同轮旧/新冷 References 为 21.427/15.256 秒，Reload 首次为 8.682/8.532 秒，四轮均返回相同 112 处完整位置；2,280 文件中 1,648 个候选通过线程准备。Parser 75、Index 30、Semantic 284、Language Server 全套 200 项、独立 24 tarball、构建/ESLint、核心 VSIX 内容校验均通过；正式打包服务器单独冷查询 15.145 秒且位置相同。尚未冻结新 Alpha 候选或完成用户 WSL Profile 持续编辑验收，速度仍待降低。证据见 [并行准备候选语法](reports/parallel-reference-preparation-2026-09-21.md)。
+
 2026-09-21 首次 References 节点筛选与声明索引：减少完整解析的 JavaScript 节点访问、候选名称重复归一化和类型查找的全工作区声明汇总。Winstar 2,278 文件全部解析事实及候选摘要与基线零差异；同配置旧/新冷 References 为 22.519/20.380 秒，Reload 首次为 9.287/8.704 秒，均为相同 112 处完整位置。Parser 74、Index 29、Semantic 283、缓存 4 项、关键 LSP 7 项、构建/ESLint 和 24 个独立 tarball 通过。未冻结新 VSIX，延迟尚未达标。证据见 [语法节点筛选与声明索引查找](reports/selected-syntax-reference-lookups-2026-09-21.md)。
 
 2026-09-21 首次 References 延迟方法体：保留完整候选和继承声明，只为需要的文件构建方法体事实，并保存经过校验的独立声明缓存。Winstar 2,278 文件声明与完整解析零差异；同机旧/新冷 References 为 27.944/23.151 秒，当前 Reload 首次为 9.333 秒，均为相同 112 处完整位置。Parser 73、Semantic 282、缓存 4 项、关键 LSP 7 项、改动 ESLint、受影响包构建及 24 个独立 tarball 消费通过。本轮沿用短验证循环、未重新冻结 VSIX；冷查询及 Reload 延迟仍待降低。证据见 [声明提取与延迟方法体](reports/deferred-reference-declarations-2026-09-21.md)。

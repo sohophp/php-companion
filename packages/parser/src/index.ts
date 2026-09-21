@@ -229,6 +229,32 @@ export interface ParsedPhpDocument {
 export type ParsedPhpDeclarationDocument = Pick<ParsedPhpDocument,
   'namespace' | 'declarations' | 'callables' | 'properties' | 'constants' | 'imports' | 'commentRanges' | 'tree'>;
 
+/** Tree-free facts that can cross a worker boundary. The consumer owns source identity. */
+export type PreparedPhpDocument =
+  | { kind: 'full'; facts: Omit<ParsedPhpDocument, 'tree'>; controlFlowAssignments: number[] }
+  | { kind: 'declarations'; facts: Omit<ParsedPhpDeclarationDocument, 'tree'>; controlFlowAssignments: [] };
+
+export function controlFlowAssignmentStarts(tree: Tree, assignments: ParsedAssignment[]): number[] {
+  const controlNodes = new Set(['if_statement', 'switch_statement', 'try_statement', 'while_statement', 'do_statement', 'for_statement', 'foreach_statement']);
+  const scopeBoundaries = new Set(['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function']);
+  const assignmentStarts = [...new Set(assignments.map((assignment) => assignment.start))].sort((left, right) => left - right);
+  const containsAssignment = (start: number, end: number): boolean => {
+    let low = 0; let high = assignmentStarts.length;
+    while (low < high) { const middle = (low + high) >>> 1; if (assignmentStarts[middle]! < start) low = middle + 1; else high = middle; }
+    return low < assignmentStarts.length && assignmentStarts[low]! < end;
+  };
+  const controlFlowAssignments = new Set<number>();
+  const pending: Array<{ node: SyntaxNode; inControlFlow: boolean }> = [{ node: tree.rootNode, inControlFlow: false }];
+  while (pending.length) {
+    const current = pending.pop()!;
+    if (!containsAssignment(current.node.startIndex, current.node.endIndex)) continue;
+    if (current.node.type === 'assignment_expression' && current.inControlFlow) controlFlowAssignments.add(current.node.startIndex);
+    const childInControlFlow = scopeBoundaries.has(current.node.type) ? false : current.inControlFlow || controlNodes.has(current.node.type);
+    for (const child of current.node.namedChildren) pending.push({ node: child, inControlFlow: childInControlFlow });
+  }
+  return [...controlFlowAssignments];
+}
+
 export interface PhpParserPaths {
   coreWasmPath: string;
   phpWasmPath: string;
@@ -395,6 +421,16 @@ export class PhpSyntaxParser {
     const { namespace, declarations, callables, properties, constants, imports, commentRanges, tree } =
       this.parseDocument(source, undefined, documentIdentity, true);
     return { namespace, declarations, callables, properties, constants, imports, commentRanges, tree };
+  }
+
+  prepare(source: string, documentIdentity: string, declarationsOnly: boolean): PreparedPhpDocument {
+    if (declarationsOnly) {
+      const { tree, ...facts } = this.parseDeclarations(source, documentIdentity);
+      tree.delete(); return { kind: 'declarations', facts, controlFlowAssignments: [] };
+    }
+    const { tree, ...facts } = this.parse(source, undefined, documentIdentity);
+    try { return { kind: 'full', facts, controlFlowAssignments: controlFlowAssignmentStarts(tree, facts.assignments) }; }
+    finally { tree.delete(); }
   }
 
   private parseDocument(source: string, oldTree?: Tree, documentIdentity = '', declarationsOnly = false): ParsedPhpDocument {

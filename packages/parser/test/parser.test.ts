@@ -35,6 +35,22 @@ describe('@php-companion/parser', () => {
     expect(result.declarations).toMatchObject([{ name: 'Clock', fqcn: 'App\\Clock', kind: 'interface' }]);
     result.tree.delete();
   });
+  it('prepares transferable full and declaration facts with the same source positions', () => {
+    const source = '<?php namespace App; class Factory { function make(string $x): string { if ($x) { $result = $x; } return $result; } }';
+    const full = parser.parse(source, undefined, 'file:///Prepared.php');
+    const prepared = structuredClone(parser.prepare(source, 'file:///Prepared.php', false));
+    const declarations = structuredClone(parser.prepare(source, 'file:///Prepared.php', true));
+    try {
+      expect(prepared.kind).toBe('full');
+      if (prepared.kind !== 'full') return;
+      const { tree, ...facts } = full;
+      expect(tree).toBeDefined();
+      expect(prepared.facts).toEqual(facts);
+      expect(prepared.controlFlowAssignments).toContain(source.indexOf('$result ='));
+      expect(declarations.kind).toBe('declarations');
+      if (declarations.kind === 'declarations') expect(declarations.facts.declarations).toEqual(facts.declarations);
+    } finally { full.tree.delete(); }
+  });
   it.each([
     '<?php namespace App; /** @template T */ class C { public function __construct(public readonly int $id) {} public function run(): void { if (true) { function nested(): int { return 1; } class Nested extends C {} } $obj = new class extends C { public function own(): string { return "ok"; } }; } }',
     '<?php namespace A { use X\\Y; trait T { public string $value { get => "x"; set { $this->value = $value; } } } } namespace B { enum E: string { case A = "a"; } }',

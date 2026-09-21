@@ -1,4 +1,4 @@
-import { namespaceDeclarations, createIncrementalEdit, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
+import { namespaceDeclarations, createIncrementalEdit, controlFlowAssignmentStarts, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, type PhpDocTag, type PhpDocType } from '@php-companion/phpdoc';
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
@@ -1104,17 +1104,27 @@ export class SemanticWorkspace {
     return this.updateSource(uri, source, false, true);
   }
 
-  private updateSource(uri: string, source: string, retainTree: boolean, deferImplementation: boolean): SemanticUpdateResult {
+  /** Apply syntax facts prepared off-thread; declaration enrichment remains ordered on this workspace. */
+  updatePrepared(uri: string, source: string, prepared: PreparedPhpDocument): SemanticUpdateResult {
+    return this.updateSource(uri, source, false, prepared.kind === 'declarations', prepared);
+  }
+
+  private updateSource(uri: string, source: string, retainTree: boolean, deferImplementation: boolean,
+    prepared?: PreparedPhpDocument): SemanticUpdateResult {
+    if (prepared && retainTree) throw new TypeError('Prepared PHP facts cannot retain a syntax tree.');
     this.referenceResultCache.clear();
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
     const oldSource = oldFile?.source; const oldTree = retainTree ? this.trees.get(uri) : undefined;
     if (oldTree && oldSource !== undefined) oldTree.edit(createIncrementalEdit(oldSource, source));
-    const parsed = deferImplementation ? {
+    const parsed = prepared ? {
+      ...emptyImplementationFacts(), ...prepared.facts, errors: prepared.kind === 'full' ? prepared.facts.errors : [],
+      tree: undefined,
+    } : deferImplementation ? {
       ...emptyImplementationFacts(), ...this.parser.parseDeclarations(source, uri), errors: [],
     } : this.parser.parse(source, oldTree, uri);
-    const changedRanges = oldTree ? oldTree.getChangedRanges(parsed.tree).length : 0;
+    const changedRanges = oldTree && parsed.tree ? oldTree.getChangedRanges(parsed.tree).length : 0;
     try {
       const docBefore = (offset: number): ParsedPhpDoc | undefined => adjacentPhpDoc({ source, commentRanges: parsed.commentRanges }, offset);
       const callables = parsed.callables.map((callable) => {
@@ -1422,27 +1432,8 @@ export class SemanticWorkspace {
       const oldTypeNames = new Set(oldTypeSurfaces.keys()); const nextTypeNames = new Set(nextTypeSurfaces.keys());
       const topologyChanged = oldTypeNames.size !== nextTypeNames.size || [...oldTypeNames].some((name) => !nextTypeNames.has(name));
       const oldDependents = hasDerivedCaches && affectedTypes.size > 0 ? this.dependentTypeNames(affectedTypes) : new Set<string>();
-      const controlFlowAssignments = new Set<number>();
-      const controlNodes = new Set(['if_statement', 'switch_statement', 'try_statement', 'while_statement', 'do_statement', 'for_statement', 'foreach_statement']);
-      const scopeBoundaries = new Set(['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function']);
-      const assignmentStarts = [...new Set(parsed.assignments.map((assignment) => assignment.start))].sort((left, right) => left - right);
-      const containsAssignment = (start: number, end: number): boolean => {
-        let low = 0; let high = assignmentStarts.length;
-        while (low < high) {
-          const middle = (low + high) >>> 1;
-          if (assignmentStarts[middle]! < start) low = middle + 1; else high = middle;
-        }
-        return low < assignmentStarts.length && assignmentStarts[low]! < end;
-      };
-      const syntaxStack: Array<{ node: SyntaxNode; inControlFlow: boolean }> = deferImplementation ? [] : [{ node: parsed.tree.rootNode, inControlFlow: false }];
-      while (syntaxStack.length) {
-        const current = syntaxStack.pop()!;
-        if (!containsAssignment(current.node.startIndex, current.node.endIndex)) continue;
-        if (current.node.type === 'assignment_expression' && current.inControlFlow) controlFlowAssignments.add(current.node.startIndex);
-        const childInControlFlow = scopeBoundaries.has(current.node.type) ? false
-          : current.inControlFlow || controlNodes.has(current.node.type);
-        for (const child of current.node.namedChildren) syntaxStack.push({ node: child, inControlFlow: childInControlFlow });
-      }
+      const controlFlowAssignments = new Set(prepared?.controlFlowAssignments
+        ?? (deferImplementation || !parsed.tree ? [] : controlFlowAssignmentStarts(parsed.tree, parsed.assignments)));
       this.deferredImplementations.delete(uri); this.files.set(uri, nextFile);
       this.replaceReferenceCandidates(nextFile);
       this.replaceTypeDependencies(nextFile);
@@ -1452,7 +1443,7 @@ export class SemanticWorkspace {
         this.invalidateFileDerivedCaches(affectedTypes, changedCallables, topologyChanged, oldDependents);
       }
       this.trees.delete(uri);
-      if (retainTree) this.trees.set(uri, parsed.tree);
+      if (retainTree && parsed.tree) this.trees.set(uri, parsed.tree);
       if (deferImplementation) this.deferSourceImplementation(nextFile);
       return {
         incremental: Boolean(oldTree), changedRanges,
@@ -1461,7 +1452,7 @@ export class SemanticWorkspace {
       };
     } finally {
       oldTree?.delete();
-      if (!retainTree) parsed.tree.delete();
+      if (!retainTree) parsed.tree?.delete();
     }
   }
   remove(uri: string): void {

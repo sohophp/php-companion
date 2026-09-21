@@ -192,6 +192,22 @@ describe('bounded project source index', () => {
     expect(visited).toEqual(['A.php', 'B.php', 'C.php']);
     await expect(indexComposerSources(root, { readConcurrency: 0, onSource: () => undefined })).rejects.toThrow(RangeError);
   });
+  it('prepares cold sources concurrently and commits them in path order while skipping warm cache hits', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-prepared-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C', 'D'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const cache = join(root, 'cache'); let active = 0; let peak = 0; const committed: string[] = [];
+    const options = { includeDependencies: false, readConcurrency: 4, cache: { directory: cache, version: 'prepared-v1', restore: (): boolean => true },
+      prepareSource: async ({ path }: { path: string }): Promise<string | undefined> => { active += 1; peak = Math.max(peak, active); await new Promise((done) => setTimeout(done, path.endsWith('A.php') ? 20 : 1)); active -= 1; return path.split(sep).at(-1); },
+      onSource: ({ path, prepared }: { path: string; prepared?: unknown }): { selected: boolean } => { committed.push(`${path.split(sep).at(-1)}:${prepared}`); return { selected: true }; } };
+    const cold = await indexComposerSources(root, options);
+    expect(cold.projectComplete).toBe(true);
+    expect(peak).toBeGreaterThan(1);
+    expect(committed).toEqual(['A.php:A.php', 'B.php:B.php', 'C.php:C.php', 'D.php:D.php']);
+    committed.length = 0;
+    const warm = await indexComposerSources(root, options);
+    expect(warm.cached).toBe(4); expect(committed).toEqual([]);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

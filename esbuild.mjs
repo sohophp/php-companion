@@ -8,6 +8,7 @@ const options = {
   entryPoints: {
     extension: 'src/extension/extension.ts',
     'language-server': 'packages/language-server/src/server.ts',
+    candidateWorker: 'packages/language-server/src/candidateWorker.ts',
   },
   bundle: true,
   outdir: 'dist',

@@ -146,6 +146,7 @@ describe('language server stdio', () => {
         expect(scan.params.message).toContain(run === 0 ? 'cached=0' : run === 1 ? 'cached=3' : 'cached=2');
         expect(scan.params.message).toContain(run === 1 ? 'declarations=0' : 'declarations=1');
         expect(scan.params.message).toContain(run === 0 ? 'restoredDeclarations=0' : 'restoredDeclarations=1');
+        expect(scan.params.message).toContain(`prepared=${run === 0 ? 2 : run === 1 ? 0 : 1}`);
         server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
         await output.waitFor((message) => message.id === 242);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
