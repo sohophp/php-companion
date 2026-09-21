@@ -1821,7 +1821,8 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
           restoredCandidates += 1; restoredDeclarations += 1; return true;
         }
         const cached = candidate?.semantic ?? restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(entry?.semantic), uri);
-        if (cached?.checksums.source === hash && workspace.restore(cached.semantic, uri)) {
+        if (cached?.checksums.source === hash && (deferBodies
+          ? workspace.restoreDeclaration(cached.semantic, uri) : workspace.restore(cached.semantic, uri))) {
           if (candidate?.semantic) preparedRestores += 1;
           restoredCandidates += 1; return true;
         }

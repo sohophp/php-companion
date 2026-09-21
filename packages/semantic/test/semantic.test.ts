@@ -7,6 +7,40 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('reuses restored callable facts without invalidating references until another callable is loaded', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///DeferredOnce.php';
+    const source = `<?php class DeferredOnce { function ready(): int { return 1; } }
+      function topLevelCall(int $arg): void {}
+      topLevelCall(1);
+      function firstDeferred(DeferredOnce $first) { $first->rea; }
+      function secondDeferred(DeferredOnce $second) { $second->rea; }`;
+    local.update(uri, source); const snapshot = local.snapshot(uri)!;
+    expect(local.restoreDeclaration(snapshot, uri)).toBe(true);
+    const completion = (name: string): string[] => local.completeMembers(uri, source.indexOf(`${name}->rea`) + `${name}->rea`.length).map((item) => item.name);
+    const topLevelSignature = (): string | undefined => local.signature(uri, source.indexOf('topLevelCall(1)') + 'topLevelCall('.length)?.fqcn;
+    expect(topLevelSignature()).toBe('topLevelCall');
+    expect(completion('$first')).toEqual(['ready']);
+    const referenceUri = 'file:///StableReferences.php';
+    const referenceSource = '<?php class StableReferences { function act(): void {} } function useStable(StableReferences $s) { $s->act(); }';
+    local.update(referenceUri, referenceSource);
+    const offset = referenceSource.indexOf('act()') + 1;
+    const expected = local.references(referenceUri, offset, false);
+    expect(expected).toHaveLength(1);
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      expect(topLevelSignature()).toBe('topLevelCall');
+      expect(completion('$first')).toEqual(['ready']);
+      parseTree.mockClear();
+      expect(local.references(referenceUri, offset, false)).toEqual(expected);
+      expect(parseTree).not.toHaveBeenCalled();
+      expect(completion('$second')).toEqual(['ready']);
+      parseTree.mockClear();
+      expect(local.references(referenceUri, offset, false)).toEqual(expected);
+      expect(parseTree).toHaveBeenCalled();
+      expect(local.snapshot(uri)).toEqual(snapshot);
+    } finally { parseTree.mockRestore(); local.dispose(); }
+  });
   it('round-trips nested member access snapshots without rejecting canonical fact ordering', () => {
     const uri = 'file:///CacheRoundTrip.php';
     const source = '<?php class CacheRoundTrip { function a($x) { if ($x instanceof self && $x !== null) { return $this->a($x->a($this))->a($x); } return null; } }';

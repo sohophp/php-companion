@@ -637,6 +637,7 @@ type ImplementationRange = Omit<SemanticCallableImplementationRecord, 'facts'>;
 interface DeferredImplementation {
   snapshot: SemanticImplementationSnapshot;
   loadedCallables: Set<string>;
+  fileFactsLoaded: boolean;
   facts: SemanticImplementationFacts;
 }
 
@@ -902,6 +903,7 @@ export class SemanticWorkspace {
     const deferred: DeferredImplementation = {
       snapshot: implementation,
       loadedCallables: new Set(),
+      fileFactsLoaded: false,
       facts: emptyImplementationFacts(),
     };
     this.deferredImplementations.set(file.uri, deferred);
@@ -923,8 +925,14 @@ export class SemanticWorkspace {
   private loadCallableImplementations(uri: string, identities: Iterable<string>): void {
     const deferred = this.deferredImplementations.get(uri); const file = this.files.get(uri);
     if (!deferred || !file) return;
-    this.referenceResultCache.clear();
+    const previousCount = deferred.loadedCallables.size;
     for (const identity of identities) deferred.loadedCallables.add(identity);
+    // File-level facts are installed on the first load, including when no
+    // callable contains the cursor. Repeated queries in loaded callables must
+    // not merge the same facts again or invalidate completed reference queries.
+    if (deferred.fileFactsLoaded && previousCount === deferred.loadedCallables.size) return;
+    this.referenceResultCache.clear();
+    deferred.fileFactsLoaded = true;
     const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));
     deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });
     this.controlFlowAssignments.set(uri, new Set(deferred.facts.controlFlowAssignments));

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 References 按声明恢复缓存：method candidate 使用既有声明恢复路径，方法体按需加载；已经加载的 callable 不再重复合并和失效引用缓存。正式 bundle 的 Reload 首次查询从同轮原版 7.567 / 7.470 秒降至 7.195 秒，112 处完整位置摘要一致，导航后重复 14 ms。语义包 290 项、LSP 定向 52 项（54.84 秒）、相关 TypeScript/ESLint 和正式构建通过。仅改善 Reload 恢复成本，空缓存首次与持久化查询结果复用仍未解决，未更新 WSL VSIX。证据见 [References 声明恢复](reports/reference-deferred-restore-2026-09-21.md)。
+
 2026-09-21 首次路径三项实验：PHPDoc 范围索引、仅有声明的成员候选筛选、内建 stub 声明延迟加载均保持 112 处完整位置摘要，但相对 8.993 秒基线未得到明确总延迟收益（9.066 / 9.286 / 8.936 秒），全部撤回，产品仍以 `8a82269` 为基线。下一步检查可验证输入下的持久化查询结果复用，分别处理 Reload 首次与空缓存首次，不放宽准确性。证据与失效边界见 [首次路径实验](reports/reference-first-query-experiments-2026-09-21.md)。
 
 2026-09-21 普通导航保留 References 缓存：先用语法判断是否处于字面量方法参数内，再执行原有容器服务身份解析，避免普通 Definition/Hover/Completion 加载无关容器接口。正式 bundle 的 References → References → Definition → References 序列保持完整 112 处引用，最后一次查询从 2.679 秒变为 13 ms（语义日志 0 ms）；首次耗时仍待优化。语义包 289 项、LSP 定向 54 项（57.22 秒）、相关 TypeScript/ESLint 和正式构建通过。未更新 WSL VSIX。证据见 [普通导航与引用缓存](reports/reference-navigation-cache-2026-09-21.md)。
