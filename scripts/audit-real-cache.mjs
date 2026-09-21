@@ -11,10 +11,12 @@ import { SemanticWorkspace } from '../packages/semantic/dist/index.js';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../packages/language-server/dist/projectFacts.js';
 import { semanticIndexCacheVersion } from '../packages/language-server/dist/cacheVersion.js';
 
-const [rootArgument, versionArgument = '8.5', maxFilesArgument = '10000'] = process.argv.slice(2).filter((argument) => argument !== '--');
+const [rootArgument, versionArgument = '8.5', maxFilesArgument = '10000', concurrencyArgument = '32'] = process.argv.slice(2).filter((argument) => argument !== '--');
 const maxFiles = Number(maxFilesArgument);
-if (!rootArgument || !/^\d+\.\d+$/.test(versionArgument) || !Number.isSafeInteger(maxFiles) || maxFiles < 100) {
-  throw new Error('Usage: audit-real-cache.mjs <Composer root> [PHP version] [max files >= 100]');
+const readConcurrency = Number(concurrencyArgument);
+if (!rootArgument || !/^\d+\.\d+$/.test(versionArgument) || !Number.isSafeInteger(maxFiles) || maxFiles < 100
+  || !Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 64) {
+  throw new Error('Usage: audit-real-cache.mjs <Composer root> [PHP version] [max files >= 100] [read concurrency 1..64]');
 }
 const root = resolve(rootArgument);
 const rootUri = `${pathToFileURL(root).toString().replace(/\/$/, '')}/`;
@@ -38,13 +40,14 @@ function sampleReferences(workspace, count = 20) {
 async function load() {
   const workspace = new SemanticWorkspace(parser);
   let parsed = 0; let projectReadyMs; let invalidProgress = 0;
+  let factsRestoreMs = 0; let declarationRestoreMs = 0;
   const unpersisted = []; const rejected = [];
   let peakRssMb = process.memoryUsage().rss / 1024 / 1024;
   const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);
   const started = performance.now();
   try {
     const result = await indexComposerSources(root, {
-      limits,
+      limits, readConcurrency,
       onProgress: (progress) => { if (progress.files > progress.total || progress.cached > progress.files) invalidProgress += 1; },
       onProjectComplete: () => { projectReadyMs = performance.now() - started; },
       onSource: ({ uri, source, hash }) => {
@@ -56,9 +59,14 @@ async function load() {
         return snapshot ? createCachedProjectPhpFile(snapshot, facts, hash) : undefined;
       },
       cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {
+        const factsStarted = performance.now();
         const restored = restoreCachedProjectPhpFile(payload, source.uri);
+        factsRestoreMs += performance.now() - factsStarted;
         if (!restored) { rejected.push({ uri: source.uri, stage: 'project-facts' }); return false; }
-        if (!workspace.restoreDeclaration(restored.semantic, source.uri)) {
+        const declarationStarted = performance.now();
+        const accepted = workspace.restoreDeclaration(restored.semantic, source.uri);
+        declarationRestoreMs += performance.now() - declarationStarted;
+        if (!accepted) {
           rejected.push({ uri: source.uri, stage: 'semantic' }); return false;
         }
         return true;
@@ -68,7 +76,10 @@ async function load() {
     const references = sampleReferences(workspace);
     return { result, parsed, durationMs: Math.round(durationMs * 100) / 100,
       projectReadyMs: Math.round((projectReadyMs ?? durationMs) * 100) / 100,
-      peakRssMb: Math.round(peakRssMb * 10) / 10, invalidProgress, unpersisted, rejected, references };
+      peakRssMb: Math.round(peakRssMb * 10) / 10, invalidProgress,
+      factsRestoreMs: Math.round(factsRestoreMs * 100) / 100,
+      declarationRestoreMs: Math.round(declarationRestoreMs * 100) / 100,
+      unpersisted, rejected, references };
   } finally { clearInterval(sampler); workspace.dispose(); }
 }
 
@@ -80,7 +91,7 @@ try {
     && cold.result.files === warm.result.files && cold.parsed === cold.result.files
     && warm.parsed === 0 && warm.result.cached === warm.result.files
     && cold.invalidProgress === 0 && warm.invalidProgress === 0 && referencesEqual;
-  process.stdout.write(`${JSON.stringify({ schema: 1, root, cacheVersion, maxFiles,
+  process.stdout.write(`${JSON.stringify({ schema: 1, root, cacheVersion, maxFiles, readConcurrency,
     cold: { ...cold, references: undefined }, warm: { ...warm, references: undefined },
     references: { sampled: cold.references.length, equal: referencesEqual,
       totalLocations: cold.references.reduce((total, query) => total + query.locations.length, 0) }, passed }, null, 2)}\n`);

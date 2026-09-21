@@ -1023,6 +1023,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const result = await indexComposerSources(root, {
     project,
     limits: indexLimits,
+    readConcurrency: 32,
     onProgress,
     includeDependencies: indexingMode === 'experimental',
     shouldContinue,

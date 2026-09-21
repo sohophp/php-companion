@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "root": "/var/www/php/8.5/winstar2024",
+  "cacheVersion": "semantic-v62-php-8.5",
+  "maxFiles": 10000,
+  "readConcurrency": 32,
+  "cold": {
+    "result": {
+      "files": 9999,
+      "bytes": 38975268,
+      "cached": 0,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 2278 project files.",
+        "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 9999,
+    "durationMs": 110664.97,
+    "projectReadyMs": 41369.68,
+    "peakRssMb": 1930.4,
+    "invalidProgress": 0,
+    "factsRestoreMs": 0,
+    "declarationRestoreMs": 0,
+    "unpersisted": [],
+    "rejected": []
+  },
+  "warm": {
+    "result": {
+      "files": 9999,
+      "bytes": 38975268,
+      "cached": 9999,
+      "complete": false,
+      "projectComplete": true,
+      "warnings": [
+        "Dependency index was truncated to fit the 10000-file budget after indexing 2278 project files.",
+        "Dependency source /var/www/php/8.5/winstar2024/vendor/google/apiclient-services/src/Aiplatform.php exceeded the 524288-byte per-file budget and was skipped."
+      ]
+    },
+    "parsed": 0,
+    "durationMs": 17086.18,
+    "projectReadyMs": 10110.7,
+    "peakRssMb": 2953.3,
+    "invalidProgress": 0,
+    "factsRestoreMs": 3647.97,
+    "declarationRestoreMs": 3554.87,
+    "unpersisted": [],
+    "rejected": []
+  },
+  "references": {
+    "sampled": 20,
+    "equal": true,
+    "totalLocations": 180
+  },
+  "passed": true
+}
