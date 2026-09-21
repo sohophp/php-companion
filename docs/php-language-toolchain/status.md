@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-21 PHPDoc 可空模板属性：`@template T of object` 下的 `@var T|null` 现在能精确细化原生 `?object` 属性，泛型 mixin 的空安全成员链得到具体实参类型；非空 `object` 不接受可空文档类型。语义快照升至 schema 80、索引缓存升至 v61，避免旧缓存回放宽泛类型。全仓 821 项测试、TypeScript、ESLint、24 个隔离 tarball、四份 VSIX 校验和、VS Code 1.138.0 打包宿主及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性 WSL preflight 通过；功能提交 `4647ef9`，候选 `artifacts/php-companion-alpha-0.4.5-4647ef97/`。真实 WSL Remote 持续编辑仍待人工验收。证据见 [可空模板属性验收](reports/phpdoc-nullable-template-properties-2026-09-21.md)。
+
 2026-09-21 PHP 核心泛型 `@mixin`：`@mixin Delegate<Result>` 现按目标模板约束特化公开实例方法和属性的返回链，`@var T` 与原生 `object` 的精确约束可保留模板类型；实参数量错误、违反 bound 或目标缺失保持 unknown。语义快照升级 schema 79，索引缓存升级 v60。全仓 821 项测试、TypeScript、ESLint、24 个隔离 tarball、VS Code 1.138.0 打包宿主，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性 WSL preflight 通过；功能提交 `b268269`，候选 `artifacts/php-companion-alpha-0.4.5-b268269e/`。真实 WSL Remote 持续编辑仍待人工验收。证据见 [PHPDoc 泛型 mixin 精准成员验收](reports/phpdoc-generic-mixin-members-2026-09-21.md)。
 
 2026-09-21 PHP 核心 `@mixin` 精准成员：类级 PHPDoc 的唯一名称目标现作为声明事实和类型依赖保存；只代理唯一已索引目标的公开实例方法/属性，真实声明、继承和 Trait 优先；两个 mixin 同名、缺失/重复目标、静态或不可见成员以及循环保持 unknown。成员补全、Signature Help、返回链、Definition 与热恢复共享同一身份，语义快照升级 schema 78、索引缓存升级 v59。全仓 820 项测试、TypeScript、ESLint、24 个隔离 tarball、VS Code 1.138.0 打包双扩展宿主及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性 WSL preflight 通过。功能提交 `9a6ec12a`，候选 `artifacts/php-companion-alpha-0.4.5-9a6ec12a/`；四份 VSIX 校验和通过。真实 WSL Remote 持续编辑仍待人工验收。证据见 [PHPDoc mixin 精准成员验收](reports/phpdoc-mixin-members-2026-09-21.md)。
