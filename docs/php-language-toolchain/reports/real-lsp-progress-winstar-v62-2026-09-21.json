@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "root": "/var/www/php/8.5/winstar2024",
+  "phpVersion": "8.5",
+  "cold": {
+    "label": "cold",
+    "durationMs": 122330.27,
+    "progress": {
+      "began": true,
+      "ended": true,
+      "reports": 389,
+      "last": {
+        "kind": "report",
+        "percentage": 100,
+        "message": "PHP symbol index ready"
+      },
+      "cache": {
+        "kind": "report",
+        "percentage": 95,
+        "message": "dependencies: 9992/10000 files, 0 cached"
+      }
+    },
+    "projectReady": "Project source index ready with 2278 PHP files in /var/www/php/8.5/winstar2024; dependency indexing continues.",
+    "indexed": "Indexed 9999 PHP files (38975268 bytes, 0 cached) from /var/www/php/8.5/winstar2024; complete=false; deferred implementations=0.",
+    "endLog": "[index:1] end elapsedMs=122322 pending=0"
+  },
+  "warm": {
+    "label": "warm",
+    "durationMs": 19282.18,
+    "progress": {
+      "began": true,
+      "ended": true,
+      "reports": 37,
+      "last": {
+        "kind": "report",
+        "percentage": 100,
+        "message": "PHP symbol index ready"
+      },
+      "cache": {
+        "kind": "report",
+        "percentage": 94,
+        "message": "dependencies: 9702/10000 files, 9702 cached"
+      }
+    },
+    "projectReady": "Project source index ready with 2278 PHP files in /var/www/php/8.5/winstar2024; dependency indexing continues.",
+    "indexed": "Indexed 9999 PHP files (38975268 bytes, 9999 cached) from /var/www/php/8.5/winstar2024; complete=false; deferred implementations=9999.",
+    "endLog": "[index:1] end elapsedMs=19275 pending=0"
+  },
+  "passed": true
+}
