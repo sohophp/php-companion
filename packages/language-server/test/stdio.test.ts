@@ -4673,18 +4673,22 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const xmlParameterRegistrationStart = xmlSource.indexOf('app.xml_transport');
       const phpPath = join(root, 'config', 'services.php'); const phpUri = pathToFileURL(phpPath).toString();
       const phpSource = `<?php
-use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
 use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\service;
 use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\param;
-return static function (ContainerConfigurator $container): void {
-    $container->parameters()->set('app.php_transport', 'private');
-    $container->services()->set('app.php.consumer')->arg('$service', service('app.service'));
-    $container->services()->get('app.php.consumer')->arg('$transport', param('app.transport'))->arg('$fallback', param('app.php_transport'));
-    if ($container->env() === 'prod') {
-        $container->services()->get('app.php.consumer')->arg('$prod', service('app.service'))->arg('$prodParam', param('app.prod_php'));
-        $container->parameters()->set('app.prod_php', 'private');
-    }
-};`; await writeFile(phpPath, phpSource);
+return [
+    'parameters' => ['app.php_transport' => 'private'],
+    'services' => [
+        'app.php.consumer' => ['class' => App\\Consumer::class,
+            'arguments' => [service('app.service'), param('app.transport'), param('app.php_transport')]],
+    ],
+    'when@prod' => [
+        'parameters' => ['app.prod_php' => 'private'],
+        'services' => [
+            'app.prod.consumer' => ['class' => App\\ProdConsumer::class,
+                'arguments' => [service('app.service'), param('app.prod_php')]],
+        ],
+    ],
+];`; await writeFile(phpPath, phpSource);
       const phpParameterRegistrationStart = phpSource.indexOf('app.php_transport');
       const attributePath = join(root, 'src', 'Consumer.php'); const attributeUri = pathToFileURL(attributePath).toString();
       const attributeSource = `<?php

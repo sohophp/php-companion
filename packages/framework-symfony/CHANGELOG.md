@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Parse Symfony PHP array service configuration without executing project code; merge unconditional entries with exact `when@environment` branches and expose precise service, parameter, import and reference ranges while rejecting dynamic or unsupported graphs.
+
 - Select unconditional plus exact-environment PHP Configurator statements guarded by `$container->env() === 'literal'` or its literal-first equivalent; apply the active view to services, imports, parameters and references while rejecting compound, nested or alternative control flow.
 
 - Select unconditional plus exact `<when env="environment">` XML imports, parameters, services and references; active declarations override same-id base declarations while inactive environments remain invisible. Recognize attribute-free self-closing XML elements when validating structure.

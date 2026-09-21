@@ -921,6 +921,69 @@ when@prod:
     expect(symfonyPhpParameterReferences(parser, dynamic, 'dev')).toEqual([]);
   });
 
+  it('selects exact when@environment branches in PHP array service configuration', () => {
+    const source = `<?php
+      use App\\BaseService;
+      use App\\DevService;
+      use App\\ProdService;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\{param, service};
+      return [
+        'imports' => [['resource' => 'packages.php']],
+        'parameters' => ['shared.parameter' => 'base'],
+        'services' => [
+          '_defaults' => ['autowire' => true, 'public' => false],
+          'shared.service' => ['class' => BaseService::class, 'arguments' => [service('base.dependency'), '@legacy.base', '%shared.parameter%']],
+          'shared.alias' => '@shared.service',
+        ],
+        'framework' => [],
+        'when@dev' => [
+          'parameters' => ['shared.parameter' => 'dev', 'dev.parameter' => param('shared.parameter')],
+          'services' => ['shared.service' => ['class' => DevService::class, 'arguments' => [service('dev.dependency'), '@legacy.dev', '%dev.parameter%']]],
+        ],
+        'when@prod' => [
+          'parameters' => ['shared.parameter' => 'prod'],
+          'services' => ['shared.service' => ['class' => ProdService::class, 'arguments' => [service('prod.dependency')]]],
+        ],
+      ];`;
+    const base = analyzeSymfonyServicePhp(parser, 'file:///services.php', source);
+    expect(base).toMatchObject({ complete: true, imports: [{ resource: 'packages.php' }] });
+    expect(base.services.map(({ id, className, autowire }) => ({ id, className, autowire }))).toEqual([
+      { id: 'shared.service', className: 'App\\BaseService', autowire: true },
+      { id: 'shared.alias', className: 'App\\BaseService', autowire: true },
+    ]);
+    const dev = analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'dev');
+    expect(dev.services.map(({ id, className }) => ({ id, className }))).toEqual([
+      { id: 'shared.service', className: 'App\\DevService' }, { id: 'shared.alias', className: 'App\\DevService' },
+    ]);
+    expect(symfonyPhpServiceReferences(parser, source, 'dev').map((item) => item.value)).toEqual([
+      'base.dependency', 'legacy.base', 'shared.service', 'dev.dependency', 'legacy.dev',
+    ]);
+    expect(symfonyPhpServiceReferences(parser, source, 'prod').map((item) => item.value)).toEqual([
+      'base.dependency', 'legacy.base', 'shared.service', 'prod.dependency',
+    ]);
+    expect(symfonyPhpParameterDeclarations(parser, source, 'dev').map((item) => item.value)).toEqual(['shared.parameter', 'dev.parameter']);
+    expect(symfonyPhpParameterDeclarations(parser, source, 'dev')[0]!.start).toBe(source.indexOf('shared.parameter', source.indexOf("'when@dev'")));
+    expect(symfonyPhpParameterReferences(parser, source, 'dev').map((item) => item.value)).toEqual([
+      'shared.parameter', 'shared.parameter', 'dev.parameter',
+    ]);
+    expect(symfonyPhpServiceReferenceAt(parser, source, source.indexOf('prod.dependency') + 4, 'dev')).toBeUndefined();
+    expect(symfonyPhpParameterReferenceAt(parser, source, source.indexOf('shared.parameter', source.indexOf("param(")) + 4, 'prod')).toBeUndefined();
+    const empty = source.replace("service('dev.dependency')", "service('')");
+    const emptyOffset = empty.indexOf("service('')", empty.indexOf("'when@dev'")) + "service('".length;
+    expect(symfonyPhpServiceReferencePrefixAt(parser, empty, emptyOffset, 'dev')).toEqual({ prefix: '', start: emptyOffset, end: emptyOffset });
+    const legacyOffset = source.indexOf('legacy.dev') + 'legacy.'.length;
+    expect(symfonyPhpServiceReferencePrefixAt(parser, source, legacyOffset, 'dev')).toEqual({
+      prefix: 'legacy.', start: source.indexOf('legacy.dev'), end: source.indexOf('legacy.dev') + 'legacy.dev'.length,
+    });
+    const emptyAt = source.replace('@legacy.dev', '@');
+    const emptyAtOffset = emptyAt.indexOf("'@'", emptyAt.indexOf("'when@dev'")) + 2;
+    expect(symfonyPhpServiceReferencePrefixAt(parser, emptyAt, emptyAtOffset, 'dev')).toEqual({
+      prefix: '', start: emptyAtOffset, end: emptyAtOffset,
+    });
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source.replace("'when@dev'", "environmentName()"), 'dev').complete).toBe(false);
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source.replace("'arguments' => [service('dev.dependency'), '@legacy.dev', '%dev.parameter%']", "'factory' => [Factory::class, 'create']"), 'dev').complete).toBe(false);
+  });
+
   it('extracts only explicit kernel.event_listener YAML tags with precise ranges', () => {
     const source = `services:
       _defaults:
