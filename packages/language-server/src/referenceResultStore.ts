@@ -12,6 +12,7 @@ export interface ReferenceResultProof {
   scopedSourceRoots?: Array<{ path: string; extensions: string[] }>;
   includeFileStamps?: boolean;
   containerInputEvidenceComplete?: boolean;
+  routeInputEvidenceComplete?: boolean;
   additionalFiles: string[];
   context: string;
   loaded: Array<{ uri: string; hash: string }>;
@@ -50,6 +51,7 @@ function validProof(value: unknown): value is ReferenceResultProof {
         && root.extensions.every((extension) => typeof extension === 'string' && (extension === '*' || /^\.[a-z0-9]{1,16}$/.test(extension)))))
     && (proof.includeFileStamps === undefined || typeof proof.includeFileStamps === 'boolean')
     && (proof.containerInputEvidenceComplete === undefined || typeof proof.containerInputEvidenceComplete === 'boolean')
+    && (proof.routeInputEvidenceComplete === undefined || typeof proof.routeInputEvidenceComplete === 'boolean')
     && Array.isArray(proof.loaded) && proof.loaded.length <= 50_000
     && proof.loaded.every((entry) => entry && typeof entry.uri === 'string' && entry.uri.length <= 16_384 && digest(entry.hash))
     && Array.isArray(proof.locations) && proof.locations.length <= 2_048

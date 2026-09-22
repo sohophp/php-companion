@@ -6,6 +6,10 @@ describe('route provider contract', () => {
     expect(isRouteFactsContribution(routeFacts('vendor.routes', '7', [{ name: 'admin.login', path: '/admin/login', uri: 'file:///routes.yaml', start: 2, end: 13,
       controller: { className: 'App\\LoginController', method: 'login', uri: 'file:///routes.yaml', classStart: 30, classEnd: 49, methodStart: 51, methodEnd: 56 } }]))).toBe(true);
     expect(routeFacts('vendor.routes', '8', [], false)).toMatchObject({ complete: false, routes: [] });
+    expect(isRouteFactsContribution(routeFacts('vendor.routes', '8', [], false, {
+      inputUris: ['file:///config/routes.yaml'], inputDirectoryUris: ['file:///config/routes'], inputEvidenceComplete: true,
+    }))).toBe(true);
+    expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '8'), inputDirectoryUris: [42] })).toBe(false);
     expect(isRouteFactsContribution(routeFacts('runtime.routes', '9', [{ name: 'runtime.only', path: '/runtime' }]))).toBe(true);
   });
   it('rejects malformed facts and unbounded descriptors', () => {

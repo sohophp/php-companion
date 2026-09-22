@@ -131,7 +131,9 @@ let configuredRouteProviders: RouteProviderDescriptor[] = [];
 let bundledRouteProviders: RouteProviderDescriptor[] = [];
 let routeProviderGeneration = 0;
 let routeProviderCacheRevision = 0;
-const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[] }>>();
+const routeProviderCacheByRoot = new Map<string, Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[];
+  inputUris?: readonly string[]; inputDirectoryUris?: readonly string[]; inputEvidenceComplete?: boolean }>>();
+const routeProviderInputsByRoot = new Map<string, { revision: number; files: Set<string>; directories: Set<string>; complete: boolean }>();
 let containerFactsRevision = 0;
 const completeContainerFactsByRoot = new Map<string, { revision: number; generation: number }>();
 function invalidateContainerFacts(): void { containerFactsRevision += 1; completeContainerFactsByRoot.clear(); }
@@ -425,7 +427,8 @@ function setFrameworkDocumentSnapshots(value: unknown): boolean {
 
 function invalidateRouteProviderCache(root?: string): void {
   routeProviderCacheRevision++;
-  if (root) routeProviderCacheByRoot.delete(root); else routeProviderCacheByRoot.clear();
+  if (root) { routeProviderCacheByRoot.delete(root); routeProviderInputsByRoot.delete(root); }
+  else { routeProviderCacheByRoot.clear(); routeProviderInputsByRoot.clear(); }
 }
 
 function phpPathMayAffectSymfonyRoutes(root: string, path: string): boolean {
@@ -1961,10 +1964,13 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       // These bounded roots preserve changes to conventional Symfony inputs
       // for an eventual pre-provider restore path. Provider output still has
       // to be recomputed before today's framework fingerprint can be checked.
+      const routeInputs = routeProviderInputsByRoot.get(root);
+      const validRouteInputs = routeInputs?.revision === routeProviderCacheRevision ? routeInputs : undefined;
       const scopedSourceRoots = frameworkFingerprint ? [
         { path: resolve(root, 'config'), extensions: ['*'] },
         { path: resolve(root, 'app/config'), extensions: ['*'] },
         { path: resolve(root, 'var/cache/dev'), extensions: ['.xml'] },
+        ...[...(validRouteInputs?.directories ?? [])].map((path) => ({ path, extensions: ['*'] })),
       ] : undefined;
       const frameworkConfigFiles = frameworkFingerprint ? [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])] : [];
       const frameworkAttemptedFiles = frameworkFingerprint ? [...(symfonyServiceInputPathsByRoot.get(root)?.paths ?? [])] : [];
@@ -1972,7 +1978,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       // discovery and content hashing. Keep explicit paths only for metadata,
       // dependencies and negative lookups outside that set.
       const additionalFiles = [...new Set([...metadata.map((read) => read.path),
-        ...frameworkConfigFiles, ...frameworkAttemptedFiles,
+        ...frameworkConfigFiles, ...frameworkAttemptedFiles, ...[...(validRouteInputs?.files ?? [])],
         ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
       const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
         candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)),
@@ -1994,6 +2000,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots,
         ...(scopedSourceRoots ? { scopedSourceRoots, includeFileStamps: true } : {}), additionalFiles, context,
         ...(frameworkFingerprint ? { containerInputEvidenceComplete: symfonyServiceInputPathsByRoot.get(root)?.complete === true } : {}),
+        ...(frameworkFingerprint ? { routeInputEvidenceComplete: validRouteInputs?.complete === true } : {}),
         loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), ...(queryHint ? { queryHint } : {}), fingerprint: snapshot.fingerprint,
         locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };
@@ -3822,7 +3829,9 @@ function routeProviderDocuments(root: string): { complete: boolean; documents: R
 }
 
 async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
-  const contributions: Array<{ descriptor: RouteProviderDescriptor; complete: boolean; routes: readonly RouteFact[] }> = [];
+  const inputRevision = routeProviderCacheRevision;
+  const contributions: Array<{ descriptor: RouteProviderDescriptor; complete: boolean; routes: readonly RouteFact[];
+    inputUris?: readonly string[]; inputDirectoryUris?: readonly string[]; inputEvidenceComplete?: boolean }> = [];
   const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
   const snapshots = routeProviderDocuments(root);
   const authoritative = routeProviders.filter((descriptor) => descriptor.replacesStaticRoutes);
@@ -3836,7 +3845,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     const cacheKey = descriptor.providerId.toLowerCase();
     const cacheSignature = JSON.stringify({ descriptor, environment });
     const cached = descriptor.cacheUntilInvalidated ? routeProviderCacheByRoot.get(root)?.get(cacheKey) : undefined;
-    if (cached?.signature === cacheSignature) { contributions.push({ descriptor, complete: cached.complete, routes: cached.routes }); continue; }
+    if (cached?.signature === cacheSignature) { contributions.push({ descriptor, ...cached }); continue; }
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
       connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`);
       return [];
@@ -3849,16 +3858,31 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     });
     if (cancelled()) return [];
     if (result.ok) {
-      contributions.push({ descriptor, complete: result.contribution.complete, routes: result.contribution.routes });
+      contributions.push({ descriptor, ...result.contribution });
       if (descriptor.cacheUntilInvalidated && cacheRevision === routeProviderCacheRevision) {
-        const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[] }>();
-        rootCache.set(cacheKey, { signature: cacheSignature, complete: result.contribution.complete, routes: [...result.contribution.routes] }); routeProviderCacheByRoot.set(root, rootCache);
+        const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[];
+          inputUris?: readonly string[]; inputDirectoryUris?: readonly string[]; inputEvidenceComplete?: boolean }>();
+        rootCache.set(cacheKey, { signature: cacheSignature, complete: result.contribution.complete, routes: [...result.contribution.routes],
+          inputUris: result.contribution.inputUris, inputDirectoryUris: result.contribution.inputDirectoryUris,
+          inputEvidenceComplete: result.contribution.inputEvidenceComplete }); routeProviderCacheByRoot.set(root, rootCache);
       }
     } else {
       connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
       if (descriptor.replacesStaticRoutes || authoritative.length === 0) return [];
     }
   }
+  const files = new Set<string>(); const directories = new Set<string>(); let inputEvidenceComplete = contributions.length === active.length;
+  for (const contribution of contributions) {
+    if (contribution.inputEvidenceComplete !== true || !contribution.inputUris || !contribution.inputDirectoryUris)
+      inputEvidenceComplete = false;
+    for (const [uris, paths] of [[contribution.inputUris ?? [], files], [contribution.inputDirectoryUris ?? [], directories]] as const) {
+      for (const uri of uris) {
+        try { paths.add(resolve(fileURLToPath(uri))); } catch { inputEvidenceComplete = false; }
+      }
+    }
+  }
+  if (!cancelled() && inputRevision === routeProviderCacheRevision) routeProviderInputsByRoot.set(root,
+    { revision: inputRevision, files, directories, complete: inputEvidenceComplete });
   const owner = authoritative[0] && contributions.find((entry) => entry.descriptor === authoritative[0]);
   if (authoritative.length === 1) {
     if (!owner?.complete) {

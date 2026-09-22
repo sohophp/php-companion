@@ -21,7 +21,10 @@ async function main(): Promise<void> {
       ...(request.params.documents ? { documents: request.params.documents } : {}),
     });
     response = { protocolVersion: ROUTE_PROVIDER_PROTOCOL_VERSION, id: request.id,
-      result: routeFacts(request.id.split(':')[0]!, request.params.generation, snapshot.routes, snapshot.complete) };
+      result: routeFacts(request.id.split(':')[0]!, request.params.generation, snapshot.routes, snapshot.complete, {
+        inputUris: snapshot.inputUris, inputDirectoryUris: snapshot.inputDirectoryUris,
+        inputEvidenceComplete: snapshot.inputEvidenceComplete,
+      }) };
   } catch (error) {
     response = { protocolVersion: ROUTE_PROVIDER_PROTOCOL_VERSION, id: request.id,
       error: { code: 'symfony-static-routes', message: error instanceof Error ? error.message : String(error) } };

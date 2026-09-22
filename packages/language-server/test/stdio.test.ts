@@ -128,7 +128,8 @@ describe('language server stdio', () => {
       const expected = [location('Use.php', source), location('Other.php', other)];
       let runCount = 0;
       const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
-        provider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean; semanticPrewarmed?: boolean } = {}): Promise<void> => {
+        provider?: boolean; routeProvider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean;
+        semanticPrewarmed?: boolean } = {}): Promise<void> => {
         const currentRun = ++runCount;
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
           '--php-wasm', join(dirname(bundle), 'tree-sitter-php.wasm')], { stdio: 'pipe' });
@@ -140,7 +141,8 @@ describe('language server stdio', () => {
         };
         await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
           initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
-            ...(options.provider ? { bundledSemanticProviders: [symfonyServiceProviderDescriptor] } : {}) } });
+            ...(options.provider ? { bundledSemanticProviders: [symfonyServiceProviderDescriptor] } : {}),
+            ...(options.routeProvider ? { bundledRouteProviders: [symfonyStaticRouteProviderDescriptor] } : {}) } });
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         const text = options.text ?? source;
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -219,6 +221,10 @@ describe('language server stdio', () => {
       const storeDirectory = join(root, '.cache', 'reference-results-v1');
       for (const file of await readdir(storeDirectory)) await writeFile(join(storeDirectory, file), '{truncated');
       await run(expected, false);
+      await run(expected, false, { provider: true, routeProvider: true });
+      const routeProof = (await new ReferenceResultStore(join(root, '.cache')).recent())[0];
+      expect(routeProof?.routeInputEvidenceComplete).toBe(true);
+      expect(routeProof?.additionalFiles).toContain(join(root, 'config', 'routes.yml'));
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 

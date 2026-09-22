@@ -43,6 +43,11 @@ export interface RouteFactsContribution {
   generation: string;
   complete: boolean;
   routes: readonly RouteFact[];
+  /** Attempted file inputs, including paths that did not exist. */
+  inputUris?: readonly string[];
+  /** Directories enumerated while expanding wildcard and attribute imports. */
+  inputDirectoryUris?: readonly string[];
+  inputEvidenceComplete?: boolean;
 }
 export interface RouteProviderResponse {
   protocolVersion: typeof ROUTE_PROVIDER_PROTOCOL_VERSION;
@@ -51,8 +56,9 @@ export interface RouteProviderResponse {
   error?: { code: string; message: string };
 }
 
-export function routeFacts(providerId: string, generation: string, routes: readonly RouteFact[] = [], complete = true): RouteFactsContribution {
-  return { schema: ROUTE_FACTS_SCHEMA, providerId, generation, complete, routes };
+export function routeFacts(providerId: string, generation: string, routes: readonly RouteFact[] = [], complete = true,
+  inputs?: Pick<RouteFactsContribution, 'inputUris' | 'inputDirectoryUris' | 'inputEvidenceComplete'>): RouteFactsContribution {
+  return { schema: ROUTE_FACTS_SCHEMA, providerId, generation, complete, routes, ...inputs };
 }
 
 const providerIdPattern = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
@@ -76,7 +82,12 @@ export function isRouteFactsContribution(value: unknown): value is RouteFactsCon
   const item = value as Partial<RouteFactsContribution> | null;
   return Boolean(item && item.schema === ROUTE_FACTS_SCHEMA && boundedString(item.providerId, 128) && providerIdPattern.test(item.providerId)
     && boundedString(item.generation, 128) && typeof item.complete === 'boolean' && Array.isArray(item.routes)
-    && item.routes.length <= 100_000 && item.routes.every(routeFact));
+    && item.routes.length <= 100_000 && item.routes.every(routeFact)
+    && (item.inputUris === undefined || Array.isArray(item.inputUris) && item.inputUris.length <= 50_000
+      && item.inputUris.every((uri) => boundedString(uri, 32_768)))
+    && (item.inputDirectoryUris === undefined || Array.isArray(item.inputDirectoryUris) && item.inputDirectoryUris.length <= 50_000
+      && item.inputDirectoryUris.every((uri) => boundedString(uri, 32_768)))
+    && (item.inputEvidenceComplete === undefined || typeof item.inputEvidenceComplete === 'boolean'));
 }
 export function isRouteProviderDescriptor(value: unknown): value is RouteProviderDescriptor {
   const item = value as Partial<RouteProviderDescriptor> | null;

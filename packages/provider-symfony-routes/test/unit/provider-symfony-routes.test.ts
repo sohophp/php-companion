@@ -35,6 +35,10 @@ admin:
       source: 'edited: {path: /edited, controller: App\\Controller\\HomeController::home}\n',
     }] });
     expect(snapshot.complete).toBe(true);
+    expect(snapshot.inputEvidenceComplete).toBe(true);
+    expect(snapshot.inputUris).toContain(pathToFileURL(adminPath).toString());
+    expect(snapshot.inputUris).toContain(pathToFileURL(join(root, 'config', 'routes.yml')).toString());
+    expect(snapshot.inputDirectoryUris).toContain(pathToFileURL(join(root, 'src', 'Controller')).toString());
     const routes = snapshot.routes;
     expect(routes.map((route) => [route.name, route.path])).toEqual([
       ['admin.edited', '/edited'], ['site.home', '/base/home/{id}'],
@@ -63,9 +67,11 @@ admin:
     await writeFile(join(root, 'config', 'routes', 'two.yaml'), 'two: {path: /two}\n');
     const bounded = await collectSymfonyStaticRouteSnapshot(root, parser, { maxEntries: 2 });
     expect(bounded.complete).toBe(false);
+    expect(bounded.inputEvidenceComplete).toBe(false);
     const malformed = await collectSymfonyStaticRouteSnapshot(root, parser, { documents: [{
       uri: pathToFileURL(join(root, 'config', 'routes', 'one.yaml')).toString(), languageId: 'yaml', snapshotVersion: '3', source: 'broken: [',
     }] });
     expect(malformed.complete).toBe(false);
+    expect(malformed.inputEvidenceComplete).toBe(true);
   });
 });

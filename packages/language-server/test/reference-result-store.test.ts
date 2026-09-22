@@ -48,9 +48,11 @@ describe('persistent reference result store', () => {
     proof.scopedSourceRoots = [{ path: '/workspace/config', extensions: ['*'] }];
     proof.includeFileStamps = true;
     proof.containerInputEvidenceComplete = true;
+    proof.routeInputEvidenceComplete = true;
     expect(await store.write(proof, () => true)).toBe(true);
     expect(await store.read(proof.key)).toEqual(proof);
     expect(await store.write({ ...proof, scopedSourceRoots: [{ path: '/workspace/config', extensions: ['xml'] }] }, () => true)).toBe(false);
+    expect(await store.write({ ...proof, routeInputEvidenceComplete: 'yes' as unknown as boolean }, () => true)).toBe(false);
     expect(await store.read(proof.key)).toEqual(proof);
   });
 });
