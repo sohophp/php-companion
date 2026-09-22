@@ -2106,6 +2106,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
   const fullCandidateTypes = new Set<string>();
+  const skippedExactSources: Array<{ uri: string; source: string }> = [];
+  let skippedCachedExact = false;
   const receiverMethods = new Map<string, AssignedReceiverMethod>();
   const recordReceiverMethods = (items: unknown): void => {
     if (!Array.isArray(items) || items.length > 10_000) return;
@@ -2142,12 +2144,14 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       const open = documents.get(uri); const effective = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
-      if (exactSymbols && candidate?.matches === false) return undefined;
-      const summary = candidate?.summary ?? createSourceCandidateSummary(source);
+      const summary = candidate?.summary ?? createSourceCandidateSummary(effective);
       const matches = candidate?.matches ?? (mode === 'named-argument'
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
         : exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'
           : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
+      if (exactSymbols && !matches) {
+        skippedExactSources.push({ uri, source: effective }); return undefined;
+      }
       const declarationsOnly = matches && deferBodies && !open && mode === 'symbol'
         && sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
       let sourceReceiverMethods: AssignedReceiverMethod[] = [];
@@ -2182,7 +2186,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
                 : { declarations: compressCachedSourceDeclaration(declarationSnapshot!, hash) };
             } catch { return {}; /* Oversized snapshots remain candidates and are reparsed next query. */ }
           }) : undefined;
-      return { summary, pending, receiverMethods: sourceReceiverMethods };
+      return effective === source ? { summary, pending, receiverMethods: sourceReceiverMethods } : undefined;
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v6',
@@ -2202,7 +2206,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
         recordCandidateRead(path, hash);
         const entry = payload as { summary?: unknown; receiverMethods?: AssignedReceiverMethod[]; semantic?: unknown; declarations?: unknown } | null;
         const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
-        if (decision === 'skip') return true;
+        if (decision === 'skip') { if (exactSymbols) skippedCachedExact = true; return true; }
         if (decision === 'rebuild' || documents.get(uri)) return decision === 'source' ? 'source' : false;
         const candidate = prepared && typeof prepared === 'object' && (prepared as PreparedCandidateRestore).kind === 'restored'
           && (prepared as PreparedCandidateRestore).uri === uri && (prepared as PreparedCandidateRestore).hash === hash
@@ -2246,8 +2250,33 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     connection.console.info(`[reference-closure] roots=${fullCandidateTypes.size} loaded=${loadedDependencies} unresolved=${visited.size - loadedDependencies} missing=${JSON.stringify([...unresolvedDependencies])}`);
     const unresolvedProjectType = [...unresolvedDependencies].some((fqcn) => project?.psr4.some((mapping) =>
       fqcn.toLowerCase().startsWith(mapping.prefix.toLowerCase())));
-    if (unresolvedProjectType || unresolvedDependencies.size && Boolean(project?.classmap.length || project?.files.length || project?.psr0.length)) {
-      connection.console.info('[reference-closure] falling back to full candidate scan for unresolved project declaration');
+    const receiverOwners = [...new Set([...receiverMethods.values()].map((item) => item.owner))];
+    for (let start = 0; start < receiverOwners.length; start += 16) {
+      if (cancelled()) return false;
+      await hydrateCanonicalTypes(workspace, root, receiverOwners.slice(start, start + 16), true, 64);
+    }
+    const unresolvedReceivers = receiverOwners.filter((fqcn) => !workspace.typeByFqcn(fqcn));
+    const unresolvedProjectReceivers = unresolvedReceivers.filter((fqcn) => project?.psr4.some((mapping) =>
+      fqcn.toLowerCase().startsWith(mapping.prefix.toLowerCase())));
+    const nonPsr4Autoload = Boolean(project?.classmap.length || project?.files.length || project?.psr0.length);
+    let possibleSkippedReceiverDeclaration = Boolean((rgCandidates || skippedCachedExact) && unresolvedProjectReceivers.length);
+    if (!possibleSkippedReceiverDeclaration && unresolvedProjectReceivers.length) {
+      const syntaxParser = await parser();
+      for (const { uri, source } of skippedExactSources) {
+        if (cancelled()) return false;
+        if (!unresolvedProjectReceivers.some((fqcn) => source.toLowerCase().includes(fqcn.split('\\').at(-1)!.toLowerCase()))) continue;
+        const parsed = syntaxParser.parseDeclarations(source, uri);
+        try {
+          if (parsed.tree.rootNode.hasError || parsed.declarations.some((declaration) =>
+            unresolvedProjectReceivers.some((fqcn) => declaration.fqcn.toLowerCase() === fqcn.toLowerCase()))) {
+            possibleSkippedReceiverDeclaration = true; break;
+          }
+        } finally { parsed.tree.delete(); }
+      }
+    }
+    if (unresolvedProjectType || unresolvedDependencies.size && nonPsr4Autoload
+      || possibleSkippedReceiverDeclaration || unresolvedReceivers.length && nonPsr4Autoload) {
+      connection.console.info(`[reference-closure] falling back to full candidate scan for unresolved ${possibleSkippedReceiverDeclaration ? 'receiver declaration' : 'project declaration'}`);
       return performNamedCandidateScan(workspace, root, names, cancelled, retries, mode, deferBodies, prepareInWorkers, false, true);
     }
   }

@@ -235,6 +235,17 @@ describe('conservative semantic workspace', () => {
       expect(local.implementationState(uri)).toBe('deferred');
     } finally { local.dispose(); }
   });
+  it('does not hydrate PHP scalar receiver hints as namespaced classes', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///ScalarReceiver.php';
+    const source = '<?php namespace App; class Consumer { private string $value; public function run(array $items): void { $this->value->get(); $items->get(); } }';
+    try {
+      local.update(uri, source);
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([]);
+      local.updateDeclarations(uri, source);
+      expect(local.lexicalPropertyReceiverMethods(uri, new Set(['get']))).toEqual([]);
+    } finally { local.dispose(); }
+  });
   it('prewarms both method reference declaration modes from one result', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///PrewarmMethod.php';

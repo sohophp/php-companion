@@ -1588,6 +1588,9 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     if (!file) return [];
     const found = new Map<string, { owner: string; method: string }>();
+    const ownerType = (name: string, offset: number, scope?: string): string | undefined =>
+      BUILTIN_PARAMETER_TYPES.has(name.replace(/^\\/, '').toLowerCase()) ? undefined
+        : this.resolveSourceType(file, name, this.namespaceAt(file, offset), scope);
     for (const access of file.memberAccesses) {
       if (access.kind !== 'method' || !names.has(access.name.toLowerCase())) continue;
       const prefix = file.source.slice(Math.max(0, access.start - 160), access.start);
@@ -1597,7 +1600,7 @@ export class SemanticWorkspace {
         const property = file.properties.find((item) => item.containerFqcn.toLowerCase() === scope.containerFqcn!.toLowerCase()
           && item.name === propertyReceiver[1] && !item.static);
         if (property?.type && !/[|&?]/.test(property.type)) {
-          const owner = this.resolveSourceType(file, property.type, this.namespaceAt(file, access.start), scope.containerFqcn);
+          const owner = ownerType(property.type, access.start, scope.containerFqcn);
           if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
         }
       }
@@ -1606,14 +1609,14 @@ export class SemanticWorkspace {
       if (!scope) continue;
       const directParameter = scope.parameters.find((item) => `$${item.name}` === variable);
       if (directParameter?.nativeType && !/[|&?]/.test(directParameter.nativeType)) {
-        const owner = this.resolveSourceType(file, directParameter.nativeType, this.namespaceAt(file, access.start), scope.containerFqcn);
+        const owner = ownerType(directParameter.nativeType, access.start, scope.containerFqcn);
         if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
       }
       const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable
         && item.end <= access.start)
         .sort((left, right) => right.end - left.end)[0];
       if (assignment?.typeName && !/[|&?]/.test(assignment.typeName)) {
-        const owner = this.resolveSourceType(file, assignment.typeName, this.namespaceAt(file, access.start), scope.containerFqcn);
+        const owner = ownerType(assignment.typeName, access.start, scope.containerFqcn);
         if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
       }
       const doc = assignment && adjacentPhpDoc(file, assignment.start);
@@ -1621,14 +1624,14 @@ export class SemanticWorkspace {
         (item) => item.name === 'var' && item.variable === variable && item.type?.kind === 'name',
         () => variable).at(-1) : undefined;
       if (tag?.type?.kind === 'name') {
-        const owner = this.resolveSourceType(file, tag.type.name, this.namespaceAt(file, access.start), scope.containerFqcn);
+        const owner = ownerType(tag.type.name, access.start, scope.containerFqcn);
         if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
       }
       const call = assignment?.sourceCall;
       if (call?.kind !== 'member' || call.dynamic) continue;
       const parameter = scope.parameters.find((item) => `$${item.name}` === call.variable);
       if (!parameter?.nativeType || /[|&?]/.test(parameter.nativeType)) continue;
-      const owner = this.resolveSourceType(file, parameter.nativeType, this.namespaceAt(file, access.start), scope.containerFqcn);
+      const owner = ownerType(parameter.nativeType, access.start, scope.containerFqcn);
       if (owner) found.set(`${owner.toLowerCase()}::${call.method.toLowerCase()}`, { owner, method: call.method });
     }
     return [...found.values()];
@@ -1646,7 +1649,8 @@ export class SemanticWorkspace {
       for (const property of file.properties) {
         if (property.static || property.name !== match[1] || !property.type || /[|&?]/.test(property.type)) continue;
         const namespace = property.containerFqcn.split('\\').slice(0, -1).join('\\');
-        const owner = this.resolveSourceType(file, property.type, namespace, property.containerFqcn);
+        const owner = BUILTIN_PARAMETER_TYPES.has(property.type.replace(/^\\/, '').toLowerCase()) ? undefined
+          : this.resolveSourceType(file, property.type, namespace, property.containerFqcn);
         if (owner) found.set(`${owner.toLowerCase()}::${method.toLowerCase()}`, { owner, method });
       }
     }
