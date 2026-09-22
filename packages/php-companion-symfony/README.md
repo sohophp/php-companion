@@ -1,6 +1,6 @@
-# PHP Companion: Symfony
+# SoPHP Symfony
 
-PHP Companion 自研 Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语言核心，负责服务容器、依赖注入、事件订阅、路由和 Controller → Twig 上下文编排。Twig 语法、模板补全、导航和格式化继续由 twig-plus 负责。
+SoPHP Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语言核心，负责服务容器、依赖注入、事件订阅、路由和 Controller → Twig 上下文编排。Twig 语法、模板补全、导航和格式化继续由 twig-plus 负责。
 
 权威服务 ID 的编辑能力覆盖 YAML、XML、PHP Configurator 和项目 PHP 中可证明属于 Symfony 的 `#[Autowire(service: '...')]` 字面量。Definition、References、Completion 与 Rename 共用同一服务目录；Rename 只有在配置图和项目 Attribute 扫描都完整时才返回一次可撤销的跨文件编辑。
 
