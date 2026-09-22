@@ -6083,6 +6083,11 @@ export class SemanticWorkspace {
         try {
           for (const match of file.source.matchAll(pattern)) {
             const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
+            // Prepared syntax facts already distinguish instance and static
+            // accesses. An incompatible access cannot resolve to this member,
+            // so avoid building a temporary tree for it.
+            const syntax = file.memberAccesses.filter((access) => access.start === start && access.end === start + match[1]!.length);
+            if (syntax.length && !syntax.some((access) => access.static === target.static)) continue;
             if (!this.trees.has(file.uri)) {
               queryTree = this.parser.parseTree(file.source);
               this.trees.set(file.uri, queryTree);

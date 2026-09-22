@@ -3697,6 +3697,25 @@ describe('conservative semantic workspace', () => {
     expect(workspace.referenceMemberAt('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1)?.fqcn).toBe('App\\One::run');
     expect(workspace.referenceMemberAt('file:///Calls.php', source.indexOf('run();') + 1)?.fqcn).toBe('App\\One::run');
   });
+  it('skips syntax trees for method accesses with incompatible staticness', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const instanceUri = 'file:///StaticFilterInstance.php';
+    const staticUri = 'file:///StaticFilterStatic.php';
+    const instance = '<?php namespace StaticFilter; class InstanceTarget { public function get(): void {} } function useInstance(InstanceTarget $target): void { $target->get(); }';
+    const staticCall = '<?php namespace StaticFilter; class StaticTarget { public static function get(): void {} } function useStatic(): void { StaticTarget::get(); }';
+    isolated.update(instanceUri, instance);
+    isolated.update(staticUri, staticCall);
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      const references = isolated.references(instanceUri, instance.indexOf('function get') + 'function '.length + 1, false);
+      expect(references).toEqual([{ uri: instanceUri, start: instance.lastIndexOf('get()'), end: instance.lastIndexOf('get()') + 3 }]);
+      expect(parseTree.mock.calls.some(([source]) => source === staticCall)).toBe(false);
+      parseTree.mockClear();
+      const staticReferences = isolated.references(staticUri, staticCall.indexOf('function get') + 'function '.length + 1, false);
+      expect(staticReferences).toEqual([{ uri: staticUri, start: staticCall.lastIndexOf('get()'), end: staticCall.lastIndexOf('get()') + 3 }]);
+      expect(parseTree.mock.calls.some(([source]) => source === instance)).toBe(false);
+    } finally { parseTree.mockRestore(); isolated.dispose(); }
+  });
   it('keeps inherited member ownership from deferred source declarations and invalidates edits', () => {
     const isolated = new SemanticWorkspace(parser);
     const targetUri = 'file:///DeferredTarget.php'; const baseUri = 'file:///DeferredBase.php';
