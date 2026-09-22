@@ -1126,7 +1126,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         sourceReadyTask = (async (): Promise<void> => {
           await refreshSemanticProviders(root, generation, workspace, continueIndexing, async () => {
             await loadCallableFacts(root, workspace);
-            if (continueIndexing()) referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
+            if (continueIndexing()) {
+              referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
+              connection.console.info(`Reference source facts ready in ${root}.`);
+            }
           });
         })().catch((error: unknown) => connection.console.warn(`Reference source preparation failed: ${String(error)}`));
       }
@@ -3559,15 +3562,14 @@ documents.onDidOpen(async ({ document }) => {
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const root = rootForUri(document.uri);
   const sourceReady = root && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
-  invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath && sourceReady && previousSource === document.getText() && update.kind === 'none'
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
-  if (root && sourceReady && diskSource === document.getText() && update.kind === 'none') {
-    referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
-  }
+  // Merely opening the exact indexed source cannot change candidate or
+  // container facts. Preserve both completed snapshots for the first query.
+  if (!sourceReady || diskSource !== document.getText() || update.kind !== 'none') invalidateCandidates(document.uri);
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
@@ -3584,10 +3586,14 @@ documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
-  invalidateCandidates(document.uri);
+  const root = rootForUri(document.uri);
+  const sourceReady = root && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri);
+  const diskPath = pathForUri(document.uri);
+  const diskSource = root && diskPath && sourceReady && previousSource === document.getText() && update.kind === 'none'
+    ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
+  if (!sourceReady || diskSource !== document.getText() || update.kind !== 'none') invalidateCandidates(document.uri);
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);

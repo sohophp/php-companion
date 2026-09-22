@@ -33,6 +33,8 @@ const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `-
   serverEntrypoint, '--stdio', ...(process.argv[8] ? ['--parser-core-wasm', join(dirname(serverEntrypoint), 'web-tree-sitter.wasm'),
     '--php-wasm', join(dirname(serverEntrypoint), 'tree-sitter-php.wasm')] : [])], { stdio: ['pipe', 'pipe', 'pipe'] });
 const pending = new Map(); let sequence = 0; let buffer = Buffer.alloc(0); let serverStderr = '';
+let referenceSourceReady = false; const referenceSourceReadyWaiters = [];
+let sourceIndexComplete = false; const sourceIndexCompleteWaiters = [];
 const send = (message) => { const body = JSON.stringify(message); server.stdin.write(`Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`); };
 server.stderr.on('data', (data) => { serverStderr = `${serverStderr}${data}`.slice(-8_192); });
 server.once('exit', (code, signal) => {
@@ -47,8 +49,16 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
+    if (message.method === 'window/logMessage' && message.params?.message?.includes('Reference source facts ready in ')) {
+      referenceSourceReady = true;
+      for (const ready of referenceSourceReadyWaiters.splice(0)) ready();
+    }
+    if (message.method === 'window/logMessage' && /Indexed \d+ PHP files[^\n]*complete=false/.test(message.params?.message ?? '')) {
+      sourceIndexComplete = true;
+      for (const done of sourceIndexCompleteWaiters.splice(0)) done();
+    }
     if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
-      || indexingMode === 'experimental' && /(?:Project source index ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
+      || indexingMode === 'experimental' && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
     }
@@ -69,6 +79,15 @@ try {
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
   if (Number.isSafeInteger(initialIdleMs) && initialIdleMs > 0 && initialIdleMs <= 30_000) await new Promise((done) => setTimeout(done, initialIdleMs));
+  if (process.env.PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY === '1') {
+    const readyStarted = performance.now();
+    await new Promise((done, reject) => {
+      if (referenceSourceReady) { done(); return; }
+      const timer = setTimeout(() => reject(new Error('Reference source facts did not become ready within 60 seconds')), 60_000);
+      referenceSourceReadyWaiters.push(() => { clearTimeout(timer); done(); });
+    });
+    process.stderr.write(`[benchmark-reference-ready] elapsedMs=${Math.round(performance.now() - readyStarted)}\n`);
+  }
   const source = await readFile(file, 'utf8'); const uri = pathToFileURL(file).toString();
   const match = occurrence === 'last' ? source.lastIndexOf(name) : source.indexOf(name); const offset = match + 1;
   if (offset < 1) throw new Error('Symbol missing');
@@ -109,6 +128,12 @@ try {
       ...(process.env.PHP_COMPANION_BENCHMARK_COMPACT === '1' ? {}
         : { uris: [...new Set(result.map((location) => location.uri))].sort() }), locationSha256 }) + '\n');
     if (persistReferences && method === 'textDocument/references') await request('phpCompanion/testWaitReferencePersistence', {});
+  }
+  if (process.env.PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE === '1' && !sourceIndexComplete) {
+    await new Promise((done, reject) => {
+      const timer = setTimeout(() => reject(new Error('Source index did not commit within 30 seconds after the query')), 30_000);
+      sourceIndexCompleteWaiters.push(() => { clearTimeout(timer); done(); });
+    });
   }
   if (auditInputs) {
     const started = performance.now(); const evidence = await request('phpCompanion/testReferenceInputs', { uri });

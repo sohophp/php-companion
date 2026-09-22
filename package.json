@@ -83,7 +83,7 @@
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
     "benchmark:references:vscode": "tsc -p test/extension/tsconfig.json && node scripts/benchmark-reference-vscode.mjs",
     "check:references:winstar": "node scripts/check-winstar-reference-baseline.mjs",
-    "check:references:source-only:winstar": "PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY=1 PHP_COMPANION_CHECK_REFERENCE_RELOAD=1 PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS=20000 PHP_COMPANION_BENCHMARK_RELOAD_IDLE_MS=13000 node scripts/check-winstar-reference-baseline.mjs",
+    "check:references:source-only:winstar": "PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY=1 PHP_COMPANION_CHECK_REFERENCE_RELOAD=1 node scripts/check-winstar-reference-baseline.mjs",
     "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
     "audit:real-cache": "pnpm build:packages && node scripts/audit-real-cache.mjs",

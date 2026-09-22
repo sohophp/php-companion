@@ -28,7 +28,7 @@ try {
       env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: symfonyProfile ? '1' : '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
         PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload && !sourceOnly ? '1' : '0',
-        ...(phase === 'reload' && sourceOnly ? { PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS: process.env.PHP_COMPANION_BENCHMARK_RELOAD_IDLE_MS ?? '15000' } : {}) } });
+        ...(sourceOnly ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}) } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
@@ -64,8 +64,8 @@ try {
       process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
     }
     if (phase === 'cold') {
-      const preindexed = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1'
-        && logs.includes('Project source index ready') && /Indexed \d+ PHP files[^\n]*complete=false/.test(logs)
+      const preindexed = sourceOnly && logs.includes('Reference source facts ready')
+        && /Indexed \d+ PHP files[^\n]*complete=false/.test(logs)
         && !logs.includes('[named-candidates]');
       const timings = Object.fromEntries(['candidates', 'container', 'routes', 'events', 'semantic'].map((name) => {
         const pattern = name === 'candidates' ? /\[named-candidates\][^\n]*elapsedMs=(\d+)/
