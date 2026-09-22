@@ -5328,7 +5328,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
-          indexingMode: 'experimental', testMode: true, experimentalReferenceSourceOnly: true,
+          indexingMode: 'experimental', experimentalReferenceSourceOnly: true,
         },
       } }));
       await output.waitFor((message) => message.id === 679);

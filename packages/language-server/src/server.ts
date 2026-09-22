@@ -2546,7 +2546,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
-  experimentalReferenceSourceOnly = testMode && initialization?.experimentalReferenceSourceOnly === true;
+  experimentalReferenceSourceOnly = indexingMode === 'experimental' && initialization?.experimentalReferenceSourceOnly === true;
   referenceRipgrepMode = initialization?.experimentalRipgrepCandidates === false ? 'off'
     : testMode && initialization?.experimentalRipgrepCandidates === true ? 'test'
       : process.platform === 'linux' ? 'system' : 'off';
