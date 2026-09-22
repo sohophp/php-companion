@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-22 当前 Alpha 候选 `artifacts/php-companion-alpha-0.4.5-f6c4d8bd/` 来自干净提交 `f6c4d8b`，四份 VSIX 内容验证、`SHA256SUMS` 与 Winstar WSL/PHP 8.5 确定性预检通过。Winstar 当前采用实验性源索引；选中符号后，References 预热现可优先于尚未完成的全项目索引运行。最终打包候选在隔离 VS Code 1.138.0、Core + Symfony、独立空 Profile 下，打开后空闲 8 秒首次点击为 **466 ms**，空闲 2.5 秒为 **6,102 ms**；128 处位置（含声明）及完整 SHA-256 均与基线一致。立即点击仍约 **8 秒**，冷计算量尚未降低。Language Server stdio 90 项通过、1 项跳过，Winstar PHP 首查 127 处基线通过；用户实际 WSL Alpha Profile 和持续编码尚未验收，性能 Goal 保持开放。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
+
 2026-09-22 Symfony 类引用的正式 bundle 跨进程复测：`AdminSecuritySubscriber` 首次约 2.73 秒并写入 2 处完整结果，重载后仍约 2.81 秒，重新执行候选扫描与 Provider，再写入同一结果。首次恢复缺少预先可验证的框架输入指纹；缓存文件存在不等于可以安全跳过 Provider。基准驱动现要求持久化/输入审计显式指定正式 bundle，防止包内入口缺少引擎身份造成误判。性能 Goal 继续。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
 
 2026-09-22 延后候选缓存压缩/提交的两组正反序冷查询只比正式路径快约 0.06–0.19 秒，112 处位置不变；试验已撤回。缓存写盘不是数秒级首查瓶颈，继续解决短名字候选准备与语义判定；当前产品提交仍为 `9c5aaf7`，Goal 保持开放。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
