@@ -30,7 +30,7 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
       parentPort?.postMessage(result); return;
     }
     const parser = await (parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault());
-    const summary = createSourceCandidateSummary(task.source);
+    const summary = createSourceCandidateSummary(task.source, task.mode === 'named-argument');
     const names = new Set(task.names);
     const matches = task.forceFull ? true : task.mode === 'named-argument'
       ? task.names.some((name) => new RegExp(

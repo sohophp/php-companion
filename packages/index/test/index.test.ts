@@ -49,8 +49,17 @@ describe('bounded source candidate summaries', () => {
     expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'named-argument')).toBe('source');
     expect(sourceCandidateSummaryDecision(summary, new Set(['other']), 'named-argument')).toBe('skip');
   });
+  it('never treats a symbol-only summary as proof that a named argument is absent', () => {
+    const summary = createSourceCandidateSummary('<?php new Service(dependency: 1);', false);
+    expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'symbol')).toBe('source');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['missing']), 'symbol')).toBe('skip');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['dependency']), 'named-argument')).toBe('rebuild');
+    expect(sourceCandidateSummaryDecision(summary, new Set(['missing']), 'named-argument')).toBe('rebuild');
+  });
   it('rebuilds invalid payloads and reads incomplete summaries conservatively', () => {
     expect(sourceCandidateSummaryDecision({}, new Set(['dependency']), 'symbol')).toBe('rebuild');
+    expect(sourceCandidateSummaryDecision({ schema: 1, complete: true, symbols: [], namedArguments: [], namedArgumentsComplete: 'false' },
+      new Set(['dependency']), 'named-argument')).toBe('rebuild');
     expect(sourceCandidateSummaryDecision({ schema: 1, complete: false, symbols: [], namedArguments: [] }, new Set(['missing']), 'symbol')).toBe('source');
   });
   it('preserves cold substring candidates after reload and treats oversized tokens as incomplete', () => {

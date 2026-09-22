@@ -6,6 +6,8 @@ export interface SourceCandidateSummary {
   complete: boolean;
   symbols: string[];
   namedArguments: string[];
+  /** False when a symbol-only scan has not inspected named-argument syntax. */
+  namedArgumentsComplete?: boolean;
 }
 
 const MAX_KEYS = 8_192;
@@ -24,8 +26,11 @@ function collect(pattern: RegExp, source: string, group = 0): { keys: string[]; 
   return { keys: [...keys].sort(), complete: true };
 }
 
-export function createSourceCandidateSummary(source: string): SourceCandidateSummary {
-  const symbols = collect(IDENTIFIER, source); const namedArguments = collect(NAMED_ARGUMENT, source, 1);
+export function createSourceCandidateSummary(source: string, includeNamedArguments = true): SourceCandidateSummary {
+  const symbols = collect(IDENTIFIER, source);
+  if (!includeNamedArguments) return { schema: 1, complete: symbols.complete, symbols: symbols.keys,
+    namedArguments: [], namedArgumentsComplete: false };
+  const namedArguments = collect(NAMED_ARGUMENT, source, 1);
   return { schema: 1, complete: symbols.complete && namedArguments.complete, symbols: symbols.keys, namedArguments: namedArguments.keys };
 }
 
@@ -36,7 +41,9 @@ function validKeys(value: unknown): value is string[] {
 export function sourceCandidateSummaryDecision(payload: unknown, names: ReadonlySet<string>, mode: SourceCandidateMode): SourceCandidateSummaryDecision {
   if (!payload || typeof payload !== 'object') return 'rebuild';
   const summary = payload as Partial<SourceCandidateSummary>;
-  if (summary.schema !== 1 || typeof summary.complete !== 'boolean' || !validKeys(summary.symbols) || !validKeys(summary.namedArguments)) return 'rebuild';
+  if (summary.schema !== 1 || typeof summary.complete !== 'boolean' || !validKeys(summary.symbols) || !validKeys(summary.namedArguments)
+    || summary.namedArgumentsComplete !== undefined && typeof summary.namedArgumentsComplete !== 'boolean') return 'rebuild';
+  if (mode === 'named-argument' && summary.namedArgumentsComplete === false) return 'rebuild';
   if (!summary.complete) return 'source';
   const keys = mode === 'named-argument' ? summary.namedArguments : summary.symbols;
   return [...names].some((name) => {

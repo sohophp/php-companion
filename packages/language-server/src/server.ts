@@ -2145,7 +2145,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       const open = documents.get(uri); const effective = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
-      const summary = candidate?.summary ?? createSourceCandidateSummary(effective);
+      const summary = candidate?.summary ?? createSourceCandidateSummary(effective, mode === 'named-argument');
       const matches = candidate?.matches ?? (mode === 'named-argument'
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
         : exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'

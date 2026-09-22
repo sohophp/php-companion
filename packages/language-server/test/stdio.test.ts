@@ -5748,6 +5748,49 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('rebuilds named-argument candidates after restoring a symbol-only source cache', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symbol-only-candidate-cache-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const service = '<?php namespace App; final class Service { public function __construct(private object $dependency) {} }';
+      const use = '<?php namespace App; function run(Bag $bag): int { return $bag->get(); } function make(): Service { return new Service(dependency: new \\stdClass()); }';
+      const bagUri = pathToFileURL(join(src, 'Bag.php')).toString();
+      const serviceUri = pathToFileURL(join(src, 'Service.php')).toString();
+      const useUri = pathToFileURL(join(src, 'Use.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(src, 'Bag.php'), bag); await writeFile(join(src, 'Service.php'), service);
+      await writeFile(join(src, 'Use.php'), use);
+      for (const [uri, source, offset, expectedUri, expectedOffset] of [
+        [bagUri, bag, bag.indexOf('get()') + 1, useUri, use.indexOf('get()')],
+        [serviceUri, service, service.indexOf('$dependency') + 2, useUri, use.indexOf('dependency:')],
+      ] as const) {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache') },
+        } }));
+        await output.waitFor((message) => message.id === 680);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 681, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, offset), context: { includeDeclaration: false },
+        } }));
+        const references = (await output.waitFor((message) => message.id === 681)).result;
+        expect(references).toContainEqual({ uri: expectedUri, range: {
+          start: lspPosition(use, expectedOffset), end: lspPosition(use, expectedOffset + (uri === bagUri ? 3 : 10)),
+        } });
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 682, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === 682);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('does not treat an experimental index as reference-complete while providers are pending', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-index-provider-race-'));
     try {
