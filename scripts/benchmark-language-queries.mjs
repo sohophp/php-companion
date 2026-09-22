@@ -67,7 +67,7 @@ server.stdout.on('data', (data) => {
       proofPrewarmReady = true;
       for (const ready of proofPrewarmWaiters.splice(0)) ready();
     }
-    if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
+    if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg|reference-source-)/.test(message.params?.message ?? '')
       || indexingMode === 'experimental' && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);

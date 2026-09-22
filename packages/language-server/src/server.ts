@@ -78,6 +78,15 @@ const candidateReceiverMethods = new Map<string, AssignedReceiverMethod[]>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
 const referenceSourceReadyRoots = new Map<string, number>();
+interface ReferenceSourcePreparation {
+  epoch: number;
+  files: number;
+  total: number;
+  ready: Promise<boolean>;
+  finish: (ready: boolean) => void;
+}
+const referenceSourcePreparations = new Map<string, ReferenceSourcePreparation>();
+const adoptedReferenceSourcePreparations = new Map<string, ReferenceSourcePreparation>();
 let referenceSourceWorkers: CandidateWorkers | undefined;
 const projectCompleteWaiters = new Map<string, Set<() => void>>();
 const plannedSafeMovePaths = new Map<string, number>();
@@ -1061,10 +1070,19 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   projectCompleteRoots.delete(root);
   referenceSourceReadyRoots.delete(root);
   const sourceOnly = experimentalReferenceSourceOnly && indexingMode === 'experimental';
+  let resolvePreparation: (ready: boolean) => void = () => undefined;
+  const preparation: ReferenceSourcePreparation | undefined = sourceOnly ? {
+    epoch: projectEpochs.get(root) ?? 0, files: 0, total: 0,
+    ready: new Promise<boolean>((resolve) => { resolvePreparation = resolve; }),
+    finish: (ready): void => { resolvePreparation(ready); resolvePreparation = (): void => undefined; },
+  } : undefined;
+  if (preparation) referenceSourcePreparations.set(root, preparation);
+  try {
   const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths(), 4) : undefined;
   if (sourceWorkers) referenceSourceWorkers = sourceWorkers;
   const initialQuerySequence = querySequence;
   const continueIndexing = (): boolean => shouldContinue() && (!sourceOnly || querySequence === initialQuerySequence
+    || adoptedReferenceSourcePreparations.get(root) === preparation && (projectEpochs.get(root) ?? 0) === preparation?.epoch
     || referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
   const project = await composerProjectForRoot(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
@@ -1086,7 +1104,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     limits: indexLimits,
     readConcurrency: sourceOnly ? 128 : 32,
     verifyCachedSourceHash: sourceOnly,
-    onProgress,
+    onProgress: (progress): void => {
+      if (preparation) { preparation.files = progress.files; preparation.total = progress.total; }
+      onProgress?.(progress);
+    },
     includeDependencies: indexingMode === 'experimental' && !sourceOnly,
     shouldContinue: continueIndexing,
     uriForPath: (path) => indexedUriForPath(root, path),
@@ -1139,6 +1160,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
             await loadCallableFacts(root, workspace);
             if (continueIndexing()) {
               referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
+              preparation?.finish(true);
               connection.console.info(`Reference source facts ready in ${root}.`);
               for (const open of documents.all()) {
                 if (rootForUri(open.uri) !== root) continue;
@@ -1183,6 +1205,11 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   }
   connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
   for (const warning of result.warnings) connection.console.warn(warning);
+  } finally {
+    preparation?.finish(false);
+    if (preparation && referenceSourcePreparations.get(root) === preparation) referenceSourcePreparations.delete(root);
+    if (preparation && adoptedReferenceSourcePreparations.get(root) === preparation) adoptedReferenceSourcePreparations.delete(root);
+  }
 }
 
 function mergedInteropContexts(root: string): ControllerTemplateContext[] {
@@ -2329,6 +2356,7 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
 
 const referencePrewarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const referencePrewarmRevisions = new Map<string, number>();
+const referencePrewarmSelections = new Map<string, { version: number; epoch: number; line: number; character: number }>();
 const pendingReferenceSelections = new Map<string, { version: number; position: { line: number; character: number } }>();
 let activeReferenceRequest: { id: number; uri: string; version: number; position: { line: number; character: number } } | undefined;
 const frameworkPrewarmTasks = new Map<string, { epoch: number; promise: Promise<void> }>();
@@ -2351,6 +2379,7 @@ function sameReferenceToken(document: TextDocument, left: { line: number; charac
 function cancelReferencePrewarm(uri: string): void {
   const timer = referencePrewarmTimers.get(uri); if (timer) clearTimeout(timer);
   referencePrewarmTimers.delete(uri);
+  referencePrewarmSelections.delete(uri);
   referencePrewarmRevisions.set(uri, (referencePrewarmRevisions.get(uri) ?? 0) + 1);
 }
 async function selectedReferenceHint(document: TextDocument, root: string, workspace: SemanticWorkspace,
@@ -2378,6 +2407,10 @@ async function selectedReferenceHint(document: TextDocument, root: string, works
 }
 function scheduleReferencePrewarm(document: TextDocument, root: string, workspace: SemanticWorkspace,
   position?: { line: number; character: number }): void {
+  const epoch = projectEpochs.get(root) ?? 0;
+  const previousSelection = referencePrewarmSelections.get(document.uri);
+  if (position && previousSelection?.version === document.version && previousSelection.epoch === epoch
+    && previousSelection.line === position.line && previousSelection.character === position.character) return;
   cancelReferencePrewarm(document.uri);
   const reusableProofs = Boolean(cacheDirectory && reusableReferenceMode());
   const sourcePrepared = experimentalReferenceSourceOnly && indexingMode === 'experimental'
@@ -2385,7 +2418,8 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
   const selectedSourceOnly = Boolean(position && experimentalReferenceSourceOnly && indexingMode === 'experimental');
   if ((indexingMode !== 'onDemand' && !sourcePrepared && !selectedSourceOnly) || (!position && !reusableProofs)) return;
   const uri = document.uri; const version = document.version;
-  const epoch = projectEpochs.get(root) ?? 0; let sequence = querySequence;
+  if (position) referencePrewarmSelections.set(uri, { version, epoch, line: position.line, character: position.character });
+  let sequence = querySequence;
   const revision = referencePrewarmRevisions.get(uri);
   const timer = setTimeout(() => {
     referencePrewarmTimers.delete(uri);
@@ -2394,6 +2428,9 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         || referencePrewarmRevisions.get(uri) !== revision) return;
       const open = documents.get(uri);
       if (!open || open.version !== version || querySequence !== sequence || (projectEpochs.get(root) ?? 0) !== epoch) return;
+      const request = activeReferenceRequest;
+      if (position && request?.uri === uri && request.version === version
+        && sameReferenceToken(open, position, request.position)) return;
       const selected = position ? await selectedReferenceHint(open, root, workspace, position) : undefined;
       const proofs = selected || !reusableProofs ? [] : await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
       const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
@@ -2435,6 +2472,12 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         }
       }
       if (selectedSourceOnly && selected && activeIndexing && referenceSourceReadyRoots.get(root) !== epoch && !candidateScanTasks.size) {
+        const preparation = referenceSourcePreparations.get(root);
+        if (preparation?.epoch === epoch && preparation.total > 0 && preparation.files / preparation.total >= 0.5) {
+          // Let the nearly complete source scan serve the selection and click.
+          referencePrewarmSelections.delete(uri);
+          return;
+        }
         // A selected symbol is more useful than an unfinished all-source scan.
         // Cancel that scan before preparing the same conservative query the
         // first References request would run, so the click can share its work.
@@ -3814,23 +3857,26 @@ documents.onDidOpen(async ({ document }) => {
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const root = rootForUri(document.uri);
-  const sourceReady = root && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
-  const diskSource = root && diskPath && sourceReady && previousSource === document.getText() && update.kind === 'none'
+  const diskSource = root && diskPath
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
-  // Merely opening the exact indexed source cannot change candidate or
-  // container facts. Preserve both completed snapshots for the first query.
-  if (!sourceReady || diskSource !== document.getText() || update.kind !== 'none') invalidateCandidates(document.uri);
+  // An open with disk-identical source is safe when that source was already
+  // indexed, or when the active source scan has not reached this file yet.
+  const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
+    && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
+  if (diskSource !== document.getText() || previousSource !== document.getText() && !unscannedSource) {
+    invalidateCandidates(document.uri);
+  }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
-  if (root && referencePrewarmRevisions.get(document.uri) === prewarmRevision) {
-    const pending = pendingReferenceSelections.get(document.uri);
+  const pending = pendingReferenceSelections.get(document.uri);
+  if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {
     scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
   }
 });
@@ -3840,21 +3886,22 @@ documents.onDidChangeContent(async ({ document }) => {
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const root = rootForUri(document.uri);
-  const sourceReady = root && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
-  const diskSource = root && diskPath && sourceReady && previousSource === document.getText() && update.kind === 'none'
+  const diskSource = root && diskPath && previousSource === document.getText() && update.kind === 'none'
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
-  if (!sourceReady || diskSource !== document.getText() || update.kind !== 'none') invalidateCandidates(document.uri);
+  if (diskSource !== document.getText() || update.kind !== 'none') {
+    invalidateCandidates(document.uri);
+  }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
   if (update.kind !== 'none') await refreshInteropDocument(document);
-  if (root && referencePrewarmRevisions.get(document.uri) === prewarmRevision) {
-    const pending = pendingReferenceSelections.get(document.uri);
+  const pending = pendingReferenceSelections.get(document.uri);
+  if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {
     scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
   }
 });
@@ -4341,9 +4388,14 @@ connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
 
 let querySequence = 0;
 connection.onReferences(async ({ textDocument, position, context }, token) => {
-  const id = ++querySequence; const started = Date.now();
-  referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
   const document = documents.get(textDocument.uri);
+  const openingRoot = document ? rootForUri(document.uri) : undefined;
+  const preparation = openingRoot ? referenceSourcePreparations.get(openingRoot) : undefined;
+  const adoptPreparation = preparation && preparation.epoch === (projectEpochs.get(openingRoot!) ?? 0)
+    && preparation.total > 0 && preparation.files / preparation.total >= 0.5 ? preparation : undefined;
+  if (openingRoot && adoptPreparation) adoptedReferenceSourcePreparations.set(openingRoot, adoptPreparation);
+  const id = ++querySequence; const started = Date.now();
+  if (!adoptPreparation) { referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined; }
   if (!document) return [];
   const version = document.version;
   activeReferenceRequest = { id, uri: document.uri, version, position };
@@ -4361,8 +4413,29 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       return restored;
     }
   }
+  if (openingRoot && adoptPreparation && workspace.referenceScope(document.uri, offset) === 'project') {
+    connection.console.info(`[reference-source-adopt] files=${adoptPreparation.files}/${adoptPreparation.total} root=${openingRoot}`);
+    let subscription: { dispose(): void } | undefined;
+    const cancelled = new Promise<boolean>((resolve) => {
+      subscription = token.onCancellationRequested(() => resolve(false));
+    });
+    const sourceReady = await Promise.race([adoptPreparation.ready, cancelled]);
+    subscription?.dispose();
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (!sourceReady || referenceSourceReadyRoots.get(openingRoot) !== (projectEpochs.get(openingRoot) ?? 0)) {
+      adoptedReferenceSourcePreparations.delete(openingRoot);
+      referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
+      await activeIndexing?.catch(() => undefined);
+    }
+  }
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (routeCall) {
+    if (openingRoot && adoptPreparation) {
+      adoptedReferenceSourcePreparations.delete(openingRoot);
+      referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
+      await activeIndexing?.catch(() => undefined);
+    }
     const root = rootForUri(document.uri); if (!root) return [];
     const name = document.getText().slice(routeCall.start, routeCall.end);
     const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
@@ -4625,7 +4698,12 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;
   } finally { connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`); }
-  } finally { if (activeReferenceRequest?.id === id) activeReferenceRequest = undefined; }
+  } finally {
+    if (openingRoot && adoptPreparation && adoptedReferenceSourcePreparations.get(openingRoot) === adoptPreparation) {
+      adoptedReferenceSourcePreparations.delete(openingRoot);
+    }
+    if (activeReferenceRequest?.id === id) activeReferenceRequest = undefined;
+  }
 });
 
 connection.onSignatureHelp(async ({ textDocument, position }, token) => {
