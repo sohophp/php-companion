@@ -2051,7 +2051,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       return { summary, pending, receiverMethods: sourceReceiverMethods };
     },
     cache: cacheDirectory ? {
-      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v5',
+      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v6',
       finalizePayload: async (payload): Promise<unknown> => {
         const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; receiverMethods?: AssignedReceiverMethod[]; pending?: Promise<{
           semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };

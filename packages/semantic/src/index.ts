@@ -1595,6 +1595,11 @@ export class SemanticWorkspace {
       if (!variable) continue;
       const scope = this.containingScope(file, access.start);
       if (!scope) continue;
+      const directParameter = scope.parameters.find((item) => `$${item.name}` === variable);
+      if (directParameter?.nativeType && !/[|&?]/.test(directParameter.nativeType)) {
+        const owner = this.resolveSourceType(file, directParameter.nativeType, this.namespaceAt(file, access.start), scope.containerFqcn);
+        if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
+      }
       const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable
         && item.end <= access.start && item.sourceCall?.kind === 'member')
         .sort((left, right) => right.end - left.end)[0];

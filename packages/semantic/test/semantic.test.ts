@@ -196,6 +196,21 @@ describe('conservative semantic workspace', () => {
       expect(local.nativeMethodReturnTypeName('Acme\\RequestEvent', 'getRequest')).toBe('Acme\\Request');
     } finally { local.dispose(); }
   });
+  it('extracts a directly typed parameter receiver even when its class file lacks the method name', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///Use.php';
+    const source = '<?php namespace App; function run(Consumer $receiver): int { return $receiver->get(); }';
+    try {
+      local.update(uri, source);
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'App\\Consumer', method: 'get' },
+      ]);
+      local.update('file:///Consumer.php', '<?php namespace App; class Consumer extends Bag {}');
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'App\\Consumer', method: 'get' },
+      ]);
+    } finally { local.dispose(); }
+  });
   it('prewarms both method reference declaration modes from one result', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///PrewarmMethod.php';
