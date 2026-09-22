@@ -50,6 +50,9 @@ try {
       if (sourceOnly && (!/Indexed (\d+) PHP files[^\n]*\b\1 cached\b/.test(logs) || logs.includes('[named-candidates]'))) {
         throw new Error('Expected complete source-only index restoration during reload');
       }
+      if (sourceOnly && Number(/Indexed \d+ PHP files[^\n]*deferred implementations=(\d+)/.exec(logs)?.[1] ?? 0) < 1_000) {
+        throw new Error('Expected cached source implementations to remain deferred after reload');
+      }
       const scan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+)/.exec(logs);
       if (scan && (Number(scan[2]) < Number(scan[1]) - 1 || Number(scan[3]) > 1)) {
         throw new Error(`Reload rebuilt candidate files instead of restoring them: ${scan[0]}`);

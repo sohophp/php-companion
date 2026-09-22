@@ -1103,7 +1103,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
         if (!restored) return false;
         if (open) workspace.update(uri, open.getText(), true);
-        else if (!(sourceOnly ? workspace.restore(restored.semantic, uri) : workspace.restoreDeclaration(restored.semantic, uri))) return false;
+        else if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
@@ -2511,12 +2511,17 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
 
 async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, root: string, names: ReadonlySet<string>,
   cancelled: () => boolean): Promise<boolean> {
+  const patterns = [...names].map((name) => new RegExp(
+    `(?<![\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`, 'iu'));
   const visited = new Set<string>();
   for (let pass = 0; pass < 16; pass += 1) {
     if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     const next = workspace.documentUris().filter((uri) => !visited.has(uri));
     if (!next.length) return true;
-    const methods = next.flatMap((uri) => workspace.assignedReceiverMethods(uri, names));
+    const methods = next.filter((uri) => {
+      const source = workspace.source(uri);
+      return source === undefined || patterns.some((pattern) => pattern.test(source));
+    }).flatMap((uri) => workspace.assignedReceiverMethods(uri, names));
     await hydrateReferenceReceivers(workspace, root, methods, cancelled);
     for (const uri of next) visited.add(uri);
   }
