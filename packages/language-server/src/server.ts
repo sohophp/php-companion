@@ -2314,9 +2314,8 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${hint.names.join(',')}`;
         if (referenceSourceReadyRoots.get(root) === epoch) {
           if (!await hydratePreparedReferenceReceivers(workspace, root, new Set(hint.names), cancelled)) return;
-        } else await hydrateReferenceReceivers(workspace, root, [
-          ...(candidateReceiverMethods.get(scanKey) ?? []), ...loadedReferenceReceiverMethods(workspace, root, new Set(hint.names)),
-        ], cancelled);
+        } else if (!await hydrateLoadedReferenceReceiverClosure(workspace, root, new Set(hint.names),
+          candidateReceiverMethods.get(scanKey) ?? [], cancelled)) return;
       }
       if (cancelled()) return;
       const prewarmStarted = Date.now();
@@ -2523,13 +2522,31 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
   await hydrate(methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []));
 }
 
+async function hydrateLoadedReferenceReceiverClosure(workspace: SemanticWorkspace, root: string,
+  names: ReadonlySet<string>, initial: readonly AssignedReceiverMethod[], cancelled: () => boolean): Promise<boolean> {
+  const seen = new Set<string>();
+  for (let pass = 0; pass < 16; pass += 1) {
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    const next = [...(pass === 0 ? initial : []), ...loadedReferenceReceiverMethods(workspace, root, names)]
+      .filter((item) => {
+        const key = `${item.owner.toLowerCase()}::${item.method.toLowerCase()}`;
+        if (seen.has(key)) return false;
+        seen.add(key); return true;
+      });
+    if (!next.length) return true;
+    await hydrateReferenceReceivers(workspace, root, next, cancelled);
+  }
+  return false;
+}
+
 function loadedReferenceReceiverMethods(workspace: SemanticWorkspace, root: string, names: ReadonlySet<string>): AssignedReceiverMethod[] {
   const methods: AssignedReceiverMethod[] = [];
   for (const uri of workspace.documentUris()) {
-    if (rootForUri(uri) !== root || workspace.implementationState(uri) !== 'loaded') continue;
+    if (rootForUri(uri) !== root) continue;
     const source = workspace.source(uri);
     if (source && [...names].some((name) => source.toLowerCase().includes(name))) {
-      methods.push(...workspace.assignedReceiverMethods(uri, names));
+      methods.push(...(workspace.implementationState(uri) === 'loaded'
+        ? workspace.assignedReceiverMethods(uri, names) : workspace.lexicalPropertyReceiverMethods(uri, names)));
     }
   }
   return methods;
@@ -4234,10 +4251,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         if (!await hydratePreparedReferenceReceivers(workspace, root, candidateNames, () => token.isCancellationRequested)) {
           throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure is incomplete; this is not a zero-reference result.');
         }
-      } else {
-        await hydrateReferenceReceivers(workspace, root, [
-          ...(candidateReceiverMethods.get(scanKey) ?? []), ...loadedReferenceReceiverMethods(workspace, root, candidateNames),
-        ], () => token.isCancellationRequested);
+      } else if (!await hydrateLoadedReferenceReceiverClosure(workspace, root, candidateNames,
+        candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested)) {
+        throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure exceeded its bound; this is not a zero-reference result.');
       }
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');

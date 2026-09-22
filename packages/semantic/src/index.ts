@@ -1622,6 +1622,25 @@ export class SemanticWorkspace {
     return [...found.values()];
   }
 
+  /** Conservative hydration hints from declaration facts; raw matches never become reference results. */
+  lexicalPropertyReceiverMethods(uri: string, names: ReadonlySet<string>): Array<{ owner: string; method: string }> {
+    const file = this.files.get(uri);
+    if (!file || !names.size) return [];
+    const found = new Map<string, { owner: string; method: string }>();
+    const pattern = /\$this\s*(?:\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
+    for (const match of file.source.matchAll(pattern)) {
+      const method = match[2]!;
+      if (!names.has(method.toLowerCase())) continue;
+      for (const property of file.properties) {
+        if (property.static || property.name !== match[1] || !property.type || /[|&?]/.test(property.type)) continue;
+        const namespace = property.containerFqcn.split('\\').slice(0, -1).join('\\');
+        const owner = this.resolveSourceType(file, property.type, namespace, property.containerFqcn);
+        if (owner) found.set(`${owner.toLowerCase()}::${method.toLowerCase()}`, { owner, method });
+      }
+    }
+    return [...found.values()];
+  }
+
   nativeMethodReturnTypeName(owner: string, method: string): string | undefined {
     const member = this.publicInstanceMethod(owner, method);
     const file = member && this.files.get(member.uri);

@@ -222,6 +222,19 @@ describe('conservative semantic workspace', () => {
       ]);
     } finally { local.dispose(); }
   });
+  it('extracts a property receiver from deferred declarations without parsing its body', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///DeferredReceiver.php';
+    const source = '<?php namespace App; use Acme\\ResponseHeaderBag; class Response { public ResponseHeaderBag $headers; public function run(): int { return $this->headers->get(); } }';
+    try {
+      local.updateDeclarations(uri, source);
+      expect(local.implementationState(uri)).toBe('deferred');
+      expect(local.lexicalPropertyReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'Acme\\ResponseHeaderBag', method: 'get' },
+      ]);
+      expect(local.implementationState(uri)).toBe('deferred');
+    } finally { local.dispose(); }
+  });
   it('prewarms both method reference declaration modes from one result', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///PrewarmMethod.php';

@@ -667,6 +667,53 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('prewarms references through a deferred vendor property receiver', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-deferred-vendor-'));
+    try {
+      const sourceDirectory = join(root, 'src'); const vendorDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
+      await mkdir(sourceDirectory); await mkdir(vendorDirectory, { recursive: true }); await mkdir(join(root, 'vendor', 'composer'));
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const headerBag = '<?php namespace App; class HeaderBag extends Bag {}';
+      const response = '<?php namespace Acme; use App\\HeaderBag; class Response { public HeaderBag $headers; public function own(): int { return $this->headers->get(); } }';
+      const use = '<?php namespace App; use Acme\\Response; function run(Response $response): int { return $response->headers->get(); }';
+      const bagUri = pathToFileURL(join(sourceDirectory, 'Bag.php')).toString();
+      const responseUri = pathToFileURL(join(vendorDirectory, 'Response.php')).toString();
+      const useUri = pathToFileURL(join(sourceDirectory, 'Use.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(join(sourceDirectory, 'Bag.php'), bag);
+      await writeFile(join(sourceDirectory, 'HeaderBag.php'), headerBag);
+      await writeFile(join(vendorDirectory, 'Response.php'), response);
+      await writeFile(join(sourceDirectory, 'Use.php'), use);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 740, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'experimental', experimentalReferenceSourceOnly: true },
+      } }));
+      await output.waitFor((message) => message.id === 740);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag },
+      } }));
+      const position = lspPosition(bag, bag.indexOf('get()') + 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: { uri: bagUri, version: 1, position } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-prewarm] semantic count=2'), 15_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 741, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position, context: { includeDeclaration: true },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 741, 10_000)).result;
+      expect(references).toHaveLength(3);
+      expect(new Set(references.map((location: { uri: string }) => location.uri))).toEqual(new Set([bagUri, responseUri, useUri]));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 742, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 742);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('preserves cold class references when external source prefiltering is requested', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-source-prefilter-'));
     try {
