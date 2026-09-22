@@ -10,6 +10,8 @@ if (!workspace || !requestedNames.length || requestedNames.some((name) => !/^[A-
 }
 const names = new Set(requestedNames.map((name) => name.toLowerCase()));
 const parser = await PhpSyntaxParser.createDefault();
+const profileTreeOnly = process.env.PHP_COMPANION_PROFILE_TREE_ONLY === '1';
+const candidateSources = profileTreeOnly ? [] : undefined;
 const times = { summaryMs: 0, declarationsMs: 0, fullMs: 0 };
 let declarations = 0; let full = 0; let candidateBytes = 0;
 let emptyDeclarationCandidates = 0; let declarationFacts = 0;
@@ -26,6 +28,7 @@ try {
       const summary = createSourceCandidateSummary(source);
       times.summaryMs += performance.now() - summaryStarted;
       const declarationsOnly = sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
+      candidateSources?.push({ source, declarationsOnly });
       const parseStarted = performance.now();
       const prepared = parser.prepare(source, uri, declarationsOnly);
       const parseMs = performance.now() - parseStarted;
@@ -63,9 +66,22 @@ try {
       candidateBytes += source.length;
     },
   });
+  const scanElapsedMs = Math.round(performance.now() - started);
+  let treeOnly;
+  if (candidateSources) {
+    const treeTimes = { declarationsMs: 0, fullMs: 0 };
+    for (const { source, declarationsOnly } of candidateSources) {
+      const started = performance.now();
+      const tree = parser.parseTree(source);
+      tree.delete();
+      treeTimes[declarationsOnly ? 'declarationsMs' : 'fullMs'] += performance.now() - started;
+    }
+    treeOnly = Object.fromEntries(Object.entries(treeTimes).map(([key, value]) => [key, Math.round(value)]));
+  }
   process.stdout.write(`${JSON.stringify({ files: scan.files, candidates: declarations + full, declarations, full, candidateBytes,
-    elapsedMs: Math.round(performance.now() - started), memberAccesses, slowest,
+    elapsedMs: scanElapsedMs, memberAccesses, slowest,
     emptyDeclarationCandidates, declarationFacts,
+    ...(treeOnly ? { treeOnly } : {}),
     summaryMs: Math.round(times.summaryMs), declarationsMs: Math.round(times.declarationsMs), fullMs: Math.round(times.fullMs),
     projectComplete: scan.projectComplete, warnings: scan.warnings }, null, 2)}\n`);
 } finally { parser.dispose(); }
