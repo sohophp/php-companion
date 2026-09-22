@@ -5998,6 +5998,20 @@ export class SemanticWorkspace {
     return locations;
   }
 
+  /** Prepare both LSP declaration modes with one method-reference traversal. */
+  prewarmMethodReferences(uri: string, offset: number): number {
+    const without = this.references(uri, offset, false);
+    const target = this.memberAt(uri, offset) ?? this.memberDeclarationAt(uri, offset);
+    if (!target || without.length >= MAX_CACHED_REFERENCE_LOCATIONS) return without.length;
+    const declaration = { uri: target.uri, start: target.start, end: target.end };
+    const withDeclaration = [...new Map([declaration, ...without]
+      .map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
+    const key = JSON.stringify([uri, offset, true]);
+    this.referenceResultCache.set(key, withDeclaration);
+    if (this.referenceResultCache.size > MAX_CACHED_REFERENCE_QUERIES) this.referenceResultCache.delete(this.referenceResultCache.keys().next().value!);
+    return without.length;
+  }
+
   private referencesUncached(uri: string, offset: number, includeDeclaration: boolean): SemanticLocation[] {
     const file = this.files.get(uri);
     const promoted = file?.properties.find((item) => item.promoted && offset >= item.start && offset <= item.end);

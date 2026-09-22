@@ -127,7 +127,7 @@ describe('language server stdio', () => {
       const expected = [location('Use.php', source), location('Other.php', other)];
       let runCount = 0;
       const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
-        provider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean } = {}): Promise<void> => {
+        provider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean; semanticPrewarmed?: boolean } = {}): Promise<void> => {
         const currentRun = ++runCount;
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
           '--php-wasm', join(dirname(bundle), 'tree-sitter-php.wasm')], { stdio: 'pipe' });
@@ -154,6 +154,8 @@ describe('language server stdio', () => {
               && message.params?.message?.includes('[reference-prewarm] ready'), 10_000);
           } catch (error) { throw new Error(`Reference prewarm failed in run ${currentRun}: ${String(error)}`); }
         }
+        if (options.semanticPrewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message?.includes('[reference-prewarm] semantic count='), 10_000);
         const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
           context: { includeDeclaration: options.includeDeclaration ?? false } };
         const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
@@ -172,6 +174,8 @@ describe('language server stdio', () => {
       await run(expected, false, { prewarmed: true, selectionPrewarm: true });
       await run(expected, true, { repeat: true });
       await run([...expected, { ...location('Target.php', declaration), uri: pathToFileURL(join(dependency, 'Target.php')).toString() }], false, { includeDeclaration: true });
+      await run([...expected, { ...location('Target.php', declaration), uri: pathToFileURL(join(dependency, 'Target.php')).toString() }], false,
+        { includeDeclaration: true, prewarmed: true, selectionPrewarm: true, semanticPrewarmed: true });
       // Separate keys preserve the original no-declaration query.
       await run(expected, true);
       const added = source.replace('function run(', 'function added(');

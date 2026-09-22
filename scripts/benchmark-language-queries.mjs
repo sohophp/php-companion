@@ -80,7 +80,8 @@ try {
     ? ['textDocument/references', ...(!once ? ['textDocument/references'] : []), 'textDocument/definition', ...(!once ? ['textDocument/references'] : [])]
     : ['textDocument/definition', 'textDocument/references', ...(!once ? ['textDocument/references'] : [])];
   for (const method of methods) {
-    const started = performance.now(); const result = await request(method, { textDocument: { uri }, position, context: { includeDeclaration: false } });
+    const started = performance.now(); const result = await request(method, { textDocument: { uri }, position,
+      context: { includeDeclaration: process.env.PHP_COMPANION_BENCHMARK_INCLUDE_DECLARATION === '1' } });
     const locationSha256 = createHash('sha256').update(JSON.stringify([...result].sort((a, b) =>
       a.uri.localeCompare(b.uri) || a.range.start.line - b.range.start.line
       || a.range.start.character - b.range.start.character))).digest('hex');

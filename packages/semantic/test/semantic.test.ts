@@ -196,6 +196,28 @@ describe('conservative semantic workspace', () => {
       expect(local.nativeMethodReturnTypeName('Acme\\RequestEvent', 'getRequest')).toBe('Acme\\Request');
     } finally { local.dispose(); }
   });
+  it('prewarms both method reference declaration modes from one result', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///PrewarmMethod.php';
+    const source = '<?php class PrewarmMethod { public function get(): void {} } function useIt(PrewarmMethod $item): void { $item->get(); }';
+    try {
+      local.update(uri, source);
+      const offset = source.lastIndexOf('get();') + 1;
+      expect(local.prewarmMethodReferences(uri, offset)).toBe(1);
+      const without = local.references(uri, offset, false);
+      const withDeclaration = local.references(uri, offset, true);
+      expect(without).toHaveLength(1);
+      expect(withDeclaration).toHaveLength(2);
+      expect(withDeclaration).toContainEqual({ uri, start: source.indexOf('get()'), end: source.indexOf('get()') + 3 });
+      const declarationOffset = source.indexOf('get()') + 1;
+      expect(local.prewarmMethodReferences(uri, declarationOffset)).toBe(1);
+      local.update(uri, source.replace('$item->get();', '$item->other();'));
+      expect(local.references(uri, declarationOffset, false)).toEqual([]);
+      expect(local.references(uri, declarationOffset, true)).toEqual([
+        { uri, start: source.indexOf('get()'), end: source.indexOf('get()') + 3 },
+      ]);
+    } finally { local.dispose(); }
+  });
   it('exposes only signature-identical members across Union and DNF alternatives', () => {
     workspace.update('file:///CompositeTypes.php', `<?php namespace Composite;
       class Result { public function done(): void {} }

@@ -2220,21 +2220,37 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         hint.mode, hint.deferBodies, hint.deferBodies, false);
       if (!ready || cancelled()) return;
       connection.console.info(`[reference-prewarm] ready uri=${uri}`);
-      if (!referenceHasFrameworkProviders()) return;
       const stale = (): boolean => documents.get(uri)?.version !== version || (projectEpochs.get(root) ?? 0) !== epoch
         || referencePrewarmRevisions.get(uri) !== revision;
-      const pending = frameworkPrewarmTasks.get(root);
-      if (pending?.epoch === epoch) return;
-      const warm = { epoch, promise: Promise.resolve() as Promise<void> };
-      warm.promise = Promise.all([
-        ...(semanticProviders.some((provider) => provider.replacesContainerServices)
-          ? [refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !stale())] : []),
-        ...(routeProviders.length ? [availableSymfonyRoutes(root, stale)] : []),
-      ]).then(() => { if (!stale()) connection.console.info(`[reference-prewarm] framework ready uri=${uri}`); })
-        .catch((error: unknown) => connection.console.warn(`Reference framework prewarm failed: ${String(error)}`))
-        .finally(() => { if (frameworkPrewarmTasks.get(root) === warm) frameworkPrewarmTasks.delete(root); });
-      frameworkPrewarmTasks.set(root, warm);
-      await warm.promise;
+      if (referenceHasFrameworkProviders()) {
+        const pending = frameworkPrewarmTasks.get(root);
+        if (pending?.epoch === epoch) await pending.promise;
+        else {
+          const warm = { epoch, promise: Promise.resolve() as Promise<void> };
+          warm.promise = Promise.all([
+            ...(semanticProviders.some((provider) => provider.replacesContainerServices)
+              ? [refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !stale())] : []),
+            ...(routeProviders.length ? [availableSymfonyRoutes(root, stale)] : []),
+          ]).then(() => { if (!stale()) connection.console.info(`[reference-prewarm] framework ready uri=${uri}`); })
+            .catch((error: unknown) => connection.console.warn(`Reference framework prewarm failed: ${String(error)}`))
+            .finally(() => { if (frameworkPrewarmTasks.get(root) === warm) frameworkPrewarmTasks.delete(root); });
+          frameworkPrewarmTasks.set(root, warm);
+          await warm.promise;
+        }
+      }
+      if (!selected || !position || cancelled()) return;
+      const current = documents.get(uri); if (!current) return;
+      const selectedOffset = current.offsetAt(position);
+      const selectedMethod = workspace.referenceMemberAt(uri, selectedOffset)?.kind === 'method';
+      if (selectedMethod) {
+        const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${hint.names.join(',')}`;
+        await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], cancelled);
+      }
+      if (cancelled()) return;
+      const prewarmStarted = Date.now();
+      const count = selectedMethod ? workspace.prewarmMethodReferences(uri, selectedOffset)
+        : workspace.references(uri, selectedOffset, false).length;
+      if (!cancelled()) connection.console.info(`[reference-prewarm] semantic count=${count} elapsedMs=${Date.now() - prewarmStarted} uri=${uri}`);
     })().catch((error: unknown) => connection.console.warn(`Reference prewarm failed: ${String(error)}`));
   }, position ? 250 : 1_500);
   referencePrewarmTimers.set(uri, timer);
