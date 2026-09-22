@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 Symfony PHP Configurator 环境链：静态服务图现支持完整 `if/elseif/else` 与嵌套精确 `$container->env() === 'literal'` 分支；服务、导入、参数和引用共享同一活动视图，动态或混合业务条件仍使整图保持不完整。`pnpm check` 已通过，其中 Framework 53 项、Service Provider 6 项、Semantic 300 项、Language Server 261 项通过且 1 项跳过，四份 VSIX 内容校验通过；候选和真实项目预检待功能提交后补记。见 [Symfony PHP Configurator 环境分支链](reports/symfony-php-configurator-environment-chains-2026-09-23.md)。
+
 2026-09-23 SoPHP 0.4.5 人工验收候选 `artifacts/php-companion-alpha-0.4.5-81580890/` 来自干净提交 `8158089`；四份 VSIX 的内容校验与 `SHA256SUMS` 通过，Winstar PHP 8.5 和 CoreRepo PHP 7.2 的 WSL 确定性预检通过。候选统一使用 SoPHP 显示名称和命令分类，两个 Pack 均加入 Apache Conf Snippets 1.4.0。`pnpm check` 通过，其中 Language Server 261 项通过、1 项跳过。用户已开始在 Winstar2024 实际试用；WSL Extension Host 所属、竞争 Provider、严格编辑器预检和两小时持续编码仍待反馈，不能标记 Alpha 通过。见 [Winstar 人工验收记录](reports/sophp-alpha-winstar-2026-09-23.md)。
 
 2026-09-22 当前 Alpha 候选 `artifacts/php-companion-alpha-0.4.5-f6c4d8bd/` 来自干净提交 `f6c4d8b`，四份 VSIX 内容验证、`SHA256SUMS` 与 Winstar WSL/PHP 8.5 确定性预检通过。Winstar 当前采用实验性源索引；选中符号后，References 预热现可优先于尚未完成的全项目索引运行。最终打包候选在隔离 VS Code 1.138.0、Core + Symfony、独立空 Profile 下，打开后空闲 8 秒首次点击为 **466 ms**，空闲 2.5 秒为 **6,102 ms**；128 处位置（含声明）及完整 SHA-256 均与基线一致。立即点击仍约 **8 秒**，冷计算量尚未降低。Language Server stdio 90 项通过、1 项跳过，Winstar PHP 首查 127 处基线通过；用户实际 WSL Alpha Profile 和持续编码尚未验收，性能 Goal 保持开放。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。

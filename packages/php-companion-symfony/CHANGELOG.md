@@ -2,7 +2,7 @@
 
 - Support PHP array-return Symfony service configuration and exact `when@environment` branches through the standalone container provider and editor requests.
 
-- Select exact `$container->env() === 'literal'` PHP Configurator branches and keep service or parameter navigation, completion and Rename aligned with runtime environment changes.
+- Select complete exact `$container->env() === 'literal'` PHP Configurator `if`/`elseif`/`else` chains, including nested exact guards, and keep service or parameter navigation, completion and Rename aligned with runtime environment changes.
 
 - Select unconditional plus exact-environment Symfony XML service graphs and keep Definition, References, completion and Rename aligned with runtime environment changes.
 

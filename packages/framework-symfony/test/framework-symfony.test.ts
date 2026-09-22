@@ -921,6 +921,47 @@ when@prod:
     expect(symfonyPhpParameterReferences(parser, dynamic, 'dev')).toEqual([]);
   });
 
+  it('selects complete PHP Configurator elseif and fallback environment branches', () => {
+    const source = `<?php
+      use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+      use function Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\{param, service};
+      return static function (ContainerConfigurator $container): void {
+        $services = $container->services();
+        $services->set('shared', \\stdClass::class)->arg('$dependency', service('base.dependency'));
+        if ($container->env() === 'dev') {
+          $services->set('selected.dev', \\stdClass::class)->arg('$value', param('dev.parameter'));
+        } elseif ('prod' === $container->env()) {
+          $services->set('selected.prod', \\stdClass::class)->arg('$dependency', service('prod.dependency'));
+          if ($container->env() === 'prod') {
+            $container->import('services/prod.php');
+            $container->parameters()->set('prod.parameter', 'prod');
+          }
+        } else {
+          $services->set('selected.fallback', \\stdClass::class)->arg('$dependency', service('fallback.dependency'));
+        }
+      };`;
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source).services.map((item) => item.id)).toEqual(['shared']);
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'dev').services.map((item) => item.id))
+      .toEqual(['shared', 'selected.dev']);
+    expect(symfonyPhpParameterReferences(parser, source, 'dev').map((item) => item.value)).toEqual(['dev.parameter']);
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'prod').services.map((item) => item.id))
+      .toEqual(['shared', 'selected.prod']);
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'prod').imports.map((item) => item.resource))
+      .toEqual(['services/prod.php']);
+    expect(symfonyPhpServiceReferences(parser, source, 'prod').map((item) => item.value))
+      .toEqual(['base.dependency', 'prod.dependency']);
+    expect(symfonyPhpParameterDeclarations(parser, source, 'prod').map((item) => item.value)).toEqual(['prod.parameter']);
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', source, 'test').services.map((item) => item.id))
+      .toEqual(['shared', 'selected.fallback']);
+    expect(symfonyPhpServiceReferences(parser, source, 'test').map((item) => item.value))
+      .toEqual(['base.dependency', 'fallback.dependency']);
+    const dynamic = source.replace("elseif ('prod' === $container->env())", 'elseif (enabled())');
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', dynamic, 'dev').complete).toBe(false);
+    expect(symfonyPhpServiceReferences(parser, dynamic, 'dev')).toEqual([]);
+    const nestedDynamic = source.replace("if ($container->env() === 'prod') {\n            $container->import", "if (enabled()) {\n            $container->import");
+    expect(analyzeSymfonyServicePhp(parser, 'file:///services.php', nestedDynamic, 'dev').complete).toBe(false);
+  });
+
   it('selects exact when@environment branches in PHP array service configuration', () => {
     const source = `<?php
       use App\\BaseService;

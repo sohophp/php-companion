@@ -1436,28 +1436,51 @@ function phpConfiguratorIndex(node: NodeLike | undefined): number | undefined {
 
 function activePhpConfiguratorStatements(body: NodeLike, containerVariable: string, source: string,
   environment?: string): { complete: boolean; statements: NodeLike[] } {
-  const statements: NodeLike[] = [];
   const environmentCall = (node: NodeLike | undefined): boolean => node?.type === 'member_call_expression'
     && node.namedChildren[0]?.type === 'variable_name' && node.namedChildren[0]?.text === containerVariable
     && node.namedChildren[1]?.type === 'name' && node.namedChildren[1]?.text === 'env'
     && node.namedChildren[2]?.type === 'arguments' && node.namedChildren[2]?.namedChildren.length === 0;
-  for (const statement of body.namedChildren) {
-    if (statement.type !== 'if_statement') { statements.push(statement); continue; }
-    if (statement.namedChildren.length !== 2) return { complete: false, statements: [] };
-    const [parenthesized, conditionalBody] = statement.namedChildren;
+  const conditionEnvironment = (parenthesized: NodeLike | undefined): string | undefined => {
     const condition = parenthesized?.type === 'parenthesized_expression' ? parenthesized.namedChildren[0] : undefined;
-    if (condition?.type !== 'binary_expression' || condition.namedChildren.length !== 2 || conditionalBody?.type !== 'compound_statement')
-      return { complete: false, statements: [] };
+    if (condition?.type !== 'binary_expression' || condition.namedChildren.length !== 2) return undefined;
     const [left, right] = condition.namedChildren; const operator = source.slice(left!.endIndex, right!.startIndex).trim();
-    const selected = operator === '===' && environmentCall(left) ? phpConfiguratorLiteral(right)?.value
+    return operator === '===' && environmentCall(left) ? phpConfiguratorLiteral(right)?.value
       : operator === '===' && environmentCall(right) ? phpConfiguratorLiteral(left)?.value : undefined;
-    if (!selected) return { complete: false, statements: [] };
-    if (environment === selected) {
-      if (conditionalBody.namedChildren.some((nested) => nested.type === 'if_statement')) return { complete: false, statements: [] };
-      statements.push(...conditionalBody.namedChildren);
+  };
+  const select = (block: NodeLike): { complete: boolean; statements: NodeLike[] } => {
+    const statements: NodeLike[] = [];
+    for (const statement of block.namedChildren) {
+      if (statement.type !== 'if_statement') { statements.push(statement); continue; }
+      const [parenthesized, conditionalBody, ...alternatives] = statement.namedChildren;
+      const firstEnvironment = conditionEnvironment(parenthesized);
+      if (!firstEnvironment || conditionalBody?.type !== 'compound_statement') return { complete: false, statements: [] };
+      const branches: Array<{ environment: string; body: NodeLike }> = [{ environment: firstEnvironment, body: conditionalBody }];
+      let fallback: NodeLike | undefined;
+      for (const alternative of alternatives) {
+        if (alternative.type === 'else_if_clause' && alternative.namedChildren.length === 2) {
+          const [condition, branchBody] = alternative.namedChildren; const branchEnvironment = conditionEnvironment(condition);
+          if (!branchEnvironment || branchBody?.type !== 'compound_statement' || fallback) return { complete: false, statements: [] };
+          branches.push({ environment: branchEnvironment, body: branchBody });
+        } else if (alternative.type === 'else_clause' && alternative.namedChildren.length === 1
+          && alternative.namedChildren[0]?.type === 'compound_statement' && !fallback) {
+          fallback = alternative.namedChildren[0];
+        } else return { complete: false, statements: [] };
+      }
+      const analyzedBranches = new Map<NodeLike, NodeLike[]>();
+      for (const branch of branches) {
+        const nested = select(branch.body); if (!nested.complete) return nested;
+        analyzedBranches.set(branch.body, nested.statements);
+      }
+      if (fallback) {
+        const nested = select(fallback); if (!nested.complete) return nested;
+        analyzedBranches.set(fallback, nested.statements);
+      }
+      const selected = environment ? branches.find((branch) => branch.environment === environment)?.body ?? fallback : undefined;
+      if (selected) statements.push(...analyzedBranches.get(selected)!);
     }
-  }
-  return { complete: true, statements };
+    return { complete: true, statements };
+  };
+  return select(body);
 }
 
 interface SymfonyPhpArrayFacts {

@@ -143,16 +143,23 @@ when@prod:
         if ($container->env() === 'dev') {
           $container->services()->set('app.transport', Dev::class);
           $container->parameters()->set('app.dev', 'dev');
-        }
-        if ('prod' === $container->env()) {
+        } elseif ('prod' === $container->env()) {
           $container->services()->set('app.transport', Prod::class);
           $container->parameters()->set('app.prod', 'prod');
+        } else {
+          $container->parameters()->set('app.fallback', 'fallback');
         }
       };`);
     const projectTypes = [type(root, 'App\\Base', 'Base.php'), type(root, 'App\\Dev', 'Dev.php'), type(root, 'App\\Prod', 'Prod.php')];
     const dev = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'dev' });
     expect(dev.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Dev');
     expect(dev.parameters.map((parameter) => parameter.id)).toEqual(['app.base', 'app.dev']);
+    const prod = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'prod' });
+    expect(prod.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Prod');
+    expect(prod.parameters.map((parameter) => parameter.id)).toEqual(['app.base', 'app.prod']);
+    const fallback = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'test' });
+    expect(fallback.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Base');
+    expect(fallback.parameters.map((parameter) => parameter.id)).toEqual(['app.base', 'app.fallback']);
     const universal = await collectSymfonyServiceFacts(root, parser, { projectTypes });
     expect(universal.services.find((service) => service.id === 'app.transport')?.className).toBe('App\\Base');
     expect(universal.parameters.map((parameter) => parameter.id)).toEqual(['app.base']);

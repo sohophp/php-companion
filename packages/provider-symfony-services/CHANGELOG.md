@@ -2,7 +2,7 @@
 
 - Publish exact PHP array-return service graphs, imports and parameter declarations, selecting only the requested `when@environment` branch.
 
-- Select exact PHP Configurator `$container->env()` service graphs from the request context, including overriding services and parameters.
+- Select exact PHP Configurator `$container->env()` service graphs from the request context, including complete `if`/`elseif`/`else` chains, nested exact guards, overriding services and parameters.
 
 - Select exact XML `<when env="environment">` service graphs from the request context, including imports and overriding service or parameter declarations.
 
