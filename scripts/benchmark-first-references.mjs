@@ -62,23 +62,30 @@ const run = async (bundle, closure = process.env.PHP_COMPANION_BENCHMARK_REFEREN
 
 if ((compareClosure || compareRg) && baseline) throw new Error('Compare candidate modes with the same bundle; omit the baseline bundle.');
 const hasReference = compareClosure || compareRg || Boolean(baseline);
+const crossover = process.env.PHP_COMPANION_BENCHMARK_CROSSOVER === '1';
+if (crossover && !hasReference) throw new Error('Crossover requires a baseline bundle or a candidate comparison mode.');
 const reverse = hasReference && process.env.PHP_COMPANION_BENCHMARK_REVERSE === '1';
 const runReference = () => compareClosure || compareRg ? run(candidate, false, false) : run(baseline);
 const candidateRg = compareRg ? true : process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' ? true
   : process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0' ? false : undefined;
 const runCandidate = () => run(candidate, compareClosure || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
   candidateRg);
-const result = reverse ? await runCandidate() : undefined;
-const reference = hasReference ? await runReference() : undefined;
-const candidateResult = result ?? await runCandidate();
 const expectedHash = process.env.PHP_COMPANION_EXPECTED_REFERENCES_SHA256;
-if (expectedHash && candidateResult.locationSha256 !== expectedHash) throw new Error(`References locations changed: ${candidateResult.locationSha256}`);
-if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && candidateResult.namedCandidateScans !== 1) {
-  throw new Error(`Expected one shared candidate scan, observed ${candidateResult.namedCandidateScans}.`);
-}
-if (reference && (reference.results !== candidateResult.results || reference.locationSha256 !== candidateResult.locationSha256)) {
-  process.stdout.write(`${JSON.stringify({ baseline: reference, candidate: candidateResult }, null, 2)}\n`);
-  throw new Error('References result count or locations changed.');
-}
-process.stdout.write(`${JSON.stringify(reference ? { order: reverse ? 'candidate-first' : 'baseline-first', baseline: reference, candidate: candidateResult,
-  changeMs: candidateResult.elapsedMs - reference.elapsedMs } : { candidate: candidateResult }, null, 2)}\n`);
+const compare = async (candidateFirst) => {
+  const candidateResult = candidateFirst ? await runCandidate() : undefined;
+  const reference = hasReference ? await runReference() : undefined;
+  const candidate = candidateResult ?? await runCandidate();
+  if (expectedHash && candidate.locationSha256 !== expectedHash) throw new Error(`References locations changed: ${candidate.locationSha256}`);
+  if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && candidate.namedCandidateScans !== 1) {
+    throw new Error(`Expected one shared candidate scan, observed ${candidate.namedCandidateScans}.`);
+  }
+  if (reference && (reference.results !== candidate.results || reference.locationSha256 !== candidate.locationSha256)) {
+    process.stdout.write(`${JSON.stringify({ baseline: reference, candidate }, null, 2)}\n`);
+    throw new Error('References result count or locations changed.');
+  }
+  return reference ? { order: candidateFirst ? 'candidate-first' : 'baseline-first', baseline: reference, candidate,
+    changeMs: candidate.elapsedMs - reference.elapsedMs } : { candidate };
+};
+const first = await compare(reverse);
+const result = crossover ? { comparisons: [first, await compare(!reverse)] } : first;
+process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
