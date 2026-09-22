@@ -1213,3 +1213,4 @@ Semantic snapshot 升至 schema 50，旧 schema 49 缓存会安全重建。详�
 
 完整证据见 [match 表达式结果类型验收](reports/match-result-flow-2026-09-09.md)。
 2026-09-21 首次 References 验证内循环：语义成员目标在保留语法树时从当前语句起点解析，候选准备上限从 4 个工作线程调整为 8 个；收益不足的批次重叠和 12 线程方案已撤回。Winstar 两轮空缓存成对测试为 14.439→13.478 秒、14.305→13.360 秒，四轮均为相同 112 处完整引用；Semantic 285、Index 31、Language Server 200 项及改动文件 ESLint 通过。首次查询仍约 13–14 秒，尚未满足交互目标。证据见 [首次 References 验证内循环](reports/cold-references-iteration-2026-09-21.md)。
+2026-09-22 `get` 正式 bundle 冷首查复测 8.228 秒、127 处及原位置摘要；候选 4.444 秒、语义 2.111 秒。后台项目源 worker 预解析原型在无缓存时约 15 秒就绪、后续点击约 3.8 秒，但持久缓存准备需约 23.7 秒，且 Symfony Provider 可在结果返回后才提交；原型已撤回。下一步是按索引代次证明项目源、vendor 接收者与框架事实均就绪，并让立即点击复用后台任务。Goal 未完成。见 [首次查询短循环](reports/reference-first-query-loop-2026-09-22.md)。
