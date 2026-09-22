@@ -10,6 +10,7 @@ const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
 // Build it first; package-level TypeScript output is a separate test target.
 const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
+const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
 const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
@@ -26,7 +27,8 @@ try {
     ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: symfonyProfile ? '1' : '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
-        PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
+        PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload && !sourceOnly ? '1' : '0',
+        ...(phase === 'reload' && sourceOnly ? { PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS: process.env.PHP_COMPANION_BENCHMARK_RELOAD_IDLE_MS ?? '15000' } : {}) } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
@@ -37,10 +39,13 @@ try {
       child.once('exit', done);
     });
     if (code !== 0) throw new Error(`Benchmark exited with code ${code}`);
-    if (checkReload && !(phase === 'reload' ? logs.includes('[reference-cache] restored') : logs.includes('[reference-cache] stored'))) {
+    if (checkReload && !sourceOnly && !(phase === 'reload' ? logs.includes('[reference-cache] restored') : logs.includes('[reference-cache] stored'))) {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
     if (phase === 'reload') {
+      if (sourceOnly && (!/Indexed (\d+) PHP files[^\n]*\b\1 cached\b/.test(logs) || logs.includes('[named-candidates]'))) {
+        throw new Error('Expected complete source-only index restoration during reload');
+      }
       const scan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+)/.exec(logs);
       if (scan && (Number(scan[2]) < Number(scan[1]) - 1 || Number(scan[3]) > 1)) {
         throw new Error(`Reload rebuilt candidate files instead of restoring them: ${scan[0]}`);
@@ -59,11 +64,14 @@ try {
       process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
     }
     if (phase === 'cold') {
+      const preindexed = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1'
+        && logs.includes('Project source index ready') && /Indexed \d+ PHP files[^\n]*complete=false/.test(logs)
+        && !logs.includes('[named-candidates]');
       const timings = Object.fromEntries(['candidates', 'container', 'routes', 'events', 'semantic'].map((name) => {
         const pattern = name === 'candidates' ? /\[named-candidates\][^\n]*elapsedMs=(\d+)/
           : name === 'semantic' ? /\[references:\d+\] semantic count=\d+ elapsedMs=(\d+)/
             : new RegExp(`\\[references:\\d+\\] ${name} elapsedMs=(\\d+)`);
-        return [name, Number(pattern.exec(logs)?.[1] ?? NaN)];
+        return [name, name === 'candidates' && preindexed ? 0 : Number(pattern.exec(logs)?.[1] ?? NaN)];
       }));
       if (Object.values(timings).some((value) => !Number.isFinite(value))) throw new Error('Cold References phase timing is incomplete.');
       process.stdout.write(`${phase} References phases: ${JSON.stringify(timings)}\n`);

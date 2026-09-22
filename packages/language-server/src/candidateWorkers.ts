@@ -15,6 +15,7 @@ export interface CandidatePreparation {
   mode: 'symbol' | 'named-argument';
   deferBodies: boolean;
   exactSymbols?: boolean;
+  forceFull?: boolean;
 }
 
 export interface PreparedCandidate {
@@ -139,5 +140,16 @@ export class CandidateWorkers {
       try { slot.worker.postMessage({ kind: 'compress', id, ...task } satisfies CandidateCompression); }
       catch { slot.pending -= 1; this.waiting.delete(id); this.owners.delete(id); done(undefined); }
     });
+  }
+
+  dispose(): void {
+    this.disabled = true;
+    for (const resolve of this.waiting.values()) resolve(undefined);
+    this.waiting.clear(); this.owners.clear();
+    for (const slot of this.slots) {
+      slot.alive = false;
+      void slot.worker.terminate().catch(() => { /* Disposing speculative work must not fail a query. */ });
+    }
+    this.slots = [];
   }
 }

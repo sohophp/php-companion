@@ -77,6 +77,8 @@ type AssignedReceiverMethod = { owner: string; method: string };
 const candidateReceiverMethods = new Map<string, AssignedReceiverMethod[]>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
+const referenceSourceReadyRoots = new Map<string, number>();
+let referenceSourceWorkers: CandidateWorkers | undefined;
 const projectCompleteWaiters = new Map<string, Set<() => void>>();
 const plannedSafeMovePaths = new Map<string, number>();
 const interopContextsByRoot = new Map<string, Map<string, ControllerTemplateContext[]>>();
@@ -116,6 +118,7 @@ let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let experimentalReferenceClosure = false;
+let experimentalReferenceSourceOnly = false;
 let referenceRipgrepMode: 'off' | 'system' | 'test' = 'off';
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
@@ -726,14 +729,12 @@ function scheduleSymfonyContainerRefresh(root: string): void {
   }, 250));
 }
 
-async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean): Promise<void> {
+async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean,
+  onReferenceFactsReady?: () => Promise<void>): Promise<void> {
   const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
   await runContainerProvider(root, generation, workspace, shouldContinue);
   if (!shouldContinue()) return;
   await runEventProvider(root, generation, workspace, shouldContinue);
-  if (semanticProviders.some((provider) => provider.replacesControllerContexts)) {
-    await runControllerContextProvider(root, generation, workspace, shouldContinue);
-  }
   for (const descriptor of semanticProviders) {
     if (!shouldContinue()) return;
     if (descriptor.replacesContainerServices || descriptor.replacesEventRelations || descriptor.replacesControllerContexts) continue;
@@ -755,6 +756,10 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
     } else {
       connection.console.warn(`Semantic provider ${descriptor.providerId} failed (${result.code}); retained its previous facts: ${result.message}`);
     }
+  }
+  if (shouldContinue()) await onReferenceFactsReady?.();
+  if (shouldContinue() && semanticProviders.some((provider) => provider.replacesControllerContexts)) {
+    await runControllerContextProvider(root, generation, workspace, shouldContinue);
   }
 }
 
@@ -1042,8 +1047,16 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
 }
 
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
+  if (experimentalReferenceSourceOnly && indexingMode === 'experimental' && querySequence > 0) return;
   completeRoots.delete(root);
   projectCompleteRoots.delete(root);
+  referenceSourceReadyRoots.delete(root);
+  const sourceOnly = experimentalReferenceSourceOnly && indexingMode === 'experimental';
+  const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths()) : undefined;
+  if (sourceWorkers) referenceSourceWorkers = sourceWorkers;
+  const initialQuerySequence = querySequence;
+  const continueIndexing = (): boolean => shouldContinue() && (!sourceOnly || querySequence === initialQuerySequence
+    || referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
   const project = await composerProjectForRoot(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
@@ -1052,6 +1065,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const doctrineFiles = new Map<string, DoctrineMethodFact[]>();
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
   const doctrineRepositoryLookupFiles = new Map<string, DoctrineRepositoryLookupFact[]>();
+  let sourceReadyTask: Promise<void> | undefined;
   const syntaxParser = await parser();
   const acceptFacts = (uri: string, facts: ProjectPhpFileFacts): void => {
     if (facts.doctrineMethods.length) doctrineFiles.set(uri, facts.doctrineMethods);
@@ -1061,14 +1075,22 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const result = await indexComposerSources(root, {
     project,
     limits: indexLimits,
-    readConcurrency: 32,
+    readConcurrency: sourceOnly ? 128 : 32,
+    verifyCachedSourceHash: sourceOnly,
     onProgress,
-    includeDependencies: indexingMode === 'experimental',
-    shouldContinue,
+    includeDependencies: indexingMode === 'experimental' && !sourceOnly,
+    shouldContinue: continueIndexing,
     uriForPath: (path) => indexedUriForPath(root, path),
-    onSource: ({ uri, path, source, hash }) => {
+    prepareSource: sourceOnly ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => sourceWorkers!.prepare({
+      uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true,
+    }) : undefined,
+    onSource: ({ uri, path, source, hash, prepared }) => {
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
-      current.add(uri); workspace.update(uri, effectiveSource, Boolean(open));
+      const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
+        && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
+      current.add(uri);
+      if (sourceOnly && candidate?.facts?.kind === 'full') workspace.updatePrepared(uri, effectiveSource, candidate.facts);
+      else workspace.update(uri, effectiveSource, Boolean(open));
       const facts = analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource); acceptFacts(uri, facts);
       const snapshot = workspace.snapshotForPersistence(uri);
       return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts, hash) : undefined;
@@ -1081,41 +1103,63 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
         if (!restored) return false;
         if (open) workspace.update(uri, open.getText(), true);
-        else if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;
+        else if (!(sourceOnly ? workspace.restore(restored.semantic, uri) : workspace.restoreDeclaration(restored.semantic, uri))) return false;
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
     onProjectComplete: async (): Promise<void> => {
-      if (!shouldContinue()) return;
+      if (!continueIndexing()) return;
       await applyPendingFiles(); pendingRoots.clear();
       const projectCurrent = new Set(current);
       for (const stale of projectIndexedUrisByRoot.get(root) ?? []) if (!projectCurrent.has(stale) && !documents.get(stale)) workspace.remove(stale);
       projectIndexedUrisByRoot.set(root, projectCurrent);
       projectCompleteRoots.add(root);
+      if (sourceOnly) {
+        indexedUrisByRoot.set(root, projectCurrent);
+        doctrineMethodsByRoot.set(root, doctrineFiles);
+        doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
+        doctrineRepositoryLookupsByRoot.set(root, doctrineRepositoryLookupFiles);
+        workspace.replaceExternalFacts(semanticFacts('doctrine', String(generation), {
+          methods: mergedDoctrineMethods(doctrineFiles), properties: [...doctrinePropertyFiles.values()].flat(),
+          literalMethodReturns: [...doctrineRepositoryLookupFiles.values()].flat(),
+        }));
+        sourceReadyTask = (async (): Promise<void> => {
+          await refreshSemanticProviders(root, generation, workspace, continueIndexing, async () => {
+            await loadCallableFacts(root, workspace);
+            if (continueIndexing()) referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
+          });
+        })().catch((error: unknown) => connection.console.warn(`Reference source preparation failed: ${String(error)}`));
+      }
       for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
       projectCompleteWaiters.delete(root);
-      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; ${indexingMode === 'experimental' ? 'dependency indexing continues' : 'project indexing complete'}.`);
+      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; ${sourceOnly ? 'reference facts preparing' : indexingMode === 'experimental' ? 'dependency indexing continues' : 'project indexing complete'}.`);
     },
+  }).finally(() => {
+    sourceWorkers?.dispose();
+    if (referenceSourceWorkers === sourceWorkers) referenceSourceWorkers = undefined;
   });
-  if (result.projectComplete && shouldContinue()) {
+  if (result.projectComplete && continueIndexing()) {
     projectCompleteRoots.add(root);
     for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
     projectCompleteWaiters.delete(root);
     for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
     indexedUrisByRoot.set(root, current);
     interopContextsByRoot.delete(root);
-    doctrineMethodsByRoot.set(root, doctrineFiles);
-    doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
-    doctrineRepositoryLookupsByRoot.set(root, doctrineRepositoryLookupFiles);
-    workspace.replaceExternalFacts(semanticFacts('doctrine', String(generation), {
-      methods: mergedDoctrineMethods(doctrineFiles), properties: [...doctrinePropertyFiles.values()].flat(),
-      literalMethodReturns: [...doctrineRepositoryLookupFiles.values()].flat(),
-    }));
-    await refreshSemanticProviders(root, generation, workspace, shouldContinue);
-    await loadCallableFacts(root, workspace);
+    if (sourceOnly) await sourceReadyTask;
+    else {
+      doctrineMethodsByRoot.set(root, doctrineFiles);
+      doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
+      doctrineRepositoryLookupsByRoot.set(root, doctrineRepositoryLookupFiles);
+      workspace.replaceExternalFacts(semanticFacts('doctrine', String(generation), {
+        methods: mergedDoctrineMethods(doctrineFiles), properties: [...doctrinePropertyFiles.values()].flat(),
+        literalMethodReturns: [...doctrineRepositoryLookupFiles.values()].flat(),
+      }));
+      await refreshSemanticProviders(root, generation, workspace, continueIndexing);
+      await loadCallableFacts(root, workspace);
+    }
     // A complete source scan is not yet a complete reference index: providers
     // may still contribute service, event, route and external type facts.
-    if (result.complete && shouldContinue()) completeRoots.add(root);
+    if (result.complete && continueIndexing()) completeRoots.add(root);
     await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map(publishDocumentDiagnostics));
   }
   connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
@@ -2452,7 +2496,7 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
 }
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2473,6 +2517,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
+  experimentalReferenceSourceOnly = testMode && initialization?.experimentalReferenceSourceOnly === true;
   referenceRipgrepMode = initialization?.experimentalRipgrepCandidates === false ? 'off'
     : testMode && initialization?.experimentalRipgrepCandidates === true ? 'test'
       : process.platform === 'linux' ? 'system' : 'off';
@@ -3512,10 +3557,17 @@ documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
+  const root = rootForUri(document.uri);
+  const sourceReady = root && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
   invalidateCandidates(document.uri);
   const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
-  const root = rootForUri(document.uri);
+  const diskPath = pathForUri(document.uri);
+  const diskSource = root && diskPath && sourceReady && previousSource === document.getText() && update.kind === 'none'
+    ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
+  if (root && sourceReady && diskSource === document.getText() && update.kind === 'none') {
+    referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
+  }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
@@ -4014,6 +4066,7 @@ connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
 let querySequence = 0;
 connection.onReferences(async ({ textDocument, position, context }, token) => {
   const id = ++querySequence; const started = Date.now();
+  referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
   const document = documents.get(textDocument.uri);
   if (!document) return [];
   const version = document.version;
@@ -4099,7 +4152,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
-    const requiresCandidateScan = namedTarget && (!projectCompleteRoots.has(root!)
+    const sourcePrepared = Boolean(root && experimentalReferenceSourceOnly
+      && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
+    const requiresCandidateScan = namedTarget && !sourcePrepared && (!projectCompleteRoots.has(root!)
       || indexingMode === 'experimental' && !completeRoots.has(root!));
     const ready = scope === 'document' || !root || (requiresCandidateScan
       ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
@@ -4112,7 +4167,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (root && member?.kind === 'method') {
       const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
-      await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested);
+      const receivers = sourcePrepared ? workspace.documentUris().flatMap((uri) => workspace.assignedReceiverMethods(uri, candidateNames))
+        : candidateReceiverMethods.get(scanKey) ?? [];
+      await hydrateReferenceReceivers(workspace, root, receivers, () => token.isCancellationRequested);
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');

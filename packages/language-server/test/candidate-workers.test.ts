@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EventEmitter } from 'node:events';
 
-const state = vi.hoisted(() => ({ workers: [] as Array<EventEmitter & { sent?: { id: number } }> }));
+const state = vi.hoisted(() => ({ workers: [] as Array<EventEmitter & { sent?: { id: number }; terminate: () => Promise<number> }> }));
 vi.mock('node:os', () => ({ availableParallelism: (): number => 1 }));
 vi.mock('node:worker_threads', async () => {
   const { EventEmitter } = await import('node:events');
@@ -9,6 +9,7 @@ vi.mock('node:worker_threads', async () => {
     sent?: { id: number };
     constructor() { super(); state.workers.push(this); }
     unref(): void {}
+    terminate(): Promise<number> { return Promise.resolve(0); }
     postMessage(message: { id: number }): void { this.sent = message; }
   } };
 });
@@ -35,5 +36,11 @@ describe('candidate worker reply transport', () => {
     const result = { id, uri: task.uri, hash: task.hash, summary: { schema: 1 } };
     worker.emit('message', { id, json: JSON.stringify(result) });
     await expect(retry).resolves.toEqual(result);
+  });
+  it('releases queued speculative preparations when disposed', async () => {
+    const pool = new CandidateWorkers(); const pending = pool.prepare(task);
+    pool.dispose();
+    await expect(pending).resolves.toBeUndefined();
+    await expect(pool.prepare(task)).resolves.toBeUndefined();
   });
 });

@@ -32,7 +32,7 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
     const parser = await (parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault());
     const summary = createSourceCandidateSummary(task.source);
     const names = new Set(task.names);
-    const matches = task.mode === 'named-argument'
+    const matches = task.forceFull ? true : task.mode === 'named-argument'
       ? task.names.some((name) => new RegExp(
         `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu').test(task.source))
       : task.exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'

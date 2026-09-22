@@ -5310,6 +5310,57 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reuses a completed source-only index and hydrates a vendor receiver before References', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-source-only-references-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Lib\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(join(root, 'vendor', 'acme', 'lib', 'src', 'Bag.php'), '<?php namespace Lib; class Bag { public function get(): int { return 1; } }');
+      const source = '<?php namespace App; use Lib\\Bag; function run(Bag $bag): int { return $bag->get(); }';
+      const other = source.replace('function run(', 'function other(');
+      const uri = pathToFileURL(join(root, 'src', 'Use.php')).toString();
+      await writeFile(join(root, 'src', 'Use.php'), source);
+      await writeFile(join(root, 'src', 'Other.php'), other);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'experimental', testMode: true, experimentalReferenceSourceOnly: true,
+        },
+      } }));
+      await output.waitFor((message) => message.id === 679);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 2 PHP files') && message.params?.message?.includes('complete=false'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, source.lastIndexOf('get(') + 1), context: { includeDeclaration: false },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 680, 10_000)).result;
+      expect(references).toHaveLength(2);
+      expect(new Set(references.map((location: { uri: string }) => location.uri))).toEqual(new Set([
+        uri, pathToFileURL(join(root, 'src', 'Other.php')).toString(),
+      ]));
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'))).toBe(false);
+      const changed = source.replace('return $bag->get();', 'return $bag->get() + $bag->get();');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 681, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(changed, changed.lastIndexOf('get(') + 1), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 681, 10_000)).result).toHaveLength(3);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'))).toBe(true);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('uses a bundled authoritative container provider for Symfony service references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-container-provider-'));
     try {

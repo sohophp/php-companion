@@ -12,7 +12,8 @@ const cacheDirectory = process.argv[6] ? resolve(process.argv[6]) : undefined;
 const once = process.argv[7] === 'once';
 const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/language-server/dist/server.js';
 const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
-const indexingMode = process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'experimental' ? 'experimental' : 'onDemand';
+const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
+const indexingMode = sourceOnly || process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'experimental' ? 'experimental' : 'onDemand';
 const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const persistReferences = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE === '1';
 if ((persistReferences || auditInputs) && !process.argv[8]) {
@@ -46,7 +47,7 @@ server.stdout.on('data', (data) => {
     if (buffer.length < header + 4 + size) return;
     const message = JSON.parse(buffer.subarray(header + 4, header + 4 + size)); buffer = buffer.subarray(header + 4 + size);
     if (message.method && message.id !== undefined) send({ jsonrpc: '2.0', id: message.id, result: null });
-    if (message.method === 'window/logMessage' && (/\[(?:named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
+    if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
       || indexingMode === 'experimental' && /(?:Project source index ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
@@ -61,7 +62,7 @@ const request = (method, params) => new Promise((done, reject) => {
 });
 try {
   const initializeStarted = performance.now();
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1', experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || sourceOnly, experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalReferenceSourceOnly: sourceOnly,
     ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0'
       ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization, ...frameworkSnapshot } });
   process.stderr.write(`[benchmark-init] elapsedMs=${Math.round(performance.now() - initializeStarted)}\n`);

@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readdir, rm, writeFile, stat, utimes } from 'node:fs/promises';
+import { mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
@@ -341,6 +341,26 @@ describe('bounded project source index', () => {
     const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);
     const result = await indexComposerSources(root, options);
     expect(result.cached).toBe(1); expect((await stat(cacheFile)).mtimeMs).toBe(fixed.getTime());
+  });
+  it('checks cached source hashes before restoring complete reference facts', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-hash-')); await mkdir(join(root, 'src'));
+    const path = join(root, 'src', 'User.php'); const directory = join(root, 'cache');
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(path, '<?php class User {}');
+    const cache = { directory, version: 'hash-v1', restore: (): boolean => true };
+    await indexComposerSources(root, { cache, onSource: ({ source }) => ({ source }) });
+    await writeFile(path, '<?php class Team {}');
+    const information = await stat(path);
+    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const manifest = JSON.parse(await readFile(cacheFile, 'utf8')) as { entries: Record<string, { mtimeMs: number; ctimeMs: number }> };
+    manifest.entries[path]!.mtimeMs = information.mtimeMs;
+    manifest.entries[path]!.ctimeMs = information.ctimeMs;
+    await writeFile(cacheFile, JSON.stringify(manifest));
+    const indexed: string[] = [];
+    const result = await indexComposerSources(root, { cache, verifyCachedSourceHash: true,
+      onSource: ({ source }) => { indexed.push(source); return { source }; } });
+    expect(result.cached).toBe(0);
+    expect(indexed).toEqual(['<?php class Team {}']);
   });
   it('reads only cache-selected sources while restoring skipped files concurrently', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-source-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
