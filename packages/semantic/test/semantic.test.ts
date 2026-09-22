@@ -211,6 +211,17 @@ describe('conservative semantic workspace', () => {
       ]);
     } finally { local.dispose(); }
   });
+  it('extracts a documented array element receiver for exact reference hydration', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///Use.php';
+    const source = '<?php namespace App; function run(array $items): int { /** @var list<Child> $items */ return $items[0]->get(); }';
+    try {
+      local.update(uri, source);
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'App\\Child', method: 'get' },
+      ]);
+    } finally { local.dispose(); }
+  });
   it('extracts a typed instance property receiver for a method reference candidate', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///PropertyReceiver.php';

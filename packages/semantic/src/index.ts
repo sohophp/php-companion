@@ -1604,9 +1604,22 @@ export class SemanticWorkspace {
           if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
         }
       }
-      const variable = [...prefix.matchAll(/\$[A-Za-z_][A-Za-z0-9_]*/g)].at(-1)?.[0];
+      const offsetReceiver = /(\$[A-Za-z_][A-Za-z0-9_]*)\s*\[[^\]]+\]\s*(?:\?->|->)\s*$/.exec(prefix);
+      const variable = offsetReceiver?.[1] ?? [...prefix.matchAll(/\$[A-Za-z_][A-Za-z0-9_]*/g)].at(-1)?.[0];
       if (!variable) continue;
       if (!scope) continue;
+      if (offsetReceiver) {
+        // Hydrate the element class before exact-name candidate scans discard
+        // a child declaration that only inherits the method being queried.
+        const escaped = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const elementTags = new RegExp(`@(?:var|param)\\s+(?:list|array)\\s*<\\s*(?:[^,>]+,\\s*)?([\\\\A-Za-z_][\\\\A-Za-z_0-9]*)\\s*>\\s*${escaped}\\b`, 'g');
+        const matches = [...file.source.slice(0, access.start).matchAll(elementTags)];
+        const element = matches.at(-1)?.[1];
+        if (element) {
+          const owner = ownerType(element, access.start, scope.containerFqcn);
+          if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
+        }
+      }
       const directParameter = scope.parameters.find((item) => `$${item.name}` === variable);
       if (directParameter?.nativeType && !/[|&?]/.test(directParameter.nativeType)) {
         const owner = ownerType(directParameter.nativeType, access.start, scope.containerFqcn);
