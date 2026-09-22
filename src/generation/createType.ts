@@ -50,7 +50,7 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   let directoryUri = directoryFromTarget(target);
   const folder = target ? vscode.workspace.getWorkspaceFolder(target) : vscode.workspace.workspaceFolders?.[0];
   if (!directoryUri && folder) directoryUri = folder.uri;
-  if (!directoryUri || !folder) return void vscode.window.showErrorMessage('PHP Companion: Open a workspace folder first.');
+  if (!directoryUri || !folder) return void vscode.window.showErrorMessage('SoPHP: Open a workspace folder first.');
 
   const state = await versions.ensureForUri(directoryUri);
   const mappings = state?.composer?.psr4 ?? [];
@@ -62,10 +62,10 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   }
   const namespace = namespaceForDirectory(directoryUri.fsPath, mappings);
   if (namespace === undefined) {
-    return void vscode.window.showErrorMessage('PHP Companion: The target directory is not covered by Composer PSR-4 autoloading.');
+    return void vscode.window.showErrorMessage('SoPHP: The target directory is not covered by Composer PSR-4 autoloading.');
   }
   if (effectiveKind === 'enum' && state?.resolution.target && state.resolution.target < '8.1') {
-    return void vscode.window.showErrorMessage(`PHP Companion: Enums require PHP 8.1 or later (target: ${state.resolution.target}).`);
+    return void vscode.window.showErrorMessage(`SoPHP: Enums require PHP 8.1 or later (target: ${state.resolution.target}).`);
   }
   const name = await vscode.window.showInputBox({ prompt: `New PHP ${kind} name`, validateInput: (value) => TYPE_NAME.test(value) ? undefined : 'Enter a valid PHP type name.' });
   if (!name) return;
@@ -73,7 +73,7 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   const uri = vscode.Uri.joinPath(directoryUri, `${name}.php`);
   try {
     await vscode.workspace.fs.stat(uri);
-    return void vscode.window.showErrorMessage(`PHP Companion: ${uri.fsPath} already exists.`);
+    return void vscode.window.showErrorMessage(`SoPHP: ${uri.fsPath} already exists.`);
   } catch {
     // Expected for a new file.
   }

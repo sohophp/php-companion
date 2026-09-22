@@ -1,4 +1,4 @@
 {
-  "displayName": "PHP Companion Recommended Pack",
-  "description": "The complete open-source PHP profile with PHP Companion core, Symfony, Twig, YAML, XML, debug, test, formatting, and EditorConfig tools."
+  "displayName": "SoPHP Recommended Pack",
+  "description": "The complete open-source PHP profile with SoPHP, Symfony, Twig, YAML, XML, Apache snippets, debug, test, formatting, and EditorConfig tools."
 }

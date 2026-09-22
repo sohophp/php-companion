@@ -27,8 +27,8 @@ export class IntegrationRegistry {
     version: PHP_COMPANION_PLUGIN_API_VERSION,
     registerIntegration: (contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration => this.register(contribution),
     requestLanguageServer: <T>(method: string, params: unknown): Promise<T> => {
-      if (!/^phpCompanion\/[A-Za-z0-9._/-]{1,128}$/.test(method)) return Promise.reject(new TypeError('Invalid PHP Companion language-server request method.'));
-      if (!this.requestHandler) return Promise.reject(new Error('PHP Companion language server is not available.'));
+      if (!/^phpCompanion\/[A-Za-z0-9._/-]{1,128}$/.test(method)) return Promise.reject(new TypeError('Invalid SoPHP language-server request method.'));
+      if (!this.requestHandler) return Promise.reject(new Error('SoPHP language server is not available.'));
       return this.requestHandler(method, params) as Promise<T>;
     },
   });
@@ -36,16 +36,16 @@ export class IntegrationRegistry {
   setRequestHandler(handler: (method: string, params: unknown) => Promise<unknown>): void { this.requestHandler = handler; }
 
   register(contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration {
-    if (!isPhpCompanionIntegrationContribution(contribution)) throw new TypeError('Invalid PHP Companion integration contribution.');
+    if (!isPhpCompanionIntegrationContribution(contribution)) throw new TypeError('Invalid SoPHP integration contribution.');
     const key = contribution.integrationId.toLowerCase();
-    if (this.integrations.has(key)) throw new Error(`PHP Companion integration ${contribution.integrationId} is already registered.`);
+    if (this.integrations.has(key)) throw new Error(`SoPHP integration ${contribution.integrationId} is already registered.`);
     this.integrations.set(key, snapshot(contribution)); this.emit();
     let disposed = false;
     return Object.freeze({
       update: (next: PhpCompanionIntegrationContribution): void => {
-        if (disposed) throw new Error(`PHP Companion integration ${contribution.integrationId} is already disposed.`);
+        if (disposed) throw new Error(`SoPHP integration ${contribution.integrationId} is already disposed.`);
         if (!isPhpCompanionIntegrationContribution(next) || next.integrationId.toLowerCase() !== key) {
-          throw new TypeError(`Invalid update for PHP Companion integration ${contribution.integrationId}.`);
+          throw new TypeError(`Invalid update for SoPHP integration ${contribution.integrationId}.`);
         }
         // Validate and snapshot before replacing the active contribution so a
         // rejected upgrade leaves the last proven provider set intact.

@@ -15,7 +15,7 @@ function winstarRoutesEnabled(): boolean {
 
 export async function activate(context: vscode.ExtensionContext): Promise<PhpCompanionSymfonyApi> {
   const coreExtension = vscode.extensions.getExtension<PhpCompanionPluginApi>('sohophp.php-companion');
-  if (!coreExtension) throw new Error('PHP Companion: Symfony requires sohophp.php-companion.');
+  if (!coreExtension) throw new Error('SoPHP: Symfony requires sohophp.php-companion.');
   const core = await coreExtension.activate();
   const integration = new SymfonyIntegration(core,
     context.asAbsolutePath('dist/service-provider.js'),
@@ -35,8 +35,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     vscode.commands.registerCommand('phpCompanionSymfony.showStatus', async () => {
       const status = integration.status();
       await vscode.window.showInformationMessage(status.winstarRouteProviderRegistered
-        ? 'PHP Companion Symfony is active; services, events, controller contexts, static routes, and Winstar routes are registered.'
-        : 'PHP Companion Symfony is active; services, events, controller contexts, and static routes are registered, and Winstar runtime routes are disabled.');
+        ? 'SoPHP Symfony is active; services, events, controller contexts, static routes, and Winstar routes are registered.'
+        : 'SoPHP Symfony is active; services, events, controller contexts, and static routes are registered, and Winstar runtime routes are disabled.');
     }),
   );
   return Object.freeze({ version: 1 as const, status: () => ({ languageFeaturesRegistered, ...integration.status() }) });

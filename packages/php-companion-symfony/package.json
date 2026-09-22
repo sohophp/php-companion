@@ -29,7 +29,7 @@
   "extensionDependencies": ["sohophp.php-companion"],
   "contributes": {
     "commands": [
-      { "command": "phpCompanionSymfony.showStatus", "title": "Show Integration Status", "category": "PHP Companion: Symfony" }
+      { "command": "phpCompanionSymfony.showStatus", "title": "Show Integration Status", "category": "SoPHP Symfony" }
     ]
   },
   "devDependencies": {

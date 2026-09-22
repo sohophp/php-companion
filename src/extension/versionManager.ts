@@ -118,7 +118,7 @@ export class VersionManager implements vscode.Disposable {
       { label: `$(refresh) ${t('redetect')}` },
       { label: `$(gear) ${t('settings')}` },
     ];
-    const selected = await vscode.window.showQuickPick(items, { placeHolder: `PHP Companion — ${folder.name}` });
+    const selected = await vscode.window.showQuickPick(items, { placeHolder: `SoPHP — ${folder.name}` });
     if (!selected) return;
     if (selected.label.includes(t('redetect'))) return this.refresh(folder);
     if (selected.label.includes(t('settings'))) {
@@ -137,7 +137,7 @@ export class VersionManager implements vscode.Disposable {
       this.status.hide();
       return;
     }
-    this.status.text = `$(symbol-property) PHP Companion: ${state.resolution.target}`;
+    this.status.text = `$(symbol-property) SoPHP: ${state.resolution.target}`;
     this.status.tooltip = `${t('detectedFrom', state.resolution.sourceDetail)}\n${state.resolution.detectedVersion ?? ''}\n${state.runtime
       ? `CLI ${state.runtime.version} (${state.runtime.sapi}), ${state.runtime.loadedExtensions.length} extensions — ${state.runtime.path}`
       : 'CLI runtime extensions: unknown or target-version mismatch'}`.trim();

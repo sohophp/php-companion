@@ -56,10 +56,10 @@ async function recommendStandaloneSymfony(context: vscode.ExtensionContext, outp
   }
   if (!detected) return;
   await context.workspaceState.update(stateKey, true);
-  output.warn('Symfony FrameworkBundle detected without the standalone PHP Companion Symfony extension.');
-  const action = 'Show PHP Companion: Symfony';
+  output.warn('Symfony FrameworkBundle detected without the standalone SoPHP Symfony extension.');
+  const action = 'Show SoPHP: Symfony';
   if (await vscode.window.showInformationMessage(
-    'This Symfony project needs PHP Companion: Symfony for precise services, routes, events, and Controller-to-Twig support.', action,
+    'This Symfony project needs SoPHP: Symfony for precise services, routes, events, and Controller-to-Twig support.', action,
   ) === action) {
     await vscode.commands.executeCommand('workbench.extensions.search', `@id:${extensionId}`);
   }
@@ -156,7 +156,7 @@ function replacePasteAliases(source: string, replacements: Record<string, string
 
 export function activate(context: vscode.ExtensionContext): PhpCompanionPluginApi {
   const started = performance.now();
-  const output = vscode.window.createOutputChannel('PHP Companion', { log: true });
+  const output = vscode.window.createOutputChannel('SoPHP', { log: true });
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 90);
   const versions = new VersionManager(status);
   const integrations = new IntegrationRegistry();
@@ -192,12 +192,12 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     return client;
   }).catch((error) => {
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);
-    void vscode.window.showErrorMessage('PHP Companion language server failed to start. See the PHP Companion output channel.');
+    void vscode.window.showErrorMessage('SoPHP language server failed to start. See the SoPHP output channel.');
     return undefined;
   });
   integrations.setRequestHandler(async (method: string, params: unknown): Promise<unknown> => {
     const client = await languageServer;
-    if (!client) throw new Error('PHP Companion language server is not available.');
+    if (!client) throw new Error('SoPHP language server is not available.');
     return client.sendRequest<unknown>(method, params);
   });
   void recommendStandaloneSymfony(context, output);
@@ -213,7 +213,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   };
   const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
     const client = await languageServer;
-    if (!client) throw new MoveError('PHP Companion Language Server is unavailable.');
+    if (!client) throw new MoveError('SoPHP Language Server is unavailable.');
     const moveId = ++moveSequence; const started = performance.now();
     output.info(`[move:${moveId}] planning files=${files.length}`);
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/planSafeMove', {
@@ -222,7 +222,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     });
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
-    if (!edit) throw new MoveError('PHP Companion Language Server did not return a complete Safe Move edit.');
+    if (!edit) throw new MoveError('SoPHP Language Server did not return a complete Safe Move edit.');
     const snapshots = await Promise.all(Object.entries(includeFileOperations || requireCompleteIndex ? result.sources ?? {} : {}).map(async ([uri, source]) => ({
       document: await vscode.workspace.openTextDocument(vscode.Uri.parse(uri)), source,
     })));
@@ -234,11 +234,11 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     (await requestSafeMovePlan(files, includeFileOperations)).edit;
   const requestMoveReconciliation = async (moves: readonly ServerMoveReconciliation[]): Promise<vscode.WorkspaceEdit> => {
     const client = await languageServer;
-    if (!client) throw new MoveError('PHP Companion Language Server is unavailable.');
+    if (!client) throw new MoveError('SoPHP Language Server is unavailable.');
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/reconcileSafeMove', { moves });
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
-    if (!edit) throw new MoveError('PHP Companion Language Server did not return a Safe Move reconciliation edit.');
+    if (!edit) throw new MoveError('SoPHP Language Server did not return a Safe Move reconciliation edit.');
     // A move or typing can change a document while the server plans. Never
     // apply ranges from the old text to the current editor (VS Code clamps
     // an oversized end column, which can silently consume the semicolon).
@@ -320,7 +320,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       try {
         await withBoundedRetry(async () => {
           pending.reconciliation ??= (await requestSafeMovePlan(pending.files, false)).reconciliation;
-          if (!pending.reconciliation.length) throw new MoveError('PHP Companion Language Server did not retain a Safe Move reconciliation plan.');
+          if (!pending.reconciliation.length) throw new MoveError('SoPHP Language Server did not retain a Safe Move reconciliation plan.');
           try { await reconcileServerMove(pending.reconciliation); }
           catch (error) {
             // A rapid reverse Explorer operation has its own retained plan. Do
@@ -398,7 +398,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       return undefined;
     }
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      void vscode.window.showInformationMessage('PHP Companion indexing is disabled.');
+      void vscode.window.showInformationMessage('SoPHP indexing is disabled.');
       return undefined;
     }
     return workspace();
@@ -420,7 +420,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   register('phpCompanion.showCompatibilityReport', async () => {
     const editor = vscode.window.activeTextEditor;
     if (editor) await versions.ensureForUri(editor.document.uri);
-    const lines = ['# PHP Companion diagnostics', '', `- Activation registration: ${(performance.now() - started).toFixed(1)} ms`, `- Experimental index loaded: ${workspacePromise ? 'yes' : 'no'}`];
+    const lines = ['# SoPHP diagnostics', '', `- Activation registration: ${(performance.now() - started).toFixed(1)} ms`, `- Experimental index loaded: ${workspacePromise ? 'yes' : 'no'}`];
     for (const state of versions.allStates()) lines.push(
       `- ${state.projectRoot ?? state.folder.name}: PHP ${state.resolution.target} — ${state.resolution.sourceDetail}`,
       `  - Runtime: ${state.runtime ? `PHP ${state.runtime.version} ${state.runtime.sapi} via ${state.runtime.path}; ${state.runtime.loadedExtensions.length} loaded extensions` : 'unknown or target-version mismatch'}`,
@@ -448,7 +448,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     }
     if (target.toString() === source.toString()) return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', source);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage('Safe Move requires phpCompanion.indexing.mode to be onDemand or experimental.');
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage('Safe Move requires phpCompanion.indexing.mode to be onDemand, progressive, or experimental.');
     try {
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
       const manager = selfLanguageServer ? undefined : await workspace();
@@ -525,7 +525,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     if (!word) return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      void vscode.window.showInformationMessage('PHP Companion Import Class requires indexing.mode to be onDemand or experimental.');
+      void vscode.window.showInformationMessage('SoPHP Import Class requires indexing.mode to be onDemand, progressive, or experimental.');
       return;
     }
     if (selfLanguageServer) {
@@ -584,7 +584,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const document = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showInformationMessage('PHP Companion Optimize Imports requires project indexing.');
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showInformationMessage('SoPHP Optimize Imports requires project indexing.');
     if (selfLanguageServer) {
       const client = await languageServer; if (!client) return;
       const actions = await client.sendRequest<Array<{ title: string; kind?: string; edit?: ProtocolWorkspaceEdit }>>('textDocument/codeAction', {
@@ -643,7 +643,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
     if (resourceConfiguration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      throw new Error('PHP Companion Rename requires indexing.mode to be onDemand or experimental.');
+      throw new Error('SoPHP Rename requires indexing.mode to be onDemand, progressive, or experimental.');
     }
     await versions.ensureForUri(document.uri);
     const manager = await workspace();
@@ -811,7 +811,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
             return { ...file, source: document?.getText() ?? new TextDecoder().decode(await vscode.workspace.fs.readFile(file.oldUri)) };
           }));
           if (vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<string>('indexing.mode', 'onDemand') === 'off') {
-            throw new MoveError('Safe Move requires phpCompanion.indexing.mode to be onDemand or experimental.');
+            throw new MoveError('Safe Move requires phpCompanion.indexing.mode to be onDemand, progressive, or experimental.');
           }
           if (selfLanguageServer) {
             // Freeze the exact source while the old path still exists, but do

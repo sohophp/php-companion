@@ -16,7 +16,7 @@ export class SymfonyIntegration {
     private readonly staticProviderPath: string,
     private readonly winstarProviderPath: string, private readonly parserCoreWasmPath: string,
     private readonly phpWasmPath: string, private readonly executable = process.execPath) {
-    if (core.version !== 1) throw new Error(`PHP Companion plugin API ${core.version} is not supported; expected version 1.`);
+    if (core.version !== 1) throw new Error(`SoPHP plugin API ${core.version} is not supported; expected version 1.`);
     this.reconcile();
   }
 

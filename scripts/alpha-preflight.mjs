@@ -157,7 +157,7 @@ export async function runPreflight(options) {
     environment: { wsl, kernelRelease: kernel, vscodeTerminal },
     editor,
     gates: { deterministicPassed: errors.length === 0, errors, manualPending: [
-      'Confirm PHP Companion and workspace extensions run in the WSL Extension Host.',
+      'Confirm SoPHP and workspace extensions run in the WSL Extension Host.',
       'Confirm every installed competing PHP provider is disabled for this Profile.',
       'Complete and record the two-hour Winstar and CoreRepo editing sessions.',
     ] },

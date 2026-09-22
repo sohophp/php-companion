@@ -56,7 +56,7 @@ export class WorkspaceManager implements vscode.Disposable {
   async ensureFullIndex(): Promise<void> {
     if (this.fullIndexComplete) return;
     await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'PHP Companion: Indexing workspace…', cancellable: true },
+      { location: vscode.ProgressLocation.Notification, title: 'SoPHP: Indexing workspace…', cancellable: true },
       (_progress, token) => this.rebuild(false, token),
     );
   }
@@ -70,7 +70,7 @@ export class WorkspaceManager implements vscode.Disposable {
     const key = [...new Set(roots.map((root) => resolve(root)))].sort().join('|');
     if (!key) throw new Error('The files are not covered by a Composer PSR-4 project.');
     return vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'PHP Companion: Indexing Composer project…', cancellable: true },
+      { location: vscode.ProgressLocation.Notification, title: 'SoPHP: Indexing Composer project…', cancellable: true },
       (_progress, progressToken) => {
         const combined = { get isCancellationRequested(): boolean { return Boolean(token?.isCancellationRequested || progressToken.isCancellationRequested); } } as vscode.CancellationToken;
         return this.runRebuild(false, combined, roots);
@@ -126,7 +126,7 @@ export class WorkspaceManager implements vscode.Disposable {
       } catch (error) {
         if (error instanceof IndexLimitError) throw error;
         if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') continue;
-        console.warn(`PHP Companion failed to index ${uri.toString()}`, error);
+        console.warn(`SoPHP failed to index ${uri.toString()}`, error);
       }
     }
     const complete = await this.index.updateManyAsync(entries, 50, () => !token?.isCancellationRequested);
@@ -162,7 +162,7 @@ export class WorkspaceManager implements vscode.Disposable {
           }
         }
       } catch (error) {
-        console.warn(`PHP Companion failed to index ${key}`, error);
+        console.warn(`SoPHP failed to index ${key}`, error);
       }
     };
     await indexUri(document.uri, document.getText());

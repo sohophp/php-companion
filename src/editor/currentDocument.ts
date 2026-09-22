@@ -26,7 +26,7 @@ export async function copyIdentity(kind: 'fqcn' | 'namespace' | 'classReference'
   const value = kind === 'namespace' ? identity.namespace
     : kind === 'relativePath' && folder ? relative(folder.uri.fsPath, document.uri.fsPath).replace(/\\/g, '/')
     : identity.fqcn;
-  if (!value) return void vscode.window.showInformationMessage('PHP Companion: No PHP type found in the active file.');
+  if (!value) return void vscode.window.showInformationMessage('SoPHP: No PHP type found in the active file.');
   await vscode.env.clipboard.writeText(kind === 'classReference' ? `${value}::class` : value);
 }
 

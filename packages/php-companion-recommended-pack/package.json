@@ -68,6 +68,7 @@
     "xdebug.php-debug",
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
-    "EditorConfig.EditorConfig"
+    "EditorConfig.EditorConfig",
+    "eiminsasete.apacheconf-snippets"
   ]
 }

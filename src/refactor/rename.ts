@@ -160,7 +160,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
     let symbol = this.options.index.findSymbolAt(document.uri.toString(), offset);
     if (!symbol) {
       if (this.options.unsupportedReturnsUndefined) return undefined;
-      throw new RenameError('PHP Companion cannot resolve a type at this location.');
+      throw new RenameError('SoPHP cannot resolve a type at this location.');
     }
     if (!('name' in symbol)) {
       if (!await this.options.ensureProjectIndex(document.uri, token) || token.isCancellationRequested) throw new RenameError('Rename was cancelled before any changes were made.');
@@ -192,7 +192,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
     const before = this.options.index.findSymbolAt(document.uri.toString(), document.offsetAt(position));
     if (!before) {
       if (this.options.unsupportedReturnsUndefined) return undefined;
-      throw new RenameError('PHP Companion cannot resolve a type at this location.');
+      throw new RenameError('SoPHP cannot resolve a type at this location.');
     }
     const fqcn = before.fqcn;
     if (!await this.options.ensureProjectIndex(document.uri, token) || token.isCancellationRequested) throw new RenameError('Rename was cancelled before any changes were made.');

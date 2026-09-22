@@ -75,7 +75,7 @@ await writeFile(resolve(output, 'SHA256SUMS'), `${artifacts.map((artifact) => `$
 const core = artifacts.find((artifact) => artifact.role === 'core');
 const symfony = artifacts.find((artifact) => artifact.role === 'symfony');
 const openSource = artifacts.find((artifact) => artifact.role === 'open-source-pack');
-await writeFile(resolve(output, 'README.zh-CN.md'), `# PHP Companion Alpha ${corePackage.version}\n\n`
+await writeFile(resolve(output, 'README.zh-CN.md'), `# SoPHP Alpha ${corePackage.version}\n\n`
   + `源码：\`${branch}\` 分支提交 \`${commit}\`。候选生成时工作树干净。\n\n`
   + `推荐依次安装核心、Symfony 扩展与开源扩展包：\n\n`
   + `\`\`\`bash\ncode --install-extension ${core.file} --force\ncode --install-extension ${symfony.file} --force\ncode --install-extension ${openSource.file} --force\n\`\`\`\n\n`

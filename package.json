@@ -1,6 +1,6 @@
 {
   "name": "php-companion",
-  "displayName": "PHP Companion: PhpStorm Workflows",
+  "displayName": "SoPHP",
   "description": "Stable, on-demand PhpStorm-inspired PHP project workflows for Visual Studio Code.",
   "version": "0.4.5",
   "publisher": "sohophp",
@@ -95,28 +95,28 @@
   },
   "contributes": {
     "commands": [
-      { "command": "phpCompanion.selectPhpVersion", "title": "Select PHP Version", "category": "PHP Companion" },
-      { "command": "phpCompanion.detectPhpVersions", "title": "Detect PHP Versions", "category": "PHP Companion" },
-      { "command": "phpCompanion.showCompatibilityReport", "title": "Show Diagnostics Report", "category": "PHP Companion" },
-      { "command": "phpCompanion.showPerformanceLog", "title": "Show Performance Log", "category": "PHP Companion" },
-      { "command": "phpCompanion.safeMove", "title": "Safe Move PHP File", "category": "PHP Companion" },
-      { "command": "phpCompanion.rebuildIndex", "title": "Rebuild Experimental Index", "category": "PHP Companion" },
-      { "command": "phpCompanion.importClass", "title": "Import Class", "category": "PHP Companion" },
-      { "command": "phpCompanion.resolvePastedImports", "title": "Resolve Imports", "category": "PHP Companion" },
-      { "command": "phpCompanion.optimizeImports", "title": "Optimize Imports", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.class", "title": "New PHP Class", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.abstractclass", "title": "New PHP Abstract Class", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.interface", "title": "New PHP Interface", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.trait", "title": "New PHP Trait", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.enum", "title": "New PHP Enum", "category": "PHP Companion" },
-      { "command": "phpCompanion.new.test", "title": "New PHPUnit Test", "category": "PHP Companion" },
-      { "command": "phpCompanion.copy.fqcn", "title": "Copy FQN", "category": "PHP Companion" },
-      { "command": "phpCompanion.copy.namespace", "title": "Copy Namespace", "category": "PHP Companion" },
-      { "command": "phpCompanion.copy.classReference", "title": "Copy Class Reference", "category": "PHP Companion" },
-      { "command": "phpCompanion.copy.relativePath", "title": "Copy Relative File Path", "category": "PHP Companion" },
-      { "command": "phpCompanion.goToDefinition", "title": "Go to Definition", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" },
-      { "command": "phpCompanion.goToImplementation", "title": "Go to Implementation", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" },
-      { "command": "phpCompanion.findReferences", "title": "Find References", "category": "PHP Companion", "enablement": "phpCompanion.hasPhpNavigation" }
+      { "command": "phpCompanion.selectPhpVersion", "title": "Select PHP Version", "category": "SoPHP" },
+      { "command": "phpCompanion.detectPhpVersions", "title": "Detect PHP Versions", "category": "SoPHP" },
+      { "command": "phpCompanion.showCompatibilityReport", "title": "Show Diagnostics Report", "category": "SoPHP" },
+      { "command": "phpCompanion.showPerformanceLog", "title": "Show Performance Log", "category": "SoPHP" },
+      { "command": "phpCompanion.safeMove", "title": "Safe Move PHP File", "category": "SoPHP" },
+      { "command": "phpCompanion.rebuildIndex", "title": "Rebuild Experimental Index", "category": "SoPHP" },
+      { "command": "phpCompanion.importClass", "title": "Import Class", "category": "SoPHP" },
+      { "command": "phpCompanion.resolvePastedImports", "title": "Resolve Imports", "category": "SoPHP" },
+      { "command": "phpCompanion.optimizeImports", "title": "Optimize Imports", "category": "SoPHP" },
+      { "command": "phpCompanion.new.class", "title": "New PHP Class", "category": "SoPHP" },
+      { "command": "phpCompanion.new.abstractclass", "title": "New PHP Abstract Class", "category": "SoPHP" },
+      { "command": "phpCompanion.new.interface", "title": "New PHP Interface", "category": "SoPHP" },
+      { "command": "phpCompanion.new.trait", "title": "New PHP Trait", "category": "SoPHP" },
+      { "command": "phpCompanion.new.enum", "title": "New PHP Enum", "category": "SoPHP" },
+      { "command": "phpCompanion.new.test", "title": "New PHPUnit Test", "category": "SoPHP" },
+      { "command": "phpCompanion.copy.fqcn", "title": "Copy FQN", "category": "SoPHP" },
+      { "command": "phpCompanion.copy.namespace", "title": "Copy Namespace", "category": "SoPHP" },
+      { "command": "phpCompanion.copy.classReference", "title": "Copy Class Reference", "category": "SoPHP" },
+      { "command": "phpCompanion.copy.relativePath", "title": "Copy Relative File Path", "category": "SoPHP" },
+      { "command": "phpCompanion.goToDefinition", "title": "Go to Definition", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
+      { "command": "phpCompanion.goToImplementation", "title": "Go to Implementation", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
+      { "command": "phpCompanion.findReferences", "title": "Find References", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" }
     ],
     "menus": {
       "explorer/context": [
@@ -135,14 +135,14 @@
       ]
     },
     "configuration": {
-      "title": "PHP Companion",
+      "title": "SoPHP",
       "properties": {
         "phpCompanion.phpVersion": { "type": "string", "scope": "resource", "enum": ["auto", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"], "default": "auto", "description": "Target PHP version." },
         "phpCompanion.disabledExtensions": { "type": "array", "scope": "resource", "items": { "type": "string", "enum": ["dom", "filter", "mbstring", "pdo", "simplexml", "xml", "xmlreader", "xmlwriter"] }, "uniqueItems": true, "default": [], "description": "PHP extensions known to be unavailable for this workspace. Composer config.platform entries set to false are also honored." },
         "phpCompanion.phpExecutablePath": { "type": ["string", "null"], "scope": "resource", "default": null, "description": "Optional PHP executable used for version detection." },
-        "phpCompanion.symfony.environment": { "type": ["string", "null"], "scope": "resource", "default": null, "pattern": "^[A-Za-z0-9_.-]{1,64}$", "description": "Explicit Symfony environment used only for static conditional route discovery. Leave empty to include only unconditional routes; PHP Companion never reads project dotenv files or boots the Kernel." },
+        "phpCompanion.symfony.environment": { "type": ["string", "null"], "scope": "resource", "default": null, "pattern": "^[A-Za-z0-9_.-]{1,64}$", "description": "Explicit Symfony environment used only for static conditional route discovery. Leave empty to include only unconditional routes; SoPHP never reads project dotenv files or boots the Kernel." },
         "phpCompanion.symfony.winstarRoutes.enabled": { "type": "boolean", "scope": "resource", "default": false, "description": "Run the bundled Winstar module route provider for this workspace. This explicitly executes the project's bin/php-runtime bin/console debug:router command when a Symfony route query needs runtime module routes." },
-        "phpCompanion.languageServer.enabled": { "type": "boolean", "scope": "window", "default": true, "description": "Enable the self-hosted PHP language server with precise diagnostics, type-aware completion, hover, signatures, navigation, references and safe refactoring. When this setting has no explicit value, PHP Companion stays disabled if Intelephense is installed." },
+        "phpCompanion.languageServer.enabled": { "type": "boolean", "scope": "window", "default": true, "description": "Enable the self-hosted PHP language server with precise diagnostics, type-aware completion, hover, signatures, navigation, references and safe refactoring. When this setting has no explicit value, SoPHP stays disabled if Intelephense is installed." },
         "phpCompanion.semanticProviders": { "type": "array", "scope": "window", "default": [], "description": "Trusted semantic provider executables to run in isolated one-shot processes. Providers are never discovered from project files; process isolation limits failures but is not a security sandbox.", "items": { "type": "object", "additionalProperties": false, "required": ["providerId", "command"], "properties": { "providerId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" }, "command": { "type": "string", "minLength": 1 }, "args": { "type": "array", "maxItems": 64, "items": { "type": "string" } }, "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 }, "maxOutputBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "default": 4194304 } } } },
         "phpCompanion.routeProviders": { "type": "array", "scope": "window", "default": [], "description": "Trusted route provider executables for runtime or project-specific route sources. Providers use fresh isolated one-shot processes unless complete snapshot caching is explicitly enabled; providers are never discovered from project files.", "items": { "type": "object", "additionalProperties": false, "required": ["providerId", "command"], "properties": { "providerId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" }, "command": { "type": "string", "minLength": 1 }, "args": { "type": "array", "maxItems": 64, "items": { "type": "string" } }, "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 }, "maxOutputBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "default": 4194304 }, "cacheUntilInvalidated": { "type": "boolean", "default": false, "description": "Reuse a complete route snapshot until provider, environment, watched PHP/YAML, or open-document invalidation." } } } },
         "phpCompanion.diagnostics.disabledCodes": { "type": "array", "scope": "window", "items": { "type": "string" }, "uniqueItems": true, "default": [], "description": "Diagnostic codes that the self-hosted PHP language server must not publish. Configuration changes apply to open PHP documents immediately." },
@@ -166,7 +166,7 @@
         "phpCompanion.rename.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "Provide stable F2 Rename for PHP class-like declarations. Disable this when another PHP extension should own Rename." },
         "phpCompanion.rename.file": { "type": "string", "scope": "resource", "enum": ["off", "preview", "always"], "default": "preview", "description": "Controls renaming a matching PSR-4 PHP file. Use Shift+Enter in the Rename input to inspect the ordered file and text edits in VS Code's standard preview." },
         "phpCompanion.rename.phpDoc": { "type": "boolean", "scope": "resource", "default": true, "description": "Update semantic PHPDoc type references during Rename." },
-        "phpCompanion.rename.stringReferences": { "type": "boolean", "scope": "resource", "default": false, "description": "Reserved for future string-reference support. PHP Companion 0.3 never changes ordinary strings." }
+        "phpCompanion.rename.stringReferences": { "type": "boolean", "scope": "resource", "default": false, "description": "Reserved for future string-reference support. SoPHP 0.3 never changes ordinary strings." }
       }
     }
   },

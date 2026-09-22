@@ -53,8 +53,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   const activation = languageServerActivationDecision();
   if (!activation.start) {
     if (activation.blockedByCompetingServer) {
-      output.warn('PHP Companion Language Server stayed disabled because Intelephense is installed and no explicit phpCompanion.languageServer.enabled choice exists.');
-      void vscode.window.showInformationMessage('PHP Companion kept Intelephense as the PHP language provider. Set phpCompanion.languageServer.enabled explicitly to change this choice.');
+      output.warn('SoPHP Language Server stayed disabled because Intelephense is installed and no explicit phpCompanion.languageServer.enabled choice exists.');
+      void vscode.window.showInformationMessage('SoPHP kept Intelephense as the PHP language provider. Set phpCompanion.languageServer.enabled explicitly to change this choice.');
     }
     return undefined;
   }
@@ -137,7 +137,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       phpExtensionAvailability: phpExtensionAvailability(),
       frameworkDocumentSnapshots: openFrameworkDocuments(),
       testMode: context.extensionMode === vscode.ExtensionMode.Test,
-      // PHP Companion stages declaration edits through onWillRenameFiles so a
+      // SoPHP stages declaration edits through onWillRenameFiles so a
       // PSR-4 file rename and its text changes remain one undoable operation.
       manualRenameProvider: true,
     }),
@@ -147,18 +147,18 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       return {
         error: (_error, _message, count): ErrorHandlerResult => ({
           action: (count ?? 1) <= 3 ? ErrorAction.Continue : ErrorAction.Shutdown,
-          message: (count ?? 1) <= 3 ? undefined : 'PHP Companion Language Server encountered repeated protocol errors.',
+          message: (count ?? 1) <= 3 ? undefined : 'SoPHP Language Server encountered repeated protocol errors.',
         }),
         closed: (): CloseHandlerResult => {
           const decision = budget.recordClose();
           return decision.restart
-            ? { action: CloseAction.Restart, message: `PHP Companion Language Server stopped unexpectedly; restarting (${decision.recentCloses}/3).` }
-            : { action: CloseAction.DoNotRestart, message: 'PHP Companion Language Server stopped repeatedly and will not restart again within this session.' };
+            ? { action: CloseAction.Restart, message: `SoPHP Language Server stopped unexpectedly; restarting (${decision.recentCloses}/3).` }
+            : { action: CloseAction.DoNotRestart, message: 'SoPHP Language Server stopped repeatedly and will not restart again within this session.' };
         },
       };
     })(),
   };
-  const client = new LanguageClient('phpCompanionLanguageServer', 'PHP Companion Language Server', serverOptions, clientOptions);
+  const client = new LanguageClient('phpCompanionLanguageServer', 'SoPHP Language Server', serverOptions, clientOptions);
   await client.start();
   // Register the client before every listener that can write to it. VS Code
   // disposes subscriptions in reverse order, so notification sources are
@@ -218,7 +218,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       client.sendNotification('phpCompanion/bundledRouteProviders', { providers: bundledRouteProviders() }),
     ]).catch((error: unknown) => {
       if (stopping) return;
-      output.warn(`Unable to update PHP Companion integrations: ${String(error)}`);
+      output.warn(`Unable to update SoPHP integrations: ${String(error)}`);
     });
   };
   const updatePhpExtensionAvailability = (): void => {
@@ -281,6 +281,6 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   }));
   // This is intentionally registered last so it runs first during disposal.
   context.subscriptions.push({ dispose: () => { stopping = true; } });
-  output.info('PHP Companion Language Server started.');
+  output.info('SoPHP Language Server started.');
   return client;
 }
