@@ -6005,8 +6005,13 @@ export class SemanticWorkspace {
 
   /** Prepare both LSP declaration modes with one method-reference traversal. */
   prewarmMethodReferences(uri: string, offset: number): number {
-    const without = this.references(uri, offset, false);
+    const withoutKey = JSON.stringify([uri, offset, false]);
+    let without = this.references(uri, offset, false);
     const target = this.memberAt(uri, offset) ?? this.memberDeclarationAt(uri, offset);
+    // Resolving the selected method can materialize deferred implementation
+    // facts and invalidate the traversal above. Recompute against those facts
+    // before caching either declaration mode.
+    if (!this.referenceResultCache.has(withoutKey)) without = this.references(uri, offset, false);
     if (!target || without.length >= MAX_CACHED_REFERENCE_LOCATIONS) return without.length;
     const declaration = { uri: target.uri, start: target.start, end: target.end };
     const withDeclaration = [...new Map([declaration, ...without]

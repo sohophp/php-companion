@@ -35,6 +35,7 @@ const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `-
 const pending = new Map(); let sequence = 0; let buffer = Buffer.alloc(0); let serverStderr = '';
 let referenceSourceReady = false; const referenceSourceReadyWaiters = [];
 let sourceIndexComplete = false; const sourceIndexCompleteWaiters = [];
+let selectionPrewarmReady = false; const selectionPrewarmWaiters = [];
 const send = (message) => { const body = JSON.stringify(message); server.stdin.write(`Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`); };
 server.stderr.on('data', (data) => { serverStderr = `${serverStderr}${data}`.slice(-8_192); });
 server.once('exit', (code, signal) => {
@@ -56,6 +57,10 @@ server.stdout.on('data', (data) => {
     if (message.method === 'window/logMessage' && /Indexed \d+ PHP files[^\n]*complete=false/.test(message.params?.message ?? '')) {
       sourceIndexComplete = true;
       for (const done of sourceIndexCompleteWaiters.splice(0)) done();
+    }
+    if (message.method === 'window/logMessage' && message.params?.message?.includes('[reference-prewarm] semantic count=')) {
+      selectionPrewarmReady = true;
+      for (const ready of selectionPrewarmWaiters.splice(0)) ready();
     }
     if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
       || indexingMode === 'experimental' && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
@@ -102,6 +107,12 @@ try {
   const documentIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_DOCUMENT_IDLE_MS ?? 0);
   if (Number.isSafeInteger(documentIdleMs) && documentIdleMs > 0 && documentIdleMs <= 30_000) {
     await new Promise((done) => setTimeout(done, Math.max(0, documentIdleMs - (performance.now() - openedAt))));
+  }
+  if (process.env.PHP_COMPANION_BENCHMARK_WAIT_SELECTION_PREWARM === '1' && !selectionPrewarmReady) {
+    await new Promise((done, reject) => {
+      const timer = setTimeout(() => reject(new Error('Selected reference did not prewarm within 30 seconds')), 30_000);
+      selectionPrewarmWaiters.push(() => { clearTimeout(timer); done(); });
+    });
   }
   const methods = process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'
     ? ['textDocument/references', ...(!once ? ['textDocument/references'] : []), 'textDocument/definition', ...(!once ? ['textDocument/references'] : [])]

@@ -1129,6 +1129,11 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
             if (continueIndexing()) {
               referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
               connection.console.info(`Reference source facts ready in ${root}.`);
+              for (const open of documents.all()) {
+                if (rootForUri(open.uri) !== root) continue;
+                const pending = pendingReferenceSelections.get(open.uri);
+                if (pending?.version === open.version) scheduleReferencePrewarm(open, root, workspace, pending.position);
+              }
             }
           });
         })().catch((error: unknown) => connection.console.warn(`Reference source preparation failed: ${String(error)}`));
@@ -2247,7 +2252,9 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
   position?: { line: number; character: number }): void {
   cancelReferencePrewarm(document.uri);
   const reusableProofs = Boolean(cacheDirectory && reusableReferenceMode());
-  if (indexingMode !== 'onDemand' || !position && !reusableProofs) return;
+  const sourcePrepared = experimentalReferenceSourceOnly && indexingMode === 'experimental'
+    && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
+  if ((indexingMode !== 'onDemand' && !sourcePrepared) || (!position && !reusableProofs)) return;
   const uri = document.uri; const version = document.version;
   const epoch = projectEpochs.get(root) ?? 0; const sequence = querySequence;
   const revision = referencePrewarmRevisions.get(uri);
@@ -2266,7 +2273,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
         || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
       if (!hint || candidateScanTasks.size || cancelled()) return;
-      const ready = await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
+      const ready = sourcePrepared || await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
         hint.mode, hint.deferBodies, hint.deferBodies, false);
       if (!ready || cancelled()) return;
       connection.console.info(`[reference-prewarm] ready uri=${uri}`);
@@ -2279,6 +2286,8 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
           const warm = { epoch, promise: Promise.resolve() as Promise<void> };
           warm.promise = Promise.all([
             ...(semanticProviders.some((provider) => provider.replacesContainerServices)
+              && (!sourcePrepared || completeContainerFactsByRoot.get(root)?.revision !== containerFactsRevision
+                || completeContainerFactsByRoot.get(root)?.generation !== indexingGeneration)
               ? [refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !stale())] : []),
             ...(routeProviders.length ? [availableSymfonyRoutes(root, stale)] : []),
           ]).then(() => { if (!stale()) connection.console.info(`[reference-prewarm] framework ready uri=${uri}`); })
@@ -2294,7 +2303,9 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const selectedMethod = workspace.referenceMemberAt(uri, selectedOffset)?.kind === 'method';
       if (selectedMethod) {
         const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${hint.names.join(',')}`;
-        await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], cancelled);
+        if (sourcePrepared) {
+          if (!await hydratePreparedReferenceReceivers(workspace, root, new Set(hint.names), cancelled)) return;
+        } else await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], cancelled);
       }
       if (cancelled()) return;
       const prewarmStarted = Date.now();
@@ -2496,6 +2507,21 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
     frontier = parents.filter((name) => workspace.typeByFqcn(name));
   }
   await hydrate(methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []));
+}
+
+async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, root: string, names: ReadonlySet<string>,
+  cancelled: () => boolean): Promise<boolean> {
+  const visited = new Set<string>();
+  for (let pass = 0; pass < 16; pass += 1) {
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    const next = workspace.documentUris().filter((uri) => !visited.has(uri));
+    if (!next.length) return true;
+    const methods = next.flatMap((uri) => workspace.assignedReceiverMethods(uri, names));
+    await hydrateReferenceReceivers(workspace, root, methods, cancelled);
+    for (const uri of next) visited.add(uri);
+  }
+  connection.console.warn(`Reference receiver closure reached its 16-pass limit in ${root}.`);
+  return false;
 }
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
@@ -4173,9 +4199,11 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     }
     if (root && member?.kind === 'method') {
       const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
-      const receivers = sourcePrepared ? workspace.documentUris().flatMap((uri) => workspace.assignedReceiverMethods(uri, candidateNames))
-        : candidateReceiverMethods.get(scanKey) ?? [];
-      await hydrateReferenceReceivers(workspace, root, receivers, () => token.isCancellationRequested);
+      if (sourcePrepared) {
+        if (!await hydratePreparedReferenceReceivers(workspace, root, candidateNames, () => token.isCancellationRequested)) {
+          throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure is incomplete; this is not a zero-reference result.');
+        }
+      } else await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested);
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');

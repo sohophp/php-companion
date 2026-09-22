@@ -5357,14 +5357,23 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect((await output.waitFor((message) => message.id === 681, 10_000)).result).toHaveLength(2);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('[named-candidates]'))).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: {
+        uri, version: 2, position: lspPosition(source, source.lastIndexOf('get(') + 1),
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-prewarm] semantic count=2'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 682, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, source.lastIndexOf('get(') + 1), context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 682, 10_000)).result).toHaveLength(2);
       const changed = source.replace('return $bag->get();', 'return $bag->get() + $bag->get();');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri, version: 3 }, contentChanges: [{ text: changed }],
       } }));
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 682, method: 'textDocument/references', params: {
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 683, method: 'textDocument/references', params: {
         textDocument: { uri }, position: lspPosition(changed, changed.lastIndexOf('get(') + 1), context: { includeDeclaration: false },
       } }));
-      expect((await output.waitFor((message) => message.id === 682, 10_000)).result).toHaveLength(3);
+      expect((await output.waitFor((message) => message.id === 683, 10_000)).result).toHaveLength(3);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('[named-candidates]'))).toBe(true);
     } finally { await rm(root, { recursive: true, force: true }); }

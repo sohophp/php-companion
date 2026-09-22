@@ -11,6 +11,7 @@ const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
 const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
 const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
+const selected = sourceOnly && process.env.PHP_COMPANION_CHECK_REFERENCE_SELECTION === '1';
 const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
@@ -28,7 +29,9 @@ try {
       env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: symfonyProfile ? '1' : '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
         PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload && !sourceOnly ? '1' : '0',
-        ...(sourceOnly ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}) } });
+        ...(sourceOnly ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}),
+        ...(selected ? { PHP_COMPANION_BENCHMARK_SELECTION_PREWARM: '1', PHP_COMPANION_BENCHMARK_SELECTION_DELAY_MS: '0',
+          PHP_COMPANION_BENCHMARK_WAIT_SELECTION_PREWARM: '1' } : {}) } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
@@ -62,6 +65,14 @@ try {
         throw new Error(`Reference baseline changed: ${JSON.stringify({ method: result.method, results: result.results, locationSha256: result.locationSha256 })}`);
       }
       process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
+    }
+    if (selected) {
+      const prewarmCount = /\[reference-prewarm\] semantic count=(\d+)/.exec(logs);
+      const semanticMs = Number(/\[references:\d+\] semantic count=\d+ elapsedMs=(\d+)/.exec(logs)?.[1] ?? NaN);
+      if (Number(prewarmCount?.[1]) !== 127 || !Number.isFinite(semanticMs) || semanticMs > 100
+        || results[0].elapsedMs > 1_000 || logs.includes('[named-candidates]')) {
+        throw new Error(`Selected References did not reuse its prepared semantic result during ${phase}`);
+      }
     }
     if (phase === 'cold') {
       const preindexed = sourceOnly && logs.includes('Reference source facts ready')
