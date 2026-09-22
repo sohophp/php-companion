@@ -36,6 +36,7 @@ const pending = new Map(); let sequence = 0; let buffer = Buffer.alloc(0); let s
 let referenceSourceReady = false; const referenceSourceReadyWaiters = [];
 let sourceIndexComplete = false; const sourceIndexCompleteWaiters = [];
 let selectionPrewarmReady = false; const selectionPrewarmWaiters = [];
+let proofPrewarmReady = false; const proofPrewarmWaiters = [];
 const send = (message) => { const body = JSON.stringify(message); server.stdin.write(`Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`); };
 server.stderr.on('data', (data) => { serverStderr = `${serverStderr}${data}`.slice(-8_192); });
 server.once('exit', (code, signal) => {
@@ -61,6 +62,10 @@ server.stdout.on('data', (data) => {
     if (message.method === 'window/logMessage' && message.params?.message?.includes('[reference-prewarm] semantic count=')) {
       selectionPrewarmReady = true;
       for (const ready of selectionPrewarmWaiters.splice(0)) ready();
+    }
+    if (message.method === 'window/logMessage' && message.params?.message?.includes('[reference-prewarm] persistent proof available')) {
+      proofPrewarmReady = true;
+      for (const ready of proofPrewarmWaiters.splice(0)) ready();
     }
     if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg)/.test(message.params?.message ?? '')
       || indexingMode === 'experimental' && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
@@ -113,6 +118,12 @@ try {
     await new Promise((done, reject) => {
       const timer = setTimeout(() => reject(new Error('Selected reference did not prewarm within 30 seconds')), 30_000);
       selectionPrewarmWaiters.push(() => { clearTimeout(timer); done(); });
+    });
+  }
+  if (process.env.PHP_COMPANION_BENCHMARK_WAIT_PROOF_PREWARM === '1' && !proofPrewarmReady) {
+    await new Promise((done, reject) => {
+      const timer = setTimeout(() => reject(new Error('Proven reference did not suppress prewarm scan within 10 seconds')), 10_000);
+      proofPrewarmWaiters.push(() => { clearTimeout(timer); done(); });
     });
   }
   const methods = process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'

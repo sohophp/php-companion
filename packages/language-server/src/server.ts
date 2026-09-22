@@ -2351,6 +2351,24 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
       const hint = selected ?? proofs.find((proof) => proof.queryHint?.uri === uri
         && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;
+      const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
+        || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
+      if (selected && position && reusableProofs && referenceHasFrameworkProviders()) {
+        const offset = open.offsetAt(position);
+        const store = new ReferenceResultStore(cacheDirectory!);
+        const persisted = await Promise.all([false, true].map((includeDeclaration) =>
+          store.read(referenceQueryKey(uri, offset, includeDeclaration))));
+        const providerFiles = bundledReferenceProviderFiles();
+        const currentSourceHash = referenceSourceHash(open.getText());
+        if (persisted.some((proof) => proof?.preProviderEnvironment
+          && proof.containerInputEvidenceComplete === true && proof.routeInputEvidenceComplete === true
+          && providerFiles && JSON.stringify(proof.providerImplementationFiles) === JSON.stringify(providerFiles)
+          && proof.eventProviderUsed === false && proof.loaded.some((source) => source.uri === uri
+            && source.hash === currentSourceHash)) && !cancelled()) {
+          connection.console.info(`[reference-prewarm] persistent proof available uri=${uri}`);
+          return;
+        }
+      }
       if (selectedSourceOnly && selected && activeIndexing && referenceSourceReadyRoots.get(root) !== epoch && !candidateScanTasks.size) {
         // A selected symbol is more useful than an unfinished all-source scan.
         // Cancel that scan before preparing the same conservative query the
@@ -2359,8 +2377,6 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
         await activeIndexing?.catch(() => undefined);
       }
-      const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
-        || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
       if (!hint || candidateScanTasks.size || cancelled()) return;
       const ready = referenceSourceReadyRoots.get(root) === epoch || await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
         hint.mode, hint.deferBodies, hint.deferBodies, false);

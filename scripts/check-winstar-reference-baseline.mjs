@@ -19,6 +19,7 @@ if (fixtureSha256 || fixtureDefinitionSha256) {
 const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
 const checkEarlyReload = process.env.PHP_COMPANION_CHECK_REFERENCE_EARLY_RELOAD === '1';
+const checkEarlyReloadPrewarm = process.env.PHP_COMPANION_CHECK_REFERENCE_EARLY_RELOAD_PREWARM === '1';
 const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
 const immediateSourceOnly = sourceOnly && process.env.PHP_COMPANION_BENCHMARK_REFERENCE_IMMEDIATE === '1';
 const primeThenImmediate = process.env.PHP_COMPANION_CHECK_REFERENCE_PRIME_THEN_IMMEDIATE === '1';
@@ -26,6 +27,7 @@ if (primeThenImmediate && (!checkReload || !sourceOnly || immediateSourceOnly)) 
   throw new Error('Prime-then-immediate References requires source-only indexing and reload without immediate mode.');
 }
 if (checkEarlyReload && (!checkReload || sourceOnly)) throw new Error('Early reload gate requires on-demand References with reload enabled.');
+if (checkEarlyReloadPrewarm && !checkEarlyReload) throw new Error('Early reload prewarm gate requires early reload validation.');
 const selected = sourceOnly && process.env.PHP_COMPANION_CHECK_REFERENCE_SELECTION === '1';
 const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
@@ -47,7 +49,9 @@ try {
         PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload && !sourceOnly ? '1' : '0',
         ...(waitReferenceReady ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}),
         ...(selected ? { PHP_COMPANION_BENCHMARK_SELECTION_PREWARM: '1', PHP_COMPANION_BENCHMARK_SELECTION_DELAY_MS: '0',
-          PHP_COMPANION_BENCHMARK_WAIT_SELECTION_PREWARM: '1' } : {}) } });
+          PHP_COMPANION_BENCHMARK_WAIT_SELECTION_PREWARM: '1' } : {}),
+        ...(checkEarlyReloadPrewarm && phase === 'reload' ? { PHP_COMPANION_BENCHMARK_SELECTION_PREWARM: '1',
+          PHP_COMPANION_BENCHMARK_SELECTION_DELAY_MS: '0', PHP_COMPANION_BENCHMARK_WAIT_PROOF_PREWARM: '1' } : {}) } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
@@ -62,6 +66,9 @@ try {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
     if (phase === 'reload') {
+      if (checkEarlyReloadPrewarm && !logs.includes('[reference-prewarm] persistent proof available')) {
+        throw new Error('Reload selection did not suppress the candidate prewarm scan.');
+      }
       if (checkEarlyReload && (!logs.includes('[reference-cache] restored count=174 beforeProviders=true')
         || logs.includes('[named-candidates]') || logs.includes('Semantic provider ')
         || logs.includes('Authoritative route provider '))) {
