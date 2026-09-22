@@ -464,3 +464,9 @@ VS Code 的光标选中通知会在约 550 毫秒后触发引用预热。重载�
 例如比较现有 `rg` 预筛时运行 `PHP_COMPANION_BENCHMARK_COMPARE_REFERENCE_RG=1 PHP_COMPANION_BENCHMARK_CROSSOVER=1 PHP_COMPANION_EXPECTED_REFERENCES_SHA256=7a9f4dbffc12c5002af487d7810f8a0beea5b51205ae030362fafef29c376f04 node scripts/benchmark-first-references.mjs /tmp/php-companion-reference-fixture-mkIqyw /tmp/php-companion-reference-fixture-mkIqyw/src/Security/AdminPasswordChangeGuard.php get last`。该冻结样本位于当前机器的临时目录；路径不存在时须先重建样本，不能改用正在并行编辑的 Winstar 工作树并沿用旧摘要。
 
 在冻结样本上用该入口重新检验 `rg` 源码预筛：两组分别为基线 **7,542/7,422 毫秒**、预筛 **7,576/7,507 毫秒**，预筛反而慢 **34/85 毫秒**；四次均解析 **1,657** 个文件、返回 **174** 处且位置摘要一致。因此不启用该预筛作为默认冷查路径。另一次正式 bundle 的 CPU 采样冷查 **8,167 毫秒**，其中候选 **4,550 毫秒**、语义 **2,229 毫秒**，位置仍相同；主要工作仍在源码准备和成员解析。下一步只推进能保持完整接收者依赖、减少必须解析的文件或复用首次语义事实的结构性改动，先用反例门禁，再用交叉对照；不再以单次几百毫秒差异作为提速结论。
+
+## 快速类型目录原型
+
+新增只供测量的 `scripts/experimental-reference-type-catalog.php`，利用 PHP 原生 `token_get_all(..., TOKEN_PARSE)` 枚举项目类、接口、trait 和 enum 的完整名称；语法不完整的文件标为 `complete=false`，不能用其缺失结果排除声明。冻结样本的 **2,292** 个 PHP 文件耗时约 **0.82 秒**，逐文件与现有 Tree-sitter `parseDeclarations` 比对，**2,292/2,292** 的命名类型集合一致且没有解析失败。另用多命名空间、匿名类、`::class` 及未闭合类声明的反例检查了目录边界。这个结果只证明快速建立“类型名→文件”目录可行；原型没有提取继承、导入、方法、属性和 PHPDoc，不能直接替代完整的声明解析，也没有降低当前产品的首次查询时间。
+
+下一步应把目录输入限定为 Composer 实际候选路径并纳入打开缓冲区与内容哈希，再用它定位需要完整解析的声明文件。任何目录不完整、运行时 PHP 版本不足、动态接收者依赖无法证明或 Provider 输入变化，都必须保守回退到宽扫描。只有在合成反例、冻结样本完整位置、不同 Composer 布局和独立冷查交叉验证同时成立后，才考虑启用；本轮不改变默认路径。
