@@ -5702,6 +5702,52 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('shares an in-flight selected-symbol scan with a References click inside the same word', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-inflight-reference-prewarm-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const use = '<?php namespace App; function run(Bag $bag): int { return $bag->get(); }';
+      const bagUri = pathToFileURL(join(src, 'Bag.php')).toString();
+      const useUri = pathToFileURL(join(src, 'Use.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(src, 'Bag.php'), bag); await writeFile(join(src, 'Use.php'), use);
+      await Promise.all(Array.from({ length: 400 }, (_, index) => writeFile(join(src, `Extra${index}.php`),
+        `<?php namespace App; class Extra${index} { public function getter(): int { return ${index}; } }`)));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 677, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache') },
+      } }));
+      await output.waitFor((message) => message.id === 677);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag },
+      } }));
+      const selected = lspPosition(bag, bag.indexOf('get()') + 3);
+      const clicked = lspPosition(bag, bag.indexOf('get()') + 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: {
+        uri: bagUri, version: 1, position: selected,
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start]'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 678, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: clicked, context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 678, 20_000)).result).toEqual([{
+        uri: useUri, range: { start: lspPosition(use, use.indexOf('get()')),
+          end: lspPosition(use, use.indexOf('get()') + 3) },
+      }]);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start]'))).toHaveLength(1);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 679);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('does not treat an experimental index as reference-complete while providers are pending', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-index-provider-race-'));
     try {

@@ -2093,6 +2093,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
+  connection.console.info(`[candidate-scan-start] mode=${mode} names=${normalizedNames.join(',')} root=${root}`);
   candidateReceiverMethods.delete(key);
   referenceCandidateReads.delete(workspace);
   const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
@@ -2327,8 +2328,24 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
 const referencePrewarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const referencePrewarmRevisions = new Map<string, number>();
 const pendingReferenceSelections = new Map<string, { version: number; position: { line: number; character: number } }>();
+let activeReferenceRequest: { id: number; uri: string; version: number; position: { line: number; character: number } } | undefined;
 const frameworkPrewarmTasks = new Map<string, { epoch: number; promise: Promise<void> }>();
 let recentReferenceProofs: Promise<ReferenceResultProof[]> | undefined;
+function sameReferenceToken(document: TextDocument, left: { line: number; character: number },
+  right: { line: number; character: number }): boolean {
+  const source = document.getText();
+  const identifier = /[\p{L}\p{N}_]/u;
+  const span = (position: { line: number; character: number }): string | undefined => {
+    let offset = document.offsetAt(position);
+    if (!identifier.test(source[offset] ?? '') && offset > 0 && identifier.test(source[offset - 1]!)) offset -= 1;
+    if (!identifier.test(source[offset] ?? '')) return undefined;
+    let start = offset; let end = offset + 1;
+    while (start > 0 && identifier.test(source[start - 1]!)) start -= 1;
+    while (end < source.length && identifier.test(source[end]!)) end += 1;
+    return `${start}:${end}`;
+  };
+  const selected = span(left); return selected !== undefined && selected === span(right);
+}
 function cancelReferencePrewarm(uri: string): void {
   const timer = referencePrewarmTimers.get(uri); if (timer) clearTimeout(timer);
   referencePrewarmTimers.delete(uri);
@@ -2382,6 +2399,21 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;
       const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
         || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
+      let sharedRequestId = -1; let sharedRequest = false;
+      const scanCancelled = (): boolean => {
+        if (querySequence !== sequence) {
+          const request = activeReferenceRequest;
+          if (!request || request.id !== querySequence) return true;
+          if (request.id !== sharedRequestId) {
+            sharedRequestId = request.id;
+            sharedRequest = Boolean(position && request.uri === uri && request.version === version
+              && sameReferenceToken(open, position, request.position));
+          }
+          if (!sharedRequest) return true;
+        }
+        return documents.get(uri)?.version !== version || (projectEpochs.get(root) ?? 0) !== epoch
+          || referencePrewarmRevisions.get(uri) !== revision;
+      };
       if (selected && position && reusableProofs && referenceHasFrameworkProviders()) {
         const offset = open.offsetAt(position);
         const store = new ReferenceResultStore(cacheDirectory!);
@@ -2409,7 +2441,8 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         await activeIndexing?.catch(() => undefined);
       }
       if (!hint || candidateScanTasks.size || cancelled()) return;
-      const ready = referenceSourceReadyRoots.get(root) === epoch || await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
+      if (referenceSourceReadyRoots.get(root) !== epoch) connection.console.info(`[reference-prewarm] candidate scan starting uri=${uri}`);
+      const ready = referenceSourceReadyRoots.get(root) === epoch || await scanNamedCandidates(workspace, root, new Set(hint.names), scanCancelled, 0,
         hint.mode, hint.deferBodies, hint.deferBodies, false);
       if (!ready || cancelled()) return;
       connection.console.info(`[reference-prewarm] ready uri=${uri}`);
@@ -2450,7 +2483,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         : workspace.references(uri, selectedOffset, false).length;
       if (!cancelled()) connection.console.info(`[reference-prewarm] semantic count=${count} elapsedMs=${Date.now() - prewarmStarted} uri=${uri}`);
     })().catch((error: unknown) => connection.console.warn(`Reference prewarm failed: ${String(error)}`));
-  }, position ? 250 : 1_500);
+  }, position ? 0 : 1_500);
   referencePrewarmTimers.set(uri, timer);
 }
 
@@ -4311,6 +4344,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document) return [];
   const version = document.version;
+  activeReferenceRequest = { id, uri: document.uri, version, position };
+  try {
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
   const referenceRoot = rootForUri(document.uri);
@@ -4588,6 +4623,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;
   } finally { connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`); }
+  } finally { if (activeReferenceRequest?.id === id) activeReferenceRequest = undefined; }
 });
 
 connection.onSignatureHelp(async ({ textDocument, position }, token) => {
