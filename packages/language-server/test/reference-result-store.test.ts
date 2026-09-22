@@ -43,4 +43,13 @@ describe('persistent reference result store', () => {
     expect(await store.write({ ...proof, queryHint: { ...proof.queryHint, names: ['../outside'] } }, () => true)).toBe(false);
     expect(await store.recent()).toEqual([proof]);
   });
+
+  it('authenticates bounded framework input roots and timestamp-sensitive proofs', async () => {
+    proof.scopedSourceRoots = [{ path: '/workspace/config', extensions: ['.php', '.yaml', '.xml'] }];
+    proof.includeFileStamps = true;
+    expect(await store.write(proof, () => true)).toBe(true);
+    expect(await store.read(proof.key)).toEqual(proof);
+    expect(await store.write({ ...proof, scopedSourceRoots: [{ path: '/workspace/config', extensions: ['xml'] }] }, () => true)).toBe(false);
+    expect(await store.read(proof.key)).toEqual(proof);
+  });
 });

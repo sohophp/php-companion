@@ -4,6 +4,7 @@ import { copyFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, utime
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { ReferenceResultStore } from '../src/referenceResultStore.js';
 
 function encode(message: object): string {
   const body = JSON.stringify(message);
@@ -191,11 +192,20 @@ describe('language server stdio', () => {
       await run(expected, false, { text: unsaved });
       await run(expected, false); await run(expected, true);
       await run(expected, false, { provider: true });
+      const providerProof = (await new ReferenceResultStore(join(root, '.cache')).recent())[0];
+      expect(providerProof?.includeFileStamps).toBe(true);
+      expect(providerProof?.scopedSourceRoots).toEqual([
+        { path: join(root, 'config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: join(root, 'app/config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: join(root, 'var/cache/dev'), extensions: ['.xml'] },
+      ]);
       await run(expected, true, { provider: true });
       await run(expected, true, { provider: true, prewarmed: true });
       await mkdir(join(root, 'config'));
       await writeFile(join(root, 'config', 'services.yaml'), 'services:\n  Lib\\Target:\n    public: true\n');
       await run(expected, false, { provider: true });
+      expect((await new ReferenceResultStore(join(root, '.cache')).recent())[0]?.additionalFiles)
+        .toContain(join(root, 'config', 'services.yaml'));
       await run(expected, true, { provider: true });
       await writeFile(join(dependency, 'Target.php'), `${declaration}\n// dependency changed`);
       await run(expected, false); await run(expected, true);

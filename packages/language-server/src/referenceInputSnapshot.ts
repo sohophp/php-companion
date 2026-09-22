@@ -8,6 +8,10 @@ export interface ReferenceInputSnapshotOptions {
   sourceRoots: readonly string[];
   /** File extensions to discover under source roots; omitted means PHP only. */
   sourceExtensions?: readonly string[];
+  /** Additional roots with their own extensions, such as Symfony config and compiled XML. */
+  scopedSourceRoots?: readonly { path: string; extensions: readonly string[] }[];
+  /** Include file identity and timestamps when an input selection depends on mtime. */
+  includeFileStamps?: boolean;
   /** Explicit configuration/provider inputs, irrespective of extension. */
   additionalFiles?: readonly string[];
   /** Include the engine identity, query, configuration and authoritative provider identities. */
@@ -45,9 +49,20 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   if (![maxFiles, maxFileBytes, maxTotalBytes].every((limit) => Number.isSafeInteger(limit) && limit > 0)) return undefined;
   const active = (): boolean => options.shouldContinue?.() !== false;
   // Copy caller-owned data before the first await; changes require a new capture.
-  const roots = [...new Set(options.sourceRoots.map((path) => resolve(path)))].sort();
   const extensions = [...new Set((options.sourceExtensions ?? ['.php']).map((extension) => extension.toLowerCase()))].sort();
   if (!extensions.length || extensions.some((extension) => !/^\.[a-z0-9]{1,16}$/.test(extension))) return undefined;
+  const selections = new Map<string, Set<string>>();
+  for (const root of options.sourceRoots) selections.set(resolve(root), new Set(extensions));
+  for (const root of options.scopedSourceRoots ?? []) {
+    const selected = [...new Set(root.extensions.map((extension) => extension.toLowerCase()))];
+    if (!selected.length || selected.some((extension) => !/^\.[a-z0-9]{1,16}$/.test(extension))) return undefined;
+    const path = resolve(root.path); const merged = selections.get(path) ?? new Set<string>();
+    for (const extension of selected) merged.add(extension);
+    selections.set(path, merged);
+  }
+  const rootSelections = [...selections].map(([path, selected]) => ({ path, extensions: [...selected].sort() }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const roots = rootSelections.map((selection) => selection.path);
   const additional = [...new Set((options.additionalFiles ?? []).map((path) => resolve(path)))].sort();
   if (roots.length + additional.length > maxFiles) return undefined;
   const documents = (options.documents ?? []).map(({ uri, source }) => [uri, digest(source)] as const)
@@ -59,7 +74,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   const recentThreshold = (BigInt(Date.now()) - 2_000n) * 1_000_000n;
   const discover = async (): Promise<Discovery | undefined> => {
     const files = new Set<string>(); const identities: Discovery['roots'] = []; let directories = 0;
-    for (const path of roots) {
+    for (const { path, extensions: selectedExtensions } of rootSelections) {
       if (!active()) return undefined;
       let resolved: string;
       try { resolved = await realpath(path); }
@@ -67,7 +82,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
       identities.push([path, resolved]);
       const info = await stat(path);
       if (info.isFile()) { files.add(path); }
-      else if (info.isDirectory() && roots.includes(path)) {
+      else if (info.isDirectory()) {
         const pending = [path];
         while (pending.length) {
           const batch = await Promise.all(pending.splice(-32).map(async (directory) => {
@@ -82,7 +97,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
               if (entry.isSymbolicLink()) return undefined;
               const child = join(listing.directory, entry.name);
               if (entry.isDirectory()) pending.push(child);
-              else if (entry.isFile() && extensions.some((extension) => entry.name.toLowerCase().endsWith(extension))) files.add(child);
+              else if (entry.isFile() && selectedExtensions.some((extension) => entry.name.toLowerCase().endsWith(extension))) files.add(child);
               if (files.size > maxFiles || directories + pending.length > maxFiles) return undefined;
             }
           }
@@ -163,6 +178,8 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
     const inputs = files.map(({ path, hash }) => ({ path, hash }));
     return { files: inputs, sourceFiles: after.sourceFiles,
       missingPaths: after.roots.filter(([, target]) => target === null).map(([path]) => path),
-      fingerprint: digest(JSON.stringify({ schema: 3, context, extensions, roots: after.roots, sourceFiles: after.sourceFiles, files: inputs, documents })) };
+      fingerprint: digest(JSON.stringify({ schema: 4, context, rootSelections, roots: after.roots, sourceFiles: after.sourceFiles,
+        files: options.includeFileStamps ? files.map(({ path, hash, stamp: fileStamp }) => ({ path, hash, stamp: fileStamp })) : inputs,
+        documents })) };
   } catch { return undefined; }
 }

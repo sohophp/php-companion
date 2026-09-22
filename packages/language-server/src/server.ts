@@ -1900,7 +1900,9 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
   if (!proof || proof.environment !== environment || proof.frameworkFingerprint !== frameworkFingerprint
     || !current() || !supportsCurrentSources(proof)) return undefined;
   if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()) return undefined;
-  const snapshot = await captureReferenceInputSnapshot({ sourceRoots: proof.sourceRoots, additionalFiles: proof.additionalFiles,
+  const snapshot = await captureReferenceInputSnapshot({ sourceRoots: proof.sourceRoots, scopedSourceRoots: proof.scopedSourceRoots,
+    includeFileStamps: proof.includeFileStamps, maxFileBytes: proof.scopedSourceRoots ? 16 * 1024 * 1024 : undefined,
+    additionalFiles: proof.additionalFiles,
     context: proof.context, documents: documents.all().map((document) => ({ uri: document.uri, source: document.getText() })), shouldContinue: current });
   if (!snapshot || snapshot.fingerprint !== proof.fingerprint || !current()) return undefined;
   if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()
@@ -1950,26 +1952,39 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       }
       const key = referenceQueryKey(uri, offset, includeDeclaration);
       const sourceRoots = projectAutoloadPaths(project);
+      // These bounded roots preserve changes to conventional Symfony inputs
+      // for an eventual pre-provider restore path. Provider output still has
+      // to be recomputed before today's framework fingerprint can be checked.
+      const scopedSourceRoots = frameworkFingerprint ? [
+        { path: resolve(root, 'config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: resolve(root, 'app/config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: resolve(root, 'var/cache/dev'), extensions: ['.xml'] },
+      ] : undefined;
+      const frameworkConfigFiles = frameworkFingerprint ? [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])] : [];
       // Complete candidate reads are already covered by recursive source-root
       // discovery and content hashing. Keep explicit paths only for metadata,
       // dependencies and negative lookups outside that set.
       const additionalFiles = [...new Set([...metadata.map((read) => read.path),
-        ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
+        ...frameworkConfigFiles, ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
       const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
         candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)),
           skipped: [...candidates.skipped].sort(([a], [b]) => a.localeCompare(b)) } });
       const buffers = documents.all().map((document) => ({ uri: document.uri, source: document.getText() }));
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()) return;
       if (!await skippedCandidateEvidenceMatches(candidates.skipped, current)) return;
-      const snapshot = await captureReferenceInputSnapshot({ sourceRoots, additionalFiles, context, documents: buffers, shouldContinue: current });
+      const snapshot = await captureReferenceInputSnapshot({ sourceRoots, scopedSourceRoots,
+        includeFileStamps: Boolean(scopedSourceRoots), maxFileBytes: scopedSourceRoots ? 16 * 1024 * 1024 : undefined,
+        additionalFiles, context, documents: buffers, shouldContinue: current });
       if (!snapshot || !semanticCurrent() || !referenceDependencyEvidenceMatches(snapshot, metadata, [])
         || !referenceDependencyEvidenceMatches(snapshot, reads, buffers)
         || !referenceCandidateEvidenceMatches(snapshot, candidates.reads,
-          (path) => path.toLowerCase().endsWith('.php') && !isAutoloadPathExcluded(project, path), candidates.skipped)
+          (path) => path.toLowerCase().endsWith('.php') && sourceRoots.some((sourceRoot) => pathWithin(sourceRoot, path))
+            && !isAutoloadPathExcluded(project, path), candidates.skipped)
         || !await skippedCandidateEvidenceMatches(candidates.skipped, current)) return;
       if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !semanticCurrent()
         || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
-      if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots, additionalFiles, context,
+      if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots,
+        ...(scopedSourceRoots ? { scopedSourceRoots, includeFileStamps: true } : {}), additionalFiles, context,
         loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), ...(queryHint ? { queryHint } : {}), fingerprint: snapshot.fingerprint,
         locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };

@@ -9,6 +9,8 @@ export interface ReferenceResultProof {
   key: string;
   environment: string;
   sourceRoots: string[];
+  scopedSourceRoots?: Array<{ path: string; extensions: string[] }>;
+  includeFileStamps?: boolean;
   additionalFiles: string[];
   context: string;
   loaded: Array<{ uri: string; hash: string }>;
@@ -40,6 +42,12 @@ function validProof(value: unknown): value is ReferenceResultProof {
       && typeof proof.queryHint.deferBodies === 'boolean'))
     && typeof proof.context === 'string' && proof.context.length <= MAX_BYTES
     && pathList(proof.sourceRoots) && pathList(proof.additionalFiles)
+    && (proof.scopedSourceRoots === undefined || Array.isArray(proof.scopedSourceRoots)
+      && proof.scopedSourceRoots.length <= 128 && proof.scopedSourceRoots.every((root) => root
+        && typeof root.path === 'string' && root.path.length > 0 && root.path.length <= 16_384
+        && Array.isArray(root.extensions) && root.extensions.length > 0 && root.extensions.length <= 8
+        && root.extensions.every((extension) => typeof extension === 'string' && /^\.[a-z0-9]{1,16}$/.test(extension))))
+    && (proof.includeFileStamps === undefined || typeof proof.includeFileStamps === 'boolean')
     && Array.isArray(proof.loaded) && proof.loaded.length <= 50_000
     && proof.loaded.every((entry) => entry && typeof entry.uri === 'string' && entry.uri.length <= 16_384 && digest(entry.hash))
     && Array.isArray(proof.locations) && proof.locations.length <= 2_048

@@ -45,6 +45,30 @@ describe('reference input snapshot', () => {
     expect(await captureReferenceInputSnapshot({ ...options, sourceExtensions: ['yaml'] })).toBeUndefined();
   });
 
+  it('keeps PHP, framework configuration and compiled XML discovery separate and can prove mtime-dependent inputs', async () => {
+    const config = join(root, 'config'); const cache = join(root, 'var', 'cache', 'dev');
+    await mkdir(config); await mkdir(cache, { recursive: true });
+    const compiled = join(cache, 'AppDebugContainer.xml'); await writeFile(compiled, '<container/>');
+    const options = { sourceRoots: [sourceRoot], scopedSourceRoots: [
+      { path: config, extensions: ['.yaml', '.yml', '.xml', '.php'] },
+      { path: cache, extensions: ['.xml'] },
+    ], context: 'symfony-provider', includeFileStamps: true };
+    const first = (await captureReferenceInputSnapshot(options))!;
+    expect(first.sourceFiles).toEqual([source, compiled].sort());
+    expect(await captureReferenceInputSnapshot({ ...options, scopedSourceRoots: [...options.scopedSourceRoots].reverse() })).toEqual(first);
+    await writeFile(join(cache, 'Cache.php'), '<?php class Cache {}');
+    expect(await captureReferenceInputSnapshot(options)).toEqual(first);
+    const service = join(config, 'services.yaml'); await writeFile(service, 'services: {}');
+    const second = (await captureReferenceInputSnapshot(options))!;
+    expect(second.sourceFiles).toEqual([source, service, compiled].sort());
+    expect(second.fingerprint).not.toBe(first.fingerprint);
+    await utimes(compiled, new Date('2001-01-01T00:00:00Z'), new Date('2001-01-01T00:00:00Z'));
+    const third = (await captureReferenceInputSnapshot(options))!;
+    expect(third.files).toEqual(second.files);
+    expect(third.fingerprint).not.toBe(second.fingerprint);
+    expect(await captureReferenceInputSnapshot({ ...options, scopedSourceRoots: [{ path: cache, extensions: ['xml'] }] })).toBeUndefined();
+  });
+
   it('invalidates on additions, moves, deletions and newly present roots/configuration', async () => {
     const first = await capture();
     const added = join(sourceRoot, 'New.php'); await writeFile(added, '<?php new Dependency();');
