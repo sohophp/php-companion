@@ -211,6 +211,17 @@ describe('conservative semantic workspace', () => {
       ]);
     } finally { local.dispose(); }
   });
+  it('extracts a typed instance property receiver for a method reference candidate', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///PropertyReceiver.php';
+    const source = '<?php namespace App; use Acme\\Holder; class Consumer { private Holder $holder; public function run(): int { return $this->holder->get(); } }';
+    try {
+      local.update(uri, source);
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'Acme\\Holder', method: 'get' },
+      ]);
+    } finally { local.dispose(); }
+  });
   it('prewarms both method reference declaration modes from one result', () => {
     const local = new SemanticWorkspace(parser);
     const uri = 'file:///PrewarmMethod.php';

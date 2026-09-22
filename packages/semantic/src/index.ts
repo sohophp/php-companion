@@ -1591,9 +1591,18 @@ export class SemanticWorkspace {
     for (const access of file.memberAccesses) {
       if (access.kind !== 'method' || !names.has(access.name.toLowerCase())) continue;
       const prefix = file.source.slice(Math.max(0, access.start - 160), access.start);
+      const propertyReceiver = /\$this\s*(?:\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:\?->|->)\s*$/.exec(prefix);
+      const scope = this.containingScope(file, access.start);
+      if (propertyReceiver && scope?.containerFqcn) {
+        const property = file.properties.find((item) => item.containerFqcn.toLowerCase() === scope.containerFqcn!.toLowerCase()
+          && item.name === propertyReceiver[1] && !item.static);
+        if (property?.type && !/[|&?]/.test(property.type)) {
+          const owner = this.resolveSourceType(file, property.type, this.namespaceAt(file, access.start), scope.containerFqcn);
+          if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
+        }
+      }
       const variable = [...prefix.matchAll(/\$[A-Za-z_][A-Za-z0-9_]*/g)].at(-1)?.[0];
       if (!variable) continue;
-      const scope = this.containingScope(file, access.start);
       if (!scope) continue;
       const directParameter = scope.parameters.find((item) => `$${item.name}` === variable);
       if (directParameter?.nativeType && !/[|&?]/.test(directParameter.nativeType)) {
