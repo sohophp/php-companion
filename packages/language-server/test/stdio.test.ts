@@ -5231,6 +5231,44 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('does not treat an experimental index as reference-complete while providers are pending', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-index-provider-race-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      const source = '<?php namespace App; class Bag {}';
+      const uri = pathToFileURL(join(root, 'Bag.php')).toString();
+      await writeFile(join(root, 'Bag.php'), source);
+      await writeFile(join(root, 'Use.php'), '<?php namespace App; function run(Bag $bag): void {}');
+      const started = join(root, 'provider-started.txt'); const provider = join(root, 'provider.mjs');
+      await writeFile(provider, `import{writeFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);writeFileSync(${JSON.stringify(started)},'started');await new Promise((resolve)=>setTimeout(resolve,700));process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'vendor.slow',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 675, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'experimental', semanticProviders: [{ providerId: 'vendor.slow', command: process.execPath,
+            args: [provider], timeoutMs: 5_000 }],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 675);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (let attempt = 0; attempt < 100 && !await readFile(started, 'utf8').catch(() => undefined); attempt += 1) {
+        await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 10));
+      }
+      expect(await readFile(started, 'utf8')).toBe('started');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 676, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('Bag') + 1), context: { includeDeclaration: false },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 676, 10_000)).result;
+      expect(references).toHaveLength(1);
+      expect(references[0].uri).toBe(pathToFileURL(join(root, 'Use.php')).toString());
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'))).toBe(true);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('uses a bundled authoritative container provider for Symfony service references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-container-provider-'));
     try {

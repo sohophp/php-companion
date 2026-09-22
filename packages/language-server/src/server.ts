@@ -1103,7 +1103,6 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     projectCompleteWaiters.delete(root);
     for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
     indexedUrisByRoot.set(root, current);
-    if (result.complete) completeRoots.add(root);
     interopContextsByRoot.delete(root);
     doctrineMethodsByRoot.set(root, doctrineFiles);
     doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
@@ -1114,6 +1113,9 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     }));
     await refreshSemanticProviders(root, generation, workspace, shouldContinue);
     await loadCallableFacts(root, workspace);
+    // A complete source scan is not yet a complete reference index: providers
+    // may still contribute service, event, route and external type facts.
+    if (result.complete && shouldContinue()) completeRoots.add(root);
     await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map(publishDocumentDiagnostics));
   }
   connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
