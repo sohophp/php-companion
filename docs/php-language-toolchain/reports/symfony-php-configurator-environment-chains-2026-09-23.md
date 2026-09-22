@@ -21,5 +21,13 @@
 - `provider-symfony-services` 6 项通过，覆盖完整项目配置图中的 `dev`、`prod`、fallback 和无环境视图；独立 Symfony 扩展 4 项通过。
 - `pnpm check` 完整通过；其中 Semantic 300 项、Language Server 261 项通过且 1 项跳过、仓库根测试 46 项通过。
 - Core、Symfony、Open Source Pack 和 Recommended Pack 四份 0.4.5 VSIX 均完成打包并通过内容校验。
+- `pnpm test:extension:packaged` 在隔离 VS Code 1.138.0 Profile 中加载打包后的 Core 与 Symfony 扩展，并以退出码 0 完成。
 
-候选目录与真实项目确定性预检将在功能提交后生成并补记；现有 `81580890` 人工试用候选保持不变。
+功能提交为 `19fe83a360b914be18d55029b06568e0cd893906`。新候选位于 `artifacts/php-companion-alpha-0.4.5-19fe83a3/`，现有 `81580890` 人工试用候选未被覆盖。四份 `SHA256SUMS` 全部通过：
+
+- Core：`6a2d0be931d91911364b373a9ba3ca00e487fa379d023e9e78acf90a5d60a1e5`
+- Symfony：`16d3c891136dc7661e42a185752bcfe9f1e5d88561651bd0579e89d268a972c2`
+- Open Source Pack：`1e4d81d91dc9f2781c38afd2e7a0e53bc2faf496c826e9f9865a2bfd2bd83687`
+- Recommended Pack：`8c46c6937f492409c0ea2b978db7aec196f34116ce7d405295f596170ee8c58c`
+
+Winstar 的 WSL/PHP 8.5 与 CoreRepo 的 WSL/PHP 7.2 确定性 `alpha:preflight` 均通过。实际 Remote Extension Host 归属、竞争 PHP Provider 状态和持续编辑仍由人工试用确认。
