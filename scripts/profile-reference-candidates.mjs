@@ -12,6 +12,7 @@ const names = new Set(requestedNames.map((name) => name.toLowerCase()));
 const parser = await PhpSyntaxParser.createDefault();
 const times = { summaryMs: 0, declarationsMs: 0, fullMs: 0 };
 let declarations = 0; let full = 0; let candidateBytes = 0;
+let emptyDeclarationCandidates = 0; let declarationFacts = 0;
 const slowest = [];
 const memberAccesses = { total: 0, static: 0, directStatic: 0, directVariable: 0, thisProperty: 0, byName: {}, staticOnlyFiles: 0 };
 const started = performance.now();
@@ -31,7 +32,12 @@ try {
       slowest.push({ path, bytes: source.length, mode: declarationsOnly ? 'declarations' : 'full', parseMs: Math.round(parseMs * 10) / 10 });
       slowest.sort((left, right) => right.parseMs - left.parseMs);
       if (slowest.length > 10) slowest.length = 10;
-      if (declarationsOnly) { declarations++; times.declarationsMs += parseMs; }
+      if (declarationsOnly) {
+        declarations++; times.declarationsMs += parseMs;
+        declarationFacts += prepared.facts.declarations.length;
+        if (!prepared.facts.declarations.length && !prepared.facts.callables.length
+          && !prepared.facts.properties.length && !prepared.facts.constants.length) emptyDeclarationCandidates++;
+      }
       else {
         full++; times.fullMs += parseMs;
         let staticGet = false; let instanceGet = false;
@@ -59,6 +65,7 @@ try {
   });
   process.stdout.write(`${JSON.stringify({ files: scan.files, candidates: declarations + full, declarations, full, candidateBytes,
     elapsedMs: Math.round(performance.now() - started), memberAccesses, slowest,
+    emptyDeclarationCandidates, declarationFacts,
     summaryMs: Math.round(times.summaryMs), declarationsMs: Math.round(times.declarationsMs), fullMs: Math.round(times.fullMs),
     projectComplete: scan.projectComplete, warnings: scan.warnings }, null, 2)}\n`);
 } finally { parser.dispose(); }
