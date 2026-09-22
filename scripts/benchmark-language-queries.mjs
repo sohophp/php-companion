@@ -63,7 +63,7 @@ server.stdout.on('data', (data) => {
       selectionPrewarmReady = true;
       for (const ready of selectionPrewarmWaiters.splice(0)) ready();
     }
-    if (message.method === 'window/logMessage' && message.params?.message?.includes('[reference-prewarm] persistent proof available')) {
+    if (message.method === 'window/logMessage' && message.params?.message?.includes('[reference-prewarm] persistent proof verified')) {
       proofPrewarmReady = true;
       for (const ready of proofPrewarmWaiters.splice(0)) ready();
     }

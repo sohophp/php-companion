@@ -169,7 +169,7 @@ describe('language server stdio', () => {
         if (options.semanticPrewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
           && message.params?.message?.includes('[reference-prewarm] semantic count='), 10_000);
         if (options.proofPrewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
-          && message.params?.message?.includes('[reference-prewarm] persistent proof available'), 10_000);
+          && message.params?.message?.includes('[reference-prewarm] persistent proof verified'), 10_000);
         const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
           context: { includeDeclaration: options.includeDeclaration ?? false } };
         const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
@@ -252,7 +252,7 @@ describe('language server stdio', () => {
       await run(expected, true, { bundledProviderDirectory, selectionPrewarm: true, proofPrewarmed: true });
       const providerPath = join(bundledProviderDirectory, 'static-route-provider.js');
       await writeFile(providerPath, `${await readFile(providerPath, 'utf8')}\n`);
-      await run(expected, false, { bundledProviderDirectory });
+      await run(expected, false, { bundledProviderDirectory, selectionPrewarm: true, prewarmed: true });
       await run(expected, true, { bundledProviderDirectory });
       await writeFile(join(root, 'config', 'services.yaml'), 'services: {}\n');
       await run(expected, false, { bundledProviderDirectory });

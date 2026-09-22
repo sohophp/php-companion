@@ -66,7 +66,7 @@ try {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
     if (phase === 'reload') {
-      if (checkEarlyReloadPrewarm && !logs.includes('[reference-prewarm] persistent proof available')) {
+      if (checkEarlyReloadPrewarm && !logs.includes('[reference-prewarm] persistent proof verified')) {
         throw new Error('Reload selection did not suppress the candidate prewarm scan.');
       }
       if (checkEarlyReload && (!logs.includes('[reference-cache] restored count=174 beforeProviders=true')

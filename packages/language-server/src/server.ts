@@ -2356,17 +2356,19 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       if (selected && position && reusableProofs && referenceHasFrameworkProviders()) {
         const offset = open.offsetAt(position);
         const store = new ReferenceResultStore(cacheDirectory!);
-        const persisted = await Promise.all([false, true].map((includeDeclaration) =>
-          store.read(referenceQueryKey(uri, offset, includeDeclaration))));
         const providerFiles = bundledReferenceProviderFiles();
         const currentSourceHash = referenceSourceHash(open.getText());
-        if (persisted.some((proof) => proof?.preProviderEnvironment
-          && proof.containerInputEvidenceComplete === true && proof.routeInputEvidenceComplete === true
-          && providerFiles && JSON.stringify(proof.providerImplementationFiles) === JSON.stringify(providerFiles)
-          && proof.eventProviderUsed === false && proof.loaded.some((source) => source.uri === uri
-            && source.hash === currentSourceHash)) && !cancelled()) {
-          connection.console.info(`[reference-prewarm] persistent proof available uri=${uri}`);
-          return;
+        for (const includeDeclaration of [false, true]) {
+          const proof = await store.read(referenceQueryKey(uri, offset, includeDeclaration));
+          if (!proof?.preProviderEnvironment || proof.containerInputEvidenceComplete !== true
+            || proof.routeInputEvidenceComplete !== true || proof.eventProviderUsed !== false
+            || !providerFiles || JSON.stringify(proof.providerImplementationFiles) !== JSON.stringify(providerFiles)
+            || !proof.loaded.some((source) => source.uri === uri && source.hash === currentSourceHash)) continue;
+          const restored = await restoreReferenceResult(root, workspace, uri, offset, includeDeclaration, sequence, cancelled);
+          if (restored && !cancelled()) {
+            connection.console.info(`[reference-prewarm] persistent proof verified uri=${uri}`);
+            return;
+          }
         }
       }
       if (selectedSourceOnly && selected && activeIndexing && referenceSourceReadyRoots.get(root) !== epoch && !candidateScanTasks.size) {
