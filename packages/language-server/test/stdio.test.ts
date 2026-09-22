@@ -128,7 +128,7 @@ describe('language server stdio', () => {
       const expected = [location('Use.php', source), location('Other.php', other)];
       let runCount = 0;
       const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
-        provider?: boolean; routeProvider?: boolean; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean;
+        provider?: boolean; routeProvider?: boolean; bundledProviderDirectory?: string; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean;
         semanticPrewarmed?: boolean } = {}): Promise<void> => {
         const currentRun = ++runCount;
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
@@ -139,10 +139,19 @@ describe('language server stdio', () => {
           const response = await output.waitFor((message) => message.id === requestId, 10_000);
           expect(response.error).toBeUndefined(); return response.result;
         };
+        const bundledArguments = (name: string): string[] => [join(options.bundledProviderDirectory!, name),
+          '--parser-core-wasm', join(options.bundledProviderDirectory!, 'web-tree-sitter.wasm'),
+          '--php-wasm', join(options.bundledProviderDirectory!, 'tree-sitter-php.wasm')];
         await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
           initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
-            ...(options.provider ? { bundledSemanticProviders: [symfonyServiceProviderDescriptor] } : {}),
-            ...(options.routeProvider ? { bundledRouteProviders: [symfonyStaticRouteProviderDescriptor] } : {}) } });
+            ...(options.provider || options.bundledProviderDirectory ? { bundledSemanticProviders: [{
+              ...symfonyServiceProviderDescriptor,
+              ...(options.bundledProviderDirectory ? { args: bundledArguments('service-provider.js') } : {}),
+            }] } : {}),
+            ...(options.routeProvider || options.bundledProviderDirectory ? { bundledRouteProviders: [{
+              ...symfonyStaticRouteProviderDescriptor,
+              ...(options.bundledProviderDirectory ? { args: bundledArguments('static-route-provider.js') } : {}),
+            }] } : {}) } });
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         const text = options.text ?? source;
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -165,7 +174,8 @@ describe('language server stdio', () => {
         expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
         const logs = (): string => output.messages.filter((message: any) => message.method === 'window/logMessage').map((message: any) => message.params.message).join('\n');
         expect(logs().includes('[reference-cache] restored')).toBe(restored);
-        expect(logs().includes('[named-candidates]')).toBe(!restored || Boolean(options.provider));
+        expect(logs().includes('[named-candidates]')).toBe(!restored || Boolean(options.provider) && !options.bundledProviderDirectory);
+        if (restored && options.bundledProviderDirectory) expect(logs()).toContain('beforeProviders=true');
         if (options.prewarmed) expect(logs().match(/\[named-candidates\]/g)).toHaveLength(1);
         if (options.repeat) expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
         await request('phpCompanion/testWaitReferencePersistence', {});
@@ -225,6 +235,30 @@ describe('language server stdio', () => {
       const routeProof = (await new ReferenceResultStore(join(root, '.cache')).recent())[0];
       expect(routeProof?.routeInputEvidenceComplete).toBe(true);
       expect(routeProof?.additionalFiles).toContain(join(root, 'config', 'routes.yml'));
+      await rm(join(root, 'config', 'services.yaml'));
+      const bundledProviderDirectory = join(root, '.providers'); await mkdir(bundledProviderDirectory);
+      const sourceProviderDirectory = resolve('../php-companion-symfony/dist');
+      for (const name of ['service-provider.js', 'static-route-provider.js', 'web-tree-sitter.wasm', 'tree-sitter-php.wasm']) {
+        await copyFile(join(sourceProviderDirectory, name), join(bundledProviderDirectory, name));
+      }
+      await run(expected, false, { bundledProviderDirectory });
+      const earlyProof = (await new ReferenceResultStore(join(root, '.cache')).recent())[0];
+      expect(earlyProof?.preProviderEnvironment).toMatch(/^[a-f0-9]{64}$/);
+      expect(earlyProof?.containerInputEvidenceComplete).toBe(true);
+      expect(earlyProof?.routeInputEvidenceComplete).toBe(true);
+      expect(earlyProof?.eventProviderUsed).toBe(false);
+      await run(expected, true, { bundledProviderDirectory });
+      const providerPath = join(bundledProviderDirectory, 'static-route-provider.js');
+      await writeFile(providerPath, `${await readFile(providerPath, 'utf8')}\n`);
+      await run(expected, false, { bundledProviderDirectory });
+      await run(expected, true, { bundledProviderDirectory });
+      await writeFile(join(root, 'config', 'services.yaml'), 'services: {}\n');
+      await run(expected, false, { bundledProviderDirectory });
+      await run(expected, true, { bundledProviderDirectory });
+      await writeFile(join(root, 'config', 'routes.yml'), 'new_route: {path: /new}\n');
+      await run(expected, false, { bundledProviderDirectory });
+      await writeFile(join(src, 'Other.php'), changed);
+      await run([location('Use.php', source)], false, { bundledProviderDirectory });
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 

@@ -13,6 +13,9 @@ export interface ReferenceResultProof {
   includeFileStamps?: boolean;
   containerInputEvidenceComplete?: boolean;
   routeInputEvidenceComplete?: boolean;
+  preProviderEnvironment?: string;
+  providerImplementationFiles?: string[];
+  eventProviderUsed?: boolean;
   additionalFiles: string[];
   context: string;
   loaded: Array<{ uri: string; hash: string }>;
@@ -52,6 +55,9 @@ function validProof(value: unknown): value is ReferenceResultProof {
     && (proof.includeFileStamps === undefined || typeof proof.includeFileStamps === 'boolean')
     && (proof.containerInputEvidenceComplete === undefined || typeof proof.containerInputEvidenceComplete === 'boolean')
     && (proof.routeInputEvidenceComplete === undefined || typeof proof.routeInputEvidenceComplete === 'boolean')
+    && (proof.preProviderEnvironment === undefined || digest(proof.preProviderEnvironment))
+    && (proof.providerImplementationFiles === undefined || pathList(proof.providerImplementationFiles))
+    && (proof.eventProviderUsed === undefined || typeof proof.eventProviderUsed === 'boolean')
     && Array.isArray(proof.loaded) && proof.loaded.length <= 50_000
     && proof.loaded.every((entry) => entry && typeof entry.uri === 'string' && entry.uri.length <= 16_384 && digest(entry.hash))
     && Array.isArray(proof.locations) && proof.locations.length <= 2_048

@@ -5,25 +5,35 @@ import { join, resolve } from 'node:path';
 import process from 'node:process';
 import { URL, pathToFileURL } from 'node:url';
 
-const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
+const defaultWorkspace = resolve('/var/www/php/8.5/winstar2024');
+const workspace = resolve(process.argv[2] ?? defaultWorkspace);
+const fixtureSha256 = process.argv[4]; const fixtureDefinitionSha256 = process.argv[5];
+if (fixtureSha256 || fixtureDefinitionSha256) {
+  if (workspace === defaultWorkspace || !fixtureSha256 || !fixtureDefinitionSha256
+    || ![fixtureSha256, fixtureDefinitionSha256].every((hash) => /^[a-f0-9]{64}$/.test(hash))) {
+    throw new Error('Alternate location SHA-256 values require an isolated fixture workspace and both reference/definition hashes.');
+  }
+}
 // Validate the same bundled entrypoint and parser assets shipped in the VSIX.
 // Build it first; package-level TypeScript output is a separate test target.
 const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
+const checkEarlyReload = process.env.PHP_COMPANION_CHECK_REFERENCE_EARLY_RELOAD === '1';
 const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
 const immediateSourceOnly = sourceOnly && process.env.PHP_COMPANION_BENCHMARK_REFERENCE_IMMEDIATE === '1';
 const primeThenImmediate = process.env.PHP_COMPANION_CHECK_REFERENCE_PRIME_THEN_IMMEDIATE === '1';
 if (primeThenImmediate && (!checkReload || !sourceOnly || immediateSourceOnly)) {
   throw new Error('Prime-then-immediate References requires source-only indexing and reload without immediate mode.');
 }
+if (checkEarlyReload && (!checkReload || sourceOnly)) throw new Error('Early reload gate requires on-demand References with reload enabled.');
 const selected = sourceOnly && process.env.PHP_COMPANION_CHECK_REFERENCE_SELECTION === '1';
 const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const locationsPath = join(cache, 'reference-locations.json');
 const expected = new Map([
-  ['textDocument/definition', { results: 1, locationSha256: '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
-  ['textDocument/references', { results: 174, locationSha256: 'a525dddaa628ccd7ee25dbd5dbfae0ead5e9ebedb434b9176336eb08c1c725e7' }],
+  ['textDocument/definition', { results: 1, locationSha256: fixtureDefinitionSha256 ?? '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
+  ['textDocument/references', { results: 174, locationSha256: fixtureSha256 ?? 'a525dddaa628ccd7ee25dbd5dbfae0ead5e9ebedb434b9176336eb08c1c725e7' }],
 ]);
 
 try {
@@ -52,6 +62,11 @@ try {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
     if (phase === 'reload') {
+      if (checkEarlyReload && (!logs.includes('[reference-cache] restored count=174 beforeProviders=true')
+        || logs.includes('[named-candidates]') || logs.includes('Semantic provider ')
+        || logs.includes('Authoritative route provider '))) {
+        throw new Error('Reload did not restore the proven result before candidates and framework providers.');
+      }
       if (sourceOnly && waitReferenceReady && (!/Indexed (\d+) PHP files[^\n]*\b\1 cached\b/.test(logs) || logs.includes('[named-candidates]'))) {
         throw new Error('Expected complete source-only index restoration during reload');
       }
@@ -70,6 +85,9 @@ try {
     if (results.length !== expected.size) throw new Error(`Expected ${expected.size} query results, received ${results.length}`);
     if (results[0]?.method !== 'textDocument/references' || new Set(results.map((result) => result.method)).size !== expected.size) {
       throw new Error('Expected first References without Definition warm-up, followed by Definition');
+    }
+    if (phase === 'reload' && checkEarlyReload && results[0].elapsedMs > 3_500) {
+      throw new Error(`Early reload References exceeded 3500 ms: ${results[0].elapsedMs} ms`);
     }
     for (const result of results) {
       const baseline = expected.get(result.method);

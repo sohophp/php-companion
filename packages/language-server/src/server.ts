@@ -1875,8 +1875,39 @@ function referenceLoadedSources(workspace: SemanticWorkspace): Array<{ uri: stri
     .sort((a, b) => a.uri.localeCompare(b.uri));
 }
 function referenceEnvironment(root: string, project: ComposerProject, workspace: SemanticWorkspace, engineIdentity: string): string {
-  return referenceSourceHash(JSON.stringify({ schema: 1, root, project, workspaceFolderLocations, engineIdentity, phpVersion: targetPhpVersion,
+  return referenceSourceHash(JSON.stringify({ schema: 2, root, project, workspaceFolderLocations, engineIdentity, phpVersion: targetPhpVersion,
     indexLimits, disabledExtensions: disabledExtensionsForRoot(root), externalFacts: workspace.externalFactsIdentity(),
+    semanticProviders, routeProviders, symfonyRouteProviders, symfonyEnvironment: symfonyEnvironmentForRoot(root),
+    documents: documents.all().map((document) => [document.uri, referenceSourceHash(document.getText())]).sort() }));
+}
+function bundledReferenceProviderFiles(): string[] | undefined {
+  if (configuredSemanticProviders.length || configuredRouteProviders.length || symfonyRouteProviders.length
+    || semanticProviders.length !== bundledSemanticProviders.length || routeProviders.length !== bundledRouteProviders.length) return undefined;
+  const expected = new Map([
+    ['php-companion.symfony.services', 'service-provider.js'],
+    ['php-companion.symfony.events', 'event-provider.js'],
+    ['php-companion.symfony.controller-contexts', 'controller-context-provider.js'],
+    ['php-companion.symfony.static-routes', 'static-route-provider.js'],
+  ]);
+  const files = new Set<string>(); let bundleDirectory: string | undefined;
+  for (const provider of [...semanticProviders, ...routeProviders]) {
+    const name = expected.get(provider.providerId); const args = provider.args;
+    if (!name || provider.command !== process.execPath || !args || args.length !== 5
+      || basename(args[0]!) !== name || args[1] !== '--parser-core-wasm' || args[3] !== '--php-wasm'
+      || basename(args[2]!) !== 'web-tree-sitter.wasm' || basename(args[4]!) !== 'tree-sitter-php.wasm') return undefined;
+    const directory = dirname(resolve(args[0]!));
+    if (bundleDirectory && directory !== bundleDirectory || dirname(resolve(args[2]!)) !== directory
+      || dirname(resolve(args[4]!)) !== directory) return undefined;
+    bundleDirectory = directory;
+    for (const path of [args[0]!, args[2]!, args[4]!]) files.add(resolve(path));
+  }
+  return files.size ? [...files].sort() : undefined;
+}
+function referencePreProviderEnvironment(root: string, project: ComposerProject, engineIdentity: string): string {
+  return referenceSourceHash(JSON.stringify({ schema: 1, root, project, workspaceFolderLocations, engineIdentity,
+    phpVersion: targetPhpVersion, indexLimits, disabledExtensions: disabledExtensionsForRoot(root),
+    indexingMode, referenceRipgrepMode, experimentalReferenceClosure, symfonyEnvironment: symfonyEnvironmentForRoot(root),
+    semanticProviders, routeProviders, symfonyRouteProviders,
     documents: documents.all().map((document) => [document.uri, referenceSourceHash(document.getText())]).sort() }));
 }
 function referenceQueryKey(uri: string, offset: number, includeDeclaration: boolean): string {
@@ -1885,13 +1916,17 @@ function referenceQueryKey(uri: string, offset: number, includeDeclaration: bool
 async function restoreReferenceResult(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
   includeDeclaration: boolean, sequence: number, cancelled: () => boolean,
   frameworkFingerprint?: string): Promise<ReferenceLocation[] | undefined> {
+  const beforeProviders = referenceHasFrameworkProviders() && !frameworkFingerprint;
   if (!reusableReferenceMode() || projectCompleteRoots.has(root)
-    || referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)
+    || !beforeProviders && referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)
     || (!frameworkFingerprint && referenceCandidateReads.has(workspace))) return undefined;
   const key = referenceQueryKey(uri, offset, includeDeclaration);
   const engineIdentity = await initialReferenceEngineIdentity; if (!engineIdentity) return undefined;
   const project = await composerProjectForRoot(root); if (!project?.inputEvidence?.complete) return undefined;
   const environment = referenceEnvironment(root, project, workspace, engineIdentity);
+  const providerImplementationFiles = beforeProviders ? bundledReferenceProviderFiles() : undefined;
+  if (beforeProviders && !providerImplementationFiles) return undefined;
+  const preProviderEnvironment = beforeProviders ? referencePreProviderEnvironment(root, project, engineIdentity) : undefined;
   const epoch = projectEpochs.get(root) ?? 0; const generation = indexingGeneration; const revision = referenceDocumentRevision();
   const current = (): boolean => reusableReferenceMode() && !cancelled() && sequence === querySequence
     && epoch === (projectEpochs.get(root) ?? 0) && generation === indexingGeneration && revision === referenceDocumentRevision();
@@ -1900,13 +1935,19 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
     return referenceLoadedSources(workspace).every((source) => proven.get(source.uri) === source.hash);
   };
   const memory = restoredReferenceResults.get(workspace);
-  if (memory?.proof.key === key && memory.proof.environment === environment
+  if (!beforeProviders && memory?.proof.key === key && memory.proof.environment === environment
     && memory.proof.frameworkFingerprint === frameworkFingerprint && memory.epoch === epoch
     && memory.generation === generation && memory.revision === revision && current() && supportsCurrentSources(memory.proof)) {
     return structuredClone(memory.proof.locations);
   }
   const proof = await new ReferenceResultStore(cacheDirectory!).read(key);
-  if (!proof || proof.environment !== environment || proof.frameworkFingerprint !== frameworkFingerprint
+  const beforeProvidersMatches = beforeProviders && proof?.frameworkFingerprint && proof.preProviderEnvironment === preProviderEnvironment
+    && proof.containerInputEvidenceComplete === true && proof.routeInputEvidenceComplete === true
+    && proof.eventProviderUsed === false && proof.providerImplementationFiles
+    && JSON.stringify(proof.providerImplementationFiles) === JSON.stringify(providerImplementationFiles)
+    && providerImplementationFiles!.every((path) => proof.additionalFiles.includes(path));
+  if (!proof || (beforeProviders ? !beforeProvidersMatches
+    : proof.environment !== environment || proof.frameworkFingerprint !== frameworkFingerprint)
     || !current() || !supportsCurrentSources(proof)) return undefined;
   if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()) return undefined;
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: proof.sourceRoots, scopedSourceRoots: proof.scopedSourceRoots,
@@ -1915,15 +1956,18 @@ async function restoreReferenceResult(root: string, workspace: SemanticWorkspace
     context: proof.context, documents: documents.all().map((document) => ({ uri: document.uri, source: document.getText() })), shouldContinue: current });
   if (!snapshot || snapshot.fingerprint !== proof.fingerprint || !current()) return undefined;
   if (await captureReferenceEngineIdentity(referenceEngineInputs!) !== engineIdentity || !current()
-    || referenceEnvironment(root, project, workspace, engineIdentity) !== environment || !supportsCurrentSources(proof)) return undefined;
+    || (beforeProviders ? referencePreProviderEnvironment(root, project, engineIdentity) !== preProviderEnvironment
+      || JSON.stringify(bundledReferenceProviderFiles()) !== JSON.stringify(providerImplementationFiles)
+      : referenceEnvironment(root, project, workspace, engineIdentity) !== environment)
+    || !supportsCurrentSources(proof)) return undefined;
   restoredReferenceResults.set(workspace, { proof, epoch, generation, revision });
-  connection.console.info(`[reference-cache] restored count=${proof.locations.length}`);
+  connection.console.info(`[reference-cache] restored count=${proof.locations.length}${beforeProviders ? ' beforeProviders=true' : ''}`);
   return structuredClone(proof.locations);
 }
 
 function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: string, offset: number,
   includeDeclaration: boolean, sequence: number, frameworkFingerprint?: string,
-  queryHint?: ReferenceResultProof['queryHint']): ((locations: ReferenceLocation[]) => void) | undefined {
+  queryHint?: ReferenceResultProof['queryHint'], eventProviderUsed = false): ((locations: ReferenceLocation[]) => void) | undefined {
   if (!reusableReferenceMode()) return undefined;
   if (referenceHasFrameworkProviders() !== Boolean(frameworkFingerprint)) return undefined;
   const candidates = referenceCandidateReads.get(workspace); if (!candidates || candidates.root !== root) return undefined;
@@ -1961,6 +2005,9 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       }
       const key = referenceQueryKey(uri, offset, includeDeclaration);
       const sourceRoots = projectAutoloadPaths(project);
+      const providerImplementationFiles = frameworkFingerprint ? bundledReferenceProviderFiles() : undefined;
+      const preProviderEnvironment = providerImplementationFiles
+        ? referencePreProviderEnvironment(root, project, engineIdentity) : undefined;
       // These bounded roots preserve changes to conventional Symfony inputs
       // for an eventual pre-provider restore path. Provider output still has
       // to be recomputed before today's framework fingerprint can be checked.
@@ -1979,6 +2026,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       // dependencies and negative lookups outside that set.
       const additionalFiles = [...new Set([...metadata.map((read) => read.path),
         ...frameworkConfigFiles, ...frameworkAttemptedFiles, ...[...(validRouteInputs?.files ?? [])],
+        ...(providerImplementationFiles ?? []),
         ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
       const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
         candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)),
@@ -2001,6 +2049,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
         ...(scopedSourceRoots ? { scopedSourceRoots, includeFileStamps: true } : {}), additionalFiles, context,
         ...(frameworkFingerprint ? { containerInputEvidenceComplete: symfonyServiceInputPathsByRoot.get(root)?.complete === true } : {}),
         ...(frameworkFingerprint ? { routeInputEvidenceComplete: validRouteInputs?.complete === true } : {}),
+        ...(preProviderEnvironment ? { preProviderEnvironment, providerImplementationFiles, eventProviderUsed } : {}),
         loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), ...(queryHint ? { queryHint } : {}), fingerprint: snapshot.fingerprint,
         locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };
@@ -4467,7 +4516,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const writeReferenceResult = root && scope === 'project'
       ? prepareReferenceWrite(root, workspace, document.uri, offset, context.includeDeclaration, id, frameworkFingerprint,
         namedTarget ? { uri: document.uri, names: [...candidateNames].sort(),
-          mode: closedPromotedTarget ? 'named-argument' : 'symbol', deferBodies: member?.kind === 'method' } : undefined) : undefined;
+          mode: closedPromotedTarget ? 'named-argument' : 'symbol', deferBodies: member?.kind === 'method' } : undefined,
+        eventRelevant) : undefined;
     const semanticLocations = workspace.references(document.uri, offset, context.includeDeclaration);
     connection.console.info(`[references:${id}] semantic count=${semanticLocations.length} elapsedMs=${Date.now() - semanticStarted}`);
     const rawLocations = [...new Map([...semanticLocations, ...frameworkLocations]
