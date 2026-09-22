@@ -308,6 +308,55 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('includes inherited vendor receiver assignments in first and reloaded References', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-inherited-receiver-'));
+    try {
+      const src = join(root, 'src'); const dependency = join(root, 'vendor', 'acme', 'lib', 'src');
+      await mkdir(src); await mkdir(dependency, { recursive: true }); await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(join(dependency, 'BaseEvent.php'), '<?php namespace Acme; class BaseEvent {}');
+      await writeFile(join(dependency, 'KernelEvent.php'), '<?php namespace Acme; class KernelEvent extends BaseEvent { public function getRequest(): Request {} }');
+      await writeFile(join(dependency, 'RequestEvent.php'), '<?php namespace Acme; class RequestEvent extends KernelEvent {}');
+      await writeFile(join(dependency, 'Request.php'), '<?php namespace Acme; class Request { public Bag $attributes; }');
+      await writeFile(join(dependency, 'Bag.php'), '<?php namespace Acme; class Bag { public function get(string $key): mixed {} }');
+      const direct = `<?php namespace App; use Acme\\Request; function direct(Request $request) { return $request->attributes->get('route'); }`;
+      const inherited = `<?php namespace App; use Acme\\RequestEvent; function inherited(RequestEvent $event) { $request = $event->getRequest(); return $request->attributes->get('route'); }`;
+      const directUri = pathToFileURL(join(src, 'Direct.php')).toString(); const inheritedUri = pathToFileURL(join(src, 'Inherited.php')).toString();
+      await writeFile(join(src, 'Direct.php'), direct); await writeFile(join(src, 'Inherited.php'), inherited);
+      const expected = [{ uri: directUri, text: direct }, { uri: inheritedUri, text: inherited }].map(({ uri, text }) => {
+        const start = text.lastIndexOf('get(');
+        return { uri, range: { start: lspPosition(text, start), end: lspPosition(text, start + 3) } };
+      });
+      for (let run = 0; run < 2; run += 1) {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 970, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
+            testDisablePersistentReferences: true },
+        } }));
+        await output.waitFor((message) => message.id === 970);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: directUri, languageId: 'php', version: 1, text: direct },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 971, method: 'textDocument/references', params: {
+          textDocument: { uri: directUri }, position: lspPosition(direct, direct.lastIndexOf('get(') + 1),
+          context: { includeDeclaration: false },
+        } }));
+        const response = await output.waitFor((message) => message.id === 971, 15_000);
+        expect(response.error).toBeUndefined();
+        expect(response.result.sort((a: { uri: string }, b: { uri: string }) => a.uri.localeCompare(b.uri))).toEqual(expected);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 972, method: 'shutdown', params: null }));
+        await output.waitFor((message) => message.id === 972);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await new Promise<void>((done) => server!.once('exit', () => done()));
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 45_000);
+
   it('prepares cold class references in workers and honors unsaved consumers after reload', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-class-reference-workers-'));
     try {

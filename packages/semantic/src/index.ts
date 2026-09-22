@@ -1583,6 +1583,40 @@ export class SemanticWorkspace {
   }
 
   documentUris(): string[] { return [...this.files.keys()]; }
+  /** Receiver methods worth hydrating for one parsed References candidate. */
+  assignedReceiverMethods(uri: string, names: ReadonlySet<string>): Array<{ owner: string; method: string }> {
+    const file = this.files.get(uri);
+    if (!file) return [];
+    const found = new Map<string, { owner: string; method: string }>();
+    for (const access of file.memberAccesses) {
+      if (access.kind !== 'method' || !names.has(access.name.toLowerCase())) continue;
+      const prefix = file.source.slice(Math.max(0, access.start - 160), access.start);
+      const variable = [...prefix.matchAll(/\$[A-Za-z_][A-Za-z0-9_]*/g)].at(-1)?.[0];
+      if (!variable) continue;
+      const scope = this.containingScope(file, access.start);
+      if (!scope) continue;
+      const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable
+        && item.end <= access.start && item.sourceCall?.kind === 'member')
+        .sort((left, right) => right.end - left.end)[0];
+      const call = assignment?.sourceCall;
+      if (call?.kind !== 'member' || call.dynamic) continue;
+      const parameter = scope.parameters.find((item) => `$${item.name}` === call.variable);
+      if (!parameter?.nativeType || /[|&?]/.test(parameter.nativeType)) continue;
+      const owner = this.resolveSourceType(file, parameter.nativeType, this.namespaceAt(file, access.start), scope.containerFqcn);
+      if (owner) found.set(`${owner.toLowerCase()}::${call.method.toLowerCase()}`, { owner, method: call.method });
+    }
+    return [...found.values()];
+  }
+
+  nativeMethodReturnTypeName(owner: string, method: string): string | undefined {
+    const member = this.publicInstanceMethod(owner, method);
+    const file = member && this.files.get(member.uri);
+    const native = member?.nativeReturnType;
+    const object = native && this.objectType(native, true);
+    if (!member || !file || !object) return undefined;
+    const namespace = member.typeScopeFqcn.split('\\').slice(0, -1).join('\\');
+    return this.resolveSourceType(file, object.name, namespace, member.typeScopeFqcn);
+  }
   private createSnapshot(uri: string, detached: boolean): SemanticSnapshot | undefined {
     this.loadSourceImplementation(uri);
     const file = this.files.get(uri); const referencesIndexed = !this.unindexedReferenceCandidateUris.has(uri);
@@ -5996,11 +6030,11 @@ export class SemanticWorkspace {
         let queryTree: SyntaxTree | undefined;
         try {
           for (const match of file.source.matchAll(pattern)) {
+            const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
             if (!this.trees.has(file.uri)) {
               queryTree = this.parser.parseTree(file.source);
               this.trees.set(file.uri, queryTree);
             }
-            const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
             const resolved = this.memberAt(file.uri, start + 1);
             if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end: start + match[1]!.length });
           }

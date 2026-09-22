@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
-import { URL } from 'node:url';
+import { URL, pathToFileURL } from 'node:url';
 
 const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
 // Validate the same bundled entrypoint and parser assets shipped in the VSIX.
@@ -12,9 +12,10 @@ const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
+const locationsPath = join(cache, 'reference-locations.json');
 const expected = new Map([
   ['textDocument/definition', { results: 1, locationSha256: '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
-  ['textDocument/references', { results: 112, locationSha256: 'bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2' }],
+  ['textDocument/references', { results: 127, locationSha256: '64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531' }],
 ]);
 
 try {
@@ -22,7 +23,9 @@ try {
     const child = spawn(process.execPath, [
       'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
     ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1', PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
+      env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
+        PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
+        PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
     let output = ''; let logs = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk) => { logs += chunk; process.stderr.write(chunk); });
@@ -48,6 +51,13 @@ try {
         throw new Error(`Reference baseline changed: ${JSON.stringify({ method: result.method, results: result.results, locationSha256: result.locationSha256 })}`);
       }
       process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
+    }
+    const locations = JSON.parse(await readFile(locationsPath, 'utf8'));
+    const subscriberUri = pathToFileURL(join(workspace, 'src/Bridge/ApplicationContextSubscriber.php')).toString();
+    for (const line of [81, 84]) {
+      if (!locations.some((location) => location.uri === subscriberUri && location.range?.start?.line === line)) {
+        throw new Error(`Missing inherited RequestEvent ParameterBag::get reference at ApplicationContextSubscriber.php:${line + 1}`);
+      }
     }
   }
 } finally {

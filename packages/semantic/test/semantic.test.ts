@@ -173,6 +173,29 @@ describe('conservative semantic workspace', () => {
     expect(workspace.memberOwnerTypeNamesAt('file:///Subscriber.php', source.indexOf('shouldRedirect') + 2))
       .toEqual(['App\\PasswordChangeGuard']);
   });
+  it('extracts an assigned receiver method from one candidate without a workspace-wide pass', () => {
+    const local = new SemanticWorkspace(parser);
+    const uri = 'file:///AssignedReceiver.php';
+    const source = `<?php namespace App;
+      use Acme\\RequestEvent;
+      function check(RequestEvent $event): void {
+        $request = $event->getRequest();
+        $request->attributes->get('route');
+      }`;
+    try {
+      local.update(uri, source);
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'Acme\\RequestEvent', method: 'getRequest' },
+      ]);
+      local.update(uri, source.replace("->get('route')", " -> GET('route')"));
+      expect(local.assignedReceiverMethods(uri, new Set(['get']))).toEqual([
+        { owner: 'Acme\\RequestEvent', method: 'getRequest' },
+      ]);
+      local.update('file:///KernelEvent.php', '<?php namespace Acme; class KernelEvent { public function getRequest(): Request {} }');
+      local.update('file:///RequestEvent.php', '<?php namespace Acme; class RequestEvent extends KernelEvent {}');
+      expect(local.nativeMethodReturnTypeName('Acme\\RequestEvent', 'getRequest')).toBe('Acme\\Request');
+    } finally { local.dispose(); }
+  });
   it('exposes only signature-identical members across Union and DNF alternatives', () => {
     workspace.update('file:///CompositeTypes.php', `<?php namespace Composite;
       class Result { public function done(): void {} }

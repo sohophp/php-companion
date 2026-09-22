@@ -73,6 +73,8 @@ const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtensio
 const builtinExtensionSignatureByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const referenceDependencyEvidence = new WeakMap<SemanticWorkspace, ReferenceDependencyEvidence>();
+type AssignedReceiverMethod = { owner: string; method: string };
+const candidateReceiverMethods = new Map<string, AssignedReceiverMethod[]>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
 const projectCompleteWaiters = new Map<string, Set<() => void>>();
@@ -1957,6 +1959,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
+  candidateReceiverMethods.delete(key);
   referenceCandidateReads.delete(workspace);
   const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
   let candidateReadsComplete = true;
@@ -1969,6 +1972,13 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   };
   const started = Date.now(); let candidates = 0; let restoredCandidates = 0; let declarationCandidates = 0; let restoredDeclarations = 0; let preparedCandidates = 0; let preparedRestores = 0;
   const fullCandidateTypes = new Set<string>();
+  const receiverMethods = new Map<string, AssignedReceiverMethod>();
+  const recordReceiverMethods = (items: unknown): void => {
+    if (!Array.isArray(items) || items.length > 10_000) return;
+    for (const item of items) if (item && typeof item.owner === 'string' && typeof item.method === 'string') {
+      receiverMethods.set(`${item.owner.toLowerCase()}::${item.method.toLowerCase()}`, item as AssignedReceiverMethod);
+    }
+  };
   const progress = showProgress && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
@@ -2006,12 +2016,17 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
           : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
       const declarationsOnly = matches && deferBodies && !open && mode === 'symbol'
         && sourceCandidateSummaryDecision(summary, names, 'symbol') === 'skip';
+      let sourceReceiverMethods: AssignedReceiverMethod[] = [];
       if (matches) {
         if (candidate?.facts && candidate.facts.kind === (declarationsOnly ? 'declarations' : 'full')) {
           workspace.updatePrepared(uri, effective, candidate.facts); preparedCandidates += 1;
         }
         else if (declarationsOnly) workspace.updateDeclarations(uri, effective);
         else workspace.update(uri, effective, Boolean(open));
+        if (!declarationsOnly && mode === 'symbol') {
+          sourceReceiverMethods = workspace.assignedReceiverMethods(uri, names);
+          recordReceiverMethods(sourceReceiverMethods);
+        }
         if (declarationsOnly) declarationCandidates += 1;
         if (exactSymbols && !declarationsOnly) {
           for (const declaration of workspace.sourceDeclarationSnapshot(uri)?.declaration.declarations ?? []) {
@@ -2033,15 +2048,15 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
                 : { declarations: compressCachedSourceDeclaration(declarationSnapshot!, hash) };
             } catch { return {}; /* Oversized snapshots remain candidates and are reparsed next query. */ }
           }) : undefined;
-      return { summary, pending };
+      return { summary, pending, receiverMethods: sourceReceiverMethods };
     },
     cache: cacheDirectory ? {
-      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v4',
+      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v5',
       finalizePayload: async (payload): Promise<unknown> => {
-        const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; pending?: Promise<{
+        const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; receiverMethods?: AssignedReceiverMethod[]; pending?: Promise<{
           semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };
         const compressed = await entry.pending;
-        return { summary: entry.summary, semantic: compressed?.semantic, declarations: compressed?.declarations };
+        return { summary: entry.summary, receiverMethods: entry.receiverMethods, semantic: compressed?.semantic, declarations: compressed?.declarations };
       },
       prepareRestore: (payload, { uri, hash }): Promise<PreparedCandidateRestore | undefined> | undefined => {
         const entry = payload as { summary?: unknown } | null;
@@ -2051,7 +2066,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       },
       restore: (payload, { uri, path, hash }, prepared): boolean | 'source' => {
         recordCandidateRead(path, hash);
-        const entry = payload as { summary?: unknown; semantic?: unknown; declarations?: unknown } | null;
+        const entry = payload as { summary?: unknown; receiverMethods?: AssignedReceiverMethod[]; semantic?: unknown; declarations?: unknown } | null;
         const decision = sourceCandidateSummaryDecision(entry?.summary, names, mode === 'symbol' ? 'substring-symbol' : mode);
         if (decision === 'skip') return true;
         if (decision === 'rebuild' || documents.get(uri)) return decision === 'source' ? 'source' : false;
@@ -2060,12 +2075,14 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
           ? prepared as PreparedCandidateRestore : undefined;
         const declarations = candidate?.declaration ?? (deferBodies ? restoreCachedSourceDeclaration(entry?.declarations, uri, hash) : undefined);
         if (declarations && workspace.restoreSourceDeclaration(declarations, uri)) {
+          if (mode === 'symbol') recordReceiverMethods(entry?.receiverMethods ?? []);
           if (candidate?.declaration) preparedRestores += 1;
           restoredCandidates += 1; restoredDeclarations += 1; return true;
         }
         const cached = candidate?.semantic ?? restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(entry?.semantic), uri);
         if (cached?.checksums.source === hash && (deferBodies
           ? workspace.restoreDeclaration(cached.semantic, uri) : workspace.restore(cached.semantic, uri))) {
+          if (mode === 'symbol') recordReceiverMethods(entry?.receiverMethods ?? []);
           if (candidate?.semantic) preparedRestores += 1;
           restoredCandidates += 1; return true;
         }
@@ -2075,6 +2092,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   });
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
+  if (mode === 'symbol') for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) {
+    recordReceiverMethods(workspace.assignedReceiverMethods(document.uri, names));
+  }
   if (exactSymbols) {
     const visited = new Set<string>(); const unresolvedDependencies = new Set<string>(); let frontier = [...fullCandidateTypes]; let loadedDependencies = 0;
     for (let depth = 0; depth < 32 && frontier.length; depth += 1) {
@@ -2108,6 +2128,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   if (candidateReadsComplete && candidateReads.size + skippedCandidateStamps.size === scan.files) {
     referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps });
   }
+  candidateReceiverMethods.set(key, [...receiverMethods.values()]);
   candidateQueries.set(key, epoch); return true;
   } finally { progress?.done(); }
 }
@@ -2386,6 +2407,29 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
     }
   }
   return loaded;
+}
+
+async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: string, methods: readonly AssignedReceiverMethod[],
+  cancelled: () => boolean): Promise<void> {
+  if (!methods.length) return;
+  const hydrate = async (names: readonly string[]): Promise<void> => {
+    const unique = [...new Set(names)];
+    for (let start = 0; start < unique.length; start += 16) {
+      if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+      await hydrateCanonicalTypes(workspace, root, unique.slice(start, start + 16), true);
+    }
+  };
+  await hydrate(methods.map((item) => item.owner));
+  let frontier = [...new Set(methods.map((item) => item.owner))];
+  const visited = new Set<string>();
+  for (let depth = 0; depth < 16 && frontier.length; depth += 1) {
+    const parents = [...new Set(frontier.flatMap((name) => workspace.directDeclarationDependencies(name)))]
+      .filter((name) => !visited.has(name.toLowerCase()));
+    for (const name of parents) visited.add(name.toLowerCase());
+    await hydrate(parents);
+    frontier = parents.filter((name) => workspace.typeByFqcn(name));
+  }
+  await hydrate(methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []));
 }
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
@@ -4044,6 +4088,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
       void connection.window.showWarningMessage('PHP references are unavailable: the project index is incomplete or disabled. See PHP Companion output.');
       throw new ResponseError(LSPErrorCodes.RequestFailed, 'Project index incomplete; this is not a zero-reference result.');
+    }
+    if (root && member?.kind === 'method') {
+      const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
+      await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested);
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
