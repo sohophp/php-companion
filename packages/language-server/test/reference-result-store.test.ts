@@ -45,8 +45,9 @@ describe('persistent reference result store', () => {
   });
 
   it('authenticates bounded framework input roots and timestamp-sensitive proofs', async () => {
-    proof.scopedSourceRoots = [{ path: '/workspace/config', extensions: ['.php', '.yaml', '.xml'] }];
+    proof.scopedSourceRoots = [{ path: '/workspace/config', extensions: ['*'] }];
     proof.includeFileStamps = true;
+    proof.containerInputEvidenceComplete = true;
     expect(await store.write(proof, () => true)).toBe(true);
     expect(await store.read(proof.key)).toEqual(proof);
     expect(await store.write({ ...proof, scopedSourceRoots: [{ path: '/workspace/config', extensions: ['xml'] }] }, () => true)).toBe(false);

@@ -194,19 +194,24 @@ describe('language server stdio', () => {
       await run(expected, false, { provider: true });
       const providerProof = (await new ReferenceResultStore(join(root, '.cache')).recent())[0];
       expect(providerProof?.includeFileStamps).toBe(true);
+      expect(providerProof?.containerInputEvidenceComplete).toBe(true);
       expect(providerProof?.scopedSourceRoots).toEqual([
-        { path: join(root, 'config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
-        { path: join(root, 'app/config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: join(root, 'config'), extensions: ['*'] },
+        { path: join(root, 'app/config'), extensions: ['*'] },
         { path: join(root, 'var/cache/dev'), extensions: ['.xml'] },
       ]);
       await run(expected, true, { provider: true });
       await run(expected, true, { provider: true, prewarmed: true });
       await mkdir(join(root, 'config'));
-      await writeFile(join(root, 'config', 'services.yaml'), 'services:\n  Lib\\Target:\n    public: true\n');
+      await writeFile(join(root, 'config', 'services.yaml'), 'imports:\n  - { resource: missing.yaml }\nservices:\n  Lib\\Target:\n    public: true\n');
       await run(expected, false, { provider: true });
       expect((await new ReferenceResultStore(join(root, '.cache')).recent())[0]?.additionalFiles)
         .toContain(join(root, 'config', 'services.yaml'));
+      expect((await new ReferenceResultStore(join(root, '.cache')).recent())[0]?.additionalFiles)
+        .toContain(join(root, 'config', 'missing.yaml'));
       await run(expected, true, { provider: true });
+      await writeFile(join(root, 'config', 'missing.yaml'), 'services: {}\n');
+      await run(expected, false, { provider: true });
       await writeFile(join(dependency, 'Target.php'), `${declaration}\n// dependency changed`);
       await run(expected, false); await run(expected, true);
       const composerPath = join(root, 'composer.json'); await writeFile(composerPath, `${await readFile(composerPath, 'utf8')}\n`);

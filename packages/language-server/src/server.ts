@@ -98,6 +98,7 @@ function mergedDoctrineMethods(files: Map<string, DoctrineMethodFact[]> | undefi
 const symfonyServiceCatalogByRoot = new Map<string, Map<string, SymfonyServiceFact[]>>();
 const symfonyParameterCatalogByRoot = new Map<string, ExternalContainerParameterFact[]>();
 const symfonyServiceConfigPathsByRoot = new Map<string, Set<string>>();
+const symfonyServiceInputPathsByRoot = new Map<string, { paths: Set<string>; complete: boolean }>();
 const symfonyCompiledMethodArgumentsByRoot = new Map<string, SymfonyCompiledMethodArgumentFact[]>();
 const symfonyCompiledPropertyArgumentsByRoot = new Map<string, SymfonyCompiledPropertyArgumentFact[]>();
 const symfonyContainerRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -523,6 +524,10 @@ function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace,
   symfonyCompiledPropertyArgumentsByRoot.set(root, [...contribution.containerPropertyArguments]);
   const paths = contribution.containerConfigurationUris.flatMap((uri) => { try { return [resolve(fileURLToPath(uri))]; } catch { return []; } });
   symfonyServiceConfigPathsByRoot.set(root, new Set(paths));
+  const inputs = contribution.containerInputUris?.flatMap((uri) => { try { return [resolve(fileURLToPath(uri))]; } catch { return []; } });
+  if (inputs) symfonyServiceInputPathsByRoot.set(root,
+    { paths: new Set(inputs), complete: contribution.containerInputEvidenceComplete === true });
+  else symfonyServiceInputPathsByRoot.delete(root);
   workspace.removeExternalFacts('symfony'); workspace.replaceExternalFacts(contribution); return true;
 }
 
@@ -531,6 +536,7 @@ function clearContainerFacts(root: string, workspace: SemanticWorkspace, provide
   symfonyServiceCatalogByRoot.delete(root);
   symfonyParameterCatalogByRoot.delete(root);
   symfonyServiceConfigPathsByRoot.delete(root);
+  symfonyServiceInputPathsByRoot.delete(root);
   symfonyCompiledMethodArgumentsByRoot.delete(root);
   symfonyCompiledPropertyArgumentsByRoot.delete(root);
   workspace.removeExternalFacts('symfony');
@@ -1719,7 +1725,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
       }
@@ -1956,16 +1962,18 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       // for an eventual pre-provider restore path. Provider output still has
       // to be recomputed before today's framework fingerprint can be checked.
       const scopedSourceRoots = frameworkFingerprint ? [
-        { path: resolve(root, 'config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
-        { path: resolve(root, 'app/config'), extensions: ['.php', '.yaml', '.yml', '.xml'] },
+        { path: resolve(root, 'config'), extensions: ['*'] },
+        { path: resolve(root, 'app/config'), extensions: ['*'] },
         { path: resolve(root, 'var/cache/dev'), extensions: ['.xml'] },
       ] : undefined;
       const frameworkConfigFiles = frameworkFingerprint ? [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])] : [];
+      const frameworkAttemptedFiles = frameworkFingerprint ? [...(symfonyServiceInputPathsByRoot.get(root)?.paths ?? [])] : [];
       // Complete candidate reads are already covered by recursive source-root
       // discovery and content hashing. Keep explicit paths only for metadata,
       // dependencies and negative lookups outside that set.
       const additionalFiles = [...new Set([...metadata.map((read) => read.path),
-        ...frameworkConfigFiles, ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
+        ...frameworkConfigFiles, ...frameworkAttemptedFiles,
+        ...reads.map((read) => read.path).filter((path) => !candidates.reads.has(resolve(path)))])];
       const context = JSON.stringify({ schema: 1, key, environment, loaded, attempted,
         candidates: { key: candidates.key, reads: [...candidates.reads].sort(([a], [b]) => a.localeCompare(b)),
           skipped: [...candidates.skipped].sort(([a], [b]) => a.localeCompare(b)) } });
@@ -1985,6 +1993,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
         || referenceEnvironment(root, project, workspace, engineIdentity) !== environment) return;
       if (await new ReferenceResultStore(cacheDirectory!).write({ schema: 1, key, environment, sourceRoots,
         ...(scopedSourceRoots ? { scopedSourceRoots, includeFileStamps: true } : {}), additionalFiles, context,
+        ...(frameworkFingerprint ? { containerInputEvidenceComplete: symfonyServiceInputPathsByRoot.get(root)?.complete === true } : {}),
         loaded, ...(frameworkFingerprint ? { frameworkFingerprint } : {}), ...(queryHint ? { queryHint } : {}), fingerprint: snapshot.fingerprint,
         locations: result }, semanticCurrent)) connection.console.info(`[reference-cache] stored count=${result.length}`);
     };

@@ -50,7 +50,7 @@ describe('reference input snapshot', () => {
     await mkdir(config); await mkdir(cache, { recursive: true });
     const compiled = join(cache, 'AppDebugContainer.xml'); await writeFile(compiled, '<container/>');
     const options = { sourceRoots: [sourceRoot], scopedSourceRoots: [
-      { path: config, extensions: ['.yaml', '.yml', '.xml', '.php'] },
+      { path: config, extensions: ['*'] },
       { path: cache, extensions: ['.xml'] },
     ], context: 'symfony-provider', includeFileStamps: true };
     const first = (await captureReferenceInputSnapshot(options))!;
@@ -62,10 +62,14 @@ describe('reference input snapshot', () => {
     const second = (await captureReferenceInputSnapshot(options))!;
     expect(second.sourceFiles).toEqual([source, service, compiled].sort());
     expect(second.fingerprint).not.toBe(first.fingerprint);
+    const unrelated = join(config, 'container-input.txt'); await writeFile(unrelated, 'freshness input');
+    const withUnrelated = (await captureReferenceInputSnapshot(options))!;
+    expect(withUnrelated.sourceFiles).toEqual([source, service, unrelated, compiled].sort());
+    expect(withUnrelated.fingerprint).not.toBe(second.fingerprint);
     await utimes(compiled, new Date('2001-01-01T00:00:00Z'), new Date('2001-01-01T00:00:00Z'));
     const third = (await captureReferenceInputSnapshot(options))!;
-    expect(third.files).toEqual(second.files);
-    expect(third.fingerprint).not.toBe(second.fingerprint);
+    expect(third.files).toEqual(withUnrelated.files);
+    expect(third.fingerprint).not.toBe(withUnrelated.fingerprint);
     expect(await captureReferenceInputSnapshot({ ...options, scopedSourceRoots: [{ path: cache, extensions: ['xml'] }] })).toBeUndefined();
   });
 

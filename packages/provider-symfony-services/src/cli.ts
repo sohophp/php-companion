@@ -27,6 +27,8 @@ async function main(): Promise<void> {
         containerParameters: facts.parameters,
         containerMethodArguments: facts.methodArguments, containerPropertyArguments: facts.propertyArguments,
         containerConfigurationUris: facts.configurationUris,
+        containerInputUris: facts.inputUris,
+        containerInputEvidenceComplete: facts.inputEvidenceComplete,
       }) };
   } catch (error) {
     response = { protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: request.id,

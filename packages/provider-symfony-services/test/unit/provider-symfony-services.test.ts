@@ -24,7 +24,7 @@ describe('standalone Symfony service provider', () => {
   it('follows deterministic imports, expands resources, and honors open snapshots', async () => {
     const root = await project(); const mailer = join(root, 'src', 'Mailer.php'); const worker = join(root, 'src', 'Worker.php');
     await writeFile(mailer, '<?php namespace App; final class Mailer {}'); await writeFile(worker, '<?php namespace App; final class Worker {}');
-    await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.xml }\nparameters:\n  app.transport: smtp\nservices:\n  App\\:\n    resource: '../src/'\n");
+    await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.xml }\n  - { resource: services/missing.yaml }\nparameters:\n  app.transport: smtp\nservices:\n  App\\:\n    resource: '../src/'\n");
     const extra = join(root, 'config', 'services', 'extra.xml');
     await writeFile(extra, '<container><services><service id="app.disk" class="App\\Mailer" public="true"/></services></container>');
     await writeFile(join(root, 'config', 'services.php'), `<?php
@@ -48,6 +48,12 @@ describe('standalone Symfony service provider', () => {
     expect(facts.configurationUris).toContain(pathToFileURL(extra).toString());
     expect(facts.configurationUris).toContain(pathToFileURL(join(root, 'config', 'services.yaml')).toString());
     expect(facts.configurationUris).not.toContain(pathToFileURL(join(root, 'app', 'config', 'services.php')).toString());
+    expect(facts.inputUris).toContain(pathToFileURL(extra).toString());
+    expect(facts.inputUris).toContain(pathToFileURL(join(root, 'config', 'services', 'missing.yaml')).toString());
+    expect(facts.inputUris).toContain(pathToFileURL(join(root, 'app', 'config', 'services.php')).toString());
+    expect(facts.inputEvidenceComplete).toBe(true);
+    const bounded = await collectSymfonyServiceFacts(root, parser, { projectTypes: [], maxImports: 1 });
+    expect(bounded.inputEvidenceComplete).toBe(false);
   });
 
   it('uses only fresh compiled container arguments and rejects them when an open source snapshot exists', async () => {
@@ -60,6 +66,7 @@ describe('standalone Symfony service provider', () => {
     const projectTypes = [type(root, 'App\\Consumer', 'Consumer.php')];
     const fresh = await collectSymfonyServiceFacts(root, parser, { projectTypes });
     expect(fresh.methodArguments).toContainEqual(expect.objectContaining({ callableFqcn: 'App\\Consumer::__construct', serviceId: 'app.mailer' }));
+    expect(fresh.inputUris).toContain(pathToFileURL(compiled).toString());
     const prod = await collectSymfonyServiceFacts(root, parser, { projectTypes, environment: 'prod' });
     expect(prod.methodArguments).toEqual([]);
     const snapshot = await collectSymfonyServiceFacts(root, parser, { projectTypes, documents: [{ uri: pathToFileURL(consumer).toString(),

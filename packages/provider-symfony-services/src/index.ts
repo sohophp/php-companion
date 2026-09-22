@@ -40,6 +40,9 @@ export interface SymfonyServiceProviderFacts {
   literalMethodReturns: ExternalLiteralMethodReturnFact[];
   parameters: Array<{ id: string; uri: string; start: number; end: number }>;
   configurationUris: string[];
+  /** File paths attempted by the static provider, including absent imports. */
+  inputUris: string[];
+  inputEvidenceComplete: boolean;
 }
 
 function within(root: string, candidate: string): boolean {
@@ -57,8 +60,10 @@ function snapshotSources(root: string, documents: readonly SemanticProviderDocum
 }
 
 async function bundleRoots(root: string, parser: PhpSyntaxParser, projectTypes: readonly SemanticProviderProjectType[],
-  mappings: readonly Psr4Mapping[], sources: Map<string, string>): Promise<Map<string, BundleRoot>> {
-  const sourceFor = async (path: string): Promise<string> => sources.get(resolve(path)) ?? readFile(path, 'utf8');
+  mappings: readonly Psr4Mapping[], sources: Map<string, string>, inputPaths: Set<string>): Promise<Map<string, BundleRoot>> {
+  const sourceFor = async (path: string): Promise<string> => {
+    inputPaths.add(resolve(path)); return sources.get(resolve(path)) ?? readFile(path, 'utf8');
+  };
   const registrations: SymfonyBundleRegistrationFact[] = [];
   for (const filename of ['config/bundles.php', 'src/Kernel.php', 'app/AppKernel.php']) {
     const path = resolve(root, filename);
@@ -70,6 +75,7 @@ async function bundleRoots(root: string, parser: PhpSyntaxParser, projectTypes: 
       ...resolvePsr4Class(fqcn, [...mappings])];
     const existing = new Set<string>();
     for (const path of candidates) {
+      inputPaths.add(resolve(path));
       try { if ((await stat(path)).isFile()) existing.add(await realpath(path)); } catch { /* Missing alternatives are ignored. */ }
     }
     return existing.size === 1 ? [...existing][0] : undefined;
@@ -126,19 +132,20 @@ function importedConfig(root: string, ownerPath: string, resource: string, roots
   return within(base?.path ?? root, path) && /\.(?:ya?ml|xml|php)$/i.test(path) ? { path, containmentRoot: base?.realPath ?? root } : undefined;
 }
 
-async function filesBelow(root: string, limit = 100_000): Promise<string[]> {
-  const result: string[] = []; const walk = async (path: string): Promise<void> => {
-    if (result.length >= limit) return;
+async function filesBelow(root: string, limit = 100_000): Promise<{ files: string[]; complete: boolean }> {
+  const result: string[] = []; let complete = true; const walk = async (path: string): Promise<void> => {
+    if (result.length >= limit) { complete = false; return; }
     try {
       for (const entry of await readdir(path, { withFileTypes: true })) {
-        if (result.length >= limit) return;
+        if (result.length >= limit) { complete = false; return; }
         const candidate = resolve(path, entry.name); if (entry.isDirectory()) await walk(candidate); else if (entry.isFile()) result.push(candidate);
       }
-    } catch { /* Missing and unreadable dependency trees make compiled metadata stale below. */ }
-  }; await walk(root); return result;
+    } catch { complete = false; /* Missing and unreadable trees cannot prove compiled freshness. */ }
+  }; await walk(root); return { files: result, complete };
 }
 
-async function freshCompiledContainer(root: string, projectTypes: readonly SemanticProviderProjectType[], sources: Map<string, string>, environment?: string): Promise<string | undefined> {
+async function freshCompiledContainer(root: string, projectTypes: readonly SemanticProviderProjectType[], sources: Map<string, string>,
+  inputPaths: Set<string>, markIncomplete: () => void, environment?: string): Promise<string | undefined> {
   if (environment && environment !== 'dev') return undefined;
   // An open source/config snapshot can be newer than its disk mtime, so compiled metadata cannot be authoritative.
   if ([...sources.keys()].some((path) => /^(?:src|config)[\\/]/.test(relative(root, path)))) return undefined;
@@ -148,8 +155,11 @@ async function freshCompiledContainer(root: string, projectTypes: readonly Seman
     const path = resolve(directory, name); try { return { path, modified: (await stat(path)).mtimeMs }; } catch { return undefined; }
   }));
   const selected = candidates.flatMap((item) => item ? [item] : []).sort((left, right) => right.modified - left.modified)[0]; if (!selected) return undefined;
+  const configFiles = await filesBelow(resolve(root, 'config'));
+  if (!configFiles.complete) { markIncomplete(); return undefined; }
   const dependencies = [...new Set([...projectTypes.map((item) => item.path).filter((path) => within(resolve(root, 'src'), path)),
-    ...(await filesBelow(resolve(root, 'config'))), resolve(root, 'composer.json'), resolve(root, 'composer.lock')])];
+    ...configFiles.files, resolve(root, 'composer.json'), resolve(root, 'composer.lock')])];
+  for (const path of dependencies) inputPaths.add(resolve(path));
   const mtimes = await Promise.all(dependencies.map(async (path) => { try { return (await stat(path)).mtimeMs; } catch { return Number.POSITIVE_INFINITY; } }));
   return mtimes.every((modified) => modified <= selected.modified) ? selected.path : undefined;
 }
@@ -158,13 +168,17 @@ async function freshCompiledContainer(root: string, projectTypes: readonly Seman
 export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSyntaxParser,
   options: SymfonyServiceProviderOptions): Promise<SymfonyServiceProviderFacts> {
   const root = resolve(rootPath); const actualRoot = await realpath(root); const sources = snapshotSources(root, options.documents ?? []);
-  const sourceFor = async (path: string): Promise<string> => sources.get(resolve(path)) ?? readFile(path, 'utf8');
+  const inputPaths = new Set<string>(); let inputEvidenceComplete = true;
+  const sourceFor = async (path: string): Promise<string> => {
+    inputPaths.add(resolve(path)); return sources.get(resolve(path)) ?? readFile(path, 'utf8');
+  };
   const project = await loadComposerProject(root); const mappings = project ? allPsr4Mappings(project) : [];
-  const roots = await bundleRoots(root, parser, options.projectTypes, mappings, sources);
+  const roots = await bundleRoots(root, parser, options.projectTypes, mappings, sources, inputPaths);
   const catalog: SymfonyServiceFact[] = []; const methodArguments: SymfonyCompiledMethodArgumentFact[] = [];
   const propertyArguments: SymfonyCompiledPropertyArgumentFact[] = []; const parameters: Array<{ id: string; uri: string; start: number; end: number }> = [];
   const configuredPaths = new Set<string>();
-  const compiled = await freshCompiledContainer(root, options.projectTypes, sources, options.environment);
+  const compiled = await freshCompiledContainer(root, options.projectTypes, sources, inputPaths,
+    () => { inputEvidenceComplete = false; }, options.environment);
   if (compiled) {
     try {
       const uri = pathToFileURL(compiled).toString(); const facts = analyzeSymfonyContainerXml(uri, await sourceFor(compiled));
@@ -174,7 +188,9 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const loaded = new Set<string>(); const loading = new Set<string>(); let remaining = options.maxImports ?? 256;
   const load = async (input: string, depth = 0, containmentRoot = actualRoot): Promise<void> => {
     const path = resolve(input);
-    if (depth > 32 || remaining-- <= 0 || loaded.has(path) || loading.has(path)) return;
+    if (loaded.has(path) || loading.has(path)) return;
+    if (depth > 32 || remaining-- <= 0) { inputEvidenceComplete = false; return; }
+    inputPaths.add(path);
     loading.add(path);
     try {
       const actual = await realpath(path); if (!within(containmentRoot, actual)) return;
@@ -200,6 +216,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const services = [...new Map(catalog.map((service) => [`${service.registrationUri}\0${service.id}`, service])).values()];
   return { services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
     methodArguments, propertyArguments, literalMethodReturns: symfonyContainerMethodReturnFacts(services),
+    inputUris: [...inputPaths].sort().map((path) => pathToFileURL(path).toString()),
+    inputEvidenceComplete,
     configurationUris: [...new Set([...configuredPaths, ...[...roots.values()].flatMap((bundle) => bundle.classPaths)])]
       .sort().map((path) => pathToFileURL(path).toString()) };
 }

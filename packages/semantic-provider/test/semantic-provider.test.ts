@@ -38,8 +38,11 @@ describe('semantic provider contract', () => {
       containerMethodArguments: [{ callableFqcn: 'App\\Mailer::__construct', parameterIndex: 0, serviceId: 'logger', className: 'App\\Logger', uri: 'file:///container.xml', start: 4, end: 10 }],
       containerPropertyArguments: [{ ownerFqcn: 'App\\Mailer', property: 'clock', serviceId: 'clock', className: 'App\\Clock', uri: 'file:///container.xml', start: 11, end: 16 }],
       containerConfigurationUris: ['file:///services.yaml'],
+      containerInputUris: ['file:///services.yaml', 'file:///missing.yaml'],
+      containerInputEvidenceComplete: true,
     }))).toBe(true);
     expect(isSemanticFactsContribution({ ...semanticFacts('symfony.services', '9'), containerServices: [] })).toBe(false);
+    expect(isSemanticFactsContribution({ ...semanticFacts('symfony.services', '9'), containerInputUris: ['file:///missing.yaml'] })).toBe(false);
   });
 
   it('accepts complete framework-neutral event relation facts', () => {

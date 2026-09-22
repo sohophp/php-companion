@@ -8,7 +8,7 @@ export interface ReferenceInputSnapshotOptions {
   sourceRoots: readonly string[];
   /** File extensions to discover under source roots; omitted means PHP only. */
   sourceExtensions?: readonly string[];
-  /** Additional roots with their own extensions, such as Symfony config and compiled XML. */
+  /** Additional roots with their own extensions; '*' includes every regular file. */
   scopedSourceRoots?: readonly { path: string; extensions: readonly string[] }[];
   /** Include file identity and timestamps when an input selection depends on mtime. */
   includeFileStamps?: boolean;
@@ -55,7 +55,7 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
   for (const root of options.sourceRoots) selections.set(resolve(root), new Set(extensions));
   for (const root of options.scopedSourceRoots ?? []) {
     const selected = [...new Set(root.extensions.map((extension) => extension.toLowerCase()))];
-    if (!selected.length || selected.some((extension) => !/^\.[a-z0-9]{1,16}$/.test(extension))) return undefined;
+    if (!selected.length || selected.some((extension) => extension !== '*' && !/^\.[a-z0-9]{1,16}$/.test(extension))) return undefined;
     const path = resolve(root.path); const merged = selections.get(path) ?? new Set<string>();
     for (const extension of selected) merged.add(extension);
     selections.set(path, merged);
@@ -97,7 +97,8 @@ export async function captureReferenceInputSnapshot(options: ReferenceInputSnaps
               if (entry.isSymbolicLink()) return undefined;
               const child = join(listing.directory, entry.name);
               if (entry.isDirectory()) pending.push(child);
-              else if (entry.isFile() && selectedExtensions.some((extension) => entry.name.toLowerCase().endsWith(extension))) files.add(child);
+              else if (entry.isFile() && (selectedExtensions.includes('*')
+                || selectedExtensions.some((extension) => entry.name.toLowerCase().endsWith(extension)))) files.add(child);
               if (files.size > maxFiles || directories + pending.length > maxFiles) return undefined;
             }
           }

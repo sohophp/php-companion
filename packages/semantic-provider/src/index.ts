@@ -120,13 +120,16 @@ export interface SemanticFactsContribution {
   containerMethodArguments?: readonly ExternalContainerMethodArgumentFact[];
   containerPropertyArguments?: readonly ExternalContainerPropertyArgumentFact[];
   containerConfigurationUris?: readonly string[];
+  /** Attempted file inputs from an authoritative container provider, including absent paths. */
+  containerInputUris?: readonly string[];
+  containerInputEvidenceComplete?: boolean;
   eventSubscriptions?: readonly ExternalEventSubscriptionFact[];
   eventDispatches?: readonly ExternalEventDispatchFact[];
   controllerContexts?: readonly ControllerTemplateContext[];
 }
 
 type SemanticFactInput = Partial<Pick<SemanticFactsContribution, 'complete' | 'methods' | 'properties' | 'literalMethodReturns'
-  | 'containerServices' | 'containerParameters' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris'
+  | 'containerServices' | 'containerParameters' | 'containerMethodArguments' | 'containerPropertyArguments' | 'containerConfigurationUris' | 'containerInputUris' | 'containerInputEvidenceComplete'
   | 'eventSubscriptions' | 'eventDispatches' | 'controllerContexts'>>;
 
 export function semanticFacts(providerId: string, generation: string, facts: SemanticFactInput = {}): SemanticFactsContribution {
@@ -143,6 +146,8 @@ export function semanticFacts(providerId: string, generation: string, facts: Sem
     ...(facts.containerMethodArguments ? { containerMethodArguments: facts.containerMethodArguments } : {}),
     ...(facts.containerPropertyArguments ? { containerPropertyArguments: facts.containerPropertyArguments } : {}),
     ...(facts.containerConfigurationUris ? { containerConfigurationUris: facts.containerConfigurationUris } : {}),
+    ...(facts.containerInputUris ? { containerInputUris: facts.containerInputUris } : {}),
+    ...(facts.containerInputEvidenceComplete !== undefined ? { containerInputEvidenceComplete: facts.containerInputEvidenceComplete } : {}),
     ...(facts.eventSubscriptions ? { eventSubscriptions: facts.eventSubscriptions } : {}),
     ...(facts.eventDispatches ? { eventDispatches: facts.eventDispatches } : {}),
     ...(facts.controllerContexts ? { controllerContexts: facts.controllerContexts } : {}),
@@ -266,14 +271,18 @@ export function isSemanticFactsContribution(value: unknown): value is SemanticFa
     || typeof item.generation !== 'string' || typeof item.complete !== 'boolean' || !Array.isArray(item.methods)
     || !Array.isArray(item.properties) || !Array.isArray(item.literalMethodReturns)) return false;
   const containerArrays = item.containerServices === undefined && item.containerParameters === undefined && item.containerMethodArguments === undefined
-    && item.containerPropertyArguments === undefined && item.containerConfigurationUris === undefined
+    && item.containerPropertyArguments === undefined && item.containerConfigurationUris === undefined && item.containerInputUris === undefined
+    && item.containerInputEvidenceComplete === undefined
     || Array.isArray(item.containerServices) && item.containerServices.length <= factLimit && item.containerServices.every(containerService)
       && (item.containerParameters === undefined || Array.isArray(item.containerParameters) && item.containerParameters.length <= factLimit
         && item.containerParameters.every(containerParameter))
       && Array.isArray(item.containerMethodArguments) && item.containerMethodArguments.length <= factLimit && item.containerMethodArguments.every(containerMethodArgument)
       && Array.isArray(item.containerPropertyArguments) && item.containerPropertyArguments.length <= factLimit && item.containerPropertyArguments.every(containerPropertyArgument)
       && Array.isArray(item.containerConfigurationUris) && item.containerConfigurationUris.length <= 1024
-      && item.containerConfigurationUris.every((uri) => text(uri, 32_768));
+      && item.containerConfigurationUris.every((uri) => text(uri, 32_768))
+      && (item.containerInputUris === undefined || Array.isArray(item.containerInputUris) && item.containerInputUris.length <= 50_000
+        && item.containerInputUris.every((uri) => text(uri, 32_768)))
+      && (item.containerInputEvidenceComplete === undefined || typeof item.containerInputEvidenceComplete === 'boolean');
   const eventArrays = item.eventSubscriptions === undefined && item.eventDispatches === undefined
     || Array.isArray(item.eventSubscriptions) && item.eventSubscriptions.length <= factLimit && item.eventSubscriptions.every(eventSubscription)
       && Array.isArray(item.eventDispatches) && item.eventDispatches.length <= factLimit && item.eventDispatches.every(eventDispatch);
