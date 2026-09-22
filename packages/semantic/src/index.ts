@@ -1610,8 +1610,20 @@ export class SemanticWorkspace {
         if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
       }
       const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable
-        && item.end <= access.start && item.sourceCall?.kind === 'member')
+        && item.end <= access.start)
         .sort((left, right) => right.end - left.end)[0];
+      if (assignment?.typeName && !/[|&?]/.test(assignment.typeName)) {
+        const owner = this.resolveSourceType(file, assignment.typeName, this.namespaceAt(file, access.start), scope.containerFqcn);
+        if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
+      }
+      const doc = assignment && adjacentPhpDoc(file, assignment.start);
+      const tag = doc && !doc.errors.length ? preferredDocTags(doc,
+        (item) => item.name === 'var' && item.variable === variable && item.type?.kind === 'name',
+        () => variable).at(-1) : undefined;
+      if (tag?.type?.kind === 'name') {
+        const owner = this.resolveSourceType(file, tag.type.name, this.namespaceAt(file, access.start), scope.containerFqcn);
+        if (owner) found.set(`${owner.toLowerCase()}::${access.name.toLowerCase()}`, { owner, method: access.name });
+      }
       const call = assignment?.sourceCall;
       if (call?.kind !== 'member' || call.dynamic) continue;
       const parameter = scope.parameters.find((item) => `$${item.name}` === call.variable);

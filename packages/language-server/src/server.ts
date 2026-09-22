@@ -2157,7 +2157,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       for (const fqcn of dependencies) visited.add(fqcn.toLowerCase());
       for (let start = 0; start < dependencies.length; start += 4) {
         if (cancelled()) return false;
-        await hydrateCanonicalTypes(workspace, root, dependencies.slice(start, start + 4), true);
+        await hydrateCanonicalTypes(workspace, root, dependencies.slice(start, start + 4), true, 64);
       }
       const loaded = dependencies.filter((fqcn) => workspace.typeByFqcn(fqcn));
       for (const fqcn of dependencies) if (!workspace.typeByFqcn(fqcn)) unresolvedDependencies.add(fqcn);
@@ -2469,7 +2469,8 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
   } finally { progress?.done(); }
 }
 
-async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[], declarationsOnly = false): Promise<boolean> {
+async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[], declarationsOnly = false,
+  completeCandidateLimit = 16): Promise<boolean> {
   let evidence = referenceDependencyEvidence.get(workspace);
   if (!evidence) { evidence = new ReferenceDependencyEvidence(); referenceDependencyEvidence.set(workspace, evidence); }
   if (!projectMappingsByRoot.has(root)) {
@@ -2477,9 +2478,13 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
   }
   const candidates = [...new Set(typeNames.map((fqcn) => fqcn.replace(/^\\/, '')).filter((fqcn) => fqcn && !workspace.typeByFqcn(fqcn)))]
     .flatMap((fqcn) => resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? []));
-  if (candidates.length > 16) evidence.reject();
+  if (candidates.length > completeCandidateLimit) {
+    evidence.reject();
+    if (completeCandidateLimit > 16) throw new ResponseError(LSPErrorCodes.RequestFailed,
+      'PHP type hydration exceeded its lookup bound; References are incomplete.');
+  }
   let loaded = false;
-  for (const path of candidates.slice(0, 16)) {
+  for (const path of candidates.slice(0, completeCandidateLimit)) {
     try {
       const information = await stat(path);
       if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { evidence.reject(); continue; }
@@ -2500,13 +2505,13 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 }
 
 async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: string, methods: readonly AssignedReceiverMethod[],
-  cancelled: () => boolean): Promise<void> {
+  names: ReadonlySet<string>, cancelled: () => boolean): Promise<void> {
   if (!methods.length) return;
   const hydrate = async (names: readonly string[]): Promise<void> => {
     const unique = [...new Set(names)];
     for (let start = 0; start < unique.length; start += 16) {
       if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-      await hydrateCanonicalTypes(workspace, root, unique.slice(start, start + 16), true);
+      await hydrateCanonicalTypes(workspace, root, unique.slice(start, start + 16), true, 64);
     }
   };
   await hydrate(methods.map((item) => item.owner));
@@ -2519,7 +2524,19 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
     await hydrate(parents);
     frontier = parents.filter((name) => workspace.typeByFqcn(name));
   }
-  await hydrate(methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []));
+  const returnedTypes = methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []);
+  await hydrate(returnedTypes);
+  for (const name of new Set(returnedTypes)) {
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    const uri = workspace.typeByFqcn(name)?.uri;
+    if (!uri || workspace.implementationState(uri) !== 'deferred') continue;
+    const source = workspace.source(uri);
+    if (source && sourceCandidateSummaryDecision(createSourceCandidateSummary(source), names, 'symbol') !== 'skip') {
+      // A declaration-only return type can itself contain target calls. Load
+      // its implementation before the reference candidate set is finalized.
+      workspace.update(uri, source);
+    }
+  }
 }
 
 async function hydrateLoadedReferenceReceiverClosure(workspace: SemanticWorkspace, root: string,
@@ -2534,7 +2551,7 @@ async function hydrateLoadedReferenceReceiverClosure(workspace: SemanticWorkspac
         seen.add(key); return true;
       });
     if (!next.length) return true;
-    await hydrateReferenceReceivers(workspace, root, next, cancelled);
+    await hydrateReferenceReceivers(workspace, root, next, names, cancelled);
   }
   return false;
 }
@@ -2565,7 +2582,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
       const source = workspace.source(uri);
       return source === undefined || patterns.some((pattern) => pattern.test(source));
     }).flatMap((uri) => workspace.assignedReceiverMethods(uri, names));
-    await hydrateReferenceReceivers(workspace, root, methods, cancelled);
+    await hydrateReferenceReceivers(workspace, root, methods, names, cancelled);
     for (const uri of next) visited.add(uri);
   }
   connection.console.warn(`Reference receiver closure reached its 16-pass limit in ${root}.`);
@@ -4221,7 +4238,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         const loaded = await hydrateCanonicalTypes(workspace, root, [
           workspace.resolvedTypeNameAt(document.uri, offset),
           ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
-        ].filter((fqcn): fqcn is string => Boolean(fqcn)));
+        ].filter((fqcn): fqcn is string => Boolean(fqcn)), false, 64);
         if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
         if (!loaded) break;
         resolvedType = workspace.typeAt(document.uri, offset);

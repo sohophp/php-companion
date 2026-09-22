@@ -106,6 +106,12 @@ try {
         throw new Error(`Missing inherited RequestEvent ParameterBag::get reference at ApplicationContextSubscriber.php:${line + 1}`);
       }
     }
+    const responseUri = pathToFileURL(join(workspace, 'vendor/symfony/http-foundation/Response.php')).toString();
+    for (const line of [287, 1316]) {
+      if (!locations.some((location) => location.uri === responseUri && location.range?.start?.line === line)) {
+        throw new Error(`Missing vendor HeaderBag::get inherited reference at Response.php:${line + 1}`);
+      }
+    }
   }
 } finally {
   await rm(cache, { recursive: true, force: true });

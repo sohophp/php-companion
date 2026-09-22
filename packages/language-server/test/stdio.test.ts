@@ -620,6 +620,123 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads new-expression and PHPDoc receivers whose declarations have no exact method token', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-new-receiver-'));
+    try {
+      const directory = join(root, 'src'); await mkdir(directory);
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace App; /** getter */ class Consumer extends Bag {}';
+      const use = '<?php namespace App; function run(): int { $receiver = new Consumer(); return $receiver->get(); }\n'
+        + 'function documented(): int { /** @var Consumer $receiver */ $receiver = factory(); return $receiver->get(); }';
+      const bagUri = pathToFileURL(join(directory, 'Bag.php')).toString();
+      const useUri = pathToFileURL(join(directory, 'Use.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(directory, 'Bag.php'), bag);
+      await writeFile(join(directory, 'Consumer.php'), consumer);
+      await writeFile(join(directory, 'Use.php'), use);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
+          experimentalReferenceClosure: true },
+      } }));
+      await output.waitFor((message) => message.id === 240);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 241)).result;
+      expect(references).toHaveLength(2);
+      for (const offset of [use.indexOf('get()'), use.lastIndexOf('get()')]) expect(references).toContainEqual({
+        uri: useUri, range: { start: lspPosition(use, offset), end: lspPosition(use, offset + 3) },
+      });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 242);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('loads a deferred vendor return type after more than sixteen PSR-4 lookup paths', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-return-closure-'));
+    try {
+      const src = join(root, 'src'); const alternative = join(root, 'alternative');
+      const vendor = join(root, 'vendor', 'acme', 'lib', 'src');
+      await mkdir(src); await mkdir(alternative); await mkdir(vendor, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': ['src/', 'alternative/'] } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Lib\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const response = '<?php namespace Lib; use App\\Bag; class HeaderBag extends Bag {} class Response { public HeaderBag $headers; public function own(): int { return $this->headers->get(); } }';
+      const event = `<?php namespace App; use Lib\\Response; class Event { ${Array.from({ length: 9 }, (_, index) =>
+        `public function make${index}(): Dummy${index} { return new Dummy${index}(); }`).join(' ')} public function getResponse(): Response { return new Response(); } }`;
+      const use = `<?php namespace App; function run(Event $event): int { ${Array.from({ length: 9 }, (_, index) =>
+        `$value${index} = $event->make${index}(); $value${index}->get();`).join(' ')} $response = $event->getResponse(); return $response->headers->get(); }`;
+      const bagUri = pathToFileURL(join(src, 'Bag.php')).toString();
+      const responseUri = pathToFileURL(join(vendor, 'Response.php')).toString();
+      const useUri = pathToFileURL(join(src, 'Use.php')).toString();
+      await writeFile(join(src, 'Bag.php'), bag); await writeFile(join(src, 'Event.php'), event);
+      await writeFile(join(src, 'Use.php'), use); await writeFile(join(vendor, 'Response.php'), response);
+      for (let index = 0; index < 9; index += 1) await writeFile(join(src, `Dummy${index}.php`), `<?php namespace App; class Dummy${index} {}`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache'), testMode: true,
+          experimentalReferenceClosure: true },
+      } }));
+      await output.waitFor((message) => message.id === 240);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 241)).result;
+      expect(references).toContainEqual({ uri: responseUri, range: {
+        start: lspPosition(response, response.lastIndexOf('get()')),
+        end: lspPosition(response, response.lastIndexOf('get()') + 3),
+      } });
+      expect(references).toContainEqual({ uri: useUri, range: {
+        start: lspPosition(use, use.lastIndexOf('get()')),
+        end: lspPosition(use, use.lastIndexOf('get()') + 3),
+      } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: responseUri, languageId: 'php', version: 1, text: response },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: responseUri, version: 2 }, contentChanges: [{ text: response.replace('->get()', '->has()') }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 243, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 243)).result.map((location: { uri: string }) => location.uri))
+        .not.toContain(responseUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: responseUri, version: 3 }, contentChanges: [{ text: response }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 244, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 244)).result.map((location: { uri: string }) => location.uri))
+        .toContain(responseUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 242);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('hydrates loaded dependency property receivers before resolving cold method references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-loaded-receiver-'));
     try {
