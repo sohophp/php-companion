@@ -13,7 +13,9 @@ const once = process.argv[7] === 'once';
 const serverEntrypoint = process.argv[8] ? resolve(process.argv[8]) : 'packages/language-server/dist/server.js';
 const profileDirectory = process.env.PHP_COMPANION_CPU_PROF_DIR;
 const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
-const indexingMode = sourceOnly || process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'experimental' ? 'experimental' : 'onDemand';
+const requestedIndexingMode = process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE;
+const indexingMode = requestedIndexingMode === 'progressive' ? 'progressive'
+  : sourceOnly || requestedIndexingMode === 'experimental' ? 'experimental' : 'onDemand';
 const auditInputs = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS === '1';
 const persistReferences = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE === '1';
 if ((persistReferences || auditInputs) && !process.argv[8]) {
@@ -68,7 +70,7 @@ server.stdout.on('data', (data) => {
       for (const ready of proofPrewarmWaiters.splice(0)) ready();
     }
     if (message.method === 'window/logMessage' && (/\[(?:index:|named-candidates|references:|reference-cache|reference-prewarm|reference-closure|reference-rg|reference-source-)/.test(message.params?.message ?? '')
-      || indexingMode === 'experimental' && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files)/.test(message.params?.message ?? '')
+      || (indexingMode === 'experimental' || indexingMode === 'progressive') && /(?:Project source index ready|Reference source facts ready|Indexed \d+ PHP files|\[reference-progressive\])/.test(message.params?.message ?? '')
       || symfonyProfile && /(?:provider|Symfony)/i.test(message.params?.message ?? ''))) {
       process.stderr.write(`${message.params.message}\n`);
     }
@@ -82,7 +84,9 @@ const request = (method, params) => new Promise((done, reject) => {
 });
 try {
   const initializeStarted = performance.now();
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: process.env.PHP_COMPANION_BENCHMARK_PRODUCTION_MODE !== '1'
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory,
+    ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_MEMORY_MIB ? { referenceMemoryBudgetMiB: Number(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_MEMORY_MIB) } : {}),
+    testMode: process.env.PHP_COMPANION_BENCHMARK_PRODUCTION_MODE !== '1'
     && (auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || sourceOnly), experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalReferenceSourceOnly: sourceOnly,
     ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0'
       ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization, ...frameworkSnapshot } });
@@ -126,9 +130,30 @@ try {
       proofPrewarmWaiters.push(() => { clearTimeout(timer); done(); });
     });
   }
-  const methods = process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'
+  const cancelAfterMs = process.env.PHP_COMPANION_BENCHMARK_CANCEL_AFTER_MS === undefined
+    ? undefined : Number(process.env.PHP_COMPANION_BENCHMARK_CANCEL_AFTER_MS);
+  if (cancelAfterMs !== undefined) {
+    if (!Number.isSafeInteger(cancelAfterMs) || cancelAfterMs < 0 || cancelAfterMs > 5_000) throw new Error('Invalid References cancellation delay');
+    const id = ++sequence;
+    const response = new Promise((done, reject) => {
+      const timer = setTimeout(() => { pending.delete(id); reject(new Error('Cancelled References timed out')); }, 30_000);
+      pending.set(id, (message) => { clearTimeout(timer); done(message); });
+    });
+    send({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+      textDocument: { uri }, position, context: { includeDeclaration: false },
+    } });
+    await new Promise((done) => setTimeout(done, cancelAfterMs));
+    const cancelledAt = performance.now();
+    send({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id } });
+    const reply = await response;
+    process.stdout.write(JSON.stringify({ method: 'textDocument/references:cancel',
+      cancelElapsedMs: Math.round(performance.now() - cancelledAt), errorCode: reply.error?.code,
+      completedBeforeCancellation: Boolean(reply.result) }) + '\n');
+  }
+  const methods = cancelAfterMs !== undefined ? [] : process.env.PHP_COMPANION_BENCHMARK_REFERENCES_FIRST === '1'
     ? ['textDocument/references', ...(!once ? ['textDocument/references'] : []), 'textDocument/definition', ...(!once ? ['textDocument/references'] : [])]
     : ['textDocument/definition', 'textDocument/references', ...(!once ? ['textDocument/references'] : [])];
+  let editedAfterFirstReference = false;
   for (const method of methods) {
     const started = performance.now(); const result = await request(method, { textDocument: { uri }, position,
       context: { includeDeclaration: process.env.PHP_COMPANION_BENCHMARK_INCLUDE_DECLARATION === '1' } });
@@ -153,6 +178,14 @@ try {
       ...(process.env.PHP_COMPANION_BENCHMARK_COMPACT === '1' ? {}
         : { uris: [...new Set(result.map((location) => location.uri))].sort() }), locationSha256 }) + '\n');
     if (persistReferences && method === 'textDocument/references') await request('phpCompanion/testWaitReferencePersistence', {});
+    if (method === 'textDocument/references' && !editedAfterFirstReference
+      && process.env.PHP_COMPANION_BENCHMARK_EDIT_AFTER_FIRST_REFERENCE === '1') {
+      editedAfterFirstReference = true;
+      send({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: `${source}\n// References benchmark unsaved edit\n` }],
+      } });
+      await new Promise((done) => setTimeout(done, 250));
+    }
   }
   if (process.env.PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE === '1' && !sourceIndexComplete) {
     await new Promise((done, reject) => {

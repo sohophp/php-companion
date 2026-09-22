@@ -118,7 +118,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     outputChannel: output,
     initializationOptions: () => ({
       phpVersion: configuration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : configuration.get<string>('phpVersion', '8.5'),
-      indexingMode: configuration.get<'off' | 'onDemand' | 'experimental'>('indexing.mode', 'onDemand'),
+      indexingMode: configuration.get<'off' | 'onDemand' | 'progressive' | 'experimental'>('indexing.mode', 'onDemand'),
+      referenceMemoryBudgetMiB: configuration.get<number>('indexing.referenceMemoryBudgetMiB', 1536),
       experimentalReferenceSourceOnly: configuration.get<boolean>('indexing.experimentalSourceOnlyReferences', false),
       cacheDirectory: vscode.Uri.joinPath(context.globalStorageUri, 'semantic-index').fsPath,
       indexLimits: {

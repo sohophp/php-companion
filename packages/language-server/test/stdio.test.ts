@@ -5740,7 +5740,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           end: lspPosition(use, use.indexOf('get()') + 3) },
       }]);
       expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[candidate-scan-start]'))).toHaveLength(1);
+        && message.params?.message?.includes('[candidate-scan-start]')),
+      output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && /candidate-scan|reference-prewarm|references:/.test(message.params?.message ?? '')).map((message: any) => message.params?.message).join('\n')).toHaveLength(1);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'shutdown', params: null }));
       await output.waitFor((message) => message.id === 679);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
@@ -5829,7 +5831,49 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('prewarms an early selection before the experimental source-only index is ready', async () => {
+  it('updates progressive References after a watched file move', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-progressive-move-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const use = '<?php namespace App; function run(Bag $bag): int { return $bag->get(); }';
+      const bagPath = join(src, 'Bag.php'); const usePath = join(src, 'Use.php'); const movedPath = join(src, 'MovedUse.php');
+      const bagUri = pathToFileURL(bagPath).toString(); const useUri = pathToFileURL(usePath).toString();
+      const movedUri = pathToFileURL(movedPath).toString();
+      await writeFile(bagPath, bag); await writeFile(usePath, use);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 730, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'progressive' },
+      } }));
+      await output.waitFor((message) => message.id === 730);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Reference source facts ready'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag },
+      } }));
+      const references = async (id: number): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+          context: { includeDeclaration: false },
+        } }));
+        return (await output.waitFor((message) => message.id === id, 10_000)).result;
+      };
+      expect((await references(731)).map((location: { uri: string }) => location.uri)).toEqual([useUri]);
+      await rename(usePath, movedPath);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: useUri, type: 3 }, { uri: movedUri, type: 1 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${movedUri}`), 10_000);
+      expect((await references(732)).map((location: { uri: string }) => location.uri)).toEqual([movedUri]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it.each(['experimental', 'progressive'] as const)('prewarms an early selection before the %s source-only index is ready', async (mode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-early-source-prewarm-'));
     try {
       await mkdir(join(root, 'src'));
@@ -5843,7 +5887,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 684, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
-          indexingMode: 'experimental', experimentalReferenceSourceOnly: true,
+          indexingMode: mode, experimentalReferenceSourceOnly: mode === 'experimental',
         },
       } }));
       await output.waitFor((message) => message.id === 684);
@@ -5864,7 +5908,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('reuses a completed source-only index and hydrates a vendor receiver before References', async () => {
+  it.each(['experimental', 'progressive'] as const)('reuses a completed %s source-only index and hydrates a vendor receiver before References', async (mode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-source-only-references-'));
     try {
       await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
@@ -5882,7 +5926,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
-          indexingMode: 'experimental', experimentalReferenceSourceOnly: true,
+          indexingMode: mode, experimentalReferenceSourceOnly: mode === 'experimental',
         },
       } }));
       await output.waitFor((message) => message.id === 679);
@@ -5929,7 +5973,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       } }));
       expect((await output.waitFor((message) => message.id === 683, 10_000)).result).toHaveLength(3);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates]'))).toBe(true);
+        && message.params?.message?.includes('[named-candidates]'))).toBe(mode === 'experimental');
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -6480,15 +6524,26 @@ namespace App {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('uses a bundled authoritative event provider for listener and dispatch references', async () => {
+  it.each(['experimental', 'onDemand'] as const)('uses a bundled authoritative event provider for listener and dispatch references in %s mode', async (mode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-event-provider-'));
     try {
       await mkdir(join(root, 'src')); await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { classmap: ['src/'] } }));
+      await mkdir(join(root, 'vendor', 'symfony', 'event-dispatcher'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'symfony/event-dispatcher',
+        autoload: { 'psr-4': { 'Symfony\\Component\\EventDispatcher\\': '' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'symfony/event-dispatcher',
+        install_path: '../symfony/event-dispatcher' }] }));
+      await writeFile(join(root, 'vendor', 'symfony', 'event-dispatcher', 'EventSubscriberInterface.php'),
+        '<?php namespace Symfony\\Component\\EventDispatcher; interface EventSubscriberInterface { public static function getSubscribedEvents(): array; }');
       const path = join(root, 'src', 'Events.php'); const uri = pathToFileURL(path).toString();
       const source = `<?php
 namespace Symfony\\Contracts\\EventDispatcher { interface EventDispatcherInterface { public function dispatch(object $event, ?string $eventName = null): object; } }
 namespace App {
- final class Subscriber { public function onReady(): void {} }
+ final class Subscriber implements \\Symfony\\Component\\EventDispatcher\\EventSubscriberInterface {
+  public static function getSubscribedEvents(): array { return []; }
+  public function onReady(): void {}
+ }
  final class ReadyEvent {}
  final class OtherEvent {}
 }`;
@@ -6502,10 +6557,10 @@ final class Dispatching { public function __construct(private EventDispatcherInt
       const dispatchedStart = initialDispatchSource.indexOf('new ReadyEvent()');
       const serviceProvider = join(root, 'services.mjs'); const eventProvider = join(root, 'events.mjs');
       await writeFile(serviceProvider, `let input=''; for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service={id:'App\\\\Subscriber',className:'App\\\\Subscriber',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'resource',uri:type.uri,start:type.start,end:type.end,registrationUri:type.uri,registrationStart:type.start,registrationEnd:type.end};process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:Boolean(type),methods:[],properties:[],literalMethodReturns:[],containerServices:[service],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[]}}));`);
-      await writeFile(eventProvider, `import{readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service=request.params.containerServices?.find((item)=>item.className==='App\\\\Subscriber');const dispatchSource=readFileSync(${JSON.stringify(dispatchPath)},'utf8');const ready=dispatchSource.includes('ReadyEvent');const eventStart=dispatchSource.indexOf(ready?'new ReadyEvent()':'new OtherEvent()');const dispatchStart=dispatchSource.indexOf('dispatch(new');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.events',generation:request.params.generation,complete:Boolean(type&&service),methods:[],properties:[],literalMethodReturns:[],eventSubscriptions:[{subscriberFqcn:'App\\\\Subscriber',event:'provider.event',listener:'onReady',uri:type.uri,eventStart:${listenerStart},eventEnd:${listenerStart + 7},listenerStart:${listenerStart},listenerEnd:${listenerStart + 7}}],eventDispatches:[{event:ready?'provider.event':'updated.event',uri:${JSON.stringify(dispatchUri)},eventStart,eventEnd:eventStart+16,dispatchStart,dispatchEnd:dispatchStart+8}]}}));`);
+      await writeFile(eventProvider, `import{readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\Subscriber');const service=request.params.containerServices?.find((item)=>item.className==='App\\\\Subscriber');const projectOnly=request.params.projectTypes?.every((item)=>!item.path.includes('/vendor/'));const dispatchSource=readFileSync(${JSON.stringify(dispatchPath)},'utf8');const ready=dispatchSource.includes('ReadyEvent');const eventStart=dispatchSource.indexOf(ready?'new ReadyEvent()':'new OtherEvent()');const dispatchStart=dispatchSource.indexOf('dispatch(new');process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.events',generation:request.params.generation,complete:Boolean(type&&service&&projectOnly),methods:[],properties:[],literalMethodReturns:[],eventSubscriptions:[{subscriberFqcn:'App\\\\Subscriber',event:'provider.event',listener:'onReady',uri:type.uri,eventStart:${listenerStart},eventEnd:${listenerStart + 7},listenerStart:${listenerStart},listenerEnd:${listenerStart + 7}}],eventDispatches:[{event:ready?'provider.event':'updated.event',uri:${JSON.stringify(dispatchUri)},eventStart,eventEnd:eventStart+16,dispatchStart,dispatchEnd:dispatchStart+8}]}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 661, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: mode, bundledSemanticProviders: [
           { providerId: 'php-companion.symfony.services', command: process.execPath, args: [serviceProvider], timeoutMs: 5000,
             requiresProjectTypes: true, replacesContainerServices: true },
           { providerId: 'php-companion.symfony.events', command: process.execPath, args: [eventProvider], timeoutMs: 5000,
@@ -6513,10 +6568,16 @@ final class Dispatching { public function __construct(private EventDispatcherInt
         ] },
       } }));
       await output.waitFor((message) => message.id === 661); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage'
+      if (mode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage'
         && message.params?.message?.includes('authoritative event generation'), 10_000);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 660, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('EventSubscriberInterface') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 660)).result).toContainEqual(expect.objectContaining({
+        uri: pathToFileURL(join(root, 'vendor', 'symfony', 'event-dispatcher', 'EventSubscriberInterface.php')).toString(),
+      }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 662, method: 'textDocument/references', params: {
         textDocument: { uri }, position: lspPosition(source, listenerStart + 2), context: { includeDeclaration: false },
       } }));

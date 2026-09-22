@@ -76,8 +76,11 @@ const compare = async (candidateFirst) => {
   const reference = hasReference ? await runReference() : undefined;
   const candidate = candidateResult ?? await runCandidate();
   if (expectedHash && candidate.locationSha256 !== expectedHash) throw new Error(`References locations changed: ${candidate.locationSha256}`);
-  if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && candidate.namedCandidateScans !== 1) {
-    throw new Error(`Expected one shared candidate scan, observed ${candidate.namedCandidateScans}.`);
+  const sourceReady = process.env.PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY === '1'
+    && process.env.PHP_COMPANION_BENCHMARK_INDEXING_MODE === 'progressive';
+  const expectedScans = sourceReady ? 0 : 1;
+  if (process.env.PHP_COMPANION_BENCHMARK_SELECTION_PREWARM === '1' && candidate.namedCandidateScans !== expectedScans) {
+    throw new Error(`Expected ${expectedScans} candidate scans, observed ${candidate.namedCandidateScans}.`);
   }
   if (reference && (reference.results !== candidate.results || reference.locationSha256 !== candidate.locationSha256)) {
     process.stdout.write(`${JSON.stringify({ baseline: reference, candidate }, null, 2)}\n`);

@@ -42,11 +42,22 @@ pnpm alpha:preflight -- \
 
 Open Source Pack 当前使用 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHPUnit、PHP CS Fixer 和 EditorConfig。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
 
+References 渐进索引的 Alpha 验收只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
+
+```json
+{
+  "phpCompanion.indexing.mode": "progressive",
+  "phpCompanion.indexing.referenceMemoryBudgetMiB": 1536
+}
+```
+
+该预算是后台准备的软上限，不限制用户主动执行的 References。后台超过预算或输入证明不完整时会停止推测性准备，并由完整按需扫描处理查询。内存较紧张时可改为 768 MiB；允许范围为 768–4096 MiB。若渐进模式引起不适，可将 `indexing.mode` 改回 `onDemand` 并 Reload Window。只在安装包含渐进模式的新候选后启用此设置；旧版 VSIX 不认识它。
+
 ## 真实项目检查
 
 分别在 Winstar PHP 8.5 与 CoreRepo PHP 7.2 中完成以下操作，并记录成功、失败、等待时间及可重复步骤：
 
-1. 首次打开项目，等待 PHP 索引完成；重启 VS Code 后确认热恢复完成。
+1. 首次打开项目，分别记录立即执行 References、后台源码事实就绪后首次执行、选中符号预热后首次执行、重载后首次执行的时间；确认索引进度结束，不能把预热后的点击时间当成空缓存冷查询。
 2. 在已有类型声明的业务代码中连续使用成员补全、Hover、Signature Help、Definition、Implementation 和 References。
 3. 对测试文件执行 Rename、Preview Safe Move、Extract Variable 和可证明场景的 Extract Method；确认预览、应用、Undo 与 Redo。
 4. 制造一个已支持的参数、返回或 readonly 错误，确认诊断范围与消息；恢复源码后确认诊断消失。

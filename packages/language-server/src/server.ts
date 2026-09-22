@@ -78,6 +78,7 @@ const candidateReceiverMethods = new Map<string, AssignedReceiverMethod[]>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
 const referenceSourceReadyRoots = new Map<string, number>();
+const referenceLightSummaries = new Map<string, { epoch: number; entries: Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }> }>();
 interface ReferenceSourcePreparation {
   epoch: number;
   files: number;
@@ -123,12 +124,16 @@ const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
-let indexingMode: 'off' | 'onDemand' | 'experimental' = 'experimental';
+let indexingMode: 'off' | 'onDemand' | 'progressive' | 'experimental' = 'experimental';
+let referenceMemoryBudgetMiB = 1536;
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let experimentalReferenceClosure = false;
 let experimentalReferenceSourceOnly = false;
+function referenceSourceMode(): boolean {
+  return indexingMode === 'progressive' || indexingMode === 'experimental' && experimentalReferenceSourceOnly;
+}
 let referenceRipgrepMode: 'off' | 'system' | 'test' = 'off';
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
@@ -497,13 +502,17 @@ function semanticProviderDocuments(root: string): { complete: boolean; documents
   return { complete: true, documents: snapshots };
 }
 
-function semanticProviderProjectTypes(root: string, workspace: SemanticWorkspace,
-  effectiveMethodsFor = new Set<string>()): { complete: boolean; projectTypes: SemanticProviderProjectType[] } {
+async function semanticProviderProjectTypes(root: string, workspace: SemanticWorkspace,
+  effectiveMethodsFor = new Set<string>()): Promise<{ complete: boolean; projectTypes: SemanticProviderProjectType[] }> {
   const projectTypes: SemanticProviderProjectType[] = []; let characters = 0;
   const projectUris = projectIndexedUrisByRoot.get(root);
+  const dependencyRoots = (await composerProjectForRoot(root))?.dependencies.map((dependency) => dependency.root) ?? [];
   for (const type of workspace.workspaceTypes()) {
     if (projectUris && !projectUris.has(type.uri)) continue;
     const path = pathForUri(type.uri); if (!path || !pathWithin(root, path)) continue;
+    // An on-demand workspace may not yet have a complete project URI set.
+    // Hydrated Composer dependencies still must not be sent as project types.
+    if (!projectUris && dependencyRoots.some((dependencyRoot) => pathWithin(dependencyRoot, path))) continue;
     characters += type.fqcn.length + type.uri.length + path.length;
     if (projectTypes.length >= 100_000 || characters > 16 * 1024 * 1024) return { complete: false, projectTypes: [] };
     const includeMethods = effectiveMethodsFor.has(type.fqcn.toLowerCase());
@@ -567,7 +576,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
     if (authoritative.length > 1) connection.console.warn('Multiple authoritative container providers were registered; Symfony container facts are unavailable.');
     return false;
   }
-  const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
+  const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root); const types = await semanticProviderProjectTypes(root, workspace);
   if (!snapshots.complete || !types.complete) {
     clearContainerFacts(root, workspace, descriptor.providerId);
     connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed; Symfony container facts are unavailable.`); return false;
@@ -617,7 +626,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   await hydrateCanonicalTypes(workspace, root, ['Symfony\\Component\\EventDispatcher\\EventSubscriberInterface']);
   if (!stillCurrent()) return false;
   const services = symfonyServiceCatalog(root);
-  const types = semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
+  const types = await semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
   if (!snapshots.complete || !types.complete) {
     externalSymfonyEventsByRoot.delete(root);
     connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed; Symfony event relations are unavailable.`); return false;
@@ -678,7 +687,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
     if (authoritative.length > 1) connection.console.warn('Multiple authoritative controller-context providers were registered; controller contexts are unavailable.');
     return false;
   }
-  const descriptor = authoritative[0]!; const allTypes = semanticProviderProjectTypes(root, workspace);
+  const descriptor = authoritative[0]!; const allTypes = await semanticProviderProjectTypes(root, workspace);
   const scopedUris = providerScopes ? new Set(providerScopes.map((scope) => scope.uri)) : undefined;
   const projectTypes = scopedUris ? allTypes.projectTypes.filter((type) => scopedUris.has(type.uri)) : allTypes.projectTypes;
   const snapshots = providerScopes
@@ -749,7 +758,7 @@ function scheduleSymfonyContainerRefresh(root: string): void {
 
 async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean,
   onReferenceFactsReady?: () => Promise<void>): Promise<void> {
-  const snapshots = semanticProviderDocuments(root); const types = semanticProviderProjectTypes(root, workspace);
+  const snapshots = semanticProviderDocuments(root); const types = await semanticProviderProjectTypes(root, workspace);
   await runContainerProvider(root, generation, workspace, shouldContinue);
   if (!shouldContinue()) return;
   await runEventProvider(root, generation, workspace, shouldContinue);
@@ -857,7 +866,7 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
     if (eventsChanged) externalSymfonyEventsByRoot.delete(root);
     if (contextsChanged) { interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root); }
   }
-  if (workspaceFolderRoots.length && indexingMode === 'experimental') await startIndexWorkspace('semantic-provider-change');
+  if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) await startIndexWorkspace('semantic-provider-change');
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
 }
 let semanticProviderReconciliation = Promise.resolve();
@@ -1065,11 +1074,12 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
 }
 
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
-  if (experimentalReferenceSourceOnly && indexingMode === 'experimental' && querySequence > 0) return;
+  if (indexingMode === 'experimental' && experimentalReferenceSourceOnly && querySequence > 0) return;
   completeRoots.delete(root);
   projectCompleteRoots.delete(root);
   referenceSourceReadyRoots.delete(root);
-  const sourceOnly = experimentalReferenceSourceOnly && indexingMode === 'experimental';
+  referenceLightSummaries.delete(root);
+  const sourceOnly = referenceSourceMode();
   let resolvePreparation: (ready: boolean) => void = () => undefined;
   const preparation: ReferenceSourcePreparation | undefined = sourceOnly ? {
     epoch: projectEpochs.get(root) ?? 0, files: 0, total: 0,
@@ -1081,13 +1091,51 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths(), 4) : undefined;
   if (sourceWorkers) referenceSourceWorkers = sourceWorkers;
   const initialQuerySequence = querySequence;
-  const continueIndexing = (): boolean => shouldContinue() && (!sourceOnly || querySequence === initialQuerySequence
-    || adoptedReferenceSourcePreparations.get(root) === preparation && (projectEpochs.get(root) ?? 0) === preparation?.epoch
-    || referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
+  let memoryLimitReported = false;
+  const continueIndexing = (): boolean => {
+    if (!shouldContinue() || sourceOnly && (projectEpochs.get(root) ?? 0) !== preparation?.epoch) return false;
+    if (!sourceOnly || referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0)) return true;
+    const adopted = adoptedReferenceSourcePreparations.get(root) === preparation
+      && (projectEpochs.get(root) ?? 0) === preparation?.epoch;
+    if (querySequence !== initialQuerySequence && !adopted) return false;
+    if (indexingMode === 'progressive' && !adopted && process.memoryUsage().rss > referenceMemoryBudgetMiB * 1024 * 1024) {
+      if (!memoryLimitReported) {
+        memoryLimitReported = true;
+        connection.console.info(`[reference-progressive] paused root=${root} rssMiB=${Math.ceil(process.memoryUsage().rss / 1048576)} budgetMiB=${referenceMemoryBudgetMiB}`);
+      }
+      return false;
+    }
+    return true;
+  };
   const project = await composerProjectForRoot(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
   updateBuiltinForRoot(workspace, root);
+  if (indexingMode === 'progressive' && project && continueIndexing()) {
+    const entries = new Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }>();
+    const light = await indexComposerSources(root, {
+      project, includeDependencies: false, limits: indexLimits, readConcurrency: 128, verifyCachedSourceHash: true,
+      shouldContinue: continueIndexing,
+      onSource: ({ path, hash, source }) => {
+        const summary = createSourceCandidateSummary(source, false);
+        entries.set(resolve(path), { hash, summary });
+        return summary;
+      },
+      cache: cacheDirectory ? {
+        directory: cacheDirectory, key: 'reference-light', version: 'reference-light-v1',
+        restore: (payload, { path, hash }): boolean => {
+          const decision = sourceCandidateSummaryDecision(payload, new Set(), 'symbol');
+          if (decision === 'rebuild') return false;
+          entries.set(resolve(path), { hash, summary: payload as ReturnType<typeof createSourceCandidateSummary> });
+          return true;
+        },
+      } : undefined,
+    });
+    if (light.projectComplete && continueIndexing() && entries.size === light.files) {
+      referenceLightSummaries.set(root, { epoch: projectEpochs.get(root) ?? 0, entries });
+      connection.console.info(`[reference-progressive] light ready root=${root} files=${light.files} cached=${light.cached}`);
+    }
+  }
   const current = new Set<string>(); scanFilesByRoot.set(root, current);
   const doctrineFiles = new Map<string, DoctrineMethodFact[]>();
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
@@ -1158,6 +1206,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         sourceReadyTask = (async (): Promise<void> => {
           await refreshSemanticProviders(root, generation, workspace, continueIndexing, async () => {
             await loadCallableFacts(root, workspace);
+            if (routeProviders.length && continueIndexing()) {
+              try { await availableSymfonyRoutes(root, () => !continueIndexing()); }
+              catch (error) { connection.console.warn(`Reference route prewarm failed: ${String(error)}`); }
+            }
             if (continueIndexing()) {
               referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
               preparation?.finish(true);
@@ -1747,7 +1799,7 @@ async function expectedNamespace(uri: string): Promise<string | undefined> {
 async function indexWorkspace(generation: number): Promise<void> {
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   const shouldContinue = (): boolean => generation === indexingGeneration && progress?.token.isCancellationRequested !== true;
-  progress?.begin('Indexing PHP symbols', 0, 'Discovering Composer projects', true);
+  progress?.begin(indexingMode === 'progressive' ? 'Preparing PHP references' : 'Indexing PHP symbols', 0, 'Discovering Composer projects', true);
   try {
     const discoveries = await Promise.all(workspaceFolderRoots.map((root) => discoverComposerRoots(root, { shouldContinue })));
     if (!shouldContinue()) return;
@@ -1757,7 +1809,8 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
       }
@@ -2087,9 +2140,40 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 }
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
-function invalidateCandidates(uri: string): void {
+function invalidateCandidates(uri: string, preservePreparedSource = false): void {
   invalidateContainerFacts();
-  const root = rootForUri(uri); if (root) projectEpochs.set(root, (projectEpochs.get(root) ?? 0) + 1);
+  const root = rootForUri(uri); if (root) {
+    const previousEpoch = projectEpochs.get(root) ?? 0;
+    const epoch = previousEpoch + 1;
+    projectEpochs.set(root, epoch);
+    const sourceStillReady = indexingMode === 'progressive' && preservePreparedSource
+      && referenceSourceReadyRoots.get(root) === previousEpoch;
+    if (sourceStillReady) {
+      referenceSourceReadyRoots.set(root, epoch);
+      const light = referenceLightSummaries.get(root);
+      if (light?.epoch === previousEpoch) {
+        light.epoch = epoch;
+        const path = pathForUri(uri); if (path) light.entries.delete(resolve(path));
+      }
+    } else {
+      referenceSourceReadyRoots.delete(root);
+      referenceLightSummaries.delete(root);
+      if (indexingMode === 'progressive') scheduleProgressiveReferenceRefresh(root);
+    }
+  }
+}
+const progressiveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+function scheduleProgressiveReferenceRefresh(root: string): void {
+  const previous = progressiveRefreshTimers.get(root); if (previous) clearTimeout(previous);
+  const timer = setTimeout(() => {
+    progressiveRefreshTimers.delete(root);
+    void (async (): Promise<void> => {
+      await activeIndexing?.catch(() => undefined);
+      if (referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0)) return;
+      await startIndexWorkspace('progressive-source-change');
+    })().catch((error: unknown) => connection.console.warn(`Progressive reference refresh failed: ${String(error)}`));
+  }, 2_000);
+  progressiveRefreshTimers.set(root, timer);
 }
 async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
   if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
@@ -2122,7 +2206,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
-  connection.console.info(`[candidate-scan-start] mode=${mode} names=${normalizedNames.join(',')} root=${root}`);
+  connection.console.info(`[candidate-scan-start] mode=${mode} names=${normalizedNames.join(',')} root=${root} defer=${deferBodies} epoch=${epoch}`);
   candidateReceiverMethods.delete(key);
   referenceCandidateReads.delete(workspace);
   const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
@@ -2149,6 +2233,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
   try {
   const project = await composerProjectForRoot(root);
+  const light = referenceLightSummaries.get(root);
+  const usableLight = light?.epoch === epoch && mode === 'symbol'
+    && normalizedNames.every((name) => /^[a-z_][a-z0-9_]*$/.test(name)) ? light.entries : undefined;
   const rgStarted = Date.now();
   const rgCandidates = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
     ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg') : undefined;
@@ -2165,10 +2252,17 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     } : undefined,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
     onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
-    prepareSource: prepareInWorkers ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => exactSymbols
+    prepareSource: prepareInWorkers ? ({ uri, path, source, hash }): Promise<PreparedCandidate | undefined> => {
+      const cachedLight = usableLight?.get(resolve(path));
+      if (!documents.get(uri) && cachedLight?.hash === hash && sourceCandidateSummaryDecision(cachedLight.summary, names,
+        exactSymbols ? 'symbol' : 'substring-symbol') === 'skip') {
+        return Promise.resolve({ id: 0, uri, hash, summary: cachedLight.summary, matches: false, declarationsOnly: false });
+      }
+      return exactSymbols
       && !exactPatterns.some((pattern) => pattern.test(source))
       ? Promise.resolve({ id: 0, uri, hash, summary: { schema: 1, complete: false, symbols: [], namedArguments: [] }, matches: false, declarationsOnly: false })
-      : candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies, exactSymbols }) : undefined,
+      : candidateWorkers.prepare({ uri, source, hash, names: normalizedNames, mode, deferBodies, exactSymbols });
+    } : undefined,
     onSource: ({ uri, path, source, hash, prepared }) => {
       recordCandidateRead(path, hash);
       const open = documents.get(uri); const effective = open?.getText() ?? source;
@@ -2413,9 +2507,9 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
     && previousSelection.line === position.line && previousSelection.character === position.character) return;
   cancelReferencePrewarm(document.uri);
   const reusableProofs = Boolean(cacheDirectory && reusableReferenceMode());
-  const sourcePrepared = experimentalReferenceSourceOnly && indexingMode === 'experimental'
+  const sourcePrepared = referenceSourceMode()
     && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
-  const selectedSourceOnly = Boolean(position && experimentalReferenceSourceOnly && indexingMode === 'experimental');
+  const selectedSourceOnly = Boolean(position && referenceSourceMode());
   if ((indexingMode !== 'onDemand' && !sourcePrepared && !selectedSourceOnly) || (!position && !reusableProofs)) return;
   const uri = document.uri; const version = document.version;
   if (position) referencePrewarmSelections.set(uri, { version, epoch, line: position.line, character: position.character });
@@ -2795,10 +2889,12 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 }
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
-  if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
+  if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'progressive' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
+  if (Number.isSafeInteger(initialization?.referenceMemoryBudgetMiB) && Number(initialization?.referenceMemoryBudgetMiB) >= 768
+    && Number(initialization?.referenceMemoryBudgetMiB) <= 4096) referenceMemoryBudgetMiB = Number(initialization?.referenceMemoryBudgetMiB);
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;
   const requestedLimits = initialization?.indexLimits as Partial<ProjectIndexLimits> | undefined;
   if (requestedLimits && Number.isSafeInteger(requestedLimits.maxFiles) && Number(requestedLimits.maxFiles) > 0
@@ -2854,7 +2950,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 });
 
 connection.onInitialized(() => {
-  if (indexingMode === 'experimental') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
+  if (indexingMode === 'experimental' || indexingMode === 'progressive') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
   if (indexingMode === 'onDemand') void (async (): Promise<void> => {
     // Prepare builtins ahead of the first editor query without starting a project scan.
     // Bound startup work for multi-root workspaces; remaining roots stay lazy.
@@ -3866,8 +3962,9 @@ documents.onDidOpen(async ({ document }) => {
   // indexed, or when the active source scan has not reached this file yet.
   const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
     && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
-  if (diskSource !== document.getText() || previousSource !== document.getText() && !unscannedSource) {
-    invalidateCandidates(document.uri);
+  if (diskSource !== document.getText()
+    || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
+    invalidateCandidates(document.uri, update.kind !== 'declaration');
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
@@ -3892,7 +3989,7 @@ documents.onDidChangeContent(async ({ document }) => {
   const diskSource = root && diskPath && previousSource === document.getText() && update.kind === 'none'
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
   if (diskSource !== document.getText() || update.kind !== 'none') {
-    invalidateCandidates(document.uri);
+    invalidateCandidates(document.uri, update.kind !== 'declaration');
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
@@ -4503,9 +4600,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
-    const sourcePrepared = Boolean(root && experimentalReferenceSourceOnly
+    const sourcePrepared = Boolean(root && referenceSourceMode()
       && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
-    const requiresCandidateScan = namedTarget && !sourcePrepared && (!projectCompleteRoots.has(root!)
+    const requiresCandidateScan = namedTarget && !sourcePrepared && (referenceSourceMode() || !projectCompleteRoots.has(root!)
       || indexingMode === 'experimental' && !completeRoots.has(root!));
     const ready = scope === 'document' || !root || (requiresCandidateScan
       ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
