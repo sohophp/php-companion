@@ -2199,7 +2199,8 @@ async function selectedReferenceHint(document: TextDocument, root: string, works
 function scheduleReferencePrewarm(document: TextDocument, root: string, workspace: SemanticWorkspace,
   position?: { line: number; character: number }): void {
   cancelReferencePrewarm(document.uri);
-  if (indexingMode !== 'onDemand' || !cacheDirectory || !reusableReferenceMode()) return;
+  const reusableProofs = Boolean(cacheDirectory && reusableReferenceMode());
+  if (indexingMode !== 'onDemand' || !position && !reusableProofs) return;
   const uri = document.uri; const version = document.version;
   const epoch = projectEpochs.get(root) ?? 0; const sequence = querySequence;
   const revision = referencePrewarmRevisions.get(uri);
@@ -2211,7 +2212,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const open = documents.get(uri);
       if (!open || open.version !== version || querySequence !== sequence || (projectEpochs.get(root) ?? 0) !== epoch) return;
       const selected = position ? await selectedReferenceHint(open, root, workspace, position) : undefined;
-      const proofs = selected ? [] : await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
+      const proofs = selected || !reusableProofs ? [] : await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
       const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
       const hint = selected ?? proofs.find((proof) => proof.queryHint?.uri === uri
         && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;

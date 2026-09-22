@@ -5231,6 +5231,47 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each([false, true])('prewarms selected references with framework snapshots even when disk cache is %s', async (withCache) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-selected-prewarm-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      await writeFile(join(root, 'Bag.php'), '<?php namespace App; class Bag { public function get(): int { return 1; } }');
+      const source = '<?php namespace App; function run(Bag $bag): int { return $bag->get(); }';
+      const uri = pathToFileURL(join(root, 'Use.php')).toString();
+      await writeFile(join(root, 'Use.php'), source);
+      const configUri = pathToFileURL(join(root, 'services.yaml')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 677, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'onDemand', ...(withCache ? { cacheDirectory: join(root, '.cache') } : {}),
+          frameworkDocumentSnapshots: { complete: true, documents: [
+            { uri: configUri, languageId: 'yaml', source: 'services: {}', snapshotVersion: '1' },
+          ] },
+        },
+      } }));
+      await output.waitFor((message) => message.id === 677);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const position = lspPosition(source, source.lastIndexOf('get(') + 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: {
+        uri, version: 1, position,
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-prewarm] semantic count=1'), 10_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 678, method: 'textDocument/references', params: {
+        textDocument: { uri }, position, context: { includeDeclaration: false },
+      } }));
+      const references = (await output.waitFor((message) => message.id === 678)).result;
+      expect(references).toHaveLength(1);
+      expect(references[0].uri).toBe(uri);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'))).toHaveLength(1);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('does not treat an experimental index as reference-complete while providers are pending', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-index-provider-race-'));
     try {

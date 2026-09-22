@@ -250,3 +250,9 @@ Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber`
 随后的正式 bundle 实验把 experimental 后台全量解析移到 worker，初始化后空闲 15 秒，项目源已经就绪，但依赖索引仍因预算截断（索引合计 2,368 文件，`complete=false`），首次 References 仍需重新扫描 2,289 个项目文件，点击 8,015 ms、127 处、位置摘要不变。worker 改动已撤回；这证明直接加速现有全量索引不能让大型工作区首查复用结果，所需的是按引用查询加载实际依赖、并可与点击共享的准备任务。
 
 另外修正了一项就绪竞态：`completeRoots` 现在要等语义 Provider 提交、可调用事实加载之后才宣告完整；项目源完成不再等于引用事实完整。聚焦 stdio 回归让 Provider 延迟返回，在此期间发起 References，确认执行候选补扫并返回真实引用。默认按需索引的 Winstar 冷首查复测 8,037 ms、原 127 处及摘要，候选 4,433 ms、语义 1,963 ms。语言服务器全套 239 项通过、1 项跳过，改动文件 ESLint 和正式 bundle 构建通过。此修复保障后续后台提速的准确性，但尚未降低冷首查耗时。
+
+## 打开框架配置文件时恢复选中符号预热
+
+发现 `scheduleReferencePrewarm` 把选中符号的内存预热错误地与持久结果复用条件绑定。打开任意 YAML/XML 框架文档后，`frameworkDocumentSnapshots` 非空，持久结果证明按设计停用，但选中符号也不再预热；未配置磁盘缓存时同样被禁用。现仅把“从最近持久结果推断可能查询”留在持久复用门禁内，明确选中的 PHP 符号仍可启动可取消、与首次请求共享的候选准备和语义计算。两个 stdio 回归分别覆盖有/无磁盘缓存且框架快照非空，均只扫描一次并返回准确引用。
+
+正式 bundle、独立空缓存、Symfony Provider、Winstar 实际 `config/symfony/services.yaml` 内容作为打开文档快照的对照：不发送选中预热通知，空闲 8 秒后首次点击 7,703 ms；模拟编辑器延迟 300 ms 发送选中通知，空闲 8 秒后首次点击 **557 ms**。两次均返回 127 处及 `64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531` 摘要。空闲 2.5 秒时点击仍约 5,594 ms，因为候选准备尚未完成；这再次说明等待从点击前开始，并没有减少总 CPU 工作。基准驱动新增可选 `PHP_COMPANION_BENCHMARK_FRAMEWORK_SNAPSHOT`，以真实磁盘内容复现打开框架文档的条件。刚打开文件立即点击仍约 8 秒，性能 Goal 不应据此关闭。

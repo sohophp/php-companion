@@ -22,6 +22,12 @@ const symfonyProfile = process.env.PHP_COMPANION_BENCHMARK_SYMFONY === '1';
 const frameworkInitialization = symfonyProfile
   ? await (await import('./benchmark-symfony-profile.mjs')).symfonyBenchmarkInitialization(
     process.env.PHP_COMPANION_BENCHMARK_SYMFONY_BUNDLE_DIR ? resolve(process.env.PHP_COMPANION_BENCHMARK_SYMFONY_BUNDLE_DIR) : undefined) : {};
+const frameworkSnapshotPath = process.env.PHP_COMPANION_BENCHMARK_FRAMEWORK_SNAPSHOT
+  ? resolve(root, process.env.PHP_COMPANION_BENCHMARK_FRAMEWORK_SNAPSHOT) : undefined;
+const frameworkSnapshot = frameworkSnapshotPath ? { frameworkDocumentSnapshots: { complete: true, documents: [{
+  uri: pathToFileURL(frameworkSnapshotPath).toString(), languageId: frameworkSnapshotPath.endsWith('.xml') ? 'xml' : 'yaml',
+  source: await readFile(frameworkSnapshotPath, 'utf8'), snapshotVersion: 'benchmark-disk',
+}] } } : {};
 const server = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${resolve(profileDirectory)}`] : []),
   serverEntrypoint, '--stdio', ...(process.argv[8] ? ['--parser-core-wasm', join(dirname(serverEntrypoint), 'web-tree-sitter.wasm'),
     '--php-wasm', join(dirname(serverEntrypoint), 'tree-sitter-php.wasm')] : [])], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -57,7 +63,7 @@ try {
   const initializeStarted = performance.now();
   await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1', experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1',
     ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0'
-      ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization } });
+      ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization, ...frameworkSnapshot } });
   process.stderr.write(`[benchmark-init] elapsedMs=${Math.round(performance.now() - initializeStarted)}\n`);
   send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   const initialIdleMs = Number(process.env.PHP_COMPANION_BENCHMARK_INITIAL_IDLE_MS ?? 0);
