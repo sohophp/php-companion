@@ -178,3 +178,13 @@ Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber`
 同一 Winstar/Symfony 工作区连续启动正式 bundle 查询 `AdminSecuritySubscriber`：首次约 2.73 秒，确认 `[reference-cache] stored count=2`；重启后约 2.81 秒，仍重新扫描 2,289 个文件并运行服务/事件 Provider，随后再次写入相同两处结果。持久结果并未加快该重载首查。代码明确要求首次恢复时已有框架指纹，而框架指纹依赖 Provider 事实；这些事实目前在候选扫描和 Provider 执行后才形成。类查询的扫描后恢复又因语义查找本身只需数毫秒而被跳过，因此“已写入”不能推断“下次会恢复”。
 
 诊断中还发现，直接调用 `benchmark-language-queries.mjs` 而不显式传入正式 bundle 时，驱动运行的是未带解析器 WASM 参数的包内入口，无法建立持久证明所需的引擎身份。新增启动参数检查：启用持久化或输入审计时必须指定 bundle 路径，避免把这种无效运行误判为产品缓存失败。恢复带 Symfony 的结果前，仍需为服务、事件、路由 Provider 的程序版本、读取的 PHP/YAML/XML、目录枚举、缺失候选及打开的未保存缓冲区建立完整可验证输入证据；当前外部 Provider 可在项目根目录自行读取文件，不能仅凭已保存的位置和摘要跳过它们。短名字真正首次冷查询仍需独立优化。
+
+## 原有结果摘要不是正确性基线
+
+进一步核对同一 `ParameterBag::get` 查询，发现 `src/Bridge/ApplicationContextSubscriber.php` 的 `publishAdminLanguage()` 中两处直接参数调用被计入，但 `isApplicationRequest()` 中的两处 `$request->attributes->get(...)` 未计入。后者的 `$request` 来自 `$event->getRequest()`；参数 `RequestEvent` 继承 `KernelEvent`，`getRequest(): Request` 实际定义在父类，`Request::$attributes` 的类型为 `ParameterBag`。这是真实引用漏报，不能把原先 112 处和摘要 `bc8a76393e58d2675b906614cc4b375e6279aac344df5ea21d9cdffa02afc3b2` 当成完整性证明。
+
+只在一次临时诊断运行中加载 `RequestEvent`、`KernelEvent`、`Request`、`ParameterBag` 四个声明后，该局部调用链可以解析，结果由 112 增至 119 处，位置摘要为 `c3c7840bfe35831179a26ae44681ff77ca48c45d1e63162224ff2b670baea662`，首次查询约 6.36 秒（不含 Symfony Provider）。这 119 处仍不代表全部真实引用已经找齐。仅加载 `RequestEvent`、`Request`、`ParameterBag` 时结果仍为 112，说明缺失的父类 `KernelEvent` 是该实例的直接阻断点。
+
+另一个临时试验遍历所有候选成员访问所在函数的参数类型，得到 162 个未加载的候选类型，但额外的作用域/类型查询把一次首查增至约 14.8 秒，且没有补上引用；代码已撤回。后续修复应只对未解析的具体接收者追溯其赋值来源，并按需加载该类型的继承链和成员返回类型。短循环先固定两处 `isApplicationRequest()` 真实调用必须出现，再检查完整位置集合、冷查询分段耗时和取消/编辑失效。任何提速不能继续以原 112 处摘要作为唯一通过条件。
+
+进一步缩到“接收者局部变量由方法调用赋值，且赋值源是当前函数参数”的静态候选，确实只得到 5 个未加载类型（4 个 Symfony Event 类型和 `Aws\S3\S3Client`），包含所需 `RequestEvent`。但现有 `SemanticWorkspace` 按成员键列举候选文件时仍遍历了约 1,600 个工作区文件和约 78,000 个成员访问事实；这次只读预筛自身稳定耗时约 7.7–7.9 秒，首查总计约 15 秒，且尚未加载依赖或补回引用。细分埋点显示词法提取、作用域、赋值及类型查找只占个位数毫秒，余量在候选事实枚举/延迟加载路径。试验已撤回；不能把 5 个类型的较小结果集误认为低成本方案。下一次实现须直接在候选准备阶段生成可复用的接收者依赖摘要，避免查询时再遍历全部成员事实。
