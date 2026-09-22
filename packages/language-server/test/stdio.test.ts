@@ -5310,6 +5310,41 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('prewarms an early selection before the experimental source-only index is ready', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-early-source-prewarm-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = '<?php namespace App; class Bag { public function get(): int { return 1; } } function run(Bag $bag): int { return $bag->get(); }';
+      const uri = pathToFileURL(join(root, 'src', 'Bag.php')).toString();
+      await writeFile(join(root, 'src', 'Bag.php'), source);
+      await Promise.all(Array.from({ length: 400 }, (_, index) => writeFile(join(root, 'src', `Other${index}.php`),
+        `<?php namespace App; class Other${index} { public function value(): int { return ${index}; } }`)));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 684, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'experimental', experimentalReferenceSourceOnly: true,
+        },
+      } }));
+      await output.waitFor((message) => message.id === 684);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const position = lspPosition(source, source.lastIndexOf('get(') + 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: { uri, version: 1, position } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-prewarm] semantic count=1'), 15_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 685, method: 'textDocument/references', params: {
+        textDocument: { uri }, position, context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 685, 10_000)).result).toHaveLength(1);
+      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'))).toHaveLength(1);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('reuses a completed source-only index and hydrates a vendor receiver before References', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-source-only-references-'));
     try {

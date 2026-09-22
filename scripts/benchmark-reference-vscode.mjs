@@ -31,4 +31,7 @@ try {
     extensionTestsEnv: { ELECTRON_RUN_AS_NODE: undefined, VSCODE_ESM_ENTRYPOINT: undefined,
       PHP_COMPANION_REFERENCE_PERF_WORKSPACE: root, PHP_COMPANION_REFERENCE_PERF_IDLE_MS: idle },
   });
-} finally { await rm(temporary, { recursive: true, force: true }); }
+} finally {
+  if (process.env.PHP_COMPANION_REFERENCE_PERF_KEEP === '1') process.stdout.write(`PHP_COMPANION_REFERENCE_PERF_PROFILE ${temporary}\n`);
+  else await rm(temporary, { recursive: true, force: true });
+}

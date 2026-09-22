@@ -2254,9 +2254,10 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
   const reusableProofs = Boolean(cacheDirectory && reusableReferenceMode());
   const sourcePrepared = experimentalReferenceSourceOnly && indexingMode === 'experimental'
     && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0);
-  if ((indexingMode !== 'onDemand' && !sourcePrepared) || (!position && !reusableProofs)) return;
+  const selectedSourceOnly = Boolean(position && experimentalReferenceSourceOnly && indexingMode === 'experimental');
+  if ((indexingMode !== 'onDemand' && !sourcePrepared && !selectedSourceOnly) || (!position && !reusableProofs)) return;
   const uri = document.uri; const version = document.version;
-  const epoch = projectEpochs.get(root) ?? 0; const sequence = querySequence;
+  const epoch = projectEpochs.get(root) ?? 0; let sequence = querySequence;
   const revision = referencePrewarmRevisions.get(uri);
   const timer = setTimeout(() => {
     referencePrewarmTimers.delete(uri);
@@ -2270,10 +2271,18 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
       const hint = selected ?? proofs.find((proof) => proof.queryHint?.uri === uri
         && proof.loaded.some((source) => source.uri === uri && source.hash === sourceHash))?.queryHint;
+      if (selectedSourceOnly && selected && activeIndexing && referenceSourceReadyRoots.get(root) !== epoch && !candidateScanTasks.size) {
+        // A selected symbol is more useful than an unfinished all-source scan.
+        // Cancel that scan before preparing the same conservative query the
+        // first References request would run, so the click can share its work.
+        sequence = ++querySequence;
+        referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
+        await activeIndexing?.catch(() => undefined);
+      }
       const cancelled = (): boolean => querySequence !== sequence || documents.get(uri)?.version !== version
         || (projectEpochs.get(root) ?? 0) !== epoch || referencePrewarmRevisions.get(uri) !== revision;
       if (!hint || candidateScanTasks.size || cancelled()) return;
-      const ready = sourcePrepared || await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
+      const ready = referenceSourceReadyRoots.get(root) === epoch || await scanNamedCandidates(workspace, root, new Set(hint.names), cancelled, 0,
         hint.mode, hint.deferBodies, hint.deferBodies, false);
       if (!ready || cancelled()) return;
       connection.console.info(`[reference-prewarm] ready uri=${uri}`);
@@ -2303,7 +2312,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const selectedMethod = workspace.referenceMemberAt(uri, selectedOffset)?.kind === 'method';
       if (selectedMethod) {
         const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${hint.names.join(',')}`;
-        if (sourcePrepared) {
+        if (referenceSourceReadyRoots.get(root) === epoch) {
           if (!await hydratePreparedReferenceReceivers(workspace, root, new Set(hint.names), cancelled)) return;
         } else await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], cancelled);
       }
@@ -2330,6 +2339,9 @@ connection.onNotification('phpCompanion/prewarmReferenceAt', async (params: {
   if (!document || document.languageId !== 'php' || !root || document.version !== params.version) return;
   const workspace = await semanticForUri(params.uri);
   if (documents.get(params.uri)?.version !== params.version) return;
+  // The text document can arrive before its semantic update finishes. Keep
+  // the selection pending and let didOpen/didChange schedule it after update.
+  if (workspace.source(params.uri) !== document.getText()) return;
   scheduleReferencePrewarm(document, root, workspace, position);
 });
 

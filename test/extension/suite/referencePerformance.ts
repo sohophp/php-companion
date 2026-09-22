@@ -11,6 +11,9 @@ export async function run(): Promise<void> {
   assert.ok(extension, 'Packaged PHP Companion extension is unavailable');
   await extension.activate();
   const uri = vscode.Uri.file(join(root, 'src', 'Security', 'AdminPasswordChangeGuard.php'));
+  const indexing = vscode.workspace.getConfiguration('phpCompanion', uri);
+  const mode = indexing.get<string>('indexing.mode', 'onDemand');
+  const sourceOnly = indexing.get<boolean>('indexing.experimentalSourceOnlyReferences', false);
   const document = await vscode.workspace.openTextDocument(uri);
   assert.equal(document.languageId, 'php');
   const editor = await vscode.window.showTextDocument(document);
@@ -44,5 +47,5 @@ export async function run(): Promise<void> {
   const locationSha256 = createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
   assert.equal(locationSha256, 'a59c441cf79b1a218d5d6375b695bfc64c0e47e3f58326a94b4f797ec92009d6',
     'Winstar References locations changed');
-  console.log(`PHP_COMPANION_REFERENCE_PERF ${JSON.stringify({ readyMs, elapsedMs, idleMs, locations: locations.length, locationSha256 })}`);
+  console.log(`PHP_COMPANION_REFERENCE_PERF ${JSON.stringify({ mode, sourceOnly, readyMs, elapsedMs, idleMs, locations: locations.length, locationSha256 })}`);
 }
