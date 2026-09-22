@@ -23,7 +23,7 @@ const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const locationsPath = join(cache, 'reference-locations.json');
 const expected = new Map([
   ['textDocument/definition', { results: 1, locationSha256: '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
-  ['textDocument/references', { results: 127, locationSha256: '64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531' }],
+  ['textDocument/references', { results: 174, locationSha256: 'a525dddaa628ccd7ee25dbd5dbfae0ead5e9ebedb434b9176336eb08c1c725e7' }],
 ]);
 
 try {
@@ -81,7 +81,7 @@ try {
     if (selected) {
       const prewarmCount = /\[reference-prewarm\] semantic count=(\d+)/.exec(logs);
       const semanticMs = Number(/\[references:\d+\] semantic count=\d+ elapsedMs=(\d+)/.exec(logs)?.[1] ?? NaN);
-      if (Number(prewarmCount?.[1]) !== 127 || !Number.isFinite(semanticMs) || semanticMs > 100
+      if (Number(prewarmCount?.[1]) !== 174 || !Number.isFinite(semanticMs) || semanticMs > 100
         || results[0].elapsedMs > 1_000 || logs.includes('[named-candidates]')) {
         throw new Error(`Selected References did not reuse its prepared semantic result during ${phase}`);
       }

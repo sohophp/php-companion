@@ -620,6 +620,53 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('hydrates loaded dependency property receivers before resolving cold method references', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-loaded-receiver-'));
+    try {
+      const directory = join(root, 'src'); const dependency = join(root, 'vendor', 'acme');
+      await mkdir(directory); await mkdir(dependency, { recursive: true });
+      const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+      const serverBag = '<?php namespace App; class ServerBag extends Bag {}';
+      const request = '<?php namespace Acme; use App\\ServerBag; class Request { public ServerBag $server; public function probe(): int { return $this->server->get(); } }';
+      const use = '<?php namespace App; use Acme\\Request; function run(Request $request): int { return $request->server->get(); }';
+      const bagUri = pathToFileURL(join(directory, 'Bag.php')).toString();
+      const requestUri = pathToFileURL(join(dependency, 'Request.php')).toString();
+      const useUri = pathToFileURL(join(directory, 'Use.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(directory, 'Bag.php'), bag);
+      await writeFile(join(directory, 'ServerBag.php'), serverBag);
+      await writeFile(join(dependency, 'Request.php'), request);
+      await writeFile(join(directory, 'Use.php'), use);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', cacheDirectory: join(root, '.cache') },
+      } }));
+      await output.waitFor((message) => message.id === 240);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, source] of [[bagUri, bag], [requestUri, request]] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 241, method: 'textDocument/references', params: {
+        textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 241)).result).toEqual([
+        { uri: useUri, range: { start: lspPosition(use, use.indexOf('get()')),
+          end: lspPosition(use, use.indexOf('get()') + 3) } },
+        { uri: requestUri, range: { start: lspPosition(request, request.indexOf('get()')),
+          end: lspPosition(request, request.indexOf('get()') + 3) } },
+      ]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 242);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+      await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('preserves cold class references when external source prefiltering is requested', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-source-prefilter-'));
     try {

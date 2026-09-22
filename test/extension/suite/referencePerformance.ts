@@ -34,7 +34,7 @@ export async function run(): Promise<void> {
   const started = performance.now();
   const locations = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, position);
   const elapsedMs = Math.round(performance.now() - started);
-  assert.equal(locations?.length, 128, 'Winstar References location count changed (including declaration)');
+  assert.equal(locations?.length, 175, 'Winstar References location count changed (including declaration)');
   const applicationContext = vscode.Uri.file(join(root, 'src', 'Bridge', 'ApplicationContextSubscriber.php')).toString();
   const lines = new Set(locations.filter((location) => location.uri.toString() === applicationContext)
     .map((location) => location.range.start.line + 1));
@@ -45,7 +45,7 @@ export async function run(): Promise<void> {
   } })).sort((left, right) => left.uri.localeCompare(right.uri) || left.range.start.line - right.range.start.line
     || left.range.start.character - right.range.start.character);
   const locationSha256 = createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
-  assert.equal(locationSha256, 'a59c441cf79b1a218d5d6375b695bfc64c0e47e3f58326a94b4f797ec92009d6',
+  assert.equal(locationSha256, '49e43a49ed90a8bd1561f56e96475d9b77a2163beb90276af671bffe80eb448c',
     'Winstar References locations changed');
   console.log(`PHP_COMPANION_REFERENCE_PERF ${JSON.stringify({ mode, sourceOnly, readyMs, elapsedMs, idleMs, locations: locations.length, locationSha256 })}`);
 }

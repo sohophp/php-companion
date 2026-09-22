@@ -2314,7 +2314,9 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
         const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${hint.names.join(',')}`;
         if (referenceSourceReadyRoots.get(root) === epoch) {
           if (!await hydratePreparedReferenceReceivers(workspace, root, new Set(hint.names), cancelled)) return;
-        } else await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], cancelled);
+        } else await hydrateReferenceReceivers(workspace, root, [
+          ...(candidateReceiverMethods.get(scanKey) ?? []), ...loadedReferenceReceiverMethods(workspace, root, new Set(hint.names)),
+        ], cancelled);
       }
       if (cancelled()) return;
       const prewarmStarted = Date.now();
@@ -2519,6 +2521,18 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
     frontier = parents.filter((name) => workspace.typeByFqcn(name));
   }
   await hydrate(methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []));
+}
+
+function loadedReferenceReceiverMethods(workspace: SemanticWorkspace, root: string, names: ReadonlySet<string>): AssignedReceiverMethod[] {
+  const methods: AssignedReceiverMethod[] = [];
+  for (const uri of workspace.documentUris()) {
+    if (rootForUri(uri) !== root || workspace.implementationState(uri) !== 'loaded') continue;
+    const source = workspace.source(uri);
+    if (source && [...names].some((name) => source.toLowerCase().includes(name))) {
+      methods.push(...workspace.assignedReceiverMethods(uri, names));
+    }
+  }
+  return methods;
 }
 
 async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, root: string, names: ReadonlySet<string>,
@@ -4220,7 +4234,11 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         if (!await hydratePreparedReferenceReceivers(workspace, root, candidateNames, () => token.isCancellationRequested)) {
           throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure is incomplete; this is not a zero-reference result.');
         }
-      } else await hydrateReferenceReceivers(workspace, root, candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested);
+      } else {
+        await hydrateReferenceReceivers(workspace, root, [
+          ...(candidateReceiverMethods.get(scanKey) ?? []), ...loadedReferenceReceiverMethods(workspace, root, candidateNames),
+        ], () => token.isCancellationRequested);
+      }
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');

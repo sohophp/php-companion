@@ -9,7 +9,7 @@ const root = resolve(workspace);
 const fixtures = [
   {
     name: 'short vendor method', file: 'src/Security/AdminPasswordChangeGuard.php', symbol: 'get',
-    sha256: '64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531',
+    sha256: 'a525dddaa628ccd7ee25dbd5dbfae0ead5e9ebedb434b9176336eb08c1c725e7',
   },
   {
     name: 'Symfony service class', file: 'src/Bridge/AdminSecuritySubscriber.php', symbol: 'AdminSecuritySubscriber',
