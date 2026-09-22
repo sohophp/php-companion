@@ -4096,7 +4096,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
-    const ready = scope === 'document' || !root || (namedTarget && !projectCompleteRoots.has(root)
+    const requiresCandidateScan = namedTarget && (!projectCompleteRoots.has(root!)
+      || indexingMode === 'experimental' && !completeRoots.has(root!));
+    const ready = scope === 'document' || !root || (requiresCandidateScan
       ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
         closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method', true)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
