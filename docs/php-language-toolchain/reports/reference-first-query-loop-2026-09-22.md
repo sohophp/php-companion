@@ -220,3 +220,11 @@ Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber`
 从提交 `787b56f` 生成 `artifacts/php-companion-alpha-0.4.5-787b56f8/`，四个 VSIX 通过打包检查和 `SHA256SUMS`，只读 WSL/PHP 8.5 预检通过。严格编辑器预检从当前非 VS Code 集成终端执行时失败：`code` 探测超时，且无法确认 Alpha Profile 中恰好安装一个扩展包；它不代表候选 VSIX 失败。隔离 VS Code 1.138.0 Core + Symfony 打包扩展宿主测试 exit 0，未替代用户实际 WSL Remote Profile 验收。
 
 新增 `pnpm benchmark:references:vscode -- <winstar-root> <alpha-candidate-dir> [idle-ms]`。它用隔离配置文件、仅启用候选 Core + Symfony VSIX，在只读 Winstar 工作区等待 PHP Document Symbol Provider 就绪后，调用 VS Code 标准 `vscode.executeReferenceProvider`；明确核对包含声明的 128 个位置、位置摘要 `a59c441cf79b1a218d5d6375b695bfc64c0e47e3f58326a94b4f797ec92009d6` 和 `ApplicationContextSubscriber.php` 两处继承接收者调用。独立空配置文件各运行一次：`idle-ms=0` 的点击等待 **8,496 ms**，`2500` 时 **5,905 ms**，`8000` 时 **344 ms**，三次均为 128 处。就绪等待分别为约 1.02、0.87、0.83 秒，单独记录，未计入点击耗时。最终带完整位置摘要断言的 8 秒空闲复跑约 463 ms；新 npm 命令的零空闲复跑约 8,169 ms。该测量验证了扩展宿主链路中的预热效果，也确认立即点击仍不达标；隔离 Linux 宿主不是用户的 WSL Remote Alpha Profile，也没有完成持续实际编码验收。
+
+## 收紧首次引用验证循环
+
+改进现有的 `pnpm check:references:winstar`：直接运行正式 bundle，不重新构建整套 monorepo；每次使用独立空缓存，默认启用 Symfony Provider，查询 `AdminPasswordChangeGuard.php` 最后一个 `get`，并断言排除声明的 127 个引用位置摘要为 `64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531`。输出同时给出候选扫描、容器、路由、事件和语义阶段耗时；需要对照 Core-only 路径时可设 `PHP_COMPANION_CHECK_REFERENCE_SYMFONY=0`。若 Winstar 工作树变化导致摘要不符，先审查位置差异并更新基线，不能直接放宽断言。源码改动时先构建受影响包及 `node esbuild.mjs --production`，再执行该短循环；只有明确超过单机波动且位置完全一致时，才扩大到继承/Composer 反例、包测试和隔离 Extension Host。
+
+本轮同机重测：关闭候选缓存的 `get` 为 7.59 秒，正式缓存路径约 8.25 秒；已有 ripgrep 试验开关的相同 bundle 正反比较为 8.25/8.19 秒，均返回相同 127 处。尝试把缓存提交移出请求关键路径，首次为 8.35 秒；把每个文件的相邻 PHPDoc 查找改为一次排序与二分，独立复跑为 8.09 秒。两项都没有稳定、足以抵消复杂度的收益，产品代码已撤回。CPU 采样显示主线程在候选事实接收和语义成员匹配时仍有大量工作，而候选 worker 在一段时间内空闲；下一个优化应减少主线程逐文件的声明增强/引用核对成本，或者建立能够证明完整性的跨文件依赖索引。不能再把线程数、短词 ripgrep 或缓存写盘当作主要方向。性能 Goal 保持未完成。
+
+重启门禁暴露出一个过时假设：Symfony 组合下恢复已验证的 References 结果之前，仍需恢复候选声明与框架输入以证明结果未过期。一次重启查询约 5.79 秒，候选阶段 2.78 秒、2,288/2,289 个文件由缓存处理、只重解析当前打开的文件，最后日志明确为 `[reference-cache] restored count=127`；原门禁因看到候选扫描就误报。门禁现改为要求缓存结果恢复，并允许这次以缓存为主的证据扫描；若大量候选重建则仍失败。该事实也说明跨进程缓存尚未让重启后的第一次点击足够快。

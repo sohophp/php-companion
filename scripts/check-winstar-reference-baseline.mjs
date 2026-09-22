@@ -10,6 +10,7 @@ const workspace = resolve(process.argv[2] ?? '/var/www/php/8.5/winstar2024');
 // Build it first; package-level TypeScript output is a separate test target.
 const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
+const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const locationsPath = join(cache, 'reference-locations.json');
@@ -23,7 +24,7 @@ try {
     const child = spawn(process.execPath, [
       'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
     ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
+      env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: symfonyProfile ? '1' : '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
         PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload ? '1' : '0' } });
     let output = ''; let logs = '';
@@ -39,7 +40,12 @@ try {
     if (checkReload && !(phase === 'reload' ? logs.includes('[reference-cache] restored') : logs.includes('[reference-cache] stored'))) {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
-    if (phase === 'reload' && logs.includes('[named-candidates]')) throw new Error('Reload unexpectedly rescanned candidate files');
+    if (phase === 'reload') {
+      const scan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+)/.exec(logs);
+      if (scan && (Number(scan[2]) < Number(scan[1]) - 1 || Number(scan[3]) > 1)) {
+        throw new Error(`Reload rebuilt candidate files instead of restoring them: ${scan[0]}`);
+      }
+    }
     const results = output.trim().split('\n').map((line) => JSON.parse(line));
     if (results.length !== expected.size) throw new Error(`Expected ${expected.size} query results, received ${results.length}`);
     if (results[0]?.method !== 'textDocument/references' || new Set(results.map((result) => result.method)).size !== expected.size) {
@@ -51,6 +57,16 @@ try {
         throw new Error(`Reference baseline changed: ${JSON.stringify({ method: result.method, results: result.results, locationSha256: result.locationSha256 })}`);
       }
       process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
+    }
+    if (phase === 'cold') {
+      const timings = Object.fromEntries(['candidates', 'container', 'routes', 'events', 'semantic'].map((name) => {
+        const pattern = name === 'candidates' ? /\[named-candidates\][^\n]*elapsedMs=(\d+)/
+          : name === 'semantic' ? /\[references:\d+\] semantic count=\d+ elapsedMs=(\d+)/
+            : new RegExp(`\\[references:\\d+\\] ${name} elapsedMs=(\\d+)`);
+        return [name, Number(pattern.exec(logs)?.[1] ?? NaN)];
+      }));
+      if (Object.values(timings).some((value) => !Number.isFinite(value))) throw new Error('Cold References phase timing is incomplete.');
+      process.stdout.write(`${phase} References phases: ${JSON.stringify(timings)}\n`);
     }
     const locations = JSON.parse(await readFile(locationsPath, 'utf8'));
     const subscriberUri = pathToFileURL(join(workspace, 'src/Bridge/ApplicationContextSubscriber.php')).toString();
