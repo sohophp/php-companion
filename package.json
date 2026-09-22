@@ -81,6 +81,7 @@
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
     "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
+    "benchmark:reference-candidates": "node scripts/profile-reference-candidates.mjs",
     "benchmark:references:vscode": "tsc -p test/extension/tsconfig.json && node scripts/benchmark-reference-vscode.mjs",
     "check:references:winstar": "node scripts/check-winstar-reference-baseline.mjs",
     "check:references:fast:winstar": "pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/language-server build && node esbuild.mjs --production && pnpm check:references:winstar",
