@@ -65,7 +65,7 @@ try {
       if (!baseline || result.results !== baseline.results || result.locationSha256 !== baseline.locationSha256) {
         throw new Error(`Reference baseline changed: ${JSON.stringify({ method: result.method, results: result.results, locationSha256: result.locationSha256 })}`);
       }
-      process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms, full-location SHA-256 matched\n`);
+      process.stdout.write(`${phase} ${result.method}: ${result.results} locations, ${result.elapsedMs} ms${result.peakRssKiB ? `, peak/current RSS ${result.peakRssKiB}/${result.currentRssKiB} KiB` : ''}, full-location SHA-256 matched\n`);
     }
     if (selected) {
       const prewarmCount = /\[reference-prewarm\] semantic count=(\d+)/.exec(logs);

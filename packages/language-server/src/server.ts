@@ -1052,7 +1052,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   projectCompleteRoots.delete(root);
   referenceSourceReadyRoots.delete(root);
   const sourceOnly = experimentalReferenceSourceOnly && indexingMode === 'experimental';
-  const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths()) : undefined;
+  const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths(), 2) : undefined;
   if (sourceWorkers) referenceSourceWorkers = sourceWorkers;
   const initialQuerySequence = querySequence;
   const continueIndexing = (): boolean => shouldContinue() && (!sourceOnly || querySequence === initialQuerySequence

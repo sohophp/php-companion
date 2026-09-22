@@ -60,12 +60,12 @@ export class CandidateWorkers {
   private disabled = false;
   private warned = false;
 
-  constructor(private readonly paths?: PhpParserPaths) {}
+  constructor(private readonly paths?: PhpParserPaths, private readonly maxWorkers = 4) {}
 
   private start(): void {
     if (this.slots.length || this.disabled) return;
     const path = resolve(dirname(process.argv[1] ?? ''), 'candidateWorker.js');
-    for (let index = 0; index < Math.min(4, availableParallelism()); index += 1) {
+    for (let index = 0; index < Math.min(this.maxWorkers, availableParallelism()); index += 1) {
       try {
         const worker = new Worker(path, { workerData: { paths: this.paths } });
         worker.unref();

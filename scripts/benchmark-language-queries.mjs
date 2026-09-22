@@ -128,15 +128,17 @@ try {
     if (method === 'textDocument/references' && process.env.PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH) {
       await writeFile(resolve(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH), JSON.stringify(result));
     }
-    let peakRssKiB;
+    let peakRssKiB; let currentRssKiB;
     if (process.env.PHP_COMPANION_BENCHMARK_RSS === '1' && process.platform === 'linux') {
       try {
         const status = await readFile(`/proc/${server.pid}/status`, 'utf8');
         const match = /^VmHWM:\s+(\d+) kB$/m.exec(status);
         if (match) peakRssKiB = Number(match[1]);
+        const current = /^VmRSS:\s+(\d+) kB$/m.exec(status);
+        if (current) currentRssKiB = Number(current[1]);
       } catch { /* Optional measurement must not change query correctness checks. */ }
     }
-    process.stdout.write(JSON.stringify({ method, elapsedMs, results: result.length, peakRssKiB,
+    process.stdout.write(JSON.stringify({ method, elapsedMs, results: result.length, peakRssKiB, currentRssKiB,
       ...(process.env.PHP_COMPANION_BENCHMARK_COMPACT === '1' ? {}
         : { uris: [...new Set(result.map((location) => location.uri))].sort() }), locationSha256 }) + '\n');
     if (persistReferences && method === 'textDocument/references') await request('phpCompanion/testWaitReferencePersistence', {});
