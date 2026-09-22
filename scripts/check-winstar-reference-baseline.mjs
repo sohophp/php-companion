@@ -12,6 +12,10 @@ const serverBundle = resolve(process.argv[3] ?? 'dist/language-server.js');
 const checkReload = process.env.PHP_COMPANION_CHECK_REFERENCE_RELOAD === '1';
 const sourceOnly = process.env.PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY === '1';
 const immediateSourceOnly = sourceOnly && process.env.PHP_COMPANION_BENCHMARK_REFERENCE_IMMEDIATE === '1';
+const primeThenImmediate = process.env.PHP_COMPANION_CHECK_REFERENCE_PRIME_THEN_IMMEDIATE === '1';
+if (primeThenImmediate && (!checkReload || !sourceOnly || immediateSourceOnly)) {
+  throw new Error('Prime-then-immediate References requires source-only indexing and reload without immediate mode.');
+}
 const selected = sourceOnly && process.env.PHP_COMPANION_CHECK_REFERENCE_SELECTION === '1';
 const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0';
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
@@ -24,13 +28,14 @@ const expected = new Map([
 
 try {
   for (const phase of checkReload ? ['cold', 'reload'] : ['cold']) {
+    const waitReferenceReady = sourceOnly && !immediateSourceOnly && !(primeThenImmediate && phase === 'reload');
     const child = spawn(process.execPath, [
       'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
     ], { cwd: new URL('..', import.meta.url), stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, PHP_COMPANION_BENCHMARK_SYMFONY: symfonyProfile ? '1' : '0', PHP_COMPANION_BENCHMARK_REFERENCES_FIRST: '1',
         PHP_COMPANION_BENCHMARK_REFERENCE_LOCATIONS_PATH: locationsPath,
         PHP_COMPANION_BENCHMARK_REFERENCE_INPUTS: '0', PHP_COMPANION_BENCHMARK_REFERENCE_PERSISTENCE: checkReload && !sourceOnly ? '1' : '0',
-        ...(sourceOnly && !immediateSourceOnly ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}),
+        ...(waitReferenceReady ? { PHP_COMPANION_BENCHMARK_WAIT_REFERENCE_READY: '1', PHP_COMPANION_BENCHMARK_WAIT_INDEX_COMPLETE: '1' } : {}),
         ...(selected ? { PHP_COMPANION_BENCHMARK_SELECTION_PREWARM: '1', PHP_COMPANION_BENCHMARK_SELECTION_DELAY_MS: '0',
           PHP_COMPANION_BENCHMARK_WAIT_SELECTION_PREWARM: '1' } : {}) } });
     let output = ''; let logs = '';
@@ -47,14 +52,17 @@ try {
       throw new Error(`Expected verified reference persistence during ${phase}`);
     }
     if (phase === 'reload') {
-      if (sourceOnly && (!/Indexed (\d+) PHP files[^\n]*\b\1 cached\b/.test(logs) || logs.includes('[named-candidates]'))) {
+      if (sourceOnly && waitReferenceReady && (!/Indexed (\d+) PHP files[^\n]*\b\1 cached\b/.test(logs) || logs.includes('[named-candidates]'))) {
         throw new Error('Expected complete source-only index restoration during reload');
       }
-      if (sourceOnly && Number(/Indexed \d+ PHP files[^\n]*deferred implementations=(\d+)/.exec(logs)?.[1] ?? 0) < 1_000) {
+      if (sourceOnly && waitReferenceReady && Number(/Indexed \d+ PHP files[^\n]*deferred implementations=(\d+)/.exec(logs)?.[1] ?? 0) < 1_000) {
         throw new Error('Expected cached source implementations to remain deferred after reload');
       }
+      if (primeThenImmediate && !logs.includes('[named-candidates]')) {
+        throw new Error('Immediate source-only reload unexpectedly skipped candidate validation; review the gate before accepting the timing.');
+      }
       const scan = /\[named-candidates\] files=(\d+) cached=(\d+) parsed=(\d+)/.exec(logs);
-      if (scan && (Number(scan[2]) < Number(scan[1]) - 1 || Number(scan[3]) > 1)) {
+      if (scan && !primeThenImmediate && (Number(scan[2]) < Number(scan[1]) - 1 || Number(scan[3]) > 1)) {
         throw new Error(`Reload rebuilt candidate files instead of restoring them: ${scan[0]}`);
       }
     }
