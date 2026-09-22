@@ -214,3 +214,9 @@ Winstar 空缓存、Symfony Provider 的串行差分：`AdminSecuritySubscriber`
 试验把候选 worker 上限由 4 提高到 8，Winstar 首查约 8.26 秒、候选阶段 4.68 秒，未见收益，已撤回。下一步若继续缩短空缓存总时间，须处理候选语义准备与成员匹配的实质工作量，同时为任何收窄路径提供对直接参数、继承、动态及 Composer 布局的完整性证明。
 
 反向把 worker 上限降到 2 后，Winstar 相同 127 处查询约 10.79 秒，候选阶段 6.76 秒；恢复 4 个 worker 并重建正式 bundle。与 8 个 worker 的试验共同说明，此样本的主要瓶颈不是线程池配置。继续调 worker 数量会增加验证时间，却不能解决必须解析 1,656 个候选文件和逐个验证成员身份的工作量。
+
+## 隔离 VS Code 扩展宿主测量
+
+从提交 `787b56f` 生成 `artifacts/php-companion-alpha-0.4.5-787b56f8/`，四个 VSIX 通过打包检查和 `SHA256SUMS`，只读 WSL/PHP 8.5 预检通过。严格编辑器预检从当前非 VS Code 集成终端执行时失败：`code` 探测超时，且无法确认 Alpha Profile 中恰好安装一个扩展包；它不代表候选 VSIX 失败。隔离 VS Code 1.138.0 Core + Symfony 打包扩展宿主测试 exit 0，未替代用户实际 WSL Remote Profile 验收。
+
+新增 `pnpm benchmark:references:vscode -- <winstar-root> <alpha-candidate-dir> [idle-ms]`。它用隔离配置文件、仅启用候选 Core + Symfony VSIX，在只读 Winstar 工作区等待 PHP Document Symbol Provider 就绪后，调用 VS Code 标准 `vscode.executeReferenceProvider`；明确核对包含声明的 128 个位置、位置摘要 `a59c441cf79b1a218d5d6375b695bfc64c0e47e3f58326a94b4f797ec92009d6` 和 `ApplicationContextSubscriber.php` 两处继承接收者调用。独立空配置文件各运行一次：`idle-ms=0` 的点击等待 **8,496 ms**，`2500` 时 **5,905 ms**，`8000` 时 **344 ms**，三次均为 128 处。就绪等待分别为约 1.02、0.87、0.83 秒，单独记录，未计入点击耗时。最终带完整位置摘要断言的 8 秒空闲复跑约 463 ms；新 npm 命令的零空闲复跑约 8,169 ms。该测量验证了扩展宿主链路中的预热效果，也确认立即点击仍不达标；隔离 Linux 宿主不是用户的 WSL Remote Alpha Profile，也没有完成持续实际编码验收。
