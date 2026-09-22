@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import type { PhpParserPaths, PreparedPhpDocument } from '@php-companion/parser';
 import type { SourceCandidateSummary } from '@php-companion/index';
 import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
-import type { CachedProjectPhpFile } from './projectFacts.js';
+import type { CachedProjectPhpFile, ProjectPhpFileFacts } from './projectFacts.js';
 
 export interface CandidatePreparation {
   id: number;
@@ -16,6 +16,7 @@ export interface CandidatePreparation {
   deferBodies: boolean;
   exactSymbols?: boolean;
   forceFull?: boolean;
+  includeProjectFacts?: boolean;
 }
 
 export interface PreparedCandidate {
@@ -26,6 +27,7 @@ export interface PreparedCandidate {
   matches: boolean;
   declarationsOnly: boolean;
   facts?: PreparedPhpDocument;
+  projectFacts?: ProjectPhpFileFacts;
 }
 
 export interface SerializedPreparedCandidate { id: number; json: string; }

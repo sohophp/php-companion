@@ -1061,7 +1061,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   projectCompleteRoots.delete(root);
   referenceSourceReadyRoots.delete(root);
   const sourceOnly = experimentalReferenceSourceOnly && indexingMode === 'experimental';
-  const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths(), 2) : undefined;
+  const sourceWorkers = sourceOnly ? new CandidateWorkers(parserPaths(), 4) : undefined;
   if (sourceWorkers) referenceSourceWorkers = sourceWorkers;
   const initialQuerySequence = querySequence;
   const continueIndexing = (): boolean => shouldContinue() && (!sourceOnly || querySequence === initialQuerySequence
@@ -1091,7 +1091,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     shouldContinue: continueIndexing,
     uriForPath: (path) => indexedUriForPath(root, path),
     prepareSource: sourceOnly ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => sourceWorkers!.prepare({
-      uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true,
+      uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true, includeProjectFacts: true,
     }) : undefined,
     onSource: ({ uri, path, source, hash, prepared }) => {
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
@@ -1100,7 +1100,9 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       current.add(uri);
       if (sourceOnly && candidate?.facts?.kind === 'full') workspace.updatePrepared(uri, effectiveSource, candidate.facts);
       else workspace.update(uri, effectiveSource, Boolean(open));
-      const facts = analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource); acceptFacts(uri, facts);
+      const facts = sourceOnly && candidate?.projectFacts && effectiveSource === source
+        ? candidate.projectFacts : analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource);
+      acceptFacts(uri, facts);
       const snapshot = workspace.snapshotForPersistence(uri);
       return snapshot && effectiveSource === source ? createCachedProjectPhpFile(snapshot, facts, hash) : undefined;
     },

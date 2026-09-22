@@ -2,7 +2,7 @@ import { parentPort, workerData } from 'node:worker_threads';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '@php-companion/index';
 import type { SemanticSnapshot, SemanticSourceDeclarationSnapshot } from '@php-companion/semantic';
-import { compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile,
+import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile,
   decompressCachedProjectPhpFile, restoreCachedProjectPhpFile, restoreCachedSourceDeclaration } from './projectFacts.js';
 import type { CandidateCompression, CandidatePreparation, CandidateRestore, PreparedCandidate,
   PreparedCandidateCompression, PreparedCandidateRestore, SerializedPreparedCandidate } from './candidateWorkers.js';
@@ -42,6 +42,7 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
     const prepared: PreparedCandidate = {
       id: task.id, uri: task.uri, hash: task.hash, summary, matches, declarationsOnly,
       facts: matches ? parser.prepare(task.source, task.uri, declarationsOnly) : undefined,
+      projectFacts: task.includeProjectFacts && matches ? analyzeProjectPhpFileFacts(parser, task.uri, task.source) : undefined,
     };
     // Serialize syntax facts off the main thread; JSON parsing avoids the cost
     // of reconstructing their deeply nested structured clone on the caller.
