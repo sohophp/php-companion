@@ -52,3 +52,5 @@ VS Code 扩展已有光标选中通知和按需模式的引用预热，但项目
 现可在工作区设置中同时启用 `phpCompanion.indexing.mode: "experimental"` 和 `phpCompanion.indexing.experimentalSourceOnlyReferences: true`，然后执行 `Developer: Reload Window`，由实际扩展启动后台项目源码预备索引；不再要求 VS Code 测试宿主的 `testMode`。默认配置仍是 `onDemand`，不开启该试验。已有针对生产模式初始化的 stdio 回归，检查预备完成后的两处 vendor 方法引用、无候选重扫、相同内容编辑的复用、选中预热，以及真正修改后的失效。
 
 同一正式 bundle 的 Winstar 门禁：默认模式立即点击 8,112 ms、127 处；实验模式在源码事实和选中语义都准备完之后，冷启动点击 213 ms，缓存重启点击 233 ms，均为同一 127 处完整位置摘要。实验冷启动约 19.3 秒、重启约 10.9 秒才报告源码事实就绪，另需约 2.2–2.3 秒选中语义预热；这些等待时间不计入点击响应。因此此设置改善空闲后的首次点击，**没有解决启动即点击的约 8 秒问题**。若预备尚未完成，服务器仍执行原有候选扫描。尚未在用户的 WSL Alpha Profile 安装和验收，不能视为正式默认功能。
+
+另以 `testMode=false` 的初始化参数直接核对两个边界：`pnpm check:references:source-only-immediate:winstar` 在启动即点击时走完整候选扫描，8,564 ms、127 处；`pnpm check:references:source-only-selected:winstar` 等待事实和选中预热后，冷启动 230 ms、缓存重启 217 ms、各 127 处。三次完整位置摘要均为 `64da8a3d32297acd6ff06ec6e25ba54a940f2f81032f9936b85c238622aec531`。语言服务器全套 243 项通过、1 项跳过；生产模式初始化的聚焦 stdio 回归及改动文件 ESLint 通过。该分组命令直接运行已构建的正式 bundle，源码修改后须先构建语言服务器并运行 `node esbuild.mjs --production`，避免测到旧代码。

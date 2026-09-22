@@ -77,7 +77,8 @@ const request = (method, params) => new Promise((done, reject) => {
 });
 try {
   const initializeStarted = performance.now();
-  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || sourceOnly, experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalReferenceSourceOnly: sourceOnly,
+  await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {}, initializationOptions: { indexingMode, cacheDirectory, testMode: process.env.PHP_COMPANION_BENCHMARK_PRODUCTION_MODE !== '1'
+    && (auditInputs || persistReferences || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || sourceOnly), experimentalReferenceClosure: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_CLOSURE === '1', experimentalReferenceSourceOnly: sourceOnly,
     ...(process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' || process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '0'
       ? { experimentalRipgrepCandidates: process.env.PHP_COMPANION_BENCHMARK_REFERENCE_RG === '1' } : {}), ...frameworkInitialization, ...frameworkSnapshot } });
   process.stderr.write(`[benchmark-init] elapsedMs=${Math.round(performance.now() - initializeStarted)}\n`);
