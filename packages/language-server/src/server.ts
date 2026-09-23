@@ -2260,6 +2260,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string, preservePreparedSource = false): void {
+  if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', 0);
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) {
     const previousEpoch = projectEpochs.get(root) ?? 0;
@@ -2344,6 +2345,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   const fullCandidateTypes = new Set<string>();
   const skippedExactSources: Array<{ uri: string; source: string }> = [];
   let skippedCachedExact = false;
+  const scanBegan = testMode ? performance.now() : 0;
   const receiverMethods = new Map<string, AssignedReceiverMethod>();
   const recordReceiverMethods = (items: unknown): void => {
     if (!Array.isArray(items) || items.length > 10_000) return;
@@ -2351,9 +2353,15 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       receiverMethods.set(`${item.owner.toLowerCase()}::${item.method.toLowerCase()}`, item as AssignedReceiverMethod);
     }
   };
-  const progress = showProgress && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
-  progress?.begin(progressMessage(clientDiagnosticLanguage, 'prepareQuery'), 0,
-    progressMessage(clientDiagnosticLanguage, 'findCandidates'), true);
+  let progress: Awaited<ReturnType<typeof connection.window.createWorkDoneProgress>> | undefined;
+  let progressFinished = false;
+  if (showProgress && supportsWorkDoneProgress) {
+    void connection.window.createWorkDoneProgress().then((created) => {
+      created.begin(progressMessage(clientDiagnosticLanguage, 'prepareQuery'), 0,
+        progressMessage(clientDiagnosticLanguage, 'findCandidates'), true);
+      if (progressFinished) created.done(); else progress = created;
+    }).catch((error: unknown) => connection.console.warn(`PHP candidate progress could not start: ${String(error)}`));
+  }
   try {
   const project = await composerProjectForRoot(root);
   const light = referenceLightSummaries.get(root);
@@ -2553,6 +2561,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
   if (!(includeDependencies ? scan.complete : scan.projectComplete) || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
+    recordTestQueryDuration('candidateEpochRetry', scanBegan);
     await applyPendingFiles();
     return retries > 0 ? performNamedCandidateScan(workspace, root, names, cancelled, retries - 1,
       mode, deferBodies, prepareInWorkers, showProgress, forceFull, includeDependencies) : false;
@@ -2562,7 +2571,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   }
   candidateReceiverMethods.set(key, [...receiverMethods.values()]);
   candidateQueries.set(key, epoch); return true;
-  } finally { progress?.done(); }
+  } finally { progressFinished = true; progress?.done(); }
 }
 
 async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
@@ -4149,7 +4158,9 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     if (!path.toLowerCase().endsWith('.php')) continue;
     const project = await composerProjectForRoot(root);
     if (project && !isPlannedSafeMovePath(path) && (!allAutoloadPaths(project).some((sourceRoot) => pathWithin(sourceRoot, path)) || isAutoloadPathExcluded(project, path))) continue;
-    invalidateCandidates(change.uri);
+    // The open buffer is authoritative and the delta below reads it again.
+    // A delayed watcher event for a newly opened file must not restart a candidate scan that already includes that buffer.
+    if (!documents.all().some((document) => sameFilesystemPath(pathForUri(document.uri), path))) invalidateCandidates(change.uri);
     pendingFiles.set(filesystemPathKey(path), { uri: indexedUriForPath(root, path), root }); pendingRoots.add(root);
   }
   if (composerChanged) {
@@ -4755,6 +4766,8 @@ connection.onTypeDefinition(async ({ textDocument, position }, token) => {
 });
 
 connection.onImplementation(async ({ textDocument, position }, token) => {
+  const timingStarted = testMode ? performance.now() : 0;
+  try {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
@@ -4771,8 +4784,10 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
     member = workspace.referenceMemberAt(document.uri, offset);
   }
   if (root && member?.kind === 'method') {
+    const scanStarted = testMode ? performance.now() : 0;
     const ready = await scanNamedCandidates(workspace, root, new Set([member.name.toLowerCase()]),
       () => token.isCancellationRequested, 2, 'symbol', true, true, true, true);
+    recordTestQueryDuration('implementationScan', scanStarted);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
     if (documents.get(document.uri)?.version !== queryVersion) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'implementationIndexIncomplete'));
@@ -4782,6 +4797,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));
     return target ? [{ uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } }] : [];
   });
+  } finally { recordTestQueryDuration('implementation', timingStarted); }
 });
 
 function hierarchyItem(workspace: SemanticWorkspace, type: TypeInfo): TypeHierarchyItem | undefined {

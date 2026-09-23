@@ -177,6 +177,43 @@ describe('language server stdio', () => {
     }]);
   });
 
+  it('returns Implementation before a slow client acknowledges candidate progress', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-implementation-progress-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Contract.php'), '<?php namespace App; interface Contract { public function renderView(): string; }');
+      await writeFile(join(root, 'src', 'Printer.php'), '<?php namespace App; final class Printer implements Contract { public function renderView(): string { return "ok"; } }');
+      const source = '<?php namespace App; function run(Contract $value): string { return $value->renderView(); }';
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const printerUri = pathToFileURL(join(root, 'src', 'Printer.php')).toString();
+      await writeFile(join(root, 'src', 'Consumer.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: { window: { workDoneProgress: true } }, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/implementation', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('renderView()') + 2),
+      } }));
+      const create = await output.waitFor((message) => message.method === 'window/workDoneProgress/create');
+      expect((await output.waitFor((message) => message.id === 2)).result).toEqual([expect.objectContaining({ uri: printerUri })]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: create.id, result: null }));
+      const begin = await output.waitFor((message) => message.method === '$/progress'
+        && message.params.token === create.params.token && message.params.value.kind === 'begin');
+      expect(begin.params.value.title).toBeTruthy();
+      await output.waitFor((message) => message.method === '$/progress'
+        && message.params.token === create.params.token && message.params.value.kind === 'end');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-navigation-'));
     try {
@@ -2838,7 +2875,8 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const addedUri = pathToFileURL(addedPath).toString(); const mappedUri = pathToFileURL(mappedPath).toString();
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 214, method: 'initialize', params: { processId: null, capabilities: { workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } }, rootUri } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 214, method: 'initialize', params: { processId: null, capabilities: { workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } }, rootUri,
+        initializationOptions: { testMode: true } } }));
       await output.waitFor((message) => message.id === 214);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       const registration = await output.waitFor((message) => message.method === 'client/registerCapability');
@@ -2866,9 +2904,14 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       };
       expect(await completion(215, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
 
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2141, method: 'phpCompanion/testQueryTimings', params: { reset: true } }));
+      await output.waitFor((message) => message.id === 2141);
       await writeFile(consumerPath, '<?php namespace App; function changedOnDisk(): void {}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: consumerUri, type: 2 }] } }));
-      await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${consumerUri}`));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2142, method: 'phpCompanion/testQueryTimings', params: { reset: false } }));
+      expect((await output.waitFor((message) => message.id === 2142)).result.candidateInvalidatedOpen).toBeUndefined();
       expect(await completion(216, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
 
       await writeFile(addedPath, '<?php namespace App; class Added { public function addedMethod(): void {} }');

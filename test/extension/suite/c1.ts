@@ -26,7 +26,7 @@ async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => b
   return { median: Math.round((samples[5]! + samples[6]!) / 2), max: Math.round(samples[11]!) };
 }
 
-async function verifyRealComposerVendor(): Promise<void> {
+async function verifyRealComposerVendor(requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
   assert.ok(root, 'The locked real Composer vendor project was not opened.');
   const lock = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(root.uri, 'composer.lock'))).toString('utf8')) as {
@@ -69,13 +69,25 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
     (result) => result?.some((item) => item.uri.toString() === interfaceUri.toString()) === true,
     'SoPHP did not navigate to the installed PSR ResponseInterface declaration.');
   assert.ok(definition.every((item) => item.uri.toString() === interfaceUri.toString()));
+  await requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
   const implementationStarted = performance.now();
+  const implementationRequestsMs: number[] = [];
   const implementation = await waitForResult(
-    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call),
+    async () => {
+      const requestStarted = performance.now();
+      const result = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call);
+      implementationRequestsMs.push(Math.round(performance.now() - requestStarted));
+      return result;
+    },
     (result) => result?.some((item) => item.uri.toString() === implementationUri.toString()) === true,
     'SoPHP did not find the installed Guzzle Response implementation.');
   assert.ok(implementation.every((item) => item.uri.toString() !== loggerUri.toString()));
   const implementationMs = Math.round(performance.now() - implementationStarted);
+  const implementationTimings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: true });
+  const implementationServerMs = Math.round(implementationTimings.implementation?.at(-1) ?? Number.NaN);
+  const implementationScanMs = Math.round(implementationTimings.implementationScan?.at(-1) ?? Number.NaN);
+  assert.ok(Number.isFinite(implementationServerMs) && Number.isFinite(implementationScanMs),
+    'SoPHP did not record the first Implementation handler and candidate scan durations.');
   const warmImplementation = await warmLatency(
     () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call),
     (result) => result?.some((item) => item.uri.toString() === implementationUri.toString()) === true,
@@ -126,6 +138,9 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
   console.log(`C1 real Composer vendor: ${JSON.stringify({
     lockedPackages: lock.packages?.length, noiseFiles: Number(process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE ?? 0),
     completion: 'getStatusCode', implementation: implementation.map((item) => item.uri.toString()), implementationMs,
+    implementationRequestsMs, implementationServerMs, implementationScanMs,
+    candidateEpochRetries: implementationTimings.candidateEpochRetry?.length ?? 0,
+    candidateInvalidatedOpen: implementationTimings.candidateInvalidatedOpen?.length ?? 0,
     warmImplementation, restoredImplementationMs,
     unsavedCompletion: 'getName', references: references.length,
   })}`);
@@ -624,7 +639,7 @@ function consume(): void { (void) choose(1); }`;
       'SoPHP auto mode did not use the selected PHP runtime for built-in completion.');
     console.log(`C1 ${runtimeDiscover ? 'PATH discovery' : 'configured'} runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
   }
-  if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') await verifyRealComposerVendor();
+  if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') await verifyRealComposerVendor(timingApi.requestLanguageServer);
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
     console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
