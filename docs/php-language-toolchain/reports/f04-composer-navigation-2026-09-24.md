@@ -23,3 +23,7 @@ F04-NAV-04 使用独立 Composer 项目的 `App\` 与 `Acme\` 两个 PSR-4 映�
 ## Trait 成员的首次查询
 
 F04-NAV-05 在同一双 PSR-4 Composer 项目中，把 `Report` 的成员来源改为 `Acme\FormattingTrait`，使用 `ImportedTrait` alias 引入。每项查询前重新启动按需 Language Server，验证 Definition 精确落到 Trait 方法，Completion、Hover、Signature Help 提供该方法，References 只返回 `Report` 接收者的调用而不混入 `Other::format()`。五项冷启动查询定向通过；这仍是自动 stdio 证据，不代表真实 VS Code 操作或性能验收。
+
+## 未完成成员与连续未保存编辑
+
+F04-NAV-06 在 F04-NAV-01 的项目中给 `Other` 增加专属 `reset()`。同一 Language Server 会话连续接收第 5 版 `Other $printer` 和第 6 版 `Contract $printer`，两版的第二个调用都保持未完成的 `$printer->re`；不等待诊断即请求 Completion 与首个完整调用的 Definition。第 6 版补全包含 `render` 且不包含 `reset`，Definition 落到接口。第 7 版切回 `Other` 后，补全出现 `reset`，Definition 落到 `Other::render`。该验证覆盖连续文档版本后的可见请求结果，尚未模拟在耗时查询执行期间取消旧请求。

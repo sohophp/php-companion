@@ -184,7 +184,7 @@ describe('language server stdio', () => {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       const contractSource = '<?php namespace App; interface Contract { public function render(int $count): string; }';
       const printerSource = '<?php namespace App; final class Printer implements Contract { public function render(int $count): string { return (string) $count; } }';
-      const otherSource = '<?php namespace App; final class Other { public function render(): void {} }';
+      const otherSource = '<?php namespace App; final class Other { public function render(): void {} public function reset(): void {} }';
       const consumerSource = '<?php namespace App; function run(Contract $printer, Other $other): void { $printer->render(2); $other->render(); $printer->ren; }';
       for (const [name, source] of [['Contract', contractSource], ['Printer', printerSource], ['Other', otherSource], ['Consumer', consumerSource]]) {
         await writeFile(join(root, 'src', `${name}.php`), source);
@@ -309,6 +309,38 @@ describe('language server stdio', () => {
         uri: printerUri, range: {
           start: lspPosition(printerSource, printerDeclaration),
           end: lspPosition(printerSource, printerDeclaration + 'render'.length),
+        },
+      }]);
+      const incompleteContractSource = changedSource.replace('$printer->render(3);', '$printer->re;');
+      const incompleteOtherSource = incompleteContractSource.replace('Contract $printer', 'Other $printer');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 5 }, contentChanges: [{ text: incompleteOtherSource }],
+      } }) + encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 6 }, contentChanges: [{ text: incompleteContractSource }],
+      } }));
+      const incompleteOffset = incompleteContractSource.indexOf('$printer->re;') + '$printer->re'.length;
+      const latestCompletion = await query(956, 'textDocument/completion', incompleteContractSource, incompleteOffset);
+      const latestLabels = latestCompletion.map((item: { label: string }) => item.label);
+      expect(latestLabels).toContain('render');
+      expect(latestLabels).not.toContain('reset');
+      expect(await query(957, 'textDocument/definition', incompleteContractSource, call + 1)).toEqual([{
+        uri: contractUri, range: {
+          start: lspPosition(contractSource, contractDeclaration),
+          end: lspPosition(contractSource, contractDeclaration + 'render'.length),
+        },
+      }]);
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 6);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 7 }, contentChanges: [{ text: incompleteOtherSource }],
+      } }));
+      const otherCompletion = await query(958, 'textDocument/completion', incompleteOtherSource,
+        incompleteOtherSource.indexOf('$printer->re;') + '$printer->re'.length);
+      expect(otherCompletion.map((item: { label: string }) => item.label)).toContain('reset');
+      expect(await query(959, 'textDocument/definition', incompleteOtherSource, call + 1)).toEqual([{
+        uri: otherUri, range: {
+          start: lspPosition(otherSource, otherDeclaration),
+          end: lspPosition(otherSource, otherDeclaration + 'render'.length),
         },
       }]);
     } finally { await rm(root, { recursive: true, force: true }); }
