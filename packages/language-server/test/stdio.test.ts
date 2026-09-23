@@ -4143,6 +4143,42 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-limit-'));
+    try {
+      const src = join(root, 'src'); const vendor = join(root, 'vendor', 'acme', 'api', 'src');
+      await mkdir(src, { recursive: true }); await mkdir(vendor, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/api', autoload: { 'psr-4': { 'Acme\\Api\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/api', install_path: '../acme/api' }] }));
+      await writeFile(join(vendor, 'Contract.php'), '<?php namespace Acme\\Api; interface Contract { public function answer(): int; }');
+      await writeFile(join(vendor, 'Implementation.php'), '<?php namespace Acme\\Api; class Implementation implements Contract { public function answer(): int { return 42; } }');
+      const consumer = '<?php namespace App; use Acme\\Api\\Contract; function run(Contract $value): int { return $value->answer(); }';
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      await writeFile(join(src, 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 4220, method: 'initialize', params: {
+        processId: null, capabilities: {}, workspaceFolders: [{ uri: pathToFileURL(root).toString(), name: 'project' }],
+        initializationOptions: { indexingMode: 'onDemand', phpVersion: '7.2',
+          indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
+      await output.waitFor((message) => message.id === 4220);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === consumerUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 4221, method: 'textDocument/implementation', params: {
+        textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf('$value->answer()') + '$value->'.length + 2),
+      } }));
+      const result = await output.waitFor((message) => message.id === 4221, 20_000);
+      expect(result.result).toBeUndefined();
+      expect(result.error).toMatchObject({ message: expect.stringContaining('Implementation search incomplete') });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'php-companion-multiroot-navigation-'));
     const roots = [join(parent, 'first'), join(parent, 'second')];

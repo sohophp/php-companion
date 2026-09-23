@@ -11,6 +11,7 @@ const messages = {
   documentChangedReferences: ['Document changed during reference query.', '引用查询期间文档已更改。'],
   routeReferencesCancelled: ['Route reference query cancelled.', '路由引用查询已取消。'],
   projectIndexIncomplete: ['Project index incomplete; this is not a zero-reference result.', '项目索引不完整；不能将此结果视为零处引用。'],
+  implementationIndexIncomplete: ['Implementation search incomplete; some project or installed dependency sources were not scanned. Check SoPHP output and indexing settings.', '实现查找未完成：部分项目或已安装依赖源码未被扫描。请检查 SoPHP 输出与索引设置。'],
   routeDocumentChanged: ['Document changed during route reference query.', '路由引用查询期间文档已更改。'],
   referenceReceiverIncomplete: ['Reference receiver closure is incomplete; this is not a zero-reference result.', '引用接收者集合不完整；不能将此结果视为零处引用。'],
   referenceReceiverBound: ['Reference receiver closure exceeded its bound; this is not a zero-reference result.', '引用接收者集合超过上限；不能将此结果视为零处引用。'],

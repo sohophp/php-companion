@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-19：独立 Composer 小预算夹具确认依赖扫描不完整时，Implementation 返回专用的中英文失败提示并指向 SoPHP 输出与索引设置，不再使用“零处引用”的错误措辞，也不返回误导性的空实现列表。协议消息与真实 stdio 定向 4/4 通过；默认 10,000 文件边界仍需规模验证。见[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md)。
+
 2026-09-24 C1 真实依赖树扩展：锁定 Composer 项目现有 30 个公开包、1,029 个 PHP 文件。隔离 Core 宿主的 PSR 接口六项查询与 A→Monolog Logger→A 未保存往返通过；首次 Implementation 三次为 1,093/949/1,059 ms，两次各 12 次热态中位数均为 4 ms、最大 7/5 ms，往返后首次 290/274 ms。Workbench 首次可见真实 vendor 方法本次为 211 ms；正式复现命令退出码 0。样本小，10,000 文件预算边界及长期分布仍开放。见[报告](reports/c1-real-composer-vendor-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-18、F04-HOST-11：独立 Composer 项目锁定 10 个真实包、293 个 PHP 文件。首次 PSR 接口 Implementation 因按需扫描只含项目路径而缺失 Guzzle 实现；现仅 Implementation 扩展到已安装依赖路径，并隔离其任务/缓存键。独立 stdio 定向、语言服务器全套 309 项通过且 1 项跳过；隔离 Core 宿主完成六项查询、未保存改为 Monolog Logger 后的候选/定义切换，Workbench 首次可见真实 vendor 方法为 208 ms。完整组合、其它平台及更大真实依赖树仍开放。见[报告](reports/c1-real-composer-vendor-2026-09-24.md)。

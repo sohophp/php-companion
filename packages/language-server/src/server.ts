@@ -4752,7 +4752,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
       () => token.isCancellationRequested, 2, 'symbol', true, true, true, true);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
     if (documents.get(document.uri)?.version !== queryVersion) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
-    if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
+    if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'implementationIndexIncomplete'));
   }
   return workspace.implementations(document.uri, offset).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);

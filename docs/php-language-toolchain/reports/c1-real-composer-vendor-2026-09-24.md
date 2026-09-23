@@ -15,3 +15,7 @@
 另以 `PHP_COMPANION_TEST_C1_UI=1 pnpm test:extension:c1:real-vendor` 观察 Workbench：在真实 PSR 接口类型后输入 `g`，首次可见列表包含 `getStatusCode`，没有 Monolog 的 `getName`；293/1,029 文件时各一次可见观测为 208/211 ms。TypeScript、ESLint、Composer 严格校验、按锁文件安装 dry run 和差异检查通过。
 
 这是 PHP 7.2 目标、Linux 隔离宿主与 1,029 个真实 PHP 文件的结果。还需其它 PHP/平台/Remote 矩阵、超过默认 10,000 文件预算的边界、持续会话分布，以及完整 Open Source Pack 的组合门禁。本轮没有生成 VSIX，也没有修改业务项目。
+
+## 索引预算边界
+
+F04-NAV-19 用独立 stdio 夹具把索引文件预算设为 1：项目 Consumer 已占额度，vendor 的接口和实现尚未完整扫描。Implementation 现在返回明确的“实现查找未完成，部分项目或已安装依赖源码未被扫描”错误，提示查看 SoPHP 输出与索引设置，不把扫描不完整误报成零个实现。中文与英文协议消息和真实 stdio 定向共 4 项通过。此用例验证小预算的失败反馈；默认 10,000 文件附近的性能与用户操作仍待单独验证。
