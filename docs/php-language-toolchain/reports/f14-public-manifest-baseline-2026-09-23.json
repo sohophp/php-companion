@@ -109,17 +109,20 @@
       {
         "command": "phpCompanion.goToDefinition",
         "title": "Go to Definition",
-        "category": "SoPHP"
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
       },
       {
         "command": "phpCompanion.goToImplementation",
         "title": "Go to Implementation",
-        "category": "SoPHP"
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
       },
       {
         "command": "phpCompanion.findReferences",
         "title": "Find References",
-        "category": "SoPHP"
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
       }
     ],
     "configuration": {

@@ -29,6 +29,19 @@ async function assertManifestCommandsRegistered(extension: vscode.Extension<unkn
   const registered = new Set(await vscode.commands.getCommands(true));
   assert.deepStrictEqual(declared.filter(({ command }) => !registered.has(command)).map(({ command }) => command), [],
     `${extension.id} contributes commands without registered handlers`);
+  if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
+    assert.strictEqual(vscode.env.language.toLowerCase(), 'zh-cn', 'VS Code did not start in Simplified Chinese');
+    const manifest = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(extension.extensionUri, 'package.json'))).toString('utf8')) as
+      { contributes: { commands: Array<{ command: string; title: string }> } };
+    const translations = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(extension.extensionUri, 'package.nls.zh-cn.json'))).toString('utf8')) as Record<string, string>;
+    const live = new Map((extension.packageJSON.contributes.commands as Array<{ command: string; title: string | { original: string; value: string } }>).map((item) => [item.command, item.title]));
+    for (const command of manifest.contributes.commands) {
+      const key = /^%([^%]+)%$/u.exec(command.title)?.[1];
+      assert.ok(key, `${extension.id} command ${command.command} lacks a localization key`);
+      const title = live.get(command.command);
+      assert.strictEqual(typeof title === 'string' ? title : title?.value, translations[key], `${extension.id} did not localize ${command.command}`);
+    }
+  }
 }
 
 /** Restore fixtures through the editor so dirty buffers and filesystem versions stay coherent. */
@@ -313,6 +326,7 @@ export async function run(): Promise<void> {
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', false, vscode.ConfigurationTarget.Workspace);
     await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not withdraw its route provider');
   }
+  if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') return;
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
   if (process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1') {

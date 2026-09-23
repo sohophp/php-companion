@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F14 Core/Symfony 命令标题简体中文化：22+1 个公开命令改用 manifest 本地化键，英文默认标题、命令 ID/分类/启用条件保持基线；VS Code 1.138.0 隔离中文宿主已逐项确认打包扩展中的 23 个标题及命令注册。范围与剩余设置/运行时文案见[命令本地化报告](reports/f14-command-localization-2026-09-23.md)；F14 仍开放。
+
 2026-09-23 P0/F14 公开 manifest 基线：Core/Symfony 的 23 个命令、30 个设置和激活事件已固定为[机器可读 JSON 与报告](reports/p0-f14-public-manifest-baseline-2026-09-23.md)；`pnpm check` 完整通过，原始候选的 VS Code 1.138.0 隔离宿主确认全部 23 个命令已注册。命令运行行为、配置迁移和本地化仍待验，P0/F14 保持开放。
 
 2026-09-23 P0 编号验收 fixture 首组：F08-EI-01/02/03 分别覆盖 Extract Interface 的有效公开抽象/具体方法、合法 import 别名冲突及未完成方法声明。三项 fixture 测试、语义包类型检查和相关 ESLint 通过；编号、文件及命令见[验收 fixtures](acceptance-fixtures.md)。P0 全量 F01–F14 映射仍开放。

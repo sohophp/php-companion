@@ -14,7 +14,7 @@
 
 ## P0：规格、基线与验收设施
 
-- [ ] 保存当前功能回归基线，审计现有 parser/index 的可复用范围；[Core/Symfony 公开 manifest 基线](reports/p0-f14-public-manifest-baseline-2026-09-23.md)已固定 23 个命令和 30 个设置，运行行为与 parser/index 审计仍待补齐。
+- [ ] 保存当前功能回归基线，审计现有 parser/index 的可复用范围；[Core/Symfony 公开 manifest 基线](reports/p0-f14-public-manifest-baseline-2026-09-23.md)已固定 23 个命令和 30 个设置，[简体中文命令标题](reports/f14-command-localization-2026-09-23.md)已验证，运行行为与 parser/index 审计仍待补齐。
 - [x] 建立 PHP 7.2–8.5 按次版本划分的语法、推断、诊断、重构支持矩阵；未实现项保持显式标注。
 - [ ] 将验收文档中的场景落实为编号 fixtures，包含合法反例和未完成输入；首组 [F08-EI-01/02/03](acceptance-fixtures.md) 已覆盖 Extract Interface 正例、合法冲突和未完成声明，其余 F01–F14 场景仍待映射。
 - [ ] 固定数据契约、包依赖检查、缓存版本、ADR 和模式迁移方案。

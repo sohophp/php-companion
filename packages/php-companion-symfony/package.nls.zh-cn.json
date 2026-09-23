@@ -1,4 +1,5 @@
 {
   "displayName": "SoPHP Symfony",
-  "description": "为 SoPHP 提供精准的 Symfony 服务、路由、事件与 Controller 集成。"
+  "description": "为 SoPHP 提供精准的 Symfony 服务、路由、事件与 Controller 集成。",
+  "command.showStatus": "显示集成状态"
 }

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
-import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
+import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from '@vscode/test-electron';
 
 async function testExecutablePath(): Promise<string | undefined> {
   const version = process.env.PHP_COMPANION_TEST_VSCODE_VERSION;
@@ -59,6 +59,7 @@ async function main(): Promise<void> {
   const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
+  const extensionsDirectory = externalExtensions ?? join(profile, 'extensions');
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
   let phpunitExecutable = process.env.PHP_COMPANION_PHPUNIT_EXECUTABLE;
   if (externalExtensions && !formatterExecutable && process.env.PHP_COMPANION_PHP_EXECUTABLE && process.env.PHP_COMPANION_PHP_CS_FIXER) {
@@ -150,25 +151,45 @@ abstract class AbstractController { public function generateUrl(string $route, a
     execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
     execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
     if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
+    if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
+      await mkdir(extensionsDirectory, { recursive: true });
+      const languagePackInstall = await runVSCodeCommand(['--install-extension', 'ms-ceintl.vscode-language-pack-zh-hans', '--force',
+        `--extensions-dir=${extensionsDirectory}`, `--user-data-dir=${join(profile, 'user-data')}`], {
+        version: process.env.PHP_COMPANION_TEST_VSCODE_VERSION ?? '1.138.0',
+        spawn: { env: { ...process.env, VSCODE_IPC_HOOK_CLI: undefined, VSCODE_NLS_CONFIG: undefined, DONT_PROMPT_WSL_INSTALL: '1' } },
+      });
+      process.stdout.write(languagePackInstall.stdout);
+      const packs = (await readdir(extensionsDirectory)).filter((name) => name.startsWith('ms-ceintl.vscode-language-pack-zh-hans-'));
+      if (packs.length !== 1) throw new Error(`Expected one Simplified Chinese language pack, found ${packs.length}.`);
+      const messages = join(extensionsDirectory, packs[0]!, 'translations', 'main.i18n.json');
+      await stat(messages);
+      // The first isolated window needs a language pack index in its own user-data directory.
+      await writeFile(join(profile, 'user-data', 'languagepacks.json'), JSON.stringify({
+        'zh-cn': { hash: 'sophp-isolated-zh-cn', translations: { vscode: messages } },
+      }));
+    }
     await runTests({
       vscodeExecutablePath: await testExecutablePath(),
       extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension'),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [
+        ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
         fixture,
-        ...(externalExtensions ? [] : ['--disable-extensions']),
+        ...(externalExtensions || process.env.PHP_COMPANION_TEST_LOCALE ? [] : ['--disable-extensions']),
         '--disable-gpu',
         '--disable-workspace-trust',
         '--skip-welcome',
         '--skip-release-notes',
         `--user-data-dir=${join(profile, 'user-data')}`,
-        `--extensions-dir=${externalExtensions ?? join(profile, 'extensions')}`,
+        `--extensions-dir=${extensionsDirectory}`,
       ],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
         VSCODE_ESM_ENTRYPOINT: undefined,
+        VSCODE_NLS_CONFIG: process.env.PHP_COMPANION_TEST_LOCALE ? undefined : process.env.VSCODE_NLS_CONFIG,
         PHP_COMPANION_PACKAGED_TEST: '1',
+        PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
@@ -176,7 +197,9 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TWIG_ROUTE_RENAME: twigVsix ? '1' : undefined,
       },
     });
-    console.log(`Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
+    console.log(process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
+      ? `Verified Simplified Chinese command titles in packaged PHP Companion VSIX: ${vsix}`
+      : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {
     if (process.env.PHP_COMPANION_TEST_LOG_DIR) {
       await cp(join(profile, 'user-data', 'logs'), resolve(process.env.PHP_COMPANION_TEST_LOG_DIR), { recursive: true }).catch(() => undefined);
