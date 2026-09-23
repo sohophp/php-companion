@@ -1,0 +1,3 @@
+account.show:
+  path: '%dynamic_prefix%/account'
+  controller: App\Controller\AccountController::show
