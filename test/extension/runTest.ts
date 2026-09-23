@@ -1,8 +1,18 @@
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { runTests, runVSCodeCommand } from '@vscode/test-electron';
+
+async function availableDebugPort(): Promise<number> {
+  const server = createServer();
+  await new Promise<void>((resolveListen) => server.listen(0, '127.0.0.1', resolveListen));
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('Could not reserve a Chromium debugging port.');
+  await new Promise<void>((resolveClose) => server.close(() => resolveClose()));
+  return address.port;
+}
 
 async function main(): Promise<void> {
   const sourceFixture = resolve(__dirname, '..', 'test', 'extension', 'baseline');
@@ -12,6 +22,9 @@ async function main(): Promise<void> {
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const coreOnly = c1Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
+  const c1DebugPort = c1Only
+    ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' ? String(await availableDebugPort()) : undefined)
+    : undefined;
   const runtimePhp = c1Only && !c1PhpVersion ? process.env.PHP_COMPANION_TEST_C1_RUNTIME_PHP : undefined;
   const runtimeVersion = runtimePhp ? execFileSync(runtimePhp, ['-r', 'echo PHP_VERSION;'], { encoding: 'utf8', timeout: 3_000 }).trim() : undefined;
   if (runtimeVersion && !/^8\.[0-5]\./u.test(runtimeVersion)) throw new Error(`C1 runtime probe needs PHP 8.0–8.5, received ${runtimeVersion}.`);
@@ -82,7 +95,8 @@ async function main(): Promise<void> {
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
       extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : 'index'),
-      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense ? [] : ['--disable-extensions'])],
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense ? [] : ['--disable-extensions']),
+        ...(c1DebugPort ? [`--remote-debugging-port=${c1DebugPort}`] : [])],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
         VSCODE_ESM_ENTRYPOINT: undefined,
@@ -91,6 +105,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
+        PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
       },
     });
   } finally {

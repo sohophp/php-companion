@@ -1,5 +1,6 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
+import { measureVisibleSuggestion } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -35,6 +36,7 @@ export async function run(): Promise<void> {
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
+  const c1DebugPort = process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT;
   if (targetPhpVersion) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('phpVersion'), targetPhpVersion);
   assert.strictEqual(vscode.workspace.getConfiguration('php').get('suggest.basic'), false,
     'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
@@ -486,6 +488,10 @@ function consume(): void { (void) choose(1); }`;
     assert.ok(runtimeCompletion.items.some((item) => item.label === 'str_contains'),
       'SoPHP auto mode did not use the configured PHP runtime for built-in completion.');
     console.log(`C1 configured runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
+  }
+  if (c1DebugPort) {
+    const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
+    console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
