@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P9 / F01–F14 已逐项按[最终验收审计](reports/p9-acceptance-audit-2026-09-23.md)复核：专项 Linux 自动性能、真实项目只读 Oracle、P8 协作和候选打包有证据；P0、P2–P7 与 P9 仍有开放工作，当前候选的跨平台/WSL Remote 人工矩阵尚缺，因此没有把任何 F 项误记为最终通过。后续先推进 P7 支持域和编辑器操作矩阵。
+
 2026-09-23 P9 局部方法体变更基准：10,000 文件完整索引后连续交替编辑单一方法体 200 次，逐次跟踪真实 parser 调用；每次只重解析该文件，`implementation` 层级变化，类型声明变化 0、callable 身份变化 1，更新 P95 0.59 ms。见 [原始 JSON](reports/local-implementation-change-10000-linux-x64-2026-09-23.json)。
 
 2026-09-23 P9 持久缓存体积门禁：基准脚本现统计实际缓存目录字节数，并按 testkit 冻结上限判断。1k/10k/50k 文件热缓存分别为 5.25/52.53/262.59 MiB，预算为 64/512/2,560 MiB；热恢复全部文件且重解析 0，Doctrine/Callable/派生失效及单条损坏恢复均通过。原始结果见 [1k](reports/persistent-cache-1000-linux-x64-2026-09-23.json)、[10k](reports/persistent-cache-10000-linux-x64-2026-09-23.json)、[50k](reports/persistent-cache-50000-linux-x64-2026-09-23.json)。
