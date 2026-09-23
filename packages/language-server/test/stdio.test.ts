@@ -4804,7 +4804,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await writeFile(join(nested, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(nested, 'src', 'Service.php'), '<?php namespace App; class Service { public function nestedOnly(): void {} }');
       const uri = pathToFileURL(join(nested, 'src', 'Consumer.php')).toString();
-      const source = '<?php namespace App; function run(Service $service): void { $service->nested }';
+      const source = '<?php namespace App; function run(Service $service): void { $service->nestedOnly(); $service->nested }';
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 25, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
@@ -4817,8 +4817,21 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(nested));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 26, method: 'textDocument/completion', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf('nested') + 6 } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 26, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, source.lastIndexOf('nested') + 6) } }));
       expect((await output.waitFor((message) => message.id === 26)).result.map((item: { label: string }) => item.label)).toEqual(['nestedOnly']);
+      const nestedDeclarationUri = pathToFileURL(join(nested, 'src', 'Service.php')).toString();
+      const definitionPosition = lspPosition(source, source.indexOf('nestedOnly()') + 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(join(nested, 'composer.json')).toString(), type: 2 }],
+      } }));
+      for (let query = 0; query < 12; query += 1) {
+        const id = 27 + query;
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: {
+          textDocument: { uri }, position: definitionPosition,
+        } }));
+        expect((await output.waitFor((message) => message.id === id, 20_000)).result.map((location: { uri: string }) => location.uri))
+          .toEqual([nestedDeclarationUri]);
+      }
       const versionSource = '<?php namespace App; enum State { case Ready; } function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; }';
       for (const [index, projectRoot] of [root, nested].entries()) {
         const versionUri = pathToFileURL(join(projectRoot, 'src', 'Versioned.php')).toString();
