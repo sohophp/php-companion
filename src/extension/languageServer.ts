@@ -53,7 +53,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
   const folderPhpVersions = (): Array<{ uri: string; version: string }> => (vscode.workspace.workspaceFolders ?? []).map((folder) => {
     const requested = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion', 'auto');
-    return { uri: folder.uri.toString(), version: requested === 'auto' ? '8.5' : requested };
+    return { uri: folder.uri.toString(), version: requested === 'auto'
+      ? versions.stateForUri(folder.uri)?.resolution.target ?? '7.2' : requested };
   });
   const activation = languageServerActivationDecision();
   if (!activation.start) {
@@ -63,6 +64,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }
     return undefined;
   }
+  try { await versions.refresh(); }
+  catch (error) { output.warn(`Unable to resolve PHP versions before starting SoPHP: ${String(error)}`); }
 
   const serverOptions: ServerOptions = {
     run: {
@@ -123,7 +126,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     outputChannel: output,
     initializationOptions: () => ({
       phpVersion: folderPhpVersions()[0]?.version ?? (configuration.get<string>('phpVersion', 'auto') === 'auto'
-        ? '8.5' : configuration.get<string>('phpVersion', '8.5')),
+        ? '7.2' : configuration.get<string>('phpVersion', '7.2')),
       phpVersions: folderPhpVersions(),
       indexingMode: configuration.get<'off' | 'onDemand' | 'progressive' | 'experimental'>('indexing.mode', 'onDemand'),
       referenceMemoryBudgetMiB: configuration.get<number>('indexing.referenceMemoryBudgetMiB', 1536),
@@ -186,6 +189,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   }));
   let stopping = false;
   let versionRestartTimer: ReturnType<typeof setTimeout> | undefined;
+  let versionSignature = JSON.stringify(folderPhpVersions());
   const scheduleVersionRestart = (): void => {
     if (stopping) return;
     if (versionRestartTimer) clearTimeout(versionRestartTimer);
@@ -244,6 +248,14 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       output.warn(`Unable to update PHP extension availability: ${String(error)}`);
     });
   };
+  const updateVersionState = (): void => {
+    updatePhpExtensionAvailability();
+    const nextSignature = JSON.stringify(folderPhpVersions());
+    if (nextSignature !== versionSignature) {
+      versionSignature = nextSignature;
+      scheduleVersionRestart();
+    }
+  };
   let frameworkSnapshotTimer: ReturnType<typeof setTimeout> | undefined;
   const updateFrameworkDocumentSnapshots = (): void => {
     if (stopping) return;
@@ -257,19 +269,20 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   };
   context.subscriptions.push(
     integrations.onDidChange(updateIntegrationProviders),
-    versions.onDidChangeState(updatePhpExtensionAvailability),
+    versions.onDidChangeState(updateVersionState),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('symfonyLsp.runtimeIndexing') || event.affectsConfiguration('phpCompanion.symfony.environment')) updateRouteProviders();
       if (event.affectsConfiguration('phpCompanion.symfony.winstarRoutes.enabled')) updateBundledRouteProviders();
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
       if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
-        void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
-        if (event.affectsConfiguration('phpCompanion.phpVersion')) scheduleVersionRestart();
+        void versions.refresh().then(scheduleVersionRestart).catch((error: unknown) =>
+          output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
       }
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
-      void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP folders: ${String(error)}`));
-      updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability(); scheduleVersionRestart();
+      void versions.refresh().then(scheduleVersionRestart).catch((error: unknown) =>
+        output.warn(`Unable to refresh PHP folders: ${String(error)}`));
+      updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability();
     }),
     vscode.extensions.onDidChange(() => { updateRouteProviders(); updateBundledRouteProviders(); }),
     vscode.workspace.onDidOpenTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),

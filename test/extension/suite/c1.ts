@@ -312,7 +312,8 @@ export async function run(): Promise<void> {
     `SoPHP mixed references from the first Composer root: ${JSON.stringify(secondReferences.map((item) => ({
       uri: item.uri.toString(), line: item.range.start.line, character: item.range.start.character,
     })))}`);
-  if (targetPhpVersion) {
+  {
+    const firstTargetPhpVersion = targetPhpVersion ?? '7.2';
     const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
     const versionSource = `<?php namespace App\\C1;
 enum C1State { case Ready; }
@@ -320,21 +321,21 @@ function choose(int $value): int { return match ($value) { 1 => 1, default => 0 
 function consume(): void { (void) choose(1); }`;
     await vscode.workspace.fs.writeFile(versionUri, Buffer.from(versionSource));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(versionUri));
-    const expected = targetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
-      : targetPhpVersion === '8.1' ? ['(void) cast'] : [];
+    const expected = firstTargetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
+      : firstTargetPhpVersion === '8.1' ? ['(void) cast'] : [];
     const diagnostics = await waitForResult(
       () => Promise.resolve(vscode.languages.getDiagnostics(versionUri)),
       (result) => result.some((item) => item.code === 'php.type.filename')
         && expected.every((feature) => result.some((item) => item.code === 'php.version.unsupported' && item.message.includes(feature))),
-      `SoPHP did not publish the PHP ${targetPhpVersion} diagnostic set in VS Code.`,
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} diagnostic set in VS Code.`,
     );
     const versionMessages = diagnostics.filter((item) => item.code === 'php.version.unsupported').map((item) => item.message);
     for (const feature of expected) assert.ok(versionMessages.some((message) => message.includes(feature)),
-      `PHP ${targetPhpVersion} did not report unsupported ${feature}.`);
-    assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
-    assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
-    const secondTargetPhpVersion = targetPhpVersion === '7.2' ? '8.5' : '7.2';
-    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).get('phpVersion'), secondTargetPhpVersion);
+      `PHP ${firstTargetPhpVersion} did not report unsupported ${feature}.`);
+    assert.strictEqual(versionMessages.length, expected.length, `PHP ${firstTargetPhpVersion} returned unexpected version diagnostics.`);
+    assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${firstTargetPhpVersion} reported a parser error for the version fixture.`);
+    const secondTargetPhpVersion = targetPhpVersion ? targetPhpVersion === '7.2' ? '8.5' : '7.2' : '8.5';
+    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).get('phpVersion'), targetPhpVersion ? secondTargetPhpVersion : 'auto');
     const secondVersionUri = vscode.Uri.joinPath(secondFolder, 'Versioned.php');
     await vscode.workspace.fs.writeFile(secondVersionUri, Buffer.from(versionSource));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(secondVersionUri));
@@ -349,6 +350,32 @@ function consume(): void { (void) choose(1); }`;
       'SoPHP mixed PHP version diagnostics between Composer roots.');
     assert.ok(!secondDiagnostics.some((item) => item.code === 'php.syntax'),
       `PHP ${secondTargetPhpVersion} reported a parser error for the second-root version fixture.`);
+    if (!targetPhpVersion) {
+      const autoBuiltinSource = '<?php namespace App\\C1; class AutoBuiltinProbe {} function probe(): void { str_con }';
+      for (const [targetFolder, expectedAvailable] of [[folder, false], [secondFolder, true]] as const) {
+        const autoBuiltinUri = vscode.Uri.joinPath(targetFolder, 'AutoBuiltin.php');
+        await vscode.workspace.fs.writeFile(autoBuiltinUri, Buffer.from(autoBuiltinSource));
+        const autoBuiltinDocument = await vscode.workspace.openTextDocument(autoBuiltinUri);
+        await vscode.window.showTextDocument(autoBuiltinDocument);
+        await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(autoBuiltinUri)),
+          (result) => result.some((item) => item.code === 'php.type.filename'),
+          'SoPHP did not process the auto-version builtin fixture.');
+        const autoBuiltinCompletion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+          autoBuiltinUri, autoBuiltinDocument.positionAt(autoBuiltinSource.indexOf('str_con') + 'str_con'.length));
+        assert.strictEqual(autoBuiltinCompletion.items.some((item) => item.label === 'str_contains'), expectedAvailable,
+          'SoPHP used the wrong Composer auto version for built-in completion.');
+      }
+      const secondComposerUri = vscode.Uri.joinPath(secondWorkspace.uri, 'composer.json');
+      const secondComposer = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(secondComposerUri)).toString('utf8')) as {
+        config: { platform: { php: string } };
+      };
+      secondComposer.config.platform.php = '8.1.0';
+      await vscode.workspace.fs.writeFile(secondComposerUri, Buffer.from(JSON.stringify(secondComposer, null, 2)));
+      await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(secondVersionUri)),
+        (result) => result.filter((item) => item.code === 'php.version.unsupported').length === 1
+          && result.some((item) => item.code === 'php.version.unsupported' && item.message.includes('(void) cast')),
+        'SoPHP kept the old auto PHP version after a Composer platform change.');
+    }
     const changedSecondVersion = secondTargetPhpVersion === '7.2' ? '8.1' : '7.2';
     const changedSecondExpected = changedSecondVersion === '7.2' ? ['match expression', 'enum', '(void) cast'] : ['(void) cast'];
     await vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).update('phpVersion', changedSecondVersion,

@@ -25,6 +25,12 @@ async function main(): Promise<void> {
       const secondSettings = { ...settings };
       if (c1PhpVersion) secondSettings['phpCompanion.phpVersion'] = c1PhpVersion === '7.2' ? '8.5' : '7.2';
       await writeFile(secondSettingsPath, JSON.stringify(secondSettings, null, 2));
+      if (!c1PhpVersion) {
+        const secondComposerPath = join(secondFixture, 'composer.json');
+        const composer = JSON.parse(await readFile(secondComposerPath, 'utf8')) as Record<string, unknown>;
+        composer.config = { platform: { php: '8.5.0' } };
+        await writeFile(secondComposerPath, JSON.stringify(composer, null, 2));
+      }
     }
   }
 
