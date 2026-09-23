@@ -35,6 +35,17 @@ describe('PHP document analysis', () => {
     expect(unsupported?.message).toContain('需要 PHP 8.1 或更新版本');
   });
 
+  it('localizes parser and control-flow diagnostics while retaining codes and edit data', () => {
+    const source = '<?php namespace Wrong; class Sample {} function run(string $value = null): void { return; echo $value; }';
+    const document = TextDocument.create('file:///Sample.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '8.5', 'App', [], 'zh').diagnostics;
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.parameter.implicitly-nullable',
+      message: '从 PHP 8.4 起，隐式可空参数类型已弃用；请显式声明 null。', data: expect.objectContaining({ newType: '?string' }) }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.control-flow.unreachable', message: '此语句不可到达。' }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.namespace.psr4',
+      message: '命名空间 Wrong 与唯一的 Composer PSR-4 命名空间 App 不匹配。', data: { expectedNamespace: 'App' } }));
+  });
+
   it('returns exact UTF-16 document symbol positions', () => {
     const document = TextDocument.create('file:///Example.php', 'php', 1, '<?php\n// 😀\nnamespace App;\nclass Example {}');
     const result = analyzePhpDocument(document, parser);

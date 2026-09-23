@@ -22,4 +22,13 @@ describe('Language Server diagnostic localization', () => {
       .toBe('App\\Service::run 要求参数 $name 的类型为 string；已证明的实参类型为 int。');
     expect(diagnosticMessage('zh', 'duplicateNamedArgument', 'name')).toBe('命名实参 $name 被提供了多次。');
   });
+
+  it('preserves enum and declaration messages in English and translates the structured values', () => {
+    expect(diagnosticMessage('en', 'enumWrongValueType', 'App\\State::Open', 'int', 'string'))
+      .toBe('Case App\\State::Open has int value but enum backing type is string.');
+    expect(diagnosticMessage('zh', 'enumWrongValueType', 'App\\State::Open', 'int', 'string'))
+      .toBe('Case App\\State::Open 的值类型为 int，但 Enum 的支持值类型为 string。');
+    expect(diagnosticMessage('en', 'duplicateDeclaration', 'method')).toBe('Duplicate method declaration.');
+    expect(diagnosticMessage('zh', 'duplicateDeclaration', '方法')).toBe('重复的方法声明。');
+  });
 });

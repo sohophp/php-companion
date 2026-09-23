@@ -2,7 +2,7 @@ import type { ParsedParameter, PhpSyntaxParser, SourceRange } from '@php-compani
 import { DiagnosticSeverity, SymbolKind, type Diagnostic, type DocumentSymbol, type Range } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { invalidConstantExpressionCallables, isSyntaxAvailable, unsupportedSyntax, type SupportedPhpVersion } from '@php-companion/language-spec';
-import { diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
+import { diagnosticMessage, type DiagnosticLanguage, type DiagnosticMessageKey } from './diagnosticMessages.js';
 
 export interface PhpDocumentAnalysis {
   diagnostics: Diagnostic[];
@@ -718,22 +718,19 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       message: diagnosticMessage(language, 'version', feature.feature, feature.minimumVersion, targetVersion),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.5')) {
-      const messages = {
-        arrow: 'Arrow functions cannot be used in constant expressions because they implicitly capture variables.',
-        'non-static': 'Closures in constant expressions must be static.',
-        capture: 'Closures in constant expressions cannot capture variables.',
-        'dynamic-first-class': 'First-class callables in constant expressions must directly name a function or static method.',
+      const messageKeys: Record<'arrow' | 'non-static' | 'capture' | 'dynamic-first-class', DiagnosticMessageKey> = {
+        arrow: 'constantArrow', 'non-static': 'constantNonStatic', capture: 'constantCapture', 'dynamic-first-class': 'constantDynamicCallable',
       } as const;
       diagnostics.push(...invalidConstantExpressionCallables(parsed.tree.rootNode).map((item): Diagnostic => ({
         range: toRange(document, item), severity: DiagnosticSeverity.Error,
-        code: 'php.constant-expression.invalid-callable', source: 'PHP Companion', message: messages[item.reason],
+        code: 'php.constant-expression.invalid-callable', source: 'PHP Companion', message: diagnosticMessage(language, messageKeys[item.reason]),
       })));
     }
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.4')) {
       diagnostics.push(...implicitlyNullableParameters(parsed.tree.rootNode).map((parameter): Diagnostic => ({
         range: toRange(document, parameter), severity: DiagnosticSeverity.Warning,
         code: 'php.parameter.implicitly-nullable', source: 'PHP Companion',
-        message: 'Implicitly nullable parameter types are deprecated in PHP 8.4; declare null explicitly.',
+        message: diagnosticMessage(language, 'implicitlyNullable'),
         data: { typeStart: parameter.start, typeEnd: parameter.end, newType: parameter.newType },
       })));
       diagnostics.push(...invalidAbstractPropertyDeclarations(parsed, source).map((item): Diagnostic => ({
@@ -744,19 +741,19 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
     }
     if (effectiveErrors.length === 0) diagnostics.push(...unreachableRanges(parsed.tree.rootNode, terminatingCalls).map((range): Diagnostic => ({
       range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.control-flow.unreachable', source: 'PHP Companion',
-      message: 'This statement is unreachable.',
+      message: diagnosticMessage(language, 'unreachable'),
     })));
     const fallthroughCallables = effectiveErrors.length === 0 ? callableFallthroughRanges(parsed, terminatingCalls) : [];
     if (isSyntaxAvailable(targetVersion, '8.1')) {
       diagnostics.push(...fallthroughCallables.filter((item) => item.nativeReturnType.trim().toLowerCase() === 'never').map((range): Diagnostic => ({
         range: toRange(document, range), severity: DiagnosticSeverity.Error, code: 'php.never.fallthrough', source: 'PHP Companion',
-        message: 'A function declared never cannot complete normally.',
+        message: diagnosticMessage(language, 'neverFallthrough'),
       })));
     }
     diagnostics.push(...fallthroughCallables.filter((item) => !['never', 'void'].includes(item.nativeReturnType.trim().toLowerCase()))
       .map((item): Diagnostic => ({
         range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.return.missing', source: 'PHP Companion',
-        message: `${item.fqcn} can complete without returning a value of type ${item.nativeReturnType}.`,
+        message: diagnosticMessage(language, 'returnMissing', item.fqcn, item.nativeReturnType),
       })));
     if (effectiveErrors.length === 0) diagnostics.push(...invalidNativeTypeDeclarations(parsed.tree.rootNode, targetVersion).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error,
@@ -764,24 +761,24 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         ? 'php.type.redundant-declaration' : 'php.type.invalid-declaration',
       source: 'PHP Companion',
       message: item.reason === 'standalone'
-        ? `Type ${item.type} must be used as a standalone type.`
+        ? diagnosticMessage(language, 'typeStandalone', item.type)
         : item.reason === 'return-only'
-          ? `Type ${item.type} is return-only and cannot be used for a parameter.`
+          ? diagnosticMessage(language, 'typeReturnOnly', item.type)
           : item.reason === 'property-forbidden'
-            ? `Type ${item.type} cannot be used for a property.`
+            ? diagnosticMessage(language, 'typePropertyForbidden', item.type)
             : item.reason === 'duplicate'
-              ? `Type ${item.type} is declared more than once.`
+              ? diagnosticMessage(language, 'typeDuplicate', item.type)
               : item.reason === 'bool-redundant'
-                ? `Type ${item.type} is redundant when bool is declared.`
+                ? diagnosticMessage(language, 'typeBoolRedundant', item.type)
                 : item.reason === 'boolean-literals'
-                  ? 'Types true and false cannot be combined; use bool.'
+                  ? diagnosticMessage(language, 'typeBooleanLiterals')
                   : item.reason === 'iterable-array'
-                    ? 'Type array is redundant when iterable is declared.'
+                    ? diagnosticMessage(language, 'typeIterableArray')
                     : item.reason === 'object-class'
-                      ? `Class type ${item.type} is redundant when object is declared.`
+                      ? diagnosticMessage(language, 'typeObjectClass', item.type)
                       : item.reason === 'iterable-traversable'
-                        ? 'Type \\Traversable is redundant when iterable is declared.'
-                        : `Type ${item.type} cannot be part of an intersection type.`,
+                        ? diagnosticMessage(language, 'typeIterableTraversable')
+                        : diagnosticMessage(language, 'typeInvalidIntersection', item.type),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.1')) {
       const declarations = new Map(parsed.declarations.filter((item) => item.kind === 'class').map((item) => [item.fqcn, item]));
@@ -827,8 +824,8 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
     if (effectiveErrors.length === 0) diagnostics.push(...invalidRelativeScopes(parsed, source).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.type.invalid-relative-scope', source: 'PHP Companion',
       message: item.reason === 'outside-scope'
-        ? `Cannot use ${item.type} outside a class, interface, trait, or enum scope.`
-        : `Cannot use parent in ${item.container} because it has no parent type.`,
+        ? diagnosticMessage(language, 'relativeOutside', item.type)
+        : diagnosticMessage(language, 'relativeNoParent', item.container!),
     })));
     if (effectiveErrors.length === 0) diagnostics.push(...invalidAbstractMethodDeclarations(parsed).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error,
@@ -839,12 +836,12 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       diagnostics.push(...[...enumProperties.values()].sort((left, right) => left.start - right.start).map((property): Diagnostic => ({
         range: toRange(document, property), severity: DiagnosticSeverity.Error,
         code: 'php.enum.invalid-member', source: 'PHP Companion',
-        message: `Enum ${property.containerFqcn} cannot declare property $${property.name}.`,
+        message: diagnosticMessage(language, 'enumProperty', property.containerFqcn!, property.name),
       })));
       diagnostics.push(...parsed.callables.filter(isForbiddenEnumMagicMethod).map((callable): Diagnostic => ({
         range: toRange(document, callable), severity: DiagnosticSeverity.Error,
         code: 'php.enum.invalid-member', source: 'PHP Companion',
-        message: `Enum ${callable.containerFqcn} cannot include magic method ${callable.name}.`,
+        message: diagnosticMessage(language, 'enumMagicMethod', callable.containerFqcn!, callable.name),
       })));
       diagnostics.push(...parsed.callables.filter((callable) => callable.kind === 'method' && callable.containerFqcn !== undefined
         && enumFqcns.has(callable.containerFqcn) && (callable.name.toLowerCase() === 'cases'
@@ -852,7 +849,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
             && ['from', 'tryfrom'].includes(callable.name.toLowerCase())))).map((callable): Diagnostic => ({
         range: toRange(document, callable), severity: DiagnosticSeverity.Error,
         code: 'php.enum.invalid-member', source: 'PHP Companion',
-        message: `Enum ${callable.containerFqcn} cannot redeclare synthesized method ${callable.name}.`,
+        message: diagnosticMessage(language, 'enumSynthesizedMethod', callable.containerFqcn!, callable.name),
       })));
       const literalKind = (value: string): 'string' | 'int' | 'float' | 'bool' | 'null' | undefined => {
         const text = value.trim();
@@ -868,16 +865,16 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         for (const enumCase of parsed.constants.filter((item) => item.kind === 'enum-case' && item.containerFqcn === declaration.fqcn)) {
           let message: string | undefined;
           if (!declaration.enumBackingType && enumCase.value !== undefined) {
-            message = `Case ${enumCase.fqcn} of a non-backed enum must not have a value.`;
+            message = diagnosticMessage(language, 'enumNonBackedValue', enumCase.fqcn);
           } else if (declaration.enumBackingType && enumCase.value === undefined) {
-            message = `Case ${enumCase.fqcn} of a backed enum must have a value.`;
+            message = diagnosticMessage(language, 'enumBackedMissingValue', enumCase.fqcn);
           } else if (declaration.enumBackingType && enumCase.value !== undefined) {
             const kind = literalKind(enumCase.value);
             if (kind && kind !== declaration.enumBackingType) {
-              message = `Case ${enumCase.fqcn} has ${kind} value but enum backing type is ${declaration.enumBackingType}.`;
+              message = diagnosticMessage(language, 'enumWrongValueType', enumCase.fqcn, kind, declaration.enumBackingType);
             } else if (kind) {
               const identity = `${kind}:${enumCase.value.trim()}`; const previous = seenValues.get(identity);
-              if (previous) message = `Case ${enumCase.fqcn} duplicates the backing value of ${previous}.`;
+              if (previous) message = diagnosticMessage(language, 'enumDuplicateValue', enumCase.fqcn, previous);
               else seenValues.set(identity, enumCase.fqcn);
             }
           }
@@ -892,7 +889,10 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       const seen = new Set<string>();
       return items.flatMap((item) => {
         const identity = key(item); if (!seen.has(identity)) { seen.add(identity); return []; }
-        return [{ range: toRange(document, item), severity: DiagnosticSeverity.Error, code, source: 'PHP Companion', message: `Duplicate ${label} declaration.` }];
+        const localizedLabel = language === 'zh' ? ({ type: '类型', function: '函数', method: '方法', property: '属性',
+          'namespace constant': '命名空间常量', 'class constant': '类常量' } as Record<string, string>)[label] ?? label : label;
+        return [{ range: toRange(document, item), severity: DiagnosticSeverity.Error, code, source: 'PHP Companion',
+          message: diagnosticMessage(language, 'duplicateDeclaration', localizedLabel) }];
       });
     };
     diagnostics.push(...duplicateDiagnostics(parsed.declarations.filter((item) => !item.anonymous), (item) => item.fqcn.toLowerCase(), 'php.duplicate.type', 'type'));
@@ -979,7 +979,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       return [{
         range: toRange(document, callable), severity: DiagnosticSeverity.Warning,
         code: 'php.method.magic-visibility', source: 'PHP Companion',
-        message: `Magic method ${callable.fqcn} must have public visibility.`,
+        message: diagnosticMessage(language, 'magicVisibility', callable.fqcn),
       }];
     }));
     const namedDeclarations = parsed.declarations.filter((item) => !item.anonymous);
@@ -991,7 +991,8 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         : namedDeclarations[0];
       if (range) diagnostics.push({
         range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.namespace.psr4', source: 'PHP Companion',
-        message: `Namespace ${namespaces[0] || '(global)'} does not match the unique Composer PSR-4 namespace ${expectedNamespace || '(global)'}.`,
+        message: diagnosticMessage(language, 'namespaceMismatch', namespaces[0] || (language === 'zh' ? '全局' : '(global)'),
+          expectedNamespace || (language === 'zh' ? '全局' : '(global)')),
         data: { expectedNamespace },
       });
     }

@@ -34,6 +34,11 @@ async function verifyLocalizedDiagnostics(workspace: vscode.WorkspaceFolder): Pr
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(memberUri));
   await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(memberUri).some((item) => item.code === 'php.argument.missing-required'
     && item.message.includes('缺少必需参数'))), 'Packaged Language Server did not publish a localized argument diagnostic', 30_000, 100);
+  const flowUri = vscode.Uri.joinPath(workspace.uri, 'src', 'FlowDiagnostic.php');
+  await vscode.workspace.fs.writeFile(flowUri, Buffer.from('<?php\nclass FlowDiagnostic { public function done(string $value = null): void { return; echo $value; } }\n'));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(flowUri));
+  await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(flowUri).some((item) => item.code === 'php.control-flow.unreachable'
+    && item.message === '此语句不可到达。')), 'Packaged Language Server did not publish a localized control-flow diagnostic', 30_000, 100);
 }
 
 async function verifyLegacyProfileSettings(workspace: vscode.WorkspaceFolder): Promise<void> {
