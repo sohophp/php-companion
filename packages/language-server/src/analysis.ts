@@ -453,7 +453,7 @@ interface InvalidAbstractPropertyDeclaration extends SourceRange {
   violations: string[];
 }
 
-function invalidAbstractPropertyDeclarations(parsed: ReturnType<PhpSyntaxParser['parse']>, source: string): InvalidAbstractPropertyDeclaration[] {
+function invalidAbstractPropertyDeclarations(parsed: ReturnType<PhpSyntaxParser['parse']>, source: string, language: DiagnosticLanguage): InvalidAbstractPropertyDeclaration[] {
   return parsed.properties.flatMap((property): InvalidAbstractPropertyDeclaration[] => {
     if (property.promoted || !property.hooks?.length) return [];
     const owner = parsed.declarations.find((item) => item.fqcn.toLowerCase() === property.containerFqcn.toLowerCase());
@@ -461,19 +461,19 @@ function invalidAbstractPropertyDeclarations(parsed: ReturnType<PhpSyntaxParser[
     const ownerAbstract = owner.kind === 'interface' || /\babstract\b/i.test(source.slice(owner.declarationStart, owner.start));
     const abstractHooks = property.hooks.filter((hook) => hook.abstract);
     const violations: string[] = [];
-    if (property.abstract && owner.kind === 'class' && !ownerAbstract) violations.push('a class with abstract properties must be declared abstract');
-    if (property.abstract && property.visibility === 'private') violations.push('abstract properties cannot be private');
-    if (property.abstract && property.final) violations.push('abstract properties cannot be final');
-    if (property.abstract && abstractHooks.length === 0) violations.push('abstract properties must specify at least one abstract hook');
-    if (!property.abstract && abstractHooks.length > 0) violations.push('properties with bodyless hooks must be declared abstract');
-    if (owner.kind === 'interface' && property.visibility !== 'public') violations.push('interface properties must be public');
-    if (owner.kind === 'interface' && property.hooks.some((hook) => !hook.abstract)) violations.push('interface property hooks cannot contain a body');
-    if (abstractHooks.some((hook) => hook.final)) violations.push('abstract property hooks cannot be final');
+    if (property.abstract && owner.kind === 'class' && !ownerAbstract) violations.push(diagnosticMessage(language, 'abstractClassProperty'));
+    if (property.abstract && property.visibility === 'private') violations.push(diagnosticMessage(language, 'abstractPropertyPrivate'));
+    if (property.abstract && property.final) violations.push(diagnosticMessage(language, 'abstractPropertyFinal'));
+    if (property.abstract && abstractHooks.length === 0) violations.push(diagnosticMessage(language, 'abstractPropertyHookRequired'));
+    if (!property.abstract && abstractHooks.length > 0) violations.push(diagnosticMessage(language, 'bodylessPropertyAbstract'));
+    if (owner.kind === 'interface' && property.visibility !== 'public') violations.push(diagnosticMessage(language, 'interfacePropertyPublic'));
+    if (owner.kind === 'interface' && property.hooks.some((hook) => !hook.abstract)) violations.push(diagnosticMessage(language, 'interfacePropertyHookBody'));
+    if (abstractHooks.some((hook) => hook.final)) violations.push(diagnosticMessage(language, 'abstractPropertyHookFinal'));
     return violations.length ? [{ start: property.start, end: property.end, fqcn: property.fqcn, violations }] : [];
   });
 }
 
-function invalidAbstractMethodDeclarations(parsed: ReturnType<PhpSyntaxParser['parse']>): InvalidAbstractMethodDeclaration[] {
+function invalidAbstractMethodDeclarations(parsed: ReturnType<PhpSyntaxParser['parse']>, language: DiagnosticLanguage): InvalidAbstractMethodDeclaration[] {
   const invalid: InvalidAbstractMethodDeclaration[] = [];
   const pending = [parsed.tree.rootNode]; let visited = 0;
   while (pending.length > 0 && visited < 100_000) {
@@ -491,14 +491,14 @@ function invalidAbstractMethodDeclarations(parsed: ReturnType<PhpSyntaxParser['p
         const body = node.childForFieldName('body');
         const containerAbstract = container.namedChildren.some((child) => child.type === 'abstract_modifier');
         const violations: string[] = [];
-        if (body && abstract) violations.push('abstract methods cannot contain a body');
-        else if (body && container.type === 'interface_declaration') violations.push('interface methods cannot contain a body');
-        if (abstract && container.type === 'class_declaration' && !containerAbstract) violations.push('a class with abstract methods must be declared abstract');
-        if (!body && !abstract && container.type !== 'interface_declaration') violations.push('non-abstract methods must contain a body');
-        if (abstract && privateMethod && container.type !== 'trait_declaration') violations.push('abstract methods cannot be private outside a trait');
-        if (finalMethod && container.type === 'interface_declaration') violations.push('interface methods cannot be final');
-        else if (finalMethod && abstract) violations.push('abstract methods cannot be final');
-        if (container.type === 'interface_declaration' && visibility !== 'public') violations.push('interface methods must be public');
+        if (body && abstract) violations.push(diagnosticMessage(language, 'abstractMethodBody'));
+        else if (body && container.type === 'interface_declaration') violations.push(diagnosticMessage(language, 'interfaceMethodBody'));
+        if (abstract && container.type === 'class_declaration' && !containerAbstract) violations.push(diagnosticMessage(language, 'abstractClassMethod'));
+        if (!body && !abstract && container.type !== 'interface_declaration') violations.push(diagnosticMessage(language, 'nonAbstractMethodBody'));
+        if (abstract && privateMethod && container.type !== 'trait_declaration') violations.push(diagnosticMessage(language, 'abstractMethodPrivate'));
+        if (finalMethod && container.type === 'interface_declaration') violations.push(diagnosticMessage(language, 'interfaceMethodFinal'));
+        else if (finalMethod && abstract) violations.push(diagnosticMessage(language, 'abstractMethodFinal'));
+        if (container.type === 'interface_declaration' && visibility !== 'public') violations.push(diagnosticMessage(language, 'interfaceMethodPublic'));
         if (violations.length > 0) invalid.push({ start: name.startIndex, end: name.endIndex, fqcn: callable.fqcn, violations });
       }
     }
@@ -733,10 +733,10 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         message: diagnosticMessage(language, 'implicitlyNullable'),
         data: { typeStart: parameter.start, typeEnd: parameter.end, newType: parameter.newType },
       })));
-      diagnostics.push(...invalidAbstractPropertyDeclarations(parsed, source).map((item): Diagnostic => ({
+      diagnostics.push(...invalidAbstractPropertyDeclarations(parsed, source, language).map((item): Diagnostic => ({
         range: toRange(document, item), severity: DiagnosticSeverity.Error,
         code: 'php.property.invalid-abstract-declaration', source: 'PHP Companion',
-        message: `Invalid declaration of ${item.fqcn}: ${item.violations.join('; ')}.`,
+        message: diagnosticMessage(language, 'invalidDeclaration', item.fqcn, item.violations.join('; ')),
       })));
     }
     if (effectiveErrors.length === 0) diagnostics.push(...unreachableRanges(parsed.tree.rootNode, terminatingCalls).map((range): Diagnostic => ({
@@ -788,16 +788,16 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         const readonlyClassProperty = owner.readonlyClass && isSyntaxAvailable(targetVersion, '8.2');
         if (!explicitlyReadonly && !readonlyClassProperty) return [];
         const violations = [
-          property.type === undefined ? 'must have a type' : undefined,
-          property.static ? 'cannot be static' : undefined,
-          property.defaultValue !== undefined && !property.promoted ? 'cannot have a default value' : undefined,
-          isSyntaxAvailable(targetVersion, '8.4') && property.hooks?.length ? 'cannot declare hooks' : undefined,
+          property.type === undefined ? diagnosticMessage(language, 'readonlyTypeRequired') : undefined,
+          property.static ? diagnosticMessage(language, 'readonlyStatic') : undefined,
+          property.defaultValue !== undefined && !property.promoted ? diagnosticMessage(language, 'readonlyDefault') : undefined,
+          isSyntaxAvailable(targetVersion, '8.4') && property.hooks?.length ? diagnosticMessage(language, 'readonlyHooks') : undefined,
         ].filter((item): item is string => item !== undefined);
         if (violations.length === 0) return [];
         return [{
           range: toRange(document, property), severity: DiagnosticSeverity.Error,
           code: 'php.property.invalid-readonly-declaration', source: 'PHP Companion',
-          message: `Readonly property ${property.fqcn} ${violations.join('; ')}.`,
+          message: diagnosticMessage(language, 'readonlyPropertyInvalid', property.fqcn, violations.join('; ')),
         }];
       }));
     }
@@ -807,13 +807,13 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         const get = property.hooks.find((hook) => hook.kind === 'get');
         const set = property.hooks.find((hook) => hook.kind === 'set');
         const violation = property.static
-          ? `Static property ${property.fqcn} cannot declare hooks.`
+          ? diagnosticMessage(language, 'hookStatic', property.fqcn)
           : property.writeVisibility && property.virtual
-            ? `Virtual property ${property.fqcn} cannot specify asymmetric write visibility.`
+            ? diagnosticMessage(language, 'hookVirtualVisibility', property.fqcn)
             : property.virtual && property.defaultValue !== undefined
-              ? `Virtual property ${property.fqcn} cannot specify a default value.`
+              ? diagnosticMessage(language, 'hookVirtualDefault', property.fqcn)
               : property.virtual === false && get?.byReference && set
-                ? `Backed property ${property.fqcn} cannot combine a by-reference get hook with a set hook.`
+                ? diagnosticMessage(language, 'hookBackedReference', property.fqcn)
                 : undefined;
         return violation ? [{
           range: toRange(document, property), severity: DiagnosticSeverity.Error,
@@ -827,10 +827,10 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         ? diagnosticMessage(language, 'relativeOutside', item.type)
         : diagnosticMessage(language, 'relativeNoParent', item.container!),
     })));
-    if (effectiveErrors.length === 0) diagnostics.push(...invalidAbstractMethodDeclarations(parsed).map((item): Diagnostic => ({
+    if (effectiveErrors.length === 0) diagnostics.push(...invalidAbstractMethodDeclarations(parsed, language).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error,
       code: 'php.method.invalid-abstract-declaration', source: 'PHP Companion',
-      message: `Invalid declaration of ${item.fqcn}: ${item.violations.join('; ')}.`,
+      message: diagnosticMessage(language, 'invalidDeclaration', item.fqcn, item.violations.join('; ')),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.1')) {
       diagnostics.push(...[...enumProperties.values()].sort((left, right) => left.start - right.start).map((property): Diagnostic => ({
@@ -906,15 +906,16 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       const name = callable.name.toLowerCase();
       if (name === '__construct' || name === '__destruct') {
         const violations = [
-          callable.static ? 'be static' : undefined,
-          callable.nativeReturnType ? 'declare a return type' : undefined,
-          name === '__destruct' && callable.parameters.length > 0 ? 'accept parameters' : undefined,
+          callable.static ? diagnosticMessage(language, 'magicBeStatic') : undefined,
+          callable.nativeReturnType ? diagnosticMessage(language, 'magicReturnDeclaration') : undefined,
+          name === '__destruct' && callable.parameters.length > 0 ? diagnosticMessage(language, 'magicAcceptParameters') : undefined,
         ].filter((item): item is string => Boolean(item));
         if (violations.length === 0) return [];
-        const joined = violations.length === 1 ? violations[0]! : `${violations.slice(0, -1).join(', ')} or ${violations.at(-1)}`;
+        const joined = language === 'zh' ? violations.join('、')
+          : violations.length === 1 ? violations[0]! : `${violations.slice(0, -1).join(', ')} or ${violations.at(-1)}`;
         return [{
           range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'PHP Companion',
-          message: `${name === '__construct' ? 'Constructor' : 'Destructor'} ${callable.fqcn} cannot ${joined}.`,
+          message: diagnosticMessage(language, name === '__construct' ? 'constructorInvalid' : 'destructorInvalid', callable.fqcn, joined),
         }];
       }
       const contracts: Record<string, {
@@ -939,17 +940,18 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       const contract = contracts[name]; if (!contract) return [];
       if (contract.minimumVersion && !isSyntaxAvailable(targetVersion, contract.minimumVersion)) return [];
       const violations: string[] = [];
-      if (callable.parameters.length !== contract.arity) violations.push(`must accept exactly ${contract.arity} parameter${contract.arity === 1 ? '' : 's'}`);
-      if (callable.parameters.some((parameter) => parameter.variadic)) violations.push('cannot use variadic parameters');
-      if (callable.parameters.some((parameter) => parameter.byReference)) violations.push('cannot take parameters by reference');
-      if (contract.static === true && !callable.static) violations.push('must be static');
-      if (contract.static === false && callable.static) violations.push('cannot be static');
+      if (callable.parameters.length !== contract.arity) violations.push(diagnosticMessage(language,
+        contract.arity === 1 ? 'magicExactParameter' : 'magicExactParameters', String(contract.arity)));
+      if (callable.parameters.some((parameter) => parameter.variadic)) violations.push(diagnosticMessage(language, 'magicVariadic'));
+      if (callable.parameters.some((parameter) => parameter.byReference)) violations.push(diagnosticMessage(language, 'magicReferenceParameter'));
+      if (contract.static === true && !callable.static) violations.push(diagnosticMessage(language, 'magicMustStatic'));
+      if (contract.static === false && callable.static) violations.push(diagnosticMessage(language, 'magicCannotStatic'));
       for (const [positionText, expected] of Object.entries(contract.parameterTypes ?? {})) {
         const position = Number(positionText); const actual = callable.parameters[position]?.nativeType?.toLowerCase().replaceAll(' ', '');
         if (!actual) continue;
         const alternatives = expected === 'array' ? ['array', 'iterable'] : ['string'];
         const acceptsExpected = actual === 'mixed' || alternatives.some((type) => new RegExp(`(^|[|?(])${type}(?=$|[|)&])`, 'u').test(actual));
-        if (!acceptsExpected) violations.push(`parameter ${position + 1} type must accept ${expected} when declared`);
+        if (!acceptsExpected) violations.push(diagnosticMessage(language, 'magicParameterType', String(position + 1), expected));
       }
       if (callable.nativeReturnType && contract.returnType) {
         const actual = callable.nativeReturnType.toLowerCase().replaceAll(' ', '');
@@ -957,12 +959,12 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
           || (actual === 'never' && isSyntaxAvailable(targetVersion, '8.1'))
           || (contract.returnType === 'bool' && ['true', 'false'].includes(actual))
           || (contract.returnType === '?array' && ['array', 'null', 'array|null', 'null|array'].includes(actual));
-        if (!valid) violations.push(`return type must be ${contract.returnType} or a compatible subtype when declared`);
+        if (!valid) violations.push(diagnosticMessage(language, 'magicReturnType', contract.returnType));
       }
       if (violations.length === 0) return [];
       return [{
         range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'PHP Companion',
-        message: `Magic method ${callable.fqcn} has an invalid signature: ${violations.join('; ')}.`,
+        message: diagnosticMessage(language, 'magicInvalid', callable.fqcn, violations.join('; ')),
       }];
     }));
     if (effectiveErrors.length === 0) diagnostics.push(...parsed.callables.flatMap((callable): Diagnostic[] => {

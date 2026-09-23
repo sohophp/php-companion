@@ -46,6 +46,27 @@ describe('PHP document analysis', () => {
       message: '命名空间 Wrong 与唯一的 Composer PSR-4 命名空间 App 不匹配。', data: { expectedNamespace: 'App' } }));
   });
 
+  it('localizes combined declaration violations from their individual conditions', () => {
+    const source = '<?php namespace App; class Invalid { public readonly int $value = 1; abstract private function pending(): void; }';
+    const document = TextDocument.create('file:///Invalid.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '8.5', undefined, [], 'zh').diagnostics;
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.property.invalid-readonly-declaration',
+      message: '只读属性 App\\Invalid::$value 存在以下问题：不能有默认值。' }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.method.invalid-abstract-declaration',
+      message: 'App\\Invalid::pending 的声明无效：包含抽象方法的类必须声明为 abstract; Trait 外的抽象方法不能为 private。' }));
+  });
+
+  it('localizes each part of an invalid magic-method signature', () => {
+    const source = '<?php namespace App; class Broken { public static function __construct(): void {} public function __clone(string $value): int {} }';
+    const document = TextDocument.create('file:///Broken.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '8.5', undefined, [], 'zh').diagnostics
+      .filter((item) => item.code === 'php.method.invalid-magic-signature');
+    expect(diagnostics.map((item) => item.message)).toEqual([
+      '构造方法 App\\Broken::__construct 不能为 static、声明返回类型。',
+      '魔术方法 App\\Broken::__clone 的签名无效：必须恰好接受 0 个参数; 若声明返回类型，必须为 void 或其兼容子类型。',
+    ]);
+  });
+
   it('returns exact UTF-16 document symbol positions', () => {
     const document = TextDocument.create('file:///Example.php', 'php', 1, '<?php\n// 😀\nnamespace App;\nclass Example {}');
     const result = analyzePhpDocument(document, parser);

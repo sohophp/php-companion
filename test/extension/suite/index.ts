@@ -39,6 +39,12 @@ async function verifyLocalizedDiagnostics(workspace: vscode.WorkspaceFolder): Pr
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(flowUri));
   await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(flowUri).some((item) => item.code === 'php.control-flow.unreachable'
     && item.message === '此语句不可到达。')), 'Packaged Language Server did not publish a localized control-flow diagnostic', 30_000, 100);
+  const declarationUri = vscode.Uri.joinPath(workspace.uri, 'src', 'InvalidDeclarations.php');
+  await vscode.workspace.fs.writeFile(declarationUri, Buffer.from('<?php\nclass InvalidDeclarations { public readonly int $value = 1; abstract private function pending(): void; }\n'));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(declarationUri));
+  await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(declarationUri).some((item) => item.code === 'php.method.invalid-abstract-declaration'
+    && item.message.includes('包含抽象方法的类必须声明为 abstract'))),
+  'Packaged Language Server did not publish a localized abstract-method diagnostic', 30_000, 100);
 }
 
 async function verifyLegacyProfileSettings(workspace: vscode.WorkspaceFolder): Promise<void> {
