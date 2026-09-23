@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1 多根异版本：扩展向语言服务器传递每根 PHP 版本，服务器按根选择内建符号、诊断、代码操作、框架 Provider 和缓存版本；运行中更改设置会重启服务器。真实 stdio 的 PHP 7.2/8.5 双根测试通过，隔离 Core 宿主 auto、7.2、8.1、8.5 四次通过，显式版本用例也验证第二根设置变更后的诊断更新。`auto` 的 Composer/运行时目标版本尚未传入服务器，真实建议弹窗与完整组合仍待验。见[报告](reports/c1-multiroot-versions-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-14、F04-HOST-03：两个独立 Composer 根目录使用相同 FQCN、不同签名；真实 stdio 和隔离 VS Code Core 宿主验证六项查询按根隔离，首根未保存类型切换不影响第二根。多根宿主暴露启动时未读取根目录 PHP 版本设置的问题；改用首根配置后，auto、PHP 7.2、8.1、8.5 四次宿主运行均退出码 0。不同根使用不同 PHP 目标版本、实际建议弹窗时间及完整组合仍待完成。见[报告](reports/c1-multiroot-2026-09-24.md)。
 
 2026-09-24 C1/F04-HOST-02：隔离 VS Code Core 宿主新增独立 Composer vendor 接口、项目实现及同名无关类。Completion、Hover、Signature Help、Definition、Implementation、References 在 auto、PHP 7.2、8.1、8.5 设置下均返回正确归属，四次串行宿主运行退出码 0；TypeScript 和 ESLint 通过。大型依赖、多根、建议弹窗显示时间及完整 Pack 组合仍待验。见[报告](reports/c1-vendor-host-2026-09-24.md)。

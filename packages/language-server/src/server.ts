@@ -130,6 +130,16 @@ const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
+const targetPhpVersionsByFolder = new Map<string, SupportedPhpVersion>();
+
+function phpVersionForRoot(root?: string): SupportedPhpVersion {
+  if (!root) return targetPhpVersion;
+  const folder = workspaceFolderRoots.filter((candidate) => pathWithin(candidate, root))
+    .sort((left, right) => right.length - left.length)[0];
+  return folder ? targetPhpVersionsByFolder.get(folder) ?? targetPhpVersion : targetPhpVersion;
+}
+
+function phpVersionForUri(uri: string): SupportedPhpVersion { return phpVersionForRoot(rootForUri(uri)); }
 let indexingMode: 'off' | 'onDemand' | 'progressive' | 'experimental' = 'experimental';
 let referenceMemoryBudgetMiB = 1536;
 let cacheDirectory: string | undefined;
@@ -275,7 +285,7 @@ function knownDisabledExtensions(value: unknown): ConfigurablePhpExtension[] {
   return [...new Set((Array.isArray(value) ? value : []).filter((item): item is ConfigurablePhpExtension => typeof item === 'string' && known.has(item)))].sort();
 }
 
-function detectedPhpRuntime(value: unknown): DetectedPhpRuntime | undefined {
+function detectedPhpRuntime(value: unknown, root: string): DetectedPhpRuntime | undefined {
   if (!value || typeof value !== 'object') return undefined;
   const candidate = value as Record<string, unknown>;
   const loadedExtensions = Array.isArray(candidate.loadedExtensions) && candidate.loadedExtensions.every((item) => typeof item === 'string')
@@ -286,7 +296,7 @@ function detectedPhpRuntime(value: unknown): DetectedPhpRuntime | undefined {
   const versionId = typeof candidate.versionId === 'number' ? candidate.versionId : undefined;
   const versionMatch = version ? /^(\d+)\.(\d+)\.(\d+)/.exec(version) : null;
   if (typeof candidate.executable !== 'string' || candidate.executable === '' || candidate.executable.length > 32_768
-    || !version || !versionMatch || version.length > 64 || !version.startsWith(`${targetPhpVersion}.`)
+    || !version || !versionMatch || version.length > 64 || !version.startsWith(`${phpVersionForRoot(root)}.`)
     || versionId === undefined || !Number.isSafeInteger(versionId) || versionId < 1
     || Math.floor(versionId / 10_000) !== Number(versionMatch[1])
     || Math.floor(versionId / 100) % 100 !== Number(versionMatch[2])
@@ -312,7 +322,7 @@ function setConfiguredExtensionAvailability(value: unknown): void {
     const candidate = entry as { uri?: unknown; disabledExtensions?: unknown; runtime?: unknown };
     const path = typeof candidate.uri === 'string' ? pathForUri(candidate.uri) : undefined;
     if (!path) return [];
-    const runtime = detectedPhpRuntime(candidate.runtime);
+    const runtime = detectedPhpRuntime(candidate.runtime, path);
     const loaded = new Set(runtime?.loadedExtensions ?? []);
     const runtimeMissingExtensions = runtime ? CONFIGURABLE_PHP_EXTENSIONS.filter((extension) => !loaded.has(extension)) : [];
     return [{ path, disabledExtensions: knownDisabledExtensions(candidate.disabledExtensions), runtimeMissingExtensions, ...(runtime ? { runtime } : {}) }];
@@ -388,9 +398,10 @@ async function refreshBuiltinForRoot(root: string): Promise<void> {
 
 function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
   const disabledExtensions = disabledExtensionsForRoot(root);
-  const signature = disabledExtensions.join(',');
+  const version = phpVersionForRoot(root);
+  const signature = `${version}:${disabledExtensions.join(',')}`;
   if (builtinExtensionSignatureByRoot.get(root) === signature) return;
-  workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(targetPhpVersion, { disabledExtensions }));
+  workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(version, { disabledExtensions }));
   builtinExtensionSignatureByRoot.set(root, signature);
 }
 
@@ -592,7 +603,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
   }
   const environment = symfonyEnvironmentForRoot(root);
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
-    generation: String(generation), phpVersion: targetPhpVersion,
+    generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(environment ? { environment } : {}),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) });
@@ -645,7 +656,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   if (onlyIfStale && current?.providerId === descriptor.providerId && current.inputSignature === inputSignature) return true;
   const providerStarted = Date.now();
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
-    generation: String(generation), phpVersion: targetPhpVersion,
+    generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
     ...(descriptor.requiresContainerServices ? { containerServices: services } : {}) });
@@ -706,7 +717,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); return false;
   }
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
-    generation: String(generation), phpVersion: targetPhpVersion,
+    generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
   if (!shouldContinue()) return false;
@@ -779,7 +790,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
     }
     const requestRevision = beginGenericSemanticProviderRequest(root, descriptor.providerId);
     const result = await runSemanticProvider(descriptor, {
-      rootUri: indexedUriForPath(root, root), rootPath: root, generation: String(generation), phpVersion: targetPhpVersion,
+      rootUri: indexedUriForPath(root, root), rootPath: root, generation: String(generation), phpVersion: phpVersionForRoot(root),
       ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
       ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
       ...(descriptor.requiresContainerServices ? { containerServices: symfonyServiceCatalog(root) } : {}),
@@ -1186,7 +1197,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory,
-      version: semanticIndexCacheVersion(targetPhpVersion),
+      version: semanticIndexCacheVersion(phpVersionForRoot(root)),
       restore: (payload, { uri, path }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
@@ -1376,6 +1387,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
   const version = document.version;
   const workspace = await semanticForUri(document.uri);
   const root = rootForUri(document.uri);
+  const targetPhpVersion = phpVersionForUri(document.uri);
   const semanticTerminators = root && completeRoots.has(root) && isSyntaxAvailable(targetPhpVersion, '8.1')
     ? workspace.neverReturningCalls(document.uri) : [];
   const syntaxParser = await parser();
@@ -2020,7 +2032,7 @@ function referenceLoadedSources(workspace: SemanticWorkspace): Array<{ uri: stri
     .sort((a, b) => a.uri.localeCompare(b.uri));
 }
 function referenceEnvironment(root: string, project: ComposerProject, workspace: SemanticWorkspace, engineIdentity: string): string {
-  return referenceSourceHash(JSON.stringify({ schema: 2, root, project, workspaceFolderLocations, engineIdentity, phpVersion: targetPhpVersion,
+  return referenceSourceHash(JSON.stringify({ schema: 2, root, project, workspaceFolderLocations, engineIdentity, phpVersion: phpVersionForRoot(root),
     indexLimits, disabledExtensions: disabledExtensionsForRoot(root), externalFacts: workspace.externalFactsIdentity(),
     semanticProviders, routeProviders, symfonyRouteProviders, symfonyEnvironment: symfonyEnvironmentForRoot(root),
     documents: documents.all().map((document) => [document.uri, referenceSourceHash(document.getText())]).sort() }));
@@ -2050,7 +2062,7 @@ function bundledReferenceProviderFiles(): string[] | undefined {
 }
 function referencePreProviderEnvironment(root: string, project: ComposerProject, engineIdentity: string): string {
   return referenceSourceHash(JSON.stringify({ schema: 1, root, project, workspaceFolderLocations, engineIdentity,
-    phpVersion: targetPhpVersion, indexLimits, disabledExtensions: disabledExtensionsForRoot(root),
+    phpVersion: phpVersionForRoot(root), indexLimits, disabledExtensions: disabledExtensionsForRoot(root),
     indexingMode, referenceRipgrepMode, experimentalReferenceClosure, symfonyEnvironment: symfonyEnvironmentForRoot(root),
     semanticProviders, routeProviders, symfonyRouteProviders,
     documents: documents.all().map((document) => [document.uri, referenceSourceHash(document.getText())]).sort() }));
@@ -2973,7 +2985,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
   clientDiagnosticLanguage = diagnosticLanguage(params.locale);
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; phpVersions?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'progressive' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2993,7 +3005,6 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   setConfiguredRouteProviders(initialization?.routeProviders);
   setBundledRouteProviders(initialization?.bundledRouteProviders);
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
-  setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
@@ -3012,6 +3023,16 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   workspaceFolderLocations = uris.flatMap((uri) => { const path = pathForUri(uri); return path ? [{ uri, path }] : []; });
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
+  targetPhpVersionsByFolder.clear();
+  if (Array.isArray(initialization?.phpVersions)) for (const entry of initialization.phpVersions) {
+    if (!entry || typeof entry !== 'object') continue;
+    const candidate = entry as { uri?: unknown; version?: unknown };
+    if (typeof candidate.uri !== 'string' || typeof candidate.version !== 'string'
+      || !(SUPPORTED_PHP_VERSIONS as readonly string[]).includes(candidate.version)) continue;
+    const folder = workspaceFolderLocations.find((location) => location.uri === candidate.uri);
+    if (folder) targetPhpVersionsByFolder.set(folder.path, candidate.version as SupportedPhpVersion);
+  }
+  setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   setFrameworkDocumentSnapshots(initialization?.frameworkDocumentSnapshots ?? { complete: true, documents: [] });
   // Build only the in-memory PHP builtins before accepting editor requests;
   // project sources remain on demand and do not start a reload-time index.
@@ -3135,7 +3156,7 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   }
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
     additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],
-    context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(targetPhpVersion), engineIdentity, project, indexLimits,
+    context: JSON.stringify({ schema: 1, engine: semanticIndexCacheVersion(phpVersionForRoot(root)), engineIdentity, project, indexLimits,
       disabledExtensions: disabledExtensionsForRoot(root), loaded, attempted,
       candidates: { key: candidates.key, reads: [...candidates.reads].sort(([left], [right]) => left.localeCompare(right)),
         skipped: [...candidates.skipped].sort(([left], [right]) => left.localeCompare(right)) } }), documents: buffers, shouldContinue: stable,
@@ -4165,7 +4186,7 @@ connection.onDocumentSymbol(async ({ textDocument }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || document.languageId !== 'php' || token.isCancellationRequested) return [];
   const syntaxParser = await parser();
-  return token.isCancellationRequested ? [] : analyzePhpDocument(document, syntaxParser, targetPhpVersion).symbols;
+  return token.isCancellationRequested ? [] : analyzePhpDocument(document, syntaxParser, phpVersionForUri(document.uri)).symbols;
 });
 
 connection.languages.semanticTokens.on(async ({ textDocument }, token) => {
@@ -4250,7 +4271,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     const cacheRevision = routeProviderCacheRevision;
     const generation = String(++routeProviderGeneration);
     const result = await runRouteProvider(descriptor, {
-      rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: targetPhpVersion,
+      rootUri: indexedUriForPath(root, root), rootPath: root, generation, phpVersion: phpVersionForRoot(root),
       ...(environment ? { environment } : {}), ...(snapshots.documents.length ? { documents: snapshots.documents } : {}),
     });
     if (cancelled()) return [];
@@ -5173,6 +5194,7 @@ connection.onCodeAction(async (params, token) => {
   const importSort = requestedImportSort === 'fqcn' ? 'fqcn' : 'grouped';
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const targetPhpVersion = phpVersionForUri(document.uri);
   const actions: CodeAction[] = [];
   const localWorkspace = await semanticForUri(document.uri);
   const diagnostic = context.diagnostics.find((item) => item.code === 'php.namespace.psr4');

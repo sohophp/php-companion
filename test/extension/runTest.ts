@@ -22,7 +22,9 @@ async function main(): Promise<void> {
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
     if (secondFixture) {
       const secondSettingsPath = join(secondFixture, '.vscode', 'settings.json');
-      await writeFile(secondSettingsPath, JSON.stringify(settings, null, 2));
+      const secondSettings = { ...settings };
+      if (c1PhpVersion) secondSettings['phpCompanion.phpVersion'] = c1PhpVersion === '7.2' ? '8.5' : '7.2';
+      await writeFile(secondSettingsPath, JSON.stringify(secondSettings, null, 2));
     }
   }
 

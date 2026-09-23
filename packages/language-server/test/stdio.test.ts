@@ -4135,7 +4135,9 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       };
       await request('initialize', { processId: null, capabilities: {}, workspaceFolders: roots.map((root, index) => ({
         uri: pathToFileURL(root).toString(), name: index === 0 ? 'first' : 'second',
-      })), initializationOptions: { indexingMode: 'onDemand' } });
+      })), initializationOptions: { indexingMode: 'onDemand', phpVersion: '7.2', phpVersions: roots.map((root, index) => ({
+        uri: pathToFileURL(root).toString(), version: index === 0 ? '7.2' : '8.5',
+      })) } });
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       const open = async (uri: string, source: string, version: number): Promise<void> => {
         server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -4145,6 +4147,26 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
           && message.params.uri === uri && message.params.version === version);
       };
       for (const fixture of fixtures) await open(fixture.uris.consumer, fixture.source.consumer, 1);
+      const versionedSource = '<?php namespace App; enum State { case Ready; } function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; } function consume(): void { (void) choose(1); }';
+      for (const [index, fixture] of fixtures.entries()) {
+        const uri = pathToFileURL(join(fixture.root, 'src', 'Versioned.php')).toString();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: versionedSource },
+        } }));
+        const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri && message.params.version === 1);
+        const unsupported = published.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.version.unsupported');
+        expect(unsupported.map((item: { message: string }) => item.message)).toEqual(index === 0
+          ? expect.arrayContaining([expect.stringContaining('enum'), expect.stringContaining('match expression'), expect.stringContaining('(void) cast')])
+          : []);
+        const builtinSource = '<?php namespace App; function probe(): void { str_con }';
+        const builtinUri = pathToFileURL(join(fixture.root, 'src', 'BuiltinVersion.php')).toString();
+        await open(builtinUri, builtinSource, 1);
+        const completion = await request('textDocument/completion', { textDocument: { uri: builtinUri },
+          position: lspPosition(builtinSource, builtinSource.indexOf('str_con') + 'str_con'.length),
+        });
+        expect(completion.some((item: { label: string }) => item.label === 'str_contains')).toBe(index === 1);
+      }
       const verify = async (fixture: typeof fixtures[number]): Promise<void> => {
         const { source, uris, signature } = fixture;
         const call = source.consumer.indexOf('$value->render(') + '$value->'.length;

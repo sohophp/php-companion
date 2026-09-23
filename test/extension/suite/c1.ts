@@ -333,6 +333,48 @@ function consume(): void { (void) choose(1); }`;
       `PHP ${targetPhpVersion} did not report unsupported ${feature}.`);
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
+    const secondTargetPhpVersion = targetPhpVersion === '7.2' ? '8.5' : '7.2';
+    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).get('phpVersion'), secondTargetPhpVersion);
+    const secondVersionUri = vscode.Uri.joinPath(secondFolder, 'Versioned.php');
+    await vscode.workspace.fs.writeFile(secondVersionUri, Buffer.from(versionSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(secondVersionUri));
+    const secondExpected = secondTargetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast'] : [];
+    const secondDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(secondVersionUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && secondExpected.every((feature) => result.some((item) => item.code === 'php.version.unsupported' && item.message.includes(feature))),
+      `SoPHP did not publish the PHP ${secondTargetPhpVersion} diagnostic set in the second Composer root.`,
+    );
+    assert.strictEqual(secondDiagnostics.filter((item) => item.code === 'php.version.unsupported').length, secondExpected.length,
+      'SoPHP mixed PHP version diagnostics between Composer roots.');
+    assert.ok(!secondDiagnostics.some((item) => item.code === 'php.syntax'),
+      `PHP ${secondTargetPhpVersion} reported a parser error for the second-root version fixture.`);
+    const changedSecondVersion = secondTargetPhpVersion === '7.2' ? '8.1' : '7.2';
+    const changedSecondExpected = changedSecondVersion === '7.2' ? ['match expression', 'enum', '(void) cast'] : ['(void) cast'];
+    await vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).update('phpVersion', changedSecondVersion,
+      vscode.ConfigurationTarget.WorkspaceFolder);
+    const changedSecondDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(secondVersionUri)),
+      (result) => {
+        const unsupported = result.filter((item) => item.code === 'php.version.unsupported');
+        return unsupported.length === changedSecondExpected.length
+          && changedSecondExpected.every((feature) => unsupported.some((item) => item.message.includes(feature)));
+      },
+      'SoPHP kept the old PHP version diagnostics after a second-root setting change.',
+    );
+    assert.ok(!changedSecondDiagnostics.some((item) => item.code === 'php.syntax'));
+    const builtinVersionSource = '<?php namespace App\\C1; class BuiltinVersionProbe {} function versionedBuiltin(): void { str_con }';
+    const builtinVersionUri = vscode.Uri.joinPath(secondFolder, 'BuiltinVersion.php');
+    await vscode.workspace.fs.writeFile(builtinVersionUri, Buffer.from(builtinVersionSource));
+    const builtinVersionDocument = await vscode.workspace.openTextDocument(builtinVersionUri);
+    await vscode.window.showTextDocument(builtinVersionDocument);
+    await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(builtinVersionUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename'),
+      'SoPHP did not process the second-root builtin fixture after the version change.');
+    const builtinVersionCompletion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      builtinVersionUri, builtinVersionDocument.positionAt(builtinVersionSource.indexOf('str_con') + 'str_con'.length));
+    assert.strictEqual(builtinVersionCompletion.items.some((item) => item.label === 'str_contains'), changedSecondVersion !== '7.2',
+      'SoPHP kept the old root version in built-in completion after a setting change.');
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);

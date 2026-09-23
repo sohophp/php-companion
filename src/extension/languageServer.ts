@@ -51,8 +51,10 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
 
 export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
-  const primaryFolder = vscode.workspace.workspaceFolders?.[0];
-  const primaryConfiguration = vscode.workspace.getConfiguration('phpCompanion', primaryFolder?.uri);
+  const folderPhpVersions = (): Array<{ uri: string; version: string }> => (vscode.workspace.workspaceFolders ?? []).map((folder) => {
+    const requested = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion', 'auto');
+    return { uri: folder.uri.toString(), version: requested === 'auto' ? '8.5' : requested };
+  });
   const activation = languageServerActivationDecision();
   if (!activation.start) {
     if (activation.blockedByCompetingServer) {
@@ -120,7 +122,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     initializationOptions: () => ({
-      phpVersion: primaryConfiguration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : primaryConfiguration.get<string>('phpVersion', '8.5'),
+      phpVersion: folderPhpVersions()[0]?.version ?? (configuration.get<string>('phpVersion', 'auto') === 'auto'
+        ? '8.5' : configuration.get<string>('phpVersion', '8.5')),
+      phpVersions: folderPhpVersions(),
       indexingMode: configuration.get<'off' | 'onDemand' | 'progressive' | 'experimental'>('indexing.mode', 'onDemand'),
       referenceMemoryBudgetMiB: configuration.get<number>('indexing.referenceMemoryBudgetMiB', 1536),
       experimentalReferenceSourceOnly: configuration.get<boolean>('indexing.experimentalSourceOnlyReferences', false),
@@ -181,6 +185,15 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }
   }));
   let stopping = false;
+  let versionRestartTimer: ReturnType<typeof setTimeout> | undefined;
+  const scheduleVersionRestart = (): void => {
+    if (stopping) return;
+    if (versionRestartTimer) clearTimeout(versionRestartTimer);
+    versionRestartTimer = setTimeout(() => {
+      versionRestartTimer = undefined;
+      if (!stopping) void client.restart().catch((error: unknown) => output.warn(`Unable to restart SoPHP for PHP version settings: ${String(error)}`));
+    }, 250);
+  };
   let referencePrewarmTimer: ReturnType<typeof setTimeout> | undefined;
   const prewarmActiveReference = (): void => {
     if (referencePrewarmTimer) clearTimeout(referencePrewarmTimer);
@@ -251,14 +264,18 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
       if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
         void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
+        if (event.affectsConfiguration('phpCompanion.phpVersion')) scheduleVersionRestart();
       }
     }),
-    vscode.workspace.onDidChangeWorkspaceFolders(() => { updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability(); }),
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+      void versions.refresh().catch((error: unknown) => output.warn(`Unable to refresh PHP folders: ${String(error)}`));
+      updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability(); scheduleVersionRestart();
+    }),
     vscode.extensions.onDidChange(() => { updateRouteProviders(); updateBundledRouteProviders(); }),
     vscode.workspace.onDidOpenTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),
     vscode.workspace.onDidChangeTextDocument((event) => { if (['yaml', 'xml'].includes(event.document.languageId)) updateFrameworkDocumentSnapshots(); }),
     vscode.workspace.onDidCloseTextDocument((document) => { if (['yaml', 'xml'].includes(document.languageId)) updateFrameworkDocumentSnapshots(); }),
-    { dispose: () => { if (frameworkSnapshotTimer) clearTimeout(frameworkSnapshotTimer); } },
+    { dispose: () => { if (frameworkSnapshotTimer) clearTimeout(frameworkSnapshotTimer); if (versionRestartTimer) clearTimeout(versionRestartTimer); } },
     vscode.window.onDidChangeActiveTextEditor(prewarmActiveReference),
     vscode.window.onDidChangeTextEditorSelection(prewarmActiveReference),
     vscode.workspace.onDidChangeTextDocument((event) => {
