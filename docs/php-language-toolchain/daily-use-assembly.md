@@ -6,6 +6,8 @@
 
 [Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。清单固定为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、测试、Twig、YAML、XML 等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
+截至 2026-09-24，公开 Marketplace 的 Open Source Pack 页面仍显示旧版说明；本仓库的 0.4.5 manifest 与冻结 Profile 已核对，但尚无证据表明公开页面提供这一组合。日常试用应以同一私有候选的三个 VSIX 为准。
+
 当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`recca0120.vscode-phpunit`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`。最后一项依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
 
 | 日常任务 | 当前所有者 | 进入首批使用的条件 |
