@@ -198,7 +198,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
       },
     });
     console.log(process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
-      ? `Verified Simplified Chinese command titles in packaged PHP Companion VSIX: ${vsix}`
+      ? `Verified Simplified Chinese manifest text in packaged PHP Companion VSIX: ${vsix}`
       : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {
     if (process.env.PHP_COMPANION_TEST_LOG_DIR) {

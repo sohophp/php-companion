@@ -32,14 +32,36 @@ async function assertManifestCommandsRegistered(extension: vscode.Extension<unkn
   if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
     assert.strictEqual(vscode.env.language.toLowerCase(), 'zh-cn', 'VS Code did not start in Simplified Chinese');
     const manifest = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(extension.extensionUri, 'package.json'))).toString('utf8')) as
-      { contributes: { commands: Array<{ command: string; title: string }> } };
+      { contributes: { commands: Array<{ command: string; title: string }>;
+        configuration?: { properties: Record<string, { description?: string; deprecationMessage?: string;
+          items?: { properties?: Record<string, { description?: string }> } }> } } };
     const translations = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(extension.extensionUri, 'package.nls.zh-cn.json'))).toString('utf8')) as Record<string, string>;
     const live = new Map((extension.packageJSON.contributes.commands as Array<{ command: string; title: string | { original: string; value: string } }>).map((item) => [item.command, item.title]));
+    const localizedValue = (value: unknown): unknown => value && typeof value === 'object' && 'value' in value ? value.value : value;
     for (const command of manifest.contributes.commands) {
       const key = /^%([^%]+)%$/u.exec(command.title)?.[1];
       assert.ok(key, `${extension.id} command ${command.command} lacks a localization key`);
       const title = live.get(command.command);
-      assert.strictEqual(typeof title === 'string' ? title : title?.value, translations[key], `${extension.id} did not localize ${command.command}`);
+      assert.strictEqual(localizedValue(title), translations[key], `${extension.id} did not localize ${command.command}`);
+    }
+    if (extension.id === 'sohophp.php-companion') {
+      const raw = manifest.contributes.configuration?.properties;
+      const localized = extension.packageJSON.contributes.configuration?.properties as typeof raw | undefined;
+      assert.ok(raw && localized, 'Core settings are missing from the packaged manifest');
+      assert.strictEqual(Object.keys(raw).length, 30);
+      for (const [setting, schema] of Object.entries(raw)) {
+        const key = /^%([^%]+)%$/u.exec(schema.description ?? '')?.[1];
+        assert.ok(key, `${setting} has no localized description`);
+        assert.strictEqual(localizedValue(localized[setting]?.description), translations[key], `${setting} description was not localized`);
+      }
+      const nestedKey = 'config.routeProviders.cacheUntilInvalidated';
+      assert.strictEqual(raw['phpCompanion.routeProviders']?.items?.properties?.cacheUntilInvalidated?.description, `%${nestedKey}%`);
+      assert.strictEqual(localizedValue(localized['phpCompanion.routeProviders']?.items?.properties?.cacheUntilInvalidated?.description),
+        translations[nestedKey], 'Route provider cache description was not localized');
+      const deprecationKey = 'config.indexing.onStartup.deprecation';
+      assert.strictEqual(raw['phpCompanion.indexing.onStartup']?.deprecationMessage, `%${deprecationKey}%`);
+      assert.strictEqual(localizedValue(localized['phpCompanion.indexing.onStartup']?.deprecationMessage),
+        translations[deprecationKey], 'Deprecated startup setting message was not localized');
     }
   }
 }
