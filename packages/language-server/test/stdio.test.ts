@@ -4698,6 +4698,71 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('F04-NAV-17 follows an installed path repository symlink without splitting its Composer project', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-path-repository-'));
+    try {
+      const src = join(root, 'src'); const actualPackage = join(root, 'packages', 'local');
+      const installedPackage = join(root, 'vendor', 'local', 'package');
+      await mkdir(src); await mkdir(join(actualPackage, 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'local'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({
+        repositories: [{ type: 'path', url: 'packages/local' }],
+        require: { 'local/package': '*' }, autoload: { 'psr-4': { 'App\\': 'src/' } },
+      }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{
+        name: 'local/package', autoload: { 'psr-4': { 'Local\\Package\\': 'src/' } },
+      }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({
+        packages: [{ name: 'local/package', install_path: '../local/package' }],
+      }));
+      await writeFile(join(actualPackage, 'composer.json'), JSON.stringify({
+        name: 'local/package', autoload: { 'psr-4': { 'Local\\Package\\': 'src/' } },
+      }));
+      await symlink(actualPackage, installedPackage, process.platform === 'win32' ? 'junction' : 'dir');
+      const target = '<?php namespace Local\\Package; class Target { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace App; use Local\\Package\\Target; function run(Target $value): int { return $value->get(); }';
+      const targetUri = pathToFileURL(join(installedPackage, 'src', 'Target.php')).toString();
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      await writeFile(join(actualPackage, 'src', 'Target.php'), target);
+      await writeFile(join(src, 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 370, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 370);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, source] of [[targetUri, target], [consumerUri, consumer]]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 371, method: 'textDocument/references', params: {
+        textDocument: { uri: targetUri }, position: lspPosition(target, target.indexOf('function get') + 'function '.length + 1),
+        context: { includeDeclaration: false },
+      } }));
+      const call = consumer.lastIndexOf('get()');
+      expect((await output.waitFor((message) => message.id === 371, 15_000)).result).toEqual([{ uri: consumerUri, range: {
+        start: lspPosition(consumer, call), end: lspPosition(consumer, call + 'get'.length),
+      } }]);
+      const realTargetUri = pathToFileURL(join(actualPackage, 'src', 'Target.php')).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: realTargetUri, languageId: 'php', version: 1, text: target },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === realTargetUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 372, method: 'textDocument/references', params: {
+        textDocument: { uri: realTargetUri }, position: lspPosition(target, target.indexOf('function get') + 'function '.length + 1),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 372, 15_000)).result).toEqual([{ uri: consumerUri, range: {
+        start: lspPosition(consumer, call), end: lspPosition(consumer, call + 'get'.length),
+      } }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('suppresses unresolved-symbol diagnostics when a project file exceeds the index budget', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-incomplete-project-'));
     try {

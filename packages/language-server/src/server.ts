@@ -2,7 +2,7 @@
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import type { Dirent } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -1009,6 +1009,13 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
         .sort((left, right) => right.length - left.length)[0];
       const owner = ownerRoot ? await composerProjectForRoot(ownerRoot) : undefined;
       if (owner?.dependencies.some((dependency) => pathWithin(dependency.root, project))) return;
+      const realProject = await realpath(project).catch(() => undefined);
+      if (realProject && owner?.dependencies.length) {
+        for (const dependency of owner.dependencies) {
+          const realDependency = await realpath(dependency.root).catch(() => undefined);
+          if (realDependency && pathWithin(realDependency, realProject)) return;
+        }
+      }
       workspaceRoots.push(project);
     })();
     composerRootChecks.set(path, pending);
