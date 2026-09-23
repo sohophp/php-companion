@@ -41,4 +41,13 @@ Winstar `src` 当前有 54 处 `getArrayResult()`、2 处 `getScalarResult()` �
 - 动态 Configurator 条件、动态服务图、不能证明完整的事件构造、动态 DQL 字段和一般自定义查询返回保持 unknown。
 - 运行时 Provider 不完整、冲突或失败时，不把缺失事实解释成“项目没有该关系”。
 
-功能提交为 `6b8e50a`。最终 P8 候选目录、完整提交和 SHA-256 在候选生成后补记。
+Doctrine 终端功能提交为 `6b8e50a`，P8 完成提交为 `9d0c8952662a37bff62f98add6896135f1a6847a`。最终候选位于 `artifacts/php-companion-alpha-0.4.5-9d0c8952/`：
+
+| 产物 | SHA-256 |
+| --- | --- |
+| Core | `a0c52873247510fba124438da42886cfd928b0a8b51d8b4bdce43d4f4fb55ad4` |
+| Symfony | `3a3d9d2274a77d934ddefd3e6a5ec0e4f6ce75bf0323471c387a6868df84277b` |
+| Open Source Pack | `4c56beb320ed0c375c28376799b14c6f7b6db75c18cbf37d8a817e2c296efee6` |
+| Recommended Pack | `28868cd071b49d236df8c4a4b3e5cf8193bb98dff8b61cbfdccc480c115d41c3` |
+
+候选目录内 `SHA256SUMS` 全部通过。Winstar 使用 PHP 8.5 包装器、CoreRepo 使用 PHP 7.2 包装器的 WSL 确定性预检均绑定上述完整提交并无错误。现有 `81580890` 人工试用候选未被覆盖。
