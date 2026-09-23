@@ -5,9 +5,11 @@ import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 
-async function macOSExecutablePath(): Promise<string | undefined> {
-  if (process.platform !== 'darwin') return undefined;
-  const expected = await downloadAndUnzipVSCode();
+async function testExecutablePath(): Promise<string | undefined> {
+  const version = process.env.PHP_COMPANION_TEST_VSCODE_VERSION;
+  if (process.platform !== 'darwin' && !version) return undefined;
+  const expected = await downloadAndUnzipVSCode(version);
+  if (process.platform !== 'darwin') return expected;
   try {
     await stat(expected);
     return expected;
@@ -147,7 +149,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
     execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
     if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
     await runTests({
-      vscodeExecutablePath: await macOSExecutablePath(),
+      vscodeExecutablePath: await testExecutablePath(),
       extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension'),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),

@@ -2152,12 +2152,15 @@ export class SemanticWorkspace {
         && item.declarationStart === node.startIndex);
       if (!method || method.visibility !== 'public' || method.name.startsWith('__')) continue;
       const methodBody = node.namedChildren.find((item) => item.type === 'compound_statement');
-      if (!methodBody || method.parameters.some((parameter) => parameter.promoted)) return undefined;
-      const header = file.source.slice(node.startIndex, methodBody.startIndex);
+      const abstractMethod = !methodBody && node.namedChildren.some((item) => item.type === 'abstract_modifier')
+        && file.source[node.endIndex - 1] === ';';
+      if ((!methodBody && !abstractMethod) || method.parameters.some((parameter) => parameter.promoted)) return undefined;
+      const signatureEnd = methodBody?.startIndex ?? node.endIndex - 1;
+      const header = file.source.slice(node.startIndex, signatureEnd);
       const keyword = /\bfunction\b/u.exec(header);
       if (!keyword || header.includes('#[')) return undefined;
       const signatureStart = node.startIndex + keyword.index;
-      let signature = file.source.slice(signatureStart, methodBody.startIndex).trimEnd();
+      let signature = file.source.slice(signatureStart, signatureEnd).trimEnd();
       const contextualReferences = file.typeReferences.filter((reference) => reference.start >= signatureStart
         && reference.end <= signatureStart + signature.length && /^(?:self|parent|static)$/iu.test(file.source.slice(reference.start, reference.end)));
       if (contextualReferences.some((reference) => {

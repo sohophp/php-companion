@@ -1,6 +1,6 @@
 # P7 Extract Interface 首个支持域
 
-日期：2026-09-23。此项实现从具名 PHP 类的直接公开方法提取原生签名，在相同 namespace 的独立 PSR-4 文件创建接口，并给原类添加 `implements`。已有接口列表会追加新接口。私有方法与魔术方法不进入生成的契约。同一词法 namespace 中的 `use` 语句会原样复制到接口文件，以保留签名依赖的别名和分组 import；签名中已解析的 `self` 类型与类常量接收者会改为原类绝对 FQCN，`parent` 会按同一词法范围的唯一 `extends` 及 import 改为父类绝对 FQCN。VS Code 的一次 WorkspaceEdit 同时包含新文件创建、新文件内容和原类修改。
+日期：2026-09-23。此项实现从具名 PHP 类的直接公开方法提取原生签名，在相同 namespace 的独立 PSR-4 文件创建接口，并给原类添加 `implements`。抽象类中的直接公开抽象方法也可提取，并去掉签名中的 `abstract` 修饰符。已有接口列表会追加新接口。私有方法与魔术方法不进入生成的契约。同一词法 namespace 中的 `use` 语句会原样复制到接口文件，以保留签名依赖的别名和分组 import；签名中已解析的 `self` 类型与类常量接收者会改为原类绝对 FQCN，`parent` 会按同一词法范围的唯一 `extends` 及 import 改为父类绝对 FQCN。VS Code 的一次 WorkspaceEdit 同时包含新文件创建、新文件内容和原类修改。
 
 ## 已验证
 
@@ -11,6 +11,7 @@
 - import 扩展后的聚焦语义用例与语义包 301 项测试通过；原始打包 Core/Symfony VSIX 在 VS Code 1.138.0 隔离宿主重新完成应用、Undo/Redo，接口文件保留 `use DateTimeImmutable as InputTime` 与参数别名。直接从语义计划写出的接口和类在 PHP 7.2/8.5 下均通过语法检查、加载与实例方法调用。
 - `self` 扩展后的聚焦语义用例与语义包 301 项测试、类型检查、ESLint 通过；打包宿主再次以退出码 0 完成，接口签名中 `self` 参数/返回改为原类 FQCN 并通过应用、Undo/Redo。直接从语义计划写出的 `self` 参数、返回与 `self::LIMIT` 默认值双文件，在 PHP 7.2/8.5 下均通过语法检查、加载与调用。
 - `parent` 扩展后的语义包 301 项测试、language-server 与扩展测试 TypeScript 类型检查、相关 ESLint 均通过；跨 namespace 同名 import 别名用例确保只采用类所在词法段的父类。直接从语义计划写出的父类、接口与实现类三文件，在 PHP 7.2/8.5 下均通过语法检查、加载与实例方法调用。打包 VS Code 1.138.0 隔离宿主退出码 0，并通过创建接口、应用、Undo/Redo 回归。
+- 抽象方法扩展后的语义包 301 项测试、语义包和扩展测试 TypeScript 类型检查、相关 ESLint 通过；抽象类中公开抽象方法和具体方法会一并生成接口签名，protected 方法被排除。从语义计划写出的接口、抽象类和具体子类在 PHP 7.2/8.5 下均通过语法检查、加载与实例方法调用。打包 VS Code 1.138.0 隔离宿主通过，接口包含抽象方法签名并完成应用、Undo/Redo；宿主通过 `PHP_COMPANION_TEST_VSCODE_VERSION=1.138.0` 选用缓存版本。
 
 ## 当前拒绝边界
 

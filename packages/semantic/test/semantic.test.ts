@@ -7913,6 +7913,13 @@ use const Vendor\\ACTIVE;
     workspace.update(uri, parentType, true);
     expect(workspace.extractInterface(uri, parentType.indexOf('Child') + 1)?.interfaceSource)
       .toContain('public function make(\\App\\Base $input): void;');
+    const abstractType = '<?php namespace App; abstract class Shape { abstract public function area(int $scale = 1): int; public function label(): string { return "shape"; } protected function hidden(): void {} }';
+    workspace.update(uri, abstractType, true);
+    const abstractInterface = workspace.extractInterface(uri, abstractType.indexOf('Shape') + 1)?.interfaceSource;
+    expect(abstractInterface).toContain('public function area(int $scale = 1): int;');
+    expect(abstractInterface).toContain('public function label(): string;');
+    expect(abstractInterface).not.toContain('abstract public');
+    expect(abstractInterface).not.toContain('hidden');
     const importedParent = '<?php namespace Other; use Wrong\\Base as Root; class Earlier {} namespace App; use Vendor\\Base as Root; class Child extends Root { public function make(parent $input): parent { return $input; } }';
     workspace.update(uri, importedParent, true);
     const importedParentInterface = workspace.extractInterface(uri, importedParent.indexOf('Child') + 1)?.interfaceSource;
