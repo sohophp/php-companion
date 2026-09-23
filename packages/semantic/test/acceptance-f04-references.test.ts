@@ -36,4 +36,30 @@ describe('F04 method and function References acceptance fixtures', () => {
       } finally { workspace.dispose(); }
     });
   }
+
+  it('F04-REF-04 keeps top-level assignments separate from later and nested receivers', () => {
+    const source = fixture('f04-references-global'); const uri = 'file:///workspace/f04-references-global.php';
+    const parsed = parser.parse(source);
+    expect(parsed.errors).toEqual([]);
+    expect(parsed.assignments.filter((item) => item.variable === '$printer').map((item) => item.scopeId))
+      .toEqual(['@global', '@global']);
+    expect(parsed.assignments.find((item) => item.variable === '$closure')?.scopeId).toBe('@global');
+    parsed.tree.delete();
+    const workspace = new SemanticWorkspace(parser);
+    try {
+      workspace.update(uri, source, true);
+      const declarationStart = source.indexOf('function render') + 'function '.length;
+      const firstCallStart = source.indexOf('$printer->render()') + '$printer->'.length;
+      expect(workspace.references(uri, declarationStart, false)).toEqual([
+        { uri, start: firstCallStart, end: firstCallStart + 'render'.length },
+      ]);
+      const snapshot = workspace.snapshot(uri)!;
+      expect(workspace.restore({ ...snapshot, schema: 81 }, uri)).toBe(false);
+      workspace.remove(uri);
+      expect(workspace.restore(snapshot, uri)).toBe(true);
+      expect(workspace.references(uri, declarationStart, false)).toEqual([
+        { uri, start: firstCallStart, end: firstCallStart + 'render'.length },
+      ]);
+    } finally { workspace.dispose(); }
+  });
 });

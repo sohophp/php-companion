@@ -149,6 +149,34 @@ describe('language server stdio', () => {
     } }]);
   });
 
+  it('F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments', async () => {
+    const source = await readFile(resolve('../semantic/test/fixtures/acceptance/f04-references-global.php'), 'utf8');
+    const uri = 'file:///workspace/f04-references-global.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 904, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: null } }));
+    await output.waitFor((message) => message.id === 904);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+      textDocument: { uri, languageId: 'php', version: 1, text: source },
+    } }));
+    await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+    const declaration = source.indexOf('function render') + 'function '.length;
+    const call = source.indexOf('$printer->render()') + '$printer->'.length;
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 905, method: 'textDocument/references', params: {
+      textDocument: { uri }, position: lspPosition(source, declaration + 1), context: { includeDeclaration: false },
+    } }));
+    expect((await output.waitFor((message) => message.id === 905)).result).toEqual([{
+      uri, range: { start: lspPosition(source, call), end: lspPosition(source, call + 'render'.length) },
+    }]);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 906, method: 'textDocument/definition', params: {
+      textDocument: { uri }, position: lspPosition(source, call + 1),
+    } }));
+    expect((await output.waitFor((message) => message.id === 906)).result).toEqual([{
+      uri, range: { start: lspPosition(source, declaration), end: lspPosition(source, declaration + 'render'.length) },
+    }]);
+  });
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {

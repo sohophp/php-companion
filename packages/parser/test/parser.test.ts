@@ -619,15 +619,25 @@ class Child extends ParentBase implements Contract {
   it('keeps closure and arrow variables in their smallest lexical scope', () => {
     const result = parser.parse('<?php function run(OuterType $outer) { $before = new Before(); $closure = function(InnerType $inner) use ($before, &$outer) { $inside = new Inside(); }; $arrow = fn(ArrowType $item) => $item; }');
     expect(result.scopes.map((scope) => ({ id: scope.id, kind: scope.kind, parameters: scope.parameters.map((item) => item.type) }))).toEqual([
+      { id: '@global', kind: 'global', parameters: [] },
       { id: 'run', kind: 'function', parameters: ['OuterType'] },
       { id: expect.stringMatching(/^closure@/), kind: 'closure', parameters: ['InnerType'] },
       { id: expect.stringMatching(/^arrow@/), kind: 'arrow', parameters: ['ArrowType'] },
     ]);
     expect(result.assignments.find((item) => item.variable === '$inside')?.scopeId).toMatch(/^closure@/);
-    expect(result.scopes[1]).toMatchObject({ parentId: 'run', captures: [{ variable: '$before', byReference: false }, { variable: '$outer', byReference: true }] });
-    expect(result.scopes[2]).toMatchObject({ parentId: 'run', captures: [] });
+    expect(result.scopes[2]).toMatchObject({ parentId: 'run', captures: [{ variable: '$before', byReference: false }, { variable: '$outer', byReference: true }] });
+    expect(result.scopes[3]).toMatchObject({ parentId: 'run', captures: [] });
     expect(result.variableReferences.filter((item) => item.variable === '$item')).toMatchObject([{ scopeId: expect.stringMatching(/^arrow@/) }, { scopeId: expect.stringMatching(/^arrow@/) }]);
     expect(result.variableReferences.filter((item) => item.variable === '$before').map((item) => item.scopeId)).toEqual(['run', expect.stringMatching(/^closure@/)]);
+    result.tree.delete();
+  });
+  it('records file-level variables without absorbing type members or nested scopes', () => {
+    const source = '<?php class Item { private string $name; function run(Item $item): void { $item->run($this); } } $item = new Item(); $item->run($item);';
+    const result = parser.parse(source);
+    expect(result.assignments.filter((item) => item.variable === '$item')).toMatchObject([{ scopeId: '@global', typeName: 'Item' }]);
+    expect(result.variableReferences.filter((item) => item.variable === '$item').map((item) => item.scopeId))
+      .toEqual(['Item::run', 'Item::run', '@global', '@global', '@global']);
+    expect(result.variableReferences.some((item) => item.variable === '$name')).toBe(false);
     result.tree.delete();
   });
   it('records return expressions in their smallest lexical scope', () => {

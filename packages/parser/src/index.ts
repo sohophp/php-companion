@@ -83,7 +83,7 @@ export interface ParsedAssignment extends SourceRange {
 
 export interface ParsedScope {
   id: string;
-  kind: 'function' | 'method' | 'closure' | 'arrow' | 'property-hook';
+  kind: 'global' | 'function' | 'method' | 'closure' | 'arrow' | 'property-hook';
   containerFqcn?: string;
   parameters: ParsedParameter[];
   returnType?: string;
@@ -439,7 +439,7 @@ export class PhpSyntaxParser {
     const declarations: ParsedDeclaration[] = [];
     const callables: ParsedCallableDeclaration[] = [];
     const assignments: ParsedAssignment[] = [];
-    const scopes: ParsedScope[] = [];
+    const scopes: ParsedScope[] = [{ id: '@global', kind: 'global', parameters: [], captures: [], start: 0, end: tree.rootNode.endIndex }];
     const variableReferences: ParsedVariableReference[] = [];
     const returns: ParsedReturnStatement[] = [];
     const narrowings: ParsedTypeNarrowing[] = [];
@@ -457,13 +457,16 @@ export class PhpSyntaxParser {
     const stringRanges: SourceRange[] = [];
     const namespaceDefinitions: Array<{ name: string; start: number; end: number; braced: boolean }> = [];
     const typeReferenceKeys = new Set<string>();
+    const typeDeclarationRanges = tree.rootNode.descendantsOfType([...Object.keys(DECLARATION_TYPES), 'anonymous_class'])
+      .map((node) => ({ start: node.startIndex, end: node.endIndex }));
     const scopeAt = (start: number, end: number, strictStart = false): ParsedScope | undefined => {
       let best: ParsedScope | undefined;
       for (const candidate of scopes) {
         if ((strictStart ? start <= candidate.start : start < candidate.start) || end > candidate.end) continue;
         if (!best || candidate.end - candidate.start < best.end - best.start) best = candidate;
       }
-      return best;
+      return best?.kind === 'global' && typeDeclarationRanges.some((range) => range.start <= start && end <= range.end)
+        ? undefined : best;
     };
     const addTypeReference = (node: SyntaxNode | undefined, context: ParsedTypeReference['context']): void => {
       if (!node || (!['name', 'qualified_name'].includes(node.type) && !(context === 'static-receiver' && node.type === 'relative_scope'))) return;

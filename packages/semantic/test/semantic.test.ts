@@ -674,7 +674,7 @@ describe('conservative semantic workspace', () => {
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 81, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 82, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -738,7 +738,7 @@ describe('conservative semantic workspace', () => {
     ]);
     expect(workspace.unresolvedMembers('file:///MixinUse.php').map((item) => item.name)).toEqual(['collision']);
     const snapshot = workspace.snapshot('file:///MixinDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 81, declaration: { mixins: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 82, declaration: { mixins: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'MixinMembers\\Proxy', targetName: 'FirstDelegate' }),
     ]) } });
     workspace.remove('file:///MixinDefinitions.php');
@@ -799,7 +799,7 @@ describe('conservative semantic workspace', () => {
       expect(workspace.completeMembers('file:///MixinGenericUse.php', source.indexOf(marker) + marker.length - 1), marker).toEqual([]);
     }
     const snapshot = workspace.snapshot(uri);
-    expect(snapshot).toMatchObject({ schema: 81, declaration: { mixins: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 82, declaration: { mixins: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'MixinGeneric\\ExactProxy', targetName: 'Delegate', arguments: ['Result'] }),
     ]) } });
     workspace.remove(uri);
@@ -5794,7 +5794,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 81, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 82, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -6235,7 +6235,7 @@ final class Imported { public const TYPE = Stable::class; }`);
       expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf(marker) + marker.indexOf('(') + 1), marker).toEqual([]);
     }
     const snapshot = workspace.snapshot('file:///CallableArrayContracts.php')!;
-    expect(snapshot.schema).toBe(81);
+    expect(snapshot.schema).toBe(82);
     workspace.remove('file:///CallableArrayContracts.php');
     expect(workspace.restoreDeclaration(snapshot, 'file:///CallableArrayContracts.php')).toBe(true);
     expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
@@ -7484,7 +7484,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 81, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 82, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -8265,7 +8265,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 81, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 82, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },

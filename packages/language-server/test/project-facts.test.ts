@@ -55,7 +55,7 @@ describe('persistent project PHP facts', () => {
     expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
     expect(cached.checksums.source).toBe(createHash('sha256').update(source).digest('hex'));
-    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 81, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 82, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),
