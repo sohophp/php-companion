@@ -1,6 +1,6 @@
 # 实施状态
 
-2026-09-23 P7 Extract Interface `self` 支持：签名里经解析器证明的 `self` 类型和 `self::` 常量接收者改写为原类绝对 FQCN，字符串字面量不改；`parent`/`static` 继续拒绝。语义包 301 项、类型检查、ESLint 和 VS Code 1.138.0 打包宿主应用/Undo/Redo 通过；直接生成的双文件在 PHP 7.2/8.5 下通过语法检查、加载与调用。此源码晚于 `0cd78268` 私有候选，仍需重新冻结。
+2026-09-23 P7 Extract Interface `self` 支持：签名里经解析器证明的 `self` 类型和 `self::` 常量接收者改写为原类绝对 FQCN，字符串字面量不改；`parent`/`static` 继续拒绝。语义包 301 项、类型检查、ESLint 和 VS Code 1.138.0 打包宿主应用/Undo/Redo 通过；直接生成的双文件在 PHP 7.2/8.5 下通过语法检查、加载与调用。已纳入下述 `b4f5e6f8` 私有候选。
 
 2026-09-23 P7 Extract Interface import 支持：新接口现在原样复制类所在词法 namespace 的 `use` 语句，保留别名与分组 import；不同 namespace 的语句不会混入，别名与新接口名冲突则拒绝。语义包 301 项测试、类型检查、ESLint、带真实别名签名的打包编辑器应用/Undo/Redo，以及 PHP 7.2/8.5 生成代码加载调用均通过；已纳入下述 `0cd78268` 候选。
 
@@ -10,7 +10,7 @@
 
 2026-09-23 P7 删除未使用 private 参数的安全域收紧：被删实参现在必须是完整且无插值的标量字面量；变量读取可能产生未定义变量提示，类常量访问可能触发自动加载，复合表达式可能执行调用，因此都拒绝自动编辑。聚焦语义用例和类型检查通过；已纳入下述 `35297e85` VSIX 候选。
 
-2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `0cd78268` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
+2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `b4f5e6f8` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
 
 2026-09-23 P7 公开 API Rename 范围声明完成：产品支持说明与 Alpha 操作步骤均明确 F2 编辑计划只能覆盖当前已索引且语义证明的文件；工作区外下游仓库、客户端调用及未证明动态引用无法验证，公开 API 应用前须另行检查使用方。路线图仅关闭这一项范围声明，P7 两批重构及 F08 最终操作矩阵仍开放。
 
