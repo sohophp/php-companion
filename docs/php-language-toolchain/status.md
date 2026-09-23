@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 复核：默认成员仍为 10 项，Recommended Pack 不再生成；删除了已退出组合的 Symfony Language Tools 旧设置及测试/校验中的对应要求。C1 下一批按实际建议列表等待、Composer path/symlink 和运行时版本、跨根内建导航、大型 vendor 顺序推进，冻结候选时再做完整组合门禁。见[整理记录](reports/open-source-pack-core-start-2026-09-24.md)。
+
 2026-09-24 C1 嵌套 Composer：onDemand 模式按打开文件发现子项目，已安装 vendor 包仍保留在父 Composer 项目；VersionManager 不再让子项目覆盖工作区根版本。F04-NAV-15/16 真实 stdio 定向通过；Language Server 全套 307 项通过、1 项跳过；隔离 Core 宿主 auto 模式验证子项目的补全、定义、引用和 PHP 8.5 诊断，父项目仍按 PHP 7.2；auto 与显式 7.2、8.1、8.5 四次宿主运行均退出码 0。路径仓库、符号链接、运行时探测和大型项目等待仍待验。见[报告](reports/c1-nested-composer-2026-09-24.md)。
 
 2026-09-24 C1 auto 版本：扩展启动前使用 VersionManager 解析每根 Composer 项目的 PHP 目标版本，不再把 auto 固定传为 8.5。隔离 Core 宿主的两根 auto 项目分别按 Composer `require.php >=7.2` 和 `config.platform.php=8.5.0` 得到 7.2/8.5 诊断及 `str_contains` 补全；运行中把平台版本改为 8.1 后诊断更新，再改显式 7.2 后诊断和补全更新。auto 与显式 7.2、8.1、8.5 四次宿主运行均退出码 0。运行时探测、嵌套项目和虚拟内建文档的跨根显示仍需验收。见[报告](reports/c1-auto-composer-version-2026-09-24.md)。

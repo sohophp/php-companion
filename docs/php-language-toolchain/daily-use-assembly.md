@@ -60,9 +60,9 @@ SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 
 
 ## 当前整理结论与进入 Core 的顺序
 
-Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 成员清单先冻结，避免在 Core 编码链审计期间增加变量。
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 成员清单先冻结，避免在 Core 编码链审计期间增加变量。
 
-Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：F04-NAV-01–10 已覆盖未完成成员、连续未保存编辑、同名短类、Trait 冲突、外部声明失效和进行中 References 取消的首组真实 stdio 正反例。下一步用只含既定组合的隔离 VS Code Profile 检查可见结果、等待时间及 Provider 所有权；对实测错误或旧结果再修复 parser、索引或缓存边界。R4 的跨平台和持续使用门槛保持开放。
+Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：F04-NAV-01–16 已覆盖未完成成员、连续未保存编辑、同名短类、Trait 冲突、外部声明失效、进行中 References 取消及嵌套 Composer 根的首组真实 stdio 正反例。下一步先测实际建议列表的显示等待，并补路径仓库、符号链接及运行时版本探测；再用只含既定组合的隔离 VS Code Profile 检查可见结果和 Provider 所有权。对实测错误或旧结果修复 parser、索引或缓存边界。R4 的跨平台和持续使用门槛保持开放。
 
 ## 与 R2–R4 的关系
 

@@ -66,8 +66,7 @@ describe('PHP Companion manifests', () => {
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
     expect(defaults?.['php.suggest.basic']).toBe(false);
-    expect(defaults?.['symfonyLsp.runtimeIndexing']).toBe(false);
-    expect(defaults?.['symfonyLsp.releaseMetadata']).toBe(false);
+    expect(Object.keys(defaults ?? {}).some((key) => key.startsWith('symfonyLsp.'))).toBe(false);
     expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
   });
 });

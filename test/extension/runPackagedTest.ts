@@ -101,9 +101,6 @@ exit($status);
     // inheriting the explicit development-fixture opt-in.
     delete settings['phpCompanion.languageServer.enabled'];
     if (externalExtensions) {
-      if (process.env.PHP_COMPANION_PHP_EXECUTABLE) settings['symfonyLsp.phpCommand'] = [process.env.PHP_COMPANION_PHP_EXECUTABLE];
-      settings['symfonyLsp.runtimeIndexing'] = false;
-      settings['symfonyLsp.releaseMetadata'] = false;
       await writeFile(join(fixture, 'composer.json'), JSON.stringify({
         require: { php: '>=7.2', 'symfony/framework-bundle': '^7.4' },
         autoload: { 'psr-4': { 'App\\': 'src/' } },

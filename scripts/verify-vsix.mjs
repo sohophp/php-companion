@@ -137,9 +137,8 @@ for (const artifact of artifacts) {
     if (manifest.contributes?.configurationDefaults?.['phpCompanion.languageServer.enabled'] !== true) {
       throw new Error(`${artifact.path} must enable the self-hosted PHP language server.`);
     }
-    if (manifest.contributes?.configurationDefaults?.['symfonyLsp.runtimeIndexing'] !== false
-      || manifest.contributes?.configurationDefaults?.['symfonyLsp.releaseMetadata'] !== false) {
-      throw new Error(`${artifact.path} must keep Symfony runtime execution and release metadata requests disabled.`);
+    if (Object.keys(manifest.contributes?.configurationDefaults ?? {}).some((key) => key.startsWith('symfonyLsp.'))) {
+      throw new Error(`${artifact.path} must not configure the removed Symfony Language Tools extension.`);
     }
     if (manifest.contributes?.configurationDefaults?.['[xml]']?.['editor.defaultFormatter'] !== 'redhat.vscode-xml') {
       throw new Error(`${artifact.path} must select Red Hat XML as the XML formatter.`);
