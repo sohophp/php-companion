@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P0/F04 [References 编号夹具](reports/f04-reference-fixtures-2026-09-23.md)新增 F04-REF-01/02/03：有类型接收者的方法调用、全局函数、字符串/nowdoc/块注释反例及未完成成员输入。3 项定向测试通过；文件顶层赋值接收者未推断出类型，作为 F04 后续缺口记录。本轮未打包。
+
 2026-09-23 [语言服务器全套回归恢复](reports/p9-stdio-regression-recovery-2026-09-23.md)：修正 4 项中文日志同步条件、1 项不完整 XML 服务导入测试夹具，以及 Attribute 路由目录循环 symlink 的重复扫描。语言服务器 17 个测试文件全通过，294 项通过、1 项跳过；路由 Provider 6 项通过。此项仅为通用编辑器与 Symfony Provider 源码回归，未打包 VSIX。
 
 2026-09-23 F04 [通用 PHP References 文本边界](reports/f04-php-reference-literal-boundary-2026-09-23.md)：方法与函数 References 不再把字符串或注释中的调用样式当作代码引用；函数的 `includeDeclaration=false` 不再返回声明。独立 PHP 语义输入、真实 Language Server stdio 用例及语义包 310 项通过；当次语言服务器全套 6 项失败已在报告列明，后续修复并复测通过。不依赖项目专用 Provider，本轮未打包，F04 仍开放。
