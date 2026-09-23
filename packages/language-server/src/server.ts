@@ -4552,7 +4552,18 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
-  return workspace.implementations(document.uri, document.offsetAt(position)).flatMap((location) => {
+  const offset = document.offsetAt(position);
+  const member = workspace.referenceMemberAt(document.uri, offset);
+  const root = rootForUri(document.uri);
+  if (root && member?.kind === 'method') {
+    const version = document.version;
+    const ready = await scanNamedCandidates(workspace, root, new Set([member.name.toLowerCase()]),
+      () => token.isCancellationRequested, 2, 'symbol', true);
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
+    if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
+  }
+  return workspace.implementations(document.uri, offset).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));
     return target ? [{ uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } }] : [];

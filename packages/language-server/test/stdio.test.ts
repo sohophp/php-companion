@@ -177,6 +177,94 @@ describe('language server stdio', () => {
     }]);
   });
 
+  it('F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-navigation-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const contractSource = '<?php namespace App; interface Contract { public function render(int $count): string; }';
+      const printerSource = '<?php namespace App; final class Printer implements Contract { public function render(int $count): string { return (string) $count; } }';
+      const otherSource = '<?php namespace App; final class Other { public function render(): void {} }';
+      const consumerSource = '<?php namespace App; function run(Contract $printer, Other $other): void { $printer->render(2); $other->render(); $printer->ren; }';
+      for (const [name, source] of [['Contract', contractSource], ['Printer', printerSource], ['Other', otherSource], ['Consumer', consumerSource]]) {
+        await writeFile(join(root, 'src', `${name}.php`), source);
+      }
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const contractUri = pathToFileURL(join(root, 'src', 'Contract.php')).toString();
+      const printerUri = pathToFileURL(join(root, 'src', 'Printer.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 940, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 940);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: consumerSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const query = async (id: number, method: string, source: string, offset: number, options: object = {}): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: {
+          textDocument: { uri }, position: lspPosition(source, offset), ...options,
+        } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result;
+      };
+      const call = consumerSource.indexOf('$printer->render(2)') + '$printer->'.length;
+      const contractDeclaration = contractSource.indexOf('function render') + 'function '.length;
+      const printerDeclaration = printerSource.indexOf('function render') + 'function '.length;
+      const callLocation = { uri, range: {
+        start: lspPosition(consumerSource, call), end: lspPosition(consumerSource, call + 'render'.length),
+      } };
+      const completion = await query(941, 'textDocument/completion', consumerSource,
+        consumerSource.indexOf('$printer->ren') + '$printer->ren'.length);
+      expect(completion.map((item: { label: string }) => item.label)).toContain('render');
+      const hover = await query(942, 'textDocument/hover', consumerSource, call + 1);
+      expect(JSON.stringify(hover)).toContain('render');
+      const signature = await query(943, 'textDocument/signatureHelp', consumerSource,
+        consumerSource.indexOf('$printer->render(2)') + '$printer->render('.length);
+      expect(signature.signatures[0].label).toContain('render(int $count): string');
+      expect(await query(944, 'textDocument/definition', consumerSource, call + 1)).toEqual([{
+        uri: contractUri, range: {
+          start: lspPosition(contractSource, contractDeclaration),
+          end: lspPosition(contractSource, contractDeclaration + 'render'.length),
+        },
+      }]);
+      expect(await query(945, 'textDocument/implementation', consumerSource, call + 1)).toEqual([{
+        uri: printerUri, range: {
+          start: lspPosition(printerSource, printerDeclaration),
+          end: lspPosition(printerSource, printerDeclaration + 'render'.length),
+        },
+      }]);
+      expect(await query(946, 'textDocument/references', consumerSource, call + 1,
+        { context: { includeDeclaration: false } })).toEqual([callLocation]);
+      expect(await query(9461, 'textDocument/references', consumerSource, call + 1,
+        { context: { includeDeclaration: true } })).toEqual([{
+        uri: contractUri, range: {
+          start: lspPosition(contractSource, contractDeclaration),
+          end: lspPosition(contractSource, contractDeclaration + 'render'.length),
+        },
+      }, callLocation]);
+      const changedSource = consumerSource.replace('$printer->ren;', '$printer->render(3);');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changedSource }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 2);
+      const secondCall = changedSource.lastIndexOf('$printer->render(3)') + '$printer->'.length;
+      expect(await query(947, 'textDocument/references', changedSource, call + 1,
+        { context: { includeDeclaration: false } })).toEqual([callLocation, {
+        uri, range: { start: lspPosition(changedSource, secondCall), end: lspPosition(changedSource, secondCall + 'render'.length) },
+      }]);
+      expect(await query(948, 'textDocument/definition', changedSource, secondCall + 1)).toEqual([{
+        uri: contractUri, range: {
+          start: lspPosition(contractSource, contractDeclaration),
+          end: lspPosition(contractSource, contractDeclaration + 'render'.length),
+        },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {

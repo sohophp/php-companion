@@ -8,6 +8,7 @@
 | F04-REF-02 | [字符串、nowdoc 与块注释](../../packages/semantic/test/fixtures/acceptance/f04-references-counterexample.php) | PHP 源码有效，调用样式文本不产生代码引用 | 同上 |
 | F04-REF-03 | [调用后的未完成成员输入](../../packages/semantic/test/fixtures/acceptance/f04-references-incomplete.php) | 保留前面完整调用的引用，不捏造未完成位置 | 同上 |
 | F04-REF-04 | [文件顶层变量改赋、闭包与条件赋值](../../packages/semantic/test/fixtures/acceptance/f04-references-global.php) | 第一次 `Printer::render` 调用属于 `Printer`，改赋及闭包内的 `Other::render` 不混入；仅在条件分支赋值的接收者不被猜成 `Printer`；缓存恢复保持结果 | 同上及 `stdio.test.ts` |
+| F04-NAV-01 | [跨文件 Composer 工作流](../../packages/language-server/test/stdio.test.ts) | 同一接口调用的补全、Hover、参数提示、定义、实现、引用精确；无关同名方法不混入；未保存新增调用立即进入引用，定义仍指向接口 | `stdio.test.ts` 的 F04-NAV-01 |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |
