@@ -1,6 +1,6 @@
 # 实施状态
 
-2026-09-23 P7 Extract Interface 抽象方法支持：抽象类中直接声明的公开抽象方法现在与公开具体方法一同进入接口；生成签名去掉 `abstract`，protected 方法仍排除。语义包 301 项、类型检查及相关 ESLint、打包 VS Code 1.138.0 隔离宿主应用/Undo/Redo 通过；语义计划写出的接口、抽象类和子类已在 PHP 7.2/8.5 下通过语法检查、加载和调用。该改动晚于 `78215753` 私有候选，仍需重新冻结。
+2026-09-23 P7 Extract Interface 抽象方法支持：抽象类中直接声明的公开抽象方法现在与公开具体方法一同进入接口；生成签名去掉 `abstract`，protected 方法仍排除。语义包 301 项、类型检查及相关 ESLint、打包 VS Code 1.138.0 隔离宿主应用/Undo/Redo 通过；语义计划写出的接口、抽象类和子类已在 PHP 7.2/8.5 下通过语法检查、加载和调用。已纳入下述 `2430bd08` 私有候选。
 
 2026-09-23 P7 Extract Interface `parent` 支持：签名里的 `parent` 仅在类有唯一 `extends` 且同一词法 namespace 的 import 可唯一绑定时改写为父类绝对 FQCN；无父类或歧义继续拒绝。语义包 301 项、language-server 与扩展测试 TypeScript 类型检查、相关 ESLint 通过；用例覆盖跨 namespace 同名别名不串线。语义计划写出的三文件在 PHP 7.2/8.5 下通过语法检查、加载和调用；打包 VS Code 1.138.0 隔离宿主应用、Undo/Redo 退出码 0。已纳入下述 `78215753` 私有候选。
 
@@ -14,7 +14,7 @@
 
 2026-09-23 P7 删除未使用 private 参数的安全域收紧：被删实参现在必须是完整且无插值的标量字面量；变量读取可能产生未定义变量提示，类常量访问可能触发自动加载，复合表达式可能执行调用，因此都拒绝自动编辑。聚焦语义用例和类型检查通过；已纳入下述 `35297e85` VSIX 候选。
 
-2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `78215753` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
+2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `2430bd08` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
 
 2026-09-23 P7 公开 API Rename 范围声明完成：产品支持说明与 Alpha 操作步骤均明确 F2 编辑计划只能覆盖当前已索引且语义证明的文件；工作区外下游仓库、客户端调用及未证明动态引用无法验证，公开 API 应用前须另行检查使用方。路线图仅关闭这一项范围声明，P7 两批重构及 F08 最终操作矩阵仍开放。
 
