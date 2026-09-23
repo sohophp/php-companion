@@ -22,3 +22,5 @@
 执行 F09：`pnpm --dir packages/framework-symfony exec vitest run test/acceptance-f09-services.test.ts test/acceptance-f09-routes.test.ts`。这两组测试验证静态 YAML 事实提取与精确范围；[F09 Provider 链路报告](reports/f09-provider-completeness-2026-09-23.md)还记录了 F09-SVC-01/03 和 F09-ROUTE-01/03 经真实 Provider 与 Language Server 的正例和不完整快照验证。扩展宿主、框架版本和真实项目动态边界仍需单独编号与验证。其余 F01–F14 场景映射也仍待补齐。
 
 执行 F09 Doctrine：`pnpm --dir packages/framework-doctrine exec vitest run test/acceptance-f09-doctrine.test.ts`。该组验证静态事实和未完成类抑制；[Doctrine 未完成输入报告](reports/f09-doctrine-incomplete-2026-09-23.md)记录既有真实 Language Server 集成回归的范围。完整编辑器工作流仍待验收。
+
+实际安装版本的按需查询补充检查使用 `pnpm check:f09:doctrine`：它在 CoreRepo 的 Doctrine 2.20.13 与 Winstar 的 3.6.8 源码上分别验证首个成员补全请求和动态类反例，具体范围见[双版本报告](reports/f09-doctrine-version-matrix-2026-09-23.md)。这项真实项目探针不属于可移植 fixture，也不代替 WSL Remote 编辑器验收。
