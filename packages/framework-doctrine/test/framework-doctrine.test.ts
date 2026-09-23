@@ -39,7 +39,12 @@ describe('static Doctrine facts', () => {
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleResult', returnType: 'TEntity', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true },
     ]);
-    expect(queryFacts.slice(6).map((item) => [item.name, item.returnType])).toEqual([
+    expect(queryFacts.slice(6, 9).map((item) => [item.name, item.returnType])).toEqual([
+      ['getArrayResult', 'array<int, array<array-key, mixed>>'],
+      ['getScalarResult', 'array<int, array<string, mixed>>'],
+      ['getSingleScalarResult', 'bool|float|int|string|null'],
+    ]);
+    expect(queryFacts.slice(9).map((item) => [item.name, item.returnType])).toEqual([
       ['select', '\\Doctrine\\ORM\\QueryBuilder'], ['from', '\\Doctrine\\ORM\\QueryBuilder'],
       ['delete', '\\Doctrine\\ORM\\QueryBuilder'], ['update', '\\Doctrine\\ORM\\QueryBuilder'],
     ]);

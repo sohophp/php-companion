@@ -1,3 +1,4 @@
+- Type Doctrine `getArrayResult()`, `getScalarResult()` and `getSingleScalarResult()` with stable broad hydration shapes while keeping DQL field keys and concrete scalar types unknown.
 - Preserve Doctrine entity generics for project methods that return an ORM EntityManager QueryBuilder with one literal `from(Entity::class, 'alias')` root and an optional matching root `select()`.
 - Symfony service tooling now includes exact project PHP `#[Autowire(service: '...')]` literals in cross-format navigation, references, completion and single-undo service-id Rename.
 - Avoid discarding cached static Symfony route snapshots for ordinary PHP editing; route-bearing PHP/config files and YAML/XML changes still invalidate them, and runtime-only completion items no longer claim a source declaration.

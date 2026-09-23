@@ -4677,7 +4677,7 @@ final class Imported { public const TYPE = Stable::class; }`);
     workspace.update('file:///DoctrineQuery.php', `<?php namespace Doctrine\\ORM;
       class Query { public function getResult(int $hydrationMode = 1): mixed {} public function getOneOrNullResult(int $hydrationMode = 1): mixed {}
         public function getSingleResult(int $hydrationMode = 1): mixed {} public function toIterable(array $parameters = [], int $hydrationMode = 1): iterable {}
-        public function getArrayResult(): array {} }
+        public function getArrayResult(): array {} public function getScalarResult(): array {} public function getSingleScalarResult(): mixed {} }
       class QueryBuilder { public function andWhere(string $where): static { return $this; } public function select(mixed ...$select): static { return $this; }
         public function from(string $from, string $alias): static { return $this; } public function delete(?string $delete = null): static { return $this; }
         public function update(?string $update = null): static { return $this; } public function getQuery(): Query {} }
@@ -4699,6 +4699,9 @@ final class Imported { public const TYPE = Stable::class; }`);
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getOneOrNullResult', returnType: 'TEntity|null', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleResult', returnType: 'TEntity', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
       { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>', receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getArrayResult', returnType: 'array<int, array<array-key, mixed>>', ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getScalarResult', returnType: 'array<int, array<string, mixed>>', ...location },
+      { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleScalarResult', returnType: 'bool|float|int|string|null', ...location },
       ...['select', 'from', 'delete', 'update'].map((name) => ({ ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder', ...location })),
     ] }))).toBe(true);
     const source = `<?php namespace QueryFlow; function run(UserRepository $repo): void {
@@ -4710,6 +4713,8 @@ final class Imported { public const TYPE = Stable::class; }`);
       foreach ($repo->createQueryBuilder('user')->getQuery()->getResult() as $direct) { $direct->na; }
       foreach ($repo->createQueryBuilder('user')->getQuery()->toIterable() as $iterated) { $iterated->na; }
       $arrays = $repo->createQueryBuilder('user')->getQuery()->getArrayResult(); foreach ($arrays as $row) { $row->na; }
+      $scalarRows = $repo->createQueryBuilder('user')->getQuery()->getScalarResult(); foreach ($scalarRows as $scalarRow) { $scalarRow->na; }
+      $singleScalar = $repo->createQueryBuilder('user')->getQuery()->getSingleScalarResult(); $singleScalar->na;
       $scalars = $repo->createQueryBuilder('user')->select('COUNT(user.id)')->getQuery()->getResult(); foreach ($scalars as $scalar) { $scalar->na; }
       $hydrated = $repo->createQueryBuilder('user')->getQuery()->getResult(2); foreach ($hydrated as $arrayHydrated) { $arrayHydrated->na; }
       $hydratedSingle = $repo->createQueryBuilder('user')->getQuery()->getSingleResult(2); $hydratedSingle->na;
@@ -4726,6 +4731,8 @@ final class Imported { public const TYPE = Stable::class; }`);
       expect(workspace.completeMembers('file:///QueryUse.php', source.indexOf(marker) + marker.length).map((item) => item.name), marker).toEqual(['name']);
     }
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$row->na') + '$row->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$scalarRow->na') + '$scalarRow->na'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$singleScalar->na') + '$singleScalar->na'.length)).toEqual([]);
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$scalar->na') + '$scalar->na'.length)).toEqual([]);
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$arrayHydrated->na') + '$arrayHydrated->na'.length)).toEqual([]);
     expect(workspace.completeMembers('file:///QueryUse.php', source.lastIndexOf('$hydratedSingle->na') + '$hydratedSingle->na'.length)).toEqual([]);

@@ -375,3 +375,4 @@ This package uses Changesets for versioning.
 - Traverse imported Attribute directories recursively with stable order, realpath cycle detection and existing resource budgets.
 - Apply route import exclusions relative to the declaring YAML file before traversing matching files or directory subtrees.
 - Reject incomplete authoritative route snapshots, and merge source locations from partial static providers only into a complete runtime-confirmed route catalog with the same name and path.
+- Publish stable Doctrine array, scalar and single-scalar hydration terminal facts and advance project facts/cache wrappers to schema 7/schema 12/v64 so older records rebuild safely.

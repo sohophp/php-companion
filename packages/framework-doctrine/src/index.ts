@@ -8,7 +8,7 @@ export interface DoctrineQueryFactoryInfo { ownerFqcn: string; method: string; e
 export interface DoctrineDocumentFacts { entities: DoctrineEntityInfo[]; repositories: DoctrineRepositoryInfo[]; queryFactories: DoctrineQueryFactoryInfo[]; }
 export interface DoctrineRepositoryMethodFact extends ExternalMethodFact {
   name: 'find' | 'findOneBy' | 'findAll' | 'findBy' | 'createQueryBuilder' | 'getQuery' | 'getResult' | 'getOneOrNullResult'
-    | 'getSingleResult' | 'toIterable'
+    | 'getSingleResult' | 'getArrayResult' | 'getScalarResult' | 'getSingleScalarResult' | 'toIterable'
     | 'select' | 'from' | 'delete' | 'update';
   returnType: string;
 }
@@ -228,6 +228,12 @@ export function doctrineQueryMethodFacts(location: { uri: string; start: number;
       receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
     { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'toIterable', returnType: 'iterable<int, TEntity>',
       receiverTypeTemplates: ['TEntity'], defaultArgumentsOnly: true, ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getArrayResult', returnType: 'array<int, array<array-key, mixed>>',
+      ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getScalarResult', returnType: 'array<int, array<string, mixed>>',
+      ...location },
+    { ownerFqcn: 'Doctrine\\ORM\\Query', name: 'getSingleScalarResult', returnType: 'bool|float|int|string|null',
+      ...location },
     ...(['select', 'from', 'delete', 'update'] as const).map((name): DoctrineRepositoryMethodFact => ({
       ownerFqcn: 'Doctrine\\ORM\\QueryBuilder', name, returnType: '\\Doctrine\\ORM\\QueryBuilder',
       ...location,

@@ -19,7 +19,7 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
             declarations: compressCachedSourceDeclaration(task.snapshot as SemanticSourceDeclarationSnapshot, task.hash) }
           : { kind: 'compressed', id: task.id,
             semantic: compressCachedProjectPhpFile(createCachedProjectPhpFile(task.snapshot as SemanticSnapshot,
-              { schema: 6, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, task.hash)) };
+              { schema: 7, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, task.hash)) };
         parentPort?.postMessage(result); return;
       }
       const payload = task.payload as { declarations?: unknown; semantic?: unknown } | null;
