@@ -270,16 +270,16 @@ describe('language server stdio', () => {
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
         && message.params.uri === uri && message.params.version === 3);
       const otherDeclaration = otherSource.indexOf('function render') + 'function '.length;
-      expect(await query(949, 'textDocument/definition', switchedSource, call + 1)).toEqual([{
+      const switchedFirstCall = switchedSource.indexOf('$printer->render(2)') + '$printer->'.length;
+      expect(await query(949, 'textDocument/definition', switchedSource, switchedFirstCall + 1)).toEqual([{
         uri: otherUri, range: {
           start: lspPosition(otherSource, otherDeclaration),
           end: lspPosition(otherSource, otherDeclaration + 'render'.length),
         },
       }]);
-      expect(await query(950, 'textDocument/implementation', switchedSource, call + 1)).toEqual([]);
-      const switchedReferences = await query(951, 'textDocument/references', switchedSource, call + 1,
+      expect(await query(950, 'textDocument/implementation', switchedSource, switchedFirstCall + 1)).toEqual([]);
+      const switchedReferences = await query(951, 'textDocument/references', switchedSource, switchedFirstCall + 1,
         { context: { includeDeclaration: false } });
-      const switchedFirstCall = switchedSource.indexOf('$printer->render(2)') + '$printer->'.length;
       const switchedSecondCall = switchedSource.lastIndexOf('$printer->render(3)') + '$printer->'.length;
       expect(switchedReferences).toEqual([{
         uri, range: { start: lspPosition(switchedSource, switchedFirstCall), end: lspPosition(switchedSource, switchedFirstCall + 'render'.length) },
@@ -291,11 +291,26 @@ describe('language server stdio', () => {
       }, {
         uri, range: { start: lspPosition(switchedSource, switchedSecondCall), end: lspPosition(switchedSource, switchedSecondCall + 'render'.length) },
       }]);
-      const switchedHover = await query(952, 'textDocument/hover', switchedSource, call + 1);
+      const switchedHover = await query(952, 'textDocument/hover', switchedSource, switchedFirstCall + 1);
       expect(JSON.stringify(switchedHover)).toContain('render(): void');
       const switchedSignature = await query(953, 'textDocument/signatureHelp', switchedSource,
         switchedSource.indexOf('$printer->render(2)') + '$printer->render('.length);
       expect(switchedSignature.signatures[0].label).toContain('render(): void');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 4 }, contentChanges: [{ text: changedSource }],
+      } }));
+      expect(await query(954, 'textDocument/definition', changedSource, call + 1)).toEqual([{
+        uri: contractUri, range: {
+          start: lspPosition(contractSource, contractDeclaration),
+          end: lspPosition(contractSource, contractDeclaration + 'render'.length),
+        },
+      }]);
+      expect(await query(955, 'textDocument/implementation', changedSource, call + 1)).toEqual([{
+        uri: printerUri, range: {
+          start: lspPosition(printerSource, printerDeclaration),
+          end: lspPosition(printerSource, printerDeclaration + 'render'.length),
+        },
+      }]);
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 

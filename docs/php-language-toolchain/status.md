@@ -1,5 +1,8 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-03：真实 stdio 在未保存文档从 `Other` 改回 `Contract` 后，不等待诊断发布，直接请求 Definition 与 Implementation；两项均按新版本命中接口及 `Printer` 实现。定向测试通过，说明该编辑序列没有可见的旧身份回写；其它请求与真实 VS Code 快速编辑仍待扩展验证。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
+
+
 2026-09-24 C1/F04-NAV-02：在既有独立 Composer 项目真实 stdio 测试中加入未保存接收者类型切换；第三版文档的 Definition、Implementation、References、Hover 与 Signature Help 精确指向新同名方法，旧接口结果不残留。定向测试通过；这是自动协议证据，完整 F04 与真实编辑器体验仍待验。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
 
 
