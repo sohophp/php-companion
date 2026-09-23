@@ -18,6 +18,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   const coreExtension = vscode.extensions.getExtension<PhpCompanionPluginApi>('sohophp.php-companion');
   if (!coreExtension) throw new Error(t('requiresCore'));
   const core = await coreExtension.activate();
+  if (core.version !== 1) throw new Error(t('unsupportedCoreApi', String(core.version)));
   const integration = new SymfonyIntegration(core,
     context.asAbsolutePath('dist/service-provider.js'),
     context.asAbsolutePath('dist/event-provider.js'),
