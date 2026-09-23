@@ -135,6 +135,8 @@ let referenceMemoryBudgetMiB = 1536;
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
+const testPauseNextQueries = new Set<string>();
+const testPausedQueries = new Map<string, () => void>();
 let experimentalReferenceClosure = false;
 let experimentalReferenceSourceOnly = false;
 function referenceSourceMode(): boolean {
@@ -1370,11 +1372,15 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
 }
 
 async function publishDocumentDiagnostics(document: TextDocument): Promise<void> {
+  const version = document.version;
   const workspace = await semanticForUri(document.uri);
   const root = rootForUri(document.uri);
   const semanticTerminators = root && completeRoots.has(root) && isSyntaxAvailable(targetPhpVersion, '8.1')
     ? workspace.neverReturningCalls(document.uri) : [];
-  const result = analyzePhpDocument(document, await parser(), targetPhpVersion, await expectedNamespace(document.uri), semanticTerminators, clientDiagnosticLanguage);
+  const syntaxParser = await parser();
+  const namespace = await expectedNamespace(document.uri);
+  if (documents.get(document.uri) !== document || document.version !== version) return;
+  const result = analyzePhpDocument(document, syntaxParser, targetPhpVersion, namespace, semanticTerminators, clientDiagnosticLanguage);
   const typeSymbolKinds = new Set<SymbolKind>([SymbolKind.Class, SymbolKind.Interface, SymbolKind.Struct, SymbolKind.Enum]);
   const documentPath = pathForUri(document.uri); const typeSymbols = result.symbols.filter((symbol) => typeSymbolKinds.has(symbol.kind));
   const primaryType = typeSymbols.length === 1 ? typeSymbols[0] : undefined;
@@ -1822,9 +1828,9 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       message: diagnosticMessage(clientDiagnosticLanguage, 'inaccessibleConstructor', item.visibility, item.constructor, item.target),
     })));
   }
-  if (documents.get(document.uri)?.version === document.version) {
+  if (documents.get(document.uri) === document && document.version === version) {
     const diagnostics = configuredDiagnostics(result.diagnostics);
-    await connection.sendDiagnostics({ uri: document.uri, version: document.version, diagnostics });
+    await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
 }
@@ -2966,7 +2972,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
   clientDiagnosticLanguage = diagnosticLanguage(params.locale);
-  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'progressive' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
@@ -2988,6 +2994,12 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   setSymfonyRouteProviders(initialization?.symfonyRouteProviders);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   testMode = initialization?.testMode === true;
+  testPauseNextQueries.clear();
+  if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
+    for (const method of initialization.testPauseNextQueries) {
+      if (typeof method === 'string' && ['completion', 'hover', 'signatureHelp', 'definition'].includes(method)) testPauseNextQueries.add(method);
+    }
+  }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
   experimentalReferenceSourceOnly = indexingMode === 'experimental' && initialization?.experimentalReferenceSourceOnly === true;
   referenceRipgrepMode = initialization?.experimentalRipgrepCandidates === false ? 'off'
@@ -3047,6 +3059,23 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
   setTimeout(() => process.exit(70), 10);
   return true;
 });
+
+connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknown }): boolean => {
+  if (!testMode || typeof params?.method !== 'string') return false;
+  const release = testPausedQueries.get(params.method);
+  if (!release) return false;
+  testPausedQueries.delete(params.method);
+  release();
+  return true;
+});
+
+function pauseTestQuery(method: string): Promise<void> | undefined {
+  if (!testMode || !testPauseNextQueries.delete(method)) return undefined;
+  return new Promise<void>((done) => {
+    testPausedQueries.set(method, done);
+    connection.console.info(`[test-query-paused] method=${method}`);
+  });
+}
 
 connection.onRequest('phpCompanion/testWaitReferencePersistence', async (): Promise<boolean> => {
   if (!testMode) return false;
@@ -4328,24 +4357,26 @@ async function provenSymfonyRouteParameterCall(document: TextDocument, offset: n
   return correctRoute && correctParameters ? call : undefined;
 }
 
-function currentQueryDocument(document: TextDocument, token: { isCancellationRequested: boolean }): boolean {
-  return !token.isCancellationRequested && documents.get(document.uri)?.version === document.version;
+function currentQueryDocument(document: TextDocument, token: { isCancellationRequested: boolean }, version: number): boolean {
+  return !token.isCancellationRequested && documents.get(document.uri) === document && document.version === version;
 }
 
 connection.onCompletion(async ({ textDocument, position }, token) => {
-  await semanticProviderReconciliation;
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const queryVersion = document.version;
+  if (testPauseNextQueries.has('completion')) await pauseTestQuery('completion');
+  await semanticProviderReconciliation;
   const workspace = await semanticForUri(document.uri);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeParameterCall) {
     const root = rootForUri(document.uri);
     if (root) {
       const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
+      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== queryVersion) return [];
       const route = routes.find((candidate) => candidate.name === routeParameterCall.routeName); if (!route) return [];
       const existing = new Set(routeParameterCall.existingKeys);
       const parameters = [...new Set([...route.path.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((match) => match[1]!))];
@@ -4356,12 +4387,12 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     }
   }
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeCall) {
     const root = rootForUri(document.uri);
     if (root) {
       const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== document.version) return [];
+      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== queryVersion) return [];
       return routes.filter((route) => route.name.startsWith(routeCall.prefix)).map((route) => ({
         label: route.name, kind: CompletionItemKind.Reference,
         detail: `${route.path} (${route.uri !== undefined ? 'source declaration' : 'runtime route'})`,
@@ -4372,7 +4403,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (serviceReference) return symfonyServiceCatalog(rootForUri(document.uri)).filter((service) => service.id.startsWith(document.getText().slice(serviceReference.start, offset))).map((service) => ({
     label: service.id,
     kind: CompletionItemKind.Reference,
@@ -4392,11 +4423,11 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     if (/\bcreateQueryBuilder\s*\(/.test(source) && /\bgetQuery\s*\(/.test(source))
       await hydrateCanonicalTypes(workspace, memberRoot, ['Doctrine\\ORM\\EntityManagerInterface', 'Doctrine\\ORM\\EntityRepository']);
     await ensureDoctrineQueryFacts(memberRoot, workspace);
-    if (token.isCancellationRequested || documents.get(document.uri)?.version !== document.version) return [];
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
   let resolvedMembers = workspace.completeMembers(document.uri, offset);
   if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
-    const root = rootForUri(document.uri); const version = document.version;
+    const root = rootForUri(document.uri);
     let frontier = workspace.memberOwnerTypeNamesAt(document.uri, offset);
     if (!frontier.length) frontier = workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn);
     const visited = new Set<string>();
@@ -4405,13 +4436,13 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       if (!candidates.length) break;
       candidates.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
       await hydrateCanonicalTypes(workspace, root, candidates);
-      if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) break;
+      if (!currentQueryDocument(document, token, queryVersion)) break;
       await ensureDoctrineQueryFacts(root, workspace);
       resolvedMembers = workspace.completeMembers(document.uri, offset);
       frontier = [...workspace.memberOwnerTypeNamesAt(document.uri, offset),
         ...candidates.flatMap((fqcn) => workspace.directDeclarationDependencies(fqcn))];
     }
-    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
   const members = resolvedMembers.map((member) => ({
     label: member.kind === 'property' && member.static ? `$${member.name}` : member.name,
@@ -4463,22 +4494,23 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
 connection.onHover(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return null;
-  const workspace = await semanticForUri(document.uri); if (!currentQueryDocument(document, token)) return null; const offset = document.offsetAt(position);
+  const queryVersion = document.version;
+  if (testPauseNextQueries.has('hover')) await pauseTestQuery('hover');
+  const workspace = await semanticForUri(document.uri); if (!currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
-  if (!currentQueryDocument(document, token)) return null;
+  if (!currentQueryDocument(document, token, queryVersion)) return null;
   const service = serviceReference && symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
   if (service) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony service** \`${service.id}\`\n\n\`class ${service.className}\`` } };
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
   let member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
   if (!member && serviceRoot && document.languageId === 'php') {
-    const version = document.version;
     await hydrateMemberOwnerChain(workspace, serviceRoot, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
       () => Boolean(workspace.memberAt(document.uri, offset)),
-      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
-    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return null;
+      () => !currentQueryDocument(document, token, queryVersion));
+    if (!currentQueryDocument(document, token, queryVersion)) return null;
     member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
   }
   const constant = member ? undefined : workspace.constantAt(document.uri, offset);
@@ -4496,35 +4528,37 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   try {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const queryVersion = document.version;
+  if (testPauseNextQueries.has('definition')) await pauseTestQuery('definition');
   const workspace = await semanticForUri(document.uri);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeCall) {
     const root = rootForUri(document.uri); if (!root) return [];
-    const version = document.version; const name = document.getText().slice(routeCall.start, routeCall.end);
+    const name = document.getText().slice(routeCall.start, routeCall.end);
     const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-    if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== version) return [];
+    if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== queryVersion) return [];
     const route = routes.find((candidate) => candidate.name === name); if (!route?.uri || route.start === undefined || route.end === undefined) return [];
     const openTarget = documents.get(route.uri); let source = openTarget?.getText() ?? workspace.source(route.uri);
     if (source === undefined) { const path = pathForUri(route.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }
     const languageId = route.uri.endsWith('.php') ? 'php' : 'yaml';
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(route.uri, languageId, 0, source));
-    if (!currentQueryDocument(document, token)) return [];
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
     return target ? [{ uri: route.uri, range: { start: target.positionAt(route.start), end: target.positionAt(route.end) } }] : [];
   }
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (serviceReference) {
     const service = symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
     if (!service) return [];
     const openTarget = documents.get(service.uri); let source = openTarget?.getText() ?? workspace.source(service.uri);
     if (source === undefined) { const path = pathForUri(service.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing config target. */ } }
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(service.uri, service.uri.endsWith('.php') ? 'php' : 'yaml', 0, source));
-    if (!currentQueryDocument(document, token)) return [];
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
     return target ? [{ uri: service.uri, range: { start: target.positionAt(service.start), end: target.positionAt(service.end) } }] : [];
   }
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, document.offsetAt(position), workspace) : undefined;
@@ -4548,19 +4582,18 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
       dependencies.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
       if (!dependencies.length) break;
       await hydrateCanonicalTypes(workspace, root, dependencies, true);
-      if (!currentQueryDocument(document, token)) return [];
+      if (!currentQueryDocument(document, token, queryVersion)) return [];
       owners = dependencies;
     }
   }
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
-    const version = document.version;
     await hydrateMemberOwnerChain(workspace, root, () => [workspace.resolvedTypeNameAt(document.uri, offset),
       ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn)),
     () => workspace.definition(document.uri, offset).length > 0,
-    () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
-    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+    () => !currentQueryDocument(document, token, queryVersion));
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
     locations = workspace.definition(document.uri, offset);
   }
   return locations.flatMap((location) => {
@@ -4574,8 +4607,9 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
 
 connection.onTypeDefinition(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); if (!document || token.isCancellationRequested) return [];
+  const queryVersion = document.version;
   const workspace = await semanticForUri(document.uri);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   return workspace.typeDefinition(document.uri, document.offsetAt(position)).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));
@@ -4586,25 +4620,24 @@ connection.onTypeDefinition(async ({ textDocument, position }, token) => {
 connection.onImplementation(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const queryVersion = document.version;
   const workspace = await semanticForUri(document.uri);
-  if (!currentQueryDocument(document, token)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   let member = workspace.referenceMemberAt(document.uri, offset);
   const root = rootForUri(document.uri);
   if (!member && root && document.languageId === 'php') {
-    const version = document.version;
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
       () => Boolean(workspace.referenceMemberAt(document.uri, offset)),
-      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
-    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+      () => !currentQueryDocument(document, token, queryVersion));
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
     member = workspace.referenceMemberAt(document.uri, offset);
   }
   if (root && member?.kind === 'method') {
-    const version = document.version;
     const ready = await scanNamedCandidates(workspace, root, new Set([member.name.toLowerCase()]),
       () => token.isCancellationRequested, 2, 'symbol', true);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
+    if (documents.get(document.uri)?.version !== queryVersion) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
   }
   return workspace.implementations(document.uri, offset).flatMap((location) => {
@@ -4966,14 +4999,16 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
 connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return null;
+  const queryVersion = document.version;
+  if (testPauseNextQueries.has('signatureHelp')) await pauseTestQuery('signatureHelp');
   const workspace = await semanticForUri(document.uri); const offset = document.offsetAt(position);
-  const root = rootForUri(document.uri); const version = document.version;
+  const root = rootForUri(document.uri);
   if (root && document.languageId === 'php' && !workspace.signatures(document.uri, offset).length) {
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberCallOwnerTypeNamesAt(document.uri, offset),
       () => workspace.signatures(document.uri, offset).length > 0,
-      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
+      () => token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion);
   }
-  if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return null;
+  if (token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion) return null;
   const signatures = workspace.signatures(document.uri, offset);
   if (!signatures.length || token.isCancellationRequested) return null;
   const activeSignature = signatures.findIndex((signature) => signature.activeParameter < signature.parameters.length);

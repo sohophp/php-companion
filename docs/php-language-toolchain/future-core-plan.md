@@ -39,7 +39,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 截至 2026-09-24，F04-NAV-01–10 已用独立 Composer 项目验证接口、未保存类型切换、未完成成员输入、跨 namespace 父类与同名短类、跨文件 Trait 优先级和别名、外部声明变更后的索引失效，以及进行中 References 取消后的新版本导航。F04-HOST-01 又在隔离 VS Code Core 宿主中，以 auto、PHP 7.2、8.1、8.5 设置完成六项编辑请求和未保存跳转；F02-VERSION-01 用同一版本文件验证了 `match`、`enum`、`(void)` 的版本诊断。查询版本保护已统一覆盖主要异步边界。Pack 组合、Remote、跨平台和持续使用按后续门槛执行。Symfony 或单个业务项目特例不决定通用 Core 的优先级。
 
-**现在从这里继续：**Implementation 已有候选扫描开始后的未保存编辑时序回归；下一步继续为 Completion、Hover、Signature Help 和 Definition 建立可控的“请求进行中→未保存编辑→新请求”证据，检查旧结果是否回写。同一隔离 C1 宿主已开始记录六类查询的首次补全与热态小样本等待分布，优先调查 Completion、Hover 的偶发长等待，再修复可证明的错误结果与卡顿。完成 C1 编码链后进入 C2 的类型与诊断反馈；PHPDoc 生成先用可选扩展验证，Core 只补类型消费和语义一致性。Open Source Pack 已整理为当前 10 项清单，冻结候选时再做完整组合门禁，不因每次 Core 源码增量重打三份 VSIX。
+**现在从这里继续：**References、Implementation 已有实际候选扫描期间的未保存编辑证据；Completion、Hover、Signature Help 和 Definition 也已通过测试模式中的可控暂停点验证新旧版本分离，并修复可变文档版本比较错误。下一步定位隔离 VS Code 宿主中 Completion、Hover 偶发长等待的具体阶段；在同一 Composer 工作流中扩大输入类型与 PHP 版本覆盖，然后按退出证据判断 C1 是否可关闭。C2 随后以类型与诊断反馈为重点；PHPDoc 生成先用可选扩展验证，Core 只补类型消费和语义一致性。Open Source Pack 已整理为当前 10 项清单，冻结候选时再做完整组合门禁，不因每次 Core 源码增量重打三份 VSIX。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。
