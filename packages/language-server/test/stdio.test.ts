@@ -3766,11 +3766,11 @@ class MissingProperty implements PropertyContract {}
 trait WithProperty { public int $value; }
 enum State implements \\UnitEnum { use WithProperty; case Ready; }
 readonly class InvalidReadonlyTrait { use WithProperty; }
-class Target { private function __construct() {} private function hidden(): void {} }
+class Target { private function __construct() {} private function hidden(): void {} public function visible(): void {} }
 class Hooks { public string $sink { set(string $value) {} } }
 /** @param ParentType $value */
 function conflict(ChildType $value): void {}
-function useCases(Target $target, Hooks $hooks): void { new Target(); new Contract(); $target->hidden(); $hooks->sink; }`;
+function useCases(Target $target, Hooks $hooks): void { new Target(); new Contract(); $target->hidden(); $target->missing(); Target::visible(); $hooks->sink; }`;
       await writeFile(join(root, 'Cases.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -3784,6 +3784,8 @@ function useCases(Target $target, Hooks $hooks): void { new Target(); new Contra
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       expect(published.params.diagnostics).toEqual(expect.arrayContaining([
         expect.objectContaining({ code: 'php.member.inaccessible', message: '无法访问 private 方法 App\\Target::hidden。' }),
+        expect.objectContaining({ code: 'php.member.unresolved', message: '无法解析方法 App\\Target::missing。' }),
+        expect.objectContaining({ code: 'php.member.non-static-access', message: '无法以静态方式访问非静态方法 App\\Target::visible。' }),
         expect.objectContaining({ code: 'php.phpdoc.type-conflict', message: '$value 的 PHPDoc 类型为 ParentType，与原生类型 App\\ChildType 不兼容。' }),
         expect.objectContaining({ code: 'php.property.unreadable', message: '不能读取只写的带 Hook 属性 App\\Hooks::$sink。' }),
         expect.objectContaining({ code: 'php.instantiation.inaccessible-constructor',
@@ -3901,12 +3903,42 @@ class Example {}`;
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       const unused = published.params.diagnostics.find((item: { code?: string }) => item.code === 'php.import.unused');
       expect(unused).toBeDefined();
+      expect(unused.message).toBe('未使用的类导入：DateTimeImmutable。');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 135, method: 'textDocument/codeAction', params: {
         textDocument: { uri }, range: unused.range, context: { diagnostics: [unused] },
       } }));
       const actions = (await output.waitFor((message) => message.id === 135)).result as Array<{ title: string; kind: string }>;
       expect(actions).toEqual(expect.arrayContaining([expect.objectContaining({ title: '移除未使用的导入', kind: 'quickfix' })]));
       expect(actions.some((item) => item.title === 'Remove unused import')).toBe(false);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('returns Chinese References failure and warning when indexing is disabled', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-references-unavailable-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      const uri = pathToFileURL(join(root, 'Target.php')).toString();
+      const source = '<?php namespace App; class Target {}';
+      await writeFile(join(root, 'Target.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 136, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN',
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'off' },
+      } }));
+      await output.waitFor((message) => message.id === 136);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 137, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('Target') + 2), context: { includeDeclaration: true },
+      } }));
+      const response = await output.waitFor((message) => message.id === 137);
+      expect(response.error).toMatchObject({ message: '项目索引不完整；不能将此结果视为零处引用。' });
+      const warning = await output.waitFor((message) => message.method === 'window/showMessageRequest');
+      expect(warning.params).toMatchObject({ type: 2,
+        message: 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 PHP Companion 输出。' });
+      server.stdin.write(encode({ jsonrpc: '2.0', id: warning.id, result: null }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

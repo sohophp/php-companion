@@ -42,6 +42,8 @@
 
 2026-09-23 Language Server 的 Quick Fix 与重构[代码操作标题已本地化](reports/f14-code-action-titles-2026-09-23.md)，真实中文 stdio 请求和既有英文编辑结果回归通过。Provider 文案与部分诊断参数标签仍待处理；本轮继续不打包。
 
+2026-09-23 [查询错误、References 警告与诊断参数标签](reports/f14-protocol-messages-2026-09-23.md)已完成中英文回归；关闭索引的真实 `zh-CN` stdio 请求确认中文 `RequestFailed` 和警告。内部 Provider/索引日志仍待审计，继续不打包。
+
 2026-09-23 P7 公开 API Rename 范围声明完成：产品支持说明与 Alpha 操作步骤均明确 F2 编辑计划只能覆盖当前已索引且语义证明的文件；工作区外下游仓库、客户端调用及未证明动态引用无法验证，公开 API 应用前须另行检查使用方。路线图仅关闭这一项范围声明，P7 两批重构及 F08 最终操作矩阵仍开放。
 
 2026-09-23 P9 / F01–F14 已逐项按[最终验收审计](reports/p9-acceptance-audit-2026-09-23.md)复核：专项 Linux 自动性能、真实项目只读 Oracle、P8 协作和候选打包有证据；P0、P2–P7 与 P9 仍有开放工作，当前候选的跨平台/WSL Remote 人工矩阵尚缺，因此没有把任何 F 项误记为最终通过。后续先推进 P7 支持域和编辑器操作矩阵。

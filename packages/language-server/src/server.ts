@@ -32,6 +32,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
 import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDeprecatedKind, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { codeActionTitle } from './codeActionMessages.js';
+import { protocolMessage } from './protocolMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -1372,7 +1373,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     severity: DiagnosticSeverity.Warning,
     code: 'php.import.unused',
     source: 'PHP Companion',
-    message: diagnosticMessage(clientDiagnosticLanguage, 'unusedImport', item.kind, item.name),
+    message: diagnosticMessage(clientDiagnosticLanguage, 'unusedImport',
+      diagnosticMessage(clientDiagnosticLanguage, item.kind === 'class' ? 'importClass' : item.kind === 'function' ? 'importFunction' : 'importConst'), item.name),
     data: { statementStart: item.statementStart, statementEnd: item.statementEnd },
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) result.diagnostics.push(...workspace.undefinedVariables(document.uri).map((variable) => ({
@@ -1460,14 +1462,18 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.member.unresolved',
       source: 'PHP Companion',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedMember', member.kind, member.ownerFqcn, member.name),
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedMember',
+        diagnosticMessage(clientDiagnosticLanguage, member.kind === 'method' ? 'memberMethod' : member.kind === 'property' ? 'memberProperty' : 'memberConstant'),
+        member.ownerFqcn, member.name),
     })));
     result.diagnostics.push(...workspace.invalidStaticMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.member.non-static-access',
       source: 'PHP Companion',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'nonStaticMember', member.kind, member.ownerFqcn, member.name),
+      message: diagnosticMessage(clientDiagnosticLanguage, 'nonStaticMember',
+        diagnosticMessage(clientDiagnosticLanguage, member.kind === 'method' ? 'memberMethod' : member.kind === 'property' ? 'memberProperty' : 'memberConstant'),
+        member.ownerFqcn, member.name),
     })));
     result.diagnostics.push(...workspace.inaccessibleMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
@@ -2430,7 +2436,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     }
   }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
-  if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Type query cancelled.');
+  if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
   if (!scan.projectComplete || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
@@ -2709,7 +2715,7 @@ async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, 
         },
       } : undefined,
     });
-    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
+    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceReferencesCancelled'));
     if (!scan.projectComplete || cancelled()) return undefined;
     for (const document of documents.all().filter((item) => item.languageId === 'php' && rootForUri(item.uri) === root)) {
       const source = document.getText();
@@ -2768,7 +2774,7 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
         },
       } : undefined,
     });
-    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller context search cancelled.');
+    if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'controllerContextCancelled'));
     if (!scan.projectComplete || cancelled()) return false;
     for (const document of documents.all().filter((item) => item.languageId === 'php' && rootForUri(item.uri) === root)) {
       const source = document.getText();
@@ -2805,7 +2811,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
   if (candidates.length > completeCandidateLimit) {
     evidence.reject();
     if (completeCandidateLimit > 16) throw new ResponseError(LSPErrorCodes.RequestFailed,
-      'PHP type hydration exceeded its lookup bound; References are incomplete.');
+      protocolMessage(clientDiagnosticLanguage, 'typeHydrationBound'));
   }
   let loaded = false;
   for (const path of candidates.slice(0, completeCandidateLimit)) {
@@ -2834,7 +2840,7 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
   const hydrate = async (names: readonly string[]): Promise<void> => {
     const unique = [...new Set(names)];
     for (let start = 0; start < unique.length; start += 16) {
-      if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+      if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
       await hydrateCanonicalTypes(workspace, root, unique.slice(start, start + 16), true, 64);
     }
   };
@@ -2851,7 +2857,7 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
   const returnedTypes = methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []);
   await hydrate(returnedTypes);
   for (const name of new Set(returnedTypes)) {
-    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
     const uri = workspace.typeByFqcn(name)?.uri;
     if (!uri || workspace.implementationState(uri) !== 'deferred') continue;
     const source = workspace.source(uri);
@@ -2867,7 +2873,7 @@ async function hydrateLoadedReferenceReceiverClosure(workspace: SemanticWorkspac
   names: ReadonlySet<string>, initial: readonly AssignedReceiverMethod[], cancelled: () => boolean): Promise<boolean> {
   const seen = new Set<string>();
   for (let pass = 0; pass < 16; pass += 1) {
-    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
     const next = [...(pass === 0 ? initial : []), ...loadedReferenceReceiverMethods(workspace, root, names)]
       .filter((item) => {
         const key = `${item.owner.toLowerCase()}::${item.method.toLowerCase()}`;
@@ -2899,7 +2905,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
     `(?<![\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`, 'iu'));
   const visited = new Set<string>();
   for (let pass = 0; pass < 16; pass += 1) {
-    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
     const next = workspace.documentUris().filter((uri) => !visited.has(uri));
     if (!next.length) return true;
     const methods = next.filter((uri) => {
@@ -3078,7 +3084,7 @@ connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: 
   if (controller) {
     if (externalSymfonyRoutes(uri)) return [];
     await hydrateCanonicalTypes(workspace, root, [controller.className]);
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony controller navigation cancelled.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'controllerNavigationCancelled'));
     const target = controller.method && controller.methodStart !== undefined && controller.methodEnd !== undefined
       && offset >= controller.methodStart && offset < controller.methodEnd
       ? workspace.publicInstanceMethod(controller.className, controller.method)
@@ -3470,7 +3476,7 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
   if (!root || !sourcePath) return [];
   await semanticForRoot(root);
-  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
+  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceReferencesCancelled'));
   const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri); const syntaxParser = sourceIsPhp ? await parser() : undefined;
   const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
@@ -3522,7 +3528,7 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
   const locations: Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }> = [];
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
     if (!/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service reference search cancelled.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceReferencesCancelled'));
     const configUri = resolve(configPath) === resolve(sourcePath) ? uri : pathToFileURL(configPath).toString();
     const source = configUri === uri ? params.source : frameworkDocumentSnapshots.get(configUri)?.source
       ?? documents.get(configUri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
@@ -3567,7 +3573,7 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
   if (!root || !sourcePath) return empty;
   await semanticForRoot(root);
-  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Symfony service completion cancelled.');
+  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceCompletionCancelled'));
   const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri);
   const document = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
@@ -4544,8 +4550,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project') {
     const restored = await restoreReferenceResult(referenceRoot, workspace, document.uri, offset, context.includeDeclaration,
       id, () => token.isCancellationRequested);
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (restored) {
       connection.console.info(`[references:${id}] result count=${restored.length} coverage=validated-persistent-query elapsedMs=${Date.now() - started}`);
       return restored;
@@ -4559,8 +4565,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     });
     const sourceReady = await Promise.race([adoptPreparation.ready, cancelled]);
     subscription?.dispose();
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (!sourceReady || referenceSourceReadyRoots.get(openingRoot) !== (projectEpochs.get(openingRoot) ?? 0)) {
       adoptedReferenceSourcePreparations.delete(openingRoot);
       referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined;
@@ -4580,10 +4586,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
     const ready = await scanNamedCandidates(workspace, root, new Set([name.toLowerCase()]), () => token.isCancellationRequested);
     if (!ready) {
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
-      throw new ResponseError(LSPErrorCodes.RequestFailed, 'Project index incomplete; this is not a zero-reference result.');
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'routeReferencesCancelled'));
+      throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
     }
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during route reference query.');
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'routeDocumentChanged'));
     const uses: Array<{ uri: string; start: number; end: number }> = [];
     for (const uri of workspace.documentUris()) {
       if (token.isCancellationRequested) break;
@@ -4598,7 +4604,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         }
       }
     }
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Route reference query cancelled.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'routeReferencesCancelled'));
     if (externalSymfonyRoutes(document.uri)) return [];
     const declaration = route.uri !== undefined && route.start !== undefined && route.end !== undefined
       ? { uri: route.uri, start: route.start, end: route.end } : undefined;
@@ -4626,12 +4632,12 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       // Otherwise an unloaded vendor receiver falls into a full project scan and
       // can still produce an incorrect empty result without its declaration.
       for (let depth = 0; depth < 4 && !resolvedType && !resolvedMember; depth += 1) {
-        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
         const loaded = await hydrateCanonicalTypes(workspace, root, [
           workspace.resolvedTypeNameAt(document.uri, offset),
           ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
         ].filter((fqcn): fqcn is string => Boolean(fqcn)), false, 64);
-        if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+        if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
         if (!loaded) break;
         resolvedType = workspace.typeAt(document.uri, offset);
         resolvedMember = resolvedType ? undefined : workspace.referenceMemberAt(document.uri, offset);
@@ -4650,27 +4656,27 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method', true)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     if (!ready) {
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-      void connection.window.showWarningMessage('PHP references are unavailable: the project index is incomplete or disabled. See PHP Companion output.');
-      throw new ResponseError(LSPErrorCodes.RequestFailed, 'Project index incomplete; this is not a zero-reference result.');
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+      void connection.window.showWarningMessage(protocolMessage(clientDiagnosticLanguage, 'referencesUnavailable'));
+      throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
     }
     if (root && member?.kind === 'method') {
       const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
       if (sourcePrepared) {
         if (!await hydratePreparedReferenceReceivers(workspace, root, candidateNames, () => token.isCancellationRequested)) {
-          throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure is incomplete; this is not a zero-reference result.');
+          throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'referenceReceiverIncomplete'));
         }
       } else if (!await hydrateLoadedReferenceReceiverClosure(workspace, root, candidateNames,
         candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested)) {
-        throw new ResponseError(LSPErrorCodes.RequestFailed, 'Reference receiver closure exceeded its bound; this is not a zero-reference result.');
+        throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'referenceReceiverBound'));
       }
     }
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     const symfonyClassTarget = type?.fqcn ?? (member?.kind === 'method' ? member.fqcn.split('::')[0] : undefined);
     const frameworkWarm = root ? frameworkPrewarmTasks.get(root) : undefined;
     if (frameworkWarm && frameworkWarm.epoch === (projectEpochs.get(root!) ?? 0)) await frameworkWarm.promise;
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
     // Route snapshots and container facts have independent providers. Launch
     // both after candidate indexing, then validate route edits before use.
     const routesStarted = Date.now();
@@ -4684,8 +4690,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       || completeContainerFacts?.generation !== indexingGeneration)
       && !symfonyServiceCatalog(root).some((service) => service.className.toLowerCase() === symfonyClassTarget.toLowerCase())) {
       await refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !token.isCancellationRequested);
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-      if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+      if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     }
     const serviceLocations = type ? symfonyServiceCatalog(root)
       .filter((service) => service.className.toLowerCase() === type.fqcn.toLowerCase())
@@ -4699,7 +4705,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       const syntaxParser = serviceIds.size ? await parser() : undefined;
       for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
         if (!serviceIds.size || !/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
-        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
         const configUri = pathToFileURL(configPath).toString();
         const source = frameworkDocumentSnapshots.get(configUri)?.source ?? documents.get(configUri)?.getText()
           ?? await readFile(configPath, 'utf8').catch(() => undefined);
@@ -4715,11 +4721,11 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (routeRevision !== routeProviderCacheRevision && symfonyClassTarget && root && !externalSymfonyRoutes(document.uri)) {
       const refreshedRevision = routeProviderCacheRevision;
       controllerRoutes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-      if (refreshedRevision !== routeProviderCacheRevision) throw new ResponseError(LSPErrorCodes.ContentModified, 'Route documents changed during reference query.');
+      if (refreshedRevision !== routeProviderCacheRevision) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'routeDocumentsChanged'));
     }
     const routesUsedRevision = routeProviderCacheRevision;
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     const controllerLocations = type ? controllerRoutes.flatMap((route) => route.controller
       && route.controller.className.toLowerCase() === type.fqcn.toLowerCase()
       ? [{ uri: route.controller.uri, start: route.controller.classStart, end: route.controller.classEnd }] : [])
@@ -4740,8 +4746,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         workspace.publicInstanceMethod(fqcn, member.name)?.fqcn.toLowerCase() === member.fqcn.toLowerCase()) : false;
     if (root && eventRelevant) {
       await runEventProvider(root, indexingGeneration, workspace, () => !token.isCancellationRequested, true);
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-      if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+      if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     }
     const externalEvents = eventRelevant && root ? externalSymfonyEventsByRoot.get(root) : undefined;
     const subscriptions = (externalEvents?.subscriptions ?? [])
@@ -4768,8 +4774,8 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface',
       'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface',
     ]);
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     const dispatcherOwners = new Set([
       'symfony\\contracts\\eventdispatcher\\eventdispatcherinterface',
       'symfony\\component\\eventdispatcher\\eventdispatcherinterface',
@@ -4798,9 +4804,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (frameworkFingerprint && frameworkCacheEligible && root && scope === 'project') {
       const restored = await restoreReferenceResult(root, workspace, document.uri, offset, context.includeDeclaration,
         id, () => token.isCancellationRequested, frameworkFingerprint);
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
+      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
       if (documents.get(document.uri)?.version !== version || routesUsedRevision !== routeProviderCacheRevision) {
-        throw new ResponseError(LSPErrorCodes.ContentModified, 'Reference inputs changed during query.');
+        throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'referenceInputsChanged'));
       }
       if (restored) {
         connection.console.info(`[references:${id}] result count=${restored.length} coverage=validated-persistent-query elapsedMs=${Date.now() - started}`);
@@ -4827,10 +4833,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
       return target ? { uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } } : undefined;
     }));
     const locations = resolvedLocations.flatMap((location) => location ? [location] : []);
-    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'Reference query cancelled.');
-    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, 'Document changed during reference query.');
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (symfonyClassTarget && root && routesUsedRevision !== routeProviderCacheRevision) {
-      throw new ResponseError(LSPErrorCodes.ContentModified, 'Route documents changed during reference query.');
+      throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'routeDocumentsChanged'));
     }
     writeReferenceResult?.(locations);
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);

@@ -8,12 +8,12 @@ const messages = {
   syntax: ['PHP syntax is incomplete or invalid at this location.', '此处 PHP 语法不完整或无效。'],
   version: ['{0} requires PHP {1} or newer; the target is PHP {2}.', '{0} 需要 PHP {1} 或更新版本；当前目标版本为 PHP {2}。'],
   filename: ['Primary type {0} should be declared in {0}.php.', '主类型 {0} 应声明在 {0}.php 中。'],
-  unusedImport: ['Unused {0} import {1}.', '未使用的 {0} 导入：{1}。'],
+  unusedImport: ['Unused {0} import {1}.', '未使用的{0}导入：{1}。'],
   undefinedVariable: ['Variable ${0} is definitely undefined at this point.', '变量 ${0} 在此处确定未定义。'],
   unresolvedType: ['Cannot resolve type {0}.', '无法解析类型 {0}。'],
   unresolvedFunction: ['Cannot resolve function {0}.', '无法解析函数 {0}。'],
   unresolvedConstant: ['Cannot resolve constant {0}.', '无法解析常量 {0}。'],
-  unresolvedMember: ['Cannot resolve {0} {1}::{2}.', '无法解析 {0} {1}::{2}。'],
+  unresolvedMember: ['Cannot resolve {0} {1}::{2}.', '无法解析{0} {1}::{2}。'],
   nonStaticMember: ['Cannot access non-static {0} {1}::{2} statically.', '无法以静态方式访问非静态{0} {1}::{2}。'],
   nullableMember: ['{0} may be null; use null-safe access or prove the value is non-null before accessing {1}.', '{0} 可能为 null；访问 {1} 前请使用 null 安全访问，或证明该值不为 null。'],
   missingArgument: ['{0} is missing required argument: {1}.', '{0} 缺少必需参数：{1}。'],
@@ -185,6 +185,9 @@ const messages = {
   extensionSettingSource: ['the phpCompanion.disabledExtensions workspace setting', '工作区设置 phpCompanion.disabledExtensions'],
   extensionComposerSource: ['Composer platform configuration', 'Composer platform 配置'],
   extensionRuntimeSource: ['the detected PHP {0} {1} runtime ({2})', '检测到的 PHP {0} {1} 运行时（{2}）'],
+  importClass: ['class', '类'],
+  importFunction: ['function', '函数'],
+  importConst: ['const', '常量'],
 } as const;
 
 export type DiagnosticMessageKey = keyof typeof messages;
