@@ -1,6 +1,6 @@
 # P9 / F01–F14 最终验收审计
 
-日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围及 private 参数删除安全域。当前私有候选绑定 `a6ee163b`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
+日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围、private 参数删除安全域及 Extract Interface 子集。当前私有候选绑定 `2c7a64d5`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
 
 | ID | 当前证据 | 最终验收尚缺 |
 | --- | --- | --- |
@@ -11,7 +11,7 @@
 | F05 | P5 高级类型正反例和主语义包测试已进入仓库 `pnpm check`。 | [路线图 P5](../roadmap.md)仍列一般跨块相关性、动态迭代与复杂引用等未完成范围；逐项 final fixture 覆盖未闭合。 |
 | F06 | R1 冻结诊断 corpus 见[首发验收](r1-acceptance-linux-wsl-2026-09-06.md)，索引不完整时的抑制有测试。 | [路线图 P6](../roadmap.md)仍有诊断种类和配置项未完成；全量输入序列、未知及受限索引的最终反例报告。 |
 | F07 | Interface/Override/构造函数生成及 import 的保守支持域已在[路线图 P6](../roadmap.md)标记完成。 | 当前候选在三平台打包宿主中的编辑、选区、撤销和原有工作流逐项最终记录。 |
-| F08 | 类型 F2 Rename 的[打包宿主证据](declaration-f2-rename-2026-09-14.md)及多种局部重构已存在；private 参数删除已拒绝可能产生可观察求值行为的实参，聚焦语义测试通过。 | [路线图 P7](../roadmap.md)两批重构均仍开放；修改签名、提取接口、移动成员等支持范围与拒绝/预览/取消/撤销矩阵未完成。 |
+| F08 | 类型 F2 Rename 的[打包宿主证据](declaration-f2-rename-2026-09-14.md)及多种局部重构已存在；private 参数删除已拒绝可能产生可观察求值行为的实参；[Extract Interface 子集](p7-extract-interface-2026-09-23.md)通过真实编辑器应用与 Undo/Redo。 | [路线图 P7](../roadmap.md)两批重构均仍开放；通用修改签名、提取接口、移动成员的支持范围与最终拒绝/预览/取消/撤销矩阵未完成。 |
 | F09 | [P8 阶段验收](p8-symfony-doctrine-twig-completion-2026-09-23.md)通过独立 Symfony/Doctrine 支持清单。 | Symfony/Doctrine 框架版本、真实项目动态边界和当前候选的完整场景矩阵。 |
 | F10 | [P8 阶段验收](p8-symfony-doctrine-twig-completion-2026-09-23.md)包括 TwigPlus interop、来源导航与受限跨语言 Rename。 | 当前四份候选与实际 TwigPlus 版本的完整组合及 WSL Remote 人工交互验收。 |
 | F11 | Winstar PHP 8.5 项目 PHP CS Fixer 入口及组合证据见[开源 Profile 报告](open-source-profile-linux-wsl-2026-09-06.md)。 | 当前候选的 PHP/Twig 保存、失败、撤销及版本配置三系统矩阵。 |
