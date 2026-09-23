@@ -294,6 +294,7 @@ export interface InlayParameterHint { position: number; label: string; }
 export interface ExtractVariableInfo { uri: string; expressionStart: number; expressionEnd: number; statementStart: number; variable: string; indent: string; expression: string; }
 export interface InlineVariableInfo { uri: string; declarationStart: number; declarationEnd: number; useStart: number; useEnd: number; variable: string; expression: string; }
 export interface ExtractMethodInfo { uri: string; selectionStart: number; selectionEnd: number; insertOffset: number; methodName: string; parameters: string[]; output?: string; callText: string; methodText: string; }
+export interface ExtractInterfaceInfo { uri: string; classFqcn: string; interfaceFqcn: string; interfaceName: string; insertOffset: number; insertText: string; interfaceSource: string; }
 export interface RemovePrivateParameterInfo { uri: string; callable: string; parameter: string; edits: Array<{ uri: string; start: number; end: number }>; }
 export interface MissingRequiredArguments extends SemanticLocation { callable: string; parameters: string[]; }
 export interface IncompatibleArgument extends SemanticLocation { callable: string; parameter: string; actualType: string; expectedType: string; }
@@ -2102,6 +2103,48 @@ export class SemanticWorkspace {
     const lineRemainder = /^[ \t]*(?:\r?\n|$)/.exec(file.source.slice(declarationEnd)); if (!lineRemainder) return undefined;
     declarationEnd += lineRemainder[0].length;
     return { uri, declarationStart: lineStart, declarationEnd, useStart: use.startIndex, useEnd: use.endIndex, variable: variable.text.slice(1), expression: file.source.slice(right.startIndex, right.endIndex) };
+  }
+
+  extractInterface(uri: string, offset: number): ExtractInterfaceInfo | undefined {
+    const file = this.files.get(uri); const tree = this.trees.get(uri);
+    if (!file || !tree || file.syntaxErrors.length || file.imports.length) return undefined;
+    const declaration = file.declarations.find((item) => item.kind === 'class' && !item.anonymous && offset >= item.start && offset <= item.end);
+    if (!declaration || file.declarations.filter((item) => item.fqcn.toLowerCase() === declaration.fqcn.toLowerCase()).length !== 1) return undefined;
+    const classNode = deepestLocalSyntax(tree.rootNode, declaration.start, declaration.end,
+      (node) => node.type === 'class_declaration' && node.startIndex === declaration.declarationStart && node.endIndex === declaration.declarationEnd);
+    const body = classNode?.namedChildren.find((node) => node.type === 'declaration_list');
+    if (!body) return undefined;
+    const interfaceName = `${declaration.name}Interface`;
+    const namespace = declaration.fqcn.slice(0, declaration.fqcn.length - declaration.name.length).replace(/\\$/u, '');
+    const interfaceFqcn = namespace ? `${namespace}\\${interfaceName}` : interfaceName;
+    if ([...this.files.values()].some((candidate) => candidate.declarations.some((item) => item.fqcn.toLowerCase() === interfaceFqcn.toLowerCase()))) return undefined;
+    const signatures: string[] = [];
+    for (const node of body.namedChildren.filter((item) => item.type === 'method_declaration')) {
+      const method = file.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === declaration.fqcn.toLowerCase()
+        && item.declarationStart === node.startIndex);
+      if (!method || method.visibility !== 'public' || method.name.startsWith('__')) continue;
+      const methodBody = node.namedChildren.find((item) => item.type === 'compound_statement');
+      if (!methodBody || method.parameters.some((parameter) => parameter.promoted)) return undefined;
+      const header = file.source.slice(node.startIndex, methodBody.startIndex);
+      const keyword = /\bfunction\b/u.exec(header);
+      if (!keyword || header.includes('#[')) return undefined;
+      const signature = header.slice(keyword.index).trimEnd();
+      if (/\b(?:self|parent|static)\b/iu.test(signature)) return undefined;
+      signatures.push(`    public ${method.static ? 'static ' : ''}${signature};`);
+    }
+    if (!signatures.length) return undefined;
+    const interfaceSource = `<?php\n\n${namespace ? `namespace ${namespace};\n\n` : ''}interface ${interfaceName}\n{\n${signatures.join('\n')}\n}\n`;
+    const parsedInterface = this.parser.parse(interfaceSource);
+    try { if (parsedInterface.errors.length || parsedInterface.declarations.length !== 1 || parsedInterface.callables.length !== signatures.length) return undefined; }
+    finally { parsedInterface.tree.delete(); }
+    let insertOffset = body.startIndex;
+    while (insertOffset > declaration.declarationStart && /\s/u.test(file.source[insertOffset - 1]!)) insertOffset -= 1;
+    const insertText = `${declaration.implementsNames.length ? ', ' : ' implements '}${interfaceName}${insertOffset === body.startIndex ? ' ' : ''}`;
+    const altered = `${file.source.slice(0, insertOffset)}${insertText}${file.source.slice(insertOffset)}`;
+    const parsedClass = this.parser.parse(altered);
+    try { if (parsedClass.errors.length) return undefined; }
+    finally { parsedClass.tree.delete(); }
+    return { uri, classFqcn: declaration.fqcn, interfaceFqcn, interfaceName, insertOffset, insertText, interfaceSource };
   }
 
   extractMethod(uri: string, selectionStart: number, selectionEnd: number): ExtractMethodInfo | undefined {

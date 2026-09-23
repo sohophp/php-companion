@@ -1865,6 +1865,44 @@ export async function run(): Promise<void> {
   await waitFor(() => extractMethodDocument.getText().includes('$result = $this->extractedMethod();'), 'Extract Method output could not be redone as one editor operation');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => extractMethodDocument.getText() === extractMethodSource, 'Extract Method output could not be restored after Redo');
+  const interfaceClassUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Extractable.php');
+  const interfaceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ExtractableInterface.php');
+  const interfaceClassSource = '<?php\nnamespace App;\nfinal class Extractable\n{\n    public function format(string $input): string { return $input; }\n    private function internal(): void {}\n}\n';
+  await vscode.workspace.fs.writeFile(interfaceClassUri, Buffer.from(interfaceClassSource));
+  const interfaceClassDocument = await vscode.workspace.openTextDocument(interfaceClassUri); await vscode.window.showTextDocument(interfaceClassDocument);
+  const classOffset = interfaceClassSource.indexOf('Extractable'); let extractInterfaceAction: vscode.CodeAction | undefined;
+  await waitForAsync(async () => {
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+      'vscode.executeCodeActionProvider', interfaceClassUri,
+      new vscode.Range(interfaceClassDocument.positionAt(classOffset), interfaceClassDocument.positionAt(classOffset)),
+      vscode.CodeActionKind.RefactorExtract.value,
+    );
+    extractInterfaceAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Extract interface ExtractableInterface');
+    return Boolean(extractInterfaceAction?.edit);
+  }, 'Self-hosted language server did not offer Extract Interface for a PSR-4 class');
+  assert.ok(await vscode.workspace.applyEdit(extractInterfaceAction!.edit!), 'Extract Interface workspace edit could not be applied');
+  await waitForAsync(async () => {
+    try {
+      const interfaceText = (await vscode.workspace.openTextDocument(interfaceUri)).getText();
+      return interfaceClassDocument.getText().includes('implements ExtractableInterface')
+        && interfaceText.includes('interface ExtractableInterface')
+        && interfaceText.includes('public function format(string $input): string;')
+        && !interfaceText.includes('internal');
+    } catch { return false; }
+  }, 'Extract Interface did not create the interface and update the class together');
+  await vscode.commands.executeCommand('undo');
+  await waitForAsync(async () => {
+    try { await vscode.workspace.fs.stat(interfaceUri); return false; } catch { return interfaceClassDocument.getText() === interfaceClassSource; }
+  }, 'Extract Interface could not be undone as one workspace operation');
+  await vscode.commands.executeCommand('redo');
+  await waitForAsync(async () => {
+    try { await vscode.workspace.fs.stat(interfaceUri); return interfaceClassDocument.getText().includes('implements ExtractableInterface'); }
+    catch { return false; }
+  }, 'Extract Interface could not be redone as one workspace operation');
+  await vscode.commands.executeCommand('undo');
+  await waitForAsync(async () => {
+    try { await vscode.workspace.fs.stat(interfaceUri); return false; } catch { return interfaceClassDocument.getText() === interfaceClassSource; }
+  }, 'Extract Interface could not be restored after Redo');
   const removeParameterUri = vscode.Uri.joinPath(workspace.uri, 'src', 'RemoveParameter.php');
   const removeParameterSource = '<?php\nnamespace App;\nclass Formatter\n{\n    /**\n     * @param int $unused obsolete\n     */\n    private function format(string $prefix, int $unused, string $suffix): string\n    {\n        return $prefix . $suffix;\n    }\n\n    public function run(): void\n    {\n        $this->format("a", 1, "b");\n        $this->format(suffix: "b", unused: 2, prefix: "a");\n    }\n}\n';
   await vscode.workspace.fs.writeFile(removeParameterUri, Buffer.from(removeParameterSource));

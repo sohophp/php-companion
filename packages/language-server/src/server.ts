@@ -5050,6 +5050,34 @@ connection.onCodeAction(async (params, token) => {
       actions.push({ title: `Extract method ${method.methodName}`, kind: CodeActionKind.RefactorExtract,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
+    const extractedInterface = localWorkspace.extractInterface(document.uri, document.offsetAt(range.start));
+    const interfaceRoot = extractedInterface && rootForUri(document.uri);
+    if (extractedInterface && interfaceRoot && await ensureProjectCompleteRoot(interfaceRoot, () => token.isCancellationRequested)) {
+      const mappings = projectMappingsByRoot.get(interfaceRoot) ?? [];
+      const sourcePath = pathForUri(document.uri);
+      const sourceCandidates = new Set(resolvePsr4Class(extractedInterface.classFqcn, mappings).map((path) => resolve(path)));
+      const targetCandidates = [...new Set(resolvePsr4Class(extractedInterface.interfaceFqcn, mappings).map((path) => resolve(path)))];
+      if (sourcePath && sourceCandidates.has(resolve(sourcePath)) && targetCandidates.length === 1) {
+        const targetPath = targetCandidates[0]!;
+        let targetMissing = false;
+        try { await stat(targetPath); } catch (error) { targetMissing = (error as NodeJS.ErrnoException).code === 'ENOENT'; }
+        const parent = targetMissing ? await stat(dirname(targetPath)).catch(() => undefined) : undefined;
+        if (targetMissing && parent?.isDirectory() && !token.isCancellationRequested) {
+          const targetUri = indexedUriForPath(interfaceRoot, targetPath);
+          const plan = createEditPlan(`Extract interface ${extractedInterface.interfaceName}`,
+            [{ uri: document.uri, version: document.version, length: source.length }, { uri: targetUri, version: null, length: 0 }],
+            [{ uri: document.uri, start: extractedInterface.insertOffset, end: extractedInterface.insertOffset, newText: extractedInterface.insertText },
+              { uri: targetUri, start: 0, end: 0, newText: extractedInterface.interfaceSource }],
+            [{ kind: 'create', uri: targetUri }]);
+          actions.push({ title: `Extract interface ${extractedInterface.interfaceName}`, kind: CodeActionKind.RefactorExtract,
+            edit: { documentChanges: [
+              { kind: 'create', uri: targetUri, options: { overwrite: false, ignoreIfExists: false } },
+              { textDocument: { uri: targetUri, version: null }, edits: plan.textEdits.filter((edit) => edit.uri === targetUri).map((edit) => ({ range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }, newText: edit.newText })) },
+              { textDocument: { uri: document.uri, version: document.version }, edits: plan.textEdits.filter((edit) => edit.uri === document.uri).map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) },
+            ] } });
+        }
+      }
+    }
   }
   const wantsInline = !context.only || context.only.some((kind) => CodeActionKind.RefactorInline.startsWith(kind));
   if (wantsInline) {

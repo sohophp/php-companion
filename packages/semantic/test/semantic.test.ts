@@ -7883,6 +7883,41 @@ use const Vendor\\ACTIVE;
     expect(workspace.extractVariable(uri, inline, inline + 'inlineObject()'.length)).toBeUndefined();
     workspace.remove(uri);
   });
+  it('extracts public native method contracts into a separate interface plan', () => {
+    const uri = 'file:///src/Formatter.php';
+    const source = `<?php namespace App; final class Formatter {
+      public function format(string $input, int $limit = 2): string { return $input; }
+      public static function count(array $items): int { return count($items); }
+      private function internal(): void {}
+    }`;
+    workspace.update(uri, source, true);
+    const result = workspace.extractInterface(uri, source.indexOf('Formatter') + 1);
+    expect(result).toMatchObject({ classFqcn: 'App\\Formatter', interfaceFqcn: 'App\\FormatterInterface', interfaceName: 'FormatterInterface' });
+    expect(result?.interfaceSource).toContain('public function format(string $input, int $limit = 2): string;');
+    expect(result?.interfaceSource).toContain('public static function count(array $items): int;');
+    expect(result?.interfaceSource).not.toContain('internal');
+    const changed = `${source.slice(0, result!.insertOffset)}${result!.insertText}${source.slice(result!.insertOffset)}`;
+    for (const text of [changed, result!.interfaceSource]) {
+      const parsed = parser.parse(text);
+      expect(parsed.errors).toEqual([]);
+      parsed.tree.delete();
+    }
+    const contextual = '<?php namespace App; class Contextual { public function make(): self { return $this; } }';
+    workspace.update(uri, contextual, true);
+    expect(workspace.extractInterface(uri, contextual.indexOf('Contextual') + 1)).toBeUndefined();
+    const imported = '<?php namespace App; use Vendor\\Item; class Imported { public function make(Item $item): void {} }';
+    workspace.update(uri, imported, true);
+    expect(workspace.extractInterface(uri, imported.indexOf('Imported') + 1)).toBeUndefined();
+    const inherited = '<?php namespace App; interface Existing {} class Inherited implements Existing { public function run(): void {} }';
+    workspace.update(uri, inherited, true);
+    const added = workspace.extractInterface(uri, inherited.indexOf('Inherited') + 1);
+    expect(`${inherited.slice(0, added!.insertOffset)}${added!.insertText}${inherited.slice(added!.insertOffset)}`)
+      .toContain('class Inherited implements Existing, InheritedInterface {');
+    workspace.update('file:///src/InheritedInterface.php', added!.interfaceSource, true);
+    expect(workspace.extractInterface(uri, inherited.indexOf('Inherited') + 1)).toBeUndefined();
+    workspace.remove('file:///src/InheritedInterface.php');
+    workspace.remove(uri);
+  });
   it('plans inline-variable only for a single whole-value use in the immediately following statement', () => {
     const uri = 'file:///InlineVariable.php';
     const source = `<?php function direct(): object {
