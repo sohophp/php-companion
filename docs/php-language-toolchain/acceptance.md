@@ -76,6 +76,8 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 冷热测量分开；每种规模至少运行 5 次，热查询至少采样 100 次；报告样本量、P50/P95/最大值、取消和失败率。冷索引语料由确定性生成器生成等长 PHP 文件，并同时用一个脱敏真实项目校验。不能只报告最快一次。冻结预算已经建立，但未经各平台实测的项目仍不可标记通过。
 
+局部变更基准 `pnpm benchmark:local-change -- 10000 200` 在完整语料上连续修改同一方法体，记录 parser 实际处理的文件 URI、语义层级和耗时；当前 Linux x64 [原始报告](reports/local-implementation-change-10000-linux-x64-2026-09-23.json)显示 200 次更新各只重解析一个文件，P95 0.59 ms。
+
 基准命令为 `pnpm benchmark:index -- <文件数> <重复次数>`；它生成固定 Composer/PSR-4 语料、运行真实 parser/index/semantic 链路、输出 JSON，并在 1k/10k/50k 标准规模超预算时返回非零。当前源码的 [Linux x64 P9 复测](reports/p9-linux-qualification-2026-09-23.md)中，五轮冷索引 P95 分别为 1702.30/15124.90/72893.18 ms，首个可用结果 P95 为 25.90/82.38/250.38 ms，峰值 RSS 为 135.9/434.6/829.9 MiB，均满足对应冻结预算。历史 [1k](reports/index-1000-linux-x64-2026-09-06.json)、[10k](reports/index-10000-linux-x64-2026-09-06.json)、[50k](reports/index-50000-linux-x64-2026-09-06.json) 报告继续保留；当前结果不代表尚未实测的平台。
 
 持久分层基准命令为 `pnpm benchmark:persistence -- <文件数>`；它在同一 Composer 语料执行冷索引、全量热恢复、Doctrine PHP 事实恢复、Callable 事实恢复、聚焦成员补全只水合目标 callable、继承派生事实失效，以及派生层和 callable 记录的单条损坏恢复。当前语义格式为 schema 81，Language Server wrapper 为 schema 12/v64：源码、声明/签名、文件级实现、每条唯一 callable 实现、变量调用、派生索引和 Doctrine 事实各有独立 SHA-256，整体条目仍有封装摘要；schema 12 确保旧缓存不会缺失 EntityManager 单根 QueryBuilder 工厂及数组、标量、单标量水合终端事实。当前 Linux x64 [1k/10k/50k 缓存体积复测](reports/p9-linux-qualification-2026-09-23.md)分别得到 5.25/52.53/262.59 MiB，均低于冻结上限。Symfony Controller/Twig 上下文只来自独立 Provider，不进入核心持久缓存。历史 v44/v45 三平台证据继续保留；源码校验边界见[索引源码校验和复用](reports/index-source-checksum-reuse-2026-09-20.md)。

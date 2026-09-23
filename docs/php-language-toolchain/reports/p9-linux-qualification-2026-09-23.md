@@ -28,6 +28,8 @@
 
 缓存体积门禁现从持久索引目录实际文件字节数统计，并使用 testkit 冻结上限。1k / 10k / 50k 文件热缓存分别为 5.25 / 52.53 / 262.59 MiB，低于 64 / 512 / 2,560 MiB。三组热进程均恢复全部文件、重解析 0；聚焦查询只加载目标 callable，派生层和 callable 单条损坏各重解析一个文件。原始报告：[1k](persistent-cache-1000-linux-x64-2026-09-23.json)、[10k](persistent-cache-10000-linux-x64-2026-09-23.json)、[50k](persistent-cache-50000-linux-x64-2026-09-23.json)。50k 冷索引/热恢复耗时分别为 82.67/30.69 秒；这些数值与上文五轮冷索引基准使用不同脚本，不混作同一统计样本。
 
+`pnpm benchmark:local-change -- 10000 200` 在完整 10,000 文件语料中交替修改单一方法体 200 次，逐次跟踪 parser 调用与语义更新结果。每次都只重解析该文件，变更层级为 `implementation`，仅一个 callable 身份变化，类型声明变化 0；更新 P50/P95/最大值为 0.46/0.59/3.74 ms。该基准证明独立方法体编辑不会默认重新解析全项目；其他文件的依赖失效仍由现有专项测试负责。[原始 JSON](local-implementation-change-10000-linux-x64-2026-09-23.json)。
+
 ## 尚缺的最终证据
 
 这些基准是合成 Composer 项目及一个真实 Winstar 查询在当前 WSL 主机上的结果。Windows 原生、macOS、Windows 客户端连接 WSL Remote 的当前源码候选矩阵，以及 Winstar/CoreRepo 多小时真实编辑仍需逐项验证；P0–P7 的长期未完成范围和 F01–F14 的最终验收也不能由本报告替代。公开 Marketplace 发布另行确认。
