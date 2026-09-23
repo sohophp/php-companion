@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "files": 1000,
+  "repeats": 5,
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "coldIndexMs": {
+    "samples": 5,
+    "p50": 1616.19245,
+    "p95": 1702.303166,
+    "maximum": 1702.303166
+  },
+  "firstAvailableMs": {
+    "samples": 5,
+    "p50": 11.886271999999735,
+    "p95": 25.901212999999984,
+    "maximum": 25.901212999999984
+  },
+  "peakRssMb": 135.9,
+  "frozenBudget": {
+    "coldIndexMs": 8000,
+    "peakRssMb": 384
+  }
+}

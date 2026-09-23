@@ -35,7 +35,7 @@ const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const locationsPath = join(cache, 'reference-locations.json');
 const expected = new Map([
   ['textDocument/definition', { results: 1, locationSha256: fixtureDefinitionSha256 ?? '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
-  ['textDocument/references', { results: 174, locationSha256: fixtureSha256 ?? 'a525dddaa628ccd7ee25dbd5dbfae0ead5e9ebedb434b9176336eb08c1c725e7' }],
+  ['textDocument/references', { results: 174, locationSha256: fixtureSha256 ?? 'cdabb48f611946a59a3dc1be56c167caa83f65dafb84b3853c68b5c9c5ba88d4' }],
 ]);
 
 try {

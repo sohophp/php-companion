@@ -51,9 +51,9 @@ CI 按依赖图检查受影响包；发布候选执行全量集成、包内容�
 
 ## 私有 Alpha 候选
 
-在干净提交上运行 `pnpm candidate:alpha`。命令先重新构建三个 VSIX 并执行内容验证，再把主扩展、Open Source Pack 和 Recommended Pack 复制到 `artifacts/php-companion-alpha-<version>-<commit>/`。候选目录包含 `candidate.json`、`SHA256SUMS` 和中文安装说明；清单冻结源码提交、运行平台、每个 VSIX 的扩展 ID、版本、大小与 SHA-256，以及通过组合门禁和被拒绝的第三方扩展版本。
+在干净提交上运行 `pnpm candidate:alpha`。命令先重新构建四个 VSIX 并执行内容验证，再把 Core、独立 Symfony、Open Source Pack 和 Recommended Pack 复制到 `artifacts/php-companion-alpha-<version>-<commit>/`。候选目录包含 `candidate.json`、`SHA256SUMS` 和中文安装说明；清单冻结源码提交、运行平台、每个 VSIX 的扩展 ID、版本、大小与 SHA-256，以及通过组合门禁和被拒绝的第三方扩展版本。
 
-候选组装器拒绝脏工作树和三个 VSIX 版本不一致。`artifacts/` 为本地交付目录，不提交二进制。命令只生成可审核的私有安装包，不创建 Git tag，不发布 npm 包，也不上传 VS Code Marketplace。具体试用流程见 [Alpha 候选试用](alpha-candidate.md)。
+候选组装器拒绝脏工作树和四个 VSIX 版本不一致。`artifacts/` 为本地交付目录，不提交二进制。命令只生成可审核的私有安装包，不创建 Git tag，不发布 npm 包，也不上传 VS Code Marketplace。具体试用流程见 [Alpha 候选试用](alpha-candidate.md)。
 
 ## 独立安装验收 K01–K06
 

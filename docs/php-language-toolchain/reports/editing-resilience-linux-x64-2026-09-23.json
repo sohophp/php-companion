@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "iterations": 1000,
+  "warmupIterations": 50,
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "updateToDiagnosticsMs": {
+    "samples": 1000,
+    "p50": 1.6017539999998007,
+    "p95": 2.5619720000004236,
+    "maximum": 6.951280999999881
+  },
+  "hotCompletionMs": {
+    "samples": 1000,
+    "p50": 0.6955490000000282,
+    "p95": 1.3246699999999691,
+    "maximum": 2.721505999999863
+  },
+  "cancellationMs": 1.2205700000004072,
+  "cancellationOutcome": "cancelled",
+  "languageServerRssMb": {
+    "baseline": 146.828125,
+    "peak": 171.80859375,
+    "final": 150.35546875,
+    "retainedGrowth": 3.52734375
+  },
+  "persistentCache": {
+    "files": 1,
+    "corruptCacheRecovered": true,
+    "completionRecoveredAfterRestart": true
+  },
+  "staleCompletionFailures": 0,
+  "budgets": {
+    "hotCompletionP95Ms": 150,
+    "updateToDiagnosticsP95Ms": 500,
+    "cancellationMs": 100,
+    "retainedRssGrowthMb": 128
+  }
+}
