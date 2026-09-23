@@ -5775,10 +5775,11 @@ echo RANKED_LSP_CONSTANT;`;
       const declaration = '- name: zulu.route\n  path: /zulu\n';
       const declarationPath = join(routesDirectory, 'routes.yaml'); const declarationUri = pathToFileURL(declarationPath).toString();
       await writeFile(declarationPath, declaration);
+      await writeFile(join(routesDirectory, 'admin_defaults.yaml'), 'admin_defaults:\n  - name: ZuluPage\n');
       const consolePath = join(root, 'router.mjs');
-      await writeFile(consolePath, "process.stdout.write(JSON.stringify({'zulu.route':{path:'/zulu'}}));\n");
+      await writeFile(consolePath, "process.stdout.write(JSON.stringify({'zulu.route':{path:'/zulu'},'admin.ZuluPage.edit':{path:'/admin/ZuluPage/edit'}}));\n");
       const source = `<?php namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } }
-namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $router): void { $router->generate('zulu.route'); } }`;
+namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $router): void { $router->generate('zulu.route'); $router->generate('admin.ZuluPage.edit'); } }`;
       const consumerPath = join(root, 'src', 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
       await writeFile(consumerPath, source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
@@ -5803,6 +5804,15 @@ namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $rou
         start: lspPosition(declaration, declaration.indexOf('zulu.route')),
         end: lspPosition(declaration, declaration.indexOf('zulu.route') + 'zulu.route'.length),
       } }]);
+      const generatedPosition = lspPosition(source, source.indexOf('admin.ZuluPage.edit') + 8);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1132, method: 'textDocument/prepareRename', params: {
+        textDocument: { uri }, position: generatedPosition,
+      } }));
+      expect((await output.waitFor((message) => message.id === 1132)).result).toBeNull();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1133, method: 'textDocument/rename', params: {
+        textDocument: { uri }, position: generatedPosition, newName: 'admin.ZuluPage.changed',
+      } }));
+      expect((await output.waitFor((message) => message.id === 1133)).result).toBeNull();
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
