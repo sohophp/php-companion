@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-08：独立 Composer 项目用两个外部 Trait 的同名方法、`insteadof` 和别名构成冲突选择；按需真实 stdio 的补全、Hover、参数提示、定义及引用分别落到主方法和别名方法，不相互混合。定向测试通过；真实编辑器操作与更多 Trait 组合仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-07：独立 Composer 双 PSR-4 项目设置两个跨 namespace 的 `Formatter`，通过 import alias 在同一 Consumer 中使用；按需真实 stdio 的补全、Hover、参数提示、定义和引用各自归属准确声明，专属成员不混合。定向测试通过；真实编辑器操作与更复杂 alias 冲突仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-06：独立 Composer 项目连续提交未保存的第 5、6 版接收者类型，不等待诊断即对未完成成员输入请求 Completion，并查询完整调用的 Definition；结果按第 6 版返回，未混入上一版专属成员。第 7 版切回后专属成员与定义落点同步变化。定向真实 stdio 测试通过；耗时查询取消和真实编辑器操作仍待验证。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。

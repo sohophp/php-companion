@@ -31,3 +31,7 @@ F04-NAV-06 在 F04-NAV-01 的项目中给 `Other` 增加专属 `reset()`。同�
 ## 跨 namespace 同名短类
 
 F04-NAV-07 使用两个 PSR-4 根目录中的 `App\Formatter` 与 `Acme\Formatter`。两者都有 `format()`，但签名不同，且各有一个专属 `fromLocal()` / `fromRemote()` 成员；Consumer 通过 `External` import alias 同时使用两类。按需真实 stdio 的 Completion 分别只包含本类专属成员，Hover、Signature Help、Definition 和 References 分别对应其真实声明或调用，不按短类名混合。定向测试通过；更复杂的 alias 冲突和真实编辑器操作仍待验证。
+
+## 跨文件 Trait 优先级与别名
+
+F04-NAV-08 的两个外部 Trait 都提供 `format()`，Host 通过 `Primary::format insteadof Fallback` 选择主方法，并将 `Fallback::format` 作为 `formatNumber()` 暴露。Consumer 的未完成成员补全同时出现两个有效名称；Definition 分别落到原 Trait 声明，Signature Help、Hover 和 References 分别沿主方法与别名方法返回且不混合。测试使用按需索引的真实 stdio，定向通过；当前用例不覆盖在飞行请求期间修改 Trait 或跨文件缓存失效。

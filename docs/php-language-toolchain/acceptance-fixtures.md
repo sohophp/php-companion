@@ -15,6 +15,7 @@
 | F04-NAV-05 | [跨 namespace 的 Trait 成员](../../packages/language-server/test/stdio.test.ts) | 同一 Composer 项目改由外部 Trait 提供方法；新服务器上的冷启动 Definition、Completion、Hover、Signature Help、References 分别指向 Trait 声明或唯一调用，无关同名方法不混入 | `stdio.test.ts` 的 F04-NAV-04/05 |
 | F04-NAV-06 | [未完成成员与连续未保存编辑](../../packages/language-server/test/stdio.test.ts) | 连续发送 `Other`→`Contract` 两个版本，不等待诊断就查询未完成的 `$printer->re`：补全只有当前类型成员，Definition 指向当前声明；再切回 `Other`，专属候选和定义落点同步变化 | `stdio.test.ts` 的 F04-NAV-01 第五至七版文档 |
 | F04-NAV-07 | [跨 namespace 同名短类](../../packages/language-server/test/stdio.test.ts) | `App\\Formatter` 与 `Acme\\Formatter` 各有不同签名的 `format()` 和专属成员；Consumer 通过 import alias 使用后，按需补全、Hover、参数提示、定义和引用分别归属真实类，不混合候选 | `stdio.test.ts` 的 F04-NAV-07 |
+| F04-NAV-08 | [跨文件 Trait 优先级与别名](../../packages/language-server/test/stdio.test.ts) | 两个 Trait 都提供 `format()`，Host 用 `insteadof` 选择主方法并将另一方法命名为 `formatNumber()`；按需补全、Hover、参数提示、定义和引用区分两条成员链 | `stdio.test.ts` 的 F04-NAV-08 |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |

@@ -520,6 +520,65 @@ function run(Formatter $local, External $remote): void {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('F04-NAV-08 resolves external trait precedence and alias in onDemand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-trait-adaptation-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'lib'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Acme\\': 'lib/' } } }));
+      const primary = '<?php namespace Acme; trait Primary { public function format(string $value): string { return $value; } }';
+      const fallback = '<?php namespace Acme; trait Fallback { public function format(int $value): int { return $value; } }';
+      const host = '<?php namespace App; use Acme\\Primary as MainTrait; use Acme\\Fallback as OtherTrait; final class Report { use MainTrait, OtherTrait { MainTrait::format insteadof OtherTrait; OtherTrait::format as formatNumber; } }';
+      const source = `<?php namespace App; function run(Report $report): void {
+  $report->format('x'); $report->formatNumber(2); $report->for;
+}`;
+      await writeFile(join(root, 'lib', 'Primary.php'), primary);
+      await writeFile(join(root, 'lib', 'Fallback.php'), fallback);
+      await writeFile(join(root, 'src', 'Report.php'), host);
+      await writeFile(join(root, 'src', 'Consumer.php'), source);
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 983, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 983);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const query = async (id: number, method: string, offset: number, options: object = {}): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: { textDocument: { uri }, position: lspPosition(source, offset), ...options } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result;
+      };
+      const completion = await query(984, 'textDocument/completion', source.indexOf('$report->for;') + '$report->for'.length);
+      expect(completion.map((item: { label: string }) => item.label)).toEqual(expect.arrayContaining(['format', 'formatNumber']));
+      const primaryCall = source.indexOf("$report->format('x')") + '$report->'.length;
+      const aliasCall = source.indexOf('$report->formatNumber(2)') + '$report->'.length;
+      const primaryDeclaration = primary.indexOf('function format') + 'function '.length;
+      const fallbackDeclaration = fallback.indexOf('function format') + 'function '.length;
+      expect(await query(985, 'textDocument/definition', primaryCall + 1)).toEqual([{
+        uri: pathToFileURL(join(root, 'lib', 'Primary.php')).toString(),
+        range: { start: lspPosition(primary, primaryDeclaration), end: lspPosition(primary, primaryDeclaration + 'format'.length) },
+      }]);
+      expect(await query(986, 'textDocument/definition', aliasCall + 1)).toEqual([{
+        uri: pathToFileURL(join(root, 'lib', 'Fallback.php')).toString(),
+        range: { start: lspPosition(fallback, fallbackDeclaration), end: lspPosition(fallback, fallbackDeclaration + 'format'.length) },
+      }]);
+      expect((await query(987, 'textDocument/signatureHelp', source.indexOf("$report->format('x')") + '$report->format('.length))
+        .signatures[0].label).toContain('format(string $value): string');
+      expect((await query(988, 'textDocument/signatureHelp', source.indexOf('$report->formatNumber(2)') + '$report->formatNumber('.length))
+        .signatures[0].label).toContain('formatNumber(int $value): int');
+      expect(JSON.stringify(await query(989, 'textDocument/hover', aliasCall + 1))).toContain('formatNumber(int $value): int');
+      expect(await query(990, 'textDocument/references', primaryCall + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(source, primaryCall), end: lspPosition(source, primaryCall + 'format'.length) },
+      }]);
+      expect(await query(991, 'textDocument/references', aliasCall + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(source, aliasCall), end: lspPosition(source, aliasCall + 'formatNumber'.length) },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {
