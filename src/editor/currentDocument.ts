@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { basename, relative } from 'node:path';
 import { resolvePsr4Namespace } from '../composer/project.js';
 import type { VersionManager } from '../extension/versionManager.js';
+import { t } from '../extension/localize.js';
 
 const NAMESPACE = /^\s*namespace\s+([^;{]+)\s*[;{]/m;
 const DECLARATION = /\b(?:abstract\s+|final\s+|readonly\s+)*(class|interface|trait|enum)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)/m;
@@ -26,7 +27,7 @@ export async function copyIdentity(kind: 'fqcn' | 'namespace' | 'classReference'
   const value = kind === 'namespace' ? identity.namespace
     : kind === 'relativePath' && folder ? relative(folder.uri.fsPath, document.uri.fsPath).replace(/\\/g, '/')
     : identity.fqcn;
-  if (!value) return void vscode.window.showInformationMessage('SoPHP: No PHP type found in the active file.');
+  if (!value) return void vscode.window.showInformationMessage(t('noType'));
   await vscode.env.clipboard.writeText(kind === 'classReference' ? `${value}::class` : value);
 }
 
@@ -52,7 +53,7 @@ export class CurrentDocumentDiagnostics implements vscode.Disposable {
     const match = NAMESPACE.exec(document.getText());
     if (!this.languageServerEnabled && expectedNamespace !== undefined && identity.namespace !== expectedNamespace) {
       const range = match ? new vscode.Range(document.positionAt(match.index), document.positionAt(match.index + match[0].length)) : new vscode.Range(0, 0, 0, 0);
-      const diagnostic = new vscode.Diagnostic(range, `Namespace should be ${expectedNamespace || '(global)'} for this PSR-4 path.`, vscode.DiagnosticSeverity.Warning);
+      const diagnostic = new vscode.Diagnostic(range, t('namespacePath', expectedNamespace || t('globalNamespace')), vscode.DiagnosticSeverity.Warning);
       diagnostic.source = 'phpCompanion';
       diagnostic.code = `namespace-path:${expectedNamespace}`;
       diagnostics.push(diagnostic);
@@ -60,7 +61,7 @@ export class CurrentDocumentDiagnostics implements vscode.Disposable {
     const expectedName = basename(document.uri.fsPath, '.php');
     if (!this.languageServerEnabled && identity.name && identity.name !== expectedName) {
       const offset = document.getText().indexOf(identity.name);
-      const diagnostic = new vscode.Diagnostic(new vscode.Range(document.positionAt(offset), document.positionAt(offset + identity.name.length)), `Primary type name should match ${expectedName}.php.`, vscode.DiagnosticSeverity.Warning);
+      const diagnostic = new vscode.Diagnostic(new vscode.Range(document.positionAt(offset), document.positionAt(offset + identity.name.length)), t('primaryTypeFilename', expectedName), vscode.DiagnosticSeverity.Warning);
       diagnostic.source = 'phpCompanion';
       diagnostic.code = `type-filename:${expectedName}`;
       diagnostics.push(diagnostic);
@@ -77,7 +78,7 @@ export class NamespaceCodeActions implements vscode.CodeActionProvider {
       if (diagnostic.source === 'phpCompanion' && typeof diagnostic.code === 'string' && diagnostic.code.startsWith('type-filename:')) {
         const identity = identityFromSource(document.getText());
         if (!identity.name) return [];
-        const action = new vscode.CodeAction(`Rename file to ${identity.name}.php`, vscode.CodeActionKind.QuickFix);
+        const action = new vscode.CodeAction(t('renameFile', identity.name), vscode.CodeActionKind.QuickFix);
         const edit = new vscode.WorkspaceEdit();
         edit.renameFile(document.uri, vscode.Uri.joinPath(document.uri, '..', `${identity.name}.php`), { overwrite: false });
         action.edit = edit;
@@ -95,7 +96,7 @@ export class NamespaceCodeActions implements vscode.CodeActionProvider {
         const offset = tag ? tag.index + tag[0].length : 0;
         edit.insert(document.uri, document.positionAt(offset), `\nnamespace ${expected};\n`);
       }
-      const action = new vscode.CodeAction('Change namespace to match PSR-4 path', vscode.CodeActionKind.QuickFix);
+      const action = new vscode.CodeAction(t('changeNamespace'), vscode.CodeActionKind.QuickFix);
       action.edit = edit;
       action.diagnostics = [diagnostic];
       action.isPreferred = true;

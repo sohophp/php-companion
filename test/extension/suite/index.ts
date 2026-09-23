@@ -62,6 +62,9 @@ async function assertManifestCommandsRegistered(extension: vscode.Extension<unkn
       assert.strictEqual(raw['phpCompanion.indexing.onStartup']?.deprecationMessage, `%${deprecationKey}%`);
       assert.strictEqual(localizedValue(localized['phpCompanion.indexing.onStartup']?.deprecationMessage),
         translations[deprecationKey], 'Deprecated startup setting message was not localized');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testLocalize', 'preview'), '预览');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testLocalize', 'selectImport', 'Client'), '为 Client 选择导入项');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testLocalize', 'createTypeConfirm', 'App\\Client'), '创建 App\\Client？');
     }
   }
 }

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { extname, relative, resolve, sep } from 'node:path';
 import type { Psr4Mapping } from '../composer/project.js';
 import type { VersionManager } from '../extension/versionManager.js';
+import { t } from '../extension/localize.js';
 
 export type PhpTypeKind = 'class' | 'abstract class' | 'interface' | 'trait' | 'enum' | 'test';
 
@@ -50,7 +51,7 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   let directoryUri = directoryFromTarget(target);
   const folder = target ? vscode.workspace.getWorkspaceFolder(target) : vscode.workspace.workspaceFolders?.[0];
   if (!directoryUri && folder) directoryUri = folder.uri;
-  if (!directoryUri || !folder) return void vscode.window.showErrorMessage('SoPHP: Open a workspace folder first.');
+  if (!directoryUri || !folder) return void vscode.window.showErrorMessage(t('createNoWorkspace'));
 
   const state = await versions.ensureForUri(directoryUri);
   const mappings = state?.composer?.psr4 ?? [];
@@ -62,25 +63,27 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   }
   const namespace = namespaceForDirectory(directoryUri.fsPath, mappings);
   if (namespace === undefined) {
-    return void vscode.window.showErrorMessage('SoPHP: The target directory is not covered by Composer PSR-4 autoloading.');
+    return void vscode.window.showErrorMessage(t('createOutsidePsr4'));
   }
   if (effectiveKind === 'enum' && state?.resolution.target && state.resolution.target < '8.1') {
-    return void vscode.window.showErrorMessage(`SoPHP: Enums require PHP 8.1 or later (target: ${state.resolution.target}).`);
+    return void vscode.window.showErrorMessage(t('enumPhpTarget', state.resolution.target));
   }
-  const name = await vscode.window.showInputBox({ prompt: `New PHP ${kind} name`, validateInput: (value) => TYPE_NAME.test(value) ? undefined : 'Enter a valid PHP type name.' });
+  const kindName = { class: t('kindClass'), 'abstract class': t('kindAbstractClass'), interface: t('kindInterface'), trait: t('kindTrait'), enum: t('kindEnum'), test: t('kindTest') }[kind];
+  const name = await vscode.window.showInputBox({ prompt: t('newTypeName', kindName), validateInput: (value) => TYPE_NAME.test(value) ? undefined : t('validTypeName') });
   if (!name) return;
   if (kind === 'test' && !name.endsWith('Test')) effectiveKind = 'test';
   const uri = vscode.Uri.joinPath(directoryUri, `${name}.php`);
   try {
     await vscode.workspace.fs.stat(uri);
-    return void vscode.window.showErrorMessage(`SoPHP: ${uri.fsPath} already exists.`);
+    return void vscode.window.showErrorMessage(t('fileExists', uri.fsPath));
   } catch {
     // Expected for a new file.
   }
   const strictTypes = vscode.workspace.getConfiguration('phpCompanion', uri).get('generation.strictTypes', true);
   const source = renderPhpType(effectiveKind, name, namespace, strictTypes);
-  const choice = await vscode.window.showInformationMessage(`Create ${namespace ? `${namespace}\\` : ''}${name}?`, { modal: true }, 'Create');
-  if (choice !== 'Create') return;
+  const create = t('create');
+  const choice = await vscode.window.showInformationMessage(t('createTypeConfirm', `${namespace ? `${namespace}\\` : ''}${name}`), { modal: true }, create);
+  if (choice !== create) return;
   await vscode.workspace.fs.createDirectory(directoryUri);
   await vscode.workspace.fs.writeFile(uri, Buffer.from(source, 'utf8'));
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));

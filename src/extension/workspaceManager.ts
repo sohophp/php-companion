@@ -56,7 +56,7 @@ export class WorkspaceManager implements vscode.Disposable {
   async ensureFullIndex(): Promise<void> {
     if (this.fullIndexComplete) return;
     await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'SoPHP: Indexing workspace…', cancellable: true },
+      { location: vscode.ProgressLocation.Notification, title: t('indexingWorkspace'), cancellable: true },
       (_progress, token) => this.rebuild(false, token),
     );
   }
@@ -68,9 +68,9 @@ export class WorkspaceManager implements vscode.Disposable {
   async refreshProjectIndexes(uris: readonly vscode.Uri[], token?: vscode.CancellationToken): Promise<boolean> {
     const roots = uris.flatMap((uri) => this.mappingsForUri(uri).flatMap((mapping) => mapping.directories));
     const key = [...new Set(roots.map((root) => resolve(root)))].sort().join('|');
-    if (!key) throw new Error('The files are not covered by a Composer PSR-4 project.');
+    if (!key) throw new Error(t('composerProjectRequired'));
     return vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'SoPHP: Indexing Composer project…', cancellable: true },
+      { location: vscode.ProgressLocation.Notification, title: t('indexingComposerProject'), cancellable: true },
       (_progress, progressToken) => {
         const combined = { get isCancellationRequested(): boolean { return Boolean(token?.isCancellationRequested || progressToken.isCancellationRequested); } } as vscode.CancellationToken;
         return this.runRebuild(false, combined, roots);
@@ -102,7 +102,7 @@ export class WorkspaceManager implements vscode.Disposable {
       ? (await Promise.all([...new Set(roots)].map((root) => vscode.workspace.findFiles(new vscode.RelativePattern(vscode.Uri.file(root), '**/*.php'), '**/{vendor,.git,node_modules,var/cache,storage/framework}/**', maxFiles + 1)))).flat()
       : await vscode.workspace.findFiles('**/*.php', '**/{vendor,.git,node_modules,var/cache,storage/framework}/**', maxFiles + 1);
     const uniqueUris = [...new Map(uris.map((uri) => [uri.toString(), uri])).values()];
-    if (uniqueUris.length > maxFiles) throw new Error(`Index limit exceeded (${maxFiles} files). Narrow phpCompanion.files.exclude or raise indexing.maxFiles.`);
+    if (uniqueUris.length > maxFiles) throw new Error(t('indexLimit', String(maxFiles)));
     const entries: Array<{ uri: string; source: string }> = [];
     let totalBytes = 0;
     for (const uri of uniqueUris) {

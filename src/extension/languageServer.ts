@@ -3,6 +3,7 @@ import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHand
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
+import { t } from './localize.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
@@ -54,7 +55,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   if (!activation.start) {
     if (activation.blockedByCompetingServer) {
       output.warn('SoPHP Language Server stayed disabled because Intelephense is installed and no explicit phpCompanion.languageServer.enabled choice exists.');
-      void vscode.window.showInformationMessage('SoPHP kept Intelephense as the PHP language provider. Set phpCompanion.languageServer.enabled explicitly to change this choice.');
+      void vscode.window.showInformationMessage(t('keptIntelephense'));
     }
     return undefined;
   }

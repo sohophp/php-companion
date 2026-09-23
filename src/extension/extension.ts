@@ -25,6 +25,7 @@ import { composerRequiresSymfony } from './languageServerPolicy.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
+import { t } from './localize.js';
 
 function offsetAt(source: string, position: vscode.Position): number {
   let offset = 0;
@@ -57,9 +58,9 @@ async function recommendStandaloneSymfony(context: vscode.ExtensionContext, outp
   if (!detected) return;
   await context.workspaceState.update(stateKey, true);
   output.warn('Symfony FrameworkBundle detected without the standalone SoPHP Symfony extension.');
-  const action = 'Show SoPHP: Symfony';
+  const action = t('showSymfony');
   if (await vscode.window.showInformationMessage(
-    'This Symfony project needs SoPHP: Symfony for precise services, routes, events, and Controller-to-Twig support.', action,
+    t('symfonyRecommendation'), action,
   ) === action) {
     await vscode.commands.executeCommand('workbench.extensions.search', `@id:${extensionId}`);
   }
@@ -72,12 +73,12 @@ function immediateNamespaceMoveEdit(files: readonly { oldUri: vscode.Uri; newUri
     const parsed = parser.parse(file.source);
     try {
       const declarations = namespaceDeclarations(parsed.tree);
-      if (parsed.errors.length || declarations.length !== 1) throw new MoveError('Safe Move requires one valid namespace declaration.');
+      if (parsed.errors.length || declarations.length !== 1) throw new MoveError(t('moveValidNamespace'));
       const declaration = declarations[0]!;
       const sourceMappings = mappings.filter((mapping) => resolvePsr4Namespaces(file.oldUri.fsPath, [mapping]).includes(declaration.name));
       const preferred = resolvePsr4Namespaces(file.newUri.fsPath, sourceMappings);
       const candidates = preferred.length ? preferred : resolvePsr4Namespaces(file.newUri.fsPath, mappings);
-      if (candidates.length !== 1) throw new MoveError('Safe Move namespace mapping is ambiguous.');
+      if (candidates.length !== 1) throw new MoveError(t('moveAmbiguousNamespace'));
       edit.replace(file.oldUri, new vscode.Range(positionAt(file.source, declaration.start), positionAt(file.source, declaration.end)), candidates[0]!);
     } finally { parsed.tree.delete(); }
 
@@ -192,7 +193,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     return client;
   }).catch((error) => {
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);
-    void vscode.window.showErrorMessage('SoPHP language server failed to start. See the SoPHP output channel.');
+    void vscode.window.showErrorMessage(t('languageServerFailed'));
     return undefined;
   });
   integrations.setRequestHandler(async (method: string, params: unknown): Promise<unknown> => {
@@ -213,7 +214,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   };
   const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
     const client = await languageServer;
-    if (!client) throw new MoveError('SoPHP Language Server is unavailable.');
+    if (!client) throw new MoveError(t('languageServerUnavailable'));
     const moveId = ++moveSequence; const started = performance.now();
     output.info(`[move:${moveId}] planning files=${files.length}`);
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/planSafeMove', {
@@ -222,11 +223,11 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     });
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
-    if (!edit) throw new MoveError('SoPHP Language Server did not return a complete Safe Move edit.');
+    if (!edit) throw new MoveError(t('movePlanIncomplete'));
     const snapshots = await Promise.all(Object.entries(includeFileOperations || requireCompleteIndex ? result.sources ?? {} : {}).map(async ([uri, source]) => ({
       document: await vscode.workspace.openTextDocument(vscode.Uri.parse(uri)), source,
     })));
-    if (snapshots.some(({ document, source }) => document.getText() !== source)) throw new MoveError('Safe Move participants changed during planning. Retry the move.');
+    if (snapshots.some(({ document, source }) => document.getText() !== source)) throw new MoveError(t('moveParticipantsChanged'));
     output.info(`[move:${moveId}] planned elapsedMs=${Math.round(performance.now() - started)} editedFiles=${edit.entries().length}`);
     return { edit, reconciliation: result.reconciliation ?? [] };
   };
@@ -234,17 +235,17 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     (await requestSafeMovePlan(files, includeFileOperations)).edit;
   const requestMoveReconciliation = async (moves: readonly ServerMoveReconciliation[]): Promise<vscode.WorkspaceEdit> => {
     const client = await languageServer;
-    if (!client) throw new MoveError('SoPHP Language Server is unavailable.');
+    if (!client) throw new MoveError(t('languageServerUnavailable'));
     const result = await client.sendRequest<SafeMoveResponse>('phpCompanion/reconcileSafeMove', { moves });
     if (result.error) throw new MoveError(result.error);
     const edit = fromProtocolWorkspaceEdit(result.edit);
-    if (!edit) throw new MoveError('SoPHP Language Server did not return a Safe Move reconciliation edit.');
+    if (!edit) throw new MoveError(t('moveReconciliationIncomplete'));
     // A move or typing can change a document while the server plans. Never
     // apply ranges from the old text to the current editor (VS Code clamps
     // an oversized end column, which can silently consume the semicolon).
     const participants = await Promise.all(edit.entries().map(async ([uri]) => ({ uri, document: await vscode.workspace.openTextDocument(uri) })));
     for (const { uri, document } of participants) {
-      if (result.sources?.[uri.toString()] !== document.getText()) throw new MoveError(`Safe Move snapshot changed for ${uri.fsPath}; replanning.`);
+      if (result.sources?.[uri.toString()] !== document.getText()) throw new MoveError(t('moveSnapshotChanged', uri.fsPath));
     }
     return edit;
   };
@@ -255,7 +256,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   };
 
   const applyMoveReconciliation = async (edits: vscode.WorkspaceEdit): Promise<void> => {
-    if (edits.entries().length && !await vscode.workspace.applyEdit(edits)) throw new MoveError('VS Code could not update moved PHP namespaces and references.');
+    if (edits.entries().length && !await vscode.workspace.applyEdit(edits)) throw new MoveError(t('moveUpdateFailed'));
 
   };
 
@@ -268,23 +269,23 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       const parsed = (await moveParser()).parse(document.getText());
       try {
         const declarations = namespaceDeclarations(parsed.tree);
-        if (parsed.errors.length || declarations.length !== 1 || declarations[0]!.name !== move.newNamespace) throw new MoveError(`Moved file ${uri.fsPath} failed namespace or syntax validation.`);
+        if (parsed.errors.length || declarations.length !== 1 || declarations[0]!.name !== move.newNamespace) throw new MoveError(t('movedFileInvalid', uri.fsPath));
       } finally { parsed.tree.delete(); }
     }
     const remaining = await requestMoveReconciliation(moves);
-    if (remaining.entries().length) throw new MoveError(`Safe Move still requires ${remaining.entries().length} reconciliation edit group(s).`);
+    if (remaining.entries().length) throw new MoveError(t('moveEditsRemaining', String(remaining.entries().length)));
   };
 
   const rollbackUnplannedServerMove = async (pending: PendingServerSafeMove): Promise<void> => {
     for (const file of pending.files) {
       try { await vscode.workspace.fs.stat(file.newUri); }
       catch (error) {
-        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') throw new MoveError(`Cannot roll back Safe Move because ${file.newUri.fsPath} is unavailable.`);
+        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') throw new MoveError(t('moveRollbackUnavailable', file.newUri.fsPath));
         throw error;
       }
       try {
         await vscode.workspace.fs.stat(file.oldUri);
-        throw new MoveError(`Cannot roll back Safe Move because ${file.oldUri.fsPath} already exists.`);
+        throw new MoveError(t('moveRollbackExists', file.oldUri.fsPath));
       } catch (error) {
         if (error instanceof MoveError) throw error;
         if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
@@ -295,7 +296,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     try {
       const edit = new vscode.WorkspaceEdit();
       for (const file of pending.files) edit.renameFile(file.newUri, file.oldUri, { overwrite: false });
-      if (!await vscode.workspace.applyEdit(edit)) throw new MoveError('VS Code could not roll back the unplanned Safe Move.');
+      if (!await vscode.workspace.applyEdit(edit)) throw new MoveError(t('moveRollbackFailed'));
     } finally {
       for (const key of reverseKeys) delegatedSafeMoves.delete(key);
     }
@@ -320,7 +321,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       try {
         await withBoundedRetry(async () => {
           pending.reconciliation ??= (await requestSafeMovePlan(pending.files, false)).reconciliation;
-          if (!pending.reconciliation.length) throw new MoveError('SoPHP Language Server did not retain a Safe Move reconciliation plan.');
+          if (!pending.reconciliation.length) throw new MoveError(t('moveReconciliationLost'));
           try { await reconcileServerMove(pending.reconciliation); }
           catch (error) {
             // A rapid reverse Explorer operation has its own retained plan. Do
@@ -394,11 +395,11 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const resource = vscode.window.activeTextEditor?.document.uri ?? null;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', resource);
     if (!configuration.get<boolean>('experimental.refactoring', false)) {
-      void vscode.window.showInformationMessage('Enable phpCompanion.experimental.refactoring to use project-wide indexing and refactoring.');
+      void vscode.window.showInformationMessage(t('experimentalRequired'));
       return undefined;
     }
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      void vscode.window.showInformationMessage('SoPHP indexing is disabled.');
+      void vscode.window.showInformationMessage(t('indexingDisabled'));
       return undefined;
     }
     return workspace();
@@ -407,6 +408,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   const commands: vscode.Disposable[] = [];
   const register = (id: string, callback: (...args: any[]) => unknown): void => { commands.push(vscode.commands.registerCommand(id, callback)); };
   if (context.extensionMode === vscode.ExtensionMode.Test) {
+    register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
       await Promise.all([versions.ensureForUri(oldUri), versions.ensureForUri(newUri)]);
@@ -420,11 +422,12 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   register('phpCompanion.showCompatibilityReport', async () => {
     const editor = vscode.window.activeTextEditor;
     if (editor) await versions.ensureForUri(editor.document.uri);
-    const lines = ['# SoPHP diagnostics', '', `- Activation registration: ${(performance.now() - started).toFixed(1)} ms`, `- Experimental index loaded: ${workspacePromise ? 'yes' : 'no'}`];
+    const lines = [t('diagnosticsTitle'), '', t('activationRegistration', (performance.now() - started).toFixed(1)),
+      t('experimentalIndexLoaded', workspacePromise ? t('yes') : t('no'))];
     for (const state of versions.allStates()) lines.push(
       `- ${state.projectRoot ?? state.folder.name}: PHP ${state.resolution.target} — ${state.resolution.sourceDetail}`,
-      `  - Runtime: ${state.runtime ? `PHP ${state.runtime.version} ${state.runtime.sapi} via ${state.runtime.path}; ${state.runtime.loadedExtensions.length} loaded extensions` : 'unknown or target-version mismatch'}`,
-      `  - PSR-4 mappings: ${state.composer?.psr4.length ?? 0}`,
+      t('reportRuntime', state.runtime ? t('runtimeDetails', state.runtime.version, state.runtime.sapi, state.runtime.path, String(state.runtime.loadedExtensions.length)) : t('runtimeUnknown')),
+      t('psr4Mappings', String(state.composer?.psr4.length ?? 0)),
     );
     const document = await vscode.workspace.openTextDocument({ language: 'markdown', content: lines.join('\n') });
     await vscode.window.showTextDocument(document, { preview: true });
@@ -441,14 +444,14 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
         canSelectFolders: true,
         canSelectMany: false,
         defaultUri: source.with({ path: source.path.slice(0, source.path.lastIndexOf('/')) }),
-        openLabel: 'Move PHP File Here',
+        openLabel: t('moveHere'),
       });
       if (!selected?.[0]) return;
       target = vscode.Uri.joinPath(selected[0], basename(source.fsPath));
     }
     if (target.toString() === source.toString()) return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', source);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage('Safe Move requires phpCompanion.indexing.mode to be onDemand, progressive, or experimental.');
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage(t('safeMoveIndexingMode'));
     try {
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
       const manager = selfLanguageServer ? undefined : await workspace();
@@ -457,16 +460,16 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
         ? await requestSafeMove([{ oldUri: source, newUri: target }], false)
         : await buildMoveEdits(manager!.index, [{ oldUri: source, newUri: target }], (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
       if (options?.preview ?? configuration.get<boolean>('move.preview', true)) {
-        const choice = await vscode.window.showInformationMessage('Safe Move will update the PHP namespace and proven references.', { modal: true }, 'Preview', 'Apply');
+        const choice = await vscode.window.showInformationMessage(t('safeMoveWillUpdate'), { modal: true }, t('preview'), t('apply'));
         if (!choice) return;
-        if (choice === 'Preview') {
+        if (choice === t('preview')) {
           for (const [uri, edits] of textEdits.entries()) {
             const originalUri = uri.toString() === target.toString() ? source : uri;
             const original = await vscode.workspace.openTextDocument(originalUri);
             const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.getText(), edits) });
-            await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, `Safe Move: ${vscode.workspace.asRelativePath(originalUri)}`);
+            await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri)));
           }
-          if (await vscode.window.showInformationMessage('Apply the previewed Safe Move?', { modal: true }, 'Apply') !== 'Apply') return;
+          if (await vscode.window.showInformationMessage(t('applyPreviewedSafeMove'), { modal: true }, t('apply')) !== t('apply')) return;
         }
       }
       const key = fileRenameKey(source, target);
@@ -474,10 +477,10 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       try {
         const edit = selfLanguageServer ? await requestSafeMove([{ oldUri: source, newUri: target }], true) : new vscode.WorkspaceEdit();
         if (!selfLanguageServer) {
-          edit.renameFile(source, target, { overwrite: false }, { label: `Move ${basename(source.fsPath)}`, needsConfirmation: false });
+          edit.renameFile(source, target, { overwrite: false }, { label: t('moveFileLabel', basename(source.fsPath)), needsConfirmation: false });
           for (const [uri, edits] of textEdits.entries()) for (const textEdit of edits) edit.replace(uri, textEdit.range, textEdit.newText);
         }
-        if (!await vscode.workspace.applyEdit(edit)) throw new MoveError('VS Code could not move the PHP file and update its references.');
+        if (!await vscode.workspace.applyEdit(edit)) throw new MoveError(t('safeMoveApplyFailed'));
         if (manager) await refreshMoveIndex(manager, [{ oldUri: source, newUri: target }], textEdits);
       } finally {
         delegatedSafeMoves.delete(key);
@@ -485,7 +488,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       output.warn(`Safe Move rejected: ${message}`);
-      void vscode.window.showWarningMessage(error instanceof MoveError ? message : `Safe Move failed: ${message}`);
+      void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
     }
   });
   register('phpCompanion.resolvePastedImports', async () => {
@@ -501,7 +504,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
           textDocument: { uri: document.uri.toString() }, position, name,
         });
         const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
-          candidates.map((candidate) => ({ label: candidate.fqcn, candidate })), { placeHolder: `Select import for ${name}` },
+          candidates.map((candidate) => ({ label: candidate.fqcn, candidate })), { placeHolder: t('selectImport', name) },
         ))?.candidate;
         if (selected) symbols.push({ fqcn: selected.fqcn, alias: name });
       }
@@ -525,7 +528,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     if (!word) return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      void vscode.window.showInformationMessage('SoPHP Import Class requires indexing.mode to be onDemand, progressive, or experimental.');
+      void vscode.window.showInformationMessage(t('importClassIndexingMode'));
       return;
     }
     if (selfLanguageServer) {
@@ -533,15 +536,15 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       const candidates = await client.sendRequest<Array<{ fqcn: string; uri: string; aliasRequired: boolean }>>('phpCompanion/importCandidates', {
         textDocument: { uri: document.uri.toString() }, position: word.range.start, name: word.name,
       });
-      if (!candidates.length) return void vscode.window.showInformationMessage(`No unique Composer candidate found for ${word.name}.`);
+      if (!candidates.length) return void vscode.window.showInformationMessage(t('noUniqueComposerCandidate', word.name));
       const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
         candidates.map((candidate) => ({ label: candidate.fqcn, description: vscode.workspace.asRelativePath(vscode.Uri.parse(candidate.uri)), candidate })),
-        { placeHolder: `Select the class to import for ${word.name}` },
+        { placeHolder: t('selectClassImport', word.name) },
       ))?.candidate;
       if (!selected) return;
       const alias = selected.aliasRequired ? await vscode.window.showInputBox({
-        prompt: `Choose an alias for ${selected.fqcn}`, value: `${word.name}Alias`,
-        validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : 'Enter a valid PHP identifier.',
+        prompt: t('chooseAlias', selected.fqcn), value: `${word.name}Alias`,
+        validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier'),
       }) : undefined;
       if (selected.aliasRequired && !alias) return;
       const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/addImport', {
@@ -557,24 +560,24 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     manager.indexDocument(document);
     const version = document.version;
     if (!await manager.ensureProjectIndex(document.uri) || document.version !== version) {
-      void vscode.window.showWarningMessage('Import cancelled because the document changed while candidates were indexed.');
+      void vscode.window.showWarningMessage(t('importCancelled'));
       return;
     }
     const file = manager.index.getFile(document.uri.toString());
-    if (!file || file.errors.length) return void vscode.window.showWarningMessage('Cannot import into a PHP file with syntax errors.');
+    if (!file || file.errors.length) return void vscode.window.showWarningMessage(t('cannotImportSyntax'));
     if (manager.index.findSymbolAt(document.uri.toString(), document.offsetAt(word.range.start))) return;
     const candidates = rankedImportCandidates(manager.index, file, word.name, versions.stateForUri(document.uri)?.composer?.psr4 ?? []);
-    if (!candidates.length) return void vscode.window.showInformationMessage(`No Composer PSR-4 candidate found for ${word.name}.`);
+    if (!candidates.length) return void vscode.window.showInformationMessage(t('noComposerPsr4Candidate', word.name));
     const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
       candidates.map((candidate) => ({ label: candidate.fqcn, description: vscode.workspace.asRelativePath(vscode.Uri.parse(candidate.uri)), candidate })),
-      { placeHolder: `Select the class to import for ${word.name}` },
+      { placeHolder: t('selectClassImport', word.name) },
     ))?.candidate;
     if (!selected) return;
     let alias: string | undefined;
     const collision = file.imports.some((item) => item.alias.toLowerCase() === word.name.toLowerCase() && item.fqcn.toLowerCase() !== selected.fqcn.toLowerCase())
       || file.declarations.some((item) => item.name.toLowerCase() === word.name.toLowerCase());
     if (collision) {
-      alias = await vscode.window.showInputBox({ prompt: `Choose an alias for ${selected.fqcn}`, value: word.name, validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : 'Enter a valid PHP identifier.' });
+      alias = await vscode.window.showInputBox({ prompt: t('chooseAlias', selected.fqcn), value: word.name, validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : t('validIdentifier') });
       if (!alias) return;
     }
     const edit = buildAddImportEdit(document, file, selected.fqcn, alias);
@@ -584,7 +587,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const document = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showInformationMessage('SoPHP Optimize Imports requires project indexing.');
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showInformationMessage(t('optimizeIndexRequired'));
     if (selfLanguageServer) {
       const client = await languageServer; if (!client) return;
       const actions = await client.sendRequest<Array<{ title: string; kind?: string; edit?: ProtocolWorkspaceEdit }>>('textDocument/codeAction', {
@@ -595,14 +598,14 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
       });
       const action = actions.find((candidate) => candidate.kind === 'source.organizeImports' && candidate.edit);
       const edit = fromProtocolWorkspaceEdit(action?.edit);
-      if (!edit) return void vscode.window.showInformationMessage('PHP imports are already organized or cannot be changed safely.');
+      if (!edit) return void vscode.window.showInformationMessage(t('importsAlreadyOrganized'));
       if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-        const choice = await vscode.window.showInformationMessage('Optimize imports.', { modal: true }, 'Preview', 'Apply');
-        if (choice === 'Preview') {
+        const choice = await vscode.window.showInformationMessage(t('optimizeImports'), { modal: true }, t('preview'), t('apply'));
+        if (choice === t('preview')) {
           const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(document.getText(), edit.get(document.uri)) });
-          await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, `Optimize Imports: ${vscode.workspace.asRelativePath(document.uri)}`);
-          if (await vscode.window.showInformationMessage('Apply the previewed import changes?', { modal: true }, 'Apply') !== 'Apply') return;
-        } else if (choice !== 'Apply') return;
+          await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)));
+          if (await vscode.window.showInformationMessage(t('applyPreviewedImportChanges'), { modal: true }, t('apply')) !== t('apply')) return;
+        } else if (choice !== t('apply')) return;
       }
       await vscode.workspace.applyEdit(edit);
       return;
@@ -611,20 +614,20 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const manager = await workspace();
     manager.indexDocument(document);
     const version = document.version;
-    if (!await manager.ensureProjectIndex(document.uri) || document.version !== version) return void vscode.window.showWarningMessage('Optimize Imports cancelled because the document changed.');
+    if (!await manager.ensureProjectIndex(document.uri) || document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
     const file = manager.index.getFile(document.uri.toString());
-    if (!file || file.errors.length) return void vscode.window.showWarningMessage('Cannot optimize imports in a PHP file with syntax errors.');
+    if (!file || file.errors.length) return void vscode.window.showWarningMessage(t('cannotOptimizeSyntax'));
     const result = buildOptimizeImportsEdit(document, file, manager.index, configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped'));
-    if (!result.edit || result.optimizedSource === undefined) return void vscode.window.showInformationMessage('PHP imports are already optimized or cannot be changed safely.');
+    if (!result.edit || result.optimizedSource === undefined) return void vscode.window.showInformationMessage(t('importsAlreadyOptimized'));
     if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-      const choice = await vscode.window.showInformationMessage(`Optimize imports (${result.removed} removed).`, { modal: true }, 'Preview', 'Apply');
-      if (choice === 'Preview') {
+      const choice = await vscode.window.showInformationMessage(t('optimizeRemoved', String(result.removed)), { modal: true }, t('preview'), t('apply'));
+      if (choice === t('preview')) {
         const preview = await vscode.workspace.openTextDocument({ language: 'php', content: result.optimizedSource });
-        await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, `Optimize Imports: ${vscode.workspace.asRelativePath(document.uri)}`);
-        if (await vscode.window.showInformationMessage('Apply the previewed import changes?', { modal: true }, 'Apply') !== 'Apply') return;
-      } else if (choice !== 'Apply') return;
+        await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)));
+        if (await vscode.window.showInformationMessage(t('applyPreviewedImportChanges'), { modal: true }, t('apply')) !== t('apply')) return;
+      } else if (choice !== t('apply')) return;
     }
-    if (document.version !== version) return void vscode.window.showWarningMessage('Optimize Imports cancelled because the document changed.');
+    if (document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
     await vscode.workspace.applyEdit(result.edit);
   });
 
@@ -643,7 +646,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     const resourceConfiguration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (!resourceConfiguration.get<boolean>('rename.enabled', true)) return undefined;
     if (resourceConfiguration.get<string>('indexing.mode', 'onDemand') === 'off') {
-      throw new Error('SoPHP Rename requires indexing.mode to be onDemand, progressive, or experimental.');
+      throw new Error(t('renameIndexingMode'));
     }
     await versions.ensureForUri(document.uri);
     const manager = await workspace();
@@ -752,8 +755,8 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
           let plan = await requestImportPlan(document, position, variant); if (!plan) continue;
           if (plan.conflict) {
             if (configuration.get<'auto' | 'prompt'>('imports.onPaste', 'prompt') === 'auto') continue;
-            const selectedAlias = await vscode.window.showInputBox({ prompt: `Choose an alias for ${plan.conflict.fqcn}`, value: `${plan.conflict.sourceAlias}Alias`,
-              validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : 'Enter a valid PHP identifier.' });
+            const selectedAlias = await vscode.window.showInputBox({ prompt: t('chooseAlias', plan.conflict.fqcn), value: `${plan.conflict.sourceAlias}Alias`,
+              validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier') });
             if (!selectedAlias) continue;
             variant = variant.map((symbol) => symbol.fqcn === plan!.conflict!.fqcn ? { ...symbol, selectedAlias } : symbol);
             plan = await requestImportPlan(document, position, variant); if (!plan || plan.conflict) continue;
@@ -811,7 +814,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
             return { ...file, source: document?.getText() ?? new TextDecoder().decode(await vscode.workspace.fs.readFile(file.oldUri)) };
           }));
           if (vscode.workspace.getConfiguration('phpCompanion', files[0]!.oldUri).get<string>('indexing.mode', 'onDemand') === 'off') {
-            throw new MoveError('Safe Move requires phpCompanion.indexing.mode to be onDemand, progressive, or experimental.');
+            throw new MoveError(t('safeMoveIndexingMode'));
           }
           if (selfLanguageServer) {
             // Freeze the exact source while the old path still exists, but do
@@ -853,7 +856,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           output.warn(`Safe Move rejected: ${message}`);
-          void vscode.window.showWarningMessage(error instanceof MoveError ? message : `Safe Move failed: ${message}`);
+          void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
           throw error;
         }
       })();

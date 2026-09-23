@@ -111,9 +111,9 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
       if (built.conflict) {
         if (mode === 'auto') continue;
         const alias = await vscode.window.showInputBox({
-          prompt: `Choose an alias for ${built.conflict.fqcn}`,
+          prompt: t('chooseAlias', built.conflict.fqcn),
           value: built.conflict.alias,
-          validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : 'Enter a valid PHP identifier.',
+          validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : t('validIdentifier'),
         });
         if (!alias) continue;
         variant = variant.map((item) => item === built.conflict ? { ...item, alias } : item);
@@ -144,7 +144,7 @@ export async function resolveDocumentImports(document: vscode.TextDocument, inde
     else if (candidates.length > 1) {
       const selected = await vscode.window.showQuickPick(
         candidates.map((candidate) => ({ label: candidate.fqcn, candidate })),
-        { placeHolder: `Select import for ${name}` },
+        { placeHolder: t('selectImport', name) },
       );
       if (selected) symbols.push({ fqcn: selected.candidate.fqcn, alias: name });
     }

@@ -139,8 +139,8 @@ export class VersionManager implements vscode.Disposable {
     }
     this.status.text = `$(symbol-property) SoPHP: ${state.resolution.target}`;
     this.status.tooltip = `${t('detectedFrom', state.resolution.sourceDetail)}\n${state.resolution.detectedVersion ?? ''}\n${state.runtime
-      ? `CLI ${state.runtime.version} (${state.runtime.sapi}), ${state.runtime.loadedExtensions.length} extensions — ${state.runtime.path}`
-      : 'CLI runtime extensions: unknown or target-version mismatch'}`.trim();
+      ? t('cliRuntimeDetails', state.runtime.version, state.runtime.sapi, String(state.runtime.loadedExtensions.length), state.runtime.path)
+      : t('cliRuntimeUnknown')}`.trim();
     this.status.command = 'phpCompanion.selectPhpVersion';
     this.status.show();
   }
