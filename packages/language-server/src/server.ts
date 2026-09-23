@@ -36,7 +36,7 @@ import { protocolMessage } from './protocolMessages.js';
 import { progressMessage } from './progressMessages.js';
 import { outputMessage, outputProviderSource } from './outputMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { builtinDocumentUri, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isBuiltinDocumentUri, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
   type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
@@ -77,7 +77,7 @@ const projectIndexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefined>>();
 const composerDisabledExtensionsByRoot = new Map<string, ConfigurablePhpExtension[]>();
-const builtinExtensionSignatureByRoot = new Map<string, string>();
+const builtinUriByRoot = new Map<string, string>();
 const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const referenceDependencyEvidence = new WeakMap<SemanticWorkspace, ReferenceDependencyEvidence>();
 type AssignedReceiverMethod = { owner: string; method: string };
@@ -400,10 +400,12 @@ async function refreshBuiltinForRoot(root: string): Promise<void> {
 function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
   const disabledExtensions = disabledExtensionsForRoot(root);
   const version = phpVersionForRoot(root);
-  const signature = `${version}:${disabledExtensions.join(',')}`;
-  if (builtinExtensionSignatureByRoot.get(root) === signature) return;
-  workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(version, { disabledExtensions }));
-  builtinExtensionSignatureByRoot.set(root, signature);
+  const uri = builtinDocumentUri(version, { disabledExtensions });
+  const previous = builtinUriByRoot.get(root);
+  if (previous === uri) return;
+  if (previous) workspace.remove(previous);
+  workspace.update(uri, builtinPhpStub(version, { disabledExtensions }));
+  builtinUriByRoot.set(root, uri);
 }
 
 function setDisabledDiagnosticCodes(value: unknown): void {
@@ -985,7 +987,7 @@ function semanticForKey(key: string): Promise<SemanticWorkspace> {
     const workspace = new SemanticWorkspace(value);
     const root = key.startsWith('root:') ? key.slice('root:'.length) : undefined;
     if (root) updateBuiltinForRoot(workspace, root);
-    else workspace.update(BUILTIN_DOCUMENT_URI, builtinPhpStub(targetPhpVersion));
+    else workspace.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
     return workspace;
   });
   semanticWorkspaces.set(key, workspace);
@@ -1921,7 +1923,7 @@ async function indexWorkspace(generation: number): Promise<void> {
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinExtensionSignatureByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
@@ -2198,7 +2200,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
       for (const file of loaded) {
         const path = pathForUri(file.uri);
         if (path) reads.push({ kind: 'source', path: resolve(path), uri: file.uri, hash: file.hash });
-        else if (file.uri !== BUILTIN_DOCUMENT_URI) return;
+        else if (!isBuiltinDocumentUri(file.uri)) return;
       }
       const key = referenceQueryKey(uri, offset, includeDeclaration);
       const sourceRoots = projectAutoloadPaths(project);
@@ -3195,7 +3197,7 @@ connection.onRequest('phpCompanion/testReferenceInputs', async (params: { uri?: 
   for (const file of loaded) {
     const path = pathForUri(file.uri);
     if (path) reads.push({ kind: 'source', path: resolve(path), uri: file.uri, hash: file.hash });
-    else if (file.uri !== BUILTIN_DOCUMENT_URI) return unavailable('unmodeled-source');
+    else if (!isBuiltinDocumentUri(file.uri)) return unavailable('unmodeled-source');
   }
   const snapshot = await captureReferenceInputSnapshot({ sourceRoots: projectAutoloadPaths(project),
     additionalFiles: [...metadata.map((read) => read.path), ...reads.map((read) => read.path)],

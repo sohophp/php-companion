@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, lowestSupportedVersion, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
+import { builtinDocumentUri, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isBuiltinDocumentUri, isSyntaxAvailable, lowestSupportedVersion, parseBuiltinDocumentUri, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
 describe('PHP language specification', () => {
+  it('gives every built-in declaration snapshot a stable version and extension URI', () => {
+    const uri = builtinDocumentUri('7.2', { disabledExtensions: ['pdo', 'dom', 'pdo'] });
+    expect(uri).toBe('php-companion-builtin:/common-core.php?php=7.2&disabled=dom%2Cpdo');
+    expect(parseBuiltinDocumentUri(uri)).toEqual({ version: '7.2', disabledExtensions: ['dom', 'pdo'] });
+    expect(parseBuiltinDocumentUri(`php-companion-builtin:/common-core.php?${encodeURIComponent(uri.split('?')[1]!)}`))
+      .toEqual({ version: '7.2', disabledExtensions: ['dom', 'pdo'] });
+    expect(isBuiltinDocumentUri(uri)).toBe(true);
+    expect(builtinDocumentUri('8.5')).not.toBe(uri);
+    expect(parseBuiltinDocumentUri('php-companion-builtin:/common-core.php?php=8.6')).toBeUndefined();
+    expect(parseBuiltinDocumentUri('php-companion-builtin:/common-core.php?php=7.2&disabled=unknown')).toBeUndefined();
+  });
   it('removes only explicitly disabled, independently audited extension stubs', () => {
     const markers = new Map([
       ['dom', 'class DOMDocument'], ['filter', 'function filter_has_var'], ['mbstring', 'function mb_strlen'], ['pdo', 'class PDO '],

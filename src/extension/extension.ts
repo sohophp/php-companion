@@ -22,7 +22,7 @@ import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
 import { withBoundedRetry } from '../refactor/retry.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { composerRequiresSymfony } from './languageServerPolicy.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { BUILTIN_DOCUMENT_URI, builtinPhpStub, parseBuiltinDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
@@ -183,6 +183,8 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
 
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('php-companion-builtin', {
     provideTextDocumentContent: (uri) => {
+      const snapshot = parseBuiltinDocumentUri(uri.toString());
+      if (snapshot) return builtinPhpStub(snapshot.version, { disabledExtensions: snapshot.disabledExtensions });
       if (uri.toString() !== BUILTIN_DOCUMENT_URI) return '';
       const requested = vscode.workspace.getConfiguration('phpCompanion').get<string>('phpVersion', 'auto');
       const target = (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requested) ? requested as SupportedPhpVersion : '8.5';

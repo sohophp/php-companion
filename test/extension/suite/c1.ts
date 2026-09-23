@@ -369,6 +369,28 @@ function consume(): void { (void) choose(1); }`;
         assert.strictEqual(autoBuiltinCompletion.items.some((item) => item.label === 'str_contains'), expectedAvailable,
           'SoPHP used the wrong Composer auto version for built-in completion.');
       }
+      const sortSource = '<?php namespace App\\C1; function sorted(array $items): void { sort($items); }';
+      const sortDefinitions: vscode.Location[] = [];
+      for (const targetFolder of [folder, secondFolder]) {
+        const sortUri = vscode.Uri.joinPath(targetFolder, 'SortBuiltin.php');
+        await vscode.workspace.fs.writeFile(sortUri, Buffer.from(sortSource));
+        const sortDocument = await vscode.workspace.openTextDocument(sortUri);
+        await vscode.window.showTextDocument(sortDocument);
+        const result = await waitForResult(
+          () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', sortUri,
+            sortDocument.positionAt(sortSource.indexOf('sort($items)') + 2)),
+          (locations) => locations?.some((location) => location.uri.scheme === 'php-companion-builtin') === true,
+          'SoPHP did not navigate to the PHP sort built-in declaration.');
+        sortDefinitions.push(result.find((location) => location.uri.scheme === 'php-companion-builtin')!);
+      }
+      assert.notStrictEqual(sortDefinitions[0]!.uri.toString(), sortDefinitions[1]!.uri.toString(),
+        'PHP 7.2 and 8.5 built-in declarations shared one virtual document URI.');
+      const sort72 = await vscode.workspace.openTextDocument(sortDefinitions[0]!.uri);
+      const sort85 = await vscode.workspace.openTextDocument(sortDefinitions[1]!.uri);
+      assert.ok(sort72.getText().includes('function sort(array &$array, int $flags = 0): bool'),
+        `PHP 7.2 navigation displayed the wrong built-in signature: ${sortDefinitions[0]!.uri.toString()} ${sort72.getText().match(/function sort\([^\n]*/u)?.[0] ?? sort72.getText().slice(0, 80)}`);
+      assert.ok(sort85.getText().includes('function sort(array &$array, int $flags = 0): true'),
+        `PHP 8.5 navigation displayed the wrong built-in signature: ${sortDefinitions[1]!.uri.toString()} ${sort85.getText().match(/function sort\([^\n]*/u)?.[0] ?? sort85.getText().slice(0, 80)}`);
       const parentServiceSource = '<?php namespace App\\C1; class NestedService { public function parentOnly(): void {} }';
       await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'NestedService.php'), Buffer.from(parentServiceSource));
       const nestedRoot = vscode.Uri.joinPath(workspace.uri, 'apps', 'api');
@@ -457,9 +479,14 @@ function consume(): void { (void) choose(1); }`;
     await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(builtinVersionUri)),
       (result) => result.some((item) => item.code === 'php.type.filename'),
       'SoPHP did not process the second-root builtin fixture after the version change.');
-    const builtinVersionCompletion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
-      builtinVersionUri, builtinVersionDocument.positionAt(builtinVersionSource.indexOf('str_con') + 'str_con'.length));
-    assert.strictEqual(builtinVersionCompletion.items.some((item) => item.label === 'str_contains'), changedSecondVersion !== '7.2',
+    const builtinVersionCompletion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        builtinVersionUri, builtinVersionDocument.positionAt(builtinVersionSource.indexOf('str_con') + 'str_con'.length)),
+      (result) => result?.items.some((item) => item.label === 'str_contains' && item.kind === vscode.CompletionItemKind.Function)
+        === (changedSecondVersion !== '7.2'),
+      'SoPHP did not update built-in completion after the second-root PHP setting changed.');
+    assert.strictEqual(builtinVersionCompletion.items.some((item) => item.label === 'str_contains' && item.kind === vscode.CompletionItemKind.Function),
+      changedSecondVersion !== '7.2',
       'SoPHP kept the old root version in built-in completion after a setting change.');
   }
   if (runtimeVersion) {

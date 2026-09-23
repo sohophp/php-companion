@@ -13,6 +13,34 @@ export type ConfigurablePhpExtension = typeof CONFIGURABLE_PHP_EXTENSIONS[number
 export interface BuiltinPhpStubOptions { disabledExtensions?: readonly ConfigurablePhpExtension[]; }
 export const BUILTIN_DOCUMENT_URI = 'php-companion-builtin:/common-core.php';
 
+export function builtinDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  const parameters = new URLSearchParams({ php: version });
+  const disabled = [...new Set(options.disabledExtensions ?? [])].sort();
+  if (disabled.length) parameters.set('disabled', disabled.join(','));
+  return `${BUILTIN_DOCUMENT_URI}?${parameters}`;
+}
+
+export function parseBuiltinDocumentUri(uri: string): { version: SupportedPhpVersion; disabledExtensions: ConfigurablePhpExtension[] } | undefined {
+  try {
+    const parsed = new URL(uri);
+    if (parsed.protocol !== 'php-companion-builtin:' || parsed.pathname !== '/common-core.php') return undefined;
+    const rawQuery = parsed.search.slice(1);
+    const parameters = new URLSearchParams(rawQuery.includes('=') ? rawQuery : decodeURIComponent(rawQuery));
+    const version = SUPPORTED_PHP_VERSIONS.find((candidate) => candidate === parameters.get('php'));
+    if (!version) return undefined;
+    const disabled = parameters.get('disabled')?.split(',').filter(Boolean) ?? [];
+    if (disabled.some((extension) => !CONFIGURABLE_PHP_EXTENSIONS.includes(extension as ConfigurablePhpExtension))) return undefined;
+    const disabledExtensions = disabled as ConfigurablePhpExtension[];
+    const canonical = builtinDocumentUri(version, { disabledExtensions });
+    if (uri !== canonical && uri !== `${BUILTIN_DOCUMENT_URI}?${encodeURIComponent(canonical.slice(BUILTIN_DOCUMENT_URI.length + 1))}`) return undefined;
+    return { version, disabledExtensions };
+  } catch { return undefined; }
+}
+
+export function isBuiltinDocumentUri(uri: string): boolean {
+  return uri === BUILTIN_DOCUMENT_URI || parseBuiltinDocumentUri(uri) !== undefined;
+}
+
 const COMMON_CORE_STUB = `<?php
 interface Throwable {
   public function getMessage(): string;

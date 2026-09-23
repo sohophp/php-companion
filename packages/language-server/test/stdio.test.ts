@@ -2736,7 +2736,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       };
       expect(await definition(202, 'DOMDocument')).toEqual([]);
       expect(await definition(203, 'mb_strlen')).toEqual([]);
-      expect(await definition(204, 'PDO(')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+      expect(await definition(204, 'PDO(')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
 
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{
         uri: rootUri, disabledExtensions: [], runtime: { executable: '/usr/bin/php8.5', version: '8.5.3', versionId: 80503, sapi: 'cli',
@@ -2751,7 +2751,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         ]);
-      expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+      expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
       expect(await definition(206, 'mb_strlen')).toEqual([]);
       expect(await definition(207, 'XMLReader')).toEqual([]);
     } finally {
@@ -2808,7 +2808,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         && output.messages.filter((candidate: any) => candidate.method === 'window/logMessage' && candidate.params?.message?.includes('complete=true')).length >= 2);
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri
         && message.params.diagnostics.every((diagnostic: any) => diagnostic.code !== 'php.extension.unavailable'));
-      expect(await definition(213)).toMatchObject([{ uri: 'php-companion-builtin:/common-core.php' }]);
+      expect(await definition(213)).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
