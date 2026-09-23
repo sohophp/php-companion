@@ -65,6 +65,8 @@ References 渐进索引的 Alpha 验收只在此 Profile 的用户设置中启�
 6. 在 Twig 模板中验证 TwigPlus；在 YAML、XML、JSON/JSONC 中确认对应外部或内建服务接管；在 `.htaccess` 中确认 Apache Conf 语法和片段可用。
 7. 连续编辑至少两小时，记录补全陈旧、CPU、内存、Language Server 重启和任何工作区编辑失败。
 
+F2 Rename 的预览只列出当前工作区与已索引依赖中能证明的引用。对公开 API，工作区外的下游仓库和客户端调用无法验证；应用前还须检查这些使用方。动态调用与未证明的字符串引用也可能不在预览中，不能把工作区内预览视为跨仓库完整性证明。Alpha 试用优先在可撤销的测试文件上操作。
+
 Windows 客户端连接 WSL Remote 时，应在 Remote 窗口确认 SoPHP 和工作区扩展运行于 WSL Extension Host，并让 PHP CLI、Composer 根、formatter 与 PHPUnit 路径都解析到 WSL 项目。保存严格预检 JSON 后再开始两小时会话；Windows 本地安装成功不能代替这项检查。
 
 任何错误结果必须保留最小源码、目标 PHP 版本、索引完整性状态、操作位置和重现步骤。未知场景返回空结果可以记录为能力缺口；错误补全、错误诊断、错误跳转或不完整工作区编辑属于 Alpha 阻断缺陷。
