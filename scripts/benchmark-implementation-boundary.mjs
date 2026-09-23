@@ -15,8 +15,9 @@ const portable = process.argv[3] === 'portable';
 const withoutRipgrep = process.argv[3] === 'no-rg' || process.argv[3] === 'bundle-no-rg';
 const bundled = process.argv[3] === 'bundle-no-rg';
 const rounds = Number(process.argv[4] ?? 1);
-if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 30) throw new Error('Expected 1–30 rounds.');
+if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 100) throw new Error('Expected 1–100 rounds.');
 const expectIncomplete = process.argv[5] === 'incomplete';
+const checkReferences = process.argv.includes('references');
 const fixture = resolve('test/extension/real-vendor');
 const root = await mkdtemp(join(tmpdir(), 'sophp-implementation-boundary-'));
 let server;
@@ -68,6 +69,14 @@ try {
     pending.set(requestId, { resolve: resolveRequest, reject, timer });
     send({ jsonrpc: '2.0', id: requestId, method, params });
   });
+  const serverRssMiB = async () => {
+    if (process.platform !== 'linux' || !server.pid) return undefined;
+    try {
+      const status = await readFile(`/proc/${server.pid}/status`, 'utf8');
+      const value = /^VmRSS:\s+(\d+) kB$/m.exec(status)?.[1];
+      return value ? Math.round(Number(value) / 1024) : undefined;
+    } catch { return undefined; }
+  };
   const initialized = await request('initialize', { processId: null, capabilities: {},
     workspaceFolders: [{ uri: rootUri, name: 'boundary' }],
     initializationOptions: { phpVersion: '7.2', indexingMode: 'onDemand',
@@ -98,19 +107,37 @@ try {
     const elapsedMs = Math.round(performance.now() - started);
     const expectedLine = implementationSource.slice(0, implementationSource.indexOf(`function ${method}(`)).split('\n').length - 1;
     const locations = implementation.result ?? [];
-    const correct = expectIncomplete
+    const implementationCorrect = expectIncomplete
       ? /Implementation search incomplete/.test(implementation.error?.message ?? '') && locations.length === 0
       : !implementation.error && locations.length === 1 && locations[0].uri === implementationUri
         && locations[0].range?.start?.line === expectedLine;
+    let referenceMs; let referenceCount; let referenceError; let referencesCorrect = true;
+    if (checkReferences) {
+      const referenceStarted = performance.now();
+      const references = await request('textDocument/references', { textDocument: { uri }, position,
+        context: { includeDeclaration: false } });
+      referenceMs = Math.round(performance.now() - referenceStarted);
+      const referenceLocations = references.result ?? [];
+      referenceCount = referenceLocations.length;
+      referenceError = references.error?.message;
+      const consumerReferences = referenceLocations.filter((item) => item.uri === uri);
+      referencesCorrect = !referenceError && consumerReferences.length === 1
+        && consumerReferences[0].range?.start?.line === 0
+        && consumerReferences[0].range.start.character === source.indexOf(`${method}()`);
+    }
+    const correct = implementationCorrect && referencesCorrect;
+    const rssMiB = await serverRssMiB();
     results.push({ round: round + 1, method, elapsedMs, implementationUris: locations.map((item) => item.uri),
-      line: locations[0]?.range?.start?.line, expectedLine, error: implementation.error?.message, correct });
+      line: locations[0]?.range?.start?.line, expectedLine, error: implementation.error?.message,
+      ...(checkReferences ? { referenceMs, referenceCount, referenceError, referencesCorrect } : {}), rssMiB, correct });
     if (!correct) throw new Error(`Implementation round ${round + 1} returned an incorrect result: ${JSON.stringify({ result: results.at(-1), scanLogs, stderr })}`);
   }
   const timings = results.map((result) => result.elapsedMs).sort((left, right) => left - right);
   const medianMs = (timings[Math.floor((timings.length - 1) / 2)] + timings[Math.ceil((timings.length - 1) / 2)]) / 2;
   process.stdout.write(`${JSON.stringify({ noiseFiles, candidateMode: process.argv[3] ?? 'default', totalPhpFiles: noiseFiles + 1_029 + 1,
-    expected: expectIncomplete ? 'incomplete' : 'implementation',
+    expected: expectIncomplete ? 'incomplete' : 'implementation', checkReferences,
     rounds, minMs: timings[0], medianMs, p95Ms: timings[Math.ceil(timings.length * 0.95) - 1], maxMs: timings.at(-1),
+    maxSampledRssMiB: Math.max(...results.map((result) => result.rssMiB ?? 0)) || undefined,
     definitionUris: definition.result?.map((item) => item.uri), results, scanLogs }, null, 2)}\n`);
   await request('shutdown', null, 10_000);
   send({ jsonrpc: '2.0', method: 'exit', params: null });
