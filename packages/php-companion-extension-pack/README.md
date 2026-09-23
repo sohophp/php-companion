@@ -17,6 +17,8 @@
 | EditorConfig | 项目级缩进、换行和字符集 |
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由该扩展自身声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+
 JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code 内建语言服务，不重复安装基础语言扩展。XML 由仍在维护的 Red Hat XML/LemMinX 负责，不采用长期未发布且依赖已废弃 `xmldom` 的 DotJoshJohnson XML Tools。拼写检查、CSS Peek 和数据库客户端不是 PHP 编码闭环的必要能力，按需单独安装；其中 Database Client 当前发行版闭源且部分功能收费，不属于本开源包。
 
 第三方 Symfony Language Tools 不随 Pack 自动安装，也不属于受支持组合。0.20.1 与 0.20.2 都在重复门禁中参与普通 PHP 声明 Rename 并返回拒绝，导致 F2 不可用；扩展当前没有关闭该 Provider 的设置。Pack 直接安装自研 `SoPHP Symfony`，通用 Twig 能力仍由 TwigPlus 提供。
@@ -33,7 +35,9 @@ JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code �
 
 推荐在项目内安装 PHP CS Fixer，并通过工作区设置指定可执行文件和配置。
 
-## 本地安装
+## 本地候选安装
+
+只有需要生成并试用新候选时才执行以下打包命令；日常 Core 开发按相关包运行定向测试。Symfony 尚按私有候选交付，因此本地试用须安装同一次构建的三个 VSIX。
 
 ```bash
 pnpm package:all

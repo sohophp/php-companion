@@ -6,6 +6,8 @@
 
 [Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。清单固定为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、测试、Twig、YAML、XML 等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
+当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`recca0120.vscode-phpunit`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`。最后一项依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
+
 | 日常任务 | 当前所有者 | 进入首批使用的条件 |
 | --- | --- | --- |
 | PHP 补全、类型、Hover、参数提示、导航、诊断与受限重构 | SoPHP Core | 一个工作区只启用一个通用 PHP 语言服务；按已声明支持范围使用，危险重构先看完整预览 |
@@ -40,6 +42,12 @@
 5. **开始受限试用。** 上述闭环通过且已知限制可见时，可用该候选进行日常开发并持续报告问题。动态或歧义 PHP、工作区外公开 API、未完成索引及跨语言编辑按当前支持清单处理；不把候选称为已达到 R4。发现回归时按候选摘要退回上一已验证版本或关闭对应可选增强，保留问题输入与日志。
 
 自动测试和独立示例项目的改进**不等待人工试用**；需要实际 VS Code 操作才能证明的体验、Extension Host 归属及持续使用记录仍是组合资格和 R4 的验收内容。日常源码增量不打包三份 VSIX；仅在冻结新组合候选或真实宿主门禁需要时构建对应产物。
+
+## 当前整理结论与进入 Core 的顺序
+
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 清单先冻结，避免在 Core 编码链审计期间增加变量。
+
+Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：先补齐未完成成员输入、快速未保存编辑、同名短类和 Trait 冲突的编号正反例；用真实 stdio 对适用的补全、Hover、参数提示、定义、实现与引用检查结果和延迟；发现错误或旧结果时修复对应 parser、索引或缓存边界。已通过的 F04-NAV-01–05 作为起点，不重复证明。完成这批自动化后，再用只含既定组合的隔离 VS Code Profile 检查可见结果及 Provider 所有权；R4 的跨平台和持续使用门槛保持开放。
 
 ## 与 R2–R4 的关系
 
