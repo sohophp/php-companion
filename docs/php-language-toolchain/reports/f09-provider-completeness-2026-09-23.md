@@ -7,3 +7,5 @@
 验证命令：服务 Provider 7 项测试、Language Server 两项 F09 定向 stdio 测试、两包类型检查及相关 ESLint 均通过。当前 Winstar2024 项目在 `dev` 环境下用更新后的服务 Provider 做只读收集，返回 `complete=true`、`inputEvidenceComplete=true`、4665 条服务事实和 90 个已尝试输入文件；该探针传入空项目类型目录，不能据此宣称真实编辑器链路已完成验收。
 
 本轮只构建相关 Provider/Language Server 以运行测试，没有生成 VSIX。F09 的更多 Symfony/Doctrine 场景、框架版本、真实动态边界和打包宿主仍待验收。
+
+随后补充了 F09-DOC-03 的真实 stdio 编辑回归：初始完整 Entity 提供 `UserRepository::find` 补全；打开 Entity 并改成未完成类后，补全撤销；恢复完整源码后补全再次出现。定向测试、Language Server 类型检查和该测试文件的 ESLint 均通过。此步骤没有生成 VSIX。

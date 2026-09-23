@@ -2998,6 +2998,60 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
   });
 
+  it('withdraws Doctrine repository facts while an entity edit is incomplete', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-doctrine-edit-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const entityPath = join(root, 'src', 'User.php');
+      const valid = await readFile(resolve('../framework-doctrine/test/fixtures/acceptance/f09-doctrine-valid.php'), 'utf8');
+      const incomplete = await readFile(resolve('../framework-doctrine/test/fixtures/acceptance/f09-doctrine-incomplete.php'), 'utf8');
+      await writeFile(entityPath, valid);
+      const consumer = '<?php namespace App; function run(UserRepository $repo): void { $repo->fi; }';
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 900, method: 'initialize', params: {
+        processId: null, capabilities: { workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } }, rootUri: pathToFileURL(root).toString(),
+      } }));
+      await output.waitFor((message) => message.id === 900);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const registration = await output.waitFor((message) => message.method === 'client/registerCapability');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: registration.id, result: null }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('Indexed 2 PHP files'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
+      const position = lspPosition(consumer, consumer.indexOf('->fi') + '->fi'.length);
+      const complete = async (id: number): Promise<Array<{ label: string }>> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: consumerUri }, position,
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect((await complete(901)).map((item) => item.label)).toContain('find');
+      const entityUri = pathToFileURL(entityPath).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: entityUri, languageId: 'php', version: 1, text: valid },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === entityUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: entityUri, version: 2 }, contentChanges: [{ text: incomplete }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === entityUri
+        && message.params.version === 2);
+      expect((await complete(902)).map((item) => item.label)).not.toContain('find');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: entityUri, version: 3 }, contentChanges: [{ text: valid }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === entityUri
+        && message.params.version === 3);
+      expect((await complete(903)).map((item) => item.label)).toContain('find');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('refreshes indexed PHP files after a watched disk change', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-watch-'));
     try {
