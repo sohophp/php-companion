@@ -47,4 +47,25 @@ describe('PHP executable probing', () => {
     expect(resolution.target).toBe('8.1');
     expect(probes).toBe(0);
   });
+
+  it('uses the PHP command on PATH before a different installed versioned command', async () => {
+    const resolution = await resolvePhpVersion({
+      setting: 'auto',
+      executableResolver: async (command) => ({ php: '/runtime/php', php85: '/runtime/php85' })[command],
+      processRunner: async (path) => path.endsWith('php85') ? '8.5.9' : '7.2.34',
+    });
+    expect(resolution).toMatchObject({
+      target: '7.2', source: 'discovered-executable', sourceDetail: '/runtime/php',
+      executable: { command: 'php', path: '/runtime/php', version: '7.2.34' },
+    });
+  });
+
+  it('uses an installed versioned command when PHP is absent from PATH', async () => {
+    const resolution = await resolvePhpVersion({
+      setting: 'auto',
+      executableResolver: async (command) => command === 'php85' ? '/runtime/php85' : undefined,
+      processRunner: async () => '8.5.9',
+    });
+    expect(resolution).toMatchObject({ target: '8.5', source: 'discovered-executable', sourceDetail: '/runtime/php85' });
+  });
 });

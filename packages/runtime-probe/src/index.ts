@@ -7,9 +7,10 @@ const execFileAsync = promisify(execFile);
 const OUTPUT_MARKER = 'PHP_COMPANION_RUNTIME_V1:';
 
 export const DEFAULT_PHP_COMMANDS = [
+  'php',
   'php85', 'php8.5', 'php84', 'php8.4', 'php83', 'php8.3', 'php82', 'php8.2',
   'php81', 'php8.1', 'php80', 'php8.0', 'php74', 'php7.4', 'php73', 'php7.3',
-  'php72', 'php7.2', 'php',
+  'php72', 'php7.2',
 ] as const;
 
 export interface PhpRuntime {

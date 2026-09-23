@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-09：无 Composer PHP 约束时，`auto` 原先因默认探测顺序把版本化 `php85` 排在 PATH 的 `php` 前；本机默认 CLI 为 7.2.34，却可能误选 8.5。现先试 `php`，再试版本化命令。失败先行单元回归、修复后版本选择 10/10 与 Runtime Probe 4/4 通过；隔离 Core 宿主 PATH auto 7.2.34 与显式路径 8.1.34 两次均按目标版本返回诊断和内建补全，退出码 0。见[报告](reports/c1-path-php-version-2026-09-24.md)。
+
 2026-09-24 C1/F04-HOST-08：隔离 VS Code Core 宿主在同一未保存 PHP 编辑器标签中完成 ChoiceA→ChoiceB→ChoiceA 参数类型往返，每次清除成员前缀再键入 `r`。Workbench 首次可见弹窗依次只含 renderAlpha/renderBeta/renderAlpha；最终一轮可见时间 225/189/188 ms，宿主退出码 0。此序列不保证持续高速键入期间从未短暂显示旧结果，更多连续输入仍待验。见[报告](reports/c1-unsaved-visible-completion-2026-09-24.md)。
 
 2026-09-24 C1/F04-HOST-07：隔离 Core 宿主的独立 Composer 测试根预置 1,000 个 PSR-4 vendor 类；从项目 `use` 导入六个不同目标，真实键入后 Workbench 建议列表每次包含对应 vendor 方法。六次可见时间 232/215/219/218/223/220 ms，中位数 220 ms、最大 232 ms，宿主退出码 0；同次本地类六样本也通过。此为合成依赖单轮，不代表真实大型依赖树或长期 P95。见[报告](reports/c1-vendor-visible-completion-2026-09-24.md)。

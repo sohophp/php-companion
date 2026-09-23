@@ -38,11 +38,15 @@ async function main(): Promise<void> {
     }
   }
   const runtimePhp = c1Only && !c1PhpVersion ? process.env.PHP_COMPANION_TEST_C1_RUNTIME_PHP : undefined;
-  const runtimeVersion = runtimePhp ? execFileSync(runtimePhp, ['-r', 'echo PHP_VERSION;'], { encoding: 'utf8', timeout: 3_000 }).trim() : undefined;
-  if (runtimeVersion && !/^8\.[0-5]\./u.test(runtimeVersion)) throw new Error(`C1 runtime probe needs PHP 8.0–8.5, received ${runtimeVersion}.`);
+  const runtimeDiscover = c1Only && !c1PhpVersion && process.env.PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER === '1';
+  const runtimeVersion = runtimePhp || runtimeDiscover
+    ? execFileSync(runtimePhp ?? 'php', ['-r', 'echo PHP_VERSION;'], { encoding: 'utf8', timeout: 3_000 }).trim() : undefined;
+  if (runtimeVersion && !/^(?:7\.[234]|8\.[0-5])\./u.test(runtimeVersion)) {
+    throw new Error(`C1 runtime probe needs PHP 7.2–8.5, received ${runtimeVersion}.`);
+  }
   const secondFixture = c1Only ? await mkdtemp(join(tmpdir(), 'php-companion-extension-second-')) : undefined;
   if (secondFixture) await cp(sourceFixture, secondFixture, { recursive: true });
-  const runtimeFixture = runtimePhp ? await mkdtemp(join(tmpdir(), 'php-companion-extension-runtime-')) : undefined;
+  const runtimeFixture = runtimeVersion ? await mkdtemp(join(tmpdir(), 'php-companion-extension-runtime-')) : undefined;
   if (runtimeFixture) {
     await cp(sourceFixture, runtimeFixture, { recursive: true });
     const composerPath = join(runtimeFixture, 'composer.json');
@@ -53,7 +57,7 @@ async function main(): Promise<void> {
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
     settings['phpCompanion.indexing.mode'] = 'onDemand';
     settings['phpCompanion.phpVersion'] = 'auto';
-    settings['phpCompanion.phpExecutablePath'] = runtimePhp;
+    if (runtimePhp) settings['phpCompanion.phpExecutablePath'] = runtimePhp;
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
 
@@ -117,6 +121,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
+        PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
       },
     });

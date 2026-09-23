@@ -36,6 +36,7 @@ export async function run(): Promise<void> {
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
+  const runtimeDiscover = process.env.PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER === '1';
   const c1DebugPort = process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT;
   if (targetPhpVersion) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('phpVersion'), targetPhpVersion);
   assert.strictEqual(vscode.workspace.getConfiguration('php').get('suggest.basic'), false,
@@ -465,7 +466,9 @@ function consume(): void { (void) choose(1); }`;
     const runtimeWorkspace = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'runtime');
     assert.ok(runtimeWorkspace, 'C1 runtime probe workspace was not opened.');
     assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', runtimeWorkspace.uri).get('phpVersion'), 'auto');
-    const runtimeMinor = runtimeVersion.match(/^8\.[0-5]/u)?.[0];
+    if (runtimeDiscover) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', runtimeWorkspace.uri).get('phpExecutablePath'), null,
+      'The PATH discovery fixture unexpectedly configured a PHP executable.');
+    const runtimeMinor = runtimeVersion.match(/^(?:7\.[234]|8\.[0-5])/u)?.[0];
     assert.ok(runtimeMinor, `C1 runtime probe received an unsupported version: ${runtimeVersion}`);
     const runtimeSource = '<?php namespace App\\C1; enum State { case Ready; } function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; } function useIt(): void { (void) choose(1); str_con }';
     const runtimeFolder = vscode.Uri.joinPath(runtimeWorkspace.uri, 'src', 'C1');
@@ -474,8 +477,8 @@ function consume(): void { (void) choose(1); }`;
     await vscode.workspace.fs.writeFile(runtimeUri, Buffer.from(runtimeSource));
     const runtimeDocument = await vscode.workspace.openTextDocument(runtimeUri);
     await vscode.window.showTextDocument(runtimeDocument);
-    const expectedUnsupported = runtimeMinor === '8.0' ? ['enum', '(void) cast']
-      : runtimeMinor === '8.5' ? [] : ['(void) cast'];
+    const expectedUnsupported = runtimeMinor.startsWith('7.') ? ['match expression', 'enum', '(void) cast']
+      : runtimeMinor === '8.0' ? ['enum', '(void) cast'] : runtimeMinor === '8.5' ? [] : ['(void) cast'];
     const runtimeDiagnostics = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(runtimeUri)),
       (result) => result.some((item) => item.code === 'php.type.filename')
         && result.filter((item) => item.code === 'php.version.unsupported').length === expectedUnsupported.length
@@ -485,9 +488,9 @@ function consume(): void { (void) choose(1); }`;
     assert.ok(!runtimeDiagnostics.some((item) => item.code === 'php.syntax'));
     const runtimeCompletion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
       runtimeUri, runtimeDocument.positionAt(runtimeSource.indexOf('str_con') + 'str_con'.length));
-    assert.ok(runtimeCompletion.items.some((item) => item.label === 'str_contains'),
-      'SoPHP auto mode did not use the configured PHP runtime for built-in completion.');
-    console.log(`C1 configured runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
+    assert.strictEqual(runtimeCompletion.items.some((item) => item.label === 'str_contains'), !runtimeMinor.startsWith('7.'),
+      'SoPHP auto mode did not use the selected PHP runtime for built-in completion.');
+    console.log(`C1 ${runtimeDiscover ? 'PATH discovery' : 'configured'} runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
   }
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
