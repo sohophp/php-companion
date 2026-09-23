@@ -26,3 +26,9 @@
 同一 fixture 在没有 PATH `rg` 的独立语言服务器进程中，Node 预筛仍找到 Guzzle Response。单次本机请求约 5,288 ms，其中候选搜索约 3,731 ms；默认 Linux `rg` 路径本轮单次请求约 1,532 ms，其中候选搜索约 38 ms。可移植路径的定向单元测试覆盖大写 `.PHP`、无关文件、文件数超额、取消与符号链接循环；真实 stdio F04-NAV-20 在可移植路径下返回唯一实现。以上数据来自 Linux 上强制运行可移植路径，不等于 Windows/macOS 实机验收；差距列为后续性能工作。
 
 本增量的 Language Server 全套回归通过 18 个测试文件，314 项通过、1 项原有跳过。受影响 TypeScript 构建、ESLint 和预筛定向测试通过。
+
+## 可移植搜索等待优化
+
+原 Node 回退逐文件异步 `stat`/读取，在 9,100 个合成小文件的本机对照中约 2,887 ms；同步读取约 117 ms。为避免阻塞语言服务器主线程，文件遍历与同步读取现运行于单独的短生命周期 Worker。主线程负责取消、8 秒超时及 Worker 失败后的保守回退；扫描仍保留文件数、单文件大小、总读取量、排除路径与符号链接循环的边界。
+
+同一 10,130 文件 fixture 的单次本机无 `rg` 请求在独立语言服务器构建中为 2,256 ms（候选搜索 577 ms），在随 Core 分发的 bundled Language Server 中为 2,001 ms（候选搜索 466 ms），均返回 Guzzle Response。Core 的 `pnpm build` 已生成并包含 `portableCandidateSearchWorker.js`；打包内容校验清单已纳入该文件。上述仍是 Linux 上的单次基准，不证明 Windows/macOS 实机等待分布或长时间会话。

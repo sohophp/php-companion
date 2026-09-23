@@ -12,7 +12,8 @@ import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/in
 const noiseFiles = Number(process.argv[2] ?? 9_100);
 if (!Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 20_000) throw new Error('Expected 0–20,000 noise files.');
 const portable = process.argv[3] === 'portable';
-const withoutRipgrep = process.argv[3] === 'no-rg';
+const withoutRipgrep = process.argv[3] === 'no-rg' || process.argv[3] === 'bundle-no-rg';
+const bundled = process.argv[3] === 'bundle-no-rg';
 const fixture = resolve('test/extension/real-vendor');
 const root = await mkdtemp(join(tmpdir(), 'sophp-implementation-boundary-'));
 let server;
@@ -32,7 +33,9 @@ try {
   await writeFile(file, source);
   const uri = pathToFileURL(file).toString();
   const rootUri = pathToFileURL(root).toString();
-  server = spawn(process.execPath, [resolve('packages/language-server/dist/server.js'), '--stdio'], {
+  server = spawn(process.execPath, [resolve(bundled ? 'dist/language-server.js' : 'packages/language-server/dist/server.js'),
+    ...(bundled ? ['--parser-core-wasm', resolve('dist/web-tree-sitter.wasm'), '--php-wasm', resolve('dist/tree-sitter-php.wasm')] : []),
+    '--stdio'], {
     stdio: ['pipe', 'pipe', 'pipe'], env: withoutRipgrep ? { ...process.env, PATH: '' } : process.env,
   });
   const decoder = new LspMessageDecoder();

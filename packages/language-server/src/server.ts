@@ -2366,7 +2366,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
   const prefilterCandidates = rgCandidates ?? (canPrefilter
     ? await portableCandidatePaths(includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project), normalizedNames,
-      (path) => isAutoloadPathExcluded(project, path), () => !cancelled(), Math.max(50_000, indexLimits.maxFiles)) : undefined);
+      project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles)) : undefined);
   if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
     skipSourceOutsideBudget: Boolean(prefilterCandidates && includeDependencies),

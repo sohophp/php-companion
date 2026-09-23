@@ -1,52 +1,41 @@
-import { readFile, readdir, realpath, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { Worker } from 'node:worker_threads';
+import { dirname, resolve } from 'node:path';
+import type { ComposerProject } from '@php-companion/project';
+import type { PortableCandidateSearchInput } from './portableCandidateSearchWorker.js';
 
-interface QueueEntry { path: string; ancestors: readonly string[]; root: boolean; }
 export interface CandidatePaths { paths: Set<string>; startedAt: number; }
 
-/** A bounded, portable fallback when ripgrep is unavailable. An incomplete walk never supplies negative evidence. */
-export async function portableCandidatePaths(roots: readonly string[], names: readonly string[], excluded: (path: string) => boolean,
+/** A bounded fallback when ripgrep is unavailable. Worker failure never supplies negative evidence. */
+export async function portableCandidatePaths(roots: readonly string[], names: readonly string[], project: ComposerProject,
   shouldContinue: () => boolean, maxFiles: number, timeoutMs = 8_000): Promise<CandidatePaths | undefined> {
+  if (!shouldContinue()) return undefined;
   const startedAt = Date.now() - 1_000;
-  const deadline = Date.now() + timeoutMs;
-  const queue: QueueEntry[] = roots.map((path) => ({ path: resolve(path), ancestors: [], root: true }));
-  const matches = new Set<string>();
-  const lowerNames = names.map((name) => name.toLowerCase());
-  let files = 0; let bytes = 0;
-  const withinBounds = (): boolean => shouldContinue() && Date.now() <= deadline;
-  const inspect = async (entry: QueueEntry): Promise<QueueEntry[] | undefined> => {
-    if (!withinBounds()) return undefined;
-    let info;
-    try { info = await stat(entry.path); }
-    catch (error) {
-      return entry.root && (error as NodeJS.ErrnoException).code === 'ENOENT' ? [] : undefined;
-    }
-    if (info.isDirectory()) {
-      let canonical: string; let children;
-      try { canonical = await realpath(entry.path); children = await readdir(entry.path, { withFileTypes: true }); }
-      catch { return undefined; }
-      if (entry.ancestors.includes(canonical)) return [];
-      const ancestors = [...entry.ancestors, canonical];
-      return children.filter((child) => child.isDirectory() || child.isSymbolicLink() || child.isFile() && /\.php$/iu.test(child.name))
-        .map((child) => ({ path: join(entry.path, child.name), ancestors, root: false }));
-    }
-    if (!info.isFile() || !/\.php$/iu.test(entry.path) || excluded(entry.path)) return [];
-    files += 1; bytes += info.size;
-    if (files > maxFiles || info.size > 4 * 1024 * 1024 || bytes > 512 * 1024 * 1024) return undefined;
-    let source: string;
-    try { source = await readFile(entry.path, 'utf8'); } catch { return undefined; }
-    const actualBytes = Buffer.byteLength(source);
-    bytes += actualBytes - info.size;
-    if (actualBytes > 4 * 1024 * 1024 || bytes > 512 * 1024 * 1024) return undefined;
-    if (lowerNames.some((name) => source.toLowerCase().includes(name))) matches.add(resolve(entry.path));
-    return [];
+  const cancelled = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
+  const flag = new Int32Array(cancelled);
+  const input: PortableCandidateSearchInput = {
+    roots: [...roots], names: [...names], project, maxFiles, deadline: Date.now() + timeoutMs, cancelled,
   };
-  for (let next = 0; next < queue.length;) {
-    if (!withinBounds()) return undefined;
-    const batch = queue.slice(next, next + 64); next += batch.length;
-    const children = await Promise.all(batch.map(inspect));
-    if (children.some((result) => !result) || !withinBounds()) return undefined;
-    for (const entries of children) queue.push(...entries!);
-  }
-  return { paths: matches, startedAt };
+  const workerPath = resolve(dirname(process.argv[1] ?? ''), 'portableCandidateSearchWorker.js');
+  return new Promise((done) => {
+    let worker: Worker;
+    try { worker = new Worker(workerPath, { workerData: input }); }
+    catch { done(undefined); return; }
+    worker.unref();
+    let finished = false;
+    const finish = (paths?: unknown): void => {
+      if (finished) return;
+      finished = true; clearTimeout(timeout); clearInterval(poll);
+      if (!Array.isArray(paths) || paths.some((path) => typeof path !== 'string')) {
+        Atomics.store(flag, 0, 1);
+        void worker.terminate().catch(() => undefined);
+        done(undefined); return;
+      }
+      done({ paths: new Set(paths), startedAt });
+    };
+    const timeout = setTimeout(() => finish(), timeoutMs);
+    const poll = setInterval(() => { if (!shouldContinue()) finish(); }, 25);
+    worker.once('message', (result: { paths?: unknown }) => finish(result?.paths));
+    worker.once('error', () => finish());
+    worker.once('exit', () => finish());
+  });
 }

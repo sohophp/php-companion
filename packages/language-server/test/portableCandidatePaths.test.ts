@@ -2,7 +2,15 @@ import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { portableCandidatePaths } from '../src/portableCandidatePaths.js';
+import type { ComposerProject } from '@php-companion/project';
+import { scanPortableCandidates, type PortableCandidateSearchInput } from '../src/portableCandidateSearchWorker.js';
+
+function input(root: string, path: string, maxFiles: number): PortableCandidateSearchInput {
+  const project: ComposerProject = { root, composerPath: join(root, 'composer.json'), disabledExtensions: [], psr4: [], psr0: [],
+    classmap: [], files: [], excludeFromClassmap: ['src/Ignored.php'], dependencies: [], warnings: [] };
+  return { roots: [path], names: ['answerStatus'], project, maxFiles, deadline: Date.now() + 8_000,
+    cancelled: new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT) };
+}
 
 describe('portable candidate path search', () => {
   let root: string | undefined;
@@ -15,9 +23,7 @@ describe('portable candidate path search', () => {
     await writeFile(target, '<?php class Target { function answerStatus() {} }');
     await writeFile(join(src, 'Noise.php'), '<?php class Noise {}');
     await writeFile(join(src, 'Ignored.php'), '<?php function answerStatus() {}');
-    const result = await portableCandidatePaths([src], ['answerStatus'], (path) => path.endsWith('Ignored.php'), () => true, 10);
-    expect(result?.paths).toEqual(new Set([resolve(target)]));
-    expect(result?.startedAt).toBeLessThanOrEqual(Date.now());
+    expect(scanPortableCandidates(input(root, src, 10))).toEqual([resolve(target)]);
   });
 
   it('withholds negative evidence when the walk exceeds a file budget or is cancelled', async () => {
@@ -25,8 +31,10 @@ describe('portable candidate path search', () => {
     const src = join(root, 'src'); await mkdir(src);
     await writeFile(join(src, 'One.php'), '<?php class One {}');
     await writeFile(join(src, 'Two.php'), '<?php class Two {}');
-    expect(await portableCandidatePaths([src], ['answerStatus'], () => false, () => true, 1)).toBeUndefined();
-    expect(await portableCandidatePaths([src], ['answerStatus'], () => false, () => false, 10)).toBeUndefined();
+    expect(scanPortableCandidates(input(root, src, 1))).toBeUndefined();
+    const cancelled = input(root, src, 10);
+    Atomics.store(new Int32Array(cancelled.cancelled), 0, 1);
+    expect(scanPortableCandidates(cancelled)).toBeUndefined();
   });
 
   it.skipIf(process.platform === 'win32')('follows a linked autoload root without looping through a symlink cycle', async () => {
@@ -35,7 +43,6 @@ describe('portable candidate path search', () => {
     await writeFile(join(src, 'Target.php'), '<?php function answerStatus() {}');
     await symlink(src, link, 'dir');
     await symlink(link, join(src, 'cycle'), 'dir');
-    const result = await portableCandidatePaths([link], ['answerStatus'], () => false, () => true, 10);
-    expect(result?.paths).toEqual(new Set([resolve(link, 'Target.php')]));
+    expect(scanPortableCandidates(input(root, link, 10))).toEqual([resolve(link, 'Target.php')]);
   });
 });
