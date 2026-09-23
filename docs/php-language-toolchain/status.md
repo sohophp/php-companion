@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-01：隔离 VS Code 1.139.0 Extension Host 只加载 Core 开发扩展和内建扩展，在复制的独立 Composer 项目中完成补全、Hover、参数提示、定义、实现、引用及未保存接收者切换后的定义跳转；auto、PHP 7.2、8.1、8.5 四次均退出码 0。首次补全单次观测分别为 479、195、222、188 ms，不代表 P95。新的定向入口不打包 VSIX；版本特有语法、真实持续使用、WSL Remote、完整 Pack 和跨平台门槛仍开放。见[Core 宿主报告](reports/f04-vscode-core-host-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-09/10：外部 Trait 磁盘修改及文件通知后，同一按需会话的主方法签名更新，另一 Trait 的别名签名保持不变。另以 1,000 个独立类让 References 进入候选扫描，确认请求仍在飞行时发送较新未保存文档与取消请求；旧查询返回取消/内容已变更错误，后续 Definition 命中新类型。定向真实 stdio 测试通过；真实 VS Code 可见反馈和跨平台时序仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-08：独立 Composer 项目用两个外部 Trait 的同名方法、`insteadof` 和别名构成冲突选择；按需真实 stdio 的补全、Hover、参数提示、定义及引用分别落到主方法和别名方法，不相互混合。定向测试通过；真实编辑器操作与更多 Trait 组合仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。

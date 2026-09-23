@@ -8,7 +8,17 @@ async function main(): Promise<void> {
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
-  const coreOnly = process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
+  const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
+  const coreOnly = c1Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
+  const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
+
+  if (c1Only) {
+    const settingsPath = join(fixture, '.vscode', 'settings.json');
+    const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
+    settings['phpCompanion.indexing.mode'] = 'onDemand';
+    if (c1PhpVersion) settings['phpCompanion.phpVersion'] = c1PhpVersion;
+    await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+  }
 
   if (withIntelephense) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
@@ -34,13 +44,15 @@ async function main(): Promise<void> {
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
-      extensionTestsPath: resolve(__dirname, 'suite', 'index'),
+      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : 'index'),
       launchArgs: [fixture, ...(withIntelephense ? [] : ['--disable-extensions'])],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
         VSCODE_ESM_ENTRYPOINT: undefined,
         PHP_COMPANION_TEST_WITH_INTELEPHENSE: withIntelephense ? '1' : undefined,
         PHP_COMPANION_TEST_CORE_ONLY: coreOnly ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
       },
     });
   } finally {
