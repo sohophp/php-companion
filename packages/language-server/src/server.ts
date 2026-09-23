@@ -1466,8 +1466,14 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       code: 'php.member.inaccessible',
       source: 'PHP Companion',
       message: member.kind === 'property' && member.operation
-        ? `Cannot ${member.operation} ${member.visibility} ${member.static ? 'static ' : ''}property ${member.ownerFqcn}::$${member.name}.`
-        : `Cannot access ${member.visibility} ${member.kind} ${member.ownerFqcn}::${member.name}.`,
+        ? diagnosticMessage(clientDiagnosticLanguage, 'inaccessiblePropertyOperation',
+          diagnosticMessage(clientDiagnosticLanguage, member.operation === 'read' ? 'propertyRead' : 'propertyWrite'),
+          diagnosticMessage(clientDiagnosticLanguage, member.visibility === 'private' ? 'privateVisibility' : 'protectedVisibility'),
+          diagnosticMessage(clientDiagnosticLanguage, member.static ? 'staticProperty' : 'memberProperty'), member.ownerFqcn, member.name)
+        : diagnosticMessage(clientDiagnosticLanguage, 'inaccessibleMember',
+          diagnosticMessage(clientDiagnosticLanguage, member.visibility === 'private' ? 'privateVisibility' : 'protectedVisibility'),
+          diagnosticMessage(clientDiagnosticLanguage, member.kind === 'method' ? 'memberMethod' : member.kind === 'property' ? 'memberProperty' : 'memberConstant'),
+          member.ownerFqcn, member.name),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4')) result.diagnostics.push(...workspace.invalidPropertyOperations(document.uri).map((property) => ({
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
@@ -1475,19 +1481,19 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       code: `php.property.${property.reason}`,
       source: 'PHP Companion',
       message: property.reason === 'indirect-modification'
-        ? `Indirect modification of hooked property ${property.ownerFqcn}::$${property.name} requires a by-reference get hook.`
+        ? diagnosticMessage(clientDiagnosticLanguage, 'hookedIndirectModification', property.ownerFqcn, property.name)
         : property.reason === 'reference-assignment'
-          ? `Cannot assign a reference to hooked property ${property.ownerFqcn}::$${property.name}.`
+          ? diagnosticMessage(clientDiagnosticLanguage, 'hookedReferenceAssignment', property.ownerFqcn, property.name)
         : property.operation === 'read'
-        ? `Cannot read write-only hooked property ${property.ownerFqcn}::$${property.name}.`
-        : `Cannot write read-only hooked property ${property.ownerFqcn}::$${property.name}.`,
+        ? diagnosticMessage(clientDiagnosticLanguage, 'hookedUnreadable', property.ownerFqcn, property.name)
+        : diagnosticMessage(clientDiagnosticLanguage, 'hookedUnwritable', property.ownerFqcn, property.name),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4')) result.diagnostics.push(...workspace.invalidHookedObjectReferenceIterations(document.uri).map((iteration) => ({
       range: { start: document.positionAt(iteration.start), end: document.positionAt(iteration.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.property.reference-iteration',
       source: 'PHP Companion',
-      message: `Cannot iterate ${iteration.ownerFqcn} by reference because these hooked properties do not return by reference: ${iteration.propertyNames.map((name) => `$${name}`).join(', ')}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'hookedReferenceIteration', iteration.ownerFqcn, iteration.propertyNames.map((name) => `$${name}`).join(', ')),
     })));
     result.diagnostics.push(...workspace.nullableMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
@@ -1502,7 +1508,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Warning,
       code: 'php.phpdoc.type-conflict',
       source: 'PHP Companion',
-      message: `${conflict.subject} documents ${conflict.phpDocType}, which is incompatible with native ${conflict.nativeType}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'phpDocTypeConflict', conflict.subject, conflict.phpDocType, conflict.nativeType),
     })));
     result.diagnostics.push(...workspace.missingRequiredArguments(document.uri).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
@@ -1771,7 +1777,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.instantiation.inaccessible-constructor',
       source: 'PHP Companion',
-      message: `Cannot call ${item.visibility} constructor ${item.constructor} while instantiating ${item.target} from this scope.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'inaccessibleConstructor', item.visibility, item.constructor, item.target),
     })));
   }
   if (documents.get(document.uri)?.version === document.version) {

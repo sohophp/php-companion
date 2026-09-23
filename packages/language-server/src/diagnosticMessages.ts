@@ -99,6 +99,23 @@ const messages = {
   magicCannotStatic: ['cannot be static', '不能为 static'],
   magicParameterType: ['parameter {0} type must accept {1} when declared', '若声明参数 {0} 的类型，必须允许 {1}'],
   magicReturnType: ['return type must be {0} or a compatible subtype when declared', '若声明返回类型，必须为 {0} 或其兼容子类型'],
+  inaccessibleMember: ['Cannot access {0} {1} {2}::{3}.', '无法访问 {0} {1} {2}::{3}。'],
+  inaccessiblePropertyOperation: ['Cannot {0} {1} {2} {3}::${4}.', '无法{0} {1} {2} {3}::${4}。'],
+  privateVisibility: ['private', 'private'],
+  protectedVisibility: ['protected', 'protected'],
+  memberMethod: ['method', '方法'],
+  memberProperty: ['property', '属性'],
+  memberConstant: ['constant', '常量'],
+  propertyRead: ['read', '读取'],
+  propertyWrite: ['write', '写入'],
+  staticProperty: ['static property', 'static 属性'],
+  hookedIndirectModification: ['Indirect modification of hooked property {0}::${1} requires a by-reference get hook.', '间接修改带 Hook 的属性 {0}::${1} 需要按引用返回的 get Hook。'],
+  hookedReferenceAssignment: ['Cannot assign a reference to hooked property {0}::${1}.', '不能向带 Hook 的属性 {0}::${1} 赋值引用。'],
+  hookedUnreadable: ['Cannot read write-only hooked property {0}::${1}.', '不能读取只写的带 Hook 属性 {0}::${1}。'],
+  hookedUnwritable: ['Cannot write read-only hooked property {0}::${1}.', '不能写入只读的带 Hook 属性 {0}::${1}。'],
+  hookedReferenceIteration: ['Cannot iterate {0} by reference because these hooked properties do not return by reference: {1}.', '不能按引用遍历 {0}，因为以下带 Hook 属性未按引用返回：{1}。'],
+  phpDocTypeConflict: ['{0} documents {1}, which is incompatible with native {2}.', '{0} 的 PHPDoc 类型为 {1}，与原生类型 {2} 不兼容。'],
+  inaccessibleConstructor: ['Cannot call {0} constructor {1} while instantiating {2} from this scope.', '当前作用域不能调用 {0} 构造方法 {1} 来实例化 {2}。'],
 } as const;
 
 export type DiagnosticMessageKey = keyof typeof messages;

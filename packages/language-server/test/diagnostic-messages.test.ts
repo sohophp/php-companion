@@ -31,4 +31,19 @@ describe('Language Server diagnostic localization', () => {
     expect(diagnosticMessage('en', 'duplicateDeclaration', 'method')).toBe('Duplicate method declaration.');
     expect(diagnosticMessage('zh', 'duplicateDeclaration', '方法')).toBe('重复的方法声明。');
   });
+
+  it('translates member, hooked property, PHPDoc and constructor diagnostics', () => {
+    expect(diagnosticMessage('zh', 'inaccessibleMember', 'private', '方法', 'App\\Service', 'hidden'))
+      .toBe('无法访问 private 方法 App\\Service::hidden。');
+    expect(diagnosticMessage('zh', 'inaccessiblePropertyOperation', '写入', 'private', 'static 属性', 'App\\Config', 'token'))
+      .toBe('无法写入 private static 属性 App\\Config::$token。');
+    expect(diagnosticMessage('en', 'inaccessiblePropertyOperation', 'write', 'private', 'static property', 'App\\Config', 'token'))
+      .toBe('Cannot write private static property App\\Config::$token.');
+    expect(diagnosticMessage('zh', 'hookedReferenceIteration', 'App\\Hooks', '$value, $other'))
+      .toBe('不能按引用遍历 App\\Hooks，因为以下带 Hook 属性未按引用返回：$value, $other。');
+    expect(diagnosticMessage('zh', 'phpDocTypeConflict', '$value', 'ParentType', 'App\\ChildType'))
+      .toBe('$value 的 PHPDoc 类型为 ParentType，与原生类型 App\\ChildType 不兼容。');
+    expect(diagnosticMessage('zh', 'inaccessibleConstructor', 'private', 'App\\Target::__construct', 'App\\Target'))
+      .toBe('当前作用域不能调用 private 构造方法 App\\Target::__construct 来实例化 App\\Target。');
+  });
 });

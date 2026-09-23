@@ -3750,6 +3750,39 @@ class Example {
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('publishes Chinese member, PHPDoc, hooked property and constructor diagnostics through stdio', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-member-diagnostics-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      const uri = pathToFileURL(join(root, 'Cases.php')).toString();
+      const source = `<?php namespace App;
+class ParentType {} class ChildType extends ParentType {}
+class Target { private function __construct() {} private function hidden(): void {} }
+class Hooks { public string $sink { set(string $value) {} } }
+/** @param ParentType $value */
+function conflict(ChildType $value): void {}
+function useCases(Target $target, Hooks $hooks): void { new Target(); $target->hidden(); $hooks->sink; }`;
+      await writeFile(join(root, 'Cases.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 131, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN', initializationOptions: { phpVersion: '8.5' },
+      } }));
+      await output.waitFor((message) => message.id === 131);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      expect(published.params.diagnostics).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'php.member.inaccessible', message: '无法访问 private 方法 App\\Target::hidden。' }),
+        expect.objectContaining({ code: 'php.phpdoc.type-conflict', message: '$value 的 PHPDoc 类型为 ParentType，与原生类型 App\\ChildType 不兼容。' }),
+        expect.objectContaining({ code: 'php.property.unreadable', message: '不能读取只写的带 Hook 属性 App\\Hooks::$sink。' }),
+        expect.objectContaining({ code: 'php.instantiation.inaccessible-constructor',
+          message: '当前作用域不能调用 private 构造方法 App\\Target::__construct 来实例化 App\\Target。' }),
+      ]));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('publishes proven missing-member diagnostics after a complete project index', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-unresolved-member-'));
     try {
