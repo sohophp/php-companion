@@ -59,7 +59,7 @@ References 渐进索引的 Alpha 验收只在此 Profile 的用户设置中启�
 
 1. 首次打开项目，分别记录立即执行 References、后台源码事实就绪后首次执行、选中符号预热后首次执行、重载后首次执行的时间；确认索引进度结束，不能把预热后的点击时间当成空缓存冷查询。
 2. 在已有类型声明的业务代码中连续使用成员补全、Hover、Signature Help、Definition、Implementation 和 References。
-3. 对测试文件执行 Rename、Preview Safe Move、Extract Variable、可证明场景的 Extract Method，以及 PSR-4 类声明上的 Extract Interface；确认预览、应用、Undo 与 Redo。Extract Interface 当前要求类文件没有 `use` import，公开方法签名不含 `self`/`parent`/`static` 或参数属性；不满足时不提供该操作。
+3. 对测试文件执行 Rename、Preview Safe Move、Extract Variable、可证明场景的 Extract Method，以及 PSR-4 类声明上的 Extract Interface；确认预览、应用、Undo 与 Redo。Extract Interface 会复制同一 namespace 的 `use` import；公开方法签名含 `self`/`parent`/`static` 或参数属性、import 别名与新接口名冲突时不提供该操作。
 4. 制造一个已支持的参数、返回或 readonly 错误，确认诊断范围与消息；恢复源码后确认诊断消失。
 5. 使用项目包装器执行 PHP CS Fixer、PHPUnit 和 Xdebug 入口；不得回退到系统默认 PHP。
 6. 在 Twig 模板中验证 TwigPlus；在 YAML、XML、JSON/JSONC 中确认对应外部或内建服务接管；在 `.htaccess` 中确认 Apache Conf 语法和片段可用。

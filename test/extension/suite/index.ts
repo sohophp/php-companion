@@ -1867,7 +1867,7 @@ export async function run(): Promise<void> {
   await waitFor(() => extractMethodDocument.getText() === extractMethodSource, 'Extract Method output could not be restored after Redo');
   const interfaceClassUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Extractable.php');
   const interfaceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ExtractableInterface.php');
-  const interfaceClassSource = '<?php\nnamespace App;\nfinal class Extractable\n{\n    public function format(string $input): string { return $input; }\n    private function internal(): void {}\n}\n';
+  const interfaceClassSource = '<?php\nnamespace App;\nuse DateTimeImmutable as InputTime;\nfinal class Extractable\n{\n    public function format(InputTime $input): string { return $input->format("c"); }\n    private function internal(): void {}\n}\n';
   await vscode.workspace.fs.writeFile(interfaceClassUri, Buffer.from(interfaceClassSource));
   const interfaceClassDocument = await vscode.workspace.openTextDocument(interfaceClassUri); await vscode.window.showTextDocument(interfaceClassDocument);
   const classOffset = interfaceClassSource.indexOf('Extractable'); let extractInterfaceAction: vscode.CodeAction | undefined;
@@ -1886,7 +1886,8 @@ export async function run(): Promise<void> {
       const interfaceText = (await vscode.workspace.openTextDocument(interfaceUri)).getText();
       return interfaceClassDocument.getText().includes('implements ExtractableInterface')
         && interfaceText.includes('interface ExtractableInterface')
-        && interfaceText.includes('public function format(string $input): string;')
+        && interfaceText.includes('use DateTimeImmutable as InputTime;')
+        && interfaceText.includes('public function format(InputTime $input): string;')
         && !interfaceText.includes('internal');
     } catch { return false; }
   }, 'Extract Interface did not create the interface and update the class together');

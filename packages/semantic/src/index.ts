@@ -2107,17 +2107,31 @@ export class SemanticWorkspace {
 
   extractInterface(uri: string, offset: number): ExtractInterfaceInfo | undefined {
     const file = this.files.get(uri); const tree = this.trees.get(uri);
-    if (!file || !tree || file.syntaxErrors.length || file.imports.length) return undefined;
+    if (!file || !tree || file.syntaxErrors.length) return undefined;
     const declaration = file.declarations.find((item) => item.kind === 'class' && !item.anonymous && offset >= item.start && offset <= item.end);
     if (!declaration || file.declarations.filter((item) => item.fqcn.toLowerCase() === declaration.fqcn.toLowerCase()).length !== 1) return undefined;
     const classNode = deepestLocalSyntax(tree.rootNode, declaration.start, declaration.end,
       (node) => node.type === 'class_declaration' && node.startIndex === declaration.declarationStart && node.endIndex === declaration.declarationEnd);
     const body = classNode?.namedChildren.find((node) => node.type === 'declaration_list');
-    if (!body) return undefined;
+    if (!classNode || !body) return undefined;
     const interfaceName = `${declaration.name}Interface`;
     const namespace = declaration.fqcn.slice(0, declaration.fqcn.length - declaration.name.length).replace(/\\$/u, '');
     const interfaceFqcn = namespace ? `${namespace}\\${interfaceName}` : interfaceName;
     if ([...this.files.values()].some((candidate) => candidate.declarations.some((item) => item.fqcn.toLowerCase() === interfaceFqcn.toLowerCase()))) return undefined;
+    const lexicalParent = classNode.parent;
+    if (lexicalParent?.type !== 'program' && !(lexicalParent?.type === 'compound_statement' && lexicalParent.parent?.type === 'namespace_definition')) return undefined;
+    const siblings = lexicalParent.namedChildren;
+    const classIndex = siblings.findIndex((node) => node.type === 'class_declaration' && node.startIndex === classNode.startIndex && node.endIndex === classNode.endIndex);
+    if (classIndex < 0) return undefined;
+    let segmentStart = 0; let segmentEnd = siblings.length;
+    if (lexicalParent.type === 'program') {
+      for (let index = 0; index < classIndex; index += 1) if (siblings[index]!.type === 'namespace_definition') segmentStart = index + 1;
+      for (let index = classIndex + 1; index < siblings.length; index += 1) if (siblings[index]!.type === 'namespace_definition') { segmentEnd = index; break; }
+    }
+    const importNodes = siblings.slice(segmentStart, segmentEnd).filter((node) => node.type === 'namespace_use_declaration');
+    const importStarts = new Set(importNodes.map((node) => node.startIndex));
+    if (file.imports.some((item) => importStarts.has(item.statementStart) && item.alias.toLowerCase() === interfaceName.toLowerCase())) return undefined;
+    const importText = importNodes.map((node) => file.source.slice(node.startIndex, node.endIndex)).join('\n');
     const signatures: string[] = [];
     for (const node of body.namedChildren.filter((item) => item.type === 'method_declaration')) {
       const method = file.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === declaration.fqcn.toLowerCase()
@@ -2133,7 +2147,7 @@ export class SemanticWorkspace {
       signatures.push(`    public ${method.static ? 'static ' : ''}${signature};`);
     }
     if (!signatures.length) return undefined;
-    const interfaceSource = `<?php\n\n${namespace ? `namespace ${namespace};\n\n` : ''}interface ${interfaceName}\n{\n${signatures.join('\n')}\n}\n`;
+    const interfaceSource = `<?php\n\n${namespace ? `namespace ${namespace};\n\n` : ''}${importText ? `${importText}\n\n` : ''}interface ${interfaceName}\n{\n${signatures.join('\n')}\n}\n`;
     const parsedInterface = this.parser.parse(interfaceSource);
     try { if (parsedInterface.errors.length || parsedInterface.declarations.length !== 1 || parsedInterface.callables.length !== signatures.length) return undefined; }
     finally { parsedInterface.tree.delete(); }
