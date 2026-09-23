@@ -42,3 +42,9 @@ Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核�
 合成 Language Server stdio 回归把 `RouterInterface` 放在 Composer vendor 中，不经预热即从 PHP 路由字面量导航到显式 `admin.ZuluPage.workflowStatus` 的精确 YAML 范围；同时覆盖模块根中的普通文件、默认生成路由 Rename 拒绝。真实 Winstar 的 `onDemand` stdio 首次 Definition 请求从 `RouterInterface::generate('admin.CompanyPage.workflowStatus')` 返回 `src/Modules/Company/Routes/admin.yaml` 第 11 行字符 8–40，目标切片完整等于路由名。首次临时探针误将路由标为 `external=true`，核心按所有权规则返回空；改为正确的核心 Provider 所属配置后通过。合成回归还验证未预载 RouterInterface 时按需加载其精确 Composer 声明。此记录不代替 VS Code WSL Remote 人工导航验收，也没有打包 VSIX。
 
 随后将真实项目路径做成可重复的 `pnpm check:f09:winstar-routes`。该命令只构建 Winstar Provider 和 Language Server，在 Winstar 的 Symfony FrameworkBundle 7.4.17 根启动 `onDemand` stdio，以未落盘文档首次请求 `admin.CompanyPage.workflowStatus` 的路径参数补全，得到唯一的 `id`；接着验证显式路由 Definition 的目标切片为完整名称，再验证 `admin.SolutionArticles.add` 的生成来源切片为 `SolutionArticles`。脚本会核对 `composer.lock` 版本，版本变化时拒绝沿用旧结论。合成 stdio 回归也改为先请求路径参数补全，再请求 Definition；定向测试及脚本均通过。真实 VS Code WSL Remote 的交互验收仍独立待做。
+
+## 重名路由的运行时 Controller 归属
+
+`src/Modules/Home/Routes/home.yaml` 有两个 `home` 声明，名称和路径都相同，但 Controller 分别为 `IndexController::index` 和 `HomeController::index`，由项目配置决定启用哪一个。当前 `dev` Router 的 `_controller` 为 `App\Modules\Home\Controller\HomeController::index`。Winstar Provider 现在仅在运行时 `_module_route_file`、`_module_route_name` 均证明模块来源，且多个 YAML 候选中恰有一个显式 Controller 与运行时 `_controller` 精确相同时，给出该名称的源码位置；没有匹配或仍有多个匹配则保留无位置事实。
+
+当前 Winstar `dev` Router 只读复核返回 690 条路由，其中 569 条带匹配的模块来源标记，569 条现在都有唯一 YAML 来源；其余 121 条不由这个模块 Provider 声称来源。扩展后的 `pnpm check:f09:winstar-routes` 从未落盘 PHP 文档请求 `home` 的 Definition，返回 `home.yaml` 第 15 行的第二个 `home`，同时保留显式与默认生成路由的原有检查。Provider 6 项测试、类型检查与相关 ESLint 通过；错误或缺失的运行时 Controller 反例仍拒绝归属。没有生成 VSIX，Windows 客户端连接 WSL Remote 的人工导航仍待验收。

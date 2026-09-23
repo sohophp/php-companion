@@ -7,7 +7,7 @@ import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type Scala
 import type { RouteControllerFact, RouteFact } from '@php-companion/route-provider';
 
 const execute = promisify(execFile);
-export interface RuntimeRoute { path: string; defaults?: { _module_route_name?: unknown; _module_route_file?: unknown }; }
+export interface RuntimeRoute { path: string; defaults?: { _module_route_name?: unknown; _module_route_file?: unknown; _controller?: unknown }; }
 export interface WinstarProviderOptions { php?: string; console?: string; timeoutMs?: number; }
 interface LocatedName { value: string; uri: string; start: number; end: number; generated: boolean; controller?: RouteControllerFact; }
 // Winstar ModuleRouteDefinitionProvider::routesForActions is the source of this finite set.
@@ -80,11 +80,16 @@ export async function collectWinstarModuleRouteFacts(root: string, runtimeRoutes
   for (const [name, route] of Object.entries(runtimeRoutes).sort(([left], [right]) => left.localeCompare(right))) {
     if (!route || typeof route.path !== 'string') continue;
     const fromModuleLoader = route.defaults?._module_route_name === name && route.defaults._module_route_file === 'symfony-module-routes';
-    const declarations = fromModuleLoader ? located.filter((item) => {
+    let declarations = fromModuleLoader ? located.filter((item) => {
       if (!item.generated) return item.value === name;
       const prefix = `admin.${item.value}.`;
       return name.startsWith(prefix) && generatedAdminActions.has(name.slice(prefix.length));
     }) : [];
+    if (declarations.length > 1 && typeof route.defaults?._controller === 'string') {
+      const controller = route.defaults._controller.replace(/^\\/u, '');
+      declarations = declarations.filter((item) => item.controller?.method
+        && `${item.controller.className}::${item.controller.method}` === controller);
+    }
     if (declarations.length === 1) {
       const declaration = declarations[0]!;
       result.push({ name, path: route.path, uri: declaration.uri, start: declaration.start, end: declaration.end,

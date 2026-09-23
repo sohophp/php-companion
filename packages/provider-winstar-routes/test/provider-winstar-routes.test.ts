@@ -31,6 +31,23 @@ describe('Winstar module route provider', () => {
     for (const module of ['One', 'Two']) { const routes = join(root, 'src', 'Modules', module, 'Routes'); await mkdir(routes, { recursive: true }); await writeFile(join(routes, 'routes.yaml'), '- name: duplicate\n'); }
     expect(await collectWinstarModuleRouteFacts(root, { duplicate: moduleRoute('duplicate', '/') })).toEqual([{ name: 'duplicate', path: '/' }]);
   });
+  it('resolves a duplicate name only when the runtime controller identifies one explicit declaration', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root);
+    const routes = join(root, 'src', 'Modules', 'Home', 'Routes'); await mkdir(routes, { recursive: true });
+    const file = join(routes, 'home.yaml');
+    const source = "- name: home\n  path: /\n  defaults: {_controller: 'App\\Home\\OldController::index'}\n- name: home\n  path: /\n  defaults: {_controller: 'App\\Home\\NewController::index'}\n";
+    await writeFile(file, source);
+    const runtime = { ...moduleRoute('home', '/'), defaults: { ...moduleRoute('home', '/').defaults, _controller: 'App\\Home\\NewController::index' } };
+    const [resolved] = await collectWinstarModuleRouteFacts(root, { home: runtime });
+    expect(resolved).toMatchObject({ name: 'home', uri: pathToFileURL(file).toString() });
+    expect(source.slice(resolved!.start, resolved!.end)).toBe('home');
+    expect(resolved!.start).toBe(source.lastIndexOf('home'));
+    expect(await collectWinstarModuleRouteFacts(root, { home: { ...runtime, defaults: { ...runtime.defaults, _controller: 'App\\Home\\MissingController::index' } } }))
+      .toEqual([{ name: 'home', path: '/' }]);
+    expect(await collectWinstarModuleRouteFacts(root, { home: moduleRoute('home', '/') })).toEqual([{ name: 'home', path: '/' }]);
+    await writeFile(file, source.replace('OldController', 'NewController'));
+    expect(await collectWinstarModuleRouteFacts(root, { home: runtime })).toEqual([{ name: 'home', path: '/' }]);
+  });
   it('continues scanning modules after ordinary files in the module root', async () => {
     const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root);
     for (const [module, name] of [['Alpha', 'alpha.route'], ['Zulu', 'zulu.route']] as const) {

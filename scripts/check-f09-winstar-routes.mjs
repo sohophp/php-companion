@@ -15,11 +15,13 @@ if (frameworkVersion !== 'v7.4.17') throw new Error(`Expected Symfony FrameworkB
 
 const explicitName = 'admin.CompanyPage.workflowStatus';
 const generatedName = 'admin.SolutionArticles.add';
+const duplicateName = 'home';
 const source = `<?php namespace App\\SoPhpProbe;
 use Symfony\\Component\\Routing\\RouterInterface;
 function probe(RouterInterface $router): void {
     $router->generate('${explicitName}', ['i' => 1]);
     $router->generate('${generatedName}');
+    $router->generate('${duplicateName}');
 }`;
 const uri = pathToFileURL(resolve(root, 'src/SoPhpF09RouteProbe.php')).toString();
 const child = spawn(process.execPath, [resolve(repositoryRoot, 'packages/language-server/dist/server.js'), '--stdio'],
@@ -65,14 +67,17 @@ function positionAt(offset) {
   const lines = source.slice(0, offset).split('\n');
   return { line: lines.length - 1, character: lines.at(-1).length };
 }
-async function definition(name, expectedPath, expectedText) {
+async function definition(name, expectedPath, expectedText, expectedLine) {
   const locations = await request('textDocument/definition', {
-    textDocument: { uri }, position: positionAt(source.indexOf(name) + 8),
+    textDocument: { uri }, position: positionAt(source.indexOf(`'${name}'`) + 2),
   });
   if (!Array.isArray(locations) || locations.length !== 1) throw new Error(`${name}: expected one Definition, got ${JSON.stringify(locations)}; ${stderr}`);
   const location = locations[0];
   if (fileURLToPath(location.uri) !== expectedPath || location.range.start.line !== location.range.end.line) {
     throw new Error(`${name}: wrong source location ${JSON.stringify(location)}`);
+  }
+  if (expectedLine !== undefined && location.range.start.line + 1 !== expectedLine) {
+    throw new Error(`${name}: expected line ${expectedLine}, got ${location.range.start.line + 1}`);
   }
   const lines = (await readFile(expectedPath, 'utf8')).split('\n');
   const selected = lines[location.range.start.line]?.slice(location.range.start.character, location.range.end.character);
@@ -97,6 +102,7 @@ try {
   process.stdout.write(`${explicitName}: first completion id\n`);
   await definition(explicitName, resolve(root, 'src/Modules/Company/Routes/admin.yaml'), explicitName);
   await definition(generatedName, resolve(root, 'src/Modules/Solutions/Routes/admin_defaults.yaml'), 'SolutionArticles');
+  await definition(duplicateName, resolve(root, 'src/Modules/Home/Routes/home.yaml'), duplicateName, 15);
   await request('shutdown', null);
   send({ method: 'exit', params: null });
   const outcome = await exited;
