@@ -2,6 +2,6 @@
 
 日期：2026-09-23。Core 继续使用已有的 `src/extension/localize.ts` 英中消息表，覆盖新建 PHP 类型、复制、命名空间/文件名诊断与修复、安全移动、导入、优化导入、索引进度、语言服务器选择、兼容性报告，以及相关错误提示。独立 SoPHP Symfony 扩展拥有自己的消息表，覆盖缺失 Core 时的错误和集成状态。英文默认文案与原有操作按钮保持一致；`Preview`/`Apply` 的比较与显示同时使用翻译结果，避免中文界面中按钮选中后无法继续操作。
 
-定向单元测试分别检查 Core 英文默认文案、中文操作标签与参数插值，以及 Symfony 状态的英中切换。Core/Symfony TypeScript 类型检查和改动文件 ESLint 通过。中文打包 Extension Host 还会从实际扩展进程检查预览按钮、导入提示和新建确认文案；完整门禁及冻结产物摘要见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。
+定向单元测试分别检查 Core 英文默认文案、中文操作标签与参数插值，以及 Symfony 状态的英中切换。Core/Symfony TypeScript 类型检查、改动文件 ESLint 与 `pnpm check` 全量通过。VS Code 1.138.0 Linux x64 的简体中文打包 Extension Host 从实际 Core 扩展进程确认预览按钮、导入提示和新建确认文案；英文默认宿主完成现有编辑回归。两次宿主均退出码 0。完整产物摘要见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。
 
 本增量覆盖上述扩展侧路径。Language Server 返回的诊断、Provider 错误、动态 PHP 版本来源描述和其他尚未迁移的运行时文本仍须逐项盘点与本地化；配置迁移与旧 Profile 升级也仍需验证，F14 保持开放。
