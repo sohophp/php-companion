@@ -25,6 +25,7 @@ Twig 编辑、解析、格式化、模板语义继续由 twig-plus 唯一负责�
 | [实施状态](status.md) | 当前真实完成项、验证证据与剩余工作 |
 | [组件架构](architecture.md) | 包职责、依赖、数据模型、迁移与扩展边界 |
 | [开发步骤](roadmap.md) | P0–P9 工作项、依赖、产物和阶段退出条件 |
+| [核心后续计划](future-core-plan.md) | SoPHP Core 的优先级、下一批任务与阶段完成证据 |
 | [验收与质量门槛](acceptance.md) | 测试矩阵、性能预算、最终完成判定 |
 | [PHP 7.2–8.5 支持矩阵](version-matrix.md) | 各版本解析、语义和版本诊断的真实覆盖边界 |
 | [Twig 与外部工具集成](integrations.md) | 跨项目协议、formatter、调试测试边界 |
