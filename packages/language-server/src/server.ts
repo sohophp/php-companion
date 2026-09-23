@@ -156,6 +156,7 @@ function referenceSourceMode(): boolean {
   return indexingMode === 'progressive' || indexingMode === 'experimental' && experimentalReferenceSourceOnly;
 }
 let referenceRipgrepMode: 'off' | 'system' | 'path' | 'portable' = 'off';
+const candidatePathSearches = new WeakMap<ComposerProject, Map<string, CandidatePaths>>();
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -2362,12 +2363,18 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   const canPrefilter = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
     && normalizedNames.length > 0 && normalizedNames.length <= 16
     && normalizedNames.every((name) => name.length >= 8 && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name));
-  const rgCandidates = canPrefilter && referenceRipgrepMode !== 'portable'
-    ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
-  const prefilterCandidates = rgCandidates ?? (canPrefilter
-    ? await portableCandidatePaths(includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project), normalizedNames,
-      project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles)) : undefined);
-  if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
+  const pathSearchKey = `${includeDependencies ? 'dependencies:' : 'project:'}${referenceRipgrepMode}:${normalizedNames.join(',')}`;
+  const existingPathSearches = canPrefilter ? candidatePathSearches.get(project) : undefined;
+  let prefilterCandidates = existingPathSearches?.get(pathSearchKey);
+  const cachedPathSearch = Boolean(prefilterCandidates);
+  if (!prefilterCandidates && canPrefilter) {
+    const rgCandidates = referenceRipgrepMode !== 'portable'
+      ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
+    prefilterCandidates = rgCandidates ?? await portableCandidatePaths(
+      includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project), normalizedNames,
+      project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles));
+  }
+  if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted} cached=${cachedPathSearch}`);
   const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
     skipSourceOutsideBudget: Boolean(prefilterCandidates && includeDependencies),
     skipSource: prefilterCandidates ? (path, info): boolean => {
@@ -2483,6 +2490,13 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       },
     } : undefined,
   });
+  if (prefilterCandidates && !cachedPathSearch && project && !cancelled()
+    && (includeDependencies ? scan.complete : scan.projectComplete) && (projectEpochs.get(root) ?? 0) === epoch) {
+    const searches = existingPathSearches ?? new Map<string, CandidatePaths>();
+    searches.delete(pathSearchKey); searches.set(pathSearchKey, prefilterCandidates);
+    if (searches.size > 16) searches.delete(searches.keys().next().value!);
+    if (!existingPathSearches) candidatePathSearches.set(project, searches);
+  }
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
   if (mode === 'symbol') for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) {

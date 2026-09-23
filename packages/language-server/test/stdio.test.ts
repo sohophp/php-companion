@@ -4211,7 +4211,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       };
       await request('initialize', { processId: null, capabilities: {}, workspaceFolders: [{ uri: pathToFileURL(root).toString(), name: 'project' }],
         initializationOptions: { testMode: true, experimentalRipgrepCandidates: 'portable', indexingMode: 'onDemand', phpVersion: '7.2',
-          indexLimits: { maxFiles: 4, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } } });
+          indexLimits: { maxFiles: 5, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } } });
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
@@ -4219,6 +4219,15 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === consumerUri);
       const params = { textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf('$value->answerStatus()') + '$value->'.length + 2) };
       expect((await request('textDocument/implementation', params)).map((item: { uri: string }) => item.uri)).toEqual([implementationUri]);
+      const addedUri = pathToFileURL(join(vendor, 'AnotherImplementation.php')).toString();
+      await writeFile(join(vendor, 'AnotherImplementation.php'),
+        '<?php namespace Acme\\Api; class AnotherImplementation implements Contract { public function answerStatus(): int { return 7; } }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: addedUri, type: 1 }] } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[index:delta] complete') && message.params.message.includes(addedUri));
+      expect((await request('textDocument/implementation', params)).map((item: { uri: string }) => item.uri).sort()).toEqual([addedUri, implementationUri].sort());
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[reference-candidates]') && message.params.message.includes('cached=true'));
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
