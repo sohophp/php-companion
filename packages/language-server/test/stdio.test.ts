@@ -3757,11 +3757,20 @@ class Example {
       const uri = pathToFileURL(join(root, 'Cases.php')).toString();
       const source = `<?php namespace App;
 class ParentType {} class ChildType extends ParentType {}
+interface Contract {} class InvalidRelation extends Contract {} class Cycle extends Cycle {}
+final class Closed {} class InvalidChild extends Closed {}
+class MethodBase { final public function fixed(): void {} }
+class InvalidMethodOverride extends MethodBase { public function fixed(): void {} }
+interface PropertyContract { public string $name { get; } }
+class MissingProperty implements PropertyContract {}
+trait WithProperty { public int $value; }
+enum State implements \\UnitEnum { use WithProperty; case Ready; }
+readonly class InvalidReadonlyTrait { use WithProperty; }
 class Target { private function __construct() {} private function hidden(): void {} }
 class Hooks { public string $sink { set(string $value) {} } }
 /** @param ParentType $value */
 function conflict(ChildType $value): void {}
-function useCases(Target $target, Hooks $hooks): void { new Target(); $target->hidden(); $hooks->sink; }`;
+function useCases(Target $target, Hooks $hooks): void { new Target(); new Contract(); $target->hidden(); $hooks->sink; }`;
       await writeFile(join(root, 'Cases.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -3779,6 +3788,22 @@ function useCases(Target $target, Hooks $hooks): void { new Target(); $target->h
         expect.objectContaining({ code: 'php.property.unreadable', message: '不能读取只写的带 Hook 属性 App\\Hooks::$sink。' }),
         expect.objectContaining({ code: 'php.instantiation.inaccessible-constructor',
           message: '当前作用域不能调用 private 构造方法 App\\Target::__construct 来实例化 App\\Target。' }),
+        expect.objectContaining({ code: 'php.inheritance.invalid-type-kind',
+          message: 'App\\InvalidRelation 不能继承 App\\Contract：预期为类，实际为接口。' }),
+        expect.objectContaining({ code: 'php.inheritance.cycle',
+          message: 'App\\Cycle 通过 App\\Cycle 形成循环继承关系。' }),
+        expect.objectContaining({ code: 'php.instantiation.invalid-target', message: '不能实例化接口 App\\Contract。' }),
+        expect.objectContaining({ code: 'php.inheritance.final-class', message: 'App\\InvalidChild 不能继承 final 类 App\\Closed。' }),
+        expect.objectContaining({ code: 'php.method.incompatible-override',
+          message: 'App\\InvalidMethodOverride::fixed 与 App\\MethodBase::fixed 不兼容：final 方法不能被覆盖。' }),
+        expect.objectContaining({ code: 'php.property.missing-implementation',
+          message: 'App\\MissingProperty 必须实现 App\\PropertyContract::$name：未实现属性 $name。' }),
+        expect.objectContaining({ code: 'php.enum.invalid-member',
+          message: 'Enum App\\State 不能使用 Trait App\\WithProperty，因为 App\\WithProperty 声明了属性 $value。' }),
+        expect.objectContaining({ code: 'php.enum.invalid-interface',
+          message: 'Enum App\\State 不能显式实现内置接口 UnitEnum。' }),
+        expect.objectContaining({ code: 'php.readonly-class.invalid-trait',
+          message: '只读类 App\\InvalidReadonlyTrait 不能使用 Trait App\\WithProperty，因为 App\\WithProperty 声明了非只读属性 $value。' }),
       ]));
     } finally { await rm(root, { recursive: true, force: true }); }
   });

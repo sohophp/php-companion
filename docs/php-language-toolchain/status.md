@@ -36,6 +36,8 @@
 
 2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `ecf15e55` 重新冻结，`pnpm check`、四份 VSIX 的 SHA-256 校验、候选原件的 VS Code 1.138.0 英文完整宿主回归/简体中文诊断专项，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。此次加入[成员与属性操作诊断本地化](reports/f14-member-property-diagnostics-2026-09-23.md)，完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
 
+2026-09-23 继承、Enum 和实例化诊断的中英文输出，以及已知方法/属性 Override 兼容性原因，已完成[本地化实现和定向 stdio 回归](reports/f14-inheritance-diagnostics-2026-09-23.md)。全仓 `pnpm check` 通过；本轮未冻结新 Alpha 候选，后续 F14 增量采用定向测试，集中交付时再运行四包门禁。
+
 2026-09-23 P7 公开 API Rename 范围声明完成：产品支持说明与 Alpha 操作步骤均明确 F2 编辑计划只能覆盖当前已索引且语义证明的文件；工作区外下游仓库、客户端调用及未证明动态引用无法验证，公开 API 应用前须另行检查使用方。路线图仅关闭这一项范围声明，P7 两批重构及 F08 最终操作矩阵仍开放。
 
 2026-09-23 P9 / F01–F14 已逐项按[最终验收审计](reports/p9-acceptance-audit-2026-09-23.md)复核：专项 Linux 自动性能、真实项目只读 Oracle、P8 协作和候选打包有证据；P0、P2–P7 与 P9 仍有开放工作，当前候选的跨平台/WSL Remote 人工矩阵尚缺，因此没有把任何 F 项误记为最终通过。后续先推进 P7 支持域和编辑器操作矩阵。

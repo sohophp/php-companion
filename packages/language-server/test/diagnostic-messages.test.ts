@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { diagnosticLanguage, diagnosticMessage } from '../src/diagnosticMessages.js';
+import { diagnosticCompatibilityReason, diagnosticLanguage, diagnosticMessage } from '../src/diagnosticMessages.js';
 
 describe('Language Server diagnostic localization', () => {
   it('uses the LSP UI locale and preserves English as the default', () => {
@@ -45,5 +45,20 @@ describe('Language Server diagnostic localization', () => {
       .toBe('$value 的 PHPDoc 类型为 ParentType，与原生类型 App\\ChildType 不兼容。');
     expect(diagnosticMessage('zh', 'inaccessibleConstructor', 'private', 'App\\Target::__construct', 'App\\Target'))
       .toBe('当前作用域不能调用 private 构造方法 App\\Target::__construct 来实例化 App\\Target。');
+  });
+
+  it('translates structured inheritance reasons while preserving English values', () => {
+    const examples = [
+      ['it requires 2 parameter(s), inherited declaration requires 1', '此方法要求 2 个必需参数，继承的声明要求 1 个'],
+      ['parameter $value narrows the inherited parameter type', '参数 $value 缩窄了继承的参数类型'],
+      ['visibility cannot be more restrictive than protected', '可见性不能低于 protected'],
+      ['the final set hook cannot be overridden', 'final set Hook 不能被覆盖'],
+      ['get visibility cannot be more restrictive than public', 'get 可见性不能低于 public'],
+      ['set type is not contravariant with the inherited property type', 'set 类型与继承的属性类型不满足逆变要求'],
+    ] as const;
+    for (const [source, translated] of examples) {
+      expect(diagnosticCompatibilityReason('en', source)).toBe(source);
+      expect(diagnosticCompatibilityReason('zh', source)).toBe(translated);
+    }
   });
 });

@@ -116,6 +116,53 @@ const messages = {
   hookedReferenceIteration: ['Cannot iterate {0} by reference because these hooked properties do not return by reference: {1}.', '不能按引用遍历 {0}，因为以下带 Hook 属性未按引用返回：{1}。'],
   phpDocTypeConflict: ['{0} documents {1}, which is incompatible with native {2}.', '{0} 的 PHPDoc 类型为 {1}，与原生类型 {2} 不兼容。'],
   inaccessibleConstructor: ['Cannot call {0} constructor {1} while instantiating {2} from this scope.', '当前作用域不能调用 {0} 构造方法 {1} 来实例化 {2}。'],
+  inheritFinalClass: ['{0} cannot extend final class {1}.', '{0} 不能继承 final 类 {1}。'],
+  inheritReadonlyMismatch: ['{0} class {1} cannot extend {2} class {3}.', '{0}类 {1} 不能继承{2}类 {3}。'],
+  readonlyClassLabel: ['Readonly', '只读'],
+  nonReadonlyClassLabel: ['Non-readonly', '非只读'],
+  readonlyParentLabel: ['readonly', '只读'],
+  nonReadonlyParentLabel: ['non-readonly', '非只读'],
+  invalidTypeRelation: ['{0} cannot {1} {2}: expected {3}, found {4}.', '{0} 不能{1} {2}：预期为{3}，实际为{4}。'],
+  relationExtend: ['extend', '继承'],
+  relationImplement: ['implement', '实现'],
+  relationUse: ['use', '使用'],
+  kindClass: ['class', '类'],
+  kindInterface: ['interface', '接口'],
+  kindTrait: ['trait', 'Trait'],
+  kindEnum: ['enum', 'Enum'],
+  inheritanceCycle: ['{0} creates a circular {1} relation through {2}.', '{0} 通过 {2} 形成循环{1}关系。'],
+  traitUseLabel: ['Trait use', 'Trait 使用'],
+  inheritanceLabel: ['inheritance', '继承'],
+  enumTraitProperty: ['Enum {0} cannot use trait {1} because {2} declares property ${3}.', 'Enum {0} 不能使用 Trait {1}，因为 {2} 声明了属性 ${3}。'],
+  readonlyTraitProperty: ['Readonly class {0} cannot use trait {1} because {2} declares non-readonly property ${3}.', '只读类 {0} 不能使用 Trait {1}，因为 {2} 声明了非只读属性 ${3}。'],
+  enumAutomaticInterface: ['Enum {0} cannot explicitly implement built-in interface {1}.', 'Enum {0} 不能显式实现内置接口 {1}。'],
+  enumSerializable: ['Enum {0} cannot implement the Serializable interface.', 'Enum {0} 不能实现 Serializable 接口。'],
+  enumExtendsSerializable: ['Enum {0} cannot implement {1} because it extends Serializable.', 'Enum {0} 不能实现 {1}，因为该接口继承了 Serializable。'],
+  enumExtendsBackedEnum: ['Non-backed enum {0} cannot implement {1} because it extends BackedEnum.', '无支持值的 Enum {0} 不能实现 {1}，因为该接口继承了 BackedEnum。'],
+  invalidInstantiation: ['Cannot instantiate {0} {1}.', '不能实例化{0} {1}。'],
+  kindAbstractClass: ['abstract class', '抽象类'],
+  incompatibleOverride: ['{0} is incompatible with {1}: {2}.', '{0} 与 {1} 不兼容：{2}。'],
+  missingPropertyImplementation: ['{0} must implement {1}: {2}.', '{0} 必须实现 {1}：{2}。'],
+  reasonFinalMethod: ['a final method cannot be overridden', 'final 方法不能被覆盖'],
+  reasonMustStatic: ['the overriding method must be static', '覆盖方法必须为 static'],
+  reasonMustNotStatic: ['the overriding method must not be static', '覆盖方法不能为 static'],
+  reasonVisibility: ['visibility cannot be more restrictive than {0}', '可见性不能低于 {0}'],
+  reasonRequiredParameters: ['it requires {0} parameter(s), inherited declaration requires {1}', '此方法要求 {0} 个必需参数，继承的声明要求 {1} 个'],
+  reasonFewerParameters: ['it accepts fewer parameters than the inherited declaration', '此方法接受的参数少于继承的声明'],
+  reasonRemainVariadic: ['it must remain variadic', '此方法必须保留可变参数'],
+  reasonParameterVariadic: ['parameter ${0} has incompatible variadic semantics', '参数 ${0} 的可变参数语义不兼容'],
+  reasonParameterReference: ['parameter ${0} has incompatible reference semantics', '参数 ${0} 的引用语义不兼容'],
+  reasonParameterNarrowing: ['parameter ${0} narrows the inherited parameter type', '参数 ${0} 缩窄了继承的参数类型'],
+  reasonReturnCovariance: ['return type is not covariant with the inherited return type', '返回类型与继承的返回类型不满足协变要求'],
+  reasonFinalProperty: ['a final property cannot be overridden', 'final 属性不能被覆盖'],
+  reasonFinalHook: ['the final {0} hook cannot be overridden', 'final {0} Hook 不能被覆盖'],
+  reasonGetMissing: ['the inherited get operation is not implemented', '未实现继承的 get 操作'],
+  reasonSetMissing: ['the inherited set operation is not implemented', '未实现继承的 set 操作'],
+  reasonGetVisibility: ['get visibility cannot be more restrictive than {0}', 'get 可见性不能低于 {0}'],
+  reasonSetVisibility: ['set visibility cannot be more restrictive than {0}', 'set 可见性不能低于 {0}'],
+  reasonGetCovariance: ['get type is not covariant with the inherited property type', 'get 类型与继承的属性类型不满足协变要求'],
+  reasonSetContravariance: ['set type is not contravariant with the inherited property type', 'set 类型与继承的属性类型不满足逆变要求'],
+  reasonPropertyMissing: ['property ${0} is not implemented', '未实现属性 ${0}'],
 } as const;
 
 export type DiagnosticMessageKey = keyof typeof messages;
@@ -123,4 +170,39 @@ export type DiagnosticMessageKey = keyof typeof messages;
 export function diagnosticMessage(language: DiagnosticLanguage, key: DiagnosticMessageKey, ...args: string[]): string {
   const template = messages[key][language === 'zh' ? 1 : 0];
   return args.reduce((value, argument, index) => value.replaceAll(`{${index}}`, argument), template);
+}
+
+export function diagnosticCompatibilityReason(language: DiagnosticLanguage, reason: string): string {
+  if (language === 'en') return reason;
+  const fixed = {
+    'a final method cannot be overridden': 'reasonFinalMethod',
+    'the overriding method must be static': 'reasonMustStatic',
+    'the overriding method must not be static': 'reasonMustNotStatic',
+    'it accepts fewer parameters than the inherited declaration': 'reasonFewerParameters',
+    'it must remain variadic': 'reasonRemainVariadic',
+    'return type is not covariant with the inherited return type': 'reasonReturnCovariance',
+    'a final property cannot be overridden': 'reasonFinalProperty',
+    'the inherited get operation is not implemented': 'reasonGetMissing',
+    'the inherited set operation is not implemented': 'reasonSetMissing',
+    'get type is not covariant with the inherited property type': 'reasonGetCovariance',
+    'set type is not contravariant with the inherited property type': 'reasonSetContravariance',
+  } as const;
+  const fixedKey = fixed[reason as keyof typeof fixed];
+  if (fixedKey) return diagnosticMessage(language, fixedKey);
+  const patterns: Array<[RegExp, DiagnosticMessageKey]> = [
+    [/^visibility cannot be more restrictive than (private|protected|public)$/u, 'reasonVisibility'],
+    [/^it requires (\d+) parameter\(s\), inherited declaration requires (\d+)$/u, 'reasonRequiredParameters'],
+    [/^parameter \$([^\s]+) has incompatible variadic semantics$/u, 'reasonParameterVariadic'],
+    [/^parameter \$([^\s]+) has incompatible reference semantics$/u, 'reasonParameterReference'],
+    [/^parameter \$([^\s]+) narrows the inherited parameter type$/u, 'reasonParameterNarrowing'],
+    [/^the final (get|set) hook cannot be overridden$/u, 'reasonFinalHook'],
+    [/^get visibility cannot be more restrictive than (private|protected|public)$/u, 'reasonGetVisibility'],
+    [/^set visibility cannot be more restrictive than (private|protected|public)$/u, 'reasonSetVisibility'],
+    [/^property \$([^\s]+) is not implemented$/u, 'reasonPropertyMissing'],
+  ];
+  for (const [pattern, key] of patterns) {
+    const match = pattern.exec(reason);
+    if (match) return diagnosticMessage(language, key, ...match.slice(1));
+  }
+  return reason;
 }

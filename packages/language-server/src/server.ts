@@ -30,7 +30,7 @@ import {
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
-import { diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
+import { diagnosticCompatibilityReason, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -1592,7 +1592,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.method.incompatible-override',
       source: 'PHP Companion',
-      message: `${item.method} is incompatible with ${item.inheritedMethod}: ${item.reason}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'incompatibleOverride', item.method, item.inheritedMethod,
+        diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4')) {
       result.diagnostics.push(...workspace.incompatiblePropertyOverrides(document.uri)
@@ -1603,14 +1604,16 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         severity: DiagnosticSeverity.Error,
         code: 'php.property.incompatible-override',
         source: 'PHP Companion',
-        message: `${item.property} is incompatible with ${item.inheritedProperty}: ${item.reason}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'incompatibleOverride', item.property, item.inheritedProperty,
+          diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
       })));
       result.diagnostics.push(...workspace.missingPropertyImplementations(document.uri).map((item) => ({
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.property.missing-implementation',
         source: 'PHP Companion',
-        message: `${item.classFqcn} must implement ${item.inheritedProperty}: ${item.reason}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'missingPropertyImplementation', item.classFqcn, item.inheritedProperty,
+          diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
       })));
     }
     result.diagnostics.push(...workspace.invalidInheritances(document.uri)
@@ -1620,36 +1623,44 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: item.reason === 'final-class' ? 'php.inheritance.final-class' : 'php.inheritance.readonly-mismatch',
       source: 'PHP Companion',
-      message: item.reason === 'final-class' ? `${item.type} cannot extend final class ${item.parent}.`
-        : `${item.readonly ? 'Readonly' : 'Non-readonly'} class ${item.type} cannot extend ${item.parentReadonly ? 'readonly' : 'non-readonly'} class ${item.parent}.`,
+      message: item.reason === 'final-class' ? diagnosticMessage(clientDiagnosticLanguage, 'inheritFinalClass', item.type, item.parent)
+        : diagnosticMessage(clientDiagnosticLanguage, 'inheritReadonlyMismatch',
+          diagnosticMessage(clientDiagnosticLanguage, item.readonly ? 'readonlyClassLabel' : 'nonReadonlyClassLabel'), item.type,
+          diagnosticMessage(clientDiagnosticLanguage, item.parentReadonly ? 'readonlyParentLabel' : 'nonReadonlyParentLabel'), item.parent),
       })));
+    const relationLabels = { extend: 'relationExtend', implement: 'relationImplement', use: 'relationUse' } as const;
+    const kindLabels = { class: 'kindClass', interface: 'kindInterface', trait: 'kindTrait', enum: 'kindEnum' } as const;
     result.diagnostics.push(...workspace.invalidTypeRelations(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.inheritance.invalid-type-kind',
       source: 'PHP Companion',
-      message: `${item.owner} cannot ${item.relation} ${item.target}: expected ${item.expectedKind}, found ${item.actualKind}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'invalidTypeRelation', item.owner,
+        diagnosticMessage(clientDiagnosticLanguage, relationLabels[item.relation]), item.target,
+        diagnosticMessage(clientDiagnosticLanguage, kindLabels[item.expectedKind]),
+        diagnosticMessage(clientDiagnosticLanguage, kindLabels[item.actualKind])),
     })));
     result.diagnostics.push(...workspace.inheritanceCycles(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.inheritance.cycle',
       source: 'PHP Companion',
-      message: `${item.owner} creates a circular ${item.relation === 'use' ? 'Trait use' : 'inheritance'} relation through ${item.target}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'inheritanceCycle', item.owner,
+        diagnosticMessage(clientDiagnosticLanguage, item.relation === 'use' ? 'traitUseLabel' : 'inheritanceLabel'), item.target),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1')) result.diagnostics.push(...workspace.invalidEnumTraitProperties(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.enum.invalid-member',
       source: 'PHP Companion',
-      message: `Enum ${item.enumFqcn} cannot use trait ${item.traitFqcn} because ${item.propertyOwner} declares property $${item.propertyName}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'enumTraitProperty', item.enumFqcn, item.traitFqcn, item.propertyOwner, item.propertyName),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidReadonlyTraitProperties(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.readonly-class.invalid-trait',
       source: 'PHP Companion',
-      message: `Readonly class ${item.classFqcn} cannot use trait ${item.traitFqcn} because ${item.propertyOwner} declares non-readonly property $${item.propertyName}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'readonlyTraitProperty', item.classFqcn, item.traitFqcn, item.propertyOwner, item.propertyName),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidAllowDynamicProperties(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
@@ -1758,19 +1769,20 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       code: 'php.enum.invalid-interface',
       source: 'PHP Companion',
       message: item.reason === 'automatic-interface'
-        ? `Enum ${item.enumFqcn} cannot explicitly implement built-in interface ${item.prohibitedInterface}.`
+        ? diagnosticMessage(clientDiagnosticLanguage, 'enumAutomaticInterface', item.enumFqcn, item.prohibitedInterface)
         : item.reason === 'serializable'
           ? item.interfaceFqcn.toLowerCase() === 'serializable'
-            ? `Enum ${item.enumFqcn} cannot implement the Serializable interface.`
-            : `Enum ${item.enumFqcn} cannot implement ${item.interfaceFqcn} because it extends Serializable.`
-          : `Non-backed enum ${item.enumFqcn} cannot implement ${item.interfaceFqcn} because it extends BackedEnum.`,
+            ? diagnosticMessage(clientDiagnosticLanguage, 'enumSerializable', item.enumFqcn)
+            : diagnosticMessage(clientDiagnosticLanguage, 'enumExtendsSerializable', item.enumFqcn, item.interfaceFqcn)
+          : diagnosticMessage(clientDiagnosticLanguage, 'enumExtendsBackedEnum', item.enumFqcn, item.interfaceFqcn),
     })));
     result.diagnostics.push(...workspace.invalidInstantiations(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.instantiation.invalid-target',
       source: 'PHP Companion',
-      message: `Cannot instantiate ${item.reason === 'abstract-class' ? 'abstract class' : item.reason} ${item.target}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'invalidInstantiation',
+        diagnosticMessage(clientDiagnosticLanguage, item.reason === 'abstract-class' ? 'kindAbstractClass' : kindLabels[item.reason]), item.target),
     })));
     result.diagnostics.push(...workspace.inaccessibleInstantiations(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
