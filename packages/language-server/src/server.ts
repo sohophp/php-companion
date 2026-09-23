@@ -1911,7 +1911,7 @@ async function expectedNamespace(uri: string): Promise<string | undefined> {
   return candidates.length === 1 ? candidates[0] : undefined;
 }
 
-async function indexWorkspace(generation: number): Promise<void> {
+async function indexWorkspace(generation: number, changedComposerPaths?: readonly string[]): Promise<void> {
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   const shouldContinue = (): boolean => generation === indexingGeneration && progress?.token.isCancellationRequested !== true;
   progress?.begin(progressMessage(clientDiagnosticLanguage, indexingMode === 'progressive' ? 'prepareReferences' : 'indexSymbols'), 0,
@@ -1921,6 +1921,24 @@ async function indexWorkspace(generation: number): Promise<void> {
     if (!shouldContinue()) return;
     workspaceRoots = [...new Set(discoveries.flatMap((result, index) => result.roots.length ? result.roots : [workspaceFolderRoots[index]!]))];
     for (const result of discoveries) for (const warning of result.warnings) connection.console.warn(warning);
+    const affectedFolders = changedComposerPaths && workspaceFolderRoots.filter((folder) =>
+      changedComposerPaths.some((path) => pathWithin(folder, path)));
+    let scanAllRoots = !affectedFolders?.length || discoveries.some((result) => !result.complete);
+    if (!scanAllRoots && affectedFolders) {
+      // A path repository in another folder can observe the changed manifest.
+      // Keep the full refresh in that case instead of retaining stale dependency facts.
+      for (const [root, cached] of composerProjectsByRoot) {
+        if (affectedFolders.some((folder) => pathWithin(folder, root))) continue;
+        const project = await cached.catch(() => undefined);
+        if (!project) continue;
+        for (const dependency of project.dependencies) {
+          const target = await realpath(dependency.root).catch(() => dependency.root);
+          if (affectedFolders.some((folder) => pathWithin(folder, target))) { scanAllRoots = true; break; }
+        }
+        if (scanAllRoots) break;
+      }
+    }
+    if (!shouldContinue()) return;
     const activeKeys = new Set(workspaceRoots.map((root) => `root:${root}`));
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
@@ -1937,9 +1955,19 @@ async function indexWorkspace(generation: number): Promise<void> {
       const workspace = await candidate;
       for (const document of documents.all()) if (key !== `root:${rootForUri(document.uri)}`) workspace.remove(document.uri);
     }
-    for (const [index, root] of workspaceRoots.entries()) {
+    // Root discovery can move an already open file from a parent Composer
+    // project into a newly added nested project without another didOpen event.
+    for (const document of documents.all()) {
+      if (document.languageId !== 'php') continue;
+      const root = rootForUri(document.uri); if (!root) continue;
+      const workspace = await semanticForRoot(root);
+      if (workspace.source(document.uri) !== document.getText()) workspace.update(document.uri, document.getText(), true);
+    }
+    const rootsToIndex = scanAllRoots ? workspaceRoots : workspaceRoots.filter((root) =>
+      affectedFolders!.some((folder) => pathWithin(folder, root)));
+    for (const [index, root] of rootsToIndex.entries()) {
       if (!shouldContinue()) return;
-      progress?.report(Math.round(10 + (index / Math.max(1, workspaceRoots.length)) * 85),
+      progress?.report(Math.round(10 + (index / Math.max(1, rootsToIndex.length)) * 85),
         progressMessage(clientDiagnosticLanguage, 'indexRoot', root));
       let lastProgress = 0;
       await indexRoot(await semanticForRoot(root), root, generation, shouldContinue, (state) => {
@@ -1958,12 +1986,12 @@ async function indexWorkspace(generation: number): Promise<void> {
   }
 }
 
-function startIndexWorkspace(reason = 'semantic-query'): Promise<void> {
+function startIndexWorkspace(reason = 'semantic-query', changedComposerPaths?: readonly string[]): Promise<void> {
   if (activeIndexing) return activeIndexing;
   const generation = ++indexingGeneration;
   const started = Date.now();
   connection.console.info(`[index:${generation}] start reason=${reason}`);
-  const running = indexWorkspace(generation).finally(() => connection.console.info(`[index:${generation}] end elapsedMs=${Date.now() - started} pending=${pendingFiles.size}`));
+  const running = indexWorkspace(generation, changedComposerPaths).finally(() => connection.console.info(`[index:${generation}] end elapsedMs=${Date.now() - started} pending=${pendingFiles.size}`));
   activeIndexing = running;
   const clear = (): void => { if (activeIndexing === running) activeIndexing = undefined; };
   void running.then(clear, clear);
@@ -4128,7 +4156,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
   for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
 connection.onDidChangeWatchedFiles(async ({ changes }) => {
-  let composerChanged = false;
+  const changedComposerPaths: string[] = [];
   const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
@@ -4148,8 +4176,9 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
       }
     }
     if (basename(path) === 'composer.json' || basename(path) === 'composer.lock') {
-      if (root) invalidateComposerProject(root);
-      invalidateCandidates(change.uri); composerChanged = true; continue;
+      if (!root) continue;
+      invalidateComposerProject(root);
+      invalidateCandidates(change.uri); changedComposerPaths.push(path); continue;
     }
     if (!root) continue;
     if (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path)) {
@@ -4163,11 +4192,11 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     if (!documents.all().some((document) => sameFilesystemPath(pathForUri(document.uri), path))) invalidateCandidates(change.uri);
     pendingFiles.set(filesystemPathKey(path), { uri: indexedUriForPath(root, path), root }); pendingRoots.add(root);
   }
-  if (composerChanged) {
+  if (changedComposerPaths.length) {
     composerRootChecks.clear();
     // A changed Composer graph needs a fresh scan even if one was already running.
     const running = activeIndexing; if (running) await running;
-    await startIndexWorkspace('composer-change');
+    await startIndexWorkspace('composer-change', changedComposerPaths);
   } else if (!activeIndexing && (pendingFiles.size || containerRefreshRoots.size)) {
     if (pendingFiles.size) await applyPendingFiles(containerRefreshRoots);
     else for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);

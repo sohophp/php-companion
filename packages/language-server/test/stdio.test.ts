@@ -4845,6 +4845,109 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each([false, true])('F04-NAV-15b scopes a Composer refresh across workspace roots, path dependency=%s', async (linked) => {
+    const parent = await mkdtemp(join(tmpdir(), 'php-companion-composer-change-roots-'));
+    const first = join(parent, 'first'); const second = join(parent, 'second');
+    try {
+      for (const root of [first, second]) {
+        await mkdir(join(root, 'src'), { recursive: true });
+        await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      }
+      if (linked) {
+        await mkdir(join(second, 'vendor', 'composer'), { recursive: true });
+        await mkdir(join(second, 'vendor', 'local'), { recursive: true });
+        await symlink(first, join(second, 'vendor', 'local', 'first'), process.platform === 'win32' ? 'junction' : 'dir');
+        await writeFile(join(second, 'composer.lock'), JSON.stringify({ packages: [{
+          name: 'local/first', autoload: { 'psr-4': { 'First\\': 'src/' } },
+        }] }));
+        await writeFile(join(second, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{
+          name: 'local/first', install_path: '../local/first',
+        }] }));
+      }
+      const firstUri = pathToFileURL(join(first, 'src', 'Consumer.php')).toString();
+      const secondUri = pathToFileURL(join(second, 'src', 'Consumer.php')).toString();
+      const source = '<?php namespace App; function run(Service $service): void { $service->method(); }';
+      await writeFile(join(first, 'src', 'Service.php'), '<?php namespace App; class Service { public function method(): void {} }');
+      await writeFile(join(second, 'src', 'Service.php'), '<?php namespace App; class Service { public function method(): void {} }');
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 350, method: 'initialize', params: {
+        processId: null, capabilities: {}, workspaceFolders: [
+          { uri: pathToFileURL(first).toString(), name: 'first' }, { uri: pathToFileURL(second).toString(), name: 'second' },
+        ], initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 350);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const uri of [firstUri, secondUri]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      }
+      const definition = async (id: number, uri: string): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('method()') + 2),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result.map((item: { uri: string }) => item.uri);
+      };
+      expect(await definition(351, firstUri)).toEqual([pathToFileURL(join(first, 'src', 'Service.php')).toString()]);
+      expect(await definition(352, secondUri)).toEqual([pathToFileURL(join(second, 'src', 'Service.php')).toString()]);
+      await writeFile(join(first, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Mapped\\': 'mapped/' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(join(first, 'composer.json')).toString(), type: 2 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('end elapsedMs=')
+        && message.params?.message?.includes('[index:')
+        && output.messages.some((entry: any) => entry.method === 'window/logMessage'
+          && entry.params?.message?.includes('start reason=composer-change')));
+      const indexed = output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed ') && message.params.message.includes(' PHP files'))
+        .map((message: any) => message.params.message as string);
+      expect(indexed.some((message) => message.includes(`from ${first};`))).toBe(true);
+      expect(indexed.some((message) => message.includes(`from ${second};`))).toBe(linked);
+      expect(await definition(353, secondUri)).toEqual([pathToFileURL(join(second, 'src', 'Service.php')).toString()]);
+    } finally { await rm(parent, { recursive: true, force: true }); }
+  }, 20_000);
+
+  it('F04-NAV-15c moves an open unsaved buffer into a newly created nested Composer project', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-late-nested-root-'));
+    const nested = join(root, 'apps', 'api');
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await mkdir(join(nested, 'src'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Service.php'), '<?php namespace App; class Service { public function parentOnly(): void {} }');
+      await writeFile(join(nested, 'src', 'Service.php'), '<?php namespace App; class Service { public function nestedOnly(): void {} }');
+      const uri = pathToFileURL(join(nested, 'src', 'Consumer.php')).toString();
+      const source = '<?php namespace App; function run(Service $service): void { $service->nestedOnly(); }';
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 354, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 354);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      await writeFile(join(nested, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(join(nested, 'composer.json')).toString(), type: 1 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('end elapsedMs=')
+        && message.params?.message?.includes('[index:'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 355, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('nestedOnly()') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 355)).result.map((item: { uri: string }) => item.uri))
+        .toEqual([pathToFileURL(join(nested, 'src', 'Service.php')).toString()]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 20_000);
+
   it('F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-root-'));
     try {
