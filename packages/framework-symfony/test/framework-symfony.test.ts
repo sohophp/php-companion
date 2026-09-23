@@ -355,7 +355,6 @@ describe('static Symfony Controller context analysis', () => {
   it('extracts explicit service classes and resolved aliases without expanding resources', () => {
     const source = `imports:
       - { resource: services/mailer.yaml }
-      - { resource: '%kernel.project_dir%/dynamic.yaml' }
 services:
       _defaults: { public: false, autowire: true }
       App\\Service\\Mailer: ~
@@ -391,6 +390,7 @@ services:
       { ownerFqcn: 'Symfony\\Component\\DependencyInjection\\ContainerInterface', argument: 'explicit.service', returnType: 'App\\Service\\Explicit' },
     ]);
     expect(analyzeSymfonyServiceYaml('file:///broken.yaml', 'services: [').complete).toBe(false);
+    expect(analyzeSymfonyServiceYaml('file:///dynamic.yaml', "imports:\n  - { resource: '%kernel.project_dir%/dynamic.yaml' }\nservices: {}\n").complete).toBe(false);
   });
 
   it('locates exact Symfony YAML service references without treating declarations or expressions as references', () => {

@@ -194,7 +194,7 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
     inputPaths.add(path);
     loading.add(path);
     try {
-      const actual = await realpath(path); if (!within(containmentRoot, actual)) return;
+      const actual = await realpath(path); if (!within(containmentRoot, actual)) { complete = false; return; }
       configuredPaths.add(path);
       const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
       const extension = path.split('.').at(-1)?.toLowerCase();
@@ -206,12 +206,14 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
         : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source, options.environment) : [];
       parameters.push(...parameterDeclarations.map((parameter) => ({ ...parameter, id: parameter.value, uri })));
       for (const imported of facts.imports ?? []) {
-        const candidate = importedConfig(root, path, imported.resource, roots); if (!candidate) continue;
+        const candidate = importedConfig(root, path, imported.resource, roots); if (!candidate) { complete = false; continue; }
         const realContainment = candidate.containmentRoot === root ? actualRoot : candidate.containmentRoot;
         await load(candidate.path, depth + 1, realContainment);
       }
       catalog.push(...expandSymfonyServiceResources(facts, [...options.projectTypes])); loaded.add(path);
-    } catch { /* Conventional and imported configuration files are optional. */ }
+    } catch (error) {
+      if (depth > 0 || (error as NodeJS.ErrnoException).code !== 'ENOENT') complete = false;
+    }
     finally { loading.delete(path); }
   };
   for (const filename of [...XML_CONFIGS, ...YAML_CONFIGS, ...PHP_CONFIGS]) await load(resolve(root, filename));

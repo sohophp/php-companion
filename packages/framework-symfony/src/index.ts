@@ -2176,19 +2176,23 @@ export function symfonyPhpParameterReferencePrefixAt(parser: PhpSyntaxParser, so
 export function analyzeSymfonyServiceYaml(uri: string, source: string, environment?: string): SymfonyServiceDocumentFacts {
   const document = parseDocument(source, { prettyErrors: false, uniqueKeys: true });
   const active = activeYamlConfigurationMaps(document.contents, environment);
+  let importsComplete = true;
   const imports = active.maps.flatMap((map): SymfonyServiceImportFact[] => {
     const importsNode = mapValue(map, 'imports');
-    return isSeq(importsNode) ? importsNode.items.flatMap((item): SymfonyServiceImportFact[] => {
-      if (!isMap(item)) return [];
+    if (!importsNode) return [];
+    if (!isSeq(importsNode)) { importsComplete = false; return []; }
+    return importsNode.items.flatMap((item): SymfonyServiceImportFact[] => {
+      if (!isMap(item)) { importsComplete = false; return []; }
       const resourceNode = mapValue(item, 'resource'); const resource = scalarValue(resourceNode);
       const range = resourceNode && scalarRange(resourceNode, source);
-      return typeof resource === 'string' && !resource.includes('%') && range
-        ? [{ resource, uri, start: range.start, end: range.end }] : [];
-    }) : [];
+      if (typeof resource === 'string' && !resource.includes('%') && range)
+        return [{ resource, uri, start: range.start, end: range.end }];
+      importsComplete = false; return [];
+    });
   });
   const serviceMaps = active.maps.flatMap((map) => serviceMap(map) ?? []);
   if (document.errors.length || !active.complete || !serviceMaps.length) return {
-    complete: document.errors.length === 0 && active.complete, services: [], resources: [], imports,
+    complete: document.errors.length === 0 && active.complete && importsComplete, services: [], resources: [], imports,
   };
   const raw = new Map<string, { id: string; className?: string; alias?: string; public: boolean; autowire: boolean; autowireComplete: boolean; bindings: SymfonyAutowireBinding[]; configuredCalls: string[]; callsComplete: boolean; configuredProperties: string[]; propertiesComplete: boolean; eventListeners: SymfonyEventListenerTagFact[]; uri: string; start: number; end: number }>();
   const resources: SymfonyServiceResourceFact[] = [];
@@ -2257,7 +2261,7 @@ export function analyzeSymfonyServiceYaml(uri: string, source: string, environme
     visited.add(service.alias); const target = raw.get(service.alias);
     return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias.replace(/^\\/, '') : undefined;
   };
-  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+  return { complete: importsComplete, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
     return className ? [{ ...service, className, origin: 'explicit',
       registrationUri: service.uri, registrationStart: service.start, registrationEnd: service.end }] : [];
