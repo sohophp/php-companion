@@ -18,3 +18,9 @@ $printer->render();
 $closure = function (Other $printer): void {
     $printer->render();
 };
+
+$flag = random_int(0, 1) === 1;
+if ($flag) {
+    $maybe = new Printer();
+}
+$maybe->render();

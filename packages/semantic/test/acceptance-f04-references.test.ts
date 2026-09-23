@@ -53,6 +53,8 @@ describe('F04 method and function References acceptance fixtures', () => {
       expect(workspace.references(uri, declarationStart, false)).toEqual([
         { uri, start: firstCallStart, end: firstCallStart + 'render'.length },
       ]);
+      const conditionalCall = source.indexOf('$maybe->render()') + '$maybe->'.length;
+      expect(workspace.memberAt(uri, conditionalCall + 1)).toBeUndefined();
       const snapshot = workspace.snapshot(uri)!;
       expect(workspace.restore({ ...snapshot, schema: 81 }, uri)).toBe(false);
       workspace.remove(uri);
