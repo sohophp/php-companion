@@ -7902,9 +7902,19 @@ use const Vendor\\ACTIVE;
       expect(parsed.errors).toEqual([]);
       parsed.tree.delete();
     }
-    const contextual = '<?php namespace App; class Contextual { public function make(): self { return $this; } }';
+    const contextual = `<?php namespace App; class Contextual {
+      const LIMIT = 1;
+      public function make(self $input, int $limit = self::LIMIT, string $label = 'self'): self { return $input; }
+    }`;
     workspace.update(uri, contextual, true);
-    expect(workspace.extractInterface(uri, contextual.indexOf('Contextual') + 1)).toBeUndefined();
+    const contextualInterface = workspace.extractInterface(uri, contextual.indexOf('Contextual') + 1)?.interfaceSource;
+    expect(contextualInterface).toContain("public function make(\\App\\Contextual $input, int $limit = \\App\\Contextual::LIMIT, string $label = 'self'): \\App\\Contextual;");
+    const parentType = '<?php namespace App; class Base {} class Child extends Base { public function make(parent $input): void {} }';
+    workspace.update(uri, parentType, true);
+    expect(workspace.extractInterface(uri, parentType.indexOf('Child') + 1)).toBeUndefined();
+    const lateType = '<?php namespace App; class Late { public function make(): static { return $this; } }';
+    workspace.update(uri, lateType, true);
+    expect(workspace.extractInterface(uri, lateType.indexOf('Late') + 1)).toBeUndefined();
     const imported = '<?php namespace App; use Vendor\\Item; class Imported { public function make(Item $item): void {} }';
     workspace.update(uri, imported, true);
     expect(workspace.extractInterface(uri, imported.indexOf('Imported') + 1)?.interfaceSource)

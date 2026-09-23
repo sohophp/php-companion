@@ -2142,8 +2142,21 @@ export class SemanticWorkspace {
       const header = file.source.slice(node.startIndex, methodBody.startIndex);
       const keyword = /\bfunction\b/u.exec(header);
       if (!keyword || header.includes('#[')) return undefined;
-      const signature = header.slice(keyword.index).trimEnd();
-      if (/\b(?:self|parent|static)\b/iu.test(signature)) return undefined;
+      const signatureStart = node.startIndex + keyword.index;
+      let signature = file.source.slice(signatureStart, methodBody.startIndex).trimEnd();
+      const contextualReferences = file.typeReferences.filter((reference) => reference.start >= signatureStart
+        && reference.end <= signatureStart + signature.length && /^(?:self|parent|static)$/iu.test(file.source.slice(reference.start, reference.end)));
+      if (contextualReferences.some((reference) => !/^self$/iu.test(file.source.slice(reference.start, reference.end)))) return undefined;
+      for (const match of signature.matchAll(/\b(?:self|parent|static)\b/giu)) {
+        const start = signatureStart + match.index; const end = start + match[0].length;
+        if (file.stringRanges.some((range) => start >= range.start && end <= range.end)
+          || file.commentRanges.some((range) => start >= range.start && end <= range.end)) continue;
+        if (!contextualReferences.some((reference) => reference.start === start && reference.end === end)) return undefined;
+      }
+      for (const reference of contextualReferences.sort((left, right) => right.start - left.start)) {
+        const start = reference.start - signatureStart; const end = reference.end - signatureStart;
+        signature = `${signature.slice(0, start)}\\${declaration.fqcn}${signature.slice(end)}`;
+      }
       signatures.push(`    public ${method.static ? 'static ' : ''}${signature};`);
     }
     if (!signatures.length) return undefined;

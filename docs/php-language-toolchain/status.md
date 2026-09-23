@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P7 Extract Interface `self` 支持：签名里经解析器证明的 `self` 类型和 `self::` 常量接收者改写为原类绝对 FQCN，字符串字面量不改；`parent`/`static` 继续拒绝。语义包 301 项、类型检查、ESLint 和 VS Code 1.138.0 打包宿主应用/Undo/Redo 通过；直接生成的双文件在 PHP 7.2/8.5 下通过语法检查、加载与调用。此源码晚于 `0cd78268` 私有候选，仍需重新冻结。
+
 2026-09-23 P7 Extract Interface import 支持：新接口现在原样复制类所在词法 namespace 的 `use` 语句，保留别名与分组 import；不同 namespace 的语句不会混入，别名与新接口名冲突则拒绝。语义包 301 项测试、类型检查、ESLint、带真实别名签名的打包编辑器应用/Undo/Redo，以及 PHP 7.2/8.5 生成代码加载调用均通过；已纳入下述 `0cd78268` 候选。
 
 2026-09-23 P7 新增首个 Extract Interface 支持域：从唯一 PSR-4 类文件提取直接声明的公开非魔术方法原生签名，创建同 namespace 接口文件并更新类 `implements`。语义用例覆盖生成后的双文件语法、已有接口列表、上下文类型/别名冲突拒绝及目标符号冲突；VS Code 1.138.0 打包扩展宿主已验证实际应用与一次 Undo/Redo，PHP 7.2/8.5 语法检查通过。详见[Extract Interface 报告](reports/p7-extract-interface-2026-09-23.md)。P7 提取接口通用范围及移动成员仍开放；已纳入下述 `0cd78268` 私有候选。
