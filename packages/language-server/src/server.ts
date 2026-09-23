@@ -4410,8 +4410,23 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
       if (target) return [{ uri: implementation.uri, range: { start: target.positionAt(implementation.start), end: target.positionAt(implementation.end) } }];
     }
   }
-  let locations = workspace.definition(document.uri, offset);
   const root = rootForUri(document.uri);
+  const declaration = document.languageId === 'php' ? workspace.referenceMemberAt(document.uri, offset) : undefined;
+  if (root && declaration?.kind === 'method' && declaration.uri === document.uri
+    && offset >= declaration.start && offset < declaration.end) {
+    let owners = [declaration.fqcn.split('::')[0]!];
+    const visited = new Set<string>();
+    for (let depth = 0; depth < 4 && owners.length && !token.isCancellationRequested; depth += 1) {
+      const dependencies = [...new Set(owners.flatMap((owner) => workspace.directDeclarationDependencies(owner)))]
+        .filter((fqcn) => !visited.has(fqcn.toLowerCase()));
+      dependencies.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
+      if (!dependencies.length) break;
+      await hydrateCanonicalTypes(workspace, root, dependencies, true);
+      owners = dependencies;
+    }
+  }
+  if (token.isCancellationRequested) return [];
+  let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
     for (let depth = 0; depth < 4 && !locations.length && !token.isCancellationRequested; depth += 1) {
       const loaded = await hydrateCanonicalTypes(workspace, root, [

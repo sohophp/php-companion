@@ -3719,6 +3719,48 @@ describe('conservative semantic workspace', () => {
     expect(workspace.referenceMemberAt('file:///One.php', workspace.source('file:///One.php')!.indexOf('run') + 1)?.fqcn).toBe('App\\One::run');
     expect(workspace.referenceMemberAt('file:///Calls.php', source.indexOf('run();') + 1)?.fqcn).toBe('App\\One::run');
   });
+  it('offers method declarations as definition targets and includes overridden base methods', () => {
+    const local = new SemanticWorkspace(parser);
+    const singleUri = 'file:///SingleMethod.php';
+    const single = '<?php class ReadEntity {} final class SingleMethod extends ReadEntity { public static function fromTranslation(): self { return new self(); } } SingleMethod::fromTranslation();';
+    local.update(singleUri, single);
+    const singleDeclaration = single.indexOf('fromTranslation') + 1;
+    const singleCall = single.lastIndexOf('fromTranslation') + 1;
+    expect(local.definition(singleUri, singleDeclaration)).toMatchObject([{ uri: singleUri, start: single.indexOf('fromTranslation') }]);
+    expect(local.definition(singleUri, singleCall)).toMatchObject([{ uri: singleUri, start: single.indexOf('fromTranslation') }]);
+
+    const baseUri = 'file:///BaseMethod.php';
+    const childUri = 'file:///ChildMethod.php';
+    const base = '<?php class BaseMethod { protected function elements(): void {} }';
+    const child = '<?php class ChildMethod extends BaseMethod { protected function elements(): void {} }';
+    local.update(baseUri, base);
+    local.update(childUri, child);
+    expect(local.definition(childUri, child.indexOf('elements') + 1)).toMatchObject([
+      { uri: baseUri, start: base.indexOf('elements') },
+      { uri: childUri, start: child.indexOf('elements') },
+    ]);
+
+    const contractUri = 'file:///PageContract.php';
+    const implementationUri = 'file:///PageImplementation.php';
+    const contract = '<?php interface PageContract { public function render(): void; }';
+    const implementation = '<?php class PageImplementation implements PageContract { public function render(): void {} }';
+    local.update(contractUri, contract);
+    local.update(implementationUri, implementation);
+    expect(local.definition(implementationUri, implementation.indexOf('render') + 1)).toMatchObject([
+      { uri: contractUri, start: contract.indexOf('render') },
+      { uri: implementationUri, start: implementation.indexOf('render') },
+    ]);
+
+    const privateUri = 'file:///PrivateMethod.php';
+    const privateBase = '<?php class PrivateBase { private function hidden(): void {} }';
+    const privateChild = '<?php class PrivateChild extends PrivateBase { public function hidden(): void {} }';
+    local.update(baseUri, privateBase);
+    local.update(privateUri, privateChild);
+    expect(local.definition(privateUri, privateChild.indexOf('hidden') + 1)).toMatchObject([
+      { uri: privateUri, start: privateChild.indexOf('hidden') },
+    ]);
+    local.dispose();
+  });
   it('skips syntax trees for method accesses with incompatible staticness', () => {
     const isolated = new SemanticWorkspace(parser);
     const instanceUri = 'file:///StaticFilterInstance.php';

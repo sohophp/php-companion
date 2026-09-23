@@ -7313,4 +7313,44 @@ function run(string $input): void {
       expect((await output.waitFor((message) => message.id === 211)).result).toEqual([]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+  it('returns a self target for a method declaration and base plus current targets for an override', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-declaration-navigation-'));
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const base = '<?php namespace App; class BasePage { protected function elements(): void {} }';
+      const child = '<?php namespace App; class ChildPage extends BasePage { protected function elements(): void {} }';
+      const single = '<?php namespace App; class ReadEntity {} final class SolutionIndexPageReadEntity extends ReadEntity { public static function fromTranslation(): self { return new self(); } }';
+      const baseUri = pathToFileURL(join(root, 'src', 'BasePage.php')).toString();
+      const childUri = pathToFileURL(join(root, 'src', 'ChildPage.php')).toString();
+      const singleUri = pathToFileURL(join(root, 'src', 'SolutionIndexPageReadEntity.php')).toString();
+      await writeFile(join(root, 'src', 'BasePage.php'), base);
+      await writeFile(join(root, 'src', 'ChildPage.php'), child);
+      await writeFile(join(root, 'src', 'SolutionIndexPageReadEntity.php'), single);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 300, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+      } }));
+      await output.waitFor((message) => message.id === 300);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      for (const [uri, source] of [[childUri, child], [singleUri, single]]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 301, method: 'textDocument/definition', params: {
+        textDocument: { uri: singleUri }, position: lspPosition(single, single.indexOf('fromTranslation') + 1),
+      } }));
+      expect((await output.waitFor((message) => message.id === 301)).result).toMatchObject([{ uri: singleUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 302, method: 'textDocument/definition', params: {
+        textDocument: { uri: childUri }, position: lspPosition(child, child.indexOf('elements') + 1),
+      } }));
+      expect((await output.waitFor((message) => message.id === 302)).result).toMatchObject([
+        { uri: baseUri }, { uri: childUri },
+      ]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
 });

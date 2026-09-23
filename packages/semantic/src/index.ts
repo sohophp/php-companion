@@ -5025,13 +5025,25 @@ export class SemanticWorkspace {
   }
 
   private definitionWithImplementation(uri: string, offset: number): SemanticLocation[] {
+    const file = this.files.get(uri);
+    const declaredMethod = file?.callables.find((item) => item.kind === 'method' && offset >= item.start && offset < item.end);
+    if (declaredMethod?.containerFqcn) {
+      const current = this.memberDeclarationAt(uri, offset);
+      if (current?.kind === 'method') {
+        const bases = this.directDeclarationDependencies(declaredMethod.containerFqcn).flatMap((fqcn) =>
+          this.members(fqcn, declaredMethod.containerFqcn).filter((member) => member.kind === 'method'
+            && member.visibility !== 'private' && member.name.toLowerCase() === current.name.toLowerCase()
+            && member.static === current.static));
+        return [...new Map([...bases, current].map((member) =>
+          [`${member.uri}:${member.start}:${member.end}`, { uri: member.uri, start: member.start, end: member.end }])).values()];
+      }
+    }
     const members = this.membersAt(uri, offset);
     if (members.length) return members;
     const callable = this.functionAt(uri, offset);
     if (callable) return [callable];
     const constant = this.constantAt(uri, offset);
     if (constant) return [constant];
-    const file = this.files.get(uri);
     const word = file && wordAt(file.source, offset);
     if (!file || !word) return [];
     // A syntactic member access whose receiver cannot be proven must stay
