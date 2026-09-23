@@ -1458,7 +1458,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.member.non-static-access',
       source: 'PHP Companion',
-      message: `Cannot access non-static ${member.kind} ${member.ownerFqcn}::${member.name} statically.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'nonStaticMember', member.kind, member.ownerFqcn, member.name),
     })));
     result.diagnostics.push(...workspace.inaccessibleMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
@@ -1494,7 +1494,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.member.possibly-null',
       source: 'PHP Companion',
-      message: `${member.ownerFqcn} may be null; use null-safe access or prove the value is non-null before accessing ${member.name}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'nullableMember', member.ownerFqcn, member.name),
       data: { operatorStart: member.operatorStart, operatorEnd: member.operatorEnd },
     })));
     result.diagnostics.push(...workspace.phpDocTypeConflicts(document.uri).map((conflict) => ({
@@ -1509,35 +1509,36 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.missing-required',
       source: 'PHP Companion',
-      message: `${call.callable} is missing required argument${call.parameters.length === 1 ? '' : 's'}: ${call.parameters.map((name) => `$${name}`).join(', ')}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
+        call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
     })));
     result.diagnostics.push(...workspace.incompatibleArguments(document.uri).map((argument) => ({
       range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.type-mismatch',
       source: 'PHP Companion',
-      message: `${argument.callable} expects $${argument.parameter} to be ${argument.expectedType}; proven argument type is ${argument.actualType}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
     result.diagnostics.push(...workspace.incompatibleReturns(document.uri).map((returned) => ({
       range: { start: document.positionAt(returned.start), end: document.positionAt(returned.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.return.type-mismatch',
       source: 'PHP Companion',
-      message: `${returned.callable} declares ${returned.expectedType} but the proven return is ${returned.actualType}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'returnTypeMismatch', returned.callable, returned.expectedType, returned.actualType),
     })));
     result.diagnostics.push(...workspace.incompatibleAssignments(document.uri).map((assignment) => ({
       range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.assignment.type-mismatch',
       source: 'PHP Companion',
-      message: `$${assignment.variable} is declared as ${assignment.expectedType}; proven assigned type is ${assignment.actualType}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'assignmentTypeMismatch', assignment.variable, assignment.expectedType, assignment.actualType),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.dynamicPropertyCreations(document.uri).map((property) => ({
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
       severity: DiagnosticSeverity.Warning,
       code: 'php.property.dynamic-deprecated',
       source: 'PHP Companion',
-      message: `Creation of dynamic property ${property.ownerFqcn}::$${property.name} is deprecated in PHP 8.2 and newer.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'dynamicProperty', property.ownerFqcn, property.name),
     })));
     result.diagnostics.push(...workspace.readonlyPropertyAssignments(document.uri)
       .filter((assignment) => SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(assignment.minimumPhpVersion)).map((assignment) => ({
@@ -1547,14 +1548,14 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       source: 'PHP Companion',
       message: assignment.operation === 'reference-iteration'
         ? `Cannot iterate ${assignment.ownerFqcn} by reference because these visible properties are already initialized and readonly: ${(assignment.propertyNames ?? [assignment.name]).map((name) => `$${name}`).join(', ')}.`
-        : `Cannot modify readonly property ${assignment.ownerFqcn}::$${assignment.name} from this scope.`,
+        : diagnosticMessage(clientDiagnosticLanguage, 'readonlyPropertyModify', assignment.ownerFqcn, assignment.name),
       })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.unknown-named',
       source: 'PHP Companion',
-      message: `${call.callable} has no parameter named $${call.name}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri).map((problem) => ({
       range: { start: document.positionAt(problem.start), end: document.positionAt(problem.end) },
@@ -1562,22 +1563,23 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       code: `php.argument.${problem.kind}`,
       source: 'PHP Companion',
       message: problem.kind === 'duplicate-named'
-        ? `Named argument $${problem.name} is supplied more than once.`
-        : problem.kind === 'unpack-after-named' ? 'Argument unpacking cannot follow a named argument.' : 'A positional argument cannot follow a named argument.',
+        ? diagnosticMessage(clientDiagnosticLanguage, 'duplicateNamedArgument', String(problem.name))
+        : problem.kind === 'unpack-after-named' ? diagnosticMessage(clientDiagnosticLanguage, 'unpackAfterNamed')
+          : diagnosticMessage(clientDiagnosticLanguage, 'positionalAfterNamed'),
     })));
     result.diagnostics.push(...workspace.missingInterfaceImplementations(document.uri).filter((item) => !item.abstract).map((item) => ({
       range: { start: document.positionAt(item.classStart), end: document.positionAt(item.classEnd) },
       severity: DiagnosticSeverity.Error,
       code: 'php.interface.missing-method',
       source: 'PHP Companion',
-      message: `${item.classFqcn} must implement ${item.methods.map((method) => method.name).join(', ')}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'missingInterfaceMethods', item.classFqcn, item.methods.map((method) => method.name).join(', ')),
     })));
     result.diagnostics.push(...workspace.missingAbstractImplementations(document.uri).filter((item) => !item.abstract).map((item) => ({
       range: { start: document.positionAt(item.classStart), end: document.positionAt(item.classEnd) },
       severity: DiagnosticSeverity.Error,
       code: 'php.class.missing-abstract-method',
       source: 'PHP Companion',
-      message: `${item.classFqcn} must implement abstract ${item.methods.map((method) => method.name).join(', ')}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'missingAbstractMethods', item.classFqcn, item.methods.map((method) => method.name).join(', ')),
     })));
     result.diagnostics.push(...workspace.incompatibleMethodOverrides(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },

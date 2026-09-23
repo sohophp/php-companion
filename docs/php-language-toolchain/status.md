@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F14 Language Server 类型与调用诊断本地化：缺参、实参/返回/赋值类型、命名实参顺序、可能为空的成员、动态/只读属性及缺失实现等结构化诊断已使用英中文案；打包简体中文宿主实际收到中文缺参诊断。覆盖范围与剩余术语见[类型与调用诊断报告](reports/f14-language-server-flow-diagnostics-2026-09-23.md)。F14 仍开放。
+
 2026-09-23 F14 Language Server 常见诊断本地化：LSP `initialize.locale` 已驱动语法、目标版本、文件名、import、变量及基础未解析符号诊断的英中文案，诊断代码和数据保持稳定。定向测试与简体中文打包宿主已验证；覆盖范围和其余未迁移文案见[Language Server 诊断报告](reports/f14-language-server-diagnostics-2026-09-23.md)。F14 仍开放。
 
 2026-09-23 F14 旧 Profile 设置兼容：Paste 的 `pasteImports.mode` 与 Rename 的 `rename.syncFileName` 已按旧值映射到当前行为，新键显式值优先；保留原设置以便回退。映射、无法自动迁移的设置及验证边界见[旧 Profile 设置兼容报告](reports/f14-profile-settings-migration-2026-09-23.md)。F14 最终验收仍开放。

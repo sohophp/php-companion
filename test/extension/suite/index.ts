@@ -30,6 +30,10 @@ async function verifyLocalizedDiagnostics(workspace: vscode.WorkspaceFolder): Pr
   await vscode.window.showTextDocument(document);
   await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(uri).some((item) => item.code === 'php.syntax'
     && item.message === '此处 PHP 语法不完整或无效。')), 'Packaged Language Server did not publish a localized syntax diagnostic', 30_000, 100);
+  const memberUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'MemberDiagnosticConsumer.php');
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(memberUri));
+  await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(memberUri).some((item) => item.code === 'php.argument.missing-required'
+    && item.message.includes('缺少必需参数'))), 'Packaged Language Server did not publish a localized argument diagnostic', 30_000, 100);
 }
 
 async function verifyLegacyProfileSettings(workspace: vscode.WorkspaceFolder): Promise<void> {

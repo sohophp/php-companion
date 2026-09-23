@@ -10,4 +10,16 @@ describe('Language Server diagnostic localization', () => {
     expect(diagnosticMessage('en', 'filename', 'Widget')).toBe('Primary type Widget should be declared in Widget.php.');
     expect(diagnosticMessage('zh', 'undefinedVariable', 'item')).toBe('变量 $item 在此处确定未定义。');
   });
+
+  it('keeps diagnostic identities and English wording while translating call errors', () => {
+    expect(diagnosticMessage('en', 'missingArgument', 'App\\Service::run', '$name'))
+      .toBe('App\\Service::run is missing required argument: $name.');
+    expect(diagnosticMessage('en', 'argumentTypeMismatch', 'App\\Service::run', 'name', 'string', 'int'))
+      .toBe('App\\Service::run expects $name to be string; proven argument type is int.');
+    expect(diagnosticMessage('zh', 'missingArgument', 'App\\Service::run', '$name'))
+      .toBe('App\\Service::run 缺少必需参数：$name。');
+    expect(diagnosticMessage('zh', 'argumentTypeMismatch', 'App\\Service::run', 'name', 'string', 'int'))
+      .toBe('App\\Service::run 要求参数 $name 的类型为 string；已证明的实参类型为 int。');
+    expect(diagnosticMessage('zh', 'duplicateNamedArgument', 'name')).toBe('命名实参 $name 被提供了多次。');
+  });
 });
