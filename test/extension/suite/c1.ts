@@ -4,14 +4,17 @@ import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUns
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
+  let lastResult: T | undefined;
+  let lastError: unknown;
   while (Date.now() < deadline) {
     try {
       const result = await read();
       if (ready(result)) return result;
-    } catch { /* The language server may still be starting. */ }
+      lastResult = result;
+    } catch (error) { lastError = error; /* The language server may still be starting. */ }
     await new Promise<void>((resolve) => setTimeout(resolve, 100));
   }
-  assert.fail(message);
+  assert.fail(`${message} Last result: ${JSON.stringify(lastResult)}; last error: ${String(lastError)}`);
 }
 
 async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, name: string): Promise<{ median: number; max: number }> {
@@ -648,7 +651,12 @@ function consume(): void { (void) choose(1); }`;
       console.log(`C1 visible vendor suggestion after typing: ${JSON.stringify(vendorSuggestion)}`);
       const switchedSuggestion = await measureUnsavedReceiverSuggestion(Number(c1DebugPort), folder);
       console.log(`C1 visible unsaved receiver switch: ${JSON.stringify(switchedSuggestion)}`);
-      const rapidSuggestion = await measureRapidReceiverSuggestion(Number(c1DebugPort), folder);
+      const rapidRounds = Number(process.env.PHP_COMPANION_TEST_C1_RAPID_ROUNDS ?? 10);
+      assert.ok(Number.isSafeInteger(rapidRounds) && rapidRounds >= 1 && rapidRounds <= 1_000,
+        'PHP_COMPANION_TEST_C1_RAPID_ROUNDS must be an integer from 1 to 1,000.');
+      const rapidSuggestion = await measureRapidReceiverSuggestion(Number(c1DebugPort), folder, rapidRounds);
+      assert.deepStrictEqual(rapidSuggestion.staleRounds, [],
+        'SoPHP showed a method from the previous unsaved receiver type while typing.');
       console.log(`C1 rapid unsaved receiver switch: ${JSON.stringify(rapidSuggestion)}`);
       if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') {
         const realRoot = vscode.workspace.workspaceFolders?.find((entry) => entry.name === 'real-vendor');

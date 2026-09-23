@@ -202,7 +202,7 @@ export async function measureUnsavedReceiverSuggestion(port: number, folder: vsc
   }
 }
 
-export async function measureRapidReceiverSuggestion(port: number, folder: vscode.Uri): Promise<{
+export async function measureRapidReceiverSuggestion(port: number, folder: vscode.Uri, rounds = 10): Promise<{
   samplesMs: number[]; staleRounds: number[]; finalLabels: string[];
 }> {
   const source = '<?php namespace App\\C1; function rapidSwitch(RapidChoiceA $value): void { $value->; }';
@@ -222,7 +222,7 @@ export async function measureRapidReceiverSuggestion(port: number, folder: vscod
     const samplesMs: number[] = [];
     const staleRounds: number[] = [];
     let finalLabels: string[] = [];
-    for (let round = 0; round < 10; round += 1) {
+    for (let round = 0; round < rounds; round += 1) {
       if (round > 0) {
         const current = document.getText();
         const prefixOffset = current.indexOf('$value->ren;') + '$value->'.length;
