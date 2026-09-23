@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "files": 1000,
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "cold": {
+    "durationMs": 2045.14,
+    "parsed": 1000,
+    "restored": 0,
+    "doctrineParsed": 1
+  },
+  "warm": {
+    "durationMs": 638.79,
+    "parsed": 0,
+    "restored": 1000,
+    "doctrineParsed": 0
+  },
+  "warmToColdRatio": 0.3123,
+  "cache": {
+    "cold": {
+      "files": 2,
+      "bytes": 5509808,
+      "mebibytes": 5.25
+    },
+    "warm": {
+      "files": 2,
+      "bytes": 5509808,
+      "mebibytes": 5.25
+    },
+    "frozenBudgetMb": 64
+  },
+  "exactness": {
+    "transitiveDependencyRestored": true,
+    "derivedFactInvalidated": true,
+    "doctrineFactsRestored": true,
+    "callableFactsRestored": 3,
+    "deferredImplementations": 1000,
+    "implementationsLoadedByQuery": 3,
+    "callableImplementationsLoadedByFocusedQuery": [
+      "benchmark\\consumer::inspect"
+    ],
+    "callableImplementationRecords": 1999,
+    "corruptLayerReparsedFiles": 1,
+    "corruptCallableReparsedFiles": 1
+  }
+}

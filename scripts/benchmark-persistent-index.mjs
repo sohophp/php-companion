@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { arch, cpus, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -9,7 +9,7 @@ import { PhpSyntaxParser } from '../packages/parser/dist/index.js';
 import { SemanticWorkspace } from '../packages/semantic/dist/index.js';
 import { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../packages/language-server/dist/projectFacts.js';
 import { CallableFactCache } from '../packages/language-server/dist/callableFactsCache.js';
-import { generatePhpComposerProject } from '../packages/testkit/dist/index.js';
+import { generatePhpComposerProject, R1_PERFORMANCE_BUDGETS } from '../packages/testkit/dist/index.js';
 
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
 const files = Number(arguments_[0] ?? 1_000);
@@ -23,6 +23,19 @@ const base = (initialized) => `<?php namespace Benchmark; use Doctrine\\ORM\\Map
 const middle = '<?php namespace Benchmark; class Middle extends Base {} function middle(): Child { return inner(); }';
 const child = '<?php namespace Benchmark; class Child extends Middle { public function childMethod(): void {} } function outer(): Child { return middle(); }';
 const consumer = "<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); $child->childM; foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } public function untouched(): void {} }";
+
+async function cacheVolume(directory) {
+  let bytes = 0; let files = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      const nested = await cacheVolume(path); bytes += nested.bytes; files += nested.files;
+    } else if (entry.isFile()) { bytes += (await stat(path)).size; files += 1; }
+  }
+  return { files, bytes, mebibytes: Math.round(bytes / 1024 / 1024 * 100) / 100 };
+}
+
+const cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];
 
 async function load(workspace) {
   let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();
@@ -55,6 +68,7 @@ try {
   const coldCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const coldCallableCommit = await coldCallableCache.commit(coldWorkspace, new Set());
   if (!coldCallableCommit.written || coldCallableCommit.facts !== 3) throw new Error(`Cold callable facts were not persisted: ${JSON.stringify(coldCallableCommit)}`);
+  const coldCache = await cacheVolume(cacheDirectory);
   coldWorkspace.dispose();
 
   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);
@@ -69,6 +83,10 @@ try {
   const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);
   const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
   if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
+  const warmCache = await cacheVolume(cacheDirectory);
+  if (cacheBudgetMb !== undefined && warmCache.mebibytes > cacheBudgetMb) {
+    throw new Error(`Warm cache exceeded its frozen budget: ${warmCache.mebibytes} MiB > ${cacheBudgetMb} MiB.`);
+  }
   const completionOffset = consumer.indexOf('$child->childM') + '$child->childM'.length;
   if (!warmWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod'))
     throw new Error('Focused warm completion lost the restored transitive callable result.');
@@ -116,6 +134,7 @@ try {
     cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, doctrineParsed: cold.doctrineParsed },
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
+    cache: { cold: coldCache, warm: warmCache, frozenBudgetMb: cacheBudgetMb ?? null },
     exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, doctrineFactsRestored: true,
       callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
       callableImplementationsLoadedByFocusedQuery,
