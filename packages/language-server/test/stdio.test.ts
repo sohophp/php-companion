@@ -5765,6 +5765,47 @@ echo RANKED_LSP_CONSTANT;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('navigates runtime routes declared after a module-root file through the Winstar provider', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-winstar-route-navigation-'));
+    try {
+      const routesDirectory = join(root, 'src', 'Modules', 'Zulu', 'Routes');
+      await mkdir(routesDirectory, { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Modules', 'README.md'), 'Module notes\n');
+      const declaration = '- name: zulu.route\n  path: /zulu\n';
+      const declarationPath = join(routesDirectory, 'routes.yaml'); const declarationUri = pathToFileURL(declarationPath).toString();
+      await writeFile(declarationPath, declaration);
+      const consolePath = join(root, 'router.mjs');
+      await writeFile(consolePath, "process.stdout.write(JSON.stringify({'zulu.route':{path:'/zulu'}}));\n");
+      const source = `<?php namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } }
+namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $router): void { $router->generate('zulu.route'); } }`;
+      const consumerPath = join(root, 'src', 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
+      await writeFile(consumerPath, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1130, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { routeProviders: [{
+          providerId: 'winstar.routes', command: process.execPath,
+          args: [resolve('../provider-winstar-routes/dist/cli.js'), '--php', process.execPath, '--console', consolePath],
+          timeoutMs: 5000, replacesStaticRoutes: true,
+        }] },
+      } }));
+      await output.waitFor((message) => message.id === 1130);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1131, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('zulu.route') + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 1131)).result).toEqual([{ uri: declarationUri, range: {
+        start: lspPosition(declaration, declaration.indexOf('zulu.route')),
+        end: lspPosition(declaration, declaration.indexOf('zulu.route') + 'zulu.route'.length),
+      } }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('loads fresh complete route-provider snapshots for Symfony route navigation', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-route-provider-'));
     try {

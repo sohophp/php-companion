@@ -20,3 +20,5 @@ Doctrine 静态分析直接读取 `SolutionArticle.php`、`SolutionCategory.php`
 随后通过显式 Winstar Provider 调用项目 `bin/php-runtime bin/console debug:router --format=json --env=dev`；这一步会启动 Symfony Console，与上面的纯静态探针分开记录。当前 Router 返回 690 条路由。发现 `src/Modules/README.md` 会使源码扫描在排序遍历中提前 `break`，导致 `README.md` 之后的模块失去 YAML 来源。改为跳过普通文件后，690 条运行时路由全部保留，其中 477 条有唯一 YAML 来源、213 条只保留运行时名称和路径。在**同一次运行时结果集**中，`README.md` 之后的模块贡献 129 条有源码位置的路由；例如 `admin.SolutionArticles.add` 指向 `src/Modules/Solutions/Routes/admin_defaults.yaml` 中 `SolutionArticles` 的精确范围。历史报告的 704 条路由来自较早项目状态，不能直接用作本次数量差值。
 
 Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核没有打包 VSIX，也没有执行编辑器中的 Definition/References/Rename 操作。
+
+随后补充真实 Language Server stdio 链路测试：临时项目的模块根含 `README.md`，后续 `Zulu/Routes/routes.yaml` 声明 `zulu.route`；独立 Winstar Provider 进程读取模拟的 `debug:router` JSON 后，PHP `RouterInterface::generate('zulu.route')` 的 Definition 返回 YAML 名称的精确范围。该定向测试、Language Server 类型检查和 ESLint 通过。它验证 Provider 到导航的集成，但模拟了 Router 输出，尚不等同 Winstar 编辑器会话中的人工导航验收。
