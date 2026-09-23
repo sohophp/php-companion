@@ -69,6 +69,21 @@ describe('standalone Symfony service provider', () => {
     expect((await collectSymfonyServiceFacts(root, parser, { projectTypes: [] })).complete).toBe(false);
   });
 
+  it('rejects unresolved XML and PHP Configurator imports across the provider graph', async () => {
+    const root = await project();
+    const xml = join(root, 'config', 'services.xml');
+    await writeFile(xml, '<container><imports><import resource="%kernel.project_dir%/dynamic.xml"/></imports></container>');
+    expect((await collectSymfonyServiceFacts(root, parser, { projectTypes: [] })).complete).toBe(false);
+    await rm(xml);
+    const php = join(root, 'config', 'services.php');
+    await writeFile(php, `<?php
+use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
+return static function (ContainerConfigurator $container): void {
+  $container->import('%kernel.project_dir%/dynamic.php');
+};`);
+    expect((await collectSymfonyServiceFacts(root, parser, { projectTypes: [] })).complete).toBe(false);
+  });
+
   it('F09-SVC-03 rejects an authoritative snapshot when service YAML is incomplete', async () => {
     const root = await project(); const config = join(root, 'config', 'services.yaml');
     const source = await readFile(new URL('../../../framework-symfony/test/fixtures/acceptance/f09-service-incomplete.yaml', import.meta.url), 'utf8');

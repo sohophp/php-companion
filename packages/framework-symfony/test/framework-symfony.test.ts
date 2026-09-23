@@ -519,7 +519,6 @@ when@prod:
       <container xmlns="http://symfony.com/schema/dic/services">
         <imports>
           <import resource="services/mailer.yaml"/>
-          <import resource="%kernel.project_dir%/dynamic.xml"/>
         </imports>
         <services>
           <!-- <service id="comment.injected" class="App\\Injected"/> -->
@@ -573,6 +572,7 @@ when@prod:
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><when env="dev"><services/></when></container>').complete).toBe(true);
     expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="child.yaml"/></imports></container>').imports)
       .toMatchObject([{ resource: 'child.yaml' }]);
+    expect(analyzeSymfonyServiceXml('file:///services.xml', '<container><imports><import resource="%kernel.project_dir%/dynamic.xml"/></imports></container>').complete).toBe(false);
   });
 
   it('selects exact Symfony XML service environments without leaking inactive declarations or references', () => {
@@ -758,7 +758,6 @@ when@prod:
         $services->set('factory.service', Mailer::class)->factory([Mailer::class, 'create']);
         $services->set('abstract.service', Mailer::class)->abstract();
         $container->import('services/extra.php');
-        $container->import('%kernel.project_dir%/dynamic.php');
         $dynamic = $container->services();
         $dynamic = other();
         $dynamic->set('reassigned.service', Mailer::class);
@@ -767,6 +766,8 @@ when@prod:
       };`;
     const result = analyzeSymfonyServicePhp(parser, 'file:///project/config/services.php', source);
     expect(result.complete).toBe(true);
+    const dynamicImport = source.replace("$container->import('services/extra.php');", "$container->import('%kernel.project_dir%/dynamic.php');");
+    expect(analyzeSymfonyServicePhp(parser, 'file:///project/config/services.php', dynamicImport).complete).toBe(false);
     expect(result.imports).toMatchObject([{ resource: 'services/extra.php' }]);
     expect(result.resources).toMatchObject([{ namespacePrefix: 'App\\', resource: '../src/',
       exclude: ['../src/Entity/', '../src/Kernel.php'], autowire: true,

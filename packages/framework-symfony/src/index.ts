@@ -1310,10 +1310,15 @@ export function analyzeSymfonyServiceXml(uri: string, source: string, environmen
   });
   if (configuration.scopes.some((scope) => ['imports', 'parameters', 'services'].some((name) => children(scope, name).length > 1)))
     return { complete: false, services: [], resources: [] };
-  const servicesRoots = roots('services'); const importsRoots = roots('imports');
-  const imports = importsRoots.flatMap((importsRoot) => children(importsRoot, 'import')).flatMap((element): SymfonyServiceImportFact[] => {
+  const servicesRoots = roots('services'); const importsRoots = roots('imports'); let importsComplete = true;
+  const imports = importsRoots.flatMap((importsRoot) => {
+    const entries = children(importsRoot, 'import');
+    if (entries.length !== children(importsRoot).length) importsComplete = false;
+    return entries;
+  }).flatMap((element): SymfonyServiceImportFact[] => {
     const resource = attribute(element, 'resource');
-    return resource && !resource.value.includes('%') ? [{ resource: resource.value, uri, start: resource.start, end: resource.end }] : [];
+    if (resource && !resource.value.includes('%')) return [{ resource: resource.value, uri, start: resource.start, end: resource.end }];
+    importsComplete = false; return [];
   });
   const parseBindings = (owner: XmlElementRange): { complete: boolean; bindings: SymfonyAutowireBinding[] } => {
     const bindings: SymfonyAutowireBinding[] = [];
@@ -1412,7 +1417,7 @@ export function analyzeSymfonyServiceXml(uri: string, source: string, environmen
     visited.add(service.alias); const target = raw.get(service.alias);
     return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias.replace(/^\\/, '') : undefined;
   };
-  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+  return { complete: importsComplete, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
     return className ? [{ ...service, className, origin: 'explicit', registrationUri: service.uri,
       registrationStart: service.start, registrationEnd: service.end }] : [];
@@ -1782,7 +1787,7 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
   }
   const body = closure.namedChildren.find((node) => node.type === 'compound_statement');
   if (!body) return { complete: false, services: [], resources: [] };
-  const containerVariable = variableNode.text; let containerValid = true;
+  const containerVariable = variableNode.text; let containerValid = true; let importsComplete = true;
   const active = activePhpConfiguratorStatements(body, containerVariable, source, environment);
   if (!active.complete) return { complete: false, services: [], resources: [] };
   const serviceVariables = new Set<string>(); const imports: SymfonyServiceImportFact[] = [];
@@ -1853,6 +1858,7 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
     if (containerValid && candidate.base.text === containerVariable && candidate.calls.length === 1 && candidate.calls[0]!.name === 'import') {
       const resource = phpConfiguratorLiteral(candidate.calls[0]!.args[0]);
       if (resource && !resource.value.includes('%')) imports.push({ resource: resource.value, uri, start: resource.start, end: resource.end });
+      else importsComplete = false;
       continue;
     }
     let calls = candidate.calls;
@@ -1965,7 +1971,7 @@ export function analyzeSymfonyServicePhp(parser: PhpSyntaxParser, uri: string, s
     visited.add(service.alias); const target = raw.get(service.alias);
     return target ? resolveClass(target, visited) : service.alias.includes('\\') ? service.alias : undefined;
   };
-  return { complete: true, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
+  return { complete: importsComplete, resources, imports, services: [...raw.values()].flatMap((service): SymfonyServiceFact[] => {
     const className = resolveClass(service, new Set([service.id]));
     return className ? [{ ...service, className, origin: 'explicit', registrationUri: uri,
       registrationStart: service.start, registrationEnd: service.end }] : [];
