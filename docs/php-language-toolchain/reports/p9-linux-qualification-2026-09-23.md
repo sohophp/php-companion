@@ -7,6 +7,8 @@
 - `pnpm verify:packages`：24 个组件 tarball 在隔离消费者中安装并通过 smoke test。
 - `pnpm check:references:winstar`：当前 Winstar 的 174 处完整 References 位置摘要与新审计基线一致，随后 Definition 唯一且摘要未变。冷查询 9,909 ms。三处因 Winstar `fee022c1` 下移的位置已逐项审计，见[引用基线重审](winstar-reference-baseline-2026-09-23.md)。
 - `pnpm check`：TypeScript、ESLint、组件及扩展测试、四份 VSIX 打包和内容校验通过。Language Server 为 261 项通过、1 项跳过；语义包 300 项通过。
+- `node scripts/audit-real-workspace.mjs <Composer root> 100 10000 <oracle>`：当前 Winstar 与 CoreRepo 只读源码门禁均通过。[Winstar JSON](real-workspace-winstar-p9-2026-09-23.json) 记录 2,292 个项目 PHP 文件、100/100 类型声明及 29.78 ms 引用 P95；[CoreRepo JSON](real-workspace-corerepo-p9-2026-09-23.json) 记录 1,137 个项目文件、100/100 及 29.09 ms。两项目固定补全和 Definition 样本均通过。两者的依赖扫描都因 10,000 文件上限截断，`projectComplete=true`、`complete=false`，不能据此声称 vendor 全集完整。
+- `PHP_COMPANION_TEST_PHP_BINARIES` 指定 CoreRepo `phpbin` 7.2、系统 `php8.1`、Winstar `bin/php-runtime` 8.5 后执行 `pnpm test:integration:php`：3/3 真实 CLI 探测通过。其余 7.3、7.4、8.0、8.2、8.3、8.4 当前机器没有对应可执行文件，本次不计入当前源码的完整九版本矩阵。
 
 ## 冻结性能预算
 
