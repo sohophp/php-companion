@@ -5500,9 +5500,11 @@ export class SemanticWorkspace {
       const separator = argument.nameEnd === undefined ? -1 : callFile.source.indexOf(':', argument.nameEnd);
       const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
       const value = callFile.source.slice(valueStart, argument.end).trim();
-      const safeValue = /^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value)
-        || /^(?:null|true|false|[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|(['"])[\s\S]*\1)$/i.test(value)
-        || /^(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)(?:::[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.test(value);
+      // Removing an argument also removes its evaluation. A variable read can
+      // emit an undefined-variable warning, and a class constant can autoload.
+      // Match only whole scalar literals; quoted prefix/suffix expressions and
+      // interpolated strings must not pass as string literals.
+      const safeValue = /^(?:null|true|false|[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\$])*")$/i.test(value);
       if (!safeValue) return undefined;
       const argumentIndex = call.arguments.indexOf(argument); const previous = call.arguments[argumentIndex - 1]; const next = call.arguments[argumentIndex + 1];
       edits.push({ uri: callFile.uri, start: next ? argument.start : previous?.end ?? argument.start, end: next?.start ?? argument.end });

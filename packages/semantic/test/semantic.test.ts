@@ -7846,6 +7846,11 @@ use const Vendor\\ACTIVE;
     workspace.update(uri, effectful, true);
     const effectfulOffset = effectful.indexOf('int $unused,') + 'int '.length;
     expect(workspace.removeUnusedPrivateParameter(uri, effectfulOffset)).toBeUndefined();
+    for (const argument of ['$undefinedValue', 'LazyValue::ITEM', '"prefix $undefinedValue"', "'a' . sideEffect() . 'b'"]) {
+      const unsafe = source.replace("$this->format('a', 1, 'b')", `$this->format('a', ${argument}, 'b')`);
+      workspace.update(uri, unsafe, true);
+      expect(workspace.removeUnusedPrivateParameter(uri, unsafe.indexOf('int $unused,') + 'int '.length)).toBeUndefined();
+    }
     workspace.remove(uri);
   });
   it('plans extract-variable only for whole RHS or return expressions in statement blocks', () => {
