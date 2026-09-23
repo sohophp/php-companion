@@ -3942,6 +3942,27 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('starts Chinese PHP indexing progress in a supported client', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-progress-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      await writeFile(join(root, 'Entry.php'), '<?php namespace App; class Entry {}');
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 138, method: 'initialize', params: {
+        processId: null, capabilities: { window: { workDoneProgress: true } }, rootUri: pathToFileURL(root).toString(),
+        locale: 'zh-CN', initializationOptions: { phpVersion: '8.5', indexingMode: 'progressive' },
+      } }));
+      await output.waitFor((message) => message.id === 138);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const create = await output.waitFor((message) => message.method === 'window/workDoneProgress/create');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: create.id, result: null }));
+      const begin = await output.waitFor((message) => message.method === '$/progress'
+        && message.params.token === create.params.token && message.params.value.kind === 'begin');
+      expect(begin.params.value).toMatchObject({ title: '准备 PHP 引用', message: '发现 Composer 项目' });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('publishes proven missing-member diagnostics after a complete project index', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-unresolved-member-'));
     try {

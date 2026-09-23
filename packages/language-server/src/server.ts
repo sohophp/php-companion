@@ -33,6 +33,7 @@ import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_
 import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDeprecatedKind, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { codeActionTitle } from './codeActionMessages.js';
 import { protocolMessage } from './protocolMessages.js';
+import { progressMessage } from './progressMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -1830,7 +1831,8 @@ async function expectedNamespace(uri: string): Promise<string | undefined> {
 async function indexWorkspace(generation: number): Promise<void> {
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
   const shouldContinue = (): boolean => generation === indexingGeneration && progress?.token.isCancellationRequested !== true;
-  progress?.begin(indexingMode === 'progressive' ? 'Preparing PHP references' : 'Indexing PHP symbols', 0, 'Discovering Composer projects', true);
+  progress?.begin(progressMessage(clientDiagnosticLanguage, indexingMode === 'progressive' ? 'prepareReferences' : 'indexSymbols'), 0,
+    progressMessage(clientDiagnosticLanguage, 'discoverProjects'), true);
   try {
     const discoveries = await Promise.all(workspaceFolderRoots.map((root) => discoverComposerRoots(root, { shouldContinue })));
     if (!shouldContinue()) return;
@@ -1854,17 +1856,20 @@ async function indexWorkspace(generation: number): Promise<void> {
     }
     for (const [index, root] of workspaceRoots.entries()) {
       if (!shouldContinue()) return;
-      progress?.report(Math.round(10 + (index / Math.max(1, workspaceRoots.length)) * 85), `Indexing ${root}`);
+      progress?.report(Math.round(10 + (index / Math.max(1, workspaceRoots.length)) * 85),
+        progressMessage(clientDiagnosticLanguage, 'indexRoot', root));
       let lastProgress = 0;
       await indexRoot(await semanticForRoot(root), root, generation, shouldContinue, (state) => {
         if (Date.now() - lastProgress < 250 && state.files !== state.total) return;
         lastProgress = Date.now();
         const ratio = state.files / Math.max(1, state.total);
         const percentage = state.phase === 'project' ? 10 + ratio * 50 : 60 + ratio * 35;
-        progress?.report(Math.min(95, Math.round(percentage)), `${state.phase}: ${state.files}/${state.total} files, ${state.cached} cached`);
+        progress?.report(Math.min(95, Math.round(percentage)), progressMessage(clientDiagnosticLanguage, 'indexState',
+          progressMessage(clientDiagnosticLanguage, state.phase === 'project' ? 'projectPhase' : 'dependenciesPhase'),
+          String(state.files), String(state.total), String(state.cached)));
       });
     }
-    if (shouldContinue()) progress?.report(100, 'PHP symbol index ready');
+    if (shouldContinue()) progress?.report(100, progressMessage(clientDiagnosticLanguage, 'indexReady'));
   } finally {
     try { await applyPendingFiles(); pendingRoots.clear(); } finally { scanFilesByRoot.clear(); progress?.done(); }
   }
@@ -2261,7 +2266,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     }
   };
   const progress = showProgress && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
-  progress?.begin('Preparing PHP symbol query', 0, 'Finding candidate files', true);
+  progress?.begin(progressMessage(clientDiagnosticLanguage, 'prepareQuery'), 0,
+    progressMessage(clientDiagnosticLanguage, 'findCandidates'), true);
   try {
   const project = await composerProjectForRoot(root);
   const light = referenceLightSummaries.get(root);
@@ -2282,7 +2288,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       return true;
     } : undefined,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
-    onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
+    onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100),
+      progressMessage(clientDiagnosticLanguage, 'fileCount', String(state.files), String(state.total))); },
     prepareSource: prepareInWorkers ? ({ uri, path, source, hash }): Promise<PreparedCandidate | undefined> => {
       const cachedLight = usableLight?.get(resolve(path));
       if (!documents.get(uri) && cachedLight?.hash === hash && sourceCandidateSummaryDecision(cachedLight.summary, names,
@@ -2690,13 +2697,15 @@ async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, 
     'Symfony\\Component\\DependencyInjection\\ContainerInterface',
   ]);
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
-  progress?.begin('Finding Symfony service references', 0, 'Scanning project PHP service usages', true);
+  progress?.begin(progressMessage(clientDiagnosticLanguage, 'findServiceReferences'), 0,
+    progressMessage(clientDiagnosticLanguage, 'scanServiceUsages'), true);
   try {
     const scan = await indexComposerSources(root, {
       project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
       shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true,
       uriForPath: (file) => indexedUriForPath(root, file),
-      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
+      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100),
+        progressMessage(clientDiagnosticLanguage, 'fileCount', String(state.files), String(state.total))); },
       onSource: ({ uri, source }) => {
         const effective = documents.get(uri)?.getText() ?? source;
         const summary = createSourceCandidateSummary(source);
@@ -2749,13 +2758,15 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
   const workspace = await semanticForRoot(root);
   const scopes = new Map<string, { uri: string; source: string; snapshotVersion: string }>();
   const progress = supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
-  progress?.begin('Finding Symfony controller contexts', 0, 'Scanning project render calls', true);
+  progress?.begin(progressMessage(clientDiagnosticLanguage, 'findControllerContexts'), 0,
+    progressMessage(clientDiagnosticLanguage, 'scanRenderCalls'), true);
   try {
     const scan = await indexComposerSources(root, {
       project: await composerProjectForRoot(root), includeDependencies: false, limits: indexLimits, readConcurrency: 32,
       shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true,
       uriForPath: (file) => indexedUriForPath(root, file),
-      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100), `${state.files}/${state.total} files`); },
+      onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100),
+        progressMessage(clientDiagnosticLanguage, 'fileCount', String(state.files), String(state.total))); },
       onSource: ({ uri, source }) => {
         const summary = createSourceCandidateSummary(source);
         const open = documents.get(uri); const effective = open?.getText() ?? source;
