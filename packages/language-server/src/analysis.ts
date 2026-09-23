@@ -2,6 +2,7 @@ import type { ParsedParameter, PhpSyntaxParser, SourceRange } from '@php-compani
 import { DiagnosticSeverity, SymbolKind, type Diagnostic, type DocumentSymbol, type Range } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { invalidConstantExpressionCallables, isSyntaxAvailable, unsupportedSyntax, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 
 export interface PhpDocumentAnalysis {
   diagnostics: Diagnostic[];
@@ -635,7 +636,7 @@ function invalidNativeTypeDeclarations(root: ReturnType<PhpSyntaxParser['parse']
 }
 
 export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxParser, targetVersion: SupportedPhpVersion = '8.5', expectedNamespace?: string,
-  terminatingCalls: SourceRange[] = []): PhpDocumentAnalysis {
+  terminatingCalls: SourceRange[] = [], language: DiagnosticLanguage = 'en'): PhpDocumentAnalysis {
   const parsed = parser.parse(document.getText());
   try {
     const source = document.getText();
@@ -709,12 +710,12 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         severity: DiagnosticSeverity.Error,
         code: 'php.syntax',
         source: 'PHP Companion',
-        message: 'PHP syntax is incomplete or invalid at this location.',
+        message: diagnosticMessage(language, 'syntax'),
       }];
     });
     diagnostics.push(...unsupportedSyntax(parsed.tree.rootNode, targetVersion).map((feature): Diagnostic => ({
       range: toRange(document, feature), severity: DiagnosticSeverity.Error, code: 'php.version.unsupported', source: 'PHP Companion',
-      message: `${feature.feature} requires PHP ${feature.minimumVersion} or newer; the target is PHP ${targetVersion}.`,
+      message: diagnosticMessage(language, 'version', feature.feature, feature.minimumVersion, targetVersion),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.5')) {
       const messages = {

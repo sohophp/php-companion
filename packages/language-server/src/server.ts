@@ -30,6 +30,7 @@ import {
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
+import { diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -61,6 +62,7 @@ const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
 let workspaceRoots: string[] = [];
+let clientDiagnosticLanguage: DiagnosticLanguage = 'en';
 let workspaceFolderRoots: string[] = [];
 let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
@@ -1349,7 +1351,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
   const root = rootForUri(document.uri);
   const semanticTerminators = root && completeRoots.has(root) && isSyntaxAvailable(targetPhpVersion, '8.1')
     ? workspace.neverReturningCalls(document.uri) : [];
-  const result = analyzePhpDocument(document, await parser(), targetPhpVersion, await expectedNamespace(document.uri), semanticTerminators);
+  const result = analyzePhpDocument(document, await parser(), targetPhpVersion, await expectedNamespace(document.uri), semanticTerminators, clientDiagnosticLanguage);
   const typeSymbolKinds = new Set<SymbolKind>([SymbolKind.Class, SymbolKind.Interface, SymbolKind.Struct, SymbolKind.Enum]);
   const documentPath = pathForUri(document.uri); const typeSymbols = result.symbols.filter((symbol) => typeSymbolKinds.has(symbol.kind));
   const primaryType = typeSymbols.length === 1 ? typeSymbols[0] : undefined;
@@ -1359,7 +1361,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       const targetPath = resolve(dirname(documentPath), `${primaryType.name}.php`);
       result.diagnostics.push({
         range: primaryType.selectionRange, severity: DiagnosticSeverity.Warning, code: 'php.type.filename', source: 'PHP Companion',
-        message: `Primary type ${primaryType.name} should be declared in ${primaryType.name}.php.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'filename', primaryType.name),
         data: { expectedUri: root ? indexedUriForPath(root, targetPath) : pathToFileURL(targetPath).toString() },
       });
     }
@@ -1369,7 +1371,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     severity: DiagnosticSeverity.Warning,
     code: 'php.import.unused',
     source: 'PHP Companion',
-    message: `Unused ${item.kind} import ${item.name}.`,
+    message: diagnosticMessage(clientDiagnosticLanguage, 'unusedImport', item.kind, item.name),
     data: { statementStart: item.statementStart, statementEnd: item.statementEnd },
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) result.diagnostics.push(...workspace.undefinedVariables(document.uri).map((variable) => ({
@@ -1377,7 +1379,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     severity: DiagnosticSeverity.Warning,
     code: 'php.variable.undefined',
     source: 'PHP Companion',
-    message: `Variable $${variable.name} is definitely undefined at this point.`,
+    message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && root && completeRoots.has(root)) {
     const disabledExtensions = new Set(disabledExtensionsForRoot(root));
@@ -1408,28 +1410,28 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
       source: 'PHP Companion',
-      message: `Cannot resolve type ${type.fqcn}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedType', type.fqcn),
     })));
     result.diagnostics.push(...unresolvedTypes.filter((type) => !unavailableKeys.has(`type:${type.start}:${type.end}`)).map((type) => ({
       range: { start: document.positionAt(type.start), end: document.positionAt(type.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
       source: 'PHP Companion',
-      message: `Cannot resolve type ${type.fqcn}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedType', type.fqcn),
     })));
     result.diagnostics.push(...unresolvedFunctions.filter((symbol) => !unavailableKeys.has(`function:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.function.unresolved',
       source: 'PHP Companion',
-      message: `Cannot resolve function ${symbol.fqcn}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedFunction', symbol.fqcn),
     })));
     result.diagnostics.push(...unresolvedConstants.filter((symbol) => !unavailableKeys.has(`constant:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.constant.unresolved',
       source: 'PHP Companion',
-      message: `Cannot resolve constant ${symbol.fqcn}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedConstant', symbol.fqcn),
     })));
     result.diagnostics.push(...[...unavailableUses.values()].map((use) => {
       const reasons = use.extensions.map((extension) => ({ extension, ...disabledExtensionReason(root, extension) }));
@@ -1449,7 +1451,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.member.unresolved',
       source: 'PHP Companion',
-      message: `Cannot resolve ${member.kind} ${member.ownerFqcn}::${member.name}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedMember', member.kind, member.ownerFqcn, member.name),
     })));
     result.diagnostics.push(...workspace.invalidStaticMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
@@ -2889,6 +2891,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 }
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
+  clientDiagnosticLanguage = diagnosticLanguage(params.locale);
   const initialization = params.initializationOptions as { phpVersion?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;

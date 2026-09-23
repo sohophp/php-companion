@@ -23,6 +23,15 @@ async function waitForAsync(predicate: () => Promise<boolean>, message: string |
 
 function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
 
+async function verifyLocalizedDiagnostics(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const uri = vscode.Uri.joinPath(workspace.uri, 'src', 'IncompleteDiagnostic.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php\nclass IncompleteDiagnostic { public function'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  await waitForAsync(() => Promise.resolve(vscode.languages.getDiagnostics(uri).some((item) => item.code === 'php.syntax'
+    && item.message === '此处 PHP 语法不完整或无效。')), 'Packaged Language Server did not publish a localized syntax diagnostic', 30_000, 100);
+}
+
 async function verifyLegacyProfileSettings(workspace: vscode.WorkspaceFolder): Promise<void> {
   const exists = async (uri: vscode.Uri): Promise<boolean> => {
     try { await vscode.workspace.fs.stat(uri); return true; } catch { return false; }
@@ -398,7 +407,12 @@ export async function run(): Promise<void> {
     await verifyLegacyProfileSettings(folder);
     return;
   }
-  if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') return;
+  if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    assert.ok(folder, 'Localized diagnostic fixture workspace was not opened');
+    await verifyLocalizedDiagnostics(folder);
+    return;
+  }
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
   if (process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1') {

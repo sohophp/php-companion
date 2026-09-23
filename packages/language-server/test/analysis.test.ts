@@ -26,6 +26,15 @@ describe('PHP document analysis', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('localizes syntax and target-version diagnostics without changing their codes', () => {
+    const incomplete = TextDocument.create('file:///Incomplete.php', 'php', 1, '<?php class Incomplete { public function');
+    const syntax = analyzePhpDocument(incomplete, parser, '8.5', undefined, [], 'zh').diagnostics.find((item) => item.code === 'php.syntax');
+    expect(syntax?.message).toBe('此处 PHP 语法不完整或无效。');
+    const enumDocument = TextDocument.create('file:///Status.php', 'php', 1, '<?php enum Status { case Ready; }');
+    const unsupported = analyzePhpDocument(enumDocument, parser, '8.0', undefined, [], 'zh').diagnostics.find((item) => item.code === 'php.version.unsupported');
+    expect(unsupported?.message).toContain('需要 PHP 8.1 或更新版本');
+  });
+
   it('returns exact UTF-16 document symbol positions', () => {
     const document = TextDocument.create('file:///Example.php', 'php', 1, '<?php\n// 😀\nnamespace App;\nclass Example {}');
     const result = analyzePhpDocument(document, parser);
