@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P7/F08 [private 参数删除的间接调用保护](reports/p7-private-parameter-callables-2026-09-23.md)：动态方法、callable 数组、first-class callable 与静态方法字符串若可能保留旧实参，删除操作会安全关闭；注释和普通字符串反例不误挡。语义包 305 项、真实 stdio 定向回归、类型检查和 ESLint 通过；Winstar 冷 References 174 处完整位置摘要匹配。本轮未打包，P7/F08 仍开放。
+
 2026-09-23 P0/F09 [Doctrine Entity 编号夹具](acceptance-fixtures.md)新增 F09-DOC-01/02/03，并修正未闭合类仍发布 Entity 事实的问题；完整同文件类保持可用。Doctrine 包 9 项及真实 Language Server 既有集成回归通过，范围见[报告](reports/f09-doctrine-incomplete-2026-09-23.md)。本轮未打包。
 
 2026-09-23 F09 [Symfony 服务导入完整性](reports/f09-service-import-completeness-2026-09-23.md)：显式缺失、越界、未知 Bundle 及 YAML/XML/PHP Configurator 动态导入不再让 Provider 宣称权威图完整；Winstar 只读探针仍完整。Framework Symfony 59 项、服务 Provider 9 项及两项真实 stdio 定向回归通过；本轮未打包。

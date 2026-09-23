@@ -5449,6 +5449,7 @@ export class SemanticWorkspace {
       const tree = retainedTree ?? temporaryTree!;
       try {
         for (const match of matches) {
+          if ([...file.commentRanges, ...file.stringRanges].some((range) => range.start <= match.index && match.index < range.end)) continue;
           const parsed = exact.exec(match[0]); if (!parsed) return undefined;
           const variableStart = match.index + match[0].indexOf(parsed[1]!);
           const variableEnd = variableStart + parsed[1]!.length;
@@ -5604,9 +5605,34 @@ export class SemanticWorkspace {
       const signature = this.signature(candidateFile.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
       if (signature?.kind === 'method' && signature.fqcn.toLowerCase() === callable.fqcn.toLowerCase()) directCalls.push({ file: candidateFile, call });
     }
-    const references = this.references(uri, callable.start, true);
+    const references = this.references(uri, callable.start, true).filter((reference) => {
+      const candidate = this.files.get(reference.uri);
+      return !candidate || ![...candidate.commentRanges, ...candidate.stringRanges]
+        .some((range) => range.start <= reference.start && reference.end <= range.end);
+    });
     if (references.some((reference) => reference.start !== callable.start || reference.end !== callable.end)
       && references.filter((reference) => reference.start !== callable.start || reference.end !== callable.end).some((reference) => !directCalls.some(({ file: candidate, call }) => candidate.uri === reference.uri && call.nameStart === reference.start && call.nameEnd === reference.end))) return undefined;
+    // A dynamic call may still invoke this private method, but its argument
+    // list cannot be rewritten from the static call records above.
+    const dynamicCalls = this.dynamicMemberRenameLocations('method', callable.name,
+      (member) => member.fqcn.toLowerCase() === callable.fqcn.toLowerCase());
+    if (!dynamicCalls || dynamicCalls.length) return undefined;
+    const callableArrays = this.callableArrayMethodRenameLocations(callable.name, new Set([callable.fqcn.toLowerCase()]));
+    if (!callableArrays || callableArrays.length) return undefined;
+    const escapedMethod = callable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const firstClassCallable = new RegExp(`(?:->|\\?->|::)\\s*${escapedMethod}\\s*\\(\\s*\\.\\.\\.\\s*\\)`, 'i');
+    const longCallableArray = new RegExp(`\\barray\\s*\\(\\s*[^,\\)]*,\\s*(['"])${escapedMethod}\\1\\s*\\)`, 'i');
+    const staticCallableString = new RegExp(`(['"])[^'"\\r\\n]*::${escapedMethod}\\1`, 'i');
+    const executableMatch = (candidate: SemanticFile, pattern: RegExp, includeStrings = false): boolean =>
+      [...candidate.source.matchAll(new RegExp(pattern.source, `${pattern.flags}g`))].some((match) => {
+        const start = match.index;
+        return !candidate.commentRanges.some((range) => range.start <= start && start < range.end)
+          && (includeStrings || !candidate.stringRanges.some((range) => range.start <= start && start < range.end));
+      });
+    if ([...this.files.values()].some((candidate) => executableMatch(candidate, firstClassCallable)
+      || executableMatch(candidate, longCallableArray) || executableMatch(candidate, staticCallableString, true))) return undefined;
+    if (executableMatch(file, /\[\s*\$this\s*,\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\]/)
+      || executableMatch(file, /\barray\s*\(\s*\$this\s*,\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\)/i)) return undefined;
     const parameterPosition = callable.parameters.indexOf(parameter);
     for (const { file: callFile, call } of directCalls) {
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return undefined;

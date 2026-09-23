@@ -7903,6 +7903,28 @@ use const Vendor\\ACTIVE;
       workspace.update(uri, observing, true);
       expect(workspace.removeUnusedPrivateParameter(uri, observing.indexOf('$unused') + 1)).toBeUndefined();
     }
+    for (const dynamic of [
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { $name = 'format'; $this->$name(1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(string $name): void { $this->$name(1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { $call = [$this, 'format']; $call(1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { call_user_func([$this, 'format'], 1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { call_user_func(array($this, 'format'), 1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { $call = $this->format(...); $call(1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(): void { $call = 'Formatter::format'; call_user_func($call, 1); } }`,
+      `<?php class Formatter { private function format(int $unused): void {} public function run(string $name): void { $call = [$this, $name]; $call(1); } }`,
+    ]) {
+      workspace.update(uri, dynamic, true);
+      expect(workspace.removeUnusedPrivateParameter(uri, dynamic.indexOf('$unused') + 1), dynamic).toBeUndefined();
+    }
+    for (const inert of [
+      '// $this->format(...) is an example only.',
+      "// array($this, 'format') is an example only.",
+      "$example = '$this->format(...)';",
+    ]) {
+      const inertText = source.replace('public function run(): void {', `public function run(): void {\n        ${inert}`);
+      workspace.update(uri, inertText, true);
+      expect(workspace.removeUnusedPrivateParameter(uri, inertText.indexOf('int $unused,') + 'int '.length), inert).toBeDefined();
+    }
     workspace.remove(uri);
   });
   it('plans extract-variable only for whole RHS or return expressions in statement blocks', () => {

@@ -2641,6 +2641,14 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     const removeAction = (await output.waitFor((message) => message.id === 47)).result;
     expect(removeAction).toMatchObject([{ title: 'Remove unused parameter $unused', kind: 'refactor.rewrite' }]);
     expect(removeAction[0].edit.changes[removeUri]).toHaveLength(4);
+    const indirectRemoveSource = removeSource.replace(
+      'public function run(): void { $this->format("a", 1, "b"); $this->format(suffix: "b", unused: 2, prefix: "a"); }',
+      'public function run(): void { $call = [$this, "format"]; $call("a", 1, "b"); }',
+    );
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: removeUri, version: 2 }, contentChanges: [{ text: indirectRemoveSource }] } }));
+    await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === removeUri && message.params.version === 2);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 471, method: 'textDocument/codeAction', params: { textDocument: { uri: removeUri }, range: { start: lspPosition(indirectRemoveSource, removeOffset), end: lspPosition(indirectRemoveSource, removeOffset) }, context: { diagnostics: [], only: ['refactor.rewrite'] } } }));
+    expect((await output.waitFor((message) => message.id === 471)).result ?? []).not.toContainEqual(expect.objectContaining({ title: 'Remove unused parameter $unused' }));
 
     const namedSource = '<?php class Builder { static function make(string &$first = "x", int ...$second): void {} } Builder::make(second: 2, fi';
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: 'file:///Named.php', languageId: 'php', version: 1, text: namedSource } } }));
