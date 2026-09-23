@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 与 C1 起点：保留当前 Core、Symfony、8 个外部扩展的清单；新增[职责、运行边界及可选候选整理](daily-use-assembly.md)，PHP DocBlocker 与项目 PHPStan 暂不自动安装。Manifest 对齐测试 4/4 通过；本轮未重建 Pack 或声称新组合试用完成。C1/F02-VERSION-01 的真实 stdio 在同一独立 Composer 输入下分别验证 PHP 7.2、8.1、8.5 的版本诊断，隔离 VS Code Core 宿主三次均退出码 0；三版本都完成六项编辑请求与未保存 Definition。下一项是其它查询的进行中编辑时序及冷/热等待分布。未改业务项目代码。
+
 2026-09-24 C1 查询版本保护：Completion、Hover、Definition、Type Definition 和 Implementation 在语义工作区或框架事实等异步边界后统一核对请求文档版本及取消状态，避免可观察到的新编辑仍返回旧结果；Signature Help 保留既有最终检查。F04 定向 5 项、Language Server 全套 300 项通过且 1 项跳过，源码 Core 宿主 F04-HOST-01 复测退出码 0。各分支的可控在飞行竞态尚未逐项复现，见[查询版本保护报告](reports/f04-query-version-guards-2026-09-24.md)。
 
 2026-09-24 C1/F04-HOST-01：隔离 VS Code 1.139.0 Extension Host 只加载 Core 开发扩展和内建扩展，在复制的独立 Composer 项目中完成补全、Hover、参数提示、定义、实现、引用及未保存接收者切换后的定义跳转；auto、PHP 7.2、8.1、8.5 四次均退出码 0。首次补全单次观测分别为 479、195、222、188 ms，不代表 P95。新的定向入口不打包 VSIX；版本特有语法、真实持续使用、WSL Remote、完整 Pack 和跨平台门槛仍开放。见[Core 宿主报告](reports/f04-vscode-core-host-2026-09-24.md)。

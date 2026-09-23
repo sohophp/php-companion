@@ -4,6 +4,7 @@
 
 | 编号 | 输入 | 预期 | 自动验证 |
 | --- | --- | --- | --- |
+| F02-VERSION-01 | [同一独立 Composer 文件的 PHP 7.2、8.1、8.5 版本设置](../../packages/language-server/test/stdio.test.ts) | 7.2 对 `match`、`enum`、`(void)` 转换报版本诊断；8.1 只报 `(void)`；8.5 均不报；三者均无 parser 语法错误，隔离 Core 宿主可见相同结果 | `stdio.test.ts` 的 F02-VERSION-01；`test/extension/suite/c1.ts` 的三版本宿主流程 |
 | F04-REF-01 | [有类型接收者与全局函数调用](../../packages/semantic/test/fixtures/acceptance/f04-references-valid.php) | 方法和函数分别返回唯一真实调用；`includeDeclaration` 决定是否包含声明 | `acceptance-f04-references.test.ts` |
 | F04-REF-02 | [字符串、nowdoc 与块注释](../../packages/semantic/test/fixtures/acceptance/f04-references-counterexample.php) | PHP 源码有效，调用样式文本不产生代码引用 | 同上 |
 | F04-REF-03 | [调用后的未完成成员输入](../../packages/semantic/test/fixtures/acceptance/f04-references-incomplete.php) | 保留前面完整调用的引用，不捏造未完成位置 | 同上 |

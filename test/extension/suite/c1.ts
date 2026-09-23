@@ -93,5 +93,26 @@ export async function run(): Promise<void> {
     'SoPHP kept the old member declaration after an unsaved edit.',
   );
   assert.deepStrictEqual(changedDefinition.map((item) => item.uri.toString()), [otherUri.toString()]);
+  if (targetPhpVersion) {
+    const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
+    const versionSource = `<?php namespace App\\C1;
+enum C1State { case Ready; }
+function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; }
+function consume(): void { (void) choose(1); }`;
+    await vscode.workspace.fs.writeFile(versionUri, Buffer.from(versionSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(versionUri));
+    const diagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(versionUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename'),
+      `SoPHP did not publish the PHP ${targetPhpVersion} diagnostic set in VS Code.`,
+    );
+    const versionMessages = diagnostics.filter((item) => item.code === 'php.version.unsupported').map((item) => item.message);
+    const expected = targetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
+      : targetPhpVersion === '8.1' ? ['(void) cast'] : [];
+    for (const feature of expected) assert.ok(versionMessages.some((message) => message.includes(feature)),
+      `PHP ${targetPhpVersion} did not report unsupported ${feature}.`);
+    assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
+    assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
+  }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; Hover, Signature Help, Definition, Implementation, References and unsaved Definition passed.`);
 }

@@ -22,6 +22,19 @@
 
 以上是当前 Pack 已声明的组合，具体来源和限制见[外部工具集成](integrations.md)。Pack 无法固定外部扩展的 Marketplace 版本；当前版本升级后仍要重跑组合门禁。现有 R1 Linux/WSL 候选已有基础闭环证据，但当前开发源码中的新修复不会自动进入已经安装的 0.4.5；新候选须在冻结时重新构建和验证。
 
+### Open Source Pack 整理结果
+
+| 处理 | 扩展或能力 | 当前依据与使用边界 |
+| --- | --- | --- |
+| 保留在 Pack | SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML/XML | 组成 PHP 与框架/模板/配置的编辑链；Symfony 仍须与 Core 安装同一私有候选，Pack 的 Marketplace 页面不能替代候选验收 |
+| 保留在 Pack | PHP Debug、PHPUnit & Pest Test Explorer | 已有 Linux/WSL 组合运行证据；实际项目仍须提供可用的 PHP、Xdebug 和测试入口 |
+| 保留在 Pack | PHP CS Fixer、EditorConfig | 格式化与项目编辑约定各有一个所有者；PHP CS Fixer 扩展自带 PHAR 曾在 PHP 8.5 被拒绝，须使用与目标 PHP 兼容的项目级 fixer |
+| 保留在 Pack | Apache Conf Snippets | 用户要求的 Apache 配置片段；其 `mrmlnc.vscode-apache` 依赖由扩展自身声明，Pack 不重复列入 |
+| 单独试用 | PHP DocBlocker、项目自选 PHPStan | 前者只生成注释，后者需要项目分析配置；尚缺同一 Profile 中的冲突与运行时验收，暂不自动安装 |
+| 不纳入 | 额外通用 PHP Language Server、Symfony Language Tools | 前者会造成 PHP 能力所有者冲突；后者已有普通 PHP Rename 冲突证据 |
+
+这份整理保留当前 `extensionPack` 清单和默认设置；它是已选工具的安装入口，不表示每个成员在所有 PHP 版本、系统和 Remote 环境都已通过最终验收。成员版本及其依赖以冻结的 [Profile 清单](../../test/extension/open-source-profile.extensions.json)和候选记录为准。
+
 ## 可选增强：先隔离验证，再决定是否纳入 Pack
 
 | 候选 | 可提供的增益 | 准入检查 |
@@ -31,7 +44,7 @@
 
 其他候选也走同一门禁：明确能补哪段工作流、许可与维护、PHP/VS Code/WSL 兼容性、唯一能力所有者、自动和真实操作证据、失败后的回退。Symfony Language Tools 0.20.1/0.20.2 已在普通 PHP Rename 中发生 Provider 冲突，目前不进入受支持组合；不能因为它能补部分路由能力就绕过冲突结果。
 
-先保持当前 Pack 清单不变，在隔离 Profile 逐个验证 PHP DocBlocker 和项目自选的 PHPStan；记录功能、冲突与版本后，再决定是否把 PHPDoc 辅助加入默认 Pack。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
+先保持当前 Pack 清单不变，在隔离 Profile 逐个验证 PHP DocBlocker 和项目自选的 PHPStan；记录功能、冲突与版本后，再决定是否把 PHPDoc 辅助加入默认 Pack。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。PHP DocBlocker 的 Marketplace 功能说明只证明它提供 DocBlock 补全，不能替代与 SoPHP 同时启用时的结果验收。
 
 ## 从安装到日常使用
 

@@ -641,6 +641,44 @@ function run(Formatter $local, External $remote): void {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
+  it('F02-VERSION-01 reports match, enum and void-cast boundaries at PHP 7.2, 8.1 and 8.5', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f02-version-workflow-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = `<?php namespace App;
+enum C1State { case Ready; }
+function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; }
+function consume(): void { (void) choose(1); }`;
+      const uri = pathToFileURL(join(root, 'src', 'Versioned.php')).toString();
+      await writeFile(join(root, 'src', 'Versioned.php'), source);
+      for (const [phpVersion, expected] of [
+        ['7.2', ['match expression', 'enum', '(void) cast']],
+        ['8.1', ['(void) cast']],
+        ['8.5', []],
+      ] as const) {
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id: 997, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion, indexingMode: 'onDemand' },
+        } }));
+        await output.waitFor((message) => message.id === 997);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri)).params.diagnostics as Array<{ code?: string; message: string }>;
+        const versionMessages = diagnostics.filter((item) => item.code === 'php.version.unsupported').map((item) => item.message);
+        for (const feature of expected) expect(versionMessages.some((message) => message.includes(feature))).toBe(true);
+        expect(versionMessages).toHaveLength(expected.length);
+        expect(diagnostics.some((item) => item.code === 'php.type.filename')).toBe(true);
+        expect(diagnostics.some((item) => item.code === 'php.syntax')).toBe(false);
+        await new Promise<void>((done) => { server!.once('exit', () => done()); server!.kill(); }); server = undefined;
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {
