@@ -5783,23 +5783,23 @@ echo RANKED_LSP_CONSTANT;`;
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'symfony/routing', autoload: { 'psr-4': { 'Symfony\\Component\\Routing\\': '' } } }] }));
       await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'symfony/routing', install_path: '../symfony/routing' }] }));
-      await writeFile(join(routingDirectory, 'RouterInterface.php'), '<?php namespace Symfony\\Component\\Routing; interface RouterInterface { public function generate(string $name): string; }');
+      await writeFile(join(routingDirectory, 'RouterInterface.php'), '<?php namespace Symfony\\Component\\Routing; interface RouterInterface { public function generate(string $name, array $parameters = []): string; }');
       await writeFile(join(root, 'src', 'Modules', 'README.md'), 'Module notes\n');
       const declaration = '- name: zulu.route\n  path: /zulu\n';
       const declarationPath = join(routesDirectory, 'routes.yaml'); const declarationUri = pathToFileURL(declarationPath).toString();
       await writeFile(declarationPath, declaration);
       await writeFile(join(routesDirectory, 'admin_defaults.yaml'), 'admin_defaults:\n  - name: ZuluPage\n');
-      const explicit = '- name: admin.ZuluPage.workflowStatus\n  path: /ZuluPage/workflow\n';
+      const explicit = '- name: admin.ZuluPage.workflowStatus\n  path: /ZuluPage/{id}/workflow\n';
       const explicitPath = join(routesDirectory, 'admin.yaml'); const explicitUri = pathToFileURL(explicitPath).toString();
       await writeFile(explicitPath, explicit);
       const consolePath = join(root, 'router.mjs');
       const runtime = Object.fromEntries([
         ['zulu.route', '/zulu'], ['admin.ZuluPage.edit', '/admin/ZuluPage/edit'],
-        ['admin.ZuluPage.workflowStatus', '/admin/ZuluPage/workflow'],
+        ['admin.ZuluPage.workflowStatus', '/admin/ZuluPage/{id}/workflow'],
       ].map(([name, path]) => [name, { path, defaults: { _module_route_name: name, _module_route_file: 'symfony-module-routes' } }]));
       await writeFile(consolePath, `process.stdout.write(${JSON.stringify(JSON.stringify(runtime))});\n`);
       const source = `<?php namespace App; use Symfony\\Component\\Routing\\RouterInterface;
-function run(RouterInterface $router): void { $router->generate('zulu.route'); $router->generate('admin.ZuluPage.edit'); $router->generate('admin.ZuluPage.workflowStatus'); }`;
+function run(RouterInterface $router): void { $router->generate('zulu.route'); $router->generate('admin.ZuluPage.edit'); $router->generate('admin.ZuluPage.workflowStatus', ['i' => 1]); }`;
       const consumerPath = join(root, 'src', 'Consumer.php'); const uri = pathToFileURL(consumerPath).toString();
       await writeFile(consumerPath, source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
@@ -5817,6 +5817,12 @@ function run(RouterInterface $router): void { $router->generate('zulu.route'); $
         textDocument: { uri, languageId: 'php', version: 1, text: source },
       } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1135, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf("['i'") + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 1135)).result).toMatchObject([{ label: 'id',
+        detail: 'admin.ZuluPage.workflowStatus path parameter', textEdit: { newText: 'id' },
+      }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1131, method: 'textDocument/definition', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('zulu.route') + 4),
       } }));

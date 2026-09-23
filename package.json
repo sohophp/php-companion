@@ -86,6 +86,7 @@
     "benchmark:references:vscode": "tsc -p test/extension/tsconfig.json && node scripts/benchmark-reference-vscode.mjs",
     "check:references:winstar": "node scripts/check-winstar-reference-baseline.mjs",
     "check:f09:doctrine": "pnpm --filter @php-companion/language-server build && node scripts/check-f09-doctrine-workspaces.mjs",
+    "check:f09:winstar-routes": "pnpm --filter @php-companion/provider-winstar-routes build && pnpm --filter @php-companion/language-server build && node scripts/check-f09-winstar-routes.mjs",
     "check:references:fast:winstar": "pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/language-server build && node esbuild.mjs --production && pnpm check:references:winstar",
     "check:references:source-only:winstar": "PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY=1 PHP_COMPANION_CHECK_REFERENCE_RELOAD=1 node scripts/check-winstar-reference-baseline.mjs",
     "check:references:source-only-immediate:winstar": "PHP_COMPANION_BENCHMARK_REFERENCE_SOURCE_ONLY=1 PHP_COMPANION_BENCHMARK_REFERENCE_IMMEDIATE=1 PHP_COMPANION_BENCHMARK_PRODUCTION_MODE=1 node scripts/check-winstar-reference-baseline.mjs",
