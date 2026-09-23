@@ -2306,7 +2306,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
             try {
               return snapshot
                 ? { semantic: compressCachedProjectPhpFile(createCachedProjectPhpFile(snapshot,
-                  { schema: 5, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, hash)) }
+                  { schema: 6, doctrineMethods: [], doctrineProperties: [], doctrineRepositoryLookups: [] }, hash)) }
                 : { declarations: compressCachedSourceDeclaration(declarationSnapshot!, hash) };
             } catch { return {}; /* Oversized snapshots remain candidates and are reparsed next query. */ }
           }) : undefined;

@@ -1,3 +1,4 @@
+- Rebuild project fact caches and propagate exact single-root EntityManager QueryBuilder factories through Doctrine object query results while keeping scalar, dynamic and multi-root shapes unknown.
 - Apply each workspace root's validated Symfony environment to PHP Configurator service Definition, References, completion and atomic Rename, excluding inactive guarded statements from every editor request.
 
 - Apply each workspace root's validated Symfony environment to XML service Definition, References, completion and atomic Rename, and refresh the same active XML view at runtime without reloading the window.

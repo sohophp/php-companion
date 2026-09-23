@@ -1,5 +1,6 @@
 # Changelog
 
+- Preserve the entity generic for exact project QueryBuilder factories built from an EntityManager/ObjectManager `createQueryBuilder()` with one literal entity root and an optional matching root selection; reject dynamic aliases, scalar/additional selections, multiple roots and mutation queries.
 - Preserve the entity generic for exact project methods returning a native `QueryBuilder` from a declared EntityManager/ObjectManager property, while rejecting dynamic, escaping, reassigned, conditional and result-shaping builders.
 - Resolve exact entity `repositoryClass` mappings through class-literal EntityManager/ObjectManager repository lookups without specializing dynamic class arguments.
 - Preserve proven repository entity types through the default Doctrine QueryBuilder and Query object-hydration chain, including `getSingleResult()` and `toIterable()`, while dropping precision for shape-changing operations and explicit hydration modes.

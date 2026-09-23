@@ -1,5 +1,6 @@
 # Changelog
 
+- Record the AST-bound first class literal and second string literal for two-argument chained method calls, allowing framework analyzers to prove exact APIs without scanning raw expression text.
 - Record exact two-element callable-array assignments with either a variable receiver or `Type::class` receiver and a literal method name; dynamic strings, string class names, keyed or extra elements remain unclassified.
 - Preserve exact closure/arrow assignment identities and native scope return declarations for downstream variable-call analysis.
 - Record variable-function invocations as call facts while retaining first-class callable acquisition identity.

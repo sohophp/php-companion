@@ -1,3 +1,4 @@
+- Preserve Doctrine entity generics for project methods that return an ORM EntityManager QueryBuilder with one literal `from(Entity::class, 'alias')` root and an optional matching root `select()`.
 - Symfony service tooling now includes exact project PHP `#[Autowire(service: '...')]` literals in cross-format navigation, references, completion and single-undo service-id Rename.
 - Avoid discarding cached static Symfony route snapshots for ordinary PHP editing; route-bearing PHP/config files and YAML/XML changes still invalidate them, and runtime-only completion items no longer claim a source declaration.
 - Move editor-facing Symfony YAML/XML/PHP configuration providers from the core extension into the independently installed Symfony extension through plugin API v1's optional namespaced request bridge.

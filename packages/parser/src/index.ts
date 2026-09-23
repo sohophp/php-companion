@@ -71,7 +71,7 @@ export interface ParsedAssignment extends SourceRange {
   sourceMember?: { variable: string; member: string; nullsafe: boolean };
   sourceChain?: { variable: string; steps: Array<
     | { kind: 'property'; name: string; nullsafe: boolean }
-    | { kind: 'method'; name: string; nullsafe: boolean; argumentCount: number; callback?: { parameterType: string; returnType: string }; literalArgument?: string; literalClassArgument?: string }
+    | { kind: 'method'; name: string; nullsafe: boolean; argumentCount: number; callback?: { parameterType: string; returnType: string }; literalArgument?: string; literalClassArgument?: string; firstLiteralClassArgument?: string; secondLiteralArgument?: string }
   > };
   sourceArrayElement?: { variable: string; key: string };
   sourceIterable?: ({ kind: 'variable'; variable: string; part: 'value' }
@@ -1242,8 +1242,14 @@ export class PhpSyntaxParser {
           const literalArgument = literal && ['string', 'encapsed_string'].includes(literal.type) && /^(['"])[^'"\\]*\1$/.test(literal.text) ? literal.text.slice(1, -1) : undefined;
           const literalClassArgument = literal?.type === 'class_constant_access_expression' && literal.namedChildren[1]?.text.toLowerCase() === 'class'
             ? literal.namedChildren[0]?.text : undefined;
+          const first = arguments_[0]?.namedChildren[0]; const second = arguments_[1]?.namedChildren[0];
+          const firstLiteralClassArgument = first?.type === 'class_constant_access_expression' && first.namedChildren[1]?.text.toLowerCase() === 'class'
+            ? first.namedChildren[0]?.text : undefined;
+          const secondLiteralArgument = second && ['string', 'encapsed_string'].includes(second.type)
+            && /^(['"])[^'"\\]*\1$/.test(second.text) ? second.text.slice(1, -1) : undefined;
           return { ...base, steps: [...base.steps, { kind: 'method', name: nameNode.text, nullsafe, argumentCount: arguments_.length,
-            callback: arguments_.length === 1 ? callbackFacts(literal) : undefined, literalArgument, literalClassArgument }] };
+            callback: arguments_.length === 1 ? callbackFacts(literal) : undefined, literalArgument, literalClassArgument,
+            firstLiteralClassArgument, secondLiteralArgument }] };
         };
         const sourceChain = memberChain(right);
         if (right.type === 'array_creation_expression') {

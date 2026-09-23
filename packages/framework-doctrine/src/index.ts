@@ -54,15 +54,31 @@ function queryFactoryEntity(parser: PhpSyntaxParser, expression: string, namespa
     if (synthetic.errors.length > 0) return undefined;
     const chain = synthetic.assignments.find((assignment) => assignment.variable === '$result')?.sourceChain;
     if (!chain || chain.variable !== '$this' || chain.steps.some((step) => step.nullsafe)) return undefined;
+    if (chain.steps[0]?.kind !== 'property' || !managerProperties.has(chain.steps[0].name.toLowerCase())) return undefined;
     const repositoryIndex = chain.steps.findIndex((step) => step.kind === 'method' && step.name.toLowerCase() === 'getrepository');
-    const repository = chain.steps[repositoryIndex]; const builder = chain.steps[repositoryIndex + 1];
-    if (repositoryIndex !== 1 || chain.steps[0]?.kind !== 'property' || !managerProperties.has(chain.steps[0].name.toLowerCase())
-      || repository?.kind !== 'method' || repository.argumentCount !== 1 || !repository.literalClassArgument
-      || builder?.kind !== 'method' || builder.name.toLowerCase() !== 'createquerybuilder' || builder.argumentCount !== 1
-      || !builder.literalArgument || chain.steps.slice(repositoryIndex + 2).some((step) => step.kind !== 'method')) return undefined;
-    if (chain.steps.slice(repositoryIndex + 2).some((step) => step.kind === 'method'
-      && ['select', 'from', 'delete', 'update'].includes(step.name.toLowerCase()))) return undefined;
-    return resolveName(repository.literalClassArgument, namespace, imports);
+    const repository = chain.steps[repositoryIndex]; const repositoryBuilder = chain.steps[repositoryIndex + 1];
+    if (repositoryIndex === 1 && repository?.kind === 'method' && repository.argumentCount === 1 && repository.literalClassArgument
+      && repositoryBuilder?.kind === 'method' && repositoryBuilder.name.toLowerCase() === 'createquerybuilder'
+      && repositoryBuilder.argumentCount === 1 && repositoryBuilder.literalArgument
+      && chain.steps.slice(repositoryIndex + 2).every((step) => step.kind === 'method')
+      && !chain.steps.slice(repositoryIndex + 2).some((step) => step.kind === 'method'
+        && ['select', 'from', 'delete', 'update'].includes(step.name.toLowerCase()))) {
+      return resolveName(repository.literalClassArgument, namespace, imports);
+    }
+    const builder = chain.steps[1]; const tail = chain.steps.slice(2);
+    if (repositoryIndex !== -1 || builder?.kind !== 'method' || builder.name.toLowerCase() !== 'createquerybuilder'
+      || builder.argumentCount !== 0 || tail.some((step) => step.kind !== 'method')) return undefined;
+    const from = tail.filter((step) => step.kind === 'method' && step.name.toLowerCase() === 'from');
+    const selections = tail.filter((step) => step.kind === 'method' && step.name.toLowerCase() === 'select');
+    if (from.length !== 1 || from[0]?.kind !== 'method' || from[0].argumentCount !== 2 || !from[0].firstLiteralClassArgument
+      || !from[0].secondLiteralArgument
+      || selections.length > 1 || tail.some((step) => step.kind === 'method'
+        && ['addselect', 'delete', 'update'].includes(step.name.toLowerCase()))) return undefined;
+    const entityName = from[0].firstLiteralClassArgument; const alias = from[0].secondLiteralArgument;
+    const selection = selections[0];
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(alias)
+      || (selection?.kind === 'method' && (selection.argumentCount !== 1 || selection.literalArgument !== alias))) return undefined;
+    return resolveName(entityName, namespace, imports);
   } finally { synthetic.tree.delete(); }
 }
 

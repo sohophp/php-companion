@@ -110,16 +110,28 @@ describe('static Doctrine facts', () => {
           if ($active) { $qb->andWhere('orders.active = 1')->setParameter('active', true); }
           return $qb;
         }
+        private function directOrders(): QueryBuilder {
+          return $this->em->createQueryBuilder()->select('orders')->from(Order::class, 'orders')->andWhere('orders.active = 1');
+        }
+        private function directUsers(bool $active): QueryBuilder {
+          $qb = $this->em->createQueryBuilder()->from(User::class, 'users');
+          if ($active) { $qb->andWhere('users.active = 1'); }
+          return $qb;
+        }
       }
     `;
     const facts = analyzeDoctrineDocument(parser, 'file:///ReadService.php', source);
     expect(facts.queryFactories).toMatchObject([
       { ownerFqcn: 'App\\Read\\ReadService', method: 'users', entity: 'App\\Entity\\User' },
       { ownerFqcn: 'App\\Read\\ReadService', method: 'orders', entity: 'App\\Entity\\Order' },
+      { ownerFqcn: 'App\\Read\\ReadService', method: 'directOrders', entity: 'App\\Entity\\Order' },
+      { ownerFqcn: 'App\\Read\\ReadService', method: 'directUsers', entity: 'App\\Entity\\User' },
     ]);
     expect(facts.queryFactories.map(doctrineQueryFactoryMethodFact)).toMatchObject([
       { ownerFqcn: 'App\\Read\\ReadService', name: 'users', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\User>', returnTypeTemplates: ['TEntity'] },
       { ownerFqcn: 'App\\Read\\ReadService', name: 'orders', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\Order>', returnTypeTemplates: ['TEntity'] },
+      { ownerFqcn: 'App\\Read\\ReadService', name: 'directOrders', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\Order>', returnTypeTemplates: ['TEntity'] },
+      { ownerFqcn: 'App\\Read\\ReadService', name: 'directUsers', returnType: '\\Doctrine\\ORM\\QueryBuilder<\\App\\Entity\\User>', returnTypeTemplates: ['TEntity'] },
     ]);
   });
 
@@ -137,6 +149,12 @@ describe('static Doctrine facts', () => {
         private function escaped(): QueryBuilder { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); $this->mutate($qb); return $qb; }
         private function aliased(): QueryBuilder { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); $copy = $qb; return $qb; }
         private function conditional(bool $active): QueryBuilder { if ($active) { $qb = $this->em->getRepository(User::class)->createQueryBuilder('user'); } return $qb; }
+        private function dynamicFrom(string $class): QueryBuilder { return $this->em->createQueryBuilder()->from($class, 'user'); }
+        private function dynamicFromAlias(string $alias): QueryBuilder { return $this->em->createQueryBuilder()->from(User::class, $alias); }
+        private function mismatchedSelection(): QueryBuilder { return $this->em->createQueryBuilder()->select('other')->from(User::class, 'user'); }
+        private function scalarSelection(): QueryBuilder { return $this->em->createQueryBuilder()->select('user.id')->from(User::class, 'user'); }
+        private function multipleRoots(): QueryBuilder { return $this->em->createQueryBuilder()->from(User::class, 'user')->from(User::class, 'other'); }
+        private function addedSelection(): QueryBuilder { return $this->em->createQueryBuilder()->from(User::class, 'user')->addSelect('user.id'); }
       }
     `;
     expect(analyzeDoctrineDocument(parser, 'file:///UnsafeReadService.php', source).queryFactories).toEqual([]);
