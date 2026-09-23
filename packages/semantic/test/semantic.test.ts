@@ -7851,6 +7851,16 @@ use const Vendor\\ACTIVE;
       workspace.update(uri, unsafe, true);
       expect(workspace.removeUnusedPrivateParameter(uri, unsafe.indexOf('int $unused,') + 'int '.length)).toBeUndefined();
     }
+    for (const body of [
+      'return function () use ($unused): int { return $unused; };',
+      'return fn (): int => $unused;',
+      'return func_get_args();',
+      'return \\func_num_args();',
+    ]) {
+      const observing = `<?php class Observer { private function format(int $unused) { ${body} } }`;
+      workspace.update(uri, observing, true);
+      expect(workspace.removeUnusedPrivateParameter(uri, observing.indexOf('$unused') + 1)).toBeUndefined();
+    }
     workspace.remove(uri);
   });
   it('plans extract-variable only for whole RHS or return expressions in statement blocks', () => {

@@ -5471,8 +5471,21 @@ export class SemanticWorkspace {
     const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)
       .filter((candidate) => candidate.kind === 'method' && candidate.fqcn.toLowerCase() === callable.fqcn.toLowerCase());
     if (declarations.length !== 1) return undefined;
-    const uses = file.variableReferences.filter((item) => item.scopeId === callable.fqcn && item.variable === `$${parameter.name}`);
+    const relatedScopes = new Set([callable.fqcn]);
+    let addedScope = true;
+    while (addedScope) {
+      addedScope = false;
+      for (const scope of file.scopes) {
+        if (scope.parentId && relatedScopes.has(scope.parentId) && !relatedScopes.has(scope.id)) {
+          relatedScopes.add(scope.id);
+          addedScope = true;
+        }
+      }
+    }
+    const uses = file.variableReferences.filter((item) => relatedScopes.has(item.scopeId) && item.variable === `$${parameter.name}`);
     if (uses.length !== 1 || uses[0]!.start !== parameter.start || uses[0]!.end !== parameter.end) return undefined;
+    if (file.calls.some((call) => call.start >= callable.declarationStart && call.end <= callable.declarationEnd
+      && /(?:^|\\)(?:func_get_args|func_get_arg|func_num_args)$/i.test(file.source.slice(call.nameStart, call.nameEnd)))) return undefined;
     let parameterNode = deepestLocalSyntax(tree.rootNode, parameter.start, parameter.end,
       (node) => node.type === 'variable_name' && node.startIndex === parameter.start && node.endIndex === parameter.end);
     if (!parameterNode) return undefined;
