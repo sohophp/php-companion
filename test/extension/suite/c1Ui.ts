@@ -278,53 +278,69 @@ export async function measureRapidReceiverSuggestion(port: number, folder: vscod
   }
 }
 
-export async function measureRealVendorSuggestion(port: number, root: vscode.Uri): Promise<VisibleSuggestion> {
-  const source = '<?php namespace App\\C1; use Psr\\Http\\Message\\ResponseInterface; function uiReal(ResponseInterface $value): void { $value->; }';
-  const uri = vscode.Uri.joinPath(root, 'src', 'C1', 'UiRealVendor.php');
-  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
-  const document = await vscode.workspace.openTextDocument(uri);
-  const editor = await vscode.window.showTextDocument(document);
-  const offset = source.indexOf('$value->;') + '$value->'.length;
-  editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+export async function measureRealVendorSuggestion(port: number, root: vscode.Uri): Promise<VisibleSuggestionRun> {
+  const cases = [
+    { name: 'Psr\\Http\\Message\\ResponseInterface', method: 'getStatusCode', typed: 'g', forbidden: 'getName' },
+    { name: 'Psr\\Http\\Message\\RequestInterface', method: 'getRequestTarget', typed: 'g', forbidden: 'getStatusCode' },
+    { name: 'Psr\\Http\\Message\\StreamInterface', method: 'getSize', typed: 'g', forbidden: 'getRequestTarget' },
+    { name: 'Psr\\Log\\LoggerInterface', method: 'emergency', typed: 'e', forbidden: 'getStatusCode' },
+    { name: 'Symfony\\Component\\HttpFoundation\\ParameterBag', method: 'filter', typed: 'f', forbidden: 'getStatusCode' },
+    { name: 'Symfony\\Component\\HttpFoundation\\HeaderBag', method: 'contains', typed: 'c', forbidden: 'getStatusCode' },
+  ] as const;
   const socket = await connect(await cdpPage(port));
   let id = 1;
   try {
-    assert.strictEqual(await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++), false,
-      'A previous suggestion widget remained visible before the real Composer sample.');
-    await evaluate(socket, `(() => {
-      globalThis.__sophpSuggestionProbe?.observer.disconnect();
-      const probe = { start: performance.now(), elapsedMs: null, labels: [], observer: null };
-      const inspect = () => {
-        const widget = document.querySelector('.suggest-widget.visible');
-        if (!widget || !widget.getBoundingClientRect().width) return;
-        const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
-        if (!labels.length) return;
-        probe.elapsedMs = performance.now() - probe.start;
-        probe.labels = labels;
-        probe.observer.disconnect();
-      };
-      probe.observer = new MutationObserver(inspect);
-      probe.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-      globalThis.__sophpSuggestionProbe = probe;
-      return true;
-    })()`, id++);
-    await vscode.commands.executeCommand('type', { text: 'g' });
-    const deadline = Date.now() + 10_000;
-    while (Date.now() < deadline) {
-      const visible = await evaluate(socket, `(() => {
-        const probe = globalThis.__sophpSuggestionProbe;
-        return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs, labels: probe.labels };
-      })()`, id++) as VisibleSuggestion | null;
-      if (visible) {
-        assert.ok(visible.labels.some((label) => label.includes('getStatusCode')),
-          `The first visible real Composer suggestion omitted getStatusCode: ${JSON.stringify(visible.labels)}`);
-        assert.ok(!visible.labels.some((label) => label.includes('getName')),
-          `Monolog Logger leaked into the PSR ResponseInterface suggestion list: ${JSON.stringify(visible.labels)}`);
-        assert.ok(document.isDirty && document.getText().includes('$value->g;'));
-        return visible;
+    const samples: number[] = [];
+    let lastLabels: string[] = [];
+    for (const [index, sample] of cases.entries()) {
+      const shortName = sample.name.slice(sample.name.lastIndexOf('\\') + 1);
+      const source = `<?php namespace App\\C1; use ${sample.name}; function uiReal${index}(${shortName} $value): void { $value->; }`;
+      const uri = vscode.Uri.joinPath(root, 'src', 'C1', `UiRealVendor${index}.php`);
+      await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+      const document = await vscode.workspace.openTextDocument(uri);
+      const editor = await vscode.window.showTextDocument(document);
+      const offset = source.indexOf('$value->;') + '$value->'.length;
+      editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+      assert.strictEqual(await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++), false,
+        `A previous suggestion widget remained visible before real Composer sample ${index}.`);
+      await evaluate(socket, `(() => {
+        globalThis.__sophpSuggestionProbe?.observer.disconnect();
+        const probe = { start: performance.now(), elapsedMs: null, labels: [], observer: null };
+        const inspect = () => {
+          const widget = document.querySelector('.suggest-widget.visible');
+          if (!widget || !widget.getBoundingClientRect().width) return;
+          const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
+          if (!labels.length) return;
+          probe.elapsedMs = performance.now() - probe.start;
+          probe.labels = labels;
+          probe.observer.disconnect();
+        };
+        probe.observer = new MutationObserver(inspect);
+        probe.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        globalThis.__sophpSuggestionProbe = probe;
+        return true;
+      })()`, id++);
+      await vscode.commands.executeCommand('type', { text: sample.typed });
+      const deadline = Date.now() + 10_000;
+      let visible: VisibleSuggestion | null = null;
+      while (Date.now() < deadline) {
+        visible = await evaluate(socket, `(() => {
+          const probe = globalThis.__sophpSuggestionProbe;
+          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs, labels: probe.labels };
+        })()`, id++) as VisibleSuggestion | null;
+        if (visible) break;
+        await new Promise<void>((resolve) => setTimeout(resolve, 20));
       }
-      await new Promise<void>((resolve) => setTimeout(resolve, 20));
+      assert.ok(visible, `Real Composer suggestion ${sample.method} did not become visible within 10 seconds.`);
+      assert.ok(visible.labels.some((label) => label.includes(sample.method)),
+        `The first visible real Composer suggestion omitted ${sample.method}: ${JSON.stringify(visible.labels)}`);
+      assert.ok(!visible.labels.some((label) => label.includes(sample.forbidden)),
+        `The first visible real Composer suggestion leaked ${sample.forbidden}: ${JSON.stringify(visible.labels)}`);
+      assert.ok(document.isDirty && document.getText().includes(`$value->${sample.typed};`));
+      samples.push(Math.round(visible.elapsedMs));
+      lastLabels = visible.labels;
     }
-    assert.fail('The real Composer method suggestion did not become visible within 10 seconds.');
+    const sorted = [...samples].sort((left, right) => left - right);
+    return { samplesMs: samples, medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
   } finally { socket.close(); }
 }

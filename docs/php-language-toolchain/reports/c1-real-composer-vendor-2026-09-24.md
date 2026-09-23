@@ -19,3 +19,14 @@
 ## 索引预算边界
 
 F04-NAV-19 用独立 stdio 夹具把索引文件预算设为 1：项目 Consumer 已占额度，vendor 的接口和实现尚未完整扫描。Implementation 现在返回明确的“实现查找未完成，部分项目或已安装依赖源码未被扫描”错误，提示查看 SoPHP 输出与索引设置，不把扫描不完整误报成零个实现。中文与英文协议消息和真实 stdio 定向共 4 项通过。此用例验证小预算的失败反馈；默认 10,000 文件附近的性能与用户操作仍待单独验证。
+
+## 后续：六种真实 vendor 类型的可见建议
+
+F04-HOST 的 Workbench DOM 可见列表用例从一个 PSR Response 接收者扩为六个：`ResponseInterface::getStatusCode`、`RequestInterface::getRequestTarget`、`StreamInterface::getSize`、`LoggerInterface::emergency`、`ParameterBag::filter`、`HeaderBag::contains`。每种类型写入一个新的独立项目 PHP 文件，打开编辑器后在 `$value->` 后键入一个字母；首个可见列表必须含目标方法且不含该类型无关的反例方法，缓冲区必须保持未保存。测试仍使用同一份锁定的 30 包、1,029 PHP 文件的 Composer fixture。
+
+| 隔离 VS Code Core 宿主运行 | 六次可见时间，毫秒 | 中位数 | 最大值 |
+| --- | --- | ---: | ---: |
+| 首次扩充运行 | 204、217、213、221、228、245 | 219 ms | 245 ms |
+| 加入六个反例断言后的复测 | 221、219、216、227、227、237 | 224 ms | 237 ms |
+
+两次运行均为 6/6 正例通过、退出码 0；第二次还通过 6/6 无关方法排除断言。复现入口为 `PHP_COMPANION_TEST_C1_UI=1 PHP_COMPANION_TEST_C1_REAL_VENDOR=1 pnpm test:extension:c1`，源码构建后直接运行隔离宿主，不生成 VSIX。此次只验证当前本机的首次可见列表；其中还可能包含 VS Code 片段，不证明排序完全理想、完整 Open Source Pack 组合、Remote 或跨平台体验。默认 10,000 文件附近的 Implementation 边界后来另由[候选预算报告](c1-implementation-candidate-budget-2026-09-24.md)验证。
