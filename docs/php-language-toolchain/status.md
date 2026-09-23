@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-01 扩展：独立 Composer 项目在隔离 VS Code Core 宿主中，未保存地把接收者从接口切换为无关同名类后，再次验证 Completion、Hover、Signature Help、Definition、Implementation、References 六项均按新类型返回。auto、PHP 7.2、8.1、8.5 四种设置均退出码 0。快速输入期间的旧请求由独立 stdio 时序用例覆盖；实际建议列表显示时间和完整 Pack/Remote 体验仍待验。见[报告](reports/c1-unsaved-full-chain-2026-09-24.md)。
+
 2026-09-24 C1 Provider 所有权与等待分层：本地 VS Code 1.139.0 内建 PHP 基础提示与 SoPHP 同时注册 Completion、Hover、Signature Help；Core 和 Open Source Pack 现在默认 `php.suggest.basic=false`。隔离 Core 宿主核实设置生效、`abs` 只出现一次，六项编辑请求及未保存 Definition 通过；manifest 测试 4/4。12 次小样本中服务器 Completion/Hover handler 与 Language Client 轻量往返均短于出现波动的 VS Code 命令时间，尚不能判定具体 UI 等待阶段。见[报告](reports/c1-provider-ownership-latency-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-12/13：可控真实 stdio 时序发现并修复旧 Completion 在未保存编辑后返回新文档候选的缺陷；根因是把可变文档对象上的版本当作请求快照。Completion、Hover、Signature Help、Definition 的旧请求和新版本结果均通过；关闭并以相同版本号重新打开文件也不会释放旧结果。查询与诊断发布改为入口版本和文档身份检查。直接 LSP 的 100 次编辑基准中 Completion/Hover 热态 P95 约 1 ms；隔离宿主的偶发长等待尚未定位。详见[报告](reports/f04-mutable-document-query-version-2026-09-24.md)。

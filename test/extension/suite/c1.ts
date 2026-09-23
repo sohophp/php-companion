@@ -148,6 +148,40 @@ export async function run(): Promise<void> {
     'SoPHP kept the old member declaration after an unsaved edit.',
   );
   assert.deepStrictEqual(changedDefinition.map((item) => item.uri.toString()), [otherUri.toString()]);
+  const changedSource = document.getText();
+  const changedCallOffset = changedSource.indexOf('$value->renderC1(2)') + '$value->'.length;
+  const changedCallPosition = document.positionAt(changedCallOffset + 1);
+  const changedCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri,
+      document.positionAt(changedSource.indexOf('$value->renderC;') + '$value->renderC'.length), '>'),
+    (result) => result?.items.some((item) => item.label === 'renderC1' && item.detail?.includes('C1Other::renderC1(): void')) === true,
+    'SoPHP completion kept the old receiver after an unsaved edit.',
+  );
+  assert.strictEqual(changedCompletion.items.filter((item) => item.label === 'renderC1').length, 1);
+  const changedHover = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, changedCallPosition),
+    (result) => result?.some((item) => item.contents.some((part) =>
+      (part instanceof vscode.MarkdownString ? part.value : typeof part === 'string' ? part : part.value).includes('renderC1(): void'))) === true,
+    'SoPHP Hover kept the old method signature after an unsaved edit.',
+  );
+  assert.ok(changedHover.length > 0);
+  const changedSignature = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', consumerUri,
+      document.positionAt(changedSource.indexOf('$value->renderC1(2)') + '$value->renderC1('.length)),
+    (result) => result?.signatures.some((item) => item.label.includes('renderC1(): void')) === true,
+    'SoPHP Signature Help kept the old method parameters after an unsaved edit.',
+  );
+  assert.deepStrictEqual(changedSignature.signatures.map((item) => item.label), ['renderC1(): void']);
+  const changedReferences = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', consumerUri, changedCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === consumerUri.toString()
+      && item.range.start.isEqual(document.positionAt(changedCallOffset))) === true,
+    'SoPHP References did not follow the new receiver after an unsaved edit.',
+  );
+  assert.ok(changedReferences.every((item) => ![contractUri.toString(), printerUri.toString()].includes(item.uri.toString())));
+  const changedImplementations = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', consumerUri,
+    changedCallPosition);
+  assert.deepStrictEqual(changedImplementations, [], 'SoPHP kept the old interface implementation after an unsaved edit.');
   if (targetPhpVersion) {
     const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
     const versionSource = `<?php namespace App\\C1;
@@ -169,7 +203,7 @@ function consume(): void { (void) choose(1); }`;
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
   }
-  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; Hover, Signature Help, Definition, Implementation, References and unsaved Definition passed.`);
+  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
   console.log(`C1 warm command latency (12 sequential samples each, ms): ${JSON.stringify(warm)}`);
   console.log(`C1 server handler latency (same warm interval, ms): ${JSON.stringify(Object.fromEntries(
