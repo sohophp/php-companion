@@ -448,6 +448,78 @@ function run(Alias $report, Other $other): string {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('F04-NAV-07 keeps same-short-name classes in separate Composer namespaces', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-same-short-name-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'lib'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Acme\\': 'lib/' } } }));
+      const localSource = '<?php namespace App; final class Formatter { public function format(int $value): int { return $value; } public function fromLocal(): void {} }';
+      const remoteSource = '<?php namespace Acme; final class Formatter { public function format(string $value): string { return $value; } public function fromRemote(): void {} }';
+      const consumerSource = `<?php namespace App;
+use Acme\\Formatter as External;
+function run(Formatter $local, External $remote): void {
+  $local->format(1);
+  $remote->format('x');
+  $local->f;
+  $remote->f;
+}`;
+      await writeFile(join(root, 'src', 'Formatter.php'), localSource);
+      await writeFile(join(root, 'lib', 'Formatter.php'), remoteSource);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumerSource);
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const localUri = pathToFileURL(join(root, 'src', 'Formatter.php')).toString();
+      const remoteUri = pathToFileURL(join(root, 'lib', 'Formatter.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 972, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 972);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: consumerSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const query = async (id: number, method: string, offset: number, options: object = {}): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: {
+          textDocument: { uri }, position: lspPosition(consumerSource, offset), ...options,
+        } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result;
+      };
+      const remoteCall = consumerSource.indexOf("$remote->format('x')") + '$remote->'.length;
+      const localCall = consumerSource.indexOf('$local->format(1)') + '$local->'.length;
+      const remoteDeclaration = remoteSource.indexOf('function format') + 'function '.length;
+      const localDeclaration = localSource.indexOf('function format') + 'function '.length;
+      const remoteCompletion = await query(973, 'textDocument/completion', consumerSource.indexOf('$remote->f;') + '$remote->f'.length);
+      const remoteLabels = remoteCompletion.map((item: { label: string }) => item.label);
+      expect(remoteLabels).toContain('fromRemote');
+      expect(remoteLabels).not.toContain('fromLocal');
+      const localCompletion = await query(974, 'textDocument/completion', consumerSource.indexOf('$local->f;') + '$local->f'.length);
+      const localLabels = localCompletion.map((item: { label: string }) => item.label);
+      expect(localLabels).toContain('fromLocal');
+      expect(localLabels).not.toContain('fromRemote');
+      expect(await query(975, 'textDocument/definition', remoteCall + 1)).toEqual([{
+        uri: remoteUri, range: { start: lspPosition(remoteSource, remoteDeclaration), end: lspPosition(remoteSource, remoteDeclaration + 'format'.length) },
+      }]);
+      expect(await query(976, 'textDocument/definition', localCall + 1)).toEqual([{
+        uri: localUri, range: { start: lspPosition(localSource, localDeclaration), end: lspPosition(localSource, localDeclaration + 'format'.length) },
+      }]);
+      expect(JSON.stringify(await query(981, 'textDocument/hover', remoteCall + 1))).toContain('format(string $value): string');
+      expect(JSON.stringify(await query(982, 'textDocument/hover', localCall + 1))).toContain('format(int $value): int');
+      expect((await query(977, 'textDocument/signatureHelp', consumerSource.indexOf("$remote->format('x')") + '$remote->format('.length))
+        .signatures[0].label).toContain('format(string $value): string');
+      expect((await query(978, 'textDocument/signatureHelp', consumerSource.indexOf('$local->format(1)') + '$local->format('.length))
+        .signatures[0].label).toContain('format(int $value): int');
+      expect(await query(979, 'textDocument/references', remoteCall + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(consumerSource, remoteCall), end: lspPosition(consumerSource, remoteCall + 'format'.length) },
+      }]);
+      expect(await query(980, 'textDocument/references', localCall + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(consumerSource, localCall), end: lspPosition(consumerSource, localCall + 'format'.length) },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {

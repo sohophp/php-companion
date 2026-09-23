@@ -27,3 +27,7 @@ F04-NAV-05 在同一双 PSR-4 Composer 项目中，把 `Report` 的成员来源�
 ## 未完成成员与连续未保存编辑
 
 F04-NAV-06 在 F04-NAV-01 的项目中给 `Other` 增加专属 `reset()`。同一 Language Server 会话连续接收第 5 版 `Other $printer` 和第 6 版 `Contract $printer`，两版的第二个调用都保持未完成的 `$printer->re`；不等待诊断即请求 Completion 与首个完整调用的 Definition。第 6 版补全包含 `render` 且不包含 `reset`，Definition 落到接口。第 7 版切回 `Other` 后，补全出现 `reset`，Definition 落到 `Other::render`。该验证覆盖连续文档版本后的可见请求结果，尚未模拟在耗时查询执行期间取消旧请求。
+
+## 跨 namespace 同名短类
+
+F04-NAV-07 使用两个 PSR-4 根目录中的 `App\Formatter` 与 `Acme\Formatter`。两者都有 `format()`，但签名不同，且各有一个专属 `fromLocal()` / `fromRemote()` 成员；Consumer 通过 `External` import alias 同时使用两类。按需真实 stdio 的 Completion 分别只包含本类专属成员，Hover、Signature Help、Definition 和 References 分别对应其真实声明或调用，不按短类名混合。定向测试通过；更复杂的 alias 冲突和真实编辑器操作仍待验证。
