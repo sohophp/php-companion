@@ -4621,7 +4621,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 15_000);
 
-  it('routes nested Composer projects to the deepest project root', async () => {
+  it.each(['experimental', 'onDemand'])('F04-NAV-15 routes nested Composer projects to the deepest project root in %s mode', async (indexingMode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-nested-root-'));
     const nested = join(root, 'apps', 'api');
     try {
@@ -4634,14 +4634,67 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       const source = '<?php namespace App; function run(Service $service): void { $service->nested }';
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 25, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString() } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 25, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode, phpVersion: '7.2', phpVersions: [
+          { uri: pathToFileURL(root).toString(), version: '7.2' }, { uri: pathToFileURL(nested).toString(), version: '8.5' },
+        ] },
+      } }));
       await output.waitFor((message) => message.id === 25);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(nested));
+      if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(nested));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 26, method: 'textDocument/completion', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf('nested') + 6 } } }));
       expect((await output.waitFor((message) => message.id === 26)).result.map((item: { label: string }) => item.label)).toEqual(['nestedOnly']);
+      const versionSource = '<?php namespace App; enum State { case Ready; } function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; }';
+      for (const [index, projectRoot] of [root, nested].entries()) {
+        const versionUri = pathToFileURL(join(projectRoot, 'src', 'Versioned.php')).toString();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: versionUri, languageId: 'php', version: 1, text: versionSource },
+        } }));
+        const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === versionUri && message.params.version === 1);
+        expect(published.params.diagnostics.some((item: { code?: string }) => item.code === 'php.version.unsupported')).toBe(index === 0);
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-root-'));
+    try {
+      const src = join(root, 'src'); const packageRoot = join(root, 'vendor', 'acme', 'lib');
+      await mkdir(src); await mkdir(join(packageRoot, 'src'), { recursive: true }); await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      await writeFile(join(packageRoot, 'composer.json'), JSON.stringify({ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }));
+      const target = '<?php namespace Acme; class Target { public function get(): int { return 1; } }';
+      const consumer = '<?php namespace App; use Acme\\Target; function run(Target $value): int { return $value->get(); }';
+      const targetUri = pathToFileURL(join(packageRoot, 'src', 'Target.php')).toString();
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      await writeFile(join(packageRoot, 'src', 'Target.php'), target); await writeFile(join(src, 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 360, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 360);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, source] of [[targetUri, target], [consumerUri, consumer]]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 361, method: 'textDocument/references', params: {
+        textDocument: { uri: targetUri }, position: lspPosition(target, target.indexOf('function get') + 'function '.length + 1),
+        context: { includeDeclaration: false },
+      } }));
+      const call = consumer.lastIndexOf('get()');
+      expect((await output.waitFor((message) => message.id === 361, 15_000)).result).toEqual([{ uri: consumerUri, range: {
+        start: lspPosition(consumer, call), end: lspPosition(consumer, call + 'get'.length),
+      } }]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -7271,7 +7324,8 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         uri, pathToFileURL(join(root, 'src', 'Other.php')).toString(),
       ]));
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates]'))).toBe(false);
+        && message.params?.message?.includes('[named-candidates]')), JSON.stringify(output.messages.filter((message: any) =>
+        message.method === 'window/logMessage').map((message: any) => message.params?.message).slice(-25))).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri, version: 2 }, contentChanges: [{ text: source }],
       } }));

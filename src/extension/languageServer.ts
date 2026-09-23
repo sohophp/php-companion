@@ -51,11 +51,18 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
 
 export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
-  const folderPhpVersions = (): Array<{ uri: string; version: string }> => (vscode.workspace.workspaceFolders ?? []).map((folder) => {
-    const requested = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion', 'auto');
-    return { uri: folder.uri.toString(), version: requested === 'auto'
-      ? versions.stateForUri(folder.uri)?.resolution.target ?? '7.2' : requested };
-  });
+  const projectPhpVersions = (): Array<{ uri: string; version: string }> => {
+    const entries = new Map<string, string>();
+    for (const folder of vscode.workspace.workspaceFolders ?? []) {
+      const requested = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion', 'auto');
+      entries.set(folder.uri.toString(), requested === 'auto'
+        ? versions.stateForUri(folder.uri)?.resolution.target ?? '7.2' : requested);
+    }
+    for (const state of versions.allStates()) if (state.projectRoot) {
+      entries.set(stateRootUri(state).toString(), state.resolution.target);
+    }
+    return [...entries].map(([uri, version]) => ({ uri, version }));
+  };
   const activation = languageServerActivationDecision();
   if (!activation.start) {
     if (activation.blockedByCompetingServer) {
@@ -125,9 +132,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     initializationOptions: () => ({
-      phpVersion: folderPhpVersions()[0]?.version ?? (configuration.get<string>('phpVersion', 'auto') === 'auto'
+      phpVersion: projectPhpVersions()[0]?.version ?? (configuration.get<string>('phpVersion', 'auto') === 'auto'
         ? '7.2' : configuration.get<string>('phpVersion', '7.2')),
-      phpVersions: folderPhpVersions(),
+      phpVersions: projectPhpVersions(),
       indexingMode: configuration.get<'off' | 'onDemand' | 'progressive' | 'experimental'>('indexing.mode', 'onDemand'),
       referenceMemoryBudgetMiB: configuration.get<number>('indexing.referenceMemoryBudgetMiB', 1536),
       experimentalReferenceSourceOnly: configuration.get<boolean>('indexing.experimentalSourceOnlyReferences', false),
@@ -189,7 +196,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   }));
   let stopping = false;
   let versionRestartTimer: ReturnType<typeof setTimeout> | undefined;
-  let versionSignature = JSON.stringify(folderPhpVersions());
+  let versionSignature = JSON.stringify(projectPhpVersions());
   const scheduleVersionRestart = (): void => {
     if (stopping) return;
     if (versionRestartTimer) clearTimeout(versionRestartTimer);
@@ -250,7 +257,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   };
   const updateVersionState = (): void => {
     updatePhpExtensionAvailability();
-    const nextSignature = JSON.stringify(folderPhpVersions());
+    const nextSignature = JSON.stringify(projectPhpVersions());
     if (nextSignature !== versionSignature) {
       versionSignature = nextSignature;
       scheduleVersionRestart();

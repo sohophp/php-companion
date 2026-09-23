@@ -365,6 +365,61 @@ function consume(): void { (void) choose(1); }`;
         assert.strictEqual(autoBuiltinCompletion.items.some((item) => item.label === 'str_contains'), expectedAvailable,
           'SoPHP used the wrong Composer auto version for built-in completion.');
       }
+      const parentServiceSource = '<?php namespace App\\C1; class NestedService { public function parentOnly(): void {} }';
+      await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'NestedService.php'), Buffer.from(parentServiceSource));
+      const nestedRoot = vscode.Uri.joinPath(workspace.uri, 'apps', 'api');
+      const nestedFolder = vscode.Uri.joinPath(nestedRoot, 'src', 'C1');
+      await vscode.workspace.fs.createDirectory(nestedFolder);
+      await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(nestedRoot, 'composer.json'), Buffer.from(JSON.stringify({
+        config: { platform: { php: '8.5.0' } }, autoload: { 'psr-4': { 'App\\': 'src/' } },
+      })));
+      const nestedServiceSource = '<?php namespace App\\C1; class NestedService { public function nestedOnly(): void {} }';
+      const nestedServiceUri = vscode.Uri.joinPath(nestedFolder, 'NestedService.php');
+      const nestedConsumerSource = '<?php namespace App\\C1; function nestedRun(NestedService $service): void { $service->nestedOnly(); $service->nested; }';
+      const nestedConsumerUri = vscode.Uri.joinPath(nestedFolder, 'Consumer.php');
+      await vscode.workspace.fs.writeFile(nestedServiceUri, Buffer.from(nestedServiceSource));
+      await vscode.workspace.fs.writeFile(nestedConsumerUri, Buffer.from(nestedConsumerSource));
+      const nestedDocument = await vscode.workspace.openTextDocument(nestedConsumerUri);
+      await vscode.window.showTextDocument(nestedDocument);
+      const nestedCompletion = await waitForResult(
+        () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', nestedConsumerUri,
+          nestedDocument.positionAt(nestedConsumerSource.indexOf('$service->nested;') + '$service->nested'.length), '>'),
+        (result) => result?.items.some((item) => item.label === 'nestedOnly') === true,
+        'SoPHP did not discover the nested Composer project in onDemand mode.',
+      );
+      assert.ok(!nestedCompletion.items.some((item) => item.label === 'parentOnly'));
+      const nestedDefinition = await waitForResult(
+        () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', nestedConsumerUri,
+          nestedDocument.positionAt(nestedConsumerSource.indexOf('$service->nestedOnly()') + '$service->'.length + 1)),
+        (result) => result?.some((item) => item.uri.toString() === nestedServiceUri.toString()) === true,
+        'SoPHP navigated from the nested project into its parent project.',
+      );
+      assert.deepStrictEqual(nestedDefinition.map((item) => item.uri.toString()), [nestedServiceUri.toString()]);
+      const nestedCallOffset = nestedConsumerSource.indexOf('$service->nestedOnly()') + '$service->'.length;
+      const nestedReferences = await waitForResult(
+        () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', nestedConsumerUri,
+          nestedDocument.positionAt(nestedCallOffset + 1)),
+        (result) => result?.some((item) => item.uri.toString() === nestedConsumerUri.toString()
+          && item.range.start.isEqual(nestedDocument.positionAt(nestedCallOffset))) === true,
+        'SoPHP did not find the nested project call reference.',
+      );
+      assert.ok(nestedReferences.every((item) => item.uri.toString().startsWith(`${nestedRoot.toString()}/`)),
+        'SoPHP mixed parent references into the nested Composer project.');
+      const nestedVersionUri = vscode.Uri.joinPath(nestedFolder, 'Versioned.php');
+      await vscode.workspace.fs.writeFile(nestedVersionUri, Buffer.from(versionSource));
+      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(nestedVersionUri));
+      const nestedDiagnostics = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(nestedVersionUri)),
+        (result) => result.some((item) => item.code === 'php.type.filename')
+          && !result.some((item) => item.code === 'php.version.unsupported'),
+        'SoPHP kept the parent PHP 7.2 target in the nested PHP 8.5 project.');
+      assert.ok(!nestedDiagnostics.some((item) => item.code === 'php.syntax'));
+      const parentVersionAfterNestedUri = vscode.Uri.joinPath(folder, 'AfterNestedVersioned.php');
+      await vscode.workspace.fs.writeFile(parentVersionAfterNestedUri, Buffer.from(versionSource));
+      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(parentVersionAfterNestedUri));
+      const parentDiagnosticsAfterNested = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(parentVersionAfterNestedUri)),
+        (result) => result.filter((item) => item.code === 'php.version.unsupported').length === 3,
+        'SoPHP replaced the parent PHP 7.2 target after opening the nested PHP 8.5 project.');
+      assert.ok(!parentDiagnosticsAfterNested.some((item) => item.code === 'php.syntax'));
       const secondComposerUri = vscode.Uri.joinPath(secondWorkspace.uri, 'composer.json');
       const secondComposer = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(secondComposerUri)).toString('utf8')) as {
         config: { platform: { php: string } };

@@ -40,7 +40,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGUR
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
   type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
-import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, projectAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
+import { allPsr4Mappings, discoverComposerRoots, findComposerRoot, loadComposerProject, allAutoloadPaths, projectAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, symfonyPhpParameterReferences, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
 import { doctrineQueryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
@@ -66,6 +66,7 @@ const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
 let workspaceRoots: string[] = [];
+const composerRootChecks = new Map<string, Promise<void>>();
 let clientDiagnosticLanguage: DiagnosticLanguage = 'en';
 let workspaceFolderRoots: string[] = [];
 let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
@@ -130,13 +131,13 @@ const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
-const targetPhpVersionsByFolder = new Map<string, SupportedPhpVersion>();
+const targetPhpVersionsByRoot = new Map<string, SupportedPhpVersion>();
 
 function phpVersionForRoot(root?: string): SupportedPhpVersion {
   if (!root) return targetPhpVersion;
-  const folder = workspaceFolderRoots.filter((candidate) => pathWithin(candidate, root))
+  const project = [...targetPhpVersionsByRoot.keys()].filter((candidate) => pathWithin(candidate, root))
     .sort((left, right) => right.length - left.length)[0];
-  return folder ? targetPhpVersionsByFolder.get(folder) ?? targetPhpVersion : targetPhpVersion;
+  return project ? targetPhpVersionsByRoot.get(project) ?? targetPhpVersion : targetPhpVersion;
 }
 
 function phpVersionForUri(uri: string): SupportedPhpVersion { return phpVersionForRoot(rootForUri(uri)); }
@@ -992,7 +993,39 @@ function semanticForKey(key: string): Promise<SemanticWorkspace> {
 }
 
 function semanticForRoot(root: string): Promise<SemanticWorkspace> { return semanticForKey(`root:${root}`); }
-function semanticForUri(uri: string): Promise<SemanticWorkspace> { const root = rootForUri(uri); return root ? semanticForRoot(root) : semanticForKey('loose'); }
+async function ensureComposerRootForUri(uri: string): Promise<void> {
+  if (indexingMode !== 'onDemand') return;
+  const path = pathForUri(uri);
+  if (!path) return;
+  const folder = workspaceFolderRoots.filter((candidate) => pathWithin(candidate, path))
+    .sort((left, right) => right.length - left.length)[0];
+  if (!folder) return;
+  let pending = composerRootChecks.get(path);
+  if (!pending) {
+    pending = (async (): Promise<void> => {
+      const project = await findComposerRoot(path, folder);
+      if (!project || workspaceRoots.includes(project)) return;
+      const ownerRoot = workspaceRoots.filter((candidate) => pathWithin(candidate, project))
+        .sort((left, right) => right.length - left.length)[0];
+      const owner = ownerRoot ? await composerProjectForRoot(ownerRoot) : undefined;
+      if (owner?.dependencies.some((dependency) => pathWithin(dependency.root, project))) return;
+      workspaceRoots.push(project);
+    })();
+    composerRootChecks.set(path, pending);
+  }
+  await pending;
+}
+
+function semanticForUri(uri: string): Promise<SemanticWorkspace> {
+  if (indexingMode !== 'onDemand') {
+    const root = rootForUri(uri);
+    return root ? semanticForRoot(root) : semanticForKey('loose');
+  }
+  return ensureComposerRootForUri(uri).then(() => {
+    const root = rootForUri(uri);
+    return root ? semanticForRoot(root) : semanticForKey('loose');
+  });
+}
 
 const SYMFONY_SERVICE_CONFIGS = ['config/services.yaml', 'config/services.yml', 'config/packages/services.yaml', 'config/packages/services.yml', 'config/symfony/services.yaml', 'config/symfony/services.yml', 'app/config/services.yaml', 'app/config/services.yml'];
 const SYMFONY_SERVICE_XML_CONFIGS = ['config/services.xml', 'config/packages/services.xml', 'config/symfony/services.xml', 'app/config/services.xml'];
@@ -3023,14 +3056,17 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   workspaceFolderLocations = uris.flatMap((uri) => { const path = pathForUri(uri); return path ? [{ uri, path }] : []; });
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
-  targetPhpVersionsByFolder.clear();
+  composerRootChecks.clear();
+  targetPhpVersionsByRoot.clear();
   if (Array.isArray(initialization?.phpVersions)) for (const entry of initialization.phpVersions) {
     if (!entry || typeof entry !== 'object') continue;
     const candidate = entry as { uri?: unknown; version?: unknown };
     if (typeof candidate.uri !== 'string' || typeof candidate.version !== 'string'
       || !(SUPPORTED_PHP_VERSIONS as readonly string[]).includes(candidate.version)) continue;
-    const folder = workspaceFolderLocations.find((location) => location.uri === candidate.uri);
-    if (folder) targetPhpVersionsByFolder.set(folder.path, candidate.version as SupportedPhpVersion);
+    const path = pathForUri(candidate.uri);
+    if (path && workspaceFolderRoots.some((folder) => pathWithin(folder, path))) {
+      targetPhpVersionsByRoot.set(path, candidate.version as SupportedPhpVersion);
+    }
   }
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   setFrameworkDocumentSnapshots(initialization?.frameworkDocumentSnapshots ?? { complete: true, documents: [] });
@@ -4079,6 +4115,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     pendingFiles.set(filesystemPathKey(path), { uri: indexedUriForPath(root, path), root }); pendingRoots.add(root);
   }
   if (composerChanged) {
+    composerRootChecks.clear();
     // A changed Composer graph needs a fresh scan even if one was already running.
     const running = activeIndexing; if (running) await running;
     await startIndexWorkspace('composer-change');
@@ -4091,12 +4128,15 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
   }
 });
 
+const openingContentVersions = new Map<string, number>();
+const documentSourcesByUri = new Map<string, string>();
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  openingContentVersions.set(document.uri, document.version);
+  documentSourcesByUri.set(document.uri, document.getText());
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
-  const root = rootForUri(document.uri);
-  const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath
@@ -4123,16 +4163,30 @@ documents.onDidOpen(async ({ document }) => {
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  const opening = openingContentVersions.get(document.uri) === document.version;
+  if (opening) openingContentVersions.delete(document.uri);
+  const source = document.getText();
+  const sourceChanged = documentSourcesByUri.get(document.uri) !== source;
+  documentSourcesByUri.set(document.uri, source);
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
-  const root = rootForUri(document.uri);
-  const workspace = await semanticForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const initialRoot = rootForUri(document.uri);
+  // Invalidate before filesystem-backed root discovery can yield: another
+  // request may otherwise restore references from the previous document.
+  if (!opening && sourceChanged) invalidateCandidates(document.uri, indexingMode === 'progressive');
+  const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
-  const diskPath = pathForUri(document.uri);
-  const diskSource = root && diskPath && previousSource === document.getText() && update.kind === 'none'
-    ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
-  if (diskSource !== document.getText() || update.kind !== 'none') {
-    invalidateCandidates(document.uri, update.kind !== 'declaration');
+  if (opening) {
+    const diskPath = pathForUri(document.uri);
+    const diskSource = root && diskPath ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
+    const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
+      && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
+    if (diskSource !== document.getText()
+      || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
+      invalidateCandidates(document.uri, update.kind !== 'declaration');
+    }
+  } else if (sourceChanged && (root !== initialRoot || indexingMode === 'progressive' && update.kind === 'declaration')) {
+    invalidateCandidates(document.uri);
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
@@ -4148,6 +4202,8 @@ documents.onDidChangeContent(async ({ document }) => {
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  openingContentVersions.delete(document.uri);
+  documentSourcesByUri.delete(document.uri);
   cancelReferencePrewarm(document.uri);
   pendingReferenceSelections.delete(document.uri);
   invalidateCandidates(document.uri);
@@ -4722,6 +4778,9 @@ connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
 let querySequence = 0;
 connection.onReferences(async ({ textDocument, position, context }, token) => {
   const document = documents.get(textDocument.uri);
+  const requestVersion = document?.version;
+  if (document && indexingMode === 'onDemand') await ensureComposerRootForUri(document.uri);
+  if (document && (documents.get(document.uri) !== document || document.version !== requestVersion || token.isCancellationRequested)) return [];
   const openingRoot = document ? rootForUri(document.uri) : undefined;
   const preparation = openingRoot ? referenceSourcePreparations.get(openingRoot) : undefined;
   const adoptPreparation = preparation && preparation.epoch === (projectEpochs.get(openingRoot!) ?? 0)
@@ -5487,6 +5546,7 @@ connection.onShutdown(async () => {
   controllerContextScanEpochs.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
+  composerRootChecks.clear();
 });
 
 documents.listen(connection);

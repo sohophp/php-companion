@@ -90,7 +90,7 @@ export class VersionManager implements vscode.Disposable {
     const state = { folder, projectRoot: composerRoot, composer, resolution, ...(runtime ? { runtime } : {}) };
     this.projectStates.set(composerRoot, state);
     this.watchComposerProject(composerRoot, uri);
-    this.states.set(folder.uri.toString(), state);
+    if (composerRoot === folder.uri.fsPath) this.states.set(folder.uri.toString(), state);
     this.stateEmitter.fire(state);
     this.render();
     return state;
