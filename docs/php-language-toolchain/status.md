@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-05：隔离 VS Code Core 宿主新增无 Composer PHP 约束的第三工作区根；`auto` 通过 `phpCompanion.phpExecutablePath=/usr/bin/php81` 探测 PHP 8.1.34，版本诊断与 `str_contains` 内建补全正确，宿主退出码 0。此为配置可执行文件路径的 Linux 宿主证据，不代表自动发现、其它系统或实际补全列表显示时间。见[报告](reports/c1-configured-runtime-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-17：Composer path repository 使用 vendor 符号链接时，按真实路径打开本地包原会被误判成独立项目，References 返回空；现在核对父项目已安装依赖与候选根的真实路径。符号链接路径和真实路径的 References 均找到父项目调用，独立嵌套项目仍保持隔离；真实 stdio 定向 4/4、Project 11/11、构建和 ESLint 通过。实际补全列表显示时间、运行时版本探测及完整组合仍待验。见[报告](reports/c1-path-repository-2026-09-24.md)。
 
 2026-09-24 Open Source Pack 复核：默认成员仍为 10 项，Recommended Pack 不再生成；删除了已退出组合的 Symfony Language Tools 旧设置及测试/校验中的对应要求。C1 下一批按实际建议列表等待、Composer path/symlink 和运行时版本、跨根内建导航、大型 vendor 顺序推进，冻结候选时再做完整组合门禁。见[整理记录](reports/open-source-pack-core-start-2026-09-24.md)。

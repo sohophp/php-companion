@@ -34,6 +34,7 @@ export async function run(): Promise<void> {
   const timingApi = extension.exports as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
+  const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
   if (targetPhpVersion) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('phpVersion'), targetPhpVersion);
   assert.strictEqual(vscode.workspace.getConfiguration('php').get('suggest.basic'), false,
     'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
@@ -457,6 +458,34 @@ function consume(): void { (void) choose(1); }`;
       builtinVersionUri, builtinVersionDocument.positionAt(builtinVersionSource.indexOf('str_con') + 'str_con'.length));
     assert.strictEqual(builtinVersionCompletion.items.some((item) => item.label === 'str_contains'), changedSecondVersion !== '7.2',
       'SoPHP kept the old root version in built-in completion after a setting change.');
+  }
+  if (runtimeVersion) {
+    const runtimeWorkspace = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'runtime');
+    assert.ok(runtimeWorkspace, 'C1 runtime probe workspace was not opened.');
+    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', runtimeWorkspace.uri).get('phpVersion'), 'auto');
+    const runtimeMinor = runtimeVersion.match(/^8\.[0-5]/u)?.[0];
+    assert.ok(runtimeMinor, `C1 runtime probe received an unsupported version: ${runtimeVersion}`);
+    const runtimeSource = '<?php namespace App\\C1; enum State { case Ready; } function choose(int $value): int { return match ($value) { 1 => 1, default => 0 }; } function useIt(): void { (void) choose(1); str_con }';
+    const runtimeFolder = vscode.Uri.joinPath(runtimeWorkspace.uri, 'src', 'C1');
+    await vscode.workspace.fs.createDirectory(runtimeFolder);
+    const runtimeUri = vscode.Uri.joinPath(runtimeFolder, 'RuntimeVersioned.php');
+    await vscode.workspace.fs.writeFile(runtimeUri, Buffer.from(runtimeSource));
+    const runtimeDocument = await vscode.workspace.openTextDocument(runtimeUri);
+    await vscode.window.showTextDocument(runtimeDocument);
+    const expectedUnsupported = runtimeMinor === '8.0' ? ['enum', '(void) cast']
+      : runtimeMinor === '8.5' ? [] : ['(void) cast'];
+    const runtimeDiagnostics = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(runtimeUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && result.filter((item) => item.code === 'php.version.unsupported').length === expectedUnsupported.length
+        && expectedUnsupported.every((feature) => result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes(feature))),
+      `SoPHP auto mode did not use the configured PHP ${runtimeMinor} executable for diagnostics.`);
+    assert.ok(!runtimeDiagnostics.some((item) => item.code === 'php.syntax'));
+    const runtimeCompletion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      runtimeUri, runtimeDocument.positionAt(runtimeSource.indexOf('str_con') + 'str_con'.length));
+    assert.ok(runtimeCompletion.items.some((item) => item.label === 'str_contains'),
+      'SoPHP auto mode did not use the configured PHP runtime for built-in completion.');
+    console.log(`C1 configured runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
