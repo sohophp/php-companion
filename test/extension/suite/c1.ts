@@ -13,6 +13,18 @@ async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) =>
   assert.fail(message);
 }
 
+async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, name: string): Promise<{ median: number; max: number }> {
+  const samples: number[] = [];
+  for (let index = 0; index < 12; index += 1) {
+    const started = performance.now();
+    const result = await read();
+    samples.push(performance.now() - started);
+    assert.ok(ready(result), `SoPHP ${name} returned an unexpected warm result.`);
+  }
+  samples.sort((left, right) => left - right);
+  return { median: Math.round((samples[5]! + samples[6]!) / 2), max: Math.round(samples[11]!) };
+}
+
 export async function run(): Promise<void> {
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'C1 Extension Host test has no workspace.');
@@ -80,6 +92,28 @@ export async function run(): Promise<void> {
     'SoPHP did not return the member call reference in VS Code.',
   );
   assert.ok(references.every((item) => item.uri.toString() !== otherUri.toString()));
+  const warm = {
+    completion: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri,
+        document.positionAt(completionOffset), '>'),
+      (result) => result?.items.some((item) => item.label === 'renderC1') === true, 'Completion'),
+    hover: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, callPosition),
+      (result) => result?.length > 0, 'Hover'),
+    signature: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', consumerUri,
+        document.positionAt(consumerSource.indexOf('$value->renderC1(2)') + '$value->renderC1('.length)),
+      (result) => result?.signatures.some((item) => item.label.includes('renderC1(int $count): string')) === true, 'Signature Help'),
+    definition: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition),
+      (result) => result?.some((item) => item.uri.toString() === contractUri.toString()) === true, 'Definition'),
+    implementation: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', consumerUri, callPosition),
+      (result) => result?.some((item) => item.uri.toString() === printerUri.toString()) === true, 'Implementation'),
+    references: await warmLatency(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', consumerUri, callPosition),
+      (result) => result?.some((item) => item.uri.toString() === consumerUri.toString()) === true, 'References'),
+  };
   const edit = new vscode.WorkspaceEdit();
   const receiverOffset = consumerSource.indexOf('C1Contract $value');
   edit.replace(consumerUri, new vscode.Range(document.positionAt(receiverOffset),
@@ -115,4 +149,5 @@ function consume(): void { (void) choose(1); }`;
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; Hover, Signature Help, Definition, Implementation, References and unsaved Definition passed.`);
+  console.log(`C1 warm command latency (12 sequential samples each, ms): ${JSON.stringify(warm)}`);
 }

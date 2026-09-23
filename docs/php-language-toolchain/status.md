@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-11：独立 Composer 项目真实 stdio 在 Implementation 候选扫描开始后提交未保存方法改名，旧请求未返回旧实现，新版本 Definition 指向新声明；与 F04-NAV-10 的定向测试 2/2 通过。隔离 VS Code Core 宿主两次完成六项查询、未保存 Definition 和各查询 12 次热态小样本，均退出码 0；Completion/Hover 最大等待高于中间样本，需继续定位。证据与边界见[报告](reports/f04-implementation-race-and-latency-2026-09-24.md)。
+
 2026-09-24 Open Source Pack 与 C1 起点：保留当前 Core、Symfony、8 个外部扩展的清单；新增[职责、运行边界及可选候选整理](daily-use-assembly.md)，PHP DocBlocker 与项目 PHPStan 暂不自动安装。Manifest 对齐测试 4/4 通过；本轮未重建 Pack 或声称新组合试用完成。C1/F02-VERSION-01 的真实 stdio 在同一独立 Composer 输入下分别验证 PHP 7.2、8.1、8.5 的版本诊断，隔离 VS Code Core 宿主三次均退出码 0；三版本都完成六项编辑请求与未保存 Definition。下一项是其它查询的进行中编辑时序及冷/热等待分布。未改业务项目代码。
 
 2026-09-24 C1 查询版本保护：Completion、Hover、Definition、Type Definition 和 Implementation 在语义工作区或框架事实等异步边界后统一核对请求文档版本及取消状态，避免可观察到的新编辑仍返回旧结果；Signature Help 保留既有最终检查。F04 定向 5 项、Language Server 全套 300 项通过且 1 项跳过，源码 Core 宿主 F04-HOST-01 复测退出码 0。各分支的可控在飞行竞态尚未逐项复现，见[查询版本保护报告](reports/f04-query-version-guards-2026-09-24.md)。

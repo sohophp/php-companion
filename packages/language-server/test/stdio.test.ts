@@ -641,6 +641,51 @@ function run(Formatter $local, External $remote): void {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
+  it('F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-implementation-edit-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const initial = '<?php namespace App; interface Contract { public function render(): void; }';
+      const changed = initial.replace('render()', 'output()');
+      await writeFile(join(root, 'src', 'Contract.php'), initial);
+      await writeFile(join(root, 'src', 'Printer.php'),
+        '<?php namespace App; final class Printer implements Contract { public function render(): void {} }');
+      await Promise.all(Array.from({ length: 1_000 }, (_, index) => writeFile(join(root, 'src', `Noise${index}.php`),
+        `<?php namespace App; final class Noise${index} { public function render(): void {} }`)));
+      const uri = pathToFileURL(join(root, 'src', 'Contract.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 971, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 971);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: initial },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 972, method: 'textDocument/implementation', params: {
+        textDocument: { uri }, position: lspPosition(initial, initial.indexOf('render') + 1),
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start]') && message.params.message.includes('render'), 15_000);
+      expect(output.messages.some((message: any) => message.id === 972)).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      const stale = await output.waitFor((message) => message.id === 972, 15_000);
+      expect(stale.error?.code === -32801 || Array.isArray(stale.result) && stale.result.length === 0).toBe(true);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 973, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(changed, changed.indexOf('output') + 1),
+      } }));
+      expect((await output.waitFor((message) => message.id === 973, 15_000)).result).toEqual([{
+        uri, range: { start: lspPosition(changed, changed.indexOf('output')),
+          end: lspPosition(changed, changed.indexOf('output') + 'output'.length) },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it('F02-VERSION-01 reports match, enum and void-cast boundaries at PHP 7.2, 8.1 and 8.5', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f02-version-workflow-'));
     try {
