@@ -29,13 +29,25 @@ const messages = {
   routeProviderFailed: ['Route provider {0} failed ({1}); ignored this query: {2}', '路由 Provider {0} 失败（{1}）；已忽略本次查询：{2}'],
   routeAuthoritativeIncomplete: ['Authoritative route provider {0} returned an incomplete snapshot; ignored this query.', '权威路由 Provider {0} 返回不完整快照；已忽略本次查询。'],
   routeSnapshotIncomplete: ['Symfony routes are unavailable because a route provider returned an incomplete snapshot.', '路由 Provider 返回不完整快照；Symfony 路由暂不可用。'],
+  containerRefreshFailed: ['Symfony container refresh failed: {0}', 'Symfony 容器刷新失败：{0}'],
+  semanticReconciliationFailed: ['Semantic provider reconciliation failed: {0}', '语义 Provider 对账失败：{0}'],
+  callableCacheWriteFailed: ['Persistent callable fact cache could not be written.', '持久化 Callable 事实缓存写入失败。'],
+  routePrewarmFailed: ['Reference route prewarm failed: {0}', '引用路由预热失败：{0}'],
+  sourcePreparationFailed: ['Reference source preparation failed: {0}', '引用源码准备失败：{0}'],
+  progressiveRefreshFailed: ['Progressive reference refresh failed: {0}', '渐进式引用刷新失败：{0}'],
+  frameworkPrewarmFailed: ['Reference framework prewarm failed: {0}', '引用框架预热失败：{0}'],
+  referencePrewarmFailed: ['Reference prewarm failed: {0}', '引用预热失败：{0}'],
+  receiverClosureLimit: ['Reference receiver closure reached its 16-pass limit in {0}.', '{0} 中的引用接收者闭包达到 16 轮上限。'],
+  projectIndexFailed: ['Project indexing failed: {0}', '项目索引失败：{0}'],
+  semanticWarmupFailed: ['PHP semantic warm-up failed: {0}', 'PHP 语义预热失败：{0}'],
+  watcherRegistrationFailed: ['File watcher registration failed: {0}', '文件监听器注册失败：{0}'],
 } as const;
 
 export type OutputMessageKey = keyof typeof messages;
 
 export function outputMessage(language: DiagnosticLanguage, key: OutputMessageKey, ...args: string[]): string {
   const template = messages[key][language === 'zh' ? 1 : 0];
-  return args.reduce((value, argument, index) => value.replaceAll(`{${index}}`, argument), template);
+  return template.replace(/\{(\d+)\}/g, (placeholder, index: string) => args[Number(index)] ?? placeholder);
 }
 
 export function outputProviderSource(language: DiagnosticLanguage, source: string): string {

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F14 [Language Server 故障日志](reports/f14-operational-output-2026-09-23.md)已补齐中英文固定文案，并保护底层错误详情中的占位符文本；类型检查、定向测试和 ESLint 通过。下游警告原文及信息级日志仍待审计，继续不打包。
+
 2026-09-23 F14 [Symfony Provider 输出通道警告](reports/f14-provider-output-2026-09-23.md)已按客户端语言显示；真实中文 stdio 注册错误与既有英文路由 Provider 回归通过。Provider ID、错误码、外部错误详情保持原文。索引、缓存、监听器等日志仍待处理；本轮不打包，F14 保持开放。
 
 2026-09-23 F14 组合声明诊断本地化：抽象方法/属性、只读属性、Property Hook 与魔术方法签名的违规原因已分别翻译，再按原有条件和顺序组合；现有英文消息基线保留。证据与未覆盖范围见[组合声明诊断报告](reports/f14-composite-diagnostics-2026-09-23.md)。F14 仍开放。

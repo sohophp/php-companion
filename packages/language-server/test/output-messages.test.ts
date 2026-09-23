@@ -15,4 +15,15 @@ describe('Language Server output messages', () => {
     expect(outputMessage('zh', 'routeProviderFailed', 'app.routes', 'TIMEOUT', 'request timed out'))
       .toBe('路由 Provider app.routes 失败（TIMEOUT）；已忽略本次查询：request timed out');
   });
+
+  it('translates operational failures without rewriting raw error details', () => {
+    expect(outputMessage('en', 'projectIndexFailed', 'disk full'))
+      .toBe('Project indexing failed: disk full');
+    expect(outputMessage('zh', 'projectIndexFailed', 'disk full'))
+      .toBe('项目索引失败：disk full');
+    expect(outputMessage('zh', 'routeProviderFailed', 'app.routes', 'TIMEOUT', 'unexpected {0} and {1}'))
+      .toBe('路由 Provider app.routes 失败（TIMEOUT）；已忽略本次查询：unexpected {0} and {1}');
+    expect(outputMessage('zh', 'receiverClosureLimit', '/workspace/project'))
+      .toBe('/workspace/project 中的引用接收者闭包达到 16 轮上限。');
+  });
 });

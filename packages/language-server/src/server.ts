@@ -758,7 +758,7 @@ function scheduleSymfonyContainerRefresh(root: string): void {
     symfonyContainerRefreshTimers.delete(root);
     if (activeIndexing || !projectCompleteRoots.has(root)) return;
     void semanticForRoot(root).then((workspace) => refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => true))
-      .catch((error: unknown) => connection.console.warn(`Symfony container refresh failed: ${String(error)}`));
+      .catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'containerRefreshFailed', String(error))));
   }, 250));
 }
 
@@ -880,7 +880,7 @@ function enqueueSemanticProviderChange(update: () => void): Promise<void> {
   const work = semanticProviderReconciliation.then(async () => {
     const previous = [...semanticProviders]; update(); await reconcileSemanticProviderChange(previous);
   });
-  semanticProviderReconciliation = work.catch((error: unknown) => connection.console.error(`Semantic provider reconciliation failed: ${String(error)}`));
+  semanticProviderReconciliation = work.catch((error: unknown) => connection.console.error(outputMessage(clientDiagnosticLanguage, 'semanticReconciliationFailed', String(error))));
   return work;
 }
 connection.onNotification('phpCompanion/symfonyRouteProviders', async (params: { providers?: unknown } | undefined) => {
@@ -1066,7 +1066,7 @@ function scheduleCallableFactPersistence(root: string, workspace: SemanticWorksp
   const pending = callableFactCommitTimers.get(root); if (pending) clearTimeout(pending);
   callableFactCommitTimers.set(root, setTimeout(() => {
     callableFactCommitTimers.delete(root);
-    void persistCallableFacts(root, workspace).catch(() => connection.console.warn('Persistent callable fact cache could not be written.'));
+    void persistCallableFacts(root, workspace).catch(() => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'callableCacheWriteFailed')));
   }, 750));
 }
 
@@ -1214,7 +1214,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
             await loadCallableFacts(root, workspace);
             if (routeProviders.length && continueIndexing()) {
               try { await availableSymfonyRoutes(root, () => !continueIndexing()); }
-              catch (error) { connection.console.warn(`Reference route prewarm failed: ${String(error)}`); }
+              catch (error) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routePrewarmFailed', String(error))); }
             }
             if (continueIndexing()) {
               referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
@@ -1227,7 +1227,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
               }
             }
           });
-        })().catch((error: unknown) => connection.console.warn(`Reference source preparation failed: ${String(error)}`));
+        })().catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'sourcePreparationFailed', String(error))));
       }
       for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
       projectCompleteWaiters.delete(root);
@@ -2208,7 +2208,7 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
       await activeIndexing?.catch(() => undefined);
       if (referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0)) return;
       await startIndexWorkspace('progressive-source-change');
-    })().catch((error: unknown) => connection.console.warn(`Progressive reference refresh failed: ${String(error)}`));
+    })().catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'progressiveRefreshFailed', String(error))));
   }, 2_000);
   progressiveRefreshTimers.set(root, timer);
 }
@@ -2638,7 +2638,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
               ? [refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => !stale())] : []),
             ...(routeProviders.length ? [availableSymfonyRoutes(root, stale)] : []),
           ]).then(() => { if (!stale()) connection.console.info(`[reference-prewarm] framework ready uri=${uri}`); })
-            .catch((error: unknown) => connection.console.warn(`Reference framework prewarm failed: ${String(error)}`))
+            .catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'frameworkPrewarmFailed', String(error))))
             .finally(() => { if (frameworkPrewarmTasks.get(root) === warm) frameworkPrewarmTasks.delete(root); });
           frameworkPrewarmTasks.set(root, warm);
           await warm.promise;
@@ -2660,7 +2660,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const count = selectedMethod ? workspace.prewarmMethodReferences(uri, selectedOffset)
         : workspace.references(uri, selectedOffset, false).length;
       if (!cancelled()) connection.console.info(`[reference-prewarm] semantic count=${count} elapsedMs=${Date.now() - prewarmStarted} uri=${uri}`);
-    })().catch((error: unknown) => connection.console.warn(`Reference prewarm failed: ${String(error)}`));
+    })().catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'referencePrewarmFailed', String(error))));
   }, position ? 0 : 1_500);
   referencePrewarmTimers.set(uri, timer);
 }
@@ -2927,7 +2927,7 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
     await hydrateReferenceReceivers(workspace, root, methods, names, cancelled);
     for (const uri of next) visited.add(uri);
   }
-  connection.console.warn(`Reference receiver closure reached its 16-pass limit in ${root}.`);
+  connection.console.warn(outputMessage(clientDiagnosticLanguage, 'receiverClosureLimit', root));
   return false;
 }
 
@@ -2994,7 +2994,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
 });
 
 connection.onInitialized(() => {
-  if (indexingMode === 'experimental' || indexingMode === 'progressive') void startIndexWorkspace().catch((error) => connection.console.error(`Project indexing failed: ${error instanceof Error ? error.message : String(error)}`));
+  if (indexingMode === 'experimental' || indexingMode === 'progressive') void startIndexWorkspace().catch((error) => connection.console.error(outputMessage(clientDiagnosticLanguage, 'projectIndexFailed', error instanceof Error ? error.message : String(error))));
   if (indexingMode === 'onDemand') void (async (): Promise<void> => {
     // Prepare builtins ahead of the first editor query without starting a project scan.
     // Bound startup work for multi-root workspaces; remaining roots stay lazy.
@@ -3002,11 +3002,11 @@ connection.onInitialized(() => {
       await semanticForRoot(root);
       await yieldToEventLoop();
     }
-  })().catch((error) => connection.console.warn(`PHP semantic warm-up failed: ${error instanceof Error ? error.message : String(error)}`));
+  })().catch((error) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticWarmupFailed', error instanceof Error ? error.message : String(error))));
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
     { globPattern: '**/*.php' }, { globPattern: '**/*.{yaml,yml}' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' },
     { globPattern: '**/config/**/*.xml' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
-  ] }).catch((error) => connection.console.warn(`File watcher registration failed: ${error instanceof Error ? error.message : String(error)}`));
+  ] }).catch((error) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'watcherRegistrationFailed', error instanceof Error ? error.message : String(error))));
 });
 
 connection.onRequest('phpCompanion/testCrash', (): boolean => {
@@ -5278,7 +5278,7 @@ connection.onShutdown(async () => {
   callableFactCommitTimers.clear();
   for (const [root] of callableFactCachesByRoot) {
     const workspace = await semanticWorkspaces.get(`root:${root}`);
-    if (workspace) await persistCallableFacts(root, workspace).catch(() => connection.console.warn('Persistent callable fact cache could not be written.'));
+    if (workspace) await persistCallableFacts(root, workspace).catch(() => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'callableCacheWriteFailed')));
   }
   await Promise.allSettled(callableFactCommitChains.values());
   callableFactCachesByRoot.clear(); callableFactCommitChains.clear();
