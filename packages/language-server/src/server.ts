@@ -2300,7 +2300,7 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
   const startedAt = Date.now() - 1_000;
   return new Promise((done) => {
     const child = spawn(executable, ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
-      '--glob', '*.php', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
+      '--glob', '*.[pP][hH][pP]', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
     const chunks: Buffer[] = []; let size = 0; let failed = false;
     const timer = setTimeout(() => { failed = true; child.kill(); }, 1_500);
     child.stdout.on('data', (chunk: Buffer) => { size += chunk.length; if (size > 8 * 1024 * 1024) { failed = true; child.kill(); } else chunks.push(chunk); });
@@ -2362,6 +2362,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
   if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
+    skipSourceOutsideBudget: Boolean(rgCandidates && includeDependencies),
     skipSource: rgCandidates ? (path, info): boolean => {
       const normalized = resolve(path);
       if (rgCandidates.paths.has(normalized) || info.mtimeMs >= rgCandidates.startedAt || info.ctimeMs >= rgCandidates.startedAt) return false;

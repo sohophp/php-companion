@@ -97,6 +97,33 @@ describe('bounded project source index', () => {
     expect(prepared).toEqual([join(root, 'src', 'Target.php')]);
     expect(emitted).toEqual(prepared);
   });
+  it('keeps verified nonmatches outside candidate budgets while preserving inspected file counts', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-budget-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'Target.php'), '<?php class Target { function answerStatus() {} }');
+    await Promise.all(Array.from({ length: 5 }, (_, index) => writeFile(join(root!, 'src', `Noise${index}.php`), '<?php class Noise {}')));
+    const selected: string[] = [];
+    const result = await indexComposerSources(root, {
+      limits: { maxFiles: 1, maxFileSizeBytes: 100, maxTotalBytes: 100 },
+      skipSource: (path) => !path.endsWith('Target.php'), skipSourceOutsideBudget: true,
+      onSource: ({ path }) => { selected.push(path); },
+    });
+    expect(result).toMatchObject({ files: 6, bytes: Buffer.byteLength('<?php class Target { function answerStatus() {} }'),
+      complete: true, projectComplete: true });
+    expect(selected).toEqual([join(root, 'src', 'Target.php')]);
+  });
+  it('reports an incomplete candidate scan when matching sources exceed the read budget', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-overflow-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    for (const name of ['A', 'B']) await writeFile(join(root, 'src', `${name}.php`), `<?php class ${name} { function answerStatus() {} }`);
+    const result = await indexComposerSources(root, {
+      limits: { maxFiles: 1, maxFileSizeBytes: 100, maxTotalBytes: 100 },
+      skipSource: () => false, skipSourceOutsideBudget: true, onSource: () => undefined,
+    });
+    expect(result).toMatchObject({ complete: false, projectComplete: false });
+    expect(result.warnings).toContain('Project source index exceeded 1 candidate files.');
+    await expect(indexComposerSources(root, { skipSourceOutsideBudget: true, onSource: () => undefined })).rejects.toThrow(RangeError);
+  });
   it('retains unchanged cache entries for files omitted by a source prefilter', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-filter-cache-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
