@@ -49,17 +49,20 @@ async function evaluate(socket: WebSocket, expression: string, id: number): Prom
   });
 }
 
-export async function measureVisibleSuggestion(port: number, folder: vscode.Uri): Promise<VisibleSuggestionRun> {
+export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false): Promise<VisibleSuggestionRun> {
   const socket = await connect(await cdpPage(port));
   let id = 1;
   try {
     const samples: number[] = [];
     let lastLabels: string[] = [];
     for (let index = 0; index < 6; index += 1) {
-      const targetName = `UiTarget${index}`;
-      const methodName = `renderVisible${index}`;
-      const source = `<?php namespace App\\C1; class ${targetName} { public function ${methodName}(): void {} } function ui${index}(${targetName} $value): void { $value->; }`;
-      const uri = vscode.Uri.joinPath(folder, `UiSuggestion${index}.php`);
+      const targetName = vendor ? `UiVendorTarget${index}` : `UiTarget${index}`;
+      const methodName = vendor ? `vendorVisible${index}` : `renderVisible${index}`;
+      const typed = vendor ? 'v' : 'r';
+      const source = vendor
+        ? `<?php namespace App\\C1; use Acme\\C1\\Bulk\\${targetName}; function uiVendor${index}(${targetName} $value): void { $value->; }`
+        : `<?php namespace App\\C1; class ${targetName} { public function ${methodName}(): void {} } function ui${index}(${targetName} $value): void { $value->; }`;
+      const uri = vscode.Uri.joinPath(folder, `${vendor ? 'UiVendorSuggestion' : 'UiSuggestion'}${index}.php`);
       await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
       const document = await vscode.workspace.openTextDocument(uri);
       const editor = await vscode.window.showTextDocument(document);
@@ -84,7 +87,7 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri)
         globalThis.__sophpSuggestionProbe = probe;
         return true;
       })()`, id++);
-      await vscode.commands.executeCommand('type', { text: 'r' });
+      await vscode.commands.executeCommand('type', { text: typed });
       const deadline = Date.now() + 10_000;
       let visible: VisibleSuggestion | undefined;
       while (Date.now() < deadline) {
@@ -98,7 +101,7 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri)
       assert.ok(visible, `Typing did not display a PHP suggestion list in sample ${index}.`);
       assert.ok(visible.labels.some((label) => label.includes(methodName)),
         `The visible PHP suggestion list did not contain ${methodName}: ${JSON.stringify(visible.labels)}`);
-      assert.ok(document.isDirty && document.getText().includes('$value->r;'), 'Typing did not update the PHP editor buffer.');
+      assert.ok(document.isDirty && document.getText().includes(`$value->${typed};`), 'Typing did not update the PHP editor buffer.');
       samples.push(Math.round(visible.elapsedMs));
       lastLabels = visible.labels;
     }

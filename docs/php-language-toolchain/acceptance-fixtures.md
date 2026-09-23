@@ -32,6 +32,7 @@
 | F04-HOST-04 | [VS Code Core 嵌套项目](../../test/extension/suite/c1.ts) | auto 模式下同一工作区的子项目用独立 Composer 平台 8.5；子项目补全、定义、引用和诊断不混入父项目，随后父项目新文件仍按 7.2 诊断 | [嵌套项目报告](reports/c1-nested-composer-2026-09-24.md) |
 | F04-HOST-05 | [VS Code Core 运行时版本探测](../../test/extension/suite/c1.ts) | 第三独立 Composer 根不声明 PHP 约束，`auto` 使用工作区配置的 PHP 可执行文件；版本诊断和内建补全随探测版本变化 | [运行时探测报告](reports/c1-configured-runtime-2026-09-24.md) |
 | F04-HOST-06 | [VS Code 可见补全列表](../../test/extension/suite/c1Ui.ts) | 隔离宿主逐个打开独立 PHP 文件、输入成员字符，Chromium Workbench DOM 观察器记录建议列表实际可见时间，并核对当前文件的精确候选；旧弹窗不能计入下一次样本 | [可见补全报告](reports/c1-visible-completion-2026-09-24.md) |
+| F04-HOST-07 | [1,000 文件 Composer vendor 可见补全](../../test/extension/suite/c1Ui.ts) | 独立测试根预置 1,000 个 PSR-4 vendor 类，通过项目中 `use` 引入六个不同 vendor 接收者；逐次键入后建议列表包含当前声明的方法 | [vendor 可见补全报告](reports/c1-vendor-visible-completion-2026-09-24.md) |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |

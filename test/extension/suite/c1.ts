@@ -492,6 +492,10 @@ function consume(): void { (void) choose(1); }`;
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
     console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
+    if (process.env.PHP_COMPANION_TEST_C1_UI === '1') {
+      const vendorSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder, true);
+      console.log(`C1 visible vendor suggestion after typing: ${JSON.stringify(vendorSuggestion)}`);
+    }
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);

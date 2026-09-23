@@ -1,4 +1,4 @@
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -25,6 +25,18 @@ async function main(): Promise<void> {
   const c1DebugPort = c1Only
     ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' ? String(await availableDebugPort()) : undefined)
     : undefined;
+  if (c1Only && process.env.PHP_COMPANION_TEST_C1_UI === '1') {
+    const bulk = join(fixture, 'vendor', 'acme', 'c1-library', 'src', 'Bulk');
+    await mkdir(bulk, { recursive: true });
+    for (let start = 0; start < 1_000; start += 50) {
+      await Promise.all(Array.from({ length: 50 }, (_, offset) => {
+        const index = start + offset;
+        const target = index < 6 ? `UiVendorTarget${index}` : `Noise${index}`;
+        const method = index < 6 ? `vendorVisible${index}` : `noiseMethod${index}`;
+        return writeFile(join(bulk, `${target}.php`), `<?php namespace Acme\\C1\\Bulk; class ${target} { public function ${method}(): void {} }`);
+      }));
+    }
+  }
   const runtimePhp = c1Only && !c1PhpVersion ? process.env.PHP_COMPANION_TEST_C1_RUNTIME_PHP : undefined;
   const runtimeVersion = runtimePhp ? execFileSync(runtimePhp, ['-r', 'echo PHP_VERSION;'], { encoding: 'utf8', timeout: 3_000 }).trim() : undefined;
   if (runtimeVersion && !/^8\.[0-5]\./u.test(runtimeVersion)) throw new Error(`C1 runtime probe needs PHP 8.0–8.5, received ${runtimeVersion}.`);
