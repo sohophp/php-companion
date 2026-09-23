@@ -1,10 +1,10 @@
 # P9 / F01–F14 最终验收审计
 
-日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围说明。已验证的私有候选绑定较早的 `7aadd860`；之后新增的基准命令修改了随 Core VSIX 打包的根 `package.json`，故还需为当前提交重新冻结候选。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
+日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围说明。当前私有候选绑定 `2abb52ac`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
 
 | ID | 当前证据 | 最终验收尚缺 |
 | --- | --- | --- |
-| F01 | [候选原始 Core/Symfony VSIX](p9-alpha-candidate-2026-09-23.md) 在隔离 Linux VS Code 1.138.0 宿主退出码 0。 | Windows 客户端连接 WSL Remote 的 Extension Host 所属、竞争 PHP Provider 检查与持续编码记录。 |
+| F01 | [当前候选原始 Core/Symfony VSIX](p9-alpha-candidate-current-2026-09-23.md) 在隔离 Linux VS Code 1.138.0 宿主退出码 0。 | Windows 客户端连接 WSL Remote 的 Extension Host 所属、竞争 PHP Provider 检查与持续编码记录。 |
 | F02 | [版本矩阵](../version-matrix.md)列出 PHP 7.2–8.5 支持项；历史九版本 CI 见[跨平台候选报告](cross-platform-candidate-2026-09-14.md)。本轮真实 CLI 集成为 7.2/8.1/8.5 三项通过。 | P2 仍有未完成语法/语义项；当前候选的九版本运行时矩阵和完整正反例/未完成输入证据。 |
 | F03 | [Winstar/CoreRepo 当前源码 Oracle](p9-linux-qualification-2026-09-23.md)、10k/50k 持久恢复和单条损坏重建通过。 | 两个真实项目的依赖索引均因 10k 文件上限截断；完整 vendor、嵌套 Composer 与多根场景的最终矩阵。 |
 | F04 | [1,000 次协议热查询](editing-navigation-linux-x64-2026-09-23.json)验证补全、Hover、Definition 当前符号身份；[Winstar References](winstar-reference-baseline-2026-09-23.md)验证 174 个完整位置。 | 真实大型项目的完整成员/参数提示/导航操作矩阵和 WSL Remote 宿主交互。 |
@@ -17,7 +17,7 @@
 | F11 | Winstar PHP 8.5 项目 PHP CS Fixer 入口及组合证据见[开源 Profile 报告](open-source-profile-linux-wsl-2026-09-06.md)。 | 当前候选的 PHP/Twig 保存、失败、撤销及版本配置三系统矩阵。 |
 | F12 | 同一[Profile 报告](open-source-profile-linux-wsl-2026-09-06.md)记录 Xdebug launch 与 PHPUnit 执行。 | 当前候选在隔离示例项目与 WSL Remote 的运行时配置冲突复验。 |
 | F13 | [Linux 1k/10k/50k、1,000 次编辑、缓存及局部变更](p9-linux-qualification-2026-09-23.md)均满足冻结预算；历史三平台候选见[跨平台报告](cross-platform-candidate-2026-09-14.md)。 | 当前候选的 Windows/macOS 预算矩阵、真实 WSL Remote 多小时编辑及大项目 CPU/内存记录。 |
-| F14 | `pnpm check`、24 包隔离消费、四份 VSIX 内容验证通过；[候选清单](p9-alpha-candidate-2026-09-23.md)固定扩展 ID 与版本。 | P0 既有功能回归基线、所有命令/配置迁移和本地化的最终逐项核验。 |
+| F14 | `pnpm check`、24 包隔离消费、四份 VSIX 内容验证通过；[当前候选清单](p9-alpha-candidate-current-2026-09-23.md)固定扩展 ID 与版本。 | P0 既有功能回归基线、所有命令/配置迁移和本地化的最终逐项核验。 |
 
 ## 当前退出条件
 

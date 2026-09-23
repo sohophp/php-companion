@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-09-23T06:58:32.584Z",
+  "candidate": {
+    "directory": "/var/www/node/php-companion/artifacts/php-companion-alpha-0.4.5-2abb52ac",
+    "commit": "2abb52ac60cdb567a5fdc46c0a0db33ef8e7e4dc",
+    "artifacts": [
+      {
+        "file": "php-companion-0.4.5.vsix",
+        "bytes": 2449511,
+        "sha256": "e0defb299c1dca4d1963468a60755c59518bd20c5f6c860ff31d4d63cf855d90",
+        "valid": true
+      },
+      {
+        "file": "php-companion-symfony-0.4.5.vsix",
+        "bytes": 628844,
+        "sha256": "e8bca56ebe8b819b227754bc4c5644751a9fc58ea85a338c5c49c186c51d0d90",
+        "valid": true
+      },
+      {
+        "file": "php-companion-open-source-pack-0.4.5.vsix",
+        "bytes": 67605,
+        "sha256": "5f24cb42f9b9f9efdbb430f1d6ca8dca7288e6ae04a0e42905b0c3292dfc2fca",
+        "valid": true
+      },
+      {
+        "file": "php-companion-recommended-pack-0.4.5.vsix",
+        "bytes": 76643,
+        "sha256": "40e0b13ec421afb64db473268edc68931f31b2d4a5b3c5c7e214cf169dfd7b54",
+        "valid": true
+      }
+    ]
+  },
+  "workspace": {
+    "root": "/var/www/php/8.5/winstar2024",
+    "composer": "/var/www/php/8.5/winstar2024/composer.json"
+  },
+  "php": {
+    "command": "/var/www/php/8.5/winstar2024/bin/php-runtime",
+    "expected": "8.5",
+    "status": 0,
+    "stdout": "8.5",
+    "stderr": ""
+  },
+  "environment": {
+    "wsl": true,
+    "kernelRelease": "5.15.167.4-microsoft-standard-WSL2",
+    "vscodeTerminal": false
+  },
+  "gates": {
+    "deterministicPassed": true,
+    "errors": [],
+    "manualPending": [
+      "Confirm SoPHP and workspace extensions run in the WSL Extension Host.",
+      "Confirm every installed competing PHP provider is disabled for this Profile.",
+      "Complete and record the two-hour Winstar and CoreRepo editing sessions."
+    ]
+  }
+}
