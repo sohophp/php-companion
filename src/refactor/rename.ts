@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import type { IndexedDeclaration, IndexedReference } from '../index/types.js';
 import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
 import { t } from '../extension/localize.js';
+import { configuredRenameFileMode } from '../extension/legacySettings.js';
 import { isSyntaxAvailable } from '../php-version/constraints.js';
 import type { PhpVersion } from '../php-version/types.js';
 import { resolvePsr4Class, type Psr4Mapping } from '../composer/project.js';
@@ -140,15 +141,6 @@ export interface PhpRenameProviderOptions {
   stageFileRename?: (oldUri: vscode.Uri, newUri: vscode.Uri, edit: vscode.WorkspaceEdit) => void;
 }
 
-function configuredFileMode(configuration: vscode.WorkspaceConfiguration): 'off' | 'preview' | 'always' {
-  const current = configuration.inspect<'off' | 'preview' | 'always'>('rename.file');
-  const explicitlyConfigured = current?.workspaceFolderValue ?? current?.workspaceValue ?? current?.globalValue;
-  if (explicitlyConfigured) return explicitlyConfigured;
-  const legacy = configuration.inspect<'whenMatched' | 'never'>('rename.syncFileName');
-  const legacyValue = legacy?.workspaceFolderValue ?? legacy?.workspaceValue ?? legacy?.globalValue;
-  return legacyValue === 'never' ? 'off' : 'preview';
-}
-
 export class PhpRenameProvider implements vscode.RenameProvider {
   constructor(private readonly options: PhpRenameProviderOptions) {}
 
@@ -212,7 +204,7 @@ export class PhpRenameProvider implements vscode.RenameProvider {
     }
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     const edit = await buildRenameEdit(this.options.index, declaration, newName, {
-      fileMode: configuredFileMode(configuration),
+      fileMode: configuredRenameFileMode(configuration),
       includePhpDoc: configuration.get<boolean>('rename.phpDoc', true),
       psr4Mappings: this.options.mappingsForUri(document.uri),
       stageFileRename: this.options.stageFileRename,

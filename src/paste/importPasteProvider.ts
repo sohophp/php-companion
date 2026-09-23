@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { WorkspaceSymbolIndex } from '../index/workspaceIndex.js';
 import { t } from '../extension/localize.js';
+import { configuredPasteImportMode } from '../extension/legacySettings.js';
 import { importInsertionOffset, rankedImportCandidates } from '../imports/importWorkflows.js';
 import type { Psr4Mapping } from '../composer/project.js';
 import { potentialPhpTypeNames } from './pasteText.js';
@@ -79,7 +80,7 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
   }
 
   async provideDocumentPasteEdits(document: vscode.TextDocument, _ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): Promise<vscode.DocumentPasteEdit[] | undefined> {
-    const configured = vscode.workspace.getConfiguration('phpCompanion', document.uri).get<'auto' | 'prompt' | 'off'>('imports.onPaste', 'prompt');
+    const configured = configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', document.uri));
     const mode: 'auto' | 'preview' | 'off' = configured === 'prompt' ? 'preview' : configured;
     if (mode === 'off') return undefined;
     const plain = dataTransfer.get('text/plain');

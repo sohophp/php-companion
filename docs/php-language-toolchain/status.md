@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F14 旧 Profile 设置兼容：Paste 的 `pasteImports.mode` 与 Rename 的 `rename.syncFileName` 已按旧值映射到当前行为，新键显式值优先；保留原设置以便回退。映射、无法自动迁移的设置及验证边界见[旧 Profile 设置兼容报告](reports/f14-profile-settings-migration-2026-09-23.md)。F14 最终验收仍开放。
+
 2026-09-23 F14 扩展侧运行时界面中文化：Core 的新建、复制、诊断修复、安全移动、导入、优化导入、索引进度和报告等交互及独立 Symfony 状态消息已接入英中文案；`Preview`/`Apply` 的行为比较随语言同步。定向单元测试、TypeScript 与 Lint 已通过，打包宿主与候选证据见[运行时本地化报告](reports/f14-runtime-localization-2026-09-23.md)。Language Server 和 Provider 文案、配置迁移与旧 Profile 升级仍待验。
 
 2026-09-23 F14 Core 设置说明本地化：30 个公开设置、一个嵌套路由缓存选项和一条弃用提示已补齐英中 `package.nls` 文案，英文默认说明由[基线](reports/f14-setting-description-baseline-2026-09-23.json)固定。VS Code 1.138.0 简体中文隔离宿主已逐项确认打包 manifest 的解析结果；完整范围和其余验收边界见[设置本地化报告](reports/f14-setting-localization-2026-09-23.md)。

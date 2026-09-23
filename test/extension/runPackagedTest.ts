@@ -89,6 +89,10 @@ exit($status);
       'extensions.autoCheckUpdates': false,
       'extensions.autoUpdate': false,
       'update.mode': 'none',
+      ...(process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1' ? {
+        'phpCompanion.rename.syncFileName': 'never',
+        'phpCompanion.pasteImports.mode': 'off',
+      } : {}),
     }, null, 2));
     await cp(join(repository, 'test', 'extension', 'baseline'), fixture, { recursive: true });
     const settingsPath = join(fixture, '.vscode', 'settings.json');
@@ -190,6 +194,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         VSCODE_NLS_CONFIG: process.env.PHP_COMPANION_TEST_LOCALE ? undefined : process.env.VSCODE_NLS_CONFIG,
         PHP_COMPANION_PACKAGED_TEST: '1',
         PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
+        PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
@@ -197,9 +202,11 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TWIG_ROUTE_RENAME: twigVsix ? '1' : undefined,
       },
     });
-    console.log(process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
-      ? `Verified Simplified Chinese manifest text in packaged PHP Companion VSIX: ${vsix}`
-      : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
+    console.log(process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1'
+      ? `Verified legacy Profile Rename and Paste settings in packaged PHP Companion VSIX: ${vsix}`
+      : process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
+        ? `Verified Simplified Chinese manifest text in packaged PHP Companion VSIX: ${vsix}`
+        : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {
     if (process.env.PHP_COMPANION_TEST_LOG_DIR) {
       await cp(join(profile, 'user-data', 'logs'), resolve(process.env.PHP_COMPANION_TEST_LOG_DIR), { recursive: true }).catch(() => undefined);

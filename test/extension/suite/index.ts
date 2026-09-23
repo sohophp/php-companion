@@ -23,6 +23,47 @@ async function waitForAsync(predicate: () => Promise<boolean>, message: string |
 
 function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
 
+async function verifyLegacyProfileSettings(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const exists = async (uri: vscode.Uri): Promise<boolean> => {
+    try { await vscode.workspace.fs.stat(uri); return true; } catch { return false; }
+  };
+  const configuration = vscode.workspace.getConfiguration('phpCompanion', workspace.uri);
+  assert.strictEqual(configuration.inspect<string>('rename.syncFileName')?.globalValue, 'never', 'Legacy user setting was not loaded');
+  assert.strictEqual(configuration.inspect<string>('rename.file')?.globalValue, undefined, 'New file Rename setting must start unset');
+  assert.strictEqual(configuration.inspect<string>('pasteImports.mode')?.globalValue, 'off', 'Legacy Paste setting was not loaded');
+  assert.strictEqual(configuration.inspect<string>('imports.onPaste')?.globalValue, undefined, 'New Paste setting must start unset');
+  assert.strictEqual(await vscode.commands.executeCommand('phpCompanion._testEffectivePasteMode', workspace.uri), 'off');
+  await configuration.update('imports.onPaste', 'auto', vscode.ConfigurationTarget.Workspace);
+  assert.strictEqual(await vscode.commands.executeCommand('phpCompanion._testEffectivePasteMode', workspace.uri), 'auto');
+  const requestRename = async (oldName: string, newName: string): Promise<{ oldUri: vscode.Uri; newUri: vscode.Uri; document: vscode.TextDocument }> => {
+    const oldUri = vscode.Uri.joinPath(workspace.uri, 'src', `${oldName}.php`);
+    const newUri = vscode.Uri.joinPath(workspace.uri, 'src', `${newName}.php`);
+    await vscode.workspace.fs.writeFile(oldUri, Buffer.from(`<?php\nnamespace App;\nclass ${oldName} {}\n`));
+    const document = await vscode.workspace.openTextDocument(oldUri);
+    await vscode.window.showTextDocument(document);
+    let edit: vscode.WorkspaceEdit | undefined;
+    await waitForAsync(async () => {
+      edit = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+        'vscode.executeDocumentRenameProvider', oldUri, document.positionAt(document.getText().indexOf(`class ${oldName}`) + 7), newName,
+      );
+      return Boolean(edit);
+    }, `Legacy Profile Rename did not become ready for ${oldName}`, 30_000, 100);
+    assert.ok(edit && await vscode.workspace.applyEdit(edit), `Legacy Profile Rename could not edit ${oldName}`);
+    await waitFor(() => document.getText().includes(`class ${newName}`), `Legacy Profile Rename did not update ${oldName}`);
+    return { oldUri, newUri, document };
+  };
+
+  const legacy = await requestRename('LegacyProfileType', 'LegacyProfileRenamed');
+  assert.ok(await exists(legacy.oldUri), 'Legacy never setting unexpectedly renamed the PHP file');
+  assert.ok(!await exists(legacy.newUri), 'Legacy never setting created a renamed PHP file');
+
+  await configuration.update('rename.file', 'preview', vscode.ConfigurationTarget.Workspace);
+  assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).inspect<string>('rename.file')?.workspaceValue, 'preview');
+  const override = await requestRename('LegacyOverrideType', 'LegacyOverrideRenamed');
+  await waitForAsync(() => exists(override.newUri), 'Explicit new setting did not rename the PHP file', 10_000, 100);
+  assert.ok(!await exists(override.oldUri), 'Explicit new setting left the old PHP file');
+}
+
 async function assertManifestCommandsRegistered(extension: vscode.Extension<unknown>): Promise<void> {
   const declared = extension.packageJSON.contributes?.commands as Array<{ command: string }> | undefined;
   assert.ok(declared?.length, `${extension.id} has no contributed commands`);
@@ -350,6 +391,12 @@ export async function run(): Promise<void> {
     await waitFor(() => symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not register its route provider');
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', false, vscode.ConfigurationTarget.Workspace);
     await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not withdraw its route provider');
+  }
+  if (process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1') {
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    assert.ok(folder, 'Legacy Profile fixture workspace was not opened');
+    await verifyLegacyProfileSettings(folder);
+    return;
   }
   if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') return;
   const workspace = vscode.workspace.workspaceFolders?.[0];

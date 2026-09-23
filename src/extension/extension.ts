@@ -26,6 +26,7 @@ import { BUILTIN_DOCUMENT_URI, builtinPhpStub, SUPPORTED_PHP_VERSIONS, type Supp
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
+import { configuredPasteImportMode, configuredRenameFileMode } from './legacySettings.js';
 
 function offsetAt(source: string, position: vscode.Position): number {
   let offset = 0;
@@ -408,6 +409,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   const commands: vscode.Disposable[] = [];
   const register = (id: string, callback: (...args: any[]) => unknown): void => { commands.push(vscode.commands.registerCommand(id, callback)); };
   if (context.extensionMode === vscode.ExtensionMode.Test) {
+    register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
@@ -688,7 +690,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
           'textDocument/rename', {
             textDocument: { uri: document.uri.toString() }, position, newName,
             phpCompanion: {
-              renameFile: configuration.get<'off' | 'preview' | 'always'>('rename.file', 'preview') !== 'off',
+              renameFile: configuredRenameFileMode(configuration) !== 'off',
               includePhpDoc: configuration.get<boolean>('rename.phpDoc', true),
             },
           }, token,
@@ -710,7 +712,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
   const lazyPaste: vscode.DocumentPasteEditProvider = {
     prepareDocumentPaste: async (document, ranges, transfer) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
-      if (configuration.get<string>('imports.onPaste', 'prompt') === 'off') return;
+      if (configuredPasteImportMode(configuration) === 'off') return;
       if (selfLanguageServer) {
         const client = await languageServer; if (!client) return;
         const symbols = await client.sendRequest<PasteSymbol[]>('phpCompanion/copyTypeSymbols', {
@@ -726,7 +728,8 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     },
     provideDocumentPasteEdits: async (document, ranges, transfer) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
-      if (configuration.get<string>('imports.onPaste', 'prompt') === 'off' || configuration.get<string>('indexing.mode', 'onDemand') === 'off') return undefined;
+      const pasteMode = configuredPasteImportMode(configuration);
+      if (pasteMode === 'off' || configuration.get<string>('indexing.mode', 'onDemand') === 'off') return undefined;
       if (!transfer.get(PHP_IMPORT_METADATA_MIME)) {
         const plain = transfer.get('text/plain');
         if (!plain || !mayNeedPhpImportResolution(await plain.asString())) return undefined;
@@ -747,14 +750,14 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
             else if (candidates.length > 1 && !ambiguity) ambiguity = { name, candidates };
           }
           variants = ambiguity ? ambiguity.candidates.map((candidate) => [...unique, { fqcn: candidate.fqcn, alias: ambiguity!.name }]) : [unique];
-          if (configuration.get<'auto' | 'prompt'>('imports.onPaste', 'prompt') === 'auto' && ambiguity) return undefined;
+          if (pasteMode === 'auto' && ambiguity) return undefined;
         }
         const edits: vscode.DocumentPasteEdit[] = [];
         for (let variant of variants) {
           if (!variant.length) continue;
           let plan = await requestImportPlan(document, position, variant); if (!plan) continue;
           if (plan.conflict) {
-            if (configuration.get<'auto' | 'prompt'>('imports.onPaste', 'prompt') === 'auto') continue;
+            if (pasteMode === 'auto') continue;
             const selectedAlias = await vscode.window.showInputBox({ prompt: t('chooseAlias', plan.conflict.fqcn), value: `${plan.conflict.sourceAlias}Alias`,
               validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier') });
             if (!selectedAlias) continue;
@@ -763,7 +766,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
           }
           const paste = new vscode.DocumentPasteEdit(replacePasteAliases(text, plan.replacements), variants.length > 1 ? `Paste with PHP imports: ${variant.at(-1)?.fqcn}` : 'Paste with PHP imports', PHP_IMPORT_PASTE_KIND);
           const additionalEdit = fromProtocolWorkspaceEdit(plan.edit); if (additionalEdit) paste.additionalEdit = additionalEdit;
-          if (configuration.get<'auto' | 'prompt'>('imports.onPaste', 'prompt') === 'prompt') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
+          if (pasteMode === 'prompt') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
           edits.push(paste);
         }
         return edits.length ? edits : undefined;
