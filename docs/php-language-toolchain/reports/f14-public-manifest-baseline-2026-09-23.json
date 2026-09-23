@@ -1,0 +1,454 @@
+{
+  "schema": 1,
+  "core": {
+    "extensionId": "sohophp.php-companion",
+    "activationEvents": [
+      "onLanguage:php",
+      "workspaceContains:composer.json",
+      "onCommand:phpCompanion.selectPhpVersion",
+      "onCommand:phpCompanion.new.class",
+      "onCommand:phpCompanion.importClass",
+      "onCommand:phpCompanion.optimizeImports"
+    ],
+    "commands": [
+      {
+        "command": "phpCompanion.selectPhpVersion",
+        "title": "Select PHP Version",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.detectPhpVersions",
+        "title": "Detect PHP Versions",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.showCompatibilityReport",
+        "title": "Show Diagnostics Report",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.showPerformanceLog",
+        "title": "Show Performance Log",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.safeMove",
+        "title": "Safe Move PHP File",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.rebuildIndex",
+        "title": "Rebuild Experimental Index",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.importClass",
+        "title": "Import Class",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.resolvePastedImports",
+        "title": "Resolve Imports",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.optimizeImports",
+        "title": "Optimize Imports",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.class",
+        "title": "New PHP Class",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.abstractclass",
+        "title": "New PHP Abstract Class",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.interface",
+        "title": "New PHP Interface",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.trait",
+        "title": "New PHP Trait",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.enum",
+        "title": "New PHP Enum",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.test",
+        "title": "New PHPUnit Test",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.fqcn",
+        "title": "Copy FQN",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.namespace",
+        "title": "Copy Namespace",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.classReference",
+        "title": "Copy Class Reference",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.relativePath",
+        "title": "Copy Relative File Path",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.goToDefinition",
+        "title": "Go to Definition",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.goToImplementation",
+        "title": "Go to Implementation",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.findReferences",
+        "title": "Find References",
+        "category": "SoPHP"
+      }
+    ],
+    "configuration": {
+      "phpCompanion.phpVersion": {
+        "type": "string",
+        "scope": "resource",
+        "enum": [
+          "auto",
+          "7.2",
+          "7.3",
+          "7.4",
+          "8.0",
+          "8.1",
+          "8.2",
+          "8.3",
+          "8.4",
+          "8.5"
+        ],
+        "default": "auto"
+      },
+      "phpCompanion.disabledExtensions": {
+        "type": "array",
+        "scope": "resource",
+        "items": {
+          "type": "string",
+          "enum": [
+            "dom",
+            "filter",
+            "mbstring",
+            "pdo",
+            "simplexml",
+            "xml",
+            "xmlreader",
+            "xmlwriter"
+          ]
+        },
+        "uniqueItems": true,
+        "default": []
+      },
+      "phpCompanion.phpExecutablePath": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "scope": "resource",
+        "default": null
+      },
+      "phpCompanion.symfony.environment": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "scope": "resource",
+        "default": null,
+        "pattern": "^[A-Za-z0-9_.-]{1,64}$"
+      },
+      "phpCompanion.symfony.winstarRoutes.enabled": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": false
+      },
+      "phpCompanion.languageServer.enabled": {
+        "type": "boolean",
+        "scope": "window",
+        "default": true
+      },
+      "phpCompanion.semanticProviders": {
+        "type": "array",
+        "scope": "window",
+        "default": [],
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "providerId",
+            "command"
+          ],
+          "properties": {
+            "providerId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            },
+            "args": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "string"
+              }
+            },
+            "timeoutMs": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 30000,
+              "default": 5000
+            },
+            "maxOutputBytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 16777216,
+              "default": 4194304
+            }
+          }
+        }
+      },
+      "phpCompanion.routeProviders": {
+        "type": "array",
+        "scope": "window",
+        "default": [],
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "providerId",
+            "command"
+          ],
+          "properties": {
+            "providerId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "command": {
+              "type": "string",
+              "minLength": 1
+            },
+            "args": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "string"
+              }
+            },
+            "timeoutMs": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 30000,
+              "default": 5000
+            },
+            "maxOutputBytes": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 16777216,
+              "default": 4194304
+            },
+            "cacheUntilInvalidated": {
+              "type": "boolean",
+              "default": false,
+              "description": "Reuse a complete route snapshot until provider, environment, watched PHP/YAML, or open-document invalidation."
+            }
+          }
+        }
+      },
+      "phpCompanion.diagnostics.disabledCodes": {
+        "type": "array",
+        "scope": "window",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true,
+        "default": []
+      },
+      "phpCompanion.diagnostics.severity": {
+        "type": "object",
+        "scope": "window",
+        "additionalProperties": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "information",
+            "hint",
+            "off"
+          ]
+        },
+        "default": {}
+      },
+      "phpCompanion.composer.includeDevAutoload": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.files.exclude": {
+        "type": "array",
+        "scope": "resource",
+        "items": {
+          "type": "string"
+        },
+        "default": [
+          "**/vendor/**",
+          "**/.git/**",
+          "**/node_modules/**",
+          "**/var/cache/**",
+          "**/storage/framework/**"
+        ]
+      },
+      "phpCompanion.indexing.mode": {
+        "type": "string",
+        "scope": "resource",
+        "enum": [
+          "off",
+          "onDemand",
+          "progressive",
+          "experimental"
+        ],
+        "default": "onDemand"
+      },
+      "phpCompanion.indexing.referenceMemoryBudgetMiB": {
+        "type": "integer",
+        "scope": "resource",
+        "minimum": 768,
+        "maximum": 4096,
+        "default": 1536
+      },
+      "phpCompanion.indexing.experimentalSourceOnlyReferences": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": false
+      },
+      "phpCompanion.indexing.maxFiles": {
+        "type": "number",
+        "scope": "resource",
+        "minimum": 100,
+        "default": 10000
+      },
+      "phpCompanion.indexing.maxFileSizeKb": {
+        "type": "number",
+        "scope": "resource",
+        "minimum": 16,
+        "default": 512
+      },
+      "phpCompanion.indexing.maxTotalMb": {
+        "type": "number",
+        "scope": "resource",
+        "minimum": 1,
+        "default": 128
+      },
+      "phpCompanion.indexing.onStartup": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": false,
+        "deprecationMessage": "Use phpCompanion.indexing.mode. Startup indexing is no longer supported."
+      },
+      "phpCompanion.imports.onPaste": {
+        "type": "string",
+        "scope": "resource",
+        "enum": [
+          "off",
+          "prompt",
+          "auto"
+        ],
+        "default": "prompt"
+      },
+      "phpCompanion.imports.optimize.preview": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.imports.sort": {
+        "type": "string",
+        "scope": "resource",
+        "enum": [
+          "grouped",
+          "fqcn"
+        ],
+        "default": "grouped"
+      },
+      "phpCompanion.generation.strictTypes": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.experimental.refactoring": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": false
+      },
+      "phpCompanion.move.enabled": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.move.preview": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.rename.enabled": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.rename.file": {
+        "type": "string",
+        "scope": "resource",
+        "enum": [
+          "off",
+          "preview",
+          "always"
+        ],
+        "default": "preview"
+      },
+      "phpCompanion.rename.phpDoc": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": true
+      },
+      "phpCompanion.rename.stringReferences": {
+        "type": "boolean",
+        "scope": "resource",
+        "default": false
+      }
+    }
+  },
+  "symfony": {
+    "extensionId": "sohophp.php-companion-symfony",
+    "activationEvents": [
+      "workspaceContains:composer.json",
+      "onCommand:phpCompanionSymfony.showStatus"
+    ],
+    "commands": [
+      {
+        "command": "phpCompanionSymfony.showStatus",
+        "title": "Show Integration Status",
+        "category": "SoPHP Symfony"
+      }
+    ],
+    "configuration": {}
+  }
+}
