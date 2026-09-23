@@ -1866,8 +1866,10 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('undo');
   await waitFor(() => extractMethodDocument.getText() === extractMethodSource, 'Extract Method output could not be restored after Redo');
   const interfaceClassUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Extractable.php');
+  const interfaceBaseUri = vscode.Uri.joinPath(workspace.uri, 'src', 'InterfaceBase.php');
   const interfaceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ExtractableInterface.php');
-  const interfaceClassSource = '<?php\nnamespace App;\nuse DateTimeImmutable as InputTime;\nfinal class Extractable\n{\n    public function format(InputTime $input): string { return $input->format("c"); }\n    public function duplicate(self $input): self { return $input; }\n    private function internal(): void {}\n}\n';
+  const interfaceClassSource = '<?php\nnamespace App;\nuse DateTimeImmutable as InputTime;\nfinal class Extractable extends InterfaceBase\n{\n    public function format(InputTime $input): string { return $input->format("c"); }\n    public function duplicate(self $input): self { return $input; }\n    public function fromBase(parent $input): parent { return $input; }\n    private function internal(): void {}\n}\n';
+  await vscode.workspace.fs.writeFile(interfaceBaseUri, Buffer.from('<?php namespace App; class InterfaceBase {}'));
   await vscode.workspace.fs.writeFile(interfaceClassUri, Buffer.from(interfaceClassSource));
   const interfaceClassDocument = await vscode.workspace.openTextDocument(interfaceClassUri); await vscode.window.showTextDocument(interfaceClassDocument);
   const classOffset = interfaceClassSource.indexOf('Extractable'); let extractInterfaceAction: vscode.CodeAction | undefined;
@@ -1889,6 +1891,7 @@ export async function run(): Promise<void> {
         && interfaceText.includes('use DateTimeImmutable as InputTime;')
         && interfaceText.includes('public function format(InputTime $input): string;')
         && interfaceText.includes('public function duplicate(\\App\\Extractable $input): \\App\\Extractable;')
+        && interfaceText.includes('public function fromBase(\\App\\InterfaceBase $input): \\App\\InterfaceBase;')
         && !interfaceText.includes('internal');
     } catch { return false; }
   }, 'Extract Interface did not create the interface and update the class together');

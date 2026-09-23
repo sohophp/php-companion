@@ -2132,6 +2132,20 @@ export class SemanticWorkspace {
     const importStarts = new Set(importNodes.map((node) => node.startIndex));
     if (file.imports.some((item) => importStarts.has(item.statementStart) && item.alias.toLowerCase() === interfaceName.toLowerCase())) return undefined;
     const importText = importNodes.map((node) => file.source.slice(node.startIndex, node.endIndex)).join('\n');
+    const parentName = declaration.extendsNames.length === 1 ? declaration.extendsNames[0]!.trim() : undefined;
+    let parentFqcn: string | undefined;
+    if (parentName && !/^(?:self|parent|static)$/iu.test(parentName)) {
+      if (parentName.startsWith('\\')) parentFqcn = parentName.slice(1);
+      else if (/^namespace\\/iu.test(parentName)) parentFqcn = [namespace, parentName.slice(parentName.indexOf('\\') + 1)].filter(Boolean).join('\\');
+      else {
+        const [head, ...tail] = parentName.split('\\');
+        const imports = file.imports.filter((item) => item.kind === 'class' && importStarts.has(item.statementStart)
+          && item.alias.toLowerCase() === head!.toLowerCase());
+        if (imports.length > 1) return undefined;
+        parentFqcn = imports.length ? [imports[0]!.fqcn, ...tail].join('\\') : [namespace, parentName].filter(Boolean).join('\\');
+      }
+      if (parentFqcn.toLowerCase() === declaration.fqcn.toLowerCase()) parentFqcn = undefined;
+    }
     const signatures: string[] = [];
     for (const node of body.namedChildren.filter((item) => item.type === 'method_declaration')) {
       const method = file.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === declaration.fqcn.toLowerCase()
@@ -2146,7 +2160,10 @@ export class SemanticWorkspace {
       let signature = file.source.slice(signatureStart, methodBody.startIndex).trimEnd();
       const contextualReferences = file.typeReferences.filter((reference) => reference.start >= signatureStart
         && reference.end <= signatureStart + signature.length && /^(?:self|parent|static)$/iu.test(file.source.slice(reference.start, reference.end)));
-      if (contextualReferences.some((reference) => !/^self$/iu.test(file.source.slice(reference.start, reference.end)))) return undefined;
+      if (contextualReferences.some((reference) => {
+        const name = file.source.slice(reference.start, reference.end).toLowerCase();
+        return name === 'static' || name === 'parent' && !parentFqcn;
+      })) return undefined;
       for (const match of signature.matchAll(/\b(?:self|parent|static)\b/giu)) {
         const start = signatureStart + match.index; const end = start + match[0].length;
         if (file.stringRanges.some((range) => start >= range.start && end <= range.end)
@@ -2155,7 +2172,8 @@ export class SemanticWorkspace {
       }
       for (const reference of contextualReferences.sort((left, right) => right.start - left.start)) {
         const start = reference.start - signatureStart; const end = reference.end - signatureStart;
-        signature = `${signature.slice(0, start)}\\${declaration.fqcn}${signature.slice(end)}`;
+        const fqcn = file.source.slice(reference.start, reference.end).toLowerCase() === 'parent' ? parentFqcn! : declaration.fqcn;
+        signature = `${signature.slice(0, start)}\\${fqcn}${signature.slice(end)}`;
       }
       signatures.push(`    public ${method.static ? 'static ' : ''}${signature};`);
     }

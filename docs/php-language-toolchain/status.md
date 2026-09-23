@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P7 Extract Interface `parent` 支持：签名里的 `parent` 仅在类有唯一 `extends` 且同一词法 namespace 的 import 可唯一绑定时改写为父类绝对 FQCN；无父类或歧义继续拒绝。语义包 301 项、language-server 与扩展测试 TypeScript 类型检查、相关 ESLint 通过；用例覆盖跨 namespace 同名别名不串线。语义计划写出的三文件在 PHP 7.2/8.5 下通过语法检查、加载和调用；打包 VS Code 1.138.0 隔离宿主应用、Undo/Redo 退出码 0。本项晚于 `b4f5e6f8` 私有候选，仍需重新冻结。
+
 2026-09-23 P7 Extract Interface `self` 支持：签名里经解析器证明的 `self` 类型和 `self::` 常量接收者改写为原类绝对 FQCN，字符串字面量不改；`parent`/`static` 继续拒绝。语义包 301 项、类型检查、ESLint 和 VS Code 1.138.0 打包宿主应用/Undo/Redo 通过；直接生成的双文件在 PHP 7.2/8.5 下通过语法检查、加载与调用。已纳入下述 `b4f5e6f8` 私有候选。
 
 2026-09-23 P7 Extract Interface import 支持：新接口现在原样复制类所在词法 namespace 的 `use` 语句，保留别名与分组 import；不同 namespace 的语句不会混入，别名与新接口名冲突则拒绝。语义包 301 项测试、类型检查、ESLint、带真实别名签名的打包编辑器应用/Undo/Redo，以及 PHP 7.2/8.5 生成代码加载调用均通过；已纳入下述 `0cd78268` 候选。
