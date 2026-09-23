@@ -1,6 +1,6 @@
 # P9 / F01–F14 最终验收审计
 
-日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围、private 参数删除安全域及 Extract Interface 子集。当前私有候选绑定 `2430bd08`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
+日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围、private 参数删除安全域及 Extract Interface 子集。当前私有候选绑定 `059d2194`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
 
 | ID | 当前证据 | 最终验收尚缺 |
 | --- | --- | --- |
@@ -17,7 +17,7 @@
 | F11 | Winstar PHP 8.5 项目 PHP CS Fixer 入口及组合证据见[开源 Profile 报告](open-source-profile-linux-wsl-2026-09-06.md)。 | 当前候选的 PHP/Twig 保存、失败、撤销及版本配置三系统矩阵。 |
 | F12 | 同一[Profile 报告](open-source-profile-linux-wsl-2026-09-06.md)记录 Xdebug launch 与 PHPUnit 执行。 | 当前候选在隔离示例项目与 WSL Remote 的运行时配置冲突复验。 |
 | F13 | [Linux 1k/10k/50k、1,000 次编辑、缓存及局部变更](p9-linux-qualification-2026-09-23.md)均满足冻结预算；历史三平台候选见[跨平台报告](cross-platform-candidate-2026-09-14.md)。 | 当前候选的 Windows/macOS 预算矩阵、真实 WSL Remote 多小时编辑及大项目 CPU/内存记录。 |
-| F14 | `pnpm check`、24 包隔离消费、四份 VSIX 内容验证通过；[当前候选清单](p9-alpha-candidate-current-2026-09-23.md)固定扩展 ID 与版本；[公开 manifest 基线](p0-f14-public-manifest-baseline-2026-09-23.md)固定 23 个命令与 30 个设置。 | P0 运行行为基线、所有命令/配置迁移和本地化的最终逐项核验。 |
+| F14 | `pnpm check`、24 包隔离消费、四份 VSIX 内容验证通过；[当前候选清单](p9-alpha-candidate-current-2026-09-23.md)固定扩展 ID 与版本；[公开 manifest 基线](p0-f14-public-manifest-baseline-2026-09-23.md)固定 23 个命令与 30 个设置，打包宿主确认 23 个命令均已注册。 | P0 运行行为基线、所有命令/配置迁移和本地化的最终逐项核验。 |
 
 ## 当前退出条件
 
