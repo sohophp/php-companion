@@ -1,10 +1,10 @@
 # 实施状态
 
-2026-09-23 P7 private 参数删除继续收紧：递归检查方法内嵌套 closure/arrow 的参数引用，并拒绝方法体通过 `func_get_args()`、`func_get_arg()` 或 `func_num_args()` 观察原参数列表的场景。聚焦语义测试和类型检查通过；此改动晚于 `35297e85` 私有候选，新的 VSIX 尚待冻结。
+2026-09-23 P7 private 参数删除继续收紧：递归检查方法内嵌套 closure/arrow 的参数引用，并拒绝方法体通过 `func_get_args()`、`func_get_arg()` 或 `func_num_args()` 观察原参数列表的场景。语义包 300 项测试、类型检查和相关 ESLint 通过；已纳入下述 `a6ee163b` 私有候选。
 
 2026-09-23 P7 删除未使用 private 参数的安全域收紧：被删实参现在必须是完整且无插值的标量字面量；变量读取可能产生未定义变量提示，类常量访问可能触发自动加载，复合表达式可能执行调用，因此都拒绝自动编辑。聚焦语义用例和类型检查通过；已纳入下述 `35297e85` VSIX 候选。
 
-2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `35297e85` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
+2026-09-23 当前 0.4.5 私有 Alpha 候选已从干净提交 `a6ee163b` 重新冻结，四份 VSIX 的 SHA-256 校验、Core/Symfony 原始候选的 VS Code 1.138.0 隔离宿主回归，以及 Winstar PHP 8.5/CoreRepo PHP 7.2 确定性预检通过。完整结果见[当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)。WSL Remote Profile 所属、竞争 Provider 和持续真实编辑仍待人工记录；P9/F01–F14 保持开放。
 
 2026-09-23 P7 公开 API Rename 范围声明完成：产品支持说明与 Alpha 操作步骤均明确 F2 编辑计划只能覆盖当前已索引且语义证明的文件；工作区外下游仓库、客户端调用及未证明动态引用无法验证，公开 API 应用前须另行检查使用方。路线图仅关闭这一项范围声明，P7 两批重构及 F08 最终操作矩阵仍开放。
 
