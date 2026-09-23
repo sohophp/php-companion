@@ -87,4 +87,15 @@ admin:
     expect(snapshot.inputEvidenceComplete).toBe(true);
     expect(snapshot.routes).toEqual([]);
   });
+
+  it('marks circular route imports incomplete', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-cycle-')); roots.push(root);
+    await mkdir(join(root, 'config', 'routes'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'child: {resource: routes/child.yaml}\n');
+    await writeFile(join(root, 'config', 'routes', 'child.yaml'), 'parent: {resource: ../routes.yaml}\n');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(false);
+    expect(snapshot.inputEvidenceComplete).toBe(true);
+  });
 });

@@ -69,6 +69,15 @@ describe('standalone Symfony service provider', () => {
     expect((await collectSymfonyServiceFacts(root, parser, { projectTypes: [] })).complete).toBe(false);
   });
 
+  it('marks circular service imports incomplete', async () => {
+    const root = await project();
+    await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.yaml }\nservices:\n  app.main: { class: App\\Mailer }\n");
+    await writeFile(join(root, 'config', 'services', 'extra.yaml'), "imports:\n  - { resource: ../services.yaml }\nservices:\n  app.extra: { class: App\\Mailer }\n");
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [] });
+    expect(facts.complete).toBe(false);
+    expect(facts.inputEvidenceComplete).toBe(true);
+  });
+
   it('rejects unresolved XML and PHP Configurator imports across the provider graph', async () => {
     const root = await project();
     const xml = join(root, 'config', 'services.xml');

@@ -189,7 +189,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const loaded = new Set<string>(); const loading = new Set<string>(); let remaining = options.maxImports ?? 256;
   const load = async (input: string, depth = 0, containmentRoot = actualRoot): Promise<void> => {
     const path = resolve(input);
-    if (loaded.has(path) || loading.has(path)) return;
+    if (loaded.has(path)) return;
+    if (loading.has(path)) { complete = false; return; }
     if (depth > 32 || remaining-- <= 0) { inputEvidenceComplete = false; complete = false; return; }
     inputPaths.add(path);
     loading.add(path);

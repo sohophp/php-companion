@@ -11,3 +11,5 @@
 随后补充了 F09-DOC-03 的真实 stdio 编辑回归：初始完整 Entity 提供 `UserRepository::find` 补全；打开 Entity 并改成未完成类后，补全撤销；恢复完整源码后补全再次出现。定向测试、Language Server 类型检查和该测试文件的 ESLint 均通过。此步骤没有生成 VSIX。
 
 静态路由 Provider 现将重复名称的路由图标记为不完整。来源均可读取时仍保留 `inputEvidenceComplete=true`，但不会把过滤后的冲突结果宣称为权威全集；这避免下游路由 Rename/References 把歧义误判为不存在。Provider 4 项测试、类型检查和相关 ESLint 通过，没有生成 VSIX。
+
+服务与路由 Provider 对循环导入也会返回 `complete=false`，防止递归短路后把缺失的配置图发布为完整事实。两包共 15 项测试、类型检查及相关 ESLint 通过；没有生成 VSIX。

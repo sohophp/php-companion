@@ -177,7 +177,8 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   const read = async (path: string, namePrefix: string, pathPrefix: SymfonyRoutePathPrefix, ancestors: Set<string>, attribute = false, php = false,
     excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope): Promise<void> => {
     const local = relative(scope.path, path);
-    if (excludedRoutePath(path, excludedPaths) || ancestors.has(path)) return;
+    if (excludedRoutePath(path, excludedPaths)) return;
+    if (ancestors.has(path)) { complete = false; return; }
     if (isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`)) { complete = false; return; }
     if (remaining-- <= 0) { complete = false; inputEvidenceComplete = false; return; }
     try {
@@ -206,7 +207,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
         await walk(base, new Set(ancestors)); return;
       }
       inputPaths.add(resolve(path));
-      const actualPath = await realpath(path); if (ancestors.has(actualPath)) return;
+      const actualPath = await realpath(path); if (ancestors.has(actualPath)) { complete = false; return; }
       if (!within(scope.realPath, actualPath)) { complete = false; return; }
       const contextKey = JSON.stringify([actualPath, namePrefix, pathPrefix, attribute, php, [...excludedPaths].sort(), mapping?.root, mapping?.namespace]);
       if (visitedContexts.has(contextKey)) return; visitedContexts.add(contextKey);
