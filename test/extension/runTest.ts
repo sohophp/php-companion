@@ -16,10 +16,17 @@ async function availableDebugPort(): Promise<number> {
 
 async function main(): Promise<void> {
   const sourceFixture = resolve(__dirname, '..', 'test', 'extension', 'baseline');
-  const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
-  await cp(sourceFixture, fixture, { recursive: true });
+  const realVendorNoise = Number(process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE ?? 0);
+  if (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 60_000) {
+    throw new Error('PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE must be an integer from 0 to 60,000.');
+  }
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
+  if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
+    throw new Error('Real vendor noise needs C1 mode and PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
+  }
+  const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
+  await cp(sourceFixture, fixture, { recursive: true });
   const coreOnly = c1Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const c1DebugPort = c1Only
@@ -64,6 +71,17 @@ async function main(): Promise<void> {
     ? await mkdtemp(join(tmpdir(), 'php-companion-extension-real-vendor-')) : undefined;
   if (realVendorFixture) {
     await cp(resolve(__dirname, '..', 'test', 'extension', 'real-vendor'), realVendorFixture, { recursive: true });
+    if (realVendorNoise) {
+      const noise = join(realVendorFixture, 'src', 'Noise');
+      await mkdir(noise, { recursive: true });
+      for (let start = 0; start < realVendorNoise; start += 100) {
+        await Promise.all(Array.from({ length: Math.min(100, realVendorNoise - start) }, (_, offset) => {
+          const index = start + offset;
+          return writeFile(join(noise, `Unrelated${index}.php`),
+            `<?php namespace App\\C1\\Noise; final class Unrelated${index} { public function item${index}(): int { return ${index}; } }`);
+        }));
+      }
+    }
   }
 
   if (c1Only) {
@@ -129,6 +147,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
         PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE: realVendorNoise ? String(realVendorNoise) : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
       },
     });

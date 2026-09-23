@@ -124,7 +124,7 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
   assert.ok(restoredImplementation.every((item) => item.uri.toString() !== loggerUri.toString()));
   const restoredImplementationMs = Math.round(performance.now() - restoredStarted);
   console.log(`C1 real Composer vendor: ${JSON.stringify({
-    lockedPackages: lock.packages?.length,
+    lockedPackages: lock.packages?.length, noiseFiles: Number(process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE ?? 0),
     completion: 'getStatusCode', implementation: implementation.map((item) => item.uri.toString()), implementationMs,
     warmImplementation, restoredImplementationMs,
     unsavedCompletion: 'getName', references: references.length,
