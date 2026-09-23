@@ -1,0 +1,8 @@
+services:
+  app.mailer:
+    class: App\Mailer
+    public: true
+  app.consumer:
+    class: App\Consumer
+    arguments:
+      $mailer: '@app.mailer'

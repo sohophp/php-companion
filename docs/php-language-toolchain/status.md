@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P0/F09 [Symfony 服务 YAML 编号夹具](acceptance-fixtures.md)新增 F09-SVC-01/02/03，覆盖有效引用、合法的转义/表达式反例及破损配置。框架包 3 项定向测试、类型检查和 ESLint 通过；Provider 与真实扩展工作流尚待编号验收。
+
 2026-09-23 F14 [Symfony 扩展 API 不兼容错误](reports/f14-symfony-api-error-2026-09-23.md)已按 VS Code 语言输出并保留实际版本号；类型检查、定向测试和 ESLint 通过。本轮不打包。
 
 2026-09-23 F14 [Language Server 状态日志](reports/f14-status-output-2026-09-23.md)已接入中英文说明；真实中文 stdio 收到 Composer 快照日志，既有英文项目扫描用例通过。结构化性能记录仍待审计；本轮不打包。

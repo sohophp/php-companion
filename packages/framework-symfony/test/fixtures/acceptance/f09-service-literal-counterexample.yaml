@@ -1,0 +1,8 @@
+services:
+  app.mailer:
+    class: App\Mailer
+  app.consumer:
+    class: App\Consumer
+    arguments:
+      $literal: '@@app.mailer'
+      $expression: '@=service("app.mailer")'
