@@ -47,7 +47,7 @@
 
 Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 清单先冻结，避免在 Core 编码链审计期间增加变量。
 
-Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：F04-NAV-01–08 已覆盖未完成成员、连续未保存编辑、同名短类和 Trait 冲突的首组真实 stdio 正反例。接着验证查询执行期间的取消、外部声明修改后的失效和结果延迟；发现错误或旧结果时修复对应 parser、索引或缓存边界。完成这批自动化后，再用只含既定组合的隔离 VS Code Profile 检查可见结果及 Provider 所有权；R4 的跨平台和持续使用门槛保持开放。
+Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：F04-NAV-01–10 已覆盖未完成成员、连续未保存编辑、同名短类、Trait 冲突、外部声明失效和进行中 References 取消的首组真实 stdio 正反例。下一步用只含既定组合的隔离 VS Code Profile 检查可见结果、等待时间及 Provider 所有权；对实测错误或旧结果再修复 parser、索引或缓存边界。R4 的跨平台和持续使用门槛保持开放。
 
 ## 与 R2–R4 的关系
 

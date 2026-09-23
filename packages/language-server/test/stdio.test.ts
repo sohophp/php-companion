@@ -576,8 +576,70 @@ function run(Formatter $local, External $remote): void {
       expect(await query(991, 'textDocument/references', aliasCall + 1, { context: { includeDeclaration: false } })).toEqual([{
         uri, range: { start: lspPosition(source, aliasCall), end: lspPosition(source, aliasCall + 'formatNumber'.length) },
       }]);
+      const changedPrimary = '<?php namespace Acme; trait Primary { public function format(float $value): float { return $value; } }';
+      const primaryUri = pathToFileURL(join(root, 'lib', 'Primary.php')).toString();
+      await writeFile(join(root, 'lib', 'Primary.php'), changedPrimary);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: primaryUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${primaryUri}`));
+      expect((await query(992, 'textDocument/signatureHelp', source.indexOf("$report->format('x')") + '$report->format('.length))
+        .signatures[0].label).toContain('format(float $value): float');
+      expect((await query(993, 'textDocument/signatureHelp', source.indexOf('$report->formatNumber(2)') + '$report->formatNumber('.length))
+        .signatures[0].label).toContain('formatNumber(int $value): int');
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
+
+  it('F04-NAV-10 cancels an in-flight project References query after a newer edit', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-cancel-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const contract = '<?php namespace App; interface Contract { public function render(): void; }';
+      const other = '<?php namespace App; final class Other { public function render(): void {} }';
+      const initial = '<?php namespace App; function run(Contract $item): void { $item->render(); }';
+      const changed = initial.replace('Contract $item', 'Other $item');
+      await writeFile(join(root, 'src', 'Contract.php'), contract);
+      await writeFile(join(root, 'src', 'Other.php'), other);
+      await writeFile(join(root, 'src', 'Consumer.php'), initial);
+      await Promise.all(Array.from({ length: 1_000 }, (_, index) => writeFile(join(root, 'src', `Noise${index}.php`),
+        `<?php namespace App; final class Noise${index} { public function render(): void {} }`)));
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 994, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 994);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: initial },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const call = initial.indexOf('$item->render()') + '$item->'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 995, method: 'textDocument/references', params: {
+        textDocument: { uri }, position: lspPosition(initial, call + 1), context: { includeDeclaration: false },
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start]') && message.params.message.includes('render'), 15_000);
+      expect(output.messages.some((message: any) => message.id === 995)).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+      } }) + encode({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: 995 } }));
+      const cancelled = await output.waitFor((message) => message.id === 995, 15_000);
+      expect([-32800, -32801]).toContain(cancelled.error?.code);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 996, method: 'textDocument/definition', params: {
+        textDocument: { uri }, position: lspPosition(changed, call + 1),
+      } }));
+      const otherDeclaration = other.indexOf('function render') + 'function '.length;
+      expect((await output.waitFor((message) => message.id === 996, 15_000)).result).toEqual([{
+        uri: pathToFileURL(join(root, 'src', 'Other.php')).toString(), range: {
+          start: lspPosition(other, otherDeclaration), end: lspPosition(other, otherDeclaration + 'render'.length),
+        },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
 
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));

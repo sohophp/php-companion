@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-09/10：外部 Trait 磁盘修改及文件通知后，同一按需会话的主方法签名更新，另一 Trait 的别名签名保持不变。另以 1,000 个独立类让 References 进入候选扫描，确认请求仍在飞行时发送较新未保存文档与取消请求；旧查询返回取消/内容已变更错误，后续 Definition 命中新类型。定向真实 stdio 测试通过；真实 VS Code 可见反馈和跨平台时序仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-08：独立 Composer 项目用两个外部 Trait 的同名方法、`insteadof` 和别名构成冲突选择；按需真实 stdio 的补全、Hover、参数提示、定义及引用分别落到主方法和别名方法，不相互混合。定向测试通过；真实编辑器操作与更多 Trait 组合仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-07：独立 Composer 双 PSR-4 项目设置两个跨 namespace 的 `Formatter`，通过 import alias 在同一 Consumer 中使用；按需真实 stdio 的补全、Hover、参数提示、定义和引用各自归属准确声明，专属成员不混合。定向测试通过；真实编辑器操作与更复杂 alias 冲突仍开放。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。

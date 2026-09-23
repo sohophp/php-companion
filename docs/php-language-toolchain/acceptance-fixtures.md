@@ -16,6 +16,8 @@
 | F04-NAV-06 | [未完成成员与连续未保存编辑](../../packages/language-server/test/stdio.test.ts) | 连续发送 `Other`→`Contract` 两个版本，不等待诊断就查询未完成的 `$printer->re`：补全只有当前类型成员，Definition 指向当前声明；再切回 `Other`，专属候选和定义落点同步变化 | `stdio.test.ts` 的 F04-NAV-01 第五至七版文档 |
 | F04-NAV-07 | [跨 namespace 同名短类](../../packages/language-server/test/stdio.test.ts) | `App\\Formatter` 与 `Acme\\Formatter` 各有不同签名的 `format()` 和专属成员；Consumer 通过 import alias 使用后，按需补全、Hover、参数提示、定义和引用分别归属真实类，不混合候选 | `stdio.test.ts` 的 F04-NAV-07 |
 | F04-NAV-08 | [跨文件 Trait 优先级与别名](../../packages/language-server/test/stdio.test.ts) | 两个 Trait 都提供 `format()`，Host 用 `insteadof` 选择主方法并将另一方法命名为 `formatNumber()`；按需补全、Hover、参数提示、定义和引用区分两条成员链 | `stdio.test.ts` 的 F04-NAV-08 |
+| F04-NAV-09 | [外部 Trait 修改后按需失效](../../packages/language-server/test/stdio.test.ts) | 已解析的主 Trait 在磁盘修改并收到文件变更通知后，同一会话的参数提示使用新签名，未修改的别名 Trait 仍保持原签名 | `stdio.test.ts` 的 F04-NAV-08 后半段 |
+| F04-NAV-10 | [进行中查询取消与新版本](../../packages/language-server/test/stdio.test.ts) | 大型独立 Composer 项目的 References 已开始候选扫描时，发送较新未保存文档和取消请求；旧查询返回取消/内容已变更错误，后续 Definition 指向新接收者，不显示旧结果 | `stdio.test.ts` 的 F04-NAV-10 |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |

@@ -35,3 +35,9 @@ F04-NAV-07 使用两个 PSR-4 根目录中的 `App\Formatter` 与 `Acme\Formatte
 ## 跨文件 Trait 优先级与别名
 
 F04-NAV-08 的两个外部 Trait 都提供 `format()`，Host 通过 `Primary::format insteadof Fallback` 选择主方法，并将 `Fallback::format` 作为 `formatNumber()` 暴露。Consumer 的未完成成员补全同时出现两个有效名称；Definition 分别落到原 Trait 声明，Signature Help、Hover 和 References 分别沿主方法与别名方法返回且不混合。测试使用按需索引的真实 stdio，定向通过；当前用例不覆盖在飞行请求期间修改 Trait 或跨文件缓存失效。
+
+## 外部声明失效与进行中查询取消
+
+F04-NAV-09 在 F04-NAV-08 已加载的项目中，只修改磁盘上的主 Trait 方法签名并发送 `workspace/didChangeWatchedFiles`。等到该 URI 的增量索引完成后，同一会话中主方法的 Signature Help 从 `string` 改为 `float`，另一个 Trait 的 `formatNumber(int): int` 不变。该用例验证外部声明通知后的按需失效；未覆盖没有文件通知的编辑器环境。
+
+F04-NAV-10 在独立 Composer 项目加入 1,000 个含同名方法的类，向接口接收者发出 References。测试等待服务器报告候选扫描已开始，并确认旧请求尚无响应，再发送较新未保存文档与 `$/cancelRequest`。旧请求返回 LSP RequestCancelled 或 ContentModified 错误；随后查询 Definition 精确落到新接收者 `Other::render`。这是实际进行中请求的 stdio 证据，不以诊断发布充当同步点；真实 VS Code 可见反馈和其它平台调度仍需核对。
