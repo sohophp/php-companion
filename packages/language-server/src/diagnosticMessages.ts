@@ -163,6 +163,28 @@ const messages = {
   reasonGetCovariance: ['get type is not covariant with the inherited property type', 'get 类型与继承的属性类型不满足协变要求'],
   reasonSetContravariance: ['set type is not contravariant with the inherited property type', 'set 类型与继承的属性类型不满足逆变要求'],
   reasonPropertyMissing: ['property ${0} is not implemented', '未实现属性 ${0}'],
+  invalidAllowDynamicProperties: ['Cannot apply #[AllowDynamicProperties] to {0} {1}.', '不能将 #[AllowDynamicProperties] 应用于{0} {1}。'],
+  readonlyClassKind: ['readonly class', '只读类'],
+  overridePropertyVersion: ['#[Override] on property {0} requires PHP 8.5 or newer; the target is PHP {1}.', '属性 {0} 上的 #[Override] 需要 PHP 8.5 或更新版本；当前目标版本为 PHP {1}。'],
+  overridePropertyMissing: ['{0} has #[Override], but no matching non-private parent property exists.', '{0} 带有 #[Override]，但不存在匹配的非 private 父级属性。'],
+  noDiscardReturn: ['Return value of {0} must be used{1}; cast the call to (void) to intentionally discard it.', '{0} 的返回值必须使用{1}；若有意丢弃，请将调用转换为 (void)。'],
+  noDiscardMessage: [', {0}', '：{0}'],
+  noDiscardDeclaration: ['Cannot apply #[NoDiscard] to {0}: {1}.', '不能将 #[NoDiscard] 应用于 {0}：{1}。'],
+  noDiscardVoid: ['a void function does not return a value', 'void 函数不返回值'],
+  noDiscardNever: ['a never-returning function does not return a value', 'never 函数不返回值'],
+  noDiscardMagic: ['this magic method cannot return a value', '此魔术方法不能返回值'],
+  invalidAttributeTarget: ['Cannot apply {0} to {1}.', '不能将 {0} 应用于{1}。'],
+  deprecatedTargetVersion: ['#[Deprecated] on {0} requires PHP {1} or newer; the target is PHP {2}.', '{0} 上的 #[Deprecated] 需要 PHP {1} 或更新版本；当前目标版本为 PHP {2}。'],
+  deprecatedSymbol: ['{0} {1} is deprecated{2}{3}.', '{0} {1} 已弃用{2}{3}。'],
+  deprecatedSince: [' since {0}', '（自 {0} 起）'],
+  deprecatedMessage: [', {0}', '：{0}'],
+  extensionUnavailable: ['{0} {1} requires PHP extension {2}, which is unavailable according to {3}.', '由于{3}，{0} {1} 所需的 PHP 扩展 {2} 不可用。'],
+  extensionType: ['Type', '类型'],
+  extensionFunction: ['Function', '函数'],
+  extensionConstant: ['Constant', '常量'],
+  extensionSettingSource: ['the phpCompanion.disabledExtensions workspace setting', '工作区设置 phpCompanion.disabledExtensions'],
+  extensionComposerSource: ['Composer platform configuration', 'Composer platform 配置'],
+  extensionRuntimeSource: ['the detected PHP {0} {1} runtime ({2})', '检测到的 PHP {0} {1} 运行时（{2}）'],
 } as const;
 
 export type DiagnosticMessageKey = keyof typeof messages;
@@ -205,4 +227,40 @@ export function diagnosticCompatibilityReason(language: DiagnosticLanguage, reas
     if (match) return diagnosticMessage(language, key, ...match.slice(1));
   }
   return reason;
+}
+
+const attributeTargets = {
+  'property-hook': ['a property hook', '属性 Hook'],
+  'class-constant': ['a class constant', '类常量'],
+  'enum-case': ['an enum case', 'Enum Case'],
+  trait: ['a trait', 'Trait'],
+  'global-constant': ['a global constant', '全局常量'],
+  class: ['a class', '类'],
+  interface: ['an interface', '接口'],
+  enum: ['an enum', 'Enum'],
+  property: ['a property', '属性'],
+  parameter: ['a parameter', '参数'],
+  'anonymous-class': ['an anonymous class', '匿名类'],
+  function: ['a function', '函数'],
+  method: ['a method', '方法'],
+  closure: ['a closure', '闭包'],
+  'readonly-class': ['a readonly class', '只读类'],
+} as const;
+
+export type DiagnosticAttributeTarget = keyof typeof attributeTargets;
+
+export function diagnosticAttributeTarget(language: DiagnosticLanguage, target: DiagnosticAttributeTarget): string {
+  return attributeTargets[target][language === 'zh' ? 1 : 0];
+}
+
+const deprecatedKinds = {
+  function: ['Function', '函数'], method: ['Method', '方法'], constant: ['Constant', '常量'],
+  'enum-case': ['Enum case', 'Enum Case'], trait: ['Trait', 'Trait'],
+  'property-get': ['Property getter', '属性 Getter'], 'property-set': ['Property setter', '属性 Setter'],
+} as const;
+
+export type DiagnosticDeprecatedKind = keyof typeof deprecatedKinds;
+
+export function diagnosticDeprecatedKind(language: DiagnosticLanguage, kind: DiagnosticDeprecatedKind): string {
+  return deprecatedKinds[kind][language === 'zh' ? 1 : 0];
 }

@@ -30,7 +30,7 @@ import {
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
-import { diagnosticCompatibilityReason, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
+import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDeprecatedKind, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -1436,13 +1436,21 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     result.diagnostics.push(...[...unavailableUses.values()].map((use) => {
       const reasons = use.extensions.map((extension) => ({ extension, ...disabledExtensionReason(root, extension) }));
       const source = [...new Set(reasons.map((reason) => reason.source))].join(' and ');
+      const localizedSource = clientDiagnosticLanguage === 'en' ? source : [...new Set(reasons.flatMap((reason) => [
+        ...(reason.setting ? [diagnosticMessage(clientDiagnosticLanguage, 'extensionSettingSource')] : []),
+        ...(reason.composer ? [diagnosticMessage(clientDiagnosticLanguage, 'extensionComposerSource')] : []),
+        ...(reason.runtime && reason.detectedRuntime ? [diagnosticMessage(clientDiagnosticLanguage, 'extensionRuntimeSource',
+          reason.detectedRuntime.version, reason.detectedRuntime.sapi, reason.detectedRuntime.executable)] : []),
+      ]))].join('、');
       const extensionNames = use.extensions.join(', ');
       return {
         range: { start: document.positionAt(use.start), end: document.positionAt(use.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.extension.unavailable',
         source: 'PHP Companion',
-        message: `${use.kind[0]!.toUpperCase()}${use.kind.slice(1)} ${use.fqcn} requires PHP extension ${extensionNames}, which is unavailable according to ${source}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'extensionUnavailable',
+          diagnosticMessage(clientDiagnosticLanguage, use.kind === 'type' ? 'extensionType' : use.kind === 'function' ? 'extensionFunction' : 'extensionConstant'),
+          use.fqcn, extensionNames, localizedSource),
         data: { kind: use.kind, fqcn: use.fqcn, extensions: reasons },
       };
     }));
@@ -1667,7 +1675,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
       severity: DiagnosticSeverity.Error,
       code: 'php.attribute.invalid-allow-dynamic-properties',
       source: 'PHP Companion',
-      message: `Cannot apply #[AllowDynamicProperties] to ${item.readonlyClass ? 'readonly class' : item.kind} ${item.typeFqcn}.`,
+      message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAllowDynamicProperties',
+        diagnosticMessage(clientDiagnosticLanguage, item.readonlyClass ? 'readonlyClassKind' : kindLabels[item.kind]), item.typeFqcn),
     })));
     const overrideProperties = workspace.overridePropertyAttributes(document.uri);
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')
@@ -1677,7 +1686,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         severity: DiagnosticSeverity.Error,
         code: 'php.version.unsupported',
         source: 'PHP Companion',
-        message: `#[Override] on property ${item.property} requires PHP 8.5 or newer; the target is PHP ${targetPhpVersion}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'overridePropertyVersion', item.property, targetPhpVersion),
       })));
     } else if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
       result.diagnostics.push(...overrideProperties.filter((item) => !item.declaredInTrait && !item.matchingParentProperty).map((item) => ({
@@ -1685,7 +1694,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-override-property',
         source: 'PHP Companion',
-        message: `${item.property} has #[Override], but no matching non-private parent property exists.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'overridePropertyMissing', item.property),
       })));
     }
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
@@ -1694,43 +1703,33 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         severity: DiagnosticSeverity.Warning,
         code: 'php.return-value.discarded',
         source: 'PHP Companion',
-        message: `Return value of ${item.callable} must be used${item.message ? `, ${item.message}` : ''}; cast the call to (void) to intentionally discard it.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'noDiscardReturn', item.callable,
+          item.message ? diagnosticMessage(clientDiagnosticLanguage, 'noDiscardMessage', item.message) : ''),
       })));
       const reasons = {
-        'void-return': 'a void function does not return a value',
-        'never-return': 'a never-returning function does not return a value',
-        'magic-method': 'this magic method cannot return a value',
+        'void-return': 'noDiscardVoid',
+        'never-return': 'noDiscardNever',
+        'magic-method': 'noDiscardMagic',
       } as const;
       result.diagnostics.push(...workspace.invalidNoDiscardDeclarations(document.uri).map((item) => ({
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-no-discard',
         source: 'PHP Companion',
-        message: `Cannot apply #[NoDiscard] to ${item.callable}: ${reasons[item.reason]}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'noDiscardDeclaration', item.callable,
+          diagnosticMessage(clientDiagnosticLanguage, reasons[item.reason])),
       })));
-      const noDiscardTargetLabels = {
-        'property-hook': 'property hook', 'class-constant': 'class constant', 'enum-case': 'enum case', trait: 'trait',
-        'global-constant': 'global constant', class: 'class', interface: 'interface', enum: 'enum', property: 'property',
-        parameter: 'parameter', 'anonymous-class': 'anonymous class',
-      } as const;
       result.diagnostics.push(...workspace.invalidNoDiscardTargets(document.uri).filter((item) => !item.delayedValidation).map((item) => ({
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-no-discard-target',
         source: 'PHP Companion',
-        message: `Cannot apply #[NoDiscard] to ${['anonymous-class', 'enum', 'enum-case', 'interface'].includes(item.target) ? 'an' : 'a'} ${noDiscardTargetLabels[item.target]}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAttributeTarget', '#[NoDiscard]',
+          diagnosticAttributeTarget(clientDiagnosticLanguage, item.target)),
       })));
     }
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) {
       const deprecatedTargets = workspace.deprecatedAttributeTargets(document.uri);
-      const deprecatedTargetLabels = {
-        function: 'function', method: 'method', closure: 'closure', 'property-hook': 'property hook',
-        'class-constant': 'class constant', 'enum-case': 'enum case', trait: 'trait', 'global-constant': 'global constant',
-        class: 'class', interface: 'interface', enum: 'enum', property: 'property', parameter: 'parameter',
-        'anonymous-class': 'anonymous class',
-      } as const;
-      const deprecatedTargetArticle = (target: keyof typeof deprecatedTargetLabels): 'a' | 'an' =>
-        target === 'anonymous-class' || target === 'enum' || target === 'interface' ? 'an' : 'a';
       result.diagnostics.push(...deprecatedTargets.flatMap((item) => {
         const available = SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(item.minimumPhpVersion);
         if (!available) return [{
@@ -1738,7 +1737,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
           severity: DiagnosticSeverity.Error,
           code: 'php.version.unsupported',
           source: 'PHP Companion',
-          message: `#[Deprecated] on ${deprecatedTargetArticle(item.target)} ${deprecatedTargetLabels[item.target]} requires PHP ${item.minimumPhpVersion} or newer; the target is PHP ${targetPhpVersion}.`,
+          message: diagnosticMessage(clientDiagnosticLanguage, 'deprecatedTargetVersion',
+            diagnosticAttributeTarget(clientDiagnosticLanguage, item.target), item.minimumPhpVersion, targetPhpVersion),
         }];
         return item.valid || (item.delayedValidation
           && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) ? [] : [{
@@ -1746,12 +1746,11 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
           severity: DiagnosticSeverity.Error,
           code: 'php.attribute.invalid-deprecated-target',
           source: 'PHP Companion',
-          message: `Cannot apply #[Deprecated] to ${deprecatedTargetArticle(item.target)} ${deprecatedTargetLabels[item.target]}.`,
+          message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAttributeTarget', '#[Deprecated]',
+            diagnosticAttributeTarget(clientDiagnosticLanguage, item.target)),
         }];
       }));
     }
-    const deprecatedLabels = { function: 'Function', method: 'Method', constant: 'Constant', 'enum-case': 'Enum case', trait: 'Trait',
-      'property-get': 'Property getter', 'property-set': 'Property setter' } as const;
     result.diagnostics.push(...workspace.deprecatedSymbolUses(document.uri)
       .filter((item) => !item.attributeMinimumVersion
         || SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(item.attributeMinimumVersion))
@@ -1761,7 +1760,10 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
         tags: [DiagnosticTag.Deprecated],
         code: 'php.symbol.deprecated',
         source: 'PHP Companion',
-        message: `${deprecatedLabels[item.kind]} ${item.symbol} is deprecated${item.since ? ` since ${item.since}` : ''}${item.message ? `, ${item.message}` : ''}.`,
+        message: diagnosticMessage(clientDiagnosticLanguage, 'deprecatedSymbol',
+          diagnosticDeprecatedKind(clientDiagnosticLanguage, item.kind), item.symbol,
+          item.since ? diagnosticMessage(clientDiagnosticLanguage, 'deprecatedSince', item.since) : '',
+          item.message ? diagnosticMessage(clientDiagnosticLanguage, 'deprecatedMessage', item.message) : ''),
       })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1')) result.diagnostics.push(...workspace.invalidEnumInterfaces(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },

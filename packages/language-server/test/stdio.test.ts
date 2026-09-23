@@ -3808,6 +3808,78 @@ function useCases(Target $target, Hooks $hooks): void { new Target(); new Contra
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('publishes Chinese Attribute and deprecation diagnostics through stdio', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-attribute-diagnostics-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ config: { platform: { 'ext-mbstring': false } } }));
+      const uri = pathToFileURL(join(root, 'Attributes.php')).toString();
+      const source = `<?php namespace App;
+#[\\AllowDynamicProperties] interface Contract {}
+class Base { private int $secret; }
+class Child extends Base { #[\\Override] public int $secret; }
+#[\\NoDiscard("use the result")] function important(): int { return 1; }
+#[\\NoDiscard] class InvalidNoDiscard {}
+#[\\Deprecated(message: "use current()", since: "2.0")] function old(): void {}
+#[\\Deprecated] class InvalidDeprecated {}
+function run(): void { important(); old(); mb_strlen('text'); }`;
+      await writeFile(join(root, 'Attributes.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 132, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN', initializationOptions: { phpVersion: '8.5' },
+      } }));
+      await output.waitFor((message) => message.id === 132);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      expect(published.params.diagnostics).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'php.attribute.invalid-allow-dynamic-properties',
+          message: '不能将 #[AllowDynamicProperties] 应用于接口 App\\Contract。' }),
+        expect.objectContaining({ code: 'php.attribute.invalid-override-property',
+          message: 'App\\Child::$secret 带有 #[Override]，但不存在匹配的非 private 父级属性。' }),
+        expect.objectContaining({ code: 'php.return-value.discarded',
+          message: 'App\\important 的返回值必须使用：use the result；若有意丢弃，请将调用转换为 (void)。' }),
+        expect.objectContaining({ code: 'php.attribute.invalid-no-discard-target',
+          message: '不能将 #[NoDiscard] 应用于类。' }),
+        expect.objectContaining({ code: 'php.attribute.invalid-deprecated-target',
+          message: '不能将 #[Deprecated] 应用于类。' }),
+        expect.objectContaining({ code: 'php.symbol.deprecated',
+          message: '函数 App\\old 已弃用（自 2.0 起）：use current()。' }),
+        expect.objectContaining({ code: 'php.extension.unavailable',
+          message: '由于Composer platform 配置，函数 mb_strlen 所需的 PHP 扩展 mbstring 不可用。' }),
+      ]));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('publishes Chinese Attribute version requirements through stdio', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-attribute-version-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'Versioned.php')).toString();
+      const source = `<?php namespace App;
+class Child { #[\\Override] public int $value; }
+#[\\Deprecated] trait OldTrait {}`;
+      await writeFile(join(root, 'Versioned.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 133, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN', initializationOptions: { phpVersion: '8.4' },
+      } }));
+      await output.waitFor((message) => message.id === 133);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      expect(published.params.diagnostics).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'php.version.unsupported',
+          message: '属性 App\\Child::$value 上的 #[Override] 需要 PHP 8.5 或更新版本；当前目标版本为 PHP 8.4。' }),
+        expect.objectContaining({ code: 'php.version.unsupported',
+          message: 'Trait 上的 #[Deprecated] 需要 PHP 8.5 或更新版本；当前目标版本为 PHP 8.4。' }),
+      ]));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('publishes proven missing-member diagnostics after a complete project index', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-unresolved-member-'));
     try {
