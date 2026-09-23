@@ -7,9 +7,14 @@ import { isMap, isScalar, isSeq, parseDocument, type Node, type Pair, type Scala
 import type { RouteControllerFact, RouteFact } from '@php-companion/route-provider';
 
 const execute = promisify(execFile);
-export interface RuntimeRoute { path: string; }
+export interface RuntimeRoute { path: string; defaults?: { _module_route_name?: unknown; _module_route_file?: unknown }; }
 export interface WinstarProviderOptions { php?: string; console?: string; timeoutMs?: number; }
 interface LocatedName { value: string; uri: string; start: number; end: number; generated: boolean; controller?: RouteControllerFact; }
+// Winstar ModuleRouteDefinitionProvider::routesForActions is the source of this finite set.
+const generatedAdminActions = new Set([
+  'index', 'add', 'addSubmit', 'edit', 'editSubmit', 'copy', 'actions', 'view', 'excel', 'print', 'delete',
+  'preview', 'import', 'clear', 'changeSequence', 'search',
+]);
 
 function scalarTextRange(source: string, scalar: Scalar): { start: number; end: number } | undefined {
   const range = scalar.range; if (!range) return undefined;
@@ -74,7 +79,12 @@ export async function collectWinstarModuleRouteFacts(root: string, runtimeRoutes
   const result: RouteFact[] = [];
   for (const [name, route] of Object.entries(runtimeRoutes).sort(([left], [right]) => left.localeCompare(right))) {
     if (!route || typeof route.path !== 'string') continue;
-    const declarations = located.filter((item) => item.generated ? name.startsWith(`admin.${item.value}.`) : item.value === name);
+    const fromModuleLoader = route.defaults?._module_route_name === name && route.defaults._module_route_file === 'symfony-module-routes';
+    const declarations = fromModuleLoader ? located.filter((item) => {
+      if (!item.generated) return item.value === name;
+      const prefix = `admin.${item.value}.`;
+      return name.startsWith(prefix) && generatedAdminActions.has(name.slice(prefix.length));
+    }) : [];
     if (declarations.length === 1) {
       const declaration = declarations[0]!;
       result.push({ name, path: route.path, uri: declaration.uri, start: declaration.start, end: declaration.end,

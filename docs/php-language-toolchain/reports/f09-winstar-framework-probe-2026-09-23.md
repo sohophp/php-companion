@@ -34,3 +34,9 @@ Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核�
 同一有效输入发现 QueryBuilder 默认对象水合链原先失去实体泛型：`getRepository(SolutionPageCard::class)->createQueryBuilder('card')->getQuery()->getResult()` 的 foreach 元素无法补全。按需加载现在从已加载的真实 `Doctrine\ORM\EntityRepository` 声明建立通用查询事实，并补载 `QueryBuilder`、`Query` 以及实际声明的 `AbstractQuery` 父类；生成事实时只传来源位置，避免类型对象的 `name` 覆盖方法名。复测中 `getResult()` Hover 为 `array<int, SolutionPageCard>`，foreach 元素补全 `SolutionPageCard::getLinkUrl()`，退出码 0。合成按需加载回归及既有完整索引回归共 2 项、Language Server 类型检查和相关 ESLint 均通过。此项不宣称其它 Doctrine 映射或水合模式全部完成，也没有生成 VSIX。
 
 后续把 foreach 查询结果补全改为打开文件后的**首个**请求，发现此前的成功依赖先请求 Repository 成员造成的预热。冷路径现会在识别到 `createQueryBuilder()` 与 `getQuery()` 查询链时按 Composer PSR-4 精确加载 Doctrine 的 `EntityManagerInterface` 和 `EntityRepository`，再建立查询事实；请求取消或文档版本变化时丢弃结果。合成 `onDemand` 首请求回归通过。另在真实 Winstar 根启动当前源码构建的 Language Server，以未落盘 PHP 文档直接请求 `$queried->getLi` 补全，首次请求返回 `SolutionPageCard::getLinkUrl(): ?string`，探针退出码 0。该验证仍是 stdio 探针，不代替 VS Code WSL Remote 人工编辑验收，也未生成 VSIX。
+
+## 模块路由来源与冷导航复核
+
+同一 `dev` Router 的 690 条运行时路由中，569 条带 `_module_route_file=symfony-module-routes` 和匹配自身名称的 `_module_route_name`。来源映射现在要求这两个运行时标记；`admin_defaults` 只匹配项目 `ModuleRouteDefinitionProvider::routesForActions()` 中实际列出的 16 个动作，不再把 `admin.CompanyPage.workflowStatus` 等显式 YAML 名称误当成默认生成名称。带唯一 YAML 来源的路由由此前的 477 条增至 568 条；其余 121 条无模块来源标记，`home` 则在模块 YAML 中重复声明，保留运行时名称/路径而不提供猜测的 Definition。268 条附带 Controller 来源的路由与 Router 的 `_controller` 全部一致。
+
+合成 Language Server stdio 回归把 `RouterInterface` 放在 Composer vendor 中，不经预热即从 PHP 路由字面量导航到显式 `admin.ZuluPage.workflowStatus` 的精确 YAML 范围；同时覆盖模块根中的普通文件、默认生成路由 Rename 拒绝。真实 Winstar 的 `onDemand` stdio 首次 Definition 请求从 `RouterInterface::generate('admin.CompanyPage.workflowStatus')` 返回 `src/Modules/Company/Routes/admin.yaml` 第 11 行字符 8–40，目标切片完整等于路由名。首次临时探针误将路由标为 `external=true`，核心按所有权规则返回空；改为正确的核心 Provider 所属配置后通过。合成回归还验证未预载 RouterInterface 时按需加载其精确 Composer 声明。此记录不代替 VS Code WSL Remote 人工导航验收，也没有打包 VSIX。

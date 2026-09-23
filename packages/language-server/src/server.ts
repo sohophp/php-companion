@@ -4279,10 +4279,26 @@ async function provenSymfonyContainerServiceReference(document: TextDocument, of
   return reference;
 }
 
+async function symfonyRouteMethodAt(document: TextDocument, methodOffset: number,
+  workspace: SemanticWorkspace): Promise<ReturnType<SemanticWorkspace['memberAt']>> {
+  let method = workspace.memberAt(document.uri, methodOffset);
+  if (!method) {
+    const root = rootForUri(document.uri);
+    if (root) await hydrateCanonicalTypes(workspace, root, [
+      'Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController',
+      'Symfony\\Component\\Routing\\Generator\\UrlGeneratorInterface',
+      'Symfony\\Component\\Routing\\RouterInterface',
+    ]);
+    method = workspace.memberAt(document.uri, methodOffset);
+  }
+  return method;
+}
+
 async function provenSymfonyRouteCall(document: TextDocument, offset: number, workspace: SemanticWorkspace): Promise<SymfonyRouteCall | undefined> {
   if (document.languageId !== 'php' || externalSymfonyRoutes(document.uri)) return undefined;
   const call = symfonyRouteCallAt(await parser(), document.uri, document.getText(), offset); if (!call) return undefined;
-  const method = workspace.memberAt(document.uri, call.methodOffset); const routeParameter = method?.parameters[0]?.name;
+  const method = await symfonyRouteMethodAt(document, call.methodOffset, workspace);
+  const routeParameter = method?.parameters[0]?.name;
   const correctArgument = routeParameter && (call.argumentName !== undefined
     ? call.argumentName === routeParameter : !call.namedArguments.includes(routeParameter));
   return method && SYMFONY_ROUTE_METHODS.has(method.fqcn.toLowerCase()) && correctArgument ? call : undefined;
@@ -4291,7 +4307,7 @@ async function provenSymfonyRouteCall(document: TextDocument, offset: number, wo
 async function provenSymfonyRouteParameterCall(document: TextDocument, offset: number, workspace: SemanticWorkspace): Promise<SymfonyRouteParameterCall | undefined> {
   if (document.languageId !== 'php' || externalSymfonyRoutes(document.uri)) return undefined;
   const call = symfonyRouteParameterCallAt(await parser(), document.uri, document.getText(), offset); if (!call) return undefined;
-  const method = workspace.memberAt(document.uri, call.methodOffset);
+  const method = await symfonyRouteMethodAt(document, call.methodOffset, workspace);
   if (!method || !SYMFONY_ROUTE_METHODS.has(method.fqcn.toLowerCase()) || method.parameters.length < 2) return undefined;
   const routeParameter = method.parameters[0]!.name; const parametersParameter = method.parameters[1]!.name;
   const correctRoute = call.routeArgumentName !== undefined ? call.routeArgumentName === routeParameter : call.routeArgumentPosition === 0;
