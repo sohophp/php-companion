@@ -14,3 +14,9 @@
 Doctrine 静态分析直接读取 `SolutionArticle.php`、`SolutionCategory.php`、`SolutionPage.php`。三者均识别为 Entity；`SolutionArticle` 的 `translations` 指向 `SolutionArticleTranslation`、`category` 指向 `SolutionCategory` 且均为非空，后两者的 `translations` 分别指向对应 Translation Entity。`SolutionArticle::category` 源码含 `#[ORM\JoinColumn(nullable: false)]` 与非空属性类型。本探针未验证 Repository 查询、Doctrine 运行时映射或真实编辑器操作。
 
 边界：服务收集的项目类型目录为空，服务资源展开和自动装配关系不能据此作最终验收；静态路由只代表已证明的子集。Winstar 的模块路由需与独立运行时 Provider 组合验证，SoFinder 工厂路由也需以运行时事实确认。当前没有执行 Symfony Kernel、数据库访问或 VSIX 打包。
+
+## 运行时路由与源码位置复核
+
+随后通过显式 Winstar Provider 调用项目 `bin/php-runtime bin/console debug:router --format=json --env=dev`；这一步会启动 Symfony Console，与上面的纯静态探针分开记录。当前 Router 返回 690 条路由。发现 `src/Modules/README.md` 会使源码扫描在排序遍历中提前 `break`，导致 `README.md` 之后的模块失去 YAML 来源。改为跳过普通文件后，690 条运行时路由全部保留，其中 477 条有唯一 YAML 来源、213 条只保留运行时名称和路径。在**同一次运行时结果集**中，`README.md` 之后的模块贡献 129 条有源码位置的路由；例如 `admin.SolutionArticles.add` 指向 `src/Modules/Solutions/Routes/admin_defaults.yaml` 中 `SolutionArticles` 的精确范围。历史报告的 704 条路由来自较早项目状态，不能直接用作本次数量差值。
+
+Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核没有打包 VSIX，也没有执行编辑器中的 Definition/References/Rename 操作。

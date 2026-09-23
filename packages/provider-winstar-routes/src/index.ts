@@ -56,7 +56,8 @@ export async function collectWinstarModuleRouteFacts(root: string, runtimeRoutes
   const located: LocatedName[] = []; let files = 0;
   const modules = (await readdir(moduleRoot, { withFileTypes: true })).sort((left, right) => left.name.localeCompare(right.name));
   for (const module of modules) {
-    if (files >= 4096 || (!module.isDirectory() && !module.isSymbolicLink())) break;
+    if (files >= 4096) break;
+    if (!module.isDirectory() && !module.isSymbolicLink()) continue;
     const routeDirectory = resolve(moduleRoot, module.name, 'Routes');
     try {
       const actualDirectory = await realpath(routeDirectory); const local = relative(actualRoot, actualDirectory);

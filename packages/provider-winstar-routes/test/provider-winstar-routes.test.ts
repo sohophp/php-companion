@@ -26,4 +26,14 @@ describe('Winstar module route provider', () => {
     for (const module of ['One', 'Two']) { const routes = join(root, 'src', 'Modules', module, 'Routes'); await mkdir(routes, { recursive: true }); await writeFile(join(routes, 'routes.yaml'), '- name: duplicate\n'); }
     expect(await collectWinstarModuleRouteFacts(root, { duplicate: { path: '/' } })).toEqual([{ name: 'duplicate', path: '/' }]);
   });
+  it('continues scanning modules after ordinary files in the module root', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'winstar-routes-')); roots.push(root);
+    for (const [module, name] of [['Alpha', 'alpha.route'], ['Zulu', 'zulu.route']] as const) {
+      const routes = join(root, 'src', 'Modules', module, 'Routes'); await mkdir(routes, { recursive: true });
+      await writeFile(join(routes, 'routes.yaml'), `- name: ${name}\n`);
+    }
+    await writeFile(join(root, 'src', 'Modules', 'README.md'), 'Module notes\n');
+    const facts = await collectWinstarModuleRouteFacts(root, { 'alpha.route': { path: '/alpha' }, 'zulu.route': { path: '/zulu' } });
+    expect(facts.map((route) => [route.name, Boolean(route.uri)])).toEqual([['alpha.route', true], ['zulu.route', true]]);
+  });
 });
