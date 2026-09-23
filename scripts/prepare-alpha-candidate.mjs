@@ -10,10 +10,9 @@ const packageFiles = [
   'package.json',
   'packages/php-companion-symfony/package.json',
   'packages/php-companion-extension-pack/package.json',
-  'packages/php-companion-recommended-pack/package.json',
 ];
 const packages = await Promise.all(packageFiles.map(async (path) => JSON.parse(await readFile(resolve(root, path), 'utf8'))));
-const [corePackage, symfonyPackage, openSourcePackage, recommendedPackage] = packages;
+const [corePackage, symfonyPackage, openSourcePackage] = packages;
 if (!packages.every((candidate) => candidate.version === corePackage.version)) {
   throw new Error(`Alpha VSIX versions must match: ${packages.map((candidate) => `${candidate.name}@${candidate.version}`).join(', ')}`);
 }
@@ -33,7 +32,6 @@ const sourceArtifacts = [
   { role: 'core', package: corePackage, path: resolve(root, `php-companion-${corePackage.version}.vsix`) },
   { role: 'symfony', package: symfonyPackage, path: resolve(root, `packages/php-companion-symfony/php-companion-symfony-${symfonyPackage.version}.vsix`) },
   { role: 'open-source-pack', package: openSourcePackage, path: resolve(root, `packages/php-companion-extension-pack/php-companion-open-source-pack-${openSourcePackage.version}.vsix`) },
-  { role: 'recommended-pack', package: recommendedPackage, path: resolve(root, `packages/php-companion-recommended-pack/php-companion-recommended-pack-${recommendedPackage.version}.vsix`) },
 ];
 const output = resolve(root, process.argv[2] ?? `artifacts/php-companion-alpha-${corePackage.version}-${commit.slice(0, 8)}`);
 await rm(output, { recursive: true, force: true });
@@ -60,7 +58,7 @@ const supportedExtensions = specifications.filter((entry) => entry.supportedProf
 const rejectedExtensions = specifications.filter((entry) => entry.supportedProfile === false)
   .map(({ id, version }) => ({ id, version }));
 const manifest = {
-  schema: 2,
+  schema: 3,
   channel: 'alpha',
   generatedAt: new Date().toISOString(),
   source: { branch, commit, clean: true },
@@ -82,7 +80,7 @@ await writeFile(resolve(output, 'README.zh-CN.md'), `# SoPHP Alpha ${corePackage
   + `新建干净 VS Code Profile，禁用或卸载其他通用 PHP Language Server。开源扩展包会安装 \`${supportedExtensions.map((entry) => `${entry.id}@${entry.version}`).join('、')}\`。\n\n`
   + `安装前可在候选目录运行 \`sha256sum -c SHA256SUMS\`；\`candidate.json\` 保存提交、平台、文件大小、摘要和冻结插件版本。\n\n`
   + `本轮 References 渐进索引只在 Alpha Profile 的用户设置中启用：\`"phpCompanion.indexing.mode": "progressive"\` 与 \`"phpCompanion.indexing.referenceMemoryBudgetMiB": 1536\`。设置后 Reload Window；需要回退时把模式改为 \`onDemand\`。\n\n`
-  + `从对应源码提交根目录运行 \`pnpm alpha:preflight -- --candidate <候选目录> --workspace <Composer项目根目录> --php <项目PHP包装器> --expected-php <次版本> --require-wsl\`。安装完成后，在 VS Code WSL 集成终端追加 \`--check-editor\`；命令要求主扩展、冻结外部扩展及恰好一个 Pack 版本一致。CLI 无法证明竞争 PHP Provider 已禁用，仍须在 Profile 中人工确认。\n\n`
+  + `从对应源码提交根目录运行 \`pnpm alpha:preflight -- --candidate <候选目录> --workspace <Composer项目根目录> --php <项目PHP包装器> --expected-php <次版本> --require-wsl\`。安装完成后，在 VS Code WSL 集成终端追加 \`--check-editor\`；命令要求 Core、Symfony、Open Source Pack 与冻结外部扩展版本一致。CLI 无法证明竞争 PHP Provider 已禁用，仍须在 Profile 中人工确认。\n\n`
   + `公开 Marketplace/npm 发布不属于此候选操作。\n`);
 
 for (const artifact of artifacts) {

@@ -42,7 +42,7 @@ Twig 编辑、解析、格式化、模板语义继续由 twig-plus 唯一负责�
 
 ## 当前事实与计划边界
 
-- 当前扩展已有生成、导入、Rename、Safe Move 和自研语言服务器；独立安装、Open Source Pack 与 Recommended Pack 均默认启用。检测到 Intelephense 且用户没有显式选择时，自研服务器保持关闭，以保留既有单一 Provider 工作流。
+- 当前扩展已有生成、导入、Rename、Safe Move 和自研语言服务器；独立安装及 Open Source Pack 均默认启用。检测到 Intelephense 且用户没有显式选择时，自研服务器保持关闭，以保留既有单一 Provider 工作流。
 - 自研主链已有 Composer 有界索引、基础 PHPDoc/类型系统、成员补全、Hover、Signature、Definition、References 和首批内建符号；控制流、高级类型、完整诊断和持久索引仍未完成。
 - 稳定版 README 和 Release checklist 仍描述 0.4.5；预览能力与稳定能力分开说明。
 - 采用 pnpm monorepo，完整组件具备独立 API、构建、测试、打包及安装能力；先验证核心包，按需公开发布，保持扩展 ID 与用户配置兼容。具体规则见 packaging.md。

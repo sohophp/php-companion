@@ -25,7 +25,7 @@ async function manifest(path: string): Promise<ExtensionManifest> {
 
 describe('PHP Companion manifests', () => {
   it('publishes every extension as version 0.4.5', async () => {
-    for (const path of ['package.json', 'packages/php-companion-symfony/package.json', 'packages/php-companion-extension-pack/package.json', 'packages/php-companion-recommended-pack/package.json']) {
+    for (const path of ['package.json', 'packages/php-companion-symfony/package.json', 'packages/php-companion-extension-pack/package.json']) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
       expect(value.version).toBe('0.4.5');
@@ -54,20 +54,14 @@ describe('PHP Companion manifests', () => {
     expect(defaults?.['phpCompanion.symfony.winstarRoutes.enabled']?.default).toBe(false);
   });
 
-  it('ships both focused packs without another PHP language server', async () => {
+  it('ships the Open Source Pack without another PHP language server', async () => {
     const openSource = await manifest('packages/php-companion-extension-pack/package.json');
-    const recommended = await manifest('packages/php-companion-recommended-pack/package.json');
     const extensions = await openSourceExtensions();
     expect(openSource.extensionPack).toEqual(extensions);
-    expect(recommended.extensionPack).toEqual(extensions);
     expect(openSource.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
-    expect(recommended.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.extensionPack).not.toContain('symfony.language-tools');
-    expect(recommended.extensionPack).not.toContain('symfony.language-tools');
     expect(openSource.extensionPack).toContain('sohophp.php-companion-symfony');
-    expect(recommended.extensionPack).toContain('sohophp.php-companion-symfony');
     expect(openSource.contributes).toBeDefined();
-    expect(recommended.contributes).toEqual(openSource.contributes);
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
     expect(defaults?.['symfonyLsp.runtimeIndexing']).toBe(false);

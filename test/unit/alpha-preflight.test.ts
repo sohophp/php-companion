@@ -6,13 +6,14 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 type PreflightModule = {
   parseExtensionList(source: string): Map<string, string>;
-  extensionAssessment(manifest: { supportedExtensions: Array<{ id: string; version: string }>; artifacts?: Array<{ role: string; id: string; version: string }> }, installed: Map<string, string>): {
+  extensionAssessment(manifest: { schema?: number; supportedExtensions: Array<{ id: string; version: string }>; artifacts?: Array<{ role: string; id: string; version: string }> }, installed: Map<string, string>): {
     missing: string[];
     mismatched: Array<{ id: string; expected: string; installed?: string }>;
     competingInstalled: string[];
     productMissing: string[];
     productMismatched: Array<{ id: string; expected: string; installed?: string }>;
     installedPacks: Array<{ id: string }>;
+    legacyRecommendedInstalled: boolean;
   };
   isWslEnvironment(environment: NodeJS.ProcessEnv, kernelRelease?: string): boolean;
   verifyCandidate(directory: string): Promise<{ artifacts: Array<{ file: string; valid: boolean }> }>;
@@ -21,20 +22,21 @@ const modulePath = '../../scripts/alpha-preflight.mjs';
 let preflight: PreflightModule;
 const commit = '1234567890abcdef1234567890abcdef12345678';
 
-async function writeCandidate(root: string, contents: Buffer): Promise<string> {
+async function writeCandidate(root: string, contents: Buffer, schema = 3): Promise<string> {
   const specifications = [
     { role: 'core', id: 'sohophp.php-companion', file: 'php-companion.vsix' },
     { role: 'symfony', id: 'sohophp.php-companion-symfony', file: 'php-companion-symfony.vsix' },
     { role: 'open-source-pack', id: 'sohophp.php-companion-open-source-pack', file: 'php-companion-open-source-pack.vsix' },
     { role: 'recommended-pack', id: 'sohophp.php-companion-recommended-pack', file: 'php-companion-recommended-pack.vsix' },
   ];
-  const artifacts = await Promise.all(specifications.map(async (specification) => {
+  const selected = schema === 3 ? specifications.filter((specification) => specification.role !== 'recommended-pack') : specifications;
+  const artifacts = await Promise.all(selected.map(async (specification) => {
     await writeFile(join(root, specification.file), contents);
     return { ...specification, version: '0.4.5', bytes: contents.length,
       sha256: createHash('sha256').update(contents).digest('hex') };
   }));
   await writeFile(join(root, 'candidate.json'), JSON.stringify({
-    schema: 2, channel: 'alpha', source: { clean: true, commit }, artifacts,
+    schema, channel: 'alpha', source: { clean: true, commit }, artifacts,
     supportedExtensions: [{ id: 'redhat.vscode-yaml', version: '1.24.0' }], rejectedExtensions: [],
   }));
   return specifications[0]!.file;
@@ -76,11 +78,33 @@ describe('Alpha preflight', () => {
     await expect(preflight.verifyCandidate(root)).resolves.toMatchObject({
       artifacts: expect.arrayContaining([expect.objectContaining({ file, valid: true })]),
     });
+    const manifest = JSON.parse(await readFile(join(root, 'candidate.json'), 'utf8')) as { schema: number; artifacts: Array<{ role: string }> };
+    expect(manifest.schema).toBe(3);
+    expect(manifest.artifacts.map((artifact) => artifact.role)).toEqual(['core', 'symfony', 'open-source-pack']);
+  });
+
+  it('requires Open Source Pack and identifies a legacy Recommended Pack in schema 3', () => {
+    const manifest = { schema: 3, supportedExtensions: [], artifacts: [
+      { role: 'core', id: 'sohophp.php-companion', version: '0.4.5' },
+      { role: 'symfony', id: 'sohophp.php-companion-symfony', version: '0.4.5' },
+      { role: 'open-source-pack', id: 'sohophp.php-companion-open-source-pack', version: '0.4.5' },
+    ] };
+    const installed = preflight.parseExtensionList('sohophp.php-companion@0.4.5\nsohophp.php-companion-symfony@0.4.5\nsohophp.php-companion-recommended-pack@0.4.5\n');
+    const assessment = preflight.extensionAssessment(manifest, installed);
+    expect(assessment.productMissing).toEqual(['sohophp.php-companion-open-source-pack']);
+    expect(assessment.installedPacks).toEqual([]);
+    expect(assessment.legacyRecommendedInstalled).toBe(true);
+  });
+
+  it('continues to verify legacy four-artifact schema 2 candidates', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-alpha-preflight-v2-')); roots.push(root);
+    await writeCandidate(root, Buffer.from('legacy-vsix'), 2);
+    await expect(preflight.verifyCandidate(root)).resolves.toMatchObject({ artifacts: expect.arrayContaining([expect.objectContaining({ valid: true })]) });
   });
 
   it('continues to verify legacy three-artifact schema 1 candidates', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-alpha-preflight-v1-')); roots.push(root);
-    await writeCandidate(root, Buffer.from('legacy-vsix'));
+    await writeCandidate(root, Buffer.from('legacy-vsix'), 2);
     const manifest = JSON.parse(await readFile(join(root, 'candidate.json'), 'utf8')) as { schema: number; artifacts: Array<{ role: string; file: string }> };
     manifest.schema = 1;
     manifest.artifacts = manifest.artifacts.filter((artifact) => artifact.role !== 'symfony');

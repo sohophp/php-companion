@@ -16,7 +16,7 @@ pnpm candidate:alpha
 sha256sum -c SHA256SUMS
 ```
 
-`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、四个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.5`。
+`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、三个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.5`。
 
 从 SoPHP 源码根目录执行只读预检，先验证候选完整性、WSL 环境、Composer 根与项目 PHP 包装器：
 
@@ -34,11 +34,11 @@ pnpm alpha:preflight -- \
   --output docs/php-language-toolchain/reports/alpha-preflight-corerepo.json
 ```
 
-安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端对任一项目追加 `--check-editor`。严格检查要求核心、Symfony 扩展和八个冻结外部扩展版本准确，并且 Open Source Pack 与 Recommended Pack 恰好安装一个。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
+安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端对任一项目追加 `--check-editor`。严格检查要求核心、Symfony 扩展和八个冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
 
 ## 安装边界
 
-为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`；Recommended Pack 是同一已批准组合的独立产品入口，单次 Profile 无需同时安装两个 Pack。两个 Pack 均声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
+为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`。Open Source Pack 声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。旧 Recommended Pack 不再构建或发布，新候选 Profile 中应卸载；旧 schema 1/2 候选仍可按其原清单核验。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
 
 Open Source Pack 当前使用 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHPUnit、PHP CS Fixer、EditorConfig 和 Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
 

@@ -252,8 +252,6 @@ importers:
 
   packages/php-companion-extension-pack: {}
 
-  packages/php-companion-recommended-pack: {}
-
   packages/php-companion-symfony:
     devDependencies:
       '@php-companion/plugin-api':

@@ -1,5 +1,8 @@
 # 实施状态
 
+2026-09-24 组合入口收敛：Recommended Pack 与 Open Source Pack 的扩展清单和默认设置相同，故从当前源码、构建、CI、私有候选与后续发布流程移除 Recommended Pack；新候选只生成 Core、Symfony 和 Open Source Pack 三份 VSIX，schema 3 预检要求 Open Source Pack，旧 schema 1/2 候选仍可核验。已安装旧 Pack 的用户可卸载后安装 Open Source Pack，并复核成员扩展。既有 Marketplace 条目暂未作外部变更；本记录不表示新候选已构建或真实编辑器试用已完成。根目录 README 与 RELEASE_CHECKLIST 保留历史内容；当前组合流程以本文和[打包说明](packaging.md)为准。
+
+
 2026-09-24 C1/F04 [跨文件成员工作流](reports/f04-composer-navigation-2026-09-24.md)：独立 Composer 项目的六类真实 stdio 请求和未保存修改回归发现 onDemand Implementation 漏掉未加载实现类；现在按方法名准备候选并在项目索引不完整时拒绝空结果。无关同名方法不混入。此为自动协议证据，真实 VS Code 人工体验和完整 F04 矩阵仍开放；未打包。
 
 2026-09-23 P9 [schema 82 Linux x64 基准](reports/p9-schema82-linux-benchmarks-2026-09-23.md)：1k/10k/50k 冷索引各跑 5 次，P95 为 1.87/15.18/74.57 秒，峰值 RSS 为 127.9/464.7/754.5 MiB，均低于冻结预算。热缓存完整恢复全部文件且重新解析 0 个，体积 5.33/53.31/266.59 MiB；1000 次持续编辑及 10k 项目 200 次局部变更也通过。其他平台与真实项目矩阵仍开放；未打包。

@@ -41,7 +41,8 @@ export function extensionAssessment(manifest, installed) {
   const products = (manifest.artifacts ?? []).filter((artifact) => ['core', 'symfony', 'open-source-pack', 'recommended-pack'].includes(artifact.role))
     .map((artifact) => ({ role: artifact.role, id: artifact.id, expected: artifact.version,
       installed: installed.get(artifact.id.toLowerCase()) }));
-  const requiredProducts = products.filter((product) => product.role === 'core' || product.role === 'symfony');
+  const requiredProducts = products.filter((product) => product.role === 'core' || product.role === 'symfony'
+    || (manifest.schema === 3 && product.role === 'open-source-pack'));
   const packs = products.filter((product) => product.role === 'open-source-pack' || product.role === 'recommended-pack');
   const installedPacks = packs.filter((product) => product.installed !== undefined);
   return {
@@ -51,6 +52,7 @@ export function extensionAssessment(manifest, installed) {
     productMissing: requiredProducts.filter((product) => product.installed === undefined).map((product) => product.id),
     productMismatched: products.filter((product) => product.installed !== undefined && product.installed !== product.expected),
     installedPacks,
+    legacyRecommendedInstalled: installed.has('sohophp.php-companion-recommended-pack'),
     competingInstalled: competingPhpProviders.filter((id) => installed.has(id)),
   };
 }
@@ -64,13 +66,15 @@ export async function verifyCandidate(candidateDirectory) {
   const manifestPath = resolve(directory, 'candidate.json');
   const manifest = record(JSON.parse(await readFile(manifestPath, 'utf8')));
   const source = record(manifest?.source);
-  if (!manifest || (manifest.schema !== 1 && manifest.schema !== 2) || manifest.channel !== 'alpha' || source?.clean !== true
+  if (!manifest || ![1, 2, 3].includes(manifest.schema) || manifest.channel !== 'alpha' || source?.clean !== true
     || typeof source.commit !== 'string' || !/^[a-f0-9]{40,64}$/u.test(source.commit)
     || !Array.isArray(manifest.artifacts) || !Array.isArray(manifest.supportedExtensions)
     || !Array.isArray(manifest.rejectedExtensions)) throw new Error('Alpha candidate manifest is invalid.');
   const expectedRoles = manifest.schema === 1
     ? ['core', 'open-source-pack', 'recommended-pack']
-    : ['core', 'symfony', 'open-source-pack', 'recommended-pack'];
+    : manifest.schema === 2
+      ? ['core', 'symfony', 'open-source-pack', 'recommended-pack']
+      : ['core', 'symfony', 'open-source-pack'];
   const names = new Set(); const artifacts = [];
   for (const raw of manifest.artifacts) {
     const artifact = record(raw);
@@ -148,7 +152,12 @@ export async function runPreflight(options) {
   if (editor?.assessment?.mismatched.length) errors.push({ code: 'extension-version-mismatch', message: `Extension version mismatch: ${editor.assessment.mismatched.map((item) => `${item.id} expected ${item.expected}, received ${item.installed}`).join(', ')}` });
   if (editor?.assessment?.productMissing.length) errors.push({ code: 'product-extension-missing', message: `Missing product extension: ${editor.assessment.productMissing.join(', ')}` });
   if (editor?.assessment?.productMismatched.length) errors.push({ code: 'product-version-mismatch', message: `Product version mismatch: ${editor.assessment.productMismatched.map((item) => `${item.id} expected ${item.expected}, received ${item.installed}`).join(', ')}` });
-  if (editor && editor.assessment?.installedPacks.length !== 1) errors.push({ code: 'profile-pack-count', message: 'Install exactly one of the Open Source Pack or Recommended Pack in the Alpha Profile.' });
+  if (editor && editor.assessment?.installedPacks.length !== 1) errors.push({ code: 'profile-pack-count', message: candidate.manifest.schema === 3
+    ? 'Install the Open Source Pack in the Alpha Profile.'
+    : 'Install exactly one of the Open Source Pack or Recommended Pack in the Alpha Profile.' });
+  if (candidate.manifest.schema === 3 && editor?.assessment?.legacyRecommendedInstalled) {
+    errors.push({ code: 'legacy-recommended-pack-installed', message: 'Uninstall the legacy Recommended Pack from this Alpha Profile.' });
+  }
   const report = {
     schema: 1, generatedAt: new Date().toISOString(), candidate: { directory: candidate.directory,
       commit: candidate.manifest.source.commit, artifacts: candidate.artifacts },

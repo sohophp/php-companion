@@ -53,7 +53,6 @@ jobs:
           path: |
             php-companion-0.4.5.vsix
             packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
-            packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.5.vsix
 
   php-integration:
     name: PHP ${{ matrix.php }} integration

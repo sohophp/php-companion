@@ -45,16 +45,6 @@ const artifacts = [
       'extension/resources/icon.png',
     ],
   },
-  {
-    path: 'packages/php-companion-recommended-pack/php-companion-recommended-pack-0.4.5.vsix',
-    focusedPack: true,
-    required: [
-      'extension/package.json',
-      'extension/readme.md',
-      'extension/package.nls.zh-cn.json',
-      'extension/resources/icon.png',
-    ],
-  },
 ];
 
 function entries(path) {

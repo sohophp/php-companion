@@ -4,7 +4,7 @@
 
 ## 安装入口与能力所有者
 
-[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 和 [Recommended Pack](../../packages/php-companion-recommended-pack/package.json) 当前声明**同一组**扩展与默认设置。一次 VS Code Profile 只选其中一个 Pack；它已经包含 SoPHP Core 和 SoPHP Symfony，正常从 Marketplace 安装时无需再单独安装一份 Core。私有 Alpha 若 Symfony 扩展尚未公开，则先从**同一候选**安装 Core、Symfony VSIX，再安装其中一个 Pack；不得混用不同候选的 Core 与 Symfony。两个 Pack 不是需要叠加的两层功能。
+[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口，包含 SoPHP Core、SoPHP Symfony 和已选定的外部扩展。正常从 Marketplace 安装时无需再单独安装一份 Core。私有 Alpha 若 Symfony 扩展尚未公开，则先从**同一候选**安装 Core、Symfony VSIX，再安装 Open Source Pack；不得混用不同候选的 Core 与 Symfony。旧版 Recommended Pack 与它的扩展清单及默认设置相同；已有用户可卸载旧 Pack，再安装 Open Source Pack。卸载旧 Pack 后先检查各成员扩展是否仍在当前 Profile 中，再进行验证。
 
 | 日常任务 | 当前所有者 | 进入首批使用的条件 |
 | --- | --- | --- |
@@ -39,7 +39,7 @@
 4. **用独立 Composer 项目完成日常闭环。** 打开项目和 vendor → 输入并修改尚未保存的 PHP → 补全、Hover、参数提示、定义、实现、引用 → import/生成 → 预览一次受支持 Rename 并撤销 → 编辑 Twig 与 YAML/XML → 格式化 → 运行及调试测试。记录每步的扩展版本、结果、等待、重复 Provider 和失败提示。业务项目只做只读复核，不为编辑器验收修改其代码。
 5. **开始受限试用。** 上述闭环通过且已知限制可见时，可用该候选进行日常开发并持续报告问题。动态或歧义 PHP、工作区外公开 API、未完成索引及跨语言编辑按当前支持清单处理；不把候选称为已达到 R4。发现回归时按候选摘要退回上一已验证版本或关闭对应可选增强，保留问题输入与日志。
 
-自动测试和独立示例项目的改进**不等待人工试用**；需要实际 VS Code 操作才能证明的体验、Extension Host 归属及持续使用记录仍是组合资格和 R4 的验收内容。日常源码增量不打包四份 VSIX；仅在冻结新组合候选或真实宿主门禁需要时构建对应产物。
+自动测试和独立示例项目的改进**不等待人工试用**；需要实际 VS Code 操作才能证明的体验、Extension Host 归属及持续使用记录仍是组合资格和 R4 的验收内容。日常源码增量不打包三份 VSIX；仅在冻结新组合候选或真实宿主门禁需要时构建对应产物。
 
 ## 与 R2–R4 的关系
 
