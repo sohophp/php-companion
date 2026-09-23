@@ -21,6 +21,7 @@ Twig 编辑、解析、格式化、模板语义继续由 twig-plus 唯一负责�
 | 文档 | 用途 |
 | --- | --- |
 | [分批上线](releases.md) | 首发范围、渐进替换与精准门槛 |
+| [日常开发组合](daily-use-assembly.md) | 一个 Pack 加成熟扩展的使用入口、能力所有者、准入与回退 |
 | [Monorepo 与组件发布](packaging.md) | 独立 API、包版本与 tarball 消费验收 |
 | [实施状态](status.md) | 当前真实完成项、验证证据与剩余工作 |
 | [组件架构](architecture.md) | 包职责、依赖、数据模型、迁移与扩展边界 |
