@@ -272,6 +272,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
     catch (error) { if (!missing(error)) inputEvidenceComplete = false; /* Conventional roots are optional. */ }
   }
   const counts = new Map<string, number>(); for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
+  if ([...counts.values()].some((count) => count > 1)) complete = false;
   return { complete, routes: routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name)),
     inputUris: [...inputPaths].sort().map((path) => pathToFileURL(path).toString()),
     inputDirectoryUris: [...inputDirectories].sort().map((path) => pathToFileURL(path).toString()), inputEvidenceComplete };

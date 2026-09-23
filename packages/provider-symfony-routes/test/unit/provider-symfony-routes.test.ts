@@ -74,4 +74,17 @@ admin:
     expect(malformed.complete).toBe(false);
     expect(malformed.inputEvidenceComplete).toBe(true);
   });
+
+  it('marks duplicate route names incomplete instead of claiming an authoritative graph', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-duplicates-')); roots.push(root);
+    await mkdir(join(root, 'config', 'routes'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'first: {resource: routes/first.yaml}\nsecond: {resource: routes/second.yaml}\n');
+    await writeFile(join(root, 'config', 'routes', 'first.yaml'), 'shared: {path: /first}\n');
+    await writeFile(join(root, 'config', 'routes', 'second.yaml'), 'shared: {path: /second}\n');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(false);
+    expect(snapshot.inputEvidenceComplete).toBe(true);
+    expect(snapshot.routes).toEqual([]);
+  });
 });
