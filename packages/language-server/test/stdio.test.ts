@@ -4179,7 +4179,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
-  it.skipIf(process.platform !== 'linux')('F04-NAV-20 finds vendor Implementation beyond unrelated project files and excludes namesakes', async () => {
+  it('F04-NAV-20 finds vendor Implementation with a portable prefilter and excludes namesakes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-candidate-budget-'));
     try {
       const src = join(root, 'src'); const vendor = join(root, 'vendor', 'acme', 'api', 'src');
@@ -4197,6 +4197,8 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         writeFile(join(src, `Noise${index}.php`), `<?php namespace App; class Noise${index} {}`)));
       await writeFile(join(vendor, 'Contract.php'), '<?php namespace Acme\\Api; interface Contract { public function answerStatus(): int; }');
       await writeFile(join(vendor, 'Implementation.PHP'), '<?php namespace Acme\\Api; class Implementation implements Contract { public function answerStatus(): int { return 42; } }');
+      // Newly written files stay conservative until the one-second timestamp guard has elapsed.
+      await new Promise((done) => setTimeout(done, 1_100));
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       let id = 4230;
@@ -4208,7 +4210,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         return response.result;
       };
       await request('initialize', { processId: null, capabilities: {}, workspaceFolders: [{ uri: pathToFileURL(root).toString(), name: 'project' }],
-        initializationOptions: { testMode: true, experimentalRipgrepCandidates: true, indexingMode: 'onDemand', phpVersion: '7.2',
+        initializationOptions: { testMode: true, experimentalRipgrepCandidates: 'portable', indexingMode: 'onDemand', phpVersion: '7.2',
           indexLimits: { maxFiles: 4, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } } });
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {

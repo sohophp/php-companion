@@ -59,6 +59,7 @@ import { captureReferenceInputSnapshot } from './referenceInputSnapshot.js';
 import { referenceCandidateEvidenceMatches, skippedCandidateEvidenceMatches, type SkippedCandidateStamp } from './referenceCandidateEvidence.js';
 import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
 import { ReferenceResultStore, type ReferenceLocation, type ReferenceResultProof } from './referenceResultStore.js';
+import { portableCandidatePaths, type CandidatePaths } from './portableCandidatePaths.js';
 
 declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
@@ -154,7 +155,7 @@ let experimentalReferenceSourceOnly = false;
 function referenceSourceMode(): boolean {
   return indexingMode === 'progressive' || indexingMode === 'experimental' && experimentalReferenceSourceOnly;
 }
-let referenceRipgrepMode: 'off' | 'system' | 'test' = 'off';
+let referenceRipgrepMode: 'off' | 'system' | 'path' | 'portable' = 'off';
 let testDisablePersistentReferences = false;
 let supportsWorkDoneProgress = false;
 let semanticProviders: SemanticProviderDescriptor[] = [];
@@ -2293,7 +2294,7 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
   progressiveRefreshTimers.set(root, timer);
 }
 async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string,
-  includeDependencies = false): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
+  includeDependencies = false): Promise<CandidatePaths | undefined> {
   if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
   const paths = includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project);
   if (!paths.length) return undefined;
@@ -2358,14 +2359,20 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   const usableLight = light?.epoch === epoch && mode === 'symbol'
     && normalizedNames.every((name) => /^[a-z_][a-z0-9_]*$/.test(name)) ? light.entries : undefined;
   const rgStarted = Date.now();
-  const rgCandidates = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
+  const canPrefilter = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
+    && normalizedNames.length > 0 && normalizedNames.length <= 16
+    && normalizedNames.every((name) => name.length >= 8 && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name));
+  const rgCandidates = canPrefilter && referenceRipgrepMode !== 'portable'
     ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
-  if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
+  const prefilterCandidates = rgCandidates ?? (canPrefilter
+    ? await portableCandidatePaths(includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project), normalizedNames,
+      (path) => isAutoloadPathExcluded(project, path), () => !cancelled(), Math.max(50_000, indexLimits.maxFiles)) : undefined);
+  if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
   const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
-    skipSourceOutsideBudget: Boolean(rgCandidates && includeDependencies),
-    skipSource: rgCandidates ? (path, info): boolean => {
+    skipSourceOutsideBudget: Boolean(prefilterCandidates && includeDependencies),
+    skipSource: prefilterCandidates ? (path, info): boolean => {
       const normalized = resolve(path);
-      if (rgCandidates.paths.has(normalized) || info.mtimeMs >= rgCandidates.startedAt || info.ctimeMs >= rgCandidates.startedAt) return false;
+      if (prefilterCandidates.paths.has(normalized) || info.mtimeMs >= prefilterCandidates.startedAt || info.ctimeMs >= prefilterCandidates.startedAt) return false;
       if (!skippedCandidateStamps.has(normalized) && candidateReads.size + skippedCandidateStamps.size >= 50_000) {
         candidateReadsComplete = false; return false;
       }
@@ -2507,7 +2514,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     const unresolvedProjectReceivers = unresolvedReceivers.filter((fqcn) => project?.psr4.some((mapping) =>
       fqcn.toLowerCase().startsWith(mapping.prefix.toLowerCase())));
     const nonPsr4Autoload = Boolean(project?.classmap.length || project?.files.length || project?.psr0.length);
-    let possibleSkippedReceiverDeclaration = Boolean((rgCandidates || skippedCachedExact) && unresolvedProjectReceivers.length);
+    let possibleSkippedReceiverDeclaration = Boolean((prefilterCandidates || skippedCachedExact) && unresolvedProjectReceivers.length);
     if (!possibleSkippedReceiverDeclaration && unresolvedProjectReceivers.length) {
       const syntaxParser = await parser();
       for (const { uri, source } of skippedExactSources) {
@@ -3064,8 +3071,9 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
   experimentalReferenceSourceOnly = indexingMode === 'experimental' && initialization?.experimentalReferenceSourceOnly === true;
   referenceRipgrepMode = initialization?.experimentalRipgrepCandidates === false ? 'off'
-    : testMode && initialization?.experimentalRipgrepCandidates === true ? 'test'
-      : process.platform === 'linux' ? 'system' : 'off';
+    : testMode && initialization?.experimentalRipgrepCandidates === 'portable' ? 'portable'
+    : testMode && initialization?.experimentalRipgrepCandidates === true ? 'path'
+      : process.platform === 'linux' ? 'system' : 'path';
   testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);
