@@ -4352,7 +4352,13 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   }));
   if (namedArguments.length) return namedArguments;
   const memberRoot = rootForUri(document.uri);
-  if (memberRoot && workspace.isMemberCompletionContext(document.uri, offset)) await ensureDoctrineQueryFacts(memberRoot, workspace);
+  if (memberRoot && workspace.isMemberCompletionContext(document.uri, offset)) {
+    const source = document.getText();
+    if (/\bcreateQueryBuilder\s*\(/.test(source) && /\bgetQuery\s*\(/.test(source))
+      await hydrateCanonicalTypes(workspace, memberRoot, ['Doctrine\\ORM\\EntityManagerInterface', 'Doctrine\\ORM\\EntityRepository']);
+    await ensureDoctrineQueryFacts(memberRoot, workspace);
+    if (token.isCancellationRequested || documents.get(document.uri)?.version !== document.version) return [];
+  }
   let resolvedMembers = workspace.completeMembers(document.uri, offset);
   if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
     const root = rootForUri(document.uri); const version = document.version;

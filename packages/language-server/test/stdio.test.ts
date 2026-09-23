@@ -1783,6 +1783,10 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2581, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$queried->lab') + '$queried->lab'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 2581)).result).toMatchObject([{ label: 'label' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 257, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('fi;') + 2),
       } }));
@@ -1794,10 +1798,6 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('lab;') + 3),
       } }));
       expect((await output.waitFor((message) => message.id === 258)).result).toMatchObject([{ label: 'label' }]);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 2581, method: 'textDocument/completion', params: {
-        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$queried->lab') + '$queried->lab'.length),
-      } }));
-      expect((await output.waitFor((message) => message.id === 2581)).result).toMatchObject([{ label: 'label' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('lab;') + 3),
       } }));
