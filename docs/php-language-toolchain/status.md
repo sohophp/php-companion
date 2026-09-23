@@ -1,6 +1,8 @@
 # 实施状态
 
-2026-09-23 F04 [通用 PHP References 文本边界](reports/f04-php-reference-literal-boundary-2026-09-23.md)：方法与函数 References 不再把字符串或注释中的调用样式当作代码引用；函数的 `includeDeclaration=false` 不再返回声明。独立 PHP 语义输入、真实 Language Server stdio 用例及语义包 310 项通过；语言服务器全套 6 项失败，已在报告列明，不能作为全量通过证据。不依赖项目专用 Provider，本轮未打包，F04 仍开放。
+2026-09-23 [语言服务器全套回归恢复](reports/p9-stdio-regression-recovery-2026-09-23.md)：修正 4 项中文日志同步条件、1 项不完整 XML 服务导入测试夹具，以及 Attribute 路由目录循环 symlink 的重复扫描。语言服务器 17 个测试文件全通过，294 项通过、1 项跳过；路由 Provider 6 项通过。此项仅为通用编辑器与 Symfony Provider 源码回归，未打包 VSIX。
+
+2026-09-23 F04 [通用 PHP References 文本边界](reports/f04-php-reference-literal-boundary-2026-09-23.md)：方法与函数 References 不再把字符串或注释中的调用样式当作代码引用；函数的 `includeDeclaration=false` 不再返回声明。独立 PHP 语义输入、真实 Language Server stdio 用例及语义包 310 项通过；当次语言服务器全套 6 项失败已在报告列明，后续修复并复测通过。不依赖项目专用 Provider，本轮未打包，F04 仍开放。
 
 2026-09-23 F09 [Winstar 重名路由 Controller 归属](reports/f09-winstar-framework-probe-2026-09-23.md)：`home` 的两个 YAML 声明现在仅凭运行时精确 Controller 唯一匹配到第 15 行，错误或缺失 Controller 仍不猜测。当前 `dev` Router 569 条带模块来源标记的路由均有唯一 YAML 来源；真实 Language Server stdio Definition、Provider 6 项、类型检查与 ESLint 通过。未打包，最终 WSL Remote 验收仍开放。
 

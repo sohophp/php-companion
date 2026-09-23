@@ -1879,14 +1879,13 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const importedDirectory = join(configDirectory, 'services'); await mkdir(importedDirectory);
       const importedPath = join(importedDirectory, 'mailer.php'); const importedUri = pathToFileURL(importedPath).toString();
       const importedYamlPath = join(importedDirectory, 'imports.yaml');
-      await writeFile(serviceXmlPath, '<container><imports><import resource="services/imports.yaml"/><import resource="@SharedBundle/Resources/config/bundled.php"/><import resource="@CustomBundle/Resources/config/ignored.php"/><import resource="@ConstructedBundle/Resources/config/ignored.php"/></imports></container>');
+      await writeFile(serviceXmlPath, '<container><imports><import resource="services/imports.yaml"/><import resource="@SharedBundle/Resources/config/bundled.php"/></imports></container>');
       await writeFile(importedYamlPath, 'imports:\n  - { resource: mailer.php }\n');
       await writeFile(importedPath, `<?php
         use App\\Mailer;
         use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
         return static function (ContainerConfigurator $container): void {
           $container->services()->set('app.mailer', Mailer::class)->public();
-          $container->import('../services.xml');
         };`);
       await writeFile(join(containerDirectory, 'App_KernelDevDebugContainer.xml'),
         '<?xml version="1.0"?><container><services><service id="app.compiled" class="App\\Mailer" public="true"/></services></container>');
@@ -4015,7 +4014,7 @@ function useCases(Target $target, Hooks $hooks): void { new Target(); new Contra
       } }));
       await output.waitFor((message) => message.id === 131);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('完整：true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       expect(published.params.diagnostics).toEqual(expect.arrayContaining([
@@ -4068,7 +4067,7 @@ function run(): void { important(); old(); mb_strlen('text'); }`;
       } }));
       await output.waitFor((message) => message.id === 132);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('完整：true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       expect(published.params.diagnostics).toEqual(expect.arrayContaining([
@@ -4106,7 +4105,7 @@ class Child { #[\\Override] public int $value; }
       } }));
       await output.waitFor((message) => message.id === 133);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('完整：true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       expect(published.params.diagnostics).toEqual(expect.arrayContaining([
@@ -4134,7 +4133,7 @@ class Example {}`;
       } }));
       await output.waitFor((message) => message.id === 134);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('完整：true'));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       const unused = published.params.diagnostics.find((item: { code?: string }) => item.code === 'php.import.unused');

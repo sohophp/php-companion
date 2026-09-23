@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
@@ -56,6 +56,18 @@ admin:
     await writeFile(join(root, 'bundle', 'Resources', 'config', 'routes.yaml'), 'home: {path: /bundle}\n');
     expect((await collectSymfonyStaticRouteFacts(root, parser)).map((route) => [route.name, route.path]))
       .toEqual([['demo.home', '/bundle']]);
+  });
+
+  it('skips a repeated attribute directory symlink without losing its unique route', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-symlink-')); roots.push(root);
+    const controllers = join(root, 'controllers'); await mkdir(join(controllers, 'nested'), { recursive: true }); await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'controllers: {resource: ../controllers/, type: attribute}\n');
+    await writeFile(join(controllers, 'nested', 'Imported.php'), String.raw`<?php namespace Nested; class Imported { #[\Symfony\Component\Routing\Attribute\Route('/nested', name: 'nested')] public function run() {} }`);
+    await symlink(controllers, join(controllers, 'nested', 'loop'), 'dir');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(true);
+    expect(snapshot.routes.map((route) => route.name)).toEqual(['nested']);
   });
 
   it('marks partial static graphs incomplete instead of publishing authoritative omissions', async () => {

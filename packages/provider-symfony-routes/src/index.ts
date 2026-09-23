@@ -207,7 +207,15 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
         await walk(base, new Set(ancestors)); return;
       }
       inputPaths.add(resolve(path));
-      const actualPath = await realpath(path); if (ancestors.has(actualPath)) { complete = false; return; }
+      const actualPath = await realpath(path);
+      if (ancestors.has(actualPath)) {
+        const repeated = await stat(path);
+        if (attribute && repeated.isDirectory()) {
+          inputPaths.delete(resolve(path)); inputDirectories.add(resolve(path));
+          return;
+        }
+        complete = false; return;
+      }
       if (!within(scope.realPath, actualPath)) { complete = false; return; }
       const contextKey = JSON.stringify([actualPath, namePrefix, pathPrefix, attribute, php, [...excludedPaths].sort(), mapping?.root, mapping?.namespace]);
       if (visitedContexts.has(contextKey)) return; visitedContexts.add(contextKey);
