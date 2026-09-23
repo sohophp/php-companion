@@ -107,6 +107,22 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('reports invalid bundled Symfony Providers in the client language', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, locale: 'zh-CN', initializationOptions: {
+        bundledSemanticProviders: [null], bundledRouteProviders: [null],
+      },
+    } }));
+    await output.waitFor((message) => message.id === 1);
+    expect(output.messages.filter((message: any) => message.method === 'window/logMessage')
+      .map((message: any) => message.params.message)).toEqual(expect.arrayContaining([
+        '已忽略内置的语义 Provider 的无效配置。',
+        '已忽略内置的路由 Provider 的无效配置。',
+      ]));
+  });
+
   it.skipIf(!process.env.PHP_COMPANION_TEST_REFERENCE_BUNDLE)('restores proven references across processes and rejects changed query inputs', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-persistent-references-'));
     try {

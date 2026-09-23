@@ -34,6 +34,7 @@ import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDep
 import { codeActionTitle } from './codeActionMessages.js';
 import { protocolMessage } from './protocolMessages.js';
 import { progressMessage } from './progressMessages.js';
+import { outputMessage, outputProviderSource } from './outputMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -403,11 +404,11 @@ function setDiagnosticSeverityOverrides(value: unknown): void {
 function acceptedSemanticProviders(value: unknown, source: 'configured' | 'bundled'): SemanticProviderDescriptor[] {
   const reserved = new Set(['symfony', 'doctrine']); const seen = new Set<string>(); const accepted: SemanticProviderDescriptor[] = [];
   for (const candidate of Array.isArray(value) ? value : []) {
-    if (!isSemanticProviderDescriptor(candidate)) { connection.console.warn(`Ignored invalid ${source} semantic provider configuration.`); continue; }
-    if (reserved.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored ${source} semantic provider ${candidate.providerId}: the identity is reserved.`); continue; }
-    if (seen.has(candidate.providerId.toLowerCase())) { connection.console.warn(`Ignored duplicate ${source} semantic provider ${candidate.providerId}.`); continue; }
+    if (!isSemanticProviderDescriptor(candidate)) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'invalidSemanticProvider', outputProviderSource(clientDiagnosticLanguage, source))); continue; }
+    if (reserved.has(candidate.providerId.toLowerCase())) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'reservedSemanticProvider', outputProviderSource(clientDiagnosticLanguage, source), candidate.providerId)); continue; }
+    if (seen.has(candidate.providerId.toLowerCase())) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'duplicateSemanticProvider', outputProviderSource(clientDiagnosticLanguage, source), candidate.providerId)); continue; }
     if (source === 'configured' && (candidate.replacesContainerServices || candidate.replacesEventRelations)) {
-      connection.console.warn(`Ignored authoritative Symfony capability from configured provider ${candidate.providerId}; only bundled integrations may replace core Symfony facts.`);
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'configuredSymfonyCapability', candidate.providerId));
       seen.add(candidate.providerId.toLowerCase()); accepted.push({ ...candidate, replacesContainerServices: false, replacesEventRelations: false }); continue;
     }
     seen.add(candidate.providerId.toLowerCase()); accepted.push(candidate);
@@ -419,7 +420,7 @@ function rebuildSemanticProviders(): void {
   const bundledIds = new Set(bundledSemanticProviders.map((provider) => provider.providerId.toLowerCase()));
   semanticProviders = [...bundledSemanticProviders, ...configuredSemanticProviders.filter((provider) => {
     if (!bundledIds.has(provider.providerId.toLowerCase())) return true;
-    connection.console.warn(`Ignored configured semantic provider ${provider.providerId}: the bundled identity is reserved.`); return false;
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'bundledSemanticIdentity', provider.providerId)); return false;
   })];
 }
 function setConfiguredSemanticProviders(value: unknown): void {
@@ -470,9 +471,9 @@ function phpDocumentMayAffectSymfonyRoutes(root: string, uri: string, ...sources
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
   const seen = new Set<string>(); const accepted: RouteProviderDescriptor[] = [];
   for (const candidate of Array.isArray(value) ? value : []) {
-    if (!isRouteProviderDescriptor(candidate)) { connection.console.warn(`Ignored invalid ${source} route provider configuration.`); continue; }
+    if (!isRouteProviderDescriptor(candidate)) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'invalidRouteProvider', outputProviderSource(clientDiagnosticLanguage, source))); continue; }
     const key = candidate.providerId.toLowerCase();
-    if (seen.has(key)) { connection.console.warn(`Ignored duplicate ${source} route provider ${candidate.providerId}.`); continue; }
+    if (seen.has(key)) { connection.console.warn(outputMessage(clientDiagnosticLanguage, 'duplicateRouteProvider', outputProviderSource(clientDiagnosticLanguage, source), candidate.providerId)); continue; }
     seen.add(key); accepted.push(candidate);
   }
   return accepted;
@@ -481,7 +482,7 @@ function rebuildRouteProviders(): void {
   const bundledIds = new Set(bundledRouteProviders.map((provider) => provider.providerId.toLowerCase()));
   routeProviders = [...bundledRouteProviders, ...configuredRouteProviders.filter((provider) => {
     if (!bundledIds.has(provider.providerId.toLowerCase())) return true;
-    connection.console.warn(`Ignored configured route provider ${provider.providerId}: the bundled identity is reserved.`); return false;
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'bundledRouteIdentity', provider.providerId)); return false;
   })];
 }
 function setConfiguredRouteProviders(value: unknown): void {
@@ -578,13 +579,13 @@ async function runContainerProvider(root: string, generation: number, workspace:
   const authoritative = semanticProviders.filter((provider) => provider.replacesContainerServices);
   if (authoritative.length !== 1) {
     clearContainerFacts(root, workspace);
-    if (authoritative.length > 1) connection.console.warn('Multiple authoritative container providers were registered; Symfony container facts are unavailable.');
+    if (authoritative.length > 1) connection.console.warn(outputMessage(clientDiagnosticLanguage, 'multipleContainerProviders'));
     return false;
   }
   const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root); const types = await semanticProviderProjectTypes(root, workspace);
   if (!snapshots.complete || !types.complete) {
     clearContainerFacts(root, workspace, descriptor.providerId);
-    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed; Symfony container facts are unavailable.`); return false;
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'containerSnapshotSkipped', descriptor.providerId)); return false;
   }
   const environment = symfonyEnvironmentForRoot(root);
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
@@ -598,8 +599,8 @@ async function runContainerProvider(root: string, generation: number, workspace:
     connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative container generation ${generation}.`); return true;
   }
   clearContainerFacts(root, workspace, descriptor.providerId);
-  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete container snapshot; Symfony container facts are unavailable.`
-    : `Semantic provider ${descriptor.providerId} failed (${result.code}); Symfony container facts are unavailable: ${result.message}`);
+  connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'containerSnapshotIncomplete', descriptor.providerId)
+    : outputMessage(clientDiagnosticLanguage, 'containerProviderFailed', descriptor.providerId, result.code, result.message));
   return false;
 }
 
@@ -624,7 +625,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const authoritative = semanticProviders.filter((provider) => provider.replacesEventRelations);
   if (authoritative.length !== 1) {
     externalSymfonyEventsByRoot.delete(root);
-    if (authoritative.length > 1) connection.console.warn('Multiple authoritative event providers were registered; Symfony event relations are unavailable.');
+    if (authoritative.length > 1) connection.console.warn(outputMessage(clientDiagnosticLanguage, 'multipleEventProviders'));
     return false;
   }
   const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root);
@@ -634,7 +635,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const types = await semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
   if (!snapshots.complete || !types.complete) {
     externalSymfonyEventsByRoot.delete(root);
-    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed; Symfony event relations are unavailable.`); return false;
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'eventSnapshotSkipped', descriptor.providerId)); return false;
   }
   const inputSignature = eventProviderInputSignature(generation, snapshots.documents, types.projectTypes, services);
   const current = externalSymfonyEventsByRoot.get(root);
@@ -652,8 +653,8 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
     connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative event generation ${generation}. prepareMs=${providerStarted - started} runMs=${Date.now() - providerStarted}`); return true;
   }
   externalSymfonyEventsByRoot.delete(root);
-  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete event snapshot; Symfony event relations are unavailable.`
-    : `Semantic provider ${descriptor.providerId} failed (${result.code}); Symfony event relations are unavailable: ${result.message}`);
+  connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'eventSnapshotIncomplete', descriptor.providerId)
+    : outputMessage(clientDiagnosticLanguage, 'eventProviderFailed', descriptor.providerId, result.code, result.message));
   return false;
 }
 
@@ -689,7 +690,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
   const authoritative = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (authoritative.length !== 1) {
     if (scopes) for (const scope of scopes) interopContextsByRoot.get(root)?.delete(scope.uri); else interopContextsByRoot.delete(root);
-    if (authoritative.length > 1) connection.console.warn('Multiple authoritative controller-context providers were registered; controller contexts are unavailable.');
+    if (authoritative.length > 1) connection.console.warn(outputMessage(clientDiagnosticLanguage, 'multipleControllerProviders'));
     return false;
   }
   const descriptor = authoritative[0]!; const allTypes = await semanticProviderProjectTypes(root, workspace);
@@ -699,7 +700,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
     ? { complete: true, documents: providerScopes.map((scope) => ({ ...scope, languageId: 'php' as const })) }
     : semanticProviderDocuments(root);
   if (!allTypes.complete || !snapshots.complete) {
-    connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); return false;
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); return false;
   }
   const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
     generation: String(generation), phpVersion: targetPhpVersion,
@@ -741,8 +742,8 @@ async function runControllerContextProvider(root: string, generation: number, wo
     }
     if (preserved.size) interopContextsByRoot.set(root, preserved); else interopContextsByRoot.delete(root);
   }
-  connection.console.warn(result.ok ? `Semantic provider ${descriptor.providerId} returned no complete controller-context snapshot; controller contexts are unavailable.`
-    : `Semantic provider ${descriptor.providerId} failed (${result.code}); controller contexts are unavailable: ${result.message}`);
+  connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'controllerSnapshotIncomplete', descriptor.providerId)
+    : outputMessage(clientDiagnosticLanguage, 'controllerProviderFailed', descriptor.providerId, result.code, result.message));
   return false;
 }
 
@@ -771,7 +772,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
     if (!shouldContinue()) return;
     if (descriptor.replacesContainerServices || descriptor.replacesEventRelations || descriptor.replacesControllerContexts) continue;
     if ((descriptor.acceptsDocumentSnapshots && !snapshots.complete) || (descriptor.requiresProjectTypes && !types.complete)) {
-      connection.console.warn(`Semantic provider ${descriptor.providerId} was skipped because its bounded project snapshot could not be completed.`); continue;
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); continue;
     }
     const requestRevision = beginGenericSemanticProviderRequest(root, descriptor.providerId);
     const result = await runSemanticProvider(descriptor, {
@@ -786,7 +787,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
       workspace.replaceExternalFacts(result.contribution);
       connection.console.info(`Semantic provider ${descriptor.providerId} committed generation ${generation}.`);
     } else {
-      connection.console.warn(`Semantic provider ${descriptor.providerId} failed (${result.code}); retained its previous facts: ${result.message}`);
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'genericProviderFailed', descriptor.providerId, result.code, result.message));
     }
   }
   if (shouldContinue()) await onReferenceFactsReady?.();
@@ -4154,7 +4155,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
   const snapshots = routeProviderDocuments(root);
   const authoritative = routeProviders.filter((descriptor) => descriptor.replacesStaticRoutes);
   if (authoritative.length > 1) {
-    connection.console.warn('Static Symfony routes are unavailable because multiple authoritative route providers are configured.');
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeProvidersConflict'));
     return [];
   }
   const active = routeProviders.filter((descriptor) => !descriptor.replacesStaticRoutes || (authoritative.length === 1 && descriptor === authoritative[0]));
@@ -4165,7 +4166,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     const cached = descriptor.cacheUntilInvalidated ? routeProviderCacheByRoot.get(root)?.get(cacheKey) : undefined;
     if (cached?.signature === cacheSignature) { contributions.push({ descriptor, ...cached }); continue; }
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
-      connection.console.warn(`Route provider ${descriptor.providerId} was skipped because open route document snapshots exceeded the bounded request.`);
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeSnapshotSkipped', descriptor.providerId));
       return [];
     }
     const cacheRevision = routeProviderCacheRevision;
@@ -4185,7 +4186,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
           inputEvidenceComplete: result.contribution.inputEvidenceComplete }); routeProviderCacheByRoot.set(root, rootCache);
       }
     } else {
-      connection.console.warn(`Route provider ${descriptor.providerId} failed (${result.code}); ignored this query: ${result.message}`);
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeProviderFailed', descriptor.providerId, result.code, result.message));
       if (descriptor.replacesStaticRoutes || authoritative.length === 0) return [];
     }
   }
@@ -4204,7 +4205,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
   const owner = authoritative[0] && contributions.find((entry) => entry.descriptor === authoritative[0]);
   if (authoritative.length === 1) {
     if (!owner?.complete) {
-      connection.console.warn(`Authoritative route provider ${authoritative[0]!.providerId} returned an incomplete snapshot; ignored this query.`);
+      connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeAuthoritativeIncomplete', authoritative[0]!.providerId));
       return [];
     }
     const supplemental = contributions.filter((entry) => entry !== owner).flatMap((entry) => entry.routes);
@@ -4216,7 +4217,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     });
   }
   if (contributions.some((entry) => !entry.complete)) {
-    connection.console.warn('Symfony routes are unavailable because a route provider returned an incomplete snapshot.');
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeSnapshotIncomplete'));
     return [];
   }
   return contributions.flatMap((entry) => entry.routes);
