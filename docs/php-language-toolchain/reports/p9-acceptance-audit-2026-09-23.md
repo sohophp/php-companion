@@ -7,7 +7,7 @@
 | F01 | [当前候选原始 Core/Symfony VSIX](p9-alpha-candidate-current-2026-09-23.md) 在隔离 Linux VS Code 1.138.0 宿主退出码 0。 | Windows 客户端连接 WSL Remote 的 Extension Host 所属、竞争 PHP Provider 检查与持续编码记录。 |
 | F02 | [版本矩阵](../version-matrix.md)列出 PHP 7.2–8.5 支持项；历史九版本 CI 见[跨平台候选报告](cross-platform-candidate-2026-09-14.md)。本轮真实 CLI 集成为 7.2/8.1/8.5 三项通过。 | P2 仍有未完成语法/语义项；当前候选的九版本运行时矩阵和完整正反例/未完成输入证据。 |
 | F03 | [Winstar/CoreRepo 当前源码 Oracle](p9-linux-qualification-2026-09-23.md)、10k/50k 持久恢复和单条损坏重建通过。 | 两个真实项目的依赖索引均因 10k 文件上限截断；完整 vendor、嵌套 Composer 与多根场景的最终矩阵。 |
-| F04 | [1,000 次协议热查询](editing-navigation-linux-x64-2026-09-23.json)验证补全、Hover、Definition 当前符号身份；[Winstar References](winstar-reference-baseline-2026-09-23.md)验证 174 个完整位置。 | 真实大型项目的完整成员/参数提示/导航操作矩阵和 WSL Remote 宿主交互。 |
+| F04 | [1,000 次协议热查询](editing-navigation-linux-x64-2026-09-23.json)验证补全、Hover、Definition 当前符号身份；[独立 PHP 字符串/注释边界回归](f04-php-reference-literal-boundary-2026-09-23.md)验证通用方法与函数 References；[Winstar References](winstar-reference-baseline-2026-09-23.md)验证 174 个完整位置。 | 真实大型项目的完整成员/参数提示/导航操作矩阵和 WSL Remote 宿主交互。 |
 | F05 | P5 高级类型正反例和主语义包测试已进入仓库 `pnpm check`。 | [路线图 P5](../roadmap.md)仍列一般跨块相关性、动态迭代与复杂引用等未完成范围；逐项 final fixture 覆盖未闭合。 |
 | F06 | R1 冻结诊断 corpus 见[首发验收](r1-acceptance-linux-wsl-2026-09-06.md)，索引不完整时的抑制有测试。 | [路线图 P6](../roadmap.md)仍有诊断种类和配置项未完成；全量输入序列、未知及受限索引的最终反例报告。 |
 | F07 | Interface/Override/构造函数生成及 import 的保守支持域已在[路线图 P6](../roadmap.md)标记完成。 | 当前候选在三平台打包宿主中的编辑、选区、撤销和原有工作流逐项最终记录。 |

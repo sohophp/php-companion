@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F04 [通用 PHP References 文本边界](reports/f04-php-reference-literal-boundary-2026-09-23.md)：方法与函数 References 不再把字符串或注释中的调用样式当作代码引用；函数的 `includeDeclaration=false` 不再返回声明。独立 PHP 语义输入、真实 Language Server stdio 用例及语义包 310 项通过；语言服务器全套 6 项失败，已在报告列明，不能作为全量通过证据。不依赖项目专用 Provider，本轮未打包，F04 仍开放。
+
 2026-09-23 F09 [Winstar 重名路由 Controller 归属](reports/f09-winstar-framework-probe-2026-09-23.md)：`home` 的两个 YAML 声明现在仅凭运行时精确 Controller 唯一匹配到第 15 行，错误或缺失 Controller 仍不猜测。当前 `dev` Router 569 条带模块来源标记的路由均有唯一 YAML 来源；真实 Language Server stdio Definition、Provider 6 项、类型检查与 ESLint 通过。未打包，最终 WSL Remote 验收仍开放。
 
 2026-09-23 P0/F08 [private 参数删除编号夹具](acceptance-fixtures.md)新增 F08-RP-01/02/03：完整直接调用可生成有效编辑，合法间接调用拒绝，未完成调用所在文件拒绝操作。语义包 308 项、类型检查与相关 ESLint 通过；重建 bundle 后 Winstar 冷 References 返回 174 处且完整位置摘要匹配。P0/F08 仍开放，本轮未打包。

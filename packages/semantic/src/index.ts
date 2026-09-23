@@ -6257,17 +6257,19 @@ export class SemanticWorkspace {
         try {
           for (const match of file.source.matchAll(pattern)) {
             const relative = match[0].lastIndexOf(match[1]!); const start = match.index + relative;
+            const end = start + match[1]!.length;
+            if ([...file.commentRanges, ...file.stringRanges].some((range) => range.start <= start && end <= range.end)) continue;
             // Prepared syntax facts already distinguish instance and static
             // accesses. An incompatible access cannot resolve to this member,
             // so avoid building a temporary tree for it.
-            const syntax = file.memberAccesses.filter((access) => access.start === start && access.end === start + match[1]!.length);
+            const syntax = file.memberAccesses.filter((access) => access.start === start && access.end === end);
             if (syntax.length && !syntax.some((access) => access.static === target.static)) continue;
             if (!this.trees.has(file.uri)) {
               queryTree = this.parser.parseTree(file.source);
               this.trees.set(file.uri, queryTree);
             }
             const resolved = this.memberAt(file.uri, start + 1);
-            if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end: start + match[1]!.length });
+            if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end });
           }
         } finally {
           if (queryTree) {
@@ -6284,8 +6286,11 @@ export class SemanticWorkspace {
       for (const file of this.filesForReferenceKeys(`raw-ci:${callable.name.toLowerCase()}`, `import:function:${callable.fqcn.toLowerCase()}`)) {
         for (const imported of file.imports.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === callable.fqcn.toLowerCase())) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
         for (const match of file.source.matchAll(/([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(/g)) {
-          const start = match.index; const resolved = this.functionAt(file.uri, start + 1);
-          if (resolved?.fqcn.toLowerCase() === callable.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end: start + match[1]!.length });
+          const start = match.index; const end = start + match[1]!.length;
+          if ((file.uri === callable.uri && start === callable.start)
+            || [...file.commentRanges, ...file.stringRanges].some((range) => range.start <= start && end <= range.end)) continue;
+          const resolved = this.functionAt(file.uri, start + 1);
+          if (resolved?.fqcn.toLowerCase() === callable.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end });
         }
       }
       return [...new Map(locations.map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];

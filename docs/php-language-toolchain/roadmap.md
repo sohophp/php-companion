@@ -6,6 +6,8 @@
 
 ## 当前 Alpha 的短周期开发节奏
 
+通用 PHP 语义、LSP 与编辑器工作流以独立 PHP fixtures 和多项目/版本矩阵为交付依据；真实项目只用于只读回归与性能观测。项目专用 Provider 的结果不能替代通用 PHP 能力，开发编辑器时不修改被测业务项目的源码。
+
 优先关闭真实 WSL 编码阻断：索引长期不结束、错误或缺失的 Definition/References/Rename/Move、以及首次高频成员 References 的明显延迟。新功能面只在真实试用证明为阻断项时进入本轮；已有成熟插件继续负责 Twig、YAML、XML、格式化等边界，Symfony 专属能力在独立扩展中交付。
 
 每次语义或索引优化先跑受影响包的定向测试，再运行 `pnpm check:references:winstar`。该命令以独立临时缓存和 LSP 进程，**先执行 References，不经 Definition 预热**，再检查 Definition；对 Winstar `attributes->get('_route', '')` 校验结果数量和完整位置摘要并输出耗时。修改源码后先构建受影响包及下游语言服务器。业务代码变化导致预期位置改变时，应重新审计基线，不放宽准确性检查。修复未加载 vendor 接收者的首次路径后，最新基线 112 处、9.041 秒；正式 bundle 冷查询 9.138 秒，Reload 首次 7.483 秒，直接重复 16 ms，Definition 后重复 2.679 秒。普通导航不再加载无关容器接口，最新 References → Definition → References 复测末次降至 13 ms（[证据](reports/reference-navigation-cache-2026-09-21.md)）；继续优化首次候选加载与精确匹配。此前 7–8 秒结果经过 Definition 预热，不作为真实首次查询证据。详见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。这些单次测量不是延迟分位数或硬性时间阈值；完整发布门禁留到候选冻结时执行。

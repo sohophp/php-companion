@@ -107,6 +107,48 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('excludes PHP strings and comments from method and function References', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: null } }));
+    await output.waitFor((message) => message.id === 1);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    const uri = 'file:///LiteralReferences.php';
+    const source = `<?php class Printer {
+      private function render(): void {}
+      public function run(): void {
+        $sample = '$this->render()';
+        // $this->render() is documentation.
+        $this->render();
+      }
+    }`;
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+    await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/references', params: {
+      textDocument: { uri }, position: lspPosition(source, source.indexOf('function render') + 'function '.length + 1),
+      context: { includeDeclaration: false },
+    } }));
+    const offset = source.lastIndexOf('render()');
+    expect((await output.waitFor((message) => message.id === 2)).result).toEqual([{ uri, range: {
+      start: lspPosition(source, offset), end: lspPosition(source, offset + 'render'.length),
+    } }]);
+    const functionUri = 'file:///FunctionLiteralReferences.php';
+    const functionSource = `<?php function render(): void {}
+      $sample = 'render()';
+      // render() is documentation.
+      render();`;
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: functionUri, languageId: 'php', version: 1, text: functionSource } } }));
+    await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === functionUri);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 3, method: 'textDocument/references', params: {
+      textDocument: { uri: functionUri }, position: lspPosition(functionSource, functionSource.indexOf('function render') + 'function '.length + 1),
+      context: { includeDeclaration: false },
+    } }));
+    const functionOffset = functionSource.lastIndexOf('render()');
+    expect((await output.waitFor((message) => message.id === 3)).result).toEqual([{ uri: functionUri, range: {
+      start: lspPosition(functionSource, functionOffset), end: lspPosition(functionSource, functionOffset + 'render'.length),
+    } }]);
+  });
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {

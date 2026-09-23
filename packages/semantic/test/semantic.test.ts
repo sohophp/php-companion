@@ -7,6 +7,42 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('does not count method-shaped text inside strings or comments as references', () => {
+    const local = new SemanticWorkspace(parser); const uri = 'file:///LiteralReferences.php';
+    const source = `<?php class Printer {
+      private function render(): void {}
+      public function run(): void {
+        $sample = '$this->render()';
+        // $this->render() is documentation.
+        $this->render();
+      }
+    }`;
+    local.update(uri, source, true);
+    try {
+      const actual = source.lastIndexOf('render()');
+      expect(local.references(uri, source.indexOf('function render') + 'function '.length, false))
+        .toEqual([{ uri, start: actual, end: actual + 'render'.length }]);
+      expect(local.references(uri, source.indexOf('function render') + 'function '.length, true))
+        .toEqual([{ uri, start: source.indexOf('function render') + 'function '.length, end: source.indexOf('function render') + 'function render'.length },
+          { uri, start: actual, end: actual + 'render'.length }]);
+    } finally { local.dispose(); }
+  });
+  it('does not count function-shaped text inside strings or comments as references', () => {
+    const local = new SemanticWorkspace(parser); const uri = 'file:///FunctionLiteralReferences.php';
+    const source = `<?php function render(): void {}
+      $sample = 'render()';
+      // render() is documentation.
+      render();`;
+    local.update(uri, source, true);
+    try {
+      const actual = source.lastIndexOf('render()');
+      expect(local.references(uri, source.indexOf('function render') + 'function '.length, false))
+        .toEqual([{ uri, start: actual, end: actual + 'render'.length }]);
+      expect(local.references(uri, source.indexOf('function render') + 'function '.length, true))
+        .toEqual([{ uri, start: source.indexOf('function render') + 'function '.length, end: source.indexOf('function render') + 'function render'.length },
+          { uri, start: actual, end: actual + 'render'.length }]);
+    } finally { local.dispose(); }
+  });
   it('keeps reference results for identical provider facts but invalidates changed and removed return types', () => {
     const local = new SemanticWorkspace(parser); const uri = 'file:///ProviderReferenceReuse.php';
     const source = `<?php class Item { function label(): void {} } class Other { function label(): void {} }
