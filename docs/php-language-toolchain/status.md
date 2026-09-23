@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P0 编号验收 fixture 首组：F08-EI-01/02/03 分别覆盖 Extract Interface 的有效公开抽象/具体方法、合法 import 别名冲突及未完成方法声明。三项 fixture 测试、语义包类型检查和相关 ESLint 通过；编号、文件及命令见[验收 fixtures](acceptance-fixtures.md)。P0 全量 F01–F14 映射仍开放。
+
 2026-09-23 P7 Extract Interface 抽象方法支持：抽象类中直接声明的公开抽象方法现在与公开具体方法一同进入接口；生成签名去掉 `abstract`，protected 方法仍排除。语义包 301 项、类型检查及相关 ESLint、打包 VS Code 1.138.0 隔离宿主应用/Undo/Redo 通过；语义计划写出的接口、抽象类和子类已在 PHP 7.2/8.5 下通过语法检查、加载和调用。已纳入下述 `2430bd08` 私有候选。
 
 2026-09-23 P7 Extract Interface `parent` 支持：签名里的 `parent` 仅在类有唯一 `extends` 且同一词法 namespace 的 import 可唯一绑定时改写为父类绝对 FQCN；无父类或歧义继续拒绝。语义包 301 项、language-server 与扩展测试 TypeScript 类型检查、相关 ESLint 通过；用例覆盖跨 namespace 同名别名不串线。语义计划写出的三文件在 PHP 7.2/8.5 下通过语法检查、加载和调用；打包 VS Code 1.138.0 隔离宿主应用、Undo/Redo 退出码 0。已纳入下述 `78215753` 私有候选。
