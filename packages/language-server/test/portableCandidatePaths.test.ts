@@ -37,6 +37,17 @@ describe('portable candidate path search', () => {
     expect(scanPortableCandidates(cancelled)).toBeUndefined();
   });
 
+  it('counts the same PHP file once when autoload roots overlap', async () => {
+    root = await mkdtemp(join(tmpdir(), 'sophp-portable-candidates-overlap-'));
+    const src = join(root, 'src'); const nested = join(src, 'Nested');
+    await mkdir(nested, { recursive: true });
+    const target = join(nested, 'Target.php');
+    await writeFile(target, '<?php function answerStatus() {}');
+    const request = input(root, src, 1);
+    request.roots.push(nested);
+    expect(scanPortableCandidates(request)).toEqual([resolve(target)]);
+  });
+
   it.skipIf(process.platform === 'win32')('follows a linked autoload root without looping through a symlink cycle', async () => {
     root = await mkdtemp(join(tmpdir(), 'sophp-portable-candidates-link-'));
     const src = join(root, 'src'); const link = join(root, 'linked'); await mkdir(src);

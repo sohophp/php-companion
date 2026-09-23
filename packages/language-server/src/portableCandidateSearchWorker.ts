@@ -12,6 +12,7 @@ export interface PortableCandidateSearchInput {
 export function scanPortableCandidates(input: PortableCandidateSearchInput): string[] | undefined {
   const queue: QueueEntry[] = input.roots.map((path) => ({ path: resolve(path), ancestors: [], root: true }));
   const matches = new Set<string>();
+  const inspectedFiles = new Set<string>();
   const names = input.names.map((name) => name.toLowerCase());
   const cancelled = new Int32Array(input.cancelled);
   let files = 0; let bytes = 0;
@@ -40,6 +41,8 @@ export function scanPortableCandidates(input: PortableCandidateSearchInput): str
       continue;
     }
     if (!info.isFile() || !/\.php$/iu.test(entry.path) || isAutoloadPathExcluded(input.project, entry.path)) continue;
+    if (inspectedFiles.has(entry.path)) continue;
+    inspectedFiles.add(entry.path);
     files += 1; bytes += info.size;
     if (files > input.maxFiles || info.size > 4 * 1024 * 1024 || bytes > 512 * 1024 * 1024) return undefined;
     let source: Buffer;

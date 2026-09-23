@@ -40,3 +40,18 @@
 最初每次编辑都重新搜索整个磁盘。现将名称预筛结果按 Composer 项目对象、搜索范围和名称缓存最多 16 组，且只有对应索引完整完成才保存；每轮索引仍枚举 autoload 路径，并以初次扫描时间为界读取后来新增或变化的文件。F04-NAV-20 真实 stdio 用例在缓存已建立后新增 vendor 实现，第二次查询返回新旧两个实现，并观察到 `cached=true`，证明新文件没有被旧预筛排除。
 
 本机两次独立 10 轮无 `rg` 会话的等待记录：缓存前最小 1,367 ms、中位 1,513.5 ms、最大 2,043 ms；最终构建复测的 bundled Core 最小 965 ms、中位 1,116.5 ms、最大 2,062 ms，后 8 轮复用了预筛结果。它们是短时连续编辑基准，不能证明数小时会话、跨系统或人眼可见的编辑器反馈。
+
+## 50,000 文件边界
+
+可移植候选搜索原先按遍历次数计数：Composer 自动加载目录与单文件路径重叠时，同一个 PHP 文件会被重复计算，在 50,000 文件附近提前放弃预筛。现按解析后的文件路径去重，只对首次遇到的路径计入文件数与读取字节；重叠目录的定向测试通过。
+
+在同一独立 Composer fixture 中执行以下命令；`default` 使用独立 Language Server 构建与系统 `rg`，`bundle-no-rg` 使用 bundled Core Language Server，并在子进程中清空 PATH，强制走可移植搜索：
+
+| 命令 | autoload PHP 清单规模 | 首次 Implementation 等待 | 结果 |
+| --- | ---: | ---: | --- |
+| `node scripts/benchmark-implementation-boundary.mjs 48970 default 1` | 49,989 | 5,630 ms | Guzzle Response 第 122 行 |
+| `node scripts/benchmark-implementation-boundary.mjs 48970 bundle-no-rg 1` | 49,989 | 6,702 ms | Guzzle Response 第 122 行 |
+| `node scripts/benchmark-implementation-boundary.mjs 48981 bundle-no-rg 1` | 50,000 | 6,944 ms | Guzzle Response 第 122 行 |
+| `node scripts/benchmark-implementation-boundary.mjs 48982 bundle-no-rg 1 incomplete` | 50,001 | 2,059 ms | 明确报告搜索不完整，无部分落点 |
+
+命令中的数字为额外生成的项目噪声文件数；fixture 还包含 1,029 个 PHP 文件和 1 个 Consumer，其中部分文件不属于 Composer autoload 清单。表中的等待为单次本机测量，不能代表延迟分布。这个验证覆盖按需 Implementation 的 50,000 路径清单边界，不等于 50,000 文件冷索引、峰值内存、Windows/macOS 或实际编辑器验收。

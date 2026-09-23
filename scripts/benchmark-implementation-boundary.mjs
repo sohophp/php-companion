@@ -10,12 +10,13 @@ import { pathToFileURL } from 'node:url';
 import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/index.js';
 
 const noiseFiles = Number(process.argv[2] ?? 9_100);
-if (!Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 20_000) throw new Error('Expected 0–20,000 noise files.');
+if (!Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 60_000) throw new Error('Expected 0–60,000 noise files.');
 const portable = process.argv[3] === 'portable';
 const withoutRipgrep = process.argv[3] === 'no-rg' || process.argv[3] === 'bundle-no-rg';
 const bundled = process.argv[3] === 'bundle-no-rg';
 const rounds = Number(process.argv[4] ?? 1);
 if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 30) throw new Error('Expected 1–30 rounds.');
+const expectIncomplete = process.argv[5] === 'incomplete';
 const fixture = resolve('test/extension/real-vendor');
 const root = await mkdtemp(join(tmpdir(), 'sophp-implementation-boundary-'));
 let server;
@@ -97,15 +98,18 @@ try {
     const elapsedMs = Math.round(performance.now() - started);
     const expectedLine = implementationSource.slice(0, implementationSource.indexOf(`function ${method}(`)).split('\n').length - 1;
     const locations = implementation.result ?? [];
-    const correct = !implementation.error && locations.length === 1 && locations[0].uri === implementationUri
-      && locations[0].range?.start?.line === expectedLine;
+    const correct = expectIncomplete
+      ? /Implementation search incomplete/.test(implementation.error?.message ?? '') && locations.length === 0
+      : !implementation.error && locations.length === 1 && locations[0].uri === implementationUri
+        && locations[0].range?.start?.line === expectedLine;
     results.push({ round: round + 1, method, elapsedMs, implementationUris: locations.map((item) => item.uri),
       line: locations[0]?.range?.start?.line, expectedLine, error: implementation.error?.message, correct });
-    if (!correct) throw new Error(`Implementation round ${round + 1} returned an incorrect result: ${JSON.stringify(results.at(-1))}`);
+    if (!correct) throw new Error(`Implementation round ${round + 1} returned an incorrect result: ${JSON.stringify({ result: results.at(-1), scanLogs, stderr })}`);
   }
   const timings = results.map((result) => result.elapsedMs).sort((left, right) => left - right);
   const medianMs = (timings[Math.floor((timings.length - 1) / 2)] + timings[Math.ceil((timings.length - 1) / 2)]) / 2;
   process.stdout.write(`${JSON.stringify({ noiseFiles, candidateMode: process.argv[3] ?? 'default', totalPhpFiles: noiseFiles + 1_029 + 1,
+    expected: expectIncomplete ? 'incomplete' : 'implementation',
     rounds, minMs: timings[0], medianMs, p95Ms: timings[Math.ceil(timings.length * 0.95) - 1], maxMs: timings.at(-1),
     definitionUris: definition.result?.map((item) => item.uri), results, scanLogs }, null, 2)}\n`);
   await request('shutdown', null, 10_000);
