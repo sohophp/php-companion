@@ -250,6 +250,68 @@ export async function run(): Promise<void> {
   assert.ok(vendorReferences.every((item) => item.uri.toString() !== namesakeUri.toString()
     && !(item.uri.toString() === vendorConsumerUri.toString()
       && item.range.start.isEqual(vendorDocument.positionAt(vendorConsumerSource.indexOf('$other->renderVendor()') + '$other->'.length)))));
+  const secondWorkspace = vscode.workspace.workspaceFolders?.[1];
+  assert.ok(secondWorkspace, 'C1 Extension Host test has no second Composer workspace root.');
+  const secondFolder = vscode.Uri.joinPath(secondWorkspace.uri, 'src', 'C1');
+  await vscode.workspace.fs.createDirectory(secondFolder);
+  const secondContractSource = '<?php namespace App\\C1; interface C1Contract { public function renderC1(string $label): void; }';
+  const secondPrinterSource = '<?php namespace App\\C1; final class C1Printer implements C1Contract { public function renderC1(string $label): void {} }';
+  const secondConsumerSource = '<?php namespace App\\C1; function run(C1Contract $value): void { $value->renderC1("x"); $value->renderC; }';
+  const secondContractUri = vscode.Uri.joinPath(secondFolder, 'C1Contract.php');
+  const secondPrinterUri = vscode.Uri.joinPath(secondFolder, 'C1Printer.php');
+  const secondConsumerUri = vscode.Uri.joinPath(secondFolder, 'C1Consumer.php');
+  for (const [uri, source] of [[secondContractUri, secondContractSource], [secondPrinterUri, secondPrinterSource],
+    [secondConsumerUri, secondConsumerSource]] as const) {
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  }
+  const secondDocument = await vscode.workspace.openTextDocument(secondConsumerUri);
+  await vscode.window.showTextDocument(secondDocument);
+  const secondCallOffset = secondConsumerSource.indexOf('$value->renderC1("x")') + '$value->'.length;
+  const secondCallPosition = secondDocument.positionAt(secondCallOffset + 1);
+  const secondCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', secondConsumerUri,
+      secondDocument.positionAt(secondConsumerSource.indexOf('$value->renderC;') + '$value->renderC'.length), '>'),
+    (result) => result?.items.some((item) => item.label === 'renderC1'
+      && item.detail?.includes('C1Contract::renderC1(string $label): void')) === true,
+    'SoPHP mixed the first Composer root into second-root completion.',
+  );
+  assert.strictEqual(secondCompletion.items.filter((item) => item.label === 'renderC1').length, 1);
+  const secondHover = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', secondConsumerUri, secondCallPosition),
+    (result) => result?.some((item) => item.contents.some((part) =>
+      (part instanceof vscode.MarkdownString ? part.value : typeof part === 'string' ? part : part.value).includes('renderC1(string $label): void'))) === true,
+    'SoPHP mixed the first Composer root into second-root Hover.',
+  );
+  assert.ok(secondHover.length > 0);
+  const secondSignature = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', secondConsumerUri,
+      secondDocument.positionAt(secondConsumerSource.indexOf('$value->renderC1("x")') + '$value->renderC1('.length)),
+    (result) => result?.signatures.some((item) => item.label === 'renderC1(string $label): void') === true,
+    'SoPHP mixed the first Composer root into second-root Signature Help.',
+  );
+  assert.deepStrictEqual(secondSignature.signatures.map((item) => item.label), ['renderC1(string $label): void']);
+  const secondDefinition = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', secondConsumerUri, secondCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === secondContractUri.toString()) === true,
+    'SoPHP navigated to the wrong Composer root.',
+  );
+  assert.deepStrictEqual(secondDefinition.map((item) => item.uri.toString()), [secondContractUri.toString()]);
+  const secondImplementation = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', secondConsumerUri, secondCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === secondPrinterUri.toString()) === true,
+    'SoPHP found an implementation from the wrong Composer root.',
+  );
+  assert.deepStrictEqual(secondImplementation.map((item) => item.uri.toString()), [secondPrinterUri.toString()]);
+  const secondReferences = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', secondConsumerUri, secondCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === secondConsumerUri.toString()
+      && item.range.start.isEqual(secondDocument.positionAt(secondCallOffset))) === true,
+    'SoPHP did not find the second-root call reference.',
+  );
+  assert.ok(secondReferences.every((item) => item.uri.toString().startsWith(`${secondWorkspace.uri.toString()}/`)),
+    `SoPHP mixed references from the first Composer root: ${JSON.stringify(secondReferences.map((item) => ({
+      uri: item.uri.toString(), line: item.range.start.line, character: item.range.start.character,
+    })))}`);
   if (targetPhpVersion) {
     const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
     const versionSource = `<?php namespace App\\C1;
@@ -258,20 +320,21 @@ function choose(int $value): int { return match ($value) { 1 => 1, default => 0 
 function consume(): void { (void) choose(1); }`;
     await vscode.workspace.fs.writeFile(versionUri, Buffer.from(versionSource));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(versionUri));
+    const expected = targetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
+      : targetPhpVersion === '8.1' ? ['(void) cast'] : [];
     const diagnostics = await waitForResult(
       () => Promise.resolve(vscode.languages.getDiagnostics(versionUri)),
-      (result) => result.some((item) => item.code === 'php.type.filename'),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && expected.every((feature) => result.some((item) => item.code === 'php.version.unsupported' && item.message.includes(feature))),
       `SoPHP did not publish the PHP ${targetPhpVersion} diagnostic set in VS Code.`,
     );
     const versionMessages = diagnostics.filter((item) => item.code === 'php.version.unsupported').map((item) => item.message);
-    const expected = targetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
-      : targetPhpVersion === '8.1' ? ['(void) cast'] : [];
     for (const feature of expected) assert.ok(versionMessages.some((message) => message.includes(feature)),
       `PHP ${targetPhpVersion} did not report unsupported ${feature}.`);
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
   }
-  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus the Composer vendor chain, passed.`);
+  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
   console.log(`C1 warm command latency (12 sequential samples each, ms): ${JSON.stringify(warm)}`);
   console.log(`C1 server handler latency (same warm interval, ms): ${JSON.stringify(Object.fromEntries(

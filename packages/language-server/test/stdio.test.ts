@@ -4101,6 +4101,92 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(parent, { recursive: true, force: true }); }
   });
 
+  it('F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'php-companion-multiroot-navigation-'));
+    const roots = [join(parent, 'first'), join(parent, 'second')];
+    try {
+      const fixtures = roots.map((root, index) => {
+        const parameter = index === 0 ? 'int $count' : 'string $label';
+        const returnType = index === 0 ? 'string' : 'void';
+        const returnStatement = index === 0 ? 'return (string) $count;' : '';
+        const argument = index === 0 ? '2' : "'x'";
+        const contract = `<?php namespace App; interface Contract { public function render(${parameter}): ${returnType}; }`;
+        const printer = `<?php namespace App; final class Printer implements Contract { public function render(${parameter}): ${returnType} { ${returnStatement} } }`;
+        const namesake = '<?php namespace App; final class Namesake { public function render(): void {} }';
+        const consumer = `<?php namespace App; function run(Contract $value, Namesake $other): void { $value->render(${argument}); $other->render(); $value->ren; }`;
+        const source = { contract, printer, namesake, consumer };
+        const uris = Object.fromEntries(Object.keys(source).map((name) => [name, pathToFileURL(join(root, 'src', `${name[0]!.toUpperCase()}${name.slice(1)}.php`)).toString()])) as Record<keyof typeof source, string>;
+        return { root, source, uris, signature: `render(${parameter}): ${returnType}` };
+      });
+      for (const fixture of fixtures) {
+        await mkdir(join(fixture.root, 'src'), { recursive: true });
+        await writeFile(join(fixture.root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+        for (const [name, source] of Object.entries(fixture.source)) await writeFile(join(fixture.root, 'src', `${name[0]!.toUpperCase()}${name.slice(1)}.php`), source);
+      }
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      let id = 4100;
+      const request = async (method: string, params: object): Promise<any> => {
+        const requestId = ++id;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor((message) => message.id === requestId, 15_000);
+        expect(response.error).toBeUndefined();
+        return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, workspaceFolders: roots.map((root, index) => ({
+        uri: pathToFileURL(root).toString(), name: index === 0 ? 'first' : 'second',
+      })), initializationOptions: { indexingMode: 'onDemand' } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const open = async (uri: string, source: string, version: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri && message.params.version === version);
+      };
+      for (const fixture of fixtures) await open(fixture.uris.consumer, fixture.source.consumer, 1);
+      const verify = async (fixture: typeof fixtures[number]): Promise<void> => {
+        const { source, uris, signature } = fixture;
+        const call = source.consumer.indexOf('$value->render(') + '$value->'.length;
+        const position = lspPosition(source.consumer, call + 1);
+        const params = { textDocument: { uri: uris.consumer }, position };
+        const completion = await request('textDocument/completion', { ...params,
+          position: lspPosition(source.consumer, source.consumer.indexOf('$value->ren;') + '$value->ren'.length),
+        });
+        expect(completion.filter((item: { label: string }) => item.label === 'render')).toHaveLength(1);
+        expect(JSON.stringify(completion.find((item: { label: string }) => item.label === 'render'))).toContain(signature);
+        expect(JSON.stringify(await request('textDocument/hover', params))).toContain(signature);
+        const signatureHelp = await request('textDocument/signatureHelp', { ...params,
+          position: lspPosition(source.consumer, source.consumer.indexOf('$value->render(') + '$value->render('.length),
+        });
+        expect(signatureHelp.signatures.map((item: { label: string }) => item.label)).toEqual([signature]);
+        expect(await request('textDocument/definition', params)).toEqual([{
+          uri: uris.contract, range: { start: lspPosition(source.contract, source.contract.indexOf('function render') + 'function '.length),
+            end: lspPosition(source.contract, source.contract.indexOf('function render') + 'function render'.length) },
+        }]);
+        expect((await request('textDocument/implementation', params)).map((item: { uri: string }) => item.uri)).toEqual([uris.printer]);
+        const references = await request('textDocument/references', { ...params, context: { includeDeclaration: false } });
+        expect(references).toEqual([{ uri: uris.consumer, range: {
+          start: lspPosition(source.consumer, call), end: lspPosition(source.consumer, call + 'render'.length),
+        } }]);
+      };
+      for (const fixture of fixtures) await verify(fixture);
+      const first = fixtures[0]!;
+      const changed = first.source.consumer.replace('Contract $value', 'Namesake $value');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: first.uris.consumer, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === first.uris.consumer && message.params.version === 2);
+      const changedCall = changed.indexOf('$value->render(') + '$value->'.length;
+      const changedDefinition = await request('textDocument/definition', {
+        textDocument: { uri: first.uris.consumer }, position: lspPosition(changed, changedCall + 1),
+      });
+      expect(changedDefinition.map((item: { uri: string }) => item.uri)).toEqual([first.uris.namesake]);
+      await verify(fixtures[1]!);
+    } finally { await rm(parent, { recursive: true, force: true }); }
+  });
+
   it('preserves vscode-remote URIs through indexing, navigation, and file invalidation', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-remote-'));
     try {

@@ -11,6 +11,8 @@ async function main(): Promise<void> {
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const coreOnly = c1Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
+  const secondFixture = c1Only ? await mkdtemp(join(tmpdir(), 'php-companion-extension-second-')) : undefined;
+  if (secondFixture) await cp(sourceFixture, secondFixture, { recursive: true });
 
   if (c1Only) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
@@ -18,6 +20,10 @@ async function main(): Promise<void> {
     settings['phpCompanion.indexing.mode'] = 'onDemand';
     if (c1PhpVersion) settings['phpCompanion.phpVersion'] = c1PhpVersion;
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+    if (secondFixture) {
+      const secondSettingsPath = join(secondFixture, '.vscode', 'settings.json');
+      await writeFile(secondSettingsPath, JSON.stringify(settings, null, 2));
+    }
   }
 
   if (withIntelephense) {
@@ -41,11 +47,15 @@ async function main(): Promise<void> {
   }
 
   try {
+    const workspaceFile = c1Only ? join(fixture, 'c1.code-workspace') : undefined;
+    if (workspaceFile) await writeFile(workspaceFile, JSON.stringify({ folders: [
+      { path: fixture, name: 'first' }, { path: secondFixture, name: 'second' },
+    ] }));
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
       extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : 'index'),
-      launchArgs: [fixture, ...(withIntelephense ? [] : ['--disable-extensions'])],
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense ? [] : ['--disable-extensions'])],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
         VSCODE_ESM_ENTRYPOINT: undefined,
@@ -57,6 +67,7 @@ async function main(): Promise<void> {
     });
   } finally {
     await rm(fixture, { recursive: true, force: true });
+    if (secondFixture) await rm(secondFixture, { recursive: true, force: true });
   }
 }
 

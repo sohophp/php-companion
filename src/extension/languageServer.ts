@@ -51,6 +51,8 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
 
 export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
+  const primaryFolder = vscode.workspace.workspaceFolders?.[0];
+  const primaryConfiguration = vscode.workspace.getConfiguration('phpCompanion', primaryFolder?.uri);
   const activation = languageServerActivationDecision();
   if (!activation.start) {
     if (activation.blockedByCompetingServer) {
@@ -118,7 +120,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     initializationOptions: () => ({
-      phpVersion: configuration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : configuration.get<string>('phpVersion', '8.5'),
+      phpVersion: primaryConfiguration.get<string>('phpVersion', 'auto') === 'auto' ? '8.5' : primaryConfiguration.get<string>('phpVersion', '8.5'),
       indexingMode: configuration.get<'off' | 'onDemand' | 'progressive' | 'experimental'>('indexing.mode', 'onDemand'),
       referenceMemoryBudgetMiB: configuration.get<number>('indexing.referenceMemoryBudgetMiB', 1536),
       experimentalReferenceSourceOnly: configuration.get<boolean>('indexing.experimentalSourceOnlyReferences', false),
