@@ -314,7 +314,7 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
-  it('F04-NAV-04 follows an aliased imported parent method without mixing a namesake', async () => {
+  it('F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-inheritance-'));
     try {
       await mkdir(join(root, 'src')); await mkdir(join(root, 'lib'));
@@ -387,6 +387,30 @@ function run(Alias $report, Other $other): string {
       expect(completion.map((item: { label: string }) => item.label)).toContain('format');
       await restart(9607);
       expect(await query(965, 'textDocument/references', call + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(consumerSource, call), end: lspPosition(consumerSource, call + 'format'.length) },
+      }]);
+      const traitSource = '<?php namespace Acme; trait FormattingTrait { public function format(string $value): string { return $value; } }';
+      const traitUri = pathToFileURL(join(root, 'lib', 'FormattingTrait.php')).toString();
+      await writeFile(join(root, 'lib', 'FormattingTrait.php'), traitSource);
+      await writeFile(join(root, 'src', 'Report.php'),
+        '<?php namespace App; use Acme\\FormattingTrait as ImportedTrait; final class Report { use ImportedTrait; }');
+      await restart(9608);
+      const traitDeclaration = traitSource.indexOf('function format') + 'function '.length;
+      expect(await query(967, 'textDocument/definition', call + 1)).toEqual([{
+        uri: traitUri, range: {
+          start: lspPosition(traitSource, traitDeclaration), end: lspPosition(traitSource, traitDeclaration + 'format'.length),
+        },
+      }]);
+      await restart(9609);
+      const traitCompletion = await query(968, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length);
+      expect(traitCompletion.map((item: { label: string }) => item.label)).toContain('format');
+      await restart(9610);
+      expect(JSON.stringify(await query(969, 'textDocument/hover', call + 1))).toContain('format(string $value): string');
+      await restart(9611);
+      expect((await query(970, 'textDocument/signatureHelp', consumerSource.indexOf("$report->format('ok')") + '$report->format('.length))
+        .signatures[0].label).toContain('format(string $value): string');
+      await restart(9612);
+      expect(await query(971, 'textDocument/references', call + 1, { context: { includeDeclaration: false } })).toEqual([{
         uri, range: { start: lspPosition(consumerSource, call), end: lspPosition(consumerSource, call + 'format'.length) },
       }]);
     } finally { await rm(root, { recursive: true, force: true }); }

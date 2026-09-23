@@ -19,3 +19,7 @@ F04-NAV-02 在同一真实 stdio 会话中把未保存 Consumer 的接收者从 
 ## 跨 namespace 继承的首次查询
 
 F04-NAV-04 使用独立 Composer 项目的 `App\` 与 `Acme\` 两个 PSR-4 映射：Consumer 通过 `Report as Alias` 接收子类，子类通过 `Base as ImportedBase` 继承另一个 namespace 的公开 `format()`；同项目的 `Other::format()` 是无关同名反例。首次查询原本能跳到 `Report` 类型，却无法在按需模式中补全或 Hover 其父类方法。原因是按需加载只加载直接接收者，接收者文件已存在时不再推进父类。现在沿语义层已解析的声明依赖最多加载四层，并在每次异步加载后检查取消和文档版本。首次全套回归指出链式返回值场景 `$request->getSession()->get()` 也需要在每层加载后重新解析当前接收者；修正后该既有回归与 F04-NAV-04 定向测试同时通过。测试为 Hover、Signature Help、Definition、Completion、References 各自启动新语言服务器，避免前一个查询预热掩盖问题；每项都返回父类方法或唯一真实调用位置。语义包 314 项、语言服务器全套 297 项通过且 1 项跳过，相关 ESLint 与 TypeScript 构建通过。冷启动 Implementation 当前用例只证明不捏造实现，尚未形成正例。
+
+## Trait 成员的首次查询
+
+F04-NAV-05 在同一双 PSR-4 Composer 项目中，把 `Report` 的成员来源改为 `Acme\FormattingTrait`，使用 `ImportedTrait` alias 引入。每项查询前重新启动按需 Language Server，验证 Definition 精确落到 Trait 方法，Completion、Hover、Signature Help 提供该方法，References 只返回 `Report` 接收者的调用而不混入 `Other::format()`。五项冷启动查询定向通过；这仍是自动 stdio 证据，不代表真实 VS Code 操作或性能验收。
