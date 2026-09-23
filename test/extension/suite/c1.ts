@@ -31,8 +31,12 @@ export async function run(): Promise<void> {
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load in the isolated Extension Host.');
   await extension.activate();
+  const timingApi = extension.exports as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
+  assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   if (targetPhpVersion) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('phpVersion'), targetPhpVersion);
+  assert.strictEqual(vscode.workspace.getConfiguration('php').get('suggest.basic'), false,
+    'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
   const folder = vscode.Uri.joinPath(workspace.uri, 'src', 'C1');
   await vscode.workspace.fs.createDirectory(folder);
   const contractSource = '<?php namespace App\\C1; interface C1Contract { public function renderC1(int $count): string; }';
@@ -92,6 +96,7 @@ export async function run(): Promise<void> {
     'SoPHP did not return the member call reference in VS Code.',
   );
   assert.ok(references.every((item) => item.uri.toString() !== otherUri.toString()));
+  await timingApi.requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
   const warm = {
     completion: await warmLatency(
       () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri,
@@ -114,6 +119,22 @@ export async function run(): Promise<void> {
       () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', consumerUri, callPosition),
       (result) => result?.some((item) => item.uri.toString() === consumerUri.toString()) === true, 'References'),
   };
+  const serverTimings = await timingApi.requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: true });
+  const languageClientRoundTrip = await warmLatency(
+    () => timingApi.requestLanguageServer!<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false }),
+    (result) => result !== undefined, 'Language Client round trip');
+  const builtinSource = '<?php namespace App\\C1; function builtins(): void { ab }';
+  const builtinUri = vscode.Uri.joinPath(folder, 'BuiltinCompletion.php');
+  await vscode.workspace.fs.writeFile(builtinUri, Buffer.from(builtinSource));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(builtinUri));
+  const builtinCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', builtinUri,
+      new vscode.Position(0, builtinSource.indexOf('ab }') + 2)),
+    (result) => result?.items.some((item) => item.label === 'abs') === true,
+    'SoPHP did not complete the built-in abs function.',
+  );
+  assert.strictEqual(builtinCompletion.items.filter((item) => item.label === 'abs').length, 1,
+    'PHP built-in completion was returned by more than one provider.');
   const edit = new vscode.WorkspaceEdit();
   const receiverOffset = consumerSource.indexOf('C1Contract $value');
   edit.replace(consumerUri, new vscode.Range(document.positionAt(receiverOffset),
@@ -149,5 +170,13 @@ function consume(): void { (void) choose(1); }`;
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; Hover, Signature Help, Definition, Implementation, References and unsaved Definition passed.`);
+  console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
   console.log(`C1 warm command latency (12 sequential samples each, ms): ${JSON.stringify(warm)}`);
+  console.log(`C1 server handler latency (same warm interval, ms): ${JSON.stringify(Object.fromEntries(
+    Object.entries(serverTimings).map(([method, samples]) => [method, {
+      count: samples.length, median: samples.length ? Math.round([...samples].sort((left, right) => left - right)[Math.floor((samples.length - 1) / 2)]!) : 0,
+      max: samples.length ? Math.round(Math.max(...samples)) : 0,
+    }]),
+  ))}`);
+  console.log(`C1 Language Client round trip (12 samples, ms): ${JSON.stringify(languageClientRoundTrip)}`);
 }

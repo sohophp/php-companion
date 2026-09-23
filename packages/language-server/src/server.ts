@@ -137,6 +137,7 @@ let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
+const testQueryDurations = new Map<string, number[]>();
 let experimentalReferenceClosure = false;
 let experimentalReferenceSourceOnly = false;
 function referenceSourceMode(): boolean {
@@ -3069,6 +3070,21 @@ connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknow
   return true;
 });
 
+connection.onRequest('phpCompanion/testQueryTimings', (params: { reset?: unknown } | undefined): Record<string, number[]> => {
+  if (!testMode) return {};
+  const result = Object.fromEntries([...testQueryDurations].map(([method, samples]) => [method, [...samples]]));
+  if (params?.reset === true) testQueryDurations.clear();
+  return result;
+});
+
+function recordTestQueryDuration(method: string, started: number): void {
+  if (!testMode) return;
+  const samples = testQueryDurations.get(method) ?? [];
+  if (samples.length >= 256) samples.shift();
+  samples.push(performance.now() - started);
+  testQueryDurations.set(method, samples);
+}
+
 function pauseTestQuery(method: string): Promise<void> | undefined {
   if (!testMode || !testPauseNextQueries.delete(method)) return undefined;
   return new Promise<void>((done) => {
@@ -4362,6 +4378,8 @@ function currentQueryDocument(document: TextDocument, token: { isCancellationReq
 }
 
 connection.onCompletion(async ({ textDocument, position }, token) => {
+  const timingStarted = testMode ? performance.now() : 0;
+  try {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
@@ -4489,9 +4507,12 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
+  } finally { recordTestQueryDuration('completion', timingStarted); }
 });
 
 connection.onHover(async ({ textDocument, position }, token) => {
+  const timingStarted = testMode ? performance.now() : 0;
+  try {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return null;
   const queryVersion = document.version;
@@ -4521,6 +4542,7 @@ connection.onHover(async ({ textDocument, position }, token) => {
     ? `${member!.kind === 'function' ? 'function ' : ''}${member!.name}(${member!.parameters.map(displayPhpParameter).join(', ')})${member!.returnType ? `: ${member!.returnType}` : ''}`
     : `${member!.kind === 'property' ? '$' : 'const '}${member!.name}${member!.returnType ? `: ${member!.returnType}` : ''}${member!.value ? ` = ${member!.value}` : ''}`;
   return { contents: { kind: MarkupKind.Markdown, value: `\`\`\`php\n${signature}\n\`\`\`` } };
+  } finally { recordTestQueryDuration('hover', timingStarted); }
 });
 
 connection.onDefinition(async ({ textDocument, position }, token) => {

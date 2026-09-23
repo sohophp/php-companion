@@ -46,6 +46,7 @@
   },
   "contributes": {
     "configurationDefaults": {
+      "php.suggest.basic": false,
       "phpCompanion.languageServer.enabled": true,
       "symfonyLsp.runtimeIndexing": false,
       "symfonyLsp.releaseMetadata": false,

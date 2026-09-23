@@ -97,6 +97,9 @@
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
   },
   "contributes": {
+    "configurationDefaults": {
+      "php.suggest.basic": false
+    },
     "commands": [
       { "command": "phpCompanion.selectPhpVersion", "title": "%command.selectPhpVersion%", "category": "SoPHP" },
       { "command": "phpCompanion.detectPhpVersions", "title": "%command.detectPhpVersions%", "category": "SoPHP" },

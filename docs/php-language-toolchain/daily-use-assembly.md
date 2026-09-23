@@ -33,7 +33,9 @@
 | 单独试用 | PHP DocBlocker、项目自选 PHPStan | 前者只生成注释，后者需要项目分析配置；尚缺同一 Profile 中的冲突与运行时验收，暂不自动安装 |
 | 不纳入 | 额外通用 PHP Language Server、Symfony Language Tools | 前者会造成 PHP 能力所有者冲突；后者已有普通 PHP Rename 冲突证据 |
 
-这份整理保留当前 `extensionPack` 清单和默认设置；它是已选工具的安装入口，不表示每个成员在所有 PHP 版本、系统和 Remote 环境都已通过最终验收。成员版本及其依赖以冻结的 [Profile 清单](../../test/extension/open-source-profile.extensions.json)和候选记录为准。
+这份整理保留当前 `extensionPack` 清单；它是已选工具的安装入口，不表示每个成员在所有 PHP 版本、系统和 Remote 环境都已通过最终验收。成员版本及其依赖以冻结的 [Profile 清单](../../test/extension/open-source-profile.extensions.json)和候选记录为准。
+
+SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 默认设为 `false`。VS Code 内建 PHP Language Features 原本也提供 Completion、Hover 和参数提示；关闭基础提示后，这三项默认由 SoPHP 负责，隔离 Core 宿主中的 `abs` 函数补全只出现一次。若明确关闭 SoPHP 语言服务器、又希望改用 VS Code 内建 PHP 提示，可在用户或工作区设置显式指定 `"php.suggest.basic": true`。此设置不改变 PHP 语法验证的配置；同版本完整 Pack 的实际安装仍须在候选门禁复核。
 
 ## 可选增强：先隔离验证，再决定是否纳入 Pack
 
@@ -58,7 +60,7 @@
 
 ## 当前整理结论与进入 Core 的顺序
 
-Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 清单先冻结，避免在 Core 编码链审计期间增加变量。
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。当前没有新候选的完整组合操作证据，因此 Pack 成员清单先冻结，避免在 Core 编码链审计期间增加变量。
 
 Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：F04-NAV-01–10 已覆盖未完成成员、连续未保存编辑、同名短类、Trait 冲突、外部声明失效和进行中 References 取消的首组真实 stdio 正反例。下一步用只含既定组合的隔离 VS Code Profile 检查可见结果、等待时间及 Provider 所有权；对实测错误或旧结果再修复 parser、索引或缓存边界。R4 的跨平台和持续使用门槛保持开放。
 

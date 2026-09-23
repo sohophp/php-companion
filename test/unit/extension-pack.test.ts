@@ -52,6 +52,7 @@ describe('PHP Companion manifests', () => {
     expect(defaults?.['phpCompanion.languageServer.enabled']?.default).toBe(true);
     expect(defaults?.['phpCompanion.symfony.environment']?.default).toBeNull();
     expect(defaults?.['phpCompanion.symfony.winstarRoutes.enabled']?.default).toBe(false);
+    expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['php.suggest.basic']).toBe(false);
   });
 
   it('ships the Open Source Pack without another PHP language server', async () => {
@@ -64,6 +65,7 @@ describe('PHP Companion manifests', () => {
     expect(openSource.contributes).toBeDefined();
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
+    expect(defaults?.['php.suggest.basic']).toBe(false);
     expect(defaults?.['symfonyLsp.runtimeIndexing']).toBe(false);
     expect(defaults?.['symfonyLsp.releaseMetadata']).toBe(false);
     expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
