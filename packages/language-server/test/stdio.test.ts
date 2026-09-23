@@ -4101,6 +4101,48 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(parent, { recursive: true, force: true }); }
   });
 
+  it('F04-NAV-18 finds an unopened installed Composer implementation', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-'));
+    try {
+      const src = join(root, 'src'); const vendor = join(root, 'vendor', 'acme', 'api', 'src');
+      await mkdir(src, { recursive: true }); await mkdir(vendor, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/api', autoload: { 'psr-4': { 'Acme\\Api\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/api', install_path: '../acme/api' }] }));
+      const contract = '<?php namespace Acme\\Api; interface Contract { public function answer(): int; }';
+      const implementation = '<?php namespace Acme\\Api; class Implementation implements Contract { public function answer(): int { return 42; } }';
+      const consumer = '<?php namespace App; use Acme\\Api\\Contract; function run(Contract $value): int { return $value->answer(); }';
+      const contractUri = pathToFileURL(join(vendor, 'Contract.php')).toString();
+      const implementationUri = pathToFileURL(join(vendor, 'Implementation.php')).toString();
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      await writeFile(join(vendor, 'Contract.php'), contract);
+      await writeFile(join(vendor, 'Implementation.php'), implementation);
+      await writeFile(join(src, 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      let id = 4210;
+      const request = async (method: string, params: object): Promise<any> => {
+        const requestId = ++id;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor((message) => message.id === requestId, 20_000);
+        expect(response.error).toBeUndefined();
+        return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, workspaceFolders: [{ uri: pathToFileURL(root).toString(), name: 'project' }],
+        initializationOptions: { indexingMode: 'onDemand', phpVersion: '7.2' } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === consumerUri);
+      const params = { textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf('$value->answer()') + '$value->'.length + 2) };
+      expect((await request('textDocument/definition', params)).map((item: { uri: string }) => item.uri)).toEqual([contractUri]);
+      expect((await request('textDocument/implementation', params)).map((item: { uri: string }) => item.uri)).toEqual([implementationUri]);
+      expect((await request('textDocument/implementation', params)).map((item: { uri: string }) => item.uri)).toEqual([implementationUri]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root', async () => {
     const parent = await mkdtemp(join(tmpdir(), 'php-companion-multiroot-navigation-'));
     const roots = [join(parent, 'first'), join(parent, 'second')];

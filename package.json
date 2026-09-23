@@ -65,6 +65,7 @@
     "test:extension": "pnpm build && pnpm --dir packages/php-companion-symfony build && node scripts/run-extension-test.mjs ./dist-test/runTest.js",
     "test:extension:core-only": "PHP_COMPANION_TEST_CORE_ONLY=1 pnpm test:extension",
     "test:extension:c1": "pnpm build && tsc -p test/extension/tsconfig.json && PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C1_ONLY=1 node scripts/run-extension-test.mjs ./dist-test/runTest.js",
+    "test:extension:c1:real-vendor": "composer install --working-dir=test/extension/real-vendor --no-interaction --prefer-dist --no-scripts --no-plugins --no-progress && pnpm build && tsc -p test/extension/tsconfig.json && PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C1_ONLY=1 PHP_COMPANION_TEST_C1_REAL_VENDOR=1 node scripts/run-extension-test.mjs ./dist-test/runTest.js",
     "test:extension:intelephense": "PHP_COMPANION_TEST_WITH_INTELEPHENSE=1 pnpm test:extension",
     "test:extension:packaged": "pnpm package && pnpm package:symfony && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",
     "test:extension:open-source-profile": "pnpm package && pnpm package:symfony && tsc -p test/extension/tsconfig.json && node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js",

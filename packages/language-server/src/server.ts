@@ -2292,9 +2292,10 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
   }, 2_000);
   progressiveRefreshTimers.set(root, timer);
 }
-async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
+async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string,
+  includeDependencies = false): Promise<{ paths: Set<string>; startedAt: number } | undefined> {
   if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
-  const paths = projectAutoloadPaths(project);
+  const paths = includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project);
   if (!paths.length) return undefined;
   const startedAt = Date.now() - 1_000;
   return new Promise((done) => {
@@ -2313,7 +2314,8 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
 }
 
 async function performNamedCandidateScan(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries: number,
-  mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean, forceFull = false): Promise<boolean> {
+  mode: 'symbol' | 'named-argument', deferBodies: boolean, prepareInWorkers: boolean, showProgress: boolean,
+  forceFull = false, includeDependencies = false): Promise<boolean> {
   if (indexingMode === 'off') return false;
   const normalizedNames = [...names].sort();
   const exactSymbols = experimentalReferenceClosure && !forceFull && mode === 'symbol' && deferBodies;
@@ -2321,7 +2323,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     `(?<![\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}_])`, 'iu')) : [];
   const namedArgumentPatterns = mode === 'named-argument' ? normalizedNames.map((name) => new RegExp(
     `(?:^|[^\\p{L}\\p{N}_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|/\\*[\\s\\S]*?\\*/|//[^\\r\\n]*(?:\\r?\\n|$)|#[^\\r\\n]*(?:\\r?\\n|$))*:`, 'iu')) : [];
-  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`; const epoch = projectEpochs.get(root) ?? 0;
+  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${includeDependencies ? 'dependencies:' : ''}${exactSymbols ? 'exact:' : ''}${normalizedNames.join(',')}`;
+  const epoch = projectEpochs.get(root) ?? 0;
   if (candidateQueries.get(key) === epoch) return true;
   connection.console.info(`[candidate-scan-start] mode=${mode} names=${normalizedNames.join(',')} root=${root} defer=${deferBodies} epoch=${epoch}`);
   candidateReceiverMethods.delete(key);
@@ -2356,9 +2359,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     && normalizedNames.every((name) => /^[a-z_][a-z0-9_]*$/.test(name)) ? light.entries : undefined;
   const rgStarted = Date.now();
   const rgCandidates = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
-    ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg') : undefined;
+    ? await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', includeDependencies) : undefined;
   if (rgCandidates) connection.console.info(`[reference-rg] paths=${rgCandidates.paths.size} elapsedMs=${Date.now() - rgStarted}`);
-  const scan = await indexComposerSources(root, { project, includeDependencies: false, limits: indexLimits, readConcurrency: 128,
+  const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
     skipSource: rgCandidates ? (path, info): boolean => {
       const normalized = resolve(path);
       if (rgCandidates.paths.has(normalized) || info.mtimeMs >= rgCandidates.startedAt || info.ctimeMs >= rgCandidates.startedAt) return false;
@@ -2432,7 +2435,8 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       return effective === source ? { summary, pending, receiverMethods: sourceReceiverMethods } : undefined;
     },
     cache: cacheDirectory ? {
-      directory: cacheDirectory, key: exactSymbols ? 'source-candidates-exact-test' : 'source-candidates', version: 'source-candidates-v6',
+      directory: cacheDirectory, key: `${exactSymbols ? 'source-candidates-exact-test' : 'source-candidates'}${includeDependencies ? '-dependencies' : ''}`,
+      version: 'source-candidates-v6',
       finalizePayload: async (payload): Promise<unknown> => {
         const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; receiverMethods?: AssignedReceiverMethod[]; pending?: Promise<{
           semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };
@@ -2520,16 +2524,16 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     if (unresolvedProjectType || unresolvedDependencies.size && nonPsr4Autoload
       || possibleSkippedReceiverDeclaration || unresolvedReceivers.length && nonPsr4Autoload) {
       connection.console.info(`[reference-closure] falling back to full candidate scan for unresolved ${possibleSkippedReceiverDeclaration ? 'receiver declaration' : 'project declaration'}`);
-      return performNamedCandidateScan(workspace, root, names, cancelled, retries, mode, deferBodies, prepareInWorkers, false, true);
+      return performNamedCandidateScan(workspace, root, names, cancelled, retries, mode, deferBodies, prepareInWorkers, false, true, includeDependencies);
     }
   }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
-  if (!scan.projectComplete || cancelled()) return false;
+  if (!(includeDependencies ? scan.complete : scan.projectComplete) || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     await applyPendingFiles();
     return retries > 0 ? performNamedCandidateScan(workspace, root, names, cancelled, retries - 1,
-      mode, deferBodies, prepareInWorkers, showProgress) : false;
+      mode, deferBodies, prepareInWorkers, showProgress, forceFull, includeDependencies) : false;
   }
   if (candidateReadsComplete && candidateReads.size + skippedCandidateStamps.size === scan.files) {
     referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps });
@@ -2541,9 +2545,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
 
 async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
   mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies,
-  showProgress = true): Promise<boolean> {
+  showProgress = true, includeDependencies = false): Promise<boolean> {
   const epoch = projectEpochs.get(root) ?? 0;
-  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${experimentalReferenceClosure && mode === 'symbol' && deferBodies ? 'exact:' : ''}${[...names].sort().join(',')}`;
+  const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${includeDependencies ? 'dependencies:' : ''}${experimentalReferenceClosure && mode === 'symbol' && deferBodies ? 'exact:' : ''}${[...names].sort().join(',')}`;
   if (candidateQueries.get(key) === epoch) return true;
   let task = candidateScanTasks.get(key);
   if (!task || task.epoch !== epoch || task.workspace !== workspace) {
@@ -2551,7 +2555,8 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
     task = { epoch, workspace, waiters, promise: Promise.resolve(false) };
     const running = task;
     task.promise = performNamedCandidateScan(workspace, root, names,
-      () => [...waiters].every((isCancelled) => isCancelled()), retries, mode, deferBodies, prepareInWorkers, showProgress)
+      () => [...waiters].every((isCancelled) => isCancelled()), retries, mode, deferBodies, prepareInWorkers, showProgress,
+      false, includeDependencies)
       .finally(() => { if (candidateScanTasks.get(key) === running) candidateScanTasks.delete(key); });
     candidateScanTasks.set(key, task);
   } else task.waiters.add(cancelled);
@@ -2561,7 +2566,8 @@ async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, n
       void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
     });
     if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
-      return scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers, showProgress);
+      return scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers,
+        showProgress, includeDependencies);
     }
     return ready;
   } finally { task.waiters.delete(cancelled); }
@@ -4743,7 +4749,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   }
   if (root && member?.kind === 'method') {
     const ready = await scanNamedCandidates(workspace, root, new Set([member.name.toLowerCase()]),
-      () => token.isCancellationRequested, 2, 'symbol', true);
+      () => token.isCancellationRequested, 2, 'symbol', true, true, true, true);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
     if (documents.get(document.uri)?.version !== queryVersion) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
     if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));

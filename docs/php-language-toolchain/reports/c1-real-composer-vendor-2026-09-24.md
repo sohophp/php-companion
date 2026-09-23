@@ -1,0 +1,17 @@
+# C1 真实 Composer 依赖树编辑链
+
+日期：2026-09-24。
+
+## 独立项目
+
+测试项目位于 `test/extension/real-vendor/`，用提交的 `composer.lock` 固定 10 个公开包：Guzzle PSR-7、Monolog、Symfony HttpFoundation 及其依赖。Composer 平台目标为 PHP 7.2.34；本轮安装后 vendor 含 293 个 PHP 文件。`vendor/` 由 Composer 安装且不入库。复现入口为 `pnpm test:extension:c1:real-vendor`，只在显式运行该入口时复制项目到隔离 VS Code 宿主的临时工作区。
+
+## 发现与修复
+
+项目 Consumer 声明 `Psr\Http\Message\ResponseInterface` 接收者。首次 Completion、Hover、Signature Help、Definition 和 References 正确，但 Implementation 返回空；手动打开 `GuzzleHttp\Psr7\Response.php` 后才找到实现。按需候选扫描原先只遍历项目自动加载路径，排除了已安装依赖。现在仅 Implementation 的候选扫描包含依赖路径，并把扫描范围纳入任务键、缓存键、ripgrep 路径和完整性判断。项目范围的 References 等查询保持原范围。
+
+隔离 Core 宿主现在无需打开实现文件即可完成六项查询：Definition 指向 PSR 接口，Implementation 指向 Guzzle Response；未保存地把接收者改成 `Monolog\Logger` 后，补全改为 `getName`，旧 `getStatusCode` 不再作为方法候选，Definition 指向 Logger。一次新宿主的首次 Implementation 命令观测为 482 ms，不代表长期 P95。F04-NAV-18 独立 stdio 夹具用一个未打开的 Composer vendor 实现复现并验证修复；定向 1/1、语言服务器全套 309 项通过且 1 项跳过。
+
+另以 `PHP_COMPANION_TEST_C1_UI=1 pnpm test:extension:c1:real-vendor` 观察 Workbench：在真实 PSR 接口类型后输入 `g`，首次可见列表包含 `getStatusCode`，没有 Monolog 的 `getName`，本次可见时间 208 ms。TypeScript、ESLint、Composer 严格校验、按锁文件安装 dry run 和差异检查通过。
+
+这是 PHP 7.2 目标、Linux 隔离宿主与 293 个真实 PHP 文件的结果。还需其它 PHP/平台/Remote 矩阵、更大的真实依赖树、持续会话分布，以及完整 Open Source Pack 的组合门禁。本轮没有生成 VSIX，也没有修改业务项目。

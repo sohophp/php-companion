@@ -1,0 +1,23 @@
+{
+  "name": "sohophp/c1-real-vendor-fixture",
+  "description": "Independent Composer dependencies for SoPHP C1 editor acceptance",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.2.5",
+    "guzzlehttp/psr7": "^2.0",
+    "monolog/monolog": "^2.0",
+    "symfony/http-foundation": "^5.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\C1\\": "src/"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "7.2.34"
+    },
+    "allow-plugins": false
+  }
+}

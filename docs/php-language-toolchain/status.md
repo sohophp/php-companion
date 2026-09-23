@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-18、F04-HOST-11：独立 Composer 项目锁定 10 个真实包、293 个 PHP 文件。首次 PSR 接口 Implementation 因按需扫描只含项目路径而缺失 Guzzle 实现；现仅 Implementation 扩展到已安装依赖路径，并隔离其任务/缓存键。独立 stdio 定向、语言服务器全套 309 项通过且 1 项跳过；隔离 Core 宿主完成六项查询、未保存改为 Monolog Logger 后的候选/定义切换，Workbench 首次可见真实 vendor 方法为 208 ms。完整组合、其它平台及更大真实依赖树仍开放。见[报告](reports/c1-real-composer-vendor-2026-09-24.md)。
+
 2026-09-24 C1/F04-HOST-10：隔离 VS Code Core 宿主在同一未保存缓冲区连续 10 轮键入 `r`、切换 A/B 接收者、续键 `e`/`n`；每轮最终可见建议均只含当前类型方法，观测 192–212 ms，20 ms DOM 轮询未见旧候选。真实依赖树、物理键盘与长时间会话仍开放。见[报告](reports/c1-rapid-unsaved-completion-2026-09-24.md)。
 
 2026-09-24 C1 跨根内建声明：Definition 的虚拟文档 URI 现包含 PHP 目标版本和禁用扩展集合；隔离 Core 宿主 auto 双根的 PHP 7.2/8.5 `sort` 定义分别显示 `bool`/`true` 签名。切换版本后的普通词语建议与函数补全在断言中分开识别。Open Source Pack 仍为 10 项，manifest 4/4；language-spec 53/53，language-server 308 项通过、1 项跳过。完整组合与其它 Remote 环境待冻结候选时验收。见[报告](reports/c1-versioned-builtin-navigation-2026-09-24.md)。

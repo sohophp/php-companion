@@ -60,6 +60,11 @@ async function main(): Promise<void> {
     if (runtimePhp) settings['phpCompanion.phpExecutablePath'] = runtimePhp;
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
+  const realVendorFixture = c1Only && process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1'
+    ? await mkdtemp(join(tmpdir(), 'php-companion-extension-real-vendor-')) : undefined;
+  if (realVendorFixture) {
+    await cp(resolve(__dirname, '..', 'test', 'extension', 'real-vendor'), realVendorFixture, { recursive: true });
+  }
 
   if (c1Only) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
@@ -106,6 +111,7 @@ async function main(): Promise<void> {
     if (workspaceFile) await writeFile(workspaceFile, JSON.stringify({ folders: [
       { path: fixture, name: 'first' }, { path: secondFixture, name: 'second' },
       ...(runtimeFixture ? [{ path: runtimeFixture, name: 'runtime' }] : []),
+      ...(realVendorFixture ? [{ path: realVendorFixture, name: 'real-vendor' }] : []),
     ] }));
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
@@ -122,12 +128,14 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
         PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
       },
     });
   } finally {
     await rm(fixture, { recursive: true, force: true });
     if (secondFixture) await rm(secondFixture, { recursive: true, force: true });
+    if (realVendorFixture) await rm(realVendorFixture, { recursive: true, force: true });
     if (runtimeFixture) await rm(runtimeFixture, { recursive: true, force: true });
   }
 }

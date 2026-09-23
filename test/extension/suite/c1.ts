@@ -1,6 +1,6 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
-import { measureRapidReceiverSuggestion, measureUnsavedReceiverSuggestion, measureVisibleSuggestion } from './c1Ui.js';
+import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUnsavedReceiverSuggestion, measureVisibleSuggestion } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -24,6 +24,86 @@ async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => b
   }
   samples.sort((left, right) => left - right);
   return { median: Math.round((samples[5]! + samples[6]!) / 2), max: Math.round(samples[11]!) };
+}
+
+async function verifyRealComposerVendor(): Promise<void> {
+  const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
+  assert.ok(root, 'The locked real Composer vendor project was not opened.');
+  const source = `<?php namespace App\\C1;
+use Psr\\Http\\Message\\ResponseInterface;
+use Monolog\\Logger;
+function inspect(ResponseInterface $value): void { $value->getStatusCode(); $value->getSta; }`;
+  const uri = vscode.Uri.joinPath(root.uri, 'src', 'C1', 'RealVendorConsumer.php');
+  await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(root.uri, 'src', 'C1'));
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const interfaceUri = vscode.Uri.joinPath(root.uri, 'vendor', 'psr', 'http-message', 'src', 'ResponseInterface.php');
+  const implementationUri = vscode.Uri.joinPath(root.uri, 'vendor', 'guzzlehttp', 'psr7', 'src', 'Response.php');
+  const loggerUri = vscode.Uri.joinPath(root.uri, 'vendor', 'monolog', 'monolog', 'src', 'Monolog', 'Logger.php');
+  const call = document.positionAt(source.indexOf('$value->getStatusCode()') + '$value->'.length + 2);
+  const partial = document.positionAt(source.indexOf('$value->getSta;') + '$value->getSta'.length);
+  const completion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, partial),
+    (result) => result?.items.some((item) => item.label === 'getStatusCode' && item.kind === vscode.CompletionItemKind.Method) === true,
+    'SoPHP did not complete the installed PSR ResponseInterface method.');
+  assert.ok(!completion.items.some((item) => item.label === 'getName' && item.kind === vscode.CompletionItemKind.Method));
+  const hover = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', uri, call),
+    (result) => result?.some((item) => item.contents.some((part) =>
+      (part instanceof vscode.MarkdownString ? part.value : typeof part === 'string' ? part : part.value).includes('getStatusCode'))) === true,
+    'SoPHP did not show Hover for the installed PSR ResponseInterface method.');
+  assert.ok(hover.length > 0);
+  const signature = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', uri,
+      document.positionAt(source.indexOf('$value->getStatusCode()') + '$value->getStatusCode('.length)),
+    (result) => result?.signatures.some((item) => item.label.includes('getStatusCode()')) === true,
+    'SoPHP did not show Signature Help for the installed PSR ResponseInterface method.');
+  assert.ok(signature.signatures.length > 0);
+  const definition = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === interfaceUri.toString()) === true,
+    'SoPHP did not navigate to the installed PSR ResponseInterface declaration.');
+  assert.ok(definition.every((item) => item.uri.toString() === interfaceUri.toString()));
+  const implementationStarted = performance.now();
+  const implementation = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === implementationUri.toString()) === true,
+    'SoPHP did not find the installed Guzzle Response implementation.');
+  assert.ok(implementation.every((item) => item.uri.toString() !== loggerUri.toString()));
+  const implementationMs = Math.round(performance.now() - implementationStarted);
+  const references = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === uri.toString()) === true,
+    'SoPHP did not find the project call to the installed PSR interface.');
+  assert.ok(references.every((item) => item.uri.toString() !== loggerUri.toString()));
+
+  const change = new vscode.WorkspaceEdit();
+  for (const [before, after] of [['ResponseInterface $value', 'Logger $value'],
+    ['$value->getStatusCode()', '$value->getName()'], ['$value->getSta;', '$value->getN;']] as const) {
+    const start = source.indexOf(before);
+    change.replace(uri, new vscode.Range(document.positionAt(start), document.positionAt(start + before.length)), after);
+  }
+  assert.ok(await vscode.workspace.applyEdit(change), 'Could not change the real Composer consumer without saving.');
+  const changed = document.getText();
+  assert.ok(document.isDirty && changed.includes('Logger $value') && changed.includes('$value->getN;'));
+  const changedCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri,
+      document.positionAt(changed.indexOf('$value->getN;') + '$value->getN'.length)),
+    (result) => result?.items.some((item) => item.label === 'getName' && item.kind === vscode.CompletionItemKind.Method) === true,
+    'SoPHP did not complete the unsaved Monolog Logger receiver.');
+  assert.ok(!changedCompletion.items.some((item) => item.label === 'getStatusCode' && item.kind === vscode.CompletionItemKind.Method));
+  const changedDefinition = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', uri,
+      document.positionAt(changed.indexOf('$value->getName()') + '$value->'.length + 2)),
+    (result) => result?.some((item) => item.uri.toString() === loggerUri.toString()) === true,
+    'SoPHP kept the PSR method after an unsaved switch to Monolog Logger.');
+  assert.ok(changedDefinition.every((item) => item.uri.toString() === loggerUri.toString()));
+  console.log(`C1 real Composer vendor: ${JSON.stringify({
+    packages: ['guzzlehttp/psr7', 'monolog/monolog', 'symfony/http-foundation'],
+    completion: 'getStatusCode', implementation: implementation.map((item) => item.uri.toString()), implementationMs,
+    unsavedCompletion: 'getName', references: references.length,
+  })}`);
 }
 
 export async function run(): Promise<void> {
@@ -519,6 +599,7 @@ function consume(): void { (void) choose(1); }`;
       'SoPHP auto mode did not use the selected PHP runtime for built-in completion.');
     console.log(`C1 ${runtimeDiscover ? 'PATH discovery' : 'configured'} runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
   }
+  if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') await verifyRealComposerVendor();
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
     console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
@@ -529,6 +610,12 @@ function consume(): void { (void) choose(1); }`;
       console.log(`C1 visible unsaved receiver switch: ${JSON.stringify(switchedSuggestion)}`);
       const rapidSuggestion = await measureRapidReceiverSuggestion(Number(c1DebugPort), folder);
       console.log(`C1 rapid unsaved receiver switch: ${JSON.stringify(rapidSuggestion)}`);
+      if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') {
+        const realRoot = vscode.workspace.workspaceFolders?.find((entry) => entry.name === 'real-vendor');
+        assert.ok(realRoot);
+        const realSuggestion = await measureRealVendorSuggestion(Number(c1DebugPort), realRoot.uri);
+        console.log(`C1 visible real Composer vendor suggestion: ${JSON.stringify(realSuggestion)}`);
+      }
     }
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
