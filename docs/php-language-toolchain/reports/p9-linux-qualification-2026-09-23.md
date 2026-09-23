@@ -22,6 +22,8 @@
 
 `node scripts/benchmark-editing.mjs 1000 50` 在真实 stdio Language Server 上完成 50 次预热和 1,000 次交替类型编辑，陈旧补全 0。更新到诊断 P95 为 2.56 ms，热补全 P95 为 1.32 ms，取消 1.22 ms；RSS 保留增长 3.53 MiB。破坏持久缓存后重新启动仍恢复补全。[原始 JSON](editing-resilience-linux-x64-2026-09-23.json)包含 P50、P95、最大值和预算。
 
+随后扩展同一脚本，要求每次编辑还返回当前类型的 Hover 方法名和精确 Definition 声明位置，并对三项热查询各采样 1,000 次协议往返。[新增原始 JSON](editing-navigation-linux-x64-2026-09-23.json)中，补全 / Hover / Definition 的 P95 分别为 1.13 / 1.03 / 1.15 ms，均低于 150 ms；诊断 P95 为 2.99 ms，取消为 1.19 ms，缓存损坏重启恢复。该合成小项目结果用于热查询预算，不能代表真实大型项目首次 References 延迟。
+
 `node scripts/benchmark-persistent-index.mjs 10000` 冷索引 16,974.82 ms，热恢复 5,798.32 ms；热进程恢复 10,000/10,000 文件且重解析 0。Doctrine 和 3 条 Callable 事实恢复；聚焦查询仅加载目标 callable；派生层和 callable 单条损坏均只重解析一个文件。[原始 JSON](persistent-index-10000-linux-x64-2026-09-23.json)记录具体断言。
 
 ## 尚缺的最终证据

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P9 热导航协议门禁：编辑基准现在每轮除补全外，还从真实 stdio Language Server 请求 Hover 与 Definition，并校验当前交替类型的方法名和精确声明位置；三项均采样 1,000 次。当前 Linux x64 P95 为补全 1.13 ms、Hover 1.03 ms、Definition 1.15 ms，诊断 2.99 ms，取消 1.19 ms，陈旧结果为 0；损坏缓存重启恢复。见 [原始 JSON](reports/editing-navigation-linux-x64-2026-09-23.json)及[P9 Linux 资格复测](reports/p9-linux-qualification-2026-09-23.md)。
+
 2026-09-23 P9 当前源码真实项目只读 Oracle：Winstar 2,292 个、CoreRepo 1,137 个项目 PHP 文件均完整进入索引；两个项目各 100/100 抽样类型声明解析，References P95 为 29.78/29.09 ms，固定补全和 Definition Oracle 均通过。10,000 文件预算截断了依赖树，`complete=false`，不能视作 vendor 全集验收。原始结果见 [Winstar JSON](reports/real-workspace-winstar-p9-2026-09-23.json) 与 [CoreRepo JSON](reports/real-workspace-corerepo-p9-2026-09-23.json)。
 
 2026-09-23 P9 私有候选 `artifacts/php-companion-alpha-0.4.5-7aadd860/` 已由干净提交 `7aadd860` 生成。四份 VSIX 的 `SHA256SUMS` 通过；Core 与 Symfony 原始候选文件在 VS Code 1.138.0 隔离打包 Extension Host 退出码 0；Winstar PHP 8.5 和 CoreRepo PHP 7.2 确定性 Alpha 预检均通过。普通 WSL shell 预检不是 VS Code WSL Remote 集成终端，Extension Host 归属、竞争 Provider 和两项目各两小时真实编辑仍需人工证据。详见 [P9 私有 Alpha 候选](reports/p9-alpha-candidate-2026-09-23.md)。

@@ -103,8 +103,10 @@ async function initialize(server, rootUri, cacheDirectory, id) {
   await server.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), { after, timeoutMs: 30_000 });
 }
 
+function memberFor(type) { return type === 'Beta' ? 'betaOnly' : 'alphaOnly'; }
+
 function sourceFor(type, sequence) {
-  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction edit(${type} $item): void { $item->; } // ${String(sequence).padStart(6, '0')}\n`;
+  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction edit(${type} $item): void { $item->${memberFor(type)}(); $item->; } // ${String(sequence).padStart(6, '0')}\n`;
 }
 
 const root = await mkdtemp(join(tmpdir(), 'php-companion-editing-'));
@@ -113,13 +115,15 @@ let server;
 try {
   await mkdir(join(root, 'src'), { recursive: true });
   await writeFile(join(root, 'composer.json'), `${JSON.stringify({ autoload: { 'psr-4': { 'Editing\\': 'src/' } } }, null, 2)}\n`);
-  await writeFile(join(root, 'src', 'Types.php'), `<?php\nnamespace Editing;\nclass Alpha { public function alphaOnly(): string {} }\nclass Beta { public function betaOnly(): string {} }\n`);
+  const typesSource = `<?php\nnamespace Editing;\nclass Alpha { public function alphaOnly(): string {} }\nclass Beta { public function betaOnly(): string {} }\n`;
+  const typesPath = join(root, 'src', 'Types.php'); const typesUri = pathToFileURL(typesPath).toString();
+  await writeFile(typesPath, typesSource);
   const editPath = join(root, 'src', 'Editing.php'); const uri = pathToFileURL(editPath).toString(); const rootUri = pathToFileURL(root).toString();
   let source = sourceFor('Alpha', 0); await writeFile(editPath, source);
   server = startLanguageServer(); await initialize(server, rootUri, cacheDirectory, 1);
   let version = 1; server.send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text: source } } });
   await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
-  const baselineRssMb = await rssMb(server.child.pid); const rssSamples = [baselineRssMb]; const updates = []; const completions = [];
+  const baselineRssMb = await rssMb(server.child.pid); const rssSamples = [baselineRssMb]; const updates = []; const completions = []; const hovers = []; const definitions = [];
   let requestId = 10;
   for (let index = 0; index < warmupIterations + iterations; index += 1) {
     const measured = index >= warmupIterations; const type = index % 2 === 0 ? 'Beta' : 'Alpha'; const expected = type === 'Beta' ? 'betaOnly' : 'alphaOnly'; const rejected = type === 'Beta' ? 'alphaOnly' : 'betaOnly';
@@ -132,7 +136,24 @@ try {
     server.send({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position: positionAt(source, source.indexOf('$item->') + '$item->'.length) } });
     const response = await server.waitFor((message) => message.id === id); const completionDuration = performance.now() - completionStarted; const actual = labels(response.result);
     if (!actual.includes(expected) || actual.includes(rejected)) throw new Error(`Iteration ${index + 1} returned stale completion: ${JSON.stringify(actual)}.`);
-    if (measured) { updates.push(updateDuration); completions.push(completionDuration); }
+    const memberOffset = source.indexOf(`$item->${expected}`) + '$item->'.length + 1;
+    const position = positionAt(source, memberOffset);
+    const hoverId = requestId++; const hoverStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: hoverId, method: 'textDocument/hover', params: { textDocument: { uri }, position } });
+    const hover = await server.waitFor((message) => message.id === hoverId); const hoverDuration = performance.now() - hoverStarted;
+    if (!hover.result || !JSON.stringify(hover.result.contents).includes(expected)) {
+      throw new Error(`Iteration ${index + 1} returned stale hover: ${JSON.stringify(hover.result)}.`);
+    }
+    const definitionId = requestId++; const definitionStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: definitionId, method: 'textDocument/definition', params: { textDocument: { uri }, position } });
+    const definition = await server.waitFor((message) => message.id === definitionId); const definitionDuration = performance.now() - definitionStarted;
+    const locations = Array.isArray(definition.result) ? definition.result : definition.result ? [definition.result] : [];
+    const expectedStart = positionAt(typesSource, typesSource.indexOf(expected));
+    if (locations.length !== 1 || locations[0].uri !== typesUri
+      || locations[0].range?.start?.line !== expectedStart.line || locations[0].range?.start?.character !== expectedStart.character) {
+      throw new Error(`Iteration ${index + 1} returned stale definition: ${JSON.stringify(definition.result)}.`);
+    }
+    if (measured) { updates.push(updateDuration); completions.push(completionDuration); hovers.push(hoverDuration); definitions.push(definitionDuration); }
     if (index % 10 === 0) rssSamples.push(await rssMb(server.child.pid));
   }
   const cancellationId = requestId++; const cancellationStarted = performance.now();
@@ -163,14 +184,17 @@ try {
   const peakRssMb = Math.max(...rssSamples); const retainedRssGrowthMb = finalRssMb - baselineRssMb;
   const report = {
     schema: 1, iterations, warmupIterations, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
-    updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions), cancellationMs, cancellationOutcome,
+    updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions),
+    hotHoverMs: summarizeDurations(hovers), hotDefinitionMs: summarizeDurations(definitions), cancellationMs, cancellationOutcome,
     languageServerRssMb: { baseline: baselineRssMb, peak: peakRssMb, final: finalRssMb, retainedGrowth: retainedRssGrowthMb },
     persistentCache: { files: cacheFiles.length, corruptCacheRecovered: true, completionRecoveredAfterRestart: true },
-    staleCompletionFailures: 0,
-    budgets: { hotCompletionP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs, updateToDiagnosticsP95Ms: R1_PERFORMANCE_BUDGETS.localDiagnosticsMs,
+    staleCompletionFailures: 0, staleHoverFailures: 0, staleDefinitionFailures: 0,
+    budgets: { hotCompletionP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs, hotHoverP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs,
+      hotDefinitionP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs, updateToDiagnosticsP95Ms: R1_PERFORMANCE_BUDGETS.localDiagnosticsMs,
       cancellationMs: R1_PERFORMANCE_BUDGETS.cancellationMs, retainedRssGrowthMb: 128 },
   };
   if (report.hotCompletionMs.p95 > report.budgets.hotCompletionP95Ms
+    || report.hotHoverMs.p95 > report.budgets.hotHoverP95Ms || report.hotDefinitionMs.p95 > report.budgets.hotDefinitionP95Ms
     || report.updateToDiagnosticsMs.p95 > report.budgets.updateToDiagnosticsP95Ms
     || report.cancellationMs > report.budgets.cancellationMs
     || report.languageServerRssMb.retainedGrowth > report.budgets.retainedRssGrowthMb) process.exitCode = 1;
