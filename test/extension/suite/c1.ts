@@ -182,6 +182,74 @@ export async function run(): Promise<void> {
   const changedImplementations = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', consumerUri,
     changedCallPosition);
   assert.deepStrictEqual(changedImplementations, [], 'SoPHP kept the old interface implementation after an unsaved edit.');
+  const vendorFolder = vscode.Uri.joinPath(workspace.uri, 'vendor', 'acme', 'c1-library', 'src');
+  const vendorComposerFolder = vscode.Uri.joinPath(workspace.uri, 'vendor', 'composer');
+  await vscode.workspace.fs.createDirectory(vendorFolder);
+  await vscode.workspace.fs.createDirectory(vendorComposerFolder);
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(workspace.uri, 'composer.lock'), Buffer.from(JSON.stringify({
+    packages: [{ name: 'acme/c1-library', autoload: { 'psr-4': { 'Acme\\C1\\': 'src/' } } }],
+  })));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(vendorComposerFolder, 'installed.json'), Buffer.from(JSON.stringify({
+    packages: [{ name: 'acme/c1-library', install_path: '../acme/c1-library' }],
+  })));
+  const vendorSource = '<?php namespace Acme\\C1; interface VendorContract { public function renderVendor(int $count): string; }';
+  const vendorUri = vscode.Uri.joinPath(vendorFolder, 'VendorContract.php');
+  const vendorPrinterSource = '<?php namespace App\\C1; use Acme\\C1\\VendorContract; final class VendorPrinter implements VendorContract { public function renderVendor(int $count): string { return (string) $count; } }';
+  const vendorPrinterUri = vscode.Uri.joinPath(folder, 'VendorPrinter.php');
+  const namesakeSource = '<?php namespace App\\C1; final class VendorNamesake { public function renderVendor(): void {} }';
+  const namesakeUri = vscode.Uri.joinPath(folder, 'VendorNamesake.php');
+  const vendorConsumerSource = '<?php namespace App\\C1; use Acme\\C1\\VendorContract; function useVendor(VendorContract $value, VendorNamesake $other): void { $value->renderVendor(2); $other->renderVendor(); $value->renderVen; }';
+  const vendorConsumerUri = vscode.Uri.joinPath(folder, 'VendorConsumer.php');
+  for (const [uri, source] of [[vendorUri, vendorSource], [vendorPrinterUri, vendorPrinterSource],
+    [namesakeUri, namesakeSource], [vendorConsumerUri, vendorConsumerSource]] as const) {
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  }
+  const vendorDocument = await vscode.workspace.openTextDocument(vendorConsumerUri);
+  await vscode.window.showTextDocument(vendorDocument);
+  const vendorCallOffset = vendorConsumerSource.indexOf('$value->renderVendor(2)') + '$value->'.length;
+  const vendorCallPosition = vendorDocument.positionAt(vendorCallOffset + 1);
+  const vendorCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', vendorConsumerUri,
+      vendorDocument.positionAt(vendorConsumerSource.indexOf('$value->renderVen;') + '$value->renderVen'.length), '>'),
+    (result) => result?.items.some((item) => item.label === 'renderVendor' && item.detail?.includes('VendorContract::renderVendor(int $count): string')) === true,
+    'SoPHP did not complete a method declared by a Composer vendor package.',
+  );
+  assert.strictEqual(vendorCompletion.items.filter((item) => item.label === 'renderVendor').length, 1);
+  const vendorHover = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', vendorConsumerUri, vendorCallPosition),
+    (result) => result?.some((item) => item.contents.some((part) =>
+      (part instanceof vscode.MarkdownString ? part.value : typeof part === 'string' ? part : part.value).includes('renderVendor(int $count): string'))) === true,
+    'SoPHP did not show the vendor method Hover.',
+  );
+  assert.ok(vendorHover.length > 0);
+  const vendorSignature = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', vendorConsumerUri,
+      vendorDocument.positionAt(vendorConsumerSource.indexOf('$value->renderVendor(2)') + '$value->renderVendor('.length)),
+    (result) => result?.signatures.some((item) => item.label.includes('renderVendor(int $count): string')) === true,
+    'SoPHP did not show the vendor method signature.',
+  );
+  assert.ok(vendorSignature.signatures.length > 0);
+  const vendorDefinition = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', vendorConsumerUri, vendorCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === vendorUri.toString()) === true,
+    'SoPHP did not navigate to the Composer vendor declaration.',
+  );
+  assert.deepStrictEqual(vendorDefinition.map((item) => item.uri.toString()), [vendorUri.toString()]);
+  const vendorImplementation = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', vendorConsumerUri, vendorCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === vendorPrinterUri.toString()) === true,
+    'SoPHP did not navigate from the vendor interface to its project implementation.',
+  );
+  assert.deepStrictEqual(vendorImplementation.map((item) => item.uri.toString()), [vendorPrinterUri.toString()]);
+  const vendorReferences = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', vendorConsumerUri, vendorCallPosition),
+    (result) => result?.some((item) => item.uri.toString() === vendorConsumerUri.toString()
+      && item.range.start.isEqual(vendorDocument.positionAt(vendorCallOffset))) === true,
+    'SoPHP did not return the vendor method call reference.',
+  );
+  assert.ok(vendorReferences.every((item) => item.uri.toString() !== namesakeUri.toString()
+    && !(item.uri.toString() === vendorConsumerUri.toString()
+      && item.range.start.isEqual(vendorDocument.positionAt(vendorConsumerSource.indexOf('$other->renderVendor()') + '$other->'.length)))));
   if (targetPhpVersion) {
     const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
     const versionSource = `<?php namespace App\\C1;
@@ -203,7 +271,7 @@ function consume(): void { (void) choose(1); }`;
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${targetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${targetPhpVersion} reported a parser error for the version fixture.`);
   }
-  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change passed.`);
+  console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus the Composer vendor chain, passed.`);
   console.log(`C1 VS Code built-in PHP suggestions: ${vscode.workspace.getConfiguration('php').get('suggest.basic', true)}`);
   console.log(`C1 warm command latency (12 sequential samples each, ms): ${JSON.stringify(warm)}`);
   console.log(`C1 server handler latency (same warm interval, ms): ${JSON.stringify(Object.fromEntries(

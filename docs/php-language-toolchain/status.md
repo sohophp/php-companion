@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-02：隔离 VS Code Core 宿主新增独立 Composer vendor 接口、项目实现及同名无关类。Completion、Hover、Signature Help、Definition、Implementation、References 在 auto、PHP 7.2、8.1、8.5 设置下均返回正确归属，四次串行宿主运行退出码 0；TypeScript 和 ESLint 通过。大型依赖、多根、建议弹窗显示时间及完整 Pack 组合仍待验。见[报告](reports/c1-vendor-host-2026-09-24.md)。
+
 2026-09-24 C1/F04-HOST-01 扩展：独立 Composer 项目在隔离 VS Code Core 宿主中，未保存地把接收者从接口切换为无关同名类后，再次验证 Completion、Hover、Signature Help、Definition、Implementation、References 六项均按新类型返回。auto、PHP 7.2、8.1、8.5 四种设置均退出码 0。快速输入期间的旧请求由独立 stdio 时序用例覆盖；实际建议列表显示时间和完整 Pack/Remote 体验仍待验。见[报告](reports/c1-unsaved-full-chain-2026-09-24.md)。
 
 2026-09-24 C1 Provider 所有权与等待分层：本地 VS Code 1.139.0 内建 PHP 基础提示与 SoPHP 同时注册 Completion、Hover、Signature Help；Core 和 Open Source Pack 现在默认 `php.suggest.basic=false`。隔离 Core 宿主核实设置生效、`abs` 只出现一次，六项编辑请求及未保存 Definition 通过；manifest 测试 4/4。12 次小样本中服务器 Completion/Hover handler 与 Language Client 轻量往返均短于出现波动的 VS Code 命令时间，尚不能判定具体 UI 等待阶段。见[报告](reports/c1-provider-ownership-latency-2026-09-24.md)。

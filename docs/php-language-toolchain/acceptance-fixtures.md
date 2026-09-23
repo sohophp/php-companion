@@ -23,6 +23,7 @@
 | F04-NAV-12 | [四类查询的进行中未保存编辑](../../packages/language-server/test/stdio.test.ts) | 测试模式在 Completion、Hover、Signature Help、Definition 捕获文档后暂停请求；提交新版本诊断再释放旧请求，旧请求返回空结果，新请求分别返回新接收者的成员、签名或落点 | `stdio.test.ts` 的 F04-NAV-12 |
 | F04-NAV-13 | [关闭并同版本重新打开文档](../../packages/language-server/test/stdio.test.ts) | Completion 请求捕获旧文档后暂停；关闭并以相同版本号打开不同内容，旧请求返回空结果，新请求返回新接收者成员 | `stdio.test.ts` 的 F04-NAV-13 |
 | F04-HOST-01 | [隔离 VS Code Core 编码链](../../test/extension/suite/c1.ts) | VS Code 中实际请求补全、Hover、参数提示、定义、实现、引用；未保存切换接收者后六项都按新类型返回，无旧接口引用或实现；内建 PHP 基础提示默认关闭，`abs` 仅返回一个候选 | `pnpm test:extension:c1`；[未保存全链报告](reports/c1-unsaved-full-chain-2026-09-24.md)；[Provider 与等待报告](reports/c1-provider-ownership-latency-2026-09-24.md) |
+| F04-HOST-02 | [Composer vendor 查询链](../../test/extension/suite/c1.ts) | 已安装 PSR-4 vendor 接口经项目 `use` 后，未完成成员补全、Hover、参数提示、Definition、Implementation、References 归属正确，排除无关同名调用；隔离 Core 宿主覆盖 auto、PHP 7.2、8.1、8.5 | [vendor 宿主报告](reports/c1-vendor-host-2026-09-24.md) |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |
