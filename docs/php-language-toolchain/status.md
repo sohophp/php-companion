@@ -1,5 +1,8 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-02：在既有独立 Composer 项目真实 stdio 测试中加入未保存接收者类型切换；第三版文档的 Definition、Implementation、References、Hover 与 Signature Help 精确指向新同名方法，旧接口结果不残留。定向测试通过；这是自动协议证据，完整 F04 与真实编辑器体验仍待验。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
+
+
 2026-09-24 Open Source Pack 清单复核：当前 manifest 声明 Core、Symfony 和 8 个外部扩展，默认值分别启用 SoPHP 语言服务、按需索引、单一 PHP/XML formatter 等；暂不加入 PHPDoc 生成或 PHPStan 扩展。当前组合安装、私有 Symfony 候选边界和旧 Pack 迁移见[日常开发组合方案](daily-use-assembly.md)。Core 的下一项工作明确从[独立 Composer 项目的 C1 编码链](future-core-plan.md)与 F04 编号夹具开始，业务项目只作只读对照；此项是清单与执行顺序整理，尚未形成新的组合试用证据。
 
 

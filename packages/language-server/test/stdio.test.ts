@@ -192,6 +192,7 @@ describe('language server stdio', () => {
       const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
       const contractUri = pathToFileURL(join(root, 'src', 'Contract.php')).toString();
       const printerUri = pathToFileURL(join(root, 'src', 'Printer.php')).toString();
+      const otherUri = pathToFileURL(join(root, 'src', 'Other.php')).toString();
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 940, method: 'initialize', params: {
@@ -262,6 +263,39 @@ describe('language server stdio', () => {
           end: lspPosition(contractSource, contractDeclaration + 'render'.length),
         },
       }]);
+      const switchedSource = changedSource.replace('Contract $printer', 'Other $printer');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 3 }, contentChanges: [{ text: switchedSource }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 3);
+      const otherDeclaration = otherSource.indexOf('function render') + 'function '.length;
+      expect(await query(949, 'textDocument/definition', switchedSource, call + 1)).toEqual([{
+        uri: otherUri, range: {
+          start: lspPosition(otherSource, otherDeclaration),
+          end: lspPosition(otherSource, otherDeclaration + 'render'.length),
+        },
+      }]);
+      expect(await query(950, 'textDocument/implementation', switchedSource, call + 1)).toEqual([]);
+      const switchedReferences = await query(951, 'textDocument/references', switchedSource, call + 1,
+        { context: { includeDeclaration: false } });
+      const switchedFirstCall = switchedSource.indexOf('$printer->render(2)') + '$printer->'.length;
+      const switchedSecondCall = switchedSource.lastIndexOf('$printer->render(3)') + '$printer->'.length;
+      expect(switchedReferences).toEqual([{
+        uri, range: { start: lspPosition(switchedSource, switchedFirstCall), end: lspPosition(switchedSource, switchedFirstCall + 'render'.length) },
+      }, {
+        uri, range: {
+          start: lspPosition(switchedSource, switchedSource.indexOf('$other->render()') + '$other->'.length),
+          end: lspPosition(switchedSource, switchedSource.indexOf('$other->render()') + '$other->render'.length),
+        },
+      }, {
+        uri, range: { start: lspPosition(switchedSource, switchedSecondCall), end: lspPosition(switchedSource, switchedSecondCall + 'render'.length) },
+      }]);
+      const switchedHover = await query(952, 'textDocument/hover', switchedSource, call + 1);
+      expect(JSON.stringify(switchedHover)).toContain('render(): void');
+      const switchedSignature = await query(953, 'textDocument/signatureHelp', switchedSource,
+        switchedSource.indexOf('$printer->render(2)') + '$printer->render('.length);
+      expect(switchedSignature.signatures[0].label).toContain('render(): void');
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
