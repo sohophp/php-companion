@@ -3430,6 +3430,14 @@ export class SemanticWorkspace {
     });
   }
 
+  memberCallOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    const file = this.files.get(uri);
+    const call = file?.calls.filter((candidate) => (candidate.kind === 'method' || candidate.kind === 'static-method')
+      && candidate.argumentsStart < offset && offset <= candidate.argumentsEnd)
+      .sort((left, right) => right.argumentsStart - left.argumentsStart)[0];
+    return call ? this.memberOwnerTypeNamesAt(uri, call.nameStart + 1) : [];
+  }
+
   private memberAtWithImplementation(uri: string, offset: number): MemberInfo | undefined {
     const members = this.membersAt(uri, offset);
     return members.length && new Set(members.map((member) => this.memberSignature(member))).size === 1 ? members[0] : undefined;

@@ -1,5 +1,8 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-04：独立 Composer 双 PSR-4 项目的跨 namespace 继承与 import alias 首次查询发现按需成员能力只加载直接接收者；现在沿已解析父类/接口/Trait 声明依赖有界加载。每项请求独立启动真实 stdio，验证 Hover、Signature Help、Definition、Completion、References 指向父类方法且排除无关同名方法。首轮全套发现链式返回值导航回归，已修正并与新用例定向复测；语义包 314 项、语言服务器全套 297 项通过且 1 项跳过，相关 ESLint 与 TypeScript 构建通过。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
+
+
 2026-09-24 C1/F04-NAV-03：真实 stdio 在未保存文档从 `Other` 改回 `Contract` 后，不等待诊断发布，直接请求 Definition 与 Implementation；两项均按新版本命中接口及 `Printer` 实现。定向测试通过，说明该编辑序列没有可见的旧身份回写；其它请求与真实 VS Code 快速编辑仍待扩展验证。见[跨文件工作流报告](reports/f04-composer-navigation-2026-09-24.md)。
 
 

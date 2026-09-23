@@ -15,3 +15,7 @@ F04-NAV-02 在同一真实 stdio 会话中把未保存 Consumer 的接收者从 
 - Language Server 构建、类型检查和相关 ESLint 通过。
 - Language Server 定向 F04 stdio 中 F04-NAV-01（含 F04-NAV-02/03 第三、四版文档）1 项通过；完整 F04 stdio 与 Semantic 夹具本轮尚未重跑。
 - 未打包 VSIX；尚无真实 VS Code 操作、跨平台或大型项目的 Implementation 延迟数据。F04 最终验收保持开放。
+
+## 跨 namespace 继承的首次查询
+
+F04-NAV-04 使用独立 Composer 项目的 `App\` 与 `Acme\` 两个 PSR-4 映射：Consumer 通过 `Report as Alias` 接收子类，子类通过 `Base as ImportedBase` 继承另一个 namespace 的公开 `format()`；同项目的 `Other::format()` 是无关同名反例。首次查询原本能跳到 `Report` 类型，却无法在按需模式中补全或 Hover 其父类方法。原因是按需加载只加载直接接收者，接收者文件已存在时不再推进父类。现在沿语义层已解析的声明依赖最多加载四层，并在每次异步加载后检查取消和文档版本。首次全套回归指出链式返回值场景 `$request->getSession()->get()` 也需要在每层加载后重新解析当前接收者；修正后该既有回归与 F04-NAV-04 定向测试同时通过。测试为 Hover、Signature Help、Definition、Completion、References 各自启动新语言服务器，避免前一个查询预热掩盖问题；每项都返回父类方法或唯一真实调用位置。语义包 314 项、语言服务器全套 297 项通过且 1 项跳过，相关 ESLint 与 TypeScript 构建通过。冷启动 Implementation 当前用例只证明不捏造实现，尚未形成正例。

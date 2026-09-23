@@ -11,6 +11,7 @@
 | F04-NAV-01 | [跨文件 Composer 工作流](../../packages/language-server/test/stdio.test.ts) | 同一接口调用的补全、Hover、参数提示、定义、实现、引用精确；无关同名方法不混入；未保存新增调用立即进入引用，定义仍指向接口 | `stdio.test.ts` 的 F04-NAV-01 |
 | F04-NAV-02 | [未保存接收者类型切换](../../packages/language-server/test/stdio.test.ts) | 在 F04-NAV-01 同一 Composer 项目中把接口参数改为另一个有同名方法的类型；等待第三版诊断发布后，Definition、Implementation、References、Hover 与 Signature Help 按新身份返回，无旧接口残留 | `stdio.test.ts` 的 F04-NAV-01 第三版文档 |
 | F04-NAV-03 | [编辑后立即导航](../../packages/language-server/test/stdio.test.ts) | 将第三版未保存文档切回接口类型后，不等待诊断发布，立即请求 Definition 与 Implementation；两项都按第四版文档返回接口及其实现 | `stdio.test.ts` 的 F04-NAV-01 第四版文档 |
+| F04-NAV-04 | [跨 namespace 的父类成员](../../packages/language-server/test/stdio.test.ts) | 独立 Composer 双 PSR-4 映射、双层 import alias 与继承：冷启动 Hover、Signature Help、Definition、Completion、References 分别可解析父类 `format()`；无关同名方法不混入 | `stdio.test.ts` 的 F04-NAV-04 |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |

@@ -2867,6 +2867,18 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
   return loaded;
 }
 
+async function hydrateMemberOwnerChain(workspace: SemanticWorkspace, root: string, ownerNames: () => readonly string[],
+  ready: () => boolean, cancelled: () => boolean): Promise<void> {
+  let frontier = [...ownerNames()]; const visited = new Set<string>();
+  for (let depth = 0; depth < 4 && frontier.length && !ready() && !cancelled(); depth += 1) {
+    const candidates = frontier.filter((fqcn) => !visited.has(fqcn.toLowerCase()));
+    if (!candidates.length) break;
+    candidates.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
+    await hydrateCanonicalTypes(workspace, root, candidates);
+    frontier = [...ownerNames(), ...candidates.flatMap((fqcn) => workspace.directDeclarationDependencies(fqcn))];
+  }
+}
+
 async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: string, methods: readonly AssignedReceiverMethod[],
   names: ReadonlySet<string>, cancelled: () => boolean): Promise<void> {
   if (!methods.length) return;
@@ -4378,15 +4390,19 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   let resolvedMembers = workspace.completeMembers(document.uri, offset);
   if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
     const root = rootForUri(document.uri); const version = document.version;
+    let frontier = workspace.memberOwnerTypeNamesAt(document.uri, offset);
+    if (!frontier.length) frontier = workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn);
+    const visited = new Set<string>();
     for (let depth = 0; root && depth < 4 && !resolvedMembers.length && !token.isCancellationRequested; depth += 1) {
-      const owners = workspace.memberOwnerTypeNamesAt(document.uri, offset);
-      const candidates = owners.length ? owners
-        : depth === 0 ? workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn) : [];
+      const candidates = frontier.filter((fqcn) => !visited.has(fqcn.toLowerCase()));
       if (!candidates.length) break;
-      const loaded = await hydrateCanonicalTypes(workspace, root, candidates);
-      if (!loaded || token.isCancellationRequested || documents.get(document.uri)?.version !== version) break;
+      candidates.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
+      await hydrateCanonicalTypes(workspace, root, candidates);
+      if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) break;
       await ensureDoctrineQueryFacts(root, workspace);
       resolvedMembers = workspace.completeMembers(document.uri, offset);
+      frontier = [...workspace.memberOwnerTypeNamesAt(document.uri, offset),
+        ...candidates.flatMap((fqcn) => workspace.directDeclarationDependencies(fqcn))];
     }
     if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
   }
@@ -4448,7 +4464,15 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (service) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony service** \`${service.id}\`\n\n\`class ${service.className}\`` } };
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
-  const member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
+  let member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
+  if (!member && serviceRoot && document.languageId === 'php') {
+    const version = document.version;
+    await hydrateMemberOwnerChain(workspace, serviceRoot, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
+      () => Boolean(workspace.memberAt(document.uri, offset)),
+      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
+    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return null;
+    member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
+  }
   const constant = member ? undefined : workspace.constantAt(document.uri, offset);
   const type = member ? undefined : workspace.typeAt(document.uri, offset);
   if (!member && !constant && !type) return null;
@@ -4518,14 +4542,13 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (token.isCancellationRequested) return [];
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
-    for (let depth = 0; depth < 4 && !locations.length && !token.isCancellationRequested; depth += 1) {
-      const loaded = await hydrateCanonicalTypes(workspace, root, [
-        workspace.resolvedTypeNameAt(document.uri, offset),
-        ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
-      ].filter((fqcn): fqcn is string => Boolean(fqcn)));
-      if (!loaded || token.isCancellationRequested) break;
-      locations = workspace.definition(document.uri, offset);
-    }
+    const version = document.version;
+    await hydrateMemberOwnerChain(workspace, root, () => [workspace.resolvedTypeNameAt(document.uri, offset),
+      ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn)),
+    () => workspace.definition(document.uri, offset).length > 0,
+    () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
+    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+    locations = workspace.definition(document.uri, offset);
   }
   return locations.flatMap((location) => {
     const openTarget = documents.get(location.uri);
@@ -4553,8 +4576,16 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   const workspace = await semanticForUri(document.uri);
   if (token.isCancellationRequested) return [];
   const offset = document.offsetAt(position);
-  const member = workspace.referenceMemberAt(document.uri, offset);
+  let member = workspace.referenceMemberAt(document.uri, offset);
   const root = rootForUri(document.uri);
+  if (!member && root && document.languageId === 'php') {
+    const version = document.version;
+    await hydrateMemberOwnerChain(workspace, root, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
+      () => Boolean(workspace.referenceMemberAt(document.uri, offset)),
+      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
+    if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];
+    member = workspace.referenceMemberAt(document.uri, offset);
+  }
   if (root && member?.kind === 'method') {
     const version = document.version;
     const ready = await scanNamedCandidates(workspace, root, new Set([member.name.toLowerCase()]),
@@ -4922,7 +4953,15 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
 connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return null;
-  const signatures = (await semanticForUri(document.uri)).signatures(document.uri, document.offsetAt(position));
+  const workspace = await semanticForUri(document.uri); const offset = document.offsetAt(position);
+  const root = rootForUri(document.uri); const version = document.version;
+  if (root && document.languageId === 'php' && !workspace.signatures(document.uri, offset).length) {
+    await hydrateMemberOwnerChain(workspace, root, () => workspace.memberCallOwnerTypeNamesAt(document.uri, offset),
+      () => workspace.signatures(document.uri, offset).length > 0,
+      () => token.isCancellationRequested || documents.get(document.uri)?.version !== version);
+  }
+  if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return null;
+  const signatures = workspace.signatures(document.uri, offset);
   if (!signatures.length || token.isCancellationRequested) return null;
   const activeSignature = signatures.findIndex((signature) => signature.activeParameter < signature.parameters.length);
   const selected = signatures[Math.max(0, activeSignature)]!;

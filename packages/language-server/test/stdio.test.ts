@@ -314,6 +314,84 @@ describe('language server stdio', () => {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('F04-NAV-04 follows an aliased imported parent method without mixing a namesake', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-inheritance-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'lib'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Acme\\': 'lib/' } } }));
+      const baseSource = '<?php namespace Acme; class Base { public function format(string $value): string { return $value; } }';
+      const reportSource = '<?php namespace App; use Acme\\Base as ImportedBase; final class Report extends ImportedBase {}';
+      const otherSource = '<?php namespace App; final class Other { public function format(): void {} }';
+      const consumerSource = `<?php namespace App;
+use App\\Report as Alias;
+function run(Alias $report, Other $other): string {
+  $report->form;
+  $other->format();
+  return $report->format('ok');
+}`;
+      await writeFile(join(root, 'lib', 'Base.php'), baseSource);
+      for (const [name, source] of [['Report', reportSource], ['Other', otherSource], ['Consumer', consumerSource]]) {
+        await writeFile(join(root, 'src', `${name}.php`), source);
+      }
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const baseUri = pathToFileURL(join(root, 'lib', 'Base.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      let output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 960, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 960);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: consumerSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const query = async (id: number, method: string, offset: number, options: object = {}): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: {
+          textDocument: { uri }, position: lspPosition(consumerSource, offset), ...options,
+        } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result;
+      };
+      const restart = async (id: number): Promise<void> => {
+        await new Promise<void>((done) => { server!.once('exit', () => done()); server!.kill(); });
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        output = messagesFrom(server);
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand' },
+        } }));
+        await output.waitFor((message) => message.id === id);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: consumerSource },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      };
+      const call = consumerSource.indexOf("$report->format('ok')") + '$report->'.length;
+      const declaration = baseSource.indexOf('function format') + 'function '.length;
+      expect(JSON.stringify(await query(9602, 'textDocument/hover', call + 1))).toContain('format(string $value): string');
+      await restart(9603);
+      expect((await query(963, 'textDocument/signatureHelp', consumerSource.indexOf("$report->format('ok')") + '$report->format('.length))
+        .signatures[0].label).toContain('format(string $value): string');
+      await restart(9604);
+      expect(await query(964, 'textDocument/definition', call + 1)).toEqual([{
+        uri: baseUri, range: {
+          start: lspPosition(baseSource, declaration), end: lspPosition(baseSource, declaration + 'format'.length),
+        },
+      }]);
+      await restart(9605);
+      expect(await query(966, 'textDocument/implementation', call + 1)).toEqual([]);
+      await restart(9606);
+      const completion = await query(961, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length);
+      expect(completion.map((item: { label: string }) => item.label)).toContain('format');
+      await restart(9607);
+      expect(await query(965, 'textDocument/references', call + 1, { context: { includeDeclaration: false } })).toEqual([{
+        uri, range: { start: lspPosition(consumerSource, call), end: lspPosition(consumerSource, call + 'format'.length) },
+      }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {
