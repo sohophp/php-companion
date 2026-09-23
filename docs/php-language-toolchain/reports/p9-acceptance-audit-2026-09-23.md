@@ -1,6 +1,6 @@
 # P9 / F01–F14 最终验收审计
 
-日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围、private 参数删除安全域及 Extract Interface 子集。当前私有候选绑定 `80d9bae5`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
+日期：2026-09-23。初次审计源码提交 `208e335`，后续补充公开 API Rename 范围、private 参数删除安全域及 Extract Interface 子集。当前私有候选绑定 `ca694be6`，产物及预检见[当前候选报告](p9-alpha-candidate-current-2026-09-23.md)。此表按 [acceptance.md](../acceptance.md) 的**最终**范围判断；某个专项自动测试通过，不自动把整个 F 项标为完成。
 
 | ID | 当前证据 | 最终验收尚缺 |
 | --- | --- | --- |
