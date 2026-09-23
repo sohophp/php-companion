@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, utimes, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -54,6 +54,20 @@ describe('standalone Symfony service provider', () => {
     expect(facts.inputEvidenceComplete).toBe(true);
     const bounded = await collectSymfonyServiceFacts(root, parser, { projectTypes: [], maxImports: 1 });
     expect(bounded.inputEvidenceComplete).toBe(false);
+    expect(bounded.complete).toBe(false);
+  });
+
+  it('F09-SVC-03 rejects an authoritative snapshot when service YAML is incomplete', async () => {
+    const root = await project(); const config = join(root, 'config', 'services.yaml');
+    const source = await readFile(new URL('../../../framework-symfony/test/fixtures/acceptance/f09-service-incomplete.yaml', import.meta.url), 'utf8');
+    await writeFile(config, source);
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [] });
+    expect(facts.complete).toBe(false);
+    expect(facts.services).toEqual([]);
+    const valid = await collectSymfonyServiceFacts(root, parser, { projectTypes: [], documents: [{
+      uri: pathToFileURL(config).toString(), languageId: 'yaml', snapshotVersion: '2', source: 'services: {}\n',
+    }] });
+    expect(valid.complete).toBe(true);
   });
 
   it('uses only fresh compiled container arguments and rejects them when an open source snapshot exists', async () => {

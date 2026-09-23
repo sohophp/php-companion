@@ -34,6 +34,7 @@ export interface SymfonyServiceProviderOptions {
   environment?: string;
 }
 export interface SymfonyServiceProviderFacts {
+  complete: boolean;
   services: SymfonyServiceFact[];
   methodArguments: SymfonyCompiledMethodArgumentFact[];
   propertyArguments: SymfonyCompiledPropertyArgumentFact[];
@@ -168,7 +169,7 @@ async function freshCompiledContainer(root: string, projectTypes: readonly Seman
 export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSyntaxParser,
   options: SymfonyServiceProviderOptions): Promise<SymfonyServiceProviderFacts> {
   const root = resolve(rootPath); const actualRoot = await realpath(root); const sources = snapshotSources(root, options.documents ?? []);
-  const inputPaths = new Set<string>(); let inputEvidenceComplete = true;
+  const inputPaths = new Set<string>(); let inputEvidenceComplete = true; let complete = true;
   const sourceFor = async (path: string): Promise<string> => {
     inputPaths.add(resolve(path)); return sources.get(resolve(path)) ?? readFile(path, 'utf8');
   };
@@ -189,16 +190,17 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   const load = async (input: string, depth = 0, containmentRoot = actualRoot): Promise<void> => {
     const path = resolve(input);
     if (loaded.has(path) || loading.has(path)) return;
-    if (depth > 32 || remaining-- <= 0) { inputEvidenceComplete = false; return; }
+    if (depth > 32 || remaining-- <= 0) { inputEvidenceComplete = false; complete = false; return; }
     inputPaths.add(path);
     loading.add(path);
     try {
       const actual = await realpath(path); if (!within(containmentRoot, actual)) return;
       configuredPaths.add(path);
-      const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) return;
+      const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
       const extension = path.split('.').at(-1)?.toLowerCase();
       const facts = extension === 'xml' ? analyzeSymfonyServiceXml(uri, source, options.environment)
         : extension === 'php' ? analyzeSymfonyServicePhp(parser, uri, source, options.environment) : analyzeSymfonyServiceYaml(uri, source, options.environment);
+      if (!facts.complete) { complete = false; return; }
       const parameterDeclarations = extension === 'php' ? symfonyPhpParameterDeclarations(parser, source, options.environment)
         : extension === 'xml' ? symfonyXmlParameterDeclarations(source, options.environment)
         : extension === 'yaml' || extension === 'yml' ? symfonyYamlParameterDeclarations(source, options.environment) : [];
@@ -214,7 +216,7 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   };
   for (const filename of [...XML_CONFIGS, ...YAML_CONFIGS, ...PHP_CONFIGS]) await load(resolve(root, filename));
   const services = [...new Map(catalog.map((service) => [`${service.registrationUri}\0${service.id}`, service])).values()];
-  return { services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
+  return { complete, services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
     methodArguments, propertyArguments, literalMethodReturns: symfonyContainerMethodReturnFacts(services),
     inputUris: [...inputPaths].sort().map((path) => pathToFileURL(path).toString()),
     inputEvidenceComplete,

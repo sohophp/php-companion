@@ -107,6 +107,96 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
+    try {
+      await mkdir(join(root, 'config')); await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Mailer.php'), '<?php namespace App; final class Mailer {}');
+      const consumerSource = `<?php namespace App;
+use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+final class Consumer { public function __construct(#[Autowire(service: 'app.mailer')] object $mailer) {} }`;
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      await writeFile(join(root, 'src', 'Consumer.php'), consumerSource);
+      const source = await readFile(resolve('../framework-symfony/test/fixtures/acceptance/f09-service-valid.yaml'), 'utf8');
+      const configPath = join(root, 'config', 'services.yaml'); const uri = pathToFileURL(configPath).toString();
+      await writeFile(configPath, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 901, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'progressive', bundledSemanticProviders: [symfonyServiceProviderDescriptor],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 901);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('committed authoritative container generation'), 15_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 902, method: 'phpCompanion/symfonyControllerDefinition', params: {
+        textDocument: { uri, version: 1 }, source, position: lspPosition(source, source.indexOf('@app.mailer') + 4),
+      } }));
+      const declaration = source.indexOf('app.mailer:');
+      expect((await output.waitFor((message) => message.id === 902)).result).toEqual([{ uri, range: {
+        start: lspPosition(source, declaration), end: lspPosition(source, declaration + 'app.mailer'.length),
+      } }]);
+      const incomplete = await readFile(resolve('../framework-symfony/test/fixtures/acceptance/f09-service-incomplete.yaml'), 'utf8');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri, languageId: 'yaml', snapshotVersion: '2', source: incomplete }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Symfony container facts are unavailable'), 15_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9021, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: consumerUri, version: 1 }, source: consumerSource,
+        position: lspPosition(consumerSource, consumerSource.indexOf('app.mailer') + 4),
+      } }));
+      expect((await output.waitFor((message) => message.id === 9021)).result).toEqual([]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-route-'));
+    try {
+      await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
+      const routeSource = await readFile(resolve('../framework-symfony/test/fixtures/acceptance/f09-route-valid.yaml'), 'utf8');
+      const routePath = join(root, 'config', 'routes.yaml'); const routeUri = pathToFileURL(routePath).toString();
+      await writeFile(routePath, routeSource);
+      const source = `<?php
+namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } }
+namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(RouterInterface $router): void { $router->generate('account.'); } }`;
+      const path = join(root, 'Consumer.php'); const uri = pathToFileURL(path).toString();
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 903, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'onDemand', bundledRouteProviders: [symfonyStaticRouteProviderDescriptor],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 903);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 904, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf("'account.'") + "'account.".length),
+      } }));
+      const result = (await output.waitFor((message) => message.id === 904, 15_000)).result as Array<{ label: string }>;
+      expect(result.map((item) => item.label)).toContain('account.show');
+      const incomplete = await readFile(resolve('../framework-symfony/test/fixtures/acceptance/f09-route-incomplete.yaml'), 'utf8');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: routeUri, languageId: 'yaml', snapshotVersion: '2', source: incomplete }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 905, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf("'account.'") + "'account.".length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 905, 15_000)).result).toEqual([]);
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('returned an incomplete snapshot'));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('reports invalid bundled Symfony Providers in the client language', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

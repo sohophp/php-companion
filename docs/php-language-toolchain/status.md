@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F09 [Symfony Provider 完整性与语言服务器链路](reports/f09-provider-completeness-2026-09-23.md)：服务 Provider 不再把破损 YAML 或导入预算耗尽的结果提交为完整快照；真实 stdio 验证服务 Definition、路由补全及不完整快照时的安全关闭。Winstar 只读 Provider 探针保持完整；本轮未打包，F09 仍待最终矩阵。
+
 2026-09-23 P0/F09 [Symfony 路由 YAML 编号夹具](acceptance-fixtures.md)新增 F09-ROUTE-01/02/03，覆盖精确路由/Controller 范围、合法 Attribute 目录导入和动态路径抑制；与服务组共 6 项定向测试通过。真实 Provider、Language Server 与扩展宿主链路尚待编号验收。
 
 2026-09-23 P0/F09 [Symfony 服务 YAML 编号夹具](acceptance-fixtures.md)新增 F09-SVC-01/02/03，覆盖有效引用、合法的转义/表达式反例及破损配置。框架包 3 项定向测试、类型检查和 ESLint 通过；Provider 与真实扩展工作流尚待编号验收。
