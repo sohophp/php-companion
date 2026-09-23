@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-09-23T06:29:13.733Z",
+  "candidate": {
+    "directory": "/var/www/node/php-companion/artifacts/php-companion-alpha-0.4.5-7aadd860",
+    "commit": "7aadd86024e113e7b7d9ffb2d03a98797a0fd653",
+    "artifacts": [
+      {
+        "file": "php-companion-0.4.5.vsix",
+        "bytes": 2449495,
+        "sha256": "619156aa90296fcfef55ec7116faf57d23088bcbb69bef7065c6c72acdf7d529",
+        "valid": true
+      },
+      {
+        "file": "php-companion-symfony-0.4.5.vsix",
+        "bytes": 628844,
+        "sha256": "f945704d49442c3cfa56630f88a519991fc93e988ed76ac387acff50868d61a1",
+        "valid": true
+      },
+      {
+        "file": "php-companion-open-source-pack-0.4.5.vsix",
+        "bytes": 67605,
+        "sha256": "4ed4dc8918e95a7a5d089319e9bdd6e9de87180ec368d49066600a2a469c5ac0",
+        "valid": true
+      },
+      {
+        "file": "php-companion-recommended-pack-0.4.5.vsix",
+        "bytes": 76643,
+        "sha256": "ad5b425585cd7e5771d12a7b8db91155d4317c1325a00301997a2d462fabe559",
+        "valid": true
+      }
+    ]
+  },
+  "workspace": {
+    "root": "/var/www/php/7.2/CoreRepo",
+    "composer": "/var/www/php/7.2/CoreRepo/composer.json"
+  },
+  "php": {
+    "command": "/var/www/php/7.2/CoreRepo/phpbin",
+    "expected": "7.2",
+    "status": 0,
+    "stdout": "7.2",
+    "stderr": ""
+  },
+  "environment": {
+    "wsl": true,
+    "kernelRelease": "5.15.167.4-microsoft-standard-WSL2",
+    "vscodeTerminal": false
+  },
+  "gates": {
+    "deterministicPassed": true,
+    "errors": [],
+    "manualPending": [
+      "Confirm SoPHP and workspace extensions run in the WSL Extension Host.",
+      "Confirm every installed competing PHP provider is disabled for this Profile.",
+      "Complete and record the two-hour Winstar and CoreRepo editing sessions."
+    ]
+  }
+}
