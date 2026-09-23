@@ -41,8 +41,10 @@ function resolvePhpScriptCommand(command: string): string {
 
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
-  const vsix = join(repository, 'php-companion-0.4.5.vsix');
-  const symfonyVsix = join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.5.vsix');
+  const vsix = process.env.PHP_COMPANION_TEST_CORE_VSIX ? resolve(process.env.PHP_COMPANION_TEST_CORE_VSIX)
+    : join(repository, 'php-companion-0.4.5.vsix');
+  const symfonyVsix = process.env.PHP_COMPANION_TEST_SYMFONY_VSIX ? resolve(process.env.PHP_COMPANION_TEST_SYMFONY_VSIX)
+    : join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.5.vsix');
   const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
   await stat(vsix);
   await stat(symfonyVsix);

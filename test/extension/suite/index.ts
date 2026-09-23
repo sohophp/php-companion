@@ -23,6 +23,14 @@ async function waitForAsync(predicate: () => Promise<boolean>, message: string |
 
 function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
 
+async function assertManifestCommandsRegistered(extension: vscode.Extension<unknown>): Promise<void> {
+  const declared = extension.packageJSON.contributes?.commands as Array<{ command: string }> | undefined;
+  assert.ok(declared?.length, `${extension.id} has no contributed commands`);
+  const registered = new Set(await vscode.commands.getCommands(true));
+  assert.deepStrictEqual(declared.filter(({ command }) => !registered.has(command)).map(({ command }) => command), [],
+    `${extension.id} contributes commands without registered handlers`);
+}
+
 /** Restore fixtures through the editor so dirty buffers and filesystem versions stay coherent. */
 async function restoreTextFixture(uri: vscode.Uri, original: Uint8Array): Promise<void> {
   const document = await vscode.workspace.openTextDocument(uri);
@@ -257,6 +265,7 @@ export async function run(): Promise<void> {
   assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
   assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
   assert.strictEqual(typeof api.requestLanguageServer, 'function', 'PHP Companion did not expose its bounded language-server request bridge');
+  await assertManifestCommandsRegistered(extension);
   if (process.env.PHP_COMPANION_TEST_CORE_ONLY === '1') {
     assert.strictEqual(vscode.extensions.getExtension('sohophp.php-companion-symfony'), undefined,
       'Core-only profile unexpectedly loaded PHP Companion Symfony');
@@ -294,6 +303,7 @@ export async function run(): Promise<void> {
     assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
     const symfonyApi = await symfonyExtension.activate();
     assert.strictEqual(symfonyApi.version, 1, 'PHP Companion Symfony did not expose API version 1');
+    await assertManifestCommandsRegistered(symfonyExtension);
     assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, languageFeaturesRegistered: true, serviceProviderRegistered: true, eventProviderRegistered: true,
       controllerContextProviderRegistered: true, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: false });
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -303,15 +313,6 @@ export async function run(): Promise<void> {
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', false, vscode.ConfigurationTarget.Workspace);
     await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not withdraw its route provider');
   }
-  const commands = await vscode.commands.getCommands(true);
-  assert.ok(commands.includes('phpCompanion.selectPhpVersion'));
-  assert.ok(commands.includes('phpCompanion.new.class'));
-  assert.ok(commands.includes('phpCompanion.copy.fqcn'));
-  assert.ok(commands.includes('phpCompanion.showPerformanceLog'));
-  assert.ok(commands.includes('phpCompanion.safeMove'));
-  assert.ok(commands.includes('phpCompanion.importClass'));
-  assert.ok(commands.includes('phpCompanion.optimizeImports'));
-
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
   if (process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1') {
@@ -319,6 +320,7 @@ export async function run(): Promise<void> {
     const inspected = vscode.workspace.getConfiguration('phpCompanion', workspace.uri).inspect<boolean>('languageServer.enabled');
     assert.strictEqual(inspected?.workspaceValue, undefined, 'Intelephense compatibility fixture must not explicitly enable the self-hosted language server');
     assert.strictEqual(inspected?.workspaceFolderValue, undefined, 'Intelephense compatibility fixture must not enable the self-hosted language server for a folder');
+    const commands = await vscode.commands.getCommands(true);
     assert.ok(!commands.includes('phpCompanion._testCrashLanguageServer'), 'PHP Companion started its language server without an explicit choice beside Intelephense');
     assert.ok(!commands.includes('phpCompanion.provideTwigInterop'), 'PHP Companion exposed language-server interop while defaulting to Intelephense');
     return;
