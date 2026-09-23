@@ -201,3 +201,79 @@ export async function measureUnsavedReceiverSuggestion(port: number, folder: vsc
     socket.close();
   }
 }
+
+export async function measureRapidReceiverSuggestion(port: number, folder: vscode.Uri): Promise<{
+  samplesMs: number[]; staleRounds: number[]; finalLabels: string[];
+}> {
+  const source = '<?php namespace App\\C1; function rapidSwitch(RapidChoiceA $value): void { $value->; }';
+  const uri = vscode.Uri.joinPath(folder, 'UiRapidSwitch.php');
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'RapidChoiceA.php'), Buffer.from(
+    '<?php namespace App\\C1; class RapidChoiceA { public function renderAlpha(): void {} }'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'RapidChoiceB.php'), Buffer.from(
+    '<?php namespace App\\C1; class RapidChoiceB { public function renderBeta(): void {} }'));
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const offset = source.indexOf('$value->;') + '$value->'.length;
+  editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+  const socket = await connect(await cdpPage(port));
+  let id = 1;
+  try {
+    const samplesMs: number[] = [];
+    const staleRounds: number[] = [];
+    let finalLabels: string[] = [];
+    for (let round = 0; round < 10; round += 1) {
+      if (round > 0) {
+        const current = document.getText();
+        const prefixOffset = current.indexOf('$value->ren;') + '$value->'.length;
+        assert.ok(prefixOffset >= '$value->'.length, 'The previous rapid prefix was not in the editor buffer.');
+        const clear = new vscode.WorkspaceEdit();
+        clear.delete(uri, new vscode.Range(document.positionAt(prefixOffset), document.positionAt(prefixOffset + 3)));
+        assert.ok(await vscode.workspace.applyEdit(clear), 'Could not clear the rapid PHP prefix.');
+        editor.selection = new vscode.Selection(document.positionAt(prefixOffset), document.positionAt(prefixOffset));
+      }
+      await vscode.commands.executeCommand('type', { text: 'r' });
+      const previous = round % 2 === 0 ? 'RapidChoiceA' : 'RapidChoiceB';
+      const next = round % 2 === 0 ? 'RapidChoiceB' : 'RapidChoiceA';
+      const expected = round % 2 === 0 ? 'renderBeta' : 'renderAlpha';
+      const forbidden = round % 2 === 0 ? 'renderAlpha' : 'renderBeta';
+      const current = document.getText();
+      const typeOffset = current.indexOf(`${previous} $value`);
+      assert.ok(typeOffset >= 0, `Rapid round ${round} lost the previous receiver type.`);
+      const edit = new vscode.WorkspaceEdit();
+      edit.replace(uri, new vscode.Range(document.positionAt(typeOffset), document.positionAt(typeOffset + previous.length)), next);
+      assert.ok(await vscode.workspace.applyEdit(edit), `Could not switch the rapid PHP receiver in round ${round}.`);
+      await vscode.commands.executeCommand('type', { text: 'e' });
+      const started = await evaluate(socket, 'performance.now()', id++) as number;
+      await vscode.commands.executeCommand('type', { text: 'n' });
+      assert.ok(document.isDirty && document.getText().includes(`${next} $value`) && document.getText().includes('$value->ren;'),
+        `Rapid round ${round} did not keep the latest PHP receiver and prefix in the unsaved buffer.`);
+      const deadline = Date.now() + 10_000;
+      let staleObserved = false;
+      let final: VisibleSuggestion | undefined;
+      while (Date.now() < deadline) {
+        const visible = await evaluate(socket, `(() => {
+          const widget = document.querySelector('.suggest-widget.visible');
+          if (!widget || !widget.getBoundingClientRect().width) return null;
+          const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
+          return labels.length ? { elapsedMs: performance.now() - ${started}, labels } : null;
+        })()`, id++) as VisibleSuggestion | null;
+        if (visible) {
+          staleObserved ||= visible.labels.some((label) => label.includes(forbidden));
+          if (visible.labels.some((label) => label.includes(expected)) && !visible.labels.some((label) => label.includes(forbidden))) {
+            final = visible;
+            break;
+          }
+        }
+        await new Promise<void>((resolve) => setTimeout(resolve, 20));
+      }
+      assert.ok(final, `Rapid round ${round} did not show ${expected} within 10 seconds.`);
+      samplesMs.push(Math.round(final.elapsedMs));
+      if (staleObserved) staleRounds.push(round);
+      finalLabels = final.labels;
+    }
+    return { samplesMs, staleRounds, finalLabels };
+  } finally {
+    socket.close();
+  }
+}

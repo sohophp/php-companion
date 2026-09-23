@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-HOST-10：隔离 VS Code Core 宿主在同一未保存缓冲区连续 10 轮键入 `r`、切换 A/B 接收者、续键 `e`/`n`；每轮最终可见建议均只含当前类型方法，观测 192–212 ms，20 ms DOM 轮询未见旧候选。真实依赖树、物理键盘与长时间会话仍开放。见[报告](reports/c1-rapid-unsaved-completion-2026-09-24.md)。
+
 2026-09-24 C1 跨根内建声明：Definition 的虚拟文档 URI 现包含 PHP 目标版本和禁用扩展集合；隔离 Core 宿主 auto 双根的 PHP 7.2/8.5 `sort` 定义分别显示 `bool`/`true` 签名。切换版本后的普通词语建议与函数补全在断言中分开识别。Open Source Pack 仍为 10 项，manifest 4/4；language-spec 53/53，language-server 308 项通过、1 项跳过。完整组合与其它 Remote 环境待冻结候选时验收。见[报告](reports/c1-versioned-builtin-navigation-2026-09-24.md)。
 
 2026-09-24 C1/F04-HOST-09：无 Composer PHP 约束时，`auto` 原先因默认探测顺序把版本化 `php85` 排在 PATH 的 `php` 前；本机默认 CLI 为 7.2.34，却可能误选 8.5。现先试 `php`，再试版本化命令。失败先行单元回归、修复后版本选择 10/10 与 Runtime Probe 4/4 通过；隔离 Core 宿主 PATH auto 7.2.34 与显式路径 8.1.34 两次均按目标版本返回诊断和内建补全，退出码 0。见[报告](reports/c1-path-php-version-2026-09-24.md)。

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
-import { measureUnsavedReceiverSuggestion, measureVisibleSuggestion } from './c1Ui.js';
+import { measureRapidReceiverSuggestion, measureUnsavedReceiverSuggestion, measureVisibleSuggestion } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -527,6 +527,8 @@ function consume(): void { (void) choose(1); }`;
       console.log(`C1 visible vendor suggestion after typing: ${JSON.stringify(vendorSuggestion)}`);
       const switchedSuggestion = await measureUnsavedReceiverSuggestion(Number(c1DebugPort), folder);
       console.log(`C1 visible unsaved receiver switch: ${JSON.stringify(switchedSuggestion)}`);
+      const rapidSuggestion = await measureRapidReceiverSuggestion(Number(c1DebugPort), folder);
+      console.log(`C1 rapid unsaved receiver switch: ${JSON.stringify(rapidSuggestion)}`);
     }
   }
   console.log(`C1 Extension Host: PHP ${targetPhpVersion ?? 'auto'}, completion=${completionMs}ms; six editing queries before and after the unsaved receiver change, plus Composer vendor and multi-root chains, passed.`);
