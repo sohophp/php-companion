@@ -233,7 +233,7 @@ function composerProjectForRoot(root: string): Promise<ComposerProject | undefin
   let project = composerProjectsByRoot.get(root);
   if (!project) {
     project = loadComposerProject(root)
-      .then((loaded) => { connection.console.info(`Loaded Composer project snapshot for ${root}.`); return loaded; })
+      .then((loaded) => { connection.console.info(outputMessage(clientDiagnosticLanguage, 'composerSnapshotLoaded', root)); return loaded; })
       .catch((error) => { composerProjectsByRoot.delete(root); throw error; });
     composerProjectsByRoot.set(root, project);
   }
@@ -596,7 +596,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
   if (!stillCurrent()) return false;
   if (result.ok && applyExternalContainerFacts(root, workspace, result.contribution)) {
     completeContainerFactsByRoot.set(root, { revision: inputRevision, generation });
-    connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative container generation ${generation}.`); return true;
+    connection.console.info(outputMessage(clientDiagnosticLanguage, 'containerGenerationCommitted', descriptor.providerId, String(generation))); return true;
   }
   clearContainerFacts(root, workspace, descriptor.providerId);
   connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'containerSnapshotIncomplete', descriptor.providerId)
@@ -650,7 +650,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   if (result.ok && result.contribution.eventSubscriptions && result.contribution.eventDispatches) {
     externalSymfonyEventsByRoot.set(root, { providerId: descriptor.providerId, inputSignature,
       subscriptions: [...result.contribution.eventSubscriptions], dispatches: [...result.contribution.eventDispatches] });
-    connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative event generation ${generation}. prepareMs=${providerStarted - started} runMs=${Date.now() - providerStarted}`); return true;
+    connection.console.info(outputMessage(clientDiagnosticLanguage, 'eventGenerationCommitted', descriptor.providerId, String(generation), String(providerStarted - started), String(Date.now() - providerStarted))); return true;
   }
   externalSymfonyEventsByRoot.delete(root);
   connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'eventSnapshotIncomplete', descriptor.providerId)
@@ -729,7 +729,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
         }
         interopContextsByRoot.set(root, contexts);
       }
-      connection.console.info(`Semantic provider ${descriptor.providerId} committed authoritative controller contexts for generation ${generation}.`);
+      connection.console.info(outputMessage(clientDiagnosticLanguage, 'controllerGenerationCommitted', descriptor.providerId, String(generation)));
       return true;
     }
   }
@@ -785,7 +785,7 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
     if (!isCurrentGenericSemanticProviderRequest(root, descriptor.providerId, requestRevision)) continue;
     if (result.ok) {
       workspace.replaceExternalFacts(result.contribution);
-      connection.console.info(`Semantic provider ${descriptor.providerId} committed generation ${generation}.`);
+      connection.console.info(outputMessage(clientDiagnosticLanguage, 'semanticGenerationCommitted', descriptor.providerId, String(generation)));
     } else {
       connection.console.warn(outputMessage(clientDiagnosticLanguage, 'genericProviderFailed', descriptor.providerId, result.code, result.message));
     }
@@ -1054,7 +1054,7 @@ async function persistCallableFacts(root: string, workspace: SemanticWorkspace):
   const previous = callableFactCommitChains.get(root) ?? Promise.resolve();
   const current = previous.catch(() => undefined).then(async () => {
     const result = await cache.commit(workspace, excludedUris);
-    if (result.written) connection.console.info(`Persisted ${result.facts} callable factory facts in ${root}.`);
+    if (result.written) connection.console.info(outputMessage(clientDiagnosticLanguage, 'callableFactsPersisted', String(result.facts), root));
   });
   callableFactCommitChains.set(root, current);
   try { await current; }
@@ -1076,7 +1076,7 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
   await callableFactCommitChains.get(root)?.catch(() => undefined);
   const cache = await CallableFactCache.open(cacheDirectory, root); callableFactCachesByRoot.set(root, cache);
   const restored = cache.restore(workspace);
-  connection.console.info(`Restored ${restored} callable factory facts from persistent cache in ${root}.`);
+  connection.console.info(outputMessage(clientDiagnosticLanguage, 'callableFactsRestored', String(restored), root));
 }
 
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
@@ -1219,7 +1219,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
             if (continueIndexing()) {
               referenceSourceReadyRoots.set(root, projectEpochs.get(root) ?? 0);
               preparation?.finish(true);
-              connection.console.info(`Reference source facts ready in ${root}.`);
+              connection.console.info(outputMessage(clientDiagnosticLanguage, 'referenceFactsReady', root));
               for (const open of documents.all()) {
                 if (rootForUri(open.uri) !== root) continue;
                 const pending = pendingReferenceSelections.get(open.uri);
@@ -1231,7 +1231,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       }
       for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
       projectCompleteWaiters.delete(root);
-      connection.console.info(`Project source index ready with ${projectCurrent.size} PHP files in ${root}; ${sourceOnly ? 'reference facts preparing' : indexingMode === 'experimental' ? 'dependency indexing continues' : 'project indexing complete'}.`);
+      connection.console.info(outputMessage(clientDiagnosticLanguage, 'projectSourceIndexReady', String(projectCurrent.size), root,
+        outputMessage(clientDiagnosticLanguage, sourceOnly ? 'referenceFactsPreparing' : indexingMode === 'experimental' ? 'dependencyIndexingContinues' : 'projectIndexComplete')));
     },
   }).finally(() => {
     sourceWorkers?.dispose();
@@ -1261,7 +1262,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (result.complete && continueIndexing()) completeRoots.add(root);
     await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map(publishDocumentDiagnostics));
   }
-  connection.console.info(`Indexed ${result.files} PHP files (${result.bytes} bytes, ${result.cached} cached) from ${root}; complete=${result.complete}; deferred implementations=${workspace.deferredImplementationCount()}.`);
+  connection.console.info(outputMessage(clientDiagnosticLanguage, 'phpFilesIndexed', String(result.files), String(result.bytes), String(result.cached), root, String(result.complete), String(workspace.deferredImplementationCount())));
   for (const warning of result.warnings) connection.console.warn(warning);
   } finally {
     preparation?.finish(false);

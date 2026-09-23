@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 F14 [Language Server 状态日志](reports/f14-status-output-2026-09-23.md)已接入中英文说明；真实中文 stdio 收到 Composer 快照日志，既有英文项目扫描用例通过。结构化性能记录仍待审计；本轮不打包。
+
 2026-09-23 F14 [Language Server 故障日志](reports/f14-operational-output-2026-09-23.md)已补齐中英文固定文案，并保护底层错误详情中的占位符文本；类型检查、定向测试和 ESLint 通过。下游警告原文及信息级日志仍待审计，继续不打包。
 
 2026-09-23 F14 [Symfony Provider 输出通道警告](reports/f14-provider-output-2026-09-23.md)已按客户端语言显示；真实中文 stdio 注册错误与既有英文路由 Provider 回归通过。Provider ID、错误码、外部错误详情保持原文。索引、缓存、监听器等日志仍待处理；本轮不打包，F14 保持开放。

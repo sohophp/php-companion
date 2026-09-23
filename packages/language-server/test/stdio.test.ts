@@ -123,6 +123,24 @@ describe('language server stdio', () => {
       ]));
   });
 
+  it('reports a loaded Composer project snapshot in the client language', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-localized-info-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ name: 'app/localized-info' }));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN',
+        initializationOptions: { indexingMode: 'progressive' },
+      } }));
+      await output.waitFor((message) => message.id === 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const loaded = await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message === `已加载 ${root} 的 Composer 项目快照。`);
+      expect(loaded.params.message).toBe(`已加载 ${root} 的 Composer 项目快照。`);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it.skipIf(!process.env.PHP_COMPANION_TEST_REFERENCE_BUNDLE)('restores proven references across processes and rejects changed query inputs', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-persistent-references-'));
     try {

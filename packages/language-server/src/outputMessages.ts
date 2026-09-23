@@ -41,6 +41,19 @@ const messages = {
   projectIndexFailed: ['Project indexing failed: {0}', '项目索引失败：{0}'],
   semanticWarmupFailed: ['PHP semantic warm-up failed: {0}', 'PHP 语义预热失败：{0}'],
   watcherRegistrationFailed: ['File watcher registration failed: {0}', '文件监听器注册失败：{0}'],
+  composerSnapshotLoaded: ['Loaded Composer project snapshot for {0}.', '已加载 {0} 的 Composer 项目快照。'],
+  containerGenerationCommitted: ['Semantic provider {0} committed authoritative container generation {1}.', '语义 Provider {0} 已提交权威容器版本 {1}。'],
+  eventGenerationCommitted: ['Semantic provider {0} committed authoritative event generation {1}. prepareMs={2} runMs={3}', '语义 Provider {0} 已提交权威事件版本 {1}。准备耗时 {2} 毫秒，运行耗时 {3} 毫秒。'],
+  controllerGenerationCommitted: ['Semantic provider {0} committed authoritative controller contexts for generation {1}.', '语义 Provider {0} 已提交版本 {1} 的权威 Controller 上下文。'],
+  semanticGenerationCommitted: ['Semantic provider {0} committed generation {1}.', '语义 Provider {0} 已提交版本 {1}。'],
+  callableFactsPersisted: ['Persisted {0} callable factory facts in {1}.', '已在 {1} 持久化 {0} 条 Callable 工厂事实。'],
+  callableFactsRestored: ['Restored {0} callable factory facts from persistent cache in {1}.', '已从 {1} 的持久缓存恢复 {0} 条 Callable 工厂事实。'],
+  referenceFactsReady: ['Reference source facts ready in {0}.', '{0} 的引用源码事实已就绪。'],
+  referenceFactsPreparing: ['reference facts preparing', '正在准备引用事实'],
+  dependencyIndexingContinues: ['dependency indexing continues', '依赖索引继续进行'],
+  projectIndexComplete: ['project indexing complete', '项目索引已完成'],
+  projectSourceIndexReady: ['Project source index ready with {0} PHP files in {1}; {2}.', '{1} 的项目源码索引已就绪，包含 {0} 个 PHP 文件；{2}。'],
+  phpFilesIndexed: ['Indexed {0} PHP files ({1} bytes, {2} cached) from {3}; complete={4}; deferred implementations={5}.', '已索引 {3} 中的 {0} 个 PHP 文件（{1} 字节，{2} 个缓存命中）；完整：{4}；延迟实现数：{5}。'],
 } as const;
 
 export type OutputMessageKey = keyof typeof messages;

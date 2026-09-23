@@ -26,4 +26,15 @@ describe('Language Server output messages', () => {
     expect(outputMessage('zh', 'receiverClosureLimit', '/workspace/project'))
       .toBe('/workspace/project 中的引用接收者闭包达到 16 轮上限。');
   });
+
+  it('preserves English status logs and translates their descriptions', () => {
+    expect(outputMessage('en', 'projectSourceIndexReady', '12', '/workspace/project', outputMessage('en', 'projectIndexComplete')))
+      .toBe('Project source index ready with 12 PHP files in /workspace/project; project indexing complete.');
+    expect(outputMessage('zh', 'projectSourceIndexReady', '12', '/workspace/project', outputMessage('zh', 'projectIndexComplete')))
+      .toBe('/workspace/project 的项目源码索引已就绪，包含 12 个 PHP 文件；项目索引已完成。');
+    expect(outputMessage('en', 'eventGenerationCommitted', 'symfony.events', '4', '10', '20'))
+      .toBe('Semantic provider symfony.events committed authoritative event generation 4. prepareMs=10 runMs=20');
+    expect(outputMessage('zh', 'phpFilesIndexed', '12', '4096', '3', '/workspace/project', 'true', '1'))
+      .toBe('已索引 /workspace/project 中的 12 个 PHP 文件（4096 字节，3 个缓存命中）；完整：true；延迟实现数：1。');
+  });
 });
