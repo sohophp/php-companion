@@ -37,7 +37,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 从 **C1 通用 PHP 编码链**开始，不按某个业务项目或 Symfony Provider 的缺口决定 Core 优先级。Open Source Pack 的当前清单先保持稳定；PHPDoc 生成、PHPStan 等候选单独验收后再考虑加入，详见[日常开发组合方案](daily-use-assembly.md)。
 
-截至 2026-09-24，F04-NAV-01–10 已用独立 Composer 项目验证接口、未保存类型切换、未完成成员输入、跨 namespace 父类与同名短类、跨文件 Trait 优先级和别名、外部声明变更后的索引失效，以及进行中 References 取消后的新版本导航。F04-HOST-01 又在隔离 VS Code Core 宿主中，以 auto、PHP 7.2、8.1、8.5 设置完成六项编辑请求和未保存跳转。下一项核对更多 LSP 请求的进行中版本竞态、版本特有语法与延迟分布；Pack 组合、Remote、跨平台和持续使用仍按后续门槛执行。Symfony 或单个业务项目特例不决定通用 Core 的优先级。
+截至 2026-09-24，F04-NAV-01–10 已用独立 Composer 项目验证接口、未保存类型切换、未完成成员输入、跨 namespace 父类与同名短类、跨文件 Trait 优先级和别名、外部声明变更后的索引失效，以及进行中 References 取消后的新版本导航。F04-HOST-01 又在隔离 VS Code Core 宿主中，以 auto、PHP 7.2、8.1、8.5 设置完成六项编辑请求和未保存跳转。查询版本保护已统一覆盖主要异步边界；下一项仍需用可控时序复现其它请求的进行中编辑，再检查版本特有语法与延迟分布。Pack 组合、Remote、跨平台和持续使用按后续门槛执行。Symfony 或单个业务项目特例不决定通用 Core 的优先级。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。

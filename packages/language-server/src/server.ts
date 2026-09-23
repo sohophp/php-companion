@@ -4328,14 +4328,19 @@ async function provenSymfonyRouteParameterCall(document: TextDocument, offset: n
   return correctRoute && correctParameters ? call : undefined;
 }
 
+function currentQueryDocument(document: TextDocument, token: { isCancellationRequested: boolean }): boolean {
+  return !token.isCancellationRequested && documents.get(document.uri)?.version === document.version;
+}
+
 connection.onCompletion(async ({ textDocument, position }, token) => {
   await semanticProviderReconciliation;
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
-  if (token.isCancellationRequested) return [];
+  if (!currentQueryDocument(document, token)) return [];
   const offset = document.offsetAt(position);
   const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
+  if (!currentQueryDocument(document, token)) return [];
   if (routeParameterCall) {
     const root = rootForUri(document.uri);
     if (root) {
@@ -4351,6 +4356,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     }
   }
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
+  if (!currentQueryDocument(document, token)) return [];
   if (routeCall) {
     const root = rootForUri(document.uri);
     if (root) {
@@ -4366,6 +4372,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
+  if (!currentQueryDocument(document, token)) return [];
   if (serviceReference) return symfonyServiceCatalog(rootForUri(document.uri)).filter((service) => service.id.startsWith(document.getText().slice(serviceReference.start, offset))).map((service) => ({
     label: service.id,
     kind: CompletionItemKind.Reference,
@@ -4456,10 +4463,11 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
 connection.onHover(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return null;
-  const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null; const offset = document.offsetAt(position);
+  const workspace = await semanticForUri(document.uri); if (!currentQueryDocument(document, token)) return null; const offset = document.offsetAt(position);
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
+  if (!currentQueryDocument(document, token)) return null;
   const service = serviceReference && symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
   if (service) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony service** \`${service.id}\`\n\n\`class ${service.className}\`` } };
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
@@ -4489,9 +4497,10 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
-  if (token.isCancellationRequested) return [];
+  if (!currentQueryDocument(document, token)) return [];
   const offset = document.offsetAt(position);
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
+  if (!currentQueryDocument(document, token)) return [];
   if (routeCall) {
     const root = rootForUri(document.uri); if (!root) return [];
     const version = document.version; const name = document.getText().slice(routeCall.start, routeCall.end);
@@ -4502,17 +4511,20 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     if (source === undefined) { const path = pathForUri(route.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing route source. */ } }
     const languageId = route.uri.endsWith('.php') ? 'php' : 'yaml';
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(route.uri, languageId, 0, source));
+    if (!currentQueryDocument(document, token)) return [];
     return target ? [{ uri: route.uri, range: { start: target.positionAt(route.start), end: target.positionAt(route.end) } }] : [];
   }
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
+  if (!currentQueryDocument(document, token)) return [];
   if (serviceReference) {
     const service = symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
     if (!service) return [];
     const openTarget = documents.get(service.uri); let source = openTarget?.getText() ?? workspace.source(service.uri);
     if (source === undefined) { const path = pathForUri(service.uri); if (path) try { source = await readFile(path, 'utf8'); } catch { /* Missing config target. */ } }
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(service.uri, service.uri.endsWith('.php') ? 'php' : 'yaml', 0, source));
+    if (!currentQueryDocument(document, token)) return [];
     return target ? [{ uri: service.uri, range: { start: target.positionAt(service.start), end: target.positionAt(service.end) } }] : [];
   }
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, document.offsetAt(position), workspace) : undefined;
@@ -4536,10 +4548,11 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
       dependencies.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
       if (!dependencies.length) break;
       await hydrateCanonicalTypes(workspace, root, dependencies, true);
+      if (!currentQueryDocument(document, token)) return [];
       owners = dependencies;
     }
   }
-  if (token.isCancellationRequested) return [];
+  if (!currentQueryDocument(document, token)) return [];
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
     const version = document.version;
@@ -4562,7 +4575,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
 connection.onTypeDefinition(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
-  if (token.isCancellationRequested) return [];
+  if (!currentQueryDocument(document, token)) return [];
   return workspace.typeDefinition(document.uri, document.offsetAt(position)).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));
@@ -4574,7 +4587,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const workspace = await semanticForUri(document.uri);
-  if (token.isCancellationRequested) return [];
+  if (!currentQueryDocument(document, token)) return [];
   const offset = document.offsetAt(position);
   let member = workspace.referenceMemberAt(document.uri, offset);
   const root = rootForUri(document.uri);
