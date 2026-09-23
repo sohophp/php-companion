@@ -31,6 +31,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
 import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDeprecatedKind, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
+import { codeActionTitle } from './codeActionMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
@@ -5005,12 +5006,13 @@ connection.onCodeAction(async (params, token) => {
       const opening = /^<\?php(?:\s+declare\s*\([^;]+;)?/.exec(source);
       if (opening) { const position = document.positionAt(opening[0].length); edit = { range: { start: position, end: position }, newText: `\n\nnamespace ${expected};` }; }
     }
-    if (edit) actions.push({ title: `Change namespace to ${expected || '(global)'}`, kind: CodeActionKind.QuickFix, diagnostics: [diagnostic], isPreferred: true, edit: { changes: { [document.uri]: [edit] } } });
+    if (edit) actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'changeNamespace', expected || (clientDiagnosticLanguage === 'zh' ? '（全局）' : '(global)')),
+      kind: CodeActionKind.QuickFix, diagnostics: [diagnostic], isPreferred: true, edit: { changes: { [document.uri]: [edit] } } });
   }
   const filenameDiagnostic = context.diagnostics.find((item) => item.code === 'php.type.filename');
   const expectedUri = (filenameDiagnostic?.data as { expectedUri?: unknown } | undefined)?.expectedUri;
   if (filenameDiagnostic && typeof expectedUri === 'string' && expectedUri !== document.uri) actions.push({
-    title: `Rename file to ${basename(pathForUri(expectedUri) ?? expectedUri)}`,
+    title: codeActionTitle(clientDiagnosticLanguage, 'renameFile', basename(pathForUri(expectedUri) ?? expectedUri)),
     kind: CodeActionKind.QuickFix, diagnostics: [filenameDiagnostic], isPreferred: true,
     edit: { documentChanges: [{ kind: 'rename', oldUri: document.uri, newUri: expectedUri, options: { overwrite: false } }] },
   });
@@ -5022,7 +5024,7 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan('Remove unused import', [{ uri: document.uri, version: document.version, length: source.length }], [
       { uri: document.uri, start: data.statementStart, end, newText: '' },
     ]);
-    actions.push({ title: `Remove unused import`, kind: CodeActionKind.QuickFix, diagnostics: [unused], isPreferred: true,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedImport'), kind: CodeActionKind.QuickFix, diagnostics: [unused], isPreferred: true,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
   if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) {
@@ -5032,7 +5034,7 @@ connection.onCodeAction(async (params, token) => {
       const plan = createEditPlan('Use null-safe member access', [{ uri: document.uri, version: document.version, length: source.length }], [
         { uri: document.uri, start: data.operatorStart, end: data.operatorEnd, newText: '?->' },
       ]);
-      actions.push({ title: 'Use null-safe member access', kind: CodeActionKind.QuickFix, diagnostics: [nullable], isPreferred: true,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'nullSafeAccess'), kind: CodeActionKind.QuickFix, diagnostics: [nullable], isPreferred: true,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
@@ -5043,7 +5045,7 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan('Declare parameter nullability', [{ uri: document.uri, version: document.version, length: source.length }], [
       { uri: document.uri, start: data.typeStart, end: data.typeEnd, newText: data.newType },
     ]);
-    actions.push({ title: 'Declare parameter type as explicitly nullable', kind: CodeActionKind.QuickFix,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'explicitNullability'), kind: CodeActionKind.QuickFix,
       diagnostics: [nullable], isPreferred: true,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
@@ -5065,7 +5067,7 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan(`Declare ${declaration.ownerFqcn}::$${declaration.name}`,
       [{ uri: declaration.uri, version: openTarget?.version ?? null, length: targetSource.length }],
       [{ uri: declaration.uri, start: declaration.insertOffset, end: declaration.insertOffset, newText }]);
-    actions.push({ title: `Declare property $${declaration.name} in ${declaration.ownerFqcn}`, kind: CodeActionKind.QuickFix,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'declareProperty', declaration.name, declaration.ownerFqcn), kind: CodeActionKind.QuickFix,
       diagnostics: [dynamic], isPreferred: true, edit: { changes: { [declaration.uri]: plan.textEdits.map((edit) => ({
         range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText,
       })) } } });
@@ -5078,7 +5080,7 @@ connection.onCodeAction(async (params, token) => {
         { uri: document.uri, start: extraction.statementStart, end: extraction.statementStart, newText: `${extraction.indent}$${extraction.variable} = ${extraction.expression};\n` },
         { uri: document.uri, start: extraction.expressionStart, end: extraction.expressionEnd, newText: `$${extraction.variable}` },
       ]);
-      actions.push({ title: `Extract to $${extraction.variable}`, kind: CodeActionKind.RefactorExtract,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractVariable', extraction.variable), kind: CodeActionKind.RefactorExtract,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
     const method = localWorkspace.extractMethod(document.uri, document.offsetAt(range.start), document.offsetAt(range.end));
@@ -5087,7 +5089,7 @@ connection.onCodeAction(async (params, token) => {
         { uri: document.uri, start: method.selectionStart, end: method.selectionEnd, newText: method.callText },
         { uri: document.uri, start: method.insertOffset, end: method.insertOffset, newText: method.methodText },
       ]);
-      actions.push({ title: `Extract method ${method.methodName}`, kind: CodeActionKind.RefactorExtract,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractMethod', method.methodName), kind: CodeActionKind.RefactorExtract,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
     const extractedInterface = localWorkspace.extractInterface(document.uri, document.offsetAt(range.start));
@@ -5109,7 +5111,7 @@ connection.onCodeAction(async (params, token) => {
             [{ uri: document.uri, start: extractedInterface.insertOffset, end: extractedInterface.insertOffset, newText: extractedInterface.insertText },
               { uri: targetUri, start: 0, end: 0, newText: extractedInterface.interfaceSource }],
             [{ kind: 'create', uri: targetUri }]);
-          actions.push({ title: `Extract interface ${extractedInterface.interfaceName}`, kind: CodeActionKind.RefactorExtract,
+          actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractInterface', extractedInterface.interfaceName), kind: CodeActionKind.RefactorExtract,
             edit: { documentChanges: [
               { kind: 'create', uri: targetUri, options: { overwrite: false, ignoreIfExists: false } },
               { textDocument: { uri: targetUri, version: null }, edits: plan.textEdits.filter((edit) => edit.uri === targetUri).map((edit) => ({ range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }, newText: edit.newText })) },
@@ -5127,7 +5129,7 @@ connection.onCodeAction(async (params, token) => {
         { uri: document.uri, start: inline.declarationStart, end: inline.declarationEnd, newText: '' },
         { uri: document.uri, start: inline.useStart, end: inline.useEnd, newText: inline.expression },
       ]);
-      actions.push({ title: `Inline $${inline.variable}`, kind: CodeActionKind.RefactorInline,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'inlineVariable', inline.variable), kind: CodeActionKind.RefactorInline,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
@@ -5152,7 +5154,7 @@ connection.onCodeAction(async (params, token) => {
           const targetDocument = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, targetSource);
           (changes![edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
         }
-        actions.push({ title: `Remove unused parameter $${removal.parameter}`, kind: CodeActionKind.RefactorRewrite, edit: { changes } });
+        actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedParameter', removal.parameter), kind: CodeActionKind.RefactorRewrite, edit: { changes } });
       }
     }
   }
@@ -5160,7 +5162,7 @@ connection.onCodeAction(async (params, token) => {
     const organization = workspace.organizeImports(document.uri, importSort);
     if (organization) {
       const plan = createEditPlan('Organize imports', [{ uri: document.uri, version: document.version, length: source.length }], [organization]);
-      actions.push({ title: 'Organize Imports', kind: CodeActionKind.SourceOrganizeImports,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'organizeImports'), kind: CodeActionKind.SourceOrganizeImports,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
@@ -5176,7 +5178,8 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan(`Implement interface methods in ${missing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
       { uri: document.uri, start: missing.insertOffset, end: missing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
     ]);
-    actions.push({ title: `Implement ${missing.methods.length} interface method${missing.methods.length === 1 ? '' : 's'}`, kind: CodeActionKind.RefactorRewrite,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+      missing.methods.length === 1 ? 'implementInterfaceMethod' : 'implementInterfaceMethods', String(missing.methods.length)), kind: CodeActionKind.RefactorRewrite,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
   const abstractMissing = workspace.missingAbstractImplementation(document.uri, document.offsetAt(range.start));
@@ -5194,7 +5197,8 @@ connection.onCodeAction(async (params, token) => {
       const plan = createEditPlan(`Implement abstract methods in ${abstractMissing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
         { uri: document.uri, start: abstractMissing.insertOffset, end: abstractMissing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
       ]);
-      actions.push({ title: `Implement ${required.length} abstract method${required.length === 1 ? '' : 's'}`, kind: CodeActionKind.RefactorRewrite,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+        required.length === 1 ? 'implementAbstractMethod' : 'implementAbstractMethods', String(required.length)), kind: CodeActionKind.RefactorRewrite,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
@@ -5209,7 +5213,8 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan(`Generate constructor in ${constructor.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
       { uri: document.uri, start: constructor.insertOffset, end: constructor.insertOffset, newText: `\n\n${method}\n${classIndent}` },
     ]);
-    actions.push({ title: `Generate constructor for ${constructor.properties.length} propert${constructor.properties.length === 1 ? 'y' : 'ies'}`, kind: CodeActionKind.RefactorRewrite,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+      constructor.properties.length === 1 ? 'generateConstructorProperty' : 'generateConstructorProperties', String(constructor.properties.length)), kind: CodeActionKind.RefactorRewrite,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
   const accessor = workspace.accessorGeneration(document.uri, document.offsetAt(range.start));
@@ -5224,7 +5229,8 @@ connection.onCodeAction(async (params, token) => {
     const plan = createEditPlan(`Generate accessors in ${accessor.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
       { uri: document.uri, start: accessor.insertOffset, end: accessor.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
     ]);
-    actions.push({ title: `Generate ${accessor.accessors.length} property accessor${accessor.accessors.length === 1 ? '' : 's'}`, kind: CodeActionKind.RefactorRewrite,
+    actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+      accessor.accessors.length === 1 ? 'generateAccessor' : 'generateAccessors', String(accessor.accessors.length)), kind: CodeActionKind.RefactorRewrite,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
   const overrides = workspace.overrideGeneration(document.uri, document.offsetAt(range.start));
@@ -5240,7 +5246,7 @@ connection.onCodeAction(async (params, token) => {
       const plan = createEditPlan(`Override ${method.fqcn} in ${overrides.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
         { uri: document.uri, start: overrides.insertOffset, end: overrides.insertOffset, newText: `\n\n${generated}\n${classIndent}` },
       ]);
-      actions.push({ title: `Override ${method.fqcn}`, kind: CodeActionKind.RefactorRewrite,
+      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'overrideMethod', method.fqcn), kind: CodeActionKind.RefactorRewrite,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }

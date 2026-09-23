@@ -3880,6 +3880,36 @@ class Child { #[\\Override] public int $value; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('returns Chinese Code Action titles from the Language Server', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-code-actions-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      const uri = pathToFileURL(join(root, 'Example.php')).toString();
+      const source = `<?php namespace App;
+use DateTimeImmutable;
+class Example {}`;
+      await writeFile(join(root, 'Example.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 134, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), locale: 'zh-CN', initializationOptions: { phpVersion: '8.5' },
+      } }));
+      await output.waitFor((message) => message.id === 134);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const published = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const unused = published.params.diagnostics.find((item: { code?: string }) => item.code === 'php.import.unused');
+      expect(unused).toBeDefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 135, method: 'textDocument/codeAction', params: {
+        textDocument: { uri }, range: unused.range, context: { diagnostics: [unused] },
+      } }));
+      const actions = (await output.waitFor((message) => message.id === 135)).result as Array<{ title: string; kind: string }>;
+      expect(actions).toEqual(expect.arrayContaining([expect.objectContaining({ title: '移除未使用的导入', kind: 'quickfix' })]));
+      expect(actions.some((item) => item.title === 'Remove unused import')).toBe(false);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('publishes proven missing-member diagnostics after a complete project index', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-unresolved-member-'));
     try {
