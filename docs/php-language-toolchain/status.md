@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P0/F09 [Doctrine Entity 编号夹具](acceptance-fixtures.md)新增 F09-DOC-01/02/03，并修正未闭合类仍发布 Entity 事实的问题；完整同文件类保持可用。Doctrine 包 9 项及真实 Language Server 既有集成回归通过，范围见[报告](reports/f09-doctrine-incomplete-2026-09-23.md)。本轮未打包。
+
 2026-09-23 F09 [Symfony 服务导入完整性](reports/f09-service-import-completeness-2026-09-23.md)：显式缺失、越界、未知 Bundle 及 YAML/XML/PHP Configurator 动态导入不再让 Provider 宣称权威图完整；Winstar 只读探针仍完整。Framework Symfony 59 项、服务 Provider 9 项及两项真实 stdio 定向回归通过；本轮未打包。
 
 2026-09-23 F09 [Symfony Provider 完整性与语言服务器链路](reports/f09-provider-completeness-2026-09-23.md)：服务 Provider 不再把破损 YAML 或导入预算耗尽的结果提交为完整快照；真实 stdio 验证服务 Definition、路由补全及不完整快照时的安全关闭。Winstar 只读 Provider 探针保持完整；本轮未打包，F09 仍待最终矩阵。

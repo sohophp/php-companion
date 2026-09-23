@@ -125,7 +125,18 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
     const entities: DoctrineEntityInfo[] = [];
     const repositories: DoctrineRepositoryInfo[] = [];
     const queryFactories: DoctrineQueryFactoryInfo[] = [];
-    for (const declaration of parsed.declarations.filter((item) => item.kind === 'class' && !item.anonymous)) {
+    const invalidClassStarts = new Set<number>();
+    const visitInvalidClasses = (node: typeof parsed.tree.rootNode): void => {
+      if (!node.hasError) return;
+      if (node.type === 'class_declaration') { invalidClassStarts.add(node.startIndex); return; }
+      for (const child of node.namedChildren) visitInvalidClasses(child);
+    };
+    visitInvalidClasses(parsed.tree.rootNode);
+    const validDeclarations = parsed.declarations.filter((item) => item.kind === 'class' && !item.anonymous
+      && !invalidClassStarts.has(item.declarationStart));
+    const invalidClassNames = new Set(parsed.declarations.filter((item) => invalidClassStarts.has(item.declarationStart))
+      .map((item) => item.fqcn));
+    for (const declaration of validDeclarations) {
       const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
       const prefix = source.slice(declaration.declarationStart, declaration.start);
       const entityAttribute = mappingAttribute(prefix, 'Entity', parsed.imports);
@@ -165,7 +176,7 @@ export function analyzeDoctrineDocument(parser: PhpSyntaxParser, uri: string, so
         if (entity) repositories.push({ fqcn: declaration.fqcn, uri, start: declaration.start, end: declaration.end, entity });
       }
     }
-    for (const callable of parsed.callables.filter((item) => item.kind === 'method')) {
+    for (const callable of parsed.callables.filter((item) => item.kind === 'method' && !invalidClassNames.has(item.containerFqcn ?? ''))) {
       const factory = queryFactoryForMethod(parser, source, parsed, callable, uri); if (factory) queryFactories.push(factory);
     }
     return { entities, queryFactories, repositories: [...new Map(repositories.map((repository) => [

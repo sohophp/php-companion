@@ -1,6 +1,6 @@
 # 编号验收 fixtures
 
-本表把 [最终验收 F01–F14](acceptance.md)中的场景绑定到可运行输入。编号固定；新增支持范围时，在同一组中补正例、合法反例及未完成输入。当前建立了 F08 Extract Interface、F09 Symfony 服务与路由 YAML 的首组，不能据此判定 F08、F09 或 P0 全部完成。
+本表把 [最终验收 F01–F14](acceptance.md)中的场景绑定到可运行输入。编号固定；新增支持范围时，在同一组中补正例、合法反例及未完成输入。当前建立了 F08 Extract Interface，以及 F09 Symfony 服务、路由 YAML 和 Doctrine Entity 的首组，不能据此判定 F08、F09 或 P0 全部完成。
 
 | 编号 | 输入 | 预期 | 自动验证 |
 | --- | --- | --- | --- |
@@ -13,7 +13,12 @@
 | F09-ROUTE-01 | [有效路由和 Controller](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-valid.yaml) | 字面量名称、路径和 Controller 类/方法范围精确 | `acceptance-f09-routes.test.ts` |
 | F09-ROUTE-02 | [合法的 Attribute 目录导入](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-counterexample.yaml) | 保留导入事实，不捏造目录内的路由 | 同上 |
 | F09-ROUTE-03 | [动态路径](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-incomplete.yaml) | 路由图不完整，不发布该路由的推测事实 | 同上 |
+| F09-DOC-01 | [Entity、关联与 Repository](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-valid.php) | 精确识别 Entity、Nullable ManyToOne 及 Repository 查询返回类型 | `acceptance-f09-doctrine.test.ts` |
+| F09-DOC-02 | [合法的非 Doctrine Entity Attribute](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-counterexample.php) | 不发布 Doctrine Entity 或 Repository 事实 | 同上 |
+| F09-DOC-03 | [同文件中的完整与未闭合 Entity](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-incomplete.php) | 保留完整 `Team`，抑制未闭合 `User` | 同上 |
 
 执行 F08：`pnpm --dir packages/semantic exec vitest run test/acceptance-f08-extract-interface.test.ts`。该测试验证语义计划与生成文件语法；真实 VS Code 应用、Undo/Redo 和 PHP 7.2/8.5 加载证据见 [P7 Extract Interface 报告](reports/p7-extract-interface-2026-09-23.md)。
 
 执行 F09：`pnpm --dir packages/framework-symfony exec vitest run test/acceptance-f09-services.test.ts test/acceptance-f09-routes.test.ts`。这两组测试验证静态 YAML 事实提取与精确范围；[F09 Provider 链路报告](reports/f09-provider-completeness-2026-09-23.md)还记录了 F09-SVC-01/03 和 F09-ROUTE-01/03 经真实 Provider 与 Language Server 的正例和不完整快照验证。扩展宿主、框架版本和真实项目动态边界仍需单独编号与验证。其余 F01–F14 场景映射也仍待补齐。
+
+执行 F09 Doctrine：`pnpm --dir packages/framework-doctrine exec vitest run test/acceptance-f09-doctrine.test.ts`。该组验证静态事实和未完成类抑制；[Doctrine 未完成输入报告](reports/f09-doctrine-incomplete-2026-09-23.md)记录既有真实 Language Server 集成回归的范围。完整编辑器工作流仍待验收。
