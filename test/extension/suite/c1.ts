@@ -29,6 +29,10 @@ async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => b
 async function verifyRealComposerVendor(): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
   assert.ok(root, 'The locked real Composer vendor project was not opened.');
+  const lock = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(root.uri, 'composer.lock'))).toString('utf8')) as {
+    packages?: unknown[];
+  };
+  assert.strictEqual(lock.packages?.length, 30, 'The real Composer fixture did not contain its 30 locked packages.');
   const source = `<?php namespace App\\C1;
 use Psr\\Http\\Message\\ResponseInterface;
 use Monolog\\Logger;
@@ -72,6 +76,10 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
     'SoPHP did not find the installed Guzzle Response implementation.');
   assert.ok(implementation.every((item) => item.uri.toString() !== loggerUri.toString()));
   const implementationMs = Math.round(performance.now() - implementationStarted);
+  const warmImplementation = await warmLatency(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === implementationUri.toString()) === true,
+    'Real vendor Implementation');
   const references = await waitForResult(
     () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call),
     (result) => result?.some((item) => item.uri.toString() === uri.toString()) === true,
@@ -99,9 +107,26 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
     (result) => result?.some((item) => item.uri.toString() === loggerUri.toString()) === true,
     'SoPHP kept the PSR method after an unsaved switch to Monolog Logger.');
   assert.ok(changedDefinition.every((item) => item.uri.toString() === loggerUri.toString()));
+  const restore = new vscode.WorkspaceEdit();
+  for (const [before, after] of [['Logger $value', 'ResponseInterface $value'],
+    ['$value->getName()', '$value->getStatusCode()'], ['$value->getN;', '$value->getSta;']] as const) {
+    const start = changed.indexOf(before);
+    restore.replace(uri, new vscode.Range(document.positionAt(start), document.positionAt(start + before.length)), after);
+  }
+  assert.ok(await vscode.workspace.applyEdit(restore), 'Could not restore the real Composer receiver without saving.');
+  const restored = document.getText();
+  const restoredCall = document.positionAt(restored.indexOf('$value->getStatusCode()') + '$value->'.length + 2);
+  const restoredStarted = performance.now();
+  const restoredImplementation = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, restoredCall),
+    (result) => result?.some((item) => item.uri.toString() === implementationUri.toString()) === true,
+    'SoPHP did not restore the Guzzle implementation after an unsaved receiver round trip.');
+  assert.ok(restoredImplementation.every((item) => item.uri.toString() !== loggerUri.toString()));
+  const restoredImplementationMs = Math.round(performance.now() - restoredStarted);
   console.log(`C1 real Composer vendor: ${JSON.stringify({
-    packages: ['guzzlehttp/psr7', 'monolog/monolog', 'symfony/http-foundation'],
+    lockedPackages: lock.packages?.length,
     completion: 'getStatusCode', implementation: implementation.map((item) => item.uri.toString()), implementationMs,
+    warmImplementation, restoredImplementationMs,
     unsavedCompletion: 'getName', references: references.length,
   })}`);
 }

@@ -37,7 +37,7 @@
 | F04-HOST-08 | [未保存类型切换的可见补全](../../test/extension/suite/c1Ui.ts) | 同一 PHP 缓冲区内 A→B→A 修改参数类型且不保存，逐次重新键入未完成成员；Workbench 首次可见弹窗只含当前类型方法 | [未保存弹窗报告](reports/c1-unsaved-visible-completion-2026-09-24.md) |
 | F04-HOST-09 | [PATH 中默认 PHP 的 auto 版本](../../test/extension/suite/c1.ts) | 无 Composer PHP 约束、无显式 PHP 路径时，`auto` 先采用 PATH 的 `php`；版本化命令只在该命令不可用时兜底。诊断与内建补全跟随实际选择 | [PATH 版本报告](reports/c1-path-php-version-2026-09-24.md) |
 | F04-HOST-10 | [连续输入中的未保存类型切换](../../test/extension/suite/c1Ui.ts) | 同一缓冲区连续 10 轮输入 `r`、改接收者类型、再输入 `e`/`n`；可见建议最终只包含当前类型方法，记录轮询中出现的旧候选 | [连续输入报告](reports/c1-rapid-unsaved-completion-2026-09-24.md) |
-| F04-HOST-11 | [锁定的真实 Composer 依赖树](../../test/extension/real-vendor/composer.json) | 独立安装 Guzzle PSR-7、Monolog、Symfony HttpFoundation；PSR 接口六项查询命中 vendor 声明与实现，未保存改为 Logger 后成员候选和定义随之切换 | `pnpm test:extension:c1:real-vendor`；[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md) |
+| F04-HOST-11 | [锁定的真实 Composer 依赖树](../../test/extension/real-vendor/composer.json) | 30 个安装包、1,029 个 PHP 文件；PSR 接口六项查询命中 vendor 声明与实现，未保存切到 Logger 再切回后成员候选、定义和实现随之更新；可选 Workbench 模式确认真实候选可见 | `pnpm test:extension:c1:real-vendor`；[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md) |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |

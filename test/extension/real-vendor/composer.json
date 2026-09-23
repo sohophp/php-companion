@@ -7,7 +7,13 @@
     "php": ">=7.2.5",
     "guzzlehttp/psr7": "^2.0",
     "monolog/monolog": "^2.0",
-    "symfony/http-foundation": "^5.4"
+    "symfony/console": "^5.4",
+    "symfony/dependency-injection": "^5.4",
+    "symfony/http-foundation": "^5.4",
+    "symfony/http-kernel": "^5.4",
+    "symfony/mime": "^5.4",
+    "symfony/routing": "^5.4",
+    "symfony/yaml": "^5.4"
   },
   "autoload": {
     "psr-4": {
