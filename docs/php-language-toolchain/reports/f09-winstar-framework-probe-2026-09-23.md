@@ -26,3 +26,9 @@ Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核�
 最后在真实 Winstar 根启动当前源码构建的 Language Server stdio，使用 `onDemand`、独立静态路由 Provider 和显式 Winstar 运行时 Provider，环境为 `dev`。未向项目写文件；仅 `didOpen` 一个内存中的 PHP 文档，调用 `RouterInterface::generate('admin.SolutionArticles.add')` 的 Definition。服务返回 `src/Modules/Solutions/Routes/admin_defaults.yaml` 第 19 行字符 10–26，读取目标文件核对切片正好为 `SolutionArticles`。探针正常退出（0）。这是当前项目运行时和 LSP 请求的直接证据；Windows 客户端连接 WSL Remote 的 VS Code 操作仍待人工验收，没有生成 VSIX。
 
 对该生成路由补充 Rename 安全检查：`admin_defaults.yaml` 的源码名称为 `SolutionArticles`，并非完整运行时名称 `admin.SolutionArticles.add`。真实 Winstar 的只读 LSP 请求中，`prepareRename` 与将其改为 `admin.SolutionArticles.changed` 的 `rename` 均返回 `null`，探针退出码 0；不会把运行时后缀误写入共享的 YAML 名称。临时项目的独立 Winstar Provider → Language Server stdio 回归也覆盖同类生成路由拒绝，定向测试、类型检查和 ESLint 通过。没有应用编辑或生成 VSIX。
+
+## Doctrine ORM 3.6.8 查询链
+
+真实 Winstar 的 `onDemand` Language Server 探针使用未写入磁盘的 PHP 文档与项目 vendor/Entity 源码。`EntityManagerInterface::getRepository(SolutionPageTranslation::class)->findOneBy([])` 返回 `SolutionPageTranslation|null`，后续 `?->getIntroTi` 补全 `getIntroTitle`。首次探针因临时 JavaScript 字符串吞掉 PHP 命名空间反斜线而返回空；修正输入后该 Repository 路径即通过。
+
+同一有效输入发现 QueryBuilder 默认对象水合链原先失去实体泛型：`getRepository(SolutionPageCard::class)->createQueryBuilder('card')->getQuery()->getResult()` 的 foreach 元素无法补全。按需加载现在从已加载的真实 `Doctrine\ORM\EntityRepository` 声明建立通用查询事实，并补载 `QueryBuilder`、`Query` 以及实际声明的 `AbstractQuery` 父类；生成事实时只传来源位置，避免类型对象的 `name` 覆盖方法名。复测中 `getResult()` Hover 为 `array<int, SolutionPageCard>`，foreach 元素补全 `SolutionPageCard::getLinkUrl()`，退出码 0。合成按需加载回归及既有完整索引回归共 2 项、Language Server 类型检查和相关 ESLint 均通过。此项不宣称其它 Doctrine 映射或水合模式全部完成，也没有生成 VSIX。

@@ -43,7 +43,7 @@ import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, loadComposerProject, allAutoloadPaths, projectAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, symfonyPhpParameterReferences, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
-import { type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
+import { doctrineQueryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
   type ExternalContainerParameterFact, type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
@@ -1331,7 +1331,11 @@ async function refreshDoctrineDocument(root: string, uri: string, source: string
   const propertiesByFile = doctrinePropertiesByRoot.get(root) ?? new Map<string, DoctrineAssociationPropertyFact[]>();
   const lookupsByFile = doctrineRepositoryLookupsByRoot.get(root) ?? new Map<string, DoctrineRepositoryLookupFact[]>();
   const facts = analyzeProjectPhpFileFacts(await parser(), uri, source);
-  byFile.set(uri, facts.doctrineMethods);
+  const canonicalRepository = workspace.typeByFqcn('Doctrine\\ORM\\EntityRepository');
+  byFile.set(uri, canonicalRepository?.uri === uri
+    ? [...facts.doctrineMethods, ...doctrineQueryMethodFacts({
+      uri: canonicalRepository.uri, start: canonicalRepository.start, end: canonicalRepository.end,
+    })] : facts.doctrineMethods);
   propertiesByFile.set(uri, facts.doctrineProperties);
   lookupsByFile.set(uri, facts.doctrineRepositoryLookups);
   doctrineMethodsByRoot.set(root, byFile);
@@ -1340,6 +1344,20 @@ async function refreshDoctrineDocument(root: string, uri: string, source: string
   workspace.replaceExternalFacts(semanticFacts('doctrine', String(indexingGeneration), {
     methods: mergedDoctrineMethods(byFile), properties: [...propertiesByFile.values()].flat(), literalMethodReturns: [...lookupsByFile.values()].flat(),
   }));
+}
+
+async function ensureDoctrineQueryFacts(root: string, workspace: SemanticWorkspace): Promise<void> {
+  const repository = workspace.typeByFqcn('Doctrine\\ORM\\EntityRepository');
+  if (!repository) return;
+  if (![...(doctrineMethodsByRoot.get(root)?.values() ?? [])].some((methods) => methods.some((method) =>
+    method.ownerFqcn.toLowerCase() === 'doctrine\\orm\\querybuilder' && method.name === 'getQuery'))) {
+    const path = pathForUri(repository.uri);
+    const source = workspace.source(repository.uri) ?? (path ? await readFile(path, 'utf8').catch(() => undefined) : undefined);
+    if (source !== undefined) await refreshDoctrineDocument(root, repository.uri, source, workspace);
+  }
+  await hydrateCanonicalTypes(workspace, root, ['Doctrine\\ORM\\QueryBuilder', 'Doctrine\\ORM\\Query']);
+  if (workspace.directDeclarationDependencies('Doctrine\\ORM\\Query').some((name) => name.toLowerCase() === 'doctrine\\orm\\abstractquery'))
+    await hydrateCanonicalTypes(workspace, root, ['Doctrine\\ORM\\AbstractQuery']);
 }
 
 function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWorkspace): void {
@@ -2835,6 +2853,8 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
       const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
       if (declarationsOnly && !documents.get(targetUri)) workspace.updateDeclarations(targetUri, source);
       else workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
+      if (!declarationsOnly && workspace.typeByFqcn('Doctrine\\ORM\\EntityRepository')?.uri === targetUri)
+        await refreshDoctrineDocument(root, targetUri, source, workspace);
       evidence.source(path, targetUri, source);
       indexedUrisByRoot.get(root)?.add(targetUri);
       loaded = true;
@@ -4331,6 +4351,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     detail: parameter.type ? `${parameter.name}: ${parameter.type}` : parameter.name,
   }));
   if (namedArguments.length) return namedArguments;
+  const memberRoot = rootForUri(document.uri);
+  if (memberRoot && workspace.isMemberCompletionContext(document.uri, offset)) await ensureDoctrineQueryFacts(memberRoot, workspace);
   let resolvedMembers = workspace.completeMembers(document.uri, offset);
   if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
     const root = rootForUri(document.uri); const version = document.version;
@@ -4341,6 +4363,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       if (!candidates.length) break;
       const loaded = await hydrateCanonicalTypes(workspace, root, candidates);
       if (!loaded || token.isCancellationRequested || documents.get(document.uri)?.version !== version) break;
+      await ensureDoctrineQueryFacts(root, workspace);
       resolvedMembers = workspace.completeMembers(document.uri, offset);
     }
     if (token.isCancellationRequested || documents.get(document.uri)?.version !== version) return [];

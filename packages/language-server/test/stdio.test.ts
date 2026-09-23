@@ -1745,6 +1745,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         function valid(EntityManagerInterface $manager): void {
           $repository = $manager->getRepository(Item::class); $repository->fi;
           $item = $repository->find(1); $item?->lab;
+          foreach ($repository->createQueryBuilder('item')->getQuery()->getResult() as $queried) { $queried->lab; }
         }
         function dynamic(EntityManagerInterface $manager, string $class): void {
           $repository = $manager->getRepository($class); $item = $repository->find(1); $item?->lab;
@@ -1762,11 +1763,14 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           public function getRepository(string $className): EntityRepository;
         }`);
       await writeFile(join(doctrineDirectory, 'EntityRepository.php'), `<?php namespace Doctrine\\ORM;
-        /** @template TEntity of object */ class EntityRepository {
+        /** @template T of object */ class EntityRepository {
           /** @return object|null
-           * @phpstan-return TEntity|null */
+           * @phpstan-return T|null */
           public function find(mixed $id): object|null {}
+          public function createQueryBuilder(string $alias): QueryBuilder {}
         }`);
+      await writeFile(join(doctrineDirectory, 'QueryBuilder.php'), '<?php namespace Doctrine\\ORM; class QueryBuilder { public function getQuery(): Query {} }');
+      await writeFile(join(doctrineDirectory, 'Query.php'), '<?php namespace Doctrine\\ORM; class Query { public function getResult(): array {} }');
 
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
@@ -1790,6 +1794,10 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('lab;') + 3),
       } }));
       expect((await output.waitFor((message) => message.id === 258)).result).toMatchObject([{ label: 'label' }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2581, method: 'textDocument/completion', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$queried->lab') + '$queried->lab'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 2581)).result).toMatchObject([{ label: 'label' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('lab;') + 3),
       } }));
