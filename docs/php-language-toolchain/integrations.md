@@ -17,7 +17,7 @@
 | 调试 | `xdebug.php-debug` | 验证现有组合、版本和运行时配置 |
 | PHPUnit | `recca0120.vscode-phpunit` | 现有候选，核验版本/许可和真实测试发现执行；Pest 非首发必需 |
 | 编辑约定 | `EditorConfig.EditorConfig` | 保留，验证与 formatter 的规则一致性 |
-| Apache 配置片段 | `eiminsasete.apacheconf-snippets` | 两个 Pack 均包含；当前试用清单记录 1.4.0；该扩展声明依赖 `mrmlnc.vscode-apache` 提供 Apache 配置语法；真实编辑器组合操作待验收 |
+| Apache 配置片段 | `eiminsasete.apacheconf-snippets` | Open Source Pack 包含；冻结试用清单记录 1.4.0；该扩展声明依赖 `mrmlnc.vscode-apache` 提供 Apache 配置语法；真实编辑器组合操作待验收 |
 
 Open Source Pack 已在 VS Code 1.136.1 / WSL 的隔离扩展目录完成实际安装，基础组合版本见 [组合报告](reports/open-source-profile-linux-wsl-2026-09-06.md)，Symfony Language Tools 的原组合验收见 [Symfony 组合报告](reports/symfony-language-tools-linux-wsl-2026-09-08.md)，0.20.1 与真实 Winstar 的复核见 [0.20.1 复核报告](reports/symfony-language-tools-0.20.1-recheck-2026-09-12.md)。Red Hat YAML、PHP Debug、PHPUnit & Pest Test Explorer 和 EditorConfig 的安装清单声明 MIT；PHP CS Fixer 扩展 0.3.21 的 VSIX `LICENSE.txt` 为 MIT，但 manifest 写作 ISC，报告保留这一元数据差异。Companion 与 TwigPlus 使用各自仓库声明的 MIT 许可证。许可证和安装核对不替代完整 VSIX 组合行为测试，也不锁定 Marketplace 自动更新后的版本。
 

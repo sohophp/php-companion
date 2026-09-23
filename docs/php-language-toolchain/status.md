@@ -1,5 +1,8 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 清单复核：当前 manifest 声明 Core、Symfony 和 8 个外部扩展，默认值分别启用 SoPHP 语言服务、按需索引、单一 PHP/XML formatter 等；暂不加入 PHPDoc 生成或 PHPStan 扩展。当前组合安装、私有 Symfony 候选边界和旧 Pack 迁移见[日常开发组合方案](daily-use-assembly.md)。Core 的下一项工作明确从[独立 Composer 项目的 C1 编码链](future-core-plan.md)与 F04 编号夹具开始，业务项目只作只读对照；此项是清单与执行顺序整理，尚未形成新的组合试用证据。
+
+
 2026-09-24 组合入口收敛：Recommended Pack 与 Open Source Pack 的扩展清单和默认设置相同，故从当前源码、构建、CI、私有候选与后续发布流程移除 Recommended Pack；新候选只生成 Core、Symfony 和 Open Source Pack 三份 VSIX，schema 3 预检要求 Open Source Pack，旧 schema 1/2 候选仍可核验。已安装旧 Pack 的用户可卸载后安装 Open Source Pack，并复核成员扩展。既有 Marketplace 条目暂未作外部变更；本记录不表示新候选已构建或真实编辑器试用已完成。根目录 README 与 RELEASE_CHECKLIST 保留历史内容；当前组合流程以本文和[打包说明](packaging.md)为准。
 
 

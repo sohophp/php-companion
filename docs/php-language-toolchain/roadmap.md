@@ -10,11 +10,11 @@
 
 通用 PHP 语义、LSP 与编辑器工作流以独立 PHP fixtures 和多项目/版本矩阵为交付依据；真实项目只用于只读回归与性能观测。项目专用 Provider 的结果不能替代通用 PHP 能力，开发编辑器时不修改被测业务项目的源码。
 
-优先关闭真实 WSL 编码阻断：索引长期不结束、错误或缺失的 Definition/References/Rename/Move、以及首次高频成员 References 的明显延迟。新功能面只在真实试用证明为阻断项时进入本轮；已有成熟插件继续负责 Twig、YAML、XML、格式化等边界，Symfony 专属能力在独立扩展中交付。
+当前先执行 [C1 通用 PHP 编码链](future-core-plan.md)：在独立 Composer 项目中验证补全、参数提示、Hover、Definition、Implementation、References 与未保存编辑的一致性，再按错误结果、缺失结果和延迟排序修复。真实 WSL 项目只读回归可补充规模证据；已有成熟插件继续负责 Twig、YAML、XML、格式化等边界，Symfony 专属能力在独立扩展中交付。
 
-每次语义或索引优化先跑受影响包的定向测试，再运行 `pnpm check:references:winstar`。该命令以独立临时缓存和 LSP 进程，**先执行 References，不经 Definition 预热**，再检查 Definition；对 Winstar `attributes->get('_route', '')` 校验结果数量和完整位置摘要并输出耗时。修改源码后先构建受影响包及下游语言服务器。业务代码变化导致预期位置改变时，应重新审计基线，不放宽准确性检查。修复未加载 vendor 接收者的首次路径后，最新基线 112 处、9.041 秒；正式 bundle 冷查询 9.138 秒，Reload 首次 7.483 秒，直接重复 16 ms，Definition 后重复 2.679 秒。普通导航不再加载无关容器接口，最新 References → Definition → References 复测末次降至 13 ms（[证据](reports/reference-navigation-cache-2026-09-21.md)）；继续优化首次候选加载与精确匹配。此前 7–8 秒结果经过 Definition 预热，不作为真实首次查询证据。详见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。这些单次测量不是延迟分位数或硬性时间阈值；完整发布门禁留到候选冻结时执行。
+每次语义或索引优化先跑受影响包的定向测试和独立 Composer fixture；影响首次 References 时，再运行只读 `pnpm check:references:winstar` 作为大项目补充基准。该命令以独立临时缓存和 LSP 进程，**先执行 References，不经 Definition 预热**，再检查 Definition；对 Winstar `attributes->get('_route', '')` 校验结果数量和完整位置摘要并输出耗时。修改源码后先构建受影响包及下游语言服务器。业务代码变化导致预期位置改变时，应重新审计基线，不放宽准确性检查。修复未加载 vendor 接收者的首次路径后，最新基线 112 处、9.041 秒；正式 bundle 冷查询 9.138 秒，Reload 首次 7.483 秒，直接重复 16 ms，Definition 后重复 2.679 秒。普通导航不再加载无关容器接口，最新 References → Definition → References 复测末次降至 13 ms（[证据](reports/reference-navigation-cache-2026-09-21.md)）；继续优化首次候选加载与精确匹配。此前 7–8 秒结果经过 Definition 预热，不作为真实首次查询证据。详见 [首次 References 接收者加载](reports/first-reference-owner-hydration-2026-09-21.md)。这些单次测量不是延迟分位数或硬性时间阈值；完整发布门禁留到候选冻结时执行。
 
-有界并行准备、连续预读和局部语法裁剪已通过基准；下一步优先压缩剩余约 5–6 秒的候选准备和约 3 秒的精确语义查询，并研究可证明的类型/继承依赖闭包。保持取消响应、打开缓冲区权威性和缓存一致性。仅按完整 `get` 标识符筛选曾把 112 处误减至 66 处，不能作为产品优化。定向测试和上述真实项目基准只用于快速反馈；阶段候选仍须执行完整类型检查、Lint、相关包与 Extension Host 测试、独立包消费验证、四份 VSIX 校验和 WSL 预检。最终通过还需要真实 WSL Profile 的 Provider 归属检查及连续编辑验收，自动门禁不能替代。
+有界并行准备、连续预读和局部语法裁剪已通过基准；C1 编码链若确认首次 References 延迟为阻断，再压缩历史测得约 5–6 秒的候选准备和约 3 秒的精确语义查询，并研究可证明的类型/继承依赖闭包。保持取消响应、打开缓冲区权威性和缓存一致性。仅按完整 `get` 标识符筛选曾把 112 处误减至 66 处，不能作为产品优化。定向测试和上述真实项目基准只用于快速反馈；阶段候选仍须执行完整类型检查、Lint、相关包与 Extension Host 测试、独立包消费验证、三份 VSIX 校验和 WSL 预检。最终通过还需要真实 WSL Profile 的 Provider 归属检查及连续编辑验收，自动门禁不能替代。
 
 ## P0：规格、基线与验收设施
 

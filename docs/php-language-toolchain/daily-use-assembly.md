@@ -4,7 +4,7 @@
 
 ## 安装入口与能力所有者
 
-[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口，包含 SoPHP Core、SoPHP Symfony 和已选定的外部扩展。正常从 Marketplace 安装时无需再单独安装一份 Core。私有 Alpha 若 Symfony 扩展尚未公开，则先从**同一候选**安装 Core、Symfony VSIX，再安装 Open Source Pack；不得混用不同候选的 Core 与 Symfony。旧版 Recommended Pack 与它的扩展清单及默认设置相同；已有用户可卸载旧 Pack，再安装 Open Source Pack。卸载旧 Pack 后先检查各成员扩展是否仍在当前 Profile 中，再进行验证。
+[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。清单固定为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、测试、Twig、YAML、XML 等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
 | 日常任务 | 当前所有者 | 进入首批使用的条件 |
 | --- | --- | --- |
@@ -29,11 +29,11 @@
 
 其他候选也走同一门禁：明确能补哪段工作流、许可与维护、PHP/VS Code/WSL 兼容性、唯一能力所有者、自动和真实操作证据、失败后的回退。Symfony Language Tools 0.20.1/0.20.2 已在普通 PHP Rename 中发生 Provider 冲突，目前不进入受支持组合；不能因为它能补部分路由能力就绕过冲突结果。
 
-先保持现有 Pack 清单不变，在隔离 Profile 逐个验证 PHP DocBlocker 和项目自选的 PHPStan；记录功能、冲突与版本后，再决定是否把 PHPDoc 辅助加入默认 Pack。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
+先保持当前 Pack 清单不变，在隔离 Profile 逐个验证 PHP DocBlocker 和项目自选的 PHPStan；记录功能、冲突与版本后，再决定是否把 PHPDoc 辅助加入默认 Pack。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
 
 ## 从安装到日常使用
 
-1. **选版本与 Profile。** 对当前已安装的 0.4.5，只使用其已声明的 R1 范围；评估当前源码的新功能时，冻结单一候选并记录 Core/Symfony/Pack 的版本与摘要。在干净 VS Code Profile 中安装一个 Pack。私有候选的安装和预检步骤见[Alpha 试用说明](alpha-candidate.md)。
+1. **选版本与 Profile。** 对当前已安装的 0.4.5，只使用其已声明的 R1 范围；评估当前源码的新功能时，冻结单一候选并记录 Core/Symfony/Pack 的版本与摘要。在干净 VS Code Profile 中安装 Open Source Pack。私有候选的安装和预检步骤见[Alpha 试用说明](alpha-candidate.md)。
 2. **确认运行位置。** 在 Windows+WSL Remote、SSH 或容器中，检查 SoPHP、Symfony、formatter、PHP Debug 和测试扩展运行于能访问项目 PHP 与 Composer 的 Extension Host；PHP CLI、fixer、测试命令和路径映射使用该环境的实际路径。仅本地安装成功不足以证明 Remote 可用。
 3. **确认唯一所有者。** 禁用其它通用 PHP LS；PHP 只由 SoPHP 返回通用补全、Definition、Rename 与诊断。PHP 格式化只由 PHP CS Fixer 提供，Twig 只由 TwigPlus 提供；YAML/XML 的通用语言功能归 Red Hat 扩展。可选静态分析诊断单独标明来源。
 4. **用独立 Composer 项目完成日常闭环。** 打开项目和 vendor → 输入并修改尚未保存的 PHP → 补全、Hover、参数提示、定义、实现、引用 → import/生成 → 预览一次受支持 Rename 并撤销 → 编辑 Twig 与 YAML/XML → 格式化 → 运行及调试测试。记录每步的扩展版本、结果、等待、重复 Provider 和失败提示。业务项目只做只读复核，不为编辑器验收修改其代码。
