@@ -5568,6 +5568,7 @@ export class SemanticWorkspace {
 
   removeUnusedPrivateParameter(uri: string, offset: number): RemovePrivateParameterInfo | undefined {
     const file = this.files.get(uri); const tree = this.trees.get(uri); if (!file || !tree) return undefined;
+    if (file.syntaxErrors.length) return undefined;
     const callable = file.callables.find((item) => item.kind === 'method' && item.visibility === 'private' && !item.name.startsWith('__')
       && item.parameters.some((parameter) => offset >= parameter.start && offset <= parameter.end));
     const parameter = callable?.parameters.find((item) => offset >= item.start && offset <= item.end);

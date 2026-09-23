@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-23 P0/F08 [private 参数删除编号夹具](acceptance-fixtures.md)新增 F08-RP-01/02/03：完整直接调用可生成有效编辑，合法间接调用拒绝，未完成调用所在文件拒绝操作。语义包 308 项、类型检查与相关 ESLint 通过；重建 bundle 后 Winstar 冷 References 返回 174 处且完整位置摘要匹配。P0/F08 仍开放，本轮未打包。
+
 2026-09-23 P7/F08 [private 参数删除的间接调用保护](reports/p7-private-parameter-callables-2026-09-23.md)：动态方法、callable 数组、first-class callable 与静态方法字符串若可能保留旧实参，删除操作会安全关闭；注释和普通字符串反例不误挡。语义包 305 项、真实 stdio 定向回归、类型检查和 ESLint 通过；Winstar 冷 References 174 处完整位置摘要匹配。本轮未打包，P7/F08 仍开放。
 
 2026-09-23 P0/F09 [Doctrine Entity 编号夹具](acceptance-fixtures.md)新增 F09-DOC-01/02/03，并修正未闭合类仍发布 Entity 事实的问题；完整同文件类保持可用。Doctrine 包 9 项及真实 Language Server 既有集成回归通过，范围见[报告](reports/f09-doctrine-incomplete-2026-09-23.md)。本轮未打包。
