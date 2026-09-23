@@ -22,3 +22,5 @@ Doctrine 静态分析直接读取 `SolutionArticle.php`、`SolutionCategory.php`
 Winstar Provider 4 项测试、类型检查及相关 ESLint 通过。此复核没有打包 VSIX，也没有执行编辑器中的 Definition/References/Rename 操作。
 
 随后补充真实 Language Server stdio 链路测试：临时项目的模块根含 `README.md`，后续 `Zulu/Routes/routes.yaml` 声明 `zulu.route`；独立 Winstar Provider 进程读取模拟的 `debug:router` JSON 后，PHP `RouterInterface::generate('zulu.route')` 的 Definition 返回 YAML 名称的精确范围。该定向测试、Language Server 类型检查和 ESLint 通过。它验证 Provider 到导航的集成，但模拟了 Router 输出，尚不等同 Winstar 编辑器会话中的人工导航验收。
+
+最后在真实 Winstar 根启动当前源码构建的 Language Server stdio，使用 `onDemand`、独立静态路由 Provider 和显式 Winstar 运行时 Provider，环境为 `dev`。未向项目写文件；仅 `didOpen` 一个内存中的 PHP 文档，调用 `RouterInterface::generate('admin.SolutionArticles.add')` 的 Definition。服务返回 `src/Modules/Solutions/Routes/admin_defaults.yaml` 第 19 行字符 10–26，读取目标文件核对切片正好为 `SolutionArticles`。探针正常退出（0）。这是当前项目运行时和 LSP 请求的直接证据；Windows 客户端连接 WSL Remote 的 VS Code 操作仍待人工验收，没有生成 VSIX。
