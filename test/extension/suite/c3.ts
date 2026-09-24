@@ -163,11 +163,38 @@ export async function run(): Promise<void> {
     { testPreviewAction: async () => 'apply' });
   assert.ok((await vscode.workspace.openTextDocument(interfaceUri)).getText().includes('interface C3ExtractableInterface'));
   assert.ok(classDocument.getText().includes('implements C3ExtractableInterface'));
-  await vscode.window.showTextDocument(classDocument);
+  assert.strictEqual(vscode.window.activeTextEditor?.document.uri.toString(), classUri.toString(),
+    'Extract Interface left focus in the diff preview after applying');
   await vscode.commands.executeCommand('undo');
   await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Extract Interface Undo left the target');
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(interfaceUri)).getText().includes('interface C3ExtractableInterface'));
+  const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
+  const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
+  await vscode.window.showTextDocument(dynamicDocument);
+  const dynamicOriginal = dynamicDocument.getText();
+  const invalidAttributes = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(dynamicUri)
+    .filter((diagnostic) => diagnostic.code === 'php.attribute.invalid-allow-dynamic-properties');
+  for (let attempt = 0; attempt < 100 && invalidAttributes().length !== 4; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.strictEqual(invalidAttributes().length, 4, 'C3 diagnostic undo probe did not start with four invalid attributes');
+  const property = vscode.languages.getDiagnostics(dynamicUri).find((diagnostic) => diagnostic.code === 'php.property.dynamic-deprecated');
+  assert.ok(property);
+  const fixes = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', dynamicUri, property.range, vscode.CodeActionKind.QuickFix.value);
+  const declare = fixes.find((action): action is vscode.CodeAction => 'edit' in action && action.title.includes('Declare property $created'));
+  assert.ok(declare?.edit);
+  assert.ok(await vscode.workspace.applyEdit(declare.edit));
+  await vscode.commands.executeCommand('undo');
+  await vscode.commands.executeCommand('redo');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(dynamicDocument.getText(), dynamicOriginal, 'C3 diagnostic undo probe did not restore source text');
+  for (let attempt = 0; attempt < 100 && invalidAttributes().length !== 4; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.strictEqual(invalidAttributes().length, 4,
+    `C3 diagnostic undo probe lost invalid attributes; diagnostics=${JSON.stringify(vscode.languages.getDiagnostics(dynamicUri).map((item) => item.code))}`);
   console.log('C3 held server import requests: addImport, planTypeImports, organizeImports; all rejected stale edits.');
   console.log('C3 PHP type generation: preview, cancel, apply and one Undo passed; Redo remains open.');
 }

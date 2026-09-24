@@ -2278,6 +2278,7 @@ export async function run(): Promise<void> {
   await waitFor(() => !implicitNullableDocument.getText().includes('?string $name = null'), 'Implicit-nullability fixture could not be restored after Redo');
   const dynamicPropertyUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicPropertyDocument = await vscode.workspace.openTextDocument(dynamicPropertyUri);
+  const dynamicPropertyOriginal = dynamicPropertyDocument.getText();
   await waitFor(
     () => vscode.languages.getDiagnostics(dynamicPropertyUri).some((diagnostic) => diagnostic.source === 'PHP Companion'
       && diagnostic.code === 'php.property.dynamic-deprecated'),
@@ -2312,6 +2313,8 @@ export async function run(): Promise<void> {
   await waitFor(() => dynamicPropertyDocument.getText().includes('public int $created;'), 'Dynamic-property declaration Quick Fix could not be redone as one editor operation');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !dynamicPropertyDocument.getText().includes('public int $created;'), 'Dynamic-property declaration fixture could not be restored after Redo');
+  assert.strictEqual(dynamicPropertyDocument.getText(), dynamicPropertyOriginal,
+    'Dynamic-property Quick Fix Undo/Redo/Undo did not restore the original source');
   await waitForAsync(
     async () => {
       const diagnostics = vscode.languages.getDiagnostics(dynamicPropertyUri)

@@ -445,6 +445,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (!await confirmPreviewedEdit(t('applyPreviewedExtract'), options?.testPreviewAction)) return;
     if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
     if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
+    await vscode.window.showTextDocument(source, { preview: false });
   });
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
