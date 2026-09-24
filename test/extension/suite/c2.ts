@@ -8,7 +8,8 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', root.uri).get('phpVersion'), '8.5');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load.');
-  await extension.activate();
+  const api = await extension.activate() as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
+  assert.ok(api.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const uri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
   const document = await vscode.workspace.openTextDocument(uri);
   await vscode.window.showTextDocument(document);
@@ -41,16 +42,18 @@ export async function run(): Promise<void> {
   await replaceType('void', 'never');
   await waitForCount(expected.length);
   assert.deepStrictEqual(actual(), expected, 'The editor did not restore unreachable diagnostics after never returned.');
-  const events: Array<{ version: number; count: number }> = [];
+  const events: Array<{ version: number; count: number; atMs: number }> = [];
+  await api.requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
   const subscription = vscode.languages.onDidChangeDiagnostics((event) => {
     if (event.uris.some((changed) => changed.toString() === uri.toString())) {
-      events.push({ version: document.version, count: actual().length });
+      events.push({ version: document.version, count: actual().length, atMs: performance.now() });
     }
   });
   try {
     for (let round = 0; round < 20; round += 1) {
       await replaceType(round % 2 === 0 ? 'never' : 'void', round % 2 === 0 ? 'void' : 'never');
     }
+    const finalStarted = performance.now();
     await replaceType('never', 'void');
     const finalVersion = document.version;
     const deadline = Date.now() + 20_000;
@@ -63,7 +66,15 @@ export async function run(): Promise<void> {
     assert.deepStrictEqual(actual(), withoutNever, 'The final rapid edit kept an old never diagnostic.');
     assert.ok(!events.some((event) => event.version >= finalVersion && event.count !== 0 && event.count !== withoutNever.length),
       `A stale diagnostic was published after the final rapid edit: ${JSON.stringify(events)}`);
-    console.log(`C2 onDemand native never diagnostics: ${expected.length} → ${withoutNever.length} → ${expected.length}; rapid final ${withoutNever.length}, events=${events.length}, unsaved`);
+    const cleared = events.find((event) => event.version >= finalVersion && event.count === 0);
+    const restored = events.find((event) => event.version >= finalVersion && event.count === withoutNever.length);
+    assert.ok(restored);
+    const timings = await api.requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: true });
+    console.log(`C2 onDemand native never diagnostics: ${JSON.stringify({ sequential: [expected.length, withoutNever.length, expected.length],
+      rapidFinal: withoutNever.length, events: events.length, finalVisibleMs: Math.round(restored.atMs - finalStarted),
+      clearedMs: cleared && Math.round(cleared.atMs - finalStarted),
+      blankMs: cleared && Math.round(restored.atMs - cleared.atMs), serverDiagnosticsMs: timings.diagnostics?.at(-1),
+      serverChangeMs: timings.documentChangeDiagnostics?.at(-1), unsaved: document.isDirty })}`);
   } finally {
     subscription.dispose();
   }

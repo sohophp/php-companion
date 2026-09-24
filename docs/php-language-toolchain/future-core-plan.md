@@ -35,7 +35,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 ## 下一批具体任务
 
-从 **C1 通用 PHP 编码链**开始，不按某个业务项目或 Symfony Provider 的缺口决定 Core 优先级。Open Source Pack 的当前清单先保持稳定；PHPDoc 生成、PHPStan 等候选单独验收后再考虑加入，详见[日常开发组合方案](daily-use-assembly.md)。
+**当前执行起点是 C2 的编辑反馈链。** C1 已有独立 Composer 项目、真实依赖树、10k 文件和隔离宿主的六项查询与可见补全证据，但冷查询等待分布、长期会话、Remote 和跨平台验收仍开放。C2 快速编辑的旧诊断已修复；[最新计时](reports/c2-rapid-diagnostic-version-2026-09-24.md)显示最后一次编辑后仍有约 268–319 ms 的诊断空白，服务器该次文档变化处理约 26 ms。先定位文档同步、通知队列与客户端写入各段耗时，再修复确定的瓶颈并复测未保存编辑的正确结果、旧结果隔离和可见等待。随后检查 PHPDoc、跨文件类型与诊断是否消费同一版本的事实。C1 未关闭的门槛与 C3/C4 继续在各自阶段验收，不因单个业务项目或 Symfony Provider 的缺口改变 Core 优先级。Open Source Pack 的 10 项清单先保持稳定；PHPDoc 生成、PHPStan 等候选单独验收后再考虑加入，详见[日常开发组合方案](daily-use-assembly.md)。
 
 截至 2026-09-24，F04-NAV-01–13 已用独立 Composer 项目验证接口、未保存类型切换、未完成成员输入、跨 namespace 父类与同名短类、跨文件 Trait 优先级和别名、外部声明变更后的索引失效，以及进行中查询的取消、版本隔离和同版本重新打开防护。F04-HOST-01 又在隔离 VS Code Core 宿主中，以 auto、PHP 7.2、8.1、8.5 设置完成六项编辑请求及未保存切换后的完整查询链；F02-VERSION-01 用同一版本文件验证了 `match`、`enum`、`(void)` 的版本诊断。查询版本保护已统一覆盖主要异步边界。Pack 组合、Remote、跨平台和持续使用按后续门槛执行。Symfony 或单个业务项目特例不决定通用 Core 的优先级。
 

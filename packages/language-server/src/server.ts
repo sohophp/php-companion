@@ -1441,6 +1441,7 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
 }
 
 async function publishDocumentDiagnostics(document: TextDocument): Promise<void> {
+  const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
   const workspace = await semanticForUri(document.uri);
   const root = rootForUri(document.uri);
@@ -1902,6 +1903,7 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
     const diagnostics = configuredDiagnostics(result.diagnostics);
     if (versionedDiagnostics) await connection.sendNotification('phpCompanion/versionedDiagnostics', { uri: document.uri, version, diagnostics });
     else await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
+    recordTestQueryDuration('diagnostics', diagnosticStarted);
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
 }
@@ -4304,6 +4306,7 @@ documents.onDidOpen(async ({ document }) => {
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  const changeStarted = testMode ? performance.now() : 0;
   const opening = openingContentVersions.get(document.uri) === document.version;
   if (opening) openingContentVersions.delete(document.uri);
   const source = document.getText();
@@ -4340,6 +4343,7 @@ documents.onDidChangeContent(async ({ document }) => {
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
+  recordTestQueryDuration('documentChangeDiagnostics', changeStarted);
   if (update.kind !== 'none') await refreshInteropDocument(document);
   const pending = pendingReferenceSelections.get(document.uri);
   if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {

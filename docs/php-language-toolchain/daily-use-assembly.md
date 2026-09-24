@@ -64,7 +64,7 @@ SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 
 
 Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。Pack 成员清单先冻结，避免在 Core 编码链审计期间增加变量。
 
-Core 从 [C1 独立 Composer 项目工作流](future-core-plan.md)继续：未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询已有自动及隔离宿主证据。下一步先在冻结候选上复核冷启动后的首次查询等待与结果、较长会话中的可见建议稳定性，再按实测缺口修复；C2 随后处理同一类型事实驱动的诊断，包含 `onDemand` 下已记录的 `never` 漏报。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
+Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never` 漏报及快速编辑的旧诊断发布已修复；最新隔离宿主计时仍发现正确诊断出现前有数百毫秒空白，先定位并修复这段可见等待，再扩展跨文件类型与 PHPDoc 一致性。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
 ## 与 R2–R4 的关系
 
