@@ -476,6 +476,79 @@ final class ProfileTest extends TestCase {
   await vscode.commands.executeCommand('redo');
   await waitForAsync(async () => { await vscode.workspace.fs.stat(movedTestUri); return true; }, 'Could not redo PHPUnit fixture move');
   await verifyMovedSuite('MovedProfileTest.php');
+  if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1') await verifyOpenSourceRealVendorFeedback(workspace);
+}
+
+async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const project = vscode.Uri.joinPath(workspace.uri, 'real-vendor');
+  await vscode.workspace.fs.stat(vscode.Uri.joinPath(project, 'vendor', 'autoload.php'));
+  const noiseFiles = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE);
+  const rounds = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS);
+  if (noiseFiles) await vscode.workspace.fs.stat(vscode.Uri.joinPath(project, 'src', 'Noise', `Noise${noiseFiles - 1}.php`));
+  const sourceUri = vscode.Uri.joinPath(project, 'src', 'ProfileFeedbackService.php');
+  const consumerUri = vscode.Uri.joinPath(project, 'src', 'ProfileFeedbackConsumer.php');
+  const source = (type: 'int' | 'string'): string => `<?php namespace App\\C1;
+final class ProfileFeedbackService { public function text(): ${type} { return ${type === 'int' ? '42' : "'bad'"}; } public function accept(int $value): void {} }
+`;
+  const consumer = `<?php declare(strict_types=1); namespace App\\C1;
+function inspectFeedback(ProfileFeedbackService $service): void { $value = $service->text(); // stable local source
+  $service->accept($value); }
+`;
+  await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source('string')));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
+  const sourceDocument = await vscode.workspace.openTextDocument(sourceUri);
+  const consumerDocument = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(consumerDocument);
+  const hoverPosition = consumerDocument.positionAt(consumer.lastIndexOf('$value);') + 2);
+  const mismatch = (): boolean => vscode.languages.getDiagnostics(consumerUri)
+    .some((item) => item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const hoverMatches = async (type: 'int' | 'string'): Promise<boolean> => {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, hoverPosition) ?? [];
+    return hovers.some((hover) => hover.contents.some((item) =>
+      (typeof item === 'string' ? item : item.value).includes(`$value: ${type}`)));
+  };
+  await waitForAsync(async () => mismatch() && await hoverMatches('string'),
+    'Real vendor Pack profile did not show the initial local Hover and argument diagnostic', 30_000);
+  const elapsedMs: number[] = []; const definitionWaitMs: number[] = []; const definitionAttempts: number[] = [];
+  for (let round = 0; round < rounds; round += 1) {
+    const type = round % 2 === 0 ? 'int' : 'string';
+    const started = performance.now();
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(sourceUri, new vscode.Range(sourceDocument.positionAt(0), sourceDocument.positionAt(sourceDocument.getText().length)), source(type));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(sourceDocument.isDirty);
+    await waitForAsync(async () => mismatch() === (type === 'string') && await hoverMatches(type),
+      `Real vendor Pack profile retained old C2 feedback in round ${round + 1}`, 30_000);
+    elapsedMs.push(performance.now() - started);
+    if (round % 10 === 0 || round === rounds - 1) {
+      const methodPosition = consumerDocument.positionAt(consumer.indexOf('text()') + 2);
+      let definitions: vscode.Location[] = []; let attempts = 0;
+      const definitionStarted = performance.now();
+      await waitForAsync(async () => {
+        attempts += 1;
+        definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, methodPosition) ?? [];
+        return definitions.some((location) => location.uri.toString() === sourceUri.toString()
+          && sourceDocument.getText(location.range) === 'text');
+      }, () => `Real vendor Pack profile lost the source method Definition: ${JSON.stringify(definitions.map((location) => ({
+        uri: location.uri.toString(), range: location.range,
+      })))}`, 15_000, 50);
+      definitionWaitMs.push(performance.now() - definitionStarted);
+      definitionAttempts.push(attempts);
+      const signaturePosition = consumerDocument.positionAt(consumer.indexOf('text()') + 'text('.length);
+      let signature: vscode.SignatureHelp | undefined;
+      await waitForAsync(async () => {
+        signature = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', consumerUri, signaturePosition);
+        return Boolean(signature?.signatures.some((item) => item.label.includes(`text(): ${type}`)));
+      }, () => `Real vendor Pack profile retained an old source method signature in round ${round + 1}: ${JSON.stringify(signature?.signatures.map((item) => item.label))}`,
+      15_000, 50);
+    }
+  }
+  const sorted = [...elapsedMs].sort((left, right) => left - right);
+  console.log(`Open Source Pack real vendor C2 feedback: ${JSON.stringify({ noiseFiles, rounds,
+    p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
+    p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
+    maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
+    consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), definitionAttempts })}`);
 }
 
 async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {

@@ -147,6 +147,13 @@ try {
     return response.elapsedMs;
   };
   await hover('int');
+  const firstDefinition = await server.request('textDocument/definition', {
+    textDocument: { uri: consumerUri }, position: positionAt(consumer, consumer.indexOf('text()') + 2),
+  });
+  if (!Array.isArray(firstDefinition.result) || firstDefinition.result.length !== 1
+    || firstDefinition.result[0].uri !== serviceUri) {
+    throw new Error(`First Definition did not resolve the source method: ${JSON.stringify(firstDefinition.result)}`);
+  }
   const timings = { diagnostics: [], hover: [] }; const rssSamples = [{ round: 0, rssMiB: initialRssMiB }];
   const started = performance.now();
   for (let round = 0; round < rounds; round += 1) {
@@ -163,6 +170,7 @@ try {
   await server.stop(); server = undefined;
   process.stdout.write(`${JSON.stringify({ schema: 1, rounds, noiseFiles, vendorPhpFiles,
     projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
+    firstDefinitionMs: firstDefinition.elapsedMs,
     elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
       .map(([name, values]) => [name, summary(values)])), rssSamples }, null, 2)}\n`);
 } finally {

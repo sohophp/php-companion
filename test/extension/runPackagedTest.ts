@@ -42,6 +42,14 @@ function resolvePhpScriptCommand(command: string): string {
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
+  const realVendorProfile = process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1';
+  const realVendorNoise = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE ?? 9100);
+  const realVendorRounds = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS ?? 50);
+  if (realVendorProfile && !sourceProfile) throw new Error('Real vendor Pack gate requires the source Profile.');
+  if (realVendorProfile && (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 20_000
+    || !Number.isSafeInteger(realVendorRounds) || realVendorRounds < 1 || realVendorRounds > 500)) {
+    throw new Error('Real vendor Pack gate needs 0..20000 noise files and 1..500 rounds.');
+  }
   const vsix = process.env.PHP_COMPANION_TEST_CORE_VSIX ? resolve(process.env.PHP_COMPANION_TEST_CORE_VSIX)
     : join(repository, 'php-companion-0.4.5.vsix');
   const symfonyVsix = process.env.PHP_COMPANION_TEST_SYMFONY_VSIX ? resolve(process.env.PHP_COMPANION_TEST_SYMFONY_VSIX)
@@ -106,6 +114,19 @@ exit($status);
       } : {}),
     }, null, 2));
     await cp(join(repository, 'test', 'extension', 'baseline'), fixture, { recursive: true });
+    if (realVendorProfile) {
+      const project = join(fixture, 'real-vendor');
+      await cp(join(repository, 'test', 'extension', 'real-vendor'), project, { recursive: true });
+      await stat(join(project, 'vendor', 'autoload.php'));
+      await mkdir(join(project, 'src', 'Noise'), { recursive: true });
+      for (let start = 0; start < realVendorNoise; start += 100) {
+        await Promise.all(Array.from({ length: Math.min(100, realVendorNoise - start) }, (_, offset) => {
+          const index = start + offset;
+          return writeFile(join(project, 'src', 'Noise', `Noise${index}.php`),
+            `<?php namespace App\\C1\\Noise; class Noise${index} { public function work(): int { return ${index}; } }`);
+        }));
+      }
+    }
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
     // Packaged tests must exercise the extension manifest default rather than
@@ -214,6 +235,9 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
         PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
+        PHP_COMPANION_TEST_PROFILE_REAL_VENDOR: realVendorProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE: realVendorProfile ? String(realVendorNoise) : undefined,
+        PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS: realVendorProfile ? String(realVendorRounds) : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
         PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunitExecutable,

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 完整 Open Source Pack 大项目宿主：11 项源码 Profile、真实 1,029 个 vendor PHP 文件及 9,100 个生成文件的独立 Composer 项目完成 50 轮未保存跨文件返回类型切换；局部 Hover 与参数诊断一致等待 P95 119 ms，宿主退出码 0。Definition 偶尔先返回空数组，约 1.4–1.6 秒后才正确；无生成文件也重现，因此首次导航可靠性尚未过关。已加入可选组合门禁并记录查询次数；本轮无 VSIX、无业务项目修改。见[报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
+
 2026-09-24 C2 跨文件诊断隔离宿主复核：默认 `onDemand` 的唯一 PSR-4 具体类方法与直接字面量场景，在 VS Code 1.139.0 Linux 隔离源码宿主中随未保存 `int → string → int` 呈现诊断有 → 无 → 有，参数提示同步更新；两次首次可见变化本机单次样本各约 148 ms，随后 150 ms 未回闪。宿主先发现同文件候选被重复加入，修复后原有同文件 5 → 0、跨文件往返和 PHPDoc 补全/定义均通过，退出码 0。最终源码 Language Server 全套 18 文件、338 项通过、1 项跳过，宿主 TypeScript、相关 ESLint 和差异检查通过。局部变量来源、Remote、完整 Pack 与持续使用仍开放；未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
 
 2026-09-24 C2 默认 `onDemand` 的首批可证明跨文件参数诊断：独立 Composer PHP 8.5 项目中，唯一 PSR-4 具体类方法收到直接标量字面量且类型不兼容时，使用方现在发布 `php.argument.type-mismatch`；声明与使用方未保存编辑、关闭恢复、watcher 更新形成出现/撤销往返，参数提示与诊断使用更新后的签名。两个 PSR-4 候选路径保持静默，PHPDoc 返回值传播继续保守。修复待处理诊断刷新沿用旧编辑 URI 集合的问题；完整 Language Server 18 文件、338 项通过、1 项跳过。最终增加“具体类”约束后重新构建，相关 6 项、类型检查、ESLint 与差异检查通过；未重跑完整套件。未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
