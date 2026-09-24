@@ -2425,10 +2425,11 @@ export async function run(): Promise<void> {
       new vscode.Range(extractDocument.positionAt(inlineStart), extractDocument.positionAt(inlineStart)),
       vscode.CodeActionKind.RefactorInline.value,
     );
-    inlineAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Inline $result');
-    return Boolean(inlineAction?.edit);
+    inlineAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Inline $result');
+    return Boolean(inlineAction?.command);
   }, 'Self-hosted language server did not offer Inline Variable for a single immediate whole-value use');
-  assert.ok(await vscode.workspace.applyEdit(inlineAction!.edit!), 'Inline Variable edit could not be applied');
+  await vscode.commands.executeCommand(inlineAction!.command!.command, ...inlineAction!.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitFor(() => extractDocument.getText().includes('return new \\stdClass();') && !extractDocument.getText().includes('$result ='), 'Inline Variable did not remove the declaration and replace the use');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => extractDocument.getText() === extractSource, 'Inline Variable could not be undone as one editor operation');

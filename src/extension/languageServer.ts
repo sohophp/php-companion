@@ -139,7 +139,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         if (!actions || token.isCancellationRequested) return actions;
         for (const action of actions) {
           if (!(action instanceof vscode.CodeAction) || !action.edit
-            || action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value) continue;
+            || (action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value
+              && action.kind?.value !== vscode.CodeActionKind.RefactorInline.value)) continue;
           const edit = action.edit;
           action.edit = undefined;
           action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',

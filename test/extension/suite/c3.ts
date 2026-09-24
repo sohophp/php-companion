@@ -251,6 +251,52 @@ export async function run(): Promise<void> {
   assert.strictEqual(variableDocument.getText(), variableSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(variableDocument.getText().includes('$extracted = new \\stdClass();'));
+  const inlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineVariable.php');
+  const inlineSource = '<?php\nnamespace App\\Service;\nfunction makeInline(): object\n{\n    $result = new \\stdClass();\n    return $result;\n}\n';
+  await vscode.workspace.fs.writeFile(inlineUri, Buffer.from(inlineSource));
+  const inlineDocument = await vscode.workspace.openTextDocument(inlineUri);
+  await vscode.window.showTextDocument(inlineDocument);
+  const inlineAction = async (): Promise<vscode.CodeAction> => {
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const start = inlineDocument.getText().indexOf('$result');
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', inlineUri,
+        new vscode.Range(inlineDocument.positionAt(start), inlineDocument.positionAt(start)),
+        vscode.CodeActionKind.RefactorInline.value);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Inline $result');
+      if (found?.command) return found;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail('Inline Variable was not routed through the preview command');
+  };
+  const staleInline = await inlineAction();
+  const inlineChange = new vscode.WorkspaceEdit();
+  inlineChange.insert(inlineUri, new vscode.Position(1, 0), '// edited after selecting inline\n');
+  assert.ok(await vscode.workspace.applyEdit(inlineChange));
+  await vscode.commands.executeCommand(staleInline.command!.command, ...staleInline.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(inlineDocument.getText().includes('// edited after selecting inline')
+    && inlineDocument.getText().includes('$result = new \\stdClass();'), 'Stale Inline Variable changed the edited source');
+  await vscode.window.showTextDocument(inlineDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(inlineDocument.getText(), inlineSource);
+  const cancelInline = await inlineAction();
+  await vscode.commands.executeCommand(cancelInline.command!.command, ...cancelInline.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+        .some((tab) => tab.label.includes('Inline $result')), 'Inline Variable did not show a source diff');
+      return 'cancel';
+    } });
+  assert.strictEqual(inlineDocument.getText(), inlineSource, 'Cancelling Inline Variable changed the source');
+  const freshInline = await inlineAction();
+  await vscode.commands.executeCommand(freshInline.command!.command, ...freshInline.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(inlineDocument.getText().includes('return new \\stdClass();') && !inlineDocument.getText().includes('$result ='));
+  assert.strictEqual(vscode.window.activeTextEditor?.document.uri.toString(), inlineUri.toString());
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(inlineDocument.getText(), inlineSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(inlineDocument.getText().includes('return new \\stdClass();'));
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);

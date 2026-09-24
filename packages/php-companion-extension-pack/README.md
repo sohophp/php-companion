@@ -2,6 +2,8 @@
 
 面向希望直接使用自研 PHP Language Server 和开源 PHP 工具的开发者。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
+当前源码组合为 11 项：SoPHP Core、SoPHP Symfony 和下表的 9 项外部工具。已冻结的 0.4.5 私有 VSIX 候选仍是先前的 10 项组合，尚未包含后来加入的 PHP DocBlocker；要体验 11 项组合，须等下一次同批候选冻结，或使用已验证的源码 Profile。公开 Marketplace 页面也仍显示旧说明，不能当作当前源码清单。
+
 ## 包含内容
 
 | 扩展 | 职责 |

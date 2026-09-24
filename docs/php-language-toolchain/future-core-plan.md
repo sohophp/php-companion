@@ -2,6 +2,14 @@
 
 日期：2026-09-24。本文按用户在 VS Code 中完成 PHP 工作的顺序组织 C1–C4；[长期工程路线图](roadmap.md)记录 P0–P9 的技术任务，[最终验收](acceptance.md)记录 F01–F14 的门槛，实际完成情况以[实施状态](status.md)和测试报告为准。
 
+## 当前执行顺序
+
+1. **先稳住 C3 高频编辑。** Import、生成类型、Safe Move 与 Extract 已有预览和旧版本保护；继续覆盖 Inline、Rename、Change Signature 的“选择 → 预览 → 应用/取消 → Undo/Redo”，优先阻止旧 CodeAction 改写用户刚编辑的文件。生成新文件的 Redo 仍是明确缺口。
+2. **同步收口 C1/C2 的实用门槛。** 在独立 Composer 项目与当前 11 项 Pack 源码 Profile 中复核未保存输入、真实 vendor、诊断/导航的一致性、等待和取消；数小时会话、跨平台和 Remote 不由短时本机测试代替。
+3. **候选冻结时做 C4 组合门禁。** 固定 Core、Symfony、Pack 三份 VSIX 与外部扩展版本，再查唯一能力所有者、安装位置、PHP CLI/调试/测试路径和回退。日常 Core 增量只做定向构建及测试，不重复打包三份 VSIX。
+
+Open Source Pack 的源码清单已有 Core、Symfony 和 9 项外部扩展，公开 Marketplace 页面与已冻结 0.4.5 候选仍对应旧组合；实际安装状态见[日常开发组合方案](daily-use-assembly.md)。以上顺序从真实用户操作出发，R4 的最终验收目标保持不变。
+
 ## 目标体验
 
 在独立 Composer PHP 项目中，用户打开文件后能立即开始编码：补全给出相关候选，参数提示和 Hover 能解释当前调用，跳转与查找引用能准确找到声明和使用处；修改代码时，诊断跟随未保存内容更新，导入、生成和重构能预览、应用和撤销。跨文件、跨 namespace、Trait/继承、vendor 与多根项目仍保持一致。遇到动态 PHP 或不完整索引时，SoPHP 应说明可用范围或拒绝危险操作，不能显示看似确定的错误结果。
