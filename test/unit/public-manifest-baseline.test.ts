@@ -64,7 +64,7 @@ describe('F14 public manifest baseline', () => {
     expect(commands.every(({ category }) => category?.startsWith('SoPHP'))).toBe(true);
   });
 
-  it('localizes all Core setting descriptions without changing their English baseline', async () => {
+  it('localizes Core setting descriptions while correcting the Rename preview shortcut', async () => {
     const baseline = await readJson('docs/php-language-toolchain/reports/f14-setting-description-baseline-2026-09-23.json');
     const englishBaseline = baseline.english as Record<string, string>;
     const manifest = await readJson('package.json') as unknown as Manifest;
@@ -78,7 +78,10 @@ describe('F14 public manifest baseline', () => {
       const suffix = name.replace(/^phpCompanion\./u, '');
       const key = `config.${suffix}`;
       expect(schema.description, `${name} must use ${key}`).toBe(`%${key}%`);
-      expect(defaults[key], `${key} English default`).toBe(englishBaseline[suffix]);
+      const expected = suffix === 'rename.file'
+        ? 'Controls renaming a matching PSR-4 PHP file. Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (macOS) in the Rename input to inspect the ordered file and text edits in VS Code\'s standard preview.'
+        : englishBaseline[suffix];
+      expect(defaults[key], `${key} English default`).toBe(expected);
       expect(typeof chinese[key], `${key} Simplified Chinese`).toBe('string');
       expect(String(chinese[key]).trim()).not.toBe('');
     }

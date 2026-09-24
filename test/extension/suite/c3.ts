@@ -381,6 +381,37 @@ export async function run(): Promise<void> {
   assert.strictEqual(signatureDocument.getText(), signatureSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(signatureDocument.getText().includes('build(string $name)'));
+  const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
+  const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
+  await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));
+  const renameDocument = await vscode.workspace.openTextDocument(renameUri);
+  await vscode.window.showTextDocument(renameDocument);
+  const renamePosition = renameDocument.positionAt(renameSource.indexOf('$value') + 2);
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'rename' }), true);
+  const heldRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', renameUri, renamePosition, 'updatedValue')
+    .then((edit) => edit, (error: unknown) => {
+      assert.match(error instanceof Error ? error.message : String(error), /Canceled|changed|Rename/);
+      return undefined;
+    });
+  await waitForState(api, 'rename', renameDocument, (state) => state.paused && state.version === renameDocument.version,
+    'Rename response was not held with the source version');
+  const renameChange = new vscode.WorkspaceEdit();
+  renameChange.insert(renameUri, new vscode.Position(1, 0), '// edited while Rename was in flight\n');
+  assert.ok(await vscode.workspace.applyEdit(renameChange));
+  try {
+    await waitForState(api, 'rename', renameDocument,
+      (state) => state.paused && state.version === renameDocument.version,
+      'Language Server did not receive the new version before releasing Rename');
+  } finally {
+    assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'rename' }), true);
+  }
+  assert.strictEqual(await heldRename, undefined, 'Rename returned a stale WorkspaceEdit after source modification');
+  assert.ok(renameDocument.getText().includes('edited while Rename was in flight') && renameDocument.getText().includes('$value'),
+    'Rename changed or discarded the concurrent user edit');
+  await vscode.window.showTextDocument(renameDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(renameDocument.getText(), renameSource);
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);

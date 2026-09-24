@@ -54,7 +54,7 @@
   "config.move.enabled": "Update namespaces and semantic references when PHP files are moved within Composer PSR-4 paths.",
   "config.move.preview": "Preview namespace and proven reference changes before the Safe Move command applies one undoable workspace edit.",
   "config.rename.enabled": "Provide stable F2 Rename for PHP class-like declarations. Disable this when another PHP extension should own Rename.",
-  "config.rename.file": "Controls renaming a matching PSR-4 PHP file. Use Shift+Enter in the Rename input to inspect the ordered file and text edits in VS Code's standard preview.",
+  "config.rename.file": "Controls renaming a matching PSR-4 PHP file. Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (macOS) in the Rename input to inspect the ordered file and text edits in VS Code's standard preview.",
   "config.rename.phpDoc": "Update semantic PHPDoc type references during Rename.",
   "config.rename.stringReferences": "Reserved for future string-reference support. SoPHP 0.3 never changes ordinary strings.",
   "config.routeProviders.cacheUntilInvalidated": "Reuse a complete route snapshot until provider, environment, watched PHP/YAML, or open-document invalidation.",

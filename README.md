@@ -78,7 +78,7 @@ PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准
 
 普通参数可从声明、作用域引用或唯一解析的命名实参发起 Rename。完整索引能够证明接口、父类和全部重写关系时，操作按参数位置同步整个方法族，并更新各实现原参数名对应的标准/PHPStan/Psalm `@param` 与已解析命名实参。提升属性的构造命名实参会进入同一参数/属性身份编辑；层级不完整、动态同名调用、闭包捕获或名称冲突会拒绝操作。
 
-在 VS Code 的 Rename 输入框中按 `Enter` 会直接应用；按 `Shift+Enter` 或点击 Preview 会打开重构列表，再通过 Apply 提交。文件重命名是声明文本编辑的必需依赖，预览中不要单独取消它。
+在 VS Code 的 Rename 输入框中按 `Enter` 会直接应用；按 Windows/Linux 的 `Ctrl+Enter`（macOS 为 `Cmd+Enter`）或点击 Preview 会打开重构列表，再通过 Apply 提交。文件重命名是声明文本编辑的必需依赖，预览中不要单独取消它。
 
 ```json
 {

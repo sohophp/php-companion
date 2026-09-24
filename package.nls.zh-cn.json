@@ -54,7 +54,7 @@
   "config.move.enabled": "在 Composer PSR-4 路径中移动 PHP 文件时更新命名空间和经语义证明的引用。",
   "config.move.preview": "安全移动命令应用可一次撤销的工作区编辑前，预览命名空间和已证明的引用变更。",
   "config.rename.enabled": "为 PHP 类及相近声明提供稳定的 F2 重命名。若要由其他 PHP 扩展负责重命名，可关闭此项。",
-  "config.rename.file": "控制是否重命名匹配的 PSR-4 PHP 文件。在重命名输入框中按 Shift+Enter，可用 VS Code 标准预览查看有序的文件和文本编辑。",
+  "config.rename.file": "控制是否重命名匹配的 PSR-4 PHP 文件。在重命名输入框中按 Ctrl+Enter（Windows/Linux）或 Cmd+Enter（macOS），可用 VS Code 标准预览查看有序的文件和文本编辑。",
   "config.rename.phpDoc": "重命名时更新 PHPDoc 中经语义证明的类型引用。",
   "config.rename.stringReferences": "保留给未来的字符串引用支持。SoPHP 目前不会修改普通字符串。",
   "config.routeProviders.cacheUntilInvalidated": "复用完整路由快照，直到提供器、环境、受监视的 PHP/YAML 文件或打开的文档使其失效。",

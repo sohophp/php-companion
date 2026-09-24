@@ -768,10 +768,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     prepareRename: async (document, position, token) => {
       try {
         if (selfLanguageServer) {
+          const sourceVersion = document.version;
           const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
           const prepared = await client.sendRequest<null | { range: { start: { line: number; character: number }; end: { line: number; character: number } }; placeholder?: string }>(
             'textDocument/prepareRename', { textDocument: { uri: document.uri.toString() }, position }, token,
           );
+          if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested) {
+            throw new Error('The PHP document changed while Rename was being prepared. Run Rename again.');
+          }
           if (!prepared) return undefined;
           const range = new vscode.Range(prepared.range.start.line, prepared.range.start.character, prepared.range.end.line, prepared.range.end.character);
           return prepared.placeholder ? { range, placeholder: prepared.placeholder } : range;
@@ -785,6 +789,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     provideRenameEdits: async (document, position, newName, token) => {
       try {
         if (!selfLanguageServer) return (await renameProvider(document))?.provideRenameEdits(document, position, newName, token);
+        const sourceVersion = document.version;
+        const openVersions = new Map(vscode.workspace.textDocuments.map((item) => [item.uri.toString(), item.version]));
         const client = await languageServer; if (!client || token.isCancellationRequested) return undefined;
         const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
         const result = await client.sendRequest<ProtocolWorkspaceEdit | null>(
@@ -796,6 +802,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
             },
           }, token,
         );
+        if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested
+          || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
+            && openVersions.get(item.uri.toString()) !== item.version)) {
+          throw new Error('A PHP document changed while Rename edits were being prepared. Run Rename again.');
+        }
         const converted = splitProtocolTypeRenameEdit(result);
         if (converted.staged) {
           pendingTypeRenameEdits.set(converted.staged.key, converted.staged.edit);

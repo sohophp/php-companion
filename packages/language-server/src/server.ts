@@ -3476,7 +3476,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -5898,7 +5898,10 @@ connection.onRenameRequest(async (params, token) => {
     const targetDocument = documents.get(sourceUri) ?? TextDocument.create(edit.uri, 'php', 0, source);
     (changes[edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
   }
-  if (!plan.fileOperations.length) return { changes };
+  if (!plan.fileOperations.length) {
+    if (testPauseNextQueries.has('rename')) await pauseTestQuery('rename');
+    return { changes };
+  }
   return { documentChanges: [
     ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
     ...plan.fileOperations.map((operation) => operation.kind === 'rename'
