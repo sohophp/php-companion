@@ -11,9 +11,11 @@ import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/in
 const parameters = process.argv.slice(2).filter((value) => value !== '--');
 const rounds = Number(parameters[0] ?? 100);
 const noiseFiles = Number(parameters[1] ?? 9100);
+const scenario = parameters[2] ?? 'scalar';
 if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 1000
-  || !Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 20_000) {
-  throw new Error('Usage: benchmark-c2-real-vendor-feedback.mjs [rounds: 1..1000] [noise PHP files: 0..20000]');
+  || !Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 20_000
+  || !['scalar', 'shape'].includes(scenario)) {
+  throw new Error('Usage: benchmark-c2-real-vendor-feedback.mjs [rounds: 1..1000] [noise PHP files: 0..20000] [scalar|shape]');
 }
 
 const positionAt = (source, offset) => {
@@ -87,6 +89,16 @@ const consumer = `<?php declare(strict_types=1); namespace App\\C1;
 function inspect(Service $service): void { $value = $service->text(); // source remains stable
   $service->accept($value); }
 `;
+const shapeSource = (compatible) => `<?php namespace App\\C1;
+class ShapeAlpha { public function common(): void {} }
+class ShapeBeta { public function common(): void {} }
+/** @return array{item: ShapeAlpha}|${compatible ? 'array{item: ShapeBeta}' : 'string'} */
+function chooseShape(): array { return []; }
+`;
+const shapeConsumer = `<?php declare(strict_types=1); namespace App\\C1;
+function acceptShapeInt(int $value): void {}
+function inspectShape(): void { $row = chooseShape(); $item = $row['item']; $item->common(); acceptShapeInt($item); }
+`;
 const root = await mkdtemp(join(tmpdir(), 'sophp-c2-real-vendor-'));
 let server;
 try {
@@ -106,15 +118,16 @@ try {
   }
   const serviceUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
   const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
-  await writeFile(join(root, 'src', 'Service.php'), source('string'));
-  await writeFile(join(root, 'src', 'Consumer.php'), consumer);
-  const hoverPosition = positionAt(consumer, consumer.lastIndexOf('$value);') + 2);
+  const initialSource = scenario === 'shape' ? shapeSource(true) : source('string');
+  const consumerText = scenario === 'shape' ? shapeConsumer : consumer;
+  await writeFile(join(root, 'src', 'Service.php'), initialSource);
+  await writeFile(join(root, 'src', 'Consumer.php'), consumerText);
   server = startServer();
   await server.request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
     initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true,
       testMode: true, testPauseNextQueries: ['hover'] } });
   server.send({ method: 'initialized', params: {} });
-  for (const [uri, text] of [[serviceUri, source('string')], [consumerUri, consumer]]) {
+  for (const [uri, text] of [[serviceUri, initialSource], [consumerUri, consumerText]]) {
     server.send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text } } });
   }
   const mismatch = (message, expected) => message.method === 'phpCompanion/versionedDiagnostics'
@@ -123,56 +136,113 @@ try {
   await server.waitFor((message) => mismatch(message, true));
   const initialRssMiB = await rssMiB(server.child.pid);
 
-  const pausedId = 10_000; const pausedAt = server.messages.length;
-  server.send({ id: pausedId, method: 'textDocument/hover', params: {
-    textDocument: { uri: consumerUri }, position: hoverPosition,
-  } });
-  await server.waitFor((message) => message.method === 'window/logMessage'
-    && message.params?.message === '[test-query-paused] method=hover', pausedAt);
-  server.send({ method: '$/cancelRequest', params: { id: pausedId } });
-  let version = 2; let after = server.messages.length;
-  server.send({ method: 'textDocument/didChange', params: {
-    textDocument: { uri: serviceUri, version }, contentChanges: [{ text: source('int') }],
-  } });
-  await server.waitFor((message) => mismatch(message, false), after);
-  const released = await server.request('phpCompanion/testReleaseQuery', { method: 'hover' });
-  if (released.result !== true) throw new Error('Paused Hover was not released.');
-  const cancelled = await server.waitFor((message) => message.id === pausedId, pausedAt);
-  if (cancelled.result !== null) throw new Error(`Cancelled Hover returned an old value: ${JSON.stringify(cancelled)}`);
-  const hover = async (type) => {
-    const response = await server.request('textDocument/hover', { textDocument: { uri: consumerUri }, position: hoverPosition });
-    if (!response.result?.contents?.value?.includes(`$value: ${type}`)) {
-      throw new Error(`Hover disagrees with ${type}: ${JSON.stringify(response.result)}`);
-    }
-    return response.elapsedMs;
-  };
-  await hover('int');
-  const firstDefinition = await server.request('textDocument/definition', {
-    textDocument: { uri: consumerUri }, position: positionAt(consumer, consumer.indexOf('text()') + 2),
-  });
-  if (!Array.isArray(firstDefinition.result) || firstDefinition.result.length !== 1
-    || firstDefinition.result[0].uri !== serviceUri) {
-    throw new Error(`First Definition did not resolve the source method: ${JSON.stringify(firstDefinition.result)}`);
-  }
-  const timings = { diagnostics: [], hover: [] }; const rssSamples = [{ round: 0, rssMiB: initialRssMiB }];
-  const started = performance.now();
-  for (let round = 0; round < rounds; round += 1) {
-    const type = round % 2 === 0 ? 'string' : 'int';
-    version += 1; after = server.messages.length; const changedAt = performance.now();
-    server.send({ method: 'textDocument/didChange', params: {
-      textDocument: { uri: serviceUri, version }, contentChanges: [{ text: source(type) }],
+  if (scenario === 'shape') {
+    const hoverPosition = positionAt(shapeConsumer, shapeConsumer.lastIndexOf('$item);') + 2);
+    const definitionPosition = positionAt(shapeConsumer, shapeConsumer.indexOf('common();') + 2);
+    const unionText = 'App\\C1\\ShapeAlpha|App\\C1\\ShapeBeta';
+    const feedback = async (compatible) => {
+      const definition = await server.request('textDocument/definition', {
+        textDocument: { uri: consumerUri }, position: definitionPosition,
+      });
+      const hover = await server.request('textDocument/hover', {
+        textDocument: { uri: consumerUri }, position: hoverPosition,
+      });
+      const locations = Array.isArray(definition.result) ? definition.result.filter((item) => item.uri === serviceUri) : [];
+      const hasUnion = hover.result?.contents?.value?.includes(unionText) === true;
+      if (locations.length !== (compatible ? 2 : 0) || hasUnion !== compatible) {
+        throw new Error(`Union-shape feedback disagrees with ${compatible}: ${JSON.stringify({ definition: definition.result, hover: hover.result })}`);
+      }
+      return { definitionMs: definition.elapsedMs, hoverMs: hover.elapsedMs };
+    };
+    const pausedId = 10_000; const pausedAt = server.messages.length;
+    server.send({ id: pausedId, method: 'textDocument/hover', params: {
+      textDocument: { uri: consumerUri }, position: hoverPosition,
     } });
-    await server.waitFor((message) => mismatch(message, type === 'string'), after);
-    timings.diagnostics.push(performance.now() - changedAt);
-    timings.hover.push(await hover(type));
-    if ((round + 1) % 25 === 0 || round === rounds - 1) rssSamples.push({ round: round + 1, rssMiB: await rssMiB(server.child.pid) });
+    await server.waitFor((message) => message.method === 'window/logMessage'
+      && message.params?.message === '[test-query-paused] method=hover', pausedAt);
+    server.send({ method: '$/cancelRequest', params: { id: pausedId } });
+    let version = 2; let after = server.messages.length;
+    server.send({ method: 'textDocument/didChange', params: {
+      textDocument: { uri: serviceUri, version }, contentChanges: [{ text: shapeSource(false) }],
+    } });
+    await server.waitFor((message) => mismatch(message, false), after);
+    const released = await server.request('phpCompanion/testReleaseQuery', { method: 'hover' });
+    if (released.result !== true) throw new Error('Paused shape Hover was not released.');
+    const cancelled = await server.waitFor((message) => message.id === pausedId, pausedAt);
+    if (cancelled.result !== null) throw new Error(`Cancelled shape Hover returned an old value: ${JSON.stringify(cancelled)}`);
+    await feedback(false);
+    const timings = { diagnostics: [], definition: [], hover: [] };
+    const rssSamples = [{ round: 0, rssMiB: initialRssMiB }]; const started = performance.now();
+    for (let round = 0; round < rounds; round += 1) {
+      const compatible = round % 2 === 0;
+      version += 1; after = server.messages.length; const changedAt = performance.now();
+      server.send({ method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version }, contentChanges: [{ text: shapeSource(compatible) }],
+      } });
+      await server.waitFor((message) => mismatch(message, compatible), after);
+      timings.diagnostics.push(performance.now() - changedAt);
+      const result = await feedback(compatible);
+      timings.definition.push(result.definitionMs); timings.hover.push(result.hoverMs);
+      if ((round + 1) % 25 === 0 || round === rounds - 1) rssSamples.push({ round: round + 1, rssMiB: await rssMiB(server.child.pid) });
+    }
+    await server.stop(); server = undefined;
+    process.stdout.write(`${JSON.stringify({ schema: 1, scenario, rounds, noiseFiles, vendorPhpFiles,
+      projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
+      elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
+        .map(([name, values]) => [name, summary(values)])), rssSamples }, null, 2)}\n`);
+  } else {
+    const hoverPosition = positionAt(consumer, consumer.lastIndexOf('$value);') + 2);
+    const pausedId = 10_000; const pausedAt = server.messages.length;
+    server.send({ id: pausedId, method: 'textDocument/hover', params: {
+      textDocument: { uri: consumerUri }, position: hoverPosition,
+    } });
+    await server.waitFor((message) => message.method === 'window/logMessage'
+      && message.params?.message === '[test-query-paused] method=hover', pausedAt);
+    server.send({ method: '$/cancelRequest', params: { id: pausedId } });
+    let version = 2; let after = server.messages.length;
+    server.send({ method: 'textDocument/didChange', params: {
+      textDocument: { uri: serviceUri, version }, contentChanges: [{ text: source('int') }],
+    } });
+    await server.waitFor((message) => mismatch(message, false), after);
+    const released = await server.request('phpCompanion/testReleaseQuery', { method: 'hover' });
+    if (released.result !== true) throw new Error('Paused Hover was not released.');
+    const cancelled = await server.waitFor((message) => message.id === pausedId, pausedAt);
+    if (cancelled.result !== null) throw new Error(`Cancelled Hover returned an old value: ${JSON.stringify(cancelled)}`);
+    const hover = async (type) => {
+      const response = await server.request('textDocument/hover', { textDocument: { uri: consumerUri }, position: hoverPosition });
+      if (!response.result?.contents?.value?.includes(`$value: ${type}`)) {
+        throw new Error(`Hover disagrees with ${type}: ${JSON.stringify(response.result)}`);
+      }
+      return response.elapsedMs;
+    };
+    await hover('int');
+    const firstDefinition = await server.request('textDocument/definition', {
+      textDocument: { uri: consumerUri }, position: positionAt(consumer, consumer.indexOf('text()') + 2),
+    });
+    if (!Array.isArray(firstDefinition.result) || firstDefinition.result.length !== 1
+      || firstDefinition.result[0].uri !== serviceUri) {
+      throw new Error(`First Definition did not resolve the source method: ${JSON.stringify(firstDefinition.result)}`);
+    }
+    const timings = { diagnostics: [], hover: [] }; const rssSamples = [{ round: 0, rssMiB: initialRssMiB }];
+    const started = performance.now();
+    for (let round = 0; round < rounds; round += 1) {
+      const type = round % 2 === 0 ? 'string' : 'int';
+      version += 1; after = server.messages.length; const changedAt = performance.now();
+      server.send({ method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version }, contentChanges: [{ text: source(type) }],
+      } });
+      await server.waitFor((message) => mismatch(message, type === 'string'), after);
+      timings.diagnostics.push(performance.now() - changedAt);
+      timings.hover.push(await hover(type));
+      if ((round + 1) % 25 === 0 || round === rounds - 1) rssSamples.push({ round: round + 1, rssMiB: await rssMiB(server.child.pid) });
+    }
+    await server.stop(); server = undefined;
+    process.stdout.write(`${JSON.stringify({ schema: 1, rounds, noiseFiles, vendorPhpFiles,
+      projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
+      firstDefinitionMs: firstDefinition.elapsedMs,
+      elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
+        .map(([name, values]) => [name, summary(values)])), rssSamples }, null, 2)}\n`);
   }
-  await server.stop(); server = undefined;
-  process.stdout.write(`${JSON.stringify({ schema: 1, rounds, noiseFiles, vendorPhpFiles,
-    projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
-    firstDefinitionMs: firstDefinition.elapsedMs,
-    elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
-      .map(([name, values]) => [name, summary(values)])), rssSamples }, null, 2)}\n`);
 } finally {
   server?.child.kill();
   await rm(root, { recursive: true, force: true });

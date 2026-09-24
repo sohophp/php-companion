@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 联合数组形状 Language Server 长序列：独立真实 vendor 与约 10,131 个 PHP 文件的默认 `onDemand` stdio，在 500 轮未保存跨文件 PHPDoc 切换中逐轮核对参数诊断、Definition 和 Hover；受控取消的旧 Hover 返回 `null`。诊断匹配 P95 98.3 ms，随后 Definition/Hover 请求 P95 22.8/3.07 ms；语言服务器 RSS 144.2→153.3 MiB，后半段采样未见持续增长。约 52 秒单机样本不等于长期或 Remote 验收，见[报告](reports/c2-real-vendor-union-shape-session-2026-09-24.md)。
+
 2026-09-24 C2 完整 Pack 大项目联合形状会话：11 项源码 Profile、真实 1,029 个 vendor PHP 文件和 9,100 个生成文件中，原有标量反馈 50 轮后又完成跨文件 PHPDoc 联合形状 30 轮未保存切换。两次隔离宿主均逐轮核对 Definition、Hover 与参数诊断一致，退出码 0；联合形状从编辑到三项一致的 P95 为 201/202 ms。复轮扩展宿主 RSS 采样 228→207 MiB，独立语言服务器 RSS 与长期使用仍需验证。见[大项目 Pack 报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
 
 2026-09-24 C2 缺失中间数组形状与间接写入：固定两层字符串键写入现在能创建原本不存在的中间形状，保留无关 `item` 联合成员；两级引用别名和未知调用仍撤销旧事实。完整 11 项 Pack 源码宿主验证双定义跳转及跨文件 PHPDoc 未保存切换后的参数诊断撤回与恢复，退出码 0；Semantic 329/329、类型检查、Lint 与差异检查通过。跨调用精确副作用、Remote 和长会话仍开放，见[报告](reports/c2-cross-file-union-shape-return-2026-09-24.md)。
