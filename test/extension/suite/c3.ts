@@ -82,6 +82,12 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
     async () => { checkPreview(); return 'cancel'; });
   await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Cancelling generated PHP preview created a file');
+  const concurrentSource = '<?php\n// Created while SoPHP preview was open.\n';
+  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); await vscode.workspace.fs.writeFile(generatedUri, Buffer.from(concurrentSource)); return 'apply'; });
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(generatedUri)).toString('utf8'), concurrentSource,
+    'Applying a stale generation preview overwrote a file created concurrently');
+  await vscode.workspace.fs.delete(generatedUri);
   await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
     async () => { checkPreview(); return 'apply'; });
   const generated = await vscode.workspace.openTextDocument(generatedUri);
