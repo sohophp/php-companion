@@ -1514,12 +1514,13 @@ async function provenOnDemandExternalLiteralArguments(workspace: SemanticWorkspa
     const shortName = owner.slice(owner.lastIndexOf('\\') + 1);
     const declarations = workspace.typeDeclarationsNamed(shortName)
       .filter((candidate) => candidate.fqcn.toLowerCase() === owner.toLowerCase());
-    if (declarations.length !== 1 || declarations[0]!.kind !== 'class' || !workspace.isFinalClass(owner)) return false;
+    if (declarations.length !== 1 || declarations[0]!.kind !== 'class') return false;
     const declarationPath = pathForUri(declarations[0]!.uri);
     const expectedPaths = new Set(resolvePsr4Class(owner, mappings).map((path) => resolve(path)));
     if (!declarationPath || expectedPaths.size !== 1 || !expectedPaths.has(resolve(declarationPath))) return false;
     const signature = workspace.signature(document.uri, item.start);
     return signature?.kind === 'method' && signature.synthetic === undefined
+      && (workspace.isFinalClass(owner) || signature.final === true)
       && signature.uri !== document.uri && signature.uri === declarations[0]!.uri
       && signature.fqcn.toLowerCase() === item.callable.toLowerCase();
   });

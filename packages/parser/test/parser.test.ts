@@ -42,6 +42,13 @@ describe('@php-companion/parser', () => {
     ]);
     result.tree.delete();
   });
+  it('records final methods inside extensible classes', () => {
+    const result = parser.parse('<?php class Service { final public function closed(int $value): void {} public function open(int $value): void {} }');
+    expect(result.callables.map((item) => [item.name, item.finalMethod])).toEqual([
+      ['closed', true], ['open', false],
+    ]);
+    result.tree.delete();
+  });
   it('prepares transferable full and declaration facts with the same source positions', () => {
     const source = '<?php namespace App; class Factory { function make(string $x): string { if ($x) { $result = $x; } return $result; } }';
     const full = parser.parse(source, undefined, 'file:///Prepared.php');

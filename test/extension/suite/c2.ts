@@ -140,6 +140,16 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $serv
     return observedAt;
   };
   await waitForMismatch(true);
+  const changeMethodDeclaration = async (from: string, to: string, expected: boolean): Promise<void> => {
+    const offset = methodDocument.getText().indexOf(from);
+    assert.ok(offset >= 0, `Missing method declaration text ${from}.`);
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(methodUri, new vscode.Range(methodDocument.positionAt(offset), methodDocument.positionAt(offset + from.length)), to);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    await waitForMismatch(expected);
+  };
+  await changeMethodDeclaration('final class CrossFileLiteralService', 'class CrossFileLiteralService', false);
+  await changeMethodDeclaration('public function accept', 'final public function accept', true);
   const editType = async (from: string, to: string): Promise<number> => {
     const offset = methodDocument.getText().indexOf(from);
     assert.ok(offset >= 0, `Missing cross-file method type ${from}.`);

@@ -53,6 +53,7 @@ export interface ParsedCallableDeclaration extends SourceRange {
   declarationEnd: number;
   visibility: 'public' | 'protected' | 'private';
   static: boolean;
+  finalMethod?: boolean;
 }
 
 export interface ParsedAssignment extends SourceRange {
@@ -1080,6 +1081,7 @@ export class PhpSyntaxParser {
           declarationEnd: node.endIndex,
           visibility: (node.namedChildren.find((child) => child.type === 'visibility_modifier')?.text as 'public' | 'protected' | 'private' | undefined) ?? 'public',
           static: node.namedChildren.some((child) => child.type === 'static_modifier'),
+          finalMethod: owner !== undefined && node.namedChildren.some((child) => child.type === 'final_modifier'),
         });
         scopes.push({ id: owner ? `${owner.fqcn}::${name}` : [callableNamespace, name].filter(Boolean).join('\\'), kind: owner ? 'method' : 'function', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, captures: [], start: node.startIndex, end: node.endIndex });
         if (owner) {

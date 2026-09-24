@@ -11572,7 +11572,8 @@ export class SemanticWorkspace {
     const methods: MemberInfo[] = ownerFile.callables.filter((item) => item.containerFqcn?.toLowerCase() === key && !['__construct', '__destruct'].includes(item.name.toLowerCase())).filter(visible)
       .map((item) => ({ kind: 'method', uri: ownerFile.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
         parameters: item.parameters.map((parameter) => ({ ...parameter, type: specializedReturn(parameter.type) })), returnType: specializedReturn(item.returnType), nativeReturnType: specializedReturn(item.nativeReturnType),
-        visibility: item.visibility, static: item.static, typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments,
+        visibility: item.visibility, static: item.static, final: item.finalMethod,
+        typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments,
         callableTemplates: ownerFile.templates.filter((template) => template.ownerFqcn.toLowerCase() === item.fqcn.toLowerCase()) }));
     const externalMethodFacts = [...this.externalFacts.values()].flatMap((contribution) => contribution.methods)
       .filter((item) => item.ownerFqcn.toLowerCase() === key

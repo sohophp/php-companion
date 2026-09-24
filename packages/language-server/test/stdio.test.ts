@@ -6756,11 +6756,13 @@ class Example {}`;
       await output.waitFor((message) => output.messages.indexOf(message) >= openClassAt
         && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
         && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
-      const finalClassAt = output.messages.length;
+      const finalMethodSource = service.replace('final class Service', 'class Service')
+        .replace('public function call', 'final public function call');
+      const finalMethodAt = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
-        textDocument: { uri: serviceUri, version: 3 }, contentChanges: [{ text: service }],
+        textDocument: { uri: serviceUri, version: 3 }, contentChanges: [{ text: finalMethodSource }],
       } }));
-      await output.waitFor((message) => output.messages.indexOf(message) >= finalClassAt
+      await output.waitFor((message) => output.messages.indexOf(message) >= finalMethodAt
         && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
         && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
       const changedAt = output.messages.length;
