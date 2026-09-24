@@ -584,6 +584,47 @@ export async function run(): Promise<void> {
     'Rename did not preserve the external disk edit');
   assert.ok((await vscode.workspace.openTextDocument(diskRaceTypeUri)).getText().includes('class C3DiskRaceType'));
   await assert.rejects(async () => vscode.workspace.fs.stat(diskRaceNewUri));
+  const groupedTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3GroupedType.php');
+  const groupedNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3GroupedRenamed.php');
+  const groupedSource = '<?php\nnamespace App\\Service;\nfinal class C3GroupedType {}\n';
+  await vscode.workspace.fs.writeFile(groupedTypeUri, Buffer.from(groupedSource));
+  const groupedConsumers = Array.from({ length: 4 }, (_, index) =>
+    vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `C3GroupedConsumer${index}.php`));
+  for (const [index, consumer] of groupedConsumers.entries()) await vscode.workspace.fs.writeFile(consumer,
+    Buffer.from(`<?php\nnamespace App\\Controller;\nuse App\\Service\\C3GroupedType;\nfinal class C3GroupedConsumer${index} { public function run(C3GroupedType $item): void {} }\n`));
+  const groupedDocument = await vscode.workspace.openTextDocument(groupedTypeUri);
+  await vscode.window.showTextDocument(groupedDocument);
+  const groupedPosition = groupedDocument.positionAt(groupedSource.indexOf('class C3GroupedType') + 'class '.length + 3);
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', groupedTypeUri, groupedPosition);
+    if (groupedConsumers.every((consumer) => references?.some((reference) => reference.uri.toString() === consumer.toString()))) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const groupedReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', groupedTypeUri, groupedPosition);
+  assert.ok(groupedConsumers.every((consumer) => groupedReferences?.some((reference) => reference.uri.toString() === consumer.toString())),
+    'Grouped Rename fixture was not fully indexed');
+  const groupedRename = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+      uri: groupedTypeUri, position: groupedPosition, newName: 'C3GroupedRenamed', testPreviewAction,
+    });
+  assert.strictEqual(await groupedRename(async () => {
+    const changesTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed ('));
+    assert.strictEqual(changesTabs.length, 1, 'Grouped Rename opened more than one changes tab for five files');
+    return 'cancel';
+  }), false);
+  assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+    .some((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed (')),
+  'Cancelling grouped Rename left the changes tab open');
+  assert.strictEqual(await groupedRename(async () => 'apply'), true, 'Grouped Rename did not apply');
+  assert.ok((await vscode.workspace.openTextDocument(groupedNewUri)).getText().includes('class C3GroupedRenamed'));
+  for (const consumer of groupedConsumers) assert.ok((await vscode.workspace.openTextDocument(consumer)).getText().includes('C3GroupedRenamed'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok((await vscode.workspace.openTextDocument(groupedTypeUri)).getText().includes('class C3GroupedType'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(groupedNewUri)).getText().includes('class C3GroupedRenamed'));
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();

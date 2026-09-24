@@ -894,6 +894,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const cancellation = new vscode.CancellationTokenSource();
     let staged: { key: string; edit: vscode.WorkspaceEdit } | undefined;
     const previewUris = new Set<string>();
+    const openedChangesTabs: vscode.Tab[] = [];
     try {
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
@@ -919,6 +920,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
       const fileRename = plan.protocol.documentChanges?.find((change): change is Extract<ProtocolDocumentChange, { kind: 'rename' }> =>
         'kind' in change && change.kind === 'rename');
+      const previewResources: Array<{ label: vscode.Uri; original: vscode.Uri; modified: vscode.Uri; title: string }> = [];
       for (const [targetUri, changes] of editsByUri) {
         const target = vscode.Uri.parse(targetUri);
         const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === targetUri);
@@ -930,7 +932,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
         const destination = fileRename?.oldUri === targetUri ? vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri)) : undefined;
         const title = `SoPHP Rename: ${vscode.workspace.asRelativePath(target)}${destination ? ` → ${destination}` : ''}`;
-        await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri, title, { preview: false });
+        previewResources.push({ label: target, original: baseline.uri, modified: preview.uri, title });
+      }
+      if (previewResources.length <= 3) {
+        for (const resource of previewResources) await vscode.commands.executeCommand(
+          'vscode.diff', resource.original, resource.modified, resource.title, { preview: false });
+      } else {
+        for (let start = 0; start < previewResources.length; start += 20) {
+          const group = previewResources.slice(start, start + 20);
+          const move = fileRename ? `; ${vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.oldUri))} → ${vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri))}` : '';
+          const title = `SoPHP Rename: ${newName} (${start + 1}–${start + group.length} / ${previewResources.length} files${move})`;
+          const before = new Set(vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs));
+          await vscode.commands.executeCommand('vscode.changes', title,
+            group.map((resource): [vscode.Uri, vscode.Uri, vscode.Uri] => [resource.label, resource.original, resource.modified]));
+          openedChangesTabs.push(...vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs)
+            .filter((tab) => !before.has(tab) && tab.label.startsWith(`SoPHP Rename: ${newName} (`)));
+        }
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedRename', newName), options?.testPreviewAction)) return false;
       await verifyRenameSources(plan.protocol);
@@ -952,7 +969,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
         tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
         && previewUris.has(tab.input.modified.toString()));
-      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      if (previewTabs.length || openedChangesTabs.length) await vscode.window.tabGroups.close([...previewTabs, ...openedChangesTabs]);
       forgetRenamePreviewSnapshots(previewUris);
       cancellation.dispose();
     }
