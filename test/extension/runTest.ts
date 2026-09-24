@@ -41,10 +41,16 @@ async function main(): Promise<void> {
   await cp(sourceFixture, fixture, { recursive: true });
   if (c3OpenSourceProfile) {
     await mkdir(join(fixture, 'tests'), { recursive: true });
+    const composerPath = join(fixture, 'composer.json');
+    const composer = JSON.parse(await readFile(composerPath, 'utf8')) as Record<string, unknown>;
+    composer['autoload-dev'] = { 'psr-4': { 'App\\Tests\\': 'tests/' } };
+    await writeFile(composerPath, JSON.stringify(composer, null, 2));
     await writeFile(join(fixture, 'phpunit.xml'),
       '<?xml version="1.0"?>\n<phpunit><testsuites><testsuite name="Profile"><directory suffix="Test.php">tests</directory></testsuite></testsuites></phpunit>\n');
     await writeFile(join(fixture, 'tests', 'ProfileTest.php'),
       '<?php\nfinal class ProfileTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
+    await writeFile(join(fixture, 'tests', 'C3ConfiguredTest.php'),
+      '<?php\nnamespace App\\Tests;\nfinal class C3ConfiguredTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
   }
   const coreOnly = c1Only || c2Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;

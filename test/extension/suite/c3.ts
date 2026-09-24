@@ -54,7 +54,8 @@ export async function run(): Promise<void> {
   const profileRenameErrors: string[] = [];
   if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') process.on('unhandledRejection', (reason: unknown) => {
     const message = reason instanceof Error ? reason.message : String(reason);
-    if (message.includes('ENOENT') && message.includes('C3GroupedType.php')) profileRenameErrors.push(message);
+    if (message.includes('ENOENT') && (message.includes('C3GroupedType.php')
+      || message.includes('/tests/'))) profileRenameErrors.push(message);
   });
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load');
@@ -1017,6 +1018,41 @@ export async function run(): Promise<void> {
   assert.strictEqual(invalidAttributes().length, 4,
     `C3 diagnostic undo probe lost invalid attributes; diagnostics=${JSON.stringify(vscode.languages.getDiagnostics(dynamicUri).map((item) => item.code))}`);
   if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') {
+    const phpunit = vscode.extensions.getExtension('recca0120.vscode-phpunit');
+    assert.ok(phpunit, 'Open Source Pack did not load PHPUnit');
+    await phpunit.activate();
+    await vscode.commands.executeCommand('phpunit.reload');
+    const testUri = vscode.Uri.joinPath(folder.uri, 'tests', 'ProfileTest.php');
+    const renamedTestUri = vscode.Uri.joinPath(folder.uri, 'tests', 'C3RenamedProfileTest.php');
+    const testDocument = await vscode.workspace.openTextDocument(testUri);
+    await vscode.window.showTextDocument(testDocument);
+    const testRename = new vscode.WorkspaceEdit();
+    testRename.renameFile(testUri, renamedTestUri);
+    assert.ok(await vscode.workspace.applyEdit(testRename), 'Could not rename the configured PHPUnit test file');
+    assert.ok((await vscode.workspace.openTextDocument(renamedTestUri)).getText().includes('class ProfileTest'));
+    await vscode.commands.executeCommand('undo');
+    assert.ok((await vscode.workspace.openTextDocument(testUri)).getText().includes('class ProfileTest'),
+      'One Undo did not restore the PHPUnit test file');
+    await vscode.commands.executeCommand('redo');
+    assert.ok((await vscode.workspace.openTextDocument(renamedTestUri)).getText().includes('class ProfileTest'),
+      'One Redo did not restore the renamed PHPUnit test file');
+    const configuredUri = vscode.Uri.joinPath(folder.uri, 'tests', 'C3ConfiguredTest.php');
+    const renamedConfiguredUri = vscode.Uri.joinPath(folder.uri, 'tests', 'C3RenamedTest.php');
+    const configuredDocument = await vscode.workspace.openTextDocument(configuredUri);
+    await vscode.window.showTextDocument(configuredDocument);
+    const configuredPosition = configuredDocument.positionAt(configuredDocument.getText().indexOf('class C3ConfiguredTest')
+      + 'class '.length + 3);
+    assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+      uri: configuredUri, position: configuredPosition, newName: 'C3RenamedTest', testPreviewAction: async () => 'apply',
+    }), true, 'SoPHP could not rename the configured PHPUnit test class');
+    assert.ok((await vscode.workspace.openTextDocument(renamedConfiguredUri)).getText().includes('class C3RenamedTest'),
+      'SoPHP Rename did not change both the PHPUnit test file and class');
+    await vscode.commands.executeCommand('undo');
+    assert.ok((await vscode.workspace.openTextDocument(configuredUri)).getText().includes('class C3ConfiguredTest'),
+      'One Undo did not restore the configured PHPUnit test file and class');
+    await vscode.commands.executeCommand('redo');
+    assert.ok((await vscode.workspace.openTextDocument(renamedConfiguredUri)).getText().includes('class C3RenamedTest'),
+      'One Redo did not restore the renamed PHPUnit test file and class');
     await new Promise((resolve) => setTimeout(resolve, 1_200));
     assert.deepStrictEqual(profileRenameErrors, [],
       'Open Source Pack emitted an unhandled stale-file read during C3 Rename');

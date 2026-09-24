@@ -69,7 +69,7 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 
 当前 11 项源码组合还可运行 `pnpm test:extension:open-source-profile:source`：预先用 `install:open-source-profile` 安装冻结版本，并设置 `PHP_COMPANION_TEST_EXTENSIONS_DIR`、`PHP_COMPANION_PHP_EXECUTABLE`、`PHP_COMPANION_PHP_CS_FIXER`、`PHP_COMPANION_PHPUNIT_EXECUTABLE`。它在独立临时 Composer 项目和隔离 VS Code Profile 中加载 Core、Symfony、Pack 源码，复用格式化、导航、调试与测试的组合宿主门禁，无需生成 VSIX。2026-09-24 的 11 项源码复测通过；这项结果不能替代下一次候选的 VSIX 安装和 WSL Remote 验收。
 
-同一 11 项组合还通过了[带明确 PHPUnit 测试目录的 C3 源码宿主门禁](reports/open-source-pack-c3-profile-2026-09-24.md)，可用 `PHP_COMPANION_TEST_EXTENSIONS_DIR=... pnpm test:extension:c3:open-source-profile` 复跑。没有 PHPUnit 配置的负例会在 PHPUnit 扩展中触发旧文件读取异常，因此“日常可用”需要项目准确限定测试套件；测试文件本身的 Rename/Undo/Redo 仍待单独组合验证。
+同一 11 项组合还通过了[带明确 PHPUnit 测试目录的 C3 源码宿主门禁](reports/open-source-pack-c3-profile-2026-09-24.md)，可用 `PHP_COMPANION_TEST_EXTENSIONS_DIR=... pnpm test:extension:c3:open-source-profile` 复跑。[测试文件 Rename/Undo/Redo 复核](reports/c3-generation-redo-phpunit-rename-2026-09-25.md)已在配置 `autoload-dev` 和 `phpunit.xml` 的完整 Pack 宿主通过。没有 PHPUnit 配置的负例仍会在该外部扩展中触发旧文件读取异常，因此“日常可用”需要项目准确限定测试套件。
 
 | 层次 | 当前可核对的结果 | 下一道门槛 |
 | --- | --- | --- |
