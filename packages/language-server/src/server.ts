@@ -1501,8 +1501,9 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
 async function provenOnDemandExternalLiteralArguments(workspace: SemanticWorkspace, root: string,
   document: TextDocument): Promise<ReturnType<SemanticWorkspace['incompatibleArguments']>> {
   const candidates = workspace.incompatibleArguments(document.uri).filter((item) => item.callable.includes('::')
-    && /^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
-      .test(document.getText().slice(item.start, item.end)));
+    && (/^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
+      .test(document.getText().slice(item.start, item.end))
+      || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)));
   if (!candidates.length) return [];
   const project = await composerProjectForRoot(root);
   if (!project?.inputEvidence?.complete || project.warnings.length) return [];

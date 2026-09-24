@@ -6704,7 +6704,7 @@ class Example {}`;
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       const serviceUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
       const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
-      const service = '<?php namespace App; class Service { public function call(int $value): void {} }';
+      const service = "<?php namespace App; class Service { public function call(int $value): void {} public function text(): string { return 'bad'; } }";
       const consumer = "<?php declare(strict_types=1); namespace App; function run(Service $service): void { $service->call('bad'); }";
       await writeFile(join(root, 'src', 'Service.php'), service);
       await writeFile(join(root, 'src', 'Consumer.php'), consumer);
@@ -6763,6 +6763,35 @@ class Example {}`;
       const finalConsumer = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 3);
       expect(finalConsumer.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      await writeFile(join(root, 'src', 'Service.php'), service);
+      const restoredDiskAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: serviceUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= restoredDiskAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri && message.params.version === 3
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      const localConsumer = "<?php declare(strict_types=1); namespace App; function run(Service $service): void { $value = 'bad'; $other = 1; $service->call($value); }";
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 4 }, contentChanges: [{ text: localConsumer }],
+      } }));
+      const local = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 4);
+      expect(local.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const mutatedConsumer = "<?php declare(strict_types=1); namespace App; function change(string &$value): void { $value = 'bad'; } function run(Service $service): void { $value = 'bad'; change($value); $service->call($value); }";
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 5 }, contentChanges: [{ text: mutatedConsumer }],
+      } }));
+      const mutated = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 5);
+      expect(mutated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      const returnedConsumer = '<?php declare(strict_types=1); namespace App; function run(Service $service): void { $value = $service->text(); $service->call($value); }';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 6 }, contentChanges: [{ text: returnedConsumer }],
+      } }));
+      const returned = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 6);
+      expect(returned.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -6922,7 +6951,8 @@ class Example {}`;
       } }));
       if (indexingMode === 'experimental') {
         const afterChange = await output.waitFor((message) => output.messages.indexOf(message) >= beforeChange
-          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1);
+          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1
+          && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
         expect(afterChange.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
       } else {
         await output.waitFor((message) => output.messages.indexOf(message) >= beforeChange

@@ -4190,6 +4190,42 @@ export class SemanticWorkspace {
     });
   }
 
+  stableLocalScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
+    const file = this.files.get(uri); if (!file) return false;
+    const variable = file.source.slice(start, end).trim();
+    if (!/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(variable)) return false;
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    const tree = retainedTree ?? temporaryTree!;
+    try {
+      let statement = deepestLocalSyntax(tree.rootNode, start, end, () => true);
+      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
+      const block = statement?.parent;
+      if (!statement || !block || statement.type !== 'expression_statement') return false;
+      const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const directCall = new RegExp(`^\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\s*->\\s*[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*${escapedVariable}\\s*\\)\\s*;$`, 'u');
+      if (!directCall.test(statement.text.trim())) return false;
+      const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
+        && candidate.endIndex === statement!.endIndex);
+      for (let index = statementIndex - 1; index >= 0; index -= 1) {
+        const candidate = block.namedChildren[index]!;
+        const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
+        const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
+        const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
+        if (left?.type !== 'variable_name' || !right) return false;
+        if (left.text === variable) {
+          const literal = this.directScalarLiteralType(right.text.trim());
+          const category = right.text.trim().toLowerCase() === 'null' ? 'null'
+            : literal?.kind === 'literal' ? typeof literal.value === 'string' ? 'string'
+              : typeof literal.value === 'boolean' ? 'bool' : Number.isInteger(literal.value) ? 'int' : 'float' : undefined;
+          return Boolean(category && (actualType === category || literal && actualType === displayType(literal)));
+        }
+        if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return false;
+      }
+      return false;
+    } finally { temporaryTree?.delete(); }
+  }
+
   incompatibleReturns(uri: string): IncompatibleReturn[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.returns.flatMap((statement): IncompatibleReturn[] => {
