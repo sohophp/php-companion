@@ -445,26 +445,41 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   ) => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
     const source = await vscode.workspace.openTextDocument(sourceUri);
+    const diskHash = async (uri: vscode.Uri): Promise<string> =>
+      createHash('sha256').update(await vscode.workspace.fs.readFile(uri)).digest('hex');
+    const sameDiskHash = async (uri: vscode.Uri, expected: string): Promise<boolean> => {
+      try { return await diskHash(uri) === expected; }
+      catch (error) {
+        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') return false;
+        throw error;
+      }
+    };
+    const sourceDiskHash = await diskHash(sourceUri);
     const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
-    const existingTargets = new Map<string, { document: vscode.TextDocument; version: number; text: string }>();
+    const existingTargets = new Map<string, { document?: vscode.TextDocument; version?: number; text: string; diskHash: string }>();
     if (request.targetHashes) {
       for (const [uri] of targets) {
         const expected = request.targetHashes[uri.toString()];
         if (!expected) return void vscode.window.showWarningMessage(t('extractCancelled'));
-        const document = await vscode.workspace.openTextDocument(uri);
-        const text = document.getText();
+        const document = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri.toString());
+        const bytes = await vscode.workspace.fs.readFile(uri);
+        const text = document?.getText() ?? Buffer.from(bytes).toString('utf8');
         if (createHash('sha256').update(text).digest('hex') !== expected) {
           return void vscode.window.showWarningMessage(t('extractCancelled'));
         }
-        existingTargets.set(uri.toString(), { document, version: document.version, text });
+        existingTargets.set(uri.toString(), { document, version: document?.version, text,
+          diskHash: createHash('sha256').update(bytes).digest('hex') });
       }
     }
     const unchanged = async (): Promise<boolean> => {
       if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
+      if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
       for (const [uri] of targets) {
         const existing = existingTargets.get(uri.toString());
         if (existing) {
-          if (existing.document.isClosed || existing.document.version !== existing.version || existing.document.getText() !== existing.text) return false;
+          if (existing.document && (existing.document.isClosed || existing.document.version !== existing.version
+            || existing.document.getText() !== existing.text)) return false;
+          if (!await sameDiskHash(uri, existing.diskHash)) return false;
           continue;
         }
         try { await vscode.workspace.fs.stat(uri); return false; }

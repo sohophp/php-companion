@@ -357,6 +357,26 @@ export async function run(): Promise<void> {
   assert.ok(!inlineDocument.getText().includes('function makeUpdated()') && secondDocument.getText() === secondSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(inlineDocument.getText().includes('function makeUpdated()') && secondDocument.getText().includes('function secondUpdate()'));
+  const diskTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ClosedDiskTarget.php');
+  const diskTargetSource = '<?php\nnamespace App\\Service;\nfunction closedTarget(): int { return 1; }\n';
+  const diskTargetChanged = '// external write during preview\n' + diskTargetSource;
+  await vscode.workspace.fs.writeFile(diskTargetUri, Buffer.from(diskTargetSource));
+  const diskTargetEdit = new vscode.WorkspaceEdit();
+  diskTargetEdit.replace(inlineUri, new vscode.Range(2, 9, 2, 20), 'makeFromDisk');
+  diskTargetEdit.replace(diskTargetUri, new vscode.Range(2, 9, 2, 21), 'renamedTarget');
+  const diskTargetRequest = { edit: diskTargetEdit, title: 'Closed target refactor', sourceUri: inlineUri,
+    sourceVersion: inlineDocument.version, sourceText: inlineDocument.getText(),
+    targetHashes: { [diskTargetUri.toString()]: createHash('sha256').update(diskTargetSource).digest('hex') } };
+  await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', diskTargetRequest,
+    { testPreviewAction: async () => {
+      assert.ok(!vscode.workspace.textDocuments.some((document) => document.uri.toString() === diskTargetUri.toString()),
+        'Preview opened a closed refactor target in the editor model');
+      await vscode.workspace.fs.writeFile(diskTargetUri, Buffer.from(diskTargetChanged));
+      return 'apply';
+    } });
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(diskTargetUri)).toString('utf8'), diskTargetChanged,
+    'Extract overwrote a closed target changed on disk during preview');
+  assert.ok(!inlineDocument.getText().includes('makeFromDisk'), 'Extract partially applied a stale disk plan');
   const signatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3Signature.php');
   const signatureSource = '<?php\nnamespace App\\Service;\nclass C3Signature { private function build(int $unused, string $name): string { return $name; } public function run(): string { return $this->build(1, "ok"); } }\n';
   await vscode.workspace.fs.writeFile(signatureUri, Buffer.from(signatureSource));
