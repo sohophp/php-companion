@@ -4,7 +4,7 @@
 
 ## 当前执行顺序
 
-1. **先稳住 C3 高频编辑。** Import、生成类型、Safe Move 与 Extract 已有预览和旧版本保护；继续覆盖 Inline、Rename、Change Signature 的“选择 → 预览 → 应用/取消 → Undo/Redo”，优先阻止旧 CodeAction 改写用户刚编辑的文件。生成新文件的 Redo 仍是明确缺口。
+1. **先稳住 C3 高频编辑。** Import、生成类型、Safe Move、Extract 与 Inline 已有预览和旧版本保护；接下来覆盖 Rename、Change Signature 的“选择 → 预览 → 应用/取消 → Undo/Redo”，优先阻止旧 CodeAction 改写用户刚编辑的文件。生成新文件的 Redo 仍是明确缺口。
 2. **同步收口 C1/C2 的实用门槛。** 在独立 Composer 项目与当前 11 项 Pack 源码 Profile 中复核未保存输入、真实 vendor、诊断/导航的一致性、等待和取消；数小时会话、跨平台和 Remote 不由短时本机测试代替。
 3. **候选冻结时做 C4 组合门禁。** 固定 Core、Symfony、Pack 三份 VSIX 与外部扩展版本，再查唯一能力所有者、安装位置、PHP CLI/调试/测试路径和回退。日常 Core 增量只做定向构建及测试，不重复打包三份 VSIX。
 
