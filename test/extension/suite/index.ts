@@ -2538,10 +2538,11 @@ export async function run(): Promise<void> {
       new vscode.Range(removeParameterDocument.positionAt(removeParameterOffset), removeParameterDocument.positionAt(removeParameterOffset)),
       vscode.CodeActionKind.RefactorRewrite.value,
     );
-    removeParameterAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Remove unused parameter $unused');
-    return Boolean(removeParameterAction?.edit);
+    removeParameterAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Remove unused parameter $unused');
+    return Boolean(removeParameterAction?.command);
   }, 'Self-hosted language server did not offer removal of an unused private parameter');
-  assert.ok(await vscode.workspace.applyEdit(removeParameterAction!.edit!), 'Unused private parameter removal could not be applied');
+  await vscode.commands.executeCommand(removeParameterAction!.command!.command, ...removeParameterAction!.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitFor(() => removeParameterDocument.getText().includes('format(string $prefix, string $suffix)')
     && removeParameterDocument.getText().includes('format("a", "b")')
     && removeParameterDocument.getText().includes('format(suffix: "b", prefix: "a")')

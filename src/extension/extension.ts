@@ -1,6 +1,7 @@
 import { PhpSyntaxParser, namespaceDeclarations } from '@php-companion/parser';
 import * as vscode from 'vscode';
 import { basename } from 'node:path';
+import { createHash } from 'node:crypto';
 import { resolvePsr4Namespace, resolvePsr4Namespaces } from '../composer/project.js';
 import { performance } from 'node:perf_hooks';
 import { VersionManager } from './versionManager.js';
@@ -416,15 +417,34 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     return await vscode.window.showInformationMessage(message, t('apply')) === t('apply');
   };
   register('phpCompanion.applyPreviewedExtract', async (
-    request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string },
+    request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
+      targetHashes?: Record<string, string> },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'> },
   ) => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
     const source = await vscode.workspace.openTextDocument(sourceUri);
     const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
+    const existingTargets = new Map<string, { document: vscode.TextDocument; version: number; text: string }>();
+    if (request.targetHashes) {
+      for (const [uri] of targets) {
+        const expected = request.targetHashes[uri.toString()];
+        if (!expected) return void vscode.window.showWarningMessage(t('extractCancelled'));
+        const document = await vscode.workspace.openTextDocument(uri);
+        const text = document.getText();
+        if (createHash('sha256').update(text).digest('hex') !== expected) {
+          return void vscode.window.showWarningMessage(t('extractCancelled'));
+        }
+        existingTargets.set(uri.toString(), { document, version: document.version, text });
+      }
+    }
     const unchanged = async (): Promise<boolean> => {
       if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
       for (const [uri] of targets) {
+        const existing = existingTargets.get(uri.toString());
+        if (existing) {
+          if (existing.document.isClosed || existing.document.version !== existing.version || existing.document.getText() !== existing.text) return false;
+          continue;
+        }
         try { await vscode.workspace.fs.stat(uri); return false; }
         catch (error) {
           if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
@@ -437,9 +457,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     await vscode.commands.executeCommand('vscode.diff', sourceUri, sourcePreview.uri,
       t('extractDiff', request.title, vscode.workspace.asRelativePath(sourceUri)), { preview: false });
     for (const [uri, edits] of targets) {
-      const empty = await vscode.workspace.openTextDocument({ language: 'php', content: '' });
-      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits('', edits) });
-      await vscode.commands.executeCommand('vscode.diff', empty.uri, preview.uri,
+      const previous = existingTargets.get(uri.toString())?.text ?? '';
+      const baseline = existingTargets.has(uri.toString()) ? uri : (await vscode.workspace.openTextDocument({ language: 'php', content: '' })).uri;
+      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(previous, edits) });
+      await vscode.commands.executeCommand('vscode.diff', baseline, preview.uri,
         t('extractDiff', request.title, vscode.workspace.asRelativePath(uri)), { preview: false });
     }
     if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;

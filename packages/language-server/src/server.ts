@@ -4,6 +4,7 @@ import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companio
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import type { Dirent } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
@@ -6078,7 +6079,12 @@ connection.onCodeAction(async (params, token) => {
           const targetDocument = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, targetSource);
           (changes![edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
         }
-        actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedParameter', removal.parameter), kind: CodeActionKind.RefactorRewrite, edit: { changes } });
+        actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedParameter', removal.parameter), kind: CodeActionKind.RefactorRewrite,
+          edit: { changes }, command: { title: 'Refactor source snapshots', command: 'phpCompanion.refactorSnapshots',
+            arguments: [Object.fromEntries(uris.map((uri) => {
+              const text = documents.get(uri)?.getText() ?? workspace.source(uri)!;
+              return [uri, createHash('sha256').update(text).digest('hex')];
+            }))] } });
       }
     }
   }

@@ -138,13 +138,16 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         const actions = await next(document, range, context, token);
         if (!actions || token.isCancellationRequested) return actions;
         for (const action of actions) {
+          const rewriteSnapshots = action instanceof vscode.CodeAction && action.command?.command === 'phpCompanion.refactorSnapshots'
+            ? action.command.arguments?.[0] as Record<string, string> | undefined : undefined;
           if (!(action instanceof vscode.CodeAction) || !action.edit
             || (action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value
-              && action.kind?.value !== vscode.CodeActionKind.RefactorInline.value)) continue;
+              && action.kind?.value !== vscode.CodeActionKind.RefactorInline.value
+              && !(action.kind?.value === vscode.CodeActionKind.RefactorRewrite.value && rewriteSnapshots))) continue;
           const edit = action.edit;
           action.edit = undefined;
           action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',
-            arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText }] };
+            arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText, targetHashes: rewriteSnapshots }] };
         }
         return actions;
       },

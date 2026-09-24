@@ -1,4 +1,5 @@
 import * as assert from 'node:assert';
+import { createHash } from 'node:crypto';
 import * as vscode from 'vscode';
 
 type QueryState = { paused: boolean; version: number | null };
@@ -297,6 +298,89 @@ export async function run(): Promise<void> {
   assert.strictEqual(inlineDocument.getText(), inlineSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(inlineDocument.getText().includes('return new \\stdClass();'));
+  const secondUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SecondTarget.php');
+  const secondSource = '<?php\nnamespace App\\Service;\nfunction secondTarget(): int { return 1; }\n';
+  await vscode.workspace.fs.writeFile(secondUri, Buffer.from(secondSource));
+  const secondDocument = await vscode.workspace.openTextDocument(secondUri);
+  const sourceEdit = new vscode.WorkspaceEdit();
+  sourceEdit.replace(inlineUri, new vscode.Range(2, 9, 2, 19), 'makeUpdated');
+  sourceEdit.replace(secondUri, new vscode.Range(2, 9, 2, 21), 'secondUpdate');
+  const targetHashes = { [secondUri.toString()]: createHash('sha256').update(secondSource).digest('hex') };
+  const previewRequest = (): { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number;
+    sourceText: string; targetHashes: Record<string, string> } => ({ edit: sourceEdit, title: 'Multi-file refactor', sourceUri: inlineUri,
+    sourceVersion: inlineDocument.version, sourceText: inlineDocument.getText(), targetHashes });
+  const staleRequest = previewRequest();
+  const changeSecond = new vscode.WorkspaceEdit();
+  changeSecond.insert(secondUri, new vscode.Position(1, 0), '// changed while planning\n');
+  assert.ok(await vscode.workspace.applyEdit(changeSecond));
+  await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', staleRequest,
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(secondDocument.getText().includes('changed while planning') && !inlineDocument.getText().includes('makeUpdated'),
+    'A stale second target allowed a multi-file refactor');
+  await vscode.window.showTextDocument(secondDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(secondDocument.getText(), secondSource);
+  await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', previewRequest(),
+    { testPreviewAction: async () => {
+      const concurrent = new vscode.WorkspaceEdit();
+      concurrent.insert(secondUri, new vscode.Position(1, 0), '// changed during preview\n');
+      assert.ok(await vscode.workspace.applyEdit(concurrent));
+      return 'apply';
+    } });
+  assert.ok(secondDocument.getText().includes('changed during preview') && !inlineDocument.getText().includes('makeUpdated'),
+    'A second target changed during preview was overwritten');
+  await vscode.window.showTextDocument(secondDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(secondDocument.getText(), secondSource);
+  await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', previewRequest(),
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(inlineDocument.getText().includes('function makeUpdated()') && secondDocument.getText().includes('function secondUpdate()'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok(!inlineDocument.getText().includes('function makeUpdated()') && secondDocument.getText() === secondSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(inlineDocument.getText().includes('function makeUpdated()') && secondDocument.getText().includes('function secondUpdate()'));
+  const signatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3Signature.php');
+  const signatureSource = '<?php\nnamespace App\\Service;\nclass C3Signature { private function build(int $unused, string $name): string { return $name; } public function run(): string { return $this->build(1, "ok"); } }\n';
+  await vscode.workspace.fs.writeFile(signatureUri, Buffer.from(signatureSource));
+  const signatureDocument = await vscode.workspace.openTextDocument(signatureUri);
+  await vscode.window.showTextDocument(signatureDocument);
+  const signatureAction = async (): Promise<vscode.CodeAction> => {
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const offset = signatureDocument.getText().indexOf('$unused');
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', signatureUri,
+        new vscode.Range(signatureDocument.positionAt(offset), signatureDocument.positionAt(offset)),
+        vscode.CodeActionKind.RefactorRewrite.value);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action
+        && action.title === 'Remove unused parameter $unused');
+      if (found?.command) return found;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail('Remove unused parameter was not routed through the preview command');
+  };
+  const staleSignature = await signatureAction();
+  const signatureChange = new vscode.WorkspaceEdit();
+  signatureChange.insert(signatureUri, new vscode.Position(1, 0), '// edited after selecting signature change\n');
+  assert.ok(await vscode.workspace.applyEdit(signatureChange));
+  await vscode.commands.executeCommand(staleSignature.command!.command, ...staleSignature.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(signatureDocument.getText().includes('$unused') && signatureDocument.getText().includes('edited after selecting'),
+    'A stale signature action changed the edited source');
+  await vscode.window.showTextDocument(signatureDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(signatureDocument.getText(), signatureSource);
+  const cancelSignature = await signatureAction();
+  await vscode.commands.executeCommand(cancelSignature.command!.command, ...cancelSignature.command!.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(signatureDocument.getText(), signatureSource);
+  const freshSignature = await signatureAction();
+  await vscode.commands.executeCommand(freshSignature.command!.command, ...freshSignature.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(signatureDocument.getText().includes('build(string $name)') && signatureDocument.getText().includes('build("ok")'));
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(signatureDocument.getText(), signatureSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(signatureDocument.getText().includes('build(string $name)'));
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);
