@@ -262,6 +262,47 @@ function inspectProfileRecords(): void { foreach (profileRecords() as $item) { $
     return hovers.some((hover) => hover.contents.some((content) => (typeof content === 'string' ? content : content.value).includes('onlyBeta')));
   }, 'The full Pack did not show the updated PHPDoc return member on Hover', 30_000, 100);
 
+  const scalarUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileScalar.php');
+  const scalarConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileScalarConsumer.php');
+  const scalarSource = (type: 'int' | 'string'): string => `<?php namespace App;
+final class ProfileScalar { public function text(): ${type} { return ${type === 'int' ? '42' : "'bad'"}; } public function accept(int $value): void {} }
+`;
+  const scalarConsumerSource = `<?php declare(strict_types=1); namespace App;
+function inspectProfileScalar(ProfileScalar $service): void { $value = $service->text(); // keep local source
+  $service->accept($value); }
+`;
+  await vscode.workspace.fs.writeFile(scalarUri, Buffer.from(scalarSource('string')));
+  await vscode.workspace.fs.writeFile(scalarConsumerUri, Buffer.from(scalarConsumerSource));
+  const scalarDocument = await vscode.workspace.openTextDocument(scalarUri);
+  const scalarConsumerDocument = await vscode.workspace.openTextDocument(scalarConsumerUri);
+  await vscode.window.showTextDocument(scalarConsumerDocument);
+  const hoverPosition = scalarConsumerDocument.positionAt(scalarConsumerSource.indexOf('accept($value)') + 'accept($'.length + 2);
+  const scalarMismatch = (): boolean => vscode.languages.getDiagnostics(scalarConsumerUri)
+    .some((item) => item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const scalarHover = async (type: 'int' | 'string'): Promise<boolean> => {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', scalarConsumerUri, hoverPosition) ?? [];
+    return hovers.some((hover) => hover.contents.some((content) =>
+      (typeof content === 'string' ? content : content.value).includes(`$value: ${type}`)));
+  };
+  await waitForAsync(async () => scalarMismatch() && await scalarHover('string'),
+    'The full Pack did not show the first local scalar Hover and mismatch', 30_000);
+  const scalarRoundsMs: number[] = [];
+  for (let round = 0; round < 10; round += 1) {
+    const type = round % 2 === 0 ? 'int' : 'string';
+    const started = performance.now();
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(scalarUri, new vscode.Range(scalarDocument.positionAt(0), scalarDocument.positionAt(scalarDocument.getText().length)), scalarSource(type));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(scalarDocument.isDirty);
+    await waitForAsync(async () => scalarMismatch() === (type === 'string') && await scalarHover(type),
+      `The full Pack kept stale local scalar feedback in round ${round + 1}`, 30_000);
+    scalarRoundsMs.push(Math.round(performance.now() - started));
+  }
+  const sortedScalarRounds = [...scalarRoundsMs].sort((left, right) => left - right);
+  console.log(`Open Source Pack C2 local scalar editing: ${JSON.stringify({ rounds: scalarRoundsMs.length,
+    p95Ms: sortedScalarRounds[Math.ceil(0.95 * sortedScalarRounds.length) - 1], maxMs: sortedScalarRounds.at(-1),
+    declarationUnsaved: scalarDocument.isDirty, consumerVersion: scalarConsumerDocument.version })}`);
+
   const servicesUri = vscode.Uri.joinPath(workspace.uri, 'config', 'services.yaml');
   const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
   const serviceOffset = servicesDocument.getText().indexOf('@App\\Service\\Mailer') + 5;

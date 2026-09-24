@@ -71,14 +71,14 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 | --- | --- | --- |
 | Pack 源码 | 11 项清单；Core、Symfony、9 个外部扩展；manifest 检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |
 | 已冻结 0.4.5 私有候选 | Core、Symfony、Pack 三份 VSIX 及 8 个当时的外部成员完成隔离 Linux 组合门禁 | 该候选不包含后来加入 Pack 源码的 PHP DocBlocker |
-| 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 完整成员 Profile 已单独通过 | 下次冻结候选时，按 11 项记录版本与摘要并复核实际安装和 Extension Host |
+| 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 完整成员 Profile 已单独通过；[11 项 Pack 的 C2 编辑链](reports/open-source-pack-c2-local-feedback-2026-09-24.md)在隔离宿主完成 10 轮未保存切换 | 下次冻结候选时，按 11 项记录版本与摘要并复核实际安装和 Extension Host |
 | 更广的日常使用 | 独立 Composer 项目的编码、格式化、测试和调试有自动宿主证据 | WSL Remote、Windows/macOS、较长真实使用及项目工具路径仍需验收 |
 
-因此可以按已验的 Linux/WSL 范围开始使用现有 Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；不能把仓库当前源码清单等同于已安装的 0.4.5 候选。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
+因此可以按已验的 Linux 隔离宿主范围开始使用现有 Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；不能把仓库当前源码清单等同于已安装的 0.4.5 候选。WSL Remote 的实际 Extension Host 归属仍待验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
 
 Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never`、参数和简单 PHPDoc 冲突反馈已修复；[生成后未保存编辑链](reports/c2-generated-phpdoc-flow-2026-09-24.md)验证了补全、Hover、Definition 与局部标量诊断。快速编辑的旧诊断发布也已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
-独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)已覆盖唯一 PSR-4 类方法、直接或稳定局部标量字面量，以及直接或稳定局部赋值的原生标量方法返回；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。复杂控制流、动态返回和仅 PHPDoc 声明的跨文件返回仍保持保守。下一步先核对这些来源在补全、Hover、Definition、参数提示和诊断中的版本一致性，再用完整 Pack 的源码 Profile 和较大独立 Composer 项目观察等待与长期稳定性。人工使用反馈可以并行进入，不阻塞这些独立测试。
+独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)已覆盖唯一 PSR-4 类方法、直接或稳定局部标量字面量，以及直接或稳定局部赋值的原生标量方法返回；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。[局部值 Hover](reports/c2-local-value-hover-2026-09-24.md)补齐了同一类型事实的显示，[完整 Pack 源码组合](reports/open-source-pack-c2-local-feedback-2026-09-24.md)的 10 轮未保存切换也未出现旧 Hover 或旧诊断。复杂控制流、动态返回和仅 PHPDoc 声明的跨文件返回仍保持保守。下一步在更大的独立 Composer 项目观察等待与长期稳定性，并继续核对数组、联合类型的跨能力反馈。人工使用反馈可以并行进入，不阻塞这些独立测试。
 
 ### 下一次执行顺序
 
