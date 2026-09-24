@@ -564,6 +564,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (target.toString() === source.toString()) return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', source);
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage(t('safeMoveIndexingMode'));
+    const previewUris = new Set<string>();
     try {
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
       const manager = selfLanguageServer ? undefined : await workspace();
@@ -600,11 +601,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       };
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (options?.preview ?? configuration.get<boolean>('move.preview', true)) {
+        let sourceShown = false;
         for (const [uri, edits] of textEdits.entries()) {
           const originalUri = uri.toString() === target.toString() ? source : uri;
           const original = participants.find((participant) => participant.uri.toString() === originalUri.toString())!;
-          const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.text, edits) });
-          await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri)), { preview: false });
+          const baseline = await openRenamePreviewSnapshot(originalUri, original.text);
+          const preview = await openRenamePreviewSnapshot(originalUri, applyTextEdits(original.text, edits));
+          previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+          const title = `${t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri))}${originalUri.toString() === source.toString()
+            ? ` → ${vscode.workspace.asRelativePath(target)}` : ''}`;
+          await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri, title, { preview: false });
+          if (originalUri.toString() === source.toString()) sourceShown = true;
+        }
+        if (!sourceShown) {
+          const original = participants.find((participant) => participant.uri.toString() === source.toString())!;
+          const baseline = await openRenamePreviewSnapshot(source, original.text);
+          const preview = await openRenamePreviewSnapshot(source, original.text);
+          previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+          await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri,
+            `${t('safeMoveDiff', vscode.workspace.asRelativePath(source))} → ${vscode.workspace.asRelativePath(target)}`, { preview: false });
         }
         if (!await confirmPreviewedEdit(t('applyPreviewedSafeMove'), options?.testPreviewAction)) return;
       }
@@ -622,6 +637,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const message = error instanceof Error ? error.message : String(error);
       output.warn(`Safe Move rejected: ${message}`);
       void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
+    } finally {
+      const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
+        && previewUris.has(tab.input.modified.toString()));
+      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      forgetRenamePreviewSnapshots(previewUris);
     }
   });
   register('phpCompanion.resolvePastedImports', async (options?: { testAfterPlan?: () => Promise<void> }) => {

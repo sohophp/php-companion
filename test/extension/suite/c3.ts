@@ -633,6 +633,41 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(groupedNewUri)).getText().includes('class C3GroupedRenamed'));
   for (const consumer of groupedConsumers) assert.ok((await vscode.workspace.openTextDocument(consumer)).getText().includes('C3GroupedRenamed'));
+  const moveSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MovePreview.php');
+  const moveTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MovePreview.php');
+  const moveSource = '<?php\nnamespace App\\Service;\nfinal class C3MovePreview {}\n';
+  await vscode.workspace.fs.writeFile(moveSourceUri, Buffer.from(moveSource));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(moveSourceUri));
+  const movePreview = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<void> =>
+    vscode.commands.executeCommand('phpCompanion.safeMove', moveSourceUri, moveTargetUri, { preview: true, testPreviewAction });
+  await movePreview(async () => {
+    const diffs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+      tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php'));
+    assert.ok(diffs.some((tab) => tab.label.includes('Controller/C3MovePreview.php')),
+      'Safe Move preview omitted the destination path');
+    for (const tab of diffs) {
+      assert.ok(tab.input instanceof vscode.TabInputTextDiff);
+      const baseline = await vscode.workspace.openTextDocument(tab.input.original);
+      const preview = await vscode.workspace.openTextDocument(tab.input.modified);
+      assert.strictEqual(baseline.uri.scheme, 'sophp-rename-preview');
+      assert.strictEqual(preview.uri.scheme, 'sophp-rename-preview');
+      assert.strictEqual(baseline.isDirty, false);
+      assert.strictEqual(preview.isDirty, false);
+    }
+    return 'cancel';
+  });
+  assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) =>
+    tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php')),
+  'Cancelling Safe Move left a preview diff open');
+  assert.strictEqual((await vscode.workspace.openTextDocument(moveSourceUri)).getText(), moveSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri));
+  await movePreview(async () => 'apply');
+  assert.ok((await vscode.workspace.openTextDocument(moveTargetUri)).getText().includes('namespace App\\Controller;'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(moveSourceUri));
+  await vscode.commands.executeCommand('undo');
+  assert.ok((await vscode.workspace.openTextDocument(moveSourceUri)).getText().includes('namespace App\\Service;'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(moveTargetUri)).getText().includes('namespace App\\Controller;'));
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();

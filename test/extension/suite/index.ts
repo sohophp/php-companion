@@ -5221,7 +5221,9 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
       for (const [uri] of moveEdit.entries()) {
         const originalUri = uri.toString() === movedRunnerUri.toString() ? runnerUri : uri;
         assert.ok(tabs.some((tab) => tab.input instanceof vscode.TabInputTextDiff
-          && tab.input.original.toString() === originalUri.toString() && !tab.isPreview),
+          && tab.input.original.scheme === 'sophp-rename-preview'
+          && tab.input.modified.scheme === 'sophp-rename-preview'
+          && tab.label.includes(vscode.workspace.asRelativePath(originalUri)) && !tab.isPreview),
         `Safe Move preview did not keep the diff for ${originalUri.path} open`);
       }
       return 'cancel';
