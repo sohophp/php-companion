@@ -5631,15 +5631,27 @@ export class SemanticWorkspace {
     const escapedMethod = callable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const firstClassCallable = new RegExp(`(?:->|\\?->|::)\\s*${escapedMethod}\\s*\\(\\s*\\.\\.\\.\\s*\\)`, 'i');
     const longCallableArray = new RegExp(`\\barray\\s*\\(\\s*[^,\\)]*,\\s*(['"])${escapedMethod}\\1\\s*\\)`, 'i');
-    const staticCallableString = new RegExp(`(['"])[^'"\\r\\n]*::${escapedMethod}\\1`, 'i');
+    const staticCallableString = new RegExp(`(['"])[^'"\\r\\n]*::${escapedMethod}\\1`, 'gi');
     const executableMatch = (candidate: SemanticFile, pattern: RegExp, includeStrings = false): boolean =>
       [...candidate.source.matchAll(new RegExp(pattern.source, `${pattern.flags}g`))].some((match) => {
         const start = match.index;
         return !candidate.commentRanges.some((range) => range.start <= start && start < range.end)
           && (includeStrings || !candidate.stringRanges.some((range) => range.start <= start && start < range.end));
       });
+    const possibleStaticCallable = (candidate: SemanticFile): boolean => [...candidate.source.matchAll(staticCallableString)].some((match) => {
+      const start = match.index;
+      if (candidate.commentRanges.some((range) => range.start <= start && start < range.end)) return false;
+      // A fully qualified class constant followed by a method suffix names a
+      // different owner even when the suffix matches this private method.
+      if (match[0].startsWith(`'::`) || match[0].startsWith(`"::`)) {
+        const prefix = candidate.source.slice(Math.max(0, start - 256), start);
+        const owner = /(\\[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)::class\s*\.\s*$/i.exec(prefix)?.[1];
+        if (owner && owner.slice(1).toLowerCase() !== callable.containerFqcn!.toLowerCase()) return false;
+      }
+      return true;
+    });
     if ([...this.files.values()].some((candidate) => executableMatch(candidate, firstClassCallable)
-      || executableMatch(candidate, longCallableArray) || executableMatch(candidate, staticCallableString, true))) return undefined;
+      || executableMatch(candidate, longCallableArray) || possibleStaticCallable(candidate))) return undefined;
     if (executableMatch(file, /\[\s*\$this\s*,\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\]/)
       || executableMatch(file, /\barray\s*\(\s*\$this\s*,\s*\$[A-Za-z_][A-Za-z0-9_]*\s*\)/i)) return undefined;
     const parameterPosition = callable.parameters.indexOf(parameter);

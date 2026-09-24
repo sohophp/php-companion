@@ -51,7 +51,7 @@ Open Source Pack 现有独立的[默认组合宿主门禁](reports/open-source-p
 
 1. **C1 冷启动和持续编辑。** [首轮冷查询](reports/c1-cold-first-query-2026-09-24.md)发现并修复了激活完成早于 Provider 注册导致首次 References 返回空结果；10k 独立项目中首次 References/Implementation 现能一次取得正确位置。继续记录空缓存、后台准备后与重载后的可见等待，并用较长会话重复未保存编辑的六项查询与建议显示，定位超时、旧结果或内存增长。先复用现有 1k/10k/真实 vendor 夹具。
 2. **C2 类型与诊断一致性。** [当前文件的 `never` 漏报](reports/c2-ondemand-local-never-2026-09-24.md)已在 `onDemand` 下修复并通过独立宿主；跨文件事实仍要求完整证明。继续审计补全、Hover、导航和诊断是否消费同一版本的类型事实，尤其检查未保存编辑、索引状态变化和诊断撤销。PHPDoc 注释生成继续由可选扩展单独评估。
-3. **C3 和 C4 顺序验收。** C1/C2 的高频工作流稳定后，逐项检查 Rename、导入、生成和其它工作区编辑的预览/撤销；C4 再验证 WSL Remote 的 Extension Host 与工具路径、Windows/macOS、PHP 版本矩阵和长时间真实使用。Pack 成员仅在外部扩展通过独立准入门禁后调整。
+3. **C3 和 C4 顺序验收。** C1/C2 的高频工作流稳定后，逐项检查 Rename、导入、生成和其它工作区编辑的预览/撤销；[私有参数重构的无关同名方法误挡](reports/c3-private-parameter-owner-2026-09-24.md)已修复，源码宿主套件现能执行并撤销该动作。C4 再验证 WSL Remote 的 Extension Host 与工具路径、Windows/macOS、PHP 版本矩阵和长时间真实使用。Pack 成员仅在外部扩展通过独立准入门禁后调整。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。

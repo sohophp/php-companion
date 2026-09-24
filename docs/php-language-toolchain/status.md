@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C3 私有参数重构：`App\Formatter::format()` 原被无关的 `\DateTimeImmutable::class . '::format'` 字符串误挡。安全检查现对明确的其他全限定类常量放行，目标类与动态类名仍拒绝；语义与 F08 定向测试 308/308、隔离 Core + Symfony 源码 Extension Host 完整套件退出码 0，包含动作应用、Undo 和 Redo。未打包 VSIX，用户 Profile/Remote 仍开放。见[私有参数重构报告](reports/c3-private-parameter-owner-2026-09-24.md)。
+
 2026-09-24 C2 按需索引中的局部 `never` 诊断：同文件唯一、参数兼容的原生 `never` 函数现可在依赖索引不完整时参与控制流证明；跨文件、方法、PHPDoc 与不兼容调用仍保守。SemanticWorkspace 305/305、分析 41/41、定向 stdio 和隔离 VS Code 默认 `onDemand` 宿主 10/10 不可达提示通过。源码大套件越过该断言，后在 C3 私有参数重构动作失败，仍未全过。见[局部 `never` 诊断报告](reports/c2-ondemand-local-never-2026-09-24.md)。
 
 2026-09-24 C1 冷启动首次查询：10,130 文件独立 Composer 夹具的隔离宿主首次 References 原返回空数组，原因是 Core 激活早于语言 Provider 注册结束；Core 激活现在等待语言客户端启动。全新宿主、不做语义预热的首次 References 直接返回 2 处引用、1,157 ms；首次 Implementation 返回 Guzzle 实现、1,651 ms，均退出码 0。10 轮未保存类型切换的六项链通过。较大源码宿主套件仍在 C2 `never` 不可达诊断处失败（7/10），不算全套通过。见[冷启动首次查询报告](reports/c1-cold-first-query-2026-09-24.md)。
