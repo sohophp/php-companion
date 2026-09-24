@@ -65,6 +65,8 @@ PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因�
 
 Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 已加入当前源码 Pack，PHPStan 保持可选。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。PHP DocBlocker 的源码成员 Profile 已完成单独组合门禁；新 VSIX 候选尚未冻结。
 
+当前 11 项源码组合还可运行 `pnpm test:extension:open-source-profile:source`：预先用 `install:open-source-profile` 安装冻结版本，并设置 `PHP_COMPANION_TEST_EXTENSIONS_DIR`、`PHP_COMPANION_PHP_EXECUTABLE`、`PHP_COMPANION_PHP_CS_FIXER`、`PHP_COMPANION_PHPUNIT_EXECUTABLE`。它在独立临时 Composer 项目和隔离 VS Code Profile 中加载 Core、Symfony、Pack 源码，复用格式化、导航、调试与测试的组合宿主门禁，无需生成 VSIX。2026-09-24 的 11 项源码复测通过；这项结果不能替代下一次候选的 VSIX 安装和 WSL Remote 验收。
+
 | 层次 | 当前可核对的结果 | 下一道门槛 |
 | --- | --- | --- |
 | Pack 源码 | 11 项清单；Core、Symfony、9 个外部扩展；manifest 检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |

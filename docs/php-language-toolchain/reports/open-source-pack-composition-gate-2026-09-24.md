@@ -14,6 +14,8 @@ Open Source Profile 测试现把三份 VSIX 都解包到隔离 Extension Host，
 
 执行入口为 `PHP_COMPANION_TEST_EXTENSIONS_DIR`、`PHP_COMPANION_PHP_EXECUTABLE`、`PHP_COMPANION_PHP_CS_FIXER`、`PHP_COMPANION_PHPUNIT_EXECUTABLE` 指向独立目录后运行 `node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js`。`pnpm test:extension:open-source-profile` 会先重新构建相应产物；本轮已构建后直接调用相同的宿主入口，避免重复打包。
 
+同日新增 `PHP_COMPANION_TEST_PROFILE_SOURCE=1` 源码入口，并用包含 PHP DocBlocker 2.7.0 的冻结 9 个外部成员复跑同一组合宿主套件。Core、Symfony、Pack 从当前源码加载，PHP 8.5.9 与项目工具在临时 Composer 项目上执行；VS Code 1.139.0 隔离宿主退出码为 **0**。这轮也把宿主断言从旧的 10 项 Pack 清单更新为当前 11 项，并排除另一个 XML Provider。此结果验证当前源码成员组合；上面的三份 VSIX 摘要及 Alpha 候选仍对应旧的 10 项清单，不能视为已包含 PHP DocBlocker。
+
 门禁暴露并修复三项事实：原夹具覆盖基础路由而破坏后续跳转，随后又把用于其他诊断的 Controller 文件一并导入静态路由；现保留原路由并仅导入 Profile Controller。`onDemand` 的首次 YAML 服务 References 原先在容器事实未加载时返回空结果，现先取得完整项目与权威容器事实；普通 PHP 方法引用经词法预检不会因此触发整项目索引，真实 stdio 正反例通过。PHPUnit 11 要求移动后的文件和类名一致，测试现一次编辑两者并在每次运行前保存缓冲区。另以独立 40 Controller 回归验证静态路由默认预算，默认上限从 64 提到 256，显式小预算的不完整性测试继续通过。
 
 ## 边界与下一步

@@ -41,6 +41,7 @@ function resolvePhpScriptCommand(command: string): string {
 
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
+  const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
   const vsix = process.env.PHP_COMPANION_TEST_CORE_VSIX ? resolve(process.env.PHP_COMPANION_TEST_CORE_VSIX)
     : join(repository, 'php-companion-0.4.5.vsix');
   const symfonyVsix = process.env.PHP_COMPANION_TEST_SYMFONY_VSIX ? resolve(process.env.PHP_COMPANION_TEST_SYMFONY_VSIX)
@@ -49,8 +50,10 @@ async function main(): Promise<void> {
     ? resolve(process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX)
     : join(repository, 'packages', 'php-companion-extension-pack', 'php-companion-open-source-pack-0.4.5.vsix');
   const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
-  await stat(vsix);
-  await stat(symfonyVsix);
+  if (!sourceProfile) {
+    await stat(vsix);
+    await stat(symfonyVsix);
+  }
   if (twigVsix) await stat(twigVsix);
   // macOS limits Unix-domain socket paths to roughly 104 bytes. GitHub's
   // per-user tmpdir is already long enough that VS Code's profile socket can
@@ -63,6 +66,7 @@ async function main(): Promise<void> {
   const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
+  if (sourceProfile && !externalExtensions) throw new Error('Source Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   const extensionsDirectory = externalExtensions ?? join(profile, 'extensions');
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
   let phpunitExecutable = process.env.PHP_COMPANION_PHPUNIT_EXECUTABLE;
@@ -86,7 +90,7 @@ exit($status);
     phpunitExecutable = proxy;
   }
   if (externalExtensions) await stat(externalExtensions);
-  if (externalExtensions) await stat(packVsix);
+  if (externalExtensions && !sourceProfile) await stat(packVsix);
   try {
     const userSettingsDirectory = join(profile, 'user-data', 'User');
     await mkdir(userSettingsDirectory, { recursive: true });
@@ -155,13 +159,17 @@ abstract class AbstractController { public function generateUrl(string $route, a
 `);
     }
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
-    await mkdir(extracted, { recursive: true });
-    await mkdir(symfonyExtracted, { recursive: true });
-    if (externalExtensions) await mkdir(packExtracted, { recursive: true });
+    if (!sourceProfile) {
+      await mkdir(extracted, { recursive: true });
+      await mkdir(symfonyExtracted, { recursive: true });
+      if (externalExtensions) await mkdir(packExtracted, { recursive: true });
+    }
     if (twigVsix) await mkdir(twigExtracted, { recursive: true });
-    execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
-    execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
-    if (externalExtensions) execFileSync('unzip', ['-q', packVsix, '-d', packExtracted], { stdio: 'inherit' });
+    if (!sourceProfile) {
+      execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
+      execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
+      if (externalExtensions) execFileSync('unzip', ['-q', packVsix, '-d', packExtracted], { stdio: 'inherit' });
+    }
     if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
     if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
       await mkdir(extensionsDirectory, { recursive: true });
@@ -182,8 +190,9 @@ abstract class AbstractController { public function generateUrl(string $route, a
     }
     await runTests({
       vscodeExecutablePath: await testExecutablePath(),
-      extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension'),
-        ...(externalExtensions ? [join(packExtracted, 'extension')] : []),
+      extensionDevelopmentPath: [sourceProfile ? repository : join(extracted, 'extension'),
+        sourceProfile ? join(repository, 'packages', 'php-companion-symfony') : join(symfonyExtracted, 'extension'),
+        ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [
@@ -215,7 +224,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
       ? `Verified legacy Profile Rename and Paste settings in packaged PHP Companion VSIX: ${vsix}`
       : process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
         ? `Verified Simplified Chinese manifest text in packaged PHP Companion VSIX: ${vsix}`
-        : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
+        : sourceProfile ? 'Verified source SoPHP extensions in the isolated Open Source Profile'
+          : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {
     if (process.env.PHP_COMPANION_TEST_LOG_DIR) {
       await cp(join(profile, 'user-data', 'logs'), resolve(process.env.PHP_COMPANION_TEST_LOG_DIR), { recursive: true }).catch(() => undefined);

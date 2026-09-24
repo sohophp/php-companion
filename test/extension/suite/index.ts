@@ -166,6 +166,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'junstyle.php-cs-fixer',
     'editorconfig.editorconfig',
     'eiminsasete.apacheconf-snippets',
+    'neilbrayfield.php-docblocker',
   ];
   for (const id of extensionIds) assert.ok(vscode.extensions.getExtension(id), `${id} is missing from the Open Source Profile`);
   const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack')!;
@@ -173,7 +174,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.twig-plus',
     'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
     'recca0120.vscode-phpunit', 'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig',
-    'eiminsasete.apacheconf-snippets',
+    'eiminsasete.apacheconf-snippets', 'neilbrayfield.php-docblocker',
   ], 'The installed Open Source Pack did not declare the frozen extension set');
   assert.strictEqual(vscode.workspace.getConfiguration('php', workspace.uri).get('suggest.basic'), false,
     'The Open Source Pack did not disable duplicate built-in PHP suggestions');
@@ -186,6 +187,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'The Open Source Pack did not select the PHP formatter');
   assert.strictEqual(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), undefined, 'Open Source Profile unexpectedly contains Intelephense');
   assert.strictEqual(vscode.extensions.getExtension('symfony.language-tools'), undefined, 'Open Source Profile contains the rejected Symfony Rename provider');
+  assert.strictEqual(vscode.extensions.getExtension('dotjoshjohnson.xml'), undefined, 'Open Source Profile contains the rejected XML provider');
 
   const coreUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileCore.php');
   const coreSource = '<?php namespace App; class ProfileCore { public function answer(): int { return 42; } } function profile(ProfileCore $value): int { return $value->answer(); }';
