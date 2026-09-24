@@ -4217,6 +4217,23 @@ describe('conservative semantic workspace', () => {
       expect(local.definition(consumerUri, consumer.indexOf('->createCollection', consumer.indexOf('unknown')) + 3)).toEqual([]);
     } finally { local.dispose(); }
   });
+  it('resolves inherited fluent methods on a parenthesized new expression', () => {
+    const local = new SemanticWorkspace(parser);
+    const baseUri = 'file:///BaseRead.php';
+    const base = '<?php namespace App; class BaseRead { public function withImageFactory(object $factory): static { return $this; } public function withContentUrlConverter(object $converter): static { return $this; } }';
+    const cardUri = 'file:///CardRead.php';
+    const card = '<?php namespace App; class CardRead extends BaseRead {}';
+    const useUri = 'file:///CardUse.php';
+    const use = '<?php namespace App; (new CardRead([\'items\' => [1, 2]]))->withImageFactory($factory)->withContentUrlConverter($converter);';
+    try {
+      local.update(baseUri, base);
+      local.update(cardUri, card);
+      local.update(useUri, use);
+      expect(local.definition(useUri, use.indexOf('->withContentUrlConverter') + 3)).toMatchObject([
+        { uri: baseUri, start: base.indexOf('withContentUrlConverter') },
+      ]);
+    } finally { local.dispose(); }
+  });
   it('skips syntax trees for method accesses with incompatible staticness', () => {
     const isolated = new SemanticWorkspace(parser);
     const instanceUri = 'file:///StaticFilterInstance.php';

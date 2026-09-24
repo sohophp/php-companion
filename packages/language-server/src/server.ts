@@ -1287,31 +1287,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
   updateBuiltinForRoot(workspace, root);
-  if (indexingMode === 'progressive' && project && continueIndexing()) {
-    const entries = new Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }>();
-    const light = await indexComposerSources(root, {
-      project, includeDependencies: false, limits: indexLimits, readConcurrency: 128, verifyCachedSourceHash: true,
-      shouldContinue: continueIndexing,
-      onSource: ({ path, hash, source }) => {
-        const summary = createSourceCandidateSummary(source, false);
-        entries.set(resolve(path), { hash, summary });
-        return summary;
-      },
-      cache: cacheDirectory ? {
-        directory: cacheDirectory, key: 'reference-light', version: 'reference-light-v1',
-        restore: (payload, { path, hash }): boolean => {
-          const decision = sourceCandidateSummaryDecision(payload, new Set(), 'symbol');
-          if (decision === 'rebuild') return false;
-          entries.set(resolve(path), { hash, summary: payload as ReturnType<typeof createSourceCandidateSummary> });
-          return true;
-        },
-      } : undefined,
-    });
-    if (light.projectComplete && continueIndexing() && entries.size === light.files) {
-      referenceLightSummaries.set(root, { epoch: projectEpochs.get(root) ?? 0, entries });
-      connection.console.info(`[reference-progressive] light ready root=${root} files=${light.files} cached=${light.cached}`);
-    }
-  }
+  const lightEntries = indexingMode === 'progressive'
+    ? new Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }>() : undefined;
   const current = new Set<string>(); scanFilesByRoot.set(root, current);
   const doctrineFiles = new Map<string, DoctrineMethodFact[]>();
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
@@ -1339,6 +1316,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true, includeProjectFacts: true,
     }) : undefined,
     onSource: ({ uri, path, source, hash, prepared }) => {
+      lightEntries?.set(resolve(path), { hash, summary: createSourceCandidateSummary(source, false) });
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
@@ -1356,10 +1334,11 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     cache: cacheDirectory ? {
       directory: cacheDirectory,
       version: semanticIndexCacheVersion(phpVersionForRoot(root)),
-      restore: (payload, { uri, path }): boolean => {
+      restore: (payload, { uri, path, hash }): boolean => {
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
         if (!restored) return false;
+        lightEntries?.set(resolve(path), { hash, summary: createSourceCandidateSummary(restored.semantic.implementation.source, false) });
         if (open) {
           if (workspace.source(uri) !== open.getText() || workspace.implementationState(uri) !== 'loaded')
             workspace.update(uri, open.getText(), true);
@@ -1371,6 +1350,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     } : undefined,
     onProjectComplete: async (): Promise<void> => {
       if (!continueIndexing()) return;
+      if (lightEntries?.size === current.size) {
+        referenceLightSummaries.set(root, { epoch: projectEpochs.get(root) ?? 0, entries: lightEntries });
+        connection.console.info(`[reference-progressive] light ready root=${root} files=${lightEntries.size}`);
+      }
       await applyPendingFiles(); pendingRoots.clear();
       const projectCurrent = new Set(current);
       for (const stale of projectIndexedUrisByRoot.get(root) ?? []) if (!projectCurrent.has(stale) && !documents.get(stale)) workspace.remove(stale);

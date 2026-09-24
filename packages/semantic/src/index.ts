@@ -7467,6 +7467,34 @@ export class SemanticWorkspace {
         const nameNode = receiverTree.rootNode.namedDescendantForIndex(offset - 1);
         const memberNode = nameNode?.parent;
         const receiver = memberNode?.childForFieldName('object');
+        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'member_call_expression') {
+          const createdReceiver = (node: SyntaxNode, depth: number): ObjectClass | undefined => {
+            if (depth >= MAX_LOCAL_SYNTAX_DEPTH) return undefined;
+            if (node.type === 'parenthesized_expression' && node.namedChildren.length === 1)
+              return createdReceiver(node.namedChildren[0]!, depth + 1);
+            if (node.type === 'object_creation_expression') {
+              const name = /^new\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*(?:\(|$)/i.exec(node.text)?.[1];
+              const fqcn = name && this.resolveSourceType(file, name, this.namespaceAt(file, node.startIndex), accessFrom);
+              if (fqcn && !this.fileAndDeclaration(fqcn)) unresolvedOwners?.add(fqcn);
+              return fqcn && this.fileAndDeclaration(fqcn) ? { fqcn, nullable: false } : undefined;
+            }
+            if (node.type !== 'member_call_expression') return undefined;
+            const object = node.childForFieldName('object'); const name = node.childForFieldName('name');
+            const args = node.childForFieldName('arguments');
+            const owner = object && createdReceiver(object, depth + 1);
+            if (!owner || name?.type !== 'name' || !args) return undefined;
+            const candidates = this.members(owner.fqcn, accessFrom, new Set(), false, owner.typeArguments)
+              .filter((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === name.text.toLowerCase() && this.validAccess(item, false));
+            const selected = this.methodCandidatesForArguments(candidates, file.source.slice(args.startIndex + 1, args.endIndex - 1),
+              true, file, args.startIndex + 1);
+            const member = selected.length === 1 ? this.specializedMagicMethod(file, selected[0]!, args.startIndex + 1) : undefined;
+            if (!member) { unresolvedOwners?.add(owner.fqcn); return undefined; }
+            const returned = this.memberReturnClass(member, true);
+            return returned && !returned.nullable ? returned : undefined;
+          };
+          const owner = createdReceiver(receiver, 0);
+          if (owner) return { fqcn: owner.fqcn, member: nameNode.text, accessFrom, static: false, typeArguments: owner.typeArguments };
+        }
         if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'parenthesized_expression') {
           const receiverType = this.provenArgumentType(file, receiver.startIndex, receiver.endIndex);
           const objects = receiverType && this.objectGroups(receiverType);
