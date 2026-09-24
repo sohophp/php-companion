@@ -6730,7 +6730,7 @@ class Example {}`;
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       const serviceUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
       const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
-      const service = "<?php namespace App; class Service { public function call(int $value): void {} public function text(): string { return 'bad'; } }";
+      const service = "<?php namespace App; final class Service { public function call(int $value): void {} public function text(): string { return 'bad'; } }";
       const consumer = "<?php declare(strict_types=1); namespace App; function run(Service $service): void { $service->call('bad'); }";
       await writeFile(join(root, 'src', 'Service.php'), service);
       await writeFile(join(root, 'src', 'Consumer.php'), consumer);
@@ -6748,12 +6748,27 @@ class Example {}`;
       const initial = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 1);
       expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const openClassAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version: 2 }, contentChanges: [{ text: service.replace('final class Service', 'class Service')
+          + ' class ChildService extends Service { public function call(int|string $value): void {} }' }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= openClassAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      const finalClassAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version: 3 }, contentChanges: [{ text: service }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= finalClassAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
       const changedAt = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
-        textDocument: { uri: serviceUri, version: 2 }, contentChanges: [{ text: service.replace('int $value', 'string $value') }],
+        textDocument: { uri: serviceUri, version: 4 }, contentChanges: [{ text: service.replace('int $value', 'string $value') }],
       } }));
       await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
-        && message.params.uri === serviceUri && message.params.version === 2);
+        && message.params.uri === serviceUri && message.params.version === 4);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 614, method: 'textDocument/signatureHelp', params: {
         textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf("'bad'") + 2),
       } }));

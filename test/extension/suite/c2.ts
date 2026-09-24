@@ -115,7 +115,7 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   const methodUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralService.php');
   const methodConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralConsumer.php');
   const methodSource = `<?php namespace App\\Service;
-class CrossFileLiteralService { public function accept(int $value): void {} }
+final class CrossFileLiteralService { public function accept(int $value): void {} }
 `;
   const methodConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
 function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $service->accept('bad'); }

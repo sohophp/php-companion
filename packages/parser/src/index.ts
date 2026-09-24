@@ -21,6 +21,7 @@ export interface ParsedDeclaration extends SourceRange {
   traitNames: string[];
   traitAdaptations: ParsedTraitAdaptation[];
   readonlyClass: boolean;
+  finalClass?: boolean;
   enumBackingType?: 'int' | 'string';
 }
 
@@ -1037,6 +1038,7 @@ export class PhpSyntaxParser {
             traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
             traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
             readonlyClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'readonly_modifier'),
+            finalClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'final_modifier'),
             enumBackingType: kind === 'enum' ? node.namedChildren.find((child) => child.type === 'primitive_type')?.text as 'int' | 'string' | undefined : undefined,
           });
         }
@@ -1050,6 +1052,7 @@ export class PhpSyntaxParser {
           traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
           traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
           readonlyClass: false,
+          finalClass: false,
         });
       }
       if (nodeType === 'namespace_use_declaration') {

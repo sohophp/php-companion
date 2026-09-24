@@ -35,6 +35,13 @@ describe('@php-companion/parser', () => {
     expect(result.declarations).toMatchObject([{ name: 'Clock', fqcn: 'App\\Clock', kind: 'interface' }]);
     result.tree.delete();
   });
+  it('records whether a class can be extended', () => {
+    const result = parser.parse('<?php final class ClosedService {} class OpenService {} final readonly class ClosedState {}');
+    expect(result.declarations.map((item) => [item.name, item.finalClass])).toEqual([
+      ['ClosedService', true], ['OpenService', false], ['ClosedState', true],
+    ]);
+    result.tree.delete();
+  });
   it('prepares transferable full and declaration facts with the same source positions', () => {
     const source = '<?php namespace App; class Factory { function make(string $x): string { if ($x) { $result = $x; } return $result; } }';
     const full = parser.parse(source, undefined, 'file:///Prepared.php');
