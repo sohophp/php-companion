@@ -148,6 +148,7 @@ let referenceMemoryBudgetMiB = 1536;
 let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
+let versionedDiagnostics = false;
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
@@ -1899,7 +1900,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
   }
   if (documents.get(document.uri) === document && document.version === version) {
     const diagnostics = configuredDiagnostics(result.diagnostics);
-    await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
+    if (versionedDiagnostics) await connection.sendNotification('phpCompanion/versionedDiagnostics', { uri: document.uri, version, diagnostics });
+    else await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
 }
@@ -3139,10 +3141,11 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
   clientDiagnosticLanguage = diagnosticLanguage(params.locale);
-  const initialization = params.initializationOptions as { phpVersion?: unknown; phpVersions?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown } | undefined;
+  const initialization = params.initializationOptions as { phpVersion?: unknown; phpVersions?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown; versionedDiagnostics?: unknown } | undefined;
   const requestedVersion = initialization?.phpVersion;
   if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'progressive' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
+  versionedDiagnostics = initialization?.versionedDiagnostics === true;
   if (Number.isSafeInteger(initialization?.referenceMemoryBudgetMiB) && Number(initialization?.referenceMemoryBudgetMiB) >= 768
     && Number(initialization?.referenceMemoryBudgetMiB) <= 4096) referenceMemoryBudgetMiB = Number(initialization?.referenceMemoryBudgetMiB);
   if (typeof initialization?.cacheDirectory === 'string' && initialization.cacheDirectory !== '') cacheDirectory = initialization.cacheDirectory;

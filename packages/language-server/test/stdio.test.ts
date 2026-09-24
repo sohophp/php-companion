@@ -6426,6 +6426,38 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('sends versioned diagnostics to the editor and clears them on close', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    const uri = 'file:///VersionedDiagnostics.php';
+    const source = '<?php function example(): void { return; unreachable(); }';
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 570, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null,
+      initializationOptions: { phpVersion: '8.5', versionedDiagnostics: true },
+    } }));
+    await output.waitFor((message) => message.id === 570);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+      textDocument: { uri, languageId: 'php', version: 1, text: source },
+    } }));
+    const initial = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+      && message.params.uri === uri && message.params.version === 1);
+    expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.control-flow.unreachable');
+    const changed = source.replace('return; unreachable();', 'unreachable();');
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+    } }));
+    const updated = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+      && message.params.uri === uri && message.params.version === 2);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.control-flow.unreachable')).toBe(false);
+    expect(output.messages.some((message: any) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri)).toBe(false);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
+    const cleared = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.diagnostics.length === 0);
+    expect(cleared.params.diagnostics).toEqual([]);
+  });
+
   it('publishes native never fallthrough only for proven normal completion', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

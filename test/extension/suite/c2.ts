@@ -41,5 +41,30 @@ export async function run(): Promise<void> {
   await replaceType('void', 'never');
   await waitForCount(expected.length);
   assert.deepStrictEqual(actual(), expected, 'The editor did not restore unreachable diagnostics after never returned.');
-  console.log(`C2 onDemand same-file native never diagnostics: ${expected.length} → ${withoutNever.length} → ${expected.length}, unsaved`);
+  const events: Array<{ version: number; count: number }> = [];
+  const subscription = vscode.languages.onDidChangeDiagnostics((event) => {
+    if (event.uris.some((changed) => changed.toString() === uri.toString())) {
+      events.push({ version: document.version, count: actual().length });
+    }
+  });
+  try {
+    for (let round = 0; round < 20; round += 1) {
+      await replaceType(round % 2 === 0 ? 'never' : 'void', round % 2 === 0 ? 'void' : 'never');
+    }
+    await replaceType('never', 'void');
+    const finalVersion = document.version;
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && !events.some((event) => event.version >= finalVersion && event.count === withoutNever.length)) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    assert.ok(events.some((event) => event.version >= finalVersion && event.count === withoutNever.length),
+      'The editor did not publish diagnostics for the final rapid void edit.');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.deepStrictEqual(actual(), withoutNever, 'The final rapid edit kept an old never diagnostic.');
+    assert.ok(!events.some((event) => event.version >= finalVersion && event.count !== 0 && event.count !== withoutNever.length),
+      `A stale diagnostic was published after the final rapid edit: ${JSON.stringify(events)}`);
+    console.log(`C2 onDemand native never diagnostics: ${expected.length} → ${withoutNever.length} → ${expected.length}; rapid final ${withoutNever.length}, events=${events.length}, unsaved`);
+  } finally {
+    subscription.dispose();
+  }
 }

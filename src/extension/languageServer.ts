@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node.js';
+import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
@@ -153,6 +153,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       symfonyRouteProviders: symfonyRouteProviders(),
       phpExtensionAvailability: phpExtensionAvailability(),
       frameworkDocumentSnapshots: openFrameworkDocuments(),
+      versionedDiagnostics: true,
       testMode: context.extensionMode === vscode.ExtensionMode.Test,
       // SoPHP stages declaration edits through onWillRenameFiles so a
       // PSR-4 file rename and its text changes remain one undoable operation.
@@ -176,11 +177,23 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     })(),
   };
   const client = new LanguageClient('phpCompanionLanguageServer', 'SoPHP Language Server', serverOptions, clientOptions);
-  await client.start();
-  // Register the client before every listener that can write to it. VS Code
-  // disposes subscriptions in reverse order, so notification sources are
-  // removed before the stdio transport is closed.
+  // VS Code disposes subscriptions in reverse order; notification sources
+  // leave before their language client and stdio transport.
   context.subscriptions.push(client);
+  context.subscriptions.push(client.onNotification('phpCompanion/versionedDiagnostics', async (params: PublishDiagnosticsParams): Promise<void> => {
+    if (typeof params.version !== 'number') return;
+    const uri = vscode.Uri.parse(params.uri);
+    const document = vscode.workspace.textDocuments.find((candidate) => candidate.uri.toString() === params.uri);
+    if (!document || document.version !== params.version) return;
+    const diagnostics = await client.protocol2CodeConverter.asDiagnostics(params.diagnostics);
+    if (vscode.workspace.textDocuments.find((candidate) => candidate.uri.toString() === params.uri) !== document
+      || document.version !== params.version) return;
+    client.diagnostics?.set(uri, diagnostics);
+  }));
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((event) => {
+    if (event.document.languageId === 'php' && event.contentChanges.length) client.diagnostics?.delete(event.document.uri);
+  }));
+  await client.start();
   context.subscriptions.push(client.onRequest('phpCompanion/resolveSymfonyRouteRename', async (params: unknown): Promise<unknown> => {
     const request = params as { rootUri?: unknown; oldName?: unknown; newName?: unknown } | null;
     if (!request || typeof request.rootUri !== 'string' || typeof request.oldName !== 'string' || typeof request.newName !== 'string') {

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 快速编辑诊断：隔离宿主在 20 次未保存 `never`/`void` 切换后曾短暂重现旧的 10 条不可达提示。SoPHP Core 现在接收带文档版本的诊断并在 PHP 内容变化时撤下旧集合；连续两轮宿主最终编辑后只出现清空与正确的 7 条，完整源码 Core + Symfony 宿主退出码 0。定向 stdio 覆盖版本通知、更新和关闭清理；短暂空白时长、Remote 与长会话仍开放。见[快速编辑诊断报告](reports/c2-rapid-diagnostic-version-2026-09-24.md)。
+
 2026-09-24 C2 未保存诊断往返：独立 Composer 夹具中 `stopNow(): never` → `void` → `never`，真实 stdio 版本 1/2/3 的局部不可达诊断撤回并恢复；隔离 VS Code 源码宿主可见诊断 **10 → 7 → 10**，缓冲区未保存、退出码 0。此为顺序编辑证据，快速连续输入与长会话仍开放。见[按需索引局部 `never` 报告](reports/c2-ondemand-local-never-2026-09-24.md)。
 
 2026-09-24 C3 私有参数重构：`App\Formatter::format()` 原被无关的 `\DateTimeImmutable::class . '::format'` 字符串误挡。安全检查现对明确的其他全限定类常量放行，目标类与动态类名仍拒绝；语义与 F08 定向测试 308/308、隔离 Core + Symfony 源码 Extension Host 完整套件退出码 0，包含动作应用、Undo 和 Redo。未打包 VSIX，用户 Profile/Remote 仍开放。见[私有参数重构报告](reports/c3-private-parameter-owner-2026-09-24.md)。
