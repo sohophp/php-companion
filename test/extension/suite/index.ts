@@ -487,10 +487,13 @@ async function verifyOpenSourceUnionShapeFeedback(workspace: vscode.WorkspaceFol
 class ProfileShapeAlpha { public function common(): string { return 'alpha'; } public function alphaOnly(): void {} }
 class ProfileShapeBeta { public function common(): string { return 'beta'; } public function betaOnly(): void {} }
 /** @return array{item: ProfileShapeAlpha}|array{item: ProfileShapeBeta} */ function profileShape(): array { return []; }
+/** @return array{item: ProfileShapeAlpha, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}}|array{item: ProfileShapeBeta, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}} */ function profileNestedShape(): array { return []; }
 `;
   const consumer = `<?php declare(strict_types=1); namespace App;
 function acceptShapeItem(int $value): void {}
 function inspectShape(string $key): void { $row = profileShape(); $item = $row['item']; $item->com; acceptShapeItem($item); }
+function inspectNestedShape(string $key): void { $row = profileNestedShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); }
+function inspectNestedObject(): void { $row = profileNestedShape(); $row['meta']['object'] = new ProfileShapeAlpha(); $object = $row['meta']['object']; $object->alphaOnly(); }
 `;
   await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source));
   await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
@@ -599,7 +602,27 @@ function inspectShape(string $key): void { $row = profileShape(); $item = $row['
       && hovers.some((hover) => hover.contents.some((content) =>
         (typeof content === 'string' ? content : content.value).includes('$item: App\\ProfileShapeAlpha')));
   }, 'Open Source Pack did not narrow the item after a known-key overwrite', 15_000);
-  console.log('Open Source Pack C2 union-shape feedback: dynamic-key and alias invalidation, disjoint-key retention, and known-key narrowing passed.');
+  const nestedCall = document.positionAt(document.getText().indexOf('common();', document.getText().indexOf('function inspectNestedShape')) + 2);
+  const nestedObjectCall = document.positionAt(document.getText().indexOf('alphaOnly();', document.getText().indexOf('function inspectNestedObject')) + 2);
+  await waitForAsync(async () => {
+    const item = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, nestedCall) ?? [];
+    const object = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, nestedObjectCall) ?? [];
+    return item.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
+      && object.filter((location) => location.uri.toString() === sourceUri.toString()).length === 1;
+  }, 'Open Source Pack lost a nested union-shape field after a known nested-key write', 15_000);
+  const beforeNestedDynamic = document.getText();
+  await changeConsumer(beforeNestedDynamic.replace("$row['meta']['flag'] = 2;", "$row['meta'][$key] = 2;"));
+  const nestedDynamicCall = document.positionAt(document.getText().indexOf('common();', document.getText().indexOf('function inspectNestedShape')) + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, nestedDynamicCall) ?? [];
+    return definitions.every((location) => location.uri.toString() !== sourceUri.toString());
+  }, 'Open Source Pack retained the nested union-shape fact after a dynamic nested-key write', 15_000);
+  await changeConsumer(beforeNestedDynamic);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, nestedCall) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack did not restore the nested union-shape fact after removing the dynamic write', 15_000);
+  console.log('Open Source Pack C2 union-shape feedback: one-level and nested writes, dynamic invalidation, and known-key narrowing passed.');
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {

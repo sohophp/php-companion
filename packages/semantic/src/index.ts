@@ -9526,7 +9526,7 @@ export class SemanticWorkspace {
         const parsed = parsePhpDocType(parameter.type).type;
         return parsed ? this.phpDocDiagnosticType(file, parsed, scope.containerFqcn ?? scope.id) : undefined;
       };
-      type ArrayUpdate = { kind: 'append'; type: PhpType } | { kind: 'key'; key: string | number; type: PhpType };
+      type ArrayUpdate = { kind: 'append'; type: PhpType } | { kind: 'key'; path: Array<string | number>; type: PhpType };
       const updates: ArrayUpdate[] = [];
       const mutationValue = (right: SyntaxNode): PhpType | undefined => {
         const text = right.text.trim();
@@ -9540,18 +9540,27 @@ export class SemanticWorkspace {
           const branches = current.types.map((branch) => applyUpdate(branch, update));
           return branches.every((branch): branch is PhpType => Boolean(branch)) ? union(...branches) : undefined;
         }
+        if (update.kind === 'key' && update.path.length > 1) {
+          if (current.kind !== 'shape' || !current.sealed) return undefined;
+          const [head, ...tail] = update.path;
+          const field = current.fields.find((candidate) => candidate.key === head);
+          if (!field || field.optional) return undefined;
+          const changed = applyUpdate(field.type, { kind: 'key', path: tail, type: update.type });
+          return changed ? shape(current.fields.map((candidate) => candidate === field ? { ...candidate, type: changed } : candidate)) : undefined;
+        }
         if (update.kind === 'append') {
           if (current.kind === 'shape' && current.sealed && current.fields.length === 0) return listType(update.type, true);
           return current.kind === 'list' ? listType(union(current.valueType, update.type), true) : undefined;
         }
-        if (typeof update.key === 'number') {
-          if (update.key !== 0) return undefined;
+        const key = update.path[0];
+        if (typeof key === 'number') {
+          if (key !== 0) return undefined;
           if (current.kind === 'shape' && current.sealed && current.fields.length === 0) return listType(update.type, true);
           return current.kind === 'list' ? listType(union(current.valueType, update.type), true) : undefined;
         }
         if (current.kind !== 'shape' || !current.sealed || current.fields.some((field) => typeof field.key === 'number')) return undefined;
-        const retained = current.fields.filter((field) => field.key !== update.key);
-        return shape([...retained, { key: update.key, optional: false, type: update.type }]);
+        const retained = current.fields.filter((field) => field.key !== key);
+        return shape([...retained, { key: key!, optional: false, type: update.type }]);
       };
       const applyUpdates = (base: PhpType): PhpType | undefined => [...updates].reverse().reduce<PhpType | undefined>((current, update) =>
         current ? applyUpdate(current, update) : undefined, base);
@@ -9823,17 +9832,25 @@ export class SemanticWorkspace {
           return !allowMixed && result?.kind === 'primitive' && result.name === 'mixed' ? undefined : result;
         }
         if (left?.type === 'subscript_expression' && right) {
-          const compact = left.text.replace(/\s+/g, '');
-          const append = compact === `${variable}[]`;
-          const keyed = new RegExp(`^\\${variable}\\[(-?\\d+|'(?:\\\\.|[^'\\\\])*'|"(?:\\\\.|[^"\\\\])*")\\]$`).exec(compact)?.[1];
-          if (append || keyed !== undefined) {
+          const tail = left.text.startsWith(variable) ? left.text.slice(variable.length) : '';
+          const append = /^\s*\[\s*\]\s*$/.test(tail);
+          const offsets = /\s*\[\s*(-?\d+|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\s*\]/gy;
+          const path: Array<string | number> = [];
+          let cursor = 0;
+          while (cursor < tail.length && path.length < 8) {
+            offsets.lastIndex = cursor;
+            const match = offsets.exec(tail); if (!match || match.index !== cursor) break;
+            const raw = match[1]!;
+            if (raw.includes('\\')) break;
+            const key = /^-?\d+$/.test(raw) ? Number(raw) : raw.slice(1, -1);
+            if (typeof key === 'number' && !Number.isSafeInteger(key)) break;
+            path.push(key); cursor = offsets.lastIndex;
+          }
+          if (append || path.length > 0 && tail.slice(cursor).trim() === '') {
             if (optionalLoopValues.length) return undefined;
             const value = mutationValue(right); if (!value) return undefined;
             if (append) updates.push({ kind: 'append', type: value });
-            else {
-              const numeric = /^-?\d+$/.test(keyed!) ? Number(keyed) : undefined;
-              const key = numeric ?? keyed!.slice(1, -1); updates.push({ kind: 'key', key, type: value });
-            }
+            else updates.push({ kind: 'key', path, type: value });
             continue;
           }
         }

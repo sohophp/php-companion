@@ -154,6 +154,42 @@ describe('conservative semantic workspace', () => {
       expect(project.variableValueAt(consumerUri, replaced.indexOf('$item->alphaO') + 2)?.type).toBe('App\\Alpha');
     } finally { project.dispose(); }
   });
+  it('keeps an unrelated union-shape field after a known nested array write', () => {
+    const project = new SemanticWorkspace(parser);
+    const sourceUri = 'file:///NestedUnionSource.php'; const consumerUri = 'file:///NestedUnionConsumer.php';
+    const source = `<?php namespace App;
+      class NestedAlpha { public function common(): void {} public function alphaOnly(): void {} }
+      class NestedBeta { public function common(): void {} public function betaOnly(): void {} }
+      /** @return array{item: NestedAlpha, meta: array{flag: int, object: NestedAlpha|NestedBeta}}|array{item: NestedBeta, meta: array{flag: int, object: NestedAlpha|NestedBeta}} */
+      function nestedChoice(): array { return []; }`;
+    const consumer = `<?php namespace App; function inspect(): void {
+      $row = nestedChoice(); $row['meta']['flag'] = 2; $item = $row['item']; $item->com;
+    } function inspectObject(): void {
+      $row = nestedChoice(); $row['meta']['object'] = new NestedAlpha(); $object = $row['meta']['object']; $object->alphaO;
+    }`;
+    try {
+      project.update(sourceUri, source);
+      const baseline = consumer.replace("$row['meta']['flag'] = 2;", '').replace("$row['meta']['object'] = new NestedAlpha();", '');
+      project.update(consumerUri, baseline);
+      expect(project.completeMembers(consumerUri, baseline.indexOf('com;') + 3).map((item) => item.name)).toEqual(['common']);
+      project.update(consumerUri, consumer);
+      expect(project.completeMembers(consumerUri, consumer.indexOf('com;') + 3).map((item) => item.name)).toEqual(['common']);
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com') + 2)?.type).toBe('App\\NestedAlpha|App\\NestedBeta');
+      expect(project.completeMembers(consumerUri, consumer.indexOf('alphaO;') + 6).map((item) => item.name)).toEqual(['alphaOnly']);
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$object->alphaO') + 2)?.type).toBe('App\\NestedAlpha');
+      const dynamic = `<?php namespace App; function inspect(string $key): void {
+        $row = nestedChoice(); $row['meta'][$key] = new NestedAlpha(); $item = $row['item']; $item->com;
+      }`;
+      project.update(consumerUri, dynamic);
+      expect(project.completeMembers(consumerUri, dynamic.indexOf('com;') + 3)).toEqual([]);
+      expect(project.variableValueAt(consumerUri, dynamic.indexOf('$item->com') + 2)).toBeUndefined();
+      const aliased = `<?php namespace App; function inspect(): void {
+        $row = nestedChoice(); $alias =& $row['meta']; $alias['flag'] = 2; $item = $row['item']; $item->com;
+      }`;
+      project.update(consumerUri, aliased);
+      expect(project.completeMembers(consumerUri, aliased.indexOf('com;') + 3)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
     const project = new SemanticWorkspace(parser);
     const linkedUri = 'file:///project/vendor/local/Record.php';

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 嵌套数组形状写入：跨文件 PHPDoc 联合形状的固定两层键写入，现在逐分支保留无关字段；确定覆盖嵌套对象会缩窄成员，动态嵌套键或引用别名继续撤销无法证明的事实。Semantic 327/327、类型检查、Lint、差异检查及完整 11 项 Open Source Pack 源码宿主通过；宿主验证未保存动态键编辑的导航撤回与恢复。可选中间键、多层别名、跨调用副作用及长期会话仍开放，见[报告](reports/c2-cross-file-union-shape-return-2026-09-24.md)。
+
 2026-09-24 C2 联合数组形状写入：直接动态键与一层引用别名写入会撤销过期元素事实；写入不同的确定键会保留原 `item` 联合类型；确定覆盖 `item` 会缩窄到新类型。完整 11 项 Pack 宿主验证未保存写入、撤回与恢复时的 Definition/Hover，退出码 0；Semantic 326/326、类型检查与 Lint 通过。范围与限制见[报告](reports/c2-cross-file-union-shape-return-2026-09-24.md)。
 
 2026-09-24 C2 跨文件联合数组形状返回：`@return array{item: Alpha}|array{item: Beta}` 现在可安全精化原生 `array`，经局部赋值后共有成员补全、双声明 Definition、方法调用后联合类型 Hover 与参数诊断保持一致；混入 `string` 的 PHPDoc 分支仍拒绝精化。11 项完整 Pack 源码宿主验证未保存编辑后的旧结果撤回与恢复，退出码 0；Semantic 326/326、类型检查、Lint 通过。见[报告](reports/c2-cross-file-union-shape-return-2026-09-24.md)。
