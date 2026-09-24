@@ -76,7 +76,7 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 
 Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never`、参数和简单 PHPDoc 冲突反馈已修复；[生成后未保存编辑链](reports/c2-generated-phpdoc-flow-2026-09-24.md)验证了补全、Hover、Definition 与局部标量诊断。快速编辑的旧诊断发布也已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
-现在从独立 Composer path repository 的两个 URI 同时打开开始，明确同一物理文件出现冲突未保存内容时的结果归属与反馈；随后用已打开的跨文件 PHPDoc 声明、使用方未保存编辑及 watcher 交错，界定默认 `onDemand` 能安全发布的跨文件诊断。每个场景同时核对补全、Hover、Definition 和诊断消费同一版本的事实。完成后再做较大真实依赖树的长会话及完整 Pack 宿主复核；人工持续使用反馈可以并行进入，不阻塞这些独立测试。
+独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。接下来用已打开的跨文件 PHPDoc 声明、使用方未保存编辑及 watcher 交错，界定默认 `onDemand` 能安全发布的跨文件诊断。每个场景同时核对补全、Hover、Definition 和诊断消费同一版本的事实。完成后再做较大真实依赖树的长会话及完整 Pack 宿主复核；人工持续使用反馈可以并行进入，不阻塞这些独立测试。
 
 ## 与 R2–R4 的关系
 

@@ -4345,18 +4345,19 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       const candidatePath = pathForUri(candidateUri);
       if (!candidatePath) return false;
       if (sameFilesystemPath(candidatePath, path)) return true;
-      if (!physicalPath) return false;
+      if (!physicalPath || basename(candidatePath).toLowerCase() !== basename(path).toLowerCase()) return false;
       const candidatePhysical = await physicalFilesystemPath(candidatePath);
       return Boolean(candidatePhysical && filesystemPathKey(candidatePhysical) === filesystemPathKey(physicalPath));
     };
     // Recheck after I/O: didOpen/didChange may have arrived during the read.
-    let open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-    if (!open && physicalPath) {
-      for (const document of documents.all()) if (await samePhysicalFile(document.uri)) { open = document; break; }
-    }
+    const matchingOpen: TextDocument[] = [];
+    for (const document of documents.all()) if (await samePhysicalFile(document.uri)) matchingOpen.push(document);
+    matchingOpen.sort((left, right) => (openContentSequences.get(right.uri) ?? 0) - (openContentSequences.get(left.uri) ?? 0));
+    const open = matchingOpen[0];
+    const targetUri = open?.uri ?? uri;
     const aliasUris: string[] = [];
     if (physicalPath) for (const aliasUri of workspace.documentUris()) {
-      if (aliasUri === uri || documents.get(aliasUri)) continue;
+      if (aliasUri === targetUri) continue;
       const aliasPath = pathForUri(aliasUri);
       if (!aliasPath || basename(aliasPath).toLowerCase() !== basename(path).toLowerCase()
         || !await samePhysicalFile(aliasUri)) continue;
@@ -4369,7 +4370,6 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     }
     source = (open && documents.get(open.uri))?.getText() ?? source;
     for (const aliasUri of aliasUris) {
-      if (documents.get(aliasUri)) continue;
       onDemandClosedDocumentsByRoot.get(root)?.delete(aliasUri);
       indexedUrisByRoot.get(root)?.delete(aliasUri);
       projectIndexedUrisByRoot.get(root)?.delete(aliasUri);
@@ -4378,22 +4378,22 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       interopContextsByRoot.get(root)?.delete(aliasUri);
       removeDoctrineDocument(root, aliasUri, workspace);
     }
-    onDemandClosedDocumentsByRoot.get(root)?.delete(uri);
+    onDemandClosedDocumentsByRoot.get(root)?.delete(targetUri);
     if (source === undefined) {
-      workspace.remove(uri); scanFilesByRoot.get(root)?.delete(uri); indexedUrisByRoot.get(root)?.delete(uri); projectIndexedUrisByRoot.get(root)?.delete(uri);
-      interopContextsByRoot.get(root)?.delete(uri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, uri, workspace);
+      workspace.remove(targetUri); scanFilesByRoot.get(root)?.delete(targetUri); indexedUrisByRoot.get(root)?.delete(targetUri); projectIndexedUrisByRoot.get(root)?.delete(targetUri);
+      interopContextsByRoot.get(root)?.delete(targetUri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, targetUri, workspace);
       containerRefreshRoots.add(root);
     } else {
-      const update = workspace.update(uri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(uri);
-      const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(uri); indexedUrisByRoot.set(root, indexed);
+      const update = workspace.update(targetUri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(targetUri);
+      const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(targetUri); indexedUrisByRoot.set(root, indexed);
       if (update.kind !== 'none') {
         externalSymfonyEventsByRoot.delete(root);
         const scopes = controllerScopesByRoot.get(root) ?? [];
-        scopes.push({ uri, source, snapshotVersion: String(indexingGeneration) });
+        scopes.push({ uri: targetUri, source, snapshotVersion: String(indexingGeneration) });
         controllerScopesByRoot.set(root, scopes);
       }
       if (update.kind === 'declaration') {
-        containerRefreshRoots.add(root); await refreshDoctrineDocument(root, uri, source, workspace);
+        containerRefreshRoots.add(root); await refreshDoctrineDocument(root, targetUri, source, workspace);
       }
     }
     const completed = completedByRoot.get(root) ?? []; completed.push(uri); completedByRoot.set(root, completed);
@@ -4459,8 +4459,63 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
 
 const openingContentVersions = new Map<string, number>();
 const documentSourcesByUri = new Map<string, string>();
+const openContentSequences = new Map<string, number>();
+const warnedOpenAliasPairs = new Set<string>();
+let nextOpenContentSequence = 0;
+function hasPossibleOpenPhysicalAlias(document: TextDocument, root: string): boolean {
+  if (indexingMode !== 'onDemand') return false;
+  const path = pathForUri(document.uri);
+  return Boolean(path && documents.all().some((candidate) => candidate.uri !== document.uri
+    && candidate.languageId === 'php' && rootForUri(candidate.uri) === root
+    && basename(pathForUri(candidate.uri) ?? '').toLowerCase() === basename(path).toLowerCase()));
+}
+async function otherOpenPhysicalDocuments(document: TextDocument, root: string): Promise<TextDocument[]> {
+  if (!hasPossibleOpenPhysicalAlias(document, root)) return [];
+  const path = pathForUri(document.uri);
+  const physicalPath = path && await physicalFilesystemPath(path);
+  if (!physicalPath) return [];
+  const aliases: TextDocument[] = [];
+  for (const candidate of documents.all()) {
+    if (candidate.uri === document.uri || candidate.languageId !== 'php' || rootForUri(candidate.uri) !== root) continue;
+    const candidatePath = pathForUri(candidate.uri);
+    if (!candidatePath || basename(candidatePath).toLowerCase() !== basename(path).toLowerCase()) continue;
+    const candidatePhysical = await physicalFilesystemPath(candidatePath);
+    if (candidatePhysical && filesystemPathKey(candidatePhysical) === filesystemPathKey(physicalPath)) aliases.push(candidate);
+  }
+  return aliases;
+}
+
+async function supersedeOpenPhysicalAliases(document: TextDocument, root: string, workspace: SemanticWorkspace,
+  sequence: number): Promise<boolean> {
+  const aliases = await otherOpenPhysicalDocuments(document, root);
+  if (aliases.some((alias) => (openContentSequences.get(alias.uri) ?? 0) > sequence)) return false;
+  for (const alias of aliases) {
+    if (documents.get(alias.uri) !== alias) continue;
+    if (alias.getText() !== document.getText()) {
+      const pair = JSON.stringify([alias.uri, document.uri].sort());
+      if (!warnedOpenAliasPairs.has(pair)) {
+        warnedOpenAliasPairs.add(pair);
+        connection.sendNotification('window/showMessage', { type: 2, message: clientDiagnosticLanguage === 'en'
+          ? 'SoPHP: This PHP file is open through two paths with different unsaved content. Project results use the most recently edited tab; close one tab to remove the ambiguity.'
+          : 'SoPHP：同一 PHP 文件通过两个路径打开，且未保存内容不同。项目结果采用最近编辑的标签页；关闭其中一个标签页可消除歧义。' });
+      }
+    }
+    workspace.remove(alias.uri);
+    onDemandClosedDocumentsByRoot.get(root)?.delete(alias.uri);
+    indexedUrisByRoot.get(root)?.delete(alias.uri);
+    projectIndexedUrisByRoot.get(root)?.delete(alias.uri);
+    scanFilesByRoot.get(root)?.delete(alias.uri);
+    interopContextsByRoot.get(root)?.delete(alias.uri);
+    removeDoctrineDocument(root, alias.uri, workspace);
+    invalidateCandidates(alias.uri);
+  }
+  return true;
+}
+
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  const sequence = ++nextOpenContentSequence;
+  openContentSequences.set(document.uri, sequence);
   const openedVersion = document.version;
   openingContentVersions.set(document.uri, document.version);
   documentSourcesByUri.set(document.uri, document.getText());
@@ -4470,6 +4525,9 @@ documents.onDidOpen(async ({ document }) => {
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+  if (root && hasPossibleOpenPhysicalAlias(document, root)
+    && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
+  if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath
@@ -4497,8 +4555,11 @@ documents.onDidOpen(async ({ document }) => {
 
 documents.onDidChangeContent(async ({ document }) => {
   if (document.languageId !== 'php') return;
-  const changeStarted = testMode ? performance.now() : 0;
   const opening = openingContentVersions.get(document.uri) === document.version;
+  const sequence = opening && openContentSequences.has(document.uri)
+    ? openContentSequences.get(document.uri)! : ++nextOpenContentSequence;
+  openContentSequences.set(document.uri, sequence);
+  const changeStarted = testMode ? performance.now() : 0;
   if (opening) openingContentVersions.delete(document.uri);
   const source = document.getText();
   const sourceChanged = documentSourcesByUri.get(document.uri) !== source;
@@ -4515,6 +4576,9 @@ documents.onDidChangeContent(async ({ document }) => {
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
   const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   if (opening && root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+  if (root && hasPossibleOpenPhysicalAlias(document, root)
+    && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
+  if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
   const update = workspace.update(document.uri, document.getText(), true);
   if (opening) {
     const diskPath = pathForUri(document.uri);
@@ -4566,6 +4630,8 @@ function retainClosedOnDemandDocument(root: string, uri: string, workspace: Sema
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  if (!documents.get(document.uri)) openContentSequences.delete(document.uri);
+  for (const pair of warnedOpenAliasPairs) if ((JSON.parse(pair) as string[]).includes(document.uri)) warnedOpenAliasPairs.delete(pair);
   lastPublishedDiagnostics.delete(document.uri);
   openingContentVersions.delete(document.uri);
   documentSourcesByUri.delete(document.uri);
@@ -4576,7 +4642,20 @@ documents.onDidClose(async ({ document }) => {
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);
   const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
   let relatedFactsChanged = false;
-  if (workspace && root && (indexedUrisByRoot.get(root)?.has(document.uri) || indexingMode === 'onDemand')) {
+  const remainingAlias = workspace && root && hasPossibleOpenPhysicalAlias(document, root) ? (await otherOpenPhysicalDocuments(document, root))
+    .sort((left, right) => (openContentSequences.get(right.uri) ?? 0) - (openContentSequences.get(left.uri) ?? 0))[0] : undefined;
+  if (workspace && root && remainingAlias && !documents.get(document.uri)) {
+    relatedFactsChanged = workspace.source(document.uri) !== undefined;
+    workspace.remove(document.uri);
+    onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+    interopContextsByRoot.get(root)?.delete(document.uri);
+    removeDoctrineDocument(root, document.uri, workspace);
+    const restored = workspace.update(remainingAlias.uri, remainingAlias.getText(), true);
+    relatedFactsChanged ||= restored.kind !== 'none';
+    if (restored.kind === 'declaration') await refreshDoctrineDocument(root, remainingAlias.uri, remainingAlias.getText(), workspace);
+    scheduleSymfonyContainerRefresh(root);
+    invalidateCandidates(remainingAlias.uri);
+  } else if (workspace && root && (indexedUrisByRoot.get(root)?.has(document.uri) || indexingMode === 'onDemand')) {
     const path = pathForUri(document.uri);
     try {
       if (!path) throw new Error('Document URI has no filesystem path.');

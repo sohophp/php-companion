@@ -5313,6 +5313,67 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
           && message.params.version === undefined);
         expect(await completion(382 + cycle * 2)).toContain('alphaOnly');
       }
+      const installedEdit = declaration.replace('alphaOnly', 'installedOnly');
+      const latestRealEdit = declaration.replace('alphaOnly', 'realLatestOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: actualUri, languageId: 'php', version: 20, text: changed },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === actualUri && message.params.version === 20);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: installedUri, languageId: 'php', version: 21, text: installedEdit },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === installedUri && message.params.version === 21);
+      expect(output.messages.some((message) => message.method === 'window/showMessage'
+        && String(message.params?.message).includes('SoPHP'))).toBe(true);
+      expect(await completion(406)).toContain('installedOnly');
+      expect(await completion(407)).not.toContain('betaOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: actualUri, version: 22 },
+        contentChanges: [{ text: latestRealEdit }],
+      } }));
+      const installedLatestEdit = declaration.replace('alphaOnly', 'installedLatestOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: installedUri, version: 23 },
+        contentChanges: [{ text: installedLatestEdit }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === installedUri && message.params.version === 23);
+      expect(await completion(414)).toContain('installedLatestOnly');
+      expect(await completion(415)).not.toContain('realLatestOnly');
+      const conflictingWatcherAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: actualUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= conflictingWatcherAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${actualUri}`));
+      expect(await completion(416)).toContain('installedLatestOnly');
+      expect(await completion(417)).not.toContain('realLatestOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: actualUri, version: 24 },
+        contentChanges: [{ text: latestRealEdit }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === actualUri && message.params.version === 24);
+      expect(output.messages.filter((message) => message.method === 'window/showMessage'
+        && String(message.params?.message).includes('SoPHP'))).toHaveLength(1);
+      expect(await completion(408)).toContain('realLatestOnly');
+      expect(await completion(409)).not.toContain('installedOnly');
+      const latestRealCloseAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: actualUri } } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= latestRealCloseAt
+        && message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri
+        && message.params.version === undefined);
+      expect(await completion(410)).toContain('installedLatestOnly');
+      expect(await completion(411)).not.toContain('realLatestOnly');
+      const installedCloseAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: installedUri } } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= installedCloseAt
+        && message.method === 'textDocument/publishDiagnostics' && message.params.uri === installedUri
+        && message.params.version === undefined);
+      expect(await completion(412)).toContain('alphaOnly');
+      expect(await completion(413)).not.toContain('installedLatestOnly');
       await writeFile(join(actualPackage, 'src', 'Record.php'), changed);
       const watchedAt = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
