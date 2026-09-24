@@ -4499,7 +4499,9 @@ documents.onDidClose(async ({ document }) => {
   const closedPath = pathForUri(document.uri); if (root && closedPath
     && (affectsSymfonyContainerProvider(root, closedPath) || isSymfonyServiceConfig(root, closedPath))) scheduleSymfonyContainerRefresh(root);
   if (relatedFactsChanged && root && completeRoots.has(root)) scheduleRelatedOpenDiagnostics(root, document.uri);
-  await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
+  // A new didOpen can arrive while the disk snapshot above is still loading.
+  // Clearing diagnostics here would erase the reopened document's new version.
+  if (!documents.get(document.uri)) await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
 });
 
 connection.onDocumentSymbol(async ({ textDocument }, token) => {

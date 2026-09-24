@@ -6475,6 +6475,43 @@ class Example {}`;
       && message.params.uri === uri && message.params.version === 23)).toBe(false);
   });
 
+  it('keeps reopened diagnostics when an onDemand close is still restoring disk source', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reopen-diagnostics-'));
+    try {
+      await writeFile(join(root, 'composer.json'), '{}');
+      const path = join(root, 'Example.php');
+      const uri = pathToFileURL(path).toString();
+      const diskSource = '<?php function example(): void { return; }';
+      const reopenedSource = '<?php function example(): void { return; unreachable(); }';
+      await writeFile(path, diskSource);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 573, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true },
+      } }));
+      await output.waitFor((message) => message.id === 573);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: diskSource },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === uri && message.params.version === 1);
+      const reopenedAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: {
+        textDocument: { uri },
+      } }) + encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 2, text: reopenedSource },
+      } }));
+      const reopened = await output.waitFor((message) => output.messages.indexOf(message) >= reopenedAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === uri && message.params.version === 2);
+      expect(reopened.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.control-flow.unreachable');
+      await new Promise((resolve) => setTimeout(resolve, 75));
+      expect(output.messages.slice(output.messages.indexOf(reopened) + 1).some((message: any) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.diagnostics.length === 0)).toBe(false);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it.each([false, true])('updates an open consumer diagnostic after an unsaved declaration changes in another file (versioned=%s)', async (versionedDiagnostics) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-cross-file-diagnostics-'));
     try {
@@ -6617,11 +6654,26 @@ class Example {}`;
         textDocument: { uri: consumerUri }, position: lspPosition(consumer, callAt),
       } }));
       expect((await output.waitFor((message) => message.id === 587)).result).toEqual([]);
+      const beforeConsumerBurst = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 2 },
+        contentChanges: [{ text: consumer.replace('$item->only;', '$item->onlyAlpha;') }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 3 }, contentChanges: [{ text: consumer }],
+      } }));
+      const latestConsumer = await output.waitFor((message) => output.messages.indexOf(message) >= beforeConsumerBurst
+        && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 3);
+      expect(latestConsumer.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      expect(await completion(592)).toContain('onlyBeta');
+      await new Promise((resolve) => setTimeout(resolve, 75));
+      expect(output.messages.slice(output.messages.indexOf(latestConsumer) + 1).some((message: any) => message.method === diagnosticMethod
+        && message.params.uri === consumerUri && message.params.version === 2)).toBe(false);
       const beforeClose = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: sourceUri } } }));
       if (indexingMode === 'experimental') {
         const afterClose = await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose
-          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1);
+          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 3);
         expect(afterClose.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
         expect(await completion(588)).toContain('onlyAlpha');
       } else {

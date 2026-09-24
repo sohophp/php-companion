@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 跨文件编辑时序：已打开声明的 PHPDoc `list<Alpha>` → `list<Beta>` 后，使用方连续未保存编辑的最终版本 3 仍得到 Beta 成员补全，旧版本诊断没有在版本 3 之后发布。默认 `onDemand` 下关闭并立即重开同一文件时，关闭回调现只在文件仍关闭时清空诊断，避免覆盖重开版本。真实 stdio 定向 3 项、构建、类型检查、相关 ESLint 与差异检查通过；长会话、Remote 和完整 Pack 本轮未验。见[跨文件 PHPDoc 返回类型报告](reports/c2-cross-file-phpdoc-return-2026-09-24.md)。
+
 2026-09-24 C2 快速编辑诊断：隔离宿主在 20 次未保存 `never`/`void` 切换后曾短暂重现旧的 10 条不可达提示。SoPHP Core 现在接收带文档版本的诊断并在 PHP 内容变化时撤下旧集合；连续两轮宿主最终编辑后只出现清空与正确的 7 条，完整源码 Core + Symfony 宿主退出码 0。定向 stdio 覆盖版本通知、更新和关闭清理；短暂空白时长、Remote 与长会话仍开放。见[快速编辑诊断报告](reports/c2-rapid-diagnostic-version-2026-09-24.md)。
 
 2026-09-24 C2 未保存诊断往返：独立 Composer 夹具中 `stopNow(): never` → `void` → `never`，真实 stdio 版本 1/2/3 的局部不可达诊断撤回并恢复；隔离 VS Code 源码宿主可见诊断 **10 → 7 → 10**，缓冲区未保存、退出码 0。此为顺序编辑证据，快速连续输入与长会话仍开放。见[按需索引局部 `never` 报告](reports/c2-ondemand-local-never-2026-09-24.md)。
