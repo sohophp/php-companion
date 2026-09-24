@@ -51,8 +51,24 @@ async function verifyEditDuringRequest(api: TestApi, method: string, document: v
 export async function run(): Promise<void> {
   const folder = vscode.workspace.workspaceFolders?.[0];
   assert.ok(folder, 'C3 import request test requires the Composer fixture');
+  const profileRenameErrors: string[] = [];
+  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') process.on('unhandledRejection', (reason: unknown) => {
+    const message = reason instanceof Error ? reason.message : String(reason);
+    if (message.includes('ENOENT') && message.includes('C3GroupedType.php')) profileRenameErrors.push(message);
+  });
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load');
+  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') {
+    const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack');
+    assert.ok(pack, 'C3 Open Source Profile did not load the Pack');
+    const members = pack.packageJSON.extensionPack as string[];
+    assert.strictEqual(members.length, 11, 'C3 Open Source Profile did not use the current 11-member Pack');
+    for (const id of members) assert.ok(vscode.extensions.getExtension(id), `C3 Open Source Profile is missing ${id}`);
+    assert.ok(!vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'),
+      'C3 Open Source Profile has a second general PHP language server');
+    assert.ok(!vscode.extensions.getExtension('symfony.language-tools'),
+      'C3 Open Source Profile has a conflicting Symfony Rename provider');
+  }
   const f2Rename = (extension.packageJSON.contributes?.keybindings as Array<{ command: string; key: string; when: string }> | undefined)
     ?.find((entry) => entry.command === 'phpCompanion.safeRename' && entry.key === 'f2');
   assert.ok(f2Rename?.when.includes('editorLangId == php') && f2Rename.when.includes('phpCompanion.safeRenameAvailable'),
@@ -744,6 +760,11 @@ export async function run(): Promise<void> {
   }
   assert.strictEqual(invalidAttributes().length, 4,
     `C3 diagnostic undo probe lost invalid attributes; diagnostics=${JSON.stringify(vscode.languages.getDiagnostics(dynamicUri).map((item) => item.code))}`);
+  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') {
+    await new Promise((resolve) => setTimeout(resolve, 1_200));
+    assert.deepStrictEqual(profileRenameErrors, [],
+      'Open Source Pack emitted an unhandled stale-file read during C3 Rename');
+  }
   console.log('C3 held server import requests: addImport, planTypeImports, organizeImports; all rejected stale edits.');
   console.log('C3 PHP type generation: preview, cancel, apply and one Undo passed; Redo remains open.');
 }

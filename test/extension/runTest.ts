@@ -24,17 +24,28 @@ async function main(): Promise<void> {
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
   const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
+  const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
   const docblockerOnly = process.env.PHP_COMPANION_TEST_DOCBLOCKER_ONLY === '1';
   const docblockerExtensionsDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_EXTENSIONS_DIR;
   const docblockerUserDataDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_USER_DATA_DIR;
   if (docblockerOnly && (!docblockerExtensionsDir || !docblockerUserDataDir)) {
     throw new Error('DocBlocker profile test requires isolated extensions and user data directories.');
   }
+  if (c3OpenSourceProfile && !process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR) {
+    throw new Error('C3 Open Source Profile test requires PHP_COMPANION_TEST_EXTENSIONS_DIR.');
+  }
   if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
     throw new Error('Real vendor noise needs C1 mode and PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
   }
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
+  if (c3OpenSourceProfile) {
+    await mkdir(join(fixture, 'tests'), { recursive: true });
+    await writeFile(join(fixture, 'phpunit.xml'),
+      '<?xml version="1.0"?>\n<phpunit><testsuites><testsuite name="Profile"><directory suffix="Test.php">tests</directory></testsuite></testsuites></phpunit>\n');
+    await writeFile(join(fixture, 'tests', 'ProfileTest.php'),
+      '<?php\nfinal class ProfileTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
+  }
   const coreOnly = c1Only || c2Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const c1DebugPort = c1Only
@@ -149,12 +160,16 @@ async function main(): Promise<void> {
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony'),
-          ...(docblockerOnly ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
+          ...(docblockerOnly || c3OpenSourceProfile ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
-      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly ? [] : ['--disable-extensions']),
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c3OpenSourceProfile ? [] : ['--disable-extensions']),
         ...(docblockerOnly ? [
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
           `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
+        ] : []),
+        ...(c3OpenSourceProfile ? [
+          `--extensions-dir=${resolve(process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR!)}`,
+          `--user-data-dir=${join(fixture, 'profile-user-data')}`,
         ] : []),
         ...(c1DebugPort ? [`--remote-debugging-port=${c1DebugPort}`] : [])],
       extensionTestsEnv: {
@@ -162,6 +177,7 @@ async function main(): Promise<void> {
         VSCODE_ESM_ENTRYPOINT: undefined,
         PHP_COMPANION_TEST_WITH_INTELEPHENSE: withIntelephense ? '1' : undefined,
         PHP_COMPANION_TEST_CORE_ONLY: coreOnly ? '1' : undefined,
+        PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE: c3OpenSourceProfile ? '1' : undefined,
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,

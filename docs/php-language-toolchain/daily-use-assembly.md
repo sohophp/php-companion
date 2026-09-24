@@ -30,7 +30,7 @@
 | 处理 | 扩展或能力 | 当前依据与使用边界 |
 | --- | --- | --- |
 | 保留在 Pack | SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML/XML | 组成 PHP 与框架/模板/配置的编辑链；Symfony 仍须与 Core 安装同一私有候选，Pack 的 Marketplace 页面不能替代候选验收 |
-| 保留在 Pack | PHP Debug、PHPUnit & Pest Test Explorer | 已有 Linux/WSL 组合运行证据；实际项目仍须提供可用的 PHP、Xdebug 和测试入口 |
+| 保留在 Pack | PHP Debug、PHPUnit & Pest Test Explorer | 已有 Linux/WSL 组合运行证据；实际项目须提供可用的 PHP、Xdebug、测试入口和准确的 PHPUnit 测试套件目录。无 `phpunit.xml` 时，当前 PHPUnit 扩展在快速重命名普通类后会出现未处理的旧路径读取错误 |
 | 保留在 Pack | PHP CS Fixer、EditorConfig | 格式化与项目编辑约定各有一个所有者；PHP CS Fixer 扩展自带 PHAR 曾在 PHP 8.5 被拒绝，须使用与目标 PHP 兼容的项目级 fixer |
 | 保留在 Pack | Apache Conf Snippets | 用户要求的 Apache 配置片段；其 `mrmlnc.vscode-apache` 依赖由扩展自身声明，Pack 不重复列入 |
 | 保留在 Pack | PHP DocBlocker | [完整成员 Profile 的 PHP 7.2/8.5 宿主门禁](reports/php-docblocker-composition-2026-09-24.md)中 `/**` 生成项和 `@param` 标签各只有一个；生成注释由 SoPHP 解析，超出已测语法的结果继续观察 |
@@ -67,6 +67,8 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 
 当前 11 项源码组合还可运行 `pnpm test:extension:open-source-profile:source`：预先用 `install:open-source-profile` 安装冻结版本，并设置 `PHP_COMPANION_TEST_EXTENSIONS_DIR`、`PHP_COMPANION_PHP_EXECUTABLE`、`PHP_COMPANION_PHP_CS_FIXER`、`PHP_COMPANION_PHPUNIT_EXECUTABLE`。它在独立临时 Composer 项目和隔离 VS Code Profile 中加载 Core、Symfony、Pack 源码，复用格式化、导航、调试与测试的组合宿主门禁，无需生成 VSIX。2026-09-24 的 11 项源码复测通过；这项结果不能替代下一次候选的 VSIX 安装和 WSL Remote 验收。
 
+同一 11 项组合还通过了[带明确 PHPUnit 测试目录的 C3 源码宿主门禁](reports/open-source-pack-c3-profile-2026-09-24.md)，可用 `PHP_COMPANION_TEST_EXTENSIONS_DIR=... pnpm test:extension:c3:open-source-profile` 复跑。没有 PHPUnit 配置的负例会在 PHPUnit 扩展中触发旧文件读取异常，因此“日常可用”需要项目准确限定测试套件；测试文件本身的 Rename/Undo/Redo 仍待单独组合验证。
+
 | 层次 | 当前可核对的结果 | 下一道门槛 |
 | --- | --- | --- |
 | Pack 源码 | 11 项清单；Core、Symfony、9 个外部扩展；manifest 检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |
@@ -83,7 +85,7 @@ Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未
 ### 下一次执行顺序
 
 1. **固定 Pack 的职责与清单。** 当前源码为 11 项：Core、Symfony 和 9 个外部扩展；外部扩展分别负责 Twig、YAML、XML、调试、测试、格式化、EditorConfig、Apache 配置和 PHPDoc 注释生成。PHPStan 仅供项目自选。保持一个通用 PHP 语言服务和一个 PHP 默认格式化器；成员版本变化时重新检查冲突，不按 Core 每次提交重新打包。
-2. **从 C3 的代码生成体验继续。** 已有 Rename、导入和 Safe Move 的部分预览及版本保护证据；类型生成现有[预览、取消、应用和一次 Undo 的宿主证据](reports/c3-type-generation-preview-2026-09-24.md)。[最小资源编辑探针](reports/c3-type-generation-undo-redo-probe-2026-09-24.md)确认文件创建的 Redo 尚未恢复；先找到 VS Code 文件创建的一步撤销/重做路径，同时推进其它具备完整撤销链的 C3 操作，不能把未通过的生成流程标为 C3 完成。
+2. **从 C3 的代码生成体验继续。** 已有 Rename、导入和 Safe Move 的部分预览及版本保护证据，且[已配置测试目录的完整 Pack C3 宿主](reports/open-source-pack-c3-profile-2026-09-24.md)通过；类型生成现有[预览、取消、应用和一次 Undo 的宿主证据](reports/c3-type-generation-preview-2026-09-24.md)。[最小资源编辑探针](reports/c3-type-generation-undo-redo-probe-2026-09-24.md)确认文件创建的 Redo 尚未恢复；先找到 VS Code 文件创建的一步撤销/重做路径，同时推进其它具备完整撤销链的 C3 操作，并复核测试文件 Rename 与无配置组合，不能把未通过的生成流程标为 C3 完成。
 3. **补 C1/C2 的开放证据。** 用独立 Composer 项目和真实 vendor/约 10k 文件夹具观察长会话、可见等待、取消及跨文件类型反馈；优先修复旧结果、错误诊断和明显卡顿。完整 Pack 源码宿主已有短序列证据，仍需更长会话和实际 Remote 操作。
 4. **冻结组合候选后进入 C4 门禁。** 只有组合成员或候选需要交付时，才固定外部版本、生成同批 Core/Symfony/Pack VSIX 并核对摘要、安装与 Extension Host；再验证 WSL Remote、跨平台、PHP 版本矩阵和持续使用。R4 的整体体验目标保持开放。
 
