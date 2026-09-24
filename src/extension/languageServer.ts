@@ -131,6 +131,33 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
+    middleware: {
+      provideCodeActions: async (document, range, context, token, next) => {
+        const actions = await next(document, range, context, token);
+        if (!actions || token.isCancellationRequested) return actions;
+        for (const action of actions) {
+          if (!(action instanceof vscode.CodeAction) || !action.edit
+            || action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value) continue;
+          const entries = action.edit.entries();
+          if (!entries.some(([uri]) => uri.toString() !== document.uri.toString())) continue;
+          let createsFile = false;
+          for (const [uri] of entries) {
+            if (uri.toString() === document.uri.toString()) continue;
+            try { await vscode.workspace.fs.stat(uri); }
+            catch (error) {
+              if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') createsFile = true;
+              else throw error;
+            }
+          }
+          if (!createsFile) continue;
+          const edit = action.edit;
+          action.edit = undefined;
+          action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',
+            arguments: [{ edit, sourceUri: document.uri, sourceVersion: document.version, sourceText: document.getText() }] };
+        }
+        return actions;
+      },
+    },
     initializationOptions: () => ({
       phpVersion: projectPhpVersions()[0]?.version ?? (configuration.get<string>('phpVersion', 'auto') === 'auto'
         ? '7.2' : configuration.get<string>('phpVersion', '7.2')),

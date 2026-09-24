@@ -415,6 +415,37 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (context.extensionMode === vscode.ExtensionMode.Test && testPreviewAction) return await testPreviewAction() === 'apply';
     return await vscode.window.showInformationMessage(message, t('apply')) === t('apply');
   };
+  register('phpCompanion.applyPreviewedExtract', async (
+    request: { edit: vscode.WorkspaceEdit; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string },
+    options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'> },
+  ) => {
+    const { edit, sourceUri, sourceVersion, sourceText } = request;
+    const source = await vscode.workspace.openTextDocument(sourceUri);
+    const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
+    const unchanged = async (): Promise<boolean> => {
+      if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
+      for (const [uri] of targets) {
+        try { await vscode.workspace.fs.stat(uri); return false; }
+        catch (error) {
+          if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
+        }
+      }
+      return true;
+    };
+    if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
+    const sourcePreview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(sourceText, edit.get(sourceUri)) });
+    await vscode.commands.executeCommand('vscode.diff', sourceUri, sourcePreview.uri,
+      t('extractDiff', vscode.workspace.asRelativePath(sourceUri)), { preview: false });
+    for (const [uri, edits] of targets) {
+      const empty = await vscode.workspace.openTextDocument({ language: 'php', content: '' });
+      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits('', edits) });
+      await vscode.commands.executeCommand('vscode.diff', empty.uri, preview.uri,
+        t('extractDiff', vscode.workspace.asRelativePath(uri)), { preview: false });
+    }
+    if (!await confirmPreviewedEdit(t('applyPreviewedExtract'), options?.testPreviewAction)) return;
+    if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
+    if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
+  });
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));

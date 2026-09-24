@@ -95,6 +95,79 @@ export async function run(): Promise<void> {
   await vscode.window.showTextDocument(generated);
   await vscode.commands.executeCommand('undo');
   await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Generated PHP file was not removed by one Undo');
+  const classUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3Extractable.php');
+  const interfaceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ExtractableInterface.php');
+  const classSource = '<?php\nnamespace App\\Service;\nclass C3Extractable { public function handle(string $value): string { return $value; } }\n';
+  await vscode.workspace.fs.writeFile(classUri, Buffer.from(classSource));
+  const classDocument = await vscode.workspace.openTextDocument(classUri);
+  await vscode.window.showTextDocument(classDocument);
+  const classPosition = classDocument.positionAt(classSource.indexOf('C3Extractable'));
+  const extractAction = async (): Promise<vscode.CodeAction> => {
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', classUri, new vscode.Range(classPosition, classPosition), vscode.CodeActionKind.RefactorExtract.value);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action
+        && action.title === 'Extract interface C3ExtractableInterface');
+      if (found?.command) return found;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail('Extract Interface preview action was unavailable');
+  };
+  const staleAction = await extractAction();
+  const staleEdit = new vscode.WorkspaceEdit();
+  staleEdit.insert(classUri, new vscode.Position(1, 0), '// edited before extraction\n');
+  assert.ok(await vscode.workspace.applyEdit(staleEdit));
+  await vscode.commands.executeCommand(staleAction.command!.command, ...staleAction.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Stale Extract Interface left an orphan file');
+  assert.ok(classDocument.getText().includes('// edited before extraction') && !classDocument.getText().includes('implements C3ExtractableInterface'),
+    'Stale Extract Interface corrupted the edited source');
+  await vscode.window.showTextDocument(classDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(classDocument.getText(), classSource);
+  const cancelAction = await extractAction();
+  await vscode.commands.executeCommand(cancelAction.command!.command, ...cancelAction.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+        .filter((tab) => tab.label.includes('Extract Interface:')).length >= 2,
+      'Extract Interface did not show source and new interface diffs');
+      return 'cancel';
+    } });
+  await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Cancelling Extract Interface created the target');
+  const raceAction = await extractAction();
+  await vscode.commands.executeCommand(raceAction.command!.command, ...raceAction.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      const concurrent = new vscode.WorkspaceEdit();
+      concurrent.insert(classUri, new vscode.Position(1, 0), '// edited while reviewing extraction\n');
+      assert.ok(await vscode.workspace.applyEdit(concurrent));
+      return 'apply';
+    } });
+  await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Extract Interface applied an edit made stale during preview');
+  assert.ok(classDocument.getText().includes('// edited while reviewing extraction'));
+  await vscode.window.showTextDocument(classDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(classDocument.getText(), classSource);
+  const targetConflictAction = await extractAction();
+  const targetConflictSource = '<?php\n// another extension created this target\n';
+  await vscode.commands.executeCommand(targetConflictAction.command!.command, ...targetConflictAction.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      await vscode.workspace.fs.writeFile(interfaceUri, Buffer.from(targetConflictSource));
+      return 'apply';
+    } });
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(interfaceUri)).toString('utf8'), targetConflictSource,
+    'Extract Interface overwrote a target created during preview');
+  assert.strictEqual(classDocument.getText(), classSource, 'Target conflict changed the source class');
+  await vscode.workspace.fs.delete(interfaceUri);
+  const freshAction = await extractAction();
+  await vscode.commands.executeCommand(freshAction.command!.command, ...freshAction.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok((await vscode.workspace.openTextDocument(interfaceUri)).getText().includes('interface C3ExtractableInterface'));
+  assert.ok(classDocument.getText().includes('implements C3ExtractableInterface'));
+  await vscode.window.showTextDocument(classDocument);
+  await vscode.commands.executeCommand('undo');
+  await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Extract Interface Undo left the target');
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(interfaceUri)).getText().includes('interface C3ExtractableInterface'));
   console.log('C3 held server import requests: addImport, planTypeImports, organizeImports; all rejected stale edits.');
   console.log('C3 PHP type generation: preview, cancel, apply and one Undo passed; Redo remains open.');
 }

@@ -2488,10 +2488,12 @@ export async function run(): Promise<void> {
       new vscode.Range(interfaceClassDocument.positionAt(classOffset), interfaceClassDocument.positionAt(classOffset)),
       vscode.CodeActionKind.RefactorExtract.value,
     );
-    extractInterfaceAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Extract interface ExtractableInterface');
-    return Boolean(extractInterfaceAction?.edit);
+    extractInterfaceAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract interface ExtractableInterface');
+    return Boolean(extractInterfaceAction?.command);
   }, 'Self-hosted language server did not offer Extract Interface for a PSR-4 class');
-  assert.ok(await vscode.workspace.applyEdit(extractInterfaceAction!.edit!), 'Extract Interface workspace edit could not be applied');
+  assert.ok(extractInterfaceAction?.command, 'Extract Interface preview command was missing');
+  await vscode.commands.executeCommand(extractInterfaceAction.command.command, ...extractInterfaceAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitForAsync(async () => {
     try {
       const interfaceText = (await vscode.workspace.openTextDocument(interfaceUri)).getText();
