@@ -1040,7 +1040,37 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
           if (realDependency && pathWithin(realDependency, realProject)) return;
         }
       }
+      const ownerWorkspace = ownerRoot ? await semanticWorkspaces.get(`root:${ownerRoot}`) : undefined;
+      const projectWorkspace = ownerWorkspace ? await semanticForRoot(project) : undefined;
+      if (workspaceRoots.includes(project)) return;
+      const migrated: Array<{ uri: string; source: string }> = [];
+      if (ownerRoot && ownerWorkspace && projectWorkspace) {
+        for (const sourceUri of ownerWorkspace.documentUris()) {
+          const sourcePath = pathForUri(sourceUri);
+          if (!sourcePath || !pathWithin(project, sourcePath)) continue;
+          const open = documents.get(sourceUri);
+          const source = open?.getText() ?? ownerWorkspace.source(sourceUri);
+          if (source === undefined) continue;
+          ownerWorkspace.remove(sourceUri);
+          onDemandClosedDocumentsByRoot.get(ownerRoot)?.delete(sourceUri);
+          interopContextsByRoot.get(ownerRoot)?.delete(sourceUri);
+          removeDoctrineDocument(ownerRoot, sourceUri, ownerWorkspace);
+          for (const mapping of [indexedUrisByRoot, projectIndexedUrisByRoot, scanFilesByRoot]) {
+            if (!mapping.get(ownerRoot)?.delete(sourceUri)) continue;
+            const projectUris = mapping.get(project) ?? new Set<string>();
+            projectUris.add(sourceUri); mapping.set(project, projectUris);
+          }
+          projectWorkspace.update(sourceUri, source, Boolean(open));
+          if (!open) retainClosedOnDemandDocument(project, sourceUri, projectWorkspace);
+          migrated.push({ uri: sourceUri, source });
+        }
+      }
+      if (migrated.length && ownerRoot) invalidateCandidates(pathToFileURL(resolve(ownerRoot, 'composer.json')).toString());
       workspaceRoots.push(project);
+      if (migrated.length) invalidateCandidates(pathToFileURL(resolve(project, 'composer.json')).toString());
+      if (projectWorkspace) {
+        for (const { uri: sourceUri, source } of migrated) await refreshDoctrineDocument(project, sourceUri, source, projectWorkspace);
+      }
     })();
     composerRootChecks.set(path, pending);
   }
@@ -3342,6 +3372,12 @@ connection.onRequest('phpCompanion/testQueryTimings', (params: { reset?: unknown
   return result;
 });
 
+connection.onRequest('phpCompanion/testOnDemandClosedDocuments', (params: { uri?: unknown } | undefined): string[] => {
+  if (!testMode || typeof params?.uri !== 'string') return [];
+  const root = rootForUri(params.uri);
+  return root ? [...(onDemandClosedDocumentsByRoot.get(root)?.keys() ?? [])] : [];
+});
+
 function recordTestQueryDuration(method: string, started: number): void {
   if (!testMode) return;
   const samples = testQueryDurations.get(method) ?? [];
@@ -4271,6 +4307,12 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     let source: string | undefined;
     try { source = await readFile(path, 'utf8'); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    const currentRoot = rootForUri(uri);
+    if (!currentRoot) return;
+    if (currentRoot !== root) {
+      pendingFiles.set(_key, { uri: indexedUriForPath(currentRoot, path), root: currentRoot });
+      return;
+    }
     // Recheck after I/O: didOpen/didChange may have arrived during the read.
     const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
     source = open?.getText() ?? source;

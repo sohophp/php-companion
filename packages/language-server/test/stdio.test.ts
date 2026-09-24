@@ -6711,6 +6711,118 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('moves closed PHPDoc facts when a nested Composer project appears in onDemand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-closed-nested-root-'));
+    const nested = join(root, 'apps', 'api');
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await mkdir(join(nested, 'src'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const declarationUri = pathToFileURL(join(nested, 'src', 'Records.php')).toString();
+      const parentUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const nestedUri = pathToFileURL(join(nested, 'src', 'Consumer.php')).toString();
+      const declaration = `<?php namespace App;
+        class NestedRecord { public function nestedOnly(): void {} }
+        /** @return list<NestedRecord> */ function nestedRecords(): array { return []; }`;
+      const consumer = '<?php namespace App; function inspect(): void { foreach (nestedRecords() as $record) { $record->nested; } }';
+      await writeFile(join(nested, 'src', 'Records.php'), declaration);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      await writeFile(join(nested, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 593, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 593);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: declaration },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === declarationUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: declarationUri } } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === declarationUri
+        && message.params.diagnostics.length === 0);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: parentUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === parentUri);
+      const completion = async (id: number, uri: string): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(consumer, consumer.indexOf('$record->nested') + '$record->nested'.length),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id)).result;
+        return (Array.isArray(result) ? result : result?.items ?? []).map((item: { label: string }) => item.label);
+      };
+      expect(await completion(594, parentUri)).toContain('nestedOnly');
+      await writeFile(join(nested, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: nestedUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === nestedUri);
+      expect(await completion(595, parentUri)).not.toContain('nestedOnly');
+      expect(await completion(596, nestedUri)).toContain('nestedOnly');
+      await writeFile(join(nested, 'src', 'Records.php'), declaration.replace('nestedOnly', 'nestedLater'));
+      const watchedAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: declarationUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= watchedAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${declarationUri}`));
+      expect(await completion(597, parentUri)).not.toContain('nestedLater');
+      expect(await completion(598, nestedUri)).toContain('nestedLater');
+      expect(await completion(599, nestedUri)).not.toContain('nestedOnly');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('bounds restored onDemand PHP files per Composer root and retains recently reopened files', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-closed-cache-limit-'));
+    try {
+      await writeFile(join(root, 'composer.json'), '{}');
+      const files = Array.from({ length: 257 }, (_, index) => {
+        const name = `Cached${index}`;
+        return { uri: pathToFileURL(join(root, `${name}.php`)).toString(), source: `<?php class ${name} {}` };
+      });
+      await Promise.all(files.map(async ({ uri, source }) => writeFile(new URL(uri), source)));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 600, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', testMode: true, versionedDiagnostics: true },
+      } }));
+      await output.waitFor((message) => message.id === 600);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const openThenClose = async ({ uri, source }: { uri: string; source: string }, version: number): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version, text: source },
+        } }));
+        await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+          && message.params.uri === uri && message.params.version === version);
+        const closingAt = output.messages.length;
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= closingAt
+          && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      };
+      for (const file of files) await openThenClose(file, 1);
+      const cached = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/testOnDemandClosedDocuments', params: {
+          uri: files[0]!.uri,
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      const initial = await cached(601);
+      expect(initial).toHaveLength(256);
+      expect(initial).not.toContain(files[0]!.uri);
+      expect(initial).toContain(files[1]!.uri);
+      expect(initial).toContain(files.at(-1)!.uri);
+      await openThenClose(files[0]!, 2);
+      const afterReopen = await cached(602);
+      expect(afterReopen).toHaveLength(256);
+      expect(afterReopen).toContain(files[0]!.uri);
+      expect(afterReopen).not.toContain(files[1]!.uri);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 90_000);
+
   it.each(['7.2', '8.5'])('reports proven same-file argument errors in onDemand PHP %s without trusting another file', async (phpVersion) => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);
