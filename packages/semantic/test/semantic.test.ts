@@ -7,6 +7,24 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('proves only a stable directly constructed receiver for a one-argument method call', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///ExactReceiver.php';
+    const variants: Array<[string, boolean]> = [
+      ["$service = new Service(); $other = 1; $service->call('bad');", true],
+      ["$service = new ChildService(); $service->call('bad');", false],
+      ["$service = new Service(); change($service); $service->call('bad');", false],
+      ["$service = createService(); $service->call('bad');", false],
+      ["$service = new Service(); $service->call('bad', 1);", false],
+    ];
+    try {
+      for (const [body, expected] of variants) {
+        const source = `<?php namespace App; function inspect(): void { ${body} }`;
+        project.update(uri, source);
+        expect(project.stableLocalExactObjectReceiver(uri, source.indexOf("'bad'"), 'App\\Service')).toBe(expected);
+      }
+    } finally { project.dispose(); }
+  });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
     const project = new SemanticWorkspace(parser);
     const linkedUri = 'file:///project/vendor/local/Record.php';

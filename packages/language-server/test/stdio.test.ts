@@ -6838,6 +6838,50 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reports a non-final method mismatch only for a stable exact local receiver in onDemand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-exact-receiver-diagnostic-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const serviceUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const service = `<?php namespace App;
+class Service { public function call(int $value): void {} }
+class ChildService extends Service { public function call(int|string $value): void {} }
+`;
+      const consumer = "<?php declare(strict_types=1); namespace App; function run(): void { $service = new Service(); $other = 1; $service->call('bad'); }";
+      await writeFile(join(root, 'src', 'Service.php'), service);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 616, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true },
+      } }));
+      await output.waitFor((message) => message.id === 616);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, source] of [[serviceUri, service], [consumerUri, consumer]]) server.stdin.write(encode({
+        jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } },
+      }));
+      const initial = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 1);
+      expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const uncertain = consumer.replace("$other = 1;", 'change($service);');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 2 }, contentChanges: [{ text: uncertain }],
+      } }));
+      const withdrawn = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 2);
+      expect(withdrawn.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 3 }, contentChanges: [{ text: consumer }],
+      } }));
+      const restored = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 3);
+      expect(restored.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('keeps onDemand cross-file type diagnostics silent when PSR-4 has two possible declaration paths', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-ondemand-ambiguous-psr4-'));
     try {

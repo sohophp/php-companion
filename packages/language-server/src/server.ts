@@ -1520,7 +1520,8 @@ async function provenOnDemandExternalLiteralArguments(workspace: SemanticWorkspa
     if (!declarationPath || expectedPaths.size !== 1 || !expectedPaths.has(resolve(declarationPath))) return false;
     const signature = workspace.signature(document.uri, item.start);
     return signature?.kind === 'method' && signature.synthetic === undefined
-      && (workspace.isFinalClass(owner) || signature.final === true)
+      && (workspace.isFinalClass(owner) || signature.final === true
+        || workspace.stableLocalExactObjectReceiver(document.uri, item.start, owner))
       && signature.uri !== document.uri && signature.uri === declarations[0]!.uri
       && signature.fqcn.toLowerCase() === item.callable.toLowerCase();
   });

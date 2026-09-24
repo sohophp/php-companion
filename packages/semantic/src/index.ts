@@ -4274,6 +4274,42 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
+  stableLocalExactObjectReceiver(uri: string, argumentStart: number, ownerFqcn: string): boolean {
+    const file = this.files.get(uri); if (!file) return false;
+    const call = file.calls.find((candidate) => candidate.kind === 'method' && candidate.standalone
+      && candidate.arguments.length === 1 && candidate.arguments[0]!.start <= argumentStart
+      && argumentStart < candidate.arguments[0]!.end && candidate.receiver?.variable);
+    const variable = call?.receiver?.variable; if (!call || !variable) return false;
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    const tree = retainedTree ?? temporaryTree!;
+    try {
+      let statement = deepestLocalSyntax(tree.rootNode, call.start, call.end, () => true);
+      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
+      const block = statement?.parent;
+      if (!statement || !block || statement.type !== 'expression_statement') return false;
+      const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
+        && candidate.endIndex === statement!.endIndex);
+      for (let index = statementIndex - 1; index >= 0; index -= 1) {
+        const candidate = block.namedChildren[index]!;
+        const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
+        const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
+        const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
+        if (!assignment || left?.type !== 'variable_name' || !right) return false;
+        if (left.text === variable) {
+          if (right.type !== 'object_creation_expression') return false;
+          const fact = file.assignments.find((item) => item.start === assignment.startIndex
+            && item.end === assignment.endIndex && item.variable === variable);
+          const name = fact?.typeName;
+          const resolved = name && this.resolveSourceType(file, name, this.namespaceAt(file, assignment.startIndex), fact.callableFqcn);
+          return resolved?.toLowerCase() === ownerFqcn.toLowerCase();
+        }
+        if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return false;
+      }
+      return false;
+    } finally { temporaryTree?.delete(); }
+  }
+
   incompatibleReturns(uri: string): IncompatibleReturn[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.returns.flatMap((statement): IncompatibleReturn[] => {

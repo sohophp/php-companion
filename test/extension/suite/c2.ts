@@ -150,6 +150,34 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $serv
   };
   await changeMethodDeclaration('final class CrossFileLiteralService', 'class CrossFileLiteralService', false);
   await changeMethodDeclaration('public function accept', 'final public function accept', true);
+  await changeMethodDeclaration('final public function accept', 'public function accept', false);
+  const exactConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ExactReceiverConsumer.php');
+  const exactConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
+function inspectExactReceiver(): void { $service = new CrossFileLiteralService(); $other = 1; $service->accept('bad'); }
+`;
+  await vscode.workspace.fs.writeFile(exactConsumerUri, Buffer.from(exactConsumerSource));
+  const exactConsumerDocument = await vscode.workspace.openTextDocument(exactConsumerUri);
+  await vscode.window.showTextDocument(exactConsumerDocument);
+  const exactMismatch = (): boolean => vscode.languages.getDiagnostics(exactConsumerUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const waitForExactMismatch = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && exactMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.strictEqual(exactMismatch(), expected, `C2 exact receiver mismatch did not become ${expected}.`);
+  };
+  await waitForExactMismatch(true);
+  const changeExactConsumer = async (source: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(exactConsumerUri, new vscode.Range(new vscode.Position(0, 0),
+      exactConsumerDocument.positionAt(exactConsumerDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+  };
+  await changeExactConsumer(exactConsumerSource.replace('$other = 1;', 'change($service);'));
+  await waitForExactMismatch(false);
+  await changeExactConsumer(exactConsumerSource);
+  await waitForExactMismatch(true);
+  await changeMethodDeclaration('public function accept', 'final public function accept', true);
+  console.log('C2 onDemand exact receiver diagnostic: final class → open class → final method → exact new receiver; exact receiver has → no → has');
   const editType = async (from: string, to: string): Promise<number> => {
     const offset = methodDocument.getText().indexOf(from);
     assert.ok(offset >= 0, `Missing cross-file method type ${from}.`);
