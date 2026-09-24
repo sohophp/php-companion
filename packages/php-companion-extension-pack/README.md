@@ -4,6 +4,8 @@
 
 当前源码组合为 11 项：SoPHP Core、SoPHP Symfony 和下表的 9 项外部工具。已冻结的 0.4.5 私有 VSIX 候选仍是先前的 10 项组合，尚未包含后来加入的 PHP DocBlocker；要体验 11 项组合，须等下一次同批候选冻结，或使用已验证的源码 Profile。公开 Marketplace 页面也仍显示旧说明，不能当作当前源码清单。
 
+成员职责、现有验证范围和 Core 下一步见[Open Source Pack 整理与 SoPHP 下一步](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-next-core-2026-09-25.md)。
+
 ## 包含内容
 
 | 扩展 | 职责 |
