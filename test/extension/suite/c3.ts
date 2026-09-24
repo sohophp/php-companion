@@ -189,6 +189,42 @@ export async function run(): Promise<void> {
     }
     assert.fail(`Extract Variable was not routed through the preview command: ${JSON.stringify(titles)}`);
   };
+  const heldVersion = variableDocument.version;
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'refactorExtract' }), true);
+  let heldCancelled = false;
+  const heldActions = vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', variableUri,
+    new vscode.Range(variableDocument.positionAt(expressionStart), variableDocument.positionAt(expressionStart + 'new \\stdClass()'.length)),
+    vscode.CodeActionKind.RefactorExtract.value).then((actions) => actions, (error: unknown) => {
+      if (error instanceof Error && (error.name === 'Canceled' || error.message === 'Canceled')) {
+        heldCancelled = true;
+        return [] as Array<vscode.CodeAction | vscode.Command>;
+      }
+      throw error;
+    });
+  await waitForState(api, 'refactorExtract', variableDocument, (state) => state.paused && state.version === heldVersion,
+    'Extract Variable response was not held with the source version');
+  const heldChange = new vscode.WorkspaceEdit();
+  heldChange.insert(variableUri, new vscode.Position(1, 0), '// edited while server held extraction\n');
+  assert.ok(await vscode.workspace.applyEdit(heldChange));
+  try {
+    await waitForState(api, 'refactorExtract', variableDocument,
+      (state) => state.paused && state.version === variableDocument.version && state.version !== heldVersion,
+      'Language Server did not observe the new source version before releasing Extract Variable');
+  } finally {
+    assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'refactorExtract' }), true);
+  }
+  const heldResult = await heldActions;
+  const staleHeldAction = heldResult.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract to $extracted');
+  let heldPreviewOpened = false;
+  if (staleHeldAction?.command) await vscode.commands.executeCommand(staleHeldAction.command.command,
+    ...staleHeldAction.command.arguments ?? [], { testPreviewAction: async () => { heldPreviewOpened = true; return 'apply'; } });
+  assert.ok(!heldPreviewOpened && !variableDocument.getText().includes('$extracted'),
+    'Extract Variable accepted a response computed before an in-flight edit');
+  console.log(`C3 held Extract Variable response: cancelled=${heldCancelled}, actions=${heldResult.length}, stalePreviewOpened=${heldPreviewOpened}`);
+  await vscode.window.showTextDocument(variableDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(variableDocument.getText(), variableSource);
   const staleVariable = await variableAction();
   const variableChange = new vscode.WorkspaceEdit();
   variableChange.insert(variableUri, new vscode.Position(1, 0), '// edited after selecting extraction\n');

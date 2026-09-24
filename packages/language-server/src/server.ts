@@ -3387,7 +3387,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'hover', 'signatureHelp', 'definition'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'hover', 'signatureHelp', 'definition', 'refactorExtract'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -3456,7 +3456,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -6131,6 +6131,7 @@ connection.onCodeAction(async (params, token) => {
     }
   }
   if (context.only?.includes(CodeActionKind.SourceOrganizeImports) && testPauseNextQueries.has('organizeImports')) await pauseTestQuery('organizeImports');
+  if (context.only?.some((kind) => CodeActionKind.RefactorExtract.startsWith(kind)) && testPauseNextQueries.has('refactorExtract')) await pauseTestQuery('refactorExtract');
   return actions;
 });
 
