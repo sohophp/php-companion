@@ -603,6 +603,54 @@ export async function run(): Promise<void> {
     familyBeforeRemove.get(uri.toString()), `One Undo did not restore method-family Remove Parameter in ${uri.path}`);
   await vscode.commands.executeCommand('redo');
   assert.ok(!(await vscode.workspace.openTextDocument(callerUri)).getText().includes('context: "web"'));
+  const reorderContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3ReorderContract.php');
+  const reorderFirstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ReorderFirst.php');
+  const reorderCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ReorderCaller.php');
+  const reorderContractSource = '<?php\nnamespace App\\Contract;\ninterface C3ReorderContract {\n    /**\n     * @param string $value\n     * @param string $context\n     * @param int $count\n     */\n    public function send(string $value, string $context, int $count): string;\n}\n';
+  const reorderFirstSource = '<?php\nnamespace App\\Service;\nuse App\\Contract\\C3ReorderContract;\nfinal class C3ReorderFirst implements C3ReorderContract {\n    /**\n     * @param string $payload\n     * @param string $mode\n     * @param int $quantity\n     */\n    public function send(string $payload, string $mode, int $quantity): string { return $payload; }\n}\n';
+  const reorderCallerSource = '<?php\nnamespace App\\Controller;\nuse App\\Contract\\C3ReorderContract;\nuse App\\Service\\C3ReorderFirst;\nfinal class C3ReorderCaller { public function run(C3ReorderContract $contract, C3ReorderFirst $first): void { $contract->send("a", "web", 2); $first->send(payload: "b", mode: "web", quantity: 3); } }\n';
+  const reorderFiles: Array<[vscode.Uri, string]> = [[reorderContractUri, reorderContractSource],
+    [reorderFirstUri, reorderFirstSource], [reorderCallerUri, reorderCallerSource]];
+  await Promise.all(reorderFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  const reorderContractDocument = await vscode.workspace.openTextDocument(reorderContractUri);
+  await vscode.window.showTextDocument(reorderContractDocument);
+  const reorderPosition = reorderContractDocument.positionAt(reorderContractSource.indexOf('$count',
+    reorderContractSource.indexOf('function send')) + 2);
+  const reorderSelection = await api.requestLanguageServer<{ names?: string[]; index?: number } | null>(
+    'phpCompanion/methodParameterOrder', { textDocument: { uri: reorderContractUri.toString() }, position: reorderPosition });
+  assert.deepStrictEqual(reorderSelection, { names: ['value', 'context', 'count'], index: 2 });
+  const requestReorderPlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
+    api.requestLanguageServer('phpCompanion/reorderMethodParameters', {
+      textDocument: { uri: reorderContractUri.toString() }, position: reorderPosition, targetIndex: 0,
+    });
+  let reorderPlan = await requestReorderPlan();
+  for (let attempt = 0; attempt < 100 && Object.keys(reorderPlan?.changes ?? {}).length !== 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    reorderPlan = await requestReorderPlan();
+  }
+  assert.strictEqual(Object.keys(reorderPlan?.changes ?? {}).length, 3,
+    `Language Server omitted method-family Reorder Parameter: ${JSON.stringify(reorderPlan)}`);
+  const reorderParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.reorderMethodParameters', {
+      uri: reorderContractUri, position: reorderPosition, targetIndex: 0, testPreviewAction,
+    });
+  assert.strictEqual(await reorderParameter(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.includes('Reorder method parameters:'));
+    assert.strictEqual(tabs.length, 3, 'Reorder Parameter did not preview every method-family file');
+    return 'cancel';
+  }), true);
+  for (const [uri, source] of reorderFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    source, `Cancelling method-family Reorder Parameter changed ${uri.path}`);
+  assert.strictEqual(await reorderParameter(async () => 'apply'), true);
+  assert.ok((await vscode.workspace.openTextDocument(reorderContractUri)).getText().includes('send(int $count, string $value, string $context)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderFirstUri)).getText().includes('send(int $quantity, string $payload, string $mode)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(2, "a", "web")'));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri, source] of reorderFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    source, `One Undo did not restore method-family Reorder Parameter in ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(2, "a", "web")'));
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));

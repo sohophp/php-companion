@@ -299,6 +299,7 @@ export interface RemovePrivateParameterInfo { uri: string; callable: string; par
 export interface AddPrivateParameterInfo { uri: string; callable: string; parameter: string; edits: Array<{ uri: string; start: number; end: number; newText: string }>; }
 export interface AddMethodParameterInfo extends AddPrivateParameterInfo { scope: 'private' | 'workspace-method-family'; }
 export interface RemoveMethodParameterInfo { uri: string; callable: string; parameter: string; scope: 'private' | 'workspace-method-family'; edits: Array<{ uri: string; start: number; end: number; newText: string }>; }
+export interface ReorderMethodParametersInfo { uri: string; callable: string; parameter: string; targetIndex: number; scope: 'private' | 'workspace-method-family'; edits: Array<{ uri: string; start: number; end: number; newText: string }>; }
 export interface MissingRequiredArguments extends SemanticLocation { callable: string; parameters: string[]; }
 export interface IncompatibleArgument extends SemanticLocation { callable: string; parameter: string; actualType: string; expectedType: string; }
 export interface IncompatibleReturn extends SemanticLocation { callable: string; actualType: string; expectedType: string; }
@@ -6094,6 +6095,129 @@ export class SemanticWorkspace {
           && call.nameStart === reference.start && call.nameEnd === reference.end))) return undefined;
     }
     return { uri, callable: callable.fqcn, parameter: selected.name, scope: 'workspace-method-family', edits };
+  }
+
+  methodParameterOrder(uri: string, offset: number): { names: string[]; index: number } | undefined {
+    const file = this.files.get(uri); if (!file || file.syntaxErrors.length) return undefined;
+    const callable = file.callables.find((item) => item.kind === 'method' && !item.name.startsWith('__')
+      && item.parameters.some((parameter) => offset >= parameter.start && offset <= parameter.end));
+    const index = callable?.parameters.findIndex((parameter) => offset >= parameter.start && offset <= parameter.end) ?? -1;
+    return callable && index >= 0 ? { names: callable.parameters.map((parameter) => parameter.name), index } : undefined;
+  }
+
+  reorderMethodParameters(uri: string, offset: number, targetIndex: number): ReorderMethodParametersInfo | undefined {
+    const file = this.files.get(uri); const selected = this.methodParameterOrder(uri, offset);
+    if (!file || !selected || !Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= selected.names.length
+      || targetIndex === selected.index || selected.names.length < 2) return undefined;
+    const callable = file.callables.find((item) => item.kind === 'method' && item.parameters.some((parameter) =>
+      offset >= parameter.start && offset <= parameter.end));
+    if (!callable?.containerFqcn || !this.hasCompleteHierarchy(callable.containerFqcn)
+      || this.fileAndDeclaration(callable.containerFqcn)?.declaration.kind === 'trait') return undefined;
+    const candidates = [...this.files.values()].flatMap((ownerFile) => ownerFile.callables.map((item) => ({ file: ownerFile, callable: item })))
+      .filter(({ callable: item }) => item.kind === 'method' && item.containerFqcn
+        && item.visibility !== 'private' && item.name.toLowerCase() === callable.name.toLowerCase());
+    const family = new Map<string, { file: SemanticFile; callable: ParsedCallableDeclaration }>([[callable.fqcn.toLowerCase(), { file, callable }]]);
+    if (callable.visibility !== 'private') {
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const candidate of candidates) {
+          if (family.has(candidate.callable.fqcn.toLowerCase())) continue;
+          if ([...family.values()].some((member) => this.isSubclassOf(candidate.callable.containerFqcn!, member.callable.containerFqcn!)
+            || this.isSubclassOf(member.callable.containerFqcn!, candidate.callable.containerFqcn!))) {
+            family.set(candidate.callable.fqcn.toLowerCase(), candidate); changed = true;
+          }
+        }
+      }
+    }
+    const members = [...family.values()];
+    const relatedTypes = [...this.files.values()].flatMap((candidateFile) => candidateFile.declarations)
+      .filter((declaration) => members.some((member) => this.isSubclassOf(declaration.fqcn, member.callable.containerFqcn!)
+        || this.isSubclassOf(member.callable.containerFqcn!, declaration.fqcn)));
+    if (members.some((member) => member.file.syntaxErrors.length || !this.hasCompleteHierarchy(member.callable.containerFqcn!)
+      || member.callable.parameters.length !== selected.names.length || member.callable.parameters.some((parameter) =>
+        parameter.defaultValue !== undefined || parameter.promoted || parameter.variadic || parameter.byReference)
+      || /\bfunc_(?:get_args|get_arg|num_args)\s*\(/i.test(member.file.source.slice(member.callable.declarationStart,
+        member.callable.declarationEnd)))
+      || relatedTypes.some((declaration) => !this.hasCompleteHierarchy(declaration.fqcn))) return undefined;
+    const familyIds = new Set(members.map((member) => member.callable.fqcn.toLowerCase()));
+    const order = Array.from({ length: selected.names.length }, (_, index) => index);
+    order.splice(targetIndex, 0, order.splice(selected.index, 1)[0]!);
+    const edits: ReorderMethodParametersInfo['edits'] = [];
+    for (const member of members) {
+      const temporaryTree = this.trees.has(member.file.uri) ? undefined : this.parser.parseTree(member.file.source);
+      try {
+        const tree = this.trees.get(member.file.uri) ?? temporaryTree;
+        if (!tree) return undefined;
+        const methodNode = deepestLocalSyntax(tree.rootNode, member.callable.start, member.callable.end,
+          (node) => node.type === 'name' && node.startIndex === member.callable.start && node.endIndex === member.callable.end);
+        const list = methodNode?.parent?.namedChildren.find((node) => node.type === 'formal_parameters');
+        if (!list || list.namedChildren.length !== order.length) return undefined;
+        const nodes = list.namedChildren;
+        if (nodes.some((node, index) => node.startIndex > member.callable.parameters[index]!.start
+          || node.endIndex < member.callable.parameters[index]!.end)) return undefined;
+        const pieces = nodes.map((node) => member.file.source.slice(node.startIndex, node.endIndex));
+        if (member.file.source.slice(list.startIndex + 1, nodes[0]!.startIndex).trim()
+          || member.file.source.slice(nodes.at(-1)!.endIndex, list.endIndex - 1).trim()
+          || nodes.slice(1).some((node, index) => !/^\s*,\s*$/.test(member.file.source.slice(nodes[index]!.endIndex, node.startIndex)))) return undefined;
+        edits.push({ uri: member.file.uri, start: nodes[0]!.startIndex, end: nodes.at(-1)!.endIndex,
+          newText: order.map((index) => pieces[index]).join(', ') });
+      } finally {
+        temporaryTree?.delete();
+      }
+      const doc = member.file.commentRanges.filter((comment) => comment.end <= member.callable.declarationStart
+        && member.file.source.startsWith('/**', comment.start)).sort((left, right) => right.end - left.end)[0];
+      if (doc && /^[\s]*(?:#\[[\s\S]*?\][\s]*)*$/.test(member.file.source.slice(doc.end, member.callable.declarationStart))) {
+        const docText = member.file.source.slice(doc.start, doc.end);
+        if (docText.includes('@param')) {
+          const matches = [...docText.matchAll(/^[ \t]*\*[ \t]*@param\b[^\r\n]*(?:\r?\n|$)/gm)];
+          if (matches.length !== order.length) return undefined;
+          const lines = matches.map((match) => match[0]);
+          if (matches.some((match, index) => !new RegExp(`\\$${member.callable.parameters[index]!.name}\\b`).test(match[0]))) return undefined;
+          const start = doc.start + matches[0]!.index;
+          const end = doc.start + matches.at(-1)!.index + lines.at(-1)!.length;
+          if (member.file.source.slice(start, end) !== lines.join('')) return undefined;
+          edits.push({ uri: member.file.uri, start, end, newText: order.map((index) => lines[index]).join('') });
+        }
+      }
+    }
+    const dynamic = this.dynamicMemberRenameLocations('method', callable.name,
+      (member) => familyIds.has(member.fqcn.toLowerCase()));
+    const arrays = this.callableArrayMethodRenameLocations(callable.name, familyIds);
+    if (!dynamic || dynamic.length || !arrays || arrays.length) return undefined;
+    const escapedName = callable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const firstClassCallable = new RegExp(`(?:->|\\?->|::)\\s*${escapedName}\\s*\\(\\s*\\.\\.\\.\\s*\\)`, 'i');
+    if ([...this.files.values()].some((candidate) => firstClassCallable.test(candidate.source))) return undefined;
+    const directCalls: Array<{ file: SemanticFile; call: ParsedCall }> = [];
+    for (const candidateFile of this.files.values()) for (const call of candidateFile.calls) {
+      if (candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
+      const signature = this.signature(candidateFile.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+      if (signature?.kind !== 'method' || !familyIds.has(signature.fqcn.toLowerCase())) continue;
+      directCalls.push({ file: candidateFile, call });
+      if (!call.flat || call.firstClassCallable || call.arguments.length !== order.length
+        || call.arguments.some((argument) => argument.unpacked)) return undefined;
+      if (call.arguments.every((argument) => argument.name !== undefined)) continue;
+      if (call.arguments.some((argument) => argument.name !== undefined)) return undefined;
+      const values = call.arguments.map((argument) => candidateFile.source.slice(argument.start, argument.end));
+      if (values.some((value) => !/^(?:null|true|false|[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\$])*")$/i.test(value.trim()))) return undefined;
+      if (call.arguments.slice(1).some((argument, index) => !/^\s*,\s*$/.test(candidateFile.source.slice(
+        call.arguments[index]!.end, argument.start)))) return undefined;
+      edits.push({ uri: candidateFile.uri, start: call.arguments[0]!.start, end: call.arguments.at(-1)!.end,
+        newText: order.map((index) => values[index]).join(', ') });
+    }
+    for (const member of members) {
+      const references = this.references(member.file.uri, member.callable.start, true).filter((reference) => {
+        const candidate = this.files.get(reference.uri);
+        return !candidate || ![...candidate.commentRanges, ...candidate.stringRanges]
+          .some((range) => range.start <= reference.start && reference.end <= range.end);
+      });
+      if (references.some((reference) => !members.some((candidate) => candidate.file.uri === reference.uri
+        && candidate.callable.start === reference.start && candidate.callable.end === reference.end)
+        && !directCalls.some(({ file: candidate, call }) => candidate.uri === reference.uri
+          && call.nameStart === reference.start && call.nameEnd === reference.end))) return undefined;
+    }
+    return { uri, callable: callable.fqcn, parameter: selected.names[selected.index]!, targetIndex,
+      scope: callable.visibility === 'private' ? 'private' : 'workspace-method-family', edits };
   }
 
   removeUnusedPrivateParameter(uri: string, offset: number): RemovePrivateParameterInfo | undefined {

@@ -4271,6 +4271,44 @@ connection.onRequest('phpCompanion/removeMethodParameter', async (params: {
     [target, createHash('sha256').update(source).digest('hex')])), workspaceMethodFamily: plan.scope === 'workspace-method-family' } };
 });
 
+connection.onRequest('phpCompanion/methodParameterOrder', async (params: { textDocument?: { uri?: unknown }; position?: unknown }) => {
+  const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined;
+  if (!document || !params.position) return null;
+  const workspace = await semanticForUri(uri as string);
+  return workspace.methodParameterOrder(uri as string, document.offsetAt(params.position as { line: number; character: number })) ?? null;
+});
+
+connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
+  textDocument?: { uri?: unknown }; position?: unknown; targetIndex?: unknown;
+}, token) => {
+  const uri = params.textDocument?.uri;
+  const document = typeof uri === 'string' ? documents.get(uri) : undefined;
+  const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
+  if (!document || !root || !params.position || !Number.isInteger(params.targetIndex) || token.isCancellationRequested
+    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+  const workspace = await semanticForUri(uri as string);
+  const plan = workspace.reorderMethodParameters(uri as string, document.offsetAt(params.position as { line: number; character: number }), params.targetIndex as number);
+  if (!plan || token.isCancellationRequested) return null;
+  const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
+  const sources = new Map<string, string>();
+  const snapshots = uris.flatMap((target) => {
+    const source = documents.get(target)?.getText() ?? workspace.source(target);
+    if (source === undefined) return [];
+    sources.set(target, source);
+    return [{ uri: target, version: documents.get(target)?.version ?? null, length: source.length }];
+  });
+  if (snapshots.length !== uris.length) return null;
+  const editPlan = createEditPlan(`Move parameter $${plan.parameter}`, snapshots, plan.edits);
+  const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  for (const edit of editPlan.textEdits) {
+    const source = sources.get(edit.uri)!;
+    const target = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, source);
+    (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: edit.newText });
+  }
+  return { changes, phpCompanion: { sourceHashes: Object.fromEntries([...sources].map(([target, source]) =>
+    [target, createHash('sha256').update(source).digest('hex')])), workspaceMethodFamily: plan.scope === 'workspace-method-family' } };
+});
+
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !Array.isArray(params.ranges) || params.ranges.length > 128 || token.isCancellationRequested

@@ -27,10 +27,10 @@ JSON、HTML、CSS、JavaScript 和 TypeScript 继续使用 VS Code 内建语言�
 
 ## Core 从哪里开始
 
-**先完成 C3 的 Change Signature 编辑链。** 四文件参数家族 Rename 和新增参数已通过 References、预览、取消、应用及一次 Undo/Redo；删除参数的同一编辑链也已在源码宿主验证。接下来用独立 Composer 夹具按以下顺序继续：
+**先收口 C3 的可靠编辑链。** 四文件参数家族 Rename、新增与删除参数，以及三文件[参数重排](c3-reorder-method-family-parameters-2026-09-25.md)已在源码宿主通过预览、取消、应用及一次 Undo/Redo。接下来按以下顺序继续：
 
 1. 保持已完成的新增、删除参数支持范围：仅处理完整工作区中可证明的方法家族、声明、PHPDoc 和调用；删除实参会丢弃有副作用的表达式时拒绝。
-2. 实现参数重排，分别核对位置参数与 PHP 8 命名参数；要求完整差异预览、取消、应用及一次 Undo/Redo。
-3. 在完整 11 项 Pack 源码 Profile 中复核重排编辑链，并记录准确结果、等待与冲突。只在需要候选交付时打包。
+2. 调查生成文件一次 Redo 未恢复的问题，复核 PHPUnit 测试文件 Rename 和无配置项目的组合异常。
+3. 用完整 11 项 Pack 源码 Profile 审计其它高频 C3 编辑的准确结果、等待与冲突。只在需要候选交付时打包。
 
 类型生成文件的 Redo 仍有[独立宿主重现](c3-type-generation-undo-redo-probe-2026-09-24.md)：Undo 可删除新文件，随后一次 Redo 未恢复它。这项问题并行做有界调查，不把尚未通过的生成流程计入 C3 完成。C1/C2 的冷查询、长会话与 Remote 证据继续按阶段门槛补齐；R4 的最终目标和组合验收不变。

@@ -7,6 +7,7 @@
   "command.safeRename": "预览并重命名 PHP 符号",
   "command.addMethodParameter": "预览并新增 PHP 方法参数",
   "command.removeMethodParameter": "预览并删除 PHP 方法参数",
+  "command.reorderMethodParameters": "预览并重排 PHP 方法参数",
   "command.rebuildIndex": "重建实验性索引",
   "command.importClass": "导入类",
   "command.resolvePastedImports": "解析导入",
