@@ -777,12 +777,40 @@ function inspectLargeShape(): void { $row = profileLargeShape(); $item = $row['i
     elapsedMs.push(performance.now() - started);
     if ((round + 1) % 5 === 0 || round === rounds - 1) hostRssMiB.push(Math.round(process.memoryUsage().rss / 1024 / 1024));
   }
+  const replaceSource = async (text: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(sourceUri, new vscode.Range(sourceDocument.positionAt(0), sourceDocument.positionAt(sourceDocument.getText().length)), text);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+  };
+  const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(project, 'src/ProfileLargeShapeSource.php'));
+  let watcherChanges = 0;
+  watcher.onDidChange((uri) => { if (uri.toString() === sourceUri.toString()) watcherChanges += 1; });
+  await replaceSource(source(true));
+  await waitForAsync(() => consistent(true), 'Real vendor Pack profile did not restore the union shape before watcher overlap', 30_000);
+  let beforeWatcher = watcherChanges;
+  await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source(false)));
+  await waitFor(() => watcherChanges > beforeWatcher, 'VS Code did not report the external union-shape disk change', 10_000);
+  await new Promise<void>((resolve) => setTimeout(resolve, 750));
+  assert.ok(sourceDocument.isDirty, 'The source buffer was unexpectedly saved by an external disk update');
+  assert.ok(await consistent(true), 'A disk watcher update replaced the open union-shape buffer');
+  const pendingDefinition = vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, call);
+  await replaceSource(source(false));
+  beforeWatcher = watcherChanges;
+  await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source(true)));
+  await pendingDefinition;
+  await waitFor(() => watcherChanges > beforeWatcher, 'VS Code did not report the competing union-shape disk change', 10_000);
+  await waitForAsync(() => consistent(false), 'Real vendor Pack profile did not apply the unsaved source after a competing disk update', 30_000);
+  await new Promise<void>((resolve) => setTimeout(resolve, 750));
+  assert.ok(await consistent(false), 'A late disk watcher update replaced the newer unsaved source');
+  await replaceSource(source(true));
+  await waitForAsync(() => consistent(true), 'Real vendor Pack profile did not recover the union shape after watcher overlap', 30_000);
+  watcher.dispose();
   const sorted = [...elapsedMs].sort((left, right) => left - right);
   console.log(`Open Source Pack real vendor union-shape feedback: ${JSON.stringify({ rounds,
     p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
     p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
     maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
-    consumerVersion: consumerDocument.version, hostRssMiB })}`);
+    consumerVersion: consumerDocument.version, hostRssMiB, watcherBufferPriority: true, watcherChanges })}`);
 }
 
 async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {

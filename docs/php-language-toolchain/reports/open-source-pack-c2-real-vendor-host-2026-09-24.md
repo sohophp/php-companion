@@ -27,3 +27,9 @@ Core 现在向运行中的 Language Server 发送项目版本与扩展可用性�
 | 复轮 | 139 ms | P50 166 ms、P95 202 ms、最大 224 ms | 初始 228 MiB，随后每 5 轮 228/205/205/206/206/207 MiB |
 
 两轮宿主均退出码 0，新增阶段没有观察到错误版本结果；复轮的扩展宿主 RSS 未呈持续上升。这里的等待从编辑提交计到 Definition、Hover 和诊断同时符合当前版本，**不是**单项热查询耗时，不能直接与 F02 的 150 ms 热查询预算比较。RSS 仅为 VS Code 扩展宿主进程，未包含独立 Language Server；30 轮与单机两次运行也不足以证明长期内存或跨平台稳定性。原始日志分别为 `/tmp/sophp-pack-real-vendor-union-session-20260924.log` 和 `/tmp/sophp-pack-real-vendor-union-rss-20260924.log`。没有打包 VSIX，也没有修改业务项目。
+
+## 打开缓冲区与磁盘 watcher 冲突
+
+在联合形状 30 轮之后，源码宿主现在创建精确文件 watcher 并验证它收到两次磁盘变化事件：先让未保存缓冲区为兼容联合形状、磁盘变为不兼容，再让缓冲区不兼容、磁盘变为兼容。每次等待 watcher 事件后又观察 750 ms，使用方的 Definition、Hover 和参数诊断均跟随打开缓冲区；恢复缓冲区后再次回到兼容结果。第二次写盘前还发起一个 Definition 查询并在写盘后等待它完成；该请求可能在编辑之前完成，因此这项宿主证据**不证明**查询在 Provider 内部与编辑重叠。受控暂停、取消与重开交错由[真实 stdio 门禁](c2-real-vendor-union-shape-session-2026-09-24.md)独立验证。
+
+无生成文件、2 轮的完整 Pack 冒烟退出码 0，watcher 计数为 2。10,131 文件、50 轮标量加 30 轮联合形状的完整 11 项 Pack 源码宿主也退出码 0，watcher 计数为 2；联合形状三项一致等待 P95 为 208 ms，扩展宿主 RSS 采样 228→208 MiB。原始日志为 `/tmp/sophp-pack-real-vendor-shape-watcher-observed-20260924.log`。此处证明本机 VS Code 文件事件和打开缓冲区的结果优先级，尚不等于 WSL Remote、可安装候选或任意并发时序验收。

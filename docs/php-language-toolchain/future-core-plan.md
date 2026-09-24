@@ -83,6 +83,8 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [受控重叠回归](reports/c2-real-vendor-union-shape-session-2026-09-24.md)现让旧 Completion 暂停并取消，同时交错关闭/同版本重开与 watcher 通知；严格 500 轮大项目门禁确认旧请求空结果，新请求与打开缓冲区一致，恢复后补全、Definition、Hover 和诊断重新一致。另一次 1000 轮序列的 RSS 前段峰值后趋于平台；不同运行的瞬时内存台阶仍只作观察，不作为长期稳定性结论。接下来在 VS Code 源码宿主复核这组重叠操作，再扩展到 Remote 与其它事件排列。
 
+[完整 Pack 宿主 watcher 复核](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)已在同一 10,131 文件项目观察到两次 VS Code 文件变化事件：磁盘与未保存缓冲区分别呈相反联合类型时，Definition、Hover、参数诊断始终按打开缓冲区返回。源码宿主并未控制单个 Provider 请求停顿，因此真正重叠的取消和关闭仍以 stdio 门禁为证据；接下来应在可安装候选或 Remote 宿主中复核运行位置与缓冲区优先级，再继续 C3 的用户可见编辑操作。
+
 [局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
