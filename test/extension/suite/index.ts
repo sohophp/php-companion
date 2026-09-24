@@ -5135,9 +5135,14 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.ok(await importDocument.save(), 'Resolve Imports fixture could not be saved');
 
   const optimizeDocument = await vscode.workspace.openTextDocument(optimizeUri);
+  await vscode.window.showTextDocument(optimizeDocument);
   await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: false });
   assert.ok(!optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports did not remove a known unused class import');
   assert.strictEqual(optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length, 1, 'Optimize Imports did not deduplicate imports');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports could not be undone as one editor operation');
+  await vscode.commands.executeCommand('redo');
+  await waitFor(() => !optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports could not be redone as one editor operation');
   assert.ok(await optimizeDocument.save(), 'Optimize Imports fixture could not be saved');
 
   for (const relativePath of [['Contract', 'Runner.php'], ['Support', 'LogsActivity.php']] as const) {

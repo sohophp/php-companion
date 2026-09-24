@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C3 导入与整理命令版本保护：Core 自身语言服务器的 `Import Class`、`Resolve Pasted Imports`、`Optimize Imports` 现在在异步查询/选择/预览后核对文档仍打开且版本未变，避免把旧范围应用到新内容；旧索引路径同步收紧关闭边界。完整 11 项 Pack 源码宿主的正常导入、整理与 Undo/Redo 通过，TypeScript、Lint、差异检查通过。中途输入和模态取消的可控宿主时序仍需验收，见[报告](reports/c3-import-command-version-2026-09-24.md)。
+
 2026-09-24 C2 完整 Pack 打开缓冲区与 watcher：11 项源码 Profile、10,131 文件宿主在 50 轮标量与 30 轮联合形状反馈后，观察到目标 PHP 文件两次 VS Code watcher 事件；未保存缓冲区与磁盘类型相反时，Definition、Hover 和参数诊断均跟随缓冲区，恢复后结果同步恢复。宿主退出码 0，联合形状三项一致等待 P95 208 ms。发起的 Definition 请求未证明内部与编辑重叠；受控重叠只在 stdio 门禁验证，见[组合报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
 
 2026-09-24 C2 联合形状重叠事件：真实 10,131 文件 stdio 在旧 Completion 暂停时取消请求，并交错关闭/同版本重开声明和磁盘 watcher 通知；旧请求空结果，新请求遵循打开缓冲区，恢复兼容声明后补全、Definition、Hover 与参数诊断同步恢复。严格断言的 500 轮门禁退出码 0，诊断/Definition/Hover P95 为 97.0/19.9/2.94 ms；另一次 1000 轮正确且 RSS 在前段峰值后长期约 159–162 MiB。只覆盖该事件顺序，见[报告](reports/c2-real-vendor-union-shape-session-2026-09-24.md)。
