@@ -272,6 +272,18 @@ function inspectNativeReturn(NativeReturnService $service): void { $service->acc
   await changeReturnSource(returnSource, true);
   await changeReturnConsumer(localReturnConsumer.replace('$other = 1;', 'change($value);'), false);
   await changeReturnConsumer(localReturnConsumer, true);
+  const localValueHover = async (expected: string): Promise<void> => {
+    const offset = returnConsumerDocument.getText().lastIndexOf('$value);') + 2;
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', returnConsumerUri, returnConsumerDocument.positionAt(offset)) ?? [];
+    assert.ok(hovers.some((hover) => hover.contents.some((item) =>
+      (typeof item === 'string' ? item : item.value).includes(`$value: ${expected}`))),
+    `C2 local value Hover did not show ${expected}.`);
+  };
+  await localValueHover('string');
+  await changeReturnSource(returnSource.replace("text(): string { return 'bad';", 'text(): int { return 42;'), false);
+  await localValueHover('int');
+  await changeReturnSource(returnSource, true);
   console.log('C2 onDemand local native return argument: PHPDoc-only → native string → possible mutation → restored, diagnostic no → has → no → has');
 
   const aliasRealUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'PathAliasRecord.php');

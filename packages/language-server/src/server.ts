@@ -5179,7 +5179,11 @@ connection.onHover(async ({ textDocument, position }, token) => {
   const constant = member ? undefined : workspace.constantAt(document.uri, offset);
   const type = member ? undefined : workspace.typeAt(document.uri, offset);
   recordTestQueryDuration('hoverMemberLookup', memberStarted);
-  if (!member && !constant && !type) return null;
+  if (!member && !constant && !type) {
+    const local = document.languageId === 'php' ? workspace.variableValueAt(document.uri, offset) : undefined;
+    return local ? { contents: { kind: MarkupKind.Markdown, value: `\`\`\`php\n${local.variable}: ${local.type}\n\`\`\`` },
+      range: { start: document.positionAt(local.start), end: document.positionAt(local.end) } } : null;
+  }
   const signature = constant ? `const ${constant.fqcn}${constant.type ? `: ${constant.type}` : ''}${constant.value ? ` = ${constant.value}` : ''}` : type ? `${type.kind} ${type.fqcn}` : member!.constantKind === 'enum-case'
     ? `case ${member!.name}${member!.value ? ` = ${member!.value}` : ''}` : member!.kind === 'method' || member!.kind === 'function'
     ? `${member!.kind === 'function' ? 'function ' : ''}${member!.name}(${member!.parameters.map(displayPhpParameter).join(', ')})${member!.returnType ? `: ${member!.returnType}` : ''}`

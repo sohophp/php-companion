@@ -6938,7 +6938,7 @@ class ChildService extends Service { public function call(int|string $value): vo
         && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
         && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
       const localConsumer = consumer.replace('$service->accept($service->text());',
-        '$value = $service->text(); $other = 1; $service->accept($value);');
+        '$value = $service->text(); $other = 1; // The value came from text().\n $service->accept($value);');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: consumerUri, version: 2 }, contentChanges: [{ text: localConsumer }],
       } }));
@@ -6966,6 +6966,27 @@ class ChildService extends Service { public function call(int|string $value): vo
       const restoredLocal = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 4);
       expect(restoredLocal.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const inspectLocalFeedback = async (source: string, type: 'string' | 'int', id: number): Promise<void> => {
+        const request = async (method: string, offset: number, requestId: number): Promise<any> => {
+          server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params: {
+            textDocument: { uri: consumerUri }, position: lspPosition(source, offset),
+          } }));
+          return (await output.waitFor((message) => message.id === requestId)).result;
+        };
+        const valueOffset = source.lastIndexOf('$value');
+        const hover = await request('textDocument/hover', valueOffset + 2, id);
+        expect(hover?.contents?.value).toContain(type);
+        const textOffset = source.indexOf('text()');
+        const sourceSignature = await request('textDocument/signatureHelp', textOffset + 'text('.length, id + 1);
+        expect(sourceSignature.signatures[0].label).toContain(`text(): ${type}`);
+        const definition = await request('textDocument/definition', textOffset + 1, id + 2);
+        expect(definition).toHaveLength(1);
+        expect(definition[0].uri).toBe(serviceUri);
+        const acceptOffset = source.indexOf('accept($value)');
+        const targetSignature = await request('textDocument/signatureHelp', acceptOffset + 'accept('.length, id + 3);
+        expect(targetSignature.signatures[0].label).toContain('accept(int $value)');
+      };
+      await inspectLocalFeedback(localConsumer, 'string', 6200);
       const aliasedLocal = localConsumer.replace('$value = $service->text(); $other = 1;',
         '$alias =& $value; $value = $service->text(); $alias = 1;');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
@@ -6974,6 +6995,20 @@ class ChildService extends Service { public function call(int|string $value): vo
       const aliasResult = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 5);
       expect(aliasResult.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 6 }, contentChanges: [{ text: localConsumer }],
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 6);
+      const localNumericAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version: 6 }, contentChanges: [{ text: numericService }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= localNumericAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && message.params.version === 6
+        && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      await inspectLocalFeedback(localConsumer, 'int', 6210);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

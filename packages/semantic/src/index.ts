@@ -4238,6 +4238,14 @@ export class SemanticWorkspace {
     });
   }
 
+  variableValueAt(uri: string, offset: number): { variable: string; type: string; start: number; end: number } | undefined {
+    const file = this.files.get(uri); if (!file) return undefined;
+    const reference = file.variableReferences.find((item) => item.start <= offset && offset < item.end);
+    if (!reference) return undefined;
+    const type = this.provenArgumentType(file, reference.start, reference.end);
+    return type ? { variable: reference.variable, type: displayType(type), start: reference.start, end: reference.end } : undefined;
+  }
+
   stableLocalScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
     const file = this.files.get(uri); if (!file) return false;
     const variable = file.source.slice(start, end).trim();
@@ -4259,6 +4267,7 @@ export class SemanticWorkspace {
         && candidate.endIndex === statement!.endIndex);
       for (let index = statementIndex - 1; index >= 0; index -= 1) {
         const candidate = block.namedChildren[index]!;
+        if (candidate.type === 'comment') continue;
         const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
@@ -4297,6 +4306,7 @@ export class SemanticWorkspace {
         && candidate.endIndex === statement!.endIndex);
       for (let index = statementIndex - 1; index >= 0; index -= 1) {
         const candidate = block.namedChildren[index]!;
+        if (candidate.type === 'comment') continue;
         const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
@@ -4352,6 +4362,7 @@ export class SemanticWorkspace {
         && candidate.endIndex === statement!.endIndex);
       for (let index = statementIndex - 1; index >= 0; index -= 1) {
         const candidate = block.namedChildren[index]!;
+        if (candidate.type === 'comment') continue;
         const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
@@ -9539,6 +9550,7 @@ export class SemanticWorkspace {
         return shape([...retained, { key: update.key, optional: false, type: update.type }]);
       }, base);
       const harmless = (candidate: SyntaxNode): boolean => {
+        if (candidate.type === 'comment') return true;
         if (candidate.type === 'echo_statement') {
           const content = candidate.text.replace(/^\s*echo\s+/i, '').replace(/;\s*$/, '');
           return content.split(',').every(scalarLiteral);
@@ -9789,6 +9801,7 @@ export class SemanticWorkspace {
         : undefined;
       for (let cursor = index - 1; cursor >= 0; cursor -= 1) {
         const candidate = block.namedChildren[cursor]!;
+        if (candidate.type === 'comment') continue;
         const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;

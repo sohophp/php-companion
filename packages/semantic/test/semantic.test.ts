@@ -12,6 +12,7 @@ describe('conservative semantic workspace', () => {
     const uri = 'file:///ExactReceiver.php';
     const variants: Array<[string, boolean]> = [
       ["$service = new Service(); $other = 1; $service->call('bad');", true],
+      ["$service = new Service(); // keep this receiver\n $service->call('bad');", true],
       ["$service = new ChildService(); $service->call('bad');", false],
       ["$service = new Service(); change($service); $service->call('bad');", false],
       ["$alias =& $service; $service = new Service(); $alias = null; $service->call('bad');", false],
@@ -48,6 +49,7 @@ describe('conservative semantic workspace', () => {
     const service = '<?php namespace App; class Service { public function accept(int $value): void {} public function text(): string { return "bad"; } }';
     const variants: Array<[string, boolean]> = [
       ['$value = $service->text(); $other = 1; $service->accept($value);', true],
+      ['$value = $service->text(); // explain the value\n $service->accept($value);', true],
       ['$value = $service->text(); change($value); $service->accept($value);', false],
       ['$alias =& $value; $value = $service->text(); $alias = 1; $service->accept($value);', false],
       ['$value = $service->text(); $value = 1; $service->accept($value);', false],
@@ -70,6 +72,36 @@ describe('conservative semantic workspace', () => {
       project.update(uri, aliasedLiteral);
       const literalStart = aliasedLiteral.lastIndexOf('$value);');
       expect(project.stableLocalScalarLiteralArgument(uri, literalStart, literalStart + '$value'.length, 'string')).toBe(false);
+      const commentedLiteral = '<?php namespace App; function literal(Service $service): void { $value = "bad"; // stable\n $service->accept($value); }';
+      project.update(uri, commentedLiteral);
+      const commentedStart = commentedLiteral.lastIndexOf('$value);');
+      expect(project.stableLocalScalarLiteralArgument(uri, commentedStart, commentedStart + '$value'.length, 'string')).toBe(true);
+    } finally { project.dispose(); }
+  });
+  it('shows the current proven local value type only at a variable reference', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///HoverConsumer.php';
+    const sourceUri = 'file:///HoverService.php';
+    const source = `<?php namespace App; function run(Service $service): void {
+      $value = $service->text();
+      // The value came from the service.
+      $service->accept($value);
+      // $value is mentioned here but has no hover.
+    }`;
+    const offset = source.indexOf('$value);');
+    try {
+      project.update(sourceUri, '<?php namespace App; class Service { public function text(): string { return "bad"; } public function accept(int $value): void {} }');
+      project.update(uri, source);
+      expect(project.variableValueAt(uri, offset + 2)).toMatchObject({ variable: '$value', type: 'string', start: offset });
+      expect(project.variableValueAt(uri, source.indexOf('$value is mentioned') + 2)).toBeUndefined();
+      project.update(sourceUri, '<?php namespace App; class Service { public function text(): int { return 42; } public function accept(int $value): void {} }');
+      expect(project.variableValueAt(uri, offset + 2)?.type).toBe('int');
+      const changed = source.replace('$service->accept($value);', '$value = 1; $service->accept($value);');
+      project.update(uri, changed);
+      expect(project.variableValueAt(uri, changed.indexOf('$value);') + 2)?.type).toBe('int');
+      const uncertain = source.replace('$service->accept($value);', 'change($value); $service->accept($value);');
+      project.update(uri, uncertain);
+      expect(project.variableValueAt(uri, uncertain.lastIndexOf('$value);') + 2)).toBeUndefined();
     } finally { project.dispose(); }
   });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
