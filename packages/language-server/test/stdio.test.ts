@@ -6407,6 +6407,22 @@ class Example {}`;
       expect(diagnostics.map((item: { range: any }) => source.slice(lspOffset(source, item.range.start), lspOffset(source, item.range.end))))
         .toEqual(['unreachableAfterNever();', 'unreachableAfterNested();', 'unreachableAfterArgument();', 'unreachableAfterGuaranteedLeft();',
           'unreachableAfterCondition();']);
+      const changed = source.replace('function stop(Allowed $value): never', 'function stop(Allowed $value): void');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      const withdrawn = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 2);
+      expect(withdrawn.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.control-flow.unreachable')).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 3 }, contentChanges: [{ text: source }],
+      } }));
+      const restored = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 3);
+      expect(restored.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.control-flow.unreachable')
+        .map((item: { range: any }) => source.slice(lspOffset(source, item.range.start), lspOffset(source, item.range.end))))
+        .toEqual(['unreachableAfterNever();', 'unreachableAfterNested();', 'unreachableAfterArgument();',
+          'unreachableAfterGuaranteedLeft();', 'unreachableAfterCondition();']);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
