@@ -137,10 +137,11 @@ class AlphaDocItem { public function itemAlpha(): void {} public function itemCo
 class BetaDocItem { public function itemBeta(): void {} public function itemCommon(): void {} }
 
 function inspect(array $items): void { foreach ($items as $item) { $item->item; $item->itemAlpha(); } }
+function consumeString(string $value): void {}
 /** @param array{item: AlphaDocItem}|array{item: AlphaDocItem, other: int} $data */
-function inspectSharedShape(array $data): void { $data['item']->item; }
+function inspectSharedShape(array $data): void { $data['item']->item; $data['item']->itemAlpha(); consumeString($data['item']); }
 /** @param array{item: AlphaDocItem}|array{other: int} $data */
-function inspectMissingShape(array $data): void { $data['item']->item; }
+function inspectMissingShape(array $data): void { $data['item']->item; $data['item']->itemAlpha(); consumeString($data['item']); }
 `;
   await vscode.workspace.fs.writeFile(flowUri, Buffer.from(flowSource));
   const flowDocument = await vscode.workspace.openTextDocument(flowUri);
@@ -206,14 +207,22 @@ function inspectMissingShape(array $data): void { $data['item']->item; }
   'SoPHP kept a stale Alpha definition after the PHPDoc item type changed.');
   assert.doesNotMatch(await originalHoverText(), /itemAlpha/u);
   const changedCallSource = flowDocument.getText();
-  const changedCallStart = changedCallSource.lastIndexOf('itemAlpha();');
-  assert.ok(changedCallStart >= 0);
+  const originalCallStart = changedCallSource.indexOf('$item->itemAlpha();');
+  assert.ok(originalCallStart >= 0);
+  const changedCallStart = originalCallStart + '$item->'.length;
   const changedCallEdit = new vscode.WorkspaceEdit();
   changedCallEdit.replace(flowUri, new vscode.Range(flowDocument.positionAt(changedCallStart),
     flowDocument.positionAt(changedCallStart + 'itemAlpha'.length)), 'itemBeta');
   assert.ok(await vscode.workspace.applyEdit(changedCallEdit));
   const betaPosition = flowDocument.positionAt(flowDocument.getText().lastIndexOf('$item->itemBeta();') + '$item->item'.length);
-  const betaDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, betaPosition) ?? [];
+  let betaDefinitions: vscode.Location[] = [];
+  const betaDefinitionDeadline = Date.now() + 20_000;
+  while (Date.now() < betaDefinitionDeadline) {
+    betaDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, betaPosition) ?? [];
+    if (betaDefinitions.some((location) => location.uri.toString() === flowUri.toString()
+      && flowDocument.getText(location.range).includes('itemBeta'))) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
   assert.ok(betaDefinitions.some((location) => location.uri.toString() === flowUri.toString()
     && flowDocument.getText(location.range).includes('itemBeta')),
   'SoPHP did not navigate to the new Beta method after the unsaved PHPDoc and call edits.');
@@ -239,6 +248,30 @@ function inspectMissingShape(array $data): void { $data['item']->item; }
   };
   assert.deepStrictEqual(await shapeCompletions('inspectSharedShape'), ['itemAlpha', 'itemCommon']);
   assert.deepStrictEqual(await shapeCompletions('inspectMissingShape'), []);
+  const shapeCallPosition = (functionName: string): vscode.Position => {
+    const source = flowDocument.getText();
+    const start = source.indexOf(`function ${functionName}`);
+    assert.ok(start >= 0);
+    const call = source.indexOf("$data['item']->itemAlpha();", start);
+    assert.ok(call >= 0);
+    return flowDocument.positionAt(call + "$data['item']->item".length);
+  };
+  const sharedCallPosition = shapeCallPosition('inspectSharedShape');
+  const sharedDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, sharedCallPosition) ?? [];
+  assert.ok(sharedDefinitions.some((location) => flowDocument.getText(location.range).includes('itemAlpha')));
+  const sharedHover = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', flowUri, sharedCallPosition) ?? [];
+  assert.match(sharedHover.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n'), /itemAlpha/u);
+  const missingCallPosition = shapeCallPosition('inspectMissingShape');
+  const missingDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, missingCallPosition) ?? [];
+  assert.ok(!missingDefinitions.some((location) => flowDocument.getText(location.range).includes('itemAlpha')));
+  const missingHover = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', flowUri, missingCallPosition) ?? [];
+  assert.doesNotMatch(missingHover.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n'), /itemAlpha/u);
+  const argumentDiagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(flowUri)
+    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.type-mismatch');
+  const argumentDeadline = Date.now() + 20_000;
+  while (Date.now() < argumentDeadline && argumentDiagnostics().length !== 1) await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.strictEqual(argumentDiagnostics().length, 1, 'The shared shape key did not produce one proven argument mismatch.');
+  assert.match(flowDocument.getText(argumentDiagnostics()[0]!.range), /\$data\['item'\]/u);
   console.log('C2 generated PHPDoc type flow: AlphaDocItem → BetaDocItem, completion/hover/definition updated');
   console.log('PHP DocBlocker 2.7.0 + SoPHP: one generator, typed param/return, no PHPDoc conflict.');
 }

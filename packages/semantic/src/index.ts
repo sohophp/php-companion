@@ -10996,11 +10996,16 @@ export class SemanticWorkspace {
         : this.linearLocalValueType(file, directArrayElement.variable, start, true)
           ?? this.iterationVariableType(file, directArrayElement.variable, start, scope);
       let collection = annotatedCollection ?? inferredCollection;
+      let parameterCollection: PhpType | undefined;
       if (!collection && !file.assignments.some((item) => item.scopeId === scope.id
         && item.variable === directArrayElement.variable && item.end <= start)) {
         const parameter = scope.parameters.find((item) => `$${item.name}` === directArrayElement.variable);
         const documented = parameter?.type ? parsePhpDocType(parameter.type).type : undefined;
-        collection = documented ? this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id) : undefined;
+        if (documented && !parameter?.byReference
+          && this.parameterArrayValueStable(file, directArrayElement.variable, directArrayElement.path, start, scope)) {
+          parameterCollection = this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id);
+          collection = parameterCollection;
+        }
       }
       const booleanLiteral = this.booleanLiteralVariableType(file, directArrayElement.variable, start, scope);
       if (booleanLiteral.applied) collection = booleanLiteral.type;
@@ -11010,7 +11015,8 @@ export class SemanticWorkspace {
       const fullyIndexable = (type: PhpType): boolean => type.kind === 'array' || type.kind === 'list' || type.kind === 'shape'
         || (type.kind === 'union' && type.types.length > 0 && type.types.every(fullyIndexable));
       return narrowed.applied ? narrowed.type : booleanLiteral.applied ? element
-        : annotatedCollection || (inferredCollection && fullyIndexable(inferredCollection)) ? element : undefined;
+        : annotatedCollection || (inferredCollection && fullyIndexable(inferredCollection))
+          || (parameterCollection && fullyIndexable(parameterCollection)) ? element : undefined;
     }
     if (/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(expression)) {
       const scope = this.containingScope(file, start);
@@ -11165,6 +11171,25 @@ export class SemanticWorkspace {
     let current: PhpType | undefined = type;
     for (const key of path) { current = current && this.arrayElementType(current, key, optionalAsNull); if (!current) return undefined; }
     return current;
+  }
+
+  private parameterArrayValueStable(file: SemanticFile, variable: string, path: string[], offset: number, scope: ParsedScope): boolean {
+    const escaped = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const between = file.source.slice(scope.start, offset);
+    const rootMutation = new RegExp(`(?:${escaped}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${escaped}|unset\\s*\\(\\s*${escaped}\\s*\\))`, 'u');
+    const offsets = `${escaped}(?:\\s*\\[[^\\]]*\\])+`;
+    const offsetMutation = new RegExp(`(?:(${offsets})\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*(${offsets})|unset\\s*\\(\\s*(${offsets})\\s*\\))`, 'gu');
+    const affectsPath = [...between.matchAll(offsetMutation)].some((match) => {
+      const changed = this.directArrayElement(match[1] ?? match[2] ?? match[3]!)?.path;
+      if (!changed) return true;
+      if (path.length > 1 && changed.length === 1) return true;
+      const shared = Math.min(changed.length, path.length);
+      return changed.slice(0, shared).every((key, index) => key === path[index]);
+    });
+    return !rootMutation.test(between) && !affectsPath
+      && !new RegExp(`=&\\s*${escaped}(?![\\p{L}\\p{N}_])`, 'u').test(between)
+      && !new RegExp(`foreach\\s*\\(\\s*${escaped}\\s+as\\s+&`, 'iu').test(between)
+      && this.priorReferenceMutations(file, scope, variable, offset).length === 0;
   }
 
   private arrayElementFlowNarrowedType(file: SemanticFile, variable: string, path: string[], offset: number,

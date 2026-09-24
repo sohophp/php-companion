@@ -400,14 +400,20 @@ describe('conservative semantic workspace', () => {
     const uri = 'file:///OptionalShapeUnion.php';
     const source = `<?php
       class PresentItem { public function onlyPresent(): void {} }
+      function takeString(string $value): void {}
+      function mutate(array &$data): void { $data = []; }
       /** @param array{item: PresentItem}|array{other: int} $data */
-      function inspect(array $data): void { $data['item']->; $local = $data['item']; $local->; }
+      function inspect(array $data): void { $data['item']->; $data['item']->onlyPresent(); $local = $data['item']; $local->; takeString($data['item']); }
       /** @param array{item: PresentItem} $data */
       function control(array $data): void { $data['item']->; }
       /** @param array{item: PresentItem}|array{item: PresentItem, other: int} $data */
-      function shared(array $data): void { $data['item']->; }
+      function shared(array $data): void { $data['item']->; $data['item']->onlyPresent(); takeString($data['item']); }
       /** @param array{item: PresentItem}|string $data */
       function incompatible(array $data): void { $data['item']->; }
+      /** @param array{item: PresentItem}|array{item: PresentItem, other: int} $data */
+      function mutated(array $data): void { mutate($data); takeString($data['item']); }
+      /** @param array{item: PresentItem} $data */
+      function byReference(array &$data): void { takeString($data['item']); }
     `;
     workspace.update(uri, source);
     const controlAccess = source.indexOf("$data['item']->;", source.indexOf('function control'));
@@ -418,8 +424,16 @@ describe('conservative semantic workspace', () => {
     const sharedAccess = source.indexOf("$data['item']->;", source.indexOf('function shared'));
     expect(workspace.completeMembers(uri, sharedAccess + "$data['item']->".length).map((item) => item.name))
       .toEqual(['onlyPresent']);
+    const sharedCall = source.indexOf('onlyPresent();', source.indexOf('function shared'));
+    expect(workspace.memberAt(uri, sharedCall + 2)).toMatchObject({ name: 'onlyPresent' });
+    expect(workspace.definition(uri, sharedCall + 2)).toMatchObject([{ uri, start: source.indexOf('onlyPresent()'), end: source.indexOf('onlyPresent()') + 'onlyPresent'.length }]);
     expect(workspace.completeMembers(uri, source.indexOf("$data['item']->;") + "$data['item']->".length)).toEqual([]);
     expect(workspace.completeMembers(uri, source.indexOf('$local->;') + '$local->'.length)).toEqual([]);
+    const missingCall = source.indexOf('onlyPresent();', source.indexOf('function inspect'));
+    expect(workspace.memberAt(uri, missingCall + 2)).toBeUndefined();
+    expect(workspace.definition(uri, missingCall + 2)).toEqual([]);
+    expect(workspace.unresolvedMembers(uri)).toEqual([]);
+    expect(workspace.incompatibleArguments(uri).map((item) => item.callable)).toEqual(['takeString']);
   });
   it('propagates PHP 8.5 pipe results only through compatible single-argument callables', () => {
     workspace.update('file:///PipeTypes.php', `<?php namespace PipeFlow;
