@@ -25,6 +25,8 @@
 | 调试、测试 | PHP Debug + PHPUnit & Pest Test Explorer | 项目已配置相应 Xdebug、PHPUnit/Pest；执行 PHP 路径、工作目录及 Remote 映射须正确 |
 | 编辑约定、Apache 配置 | EditorConfig + Apache Conf Snippets | 保留现有 Pack 成员；Apache 配置语法由其依赖扩展提供 |
 
+没有 PHPUnit/Pest 测试配置的工作区可单独禁用 `recca0120.vscode-phpunit`，其余 Pack 成员仍可用于 PHP 编辑。该测试扩展的[官方入门步骤](https://marketplace.visualstudio.com/items?itemName=recca0120.vscode-phpunit)以 `phpunit.xml` 或 `phpunit.xml.dist` 为入口；当前冻结版本在无配置项目的快速文件重命名中有[旧路径读取异常](reports/open-source-pack-c3-profile-2026-09-24.md)。
+
 以上是当前 Pack 已声明的组合，具体来源和限制见[外部工具集成](integrations.md)。Pack 无法固定外部扩展的 Marketplace 版本；当前版本升级后仍要重跑组合门禁。现有 R1 Linux/WSL 候选已有基础闭环证据，但当前开发源码中的新修复不会自动进入已经安装的 0.4.5；新候选须在冻结时重新构建和验证。
 
 ### Open Source Pack 整理结果
