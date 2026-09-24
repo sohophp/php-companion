@@ -490,7 +490,7 @@ class ProfileShapeBeta { public function common(): string { return 'beta'; } pub
 `;
   const consumer = `<?php declare(strict_types=1); namespace App;
 function acceptShapeItem(int $value): void {}
-function inspectShape(): void { $row = profileShape(); $item = $row['item']; $item->com; acceptShapeItem($item); }
+function inspectShape(string $key): void { $row = profileShape(); $item = $row['item']; $item->com; acceptShapeItem($item); }
 `;
   await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source));
   await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
@@ -543,7 +543,63 @@ function inspectShape(): void { $row = profileShape(); $item = $row['item']; $it
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
     return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
   }, 'Open Source Pack did not restore union-shape navigation after the PHPDoc was restored', 15_000);
-  console.log('Open Source Pack C2 union-shape feedback: completion, two definitions, Hover, diagnostic and unsaved PHPDoc invalidation passed.');
+  const changeConsumer = async (text: string): Promise<void> => {
+    const consumerEdit = new vscode.WorkspaceEdit();
+    consumerEdit.replace(consumerUri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), text);
+    assert.ok(await vscode.workspace.applyEdit(consumerEdit));
+  };
+  const completeConsumer = document.getText();
+  await changeConsumer(completeConsumer.replace("$item = $row['item'];", "$row[$key] = new ProfileShapeAlpha(); $item = $row['item'];"));
+  const dynamicCall = document.positionAt(document.getText().indexOf('common();') + 2);
+  const dynamicValue = document.positionAt(document.getText().indexOf('$item);') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, dynamicCall) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, dynamicValue) ?? [];
+    return definitions.every((location) => location.uri.toString() !== sourceUri.toString())
+      && hovers.every((hover) => hover.contents.every((content) =>
+        !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')));
+  }, 'Open Source Pack retained union-shape facts after a dynamic array-key write', 15_000);
+  await changeConsumer(completeConsumer);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack did not restore union-shape navigation after removing the dynamic key write', 15_000);
+  await changeConsumer(completeConsumer.replace("$item = $row['item'];", "$alias =& $row; $alias['item'] = new ProfileShapeAlpha(); $item = $row['item'];"));
+  const aliasCall = document.positionAt(document.getText().indexOf('common();') + 2);
+  const aliasValue = document.positionAt(document.getText().indexOf('$item);') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, aliasCall) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, aliasValue) ?? [];
+    return definitions.every((location) => location.uri.toString() !== sourceUri.toString())
+      && hovers.every((hover) => hover.contents.every((content) =>
+        !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')));
+  }, 'Open Source Pack retained union-shape facts after writing through a reference alias', 15_000);
+  await changeConsumer(completeConsumer);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack did not restore union-shape navigation after removing the array alias', 15_000);
+  await changeConsumer(completeConsumer.replace("$item = $row['item'];", "$row['status'] = 1; $item = $row['item'];"));
+  const disjointCall = document.positionAt(document.getText().indexOf('common();') + 2);
+  const disjointValue = document.positionAt(document.getText().indexOf('$item);') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, disjointCall) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, disjointValue) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
+      && hovers.some((hover) => hover.contents.some((content) =>
+        (typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')));
+  }, 'Open Source Pack lost the item union after writing a different known array key', 15_000);
+  await changeConsumer(completeConsumer.replace("$item = $row['item'];", "$row['item'] = new ProfileShapeAlpha(); $item = $row['item'];"));
+  const overwrittenCall = document.positionAt(document.getText().indexOf('common();') + 2);
+  const overwrittenValue = document.positionAt(document.getText().indexOf('$item);') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, overwrittenCall) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, overwrittenValue) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 1
+      && hovers.some((hover) => hover.contents.some((content) =>
+        (typeof content === 'string' ? content : content.value).includes('$item: App\\ProfileShapeAlpha')));
+  }, 'Open Source Pack did not narrow the item after a known-key overwrite', 15_000);
+  console.log('Open Source Pack C2 union-shape feedback: dynamic-key and alias invalidation, disjoint-key retention, and known-key narrowing passed.');
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {

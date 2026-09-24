@@ -6,4 +6,8 @@
 
 Semantic 回归覆盖跨文件返回、局部赋值、共有成员补全、两个声明落点、方法调用后的局部 Hover，以及 `array{item: Alpha}|string` 的拒绝。4 个 Semantic 测试文件 **326 项通过**，类型检查、相关 ESLint 与差异检查通过。
 
-隔离 VS Code 1.139.0 Linux Extension Host 加载完整 11 项 Open Source Pack 源码 Profile，完成共有成员补全、两个 `common()` 定义位置、局部联合类型 Hover、向 `int` 参数传入该对象的确定诊断；未保存地把 PHPDoc 改成与原生 `array` 不兼容的联合类型后，旧 Definition 与 Hover 撤回，恢复注释后 Definition 再次出现。宿主退出码 0。该证据限于这条跨文件返回与局部赋值链；复杂数组写入、动态键、Remote、长会话和完整版本矩阵仍需单独验收。本轮没有打包 VSIX，也没有修改业务项目。
+隔离 VS Code 1.139.0 Linux Extension Host 加载完整 11 项 Open Source Pack 源码 Profile，完成共有成员补全、两个 `common()` 定义位置、局部联合类型 Hover、向 `int` 参数传入该对象的确定诊断；未保存地把 PHPDoc 改成与原生 `array` 不兼容的联合类型后，旧 Definition 与 Hover 撤回，恢复注释后 Definition 再次出现。宿主退出码 0。
+
+随后把同一编辑链扩到数组写入。`$row[$key] = new Alpha()` 和 `$alias =& $row; $alias['item'] = new Alpha()` 均撤销旧的 `item` 联合类型与两个定义位置，移除写入后恢复。此前 `$row['status'] = 1` 也会丢掉不相关的 `item` 类型；现在对联合数组形状的每个分支应用确定键更新，`item` 继续保留 Alpha|Beta，两个定义位置仍可访问。`$row['item'] = new Alpha()` 则把元素缩窄成 Alpha，只留下一个 `common()` 定义位置与 Alpha Hover。语义正反例及完整 Pack 宿主操作均通过，Semantic 全套仍为 **326/326**，类型检查、Lint 与差异检查通过。
+
+该证据只覆盖同一代码块中这些直接写入和一层引用别名。多层别名、嵌套路径、跨调用副作用、Remote、长会话和完整版本矩阵仍需单独验收。本轮没有打包 VSIX，也没有修改业务项目。

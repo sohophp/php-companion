@@ -127,6 +127,31 @@ describe('conservative semantic workspace', () => {
       project.update(sourceUri, source.replace('array{item: Beta} */', 'string */'));
       expect(project.variableValueAt(consumerUri, consumer.indexOf("$row['item']") + 2)?.type).toBe('array');
       expect(project.completeMembers(consumerUri, consumer.indexOf('com;') + 3)).toEqual([]);
+      project.update(sourceUri, source);
+      const dynamicKey = `<?php namespace App; function inspect(string $key): void {
+        $row = choose(); $row[$key] = new Alpha(); $item = $row['item']; $item->com;
+      }`;
+      project.update(consumerUri, dynamicKey);
+      expect(project.completeMembers(consumerUri, dynamicKey.indexOf('com;') + 3)).toEqual([]);
+      expect(project.variableValueAt(consumerUri, dynamicKey.indexOf('$item->com') + 2)).toBeUndefined();
+      const aliased = `<?php namespace App; function inspect(): void {
+        $row = choose(); $alias =& $row; $alias['item'] = new Alpha(); $item = $row['item']; $item->com;
+      }`;
+      project.update(consumerUri, aliased);
+      expect(project.completeMembers(consumerUri, aliased.indexOf('com;') + 3)).toEqual([]);
+      expect(project.variableValueAt(consumerUri, aliased.indexOf('$item->com') + 2)).toBeUndefined();
+      const disjoint = `<?php namespace App; function inspect(): void {
+        $row = choose(); $row['status'] = 1; $item = $row['item']; $item->com;
+      }`;
+      project.update(consumerUri, disjoint);
+      expect(project.completeMembers(consumerUri, disjoint.indexOf('com;') + 3).map((item) => item.name)).toEqual(['common']);
+      expect(project.variableValueAt(consumerUri, disjoint.indexOf('$item->com') + 2)?.type).toBe('App\\Alpha|App\\Beta');
+      const replaced = `<?php namespace App; function inspect(): void {
+        $row = choose(); $row['item'] = new Alpha(); $item = $row['item']; $item->alphaO;
+      }`;
+      project.update(consumerUri, replaced);
+      expect(project.completeMembers(consumerUri, replaced.indexOf('alphaO;') + 'alphaO'.length).map((item) => item.name)).toEqual(['alphaOnly']);
+      expect(project.variableValueAt(consumerUri, replaced.indexOf('$item->alphaO') + 2)?.type).toBe('App\\Alpha');
     } finally { project.dispose(); }
   });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
