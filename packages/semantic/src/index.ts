@@ -3474,6 +3474,11 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.memberAtWithImplementation(uri, offset) ?? this.memberDeclarationAt(uri, offset));
   }
 
+  isMemberAccessAt(uri: string, offset: number): boolean {
+    return this.withImplementationAt(uri, offset, () => this.files.get(uri)?.memberAccesses.some((access) =>
+      offset >= access.start && offset <= access.end) ?? false);
+  }
+
   memberOwnerTypeNamesAt(uri: string, offset: number): string[] {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
@@ -5247,7 +5252,7 @@ export class SemanticWorkspace {
           [`${member.uri}:${member.start}:${member.end}`, { uri: member.uri, start: member.start, end: member.end }])).values()];
       }
     }
-    const members = this.membersAt(uri, offset);
+    const members = this.membersAt(uri, offset).filter((member) => !member.externalReturnFact);
     if (members.length) return members;
     const callable = this.functionAt(uri, offset);
     if (callable) return [callable];

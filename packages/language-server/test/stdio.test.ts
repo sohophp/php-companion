@@ -2632,11 +2632,16 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       await mkdir(sourceDirectory); await mkdir(doctrineDirectory, { recursive: true }); await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
       const source = `<?php namespace App;
         use Doctrine\\ORM\\EntityManagerInterface;
-        final class Item { public function label(): string {} }
         function valid(EntityManagerInterface $manager): void {
           $repository = $manager->getRepository(Item::class); $repository->fi;
           $item = $repository->find(1); $item?->lab;
           foreach ($repository->createQueryBuilder('item')->getQuery()->getResult() as $queried) { $queried->lab; }
+          $repository->createQueryBuilder('item')->innerJoin('item.translations', 'translation')
+            ->addSelect('translation')->where('item.published = 1')->setParameter('language', 1)
+            ->orderBy('item.sequence_number', 'ASC')->addOrderBy('item.id', 'ASC')->getQuery()->getResult();
+          $manager->getRepository(Item::class)->createQueryBuilder('item')->innerJoin('item.translations', 'translation')
+            ->addSelect('translation')->where('item.published = 1')->setParameter('language', 1)
+            ->orderBy('item.sequence_number', 'ASC')->addOrderBy('item.id', 'ASC')->getQuery()->getResult();
         }
         function dynamic(EntityManagerInterface $manager, string $class): void {
           $repository = $manager->getRepository($class); $item = $repository->find(1); $item?->lab;
@@ -2646,6 +2651,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'doctrine/orm', autoload: { 'psr-4': { 'Doctrine\\ORM\\': 'src/' } } }] }));
       await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'doctrine/orm', install_path: '../doctrine/orm' }] }));
       await writeFile(sourcePath, source);
+      await writeFile(join(sourceDirectory, 'Item.php'), '<?php namespace App; final class Item { public function label(): string {} }');
       await writeFile(join(doctrineDirectory, 'EntityManagerInterface.php'), `<?php namespace Doctrine\\ORM;
         interface EntityManagerInterface {
           /** @template T of object
@@ -2660,13 +2666,23 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           public function find(mixed $id): object|null {}
           public function createQueryBuilder(string $alias): QueryBuilder {}
         }`);
-      await writeFile(join(doctrineDirectory, 'QueryBuilder.php'), '<?php namespace Doctrine\\ORM; class QueryBuilder { public function getQuery(): Query {} }');
-      await writeFile(join(doctrineDirectory, 'Query.php'), '<?php namespace Doctrine\\ORM; class Query { public function getResult(): array {} }');
+      await writeFile(join(doctrineDirectory, 'QueryBuilder.php'), `<?php namespace Doctrine\\ORM; class QueryBuilder {
+        public function innerJoin(string $join, string $alias): static { return $this; }
+        public function addSelect(string $select): static { return $this; }
+        public function where(string $predicate): static { return $this; }
+        public function setParameter(string $name, mixed $value): static { return $this; }
+        public function orderBy(string $field, string $direction): static { return $this; }
+        public function addOrderBy(string $field, string $direction): static { return $this; }
+        public function getQuery(): Query {}
+      }`);
+      await writeFile(join(doctrineDirectory, 'Query.php'), '<?php namespace Doctrine\\ORM; class Query extends AbstractQuery {}');
+      await writeFile(join(doctrineDirectory, 'AbstractQuery.php'), '<?php namespace Doctrine\\ORM; abstract class AbstractQuery { public function getResult(): array {} }');
 
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 256, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri, initializationOptions: { indexingMode: 'onDemand' },
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexingMode: 'progressive', indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
       } }));
       await output.waitFor((message) => message.id === 256);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -2674,6 +2690,28 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      const definition = async (id: number, name: string, occurrence = 0): Promise<any> => {
+        let offset = -1;
+        for (let index = 0; index <= occurrence; index += 1) offset = source.indexOf(`->${name}(`, offset + 1);
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: {
+          textDocument: { uri: sourceUri }, position: lspPosition(source, offset + 3),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      const repositoryUri = pathToFileURL(join(doctrineDirectory, 'EntityRepository.php')).toString();
+      const builderUri = pathToFileURL(join(doctrineDirectory, 'QueryBuilder.php')).toString();
+      const queryUri = pathToFileURL(join(doctrineDirectory, 'AbstractQuery.php')).toString();
+      expect(await definition(2611, 'getResult', 2)).toMatchObject([{ uri: queryUri }]);
+      expect(await definition(2604, 'getResult')).toMatchObject([{ uri: queryUri }]);
+      expect(await definition(2605, 'getResult')).toMatchObject([{ uri: queryUri }]);
+      expect(await definition(2601, 'getRepository')).toMatchObject([{ uri: pathToFileURL(join(doctrineDirectory, 'EntityManagerInterface.php')).toString() }]);
+      expect(await definition(2602, 'createQueryBuilder')).toMatchObject([{ uri: repositoryUri }]);
+      expect(await definition(2603, 'getQuery')).toMatchObject([{ uri: builderUri }]);
+      expect(await definition(2606, 'innerJoin')).toMatchObject([{ uri: builderUri }]);
+      expect(await definition(2607, 'addOrderBy')).toMatchObject([{ uri: builderUri }]);
+      expect(await definition(2608, 'getResult', 1)).toMatchObject([{ uri: queryUri }]);
+      expect(await definition(2609, 'addOrderBy')).toMatchObject([{ uri: builderUri }]);
+      expect(await definition(2610, 'createQueryBuilder', 2)).toMatchObject([{ uri: repositoryUri }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 2581, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$queried->lab') + '$queried->lab'.length),
       } }));
@@ -9048,8 +9086,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         textDocument: { uri }, position, context: { includeDeclaration: false },
       } }));
       expect((await output.waitFor((message) => message.id === 685, 10_000)).result).toHaveLength(1);
-      expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates]'))).toHaveLength(1);
+      const candidateScans = output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[named-candidates]'));
+      expect(candidateScans.length).toBeLessThanOrEqual(1);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

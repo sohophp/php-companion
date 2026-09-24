@@ -1246,6 +1246,10 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
 
 async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
   if (indexingMode === 'experimental' && experimentalReferenceSourceOnly && querySequence > 0) return;
+  if (indexingMode === 'progressive' && process.memoryUsage().rss > referenceMemoryBudgetMiB * 1024 * 1024) {
+    connection.console.info(`[reference-progressive] paused root=${root} rssMiB=${Math.ceil(process.memoryUsage().rss / 1048576)} budgetMiB=${referenceMemoryBudgetMiB}`);
+    return;
+  }
   completeRoots.delete(root);
   projectCompleteRoots.delete(root);
   referenceSourceReadyRoots.delete(root);
@@ -1268,7 +1272,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (!sourceOnly || referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0)) return true;
     const adopted = adoptedReferenceSourcePreparations.get(root) === preparation
       && (projectEpochs.get(root) ?? 0) === preparation?.epoch;
-    if (querySequence !== initialQuerySequence && !adopted) return false;
+    if (indexingMode !== 'progressive' && querySequence !== initialQuerySequence && !adopted) return false;
     if (indexingMode === 'progressive' && !adopted && process.memoryUsage().rss > referenceMemoryBudgetMiB * 1024 * 1024) {
       if (!memoryLimitReported) {
         memoryLimitReported = true;
@@ -1338,8 +1342,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
         && (prepared as PreparedCandidate).hash === hash ? prepared as PreparedCandidate : undefined;
       current.add(uri);
-      if (sourceOnly && candidate?.facts?.kind === 'full') workspace.updatePrepared(uri, effectiveSource, candidate.facts);
-      else workspace.update(uri, effectiveSource, Boolean(open));
+      if (workspace.source(uri) !== effectiveSource || workspace.implementationState(uri) !== 'loaded') {
+        if (sourceOnly && candidate?.facts?.kind === 'full') workspace.updatePrepared(uri, effectiveSource, candidate.facts);
+        else workspace.update(uri, effectiveSource, Boolean(open));
+      }
       const facts = sourceOnly && candidate?.projectFacts && effectiveSource === source
         ? candidate.projectFacts : analyzeProjectPhpFileFacts(syntaxParser, uri, effectiveSource);
       acceptFacts(uri, facts);
@@ -1353,8 +1359,12 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
         const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
         if (!restored) return false;
-        if (open) workspace.update(uri, open.getText(), true);
-        else if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;
+        if (open) {
+          if (workspace.source(uri) !== open.getText() || workspace.implementationState(uri) !== 'loaded')
+            workspace.update(uri, open.getText(), true);
+        } else if (workspace.source(uri) !== restored.semantic.implementation.source || workspace.implementationState(uri) !== 'loaded') {
+          if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;
+        }
         current.add(uri); acceptFacts(uri, restored.facts); return true;
       },
     } : undefined,
@@ -2579,6 +2589,7 @@ function reuseCandidateCoverageAfterOpenEdit(root: string, previousEpoch: number
   referenceCandidateReads.delete(workspace);
 }
 const progressiveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const progressiveMemoryDeferredRoots = new Set<string>();
 function scheduleProgressiveReferenceRefresh(root: string): void {
   const previous = progressiveRefreshTimers.get(root); if (previous) clearTimeout(previous);
   const timer = setTimeout(() => {
@@ -2586,6 +2597,14 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
     void (async (): Promise<void> => {
       await activeIndexing?.catch(() => undefined);
       if (referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0)) return;
+      if (process.memoryUsage().rss > referenceMemoryBudgetMiB * 1024 * 1024) {
+        if (!progressiveMemoryDeferredRoots.has(root)) {
+          progressiveMemoryDeferredRoots.add(root);
+          connection.console.info(`[reference-progressive] refresh deferred root=${root} rssMiB=${Math.ceil(process.memoryUsage().rss / 1048576)} budgetMiB=${referenceMemoryBudgetMiB}`);
+        }
+        return;
+      }
+      progressiveMemoryDeferredRoots.delete(root);
       await startIndexWorkspace('progressive-source-change');
     })().catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'progressiveRefreshFailed', String(error))));
   }, 2_000);
@@ -3268,7 +3287,7 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
 async function hydrateMemberOwnerChain(workspace: SemanticWorkspace, root: string, ownerNames: () => readonly string[],
   ready: () => boolean, cancelled: () => boolean): Promise<void> {
   let frontier = [...ownerNames()]; const visited = new Set<string>();
-  for (let depth = 0; depth < 4 && frontier.length && !ready() && !cancelled(); depth += 1) {
+  for (let depth = 0; depth < 8 && frontier.length && !ready() && !cancelled(); depth += 1) {
     const candidates = frontier.filter((fqcn) => !visited.has(fqcn.toLowerCase()));
     if (!candidates.length) break;
     candidates.forEach((fqcn) => visited.add(fqcn.toLowerCase()));
@@ -5280,6 +5299,23 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     }
   }
   const root = rootForUri(document.uri);
+  if (root && document.languageId === 'php' && workspace.isMemberAccessAt(document.uri, offset)) {
+    const source = document.getText();
+    const start = source.lastIndexOf(';', offset) + 1;
+    const end = source.indexOf(';', offset);
+    const statement = source.slice(start, end < 0 ? source.length : end + 1);
+    if (statement.includes('->getRepository(') && statement.includes('->createQueryBuilder(')) {
+      const repositoryClass = /->getRepository\s*\(\s*([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)::class\s*\)/.exec(statement);
+      if (repositoryClass) {
+        const classOffset = start + repositoryClass.index + repositoryClass[0].indexOf(repositoryClass[1]!) + 1;
+        const fqcn = workspace.resolvedTypeNameAt(document.uri, classOffset);
+        if (fqcn) await hydrateCanonicalTypes(workspace, root, [fqcn]);
+      }
+      await hydrateCanonicalTypes(workspace, root, ['Doctrine\\ORM\\EntityManagerInterface', 'Doctrine\\ORM\\EntityRepository']);
+      await ensureDoctrineQueryFacts(root, workspace);
+      if (!currentQueryDocument(document, token, queryVersion)) return [];
+    }
+  }
   const declaration = document.languageId === 'php' ? workspace.referenceMemberAt(document.uri, offset) : undefined;
   if (root && declaration?.kind === 'method' && declaration.uri === document.uri
     && offset >= declaration.start && offset < declaration.end) {
@@ -5298,10 +5334,18 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
-    await hydrateMemberOwnerChain(workspace, root, () => [workspace.resolvedTypeNameAt(document.uri, offset),
-      ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn)),
-    () => workspace.definition(document.uri, offset).length > 0,
-    () => !currentQueryDocument(document, token, queryVersion));
+    const owners = (): string[] => {
+      return [workspace.isMemberAccessAt(document.uri, offset) ? undefined : workspace.resolvedTypeNameAt(document.uri, offset),
+        ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn));
+    };
+    const initialOwners = owners();
+    const progress = initialOwners.length && supportsWorkDoneProgress ? await connection.window.createWorkDoneProgress() : undefined;
+    progress?.begin(progressMessage(clientDiagnosticLanguage, 'prepareQuery'), 0);
+    try {
+      await hydrateMemberOwnerChain(workspace, root, owners,
+        () => workspace.definition(document.uri, offset).length > 0,
+        () => !currentQueryDocument(document, token, queryVersion));
+    } finally { progress?.done(); }
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     locations = workspace.definition(document.uri, offset);
   }
