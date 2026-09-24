@@ -128,10 +128,31 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }
     return [...entries.values()];
   };
+  let lastEmptyDefinition: { key: string; at: number } | undefined;
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     middleware: {
+      provideDefinition: async (document, position, token, next) => {
+        let pendingStatus: vscode.Disposable | undefined;
+        const timer = setTimeout(() => {
+          if (!token.isCancellationRequested && vscode.window.activeTextEditor?.document === document)
+            pendingStatus = vscode.window.setStatusBarMessage(t('definitionLookingUp'));
+        }, 250);
+        let result: Awaited<ReturnType<typeof next>>;
+        try { result = await next(document, position, token); }
+        finally { clearTimeout(timer); pendingStatus?.dispose(); }
+        if (!token.isCancellationRequested && (!result || Array.isArray(result) && result.length === 0)
+          && vscode.window.activeTextEditor?.document === document) {
+          const key = `${document.uri}:${document.version}:${position.line}:${position.character}`;
+          const now = Date.now();
+          if (lastEmptyDefinition?.key !== key || now - lastEmptyDefinition.at > 2000) {
+            lastEmptyDefinition = { key, at: now };
+            vscode.window.setStatusBarMessage(t('definitionNotFound'), 5000);
+          }
+        }
+        return result;
+      },
       provideCodeActions: async (document, range, context, token, next) => {
         const sourceVersion = document.version;
         const sourceText = document.getText();

@@ -861,6 +861,14 @@ class Child extends ParentBase implements Contract {
     expect(result.narrowings[2]?.end).toBeGreaterThan(source.indexOf('$exited->a'));
     result.tree.delete();
   });
+  it('narrows a nullable receiver when its nullsafe predicate is true', () => {
+    const source = '<?php function run(?Language $language) { if ($language?->hasUrlCode() && ready()) { $language->getUrlCode(); } }';
+    const result = parser.parse(source);
+    const fact = result.narrowings.find((item) => item.kind === 'non-null' && item.variable === '$language');
+    expect(fact?.start).toBeLessThan(source.indexOf('->getUrlCode'));
+    expect(fact?.end).toBeGreaterThan(source.indexOf('->getUrlCode'));
+    result.tree.delete();
+  });
   it('narrows the rest of a loop after an instanceof guard continues', () => {
     const source = '<?php function run(iterable $items) { foreach ($items as $item) { if (!$item instanceof Card) continue; $item->getContent(); } }';
     const result = parser.parse(source);

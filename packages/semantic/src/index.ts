@@ -3484,9 +3484,27 @@ export class SemanticWorkspace {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
       if (!file || !word || !file.memberAccesses.some((access) => offset >= access.start && offset <= access.end)) return [];
       const unresolvedOwners = new Set<string>(); const target = this.memberTarget(uri, word.end, unresolvedOwners);
-      return target
-        ? [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])]
-        : [...unresolvedOwners];
+      if (target) return [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])];
+      const receiver = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*(?:\?->|->)\s*$/.exec(file.source.slice(Math.max(0, word.start - 96), word.start))?.[1];
+      const scope = receiver && this.containingScope(file, offset);
+      if (receiver && scope) {
+        const assignments = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === receiver
+          && item.end <= offset && item.sourceChain).slice(-8);
+        for (const assignment of assignments) {
+          const chain = assignment.sourceChain!;
+          let owner = this.variableClass(file, chain.variable, assignment.start, new Set(), true);
+          for (const step of chain.steps.slice(0, 8)) {
+            if (!owner) break;
+            unresolvedOwners.add(owner.fqcn);
+            const candidate = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
+              .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+            if (!candidate) break;
+            owner = this.memberReturnClass(candidate, true);
+          }
+          if (owner) unresolvedOwners.add(owner.fqcn);
+        }
+      }
+      return [...unresolvedOwners];
     });
   }
 
@@ -7584,6 +7602,38 @@ export class SemanticWorkspace {
           const first = groups[0]?.[0]; target = first ? { ...first, nullable: composite.nullable } : undefined;
         }
       }
+      const provenNonNull = lexicalScope && file.narrowings.some((item) => item.scopeId === lexicalScope.id
+        && item.variable === chained[1] && item.kind === 'non-null' && !item.propertyPath?.length
+        && !item.arrayPath?.length && offset >= item.start && offset <= item.end
+        && this.variableFlowFactStable(file, item, offset, lexicalScope));
+      if (!target && !arrayElement && (allowNullable || provenNonNull) && lexicalScope) {
+        const assignments = file.assignments.filter((item) => item.scopeId === lexicalScope.id
+          && item.variable === chained[1] && item.end <= offset);
+        if (assignments.length > 0 && assignments.length <= 8
+          && !this.assignmentInsideControlFlow(file, assignments[0]!, lexicalScope)) {
+          let agreed: ObjectClass | undefined; let valid = true;
+          for (const assignment of assignments) {
+            const chain = assignment.sourceChain;
+            let result = chain?.steps.length && chain.steps.length <= 8
+              ? this.variableClass(file, chain.variable, assignment.start, new Set(), true) : undefined;
+            if (!chain || !result) { valid = false; break; }
+            for (const step of chain.steps) {
+              if (!result) break;
+              if (result.nullable && !step.nullsafe) { result = undefined; break; }
+              const member: MemberInfo | undefined = this.members(result.fqcn, accessFrom, new Set(), false, result.typeArguments)
+                .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+              const selected: MemberInfo | undefined = member && step.kind === 'method' ? this.memberForArgumentCount(member, step.argumentCount) : member;
+              result = selected && this.memberReturnClass(selected, true);
+            }
+            if (!result || agreed && (agreed.fqcn.toLowerCase() !== result.fqcn.toLowerCase()
+              || JSON.stringify(agreed.typeArguments ?? {}) !== JSON.stringify(result.typeArguments ?? {}))) {
+              valid = false; break;
+            }
+            agreed = { ...result, nullable: Boolean(agreed?.nullable || result.nullable) };
+          }
+          if (valid && agreed) target = provenNonNull ? { ...agreed, nullable: false } : agreed;
+        }
+      }
       if (!target) {
         const guarded = lexicalScope && file.narrowings.find((item) => item.scopeId === lexicalScope.id
           && item.variable === chained[1] && item.kind === 'instanceof' && !item.propertyPath?.length
@@ -8663,6 +8713,8 @@ export class SemanticWorkspace {
       if (composite && first && composite.groups.flat().every((candidate) => this.fileAndDeclaration(candidate.fqcn))) {
         return { ...first, nullable: false, groups: composite.groups };
       }
+      const beforeGuard = this.variableClass(file, variable, Math.max(0, narrowing.start - 1), visited, true);
+      if (beforeGuard) return { ...beforeGuard, nullable: false };
     }
     const assignmentInsideControlFlow = Boolean(assignment && this.assignmentInsideControlFlow(file, assignment, scope));
     const hasLaterAssignment = Boolean(assignment && file.assignments.some((candidate) => candidate.scopeId === scope.id

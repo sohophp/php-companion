@@ -2569,6 +2569,39 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeMembers('file:///Guards.php', positions[1]!).map((item) => item.name)).toEqual(['onlyA']);
     expect(workspace.completeMembers('file:///Guards.php', positions[2]!)).toEqual([]);
   });
+  it('resolves a nullable fluent local across a true guard and same-type conditional assignment', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const useUri = 'file:///LocalizedUrlGenerator.php';
+    const source = `<?php namespace App;
+      class LocalizedUrlGenerator {
+        public function __construct(private LanguageService $languages) {}
+        public function route(?string $locale): void {
+          $language = $this->languages->getCurrentLanguage();
+          if ($language?->hasUrlCode()) $language->getUrlCode();
+          if ($locale !== null) $language = $this->languages->getLanguageByUrlCode($locale);
+          $language?->getUrlCode();
+        }
+      }`;
+    const serviceUri = 'file:///LanguageService.php';
+    const service = '<?php namespace App; class LanguageService { public function getCurrentLanguage(): ?Language { return null; } public function getLanguageByUrlCode(string $code): ?Language { return null; } }';
+    const languageUri = 'file:///Language.php';
+    const language = '<?php namespace App; class Language { public function hasUrlCode(): bool { return true; } public function getUrlCode(): string { return "en"; } }';
+    const offsets = [...source.matchAll(/->getUrlCode\(/g)].map((item) => item.index + 3);
+    try {
+      isolated.update(useUri, source);
+      expect(isolated.memberOwnerTypeNamesAt(useUri, offsets[1]!)).toContain('App\\LanguageService');
+      isolated.update(serviceUri, service);
+      expect(isolated.memberOwnerTypeNamesAt(useUri, offsets[1]!)).toContain('App\\Language');
+      isolated.update(languageUri, language);
+      for (const offset of offsets) expect(isolated.definition(useUri, offset)).toMatchObject([
+        { uri: languageUri, start: language.indexOf('getUrlCode') },
+      ]);
+      const mixedAssignments = source.replace('$this->languages->getLanguageByUrlCode($locale)', 'new OtherLanguage()');
+      isolated.update('file:///OtherLanguage.php', '<?php namespace App; class OtherLanguage {}');
+      isolated.update(useUri, mixedAssignments);
+      expect(isolated.definition(useUri, mixedAssignments.lastIndexOf('->getUrlCode') + 3)).toEqual([]);
+    } finally { isolated.dispose(); }
+  });
   it('hydrates a cold method owner after an instanceof continue guard', () => {
     const isolated = new SemanticWorkspace(parser);
     const uri = 'file:///SolutionPageReadService.php';

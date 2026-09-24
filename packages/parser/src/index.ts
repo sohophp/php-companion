@@ -563,6 +563,11 @@ export class PhpSyntaxParser {
       const unwrapped = unwrapCondition(input); const node = unwrapped.node;
       const effectiveTruthy = unwrapped.negated ? !truthy : truthy;
       const factRange = { scopeId, start, end, inspectionStart: Math.min(start, node.endIndex), inspectionEnd: Math.min(start, inspectionEnd) };
+      if (effectiveTruthy && node.type === 'nullsafe_member_call_expression') {
+        const object = node.childForFieldName('object');
+        const subject = object?.type === 'variable_name' ? directPropertySubject(object) : undefined;
+        if (subject) return [{ kind: 'non-null', ...subject, ...factRange }];
+      }
       if (node.type === 'function_call_expression') {
         const functionNode = node.childForFieldName('function') ?? node.childForFieldName('name') ?? node.namedChildren[0];
         const argumentsNode = node.childForFieldName('arguments') ?? node.namedChildren.find((child) => child.type === 'arguments');
