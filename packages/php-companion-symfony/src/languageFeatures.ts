@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
+import { createHash } from 'node:crypto';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 
 type ProtocolPosition = { line: number; character: number };
 type ProtocolRange = { start: ProtocolPosition; end: ProtocolPosition };
 type ProtocolLocation = { uri: string; range: ProtocolRange };
-type ProtocolWorkspaceEdit = { changes?: Record<string, Array<{ range: ProtocolRange; newText: string }>> };
+type ProtocolWorkspaceEdit = { changes?: Record<string, Array<{ range: ProtocolRange; newText: string }>>;
+  phpCompanion?: { sourceHashes?: Record<string, string> } };
 type ProtocolCompletionList = { isIncomplete: boolean; items: Array<{ label: string; detail: string; range: ProtocolRange }> };
 
 function range(value: ProtocolRange): vscode.Range {
@@ -24,6 +26,20 @@ function workspaceEdit(value: ProtocolWorkspaceEdit | null): vscode.WorkspaceEdi
   return edit;
 }
 
+async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: ReadonlyMap<string, number>): Promise<boolean> {
+  const hashes = value.phpCompanion?.sourceHashes;
+  if (!hashes) return false;
+  for (const uri of Object.keys(value.changes ?? {})) {
+    const expected = hashes[uri];
+    if (!expected) return false;
+    const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
+    const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).toString('utf8');
+    if (createHash('sha256').update(source).digest('hex') !== expected) return false;
+  }
+  return vscode.workspace.textDocuments.every((item) => !openVersions.has(item.uri.toString())
+    || openVersions.get(item.uri.toString()) === item.version);
+}
+
 function requestParams(document: vscode.TextDocument, position: vscode.Position): {
   textDocument: { uri: string; version: number }; position: vscode.Position; source: string;
 } {
@@ -35,7 +51,7 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
   const request = core.requestLanguageServer;
   if (!request) return false; // Older API v1 cores retain their own compatibility providers.
   const current = (document: vscode.TextDocument, version: number, token: vscode.CancellationToken): boolean =>
-    !token.isCancellationRequested && document.version === version;
+    !token.isCancellationRequested && !document.isClosed && document.version === version;
   const safely = async <T>(method: string, params: unknown): Promise<T | undefined> => {
     try { return await request<T>(method, params); } catch { return undefined; }
   };
@@ -85,6 +101,7 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
     provideRenameEdits: async (document, position, newName, token) => {
       if (token.isCancellationRequested) return undefined;
       const version = document.version;
+      const openVersions = new Map(vscode.workspace.textDocuments.map((item) => [item.uri.toString(), item.version]));
       let result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
         ...requestParams(document, position), newName,
       });
@@ -94,7 +111,11 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
       if (!result && current(document, version, token)) result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyRouteRename', {
         ...requestParams(document, position), newName,
       });
-      return result !== undefined && current(document, version, token) ? workspaceEdit(result) : undefined;
+      if (!result || !current(document, version, token)) return undefined;
+      if (!await verifyRenameSources(result, openVersions) || !current(document, version, token)) {
+        throw new Error('A Symfony Rename source changed while edits were being prepared. Run Rename again.');
+      }
+      return workspaceEdit(result);
     },
   };
   const php: vscode.DocumentSelector = [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }];

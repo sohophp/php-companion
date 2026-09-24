@@ -3459,7 +3459,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -3718,9 +3718,17 @@ function isSymfonyRouteRenameBridgeResponse(value: unknown): value is SymfonyRou
       && Number.isSafeInteger(edit.start) && Number(edit.start) >= 0 && Number.isSafeInteger(edit.end) && Number(edit.end) >= Number(edit.start)));
 }
 
+function addRenameSourceHash(hashes: Record<string, string>, uri: string, source: string): boolean {
+  const hash = createHash('sha256').update(source).digest('hex');
+  if (hashes[uri] !== undefined && hashes[uri] !== hash) return false;
+  hashes[uri] = hash;
+  return true;
+}
+
 async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
   serviceId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+  sourceHashes: Record<string, string>;
 } | undefined> {
   const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
   if (typeof uri !== 'string' || !/\.(?:ya?ml|xml|php)$/i.test(uri) || typeof params.source !== 'string'
@@ -3766,6 +3774,8 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {
     [target.registrationUri]: [{ range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) }, newText: newName }],
   };
+  const sourceHashes: Record<string, string> = {};
+  if (!addRenameSourceHash(sourceHashes, target.registrationUri, targetSource)) return undefined;
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
     if (!/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
     if (cancelled()) return undefined;
@@ -3775,6 +3785,7 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
     if (source === undefined || source.length > indexLimits.maxFileSizeBytes) {
       return undefined;
     }
+    if (!addRenameSourceHash(sourceHashes, configUri, source)) return undefined;
     const configIsPhp = /\.php$/i.test(configPath); const configIsXml = /\.xml$/i.test(configPath);
     const document = configUri === uri ? sourceDocument
       : TextDocument.create(configUri, configIsPhp ? 'php' : configIsXml ? 'xml' : 'yaml', documents.get(configUri)?.version ?? 0, source);
@@ -3789,6 +3800,7 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   }
   for (const candidate of attributeReferences) {
     if (candidate.source.slice(candidate.start, candidate.end) !== serviceId) return undefined;
+    if (!addRenameSourceHash(sourceHashes, candidate.uri, candidate.source)) return undefined;
     const document = documents.get(candidate.uri) ?? TextDocument.create(candidate.uri, 'php', 0, candidate.source);
     (changes[candidate.uri] ??= []).push({
       range: { start: document.positionAt(candidate.start), end: document.positionAt(candidate.end) }, newText: newName,
@@ -3796,12 +3808,13 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   }
   for (const [changeUri, edits] of Object.entries(changes)) changes[changeUri] = [...new Map(edits.map((edit) => [JSON.stringify(edit.range), edit])).values()];
   const selected = reference ?? { value: serviceId, start: target.registrationStart, end: target.registrationEnd };
-  return { serviceId, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
+  return { serviceId, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes, sourceHashes };
 }
 
 async function symfonyRouteRenamePlan(params: SymfonyRouteRenameParams, cancelled: () => boolean): Promise<{
   routeName: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+  sourceHashes: Record<string, string>;
 } | undefined> {
   const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
   if (typeof uri !== 'string' || !/\.(?:ya?ml|xml|php)$/i.test(uri) || typeof params.source !== 'string'
@@ -3875,18 +3888,21 @@ async function symfonyRouteRenamePlan(params: SymfonyRouteRenameParams, cancelle
     if (unique[index - 1]!.uri === unique[index]!.uri && unique[index]!.start < unique[index - 1]!.end) return undefined;
   }
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  const sourceHashes: Record<string, string> = {};
   for (const edit of unique) {
     if (edit.source.slice(edit.start, edit.end) !== routeName) return undefined;
+    if (!addRenameSourceHash(sourceHashes, edit.uri, edit.source)) return undefined;
     const target = documents.get(edit.uri) ?? TextDocument.create(edit.uri, edit.languageId, 0, edit.source);
     (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: newName });
   }
   const selected = call ?? { start: route.start, end: route.end };
-  return { routeName, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes };
+  return { routeName, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes, sourceHashes };
 }
 
 async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
   parameterId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+  sourceHashes: Record<string, string>;
 } | undefined> {
   const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
   if (typeof uri !== 'string' || !/\.(?:ya?ml|xml|php)$/i.test(uri) || typeof params.source !== 'string'
@@ -3914,14 +3930,16 @@ async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, ca
   const unique = [...new Map(edits.map((edit) => [`${edit.uri}:${edit.start}:${edit.end}`, edit])).values()]
     .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  const sourceHashes: Record<string, string> = {};
   for (const edit of unique) {
     if (edit.source.slice(edit.start, edit.end) !== parameterId) return undefined;
+    if (!addRenameSourceHash(sourceHashes, edit.uri, edit.source)) return undefined;
     const targetDocument = edit.uri === uri ? document : documents.get(edit.uri)
       ?? TextDocument.create(edit.uri, /\.php$/i.test(edit.uri) ? 'php' : /\.xml$/i.test(edit.uri) ? 'xml' : 'yaml', 0, edit.source);
     (changes[edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: newName });
   }
   const selected = reference ?? declarations[0]; if (!selected) return undefined;
-  return { parameterId, range: { start: document.positionAt(selected.start), end: document.positionAt(selected.end) }, changes };
+  return { parameterId, range: { start: document.positionAt(selected.start), end: document.positionAt(selected.end) }, changes, sourceHashes };
 }
 
 connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: SymfonyServiceRenameParams, token) => {
@@ -3931,7 +3949,8 @@ connection.onRequest('phpCompanion/symfonyServicePrepareRename', async (params: 
 
 connection.onRequest('phpCompanion/symfonyServiceRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyServiceRenamePlan(params, () => token.isCancellationRequested);
-  return plan ? { changes: plan.changes } : null;
+  if (plan && testPauseNextQueries.has('symfonyRename')) await pauseTestQuery('symfonyRename');
+  return plan ? { changes: plan.changes, phpCompanion: { sourceHashes: plan.sourceHashes } } : null;
 });
 
 connection.onRequest('phpCompanion/symfonyParameterPrepareRename', async (params: SymfonyServiceRenameParams, token) => {
@@ -3941,7 +3960,8 @@ connection.onRequest('phpCompanion/symfonyParameterPrepareRename', async (params
 
 connection.onRequest('phpCompanion/symfonyParameterRename', async (params: SymfonyServiceRenameParams, token) => {
   const plan = await symfonyParameterRenamePlan(params, () => token.isCancellationRequested);
-  return plan ? { changes: plan.changes } : null;
+  if (plan && testPauseNextQueries.has('symfonyRename')) await pauseTestQuery('symfonyRename');
+  return plan ? { changes: plan.changes, phpCompanion: { sourceHashes: plan.sourceHashes } } : null;
 });
 
 connection.onRequest('phpCompanion/symfonyRoutePrepareRename', async (params: SymfonyRouteRenameParams, token) => {
@@ -3951,7 +3971,8 @@ connection.onRequest('phpCompanion/symfonyRoutePrepareRename', async (params: Sy
 
 connection.onRequest('phpCompanion/symfonyRouteRename', async (params: SymfonyRouteRenameParams, token) => {
   const plan = await symfonyRouteRenamePlan(params, () => token.isCancellationRequested);
-  return plan ? { changes: plan.changes } : null;
+  if (plan && testPauseNextQueries.has('symfonyRename')) await pauseTestQuery('symfonyRename');
+  return plan ? { changes: plan.changes, phpCompanion: { sourceHashes: plan.sourceHashes } } : null;
 });
 
 async function scanSymfonyParameterReferences(root: string, parameterId: string, currentUri: string, currentSource: string,
@@ -5815,13 +5836,13 @@ connection.onRenameRequest(async (params, token) => {
   if (/\.php$/i.test(document.uri)) {
     const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText(), newName }, () => token.isCancellationRequested);
-    if (service) return { changes: service.changes };
+    if (service) return { changes: service.changes, phpCompanion: { sourceHashes: service.sourceHashes } };
     const parameter = await symfonyParameterRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText(), newName }, () => token.isCancellationRequested);
-    if (parameter) return { changes: parameter.changes };
+    if (parameter) return { changes: parameter.changes, phpCompanion: { sourceHashes: parameter.sourceHashes } };
     const route = await symfonyRouteRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText(), newName }, () => token.isCancellationRequested);
-    if (route) return { changes: route.changes };
+    if (route) return { changes: route.changes, phpCompanion: { sourceHashes: route.sourceHashes } };
   }
   if (!isValidPhpIdentifier(newName)) return null;
   const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;

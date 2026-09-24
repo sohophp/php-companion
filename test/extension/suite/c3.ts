@@ -444,6 +444,41 @@ export async function run(): Promise<void> {
   }
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(crossConsumerUri)).toString('utf8'), changedConsumer);
   assert.strictEqual(crossRenameDocument.getText(), crossRenameSource);
+  const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
+  assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
+  await symfonyExtension.activate();
+  const servicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.yaml');
+  const xmlServicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.xml');
+  const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
+  const xmlServicesSource = Buffer.from(await vscode.workspace.fs.readFile(xmlServicesUri)).toString('utf8');
+  assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === xmlServicesUri.toString()),
+    'Symfony XML target must remain closed for the disk snapshot regression');
+  await vscode.window.showTextDocument(servicesDocument);
+  const servicePosition = servicesDocument.positionAt(servicesDocument.getText().indexOf('app.mailer:') + 3);
+  let readyServiceRename: vscode.WorkspaceEdit | undefined;
+  for (let attempt = 0; attempt < 100 && !readyServiceRename; attempt += 1) {
+    readyServiceRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+      'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed');
+    if (!readyServiceRename) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(readyServiceRename?.entries().some(([uri]) => uri.toString() === xmlServicesUri.toString()),
+    'Symfony service Rename fixture did not include the closed XML reference');
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'symfonyRename' }), true);
+  const heldServiceRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed')
+    .then((edit) => edit, (error: unknown) => {
+      assert.match(error instanceof Error ? error.message : String(error), /Canceled|changed|Rename/);
+      return undefined;
+    });
+  await waitForState(api, 'symfonyRename', servicesDocument, (state) => state.paused,
+    'Symfony service Rename response was not held before the XML reference changed');
+  const changedXml = xmlServicesSource.replace('</container>', '  <!-- external edit during Rename -->\n</container>');
+  await vscode.workspace.fs.writeFile(xmlServicesUri, Buffer.from(changedXml));
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'symfonyRename' }), true);
+  assert.strictEqual(await heldServiceRename, undefined,
+    'Symfony Rename returned a stale WorkspaceEdit after a closed XML reference changed');
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(xmlServicesUri)).toString('utf8'), changedXml);
+  assert.ok(servicesDocument.getText().includes('app.mailer:'));
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);
