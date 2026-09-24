@@ -1507,7 +1507,8 @@ async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, roo
     if (/^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
       .test(document.getText().slice(item.start, item.end))
       || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)) return true;
-    const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType);
+    const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType)
+      ?? workspace.stableLocalNativeScalarReturnArgument(document.uri, item.start, item.end, item.actualType);
     if (source) nativeSources.set(item, source);
     return Boolean(source);
   });

@@ -6834,7 +6834,7 @@ class Example {}`;
       } }));
       const returned = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 6);
-      expect(returned.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      expect(returned.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(true);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -6879,6 +6879,14 @@ class ChildService extends Service { public function call(int|string $value): vo
       const restored = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 3);
       expect(restored.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const aliased = consumer.replace('$service = new Service(); $other = 1;',
+        '$alias =& $service; $service = new Service(); $alias = null;');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 4 }, contentChanges: [{ text: aliased }],
+      } }));
+      const aliasDiagnostic = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 4);
+      expect(aliasDiagnostic.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -6929,6 +6937,43 @@ class ChildService extends Service { public function call(int|string $value): vo
       await output.waitFor((message) => output.messages.indexOf(message) >= docOnlyAt
         && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
         && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      const localConsumer = consumer.replace('$service->accept($service->text());',
+        '$value = $service->text(); $other = 1; $service->accept($value);');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 2 }, contentChanges: [{ text: localConsumer }],
+      } }));
+      const localWithoutNative = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 2);
+      expect(localWithoutNative.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      const localSourceAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version: 5 }, contentChanges: [{ text: service }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= localSourceAt
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && message.params.version === 2
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      const uncertainLocal = localConsumer.replace('$other = 1;', 'change($value);');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 3 }, contentChanges: [{ text: uncertainLocal }],
+      } }));
+      const uncertain = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 3);
+      expect(uncertain.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 4 }, contentChanges: [{ text: localConsumer }],
+      } }));
+      const restoredLocal = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 4);
+      expect(restoredLocal.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      const aliasedLocal = localConsumer.replace('$value = $service->text(); $other = 1;',
+        '$alias =& $value; $value = $service->text(); $alias = 1;');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 5 }, contentChanges: [{ text: aliasedLocal }],
+      } }));
+      const aliasResult = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 5);
+      expect(aliasResult.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

@@ -14,6 +14,7 @@ describe('conservative semantic workspace', () => {
       ["$service = new Service(); $other = 1; $service->call('bad');", true],
       ["$service = new ChildService(); $service->call('bad');", false],
       ["$service = new Service(); change($service); $service->call('bad');", false],
+      ["$alias =& $service; $service = new Service(); $alias = null; $service->call('bad');", false],
       ["$service = createService(); $service->call('bad');", false],
       ["$service = new Service(); $service->call('bad', 1);", false],
     ];
@@ -39,6 +40,36 @@ describe('conservative semantic workspace', () => {
       expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'int')).toBeUndefined();
       project.update('file:///NativeReturnService.php', '<?php namespace App; class Service { public function accept(int $value): void {} /** @return string */ public function text() { return "bad"; } }');
       expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'string')).toBeUndefined();
+    } finally { project.dispose(); }
+  });
+  it('traces an unchanged local scalar back to one native method return', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///LocalNativeReturnUse.php';
+    const service = '<?php namespace App; class Service { public function accept(int $value): void {} public function text(): string { return "bad"; } }';
+    const variants: Array<[string, boolean]> = [
+      ['$value = $service->text(); $other = 1; $service->accept($value);', true],
+      ['$value = $service->text(); change($value); $service->accept($value);', false],
+      ['$alias =& $value; $value = $service->text(); $alias = 1; $service->accept($value);', false],
+      ['$value = $service->text(); $value = 1; $service->accept($value);', false],
+      ['$value = $service->text(1); $service->accept($value);', false],
+    ];
+    try {
+      project.update('file:///LocalNativeReturnService.php', service);
+      for (const [body, expected] of variants) {
+        const source = `<?php declare(strict_types=1); namespace App; function run(Service $service): void { ${body} }`;
+        project.update(uri, source);
+        const start = source.lastIndexOf('$value);');
+        expect(Boolean(project.stableLocalNativeScalarReturnArgument(uri, start, start + '$value'.length, 'string'))).toBe(expected);
+      }
+      project.update('file:///LocalNativeReturnService.php', service.replace('text(): string', 'text()'));
+      const source = '<?php declare(strict_types=1); namespace App; function run(Service $service): void { $value = $service->text(); $service->accept($value); }';
+      project.update(uri, source);
+      const start = source.lastIndexOf('$value);');
+      expect(project.stableLocalNativeScalarReturnArgument(uri, start, start + '$value'.length, 'string')).toBeUndefined();
+      const aliasedLiteral = '<?php namespace App; function literal(Service $service): void { $alias =& $value; $value = "bad"; $alias = 1; $service->accept($value); }';
+      project.update(uri, aliasedLiteral);
+      const literalStart = aliasedLiteral.lastIndexOf('$value);');
+      expect(project.stableLocalScalarLiteralArgument(uri, literalStart, literalStart + '$value'.length, 'string')).toBe(false);
     } finally { project.dispose(); }
   });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {

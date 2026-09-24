@@ -238,7 +238,8 @@ function inspectNativeReturn(NativeReturnService $service): void { $service->acc
   await vscode.workspace.fs.writeFile(returnUri, Buffer.from(returnSource));
   await vscode.workspace.fs.writeFile(returnConsumerUri, Buffer.from(returnConsumerSource));
   const returnDocument = await vscode.workspace.openTextDocument(returnUri);
-  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(returnConsumerUri));
+  const returnConsumerDocument = await vscode.workspace.openTextDocument(returnConsumerUri);
+  await vscode.window.showTextDocument(returnConsumerDocument);
   const returnMismatch = (): boolean => vscode.languages.getDiagnostics(returnConsumerUri).some((item) =>
     item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
   const waitForReturnMismatch = async (expected: boolean): Promise<void> => {
@@ -258,6 +259,20 @@ function inspectNativeReturn(NativeReturnService $service): void { $service->acc
   await changeReturnSource(returnSource, true);
   await changeReturnSource(returnSource.replace('public function text(): string', '/** @return string */ public function text()'), false);
   console.log('C2 onDemand cross-file native return argument: string → int → string → PHPDoc-only, diagnostic has → no → has → no');
+  const localReturnConsumer = returnConsumerSource.replace('$service->accept($service->text());',
+    '$value = $service->text(); $other = 1; $service->accept($value);');
+  const changeReturnConsumer = async (source: string, expected: boolean): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(returnConsumerUri, new vscode.Range(new vscode.Position(0, 0),
+      returnConsumerDocument.positionAt(returnConsumerDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    await waitForReturnMismatch(expected);
+  };
+  await changeReturnConsumer(localReturnConsumer, false);
+  await changeReturnSource(returnSource, true);
+  await changeReturnConsumer(localReturnConsumer.replace('$other = 1;', 'change($value);'), false);
+  await changeReturnConsumer(localReturnConsumer, true);
+  console.log('C2 onDemand local native return argument: PHPDoc-only → native string → possible mutation → restored, diagnostic no → has → no → has');
 
   const aliasRealUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'PathAliasRecord.php');
   const aliasLink = vscode.Uri.joinPath(root.uri, 'alias');

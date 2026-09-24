@@ -4251,6 +4251,8 @@ export class SemanticWorkspace {
       const block = statement?.parent;
       if (!statement || !block || statement.type !== 'expression_statement') return false;
       const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
+        .test(file.source.slice(block.startIndex, statement.startIndex))) return false;
       const directCall = new RegExp(`^\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\s*->\\s*[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*${escapedVariable}\\s*\\)\\s*;$`, 'u');
       if (!directCall.test(statement.text.trim())) return false;
       const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
@@ -4288,6 +4290,9 @@ export class SemanticWorkspace {
       while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
       const block = statement?.parent;
       if (!statement || !block || statement.type !== 'expression_statement') return false;
+      const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
+        .test(file.source.slice(block.startIndex, statement.startIndex))) return false;
       const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
         && candidate.endIndex === statement!.endIndex);
       for (let index = statementIndex - 1; index >= 0; index -= 1) {
@@ -4323,6 +4328,40 @@ export class SemanticWorkspace {
     const signature = this.completedCallSignature(file, call);
     if (signature?.kind !== 'method' || signature.synthetic || signature.nativeReturnType?.trim().toLowerCase() !== actualType) return undefined;
     return { callable: signature.fqcn, uri: signature.uri };
+  }
+
+  stableLocalNativeScalarReturnArgument(uri: string, start: number, end: number, actualType: string):
+    { callable: string; uri: string } | undefined {
+    const file = this.files.get(uri); if (!file) return undefined;
+    const variable = file.source.slice(start, end).trim();
+    if (!/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(variable)) return undefined;
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    const tree = retainedTree ?? temporaryTree!;
+    try {
+      let statement = deepestLocalSyntax(tree.rootNode, start, end, () => true);
+      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
+      const block = statement?.parent;
+      if (!statement || !block || statement.type !== 'expression_statement') return undefined;
+      const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
+        .test(file.source.slice(block.startIndex, statement.startIndex))) return undefined;
+      const directCall = new RegExp(`^\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\s*->\\s*[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*${escapedVariable}\\s*\\)\\s*;$`, 'u');
+      if (!directCall.test(statement.text.trim())) return undefined;
+      const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
+        && candidate.endIndex === statement!.endIndex);
+      for (let index = statementIndex - 1; index >= 0; index -= 1) {
+        const candidate = block.namedChildren[index]!;
+        const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
+        const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
+        const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
+        if (left?.type !== 'variable_name' || !right) return undefined;
+        if (left.text === variable) return right.type === 'member_call_expression'
+          ? this.nativeScalarReturnMethodCall(uri, right.startIndex, right.endIndex, actualType) : undefined;
+        if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return undefined;
+      }
+      return undefined;
+    } finally { temporaryTree?.delete(); }
   }
 
   incompatibleReturns(uri: string): IncompatibleReturn[] {
