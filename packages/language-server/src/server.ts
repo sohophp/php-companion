@@ -1444,8 +1444,8 @@ async function publishDocumentDiagnostics(document: TextDocument): Promise<void>
   const workspace = await semanticForUri(document.uri);
   const root = rootForUri(document.uri);
   const targetPhpVersion = phpVersionForUri(document.uri);
-  const semanticTerminators = root && completeRoots.has(root) && isSyntaxAvailable(targetPhpVersion, '8.1')
-    ? workspace.neverReturningCalls(document.uri) : [];
+  const semanticTerminators = isSyntaxAvailable(targetPhpVersion, '8.1')
+    ? workspace.neverReturningCalls(document.uri, !root || !completeRoots.has(root)) : [];
   const syntaxParser = await parser();
   const namespace = await expectedNamespace(document.uri);
   if (documents.get(document.uri) !== document || document.version !== version) return;

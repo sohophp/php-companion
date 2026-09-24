@@ -6842,18 +6842,19 @@ export class SemanticWorkspace {
   }
 
   /** Guaranteed expressions containing a call proven to resolve uniquely to native `never`. */
-  neverReturningCalls(uri: string): SourceRange[] {
+  neverReturningCalls(uri: string, localFunctionsOnly = false): SourceRange[] {
     const file = this.files.get(uri); if (!file) return [];
     const ranges = file.calls.flatMap((call) => {
-      return call.terminatingExpression && this.isNativeNeverCall(file, call) ? [call.terminatingExpression] : [];
+      return call.terminatingExpression && this.isNativeNeverCall(file, call, localFunctionsOnly) ? [call.terminatingExpression] : [];
     });
     return [...new Map(ranges.map((range) => [`${range.start}:${range.end}`, range])).values()];
   }
 
-  private isNativeNeverCall(file: SemanticFile, call: ParsedCall): boolean {
+  private isNativeNeverCall(file: SemanticFile, call: ParsedCall, localFunctionsOnly = false): boolean {
     if (!call.terminatingExpression || call.kind === 'constructor') return false;
     const signature = this.signature(file.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
     if (signature?.nativeReturnType?.trim().toLowerCase() !== 'never') return false;
+    if (localFunctionsOnly && (signature.kind !== 'function' || signature.uri !== file.uri)) return false;
     if (signature.kind === 'function') {
       const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)
         .filter((candidate) => candidate.kind === 'function' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());

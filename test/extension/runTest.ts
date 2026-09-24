@@ -22,12 +22,13 @@ async function main(): Promise<void> {
   }
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
+  const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
   if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
     throw new Error('Real vendor noise needs C1 mode and PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
   }
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
-  const coreOnly = c1Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
+  const coreOnly = c1Only || c2Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const c1DebugPort = c1Only
     ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' ? String(await availableDebugPort()) : undefined)
@@ -103,6 +104,13 @@ async function main(): Promise<void> {
       }
     }
   }
+  if (!c1Only) {
+    const settingsPath = join(fixture, '.vscode', 'settings.json');
+    const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
+    settings['phpCompanion.phpVersion'] = '8.5';
+    if (c2Only) settings['phpCompanion.indexing.mode'] = 'onDemand';
+    await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+  }
 
   if (withIntelephense) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
@@ -134,7 +142,7 @@ async function main(): Promise<void> {
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
-      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : 'index'),
+      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : 'index'),
       launchArgs: [workspaceFile ?? fixture, ...(withIntelephense ? [] : ['--disable-extensions']),
         ...(c1DebugPort ? [`--remote-debugging-port=${c1DebugPort}`] : [])],
       extensionTestsEnv: {

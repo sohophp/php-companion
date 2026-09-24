@@ -1427,6 +1427,23 @@ describe('conservative semantic workspace', () => {
         'consume(stop($allowed))', 'stop($allowed) && $allowed', '(stop($allowed))', '(stop($allowed))']);
   });
 
+  it('proves only compatible same-file native never functions when dependency coverage is incomplete', () => {
+    workspace.update('file:///OtherNever.php', '<?php namespace LocalNever; function externalStop(Allowed $value): never { throw new \\Exception(); }');
+    const source = `<?php namespace LocalNever;
+      class Allowed {} class Rejected {}
+      function stop(Allowed $value): never { throw new \\Exception(); }
+      class Terminator { public function halt(): never { throw new \\Exception(); } }
+      function run(Allowed $allowed, Rejected $rejected, Terminator $item): void {
+        stop($allowed); afterLocal();
+        stop($rejected); afterMismatch();
+        externalStop($allowed); afterExternal();
+        $item->halt(); afterMethod();
+      }`;
+    workspace.update('file:///LocalNever.php', source);
+    expect(workspace.neverReturningCalls('file:///LocalNever.php', true).map((call) => source.slice(call.start, call.end)))
+      .toEqual(['stop($allowed)']);
+  });
+
   it('narrows a union only inside a directly proven positive instanceof branch', () => {
     workspace.update('file:///NarrowTypes.php', '<?php namespace Narrow; class A { public function onlyA(): void {} } class B { public function onlyB(): void {} }');
     const source = '<?php namespace Narrow; function run(A|B $value): void { if ($value instanceof A) { $value->only } $value->only }';

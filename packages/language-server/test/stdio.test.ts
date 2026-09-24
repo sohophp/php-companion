@@ -6376,6 +6376,7 @@ class Example {}`;
     const root = await mkdtemp(join(tmpdir(), 'php-companion-never-flow-'));
     try {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\\\': './' } } }));
+      await writeFile(join(root, 'ExternalNever.php'), '<?php namespace App; function externalStop(Allowed $value): never { throw new \\Exception(); }');
       const uri = pathToFileURL(join(root, 'NeverFlow.php')).toString();
       const source = `<?php namespace App;
         class Allowed {} class Rejected {}
@@ -6389,12 +6390,13 @@ class Example {}`;
         function shortCircuit(Allowed $value): void { $value && stop($value); reachableAfterShortCircuit(); }
         function guaranteedLeft(Allowed $value): void { stop($value) && $value; unreachableAfterGuaranteedLeft(); }
         function condition(Allowed $value): void { if (stop($value)) {} unreachableAfterCondition(); }
-        function conditionalCondition(Allowed $value): void { if ($value && stop($value)) {} reachableAfterConditionalCondition(); }`;
+        function conditionalCondition(Allowed $value): void { if ($value && stop($value)) {} reachableAfterConditionalCondition(); }
+        function external(Allowed $value): void { externalStop($value); reachableAfterExternal(); }`;
       await writeFile(join(root, 'NeverFlow.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 57, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { targetPhpVersion: '8.1' },
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.1', indexingMode: 'onDemand' },
       } }));
       await output.waitFor((message) => message.id === 57);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
