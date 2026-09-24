@@ -101,7 +101,7 @@ type ProtocolTextEdit = { range: { start: { line: number; character: number }; e
 type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; options?: { overwrite?: boolean } }
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[];
-  phpCompanion?: { sourceHashes?: Record<string, string> } };
+  phpCompanion?: { sourceHashes?: Record<string, string>; workspaceMethodFamily?: boolean } };
 
 async function verifyRenameSources(result: ProtocolWorkspaceEdit): Promise<void> {
   const hashes = result.phpCompanion?.sourceHashes;
@@ -917,7 +917,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
     },
   };
-  register('phpCompanion.addPrivateParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
+  register('phpCompanion.addMethodParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
     name?: string; type?: string; value?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
     if (!selfLanguageServer) {
       void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
@@ -938,7 +938,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (!value) return false;
     const client = await languageServer;
     if (!client) return false;
-    const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/addPrivateParameter', {
+    const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/addMethodParameter', {
       textDocument: { uri: uri.toString() }, position, name, type, value,
     });
     const edit = fromProtocolWorkspaceEdit(result);
@@ -946,6 +946,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       void vscode.window.showWarningMessage(t('addParameterUnavailable'));
       return false;
     }
+    if (result.phpCompanion.workspaceMethodFamily) void vscode.window.showWarningMessage(t('addParameterWorkspaceScope'));
     await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
       edit, title: `Add parameter $${name}`, sourceUri: uri, sourceVersion, sourceText,
       targetHashes: result.phpCompanion.sourceHashes,

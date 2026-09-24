@@ -69,5 +69,6 @@ final class Formatter {
       changed = `${changed.slice(0, edit.start)}${edit.newText}${changed.slice(edit.end)}`;
     expect(changed).toContain('function value(int $input)');
     expect(changed).toContain('$this->value(7)');
+    expect(workspace.addMethodParameter(uri, empty.indexOf('value()') + 1, 'input', 'int', '7')?.scope).toBe('private');
   });
 });

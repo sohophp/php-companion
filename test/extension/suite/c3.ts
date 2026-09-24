@@ -464,7 +464,7 @@ export async function run(): Promise<void> {
   await vscode.window.showTextDocument(addParameterDocument);
   const addPosition = addParameterDocument.positionAt(addParameterSource.indexOf('format(string') + 1);
   const requestAddPlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
-    api.requestLanguageServer('phpCompanion/addPrivateParameter', {
+    api.requestLanguageServer('phpCompanion/addMethodParameter', {
       textDocument: { uri: addParameterUri.toString() }, position: addPosition, name: 'suffix', type: 'string', value: '"x"',
     });
   let addPlan = await requestAddPlan();
@@ -474,7 +474,7 @@ export async function run(): Promise<void> {
   }
   assert.ok(addPlan?.changes?.[addParameterUri.toString()], `Language Server omitted the Add Parameter plan: ${JSON.stringify(addPlan)}`);
   const addParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
-    vscode.commands.executeCommand<boolean>('phpCompanion.addPrivateParameter', {
+    vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
       uri: addParameterUri, position: addPosition, name: 'suffix', type: 'string', value: '"x"', testPreviewAction,
     });
   assert.strictEqual(await addParameter(async () => 'cancel'), true);
@@ -539,6 +539,38 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a")'),
     'One Redo did not restore the named arguments');
+  const familyBeforeAdd = new Map(await Promise.all(signatureFiles.map(async ([uri]) =>
+    [uri.toString(), (await vscode.workspace.openTextDocument(uri)).getText()] as const)));
+  const addFamilyPosition = contractDocument.positionAt(contractDocument.getText().indexOf('send(string') + 1);
+  const familyPlan = await api.requestLanguageServer<{ changes?: Record<string, unknown> } | null>('phpCompanion/addMethodParameter', {
+    textDocument: { uri: contractUri.toString() }, position: addFamilyPosition,
+    name: 'context', type: 'string', value: '"web"',
+  });
+  assert.ok(familyPlan?.changes?.[contractUri.toString()], `Language Server omitted method-family Add Parameter: ${JSON.stringify(familyPlan)}`);
+  const addFamilyParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
+      uri: contractUri, position: addFamilyPosition, name: 'context', type: 'string', value: '"web"', testPreviewAction,
+    });
+  assert.strictEqual(await addFamilyParameter(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.includes('Add parameter $context:'));
+    assert.strictEqual(tabs.length, 4, 'Add Parameter did not preview every method-family file');
+    return 'cancel';
+  }), true);
+  for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    familyBeforeAdd.get(uri.toString()), `Cancelling method-family Add Parameter changed ${uri.path}`);
+  assert.strictEqual(await addFamilyParameter(async () => 'apply'), true);
+  for (const uri of [contractUri, firstUri, secondSignatureUri]) assert.ok(
+    (await vscode.workspace.openTextDocument(uri)).getText().includes('string $context'),
+    `Add Parameter omitted ${uri.path}`);
+  assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a", context: "web")'));
+  assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send("b", context: "web")')
+    || (await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "b", context: "web")'));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    familyBeforeAdd.get(uri.toString()), `One Undo did not restore method-family Add Parameter in ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a", context: "web")'));
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));

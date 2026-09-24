@@ -4,7 +4,7 @@
 
 ## 当前执行顺序
 
-1. **先稳住 C3 高频编辑。** Import、生成类型、Safe Move、Extract、Inline 和[私有参数移除](reports/c3-private-signature-preview-2026-09-24.md)已有预览和旧版本保护；[完整 Pack 的已配置测试目录宿主](reports/open-source-pack-c3-profile-2026-09-24.md)也通过现有 C3 操作。Rename 已补上[关闭预览即拒绝应用](reports/c3-rename-preview-close-2026-09-24.md)和多组预览固定；[Extract、Safe Move 与 Optimize Imports](reports/c3-preview-close-all-2026-09-25.md)也会在预览被关闭时取消应用。[跨接口参数家族的 References 与 Rename](reports/c3-parameter-family-references-2026-09-25.md)已完成四文件宿主编辑链，[私有方法新增参数](reports/c3-add-private-parameter-2026-09-25.md)也完成预览、取消、应用及 Undo/Redo。接下来扩展 Change Signature 的跨接口参数增删与重排，并解决生成文件的 Redo、PHPUnit 测试文件重命名和无配置项目的组合异常。
+1. **先稳住 C3 高频编辑。** Import、生成类型、Safe Move、Extract、Inline 和[私有参数移除](reports/c3-private-signature-preview-2026-09-24.md)已有预览和旧版本保护；[完整 Pack 的已配置测试目录宿主](reports/open-source-pack-c3-profile-2026-09-24.md)也通过现有 C3 操作。Rename 已补上[关闭预览即拒绝应用](reports/c3-rename-preview-close-2026-09-24.md)和多组预览固定；[Extract、Safe Move 与 Optimize Imports](reports/c3-preview-close-all-2026-09-25.md)也会在预览被关闭时取消应用。[跨接口参数家族的 References 与 Rename](reports/c3-parameter-family-references-2026-09-25.md)及[方法家族新增参数](reports/c3-add-method-family-parameter-2026-09-25.md)都已完成四文件宿主编辑链。接下来扩展 Change Signature 的参数删除与重排，并解决生成文件的 Redo、PHPUnit 测试文件重命名和无配置项目的组合异常。
 2. **同步收口 C1/C2 的实用门槛。** 在独立 Composer 项目与当前 11 项 Pack 源码 Profile 中复核未保存输入、真实 vendor、诊断/导航的一致性、等待和取消；数小时会话、跨平台和 Remote 不由短时本机测试代替。
 3. **候选冻结时做 C4 组合门禁。** 固定 Core、Symfony、Pack 三份 VSIX 与外部扩展版本，再查唯一能力所有者、安装位置、PHP CLI/调试/测试路径和回退。日常 Core 增量只做定向构建及测试，不重复打包三份 VSIX。
 

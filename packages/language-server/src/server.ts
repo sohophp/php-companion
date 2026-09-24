@@ -4207,7 +4207,7 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   return result;
 });
 
-connection.onRequest('phpCompanion/addPrivateParameter', async (params: {
+connection.onRequest('phpCompanion/addMethodParameter', async (params: {
   textDocument?: { uri?: unknown }; position?: unknown; name?: unknown; type?: unknown; value?: unknown;
 }, token) => {
   const uri = params.textDocument?.uri;
@@ -4217,7 +4217,7 @@ connection.onRequest('phpCompanion/addPrivateParameter', async (params: {
     || typeof params.value !== 'string' || token.isCancellationRequested
     || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
-  const plan = workspace.addPrivateParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }),
+  const plan = workspace.addMethodParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }),
     params.name, params.type, params.value);
   if (!plan || token.isCancellationRequested) return null;
   const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
@@ -4237,7 +4237,7 @@ connection.onRequest('phpCompanion/addPrivateParameter', async (params: {
     (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: edit.newText });
   }
   return { changes, phpCompanion: { sourceHashes: Object.fromEntries([...sources].map(([target, source]) =>
-    [target, createHash('sha256').update(source).digest('hex')])) } };
+    [target, createHash('sha256').update(source).digest('hex')])), workspaceMethodFamily: plan.scope === 'workspace-method-family' } };
 });
 
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
