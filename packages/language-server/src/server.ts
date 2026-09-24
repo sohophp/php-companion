@@ -1492,6 +1492,13 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && (!root || !completeRoots.has(root))) {
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri, true).map((call) => ({
+      range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.argument.unknown-named',
+      source: 'PHP Companion',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
+    })));
     result.diagnostics.push(...workspace.missingRequiredArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,

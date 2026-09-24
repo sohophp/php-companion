@@ -85,7 +85,7 @@ declare(strict_types=1);
 namespace App\\Service;
 function takeLocal(int $value): void {}
 final class LocalArgumentDiagnostics { public function accept(int $value): void {} }
-function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); takeLocal(); $local->accept('bad'); }
+function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); takeLocal(); $local->accept('bad'); takeLocal(other: 1); }
 `;
   await vscode.workspace.fs.writeFile(localUri, Buffer.from(source));
   const localDocument = await vscode.workspace.openTextDocument(localUri);
@@ -93,13 +93,14 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   const argumentCodes = (): string[] => vscode.languages.getDiagnostics(localUri)
     .filter((item) => item.source === 'PHP Companion' && String(item.code).startsWith('php.argument.'))
     .map((item) => String(item.code)).sort();
-  const expectedArguments = ['php.argument.missing-required', 'php.argument.type-mismatch', 'php.argument.type-mismatch'];
+  const expectedArguments = ['php.argument.missing-required', 'php.argument.type-mismatch', 'php.argument.type-mismatch', 'php.argument.unknown-named'];
   const argumentDeadline = Date.now() + 20_000;
   while (Date.now() < argumentDeadline && argumentCodes().length !== expectedArguments.length) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   assert.deepStrictEqual(argumentCodes(), expectedArguments, 'Default onDemand did not show proven same-file argument errors.');
-  const repaired = source.replace("takeLocal('bad'); takeLocal(); $local->accept('bad');", 'takeLocal(1); takeLocal(2); $local->accept(3);');
+  const repaired = source.replace("takeLocal('bad'); takeLocal(); $local->accept('bad'); takeLocal(other: 1);",
+    'takeLocal(1); takeLocal(2); $local->accept(3); takeLocal(value: 1);');
   const repair = new vscode.WorkspaceEdit();
   repair.replace(localUri, new vscode.Range(new vscode.Position(0, 0), localDocument.positionAt(localDocument.getText().length)), repaired);
   assert.ok(await vscode.workspace.applyEdit(repair), 'Could not repair local argument calls in the unsaved buffer.');
@@ -107,5 +108,5 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   const repairedDeadline = Date.now() + 20_000;
   while (Date.now() < repairedDeadline && argumentCodes().length > 0) await new Promise((resolve) => setTimeout(resolve, 50));
   assert.deepStrictEqual(argumentCodes(), [], 'Default onDemand kept same-file argument errors after the calls were repaired.');
-  console.log('C2 onDemand same-file argument diagnostics: 3 → 0, unsaved');
+  console.log('C2 onDemand same-file argument diagnostics: 4 → 0, unsaved');
 }

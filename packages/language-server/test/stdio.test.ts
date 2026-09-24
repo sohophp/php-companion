@@ -6573,13 +6573,59 @@ class Example {}`;
     expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toEqual([
       'php.argument.missing-required', 'php.argument.type-mismatch', 'php.argument.type-mismatch',
     ]);
+    const changedSignature = source.replace('function local(int $value)', 'function local(string $value)');
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri: localUri, version: 2 }, contentChanges: [{ text: changedSignature }],
+    } }));
+    const afterSignatureChange = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === localUri && message.params.version === 2);
+    expect(afterSignatureChange.params.diagnostics.map((item: { code?: string }) => item.code)).toEqual([
+      'php.argument.missing-required', 'php.argument.type-mismatch',
+    ]);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 574, method: 'textDocument/signatureHelp', params: {
+      textDocument: { uri: localUri }, position: lspPosition(changedSignature, changedSignature.indexOf("local('wrong')") + 7),
+    } }));
+    expect((await output.waitFor((message) => message.id === 574)).result.signatures[0].label).toContain('local(string $value): void');
     const fixed = source.replace("local('wrong'); local(); $local->accept('wrong')", 'local(1); local(2); $local->accept(3)');
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri: localUri, version: 3 }, contentChanges: [{ text: fixed }],
+    } }));
+    const updated = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === localUri && message.params.version === 3);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code?.startsWith('php.argument.'))).toBe(false);
+  });
+
+  it('reports only proven same-file unknown named arguments in onDemand PHP 8.5', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    const localUri = 'file:///LocalNamedArguments.php';
+    const externalUri = 'file:///ExternalNamedArguments.php';
+    const source = `<?php
+      function local(int $value): void {}
+      class LocalNamedArguments { public function accept(int $value): void {} }
+      function run(LocalNamedArguments $local): void { local(other: 1); $local->accept(other: 1); external(other: 1); }
+    `;
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 575, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null,
+      initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+    } }));
+    await output.waitFor((message) => message.id === 575);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    for (const [uri, text] of [[externalUri, '<?php function external(int $value): void {}'], [localUri, source]]) {
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text },
+      } }));
+    }
+    const initial = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === localUri && message.params.version === 1);
+    expect(initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.unknown-named')).toHaveLength(2);
+    const fixed = source.replaceAll('other: 1', 'value: 1');
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
       textDocument: { uri: localUri, version: 2 }, contentChanges: [{ text: fixed }],
     } }));
     const updated = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === localUri && message.params.version === 2);
-    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code?.startsWith('php.argument.'))).toBe(false);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.unknown-named')).toBe(false);
   });
 
   it('publishes native never fallthrough only for proven normal completion', async () => {

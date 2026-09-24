@@ -1336,6 +1336,7 @@ describe('conservative semantic workspace', () => {
       { callable: 'Arguments\\helper', name: 'Required' },
       { callable: 'Arguments\\helper', name: 'Required' },
     ]);
+    expect(workspace.unknownNamedArguments('file:///ArgumentCalls.php', true)).toEqual([]);
     const unknownStart = source.indexOf('unknown:');
     expect(workspace.unknownNamedArguments('file:///ArgumentCalls.php')[0]).toMatchObject({ start: unknownStart, end: unknownStart + 'unknown'.length });
     expect(workspace.argumentOrderProblems('file:///ArgumentCalls.php')).toMatchObject([

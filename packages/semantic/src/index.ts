@@ -4992,13 +4992,16 @@ export class SemanticWorkspace {
     }
   }
 
-  unknownNamedArguments(uri: string): UnknownNamedArgument[] {
+  unknownNamedArguments(uri: string, localOnly = false): UnknownNamedArgument[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.calls.flatMap((call): UnknownNamedArgument[] => {
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return [];
       const named = call.arguments.filter((argument) => argument.name && argument.nameStart !== undefined && argument.nameEnd !== undefined);
       if (!named.length) return [];
       const signature = this.signature(uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1)); if (!signature) return [];
+      if (localOnly && signature.uri !== uri) return [];
+      if (localOnly && signature.kind === 'method' && [...this.files.values()].flatMap((candidate) => candidate.callables)
+        .filter((candidate) => candidate.kind === 'method' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase()).length !== 1) return [];
       if (signature.kind === 'function') {
         const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)
           .filter((candidate) => candidate.kind === 'function' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
