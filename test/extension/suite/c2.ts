@@ -111,6 +111,55 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   assert.deepStrictEqual(argumentCodes(), [], 'Default onDemand kept same-file argument errors after the calls were repaired.');
   console.log('C2 onDemand same-file argument diagnostics: 5 → 0, unsaved');
 
+  const methodUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralService.php');
+  const methodConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralConsumer.php');
+  const methodSource = `<?php namespace App\\Service;
+class CrossFileLiteralService { public function accept(int $value): void {} }
+`;
+  const methodConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
+function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $service->accept('bad'); }
+`;
+  await vscode.workspace.fs.writeFile(methodUri, Buffer.from(methodSource));
+  await vscode.workspace.fs.writeFile(methodConsumerUri, Buffer.from(methodConsumerSource));
+  const methodDocument = await vscode.workspace.openTextDocument(methodUri);
+  const methodConsumerDocument = await vscode.workspace.openTextDocument(methodConsumerUri);
+  await vscode.window.showTextDocument(methodConsumerDocument);
+  const crossFileMismatch = (): boolean => vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const waitForMismatch = async (expected: boolean): Promise<number> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && crossFileMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.strictEqual(crossFileMismatch(), expected, `C2 cross-file literal mismatch did not become ${expected}.`);
+    const observedAt = performance.now();
+    const stableUntil = Date.now() + 150;
+    while (Date.now() < stableUntil) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      assert.strictEqual(crossFileMismatch(), expected, 'C2 cross-file literal diagnostic flashed an older result.');
+    }
+    return observedAt;
+  };
+  await waitForMismatch(true);
+  const editType = async (from: string, to: string): Promise<number> => {
+    const offset = methodDocument.getText().indexOf(from);
+    assert.ok(offset >= 0, `Missing cross-file method type ${from}.`);
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(methodUri, new vscode.Range(methodDocument.positionAt(offset), methodDocument.positionAt(offset + from.length)), to);
+    const started = performance.now();
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(methodDocument.isDirty, 'The cross-file declaration was unexpectedly saved.');
+    const observedAt = await waitForMismatch(to.startsWith('int '));
+    return Math.round(observedAt - started);
+  };
+  const removedMs = await editType('int $value', 'string $value');
+  const signatureAt = methodConsumerDocument.positionAt(methodConsumerSource.indexOf("'bad'") + 2);
+  const methodSignature = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', methodConsumerUri, signatureAt);
+  assert.ok(methodSignature?.signatures.some((item) => item.label.includes('accept(string $value): void')),
+    'Signature Help did not use the edited cross-file declaration.');
+  const restoredMs = await editType('string $value', 'int $value');
+  console.log(`C2 onDemand cross-file literal diagnostic: ${JSON.stringify({ visible: [true, false, true],
+    removedMs, restoredMs, unsaved: methodDocument.isDirty })}`);
+
   const recordsUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocRecords.php');
   const consumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocConsumer.php');
   const recordsSource = `<?php namespace App\\Service;

@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 跨文件诊断隔离宿主复核：默认 `onDemand` 的唯一 PSR-4 具体类方法与直接字面量场景，在 VS Code 1.139.0 Linux 隔离源码宿主中随未保存 `int → string → int` 呈现诊断有 → 无 → 有，参数提示同步更新；两次首次可见变化本机单次样本各约 148 ms，随后 150 ms 未回闪。宿主先发现同文件候选被重复加入，修复后原有同文件 5 → 0、跨文件往返和 PHPDoc 补全/定义均通过，退出码 0。最终源码 Language Server 全套 18 文件、338 项通过、1 项跳过，宿主 TypeScript、相关 ESLint 和差异检查通过。局部变量来源、Remote、完整 Pack 与持续使用仍开放；未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
+
 2026-09-24 C2 默认 `onDemand` 的首批可证明跨文件参数诊断：独立 Composer PHP 8.5 项目中，唯一 PSR-4 具体类方法收到直接标量字面量且类型不兼容时，使用方现在发布 `php.argument.type-mismatch`；声明与使用方未保存编辑、关闭恢复、watcher 更新形成出现/撤销往返，参数提示与诊断使用更新后的签名。两个 PSR-4 候选路径保持静默，PHPDoc 返回值传播继续保守。修复待处理诊断刷新沿用旧编辑 URI 集合的问题；完整 Language Server 18 文件、338 项通过、1 项跳过。最终增加“具体类”约束后重新构建，相关 6 项、类型检查、ESLint 与差异检查通过；未重跑完整套件。未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
 
 2026-09-24 C2 同一物理 PHP 文件双路径打开：独立 Composer path repository 的真实路径与安装符号链接同时持有不同未保存内容时，跨文件事实现在由最近打开/编辑的缓冲区拥有；反向快速编辑、Watcher 交错、关闭后接管与磁盘恢复均通过真实 stdio，冲突只提示一次。首次全套发现普通文件因新增异步别名检查而出现 13 项引用/框架回归；普通文件改走同步快路径后，这 13 项定向通过，最终 Language Server 全套 18 文件、336 项通过、1 项跳过，类型检查、ESLint 和差异检查通过。未修改业务项目或打包 VSIX。另一打开标签页内的局部查询、Remote 和完整 Pack 仍待验，见[报告](reports/c2-dual-path-open-2026-09-24.md)。
