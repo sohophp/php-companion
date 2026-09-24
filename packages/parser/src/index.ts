@@ -1427,6 +1427,18 @@ export class PhpSyntaxParser {
           || candidate.namedChildren.some(containsGoto);
         const containsLoopExit = (candidate: SyntaxNode): boolean => candidate.type === 'break_statement'
           || candidate.type === 'continue_statement' || candidate.namedChildren.some(containsLoopExit);
+        const continueExitsCurrentBody = (() => {
+          let ancestor = nodeParent;
+          while (ancestor) {
+            if (ancestor.type === 'switch_statement') return false;
+            if (ancestor.type === 'foreach_statement' || ancestor.type === 'for_statement'
+              || ancestor.type === 'while_statement' || ancestor.type === 'do_statement') return true;
+            if (ancestor.type === 'function_definition' || ancestor.type === 'method_declaration'
+              || ancestor.type === 'anonymous_function' || ancestor.type === 'arrow_function') return false;
+            ancestor = ancestor.parent ?? undefined;
+          }
+          return false;
+        })();
         const isConstantTrue = (candidate: SyntaxNode | null | undefined): boolean => {
           let value = candidate;
           while (value?.type === 'parenthesized_expression' && value.namedChildren.length === 1) value = value.namedChildren[0];
@@ -1439,6 +1451,7 @@ export class PhpSyntaxParser {
             return terminatesBody(finalStatement);
           }
           if (candidate.type === 'return_statement' || candidate.type === 'exit_statement'
+            || (candidate.type === 'continue_statement' && continueExitsCurrentBody)
             || (candidate.type === 'expression_statement' && candidate.namedChildren[0]?.type === 'throw_expression')) return true;
           if (candidate.type === 'if_statement') {
             const nestedBody = candidate.childForFieldName('body');

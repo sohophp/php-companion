@@ -861,6 +861,18 @@ class Child extends ParentBase implements Contract {
     expect(result.narrowings[2]?.end).toBeGreaterThan(source.indexOf('$exited->a'));
     result.tree.delete();
   });
+  it('narrows the rest of a loop after an instanceof guard continues', () => {
+    const source = '<?php function run(iterable $items) { foreach ($items as $item) { if (!$item instanceof Card) continue; $item->getContent(); } }';
+    const result = parser.parse(source);
+    expect(result.narrowings).toContainEqual(expect.objectContaining({
+      kind: 'instanceof', variable: '$item', typeName: 'Card',
+      start: expect.any(Number), end: expect.any(Number),
+    }));
+    const guard = result.narrowings.find((item) => item.kind === 'instanceof' && item.variable === '$item');
+    expect(guard?.start).toBeLessThan(source.indexOf('->getContent'));
+    expect(guard?.end).toBeGreaterThan(source.indexOf('->getContent'));
+    result.tree.delete();
+  });
   it('records only direct positive while-loop entry facts inside the body', () => {
     const source = '<?php function run(?A $nullable, A|B $value, ?A $loose) { while ($nullable !== null) { $nullable->a(); } while ($value instanceof A) $value->a(); while ($loose != null) { $loose->a(); } }';
     const result = parser.parse(source);

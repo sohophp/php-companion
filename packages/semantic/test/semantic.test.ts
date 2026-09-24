@@ -2569,6 +2569,28 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeMembers('file:///Guards.php', positions[1]!).map((item) => item.name)).toEqual(['onlyA']);
     expect(workspace.completeMembers('file:///Guards.php', positions[2]!)).toEqual([]);
   });
+  it('hydrates a cold method owner after an instanceof continue guard', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const uri = 'file:///SolutionPageReadService.php';
+    const source = `<?php namespace App;
+      use App\\CardTranslation;
+      function cards(iterable $entities): void {
+        foreach ($entities as $entity) {
+          $translation = $entity->getTranslations()->first();
+          if (!$translation instanceof CardTranslation) continue;
+          $translation->getContent();
+        }
+      }`;
+    const ownerUri = 'file:///CardTranslation.php';
+    const owner = '<?php namespace App; class CardTranslation { public function getContent(): ?string { return null; } }';
+    const offset = source.indexOf('->getContent') + 3;
+    try {
+      isolated.update(uri, source);
+      expect(isolated.memberOwnerTypeNamesAt(uri, offset)).toEqual(['App\\CardTranslation']);
+      isolated.update(ownerUri, owner);
+      expect(isolated.definition(uri, offset)).toMatchObject([{ uri: ownerUri, start: owner.indexOf('getContent') }]);
+    } finally { isolated.dispose(); }
+  });
   it('narrows after a guard whose top-level sequence ends in return or exit', () => {
     workspace.update('file:///GuardSequenceType.php', '<?php namespace GuardSequence; class A { public function onlyA(): void {} }');
     const source = '<?php namespace GuardSequence; function run(?A $returned, ?A $exited, ?A $unsafe): void { if ($returned === null) { logIt(); return; } $returned->only; if ($exited === null) exit(1); $exited->only; if ($unsafe === null) { if (maybe()) return; } $unsafe->only; }';

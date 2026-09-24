@@ -7584,7 +7584,16 @@ export class SemanticWorkspace {
           const first = groups[0]?.[0]; target = first ? { ...first, nullable: composite.nullable } : undefined;
         }
       }
-      if (!target) return undefined;
+      if (!target) {
+        const guarded = lexicalScope && file.narrowings.find((item) => item.scopeId === lexicalScope.id
+          && item.variable === chained[1] && item.kind === 'instanceof' && !item.propertyPath?.length
+          && !item.arrayPath?.length && offset >= item.start && offset <= item.end
+          && this.variableFlowFactStable(file, item, offset, lexicalScope));
+        const owner = guarded?.kind === 'instanceof'
+          ? this.resolveSourceType(file, guarded.typeName, this.namespaceAt(file, offset), accessFrom) : undefined;
+        if (owner) unresolvedOwners?.add(owner);
+        return undefined;
+      }
       let directPropertyPath: string[] | undefined = [];
       for (const call of calls) {
         const current: ObjectClass = target; if (current.nullable && call.operator !== '?->') return undefined;
