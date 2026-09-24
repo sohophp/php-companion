@@ -2269,6 +2269,11 @@ export async function run(): Promise<void> {
     ['unresolved-symbols', { uri: unresolvedSymbolsUri, expected: ['php.variable.undefined', 'php.function.unresolved', 'php.constant.unresolved'] }],
   ]);
   for (const [name, item] of diagnosticCorpus) {
+    // VS Code can close background documents during this long host suite;
+    // the server correctly clears their diagnostics on didClose.
+    await vscode.workspace.openTextDocument(item.uri);
+    await waitFor(() => vscode.languages.getDiagnostics(item.uri).some((diagnostic) => diagnostic.source === 'PHP Companion'),
+      `Diagnostic corpus did not republish for ${name}`);
     const actual = vscode.languages.getDiagnostics(item.uri)
       .filter((diagnostic) => diagnostic.source === 'PHP Companion')
       .map((diagnostic) => String(diagnostic.code)).sort();

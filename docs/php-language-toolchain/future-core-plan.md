@@ -35,7 +35,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 ## 下一批具体任务
 
-**当前执行起点是 C2 的编辑反馈链。** C1 已有独立 Composer 项目、真实依赖树、10k 文件和隔离宿主的六项查询与可见补全证据，但冷查询等待分布、长期会话、Remote 和跨平台验收仍开放。C2 快速编辑的旧诊断已修复；[逐段计时](reports/c2-rapid-diagnostic-version-2026-09-24.md)发现旧版本通知排队使诊断短暂清空 268–319 ms。文档变化后的诊断分析现合并 25 ms，三轮相同宿主复测把空白缩至 64–100 ms；单次编辑、快速连续输入和关闭文件的通知边界已有定向 stdio 证据。下一步检查其它诊断类型、跨文件事实与长会话，再检查 PHPDoc、补全、Hover、导航和诊断是否消费同一版本的类型事实。C1 未关闭的门槛与 C3/C4 继续在各自阶段验收，不因单个业务项目或 Symfony Provider 的缺口改变 Core 优先级。Open Source Pack 的 10 项清单先保持稳定；PHPDoc 生成、PHPStan 等候选单独验收后再考虑加入，详见[日常开发组合方案](daily-use-assembly.md)。
+**当前执行起点是 C2 的编辑反馈链。** C1 已有独立 Composer 项目、真实依赖树、10k 文件和隔离宿主的六项查询与可见补全证据，但冷查询等待分布、长期会话、Remote 和跨平台验收仍开放。C2 快速编辑的旧诊断已修复；[逐段计时](reports/c2-rapid-diagnostic-version-2026-09-24.md)发现旧版本通知排队使诊断短暂清空 268–319 ms。文档变化后的诊断分析现合并 25 ms，三轮相同宿主复测把空白缩至 64–100 ms；单次编辑、快速连续输入和关闭文件的通知边界已有定向 stdio 证据。[跨文件诊断往返](reports/c2-cross-file-diagnostics-2026-09-24.md)现覆盖已完成索引的两个文件：未保存声明改变及关闭恢复时，使用方的参数类型错误会同步撤销和重现，参数提示与诊断使用相同签名事实。下一步检查更多诊断类型、默认 `onDemand` 的可证明范围、大量打开文件及长会话，再检查 PHPDoc、补全、Hover、导航和诊断是否消费同一版本的类型事实。C1 未关闭的门槛与 C3/C4 继续在各自阶段验收，不因单个业务项目或 Symfony Provider 的缺口改变 Core 优先级。Open Source Pack 的 10 项清单先保持稳定；PHPDoc 生成、PHPStan 等候选单独验收后再考虑加入，详见[日常开发组合方案](daily-use-assembly.md)。
 
 截至 2026-09-24，F04-NAV-01–13 已用独立 Composer 项目验证接口、未保存类型切换、未完成成员输入、跨 namespace 父类与同名短类、跨文件 Trait 优先级和别名、外部声明变更后的索引失效，以及进行中查询的取消、版本隔离和同版本重新打开防护。F04-HOST-01 又在隔离 VS Code Core 宿主中，以 auto、PHP 7.2、8.1、8.5 设置完成六项编辑请求及未保存切换后的完整查询链；F02-VERSION-01 用同一版本文件验证了 `match`、`enum`、`(void)` 的版本诊断。查询版本保护已统一覆盖主要异步边界。Pack 组合、Remote、跨平台和持续使用按后续门槛执行。Symfony 或单个业务项目特例不决定通用 Core 的优先级。
 
@@ -50,7 +50,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 Open Source Pack 现有独立的[默认组合宿主门禁](reports/open-source-pack-composition-gate-2026-09-24.md)：本机 Linux 隔离 Profile 加载 Core、Symfony、Pack 与冻结外部扩展，按 Pack 默认 `onDemand` 实际完成 PHP/Symfony 导航和引用、格式化、调试与 PHPUnit 操作。干净 Alpha 候选与独立 PHP 7.2 Composer 项目的确定性预检已通过。下一步按以下顺序推进，避免把单个 Symfony 项目当作 Core 需求来源：
 
 1. **C1 冷启动和持续编辑。** [首轮冷查询](reports/c1-cold-first-query-2026-09-24.md)发现并修复了激活完成早于 Provider 注册导致首次 References 返回空结果；10k 独立项目中首次 References/Implementation 现能一次取得正确位置。继续记录空缓存、后台准备后与重载后的可见等待，并用较长会话重复未保存编辑的六项查询与建议显示，定位超时、旧结果或内存增长。先复用现有 1k/10k/真实 vendor 夹具。
-2. **C2 类型与诊断一致性。** [当前文件的 `never` 漏报](reports/c2-ondemand-local-never-2026-09-24.md)已在 `onDemand` 下修复并通过独立宿主；未保存地改成 `void` 再恢复 `never` 时，诊断完成 10 → 7 → 10 往返。[快速编辑的旧诊断发布](reports/c2-rapid-diagnostic-version-2026-09-24.md)已通过带版本接收与编辑时撤下旧集合修复。跨文件事实仍要求完整证明。继续审计补全、Hover、导航和诊断是否消费同一版本的类型事实，尤其检查索引状态变化、清空等待与长会话。PHPDoc 注释生成继续由可选扩展单独评估。
+2. **C2 类型与诊断一致性。** [当前文件的 `never` 漏报](reports/c2-ondemand-local-never-2026-09-24.md)已在 `onDemand` 下修复并通过独立宿主；未保存地改成 `void` 再恢复 `never` 时，诊断完成 10 → 7 → 10 往返。[快速编辑的旧诊断发布](reports/c2-rapid-diagnostic-version-2026-09-24.md)已通过带版本接收与编辑时撤下旧集合修复。[跨文件参数类型诊断](reports/c2-cross-file-diagnostics-2026-09-24.md)在完整索引下已有未保存编辑和关闭恢复的往返证据，其它事实仍要求完整证明。继续审计补全、Hover、导航和诊断是否消费同一版本的类型事实，尤其检查索引状态变化、清空等待与长会话。PHPDoc 注释生成继续由可选扩展单独评估。
 3. **C3 和 C4 顺序验收。** C1/C2 的高频工作流稳定后，逐项检查 Rename、导入、生成和其它工作区编辑的预览/撤销；[私有参数重构的无关同名方法误挡](reports/c3-private-parameter-owner-2026-09-24.md)已修复，源码宿主套件现能执行并撤销该动作。C4 再验证 WSL Remote 的 Extension Host 与工具路径、Windows/macOS、PHP 版本矩阵和长时间真实使用。Pack 成员仅在外部扩展通过独立准入门禁后调整。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。

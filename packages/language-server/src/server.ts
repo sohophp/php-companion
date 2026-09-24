@@ -151,6 +151,8 @@ let testMode = false;
 let versionedDiagnostics = false;
 // Give a burst of incremental changes time to arrive before CPU-bound analysis.
 const diagnosticEditCoalesceMs = 25;
+const relatedDiagnosticRefreshMs = 75;
+const relatedDiagnosticRefreshes = new Map<string, { timer: ReturnType<typeof setTimeout>; editedUris: Set<string> }>();
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
@@ -907,7 +909,7 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
     if (contextsChanged) { interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root); }
   }
   if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) await startIndexWorkspace('semantic-provider-change');
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 }
 let semanticProviderReconciliation = Promise.resolve();
 function enqueueSemanticProviderChange(update: () => void): Promise<void> {
@@ -926,7 +928,7 @@ connection.onNotification('phpCompanion/symfonyRouteProviders', async (params: {
     await runContainerProvider(root, indexingGeneration, workspace, () => true);
     await runEventProvider(root, indexingGeneration, workspace, () => true);
   }
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => setBundledRouteProviders(params?.providers));
 connection.onNotification('phpCompanion/bundledSemanticProviders', (params: { providers?: unknown } | undefined) => {
@@ -940,12 +942,12 @@ connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (para
     const workspace = await semanticForRoot(root);
     await refreshSemanticProviders(root, indexingGeneration, workspace, () => true);
   }
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
   setConfiguredExtensionAvailability(params?.roots);
   await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 
 function rootForUri(uri: string): string | undefined {
@@ -1333,7 +1335,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     // A complete source scan is not yet a complete reference index: providers
     // may still contribute service, event, route and external type facts.
     if (result.complete && continueIndexing()) completeRoots.add(root);
-    await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map(publishDocumentDiagnostics));
+    await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map((document) => publishDocumentDiagnostics(document)));
   }
   connection.console.info(outputMessage(clientDiagnosticLanguage, 'phpFilesIndexed', String(result.files), String(result.bytes), String(result.cached), root, String(result.complete), String(workspace.deferredImplementationCount())));
   for (const warning of result.warnings) connection.console.warn(warning);
@@ -1912,6 +1914,24 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     recordTestQueryDuration('diagnostics', diagnosticStarted);
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
+}
+
+function scheduleRelatedOpenDiagnostics(root: string, editedUri: string): void {
+  // A changed declaration or inferred callable result can alter diagnostics in
+  // another open file without changing that file's document version.
+  const pending = relatedDiagnosticRefreshes.get(root);
+  if (pending) clearTimeout(pending.timer);
+  const editedUris = pending?.editedUris ?? new Set<string>();
+  editedUris.add(editedUri);
+  const timer = setTimeout(() => {
+    relatedDiagnosticRefreshes.delete(root);
+    const related = documents.all().filter((document) => document.languageId === 'php'
+      && rootForUri(document.uri) === root && !editedUris.has(document.uri));
+    void Promise.all(related.map((document) => publishDocumentDiagnostics(document))).catch((error: unknown) => {
+      connection.console.warn(`Unable to refresh related PHP diagnostics: ${String(error)}`);
+    });
+  }, relatedDiagnosticRefreshMs);
+  relatedDiagnosticRefreshes.set(root, { timer, editedUris });
 }
 
 function pathWithin(root: string, path: string): boolean {
@@ -4181,7 +4201,7 @@ connection.onDidChangeConfiguration(async ({ settings }) => {
   const previousProviders = JSON.stringify(semanticProviders);
   await enqueueSemanticProviderChange(() => setConfiguredSemanticProviders(phpCompanion?.semanticProviders));
   const providersChanged = previousProviders !== JSON.stringify(semanticProviders);
-  if ((routeProvidersChanged || diagnosticsChanged) && !providersChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map(publishDocumentDiagnostics));
+  if ((routeProvidersChanged || diagnosticsChanged) && !providersChanged) await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 
 const pendingFiles = new PendingChanges<{ uri: string; root: string }>();
@@ -4348,6 +4368,9 @@ documents.onDidChangeContent(async ({ document }) => {
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
+  if (!opening && sourceChanged && root && completeRoots.has(root) && update.kind !== 'none') {
+    scheduleRelatedOpenDiagnostics(root, document.uri);
+  }
   await publishDocumentDiagnostics(document, diagnosticEditCoalesceMs);
   recordTestQueryDuration('documentChangeDiagnostics', changeStarted);
   if (update.kind !== 'none') await refreshInteropDocument(document);
@@ -4367,6 +4390,7 @@ documents.onDidClose(async ({ document }) => {
   const root = rootForUri(document.uri);
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);
   const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
+  let relatedFactsChanged = false;
   if (workspace && root && indexedUrisByRoot.get(root)?.has(document.uri)) {
     const path = pathForUri(document.uri);
     try {
@@ -4374,6 +4398,7 @@ documents.onDidClose(async ({ document }) => {
       const diskSource = await readFile(path, 'utf8');
       const reopened = documents.get(document.uri);
       const source = reopened?.getText() ?? diskSource; const update = workspace.update(document.uri, source, Boolean(reopened));
+      relatedFactsChanged = update.kind !== 'none';
       if (update.kind !== 'none') {
         await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
           [{ uri: document.uri, source, snapshotVersion: String(indexingGeneration) }]);
@@ -4381,10 +4406,12 @@ documents.onDidClose(async ({ document }) => {
       if (update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, source, workspace);
       if (update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
     } catch { if (!documents.get(document.uri)) {
+      relatedFactsChanged = workspace.source(document.uri) !== undefined;
       workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace);
       scheduleSymfonyContainerRefresh(root);
     } }
   } else {
+    relatedFactsChanged = workspace?.source(document.uri) !== undefined;
     workspace?.remove(document.uri);
     if (workspace && root) {
       interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); scheduleSymfonyContainerRefresh(root);
@@ -4392,6 +4419,7 @@ documents.onDidClose(async ({ document }) => {
   }
   const closedPath = pathForUri(document.uri); if (root && closedPath
     && (affectsSymfonyContainerProvider(root, closedPath) || isSymfonyServiceConfig(root, closedPath))) scheduleSymfonyContainerRefresh(root);
+  if (relatedFactsChanged && root && completeRoots.has(root)) scheduleRelatedOpenDiagnostics(root, document.uri);
   await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
 });
 
@@ -5683,6 +5711,8 @@ connection.onCodeAction(async (params, token) => {
 connection.onShutdown(async () => {
   indexingGeneration += 1;
   activeIndexing = undefined;
+  for (const pending of relatedDiagnosticRefreshes.values()) clearTimeout(pending.timer);
+  relatedDiagnosticRefreshes.clear();
   for (const timer of callableFactCommitTimers.values()) clearTimeout(timer);
   callableFactCommitTimers.clear();
   for (const [root] of callableFactCachesByRoot) {
