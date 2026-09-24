@@ -9,6 +9,7 @@ import { WorkspaceManager } from './workspaceManager.js';
 import { createPhpType, registerPhpTypePreviewProvider, type PhpTypeKind } from '../generation/createType.js';
 import { copyIdentity, CurrentDocumentDiagnostics, NamespaceCodeActions } from '../editor/currentDocument.js';
 import { PhpRenameProvider } from '../refactor/rename.js';
+import { forgetRenamePreviewSnapshots, openRenamePreviewSnapshot, registerRenamePreviewProvider } from '../refactor/renamePreview.js';
 import { PHP_IMPORT_METADATA_MIME, PHP_IMPORT_PASTE_KIND, PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
 import { mayNeedPhpImportResolution, potentialPhpTypeNames } from '../paste/pasteText.js';
 import {
@@ -210,6 +211,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     },
   }));
   context.subscriptions.push(registerPhpTypePreviewProvider());
+  context.subscriptions.push(registerRenamePreviewProvider());
 
   const languageServer = startLanguageServer(context, output, versions, integrations).then((client) => {
     return client;
@@ -865,6 +867,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (!position) return false;
     const cancellation = new vscode.CancellationTokenSource();
     let staged: { key: string; edit: vscode.WorkspaceEdit } | undefined;
+    const previewUris = new Set<string>();
     try {
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
@@ -896,10 +899,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(target)).toString('utf8');
         const textEdits = changes.map((change) => new vscode.TextEdit(new vscode.Range(
           change.range.start.line, change.range.start.character, change.range.end.line, change.range.end.character), change.newText));
-        const language = /\.ya?ml$/iu.test(target.path) ? 'yaml' : /\.xml$/iu.test(target.path) ? 'xml'
-          : /\.twig$/iu.test(target.path) ? 'twig' : 'php';
-        const baseline = await vscode.workspace.openTextDocument({ language, content: source });
-        const preview = await vscode.workspace.openTextDocument({ language, content: applyTextEdits(source, textEdits) });
+        const baseline = await openRenamePreviewSnapshot(target, source);
+        const preview = await openRenamePreviewSnapshot(target, applyTextEdits(source, textEdits));
+        previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
         const destination = fileRename?.oldUri === targetUri ? vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri)) : undefined;
         const title = `SoPHP Rename: ${vscode.workspace.asRelativePath(target)}${destination ? ` → ${destination}` : ''}`;
         await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri, title, { preview: false });
@@ -921,6 +923,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return false;
     } finally {
       if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
+      const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
+        && previewUris.has(tab.input.modified.toString()));
+      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      forgetRenamePreviewSnapshots(previewUris);
       cancellation.dispose();
     }
   });

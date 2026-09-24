@@ -421,10 +421,16 @@ export async function run(): Promise<void> {
       uri: renameUri, position: renamePosition, newName: 'updatedValue', testPreviewAction,
     });
   assert.strictEqual(await safeRename(async () => {
-    assert.ok(vscode.window.activeTextEditor?.document.getText().includes('$updatedValue'),
+    const preview = vscode.window.activeTextEditor?.document;
+    assert.ok(preview && preview.getText().includes('$updatedValue'),
       'SoPHP Rename did not show the proposed edit before confirmation');
+    assert.strictEqual(preview.uri.scheme, 'sophp-rename-preview');
+    assert.strictEqual(preview.isDirty, false, 'Rename preview must not create an unsaved editable document');
     return 'cancel';
   }), false);
+  const hasRenamePreviewTab = (): boolean => vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) =>
+    tab.input instanceof vscode.TabInputTextDiff && tab.input.original.scheme === 'sophp-rename-preview');
+  assert.strictEqual(hasRenamePreviewTab(), false, 'Cancelling Rename left a preview diff open');
   assert.strictEqual(renameDocument.getText(), renameSource, 'Cancelling SoPHP Rename changed the source');
   assert.strictEqual(await safeRename(async () => {
     const changed = new vscode.WorkspaceEdit();
@@ -437,6 +443,7 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('undo');
   assert.strictEqual(renameDocument.getText(), renameSource);
   assert.strictEqual(await safeRename(async () => 'apply'), true, 'SoPHP Rename did not apply a confirmed preview');
+  assert.strictEqual(hasRenamePreviewTab(), false, 'Applying Rename left a stale preview diff open');
   assert.ok(renameDocument.getText().includes('$updatedValue') && !renameDocument.getText().includes('$value'));
   await vscode.commands.executeCommand('undo');
   assert.strictEqual(renameDocument.getText(), renameSource, 'One Undo did not restore the SoPHP Rename source');
@@ -553,6 +560,8 @@ export async function run(): Promise<void> {
       const labels = vscode.window.tabGroups.all.flatMap((group) => group.tabs).map((tab) => tab.label);
       assert.ok(labels.some((label) => label.includes('services.yaml')) && labels.some((label) => label.includes('services.xml')),
         'SoPHP Rename did not preview Symfony YAML and XML targets');
+      assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === xmlServicesUri.toString()),
+        'Rename preview opened a previously closed XML target');
       return 'cancel';
     },
   }), false, 'Cancelling a cross-format SoPHP Rename changed files');
