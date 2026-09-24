@@ -133,8 +133,8 @@ export async function run(): Promise<void> {
   const flowUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'DocblockerFlow.php');
   const flowSource = `<?php
 namespace App\\Service;
-class AlphaDocItem { public function itemAlpha(): void {} }
-class BetaDocItem { public function itemBeta(): void {} }
+class AlphaDocItem { public function itemAlpha(): void {} public function itemCommon(): void {} }
+class BetaDocItem { public function itemBeta(): void {} public function itemCommon(): void {} }
 
 function inspect(array $items): void { foreach ($items as $item) { $item->item; $item->itemAlpha(); } }
 `;
@@ -215,6 +215,13 @@ function inspect(array $items): void { foreach ($items as $item) { $item->item; 
   'SoPHP did not navigate to the new Beta method after the unsaved PHPDoc and call edits.');
   const betaHovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', flowUri, betaPosition) ?? [];
   assert.match(betaHovers.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n'), /itemBeta/u);
+  await setDocumentedItem('AlphaDocItem|BetaDocItem');
+  const unionLabels = (await itemCompletions()).filter((label) => label.startsWith('item'));
+  assert.deepStrictEqual(unionLabels, ['itemCommon'], 'A PHPDoc union exposed members absent from one alternative.');
+  const unionBetaPosition = flowDocument.positionAt(flowDocument.getText().lastIndexOf('$item->itemBeta();') + '$item->item'.length);
+  const unionDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, unionBetaPosition) ?? [];
+  assert.ok(!unionDefinitions.some((location) => flowDocument.getText(location.range).includes('itemBeta')),
+    'A PHPDoc union still navigated to a method absent from one alternative.');
   console.log('C2 generated PHPDoc type flow: AlphaDocItem → BetaDocItem, completion/hover/definition updated');
   console.log('PHP DocBlocker 2.7.0 + SoPHP: one generator, typed param/return, no PHPDoc conflict.');
 }

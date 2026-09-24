@@ -358,6 +358,25 @@ describe('conservative semantic workspace', () => {
     expect(workspace.unresolvedMembers('file:///CompositeUse.php').map((item) => item.name)).toEqual(['fromA', 'fromB', 'fromB', 'fromB']);
     expect(workspace.nullableMemberAccesses('file:///CompositeUse.php').map((item) => item.name)).toEqual(['common', 'common', 'common']);
   });
+  it('keeps PHPDoc list union alternatives through foreach member queries', () => {
+    const uri = 'file:///DocListUnion.php';
+    const source = `<?php
+      class AlphaItem { public function common(): void {} public function onlyAlpha(): void {} }
+      class BetaItem { public function common(): void {} public function onlyBeta(): void {} }
+      /** @param list<AlphaItem|BetaItem> $items */
+      function inspect(array $items): void {
+        foreach ($items as $item) { $item->; $item->onlyAlpha(); }
+      }
+      /** @param list<AlphaItem|MissingItem> $items */
+      function inspectIncomplete(array $items): void {
+        foreach ($items as $unknown) { $unknown->; }
+      }`;
+    workspace.update(uri, source);
+    expect(workspace.completeMembers(uri, source.indexOf('$item->;') + '$item->'.length).map((item) => item.name))
+      .toEqual(['common']);
+    expect(workspace.definition(uri, source.indexOf('$item->onlyAlpha();') + '$item->'.length + 2)).toEqual([]);
+    expect(workspace.completeMembers(uri, source.indexOf('$unknown->;') + '$unknown->'.length)).toEqual([]);
+  });
   it('propagates PHP 8.5 pipe results only through compatible single-argument callables', () => {
     workspace.update('file:///PipeTypes.php', `<?php namespace PipeFlow;
       class Input { public function inputOnly(): void {} }

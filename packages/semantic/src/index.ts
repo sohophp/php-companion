@@ -8454,6 +8454,13 @@ export class SemanticWorkspace {
       const sourceIterable = assignment.sourceIterable;
       const iterableType = this.provenArgumentType(file, sourceIterable.start, sourceIterable.end);
       const element = iterableType && this.delegatedGeneratorTypes(iterableType)?.value;
+      const elementGroups = element && this.objectGroups(element);
+      const firstElement = elementGroups?.groups[0]?.[0];
+      if (elementGroups && firstElement && elementGroups.groups.flat().every((candidate) => this.fileAndDeclaration(candidate.fqcn))
+        && (!elementGroups.nullable || allowNullable)) {
+        return { ...firstElement, nullable: elementGroups.nullable, groups: elementGroups.groups };
+      }
+      if (element?.kind === 'union' || element?.kind === 'intersection') return undefined;
       const elementObject = element && this.objectType(displayType(element), allowNullable);
       const elementFqcn = elementObject && this.resolveType(file, elementObject.name,
         this.namespaceAt(file, sourceIterable.start), scope.containerFqcn);
