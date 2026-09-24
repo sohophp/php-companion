@@ -71,5 +71,24 @@ export async function run(): Promise<void> {
     () => vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: false }),
     () => optimizeDocument.getText().includes('use App\\Contract\\Runner;')
       && optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length === 2);
+  const serviceDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Service');
+  const generatedUri = vscode.Uri.joinPath(serviceDirectory, 'C3GeneratedType.php');
+  const checkPreview = (): void => {
+    const preview = vscode.window.activeTextEditor?.document;
+    assert.ok(preview && preview.uri.scheme === 'sophp-type-preview', 'Generated PHP source was not opened as a read-only preview');
+    assert.ok(preview.getText().includes('namespace App\\Service;') && preview.getText().includes('class C3GeneratedType'),
+      'Generated PHP preview omitted its PSR-4 namespace or class');
+  };
+  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); return 'cancel'; });
+  await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Cancelling generated PHP preview created a file');
+  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); return 'apply'; });
+  const generated = await vscode.workspace.openTextDocument(generatedUri);
+  assert.ok(generated.getText().includes('class C3GeneratedType'), 'Applying generated PHP preview did not create the source');
+  await vscode.window.showTextDocument(generated);
+  await vscode.commands.executeCommand('undo');
+  await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Generated PHP file was not removed by one Undo');
   console.log('C3 held server import requests: addImport, planTypeImports, organizeImports; all rejected stale edits.');
+  console.log('C3 PHP type generation: preview, cancel, apply and one Undo passed; Redo remains open.');
 }

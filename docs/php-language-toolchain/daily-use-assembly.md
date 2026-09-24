@@ -83,7 +83,7 @@ Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未
 ### 下一次执行顺序
 
 1. **固定 Pack 的职责与清单。** 当前源码为 11 项：Core、Symfony 和 9 个外部扩展；外部扩展分别负责 Twig、YAML、XML、调试、测试、格式化、EditorConfig、Apache 配置和 PHPDoc 注释生成。PHPStan 仅供项目自选。保持一个通用 PHP 语言服务和一个 PHP 默认格式化器；成员版本变化时重新检查冲突，不按 Core 每次提交重新打包。
-2. **从 C3 的代码生成体验继续。** 已有 Rename、导入和 Safe Move 的部分预览及版本保护证据；下一项是类型生成的预览、取消、应用和一次 Undo/Redo。[最小资源编辑探针](reports/c3-type-generation-undo-redo-probe-2026-09-24.md)确认生成文件可被 Undo 删除，但 Redo 没有恢复；实验实现未合入。先找到 VS Code 文件创建的一步撤销/重做路径，再选择生成交互；期间推进其它具备完整撤销链的 C3 操作，不能把未通过的实验标为完成。
+2. **从 C3 的代码生成体验继续。** 已有 Rename、导入和 Safe Move 的部分预览及版本保护证据；类型生成现有[预览、取消、应用和一次 Undo 的宿主证据](reports/c3-type-generation-preview-2026-09-24.md)。[最小资源编辑探针](reports/c3-type-generation-undo-redo-probe-2026-09-24.md)确认文件创建的 Redo 尚未恢复；先找到 VS Code 文件创建的一步撤销/重做路径，同时推进其它具备完整撤销链的 C3 操作，不能把未通过的生成流程标为 C3 完成。
 3. **补 C1/C2 的开放证据。** 用独立 Composer 项目和真实 vendor/约 10k 文件夹具观察长会话、可见等待、取消及跨文件类型反馈；优先修复旧结果、错误诊断和明显卡顿。完整 Pack 源码宿主已有短序列证据，仍需更长会话和实际 Remote 操作。
 4. **冻结组合候选后进入 C4 门禁。** 只有组合成员或候选需要交付时，才固定外部版本、生成同批 Core/Symfony/Pack VSIX 并核对摘要、安装与 Extension Host；再验证 WSL Remote、跨平台、PHP 版本矩阵和持续使用。R4 的整体体验目标保持开放。
 

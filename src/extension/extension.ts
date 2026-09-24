@@ -5,7 +5,7 @@ import { resolvePsr4Namespace, resolvePsr4Namespaces } from '../composer/project
 import { performance } from 'node:perf_hooks';
 import { VersionManager } from './versionManager.js';
 import { WorkspaceManager } from './workspaceManager.js';
-import { createPhpType, type PhpTypeKind } from '../generation/createType.js';
+import { createPhpType, registerPhpTypePreviewProvider, type PhpTypeKind } from '../generation/createType.js';
 import { copyIdentity, CurrentDocumentDiagnostics, NamespaceCodeActions } from '../editor/currentDocument.js';
 import { PhpRenameProvider } from '../refactor/rename.js';
 import { PHP_IMPORT_METADATA_MIME, PHP_IMPORT_PASTE_KIND, PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
@@ -191,6 +191,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return builtinPhpStub(target);
     },
   }));
+  context.subscriptions.push(registerPhpTypePreviewProvider());
 
   const languageServer = startLanguageServer(context, output, versions, integrations).then((client) => {
     return client;
@@ -417,6 +418,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
+    register('phpCompanion._testCreatePhpType', (kind: PhpTypeKind, name: string, target: vscode.Uri,
+      testPreviewAction: () => Promise<'apply' | 'cancel'>) => createPhpType(kind, versions, target, { testName: name, testPreviewAction }));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
       await Promise.all([versions.ensureForUri(oldUri), versions.ensureForUri(newUri)]);
