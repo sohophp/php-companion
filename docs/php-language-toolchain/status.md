@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 长序列内存修复：独立 Composer PHP 8.5 项目的默认 `onDemand` 真实 stdio 连续 5,000 轮开改关及补全/Hover/Definition 正反查询均无旧结果，但修复前 RSS 从 143.3 升至 186.6 MiB。根因是关闭文件转为磁盘语义快照时从映射移除保留的语法树却未 `delete()`；修复后同序列 RSS 144.1→149.3 MiB，五段均值约 147 MiB，主要 P95 基本不变。语义包完整 319 项、Language Server 全套 335 项通过且 1 项跳过；这是约 219 秒的合成序列，真实长时间 UI/Remote 仍开放。见[报告](reports/c2-session-retained-tree-2026-09-24.md)。
+
 2026-09-24 C2 按需缓存与根归属：真实 stdio 先复现嵌套 Composer 项目建立后，父项目继续从已关闭文件缓存补全子项目方法。Core 现将已加载文件事实和索引归属移入新根，并在排队 watcher 应用前重查归属；父项目不再看到子项目方法，子项目及后续磁盘更新仍正确。257 文件测试确认每根近期关闭缓存上限 256，重开后按最近使用顺序淘汰。Language Server 全套 18 文件、335 项通过、1 项跳过；最终时序收紧后相关 stdio 10 项、构建、类型检查、ESLint 和差异检查通过。本轮未打包 VSIX，长会话和 Remote 仍开放。见[报告](reports/c2-ondemand-root-cache-2026-09-24.md)。
 
 2026-09-24 C2 跨文件编辑时序：已打开声明的 PHPDoc `list<Alpha>` → `list<Beta>` 后，使用方连续未保存编辑的最终版本 3 仍得到 Beta 成员补全，旧版本诊断没有在版本 3 之后发布。默认 `onDemand` 下关闭并立即重开同一文件时，关闭回调现只在文件仍关闭时清空诊断，避免覆盖重开版本。真实 stdio 定向 3 项、构建、类型检查、相关 ESLint 与差异检查通过；长会话、Remote 和完整 Pack 本轮未验。见[跨文件 PHPDoc 返回类型报告](reports/c2-cross-file-phpdoc-return-2026-09-24.md)。

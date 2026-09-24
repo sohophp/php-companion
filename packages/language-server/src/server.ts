@@ -3378,6 +3378,12 @@ connection.onRequest('phpCompanion/testOnDemandClosedDocuments', (params: { uri?
   return root ? [...(onDemandClosedDocumentsByRoot.get(root)?.keys() ?? [])] : [];
 });
 
+connection.onRequest('phpCompanion/testMemoryUsage', (params: { collect?: unknown } | undefined): NodeJS.MemoryUsage | undefined => {
+  if (!testMode) return undefined;
+  if (params?.collect === true) (globalThis as { gc?: () => void }).gc?.();
+  return process.memoryUsage();
+});
+
 function recordTestQueryDuration(method: string, started: number): void {
   if (!testMode) return;
   const samples = testQueryDurations.get(method) ?? [];

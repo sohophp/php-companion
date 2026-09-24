@@ -1134,7 +1134,10 @@ export class SemanticWorkspace {
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
     const hasDerivedCaches = this.constructorInitializationSummaries.size > 0 || this.factoryConstructionSummaries.size > 0;
-    const oldSource = oldFile?.source; const oldTree = retainTree ? this.trees.get(uri) : undefined;
+    // A close updates from disk without incremental parsing, but still owns
+    // the tree retained while the document was open.
+    const oldSource = oldFile?.source; const previousTree = this.trees.get(uri);
+    const oldTree = retainTree ? previousTree : undefined;
     if (oldTree && oldSource !== undefined) oldTree.edit(createIncrementalEdit(oldSource, source));
     const parsed = prepared ? {
       ...emptyImplementationFacts(), ...prepared.facts, errors: prepared.kind === 'full' ? prepared.facts.errors : [],
@@ -1490,7 +1493,7 @@ export class SemanticWorkspace {
         changedCallables: [...changedCallables].sort(), changedTypes: [...changedTypes].sort(),
       };
     } finally {
-      oldTree?.delete();
+      previousTree?.delete();
       if (!retainTree) parsed.tree?.delete();
     }
   }

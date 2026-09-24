@@ -7,6 +7,23 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('releases the retained syntax tree when an open file becomes a closed disk snapshot', () => {
+    const local = new SemanticWorkspace(parser); const uri = 'file:///ClosedSnapshot.php';
+    const source = '<?php class Alpha { public function onlyAlpha(): void {} }';
+    const changed = source.replace('onlyAlpha', 'onlyBeta');
+    try {
+      local.update(uri, source, true);
+      const retained = (local as unknown as { trees: Map<string, { delete(): void }> }).trees.get(uri)!;
+      const firstRelease = vi.spyOn(retained, 'delete');
+      local.update(uri, changed, true);
+      expect(firstRelease).toHaveBeenCalledOnce();
+      const nextRetained = (local as unknown as { trees: Map<string, { delete(): void }> }).trees.get(uri)!;
+      const closeRelease = vi.spyOn(nextRetained, 'delete');
+      local.update(uri, source, false);
+      expect(closeRelease).toHaveBeenCalledOnce();
+      expect(local.source(uri)).toBe(source);
+    } finally { local.dispose(); }
+  });
   it('does not count method-shaped text inside strings or comments as references', () => {
     const local = new SemanticWorkspace(parser); const uri = 'file:///LiteralReferences.php';
     const source = `<?php class Printer {

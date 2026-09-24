@@ -82,6 +82,7 @@
     "verify:packages": "pnpm build:packages && node scripts/verify-package-tarballs.mjs",
     "benchmark:index": "pnpm build:packages && node scripts/benchmark-index.mjs",
     "benchmark:editing": "pnpm build:packages && node scripts/benchmark-editing.mjs",
+    "benchmark:c2-session": "pnpm build:packages && node scripts/benchmark-c2-session.mjs",
     "benchmark:local-change": "pnpm build:packages && node scripts/benchmark-local-change.mjs",
     "benchmark:references": "pnpm build:packages && node scripts/benchmark-references.mjs",
     "benchmark:reference-candidates": "node scripts/profile-reference-candidates.mjs",
