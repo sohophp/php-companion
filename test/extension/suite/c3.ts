@@ -93,6 +93,17 @@ export async function run(): Promise<void> {
     () => vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: false }),
     () => optimizeDocument.getText().includes('use App\\Contract\\Runner;')
       && optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length === 2);
+  const optimizeOriginal = optimizeDocument.getText();
+  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: true, testPreviewAction: async () => {
+    const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+      tab.input instanceof vscode.TabInputTextDiff && tab.input.original.toString() === optimizeUri.toString());
+    assert.strictEqual(previews.length, 1, 'Optimize Imports did not open one diff');
+    assert.ok(previews[0]!.input instanceof vscode.TabInputTextDiff);
+    assert.strictEqual(previews[0]!.input.modified.scheme, 'sophp-rename-preview', 'Optimize Imports result was not read-only');
+    assert.ok(await vscode.window.tabGroups.close(previews), 'Could not close the Optimize Imports preview');
+    return 'apply';
+  } });
+  assert.strictEqual(optimizeDocument.getText(), optimizeOriginal, 'Optimize Imports applied after its preview was closed');
   const serviceDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Service');
   const generatedUri = vscode.Uri.joinPath(serviceDirectory, 'C3GeneratedType.php');
   const checkPreview = (): void => {
@@ -169,6 +180,17 @@ export async function run(): Promise<void> {
   assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
     .some((tab) => tab.label.includes('Extract interface C3ExtractableInterface')),
   'Cancelling Extract Interface left preview tabs open');
+  const closedExtractAction = await extractAction();
+  await vscode.commands.executeCommand(closedExtractAction.command!.command, ...closedExtractAction.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+        tab.label.includes('Extract interface C3ExtractableInterface'));
+      assert.ok(previews.length >= 2, 'Extract Interface did not open source and target previews');
+      assert.ok(await vscode.window.tabGroups.close(previews[0]!), 'Could not close an Extract preview');
+      return 'apply';
+    } });
+  await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Extract applied after a preview was closed');
+  assert.strictEqual(classDocument.getText(), classSource, 'Closing an Extract preview changed the source');
   const raceAction = await extractAction();
   await vscode.commands.executeCommand(raceAction.command!.command, ...raceAction.command!.arguments ?? [],
     { testPreviewAction: async () => {
@@ -699,6 +721,16 @@ export async function run(): Promise<void> {
     tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php')),
   'Cancelling Safe Move left a preview diff open');
   assert.strictEqual((await vscode.workspace.openTextDocument(moveSourceUri)).getText(), moveSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri));
+  await movePreview(async () => {
+    const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+      tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php'));
+    assert.ok(previews.length >= 1, 'Safe Move did not open its preview');
+    assert.ok(await vscode.window.tabGroups.close(previews[0]!), 'Could not close a Safe Move preview');
+    return 'apply';
+  });
+  assert.strictEqual((await vscode.workspace.openTextDocument(moveSourceUri)).getText(), moveSource,
+    'Safe Move applied after its preview was closed');
   await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri));
   await movePreview(async () => 'apply');
   assert.ok((await vscode.workspace.openTextDocument(moveTargetUri)).getText().includes('namespace App\\Controller;'));

@@ -438,6 +438,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (context.extensionMode === vscode.ExtensionMode.Test && testPreviewAction) return await testPreviewAction() === 'apply';
     return await vscode.window.showInformationMessage(message, t('apply')) === t('apply');
   };
+  const previewDiffTabs = (uris: ReadonlySet<string>): vscode.Tab[] => vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+    .filter((tab) => tab.input instanceof vscode.TabInputTextDiff
+      && uris.has(tab.input.original.toString()) && uris.has(tab.input.modified.toString()));
+  const previewDiffsComplete = (uris: ReadonlySet<string>): boolean => uris.size > 0 && previewDiffTabs(uris).length === uris.size / 2;
+  const confirmOptimizePreview = async (document: vscode.TextDocument, optimizedSource: string,
+    testPreviewAction?: () => Promise<'apply' | 'cancel'>): Promise<boolean> => {
+    const preview = await openRenamePreviewSnapshot(document.uri, optimizedSource);
+    try {
+      await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri,
+        t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)), { preview: false });
+      if (!await confirmPreviewedEdit(t('applyPreviewedImportChanges'), testPreviewAction)) return false;
+      const stillOpen = vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && tab.input.original.toString() === document.uri.toString()
+          && tab.input.modified.toString() === preview.uri.toString()));
+      if (stillOpen) return true;
+      void vscode.window.showWarningMessage(t('previewClosed'));
+      return false;
+    } finally {
+      const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && tab.input.modified.toString() === preview.uri.toString());
+      if (tabs.length) await vscode.window.tabGroups.close(tabs);
+      forgetRenamePreviewSnapshots([preview.uri.toString()]);
+    }
+  };
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
       targetHashes?: Record<string, string> },
@@ -505,13 +529,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         await showDiff(uri, previous, applyTextEdits(previous, edits));
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;
+      if (!previewDiffsComplete(previewUris)) return void vscode.window.showWarningMessage(t('previewClosed'));
       if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
       if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
       await vscode.window.showTextDocument(source, { preview: false });
     } finally {
-      const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
-        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
-        && previewUris.has(tab.input.modified.toString()));
+      const previewTabs = previewDiffTabs(previewUris);
       if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
       forgetRenamePreviewSnapshots(previewUris);
     }
@@ -622,6 +645,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
             `${t('safeMoveDiff', vscode.workspace.asRelativePath(source))} → ${vscode.workspace.asRelativePath(target)}`, { preview: false });
         }
         if (!await confirmPreviewedEdit(t('applyPreviewedSafeMove'), options?.testPreviewAction)) return;
+        if (!previewDiffsComplete(previewUris)) throw new MoveError(t('previewClosed'));
       }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
@@ -638,9 +662,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       output.warn(`Safe Move rejected: ${message}`);
       void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
     } finally {
-      const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
-        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
-        && previewUris.has(tab.input.modified.toString()));
+      const previewTabs = previewDiffTabs(previewUris);
       if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
       forgetRenamePreviewSnapshots(previewUris);
     }
@@ -777,9 +799,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const edit = fromProtocolWorkspaceEdit(action?.edit);
       if (!edit) return void vscode.window.showInformationMessage(t('importsAlreadyOrganized'));
       if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-        const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(document.getText(), edit.get(document.uri)) });
-        await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)), { preview: false });
-        if (!await confirmPreviewedEdit(t('applyPreviewedImportChanges'), options?.testPreviewAction)) return;
+        if (!await confirmOptimizePreview(document, applyTextEdits(document.getText(), edit.get(document.uri)), options?.testPreviewAction)) return;
       }
       if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
       await vscode.workspace.applyEdit(edit);
@@ -795,9 +815,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const result = buildOptimizeImportsEdit(document, file, manager.index, configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped'));
     if (!result.edit || result.optimizedSource === undefined) return void vscode.window.showInformationMessage(t('importsAlreadyOptimized'));
     if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: result.optimizedSource });
-      await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)), { preview: false });
-      if (!await confirmPreviewedEdit(t('applyPreviewedImportChanges'), options?.testPreviewAction)) return;
+      if (!await confirmOptimizePreview(document, result.optimizedSource, options?.testPreviewAction)) return;
     }
     if (document.isClosed || document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
     await vscode.workspace.applyEdit(result.edit);
