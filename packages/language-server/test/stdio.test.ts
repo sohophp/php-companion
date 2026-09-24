@@ -6452,10 +6452,27 @@ class Example {}`;
     expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.control-flow.unreachable')).toBe(false);
     expect(output.messages.some((message: any) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === uri)).toBe(false);
-    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
+    const burstStart = output.messages.length;
+    for (let version = 3; version <= 22; version += 1) {
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version }, contentChanges: [{ text: version === 22 || version % 2 === 0 ? changed : source }],
+      } }));
+    }
+    await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+      && message.params.uri === uri && message.params.version === 22);
+    const burstNotifications = output.messages.slice(burstStart).filter((message: any) => message.method === 'phpCompanion/versionedDiagnostics'
+      && message.params.uri === uri) as Array<{ params: { version: number } }>;
+    expect(burstNotifications.map((message) => message.params.version)).toEqual([22]);
+    const closeStart = output.messages.length;
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri, version: 23 }, contentChanges: [{ text: source }],
+    } }) + encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
     const cleared = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === uri && message.params.diagnostics.length === 0);
     expect(cleared.params.diagnostics).toEqual([]);
+    await new Promise((resolve) => setTimeout(resolve, 75));
+    expect(output.messages.slice(closeStart).some((message: any) => message.method === 'phpCompanion/versionedDiagnostics'
+      && message.params.uri === uri && message.params.version === 23)).toBe(false);
   });
 
   it('publishes native never fallthrough only for proven normal completion', async () => {

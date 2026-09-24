@@ -149,6 +149,8 @@ let cacheDirectory: string | undefined;
 let indexLimits: ProjectIndexLimits = DEFAULT_INDEX_LIMITS;
 let testMode = false;
 let versionedDiagnostics = false;
+// Give a burst of incremental changes time to arrive before CPU-bound analysis.
+const diagnosticEditCoalesceMs = 25;
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
@@ -1440,9 +1442,13 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   }));
 }
 
-async function publishDocumentDiagnostics(document: TextDocument): Promise<void> {
+async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0): Promise<void> {
   const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
+  if (coalesceMs > 0) {
+    await new Promise<void>((resolve) => setTimeout(resolve, coalesceMs));
+    if (documents.get(document.uri) !== document || document.version !== version) return;
+  }
   const workspace = await semanticForUri(document.uri);
   const root = rootForUri(document.uri);
   const targetPhpVersion = phpVersionForUri(document.uri);
@@ -4342,7 +4348,7 @@ documents.onDidChangeContent(async ({ document }) => {
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
-  await publishDocumentDiagnostics(document);
+  await publishDocumentDiagnostics(document, diagnosticEditCoalesceMs);
   recordTestQueryDuration('documentChangeDiagnostics', changeStarted);
   if (update.kind !== 'none') await refreshInteropDocument(document);
   const pending = pendingReferenceSelections.get(document.uri);
