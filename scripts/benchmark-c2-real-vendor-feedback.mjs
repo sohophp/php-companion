@@ -125,7 +125,7 @@ try {
   server = startServer();
   await server.request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
     initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true,
-      testMode: true, testPauseNextQueries: ['hover'] } });
+      testMode: true, testPauseNextQueries: scenario === 'shape' ? ['hover', 'completion'] : ['hover'] } });
   server.send({ method: 'initialized', params: {} });
   for (const [uri, text] of [[serviceUri, initialSource], [consumerUri, consumerText]]) {
     server.send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text } } });
@@ -225,12 +225,51 @@ try {
     if (server.messages.slice(settledAt).some((message) => mismatch(message, false))) {
       throw new Error('A stale union-shape diagnostic appeared after same-version reopen.');
     }
+    const completionPosition = positionAt(shapeConsumer, shapeConsumer.indexOf('$item->common()') + '$item->'.length);
+    const pausedCompletionId = 10_001; const pausedCompletionAt = server.messages.length;
+    server.send({ id: pausedCompletionId, method: 'textDocument/completion', params: {
+      textDocument: { uri: consumerUri }, position: completionPosition,
+    } });
+    await server.waitFor((message) => message.method === 'window/logMessage'
+      && message.params?.message === '[test-query-paused] method=completion', pausedCompletionAt);
+    server.send({ method: '$/cancelRequest', params: { id: pausedCompletionId } });
+    await writeFile(join(root, 'src', 'Service.php'), shapeSource(true));
+    after = server.messages.length;
+    server.send({ method: 'textDocument/didClose', params: { textDocument: { uri: serviceUri } } });
+    server.send({ method: 'textDocument/didOpen', params: {
+      textDocument: { uri: serviceUri, languageId: 'php', version: 1, text: shapeSource(false) },
+    } });
+    server.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 2 }] } });
+    await server.waitFor((message) => mismatch(message, false), after);
+    await feedback(false);
+    const completionReleased = await server.request('phpCompanion/testReleaseQuery', { method: 'completion' });
+    if (completionReleased.result !== true) throw new Error('Paused shape Completion was not released.');
+    const staleCompletion = await server.waitFor((message) => message.id === pausedCompletionId, pausedCompletionAt);
+    if (staleCompletion.result !== null && (!Array.isArray(staleCompletion.result) || staleCompletion.result.length !== 0)) {
+      throw new Error(`Cancelled shape Completion returned old candidates: ${JSON.stringify(staleCompletion.result)}`);
+    }
+    const completion = async (expected) => {
+      const response = await server.request('textDocument/completion', {
+        textDocument: { uri: consumerUri }, position: completionPosition,
+      });
+      const hasCommon = JSON.stringify(response.result ?? null).includes('"label":"common"');
+      if (hasCommon !== expected) throw new Error(`Completion disagrees with ${expected}: ${JSON.stringify(response.result)}`);
+    };
+    await completion(false);
+    after = server.messages.length;
+    server.send({ method: 'textDocument/didChange', params: {
+      textDocument: { uri: serviceUri, version: 2 }, contentChanges: [{ text: shapeSource(true) }],
+    } });
+    await server.waitFor((message) => mismatch(message, true), after);
+    await feedback(true);
+    await completion(true);
     await server.stop(); server = undefined;
     process.stdout.write(`${JSON.stringify({ schema: 1, scenario, rounds, noiseFiles, vendorPhpFiles,
       projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
       elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
         .map(([name, values]) => [name, summary(values)])), rssSamples,
-      recovery: { closeRestoredDisk: true, watcherRoundTrip: true, sameVersionReopen: true } }, null, 2)}\n`);
+      recovery: { closeRestoredDisk: true, watcherRoundTrip: true, sameVersionReopen: true,
+        cancelledCompletionAcrossReopenAndWatcher: true } }, null, 2)}\n`);
   } else {
     const hoverPosition = positionAt(consumer, consumer.lastIndexOf('$value);') + 2);
     const pausedId = 10_000; const pausedAt = server.messages.length;
