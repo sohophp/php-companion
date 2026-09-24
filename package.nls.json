@@ -4,6 +4,7 @@
   "command.showCompatibilityReport": "Show Diagnostics Report",
   "command.showPerformanceLog": "Show Performance Log",
   "command.safeMove": "Safe Move PHP File",
+  "command.safeRename": "Rename PHP Symbol with Preview",
   "command.rebuildIndex": "Rebuild Experimental Index",
   "command.importClass": "Import Class",
   "command.resolvePastedImports": "Resolve Imports",

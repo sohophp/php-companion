@@ -112,6 +112,7 @@
       { "command": "phpCompanion.showCompatibilityReport", "title": "%command.showCompatibilityReport%", "category": "SoPHP" },
       { "command": "phpCompanion.showPerformanceLog", "title": "%command.showPerformanceLog%", "category": "SoPHP" },
       { "command": "phpCompanion.safeMove", "title": "%command.safeMove%", "category": "SoPHP" },
+      { "command": "phpCompanion.safeRename", "title": "%command.safeRename%", "category": "SoPHP" },
       { "command": "phpCompanion.rebuildIndex", "title": "%command.rebuildIndex%", "category": "SoPHP" },
       { "command": "phpCompanion.importClass", "title": "%command.importClass%", "category": "SoPHP" },
       { "command": "phpCompanion.resolvePastedImports", "title": "%command.resolvePastedImports%", "category": "SoPHP" },

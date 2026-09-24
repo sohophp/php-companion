@@ -412,6 +412,32 @@ export async function run(): Promise<void> {
   await vscode.window.showTextDocument(renameDocument);
   await vscode.commands.executeCommand('undo');
   assert.strictEqual(renameDocument.getText(), renameSource);
+  const safeRename = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+      uri: renameUri, position: renamePosition, newName: 'updatedValue', testPreviewAction,
+    });
+  assert.strictEqual(await safeRename(async () => {
+    assert.ok(vscode.window.activeTextEditor?.document.getText().includes('$updatedValue'),
+      'SoPHP Rename did not show the proposed edit before confirmation');
+    return 'cancel';
+  }), false);
+  assert.strictEqual(renameDocument.getText(), renameSource, 'Cancelling SoPHP Rename changed the source');
+  assert.strictEqual(await safeRename(async () => {
+    const changed = new vscode.WorkspaceEdit();
+    changed.insert(renameUri, new vscode.Position(1, 0), '// edited during SoPHP Rename preview\n');
+    assert.ok(await vscode.workspace.applyEdit(changed));
+    return 'apply';
+  }), false, 'SoPHP Rename accepted an old preview after the source changed');
+  assert.ok(renameDocument.getText().includes('edited during SoPHP Rename preview') && renameDocument.getText().includes('$value'));
+  await vscode.window.showTextDocument(renameDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(renameDocument.getText(), renameSource);
+  assert.strictEqual(await safeRename(async () => 'apply'), true, 'SoPHP Rename did not apply a confirmed preview');
+  assert.ok(renameDocument.getText().includes('$updatedValue') && !renameDocument.getText().includes('$value'));
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(renameDocument.getText(), renameSource, 'One Undo did not restore the SoPHP Rename source');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(renameDocument.getText().includes('$updatedValue'), 'One Redo did not restore SoPHP Rename');
   const crossRenameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'UserService.php');
   const crossConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'UserController.php');
   const crossRenameSource = Buffer.from(await vscode.workspace.fs.readFile(crossRenameUri)).toString('utf8');
@@ -444,6 +470,41 @@ export async function run(): Promise<void> {
   }
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(crossConsumerUri)).toString('utf8'), changedConsumer);
   assert.strictEqual(crossRenameDocument.getText(), crossRenameSource);
+  const safeTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SafeType.php');
+  const renamedTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenamedType.php');
+  const safeConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3SafeTypeConsumer.php');
+  const safeTypeSource = '<?php\nnamespace App\\Service;\nfinal class C3SafeType {}\n';
+  const safeConsumerSource = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3SafeType;\nfinal class C3SafeTypeConsumer { public function run(C3SafeType $item): void {} }\n';
+  await vscode.workspace.fs.writeFile(safeTypeUri, Buffer.from(safeTypeSource));
+  await vscode.workspace.fs.writeFile(safeConsumerUri, Buffer.from(safeConsumerSource));
+  const safeConsumerDocument = await vscode.workspace.openTextDocument(safeConsumerUri);
+  await vscode.window.showTextDocument(safeConsumerDocument);
+  const safeTypeDocument = await vscode.workspace.openTextDocument(safeTypeUri);
+  await vscode.window.showTextDocument(safeTypeDocument);
+  const safeTypePosition = safeTypeDocument.positionAt(safeTypeSource.indexOf('class C3SafeType') + 'class '.length + 3);
+  const safeConsumerReady = async (): Promise<boolean> => {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', safeTypeUri, safeTypePosition);
+    return references?.some((item) => item.uri.toString() === safeConsumerUri.toString()) ?? false;
+  };
+  for (let attempt = 0; attempt < 100 && !await safeConsumerReady(); attempt += 1)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(await safeConsumerReady(), 'New PSR-4 consumer was not indexed before Safe Rename');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: safeTypeUri, position: safeTypePosition, newName: 'C3RenamedType', testPreviewAction: async () => {
+      assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) => tab.label.includes('C3SafeType.php')),
+        'SoPHP type Rename did not show the declaration or file move preview');
+      return 'apply';
+    },
+  }), true, 'SoPHP Rename did not apply the PSR-4 file move');
+  await assert.rejects(async () => vscode.workspace.fs.stat(safeTypeUri));
+  assert.ok((await vscode.workspace.openTextDocument(renamedTypeUri)).getText().includes('class C3RenamedType'));
+  assert.ok((await vscode.workspace.openTextDocument(safeConsumerUri)).getText().includes('C3RenamedType'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok((await vscode.workspace.openTextDocument(safeTypeUri)).getText().includes('class C3SafeType'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(renamedTypeUri));
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(renamedTypeUri)).getText().includes('class C3RenamedType'));
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();
@@ -478,6 +539,19 @@ export async function run(): Promise<void> {
   assert.strictEqual(await heldServiceRename, undefined,
     'Symfony Rename returned a stale WorkspaceEdit after a closed XML reference changed');
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(xmlServicesUri)).toString('utf8'), changedXml);
+  assert.ok(servicesDocument.getText().includes('app.mailer:'));
+  const containerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'ContainerConsumer.php');
+  const containerDocument = await vscode.workspace.openTextDocument(containerUri);
+  await vscode.window.showTextDocument(containerDocument);
+  const containerPosition = containerDocument.positionAt(containerDocument.getText().indexOf("get('app.mailer')") + 7);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: containerUri, position: containerPosition, newName: 'app.mailer_safe', testPreviewAction: async () => {
+      const labels = vscode.window.tabGroups.all.flatMap((group) => group.tabs).map((tab) => tab.label);
+      assert.ok(labels.some((label) => label.includes('services.yaml')) && labels.some((label) => label.includes('services.xml')),
+        'SoPHP Rename did not preview Symfony YAML and XML targets');
+      return 'cancel';
+    },
+  }), false, 'Cancelling a cross-format SoPHP Rename changed files');
   assert.ok(servicesDocument.getText().includes('app.mailer:'));
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);

@@ -102,6 +102,22 @@ type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; 
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[];
   phpCompanion?: { sourceHashes?: Record<string, string> } };
 
+async function verifyRenameSources(result: ProtocolWorkspaceEdit): Promise<void> {
+  const hashes = result.phpCompanion?.sourceHashes;
+  if (!hashes) throw new Error('Rename omitted source snapshots. Run Rename again.');
+  const editedUris = new Set([...Object.keys(result.changes ?? {}),
+    ...(result.documentChanges ?? []).flatMap((change) => 'textDocument' in change ? [change.textDocument.uri] : [])]);
+  for (const uri of editedUris) if (!hashes[uri]) throw new Error('Rename omitted a source snapshot. Run Rename again.');
+  for (const [uri, expected] of Object.entries(hashes)) {
+    const targetUri = vscode.Uri.parse(uri);
+    const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
+    const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(targetUri)).toString('utf8');
+    if (createHash('sha256').update(source).digest('hex') !== expected) {
+      throw new Error('A PHP file changed while Rename edits were being prepared. Run Rename again.');
+    }
+  }
+}
+
 function fileOperationUriKey(value: vscode.Uri | string): string {
   const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
   return uri.scheme === 'file' && process.platform === 'win32' ? uri.fsPath.toLowerCase() : uri.toString();
@@ -765,6 +781,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       stageFileRename: (oldUri, newUri, edit) => pendingTypeRenameEdits.set(fileRenameKey(oldUri, newUri), edit),
     });
   };
+  const renamePlans = new WeakMap<vscode.WorkspaceEdit, { protocol: ProtocolWorkspaceEdit;
+    staged?: { key: string; edit: vscode.WorkspaceEdit } }>();
   const lazyRename: vscode.RenameProvider = {
     prepareRename: async (document, position, token) => {
       try {
@@ -808,27 +826,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
             && openVersions.get(item.uri.toString()) !== item.version)) {
           throw new Error('A PHP document changed while Rename edits were being prepared. Run Rename again.');
         }
-        if (result) {
-          if (!result.phpCompanion?.sourceHashes) throw new Error('Rename omitted source snapshots. Run Rename again.');
-          const editedUris = new Set([...Object.keys(result.changes ?? {}),
-            ...(result.documentChanges ?? []).flatMap((change) => 'textDocument' in change ? [change.textDocument.uri] : [])]);
-          for (const uri of editedUris) {
-            const expected = result.phpCompanion.sourceHashes[uri];
-            if (!expected) throw new Error('Rename omitted a source snapshot. Run Rename again.');
-            const targetUri = vscode.Uri.parse(uri);
-            const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
-            const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(targetUri)).toString('utf8');
-            if (createHash('sha256').update(source).digest('hex') !== expected) {
-              throw new Error('A PHP file changed while Rename edits were being prepared. Run Rename again.');
-            }
-          }
-        }
+        if (result) await verifyRenameSources(result);
         if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested
           || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
             && openVersions.get(item.uri.toString()) !== item.version)) {
           throw new Error('A PHP document changed while Rename edits were being verified. Run Rename again.');
         }
         const converted = splitProtocolTypeRenameEdit(result);
+        if (converted.edit && result) renamePlans.set(converted.edit, { protocol: result, staged: converted.staged });
         if (converted.staged) {
           pendingTypeRenameEdits.set(converted.staged.key, converted.staged.edit);
           setTimeout(() => {
@@ -842,6 +847,79 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
     },
   };
+  register('phpCompanion.safeRename', async (options?: { uri?: vscode.Uri; position?: vscode.Position; newName?: string;
+    testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    if (!selfLanguageServer) {
+      void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
+      return false;
+    }
+    const uri = options?.uri ?? vscode.window.activeTextEditor?.document.uri;
+    if (!uri) return false;
+    const document = await vscode.workspace.openTextDocument(uri);
+    if (document.languageId !== 'php') return false;
+    const position = options?.position ?? vscode.window.activeTextEditor?.selection.active;
+    if (!position) return false;
+    const cancellation = new vscode.CancellationTokenSource();
+    let staged: { key: string; edit: vscode.WorkspaceEdit } | undefined;
+    try {
+      const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
+      if (!prepared) return false;
+      const previous = prepared instanceof vscode.Range ? document.getText(prepared) : prepared.placeholder;
+      const newName = context.extensionMode === vscode.ExtensionMode.Test && options?.newName
+        ? options.newName : await vscode.window.showInputBox({ prompt: t('renamePrompt', previous), value: previous });
+      if (!newName || newName === previous) return false;
+      const edit = await lazyRename.provideRenameEdits(document, position, newName, cancellation.token);
+      if (!edit) return false;
+      const plan = renamePlans.get(edit);
+      if (!plan) throw new Error('SoPHP could not verify the Rename plan. Run Rename again.');
+      staged = plan.staged;
+      const diskHashes = new Map<string, string>();
+      for (const uri of Object.keys(plan.protocol.phpCompanion?.sourceHashes ?? {})) {
+        const bytes = await vscode.workspace.fs.readFile(vscode.Uri.parse(uri));
+        diskHashes.set(uri, createHash('sha256').update(bytes).digest('hex'));
+      }
+      const editsByUri = new Map<string, ProtocolTextEdit[]>();
+      for (const [targetUri, changes] of Object.entries(plan.protocol.changes ?? {})) editsByUri.set(targetUri, [...changes]);
+      for (const change of plan.protocol.documentChanges ?? []) {
+        if ('textDocument' in change) editsByUri.set(change.textDocument.uri,
+          [...editsByUri.get(change.textDocument.uri) ?? [], ...change.edits]);
+      }
+      const fileRename = plan.protocol.documentChanges?.find((change): change is Extract<ProtocolDocumentChange, { kind: 'rename' }> =>
+        'kind' in change && change.kind === 'rename');
+      for (const [targetUri, changes] of editsByUri) {
+        const target = vscode.Uri.parse(targetUri);
+        const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === targetUri);
+        const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(target)).toString('utf8');
+        const textEdits = changes.map((change) => new vscode.TextEdit(new vscode.Range(
+          change.range.start.line, change.range.start.character, change.range.end.line, change.range.end.character), change.newText));
+        const language = /\.ya?ml$/iu.test(target.path) ? 'yaml' : /\.xml$/iu.test(target.path) ? 'xml'
+          : /\.twig$/iu.test(target.path) ? 'twig' : 'php';
+        const baseline = await vscode.workspace.openTextDocument({ language, content: source });
+        const preview = await vscode.workspace.openTextDocument({ language, content: applyTextEdits(source, textEdits) });
+        const destination = fileRename?.oldUri === targetUri ? vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri)) : undefined;
+        const title = `SoPHP Rename: ${vscode.workspace.asRelativePath(target)}${destination ? ` → ${destination}` : ''}`;
+        await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri, title, { preview: false });
+      }
+      if (!await confirmPreviewedEdit(t('applyPreviewedRename', newName), options?.testPreviewAction)) return false;
+      await verifyRenameSources(plan.protocol);
+      for (const [uri, hash] of diskHashes) {
+        const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
+        if (current !== hash) throw new Error('A PHP file changed on disk during Rename preview. Run Rename again.');
+      }
+      if (staged) pendingTypeRenameEdits.set(staged.key, staged.edit);
+      if (!await vscode.workspace.applyEdit(edit)) throw new Error('SoPHP could not apply Rename changes. Run Rename again.');
+      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(
+        fileRename ? vscode.Uri.parse(fileRename.newUri) : uri), { preview: false });
+      return true;
+    } catch (error) {
+      output.warn(`Safe Rename rejected: ${error instanceof Error ? error.message : String(error)}`);
+      void vscode.window.showWarningMessage(error instanceof Error ? error.message : String(error));
+      return false;
+    } finally {
+      if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
+      cancellation.dispose();
+    }
+  });
   const lazyPaste: vscode.DocumentPasteEditProvider = {
     prepareDocumentPaste: async (document, ranges, transfer) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
