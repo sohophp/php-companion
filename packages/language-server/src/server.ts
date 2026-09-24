@@ -74,6 +74,8 @@ let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
 let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
+const onDemandClosedDocumentsByRoot = new Map<string, Map<string, true>>();
+const MAX_ON_DEMAND_CLOSED_DOCUMENTS_PER_ROOT = 256;
 const projectIndexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefined>>();
@@ -2038,7 +2040,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
     for (const [key, candidate] of [...semanticWorkspaces]) {
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); onDemandClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
@@ -4272,6 +4274,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     // Recheck after I/O: didOpen/didChange may have arrived during the read.
     const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
     source = open?.getText() ?? source;
+    onDemandClosedDocumentsByRoot.get(root)?.delete(uri);
     if (source === undefined) {
       workspace.remove(uri); scanFilesByRoot.get(root)?.delete(uri); indexedUrisByRoot.get(root)?.delete(uri); projectIndexedUrisByRoot.get(root)?.delete(uri);
       interopContextsByRoot.get(root)?.delete(uri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, uri, workspace);
@@ -4359,6 +4362,7 @@ documents.onDidOpen(async ({ document }) => {
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath
@@ -4400,6 +4404,7 @@ documents.onDidChangeContent(async ({ document }) => {
   // request may otherwise restore references from the previous document.
   if (!opening && sourceChanged) invalidateCandidates(document.uri, indexingMode === 'progressive');
   const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  if (opening && root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   if (opening) {
     const diskPath = pathForUri(document.uri);
@@ -4433,6 +4438,21 @@ documents.onDidChangeContent(async ({ document }) => {
   }
 });
 
+function retainClosedOnDemandDocument(root: string, uri: string, workspace: SemanticWorkspace): void {
+  if (indexedUrisByRoot.get(root)?.has(uri)) return;
+  const cached = onDemandClosedDocumentsByRoot.get(root) ?? new Map<string, true>();
+  cached.delete(uri); cached.set(uri, true); onDemandClosedDocumentsByRoot.set(root, cached);
+  while (cached.size > MAX_ON_DEMAND_CLOSED_DOCUMENTS_PER_ROOT) {
+    const oldest = cached.keys().next().value;
+    if (!oldest) break;
+    cached.delete(oldest);
+    if (documents.get(oldest) || indexedUrisByRoot.get(root)?.has(oldest)) continue;
+    workspace.remove(oldest);
+    interopContextsByRoot.get(root)?.delete(oldest);
+    removeDoctrineDocument(root, oldest, workspace);
+  }
+}
+
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
   lastPublishedDiagnostics.delete(document.uri);
@@ -4445,13 +4465,16 @@ documents.onDidClose(async ({ document }) => {
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, document.getText())) invalidateRouteProviderCache(root);
   const workspace = await semanticWorkspaces.get(root ? `root:${root}` : 'loose');
   let relatedFactsChanged = false;
-  if (workspace && root && indexedUrisByRoot.get(root)?.has(document.uri)) {
+  if (workspace && root && (indexedUrisByRoot.get(root)?.has(document.uri) || indexingMode === 'onDemand')) {
     const path = pathForUri(document.uri);
     try {
       if (!path) throw new Error('Document URI has no filesystem path.');
+      if (indexingMode === 'onDemand' && !indexedUrisByRoot.get(root)?.has(document.uri)
+        && (await stat(path)).size > indexLimits.maxFileSizeBytes) throw new Error('Closed PHP source exceeds the on-demand file limit.');
       const diskSource = await readFile(path, 'utf8');
       const reopened = documents.get(document.uri);
       const source = reopened?.getText() ?? diskSource; const update = workspace.update(document.uri, source, Boolean(reopened));
+      if (indexingMode === 'onDemand' && !reopened) retainClosedOnDemandDocument(root, document.uri, workspace);
       relatedFactsChanged = update.kind !== 'none';
       if (update.kind !== 'none') {
         await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
@@ -4461,11 +4484,13 @@ documents.onDidClose(async ({ document }) => {
       if (update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
     } catch { if (!documents.get(document.uri)) {
       relatedFactsChanged = workspace.source(document.uri) !== undefined;
+      onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
       workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace);
       scheduleSymfonyContainerRefresh(root);
     } }
   } else {
     relatedFactsChanged = workspace?.source(document.uri) !== undefined;
+    if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
     workspace?.remove(document.uri);
     if (workspace && root) {
       interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); scheduleSymfonyContainerRefresh(root);
@@ -5780,6 +5805,7 @@ connection.onShutdown(async () => {
   (await parserPromise)?.dispose();
   parserPromise = undefined;
   semanticWorkspaces.clear();
+  onDemandClosedDocumentsByRoot.clear();
   externalSymfonyEventsByRoot.clear();
   semanticProviderRevisionsByRoot.clear();
   genericSemanticProviderRevisionsByRoot.clear();

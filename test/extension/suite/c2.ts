@@ -110,4 +110,50 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   while (Date.now() < repairedDeadline && argumentCodes().length > 0) await new Promise((resolve) => setTimeout(resolve, 50));
   assert.deepStrictEqual(argumentCodes(), [], 'Default onDemand kept same-file argument errors after the calls were repaired.');
   console.log('C2 onDemand same-file argument diagnostics: 5 → 0, unsaved');
+
+  const recordsUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocRecords.php');
+  const consumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocConsumer.php');
+  const recordsSource = `<?php namespace App\\Service;
+class CrossFileAlphaDoc { public function crossAlpha(): void {} }
+class CrossFileBetaDoc { public function crossBeta(): void {} }
+/** @return list<CrossFileAlphaDoc> */ function crossFileRecords(): array { return []; }
+`;
+  const consumerSource = `<?php namespace App\\Service;
+function inspectCrossFileDoc(): void { foreach (crossFileRecords() as $item) { $item->cross; $item->crossAlpha(); } }
+`;
+  await vscode.workspace.fs.writeFile(recordsUri, Buffer.from(recordsSource));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumerSource));
+  const recordsDocument = await vscode.workspace.openTextDocument(recordsUri);
+  const consumerDocument = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(consumerDocument);
+  const completionPosition = consumerDocument.positionAt(consumerSource.indexOf('$item->cross;') + '$item->cross'.length);
+  const callPosition = consumerDocument.positionAt(consumerSource.indexOf('$item->crossAlpha();') + '$item->cross'.length);
+  const methods = async (): Promise<string[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', consumerUri, completionPosition,
+  ))?.items.filter((item) => item.kind === vscode.CompletionItemKind.Method).map((item) => String(item.label)) ?? [];
+  const waitForMethod = async (expected: string, rejected: string): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline) {
+      const actual = await methods();
+      if (actual.includes(expected) && !actual.includes(rejected)) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`Cross-file PHPDoc methods did not update: ${JSON.stringify(await methods())}`);
+  };
+  await waitForMethod('crossAlpha', 'crossBeta');
+  const initialDefinition = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+  assert.ok(initialDefinition.some((location) => location.uri.toString() === recordsUri.toString()
+    && recordsDocument.getText(location.range).includes('crossAlpha')));
+  const typeStart = recordsDocument.getText().indexOf('list<CrossFileAlphaDoc>');
+  assert.ok(typeStart >= 0);
+  const typeEdit = new vscode.WorkspaceEdit();
+  typeEdit.replace(recordsUri, new vscode.Range(recordsDocument.positionAt(typeStart),
+    recordsDocument.positionAt(typeStart + 'list<CrossFileAlphaDoc>'.length)), 'list<CrossFileBetaDoc>');
+  assert.ok(await vscode.workspace.applyEdit(typeEdit));
+  assert.ok(recordsDocument.isDirty);
+  await waitForMethod('crossBeta', 'crossAlpha');
+  const staleDefinition = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+  assert.ok(!staleDefinition.some((location) => location.uri.toString() === recordsUri.toString()
+    && recordsDocument.getText(location.range).includes('crossAlpha')));
+  console.log('C2 onDemand cross-file PHPDoc return: Alpha → Beta, completion and definition updated from unsaved source');
 }

@@ -6546,6 +6546,119 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['experimental', 'onDemand'] as const)('refreshes consumer type feedback after an unsaved cross-file PHPDoc return changes (%s)', async (indexingMode) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-cross-file-phpdoc-return-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await mkdir(join(root, 'src'));
+      const sourceUri = pathToFileURL(join(root, 'src', 'Records.php')).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const source = `<?php namespace App;
+        class Alpha { public function onlyAlpha(): void {} }
+        class Beta { public function onlyBeta(): void {} }
+        /** @return list<Alpha> */ function records(): array { return []; }
+        function acceptBeta(Beta $value): void {}`;
+      const consumer = `<?php namespace App;
+        function inspect(): void { foreach (records() as $item) { $item->only; $item->onlyAlpha(); acceptBeta($item); } }`;
+      await writeFile(join(root, 'src', 'Records.php'), source);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 582, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode, versionedDiagnostics: true },
+      } }));
+      await output.waitFor((message) => message.id === 582);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('complete=true'), 20_000);
+      for (const [uri, text] of [[sourceUri, source], [consumerUri, consumer]]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+      }
+      const diagnosticMethod = 'phpCompanion/versionedDiagnostics';
+      const initial = await output.waitFor((message) => message.method === diagnosticMethod
+        && message.params.uri === consumerUri && message.params.version === 1);
+      expect(initial.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'))
+        .toBe(indexingMode === 'experimental');
+      const completionAt = consumer.indexOf('$item->only;') + '$item->only'.length;
+      const callAt = consumer.indexOf('$item->onlyAlpha();') + '$item->only'.length;
+      const completion = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: consumerUri }, position: lspPosition(consumer, completionAt),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id)).result;
+        return (Array.isArray(result) ? result : result?.items ?? []).map((item: { label: string }) => item.label);
+      };
+      expect(await completion(583)).toContain('onlyAlpha');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 584, method: 'textDocument/definition', params: {
+        textDocument: { uri: consumerUri }, position: lspPosition(consumer, callAt),
+      } }));
+      expect((await output.waitFor((message) => message.id === 584)).result).toMatchObject([{ uri: sourceUri }]);
+      const changed = source.replace('list<Alpha>', 'list<Beta>');
+      const beforeChange = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: sourceUri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      if (indexingMode === 'experimental') {
+        const afterChange = await output.waitFor((message) => output.messages.indexOf(message) >= beforeChange
+          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1);
+        expect(afterChange.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      } else {
+        await output.waitFor((message) => output.messages.indexOf(message) >= beforeChange
+          && message.method === diagnosticMethod && message.params.uri === sourceUri && message.params.version === 2);
+        expect(output.messages.slice(beforeChange).some((message: any) => message.method === diagnosticMethod
+          && message.params.uri === consumerUri)).toBe(false);
+      }
+      expect(await completion(585)).toContain('onlyBeta');
+      expect(await completion(586)).not.toContain('onlyAlpha');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 587, method: 'textDocument/definition', params: {
+        textDocument: { uri: consumerUri }, position: lspPosition(consumer, callAt),
+      } }));
+      expect((await output.waitFor((message) => message.id === 587)).result).toEqual([]);
+      const beforeClose = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: sourceUri } } }));
+      if (indexingMode === 'experimental') {
+        const afterClose = await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose
+          && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1);
+        expect(afterClose.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+        expect(await completion(588)).toContain('onlyAlpha');
+      } else {
+        await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose
+          && message.method === 'textDocument/publishDiagnostics' && message.params.uri === sourceUri
+          && message.params.diagnostics.length === 0);
+        expect(output.messages.slice(beforeClose).some((message: any) => message.method === diagnosticMethod
+          && message.params.uri === consumerUri)).toBe(false);
+        expect(await completion(588)).toContain('onlyAlpha');
+        await writeFile(join(root, 'src', 'Records.php'), changed);
+        const beforeDiskChange = output.messages.length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+          changes: [{ uri: sourceUri, type: 2 }],
+        } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= beforeDiskChange
+          && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${sourceUri}`));
+        expect(await completion(589)).toContain('onlyBeta');
+        await writeFile(join(root, 'src', 'Records.php'), source);
+        const beforeDiskRestore = output.messages.length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+          changes: [{ uri: sourceUri, type: 2 }],
+        } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= beforeDiskRestore
+          && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${sourceUri}`));
+        expect(await completion(590)).toContain('onlyAlpha');
+        await rm(join(root, 'src', 'Records.php'));
+        const beforeDelete = output.messages.length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+          changes: [{ uri: sourceUri, type: 3 }],
+        } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= beforeDelete
+          && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${sourceUri}`));
+        expect(await completion(591)).toEqual([]);
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it.each(['7.2', '8.5'])('reports proven same-file argument errors in onDemand PHP %s without trusting another file', async (phpVersion) => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);
