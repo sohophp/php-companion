@@ -457,6 +457,37 @@ export async function run(): Promise<void> {
   assert.strictEqual(signatureDocument.getText(), signatureSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(signatureDocument.getText().includes('build(string $name)'));
+  const addParameterUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3AddPrivateParameter.php');
+  const addParameterSource = '<?php\nnamespace App\\Service;\nfinal class C3AddPrivateParameter {\n    /**\n     * @param string $prefix\n     * @return string\n     */\n    private function format(string $prefix): string { return $prefix; }\n    public function run(): void { $this->format("a"); $this->format(prefix: "b"); }\n}\n';
+  await vscode.workspace.fs.writeFile(addParameterUri, Buffer.from(addParameterSource));
+  const addParameterDocument = await vscode.workspace.openTextDocument(addParameterUri);
+  await vscode.window.showTextDocument(addParameterDocument);
+  const addPosition = addParameterDocument.positionAt(addParameterSource.indexOf('format(string') + 1);
+  const requestAddPlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
+    api.requestLanguageServer('phpCompanion/addPrivateParameter', {
+      textDocument: { uri: addParameterUri.toString() }, position: addPosition, name: 'suffix', type: 'string', value: '"x"',
+    });
+  let addPlan = await requestAddPlan();
+  for (let attempt = 0; attempt < 100 && !addPlan?.changes?.[addParameterUri.toString()]; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    addPlan = await requestAddPlan();
+  }
+  assert.ok(addPlan?.changes?.[addParameterUri.toString()], `Language Server omitted the Add Parameter plan: ${JSON.stringify(addPlan)}`);
+  const addParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.addPrivateParameter', {
+      uri: addParameterUri, position: addPosition, name: 'suffix', type: 'string', value: '"x"', testPreviewAction,
+    });
+  assert.strictEqual(await addParameter(async () => 'cancel'), true);
+  assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'Cancelling Add Parameter changed the file');
+  assert.strictEqual(await addParameter(async () => 'apply'), true);
+  assert.ok(addParameterDocument.getText().includes('format(string $prefix, string $suffix)'));
+  assert.ok(addParameterDocument.getText().includes('* @param string $suffix'));
+  assert.ok(addParameterDocument.getText().includes('format("a", "x")'));
+  assert.ok(addParameterDocument.getText().includes('format(prefix: "b", suffix: "x")'));
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'One Undo did not restore Add Parameter');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(addParameterDocument.getText().includes('format(string $prefix, string $suffix)'), 'One Redo did not restore Add Parameter');
   const contractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3SignatureContract.php');
   const firstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureFirst.php');
   const secondSignatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureSecond.php');
@@ -852,10 +883,17 @@ export async function run(): Promise<void> {
   assert.strictEqual(invalidAttributes().length, 4, 'C3 diagnostic undo probe did not start with four invalid attributes');
   const property = vscode.languages.getDiagnostics(dynamicUri).find((diagnostic) => diagnostic.code === 'php.property.dynamic-deprecated');
   assert.ok(property);
-  const fixes = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
-    'vscode.executeCodeActionProvider', dynamicUri, property.range, vscode.CodeActionKind.QuickFix.value);
-  const declare = fixes.find((action): action is vscode.CodeAction => 'edit' in action && action.title.includes('Declare property $created'));
-  assert.ok(declare?.edit);
+  const propertyFix = async (): Promise<vscode.CodeAction | undefined> => {
+    const fixes = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+      'vscode.executeCodeActionProvider', dynamicUri, property.range, vscode.CodeActionKind.QuickFix.value);
+    return fixes.find((action): action is vscode.CodeAction => 'edit' in action && action.title.includes('Declare property $created'));
+  };
+  let declare = await propertyFix();
+  for (let attempt = 0; attempt < 100 && !declare?.edit; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    declare = await propertyFix();
+  }
+  assert.ok(declare?.edit, 'C3 dynamic property Quick Fix was unavailable after diagnostic publication');
   assert.ok(await vscode.workspace.applyEdit(declare.edit));
   await vscode.commands.executeCommand('undo');
   await vscode.commands.executeCommand('redo');

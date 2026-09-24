@@ -917,6 +917,41 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
     },
   };
+  register('phpCompanion.addPrivateParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
+    name?: string; type?: string; value?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    if (!selfLanguageServer) {
+      void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
+      return false;
+    }
+    const uri = options?.uri ?? vscode.window.activeTextEditor?.document.uri;
+    const position = options?.position ?? vscode.window.activeTextEditor?.selection.active;
+    if (!uri || !position) return false;
+    const document = await vscode.workspace.openTextDocument(uri);
+    if (document.languageId !== 'php') return false;
+    const sourceVersion = document.version; const sourceText = document.getText();
+    const testOptions = context.extensionMode === vscode.ExtensionMode.Test ? options : undefined;
+    const name = testOptions?.name ?? await vscode.window.showInputBox({ prompt: t('addParameterName') });
+    if (!name) return false;
+    const type = testOptions?.type ?? await vscode.window.showInputBox({ prompt: t('addParameterType'), value: 'string' });
+    if (!type) return false;
+    const value = testOptions?.value ?? await vscode.window.showInputBox({ prompt: t('addParameterValue'), value: "''" });
+    if (!value) return false;
+    const client = await languageServer;
+    if (!client) return false;
+    const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/addPrivateParameter', {
+      textDocument: { uri: uri.toString() }, position, name, type, value,
+    });
+    const edit = fromProtocolWorkspaceEdit(result);
+    if (!edit || !result?.phpCompanion?.sourceHashes) {
+      void vscode.window.showWarningMessage(t('addParameterUnavailable'));
+      return false;
+    }
+    await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
+      edit, title: `Add parameter $${name}`, sourceUri: uri, sourceVersion, sourceText,
+      targetHashes: result.phpCompanion.sourceHashes,
+    }, { testPreviewAction: testOptions?.testPreviewAction });
+    return true;
+  });
   register('phpCompanion.safeRename', async (options?: { uri?: vscode.Uri; position?: vscode.Position; newName?: string;
     testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
     if (!selfLanguageServer) {
