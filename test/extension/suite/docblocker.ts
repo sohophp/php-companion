@@ -137,6 +137,10 @@ class AlphaDocItem { public function itemAlpha(): void {} public function itemCo
 class BetaDocItem { public function itemBeta(): void {} public function itemCommon(): void {} }
 
 function inspect(array $items): void { foreach ($items as $item) { $item->item; $item->itemAlpha(); } }
+/** @param array{item: AlphaDocItem}|array{item: AlphaDocItem, other: int} $data */
+function inspectSharedShape(array $data): void { $data['item']->item; }
+/** @param array{item: AlphaDocItem}|array{other: int} $data */
+function inspectMissingShape(array $data): void { $data['item']->item; }
 `;
   await vscode.workspace.fs.writeFile(flowUri, Buffer.from(flowSource));
   const flowDocument = await vscode.workspace.openTextDocument(flowUri);
@@ -222,6 +226,19 @@ function inspect(array $items): void { foreach ($items as $item) { $item->item; 
   const unionDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, unionBetaPosition) ?? [];
   assert.ok(!unionDefinitions.some((location) => flowDocument.getText(location.range).includes('itemBeta')),
     'A PHPDoc union still navigated to a method absent from one alternative.');
+  const shapeCompletions = async (functionName: string): Promise<string[]> => {
+    const source = flowDocument.getText();
+    const start = source.indexOf(`function ${functionName}`);
+    assert.ok(start >= 0);
+    const access = source.indexOf("$data['item']->item;", start);
+    assert.ok(access >= 0);
+    const position = flowDocument.positionAt(access + "$data['item']->item".length);
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', flowUri, position);
+    return result?.items.filter((candidate) => candidate.kind === vscode.CompletionItemKind.Method)
+      .map((candidate) => String(candidate.label)).filter((label) => label.startsWith('item')) ?? [];
+  };
+  assert.deepStrictEqual(await shapeCompletions('inspectSharedShape'), ['itemAlpha', 'itemCommon']);
+  assert.deepStrictEqual(await shapeCompletions('inspectMissingShape'), []);
   console.log('C2 generated PHPDoc type flow: AlphaDocItem → BetaDocItem, completion/hover/definition updated');
   console.log('PHP DocBlocker 2.7.0 + SoPHP: one generator, typed param/return, no PHPDoc conflict.');
 }

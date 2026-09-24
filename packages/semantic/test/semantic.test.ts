@@ -377,6 +377,50 @@ describe('conservative semantic workspace', () => {
     expect(workspace.definition(uri, source.indexOf('$item->onlyAlpha();') + '$item->'.length + 2)).toEqual([]);
     expect(workspace.completeMembers(uri, source.indexOf('$unknown->;') + '$unknown->'.length)).toEqual([]);
   });
+  it('keeps nested PHPDoc shape and list element facts after local assignments', () => {
+    const uri = 'file:///NestedDocFlow.php';
+    const source = `<?php
+      class Alpha { public function common(): void {} public function onlyAlpha(): void {} }
+      class Beta { public function common(): void {} public function onlyBeta(): void {} }
+      /** @return array{groups: list<list<Alpha|Beta>>} */
+      function records(): array { return []; }
+      function inspect(): void {
+        $records = records();
+        $groups = $records['groups'];
+        foreach ($groups as $group) {
+          foreach ($group as $item) { $item->; $item->onlyAlpha(); }
+        }
+      }`;
+    workspace.update(uri, source);
+    expect(workspace.completeMembers(uri, source.indexOf('$item->;') + '$item->'.length).map((item) => item.name))
+      .toEqual(['common']);
+    expect(workspace.definition(uri, source.indexOf('$item->onlyAlpha();') + '$item->'.length + 2)).toEqual([]);
+  });
+  it('does not infer an array key missing from one PHPDoc shape alternative', () => {
+    const uri = 'file:///OptionalShapeUnion.php';
+    const source = `<?php
+      class PresentItem { public function onlyPresent(): void {} }
+      /** @param array{item: PresentItem}|array{other: int} $data */
+      function inspect(array $data): void { $data['item']->; $local = $data['item']; $local->; }
+      /** @param array{item: PresentItem} $data */
+      function control(array $data): void { $data['item']->; }
+      /** @param array{item: PresentItem}|array{item: PresentItem, other: int} $data */
+      function shared(array $data): void { $data['item']->; }
+      /** @param array{item: PresentItem}|string $data */
+      function incompatible(array $data): void { $data['item']->; }
+    `;
+    workspace.update(uri, source);
+    const controlAccess = source.indexOf("$data['item']->;", source.indexOf('function control'));
+    expect(workspace.completeMembers(uri, controlAccess + "$data['item']->".length).map((item) => item.name))
+      .toEqual(['onlyPresent']);
+    expect(workspace.completeMembers(uri, source.lastIndexOf("$data['item']->;") + "$data['item']->".length).map((item) => item.name))
+      .toEqual([]);
+    const sharedAccess = source.indexOf("$data['item']->;", source.indexOf('function shared'));
+    expect(workspace.completeMembers(uri, sharedAccess + "$data['item']->".length).map((item) => item.name))
+      .toEqual(['onlyPresent']);
+    expect(workspace.completeMembers(uri, source.indexOf("$data['item']->;") + "$data['item']->".length)).toEqual([]);
+    expect(workspace.completeMembers(uri, source.indexOf('$local->;') + '$local->'.length)).toEqual([]);
+  });
   it('propagates PHP 8.5 pipe results only through compatible single-argument callables', () => {
     workspace.update('file:///PipeTypes.php', `<?php namespace PipeFlow;
       class Input { public function inputOnly(): void {} }

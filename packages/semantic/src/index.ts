@@ -1230,6 +1230,8 @@ export class SemanticWorkspace {
                 || (nativePart === 'iterable' && ['array', 'list', 'non-empty-array', 'non-empty-list'].includes(base ?? ''));
             };
             const nativeUnionParts = native?.split('|') ?? [];
+            const refinesSingleNative = docType?.kind === 'union' && nativeUnionParts.length === 1
+              && docType.types.every((type) => documentedRefinesNativePart(type, nativeUnionParts[0]!));
             const refinesNativeUnion = docType?.kind === 'union' && nativeUnionParts.length > 1
               && docType.types.every((type) => nativeUnionParts.some((part) => documentedRefinesNativePart(type, part)))
               && nativeUnionParts.every((part) => docType.types.some((type) => documentedRefinesNativePart(type, part)));
@@ -1241,6 +1243,7 @@ export class SemanticWorkspace {
               || keyOfConstantFitsNative
               || valueOfEnumFitsNative
               || collectionProjectionFitsNative
+              || refinesSingleNative
               || refinesNativeUnion
               || (docType?.kind === 'name' && docType.name.toLowerCase() === 'null' && nativeTypeText?.startsWith('?'))
               || (native === 'string' && ((docType?.kind === 'name' && docType.name.toLowerCase() === 'class-string') || genericBase === 'class-string'))
@@ -11141,9 +11144,12 @@ export class SemanticWorkspace {
 
   private arrayElementType(type: PhpType, key: string, optionalAsNull = true): PhpType | undefined {
     if (type.kind === 'union') {
-      const members = type.types.map((member) => this.arrayElementType(member, key, optionalAsNull)).filter((member): member is PhpType => Boolean(member));
+      const members = type.types.map((member) => this.arrayElementType(member, key, optionalAsNull));
       const nullableCollection = type.types.some((member) => member.kind === 'primitive' && member.name === 'null');
-      return members.length ? union(...members, ...(optionalAsNull && nullableCollection ? [primitive('null')] : [])) : undefined;
+      if (members.some((member, index) => !member && !(nullableCollection && type.types[index]?.kind === 'primitive'
+        && type.types[index]?.name === 'null'))) return undefined;
+      const present = members.filter((member): member is PhpType => Boolean(member));
+      return present.length ? union(...present, ...(optionalAsNull && nullableCollection ? [primitive('null')] : [])) : undefined;
     }
     if (type.kind === 'shape') {
       const field = type.fields.find((candidate) => String(candidate.key) === key);

@@ -9,3 +9,5 @@
 快速编辑的 C2 独立宿主也复测通过：`never` 诊断保持 10 → 7 → 10，最终快速编辑 7 条；同文件参数诊断保持 5 → 0。该轮记录的空白时间为 121 ms，是一次宿主样本，不是分布或性能承诺。动态类型、复杂 PHPDoc 泛型关系、其它 PHP 次版本、Remote 与长时间编辑仍在 C2/C4 后续门槛内。
 
 随后扩展同一完整 Pack 宿主操作：把未保存的 `@param` 从 `list<BetaDocItem>` 改成 `list<AlphaDocItem|BetaDocItem>`，两个类均有 `itemCommon()`，各自另有独有方法。修复前补全错误地同时显示 `itemAlpha` 和 `itemBeta`；`foreach` 元素从 PHPDoc 类型转为成员目标时丢失了联合类型的多个候选。修复后补全只显示 `itemCommon`，`itemBeta()` 不再跳转到 Beta 声明。PHP 7.2 和 8.5 配置的 VS Code 1.139.0 完整成员 Profile 均以退出码 0 通过；语义层还加入独有成员不可跳转和未解析联合分支不可提供确定补全的回归。该检查覆盖 `list<A|B>` 的这一条编辑路径，不能推论所有复杂 PHPDoc 泛型已完成。
+
+下一轮检查嵌套集合与联合数组形状：`@return array{groups: list<list<A|B>>}` 经函数返回、局部赋值和两层 `foreach` 后，补全只保留 A/B 公共方法，独有方法没有 Definition。发现原生 `array` 参数没有接受 `array{item: A}|array{item: A, other: int}` 的安全 PHPDoc 精化；修复后共有 `item` 键可补全。`array{item: A}|array{other: int}` 仍不能安全读取 `item`，元素投影现要求每个非 null 分支都包含该键。原生 `array` 与 `array{item: A}|string` 冲突时继续拒绝精化。完整 Pack 宿主只统计 Method 类补全；VS Code 的普通文本词语建议不代表 SoPHP 成员结果。PHP 7.2/8.5 的 VS Code 1.139.0 宿主均退出码 0；Semantic 318 项、Language Server 330 项通过，另有 1 项按原设置跳过。本轮未打包 VSIX。
