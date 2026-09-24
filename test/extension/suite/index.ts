@@ -728,6 +728,61 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
     p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
     maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
     consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), nestedPhp72Verified: true })}`);
+  await verifyOpenSourceRealVendorUnionShapeFeedback(project, Math.min(rounds, 30));
+}
+
+async function verifyOpenSourceRealVendorUnionShapeFeedback(project: vscode.Uri, rounds: number): Promise<void> {
+  const sourceUri = vscode.Uri.joinPath(project, 'src', 'ProfileLargeShapeSource.php');
+  const consumerUri = vscode.Uri.joinPath(project, 'src', 'ProfileLargeShapeConsumer.php');
+  const source = (compatible: boolean): string => `<?php namespace App\\C1;
+class ProfileLargeShapeAlpha { public function common(): void {} }
+class ProfileLargeShapeBeta { public function common(): void {} }
+/** @return array{item: ProfileLargeShapeAlpha}|${compatible ? 'array{item: ProfileLargeShapeBeta}' : 'string'} */
+function profileLargeShape(): array { return []; }
+`;
+  const consumer = `<?php declare(strict_types=1); namespace App\\C1;
+function acceptLargeShapeInt(int $value): void {}
+function inspectLargeShape(): void { $row = profileLargeShape(); $item = $row['item']; $item->common(); acceptLargeShapeInt($item); }
+`;
+  await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source(true)));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
+  const sourceDocument = await vscode.workspace.openTextDocument(sourceUri);
+  const consumerDocument = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(consumerDocument);
+  const call = consumerDocument.positionAt(consumer.indexOf('common();') + 2);
+  const value = consumerDocument.positionAt(consumer.indexOf('$item);') + 2);
+  const mismatch = (): boolean => vscode.languages.getDiagnostics(consumerUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const consistent = async (compatible: boolean): Promise<boolean> => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, call) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, value) ?? [];
+    const sourceDefinitions = definitions.filter((location) => location.uri.toString() === sourceUri.toString());
+    const hasUnion = hovers.some((hover) => hover.contents.some((item) =>
+      (typeof item === 'string' ? item : item.value).includes('App\\C1\\ProfileLargeShapeAlpha|App\\C1\\ProfileLargeShapeBeta')));
+    return compatible ? sourceDefinitions.length === 2 && hasUnion && mismatch()
+      : sourceDefinitions.length === 0 && !hasUnion && !mismatch();
+  };
+  await waitForAsync(() => consistent(true), 'Real vendor Pack profile did not establish initial union-shape feedback', 30_000);
+  const elapsedMs: number[] = [];
+  const hostRssMiB = [Math.round(process.memoryUsage().rss / 1024 / 1024)];
+  for (let round = 0; round < rounds; round += 1) {
+    const compatible = round % 2 === 1;
+    const started = performance.now();
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(sourceUri, new vscode.Range(sourceDocument.positionAt(0), sourceDocument.positionAt(sourceDocument.getText().length)), source(compatible));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(sourceDocument.isDirty);
+    await waitForAsync(() => consistent(compatible),
+      `Real vendor Pack profile retained old union-shape feedback in round ${round + 1}`, 30_000);
+    elapsedMs.push(performance.now() - started);
+    if ((round + 1) % 5 === 0 || round === rounds - 1) hostRssMiB.push(Math.round(process.memoryUsage().rss / 1024 / 1024));
+  }
+  const sorted = [...elapsedMs].sort((left, right) => left - right);
+  console.log(`Open Source Pack real vendor union-shape feedback: ${JSON.stringify({ rounds,
+    p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
+    p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
+    maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
+    consumerVersion: consumerDocument.version, hostRssMiB })}`);
 }
 
 async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {

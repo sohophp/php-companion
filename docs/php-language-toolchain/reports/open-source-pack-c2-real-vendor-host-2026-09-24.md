@@ -16,3 +16,14 @@
 Core 现在向运行中的 Language Server 发送项目版本与扩展可用性更新，按受影响根刷新内建符号、引用候选和打开文件诊断；工作区文件夹拓扑变化仍走原有客户端重启路径。门禁已改为 Definition **首次请求必须命中**，不再通过重试掩盖空结果。修复后的完整 10,131 文件、50 轮 Pack 宿主连续两次退出码 0：编辑反馈 P95 分别为 132/131 ms，六次 Definition 等待分别为 9/4/4/4/5/6 ms 与 26/9/14/5/6/5 ms。独立 stdio 回归验证同一服务进程内 PHP 7.2→8.5→7.2 的 `enum` 诊断和 `str_contains` 补全往返；宿主另确认嵌套项目按 PHP 7.2 报告不支持的 `enum`。这证明该复现路径已修复；其它触发客户端重启的操作仍需各自验收。
 
 本轮仅用源码 Profile 和本机 Extension Host。WSL Remote、Windows/macOS、长期实际操作与 R4 验收仍需独立证据。
+
+## 联合数组形状的连续未保存编辑
+
+同一 11 项源码 Profile 门禁现追加独立的跨文件 PHPDoc 联合数组形状阶段：真实 vendor 1,029 个 PHP 文件，加 9,100 个生成文件，仍为约 10,131 个 PHP 文件。声明在 `array{item: Alpha}|array{item: Beta}` 与不兼容原生 `array` 的 `array{item: Alpha}|string` 之间连续切换 30 轮；每轮同时核对使用方 `item->common()` 的两个或零个 Definition、局部 Hover 是否仍显示联合类型，以及向 `int` 参数传入该值时诊断的出现或撤销。声明缓冲区保持未保存，使用方文件保持打开且版本不变。原有标量 50 轮和完整 Pack 组合门禁仍先执行。
+
+| 完整 Pack 运行 | 标量 50 轮反馈 P95 | 联合形状 30 轮三项一致等待 | 扩展宿主 RSS 采样 |
+| --- | ---: | ---: | --- |
+| 首轮 | 150 ms | P50 154 ms、P95 201 ms、最大 221 ms | 未采样 |
+| 复轮 | 139 ms | P50 166 ms、P95 202 ms、最大 224 ms | 初始 228 MiB，随后每 5 轮 228/205/205/206/206/207 MiB |
+
+两轮宿主均退出码 0，新增阶段没有观察到错误版本结果；复轮的扩展宿主 RSS 未呈持续上升。这里的等待从编辑提交计到 Definition、Hover 和诊断同时符合当前版本，**不是**单项热查询耗时，不能直接与 F02 的 150 ms 热查询预算比较。RSS 仅为 VS Code 扩展宿主进程，未包含独立 Language Server；30 轮与单机两次运行也不足以证明长期内存或跨平台稳定性。原始日志分别为 `/tmp/sophp-pack-real-vendor-union-session-20260924.log` 和 `/tmp/sophp-pack-real-vendor-union-rss-20260924.log`。没有打包 VSIX，也没有修改业务项目。
