@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C3 预览确认交互：Safe Move 与 Optimize Imports 打开差异后不再用模态对话框阻止查看；每个差异标签均保留，非模态通知提供应用操作。隔离宿主用测试回调验证差异标签、取消不改文件、确认后的应用与 Undo/Redo，完整套件退出码 0；真人点击通知与 Remote 仍待验收，见[报告](reports/c3-preview-review-flow-2026-09-24.md)。
+
 2026-09-24 C3 导入旧计划宿主门禁：`Import Class`、`Resolve Pasted Imports` 和 `Optimize Imports` 在语言服务器计划返回后由测试模式插入一次真实文档编辑，三者均拒绝旧编辑；恢复后正常应用和 Undo/Redo 通过。完整 Core + Symfony 源码宿主退出码 0，真正请求处理中和模态预览 UI 时序仍开放，见[报告](reports/c3-import-stale-plan-host-2026-09-24.md)。
 
 2026-09-24 C3 Safe Move 预览与应用快照：命令现在以同一份完整编辑计划生成差异并应用，参与文件的文档版本、内容、磁盘字节和目标路径会在确认后复核。受控宿主回归在计划后修改引用文件，确认移动被拒绝；恢复后正常应用、Undo/Redo 通过。模态预览和 Remote 交互仍待验收，见[报告](reports/c3-safe-move-preview-snapshot-2026-09-24.md)。

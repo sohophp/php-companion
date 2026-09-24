@@ -410,6 +410,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
 
   const commands: vscode.Disposable[] = [];
   const register = (id: string, callback: (...args: any[]) => unknown): void => { commands.push(vscode.commands.registerCommand(id, callback)); };
+  const confirmPreviewedEdit = async (message: string, testPreviewAction?: () => Promise<'apply' | 'cancel'>): Promise<boolean> => {
+    if (context.extensionMode === vscode.ExtensionMode.Test && testPreviewAction) return await testPreviewAction() === 'apply';
+    return await vscode.window.showInformationMessage(message, t('apply')) === t('apply');
+  };
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
@@ -438,7 +442,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   });
   register('phpCompanion.showPerformanceLog', () => output.show());
   register('phpCompanion.rebuildIndex', async () => (await experimentalWorkspace())?.rebuild(true));
-  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean; testBeforeApply?: () => Promise<void> }) => {
+  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean; testBeforeApply?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'> }) => {
     const source = sourceUri ?? vscode.window.activeTextEditor?.document.uri;
     if (!source || !source.path.endsWith('.php')) return;
     let target = targetUri;
@@ -492,17 +496,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       };
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (options?.preview ?? configuration.get<boolean>('move.preview', true)) {
-        const choice = await vscode.window.showInformationMessage(t('safeMoveWillUpdate'), { modal: true }, t('preview'), t('apply'));
-        if (!choice) return;
-        if (choice === t('preview')) {
-          for (const [uri, edits] of textEdits.entries()) {
-            const originalUri = uri.toString() === target.toString() ? source : uri;
-            const original = participants.find((participant) => participant.uri.toString() === originalUri.toString())!;
-            const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.text, edits) });
-            await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri)));
-          }
-          if (await vscode.window.showInformationMessage(t('applyPreviewedSafeMove'), { modal: true }, t('apply')) !== t('apply')) return;
+        for (const [uri, edits] of textEdits.entries()) {
+          const originalUri = uri.toString() === target.toString() ? source : uri;
+          const original = participants.find((participant) => participant.uri.toString() === originalUri.toString())!;
+          const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.text, edits) });
+          await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri)), { preview: false });
         }
+        if (!await confirmPreviewedEdit(t('applyPreviewedSafeMove'), options?.testPreviewAction)) return;
       }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
@@ -630,7 +630,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const edit = buildAddImportEdit(document, file, selected.fqcn, alias);
     if (edit) await vscode.workspace.applyEdit(edit);
   });
-  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean; testAfterPlan?: () => Promise<void> }) => {
+  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean; testAfterPlan?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'> }) => {
     const document = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
@@ -652,12 +652,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const edit = fromProtocolWorkspaceEdit(action?.edit);
       if (!edit) return void vscode.window.showInformationMessage(t('importsAlreadyOrganized'));
       if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-        const choice = await vscode.window.showInformationMessage(t('optimizeImports'), { modal: true }, t('preview'), t('apply'));
-        if (choice === t('preview')) {
-          const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(document.getText(), edit.get(document.uri)) });
-          await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)));
-          if (await vscode.window.showInformationMessage(t('applyPreviewedImportChanges'), { modal: true }, t('apply')) !== t('apply')) return;
-        } else if (choice !== t('apply')) return;
+        const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(document.getText(), edit.get(document.uri)) });
+        await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)), { preview: false });
+        if (!await confirmPreviewedEdit(t('applyPreviewedImportChanges'), options?.testPreviewAction)) return;
       }
       if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
       await vscode.workspace.applyEdit(edit);
@@ -673,12 +670,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const result = buildOptimizeImportsEdit(document, file, manager.index, configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped'));
     if (!result.edit || result.optimizedSource === undefined) return void vscode.window.showInformationMessage(t('importsAlreadyOptimized'));
     if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-      const choice = await vscode.window.showInformationMessage(t('optimizeRemoved', String(result.removed)), { modal: true }, t('preview'), t('apply'));
-      if (choice === t('preview')) {
-        const preview = await vscode.workspace.openTextDocument({ language: 'php', content: result.optimizedSource });
-        await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)));
-        if (await vscode.window.showInformationMessage(t('applyPreviewedImportChanges'), { modal: true }, t('apply')) !== t('apply')) return;
-      } else if (choice !== t('apply')) return;
+      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: result.optimizedSource });
+      await vscode.commands.executeCommand('vscode.diff', document.uri, preview.uri, t('optimizeDiff', vscode.workspace.asRelativePath(document.uri)), { preview: false });
+      if (!await confirmPreviewedEdit(t('applyPreviewedImportChanges'), options?.testPreviewAction)) return;
     }
     if (document.isClosed || document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
     await vscode.workspace.applyEdit(result.edit);

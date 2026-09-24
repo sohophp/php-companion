@@ -5159,6 +5159,17 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
 
   const optimizeDocument = await vscode.workspace.openTextDocument(optimizeUri);
   await vscode.window.showTextDocument(optimizeDocument);
+  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, {
+    preview: true,
+    testPreviewAction: async () => {
+      assert.ok(vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && tab.input.original.toString() === optimizeUri.toString() && !tab.isPreview)),
+      'Optimize Imports preview did not keep its diff tab open');
+      return 'cancel';
+    },
+  });
+  assert.ok(optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Cancelling Optimize Imports preview modified the PHP file');
+  await vscode.window.showTextDocument(optimizeDocument);
   const beforeOptimizeRace = optimizeDocument.getText();
   let optimizePlanReturned = false;
   await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, {
@@ -5169,9 +5180,10 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.strictEqual(optimizeDocument.getText().match(/use App\\Contract\\Runner;/g)?.length, 1, 'Optimize Imports applied a stale plan');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => optimizeDocument.getText() === beforeOptimizeRace, 'Could not undo the Optimize Imports race edit');
-  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: false });
+  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: true, testPreviewAction: async () => 'apply' });
   assert.ok(!optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports did not remove a known unused class import');
   assert.strictEqual(optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length, 1, 'Optimize Imports did not deduplicate imports');
+  await vscode.window.showTextDocument(optimizeDocument);
   await vscode.commands.executeCommand('undo');
   await waitFor(() => optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports could not be undone as one editor operation');
   await vscode.commands.executeCommand('redo');
@@ -5192,6 +5204,21 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', runnerUri).get<boolean>('move.preview'), true, 'Safe Move preview must be enabled by default');
   assert.ok(moveEdit?.get(movedRunnerUri)?.some((textEdit) => textEdit.newText === 'App\\Service'), 'Safe Move did not target the post-move URI for namespace updates');
   assert.ok(moveEdit?.get(runnerConsumerUri)?.some((textEdit) => textEdit.newText === 'App\\Service\\Runner'), 'Safe Move preview did not include its proven reference update');
+  await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, {
+    preview: true,
+    testPreviewAction: async () => {
+      const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs);
+      for (const [uri] of moveEdit.entries()) {
+        const originalUri = uri.toString() === movedRunnerUri.toString() ? runnerUri : uri;
+        assert.ok(tabs.some((tab) => tab.input instanceof vscode.TabInputTextDiff
+          && tab.input.original.toString() === originalUri.toString() && !tab.isPreview),
+        `Safe Move preview did not keep the diff for ${originalUri.path} open`);
+      }
+      return 'cancel';
+    },
+  });
+  await vscode.workspace.fs.stat(runnerUri);
+  await assert.rejects(async () => vscode.workspace.fs.stat(movedRunnerUri), 'Cancelling Safe Move preview created the destination');
   await vscode.window.showTextDocument(runnerConsumerDocument);
   const beforeStaleMove = runnerConsumerDocument.getText();
   await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, {
@@ -5208,7 +5235,7 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.notStrictEqual(runnerConsumerDocument.getText(), beforeStaleMove, 'Safe Move test did not change its participant');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => runnerConsumerDocument.getText() === beforeStaleMove, 'Could not undo the Safe Move race edit');
-  await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, { preview: false });
+  await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, { preview: true, testPreviewAction: async () => 'apply' });
   const movedRunnerDocument = await vscode.workspace.openTextDocument(movedRunnerUri);
   await waitFor(() => movedRunnerDocument.getText().includes('namespace App\\Service;'), 'Safe Move command did not update the namespace atomically');
   const movedRunner = movedRunnerDocument.getText();
@@ -5216,6 +5243,7 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   await waitFor(() => runnerConsumerDocument.getText().includes('use App\\Service\\Runner;'), 'An open reference document did not update after Safe Move');
   assert.strictEqual(runnerConsumerDocument.getText().match(/use App\\Service\\Runner;/g)?.length, 1, 'Forward move produced a duplicate use statement');
   assert.ok(runnerConsumerDocument.getText().includes('Runner::class'), 'Safe Move unexpectedly changed the imported short name');
+  await vscode.window.showTextDocument(runnerConsumerDocument);
   await vscode.commands.executeCommand('undo');
   await waitForAsync(async () => {
     try {
