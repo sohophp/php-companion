@@ -483,6 +483,14 @@ export async function run(): Promise<void> {
   assert.strictEqual(hasRenamePreviewTab(), false, 'Cancelling Rename left a preview diff open');
   assert.strictEqual(renameDocument.getText(), renameSource, 'Cancelling SoPHP Rename changed the source');
   assert.strictEqual(await safeRename(async () => {
+    const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+      tab.input instanceof vscode.TabInputTextDiff && tab.input.original.scheme === 'sophp-rename-preview');
+    assert.strictEqual(previews.length, 1, 'Rename did not open one preview for this local variable');
+    assert.ok(await vscode.window.tabGroups.close(previews), 'Could not close the Rename preview');
+    return 'apply';
+  }), false, 'Rename applied after its preview was closed');
+  assert.strictEqual(renameDocument.getText(), renameSource, 'Closing the Rename preview changed the source');
+  assert.strictEqual(await safeRename(async () => {
     const changed = new vscode.WorkspaceEdit();
     changed.insert(renameUri, new vscode.Position(1, 0), '// edited during SoPHP Rename preview\n');
     assert.ok(await vscode.workspace.applyEdit(changed));
@@ -637,7 +645,22 @@ export async function run(): Promise<void> {
   assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
     .some((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed (')),
   'Cancelling grouped Rename left the changes tab open');
-  assert.strictEqual(await groupedRename(async () => 'apply'), true, 'Grouped Rename did not apply');
+  assert.strictEqual(await groupedRename(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed ('));
+    assert.strictEqual(tabs.length, 2, 'Grouped Rename did not open both preview groups');
+    assert.ok(await vscode.window.tabGroups.close(tabs[0]!), 'Could not close a grouped Rename preview');
+    return 'apply';
+  }), false, 'Grouped Rename applied after one preview group was closed');
+  assert.ok((await vscode.workspace.openTextDocument(groupedTypeUri)).getText().includes('class C3GroupedType'),
+    'Closing one grouped Rename preview changed the source');
+  assert.strictEqual(await groupedRename(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed ('));
+    assert.strictEqual(tabs.length, 2, 'Grouped Rename did not keep both changes tabs visible');
+    assert.ok(tabs.every((tab) => !tab.isPreview), 'Grouped Rename changes tabs were not pinned');
+    return 'apply';
+  }), true, 'Grouped Rename did not apply');
   assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
     .some((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed (')),
   'Applying grouped Rename left a changes tab open');

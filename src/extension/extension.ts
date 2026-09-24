@@ -965,6 +965,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           const title = `SoPHP Rename: ${newName} (${start + 1}–${start + group.length} / ${previewResources.length} files${move})`;
           await vscode.commands.executeCommand('vscode.changes', title,
             group.map((resource): [vscode.Uri, vscode.Uri, vscode.Uri] => [resource.label, resource.original, resource.modified]));
+          await vscode.commands.executeCommand('workbench.action.keepEditor');
           for (const tab of vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs)) {
             if (tab.label.startsWith(`SoPHP Rename: ${newName} (`)
               && tab.label.includes(`${start + 1}–${start + group.length} / ${previewResources.length} files`))
@@ -973,6 +974,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         }
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedRename', newName), options?.testPreviewAction)) return false;
+      const visiblePreviewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs);
+      const diffTabs = visiblePreviewTabs.filter((tab) => tab.input instanceof vscode.TabInputTextDiff
+        && previewUris.has(tab.input.original.toString()) && previewUris.has(tab.input.modified.toString()));
+      const previewComplete = previewResources.length <= 3
+        ? diffTabs.length === previewResources.length
+        : openedChangesLabels.size === Math.ceil(previewResources.length / 20)
+          && visiblePreviewTabs.filter((tab) => openedChangesLabels.has(tab.label)).length === openedChangesLabels.size;
+      if (!previewComplete) {
+        throw new Error('A Rename preview was closed before confirmation. Run Rename again.');
+      }
       await verifyRenameSources(plan.protocol);
       for (const [uri, hash] of diskHashes) {
         const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
