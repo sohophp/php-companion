@@ -6,7 +6,7 @@
 
 隔离 VS Code 1.139.0 Linux 宿主使用[版本清单](../../../test/extension/open-source-profile.extensions.json)中的 TwigPlus 1.3.7、YAML 1.24.0、XML 0.29.3、PHP Debug 1.40.1、PHPUnit 扩展 3.9.40、PHP CS Fixer 扩展 0.3.21、EditorConfig 0.18.2 和 Apache Conf Snippets 1.4.0；后者自动安装 Apache 扩展 1.2.0。隔离目录经安装脚本逐项核对版本，不含 Intelephense 和被排除的 Symfony Language Tools。独立临时工具目录提供 PHP 8.5.9、PHP CS Fixer 3.95.27、PHPUnit 11.5.56；Composer 项目声明 PHP `>=8.5`，VS Code 内建 PHP 验证使用同一 PHP 可执行文件。
 
-最终复测所用开发构建的 SHA-256：Core `4f46aa38faefc66aee0a1e814c08c7038bf13c5eabf7727496ff4c1dd272ee7e`、Symfony `b0ff463e0039341389dd7b68b52971774a805ceb6be46d7deacb5cb186de319b`、Open Source Pack `038a3c363f60da36b3e0bd81bb64b26b29af3c40672e4004bea8442001d10b85`。`pnpm verify:vsix` 核对了三份产物；这些哈希是本次未提交工作树的开发构建，不是已发布的 Alpha 候选标识。
+最终复测所用构建的 SHA-256：Core `4f46aa38faefc66aee0a1e814c08c7038bf13c5eabf7727496ff4c1dd272ee7e`、Symfony `b0ff463e0039341389dd7b68b52971774a805ceb6be46d7deacb5cb186de319b`、Open Source Pack `038a3c363f60da36b3e0bd81bb64b26b29af3c40672e4004bea8442001d10b85`。`pnpm verify:vsix` 核对了三份产物；同一文件随后复制到干净 Alpha 候选，摘要未变化。
 
 ## 实际执行
 
@@ -17,5 +17,7 @@ Open Source Profile 测试现把三份 VSIX 都解包到隔离 Extension Host，
 门禁暴露并修复三项事实：原夹具覆盖基础路由而破坏后续跳转，随后又把用于其他诊断的 Controller 文件一并导入静态路由；现保留原路由并仅导入 Profile Controller。`onDemand` 的首次 YAML 服务 References 原先在容器事实未加载时返回空结果，现先取得完整项目与权威容器事实；普通 PHP 方法引用经词法预检不会因此触发整项目索引，真实 stdio 正反例通过。PHPUnit 11 要求移动后的文件和类名一致，测试现一次编辑两者并在每次运行前保存缓冲区。另以独立 40 Controller 回归验证静态路由默认预算，默认上限从 64 提到 256，显式小预算的不完整性测试继续通过。
 
 ## 边界与下一步
+
+干净源码提交 `c280d1c510d3246d73d52e24860d08197d40cba7` 已生成私有候选 `artifacts/php-companion-alpha-0.4.5-c280d1c5/`，仅含 Core、Symfony、Open Source Pack 三份 VSIX；`sha256sum -c SHA256SUMS` 三项均通过。`alpha:preflight` 在仓库的独立 Composer PHP 7.2 夹具与 WSL 中确认候选文件、提交、PHP 包装器和目标次版本，`deterministicPassed=true`、`errors=[]`；结果保存在候选目录的 `preflight-independent-php72.json`。此预检没有启用 `--check-editor`，不声称已验证用户 VS Code Profile。
 
 这项门禁证明**本机隔离宿主中的默认组合操作**，不证明数小时真实编码、WSL Remote/SSH/Windows/macOS、用户项目的 PHP/Xdebug/PHPUnit 路径映射或 R4 完成。Pack 只声明扩展 ID，不会锁定 Marketplace 成员版本；升级后仍须复测。Core 的深度诊断、全部重构和跨版本矩阵由各自门禁负责；此轮发现 `onDemand` 在依赖图未被证明完整时保守地省略同文件 `never` 调用后的三处不可达诊断，继续列为 C2 类型与诊断一致性工作，不用组合冒烟代替这项验收。

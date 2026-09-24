@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 私有 Alpha 候选：干净提交 `c280d1c510d3246d73d52e24860d08197d40cba7` 生成 `artifacts/php-companion-alpha-0.4.5-c280d1c5/`，包含 Core、Symfony、Open Source Pack 三份 VSIX；`SHA256SUMS` 三项通过。独立 Composer PHP 7.2 夹具的 WSL 确定性预检通过，`errors=[]`。候选说明和预检待办已改用独立项目，默认 `onDemand`，渐进索引作为单独评估项。未运行用户 Profile 的 `--check-editor`，WSL Remote Host、长期使用与 R4 未验收。见[组合门禁报告](reports/open-source-pack-composition-gate-2026-09-24.md)和[Alpha 说明](alpha-candidate.md)。
+
 2026-09-24 Open Source Pack 默认组合门禁：隔离 VS Code 1.139.0 Linux 宿主实际加载开发构建的 Core、Symfony、Open Source Pack 三份 VSIX 和冻结的 8 个外部扩展；Pack 默认 `onDemand` 下完成 PHP 导航/引用、Symfony YAML 服务引用、PHP/Twig/YAML/XML 格式化、PHP Debug 启动及 PHPUnit 执行和移动恢复，退出码 0。修复测试夹具路由覆盖、首次 onDemand 服务引用空结果与 PHPUnit 11 文件/类名不一致；静态路由 40 Controller 预算回归通过。此为本机开发构建，不代表干净 Alpha 候选、Remote、长会话或 R4；详见[组合门禁报告](reports/open-source-pack-composition-gate-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-18c：References 在 onDemand 下复用已完成的候选覆盖，同时按 URI 更新打开文件的接收者方法，旧引用结果的持久证明保持失效。真实 stdio 正反例覆盖同名方法接收者切换、打开文件新增/移除调用及未打开文件新增后的重扫；完整 stdio 141 项通过、1 项原有跳过。10,130 文件隔离宿主的 50 轮六项链共 300 次查询全部正确，References 中位数 89 ms、P95 132 ms，较上轮 645/762 ms 降低；冷查询、Remote、跨平台、长会话与完整组合仍开放。见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
