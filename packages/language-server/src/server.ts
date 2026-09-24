@@ -4502,9 +4502,10 @@ const openContentSequences = new Map<string, number>();
 const warnedOpenAliasPairs = new Set<string>();
 const localAliasQueryWorkspaces = new Map<string, {
   documentVersion: number; projectRevision: number; projectWorkspace: SemanticWorkspace;
-  excludedUris: string; workspace: SemanticWorkspace;
+  topologyRevision: number; excludedUris: string; workspace: SemanticWorkspace;
 }>();
 let nextOpenContentSequence = 0;
+let openPhysicalTopologyRevision = 0;
 function hasPossibleOpenPhysicalAlias(document: TextDocument, root: string): boolean {
   if (indexingMode !== 'onDemand') return false;
   const path = pathForUri(document.uri);
@@ -4531,6 +4532,9 @@ async function otherOpenPhysicalDocuments(document: TextDocument, root: string):
 async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWorkspace> {
   const projectWorkspace = await semanticForUri(document.uri);
   const stale = localAliasQueryWorkspaces.get(document.uri);
+  const projectRevision = projectWorkspace.revision();
+  if (stale && stale.documentVersion === document.version && stale.projectRevision === projectRevision
+    && stale.projectWorkspace === projectWorkspace && stale.topologyRevision === openPhysicalTopologyRevision) return stale.workspace;
   const root = rootForUri(document.uri);
   if (!root || projectWorkspace.source(document.uri) !== undefined || !hasPossibleOpenPhysicalAlias(document, root)) {
     if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
@@ -4543,12 +4547,15 @@ async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWor
     return projectWorkspace;
   }
   const excludedUris = JSON.stringify(excluded);
-  const projectRevision = projectWorkspace.revision();
   if (stale && stale.documentVersion === document.version && stale.projectRevision === projectRevision
-    && stale.projectWorkspace === projectWorkspace && stale.excludedUris === excludedUris) return stale.workspace;
+    && stale.projectWorkspace === projectWorkspace && stale.excludedUris === excludedUris) {
+    stale.topologyRevision = openPhysicalTopologyRevision;
+    return stale.workspace;
+  }
   if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
   const workspace = projectWorkspace.forkForLocalQuery(document.uri, document.getText(), new Set(excluded));
   localAliasQueryWorkspaces.set(document.uri, { documentVersion: document.version, projectRevision,
+    topologyRevision: openPhysicalTopologyRevision,
     projectWorkspace, excludedUris, workspace });
   return workspace;
 }
@@ -4582,6 +4589,7 @@ async function supersedeOpenPhysicalAliases(document: TextDocument, root: string
 
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  openPhysicalTopologyRevision += 1;
   const sequence = ++nextOpenContentSequence;
   openContentSequences.set(document.uri, sequence);
   const openedVersion = document.version;
@@ -4700,6 +4708,7 @@ function retainClosedOnDemandDocument(root: string, uri: string, workspace: Sema
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  openPhysicalTopologyRevision += 1;
   localAliasQueryWorkspaces.get(document.uri)?.workspace.dispose();
   localAliasQueryWorkspaces.delete(document.uri);
   if (!documents.get(document.uri)) openContentSequences.delete(document.uri);

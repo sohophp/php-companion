@@ -7,6 +7,28 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('keeps shared project facts intact when a path alias uses its own local query view', () => {
+    const project = new SemanticWorkspace(parser);
+    const linkedUri = 'file:///project/vendor/local/Record.php';
+    const localUri = 'file:///project/packages/local/Record.php';
+    const consumerUri = 'file:///project/Consumer.php';
+    const localSource = '<?php class Record extends BaseRecord { public function realOnly(): void {} public function inspect(): void { $this->; } }';
+    try {
+      project.update('file:///project/BaseRecord.php', '<?php class BaseRecord { public function inherited(): void {} }');
+      project.update(linkedUri, '<?php class Record extends BaseRecord { public function linkedOnly(): void {} }');
+      const consumer = '<?php function run(Record $record): void { $record->; }';
+      project.update(consumerUri, consumer);
+      const local = project.forkForLocalQuery(localUri, localSource, new Set([linkedUri]));
+      try {
+        const localNames = local.completeMembers(localUri, localSource.indexOf('$this->') + '$this->'.length).map((item) => item.name);
+        expect(localNames).toContain('realOnly');
+        expect(localNames).toContain('inherited');
+        expect(localNames).not.toContain('linkedOnly');
+        expect(project.completeMembers(consumerUri, consumer.indexOf('$record->') + '$record->'.length).map((item) => item.name)).toContain('linkedOnly');
+      } finally { local.dispose(); }
+      expect(project.completeMembers(consumerUri, consumer.indexOf('$record->') + '$record->'.length).map((item) => item.name)).toContain('linkedOnly');
+    } finally { project.dispose(); }
+  });
   it('releases the retained syntax tree when an open file becomes a closed disk snapshot', () => {
     const local = new SemanticWorkspace(parser); const uri = 'file:///ClosedSnapshot.php';
     const source = '<?php class Alpha { public function onlyAlpha(): void {} }';

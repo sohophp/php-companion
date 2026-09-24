@@ -871,8 +871,19 @@ export class SemanticWorkspace {
   forkForLocalQuery(uri: string, source: string, excludedUris: ReadonlySet<string>): SemanticWorkspace {
     const fork = new SemanticWorkspace(this.parser);
     try {
-      for (const file of this.files.values()) if (!excludedUris.has(file.uri) && file.uri !== uri) fork.update(file.uri, file.source);
-      for (const contribution of this.externalFacts.values()) fork.replaceExternalFacts(contribution);
+      for (const file of this.files.values()) {
+        if (excludedUris.has(file.uri) || file.uri === uri) continue;
+        // Parsed facts are shared read-only. Query caches and document indexes
+        // stay private to the fork, so the project workspace remains authoritative.
+        fork.files.set(file.uri, file);
+        if (this.unindexedReferenceCandidateUris.has(file.uri)) fork.unindexedReferenceCandidateUris.add(file.uri);
+        else fork.referenceCandidates.replace(file.uri, this.referenceCandidates.documentKeys(file.uri));
+        if (this.unindexedTypeDependencyUris.has(file.uri)) fork.unindexedTypeDependencyUris.add(file.uri);
+        else fork.typeDependencies.replace(file.uri, this.typeDependencies.documentNodes(file.uri));
+        const assignments = this.controlFlowAssignments.get(file.uri);
+        if (assignments) fork.controlFlowAssignments.set(file.uri, assignments);
+      }
+      for (const [providerId, contribution] of this.externalFacts) fork.externalFacts.set(providerId, contribution);
       fork.update(uri, source, true);
       return fork;
     } catch (error) { fork.dispose(); throw error; }
