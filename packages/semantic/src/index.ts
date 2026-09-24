@@ -298,6 +298,7 @@ export interface ExtractInterfaceInfo { uri: string; classFqcn: string; interfac
 export interface RemovePrivateParameterInfo { uri: string; callable: string; parameter: string; edits: Array<{ uri: string; start: number; end: number }>; }
 export interface AddPrivateParameterInfo { uri: string; callable: string; parameter: string; edits: Array<{ uri: string; start: number; end: number; newText: string }>; }
 export interface AddMethodParameterInfo extends AddPrivateParameterInfo { scope: 'private' | 'workspace-method-family'; }
+export interface RemoveMethodParameterInfo { uri: string; callable: string; parameter: string; scope: 'private' | 'workspace-method-family'; edits: Array<{ uri: string; start: number; end: number; newText: string }>; }
 export interface MissingRequiredArguments extends SemanticLocation { callable: string; parameters: string[]; }
 export interface IncompatibleArgument extends SemanticLocation { callable: string; parameter: string; actualType: string; expectedType: string; }
 export interface IncompatibleReturn extends SemanticLocation { callable: string; actualType: string; expectedType: string; }
@@ -5986,6 +5987,113 @@ export class SemanticWorkspace {
       }
     }
     return { uri, callable: callable.fqcn, parameter: name, edits };
+  }
+
+  removeMethodParameter(uri: string, offset: number): RemoveMethodParameterInfo | undefined {
+    const file = this.files.get(uri); if (!file || file.syntaxErrors.length) return undefined;
+    const callable = file.callables.find((item) => item.kind === 'method' && !item.name.startsWith('__')
+      && item.parameters.some((parameter) => offset >= parameter.start && offset <= parameter.end));
+    const selected = callable?.parameters.find((parameter) => offset >= parameter.start && offset <= parameter.end);
+    if (!callable?.containerFqcn || !selected || selected.promoted || selected.byReference || selected.variadic) return undefined;
+    if (callable.visibility === 'private') {
+      const plan = this.removeUnusedPrivateParameter(uri, offset);
+      return plan ? { ...plan, scope: 'private', edits: plan.edits.map((edit) => ({ ...edit, newText: '' })) } : undefined;
+    }
+    if (this.fileAndDeclaration(callable.containerFqcn)?.declaration.kind === 'trait'
+      || !this.hasCompleteHierarchy(callable.containerFqcn)) return undefined;
+    const index = callable.parameters.indexOf(selected);
+    const candidates = [...this.files.values()].flatMap((ownerFile) => ownerFile.callables.map((item) => ({ file: ownerFile, callable: item })))
+      .filter(({ callable: item }) => item.kind === 'method' && item.containerFqcn && item.visibility !== 'private'
+        && item.name.toLowerCase() === callable.name.toLowerCase());
+    const family = new Map<string, { file: SemanticFile; callable: ParsedCallableDeclaration }>([[callable.fqcn.toLowerCase(), { file, callable }]]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const candidate of candidates) {
+        if (family.has(candidate.callable.fqcn.toLowerCase())) continue;
+        const related = [...family.values()].some((member) => this.isSubclassOf(candidate.callable.containerFqcn!, member.callable.containerFqcn!)
+          || this.isSubclassOf(member.callable.containerFqcn!, candidate.callable.containerFqcn!));
+        if (related) { family.set(candidate.callable.fqcn.toLowerCase(), candidate); changed = true; }
+      }
+    }
+    const members = [...family.values()];
+    const relatedTypes = [...this.files.values()].flatMap((candidateFile) => candidateFile.declarations)
+      .filter((declaration) => members.some((member) => this.isSubclassOf(declaration.fqcn, member.callable.containerFqcn!)
+        || this.isSubclassOf(member.callable.containerFqcn!, declaration.fqcn)));
+    if (members.some((member) => member.file.syntaxErrors.length || !this.hasCompleteHierarchy(member.callable.containerFqcn!)
+      || !member.callable.parameters[index] || member.callable.parameters[index]!.promoted
+      || member.callable.parameters[index]!.byReference || member.callable.parameters[index]!.variadic)
+      || relatedTypes.some((declaration) => !this.hasCompleteHierarchy(declaration.fqcn))) return undefined;
+    const familyIds = new Set(members.map((member) => member.callable.fqcn.toLowerCase()));
+    const parameterNames = new Map(members.map((member) => [member.callable.fqcn.toLowerCase(), member.callable.parameters[index]!.name]));
+    const edits: RemoveMethodParameterInfo['edits'] = [];
+    for (const member of members) {
+      const tree = this.trees.get(member.file.uri); if (!tree) return undefined;
+      const parameter = member.callable.parameters[index]!;
+      const references = member.file.variableReferences.filter((reference) => reference.scopeId === member.callable.fqcn
+        && reference.variable === `$${parameter.name}`);
+      if (references.length !== 1 || references[0]!.start !== parameter.start || references[0]!.end !== parameter.end) return undefined;
+      if (member.file.scopes.some((scope) => scope.parentId === member.callable.fqcn && member.file.variableReferences.some((reference) =>
+        reference.scopeId === scope.id && reference.variable === `$${parameter.name}`))) return undefined;
+      if (/\bfunc_(?:get_args|get_arg|num_args)\s*\(/i.test(member.file.source.slice(member.callable.declarationStart, member.callable.declarationEnd))) return undefined;
+      let node = deepestLocalSyntax(tree.rootNode, parameter.start, parameter.end,
+        (candidate) => candidate.type === 'variable_name' && candidate.startIndex === parameter.start && candidate.endIndex === parameter.end);
+      if (!node) return undefined;
+      while (node.parent && node.parent.type !== 'formal_parameters') node = node.parent;
+      const list = node.parent; if (list?.type !== 'formal_parameters') return undefined;
+      const parameterIndex = list.namedChildren.findIndex((candidate) => candidate.startIndex === node!.startIndex && candidate.endIndex === node!.endIndex);
+      if (parameterIndex !== index) return undefined;
+      const previous = list.namedChildren[index - 1]; const next = list.namedChildren[index + 1];
+      edits.push({ uri: member.file.uri, start: next ? node.startIndex : previous?.endIndex ?? node.startIndex,
+        end: next?.startIndex ?? node.endIndex, newText: '' });
+      const doc = member.file.commentRanges.filter((comment) => comment.end <= member.callable.declarationStart
+        && member.file.source.startsWith('/**', comment.start)).sort((left, right) => right.end - left.end)[0];
+      if (doc && /^[\s]*(?:#\[[\s\S]*?\][\s]*)*$/.test(member.file.source.slice(doc.end, member.callable.declarationStart))) {
+        const escaped = parameter.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const line = new RegExp(`^[ \\t]*\\*[ \\t]*@(?:(?:phpstan|psalm)-)?param\\b[^\\r\\n]*\\$${escaped}\\b[^\\r\\n]*(?:\\r?\\n|$)`, 'gmu');
+        for (const match of member.file.source.slice(doc.start, doc.end).matchAll(line)) edits.push({
+          uri: member.file.uri, start: doc.start + match.index, end: doc.start + match.index + match[0].length, newText: '',
+        });
+      }
+    }
+    const dynamic = this.dynamicMemberRenameLocations('method', callable.name,
+      (member) => familyIds.has(member.fqcn.toLowerCase()));
+    const arrays = this.callableArrayMethodRenameLocations(callable.name, familyIds);
+    if (!dynamic || dynamic.length || !arrays || arrays.length) return undefined;
+    const escapedName = callable.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const firstClassCallable = new RegExp(`(?:->|\\?->|::)\\s*${escapedName}\\s*\\(\\s*\\.\\.\\.\\s*\\)`, 'i');
+    if ([...this.files.values()].some((candidate) => firstClassCallable.test(candidate.source))) return undefined;
+    const directCalls: Array<{ file: SemanticFile; call: ParsedCall }> = [];
+    for (const candidateFile of this.files.values()) for (const call of candidateFile.calls) {
+      if (candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
+      const signature = this.signature(candidateFile.uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+      if (signature?.kind !== 'method' || !familyIds.has(signature.fqcn.toLowerCase())) continue;
+      directCalls.push({ file: candidateFile, call });
+      if (!call.flat || call.firstClassCallable || call.arguments.some((argument) => argument.unpacked)) return undefined;
+      const oldName = parameterNames.get(signature.fqcn.toLowerCase())!;
+      const named = call.arguments.find((argument) => argument.name === oldName);
+      const positional = call.arguments.filter((argument) => !argument.name)[index];
+      const argument = named ?? positional; if (!argument) continue;
+      const separator = argument.nameEnd === undefined ? -1 : candidateFile.source.indexOf(':', argument.nameEnd);
+      const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
+      const value = candidateFile.source.slice(valueStart, argument.end).trim();
+      if (!/^(?:null|true|false|[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\$])*")$/i.test(value)) return undefined;
+      const argumentIndex = call.arguments.indexOf(argument); const previous = call.arguments[argumentIndex - 1]; const next = call.arguments[argumentIndex + 1];
+      edits.push({ uri: candidateFile.uri, start: next ? argument.start : previous?.end ?? argument.start,
+        end: next?.start ?? argument.end, newText: '' });
+    }
+    for (const member of members) {
+      const references = this.references(member.file.uri, member.callable.start, true).filter((reference) => {
+        const candidate = this.files.get(reference.uri);
+        return !candidate || ![...candidate.commentRanges, ...candidate.stringRanges]
+          .some((range) => range.start <= reference.start && reference.end <= range.end);
+      });
+      if (references.some((reference) => !members.some((candidate) => candidate.file.uri === reference.uri
+        && candidate.callable.start === reference.start && candidate.callable.end === reference.end)
+        && !directCalls.some(({ file: candidate, call }) => candidate.uri === reference.uri
+          && call.nameStart === reference.start && call.nameEnd === reference.end))) return undefined;
+    }
+    return { uri, callable: callable.fqcn, parameter: selected.name, scope: 'workspace-method-family', edits };
   }
 
   removeUnusedPrivateParameter(uri: string, offset: number): RemovePrivateParameterInfo | undefined {

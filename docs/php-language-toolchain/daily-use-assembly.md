@@ -2,6 +2,8 @@
 
 日期：2026-09-24。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
+2026-09-25 进度：[Open Source Pack 最新整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)确认当前源码仍为 11 项；[方法家族参数删除](reports/c3-remove-method-family-parameter-2026-09-25.md)已在单独 Core 和完整 Pack 源码宿主通过预览、取消、应用及一次 Undo/Redo。下一项 C3 工作为参数重排；下文较早的阶段记录保留当时验收状态。
+
 ## 安装入口与能力所有者
 
 [Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。当前源码清单为 **SoPHP Core、SoPHP Symfony 和 9 个外部扩展**；格式化、调试、测试、Twig、YAML、XML、PHPDoc 生成等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。

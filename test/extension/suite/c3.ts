@@ -571,6 +571,38 @@ export async function run(): Promise<void> {
     familyBeforeAdd.get(uri.toString()), `One Undo did not restore method-family Add Parameter in ${uri.path}`);
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a", context: "web")'));
+  const familyBeforeRemove = new Map(await Promise.all(signatureFiles.map(async ([uri]) =>
+    [uri.toString(), (await vscode.workspace.openTextDocument(uri)).getText()] as const)));
+  const removeFamilyPosition = contractDocument.positionAt(contractDocument.getText().indexOf('$context',
+    contractDocument.getText().indexOf('function send')) + 2);
+  const removeFamilyPlan = await api.requestLanguageServer<{ changes?: Record<string, unknown> } | null>(
+    'phpCompanion/removeMethodParameter', { textDocument: { uri: contractUri.toString() }, position: removeFamilyPosition });
+  assert.strictEqual(Object.keys(removeFamilyPlan?.changes ?? {}).length, 4,
+    `Language Server omitted method-family Remove Parameter: ${JSON.stringify(removeFamilyPlan)}`);
+  const removeFamilyParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.removeMethodParameter', {
+      uri: contractUri, position: removeFamilyPosition, testPreviewAction,
+    });
+  assert.strictEqual(await removeFamilyParameter(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.includes('Remove method parameter:'));
+    assert.strictEqual(tabs.length, 4, 'Remove Parameter did not preview every method-family file');
+    return 'cancel';
+  }), true);
+  for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    familyBeforeRemove.get(uri.toString()), `Cancelling method-family Remove Parameter changed ${uri.path}`);
+  assert.strictEqual(await removeFamilyParameter(async () => 'apply'), true);
+  for (const uri of [contractUri, firstUri, secondSignatureUri]) {
+    const source = (await vscode.workspace.openTextDocument(uri)).getText();
+    assert.ok(!source.includes('$context') && !source.includes('@param string $context'),
+      `Remove Parameter omitted ${uri.path}`);
+  }
+  assert.ok(!(await vscode.workspace.openTextDocument(callerUri)).getText().includes('context: "web"'));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    familyBeforeRemove.get(uri.toString()), `One Undo did not restore method-family Remove Parameter in ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(!(await vscode.workspace.openTextDocument(callerUri)).getText().includes('context: "web"'));
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));

@@ -953,6 +953,35 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     }, { testPreviewAction: testOptions?.testPreviewAction });
     return true;
   });
+  register('phpCompanion.removeMethodParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
+    testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    if (!selfLanguageServer) {
+      void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
+      return false;
+    }
+    const uri = options?.uri ?? vscode.window.activeTextEditor?.document.uri;
+    const position = options?.position ?? vscode.window.activeTextEditor?.selection.active;
+    if (!uri || !position) return false;
+    const document = await vscode.workspace.openTextDocument(uri);
+    if (document.languageId !== 'php') return false;
+    const sourceVersion = document.version; const sourceText = document.getText();
+    const client = await languageServer;
+    if (!client) return false;
+    const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/removeMethodParameter', {
+      textDocument: { uri: uri.toString() }, position,
+    });
+    const edit = fromProtocolWorkspaceEdit(result);
+    if (!edit || !result?.phpCompanion?.sourceHashes) {
+      void vscode.window.showWarningMessage(t('removeParameterUnavailable'));
+      return false;
+    }
+    if (result.phpCompanion.workspaceMethodFamily) void vscode.window.showWarningMessage(t('addParameterWorkspaceScope'));
+    await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
+      edit, title: 'Remove method parameter', sourceUri: uri, sourceVersion, sourceText,
+      targetHashes: result.phpCompanion.sourceHashes,
+    }, { testPreviewAction: context.extensionMode === vscode.ExtensionMode.Test ? options?.testPreviewAction : undefined });
+    return true;
+  });
   register('phpCompanion.safeRename', async (options?: { uri?: vscode.Uri; position?: vscode.Position; newName?: string;
     testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
     if (!selfLanguageServer) {
