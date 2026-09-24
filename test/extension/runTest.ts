@@ -23,6 +23,7 @@ async function main(): Promise<void> {
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
+  const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
   const docblockerOnly = process.env.PHP_COMPANION_TEST_DOCBLOCKER_ONLY === '1';
   const docblockerExtensionsDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_EXTENSIONS_DIR;
   const docblockerUserDataDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_USER_DATA_DIR;
@@ -149,7 +150,7 @@ async function main(): Promise<void> {
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony'),
           ...(docblockerOnly ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
-      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : docblockerOnly ? 'docblocker' : 'index'),
+      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
       launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly ? [] : ['--disable-extensions']),
         ...(docblockerOnly ? [
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,

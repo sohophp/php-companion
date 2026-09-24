@@ -3454,6 +3454,18 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
   return true;
 });
 
+connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
+  if (!testMode || typeof params?.method !== 'string'
+    || !['addImport', 'planTypeImports', 'organizeImports'].includes(params.method)) return false;
+  testPauseNextQueries.add(params.method);
+  return true;
+});
+
+connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null } | null => {
+  if (!testMode || typeof params?.method !== 'string' || typeof params.uri !== 'string') return null;
+  return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null };
+});
+
 connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string') return false;
   const release = testPausedQueries.get(params.method);
@@ -4166,7 +4178,9 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   const edits = [{ uri: uri as string, start: insertion.offset, end: insertion.offset, newText: insertion.text }];
   if (alias && alias !== name) edits.push({ uri: uri as string, start: startOffset, end: endOffset, newText: alias });
   const plan = createEditPlan(`Import ${candidate.fqcn}`, [{ uri: uri as string, version: document.version, length: source.length }], edits);
-  return { changes: { [uri as string]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } };
+  const result = { changes: { [uri as string]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } };
+  if (testPauseNextQueries.has('addImport')) await pauseTestQuery('addImport');
+  return result;
 });
 
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
@@ -4198,8 +4212,10 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
   const edit = plan.text ? createEditPlan('Add pasted type imports', [{ uri: uri as string, version: document.version, length: document.getText().length }], [
     { uri: uri as string, start: plan.offset, end: plan.offset, newText: plan.text },
   ]) : undefined;
-  return { replacements: plan.replacements, conflict: plan.conflict,
+  const result = { replacements: plan.replacements, conflict: plan.conflict,
     edit: edit ? { changes: { [uri as string]: edit.textEdits.map((item) => ({ range: { start: document.positionAt(item.start), end: document.positionAt(item.end) }, newText: item.newText })) } } : undefined };
+  if (testPauseNextQueries.has('planTypeImports')) await pauseTestQuery('planTypeImports');
+  return result;
 });
 
 connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDocument?: { uri?: unknown } }, token) => {
@@ -6114,6 +6130,7 @@ connection.onCodeAction(async (params, token) => {
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
+  if (context.only?.includes(CodeActionKind.SourceOrganizeImports) && testPauseNextQueries.has('organizeImports')) await pauseTestQuery('organizeImports');
   return actions;
 });
 

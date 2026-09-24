@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C3 导入请求处理中编辑：独立 C3 宿主在服务器保留旧 `addImport`、`planTypeImports`、`organizeImports` 响应时修改 PHP 缓冲区，确认服务器已接收新版本，再释放旧响应；三条命令均拒绝旧编辑，用户输入保留且可 Undo。TypeScript、Lint 与宿主退出码 0；非模态通知真人点击和 Remote 仍待验收，见[报告](reports/c3-import-inflight-editor-2026-09-24.md)。
+
 2026-09-24 C3 预览确认交互：Safe Move 与 Optimize Imports 打开差异后不再用模态对话框阻止查看；每个差异标签均保留，非模态通知提供应用操作。隔离宿主用测试回调验证差异标签、取消不改文件、确认后的应用与 Undo/Redo，完整套件退出码 0；真人点击通知与 Remote 仍待验收，见[报告](reports/c3-preview-review-flow-2026-09-24.md)。
 
 2026-09-24 C3 导入旧计划宿主门禁：`Import Class`、`Resolve Pasted Imports` 和 `Optimize Imports` 在语言服务器计划返回后由测试模式插入一次真实文档编辑，三者均拒绝旧编辑；恢复后正常应用和 Undo/Redo 通过。完整 Core + Symfony 源码宿主退出码 0，真正请求处理中和模态预览 UI 时序仍开放，见[报告](reports/c3-import-stale-plan-host-2026-09-24.md)。
