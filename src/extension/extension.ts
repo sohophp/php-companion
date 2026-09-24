@@ -438,7 +438,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   });
   register('phpCompanion.showPerformanceLog', () => output.show());
   register('phpCompanion.rebuildIndex', async () => (await experimentalWorkspace())?.rebuild(true));
-  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean }) => {
+  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean; testBeforeApply?: () => Promise<void> }) => {
     const source = sourceUri ?? vscode.window.activeTextEditor?.document.uri;
     if (!source || !source.path.endsWith('.php')) return;
     let target = targetUri;
@@ -461,29 +461,54 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const manager = selfLanguageServer ? undefined : await workspace();
       if (manager) await manager.refreshProjectIndexes([source]);
       const textEdits = selfLanguageServer
-        ? await requestSafeMove([{ oldUri: source, newUri: target }], false)
+        ? await requestSafeMove([{ oldUri: source, newUri: target }], true)
         : await buildMoveEdits(manager!.index, [{ oldUri: source, newUri: target }], (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
+      const edit = selfLanguageServer ? textEdits : new vscode.WorkspaceEdit();
+      if (!selfLanguageServer) {
+        edit.renameFile(source, target, { overwrite: false }, { label: t('moveFileLabel', basename(source.fsPath)), needsConfirmation: false });
+        for (const [uri, edits] of textEdits.entries()) for (const textEdit of edits) edit.replace(uri, textEdit.range, textEdit.newText);
+      }
+      const participantUris = new Map<string, vscode.Uri>([[source.toString(), source]]);
+      for (const [uri] of textEdits.entries()) {
+        const originalUri = uri.toString() === target.toString() ? source : uri;
+        participantUris.set(originalUri.toString(), originalUri);
+      }
+      const participants = await Promise.all([...participantUris.values()].map(async (uri) => {
+        const document = await vscode.workspace.openTextDocument(uri);
+        const disk = await vscode.workspace.fs.readFile(uri);
+        return { uri, document, version: document.version, text: document.getText(), disk: Buffer.from(disk) };
+      }));
+      const participantsUnchanged = async (): Promise<boolean> => {
+        for (const participant of participants) {
+          const current = participant.document.isClosed ? await vscode.workspace.openTextDocument(participant.uri) : participant.document;
+          if (current.getText() !== participant.text || (current === participant.document && current.version !== participant.version)) return false;
+          try {
+            const disk = await vscode.workspace.fs.readFile(participant.uri);
+            if (!Buffer.from(disk).equals(participant.disk)) return false;
+          } catch { return false; }
+        }
+        try { await vscode.workspace.fs.stat(target); return false; }
+        catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound'; }
+      };
+      if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (options?.preview ?? configuration.get<boolean>('move.preview', true)) {
         const choice = await vscode.window.showInformationMessage(t('safeMoveWillUpdate'), { modal: true }, t('preview'), t('apply'));
         if (!choice) return;
         if (choice === t('preview')) {
           for (const [uri, edits] of textEdits.entries()) {
             const originalUri = uri.toString() === target.toString() ? source : uri;
-            const original = await vscode.workspace.openTextDocument(originalUri);
-            const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.getText(), edits) });
+            const original = participants.find((participant) => participant.uri.toString() === originalUri.toString())!;
+            const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(original.text, edits) });
             await vscode.commands.executeCommand('vscode.diff', originalUri, preview.uri, t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri)));
           }
           if (await vscode.window.showInformationMessage(t('applyPreviewedSafeMove'), { modal: true }, t('apply')) !== t('apply')) return;
         }
       }
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
+      if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       const key = fileRenameKey(source, target);
       delegatedSafeMoves.add(key);
       try {
-        const edit = selfLanguageServer ? await requestSafeMove([{ oldUri: source, newUri: target }], true) : new vscode.WorkspaceEdit();
-        if (!selfLanguageServer) {
-          edit.renameFile(source, target, { overwrite: false }, { label: t('moveFileLabel', basename(source.fsPath)), needsConfirmation: false });
-          for (const [uri, edits] of textEdits.entries()) for (const textEdit of edits) edit.replace(uri, textEdit.range, textEdit.newText);
-        }
         if (!await vscode.workspace.applyEdit(edit)) throw new MoveError(t('safeMoveApplyFailed'));
         if (manager) await refreshMoveIndex(manager, [{ oldUri: source, newUri: target }], textEdits);
       } finally {

@@ -5160,6 +5160,21 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.ok(moveEdit?.get(movedRunnerUri)?.some((textEdit) => textEdit.newText === 'App\\Service'), 'Safe Move did not target the post-move URI for namespace updates');
   assert.ok(moveEdit?.get(runnerConsumerUri)?.some((textEdit) => textEdit.newText === 'App\\Service\\Runner'), 'Safe Move preview did not include its proven reference update');
   await vscode.window.showTextDocument(runnerConsumerDocument);
+  const beforeStaleMove = runnerConsumerDocument.getText();
+  await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, {
+    preview: false,
+    testBeforeApply: async () => {
+      const edit = new vscode.WorkspaceEdit();
+      edit.insert(runnerConsumerUri, runnerConsumerDocument.positionAt(runnerConsumerDocument.getText().length), '\n// Changed while Safe Move was pending.\n');
+      assert.ok(await vscode.workspace.applyEdit(edit), 'Could not edit a Safe Move participant during planning');
+    },
+  });
+  assert.strictEqual((await vscode.workspace.openTextDocument(runnerUri)).getText().includes('namespace App\\Contract;'), true,
+    'Safe Move applied a stale plan after a participant changed');
+  await assert.rejects(async () => vscode.workspace.fs.stat(movedRunnerUri), 'Safe Move created its destination after a participant changed');
+  assert.notStrictEqual(runnerConsumerDocument.getText(), beforeStaleMove, 'Safe Move test did not change its participant');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => runnerConsumerDocument.getText() === beforeStaleMove, 'Could not undo the Safe Move race edit');
   await vscode.commands.executeCommand('phpCompanion.safeMove', runnerUri, movedRunnerUri, { preview: false });
   const movedRunnerDocument = await vscode.workspace.openTextDocument(movedRunnerUri);
   await waitFor(() => movedRunnerDocument.getText().includes('namespace App\\Service;'), 'Safe Move command did not update the namespace atomically');
