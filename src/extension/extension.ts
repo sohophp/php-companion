@@ -416,7 +416,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     return await vscode.window.showInformationMessage(message, t('apply')) === t('apply');
   };
   register('phpCompanion.applyPreviewedExtract', async (
-    request: { edit: vscode.WorkspaceEdit; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string },
+    request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'> },
   ) => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
@@ -435,14 +435,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
     const sourcePreview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(sourceText, edit.get(sourceUri)) });
     await vscode.commands.executeCommand('vscode.diff', sourceUri, sourcePreview.uri,
-      t('extractDiff', vscode.workspace.asRelativePath(sourceUri)), { preview: false });
+      t('extractDiff', request.title, vscode.workspace.asRelativePath(sourceUri)), { preview: false });
     for (const [uri, edits] of targets) {
       const empty = await vscode.workspace.openTextDocument({ language: 'php', content: '' });
       const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits('', edits) });
       await vscode.commands.executeCommand('vscode.diff', empty.uri, preview.uri,
-        t('extractDiff', vscode.workspace.asRelativePath(uri)), { preview: false });
+        t('extractDiff', request.title, vscode.workspace.asRelativePath(uri)), { preview: false });
     }
-    if (!await confirmPreviewedEdit(t('applyPreviewedExtract'), options?.testPreviewAction)) return;
+    if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;
     if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
     if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
     await vscode.window.showTextDocument(source, { preview: false });

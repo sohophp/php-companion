@@ -129,7 +129,7 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand(cancelAction.command!.command, ...cancelAction.command!.arguments ?? [],
     { testPreviewAction: async () => {
       assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs)
-        .filter((tab) => tab.label.includes('Extract Interface:')).length >= 2,
+        .filter((tab) => tab.label.includes('Extract interface C3ExtractableInterface')).length >= 2,
       'Extract Interface did not show source and new interface diffs');
       return 'cancel';
     } });
@@ -169,6 +169,52 @@ export async function run(): Promise<void> {
   await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Extract Interface Undo left the target');
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(interfaceUri)).getText().includes('interface C3ExtractableInterface'));
+  const variableUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ExtractVariable.php');
+  const variableSource = '<?php\nnamespace App\\Service;\nfunction makeObject(): object\n{\n    $result = new \\stdClass();\n    return $result;\n}\n';
+  await vscode.workspace.fs.writeFile(variableUri, Buffer.from(variableSource));
+  const variableDocument = await vscode.workspace.openTextDocument(variableUri);
+  await vscode.window.showTextDocument(variableDocument);
+  const expressionStart = variableSource.indexOf('new \\stdClass()');
+  const variableAction = async (): Promise<vscode.CodeAction> => {
+    let titles: string[] = [];
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', variableUri,
+        new vscode.Range(variableDocument.positionAt(expressionStart), variableDocument.positionAt(expressionStart + 'new \\stdClass()'.length)),
+        vscode.CodeActionKind.RefactorExtract.value);
+      titles = actions.map((action) => action.title);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract to $extracted');
+      if (found?.command) return found;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`Extract Variable was not routed through the preview command: ${JSON.stringify(titles)}`);
+  };
+  const staleVariable = await variableAction();
+  const variableChange = new vscode.WorkspaceEdit();
+  variableChange.insert(variableUri, new vscode.Position(1, 0), '// edited after selecting extraction\n');
+  assert.ok(await vscode.workspace.applyEdit(variableChange));
+  await vscode.commands.executeCommand(staleVariable.command!.command, ...staleVariable.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(!variableDocument.getText().includes('$extracted'), 'Stale Extract Variable changed the edited source');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(variableDocument.getText(), variableSource);
+  const cancelVariable = await variableAction();
+  await vscode.commands.executeCommand(cancelVariable.command!.command, ...cancelVariable.command!.arguments ?? [],
+    { testPreviewAction: async () => {
+      assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+        .some((tab) => tab.label.includes('Extract to $extracted')), 'Extract Variable did not show a source diff');
+      return 'cancel';
+    } });
+  assert.strictEqual(variableDocument.getText(), variableSource, 'Cancelling Extract Variable changed the source');
+  const freshVariable = await variableAction();
+  await vscode.commands.executeCommand(freshVariable.command!.command, ...freshVariable.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(variableDocument.getText().includes('$extracted = new \\stdClass();'));
+  assert.strictEqual(vscode.window.activeTextEditor?.document.uri.toString(), variableUri.toString());
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(variableDocument.getText(), variableSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(variableDocument.getText().includes('$extracted = new \\stdClass();'));
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);

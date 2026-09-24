@@ -2406,10 +2406,11 @@ export async function run(): Promise<void> {
       new vscode.Range(extractDocument.positionAt(extractStart), extractDocument.positionAt(extractStart + 'new \\stdClass()'.length)),
       vscode.CodeActionKind.RefactorExtract.value,
     );
-    extractAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Extract to $extracted');
-    return Boolean(extractAction?.edit);
+    extractAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract to $extracted');
+    return Boolean(extractAction?.command);
   }, 'Self-hosted language server did not offer Extract Variable for a whole assignment RHS');
-  assert.ok(await vscode.workspace.applyEdit(extractAction!.edit!), 'Extract Variable edit could not be applied');
+  await vscode.commands.executeCommand(extractAction!.command!.command, ...extractAction!.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitFor(() => normalizedNewlines(extractDocument.getText()).includes('$extracted = new \\stdClass();\n    $result = $extracted;'), 'Extract Variable did not preserve indentation or replace the selected expression');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !extractDocument.getText().includes('$extracted ='), 'Extract Variable could not be undone as one editor operation');
@@ -2447,10 +2448,11 @@ export async function run(): Promise<void> {
       new vscode.Range(extractMethodDocument.positionAt(methodStart), extractMethodDocument.positionAt(methodEnd)),
       vscode.CodeActionKind.RefactorExtract.value,
     );
-    extractMethodAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Extract method extractedMethod');
-    return Boolean(extractMethodAction?.edit);
+    extractMethodAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract method extractedMethod');
+    return Boolean(extractMethodAction?.command);
   }, 'Self-hosted language server did not offer Extract Method for complete instance statements with proven object receiver inputs');
-  assert.ok(await vscode.workspace.applyEdit(extractMethodAction!.edit!), 'Extract Method edit could not be applied');
+  await vscode.commands.executeCommand(extractMethodAction!.command!.command, ...extractMethodAction!.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitFor(() => extractMethodDocument.getText().includes('$this->extractedMethod($service, $message);') && extractMethodDocument.getText().includes('private function extractedMethod(WorkerService $service, string $message): void'), 'Extract Method did not preserve the proven inputs and native parameter types');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => extractMethodDocument.getText() === extractMethodSource, 'Extract Method could not be undone as one editor operation');
@@ -2466,10 +2468,11 @@ export async function run(): Promise<void> {
       new vscode.Range(extractMethodDocument.positionAt(outputStart), extractMethodDocument.positionAt(outputEnd)),
       vscode.CodeActionKind.RefactorExtract.value,
     );
-    extractOutputAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Extract method extractedMethod');
-    return Boolean(extractOutputAction?.edit);
+    extractOutputAction = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title === 'Extract method extractedMethod');
+    return Boolean(extractOutputAction?.command);
   }, 'Self-hosted language server did not offer Extract Method for one proven output');
-  assert.ok(await vscode.workspace.applyEdit(extractOutputAction!.edit!), 'Extract Method output edit could not be applied');
+  await vscode.commands.executeCommand(extractOutputAction!.command!.command, ...extractOutputAction!.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
   await waitFor(() => extractMethodDocument.getText().includes('$result = $this->extractedMethod();') && extractMethodDocument.getText().includes('private function extractedMethod(): \\App\\WorkerService') && extractMethodDocument.getText().includes('return new WorkerService();'), 'Extract Method did not preserve its single output');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => extractMethodDocument.getText() === extractMethodSource, 'Extract Method output could not be undone as one editor operation');
