@@ -6,4 +6,4 @@
 
 隔离 VS Code 1.139.0 C3 宿主以独立 Composer 夹具验证了局部变量 Rename 的预览、取消、预览期间修改源缓冲区后拒绝、正常应用和一次 Undo/Redo；另一组 PSR-4 类型案例先确认新使用方进入引用图，再验证声明及使用方差异、文件改名、引用更新和一次 Undo/Redo。PHP 服务 ID 入口还验证 YAML 与 XML 目标分别出现在跨格式差异预览中，取消后保持原文。`pnpm exec tsc --noEmit`、扩展宿主测试 TypeScript、所改 TypeScript 文件 ESLint、源码 esbuild、Pack manifest 单元测试 4/4、定向 C3 宿主均通过；宿主退出码 0，日志 `/tmp/sophp-c3-controlled-rename-final.log`。没有打包 VSIX，也没有修改业务项目。
 
-此命令尚未绑定 F2；标准 F2 继续使用 VS Code 原生 Rename 预览。外部进程在预览期间改写磁盘文件的宿主探针未形成可靠保留证据，仍须在独立场景复测；最后一次快照检查到 `workspace.applyEdit` 之间的短竞态也未关闭。此次自动宿主确认流程不等同于实际键盘与鼠标的 UI 验收。
+后续增量将此命令绑定为 PHP 编辑器的 F2：仅在 SoPHP 自研语言服务器成功启动、PHP Rename 已启用、编辑器可写且不在差异视图中生效；其它语言和未由 SoPHP 接管的 PHP Profile 保留 VS Code 原生 F2。隔离宿主已核对键位声明与命令注册，但实际键盘事件及设置切换仍需人工 UI 验收。外部进程在预览期间改写磁盘文件的宿主探针未形成可靠保留证据，仍须在独立场景复测；最后一次快照检查到 `workspace.applyEdit` 之间的短竞态也未关闭。此次自动宿主确认流程不等同于实际键盘与鼠标的 UI 验收。

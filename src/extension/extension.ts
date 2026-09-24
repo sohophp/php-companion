@@ -218,6 +218,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     void vscode.window.showErrorMessage(t('languageServerFailed'));
     return undefined;
   });
+  void vscode.commands.executeCommand('setContext', 'phpCompanion.safeRenameAvailable', false)
+    .then(() => languageServer)
+    .then((client) => vscode.commands.executeCommand('setContext', 'phpCompanion.safeRenameAvailable', Boolean(selfLanguageServer && client)));
   integrations.setRequestHandler(async (method: string, params: unknown): Promise<unknown> => {
     const client = await languageServer;
     if (!client) throw new Error('SoPHP language server is not available.');
@@ -855,6 +858,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     }
     const uri = options?.uri ?? vscode.window.activeTextEditor?.document.uri;
     if (!uri) return false;
+    if (!vscode.workspace.getConfiguration('phpCompanion', uri).get<boolean>('rename.enabled', true)) return false;
     const document = await vscode.workspace.openTextDocument(uri);
     if (document.languageId !== 'php') return false;
     const position = options?.position ?? vscode.window.activeTextEditor?.selection.active;

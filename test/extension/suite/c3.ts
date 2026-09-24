@@ -52,6 +52,10 @@ export async function run(): Promise<void> {
   assert.ok(folder, 'C3 import request test requires the Composer fixture');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load');
+  const f2Rename = (extension.packageJSON.contributes?.keybindings as Array<{ command: string; key: string; when: string }> | undefined)
+    ?.find((entry) => entry.command === 'phpCompanion.safeRename' && entry.key === 'f2');
+  assert.ok(f2Rename?.when.includes('editorLangId == php') && f2Rename.when.includes('phpCompanion.safeRenameAvailable'),
+    'F2 must route PHP Rename through the guarded SoPHP command only when its language server owns PHP');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
 

@@ -112,7 +112,7 @@
       { "command": "phpCompanion.showCompatibilityReport", "title": "%command.showCompatibilityReport%", "category": "SoPHP" },
       { "command": "phpCompanion.showPerformanceLog", "title": "%command.showPerformanceLog%", "category": "SoPHP" },
       { "command": "phpCompanion.safeMove", "title": "%command.safeMove%", "category": "SoPHP" },
-      { "command": "phpCompanion.safeRename", "title": "%command.safeRename%", "category": "SoPHP" },
+      { "command": "phpCompanion.safeRename", "title": "%command.safeRename%", "category": "SoPHP", "enablement": "phpCompanion.safeRenameAvailable" },
       { "command": "phpCompanion.rebuildIndex", "title": "%command.rebuildIndex%", "category": "SoPHP" },
       { "command": "phpCompanion.importClass", "title": "%command.importClass%", "category": "SoPHP" },
       { "command": "phpCompanion.resolvePastedImports", "title": "%command.resolvePastedImports%", "category": "SoPHP" },
@@ -130,6 +130,9 @@
       { "command": "phpCompanion.goToDefinition", "title": "%command.goToDefinition%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
       { "command": "phpCompanion.goToImplementation", "title": "%command.goToImplementation%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
       { "command": "phpCompanion.findReferences", "title": "%command.findReferences%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" }
+    ],
+    "keybindings": [
+      { "command": "phpCompanion.safeRename", "key": "f2", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" }
     ],
     "menus": {
       "explorer/context": [
