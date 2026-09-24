@@ -205,6 +205,63 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     return references.some((location) => location.uri.toString() === coreUri.toString()
       && coreDocument.getText(location.range) === 'answer');
   }, 'SoPHP Core did not find the PHP call in the Open Source Profile', 30_000, 100);
+
+  const returnUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturn.php');
+  const consumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturnConsumer.php');
+  const returnSource = `<?php namespace App;
+class ProfileReturnAlpha { public function onlyAlpha(): void {} }
+class ProfileReturnBeta { public function onlyBeta(): void {} }
+/** @return list<ProfileReturnAlpha> */ function profileRecords(): array { return []; }
+`;
+  const consumerSource = `<?php namespace App;
+function inspectProfileRecords(): void { foreach (profileRecords() as $item) { $item->only; $item->onlyAlpha(); } }
+`;
+  await vscode.workspace.fs.writeFile(returnUri, Buffer.from(returnSource));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumerSource));
+  const returnDocument = await vscode.workspace.openTextDocument(returnUri);
+  const consumerDocument = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(consumerDocument);
+  const profileMethods = async (): Promise<string[]> => {
+    const position = consumerDocument.positionAt(consumerDocument.getText().indexOf('$item->only;') + '$item->only'.length);
+    return (await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri, position))
+      ?.items.filter((item) => item.kind === vscode.CompletionItemKind.Method).map((item) => String(item.label)) ?? [];
+  };
+  await waitForAsync(async () => {
+    const methods = await profileMethods();
+    return methods.includes('onlyAlpha') && !methods.includes('onlyBeta');
+  }, 'The full Pack did not expose the original cross-file PHPDoc return type', 30_000, 100);
+  const returnTypeStart = returnDocument.getText().indexOf('list<ProfileReturnAlpha>');
+  assert.ok(returnTypeStart >= 0);
+  const returnEdit = new vscode.WorkspaceEdit();
+  returnEdit.replace(returnUri, new vscode.Range(returnDocument.positionAt(returnTypeStart),
+    returnDocument.positionAt(returnTypeStart + 'list<ProfileReturnAlpha>'.length)), 'list<ProfileReturnBeta>');
+  assert.ok(await vscode.workspace.applyEdit(returnEdit));
+  assert.ok(returnDocument.isDirty);
+  await waitForAsync(async () => {
+    const methods = await profileMethods();
+    return methods.includes('onlyBeta') && !methods.includes('onlyAlpha');
+  }, 'The full Pack retained a stale PHPDoc return type after an unsaved source edit', 30_000, 100);
+  const staleCall = consumerDocument.positionAt(consumerDocument.getText().indexOf('onlyAlpha();') + 2);
+  const staleDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, staleCall) ?? [];
+  assert.ok(!staleDefinitions.some((location) => location.uri.toString() === returnUri.toString()
+    && returnDocument.getText(location.range) === 'onlyAlpha'), 'The full Pack navigated to a stale PHPDoc return member');
+  const callStart = consumerDocument.getText().indexOf('onlyAlpha();');
+  assert.ok(callStart >= 0);
+  const consumerEdit = new vscode.WorkspaceEdit();
+  consumerEdit.replace(consumerUri, new vscode.Range(consumerDocument.positionAt(callStart),
+    consumerDocument.positionAt(callStart + 'onlyAlpha'.length)), 'onlyBeta');
+  assert.ok(await vscode.workspace.applyEdit(consumerEdit));
+  const betaCall = consumerDocument.positionAt(consumerDocument.getText().indexOf('onlyBeta();') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, betaCall) ?? [];
+    return definitions.some((location) => location.uri.toString() === returnUri.toString()
+      && returnDocument.getText(location.range) === 'onlyBeta');
+  }, 'The full Pack did not navigate to the updated PHPDoc return member', 30_000, 100);
+  await waitForAsync(async () => {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, betaCall) ?? [];
+    return hovers.some((hover) => hover.contents.some((content) => (typeof content === 'string' ? content : content.value).includes('onlyBeta')));
+  }, 'The full Pack did not show the updated PHPDoc return member on Hover', 30_000, 100);
+
   const servicesUri = vscode.Uri.joinPath(workspace.uri, 'config', 'services.yaml');
   const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
   const serviceOffset = servicesDocument.getText().indexOf('@App\\Service\\Mailer') + 5;

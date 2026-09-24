@@ -9,3 +9,5 @@
 验证：Language Server 全套 18 个测试文件、332 项通过、1 项按原设置跳过；最终源码重新构建后，新增两种模式的定向 stdio 用例均通过。VS Code 1.139.0 隔离 Core 源码宿主在默认 `onDemand` 下，实际观察到两个已打开文件间未保存的 `Alpha → Beta` 返回类型切换，使用方补全随之变化、旧 Definition 撤销；原有 `never` 快速编辑与同文件参数诊断往返也通过，宿主退出码 0。相关 TypeScript、ESLint 与差异检查通过。该宿主没有覆盖关闭文件后的 UI 操作；其磁盘恢复与 watcher 行为由真实 stdio 证明。跨文件诊断在 `onDemand` 下继续保持未知；要报告确定的跨文件错误，仍需证明声明唯一、类型关系和依赖覆盖。其它 PHP 版本、Remote 与长会话留在 C4 门槛。
 
 后续定向回归增加了使用方版本 2/3 的连续未保存编辑：声明已切到 `list<Beta>` 后，版本 3 的诊断和补全仍使用 Beta，版本 3 发布后没有迟到的版本 2 诊断。另一个真实 stdio 用例在默认 `onDemand` 下紧接着关闭、重新打开同一文件；关闭回调完成磁盘恢复时会先确认文件仍处于关闭状态，避免清掉新版本的诊断。两种索引模式的跨文件用例及重开用例共 3 项通过；Language Server 构建、类型检查、相关 ESLint 与差异检查通过。本轮没有运行完整 Pack 宿主或重新打包 VSIX，也不把短时序测试视为数小时长会话验收。
+
+随后用包含当前 11 项清单的 Open Source Pack **源码组合**补做宿主操作：独立 Composer 项目中，未保存地把声明文件的 `@return list<Alpha>` 改为 `list<Beta>`，使用方的 Method 补全只保留 Beta 成员，旧调用不再跳到 Alpha；未保存地把使用方调用改为 Beta 后，Definition 与 Hover 都指向 Beta 成员。VS Code 1.139.0 隔离宿主退出码 0，相关 TypeScript 与 ESLint 检查通过；没有打包 VSIX。这证明完整成员共存时的编辑查询链，仍不证明默认 `onDemand` 可发布跨文件参数类型诊断，也不代替 WSL Remote 或长会话验收。
