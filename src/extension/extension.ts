@@ -808,7 +808,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
             && openVersions.get(item.uri.toString()) !== item.version)) {
           throw new Error('A PHP document changed while Rename edits were being prepared. Run Rename again.');
         }
-        if (result?.phpCompanion?.sourceHashes) {
+        if (result) {
+          if (!result.phpCompanion?.sourceHashes) throw new Error('Rename omitted source snapshots. Run Rename again.');
           const editedUris = new Set([...Object.keys(result.changes ?? {}),
             ...(result.documentChanges ?? []).flatMap((change) => 'textDocument' in change ? [change.textDocument.uri] : [])]);
           for (const uri of editedUris) {
