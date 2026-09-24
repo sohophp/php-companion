@@ -1498,6 +1498,31 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   }));
 }
 
+async function provenOnDemandExternalLiteralArguments(workspace: SemanticWorkspace, root: string,
+  document: TextDocument): Promise<ReturnType<SemanticWorkspace['incompatibleArguments']>> {
+  const candidates = workspace.incompatibleArguments(document.uri).filter((item) => item.callable.includes('::')
+    && /^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
+      .test(document.getText().slice(item.start, item.end)));
+  if (!candidates.length) return [];
+  const project = await composerProjectForRoot(root);
+  if (!project?.inputEvidence?.complete || project.warnings.length) return [];
+  const mappings = allPsr4Mappings(project);
+  return candidates.filter((item) => {
+    const separator = item.callable.lastIndexOf('::');
+    const owner = item.callable.slice(0, separator);
+    const shortName = owner.slice(owner.lastIndexOf('\\') + 1);
+    const declarations = workspace.typeDeclarationsNamed(shortName)
+      .filter((candidate) => candidate.fqcn.toLowerCase() === owner.toLowerCase());
+    if (declarations.length !== 1 || declarations[0]!.kind !== 'class') return false;
+    const declarationPath = pathForUri(declarations[0]!.uri);
+    const expectedPaths = new Set(resolvePsr4Class(owner, mappings).map((path) => resolve(path)));
+    if (!declarationPath || expectedPaths.size !== 1 || !expectedPaths.has(resolve(declarationPath))) return false;
+    const signature = workspace.signature(document.uri, item.start);
+    return signature?.kind === 'method' && signature.synthetic === undefined
+      && signature.uri === declarations[0]!.uri && signature.fqcn.toLowerCase() === item.callable.toLowerCase();
+  });
+}
+
 async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0, onlyIfChanged = false): Promise<void> {
   const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
@@ -1585,6 +1610,15 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'PHP Companion',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
+    if (root && indexingMode === 'onDemand') result.diagnostics.push(...(await provenOnDemandExternalLiteralArguments(workspace, root, document))
+      .map((argument) => ({
+        range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.argument.type-mismatch',
+        source: 'PHP Companion',
+        message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch',
+          argument.callable, argument.parameter, argument.expectedType, argument.actualType),
+      })));
   }
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && root && completeRoots.has(root)) {
     const disabledExtensions = new Set(disabledExtensionsForRoot(root));
@@ -2011,7 +2045,7 @@ function scheduleRelatedOpenDiagnostics(root: string, editedUri: string, changed
   // another open file without changing that file's document version.
   const pending = relatedDiagnosticRefreshes.get(root);
   if (pending) clearTimeout(pending.timer);
-  const editedUris = pending?.editedUris ?? new Set<string>();
+  const editedUris = new Set<string>();
   const priorityNames = pending?.priorityNames ?? new Set<string>();
   editedUris.add(editedUri);
   for (const symbol of changedSymbols) {
@@ -4383,6 +4417,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       workspace.remove(targetUri); scanFilesByRoot.get(root)?.delete(targetUri); indexedUrisByRoot.get(root)?.delete(targetUri); projectIndexedUrisByRoot.get(root)?.delete(targetUri);
       interopContextsByRoot.get(root)?.delete(targetUri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, targetUri, workspace);
       containerRefreshRoots.add(root);
+      if (indexingMode === 'onDemand') scheduleRelatedOpenDiagnostics(root, targetUri);
     } else {
       const update = workspace.update(targetUri, source, Boolean(open)); scanFilesByRoot.get(root)?.add(targetUri);
       const indexed = indexedUrisByRoot.get(root) ?? new Set<string>(); indexed.add(targetUri); indexedUrisByRoot.set(root, indexed);
@@ -4394,6 +4429,8 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       }
       if (update.kind === 'declaration') {
         containerRefreshRoots.add(root); await refreshDoctrineDocument(root, targetUri, source, workspace);
+        if (indexingMode === 'onDemand') scheduleRelatedOpenDiagnostics(root, targetUri,
+          [...update.changedTypes, ...update.changedCallables]);
       }
     }
     const completed = completedByRoot.get(root) ?? []; completed.push(uri); completedByRoot.set(root, completed);
@@ -4543,6 +4580,8 @@ documents.onDidOpen(async ({ document }) => {
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
+  if (root && indexingMode === 'onDemand' && update.kind === 'declaration') scheduleRelatedOpenDiagnostics(root,
+    document.uri, [...update.changedTypes, ...update.changedCallables]);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
@@ -4601,7 +4640,7 @@ documents.onDidChangeContent(async ({ document }) => {
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
-  if (!opening && sourceChanged && root && completeRoots.has(root) && update.kind !== 'none') {
+  if (!opening && sourceChanged && root && (completeRoots.has(root) || indexingMode === 'onDemand') && update.kind !== 'none') {
     scheduleRelatedOpenDiagnostics(root, document.uri, [...update.changedTypes, ...update.changedCallables]);
   }
   await publishDocumentDiagnostics(document, diagnosticEditCoalesceMs);
@@ -4688,7 +4727,7 @@ documents.onDidClose(async ({ document }) => {
   }
   const closedPath = pathForUri(document.uri); if (root && closedPath
     && (affectsSymfonyContainerProvider(root, closedPath) || isSymfonyServiceConfig(root, closedPath))) scheduleSymfonyContainerRefresh(root);
-  if (relatedFactsChanged && root && completeRoots.has(root)) scheduleRelatedOpenDiagnostics(root, document.uri);
+  if (relatedFactsChanged && root && (completeRoots.has(root) || indexingMode === 'onDemand')) scheduleRelatedOpenDiagnostics(root, document.uri);
   // A new didOpen can arrive while the disk snapshot above is still loading.
   // Clearing diagnostics here would erase the reopened document's new version.
   if (!documents.get(document.uri)) await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });

@@ -65,7 +65,7 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [5,000 轮 C2 编辑序列](reports/c2-session-retained-tree-2026-09-24.md)发现并修复关闭文件时未释放保留语法树造成的 RSS 增长；默认 `onDemand` 的跨文件 PHPDoc 补全、Hover、Definition 及磁盘恢复在修复前后均无旧结果，修复后五段 RSS 均值基本持平。接下来继续处理路径依赖/符号链接和 watcher 交错，并在更大的独立 Composer 项目、完整 Pack 与真实 Extension Host 中检查等待和长时间内存；这些证据不能由小项目 stdio 基准替代。
 
-[路径仓库编辑与监视回归](reports/c2-path-repository-edits-2026-09-24.md)现覆盖真实路径未保存编辑、安装链接路径的磁盘更新、打开缓冲区优先、反向监视与删除清理。[双路径同时打开回归](reports/c2-dual-path-open-2026-09-24.md)进一步让最近编辑的缓冲区拥有跨文件项目事实，冲突时给出一次警告，并在关闭后逐级恢复另一打开缓冲区和磁盘。下一步回到默认 `onDemand` 下哪些跨文件类型诊断具有完整证明；更大的 Composer 项目和完整 Pack 宿主仍是独立门槛。
+[路径仓库编辑与监视回归](reports/c2-path-repository-edits-2026-09-24.md)现覆盖真实路径未保存编辑、安装链接路径的磁盘更新、打开缓冲区优先、反向监视与删除清理。[双路径同时打开回归](reports/c2-dual-path-open-2026-09-24.md)进一步让最近编辑的缓冲区拥有跨文件项目事实，冲突时给出一次警告，并在关闭后逐级恢复另一打开缓冲区和磁盘。[按需跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)现只对唯一 PSR-4 类方法和直接标量字面量发布可证明错误，并在未保存编辑、关闭和 watcher 后撤销/重现；两个 PSR-4 候选路径及跨文件 PHPDoc 返回传播继续保守。下一步评估可证明的局部变量与更多参数形式、非当前路径别名标签页的局部查询，并在较大 Composer 项目和完整 Pack 宿主中验证等待与长期稳定性。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。

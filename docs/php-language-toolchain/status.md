@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 默认 `onDemand` 的首批可证明跨文件参数诊断：独立 Composer PHP 8.5 项目中，唯一 PSR-4 具体类方法收到直接标量字面量且类型不兼容时，使用方现在发布 `php.argument.type-mismatch`；声明与使用方未保存编辑、关闭恢复、watcher 更新形成出现/撤销往返，参数提示与诊断使用更新后的签名。两个 PSR-4 候选路径保持静默，PHPDoc 返回值传播继续保守。修复待处理诊断刷新沿用旧编辑 URI 集合的问题；完整 Language Server 18 文件、338 项通过、1 项跳过。最终增加“具体类”约束后重新构建，相关 6 项、类型检查、ESLint 与差异检查通过；未重跑完整套件。未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
+
 2026-09-24 C2 同一物理 PHP 文件双路径打开：独立 Composer path repository 的真实路径与安装符号链接同时持有不同未保存内容时，跨文件事实现在由最近打开/编辑的缓冲区拥有；反向快速编辑、Watcher 交错、关闭后接管与磁盘恢复均通过真实 stdio，冲突只提示一次。首次全套发现普通文件因新增异步别名检查而出现 13 项引用/框架回归；普通文件改走同步快路径后，这 13 项定向通过，最终 Language Server 全套 18 文件、336 项通过、1 项跳过，类型检查、ESLint 和差异检查通过。未修改业务项目或打包 VSIX。另一打开标签页内的局部查询、Remote 和完整 Pack 仍待验，见[报告](reports/c2-dual-path-open-2026-09-24.md)。
 
 2026-09-24 Open Source Pack 整理与 C2 起点：当前源码清单为 Core、Symfony 和 9 个外部扩展，共 11 项；Recommended Pack 不参与新候选。Pack manifest 4/4 通过。现有 0.4.5 私有 Alpha 候选与 8 个外部扩展的隔离组合门禁，不能代替后来加入的 PHP DocBlocker 版本冻结；DocBlocker 已通过独立完整成员 Profile 门禁。下一次组合候选冻结时，须按当前 11 项重新记录成员版本和 Core/Symfony/Pack 摘要，再核对 Extension Host；日常 Core 增量不重打包。Core 继续 C2 的路径别名及可证明跨文件诊断，详见[日常开发组合方案](daily-use-assembly.md)。
