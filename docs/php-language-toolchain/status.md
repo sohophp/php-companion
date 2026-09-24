@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-18c：References 在 onDemand 下复用已完成的候选覆盖，同时按 URI 更新打开文件的接收者方法，旧引用结果的持久证明保持失效。真实 stdio 正反例覆盖同名方法接收者切换、打开文件新增/移除调用及未打开文件新增后的重扫；完整 stdio 141 项通过、1 项原有跳过。10,130 文件隔离宿主的 50 轮六项链共 300 次查询全部正确，References 中位数 89 ms、P95 132 ms，较上轮 645/762 ms 降低；冷查询、Remote、跨平台、长会话与完整组合仍开放。见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-18b：10,130 文件独立 Composer 项目中，隔离 VS Code Core 宿主完成 50 轮未保存类型切换、共 300 次六项编辑查询，结果全部正确。onDemand 模式在打开缓冲区完整更新后复用已经完成的 Implementation 候选覆盖；同一宿主序列的 Implementation 中位数由 689 ms 降至最终复测的 4 ms，P95 由 829 ms 降至 7 ms。真实 stdio 正反例覆盖同名方法不同接口、打开文件新增/移除实现、未打开文件新增实现后的重扫；完整 stdio 140 项通过、1 项跳过。References P95 762 ms、跨平台/Remote 与完整组合仍开放，见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-19：独立 Composer 小预算夹具确认依赖扫描不完整时，Implementation 返回专用的中英文失败提示并指向 SoPHP 输出与索引设置，不再使用“零处引用”的错误措辞，也不返回误导性的空实现列表。协议消息与真实 stdio 定向 4/4 通过；默认 10,000 文件边界仍需规模验证。见[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md)。

@@ -83,6 +83,7 @@ const semanticWorkspaces = new Map<string, Promise<SemanticWorkspace>>();
 const referenceDependencyEvidence = new WeakMap<SemanticWorkspace, ReferenceDependencyEvidence>();
 type AssignedReceiverMethod = { owner: string; method: string };
 const candidateReceiverMethods = new Map<string, AssignedReceiverMethod[]>();
+const candidateReceiverMethodsByUri = new Map<string, Map<string, AssignedReceiverMethod[]>>();
 const completeRoots = new Set<string>();
 const projectCompleteRoots = new Set<string>();
 const referenceSourceReadyRoots = new Map<string, number>();
@@ -2310,17 +2311,36 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
     }
   }
 }
-function reuseImplementationCandidatesAfterOpenEdit(root: string, previousEpoch: number, document: TextDocument,
+function reuseCandidateCoverageAfterOpenEdit(root: string, previousEpoch: number, document: TextDocument,
   workspace: SemanticWorkspace): void {
   if (indexingMode !== 'onDemand' || activeIndexing || documents.get(document.uri) !== document
     || workspace.source(document.uri) !== document.getText() || (projectEpochs.get(root) ?? 0) !== previousEpoch + 1) return;
-  // A complete Implementation scan has already covered unchanged project and
-  // dependency files. The open file is now fully updated in this workspace.
-  // References keep their own scan, receiver-closure and persistence evidence.
-  const prefix = `${root}:symbol:declarations:dependencies:`;
-  for (const [key, epoch] of candidateQueries) if (epoch === previousEpoch && key.startsWith(prefix)) {
+  // A complete scan has covered unchanged files. The open file is fully updated
+  // in this workspace; refresh its receiver evidence before reusing References.
+  // Reference result persistence retains its own epoch-bound input proof.
+  const implementationPrefix = `${root}:symbol:declarations:dependencies:`;
+  const referencePrefix = `${root}:symbol:declarations:`;
+  for (const [key, epoch] of candidateQueries) {
+    if (epoch !== previousEpoch) continue;
+    if (key.startsWith(implementationPrefix)) {
+      candidateQueries.set(key, previousEpoch + 1);
+      continue;
+    }
+    if (!key.startsWith(referencePrefix)) continue;
+    const receiversByUri = candidateReceiverMethodsByUri.get(key);
+    if (!receiversByUri) continue;
+    const suffix = key.slice(referencePrefix.length).replace(/^exact:/, '');
+    if (!suffix || suffix.startsWith('dependencies:')) continue;
+    const names = new Set(suffix.split(','));
+    receiversByUri.set(document.uri, workspace.assignedReceiverMethods(document.uri, names));
+    const receivers = new Map<string, AssignedReceiverMethod>();
+    for (const methods of receiversByUri.values()) for (const item of methods) {
+      receivers.set(`${item.owner.toLowerCase()}::${item.method.toLowerCase()}`, item);
+    }
+    candidateReceiverMethods.set(key, [...receivers.values()]);
     candidateQueries.set(key, previousEpoch + 1);
   }
+  referenceCandidateReads.delete(workspace);
 }
 const progressiveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 function scheduleProgressiveReferenceRefresh(root: string): void {
@@ -2371,6 +2391,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   if (candidateQueries.get(key) === epoch) return true;
   connection.console.info(`[candidate-scan-start] mode=${mode} names=${normalizedNames.join(',')} root=${root} defer=${deferBodies} epoch=${epoch}`);
   candidateReceiverMethods.delete(key);
+  candidateReceiverMethodsByUri.delete(key);
   referenceCandidateReads.delete(workspace);
   const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
   let candidateReadsComplete = true;
@@ -2387,11 +2408,13 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   let skippedCachedExact = false;
   const scanBegan = testMode ? performance.now() : 0;
   const receiverMethods = new Map<string, AssignedReceiverMethod>();
-  const recordReceiverMethods = (items: unknown): void => {
+  const receiverMethodsByUri = new Map<string, AssignedReceiverMethod[]>();
+  const recordReceiverMethods = (uri: string, items: unknown): void => {
     if (!Array.isArray(items) || items.length > 10_000) return;
-    for (const item of items) if (item && typeof item.owner === 'string' && typeof item.method === 'string') {
-      receiverMethods.set(`${item.owner.toLowerCase()}::${item.method.toLowerCase()}`, item as AssignedReceiverMethod);
-    }
+    const valid = items.filter((item) => item && typeof item.owner === 'string'
+      && typeof item.method === 'string') as AssignedReceiverMethod[];
+    receiverMethodsByUri.set(uri, valid);
+    for (const item of valid) receiverMethods.set(`${item.owner.toLowerCase()}::${item.method.toLowerCase()}`, item);
   };
   let progress: Awaited<ReturnType<typeof connection.window.createWorkDoneProgress>> | undefined;
   let progressFinished = false;
@@ -2472,7 +2495,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
         else workspace.update(uri, effective, Boolean(open));
         if (!declarationsOnly && mode === 'symbol') {
           sourceReceiverMethods = workspace.assignedReceiverMethods(uri, names);
-          recordReceiverMethods(sourceReceiverMethods);
+          recordReceiverMethods(uri, sourceReceiverMethods);
         }
         if (declarationsOnly) declarationCandidates += 1;
         if (exactSymbols && !declarationsOnly) {
@@ -2523,14 +2546,14 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
           ? prepared as PreparedCandidateRestore : undefined;
         const declarations = candidate?.declaration ?? (deferBodies ? restoreCachedSourceDeclaration(entry?.declarations, uri, hash) : undefined);
         if (declarations && workspace.restoreSourceDeclaration(declarations, uri)) {
-          if (mode === 'symbol') recordReceiverMethods(entry?.receiverMethods ?? []);
+          if (mode === 'symbol') recordReceiverMethods(uri, entry?.receiverMethods ?? []);
           if (candidate?.declaration) preparedRestores += 1;
           restoredCandidates += 1; restoredDeclarations += 1; return true;
         }
         const cached = candidate?.semantic ?? restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(entry?.semantic), uri);
         if (cached?.checksums.source === hash && (deferBodies
           ? workspace.restoreDeclaration(cached.semantic, uri) : workspace.restore(cached.semantic, uri))) {
-          if (mode === 'symbol') recordReceiverMethods(entry?.receiverMethods ?? []);
+          if (mode === 'symbol') recordReceiverMethods(uri, entry?.receiverMethods ?? []);
           if (candidate?.semantic) preparedRestores += 1;
           restoredCandidates += 1; return true;
         }
@@ -2548,7 +2571,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   // Include unsaved buffers even when their disk text doesn't mention the symbol.
   for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) workspace.update(document.uri, document.getText(), true);
   if (mode === 'symbol') for (const document of documents.all().filter((item) => rootForUri(item.uri) === root && item.languageId === 'php')) {
-    recordReceiverMethods(workspace.assignedReceiverMethods(document.uri, names));
+    recordReceiverMethods(document.uri, workspace.assignedReceiverMethods(document.uri, names));
   }
   if (exactSymbols) {
     const visited = new Set<string>(); const unresolvedDependencies = new Set<string>(); let frontier = [...fullCandidateTypes]; let loadedDependencies = 0;
@@ -2610,6 +2633,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps });
   }
   candidateReceiverMethods.set(key, [...receiverMethods.values()]);
+  candidateReceiverMethodsByUri.set(key, receiverMethodsByUri);
   candidateQueries.set(key, epoch); return true;
   } finally { progressFinished = true; progress?.done(); }
 }
@@ -4282,7 +4306,7 @@ documents.onDidChangeContent(async ({ document }) => {
   }
   if (!opening && sourceChanged && root && root === initialRoot && candidateEpochBeforeEdit !== undefined
     && documents.get(document.uri) === document && document.version === contentVersion) {
-    reuseImplementationCandidatesAfterOpenEdit(root, candidateEpochBeforeEdit, document, workspace);
+    reuseCandidateCoverageAfterOpenEdit(root, candidateEpochBeforeEdit, document, workspace);
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);

@@ -87,3 +87,11 @@ F04-NAV-18b 的真实 stdio 正反例使用两个同名 `renderAction()` 接口�
 同样的 10,130 文件宿主与 50 轮六项查询复测全部通过。首次遇到新方法仍有一次扫描；之后已见方法的 Implementation 等待中位数由 689 降至 5 ms、P95 由 829 降至 7 ms，最大 888 ms。单次未保存 Response → Logger → Response 往返后的 Implementation 从修复前 955 ms 降至本轮 10 ms；这是不同宿主运行的本机样本。References 中位数仍为 651 ms、P95 805 ms，是下一项候选扫描优化缺口，不能直接复用 Implementation 的覆盖，因为其接收者闭包和持久证明不同。
 
 最后加入同版本关闭再打开的文档身份保护，并把 F04-NAV-18b 方法名改为可触发候选路径预筛的 `renderAction()` 后，语言服务器完整 stdio 套件 140 项通过、1 项跳过。最终源码重新构建并在同一 10k 隔离宿主重复 50 轮六项链：全部正确、退出码 0；Implementation 中位数 4 ms、P95 7 ms、最大 862 ms，References 中位数 645 ms、P95 762 ms。首次真实 vendor Implementation 为 1,495 ms，未保存往返恢复为 14 ms。冷查询仍需扫描，References 的重复扫描继续开放。
+
+## 后续：复用 References 候选覆盖并刷新接收者证据
+
+已完成的 References 候选扫描现在按文件记录接收者方法。打开的 PHP 缓冲区每次修改后，服务器先更新原语义工作区，再用该文件的新接收者方法替换旧记录；只有项目根、文档身份、源码和候选版本均匹配时，才复用旧扫描对其它文件的完整覆盖。引用结果的持久化输入证明仍按原版本失效，不将旧结果当作新编辑的结果。未打开文件新增或修改、Composer 变化和重建索引仍要求重新扫描。
+
+F04-NAV-18c 的真实 stdio 正反例使用两个类上的同名 `renderAction()`：未保存地切换接收者时，旧类引用消失、新类引用出现；另一打开文件新增、移除调用立即反映在结果中，候选扫描仍只有一次；磁盘新建未打开调用文件后发生第二次扫描并找到新引用。完整 stdio 回归 141 项通过、1 项原有跳过；TypeScript 检查与 ESLint 通过。
+
+相同 10,130 文件项目的隔离 VS Code Core 宿主再次完成 50 轮未保存 Response/Request 切换、共 300 次六项查询，全部结果正确且退出码 0。References 等待中位数为 89 ms、P95 132 ms、最大 630 ms；上一轮为 645/762/828 ms。Implementation 中位数 4 ms、P95 10 ms、最大 816 ms；首次真实 vendor Implementation 为 1,548 ms。此为本机单次顺序样本，未覆盖数小时会话、WSL Remote、其它系统或完整 Open Source Pack 组合；首次冷查询和 References 每次接收者闭包处理仍有等待。

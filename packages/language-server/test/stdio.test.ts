@@ -4275,6 +4275,101 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 20_000);
 
+  it('F04-NAV-18c reuses References coverage after open edits and refreshes receiver evidence', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-references-open-reuse-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const bagA = '<?php namespace App; class BagA { public function renderAction(): void {} }';
+      const bagB = '<?php namespace App; class BagB { public function renderAction(): void {} }';
+      const sourceFor = (type: string): string => `<?php namespace App; function run(${type} $value): void { $value->renderAction(); }`;
+      await writeFile(join(src, 'BagA.php'), bagA);
+      await writeFile(join(src, 'BagB.php'), bagB);
+      await writeFile(join(src, 'Consumer.php'), sourceFor('BagA'));
+      const bagAUri = pathToFileURL(join(src, 'BagA.php')).toString();
+      const bagBUri = pathToFileURL(join(src, 'BagB.php')).toString();
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3620, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 3620);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, text] of [[bagAUri, bagA], [bagBUri, bagB]] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: sourceFor('BagA') },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === consumerUri);
+      let requestId = 3620;
+      const references = async (uri: string, source: string): Promise<string[]> => {
+        const id = ++requestId;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('renderAction()') + 2),
+          context: { includeDeclaration: false },
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result.map((item: { uri: string }) => item.uri).sort();
+      };
+      const change = async (version: number, source: string): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri: consumerUri, version }, contentChanges: [{ text: source }],
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params?.uri === consumerUri && message.params?.version === version);
+      };
+      const scanCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start] mode=symbol names=dispatch,renderaction')
+        && message.params?.message?.includes(`root=${root}`)
+        && message.params?.message?.includes('defer=true')).length;
+      expect(await references(bagAUri, bagA)).toEqual([consumerUri]);
+      expect(scanCount()).toBe(1);
+      await change(2, sourceFor('BagB'));
+      expect(await references(bagAUri, bagA)).toEqual([]);
+      expect(await references(bagBUri, bagB)).toEqual([consumerUri]);
+      expect(scanCount()).toBe(1);
+      await change(3, sourceFor('BagA'));
+      expect(await references(bagAUri, bagA)).toEqual([consumerUri]);
+      expect(await references(bagBUri, bagB)).toEqual([]);
+      expect(scanCount()).toBe(1);
+      const extraUri = pathToFileURL(join(src, 'Extra.php')).toString();
+      const extra = '<?php namespace App; function extra(BagB $value): void { $value->renderAction(); }';
+      await writeFile(join(src, 'Extra.php'), '<?php namespace App;');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: extraUri, languageId: 'php', version: 1, text: '<?php namespace App;' },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === extraUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: extraUri, version: 2 }, contentChanges: [{ text: extra }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params?.uri === extraUri && message.params?.version === 2);
+      expect(await references(bagBUri, bagB)).toEqual([extraUri]);
+      expect(scanCount()).toBe(1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: extraUri, version: 3 }, contentChanges: [{ text: '<?php namespace App;' }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params?.uri === extraUri && message.params?.version === 3);
+      expect(await references(bagBUri, bagB)).toEqual([]);
+      expect(scanCount()).toBe(1);
+      const late = join(src, 'Late.php');
+      await writeFile(late, '<?php namespace App; function late(BagB $value): void { $value->renderAction(); }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(late).toString(), type: 1 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${pathToFileURL(late).toString()}`));
+      expect(await references(bagBUri, bagB)).toEqual([pathToFileURL(late).toString()]);
+      expect(scanCount()).toBe(2);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-limit-'));
     try {
