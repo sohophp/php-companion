@@ -227,6 +227,38 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $valu
   console.log(`C2 onDemand cross-file local literal diagnostic: ${JSON.stringify({ visible: [false, true, false, true, false],
     restoredMs: localRestoredMs, declarationUnsaved: methodDocument.isDirty, consumerUnsaved: methodConsumerDocument.isDirty })}`);
 
+  const returnUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NativeReturnService.php');
+  const returnConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NativeReturnConsumer.php');
+  const returnSource = `<?php namespace App\\Service;
+final class NativeReturnService { public function accept(int $value): void {} public function text(): string { return 'bad'; } }
+`;
+  const returnConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
+function inspectNativeReturn(NativeReturnService $service): void { $service->accept($service->text()); }
+`;
+  await vscode.workspace.fs.writeFile(returnUri, Buffer.from(returnSource));
+  await vscode.workspace.fs.writeFile(returnConsumerUri, Buffer.from(returnConsumerSource));
+  const returnDocument = await vscode.workspace.openTextDocument(returnUri);
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(returnConsumerUri));
+  const returnMismatch = (): boolean => vscode.languages.getDiagnostics(returnConsumerUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  const waitForReturnMismatch = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && returnMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.strictEqual(returnMismatch(), expected, `C2 native return mismatch did not become ${expected}.`);
+  };
+  const changeReturnSource = async (source: string, expected: boolean): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(returnUri, new vscode.Range(new vscode.Position(0, 0),
+      returnDocument.positionAt(returnDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    await waitForReturnMismatch(expected);
+  };
+  await waitForReturnMismatch(true);
+  await changeReturnSource(returnSource.replace("text(): string { return 'bad';", 'text(): int { return 42;'), false);
+  await changeReturnSource(returnSource, true);
+  await changeReturnSource(returnSource.replace('public function text(): string', '/** @return string */ public function text()'), false);
+  console.log('C2 onDemand cross-file native return argument: string → int → string → PHPDoc-only, diagnostic has → no → has → no');
+
   const aliasRealUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'PathAliasRecord.php');
   const aliasLink = vscode.Uri.joinPath(root.uri, 'alias');
   const aliasUri = vscode.Uri.joinPath(aliasLink, 'Service', 'PathAliasRecord.php');

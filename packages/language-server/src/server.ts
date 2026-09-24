@@ -1498,32 +1498,46 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   }));
 }
 
-async function provenOnDemandExternalLiteralArguments(workspace: SemanticWorkspace, root: string,
+async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, root: string,
   document: TextDocument): Promise<ReturnType<SemanticWorkspace['incompatibleArguments']>> {
-  const candidates = workspace.incompatibleArguments(document.uri).filter((item) => item.callable.includes('::')
-    && (/^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
+  const nativeSources = new Map<ReturnType<SemanticWorkspace['incompatibleArguments']>[number],
+    NonNullable<ReturnType<SemanticWorkspace['nativeScalarReturnMethodCall']>>>();
+  const candidates = workspace.incompatibleArguments(document.uri).filter((item) => {
+    if (!item.callable.includes('::')) return false;
+    if (/^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
       .test(document.getText().slice(item.start, item.end))
-      || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)));
+      || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)) return true;
+    const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType);
+    if (source) nativeSources.set(item, source);
+    return Boolean(source);
+  });
   if (!candidates.length) return [];
   const project = await composerProjectForRoot(root);
   if (!project?.inputEvidence?.complete || project.warnings.length) return [];
   const mappings = allPsr4Mappings(project);
-  return candidates.filter((item) => {
-    const separator = item.callable.lastIndexOf('::');
-    const owner = item.callable.slice(0, separator);
+  const uniquePsr4Method = (callable: string, uri: string): boolean => {
+    const separator = callable.lastIndexOf('::'); if (separator < 0) return false;
+    const owner = callable.slice(0, separator);
     const shortName = owner.slice(owner.lastIndexOf('\\') + 1);
     const declarations = workspace.typeDeclarationsNamed(shortName)
       .filter((candidate) => candidate.fqcn.toLowerCase() === owner.toLowerCase());
-    if (declarations.length !== 1 || declarations[0]!.kind !== 'class') return false;
-    const declarationPath = pathForUri(declarations[0]!.uri);
+    if (declarations.length !== 1 || declarations[0]!.kind !== 'class' || declarations[0]!.uri !== uri) return false;
+    const declarationPath = pathForUri(uri);
     const expectedPaths = new Set(resolvePsr4Class(owner, mappings).map((path) => resolve(path)));
-    if (!declarationPath || expectedPaths.size !== 1 || !expectedPaths.has(resolve(declarationPath))) return false;
+    return Boolean(declarationPath && expectedPaths.size === 1 && expectedPaths.has(resolve(declarationPath)));
+  };
+  return candidates.filter((item) => {
+    const separator = item.callable.lastIndexOf('::');
+    const owner = item.callable.slice(0, separator);
     const signature = workspace.signature(document.uri, item.start);
-    return signature?.kind === 'method' && signature.synthetic === undefined
+    if (signature?.kind !== 'method' || signature.synthetic !== undefined
+      || signature.uri === document.uri || signature.fqcn.toLowerCase() !== item.callable.toLowerCase()
+      || !uniquePsr4Method(item.callable, signature.uri)) return false;
+    const source = nativeSources.get(item);
+    return (!source || uniquePsr4Method(source.callable, source.uri))
       && (workspace.isFinalClass(owner) || signature.final === true
         || workspace.stableLocalExactObjectReceiver(document.uri, item.start, owner))
-      && signature.uri !== document.uri && signature.uri === declarations[0]!.uri
-      && signature.fqcn.toLowerCase() === item.callable.toLowerCase();
+      && (!source || source.uri !== document.uri);
   });
 }
 
@@ -1614,7 +1628,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'PHP Companion',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
-    if (root && indexingMode === 'onDemand') result.diagnostics.push(...(await provenOnDemandExternalLiteralArguments(workspace, root, document))
+    if (root && indexingMode === 'onDemand') result.diagnostics.push(...(await provenOnDemandExternalArguments(workspace, root, document))
       .map((argument) => ({
         range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
         severity: DiagnosticSeverity.Error,

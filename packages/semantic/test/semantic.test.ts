@@ -25,6 +25,22 @@ describe('conservative semantic workspace', () => {
       }
     } finally { project.dispose(); }
   });
+  it('identifies an exact direct call with a native scalar return', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///NativeReturnUse.php';
+    const source = '<?php declare(strict_types=1); namespace App; function run(Service $service): void { $service->accept($service->text()); }';
+    try {
+      project.update('file:///NativeReturnService.php', '<?php namespace App; class Service { public function accept(int $value): void {} public function text(): string { return "bad"; } }');
+      project.update(uri, source);
+      const argument = source.indexOf('$service->text()');
+      expect(project.incompatibleArguments(uri).map((item) => [item.actualType, item.expectedType])).toEqual([['string', 'int']]);
+      expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'string'))
+        .toEqual({ callable: 'App\\Service::text', uri: 'file:///NativeReturnService.php' });
+      expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'int')).toBeUndefined();
+      project.update('file:///NativeReturnService.php', '<?php namespace App; class Service { public function accept(int $value): void {} /** @return string */ public function text() { return "bad"; } }');
+      expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'string')).toBeUndefined();
+    } finally { project.dispose(); }
+  });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
     const project = new SemanticWorkspace(parser);
     const linkedUri = 'file:///project/vendor/local/Record.php';

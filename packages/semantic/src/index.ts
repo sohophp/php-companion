@@ -4310,6 +4310,21 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
+  nativeScalarReturnMethodCall(uri: string, start: number, end: number, actualType: string):
+    { callable: string; uri: string } | undefined {
+    const file = this.files.get(uri); if (!file || !['bool', 'int', 'float', 'string'].includes(actualType)) return undefined;
+    const raw = file.source.slice(start, end);
+    const valueStart = start + raw.length - raw.trimStart().length;
+    const valueEnd = end - (raw.length - raw.trimEnd().length);
+    const call = file.calls.find((candidate) => candidate.kind === 'method' && candidate.start === valueStart
+      && candidate.end === valueEnd && candidate.arguments.length === 0 && candidate.receiver?.variable
+      && !candidate.receiver.nullsafe);
+    if (!call) return undefined;
+    const signature = this.completedCallSignature(file, call);
+    if (signature?.kind !== 'method' || signature.synthetic || signature.nativeReturnType?.trim().toLowerCase() !== actualType) return undefined;
+    return { callable: signature.fqcn, uri: signature.uri };
+  }
+
   incompatibleReturns(uri: string): IncompatibleReturn[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.returns.flatMap((statement): IncompatibleReturn[] => {
