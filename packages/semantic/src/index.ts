@@ -9535,6 +9535,10 @@ export class SemanticWorkspace {
         if (/^\$/.test(text) || (/[()]/.test(text) && !/^new\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*\(\s*\)$/i.test(text))) return undefined;
         return this.provenArgumentType(file, right.startIndex, right.endIndex);
       };
+      const createdNestedShape = (path: Array<string | number>, value: PhpType): PhpType | undefined => {
+        if (!path.length || path.some((key) => typeof key !== 'string')) return undefined;
+        return path.slice().reverse().reduce<PhpType>((current, key) => shape([{ key, optional: false, type: current }]), value);
+      };
       const applyUpdate = (current: PhpType, update: ArrayUpdate): PhpType | undefined => {
         if (current.kind === 'union') {
           const branches = current.types.map((branch) => applyUpdate(branch, update));
@@ -9544,9 +9548,13 @@ export class SemanticWorkspace {
           if (current.kind !== 'shape' || !current.sealed) return undefined;
           const [head, ...tail] = update.path;
           const field = current.fields.find((candidate) => candidate.key === head);
-          if (!field || field.optional) return undefined;
+          if (!field) return undefined;
           const changed = applyUpdate(field.type, { kind: 'key', path: tail, type: update.type });
-          return changed ? shape(current.fields.map((candidate) => candidate === field ? { ...candidate, type: changed } : candidate)) : undefined;
+          if (!changed) return undefined;
+          const created = field.optional ? createdNestedShape(tail, update.type) : undefined;
+          if (field.optional && !created) return undefined;
+          return shape(current.fields.map((candidate) => candidate === field
+            ? { ...candidate, optional: false, type: created ? union(changed, created) : changed } : candidate));
         }
         if (update.kind === 'append') {
           if (current.kind === 'shape' && current.sealed && current.fields.length === 0) return listType(update.type, true);

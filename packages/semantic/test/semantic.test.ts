@@ -190,6 +190,27 @@ describe('conservative semantic workspace', () => {
       expect(project.completeMembers(consumerUri, aliased.indexOf('com;') + 3)).toEqual([]);
     } finally { project.dispose(); }
   });
+  it('preserves common fields when writing through an optional nested shape', () => {
+    const project = new SemanticWorkspace(parser);
+    const sourceUri = 'file:///OptionalNestedSource.php'; const consumerUri = 'file:///OptionalNestedConsumer.php';
+    const source = `<?php namespace App;
+      class OptionalAlpha { public function common(): void {} public function alphaOnly(): void {} }
+      class OptionalBeta { public function common(): void {} public function betaOnly(): void {} }
+      /** @return array{item: OptionalAlpha, meta?: array{flag: int, object: OptionalAlpha}}|array{item: OptionalBeta, meta?: array{flag: int, object: OptionalBeta}} */
+      function optionalNestedChoice(): array { return []; }`;
+    const consumer = `<?php namespace App; function inspect(): void {
+      $row = optionalNestedChoice(); $row['meta']['flag'] = 2;
+      $item = $row['item']; $item->com;
+      $object = $row['meta']['object']; $object->com;
+    }`;
+    try {
+      project.update(sourceUri, source);
+      project.update(consumerUri, consumer);
+      expect(project.completeMembers(consumerUri, consumer.indexOf('$item->com;') + '$item->com'.length).map((item) => item.name)).toEqual(['common']);
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com;') + 2)?.type).toBe('App\\OptionalAlpha|App\\OptionalBeta');
+      expect(project.completeMembers(consumerUri, consumer.indexOf('$object->com;') + '$object->com'.length)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
     const project = new SemanticWorkspace(parser);
     const linkedUri = 'file:///project/vendor/local/Record.php';

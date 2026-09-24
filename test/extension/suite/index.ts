@@ -488,12 +488,14 @@ class ProfileShapeAlpha { public function common(): string { return 'alpha'; } p
 class ProfileShapeBeta { public function common(): string { return 'beta'; } public function betaOnly(): void {} }
 /** @return array{item: ProfileShapeAlpha}|array{item: ProfileShapeBeta} */ function profileShape(): array { return []; }
 /** @return array{item: ProfileShapeAlpha, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}}|array{item: ProfileShapeBeta, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}} */ function profileNestedShape(): array { return []; }
+/** @return array{item: ProfileShapeAlpha, meta?: array{flag: int, object: ProfileShapeAlpha}}|array{item: ProfileShapeBeta, meta?: array{flag: int, object: ProfileShapeBeta}} */ function profileOptionalShape(): array { return []; }
 `;
   const consumer = `<?php declare(strict_types=1); namespace App;
 function acceptShapeItem(int $value): void {}
 function inspectShape(string $key): void { $row = profileShape(); $item = $row['item']; $item->com; acceptShapeItem($item); }
 function inspectNestedShape(string $key): void { $row = profileNestedShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); }
 function inspectNestedObject(): void { $row = profileNestedShape(); $row['meta']['object'] = new ProfileShapeAlpha(); $object = $row['meta']['object']; $object->alphaOnly(); }
+function inspectOptionalShape(): void { $row = profileOptionalShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); $object = $row['meta']['object']; $object->common(); }
 `;
   await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source));
   await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
@@ -622,7 +624,16 @@ function inspectNestedObject(): void { $row = profileNestedShape(); $row['meta']
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, nestedCall) ?? [];
     return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
   }, 'Open Source Pack did not restore the nested union-shape fact after removing the dynamic write', 15_000);
-  console.log('Open Source Pack C2 union-shape feedback: one-level and nested writes, dynamic invalidation, and known-key narrowing passed.');
+  const optionalStart = document.getText().indexOf('function inspectOptionalShape');
+  const optionalItemCall = document.positionAt(document.getText().indexOf('common();', optionalStart) + 2);
+  const optionalObjectCall = document.positionAt(document.getText().indexOf('common();', document.getText().indexOf('$object->common();', optionalStart)) + 2);
+  await waitForAsync(async () => {
+    const item = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, optionalItemCall) ?? [];
+    const object = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, optionalObjectCall) ?? [];
+    return item.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
+      && object.every((location) => location.uri.toString() !== sourceUri.toString());
+  }, 'Open Source Pack lost unrelated fields or invented an optional nested field after the write', 15_000);
+  console.log('Open Source Pack C2 union-shape feedback: fixed and optional nested writes, dynamic invalidation, and known-key narrowing passed.');
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {
