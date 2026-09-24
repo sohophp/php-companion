@@ -69,6 +69,8 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [局部值 Hover 与跨文件返回反馈](reports/c2-local-value-hover-2026-09-24.md)已让 Hover 复用当前局部类型事实；未保存地把源返回类型在 `string` 和 `int` 之间切换时，Hover、源方法签名、Definition、目标参数提示和诊断在真实 stdio 中保持一致。隔离 VS Code C2 宿主也验证了 Hover 和诊断往返。赋值与使用之间的纯注释不再中断类型回溯，可能改写变量的语句仍撤销证明。[11 项 Open Source Pack 源码 Profile](reports/open-source-pack-c2-local-feedback-2026-09-24.md)接着完成 10 轮未保存 `string/int` 切换，每轮的 Hover 与参数诊断同时匹配；本机从编辑提交到两个 Provider 结果一致的 P95 为 145 ms，不代表鼠标浮层绘制时间。下一步在较大独立 Composer 项目和更长会话中观察等待与取消，并检查数组、联合类型和动态来源的失败反馈。
 
+[真实 vendor 与 10k 项目 C2 会话](reports/c2-real-vendor-feedback-session-2026-09-24.md)已在独立临时 Composer 项目中完成 500 轮跨文件原生返回 `string/int` 切换，使用方诊断和局部 Hover 每轮匹配；受控取消的旧 Hover 返回 `null`。10,131 个 PHP 文件、约 45 秒的本机 stdio 样本中，诊断更新 P95 为 91.4 ms、其后 Hover 请求 P95 为 3.33 ms，RSS 前段增长后没有观察到后半段持续上升。下一步是较大项目的 VS Code 宿主可见等待，以及更长会话、数组/联合类型和动态来源的反馈；此 stdio 结果不能代替这些门槛。
+
 [局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
