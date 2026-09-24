@@ -457,6 +457,57 @@ export async function run(): Promise<void> {
   assert.strictEqual(signatureDocument.getText(), signatureSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(signatureDocument.getText().includes('build(string $name)'));
+  const contractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3SignatureContract.php');
+  const firstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureFirst.php');
+  const secondSignatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureSecond.php');
+  const callerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3SignatureCaller.php');
+  const contractSource = '<?php\nnamespace App\\Contract;\ninterface C3SignatureContract { /** @param string $value */ public function send(string $value): string; }\n';
+  const firstSource = '<?php\nnamespace App\\Service;\nuse App\\Contract\\C3SignatureContract;\nfinal class C3SignatureFirst implements C3SignatureContract { /** @param string $payload */ public function send(string $payload): string { return $payload; } }\n';
+  const secondSignatureSource = '<?php\nnamespace App\\Service;\nuse App\\Contract\\C3SignatureContract;\nfinal class C3SignatureSecond implements C3SignatureContract { /** @param string $data */ public function send(string $data): string { return $data; } }\n';
+  const callerSource = '<?php\nnamespace App\\Controller;\nuse App\\Contract\\C3SignatureContract;\nuse App\\Service\\C3SignatureFirst;\nuse App\\Service\\C3SignatureSecond;\nfinal class C3SignatureCaller { public function run(C3SignatureContract $contract, C3SignatureFirst $first, C3SignatureSecond $second): void { $contract->send(value: "a"); $first->send(payload: "b"); $second->send(data: "c"); } }\n';
+  const signatureFiles: Array<[vscode.Uri, string]> = [[contractUri, contractSource], [firstUri, firstSource],
+    [secondSignatureUri, secondSignatureSource], [callerUri, callerSource]];
+  await Promise.all(signatureFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  const contractDocument = await vscode.workspace.openTextDocument(contractUri);
+  await vscode.window.showTextDocument(contractDocument);
+  const contractPosition = contractDocument.positionAt(contractSource.indexOf('$value', contractSource.indexOf('function send')) + 2);
+  const familyReferences = async (): Promise<vscode.Location[]> => await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', contractUri, contractPosition) ?? [];
+  for (let attempt = 0; attempt < 100 && !(await familyReferences()).some((item) => item.uri.toString() === callerUri.toString()); attempt += 1)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  const references = await familyReferences();
+  for (const uri of [firstUri, secondSignatureUri, callerUri]) assert.ok(
+    references.some((item) => item.uri.toString() === uri.toString()), `Parameter References omitted ${uri.path}`);
+  const callerDocument = await vscode.workspace.openTextDocument(callerUri);
+  const namedPosition = callerDocument.positionAt(callerSource.indexOf('value:') + 2);
+  const namedReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', callerUri, namedPosition) ?? [];
+  for (const uri of [contractUri, firstUri, secondSignatureUri]) assert.ok(
+    namedReferences.some((item) => item.uri.toString() === uri.toString()), `Named argument References omitted ${uri.path}`);
+  const renameFamilyParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+      uri: contractUri, position: contractPosition, newName: 'message', testPreviewAction,
+    });
+  assert.strictEqual(await renameFamilyParameter(async () => {
+    const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+      .filter((tab) => tab.label.startsWith('SoPHP Rename: message ('));
+    assert.strictEqual(tabs.length, 1, 'Change Signature did not preview all four files together');
+    assert.ok(tabs[0]!.label.includes('4 files'), 'Change Signature preview omitted a participant');
+    return 'cancel';
+  }), false, 'Cancelling the parameter Rename changed the signature');
+  for (const [uri, source] of signatureFiles)
+    assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source, `Cancelling Change Signature changed ${uri.path}`);
+  assert.strictEqual(await renameFamilyParameter(async () => 'apply'), true, 'Parameter Rename did not apply across the method family');
+  assert.ok((await vscode.workspace.openTextDocument(contractUri)).getText().includes('send(string $message)'));
+  assert.ok((await vscode.workspace.openTextDocument(firstUri)).getText().includes('send(string $message)'));
+  assert.ok((await vscode.workspace.openTextDocument(secondSignatureUri)).getText().includes('send(string $message)'));
+  assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a")'));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri, source] of signatureFiles)
+    assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source, `One Undo did not restore ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(callerUri)).getText().includes('send(message: "a")'),
+    'One Redo did not restore the named arguments');
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));

@@ -6433,7 +6433,10 @@ export class SemanticWorkspace {
   referenceScope(uri: string, offset: number): 'document' | 'project' {
     const file = this.files.get(uri);
     if (file?.properties.some((item) => item.promoted && offset >= item.start && offset <= item.end)) return 'project';
-    return file?.variableReferences.some((item) => offset >= item.start && offset <= item.end) ? 'document' : 'project';
+    const variable = file?.variableReferences.find((item) => offset >= item.start && offset <= item.end);
+    if (!variable) return 'project';
+    const scope = file?.scopes.find((item) => item.id === variable.scopeId);
+    return scope?.parameters.some((item) => `$${item.name}` === variable.variable) ? 'project' : 'document';
   }
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
@@ -6480,18 +6483,28 @@ export class SemanticWorkspace {
     if (promoted && promotedReferences?.length) return includeDeclaration
       ? promotedReferences
       : promotedReferences.filter((item) => item.uri !== uri || item.start !== promoted.start + 1 || item.end !== promoted.end);
+    const withoutParameterDeclarations = (locations: SemanticLocation[]): SemanticLocation[] => locations.filter((location) =>
+      !this.files.get(location.uri)?.callables.some((callable) => callable.parameters.some((parameter) =>
+        location.start === parameter.start + 1 && location.end === parameter.end)));
+    const namedArgument = file?.calls.flatMap((call) => call.arguments).find((argument) =>
+      argument.nameStart !== undefined && argument.nameEnd !== undefined
+      && offset >= argument.nameStart && offset <= argument.nameEnd);
+    if (namedArgument) {
+      const rename = this.localVariableRename(uri, offset);
+      if (rename) return includeDeclaration ? rename.locations : withoutParameterDeclarations(rename.locations);
+    }
     const variable = file?.variableReferences.find((item) => offset >= item.start && offset <= item.end);
     const scope = variable && file?.scopes.find((item) => item.id === variable.scopeId);
     if (file && variable && scope) {
       let locations = file.variableReferences.filter((item) => item.scopeId === scope.id && item.variable === variable.variable)
         .map((item) => ({ uri, start: item.start + 1, end: item.end }));
+      const parameter = scope.parameters.find((item) => `$${item.name}` === variable.variable);
+      if (parameter) locations = this.localVariableRename(uri, offset)?.locations ?? locations;
       if (!includeDeclaration) {
-        const parameter = scope.parameters.find((item) => `$${item.name}` === variable.variable);
-        const assignment = parameter ? undefined : file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable.variable)
+        if (parameter) return withoutParameterDeclarations(locations);
+        const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable.variable)
           .sort((left, right) => left.start - right.start)[0];
-        const declaration = parameter
-          ? { start: parameter.start + 1, end: parameter.end }
-          : assignment && locations.find((item) => item.start >= assignment.start + 1 && item.end <= assignment.end);
+        const declaration = assignment && locations.find((item) => item.start >= assignment.start + 1 && item.end <= assignment.end);
         if (declaration) locations = locations.filter((item) => item.start !== declaration.start || item.end !== declaration.end);
       }
       return locations;
