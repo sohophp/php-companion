@@ -107,6 +107,38 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('opens the interface method behind a parenthesized coalescing throw', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: null } }));
+    await output.waitFor((message) => message.id === 1);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    const contractUri = 'file:///EntityImageFactoryInterface.php';
+    const contract = '<?php namespace App; interface EntityImageFactoryInterface { public function createCollection(): array; }';
+    const consumerUri = 'file:///ReadEntity.php';
+    const consumer = `<?php namespace App; class ReadEntity {
+      private ?EntityImageFactoryInterface $imageFactory = null;
+      protected function makeImages(): array {
+        return ($this->imageFactory ?? throw new \\LogicException('Image factory required.'))
+          ->createCollection();
+      }
+    }`;
+    for (const [uri, text] of [[contractUri, contract], [consumerUri, consumer]]) {
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+    }
+    const name = 'createCollection';
+    const start = contract.indexOf(name);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/definition', params: {
+      textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf(`->${name}`) + 3),
+    } }));
+    expect((await output.waitFor((message) => message.id === 2)).result).toEqual([{
+      uri: contractUri, range: { start: lspPosition(contract, start), end: lspPosition(contract, start + name.length) },
+    }]);
+  });
+
   it('excludes PHP strings and comments from method and function References', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

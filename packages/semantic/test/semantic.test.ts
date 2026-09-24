@@ -4188,6 +4188,35 @@ describe('conservative semantic workspace', () => {
     ]);
     local.dispose();
   });
+  it('resolves a method called on a nullable property guarded by a coalescing throw', () => {
+    const local = new SemanticWorkspace(parser);
+    const contractUri = 'file:///EntityImageFactoryInterface.php';
+    const contract = '<?php namespace App; interface EntityImageFactoryInterface { public function createCollection(): array; }';
+    const consumerUri = 'file:///ReadEntity.php';
+    const consumer = `<?php namespace App;
+      class ReadEntity {
+        private ?EntityImageFactoryInterface $imageFactory = null;
+        protected function makeImages(): array {
+          return ($this->imageFactory ?? throw new \\LogicException('Image factory required.'))
+            ->createCollection();
+        }
+        protected function unchecked(): array {
+          return ($this->imageFactory ?? null)->createCollection();
+        }
+        protected function unknown($factory): array {
+          return ($factory ?? throw new \\LogicException('Unknown factory.'))->createCollection();
+        }
+      }`;
+    try {
+      local.update(contractUri, contract);
+      local.update(consumerUri, consumer);
+      expect(local.definition(consumerUri, consumer.indexOf('->createCollection') + 3)).toMatchObject([
+        { uri: contractUri, start: contract.indexOf('createCollection') },
+      ]);
+      expect(local.definition(consumerUri, consumer.indexOf('->createCollection', consumer.indexOf('unchecked')) + 3)).toEqual([]);
+      expect(local.definition(consumerUri, consumer.indexOf('->createCollection', consumer.indexOf('unknown')) + 3)).toEqual([]);
+    } finally { local.dispose(); }
+  });
   it('skips syntax trees for method accesses with incompatible staticness', () => {
     const isolated = new SemanticWorkspace(parser);
     const instanceUri = 'file:///StaticFilterInstance.php';

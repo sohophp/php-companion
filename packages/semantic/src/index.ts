@@ -7453,6 +7453,28 @@ export class SemanticWorkspace {
     const chained = /(\$[A-Za-z_][A-Za-z0-9_]*)((?:\s*\[\s*(?:'[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*'|"[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*"|-?(?:0|[1-9][0-9]*))\s*\]){0,16})((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn;
     const lexicalScope = this.containingScope(file, offset);
+    const parenthesizedCandidate = /\)\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*$/.test(file.source.slice(Math.max(0, offset - 512), offset));
+    const temporaryTree = !tree && parenthesizedCandidate ? this.parser.parseTree(file.source) : undefined;
+    if (temporaryTree) this.trees.set(uri, temporaryTree);
+    try {
+      const receiverTree = tree ?? temporaryTree;
+      if (receiverTree && !receiverTree.rootNode.hasError && offset > 0 && parenthesizedCandidate) {
+        const nameNode = receiverTree.rootNode.namedDescendantForIndex(offset - 1);
+        const memberNode = nameNode?.parent;
+        const receiver = memberNode?.childForFieldName('object');
+        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'parenthesized_expression') {
+          const receiverType = this.provenArgumentType(file, receiver.startIndex, receiver.endIndex);
+          const objects = receiverType && this.objectGroups(receiverType);
+          const first = objects?.groups[0]?.[0];
+          if (first && !objects?.nullable) return {
+            fqcn: first.fqcn, member: nameNode.text, accessFrom, static: false,
+            typeArguments: first.typeArguments, groups: objects.groups.length > 1 ? objects.groups : undefined,
+          };
+        }
+      }
+    } finally {
+      if (temporaryTree) { this.trees.delete(uri); temporaryTree.delete(); }
+    }
     if (staticChain) {
       const namespace = accessFrom?.split('\\').slice(0, -1).join('\\') ?? file.namespace;
       const owner = this.resolveSourceType(file, staticChain[1]!, namespace, accessFrom);
@@ -11055,7 +11077,9 @@ export class SemanticWorkspace {
     const alternatives = leftType.kind === 'union' ? leftType.types : [leftType];
     const nonNull = alternatives.filter((candidate) => !(candidate.kind === 'primitive' && candidate.name === 'null'));
     if (nonNull.length === alternatives.length) return leftType;
-    const rightType = this.provenArgumentType(file, right.start, right.end); if (!rightType) return undefined;
+    const rightType = this.expressionSyntax(file, right.start, right.end, 'throw_expression')
+      ? primitive('never') : this.provenArgumentType(file, right.start, right.end);
+    if (!rightType) return undefined;
     return nonNull.length ? union(...nonNull, rightType) : rightType;
   }
 
