@@ -269,12 +269,15 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     });
   };
   const updateVersionState = (): void => {
-    updatePhpExtensionAvailability();
-    const nextSignature = JSON.stringify(projectPhpVersions());
+    const nextVersions = projectPhpVersions();
+    const nextSignature = JSON.stringify(nextVersions);
     if (nextSignature !== versionSignature) {
       versionSignature = nextSignature;
-      scheduleVersionRestart();
-    }
+      void client.sendNotification('phpCompanion/phpVersions', { versions: nextVersions,
+        fallback: nextVersions[0]?.version, extensionAvailability: phpExtensionAvailability() }).catch((error: unknown) => {
+        if (!stopping) output.warn(`Unable to update SoPHP PHP versions: ${String(error)}`);
+      });
+    } else updatePhpExtensionAvailability();
   };
   let frameworkSnapshotTimer: ReturnType<typeof setTimeout> | undefined;
   const updateFrameworkDocumentSnapshots = (): void => {
@@ -295,7 +298,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       if (event.affectsConfiguration('phpCompanion.symfony.winstarRoutes.enabled')) updateBundledRouteProviders();
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
       if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
-        void versions.refresh().then(scheduleVersionRestart).catch((error: unknown) =>
+        void versions.refresh().catch((error: unknown) =>
           output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
       }
     }),

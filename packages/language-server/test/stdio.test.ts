@@ -880,6 +880,51 @@ function consume(): void { (void) choose(1); }`;
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('updates PHP versions and builtins for an open project without restarting the language server', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-live-version-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = '<?php namespace App; enum State { case Ready; } function probe(): void { str_con }';
+      const uri = pathToFileURL(join(root, 'src', 'Versioned.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9971, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: { phpVersion: '7.2',
+          phpVersions: [{ uri: rootUri, version: '7.2' }], indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 9971);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const publish = async (after: number): Promise<Array<{ code?: string }>> =>
+        (await output.waitFor((message) => output.messages.indexOf(message) >= after
+          && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics;
+      expect((await publish(0)).some((item) => item.code === 'php.version.unsupported')).toBe(true);
+      const completion = async (id: number): Promise<boolean> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('str_con') + 'str_con'.length),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result.some((item: { label: string }) => item.label === 'str_contains');
+      };
+      expect(await completion(9972)).toBe(false);
+      for (const [version, expectedBuiltin, expectedDiagnostic, id] of [
+        ['8.5', true, false, 9973], ['7.2', false, true, 9974],
+      ] as const) {
+        const after = output.messages.length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpVersions', params: {
+          versions: [{ uri: rootUri, version }], fallback: version, extensionAvailability: [],
+        } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= after
+          && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri
+          && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.version.unsupported') === expectedDiagnostic);
+        expect(await completion(id)).toBe(expectedBuiltin);
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f09-service-'));
     try {

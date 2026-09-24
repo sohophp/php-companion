@@ -509,7 +509,7 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
   };
   await waitForAsync(async () => mismatch() && await hoverMatches('string'),
     'Real vendor Pack profile did not show the initial local Hover and argument diagnostic', 30_000);
-  const elapsedMs: number[] = []; const definitionWaitMs: number[] = []; const definitionAttempts: number[] = [];
+  const elapsedMs: number[] = []; const definitionWaitMs: number[] = [];
   for (let round = 0; round < rounds; round += 1) {
     const type = round % 2 === 0 ? 'int' : 'string';
     const started = performance.now();
@@ -522,18 +522,12 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
     elapsedMs.push(performance.now() - started);
     if (round % 10 === 0 || round === rounds - 1) {
       const methodPosition = consumerDocument.positionAt(consumer.indexOf('text()') + 2);
-      let definitions: vscode.Location[] = []; let attempts = 0;
       const definitionStarted = performance.now();
-      await waitForAsync(async () => {
-        attempts += 1;
-        definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, methodPosition) ?? [];
-        return definitions.some((location) => location.uri.toString() === sourceUri.toString()
-          && sourceDocument.getText(location.range) === 'text');
-      }, () => `Real vendor Pack profile lost the source method Definition: ${JSON.stringify(definitions.map((location) => ({
-        uri: location.uri.toString(), range: location.range,
-      })))}`, 15_000, 50);
+      const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, methodPosition) ?? [];
+      assert.ok(definitions.some((location) => location.uri.toString() === sourceUri.toString()
+        && sourceDocument.getText(location.range) === 'text'),
+      `Real vendor Pack profile lost the source method Definition on the first request in round ${round + 1}: ${JSON.stringify(definitions)}`);
       definitionWaitMs.push(performance.now() - definitionStarted);
-      definitionAttempts.push(attempts);
       const signaturePosition = consumerDocument.positionAt(consumer.indexOf('text()') + 'text('.length);
       let signature: vscode.SignatureHelp | undefined;
       await waitForAsync(async () => {
@@ -543,12 +537,18 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
       15_000, 50);
     }
   }
+  const versionProbeUri = vscode.Uri.joinPath(project, 'src', 'VersionProbe.php');
+  await vscode.workspace.fs.writeFile(versionProbeUri, Buffer.from('<?php namespace App\\C1; enum VersionProbe { case Ready; }'));
+  await vscode.workspace.openTextDocument(versionProbeUri);
+  await waitForAsync(async () => vscode.languages.getDiagnostics(versionProbeUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.version.unsupported'),
+  'Real vendor Composer PHP 7.2 target was not applied without a Language Client restart', 15_000);
   const sorted = [...elapsedMs].sort((left, right) => left - right);
   console.log(`Open Source Pack real vendor C2 feedback: ${JSON.stringify({ noiseFiles, rounds,
     p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
     p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
     maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
-    consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), definitionAttempts })}`);
+    consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), nestedPhp72Verified: true })}`);
 }
 
 async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {

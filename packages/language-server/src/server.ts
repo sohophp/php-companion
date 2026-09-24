@@ -145,6 +145,23 @@ function phpVersionForRoot(root?: string): SupportedPhpVersion {
 }
 
 function phpVersionForUri(uri: string): SupportedPhpVersion { return phpVersionForRoot(rootForUri(uri)); }
+function setTargetPhpVersions(value: unknown, fallback: unknown): void {
+  if (typeof fallback === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(fallback)) {
+    targetPhpVersion = fallback as SupportedPhpVersion;
+  }
+  targetPhpVersionsByRoot.clear();
+  if (!Array.isArray(value)) return;
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const candidate = entry as { uri?: unknown; version?: unknown };
+    if (typeof candidate.uri !== 'string' || typeof candidate.version !== 'string'
+      || !(SUPPORTED_PHP_VERSIONS as readonly string[]).includes(candidate.version)) continue;
+    const path = pathForUri(candidate.uri);
+    if (path && workspaceFolderRoots.some((folder) => pathWithin(folder, path))) {
+      targetPhpVersionsByRoot.set(path, candidate.version as SupportedPhpVersion);
+    }
+  }
+}
 let indexingMode: 'off' | 'onDemand' | 'progressive' | 'experimental' = 'experimental';
 let referenceMemoryBudgetMiB = 1536;
 let cacheDirectory: string | undefined;
@@ -949,6 +966,25 @@ connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (para
 });
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
   setConfiguredExtensionAvailability(params?.roots);
+  await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
+});
+connection.onNotification('phpCompanion/phpVersions', async (params: { versions?: unknown; fallback?: unknown; extensionAvailability?: unknown } | undefined) => {
+  if (!params || !Array.isArray(params.versions)) return;
+  const previous = new Map(workspaceRoots.map((root) => [root, phpVersionForRoot(root)]));
+  const previousFallback = targetPhpVersion;
+  setTargetPhpVersions(params.versions, params.fallback);
+  setConfiguredExtensionAvailability(params.extensionAvailability);
+  for (const root of workspaceRoots) {
+    if (previous.get(root) !== phpVersionForRoot(root)) invalidateCandidates(indexedUriForPath(root, root));
+  }
+  if (previousFallback !== targetPhpVersion) {
+    const loose = await semanticWorkspaces.get('loose');
+    if (loose) {
+      loose.remove(builtinDocumentUri(previousFallback));
+      loose.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
+    }
+  }
   await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
@@ -3329,8 +3365,6 @@ async function hydratePreparedReferenceReceivers(workspace: SemanticWorkspace, r
 connection.onInitialize(async (params: InitializeParams): Promise<InitializeResult> => {
   clientDiagnosticLanguage = diagnosticLanguage(params.locale);
   const initialization = params.initializationOptions as { phpVersion?: unknown; phpVersions?: unknown; indexingMode?: unknown; referenceMemoryBudgetMiB?: unknown; cacheDirectory?: unknown; indexLimits?: unknown; disabledDiagnosticCodes?: unknown; diagnosticSeverity?: unknown; semanticProviders?: unknown; bundledSemanticProviders?: unknown; routeProviders?: unknown; bundledRouteProviders?: unknown; symfonyRouteProviders?: unknown; phpExtensionAvailability?: unknown; frameworkDocumentSnapshots?: unknown; testMode?: unknown; testPauseNextQueries?: unknown; experimentalReferenceClosure?: unknown; experimentalReferenceSourceOnly?: unknown; experimentalRipgrepCandidates?: unknown; testDisablePersistentReferences?: unknown; manualRenameProvider?: unknown; versionedDiagnostics?: unknown } | undefined;
-  const requestedVersion = initialization?.phpVersion;
-  if (typeof requestedVersion === 'string' && (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requestedVersion)) targetPhpVersion = requestedVersion as SupportedPhpVersion;
   if (initialization?.indexingMode === 'off' || initialization?.indexingMode === 'onDemand' || initialization?.indexingMode === 'progressive' || initialization?.indexingMode === 'experimental') indexingMode = initialization.indexingMode;
   versionedDiagnostics = initialization?.versionedDiagnostics === true;
   if (Number.isSafeInteger(initialization?.referenceMemoryBudgetMiB) && Number(initialization?.referenceMemoryBudgetMiB) >= 768
@@ -3369,17 +3403,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
   composerRootChecks.clear();
-  targetPhpVersionsByRoot.clear();
-  if (Array.isArray(initialization?.phpVersions)) for (const entry of initialization.phpVersions) {
-    if (!entry || typeof entry !== 'object') continue;
-    const candidate = entry as { uri?: unknown; version?: unknown };
-    if (typeof candidate.uri !== 'string' || typeof candidate.version !== 'string'
-      || !(SUPPORTED_PHP_VERSIONS as readonly string[]).includes(candidate.version)) continue;
-    const path = pathForUri(candidate.uri);
-    if (path && workspaceFolderRoots.some((folder) => pathWithin(folder, path))) {
-      targetPhpVersionsByRoot.set(path, candidate.version as SupportedPhpVersion);
-    }
-  }
+  setTargetPhpVersions(initialization?.phpVersions, initialization?.phpVersion);
   setConfiguredExtensionAvailability(initialization?.phpExtensionAvailability);
   setFrameworkDocumentSnapshots(initialization?.frameworkDocumentSnapshots ?? { complete: true, documents: [] });
   // Build only the in-memory PHP builtins before accepting editor requests;

@@ -71,7 +71,7 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [真实 vendor 与 10k 项目 C2 会话](reports/c2-real-vendor-feedback-session-2026-09-24.md)已在独立临时 Composer 项目中完成 500 轮跨文件原生返回 `string/int` 切换，使用方诊断和局部 Hover 每轮匹配；受控取消的旧 Hover 返回 `null`。10,131 个 PHP 文件、约 45 秒的本机 stdio 样本中，诊断更新 P95 为 91.4 ms、其后 Hover 请求 P95 为 3.33 ms，RSS 前段增长后没有观察到后半段持续上升。下一步是较大项目的 VS Code 宿主可见等待，以及更长会话、数组/联合类型和动态来源的反馈；此 stdio 结果不能代替这些门槛。
 
-[完整 Pack 大项目宿主门禁](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)已把同一真实 vendor 与约 10k 文件的场景带进 11 项扩展的隔离 VS Code 宿主；50 轮未保存切换的 Hover 与诊断一致等待 P95 119 ms。下一项优先修复编辑后 Definition 偶发先返回空数组的问题：先区分 Core LSP 请求、文档版本传播和 VS Code Provider 合并，再要求首次请求直接命中。完成后继续把数组、联合类型和动态来源纳入同一编辑反馈链，并以更长宿主会话复核等待与内存。
+[完整 Pack 大项目宿主门禁](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)已把同一真实 vendor 与约 10k 文件的场景带进 11 项扩展的隔离 VS Code 宿主；50 轮未保存切换的 Hover 与诊断一致等待修复后 P95 为 131–132 ms。编辑后 Definition 偶发空结果已定位为嵌套项目 PHP 版本探测触发 Language Client 重启；动态版本更新后，连续两轮组合宿主的六次 Definition 均首次命中，门禁已改成首次失败即报错。下一步继续把数组、联合类型和动态来源纳入同一编辑反馈链，并以更长宿主会话复核等待与内存；工作区文件夹增减带来的重启单独验收。
 
 [局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
 

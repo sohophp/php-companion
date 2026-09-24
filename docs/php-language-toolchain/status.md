@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 完整 Pack 首次跳转修复：嵌套 Composer 项目版本探测原会重启 Language Client，导致 Definition Provider 约 1.4 秒暂不可用；Core 现将版本和扩展可用性更新发送给运行中的服务器，并按根刷新内建符号与诊断。10,131 文件、50 轮未保存编辑的完整 11 项 Pack 宿主连续两轮六次 Definition 均首次命中，等待 4–26 ms；嵌套 PHP 7.2 `enum` 诊断、stdio 7.2→8.5→7.2 往返通过。工作区文件夹拓扑变化仍需原有重启验收。见[报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
+
 2026-09-24 C2 完整 Open Source Pack 大项目宿主：11 项源码 Profile、真实 1,029 个 vendor PHP 文件及 9,100 个生成文件的独立 Composer 项目完成 50 轮未保存跨文件返回类型切换；局部 Hover 与参数诊断一致等待 P95 119 ms，宿主退出码 0。Definition 偶尔先返回空数组，约 1.4–1.6 秒后才正确；无生成文件也重现，因此首次导航可靠性尚未过关。已加入可选组合门禁并记录查询次数；本轮无 VSIX、无业务项目修改。见[报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
 
 2026-09-24 C2 跨文件诊断隔离宿主复核：默认 `onDemand` 的唯一 PSR-4 具体类方法与直接字面量场景，在 VS Code 1.139.0 Linux 隔离源码宿主中随未保存 `int → string → int` 呈现诊断有 → 无 → 有，参数提示同步更新；两次首次可见变化本机单次样本各约 148 ms，随后 150 ms 未回闪。宿主先发现同文件候选被重复加入，修复后原有同文件 5 → 0、跨文件往返和 PHPDoc 补全/定义均通过，退出码 0。最终源码 Language Server 全套 18 文件、338 项通过、1 项跳过，宿主 TypeScript、相关 ESLint 和差异检查通过。局部变量来源、Remote、完整 Pack 与持续使用仍开放；未修改业务项目或打包 VSIX。见[报告](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)。
