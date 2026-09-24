@@ -5881,16 +5881,21 @@ connection.onRenameRequest(async (params, token) => {
     const targetDocument = documents.get(sourceUri) ?? TextDocument.create(edit.uri, 'php', 0, source);
     (changes[edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
   }
+  const sourceHashes = Object.fromEntries(uris.map((uri) => {
+    const source = documents.get(uri)?.getText() ?? workspace.source(uri)!;
+    return [uri, createHash('sha256').update(source).digest('hex')];
+  }));
   if (!plan.fileOperations.length) {
     if (testPauseNextQueries.has('rename')) await pauseTestQuery('rename');
-    return { changes };
+    return { changes, phpCompanion: { sourceHashes } };
   }
+  if (testPauseNextQueries.has('rename')) await pauseTestQuery('rename');
   return { documentChanges: [
     ...Object.entries(changes).map(([uri, edits]) => ({ textDocument: { uri, version: null }, edits })),
     ...plan.fileOperations.map((operation) => operation.kind === 'rename'
       ? { kind: 'rename' as const, oldUri: operation.oldUri, newUri: operation.newUri, options: { overwrite: operation.overwrite ?? false } }
       : operation),
-  ] };
+  ], phpCompanion: { sourceHashes } };
 });
 
 connection.onCodeAction(async (params, token) => {

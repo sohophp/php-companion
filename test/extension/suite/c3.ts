@@ -412,6 +412,38 @@ export async function run(): Promise<void> {
   await vscode.window.showTextDocument(renameDocument);
   await vscode.commands.executeCommand('undo');
   assert.strictEqual(renameDocument.getText(), renameSource);
+  const crossRenameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'UserService.php');
+  const crossConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'UserController.php');
+  const crossRenameSource = Buffer.from(await vscode.workspace.fs.readFile(crossRenameUri)).toString('utf8');
+  const crossConsumerSource = Buffer.from(await vscode.workspace.fs.readFile(crossConsumerUri)).toString('utf8');
+  const crossRenameDocument = await vscode.workspace.openTextDocument(crossRenameUri);
+  await vscode.window.showTextDocument(crossRenameDocument);
+  const crossPosition = crossRenameDocument.positionAt(crossRenameSource.indexOf('class UserService') + 'class '.length + 2);
+  const readyRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', crossRenameUri, crossPosition, 'RenamedUserService');
+  assert.ok(readyRename?.entries().some(([uri]) => uri.toString() === crossConsumerUri.toString()),
+    'Cross-file Rename fixture did not include its closed consumer');
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'rename' }), true);
+  const heldCrossRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', crossRenameUri, crossPosition, 'RenamedUserService')
+    .then((edit) => edit, (error: unknown) => {
+      assert.match(error instanceof Error ? error.message : String(error), /Canceled|changed|Rename/);
+      return undefined;
+    });
+  await waitForState(api, 'rename', crossRenameDocument,
+    (state) => state.paused && state.version === crossRenameDocument.version,
+    'Cross-file Rename response was not held before the closed consumer changed');
+  const changedConsumer = crossConsumerSource.replace('// UserService is intentionally ordinary text.',
+    '// UserService remains ordinary text after an external edit.');
+  await vscode.workspace.fs.writeFile(crossConsumerUri, Buffer.from(changedConsumer));
+  try {
+    assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'rename' }), true);
+  } finally {
+    assert.strictEqual(await heldCrossRename, undefined,
+      'Rename returned a stale WorkspaceEdit after a closed consumer changed on disk');
+  }
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(crossConsumerUri)).toString('utf8'), changedConsumer);
+  assert.strictEqual(crossRenameDocument.getText(), crossRenameSource);
   const dynamicUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicDocument = await vscode.workspace.openTextDocument(dynamicUri);
   await vscode.window.showTextDocument(dynamicDocument);

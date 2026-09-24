@@ -99,7 +99,8 @@ function applyTextEdits(source: string, edits: readonly vscode.TextEdit[]): stri
 type ProtocolTextEdit = { range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string };
 type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; options?: { overwrite?: boolean } }
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
-type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[] };
+type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[];
+  phpCompanion?: { sourceHashes?: Record<string, string> } };
 
 function fileOperationUriKey(value: vscode.Uri | string): string {
   const uri = typeof value === 'string' ? vscode.Uri.parse(value) : value;
@@ -806,6 +807,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
             && openVersions.get(item.uri.toString()) !== item.version)) {
           throw new Error('A PHP document changed while Rename edits were being prepared. Run Rename again.');
+        }
+        if (result?.phpCompanion?.sourceHashes) {
+          const editedUris = new Set([...Object.keys(result.changes ?? {}),
+            ...(result.documentChanges ?? []).flatMap((change) => 'textDocument' in change ? [change.textDocument.uri] : [])]);
+          for (const uri of editedUris) {
+            const expected = result.phpCompanion.sourceHashes[uri];
+            if (!expected) throw new Error('Rename omitted a source snapshot. Run Rename again.');
+            const targetUri = vscode.Uri.parse(uri);
+            const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
+            const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(targetUri)).toString('utf8');
+            if (createHash('sha256').update(source).digest('hex') !== expected) {
+              throw new Error('A PHP file changed while Rename edits were being prepared. Run Rename again.');
+            }
+          }
+        }
+        if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested
+          || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
+            && openVersions.get(item.uri.toString()) !== item.version)) {
+          throw new Error('A PHP document changed while Rename edits were being verified. Run Rename again.');
         }
         const converted = splitProtocolTypeRenameEdit(result);
         if (converted.staged) {
