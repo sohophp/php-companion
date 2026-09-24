@@ -9548,7 +9548,11 @@ export class SemanticWorkspace {
           if (current.kind !== 'shape' || !current.sealed) return undefined;
           const [head, ...tail] = update.path;
           const field = current.fields.find((candidate) => candidate.key === head);
-          if (!field) return undefined;
+          if (!field) {
+            const created = createdNestedShape(tail, update.type);
+            return typeof head === 'string' && created && current.fields.every((candidate) => typeof candidate.key === 'string')
+              ? shape([...current.fields, { key: head, optional: false, type: created }]) : undefined;
+          }
           const changed = applyUpdate(field.type, { kind: 'key', path: tail, type: update.type });
           if (!changed) return undefined;
           const created = field.optional ? createdNestedShape(tail, update.type) : undefined;

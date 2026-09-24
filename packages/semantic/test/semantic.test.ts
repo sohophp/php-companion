@@ -197,11 +197,16 @@ describe('conservative semantic workspace', () => {
       class OptionalAlpha { public function common(): void {} public function alphaOnly(): void {} }
       class OptionalBeta { public function common(): void {} public function betaOnly(): void {} }
       /** @return array{item: OptionalAlpha, meta?: array{flag: int, object: OptionalAlpha}}|array{item: OptionalBeta, meta?: array{flag: int, object: OptionalBeta}} */
-      function optionalNestedChoice(): array { return []; }`;
+      function optionalNestedChoice(): array { return []; }
+      /** @return array{item: OptionalAlpha}|array{item: OptionalBeta} */
+      function absentNestedChoice(): array { return []; }`;
     const consumer = `<?php namespace App; function inspect(): void {
       $row = optionalNestedChoice(); $row['meta']['flag'] = 2;
       $item = $row['item']; $item->com;
       $object = $row['meta']['object']; $object->com;
+    } function inspectAbsent(): void {
+      $row = absentNestedChoice(); $row['meta']['flag'] = 2;
+      $item = $row['item']; $item->com;
     }`;
     try {
       project.update(sourceUri, source);
@@ -209,6 +214,34 @@ describe('conservative semantic workspace', () => {
       expect(project.completeMembers(consumerUri, consumer.indexOf('$item->com;') + '$item->com'.length).map((item) => item.name)).toEqual(['common']);
       expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com;') + 2)?.type).toBe('App\\OptionalAlpha|App\\OptionalBeta');
       expect(project.completeMembers(consumerUri, consumer.indexOf('$object->com;') + '$object->com'.length)).toEqual([]);
+      const absentItem = consumer.indexOf('$item->com;', consumer.indexOf('function inspectAbsent'));
+      expect(project.completeMembers(consumerUri, absentItem + '$item->com'.length).map((item) => item.name)).toEqual(['common']);
+      expect(project.variableValueAt(consumerUri, absentItem + 2)?.type).toBe('App\\OptionalAlpha|App\\OptionalBeta');
+    } finally { project.dispose(); }
+  });
+  it('withdraws array-shape facts across chained references and unproven calls', () => {
+    const project = new SemanticWorkspace(parser);
+    const sourceUri = 'file:///IndirectShapeSource.php'; const consumerUri = 'file:///IndirectShapeConsumer.php';
+    const source = `<?php namespace App;
+      class IndirectAlpha { public function common(): void {} }
+      class IndirectBeta { public function common(): void {} }
+      /** @return array{item: IndirectAlpha}|array{item: IndirectBeta} */ function indirectChoice(): array { return []; }`;
+    const variants = [
+      '$first =& $row; $second =& $first; $second[\'item\'] = new IndirectAlpha();',
+      '$first =& $row[\'item\']; $second =& $first; $second = new IndirectAlpha();',
+      'mutate($row);',
+      'mutate($row[\'item\']);',
+    ];
+    try {
+      project.update(sourceUri, source);
+      for (const mutation of variants) {
+        const consumer = `<?php namespace App; function inspect(): void {
+          $row = indirectChoice(); ${mutation} $item = $row['item']; $item->com;
+        }`;
+        project.update(consumerUri, consumer);
+        expect(project.completeMembers(consumerUri, consumer.indexOf('$item->com;') + '$item->com'.length), mutation).toEqual([]);
+        expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com;') + 2), mutation).toBeUndefined();
+      }
     } finally { project.dispose(); }
   });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {

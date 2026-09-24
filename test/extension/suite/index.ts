@@ -489,6 +489,7 @@ class ProfileShapeBeta { public function common(): string { return 'beta'; } pub
 /** @return array{item: ProfileShapeAlpha}|array{item: ProfileShapeBeta} */ function profileShape(): array { return []; }
 /** @return array{item: ProfileShapeAlpha, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}}|array{item: ProfileShapeBeta, meta: array{flag: int, object: ProfileShapeAlpha|ProfileShapeBeta}} */ function profileNestedShape(): array { return []; }
 /** @return array{item: ProfileShapeAlpha, meta?: array{flag: int, object: ProfileShapeAlpha}}|array{item: ProfileShapeBeta, meta?: array{flag: int, object: ProfileShapeBeta}} */ function profileOptionalShape(): array { return []; }
+/** @return array{item: ProfileShapeAlpha}|array{item: ProfileShapeBeta} */ function profileAbsentNestedShape(): array { return []; }
 `;
   const consumer = `<?php declare(strict_types=1); namespace App;
 function acceptShapeItem(int $value): void {}
@@ -496,6 +497,9 @@ function inspectShape(string $key): void { $row = profileShape(); $item = $row['
 function inspectNestedShape(string $key): void { $row = profileNestedShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); }
 function inspectNestedObject(): void { $row = profileNestedShape(); $row['meta']['object'] = new ProfileShapeAlpha(); $object = $row['meta']['object']; $object->alphaOnly(); }
 function inspectOptionalShape(): void { $row = profileOptionalShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); $object = $row['meta']['object']; $object->common(); }
+function inspectAbsentNestedShape(): void { $row = profileAbsentNestedShape(); $row['meta']['flag'] = 2; $item = $row['item']; $item->common(); }
+function inspectChainedAlias(): void { $row = profileShape(); $first =& $row; $second =& $first; $second['item'] = new ProfileShapeAlpha(); $item = $row['item']; $item->common(); }
+function inspectCrossCall(): void { $row = profileShape(); mutate($row); $item = $row['item']; $item->common(); }
 `;
   await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source));
   await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
@@ -541,13 +545,17 @@ function inspectOptionalShape(): void { $row = profileOptionalShape(); $row['met
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, valuePosition) ?? [];
     return definitions.every((location) => location.uri.toString() !== sourceUri.toString())
       && hovers.every((hover) => hover.contents.every((content) =>
-        !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')));
-  }, 'Open Source Pack retained stale union-shape navigation or Hover after an unsaved incompatible PHPDoc edit', 15_000);
+        !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')))
+      && vscode.languages.getDiagnostics(consumerUri).every((item) =>
+        item.source !== 'PHP Companion' || item.code !== 'php.argument.type-mismatch');
+  }, 'Open Source Pack retained stale union-shape navigation, Hover, or diagnosis after an unsaved incompatible PHPDoc edit', 15_000);
   await changeDoc(source);
   await waitForAsync(async () => {
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
-    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
-  }, 'Open Source Pack did not restore union-shape navigation after the PHPDoc was restored', 15_000);
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
+      && vscode.languages.getDiagnostics(consumerUri).some((item) =>
+        item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+  }, 'Open Source Pack did not restore union-shape navigation and diagnosis after the PHPDoc was restored', 15_000);
   const changeConsumer = async (text: string): Promise<void> => {
     const consumerEdit = new vscode.WorkspaceEdit();
     consumerEdit.replace(consumerUri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), text);
@@ -633,7 +641,21 @@ function inspectOptionalShape(): void { $row = profileOptionalShape(); $row['met
     return item.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
       && object.every((location) => location.uri.toString() !== sourceUri.toString());
   }, 'Open Source Pack lost unrelated fields or invented an optional nested field after the write', 15_000);
-  console.log('Open Source Pack C2 union-shape feedback: fixed and optional nested writes, dynamic invalidation, and known-key narrowing passed.');
+  const absentStart = document.getText().indexOf('function inspectAbsentNestedShape');
+  const absentItemCall = document.positionAt(document.getText().indexOf('common();', absentStart) + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, absentItemCall) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack lost an unrelated union-shape field after creating a missing nested field', 15_000);
+  for (const functionName of ['inspectChainedAlias', 'inspectCrossCall']) {
+    const start = document.getText().indexOf(`function ${functionName}`);
+    const call = document.positionAt(document.getText().indexOf('common();', start) + 2);
+    await waitForAsync(async () => {
+      const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, call) ?? [];
+      return definitions.every((location) => location.uri.toString() !== sourceUri.toString());
+    }, `Open Source Pack retained stale union-shape navigation after ${functionName}`, 15_000);
+  }
+  console.log('Open Source Pack C2 union-shape feedback: nested writes, optional and absent fields, aliases, calls, and diagnostics passed.');
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {
