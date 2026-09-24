@@ -78,7 +78,13 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 
 Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never`、参数和简单 PHPDoc 冲突反馈已修复；[生成后未保存编辑链](reports/c2-generated-phpdoc-flow-2026-09-24.md)验证了补全、Hover、Definition 与局部标量诊断。快速编辑的旧诊断发布也已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
-独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[首个可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)只覆盖唯一 PSR-4 类方法和直接标量字面量；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。下一步评估局部变量和其它参数形式需要的来源证明，并核对补全、Hover、Definition、诊断的版本一致性；再做较大真实依赖树的长会话及完整 Pack 宿主复核。人工持续使用反馈可以并行进入，不阻塞这些独立测试。
+独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)已覆盖唯一 PSR-4 类方法、直接或稳定局部标量字面量，以及直接或稳定局部赋值的原生标量方法返回；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。复杂控制流、动态返回和仅 PHPDoc 声明的跨文件返回仍保持保守。下一步先核对这些来源在补全、Hover、Definition、参数提示和诊断中的版本一致性，再用完整 Pack 的源码 Profile 和较大独立 Composer 项目观察等待与长期稳定性。人工使用反馈可以并行进入，不阻塞这些独立测试。
+
+### 下一次执行顺序
+
+1. **保持 Pack 清单并复核组合。** 当前 11 项成员已有明确所有者，不再为 PHPDoc 另造生成器，也不默认安装项目级 PHPStan。只有冻结新候选时，才按固定的外部版本运行完整源码与可安装 VSIX Profile，记录 Core、Symfony、Pack 三份同批产物的摘要；不为每次 Core 修复重复打包。
+2. **从 Core C2 的同一编辑版本开始。** 在独立 Composer 项目中连续修改未保存的声明、局部赋值和使用方，逐项核对补全、Hover、参数提示、Definition 与诊断使用同一版本的事实。先处理错误结果或旧结果，再扩展可以证明来源的高频表达式；每个新增诊断都要包含合法反例。
+3. **再检查等待和会话稳定性。** 复用已有真实 vendor 与 10k 文件夹具，观察冷查询、连续编辑、取消和 RSS；之后按 C3 验证重构的预览/撤销，按 C4 验证 Remote、跨平台与长时间真实使用。R4 的整体体验验收保持开放。
 
 ## 与 R2–R4 的关系
 

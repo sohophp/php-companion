@@ -1,6 +1,6 @@
 # PHP Companion
 
-PHP Companion 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。Open Source Pack 与 Recommended Pack 默认启用自研核心且不安装其他通用 PHP Language Server；格式化、调试、测试和 Twig Language Server 继续由专门工具负责。
+SoPHP 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。当前唯一维护的组合入口是 SoPHP Open Source Pack；它默认启用自研核心且不安装其他通用 PHP Language Server。格式化、调试、测试和 Twig Language Server 继续由专门工具负责。
 
 当前版本化内建规格已完整覆盖 PHP SPL 函数、十七种 SPL 适配/高级迭代器、四种 SPL 目录迭代器、Strings 与 Filesystem 官方可调用目录；类关系和 autoload 集合、模式相关字符串/正则/目录迭代结果、树格式化结果、CSV/list、locale/stat shape、resource 和失败返回会进入 Signature Help、返回传播及 Definition。
 

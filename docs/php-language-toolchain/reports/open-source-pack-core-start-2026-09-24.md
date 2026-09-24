@@ -2,6 +2,8 @@
 
 日期：2026-09-24。
 
+> 本文记录首次整理时的 10 项清单和当时的执行起点。当前源码已加入 PHP DocBlocker，成为 11 项；C1 的 10,000 文件 Implementation 预算问题已有修复，Core 当前执行点是 C2 的类型与诊断反馈。当前安装方式、成员所有者和下一步以[日常开发组合方案](../daily-use-assembly.md)及[Core 后续计划](../future-core-plan.md)为准。
+
 ## Pack 当前范围
 
 唯一维护的组合入口是 Open Source Pack。其 10 个成员为 SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHPUnit & Pest Test Explorer、PHP CS Fixer、EditorConfig、Apache Conf Snippets。Apache 扩展自身声明语法扩展依赖；Pack 不重复列入。Recommended Pack 不参与新候选。
