@@ -6636,6 +6636,39 @@ class Example {}`;
     expect(updated.params.diagnostics.some((item: { code?: string }) => item.code?.startsWith('php.argument.'))).toBe(false);
   });
 
+  it.each(['7.2', '8.5'])('reports only local scalar PHPDoc/native conflicts in onDemand PHP %s', async (phpVersion) => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    const uri = 'file:///OnDemandPhpDocConflicts.php';
+    const source = `<?php namespace App;
+      class ParentType {} class ChildType extends ParentType {}
+      /** @param string $value */ function scalar(int $value): void {}
+      /** @param ParentType $value */ function classRelation(ChildType $value): void {}
+    `;
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 576, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null,
+      initializationOptions: { phpVersion, indexingMode: 'onDemand' },
+    } }));
+    await output.waitFor((message) => message.id === 576);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+      textDocument: { uri, languageId: 'php', version: 1, text: source },
+    } }));
+    const initial = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.version === 1);
+    const conflicts = initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.phpdoc.type-conflict');
+    expect(conflicts).toEqual([expect.objectContaining({
+      range: { start: lspPosition(source, source.indexOf('string $value')), end: lspPosition(source, source.indexOf('string $value') + 'string'.length) },
+    })]);
+    const fixed = source.replace('@param string $value', '@param int $value');
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri, version: 2 }, contentChanges: [{ text: fixed }],
+    } }));
+    const updated = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.version === 2);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.phpdoc.type-conflict')).toBe(false);
+  });
+
   it('publishes native never fallthrough only for proven normal completion', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

@@ -4089,12 +4089,14 @@ export class SemanticWorkspace {
     });
   }
 
-  phpDocTypeConflicts(uri: string): PhpDocTypeConflict[] {
+  phpDocTypeConflicts(uri: string, localOnly = false): PhpDocTypeConflict[] {
     const file = this.files.get(uri); if (!file) return [];
     const conflicts: PhpDocTypeConflict[] = [];
+    const localScalar = /^(?:int|integer|string|float|double|bool|boolean)$/iu;
     const inspect = (tag: PhpDocTag | undefined, nativeText: string | undefined, scopeFqcn: string,
       kind: PhpDocTypeConflict['kind'], subject: string, templateType?: (name: string) => PhpType | undefined): void => {
       if (!tag?.type || !nativeText) return;
+      if (localOnly && (!localScalar.test(nativeText.trim()) || !localScalar.test(displayPhpDocType(tag.type)))) return;
       const documented = this.phpDocDiagnosticType(file, tag.type, scopeFqcn, { remaining: 256 }, templateType,
         (name) => this.phpDocRuntimeUpperBound(name));
       const native = this.nativeSourceType(file, nativeText, scopeFqcn);
@@ -4105,7 +4107,7 @@ export class SemanticWorkspace {
     for (const callable of file.callables) {
       const doc = adjacentPhpDoc(file, callable.declarationStart); if (!doc || doc.errors.length) continue;
       const scope = callable.containerFqcn ?? callable.fqcn;
-      const templateType = this.phpDocTemplateBoundResolver(file,
+      const templateType = localOnly ? undefined : this.phpDocTemplateBoundResolver(file,
         [callable.containerFqcn, callable.fqcn].filter((owner): owner is string => Boolean(owner)), scope);
       for (const parameter of callable.parameters) {
         const tag = preferredDocTags(doc, (item) => item.name === 'param' && item.variable === `$${parameter.name}`,
@@ -4118,7 +4120,7 @@ export class SemanticWorkspace {
     for (const property of file.properties) {
       const doc = adjacentPhpDoc(file, property.declarationStart); if (!doc || doc.errors.length) continue;
       const tag = preferredPropertyVarTag(doc, property.name);
-      const templateType = this.phpDocTemplateBoundResolver(file, [property.containerFqcn], property.containerFqcn);
+      const templateType = localOnly ? undefined : this.phpDocTemplateBoundResolver(file, [property.containerFqcn], property.containerFqcn);
       inspect(tag, property.type, property.containerFqcn, 'property', property.fqcn, templateType);
     }
     return conflicts;

@@ -4483,6 +4483,8 @@ final class Imported { public const TYPE = Stable::class; }`);
       ['property', 'DocConflicts\\Example::$property', 'DocConflicts\\ChildType', 'ParentType'],
       ['property', 'DocConflicts\\Example::$namedProperty', 'DocConflicts\\ChildType', 'OtherType'],
     ]);
+    expect(workspace.phpDocTypeConflicts(uri, true).map((item) => [item.kind, item.subject, item.nativeType, item.phpDocType]))
+      .toEqual([['parameter', '$number', 'int', 'float']]);
     for (const conflict of conflicts) expect(source.slice(conflict.start, conflict.end)).toBe(conflict.phpDocType);
   });
   it('preserves structured PHPDoc returns within nullable native array boundaries', () => {

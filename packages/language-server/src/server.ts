@@ -1503,6 +1503,13 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         : diagnosticMessage(clientDiagnosticLanguage, 'positionalAfterNamed'),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && (!root || !completeRoots.has(root))) {
+    result.diagnostics.push(...workspace.phpDocTypeConflicts(document.uri, true).map((conflict) => ({
+      range: { start: document.positionAt(conflict.start), end: document.positionAt(conflict.end) },
+      severity: DiagnosticSeverity.Warning,
+      code: 'php.phpdoc.type-conflict',
+      source: 'PHP Companion',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'phpDocTypeConflict', conflict.subject, conflict.phpDocType, conflict.nativeType),
+    })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,

@@ -58,6 +58,30 @@ export async function run(): Promise<void> {
   const diagnostics = vscode.languages.getDiagnostics(uri).filter((diagnostic) => diagnostic.source === 'PHP Companion');
   assert.ok(!diagnostics.some((diagnostic) => diagnostic.code === 'php.phpdoc.type-conflict'),
     'SoPHP rejected the generated native-compatible DocBlock.');
+  const generatedParam = /@param\s+(int|integer)\s+\$value/u.exec(document.getText());
+  assert.ok(generatedParam);
+  const nativeDocType = generatedParam[1]!;
+  const changeParamType = async (from: string, to: string): Promise<void> => {
+    const text = document.getText();
+    const start = text.indexOf(from, text.indexOf('@param'));
+    assert.ok(start >= 0);
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(document.positionAt(start), document.positionAt(start + from.length)), to);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(document.isDirty);
+  };
+  const paramConflicts = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(uri)
+    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.phpdoc.type-conflict');
+  await changeParamType(nativeDocType, 'string');
+  const conflictDeadline = Date.now() + 20_000;
+  while (Date.now() < conflictDeadline && paramConflicts().length !== 1) await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.strictEqual(paramConflicts().length, 1, 'SoPHP did not flag a proven native/PHPDoc scalar conflict in onDemand mode.');
+  assert.strictEqual(document.getText(paramConflicts()[0]!.range), 'string');
+  await changeParamType('string', nativeDocType);
+  const restoredDeadline = Date.now() + 20_000;
+  while (Date.now() < restoredDeadline && paramConflicts().length !== 0) await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepStrictEqual(paramConflicts(), [], 'SoPHP kept an old PHPDoc conflict after the unsaved correction.');
+  console.log('C2 generated PHPDoc scalar conflict: 1 → 0, unsaved');
   if (phpVersion === '8.5') {
     const modernUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ModernDocblockerProbe.php');
     await vscode.workspace.fs.writeFile(modernUri, Buffer.from('<?php\n\nfunction modern(?string $value): int|false { return false; }\n'));
@@ -106,5 +130,91 @@ export async function run(): Promise<void> {
   ))?.items ?? [];
   assert.strictEqual(tagItems.filter((candidate) => candidate.label === '@param').length, 1,
     'The full Pack profile did not offer exactly one @param completion.');
+  const flowUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'DocblockerFlow.php');
+  const flowSource = `<?php
+namespace App\\Service;
+class AlphaDocItem { public function itemAlpha(): void {} }
+class BetaDocItem { public function itemBeta(): void {} }
+
+function inspect(array $items): void { foreach ($items as $item) { $item->item; $item->itemAlpha(); } }
+`;
+  await vscode.workspace.fs.writeFile(flowUri, Buffer.from(flowSource));
+  const flowDocument = await vscode.workspace.openTextDocument(flowUri);
+  const flowEditor = await vscode.window.showTextDocument(flowDocument);
+  flowEditor.selection = new vscode.Selection(new vscode.Position(4, 0), new vscode.Position(4, 0));
+  await vscode.commands.executeCommand('type', { text: '/**' });
+  const flowItems = (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', flowUri, flowEditor.selection.active, '*', 100,
+  ))?.items.filter((candidate) => candidate.label === '/**' && candidate.detail === 'PHP DocBlocker') ?? [];
+  assert.strictEqual(flowItems.length, 1);
+  const flowItem = flowItems[0]!;
+  assert.ok(flowItem.insertText instanceof vscode.SnippetString);
+  const flowRange = flowItem.range instanceof vscode.Range ? flowItem.range : flowItem.range?.replacing;
+  assert.ok(flowRange);
+  assert.ok(await flowEditor.insertSnippet(flowItem.insertText, flowRange));
+  assert.match(flowDocument.getText(), /@param\s+array\s+\$items/u);
+  const setDocumentedItem = async (itemType: string): Promise<void> => {
+    const current = flowDocument.getText();
+    const match = /@param\s+([^\s]+)\s+\$items/u.exec(current);
+    assert.ok(match);
+    const start = current.indexOf(match[1]!, match.index);
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(flowUri, new vscode.Range(flowDocument.positionAt(start), flowDocument.positionAt(start + match[1]!.length)),
+      `list<${itemType}>`);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(flowDocument.isDirty);
+  };
+  const itemCompletions = async (): Promise<string[]> => {
+    const text = flowDocument.getText();
+    const position = flowDocument.positionAt(text.indexOf('$item->item;') + '$item->item'.length);
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', flowUri, position);
+    return result?.items.map((candidate) => String(candidate.label)) ?? [];
+  };
+  const waitForItem = async (expected: string, rejected: string): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline) {
+      const labels = await itemCompletions();
+      if (labels.includes(expected) && !labels.includes(rejected)) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`SoPHP did not use the current PHPDoc item type: expected ${expected}, rejected ${rejected}, actual ${JSON.stringify(await itemCompletions())}`);
+  };
+  const originalCallPosition = (): vscode.Position => {
+    const text = flowDocument.getText();
+    return flowDocument.positionAt(text.indexOf('$item->itemAlpha();') + '$item->item'.length);
+  };
+  const originalDefinitions = async (): Promise<vscode.Location[]> => await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', flowUri, originalCallPosition(),
+  ) ?? [];
+  const originalHoverText = async (): Promise<string> => (await vscode.commands.executeCommand<vscode.Hover[]>(
+    'vscode.executeHoverProvider', flowUri, originalCallPosition(),
+  ) ?? []).flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n');
+  await setDocumentedItem('AlphaDocItem');
+  await waitForItem('itemAlpha', 'itemBeta');
+  assert.ok((await originalDefinitions()).some((location) => location.uri.toString() === flowUri.toString()
+    && flowDocument.getText(location.range).includes('itemAlpha')),
+  'SoPHP did not navigate from a generated PHPDoc refinement to the Alpha method.');
+  assert.match(await originalHoverText(), /itemAlpha/u);
+  await setDocumentedItem('BetaDocItem');
+  await waitForItem('itemBeta', 'itemAlpha');
+  assert.ok(!(await originalDefinitions()).some((location) => location.uri.toString() === flowUri.toString()
+    && flowDocument.getText(location.range).includes('itemAlpha')),
+  'SoPHP kept a stale Alpha definition after the PHPDoc item type changed.');
+  assert.doesNotMatch(await originalHoverText(), /itemAlpha/u);
+  const changedCallSource = flowDocument.getText();
+  const changedCallStart = changedCallSource.lastIndexOf('itemAlpha();');
+  assert.ok(changedCallStart >= 0);
+  const changedCallEdit = new vscode.WorkspaceEdit();
+  changedCallEdit.replace(flowUri, new vscode.Range(flowDocument.positionAt(changedCallStart),
+    flowDocument.positionAt(changedCallStart + 'itemAlpha'.length)), 'itemBeta');
+  assert.ok(await vscode.workspace.applyEdit(changedCallEdit));
+  const betaPosition = flowDocument.positionAt(flowDocument.getText().lastIndexOf('$item->itemBeta();') + '$item->item'.length);
+  const betaDefinitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', flowUri, betaPosition) ?? [];
+  assert.ok(betaDefinitions.some((location) => location.uri.toString() === flowUri.toString()
+    && flowDocument.getText(location.range).includes('itemBeta')),
+  'SoPHP did not navigate to the new Beta method after the unsaved PHPDoc and call edits.');
+  const betaHovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', flowUri, betaPosition) ?? [];
+  assert.match(betaHovers.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n'), /itemBeta/u);
+  console.log('C2 generated PHPDoc type flow: AlphaDocItem → BetaDocItem, completion/hover/definition updated');
   console.log('PHP DocBlocker 2.7.0 + SoPHP: one generator, typed param/return, no PHPDoc conflict.');
 }
