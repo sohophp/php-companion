@@ -4,11 +4,11 @@
 
 ## 安装入口与能力所有者
 
-[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。清单固定为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、测试、Twig、YAML、XML 等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
+[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。当前源码清单为 **SoPHP Core、SoPHP Symfony 和 9 个外部扩展**；格式化、调试、测试、Twig、YAML、XML、PHPDoc 生成等功能各有明确所有者。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
 截至 2026-09-24，公开 Marketplace 的 Open Source Pack 页面仍显示旧版说明；本仓库的 0.4.5 manifest 与冻结 Profile 已核对，但尚无证据表明公开页面提供这一组合。日常试用应以同一私有候选的三个 VSIX 为准。
 
-当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`recca0120.vscode-phpunit`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`。最后一项依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
+当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`recca0120.vscode-phpunit`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`、`neilbrayfield.php-docblocker`。Apache Conf Snippets 依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
 
 | 日常任务 | 当前所有者 | 进入首批使用的条件 |
 | --- | --- | --- |
@@ -19,6 +19,7 @@
 | JSON、HTML、CSS、JavaScript、TypeScript | VS Code 内建语言服务 | 不另装重复的基础语言服务器；PHP 混合文件另行检验 |
 | Git、终端与 Composer 命令 | VS Code 内建 Git/终端及项目 Composer CLI | 依赖安装和脚本继续由项目自身管理，SoPHP 读取 Composer 事实，不另造包管理器 |
 | PHP 格式化 | PHP CS Fixer VS Code 扩展 | 只选它作为 PHP 默认 formatter，使用兼容目标 PHP 的项目级 fixer；避免两个保存时格式化入口 |
+| PHPDoc 注释生成与标签补全 | PHP DocBlocker | 只负责写注释；SoPHP 负责解析生成的 PHPDoc 类型。PHP 7.2/8.5 的隔离 Profile 已验证常用函数与 `@param` 生成 |
 | 调试、测试 | PHP Debug + PHPUnit & Pest Test Explorer | 项目已配置相应 Xdebug、PHPUnit/Pest；执行 PHP 路径、工作目录及 Remote 映射须正确 |
 | 编辑约定、Apache 配置 | EditorConfig + Apache Conf Snippets | 保留现有 Pack 成员；Apache 配置语法由其依赖扩展提供 |
 
@@ -32,7 +33,8 @@
 | 保留在 Pack | PHP Debug、PHPUnit & Pest Test Explorer | 已有 Linux/WSL 组合运行证据；实际项目仍须提供可用的 PHP、Xdebug 和测试入口 |
 | 保留在 Pack | PHP CS Fixer、EditorConfig | 格式化与项目编辑约定各有一个所有者；PHP CS Fixer 扩展自带 PHAR 曾在 PHP 8.5 被拒绝，须使用与目标 PHP 兼容的项目级 fixer |
 | 保留在 Pack | Apache Conf Snippets | 用户要求的 Apache 配置片段；其 `mrmlnc.vscode-apache` 依赖由扩展自身声明，Pack 不重复列入 |
-| 单独试用 | PHP DocBlocker、项目自选 PHPStan | 前者只生成注释，后者需要项目分析配置；尚缺同一 Profile 中的冲突与运行时验收，暂不自动安装 |
+| 保留在 Pack | PHP DocBlocker | [完整成员 Profile 的 PHP 7.2/8.5 宿主门禁](reports/php-docblocker-composition-2026-09-24.md)中 `/**` 生成项和 `@param` 标签各只有一个；生成注释由 SoPHP 解析，超出已测语法的结果继续观察 |
+| 单独试用 | 项目自选 PHPStan | 需要项目分析配置和兼容运行时；暂不自动安装 |
 | 不纳入 | 额外通用 PHP Language Server、Symfony Language Tools | 前者会造成 PHP 能力所有者冲突；后者已有普通 PHP Rename 冲突证据 |
 
 这份整理保留当前 `extensionPack` 清单；它是已选工具的安装入口，不表示每个成员在所有 PHP 版本、系统和 Remote 环境都已通过最终验收。成员版本及其依赖以冻结的 [Profile 清单](../../test/extension/open-source-profile.extensions.json)和候选记录为准。
@@ -43,12 +45,11 @@ SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 
 
 | 候选 | 可提供的增益 | 准入检查 |
 | --- | --- | --- |
-| [PHP DocBlocker](https://marketplace.visualstudio.com/items?itemName=neilbrayfield.php-docblocker) | 输入 /** 时生成 DocBlock、补标签和参数模板 | 与 SoPHP 补全/代码生成无重复弹窗或覆盖；PHP 7.2–8.5 声明和未完成输入正确。它只负责写注释，SoPHP 仍解析类型 |
 | [PHPStan 扩展](https://marketplace.visualstudio.com/items?itemName=swordev.phpstan)及项目 PHPStan | 项目选择的更深静态分析诊断 | 仅在项目已有兼容的 PHPStan 配置与运行时、用户明确选择时启用；核查重复诊断、自动运行耗时及关闭后的恢复。暂不作为默认 Pack 成员 |
 
 其他候选也走同一门禁：明确能补哪段工作流、许可与维护、PHP/VS Code/WSL 兼容性、唯一能力所有者、自动和真实操作证据、失败后的回退。Symfony Language Tools 0.20.1/0.20.2 已在普通 PHP Rename 中发生 Provider 冲突，目前不进入受支持组合；不能因为它能补部分路由能力就绕过冲突结果。
 
-先保持当前 Pack 清单不变，在隔离 Profile 逐个验证 PHP DocBlocker 和项目自选的 PHPStan；记录功能、冲突与版本后，再决定是否把 PHPDoc 辅助加入默认 Pack。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。PHP DocBlocker 的 Marketplace 功能说明只证明它提供 DocBlock 补全，不能替代与 SoPHP 同时启用时的结果验收。
+PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因此加入当前源码 Pack；现有已安装候选不会自动获得这个新成员，须待下一次同批候选冻结。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
 
 ## 从安装到日常使用
 
@@ -62,7 +63,7 @@ SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 
 
 ## 当前整理结论与进入 Core 的顺序
 
-Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 和 PHPStan 保持可选，待隔离 Profile 中核对具体收益、冲突和运行时后再讨论默认安装。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。Pack 成员清单先冻结，避免在 Core 编码链审计期间增加变量。
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 已加入当前源码 Pack，PHPStan 保持可选。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。PHP DocBlocker 的源码成员 Profile 已完成单独组合门禁；新 VSIX 候选尚未冻结。
 
 Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never` 漏报及快速编辑的旧诊断发布已修复；最新隔离宿主计时仍发现正确诊断出现前有数百毫秒空白，先定位并修复这段可见等待，再扩展跨文件类型与 PHPDoc 一致性。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 

@@ -23,6 +23,12 @@ async function main(): Promise<void> {
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
+  const docblockerOnly = process.env.PHP_COMPANION_TEST_DOCBLOCKER_ONLY === '1';
+  const docblockerExtensionsDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_EXTENSIONS_DIR;
+  const docblockerUserDataDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_USER_DATA_DIR;
+  if (docblockerOnly && (!docblockerExtensionsDir || !docblockerUserDataDir)) {
+    throw new Error('DocBlocker profile test requires isolated extensions and user data directories.');
+  }
   if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
     throw new Error('Real vendor noise needs C1 mode and PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
   }
@@ -107,8 +113,8 @@ async function main(): Promise<void> {
   if (!c1Only) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
-    settings['phpCompanion.phpVersion'] = '8.5';
-    if (c2Only) settings['phpCompanion.indexing.mode'] = 'onDemand';
+    settings['phpCompanion.phpVersion'] = docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : '8.5';
+    if (c2Only || docblockerOnly) settings['phpCompanion.indexing.mode'] = 'onDemand';
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
 
@@ -141,9 +147,14 @@ async function main(): Promise<void> {
     ] }));
     await runTests({
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
-        : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony')],
-      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : 'index'),
-      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense ? [] : ['--disable-extensions']),
+        : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony'),
+          ...(docblockerOnly ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
+      extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : docblockerOnly ? 'docblocker' : 'index'),
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly ? [] : ['--disable-extensions']),
+        ...(docblockerOnly ? [
+          `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
+          `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
+        ] : []),
         ...(c1DebugPort ? [`--remote-debugging-port=${c1DebugPort}`] : [])],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
@@ -158,6 +169,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE: realVendorNoise ? String(realVendorNoise) : undefined,
         PHP_COMPANION_TEST_C1_COLD_QUERY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COLD_QUERY : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
+        PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION: docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : undefined,
       },
     });
   } finally {

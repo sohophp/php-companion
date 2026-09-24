@@ -70,6 +70,7 @@
     "recca0120.vscode-phpunit",
     "junstyle.php-cs-fixer",
     "EditorConfig.EditorConfig",
-    "eiminsasete.apacheconf-snippets"
+    "eiminsasete.apacheconf-snippets",
+    "neilbrayfield.php-docblocker"
   ]
 }

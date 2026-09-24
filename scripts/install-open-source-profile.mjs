@@ -34,7 +34,7 @@ const installExtension = async (specification) => {
     } catch (error) {
       lastError = error;
       const message = error instanceof Error ? error.message : String(error);
-      if (!/(?:server returned (?:429|5\d\d)|ECONNRESET|ETIMEDOUT|socket hang up)/iu.test(message) || attempt === 5) throw error;
+      if (!/(?:server returned (?:429|5\d\d)|ECONNRESET|ETIMEDOUT|socket hang up|Client network socket disconnected before secure TLS connection was established)/iu.test(message) || attempt === 5) throw error;
       await delay(attempt * 2_000);
     }
   }

@@ -1,4 +1,4 @@
 {
   "displayName": "SoPHP Open Source Pack",
-  "description": "A focused open-source PHP toolkit with SoPHP, Symfony, Twig, YAML, XML, Apache snippets, debugging, testing, formatting, and EditorConfig."
+  "description": "A focused open-source PHP toolkit with SoPHP, Symfony, Twig, YAML, XML, PHPDoc generation, Apache snippets, debugging, testing, formatting, and EditorConfig."
 }

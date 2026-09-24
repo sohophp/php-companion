@@ -62,6 +62,7 @@ describe('PHP Companion manifests', () => {
     expect(openSource.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.extensionPack).not.toContain('symfony.language-tools');
     expect(openSource.extensionPack).toContain('sohophp.php-companion-symfony');
+    expect(openSource.extensionPack).toContain('neilbrayfield.php-docblocker');
     expect(openSource.contributes).toBeDefined();
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
