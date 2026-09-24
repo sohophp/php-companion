@@ -6475,42 +6475,51 @@ class Example {}`;
       && message.params.uri === uri && message.params.version === 23)).toBe(false);
   });
 
-  it('updates an open consumer diagnostic after an unsaved declaration changes in another file', async () => {
+  it.each([false, true])('updates an open consumer diagnostic after an unsaved declaration changes in another file (versioned=%s)', async (versionedDiagnostics) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-cross-file-diagnostics-'));
     try {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await mkdir(join(root, 'src'));
       const serviceUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
       const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const idleUri = pathToFileURL(join(root, 'src', 'Idle.php')).toString();
       const service = '<?php namespace App; class Service { public function call(int $value): void {} }';
       const consumer = "<?php declare(strict_types=1); namespace App; function run(Service $service): void { $service->call('bad'); }";
+      const idle = '<?php namespace App; class Idle { public function ok(): int { return 1; } }';
       await writeFile(join(root, 'src', 'Service.php'), service);
       await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      await writeFile(join(root, 'src', 'Idle.php'), idle);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
+      const diagnosticMethod = versionedDiagnostics ? 'phpCompanion/versionedDiagnostics' : 'textDocument/publishDiagnostics';
       server.stdin.write(encode({ jsonrpc: '2.0', id: 571, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { phpVersion: '8.5', indexingMode: 'experimental', versionedDiagnostics: true },
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'experimental', versionedDiagnostics },
       } }));
       await output.waitFor((message) => message.id === 571);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), 20_000);
-      for (const [uri, source] of [[serviceUri, service], [consumerUri, consumer]]) {
+      for (const [uri, source] of [[serviceUri, service], [consumerUri, consumer], [idleUri, idle]]) {
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
           textDocument: { uri, languageId: 'php', version: 1, text: source },
         } }));
       }
-      const initial = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+      const initial = await output.waitFor((message) => message.method === diagnosticMethod
         && message.params.uri === consumerUri && message.params.version === 1);
       expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      await output.waitFor((message) => message.method === diagnosticMethod
+        && message.params.uri === idleUri && message.params.version === 1);
       await new Promise((resolve) => setTimeout(resolve, 100));
       const beforeEdit = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: serviceUri, version: 2 }, contentChanges: [{ text: service.replace('int $value', 'string $value') }],
       } }));
-      const updated = await output.waitFor((message) => output.messages.indexOf(message) >= beforeEdit && message.method === 'phpCompanion/versionedDiagnostics'
+      const updated = await output.waitFor((message) => output.messages.indexOf(message) >= beforeEdit && message.method === diagnosticMethod
         && message.params.uri === consumerUri && message.params.version === 1);
       expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(output.messages.slice(beforeEdit).some((message: any) => message.method === diagnosticMethod
+        && message.params.uri === idleUri)).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 572, method: 'textDocument/signatureHelp', params: {
         textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf("'bad'") + 2),
       } }));
@@ -6519,20 +6528,20 @@ class Example {}`;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: serviceUri, version: 3 }, contentChanges: [{ text: service }],
       } }));
-      const restored = await output.waitFor((message) => output.messages.indexOf(message) >= beforeRestore && message.method === 'phpCompanion/versionedDiagnostics'
+      const restored = await output.waitFor((message) => output.messages.indexOf(message) >= beforeRestore && message.method === diagnosticMethod
         && message.params.uri === consumerUri && message.params.version === 1);
       expect(restored.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
       const beforeClose = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: serviceUri, version: 4 }, contentChanges: [{ text: service.replace('int $value', 'string $value') }],
       } }));
-      await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose && message.method === 'phpCompanion/versionedDiagnostics'
+      await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose && message.method === diagnosticMethod
         && message.params.uri === consumerUri && message.params.version === 1
         && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
       const closeStart = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: serviceUri } } }));
       const afterClose = await output.waitFor((message) => output.messages.indexOf(message) >= closeStart
-        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri && message.params.version === 1);
+        && message.method === diagnosticMethod && message.params.uri === consumerUri && message.params.version === 1);
       expect(afterClose.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
     } finally { await rm(root, { recursive: true, force: true }); }
   });

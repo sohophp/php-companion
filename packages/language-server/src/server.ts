@@ -152,7 +152,8 @@ let versionedDiagnostics = false;
 // Give a burst of incremental changes time to arrive before CPU-bound analysis.
 const diagnosticEditCoalesceMs = 25;
 const relatedDiagnosticRefreshMs = 75;
-const relatedDiagnosticRefreshes = new Map<string, { timer: ReturnType<typeof setTimeout>; editedUris: Set<string> }>();
+const relatedDiagnosticRefreshes = new Map<string, { timer: ReturnType<typeof setTimeout>; editedUris: Set<string>; priorityNames: Set<string> }>();
+const lastPublishedDiagnostics = new Map<string, { document: TextDocument; version: number; serialized: string }>();
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
@@ -1444,7 +1445,7 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   }));
 }
 
-async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0): Promise<void> {
+async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0, onlyIfChanged = false): Promise<void> {
   const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
   if (coalesceMs > 0) {
@@ -1909,29 +1910,49 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
   }
   if (documents.get(document.uri) === document && document.version === version) {
     const diagnostics = configuredDiagnostics(result.diagnostics);
+    const serialized = JSON.stringify(diagnostics);
+    const previous = lastPublishedDiagnostics.get(document.uri);
+    if (onlyIfChanged && previous?.document === document && previous.version === version && previous.serialized === serialized) return;
     if (versionedDiagnostics) await connection.sendNotification('phpCompanion/versionedDiagnostics', { uri: document.uri, version, diagnostics });
     else await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
+    lastPublishedDiagnostics.set(document.uri, { document, version, serialized });
     recordTestQueryDuration('diagnostics', diagnosticStarted);
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
   }
 }
 
-function scheduleRelatedOpenDiagnostics(root: string, editedUri: string): void {
+function scheduleRelatedOpenDiagnostics(root: string, editedUri: string, changedSymbols: readonly string[] = []): void {
   // A changed declaration or inferred callable result can alter diagnostics in
   // another open file without changing that file's document version.
   const pending = relatedDiagnosticRefreshes.get(root);
   if (pending) clearTimeout(pending.timer);
   const editedUris = pending?.editedUris ?? new Set<string>();
+  const priorityNames = pending?.priorityNames ?? new Set<string>();
   editedUris.add(editedUri);
+  for (const symbol of changedSymbols) {
+    const member = symbol.lastIndexOf('::');
+    const name = member >= 0 ? symbol.slice(member + 2).replace(/^\$/, '') : symbol.slice(symbol.lastIndexOf('\\') + 1);
+    if (/^[a-z_][a-z_0-9]*$/i.test(name)) priorityNames.add(name.toLowerCase());
+  }
   const timer = setTimeout(() => {
     relatedDiagnosticRefreshes.delete(root);
     const related = documents.all().filter((document) => document.languageId === 'php'
       && rootForUri(document.uri) === root && !editedUris.has(document.uri));
-    void Promise.all(related.map((document) => publishDocumentDiagnostics(document))).catch((error: unknown) => {
+    if (priorityNames.size && priorityNames.size <= 64) {
+      const pattern = new RegExp(`\\b(?:${[...priorityNames].join('|')})\\b`, 'i');
+      const priority = new Map(related.map((document) => [document.uri, Number(pattern.test(document.getText()))]));
+      related.sort((left, right) => (priority.get(right.uri) ?? 0) - (priority.get(left.uri) ?? 0));
+    }
+    void (async (): Promise<void> => {
+      for (let start = 0; start < related.length; start += 4) {
+        await Promise.all(related.slice(start, start + 4).map((document) => publishDocumentDiagnostics(document, 0, true)));
+        await yieldToEventLoop();
+      }
+    })().catch((error: unknown) => {
       connection.console.warn(`Unable to refresh related PHP diagnostics: ${String(error)}`);
     });
   }, relatedDiagnosticRefreshMs);
-  relatedDiagnosticRefreshes.set(root, { timer, editedUris });
+  relatedDiagnosticRefreshes.set(root, { timer, editedUris, priorityNames });
 }
 
 function pathWithin(root: string, path: string): boolean {
@@ -4369,7 +4390,7 @@ documents.onDidChangeContent(async ({ document }) => {
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   if (!opening && sourceChanged && root && completeRoots.has(root) && update.kind !== 'none') {
-    scheduleRelatedOpenDiagnostics(root, document.uri);
+    scheduleRelatedOpenDiagnostics(root, document.uri, [...update.changedTypes, ...update.changedCallables]);
   }
   await publishDocumentDiagnostics(document, diagnosticEditCoalesceMs);
   recordTestQueryDuration('documentChangeDiagnostics', changeStarted);
@@ -4382,6 +4403,7 @@ documents.onDidChangeContent(async ({ document }) => {
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  lastPublishedDiagnostics.delete(document.uri);
   openingContentVersions.delete(document.uri);
   documentSourcesByUri.delete(document.uri);
   cancelReferencePrewarm(document.uri);
@@ -5713,6 +5735,7 @@ connection.onShutdown(async () => {
   activeIndexing = undefined;
   for (const pending of relatedDiagnosticRefreshes.values()) clearTimeout(pending.timer);
   relatedDiagnosticRefreshes.clear();
+  lastPublishedDiagnostics.clear();
   for (const timer of callableFactCommitTimers.values()) clearTimeout(timer);
   callableFactCommitTimers.clear();
   for (const [root] of callableFactCachesByRoot) {
