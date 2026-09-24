@@ -160,6 +160,34 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $serv
   console.log(`C2 onDemand cross-file literal diagnostic: ${JSON.stringify({ visible: [true, false, true],
     removedMs, restoredMs, unsaved: methodDocument.isDirty })}`);
 
+  await editType('int $value', 'string $value');
+  const localConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
+function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $value = 'bad'; $other = 1; $service->accept($value); }
+`;
+  const replaceConsumer = async (source: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(methodConsumerUri, new vscode.Range(new vscode.Position(0, 0),
+      methodConsumerDocument.positionAt(methodConsumerDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit), 'Could not change the cross-file consumer buffer.');
+    assert.ok(methodConsumerDocument.isDirty, 'The cross-file consumer was unexpectedly saved.');
+  };
+  await replaceConsumer(localConsumerSource);
+  await waitForMismatch(false);
+  const localRestoredMs = await editType('string $value', 'int $value');
+  const literalFixed = localConsumerSource.replace("$value = 'bad'", '$value = 1');
+  await replaceConsumer(literalFixed);
+  await waitForMismatch(false);
+  await replaceConsumer(localConsumerSource);
+  await waitForMismatch(true);
+  const unknownConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;
+function change(string &$value): void { $value = 'bad'; }
+function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $value = 'bad'; change($value); $service->accept($value); }
+`;
+  await replaceConsumer(unknownConsumerSource);
+  await waitForMismatch(false);
+  console.log(`C2 onDemand cross-file local literal diagnostic: ${JSON.stringify({ visible: [false, true, false, true, false],
+    restoredMs: localRestoredMs, declarationUnsaved: methodDocument.isDirty, consumerUnsaved: methodConsumerDocument.isDirty })}`);
+
   const recordsUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocRecords.php');
   const consumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocConsumer.php');
   const recordsSource = `<?php namespace App\\Service;
