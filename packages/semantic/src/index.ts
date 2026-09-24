@@ -7470,6 +7470,23 @@ export class SemanticWorkspace {
             fqcn: first.fqcn, member: nameNode.text, accessFrom, static: false,
             typeArguments: first.typeArguments, groups: objects.groups.length > 1 ? objects.groups : undefined,
           };
+          // The declared property type may be absent from a cold partial index.
+          // Surface only a proven coalescing-throw receiver for PSR-4 hydration.
+          const coalesced = receiver.namedChildren[0];
+          const left = coalesced?.childForFieldName('left');
+          const right = coalesced?.childForFieldName('right');
+          const propertyObject = left?.childForFieldName('object');
+          const propertyName = left?.childForFieldName('name');
+          if (unresolvedOwners && coalesced?.type === 'binary_expression'
+            && coalesced.childForFieldName('operator')?.text === '??' && right?.type === 'throw_expression'
+            && left?.type === 'member_access_expression' && propertyObject?.text === '$this'
+            && propertyName?.type === 'name' && accessFrom) {
+            const property = file.properties.find((candidate) => candidate.containerFqcn.toLowerCase() === accessFrom.toLowerCase()
+              && candidate.name === propertyName.text && !candidate.static);
+            const declared = /^\??([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(property?.type?.trim() ?? '')?.[1];
+            const fqcn = declared && this.resolveSourceType(file, declared, this.namespaceAt(file, property!.start), accessFrom);
+            if (fqcn) unresolvedOwners.add(fqcn);
+          }
         }
       }
     } finally {

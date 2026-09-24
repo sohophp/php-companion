@@ -2545,6 +2545,47 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads a nullable property owner for a coalescing-throw method definition on the first request', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sophp-cold-coalescing-definition-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      const source = `<?php namespace App;
+        final class ReadEntity {
+          private ?EntityImageFactoryInterface $imageFactory = null;
+          public function makeImages(): array {
+            return ($this->imageFactory ?? throw new \\LogicException('Factory required.'))->createCollection();
+          }
+        }`;
+      const sourcePath = join(sourceDirectory, 'ReadEntity.php'); const sourceUri = pathToFileURL(sourcePath).toString();
+      const targetPath = join(sourceDirectory, 'EntityImageFactoryInterface.php'); const targetUri = pathToFileURL(targetPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(sourcePath, source);
+      await writeFile(targetPath, '<?php namespace App; interface EntityImageFactoryInterface { public function createCollection(): array; }');
+
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); const rootUri = pathToFileURL(root).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 260, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri,
+        initializationOptions: { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } },
+      } }));
+      await output.waitFor((message) => message.id === 260);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('Indexed 0 PHP files') && message.params.message.includes('complete=false'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === sourceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 261, method: 'textDocument/definition', params: {
+        textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('->createCollection') + 3),
+      } }));
+      expect((await output.waitFor((message) => message.id === 261)).result).toMatchObject([{ uri: targetUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 262, method: 'shutdown', params: null }));
+      await output.waitFor((message) => message.id === 262);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('progressively loads omitted owners in a chained member definition', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-member-chain-'));
     try {
