@@ -476,7 +476,74 @@ final class ProfileTest extends TestCase {
   await vscode.commands.executeCommand('redo');
   await waitForAsync(async () => { await vscode.workspace.fs.stat(movedTestUri); return true; }, 'Could not redo PHPUnit fixture move');
   await verifyMovedSuite('MovedProfileTest.php');
+  await verifyOpenSourceUnionShapeFeedback(workspace);
   if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1') await verifyOpenSourceRealVendorFeedback(workspace);
+}
+
+async function verifyOpenSourceUnionShapeFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const sourceUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileUnionShapeSource.php');
+  const consumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileUnionShapeConsumer.php');
+  const source = `<?php namespace App;
+class ProfileShapeAlpha { public function common(): string { return 'alpha'; } public function alphaOnly(): void {} }
+class ProfileShapeBeta { public function common(): string { return 'beta'; } public function betaOnly(): void {} }
+/** @return array{item: ProfileShapeAlpha}|array{item: ProfileShapeBeta} */ function profileShape(): array { return []; }
+`;
+  const consumer = `<?php declare(strict_types=1); namespace App;
+function acceptShapeItem(int $value): void {}
+function inspectShape(): void { $row = profileShape(); $item = $row['item']; $item->com; acceptShapeItem($item); }
+`;
+  await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
+  const sourceDocument = await vscode.workspace.openTextDocument(sourceUri);
+  const document = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(document);
+  const completionPosition = document.positionAt(consumer.indexOf('com;') + 3);
+  await waitForAsync(async () => {
+    const items = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri, completionPosition);
+    const methods = items?.items.filter((item) => item.kind === vscode.CompletionItemKind.Method).map((item) => item.label) ?? [];
+    return methods.includes('common') && !methods.includes('alphaOnly') && !methods.includes('betaOnly');
+  }, 'Open Source Pack did not show only the common union-shape member', 15_000);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(consumerUri, new vscode.Range(document.positionAt(consumer.indexOf('com;')),
+    document.positionAt(consumer.indexOf('com;') + 'com;'.length)), 'common();');
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  assert.ok(document.isDirty);
+  const callPosition = document.positionAt(document.getText().indexOf('common();') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack did not resolve both common union-shape declarations', 15_000);
+  const valuePosition = document.positionAt(document.getText().indexOf('$item);') + 2);
+  await waitForAsync(async () => {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, valuePosition) ?? [];
+    return hovers.some((hover) => hover.contents.some((content) => {
+      const value = typeof content === 'string' ? content : content.value;
+      return value.includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta');
+    }));
+  }, 'Open Source Pack lost the union-shape local Hover after a common method call', 15_000);
+  await waitForAsync(async () => vscode.languages.getDiagnostics(consumerUri).some((item) =>
+    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch'),
+  'Open Source Pack did not reject the union-shape object passed to an int parameter', 15_000);
+  const changeDoc = async (text: string): Promise<void> => {
+    const sourceEdit = new vscode.WorkspaceEdit();
+    sourceEdit.replace(sourceUri, new vscode.Range(sourceDocument.positionAt(0), sourceDocument.positionAt(sourceDocument.getText().length)), text);
+    assert.ok(await vscode.workspace.applyEdit(sourceEdit));
+    assert.ok(sourceDocument.isDirty);
+  };
+  await changeDoc(source.replace('array{item: ProfileShapeBeta} */', 'string */'));
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, valuePosition) ?? [];
+    return definitions.every((location) => location.uri.toString() !== sourceUri.toString())
+      && hovers.every((hover) => hover.contents.every((content) =>
+        !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')));
+  }, 'Open Source Pack retained stale union-shape navigation or Hover after an unsaved incompatible PHPDoc edit', 15_000);
+  await changeDoc(source);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
+    return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2;
+  }, 'Open Source Pack did not restore union-shape navigation after the PHPDoc was restored', 15_000);
+  console.log('Open Source Pack C2 union-shape feedback: completion, two definitions, Hover, diagnostic and unsaved PHPDoc invalidation passed.');
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {

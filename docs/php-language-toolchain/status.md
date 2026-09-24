@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 跨文件联合数组形状返回：`@return array{item: Alpha}|array{item: Beta}` 现在可安全精化原生 `array`，经局部赋值后共有成员补全、双声明 Definition、方法调用后联合类型 Hover 与参数诊断保持一致；混入 `string` 的 PHPDoc 分支仍拒绝精化。11 项完整 Pack 源码宿主验证未保存编辑后的旧结果撤回与恢复，退出码 0；Semantic 326/326、类型检查、Lint 通过。见[报告](reports/c2-cross-file-union-shape-return-2026-09-24.md)。
+
 2026-09-24 C2 完整 Pack 首次跳转修复：嵌套 Composer 项目版本探测原会重启 Language Client，导致 Definition Provider 约 1.4 秒暂不可用；Core 现将版本和扩展可用性更新发送给运行中的服务器，并按根刷新内建符号与诊断。10,131 文件、50 轮未保存编辑的完整 11 项 Pack 宿主连续两轮六次 Definition 均首次命中，等待 4–26 ms；嵌套 PHP 7.2 `enum` 诊断、stdio 7.2→8.5→7.2 往返通过。工作区文件夹拓扑变化仍需原有重启验收。见[报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。
 
 2026-09-24 C2 完整 Open Source Pack 大项目宿主：11 项源码 Profile、真实 1,029 个 vendor PHP 文件及 9,100 个生成文件的独立 Composer 项目完成 50 轮未保存跨文件返回类型切换；局部 Hover 与参数诊断一致等待 P95 119 ms，宿主退出码 0。Definition 偶尔先返回空数组，约 1.4–1.6 秒后才正确；无生成文件也重现，因此首次导航可靠性尚未过关。已加入可选组合门禁并记录查询次数；本轮无 VSIX、无业务项目修改。见[报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。

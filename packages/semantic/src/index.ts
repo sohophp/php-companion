@@ -1307,6 +1307,7 @@ export class SemanticWorkspace {
             const refinesArrayType = (type: PhpDocType | undefined): boolean => {
               if (!type) return false;
               if (type.kind === 'conditional') return refinesArrayType(type.ifTrue) && refinesArrayType(type.ifFalse);
+              if (type.kind === 'union') return type.types.length > 0 && type.types.every(refinesArrayType);
               const base = type.kind === 'generic' && type.base.kind === 'name'
                 ? type.base.name.replace(/^\\/, '').toLowerCase() : undefined;
               return type.kind === 'array' || type.kind === 'shape'
@@ -11327,7 +11328,9 @@ export class SemanticWorkspace {
       if (parameterType && parameterType.kind !== 'unknown'
         && !(parameterType.kind === 'primitive' && parameterType.name === 'mixed')) return parameterType;
       const resolved = this.variableClass(file, expression, start, new Set(), true); if (!resolved || !this.fileAndDeclaration(resolved.fqcn)) return undefined;
-      return resolved.nullable ? nullable(named(resolved.fqcn)) : named(resolved.fqcn);
+      const objectType = resolved.groups?.length ? union(...resolved.groups.map((group) => intersection(...group.map((item) => named(item.fqcn)))))
+        : named(resolved.fqcn);
+      return resolved.nullable ? nullable(objectType) : objectType;
     }
     return undefined;
   }

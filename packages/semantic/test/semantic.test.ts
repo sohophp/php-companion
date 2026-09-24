@@ -104,6 +104,31 @@ describe('conservative semantic workspace', () => {
       expect(project.variableValueAt(uri, uncertain.lastIndexOf('$value);') + 2)).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('keeps union array element feedback aligned after a cross-file return and local assignment', () => {
+    const project = new SemanticWorkspace(parser);
+    const sourceUri = 'file:///UnionShapeSource.php'; const consumerUri = 'file:///UnionShapeConsumer.php';
+    const source = `<?php namespace App;
+      class Alpha { public function common(): string {} public function alphaOnly(): void {} }
+      class Beta { public function common(): string {} public function betaOnly(): void {} }
+      /** @return array{item: Alpha}|array{item: Beta} */ function choose(): array { return []; }`;
+    const consumer = `<?php namespace App; function inspect(): void {
+      $row = choose(); $item = $row['item']; $item->com; accept($item);
+    }`;
+    try {
+      project.update(sourceUri, source); project.update(consumerUri, consumer);
+      expect(project.variableValueAt(consumerUri, consumer.indexOf("$row['item']") + 2)?.type).toContain('array{item:');
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com') + 2)?.type).toBe('App\\Alpha|App\\Beta');
+      expect(project.completeMembers(consumerUri, consumer.indexOf('com;') + 3).map((item) => item.name)).toEqual(['common']);
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$item);') + 2)?.type).toBe('App\\Alpha|App\\Beta');
+      const completed = consumer.replace('$item->com;', '$item->common();');
+      project.update(consumerUri, completed);
+      expect(project.definition(consumerUri, completed.indexOf('common();') + 2)).toHaveLength(2);
+      project.update(consumerUri, consumer);
+      project.update(sourceUri, source.replace('array{item: Beta} */', 'string */'));
+      expect(project.variableValueAt(consumerUri, consumer.indexOf("$row['item']") + 2)?.type).toBe('array');
+      expect(project.completeMembers(consumerUri, consumer.indexOf('com;') + 3)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('keeps shared project facts intact when a path alias uses its own local query view', () => {
     const project = new SemanticWorkspace(parser);
     const linkedUri = 'file:///project/vendor/local/Record.php';
