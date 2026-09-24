@@ -79,7 +79,7 @@ await writeFile(resolve(output, 'README.zh-CN.md'), `# SoPHP Alpha ${corePackage
   + `\`\`\`bash\ncode --install-extension ${core.file} --force\ncode --install-extension ${symfony.file} --force\ncode --install-extension ${openSource.file} --force\n\`\`\`\n\n`
   + `新建干净 VS Code Profile，禁用或卸载其他通用 PHP Language Server。开源扩展包会安装 \`${supportedExtensions.map((entry) => `${entry.id}@${entry.version}`).join('、')}\`。\n\n`
   + `安装前可在候选目录运行 \`sha256sum -c SHA256SUMS\`；\`candidate.json\` 保存提交、平台、文件大小、摘要和冻结插件版本。\n\n`
-  + `本轮 References 渐进索引只在 Alpha Profile 的用户设置中启用：\`"phpCompanion.indexing.mode": "progressive"\` 与 \`"phpCompanion.indexing.referenceMemoryBudgetMiB": 1536\`。设置后 Reload Window；需要回退时把模式改为 \`onDemand\`。\n\n`
+  + `Open Source Pack 默认使用 \`onDemand\` 索引。若要单独评估 References 渐进索引，可只在 Alpha Profile 的用户设置中启用 \`"phpCompanion.indexing.mode": "progressive"\` 与 \`"phpCompanion.indexing.referenceMemoryBudgetMiB": 1536\`，然后 Reload Window；结束该项评估后改回 \`onDemand\`。\n\n`
   + `从对应源码提交根目录运行 \`pnpm alpha:preflight -- --candidate <候选目录> --workspace <Composer项目根目录> --php <项目PHP包装器> --expected-php <次版本> --require-wsl\`。安装完成后，在 VS Code WSL 集成终端追加 \`--check-editor\`；命令要求 Core、Symfony、Open Source Pack 与冻结外部扩展版本一致。CLI 无法证明竞争 PHP Provider 已禁用，仍须在 Profile 中人工确认。\n\n`
   + `公开 Marketplace/npm 发布不属于此候选操作。\n`);
 

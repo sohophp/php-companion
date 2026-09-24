@@ -168,7 +168,7 @@ export async function runPreflight(options) {
     gates: { deterministicPassed: errors.length === 0, errors, manualPending: [
       'Confirm SoPHP and workspace extensions run in the WSL Extension Host.',
       'Confirm every installed competing PHP provider is disabled for this Profile.',
-      'Complete and record the two-hour Winstar and CoreRepo editing sessions.',
+      'Complete and record a two-hour editing session in an independent Composer PHP project; repeat for each PHP version and environment claimed as supported.',
     ] },
   };
   if (options.output) {

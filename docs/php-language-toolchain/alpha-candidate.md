@@ -23,15 +23,9 @@ sha256sum -c SHA256SUMS
 ```bash
 pnpm alpha:preflight -- \
   --candidate artifacts/php-companion-alpha-0.4.5-<commit> \
-  --workspace /var/www/php/8.5/winstar2024 \
-  --php bin/php-runtime --expected-php 8.5 --require-wsl \
-  --output docs/php-language-toolchain/reports/alpha-preflight-winstar.json
-
-pnpm alpha:preflight -- \
-  --candidate artifacts/php-companion-alpha-0.4.5-<commit> \
-  --workspace /var/www/php/7.2/CoreRepo \
-  --php phpbin --expected-php 7.2 --require-wsl \
-  --output docs/php-language-toolchain/reports/alpha-preflight-corerepo.json
+  --workspace /path/to/independent-composer-project \
+  --php /path/to/project-php --expected-php 8.5 --require-wsl \
+  --output /tmp/sophp-alpha-preflight.json
 ```
 
 安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端对任一项目追加 `--check-editor`。严格检查要求核心、Symfony 扩展和八个冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
@@ -42,7 +36,7 @@ pnpm alpha:preflight -- \
 
 Open Source Pack 当前使用 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHPUnit、PHP CS Fixer、EditorConfig 和 Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
 
-References 渐进索引的 Alpha 验收只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
+Open Source Pack 默认使用 `onDemand` 索引，先在此默认配置下完成组合检查。若单独评估 References 渐进索引，只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
 
 ```json
 {
@@ -55,7 +49,7 @@ References 渐进索引的 Alpha 验收只在此 Profile 的用户设置中启�
 
 ## 真实项目检查
 
-分别在 Winstar PHP 8.5 与 CoreRepo PHP 7.2 中完成以下操作，并记录成功、失败、等待时间及可重复步骤：
+在独立 Composer PHP 项目中完成以下操作，并记录成功、失败、等待时间及可重复步骤。每个声称支持的 PHP 版本和运行环境分别留证；示例项目不能代表全部版本或平台：
 
 1. 首次打开项目，分别记录立即执行 References、后台源码事实就绪后首次执行、选中符号预热后首次执行、重载后首次执行的时间；确认索引进度结束，不能把预热后的点击时间当成空缓存冷查询。
 2. 在已有类型声明的业务代码中连续使用成员补全、Hover、Signature Help、Definition、Implementation 和 References。
