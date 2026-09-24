@@ -9,3 +9,5 @@
 后续增量将此命令绑定为 PHP 编辑器的 F2：仅在 SoPHP 自研语言服务器成功启动、PHP Rename 已启用、编辑器可写且不在差异视图中生效；其它语言和未由 SoPHP 接管的 PHP Profile 保留 VS Code 原生 F2。隔离宿主已核对键位声明与命令注册，但实际键盘事件及设置切换仍需人工 UI 验收。外部进程在预览期间改写磁盘文件的宿主探针未形成可靠保留证据，仍须在独立场景复测；最后一次快照检查到 `workspace.applyEdit` 之间的短竞态也未关闭。此次自动宿主确认流程不等同于实际键盘与鼠标的 UI 验收。
 
 再下一轮把 Rename 差异两侧改为 `sophp-rename-preview` 只读内容快照，流程结束即关闭本次打开的差异标签并释放快照。定向 C3 宿主确认预览文档不脏、取消及应用后无残留差异标签，跨格式服务 ID 预览期间原本关闭的 XML 目标仍保持关闭。根扩展和测试 TypeScript、相关 ESLint、源码构建及定向 C3 宿主通过，宿主退出码 0，日志 `/tmp/sophp-c3-readonly-rename-preview-final.log`。本轮不改变上述磁盘交错与真实键盘验收边界。
+
+独立的关闭文件磁盘交错现已复测：在 Composer 项目中新建 PSR-4 类型和使用方，使用方全程不在 VS Code 中打开；确认文件监视器已把引用纳入索引后，命令展示快照差异。在确认回调中由 Node 文件写入直接修改关闭的使用方，命令拒绝旧计划，磁盘新内容保留，原类文件未改名且目标文件没有创建。最初复用先前已打开/改写的使用方会使 VS Code 宿主在随后恢复旧磁盘内容，因此这项证据只使用未打开的新夹具。`pnpm exec tsc -p test/extension/tsconfig.json` 与定向 C3 宿主通过，退出码 0，日志 `/tmp/sophp-c3-disk-race-final.log`。最后一次校验与 `workspace.applyEdit` 之间的短竞态、真实 F2 键盘操作和 Remote 仍开放。

@@ -1,5 +1,6 @@
 import * as assert from 'node:assert';
 import { createHash } from 'node:crypto';
+import { readFile, writeFile } from 'node:fs/promises';
 import * as vscode from 'vscode';
 
 type QueryState = { paused: boolean; version: number | null };
@@ -516,6 +517,40 @@ export async function run(): Promise<void> {
   await assert.rejects(async () => vscode.workspace.fs.stat(renamedTypeUri));
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(renamedTypeUri)).getText().includes('class C3RenamedType'));
+  const diskRaceTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DiskRaceType.php');
+  const diskRaceNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DiskRaceRenamed.php');
+  const diskRaceConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3DiskRaceConsumer.php');
+  const diskRaceTypeSource = '<?php\nnamespace App\\Service;\nfinal class C3DiskRaceType {}\n';
+  const diskRaceConsumerSource = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3DiskRaceType;\nfinal class C3DiskRaceConsumer { public function run(C3DiskRaceType $item): void {} }\n// original marker\n';
+  await writeFile(diskRaceTypeUri.fsPath, diskRaceTypeSource);
+  await writeFile(diskRaceConsumerUri.fsPath, diskRaceConsumerSource);
+  const diskRaceTypeDocument = await vscode.workspace.openTextDocument(diskRaceTypeUri);
+  await vscode.window.showTextDocument(diskRaceTypeDocument);
+  const diskRacePosition = diskRaceTypeDocument.positionAt(diskRaceTypeSource.indexOf('class C3DiskRaceType') + 'class '.length + 3);
+  const diskRaceReferences = async (): Promise<boolean> => {
+    const locations = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', diskRaceTypeUri, diskRacePosition);
+    return locations?.some((item) => item.uri.toString() === diskRaceConsumerUri.toString()) ?? false;
+  };
+  for (let attempt = 0; attempt < 100 && !await diskRaceReferences(); attempt += 1)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(await diskRaceReferences(), 'Disk race consumer was not indexed before Rename');
+  assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === diskRaceConsumerUri.toString()),
+    'Disk race consumer remained open before preview');
+  const diskRaceChangedConsumer = diskRaceConsumerSource.replace('original marker', 'external marker during preview');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: diskRaceTypeUri, position: diskRacePosition, newName: 'C3DiskRaceRenamed', testPreviewAction: async () => {
+      assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === diskRaceConsumerUri.toString()),
+        'Rename preview opened its closed disk race target');
+      await writeFile(diskRaceConsumerUri.fsPath, diskRaceChangedConsumer);
+      assert.strictEqual(await readFile(diskRaceConsumerUri.fsPath, 'utf8'), diskRaceChangedConsumer);
+      return 'apply';
+    },
+  }), false, 'Rename applied stale edits after an external disk change during preview');
+  assert.strictEqual(await readFile(diskRaceConsumerUri.fsPath, 'utf8'), diskRaceChangedConsumer,
+    'Rename did not preserve the external disk edit');
+  assert.ok((await vscode.workspace.openTextDocument(diskRaceTypeUri)).getText().includes('class C3DiskRaceType'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(diskRaceNewUri));
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();
