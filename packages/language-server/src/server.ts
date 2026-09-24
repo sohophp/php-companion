@@ -2310,6 +2310,18 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
     }
   }
 }
+function reuseImplementationCandidatesAfterOpenEdit(root: string, previousEpoch: number, document: TextDocument,
+  workspace: SemanticWorkspace): void {
+  if (indexingMode !== 'onDemand' || activeIndexing || documents.get(document.uri) !== document
+    || workspace.source(document.uri) !== document.getText() || (projectEpochs.get(root) ?? 0) !== previousEpoch + 1) return;
+  // A complete Implementation scan has already covered unchanged project and
+  // dependency files. The open file is now fully updated in this workspace.
+  // References keep their own scan, receiver-closure and persistence evidence.
+  const prefix = `${root}:symbol:declarations:dependencies:`;
+  for (const [key, epoch] of candidateQueries) if (epoch === previousEpoch && key.startsWith(prefix)) {
+    candidateQueries.set(key, previousEpoch + 1);
+  }
+}
 const progressiveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 function scheduleProgressiveReferenceRefresh(root: string): void {
   const previous = progressiveRefreshTimers.get(root); if (previous) clearTimeout(previous);
@@ -4249,6 +4261,8 @@ documents.onDidChangeContent(async ({ document }) => {
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const initialRoot = rootForUri(document.uri);
+  const candidateEpochBeforeEdit = initialRoot ? projectEpochs.get(initialRoot) ?? 0 : undefined;
+  const contentVersion = document.version;
   // Invalidate before filesystem-backed root discovery can yield: another
   // request may otherwise restore references from the previous document.
   if (!opening && sourceChanged) invalidateCandidates(document.uri, indexingMode === 'progressive');
@@ -4265,6 +4279,10 @@ documents.onDidChangeContent(async ({ document }) => {
     }
   } else if (sourceChanged && (root !== initialRoot || indexingMode === 'progressive' && update.kind === 'declaration')) {
     invalidateCandidates(document.uri);
+  }
+  if (!opening && sourceChanged && root && root === initialRoot && candidateEpochBeforeEdit !== undefined
+    && documents.get(document.uri) === document && document.version === contentVersion) {
+    reuseImplementationCandidatesAfterOpenEdit(root, candidateEpochBeforeEdit, document, workspace);
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);

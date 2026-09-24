@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C1/F04-NAV-18b：10,130 文件独立 Composer 项目中，隔离 VS Code Core 宿主完成 50 轮未保存类型切换、共 300 次六项编辑查询，结果全部正确。onDemand 模式在打开缓冲区完整更新后复用已经完成的 Implementation 候选覆盖；同一宿主序列的 Implementation 中位数由 689 ms 降至最终复测的 4 ms，P95 由 829 ms 降至 7 ms。真实 stdio 正反例覆盖同名方法不同接口、打开文件新增/移除实现、未打开文件新增实现后的重扫；完整 stdio 140 项通过、1 项跳过。References P95 762 ms、跨平台/Remote 与完整组合仍开放，见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-19：独立 Composer 小预算夹具确认依赖扫描不完整时，Implementation 返回专用的中英文失败提示并指向 SoPHP 输出与索引设置，不再使用“零处引用”的错误措辞，也不返回误导性的空实现列表。协议消息与真实 stdio 定向 4/4 通过；默认 10,000 文件边界仍需规模验证。见[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md)。
 
 2026-09-24 C1 真实依赖树扩展：锁定 Composer 项目现有 30 个公开包、1,029 个 PHP 文件。隔离 Core 宿主的 PSR 接口六项查询与 A→Monolog Logger→A 未保存往返通过；首次 Implementation 三次为 1,093/949/1,059 ms，两次各 12 次热态中位数均为 4 ms、最大 7/5 ms，往返后首次 290/274 ms。Workbench 首次可见真实 vendor 方法本次为 211 ms；正式复现命令退出码 0。样本小，10,000 文件预算边界及长期分布仍开放。见[报告](reports/c1-real-composer-vendor-2026-09-24.md)。

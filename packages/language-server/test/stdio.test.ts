@@ -4186,6 +4186,95 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('F04-NAV-18b reuses complete Implementation coverage across open edits and rescans closed additions', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-implementation-open-reuse-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      for (const [name, source] of [
+        ['ContractA', '<?php namespace App; interface ContractA { public function renderAction(): void; }'],
+        ['ContractB', '<?php namespace App; interface ContractB { public function renderAction(): void; }'],
+        ['ImplA', '<?php namespace App; class ImplA implements ContractA { public function renderAction(): void {} }'],
+        ['ImplB', '<?php namespace App; class ImplB implements ContractB { public function renderAction(): void {} }'],
+      ] as const) await writeFile(join(src, `${name}.php`), source);
+      const uri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      const sourceFor = (type: string): string => `<?php namespace App; function run(${type} $value): void { $value->renderAction(); }`;
+      await writeFile(join(src, 'Consumer.php'), sourceFor('ContractA'));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3600, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 3600);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: sourceFor('ContractA') },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      let requestId = 3600;
+      const implementations = async (source: string): Promise<string[]> => {
+        const id = ++requestId;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/implementation', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('renderAction()') + 2),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result.map((item: { uri: string }) => item.uri).sort();
+      };
+      const change = async (version: number, source: string): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri, version }, contentChanges: [{ text: source }],
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params?.uri === uri && message.params?.version === version);
+      };
+      const scanCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start] mode=symbol names=renderaction')
+        && message.params?.message?.includes(`root=${root}`)
+        && message.params?.message?.includes('defer=true')).length;
+      expect(await implementations(sourceFor('ContractA'))).toEqual([pathToFileURL(join(src, 'ImplA.php')).toString()]);
+      expect(scanCount()).toBe(1);
+      await change(2, sourceFor('ContractB'));
+      expect(await implementations(sourceFor('ContractB'))).toEqual([pathToFileURL(join(src, 'ImplB.php')).toString()]);
+      expect(scanCount()).toBe(1);
+      await change(3, sourceFor('ContractA'));
+      expect(await implementations(sourceFor('ContractA'))).toEqual([pathToFileURL(join(src, 'ImplA.php')).toString()]);
+      expect(scanCount()).toBe(1);
+      const extraUri = pathToFileURL(join(src, 'Extra.php')).toString();
+      const extraInitial = '<?php namespace App;';
+      await writeFile(join(src, 'Extra.php'), extraInitial);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: extraUri, languageId: 'php', version: 1, text: extraInitial },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === extraUri);
+      const extraChange = async (version: number, source: string): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri: extraUri, version }, contentChanges: [{ text: source }],
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params?.uri === extraUri && message.params?.version === version);
+      };
+      await extraChange(2, '<?php namespace App; class Extra implements ContractA { public function renderAction(): void {} }');
+      expect(await implementations(sourceFor('ContractA'))).toEqual([
+        extraUri, pathToFileURL(join(src, 'ImplA.php')).toString(),
+      ]);
+      expect(scanCount()).toBe(1);
+      await extraChange(3, extraInitial);
+      expect(await implementations(sourceFor('ContractA'))).toEqual([pathToFileURL(join(src, 'ImplA.php')).toString()]);
+      expect(scanCount()).toBe(1);
+      const late = join(src, 'Late.php');
+      await writeFile(late, '<?php namespace App; class Late implements ContractA { public function renderAction(): void {} }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(late).toString(), type: 1 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${pathToFileURL(late).toString()}`));
+      expect(await implementations(sourceFor('ContractA'))).toEqual([
+        pathToFileURL(join(src, 'ImplA.php')).toString(), pathToFileURL(late).toString(),
+      ]);
+      expect(scanCount()).toBe(2);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 20_000);
+
   it('F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-limit-'));
     try {

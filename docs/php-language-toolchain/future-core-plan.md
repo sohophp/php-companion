@@ -45,7 +45,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 新增进展：10,130 文件隔离宿主完成两轮各 100 次和一轮 1000 次未保存类型切换的可见候选检查，均无旧方法候选；1000 轮的 P95 为 215 ms，约四分钟会话的 RSS 采样没有持续增长。Composer 监视事件曾使无关工作区根也重新索引；现已收窄刷新范围，并保留跨文件夹路径依赖的全量回退，双根真实 stdio 正反例与 10k 宿主通过。一次更早的嵌套 Composer 项目 Definition 超时未能确定具体成因，继续观察并保留失败结果记录，见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
 
-同一 10,130 文件宿主又完成真实 PSR Response/Request 接口与 Guzzle 实现之间的 50 轮未保存切换，六项编辑查询共 300 次均返回正确目标。Completion、Hover、Signature Help、Definition 的 P95 为 31、14、8、10 ms；Implementation 与 References 因每轮候选重扫，P95 仍为 829、743 ms。下一项 C1 性能工作针对这一重复扫描建立安全的增量复用证据，不以正确性回退换取等待下降，见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
+同一 10,130 文件宿主又完成真实 PSR Response/Request 接口与 Guzzle 实现之间的 50 轮未保存切换，六项编辑查询共 300 次均返回正确目标。Completion、Hover、Signature Help、Definition 的首轮 P95 为 31、14、8、10 ms；Implementation 与 References 原先因每轮候选重扫，P95 分别为 829、743 ms。Implementation 已以打开缓冲区完整更新和项目版本条件复用先前完成的候选覆盖，同样 50 轮复测正确，Implementation P95 降至 7 ms；References 的接收者闭包与持久证明仍须独立优化，本轮 P95 为 805 ms。正反例与宿主结果见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。
