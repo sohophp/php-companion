@@ -5236,6 +5236,130 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('uses an unsaved real path repository source through its installed symlink in onDemand mode', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-path-source-edit-'));
+    try {
+      const actualPackage = join(root, 'packages', 'local');
+      const installedPackage = join(root, 'vendor', 'local', 'package');
+      await mkdir(join(root, 'src'), { recursive: true });
+      await mkdir(join(actualPackage, 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'local'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({
+        repositories: [{ type: 'path', url: 'packages/local' }], require: { 'local/package': '*' },
+        autoload: { 'psr-4': { 'App\\': 'src/' } },
+      }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{
+        name: 'local/package', autoload: { 'psr-4': { 'Local\\Package\\': 'src/' } },
+      }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({
+        packages: [{ name: 'local/package', install_path: '../local/package' }],
+      }));
+      await writeFile(join(actualPackage, 'composer.json'), JSON.stringify({
+        name: 'local/package', autoload: { 'psr-4': { 'Local\\Package\\': 'src/' } },
+      }));
+      await symlink(actualPackage, installedPackage, process.platform === 'win32' ? 'junction' : 'dir');
+      const declaration = '<?php namespace Local\\Package; class Record { public function alphaOnly(): void {} }';
+      const changed = declaration.replace('alphaOnly', 'betaOnly');
+      const consumer = '<?php namespace App; use Local\\Package\\Record; function inspect(Record $record): void { $record->; }';
+      const actualUri = pathToFileURL(join(actualPackage, 'src', 'Record.php')).toString();
+      const installedUri = pathToFileURL(join(installedPackage, 'src', 'Record.php')).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      await writeFile(join(actualPackage, 'src', 'Record.php'), declaration);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 374, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 374);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: actualUri, languageId: 'php', version: 1, text: changed },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
+      const completion = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf('$record->') + '$record->'.length),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id)).result;
+        return (Array.isArray(result) ? result : result?.items ?? []).map((item: { label: string }) => item.label);
+      };
+      expect(await completion(375)).toContain('betaOnly');
+      expect(await completion(376)).not.toContain('alphaOnly');
+      const closedAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: actualUri } } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= closedAt
+        && message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri
+        && message.params.version === undefined);
+      expect(await completion(377)).toContain('alphaOnly');
+      expect(await completion(378)).not.toContain('betaOnly');
+      for (let cycle = 0; cycle < 10; cycle += 1) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: actualUri, languageId: 'php', version: cycle + 2, text: changed },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri
+          && message.params.version === cycle + 2);
+        expect(await completion(381 + cycle * 2)).toContain('betaOnly');
+        const closeAt = output.messages.length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: actualUri } } }));
+        await output.waitFor((message) => output.messages.indexOf(message) >= closeAt
+          && message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri
+          && message.params.version === undefined);
+        expect(await completion(382 + cycle * 2)).toContain('alphaOnly');
+      }
+      await writeFile(join(actualPackage, 'src', 'Record.php'), changed);
+      const watchedAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: installedUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= watchedAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${installedUri}`));
+      expect(await completion(379)).toContain('betaOnly');
+      expect(await completion(380)).not.toContain('alphaOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: actualUri, languageId: 'php', version: 12, text: declaration },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === actualUri && message.params.version === 12);
+      const openWatcherAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: installedUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= openWatcherAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${installedUri}`));
+      expect(await completion(401)).toContain('alphaOnly');
+      const finalCloseAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: actualUri } } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= finalCloseAt
+        && message.method === 'textDocument/publishDiagnostics' && message.params.uri === actualUri
+        && message.params.version === undefined);
+      expect(await completion(402)).toContain('betaOnly');
+      await writeFile(join(actualPackage, 'src', 'Record.php'), declaration.replace('alphaOnly', 'gammaOnly'));
+      const realWatcherAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: actualUri, type: 2 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= realWatcherAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${actualUri}`));
+      expect(await completion(403)).toContain('gammaOnly');
+      expect(await completion(404)).not.toContain('betaOnly');
+      await rm(join(actualPackage, 'src', 'Record.php'));
+      const deletedAt = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: installedUri, type: 3 }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= deletedAt
+        && message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${installedUri}`));
+      expect(await completion(405)).not.toContain('gammaOnly');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('suppresses unresolved-symbol diagnostics when a project file exceeds the index budget', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-incomplete-project-'));
     try {

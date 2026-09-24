@@ -1,5 +1,9 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 整理与 C2 起点：当前源码清单为 Core、Symfony 和 9 个外部扩展，共 11 项；Recommended Pack 不参与新候选。Pack manifest 4/4 通过。现有 0.4.5 私有 Alpha 候选与 8 个外部扩展的隔离组合门禁，不能代替后来加入的 PHP DocBlocker 版本冻结；DocBlocker 已通过独立完整成员 Profile 门禁。下一次组合候选冻结时，须按当前 11 项重新记录成员版本和 Core/Symfony/Pack 摘要，再核对 Extension Host；日常 Core 增量不重打包。Core 继续 C2 的路径别名及可证明跨文件诊断，详见[日常开发组合方案](daily-use-assembly.md)。
+
+2026-09-24 C2 路径仓库未保存编辑与监视：独立 Composer path repository 的真实路径和安装符号链接路径现在共享正确的打开缓冲区与 watcher 事实；关闭恢复、10 次往返、反向通知和删除清理通过。真实 stdio 定向相关 11 项及新用例独立重复 5 次通过，Language Server 全套 18 文件、336 项通过、1 项跳过；类型检查、ESLint 和差异检查通过。两个 URI 同时打开并产生冲突的未保存内容仍需单独定义行为和验收。未打包 VSIX，未修改业务项目。见[报告](reports/c2-path-repository-edits-2026-09-24.md)。
+
 2026-09-24 C2 长序列内存修复：独立 Composer PHP 8.5 项目的默认 `onDemand` 真实 stdio 连续 5,000 轮开改关及补全/Hover/Definition 正反查询均无旧结果，但修复前 RSS 从 143.3 升至 186.6 MiB。根因是关闭文件转为磁盘语义快照时从映射移除保留的语法树却未 `delete()`；修复后同序列 RSS 144.1→149.3 MiB，五段均值约 147 MiB，主要 P95 基本不变。语义包完整 319 项、Language Server 全套 335 项通过且 1 项跳过；这是约 219 秒的合成序列，真实长时间 UI/Remote 仍开放。见[报告](reports/c2-session-retained-tree-2026-09-24.md)。
 
 2026-09-24 C2 按需缓存与根归属：真实 stdio 先复现嵌套 Composer 项目建立后，父项目继续从已关闭文件缓存补全子项目方法。Core 现将已加载文件事实和索引归属移入新根，并在排队 watcher 应用前重查归属；父项目不再看到子项目方法，子项目及后续磁盘更新仍正确。257 文件测试确认每根近期关闭缓存上限 256，重开后按最近使用顺序淘汰。Language Server 全套 18 文件、335 项通过、1 项跳过；最终时序收紧后相关 stdio 10 项、构建、类型检查、ESLint 和差异检查通过。本轮未打包 VSIX，长会话和 Remote 仍开放。见[报告](reports/c2-ondemand-root-cache-2026-09-24.md)。

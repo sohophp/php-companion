@@ -979,6 +979,27 @@ function sameFilesystemPath(left: string | undefined, right: string): boolean {
     : normalizedLeft === normalizedRight;
 }
 
+async function physicalFilesystemPath(path: string): Promise<string | undefined> {
+  const existing = await realpath(path).catch(() => undefined);
+  if (existing) return existing;
+  const parent = await realpath(dirname(path)).catch(() => undefined);
+  return parent ? resolve(parent, basename(path)) : undefined;
+}
+
+async function isProjectAutoloadedPhysicalPath(project: ComposerProject, path: string): Promise<boolean> {
+  const roots = allAutoloadPaths(project);
+  if (roots.some((sourceRoot) => pathWithin(sourceRoot, path) && !isAutoloadPathExcluded(project, path))) return true;
+  const physicalPath = await physicalFilesystemPath(path);
+  if (!physicalPath) return false;
+  for (const sourceRoot of roots) {
+    const physicalRoot = await physicalFilesystemPath(sourceRoot);
+    if (!physicalRoot || !pathWithin(physicalRoot, physicalPath)) continue;
+    const installedPath = resolve(sourceRoot, relative(physicalRoot, physicalPath));
+    if (!isAutoloadPathExcluded(project, installedPath)) return true;
+  }
+  return false;
+}
+
 function filesystemPathKey(path: string): string {
   const normalized = resolve(path);
   return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
@@ -4319,9 +4340,44 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       pendingFiles.set(_key, { uri: indexedUriForPath(currentRoot, path), root: currentRoot });
       return;
     }
+    const physicalPath = indexingMode === 'onDemand' ? await physicalFilesystemPath(path) : undefined;
+    const samePhysicalFile = async (candidateUri: string): Promise<boolean> => {
+      const candidatePath = pathForUri(candidateUri);
+      if (!candidatePath) return false;
+      if (sameFilesystemPath(candidatePath, path)) return true;
+      if (!physicalPath) return false;
+      const candidatePhysical = await physicalFilesystemPath(candidatePath);
+      return Boolean(candidatePhysical && filesystemPathKey(candidatePhysical) === filesystemPathKey(physicalPath));
+    };
     // Recheck after I/O: didOpen/didChange may have arrived during the read.
-    const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-    source = open?.getText() ?? source;
+    let open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
+    if (!open && physicalPath) {
+      for (const document of documents.all()) if (await samePhysicalFile(document.uri)) { open = document; break; }
+    }
+    const aliasUris: string[] = [];
+    if (physicalPath) for (const aliasUri of workspace.documentUris()) {
+      if (aliasUri === uri || documents.get(aliasUri)) continue;
+      const aliasPath = pathForUri(aliasUri);
+      if (!aliasPath || basename(aliasPath).toLowerCase() !== basename(path).toLowerCase()
+        || !await samePhysicalFile(aliasUri)) continue;
+      aliasUris.push(aliasUri);
+    }
+    const finalRoot = rootForUri(uri);
+    if (finalRoot !== root) {
+      if (finalRoot) pendingFiles.set(_key, { uri: indexedUriForPath(finalRoot, path), root: finalRoot });
+      return;
+    }
+    source = (open && documents.get(open.uri))?.getText() ?? source;
+    for (const aliasUri of aliasUris) {
+      if (documents.get(aliasUri)) continue;
+      onDemandClosedDocumentsByRoot.get(root)?.delete(aliasUri);
+      indexedUrisByRoot.get(root)?.delete(aliasUri);
+      projectIndexedUrisByRoot.get(root)?.delete(aliasUri);
+      scanFilesByRoot.get(root)?.delete(aliasUri);
+      workspace.remove(aliasUri);
+      interopContextsByRoot.get(root)?.delete(aliasUri);
+      removeDoctrineDocument(root, aliasUri, workspace);
+    }
     onDemandClosedDocumentsByRoot.get(root)?.delete(uri);
     if (source === undefined) {
       workspace.remove(uri); scanFilesByRoot.get(root)?.delete(uri); indexedUrisByRoot.get(root)?.delete(uri); projectIndexedUrisByRoot.get(root)?.delete(uri);
@@ -4381,7 +4437,7 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
     }
     if (!path.toLowerCase().endsWith('.php')) continue;
     const project = await composerProjectForRoot(root);
-    if (project && !isPlannedSafeMovePath(path) && (!allAutoloadPaths(project).some((sourceRoot) => pathWithin(sourceRoot, path)) || isAutoloadPathExcluded(project, path))) continue;
+    if (project && !isPlannedSafeMovePath(path) && !await isProjectAutoloadedPhysicalPath(project, path)) continue;
     // The open buffer is authoritative and the delta below reads it again.
     // A delayed watcher event for a newly opened file must not restart a candidate scan that already includes that buffer.
     if (!documents.all().some((document) => sameFilesystemPath(pathForUri(document.uri), path))) invalidateCandidates(change.uri);
@@ -4405,16 +4461,20 @@ const openingContentVersions = new Map<string, number>();
 const documentSourcesByUri = new Map<string, string>();
 documents.onDidOpen(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  const openedVersion = document.version;
   openingContentVersions.set(document.uri, document.version);
   documentSourcesByUri.set(document.uri, document.getText());
   cancelReferencePrewarm(document.uri);
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
-  const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const workspace = await semanticForUri(document.uri);
+  if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
+  const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
+  if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   // An open with disk-identical source is safe when that source was already
   // indexed, or when the active source scan has not reached this file yet.
   const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
@@ -4451,12 +4511,15 @@ documents.onDidChangeContent(async ({ document }) => {
   // Invalidate before filesystem-backed root discovery can yield: another
   // request may otherwise restore references from the previous document.
   if (!opening && sourceChanged) invalidateCandidates(document.uri, indexingMode === 'progressive');
-  const workspace = await semanticForUri(document.uri); const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const workspace = await semanticForUri(document.uri);
+  if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
+  const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
   if (opening && root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
   const update = workspace.update(document.uri, document.getText(), true);
   if (opening) {
     const diskPath = pathForUri(document.uri);
     const diskSource = root && diskPath ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
+    if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
     const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
       && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
     if (diskSource !== document.getText()

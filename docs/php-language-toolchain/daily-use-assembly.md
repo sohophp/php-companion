@@ -65,7 +65,18 @@ PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因�
 
 Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 已加入当前源码 Pack，PHPStan 保持可选。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。PHP DocBlocker 的源码成员 Profile 已完成单独组合门禁；新 VSIX 候选尚未冻结。
 
+| 层次 | 当前可核对的结果 | 下一道门槛 |
+| --- | --- | --- |
+| Pack 源码 | 11 项清单；Core、Symfony、9 个外部扩展；manifest 检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |
+| 已冻结 0.4.5 私有候选 | Core、Symfony、Pack 三份 VSIX 及 8 个当时的外部成员完成隔离 Linux 组合门禁 | 该候选不包含后来加入 Pack 源码的 PHP DocBlocker |
+| 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 完整成员 Profile 已单独通过 | 下次冻结候选时，按 11 项记录版本与摘要并复核实际安装和 Extension Host |
+| 更广的日常使用 | 独立 Composer 项目的编码、格式化、测试和调试有自动宿主证据 | WSL Remote、Windows/macOS、较长真实使用及项目工具路径仍需验收 |
+
+因此可以按已验的 Linux/WSL 范围开始使用现有 Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；不能把仓库当前源码清单等同于已安装的 0.4.5 候选。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
+
 Core 接下来从 [C2 编辑反馈链](future-core-plan.md)推进：C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。`onDemand` 下当前文件的 `never`、参数和简单 PHPDoc 冲突反馈已修复；[生成后未保存编辑链](reports/c2-generated-phpdoc-flow-2026-09-24.md)验证了补全、Hover、Definition 与局部标量诊断。快速编辑的旧诊断发布也已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
+
+现在从独立 Composer path repository 的两个 URI 同时打开开始，明确同一物理文件出现冲突未保存内容时的结果归属与反馈；随后用已打开的跨文件 PHPDoc 声明、使用方未保存编辑及 watcher 交错，界定默认 `onDemand` 能安全发布的跨文件诊断。每个场景同时核对补全、Hover、Definition 和诊断消费同一版本的事实。完成后再做较大真实依赖树的长会话及完整 Pack 宿主复核；人工持续使用反馈可以并行进入，不阻塞这些独立测试。
 
 ## 与 R2–R4 的关系
 
