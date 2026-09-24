@@ -6546,6 +6546,42 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['7.2', '8.5'])('reports proven same-file argument errors in onDemand PHP %s without trusting another file', async (phpVersion) => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    const localUri = 'file:///Local.php';
+    const externalUri = 'file:///ExternalArguments.php';
+    const external = '<?php function external(int $value): void {}';
+    const source = `<?php declare(strict_types=1);
+      function local(int $value): void {}
+      class Local { public function accept(int $value): void {} }
+      function run(Local $local): void { local('wrong'); local(); $local->accept('wrong'); external('wrong'); }
+    `;
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 573, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null,
+      initializationOptions: { phpVersion, indexingMode: 'onDemand' },
+    } }));
+    await output.waitFor((message) => message.id === 573);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    for (const [uri, text] of [[externalUri, external], [localUri, source]]) {
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text },
+      } }));
+    }
+    const initial = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === localUri && message.params.version === 1);
+    expect(initial.params.diagnostics.map((item: { code?: string }) => item.code)).toEqual([
+      'php.argument.missing-required', 'php.argument.type-mismatch', 'php.argument.type-mismatch',
+    ]);
+    const fixed = source.replace("local('wrong'); local(); $local->accept('wrong')", 'local(1); local(2); $local->accept(3)');
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri: localUri, version: 2 }, contentChanges: [{ text: fixed }],
+    } }));
+    const updated = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === localUri && message.params.version === 2);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code?.startsWith('php.argument.'))).toBe(false);
+  });
+
   it('publishes native never fallthrough only for proven normal completion', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

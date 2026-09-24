@@ -1877,14 +1877,15 @@ export async function run(): Promise<void> {
   await waitFor(() => dynamicPropertyDocument.getText().includes('public int $created;'), 'Dynamic-property declaration Quick Fix could not be redone as one editor operation');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !dynamicPropertyDocument.getText().includes('public int $created;'), 'Dynamic-property declaration fixture could not be restored after Redo');
-  await waitFor(
-    () => {
+  await waitForAsync(
+    async () => {
       const diagnostics = vscode.languages.getDiagnostics(dynamicPropertyUri)
         .filter((diagnostic) => diagnostic.code === 'php.attribute.invalid-allow-dynamic-properties');
       return diagnostics.length === 4
         && diagnostics.every((diagnostic) => dynamicPropertyDocument.getText(diagnostic.range) === '\\AllowDynamicProperties');
     },
-    'Self-hosted language server did not publish invalid AllowDynamicProperties declaration diagnostics',
+    () => `Self-hosted language server did not publish invalid AllowDynamicProperties declaration diagnostics: version=${dynamicPropertyDocument.version}, diagnostics=${JSON.stringify(vscode.languages.getDiagnostics(dynamicPropertyUri).map((diagnostic) => ({ code: diagnostic.code, text: dynamicPropertyDocument.getText(diagnostic.range) })))}`,
+    10_000,
   );
   const invalidDynamicAttributeDiagnostics = vscode.languages.getDiagnostics(dynamicPropertyUri)
     .filter((diagnostic) => diagnostic.code === 'php.attribute.invalid-allow-dynamic-properties');

@@ -1491,6 +1491,23 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     source: 'PHP Companion',
     message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
+  if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && (!root || !completeRoots.has(root))) {
+    result.diagnostics.push(...workspace.missingRequiredArguments(document.uri, true).map((call) => ({
+      range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.argument.missing-required',
+      source: 'PHP Companion',
+      message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
+        call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
+    })));
+    result.diagnostics.push(...workspace.incompatibleArguments(document.uri, true).map((argument) => ({
+      range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.argument.type-mismatch',
+      source: 'PHP Companion',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
+    })));
+  }
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && root && completeRoots.has(root)) {
     const disabledExtensions = new Set(disabledExtensionsForRoot(root));
     const catalog = disabledExtensions.size ? await phpExtensionSymbolCatalog(targetPhpVersion) : undefined;

@@ -4058,12 +4058,15 @@ export class SemanticWorkspace {
     });
   }
 
-  missingRequiredArguments(uri: string): MissingRequiredArguments[] {
+  missingRequiredArguments(uri: string, localOnly = false): MissingRequiredArguments[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.calls.flatMap((call): MissingRequiredArguments[] => {
       if (call.firstClassCallable) return [];
       if (!call.flat || call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.signature(uri, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1)); if (!signature) return [];
+      if (localOnly && signature.uri !== uri) return [];
+      if (localOnly && signature.kind === 'method' && [...this.files.values()].flatMap((candidate) => candidate.callables)
+        .filter((candidate) => candidate.kind === 'method' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase()).length !== 1) return [];
       if (signature.kind === 'function' && signature.synthetic !== 'phpdoc-callable'
         && signature.synthetic !== 'closure-literal') {
         const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)
@@ -4121,11 +4124,12 @@ export class SemanticWorkspace {
     return conflicts;
   }
 
-  incompatibleArguments(uri: string): IncompatibleArgument[] {
+  incompatibleArguments(uri: string, localOnly = false): IncompatibleArgument[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.calls.flatMap((call): IncompatibleArgument[] => {
       if (call.arguments.some((argument) => argument.unpacked)) return [];
       const signature = this.completedCallSignature(file, call); if (!signature) return [];
+      if (localOnly && signature.uri !== uri) return [];
       if (signature.synthetic === 'phpdoc-callable' || signature.synthetic === 'closure-literal') {
         // The callable contract is carried by a precise local source rather than a declared function.
       } else if (signature.kind === 'function') {
