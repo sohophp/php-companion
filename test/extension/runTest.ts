@@ -148,6 +148,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE: realVendorNoise ? String(realVendorNoise) : undefined,
+        PHP_COMPANION_TEST_C1_COLD_QUERY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COLD_QUERY : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
       },
     });

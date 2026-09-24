@@ -29,6 +29,38 @@ async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => b
   return { median: Math.round((samples[5]! + samples[6]!) / 2), max: Math.round(samples[11]!) };
 }
 
+async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
+  requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
+  const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
+  assert.ok(root, 'The cold query requires the locked real Composer vendor project.');
+  const source = '<?php namespace App\\C1; use Psr\\Http\\Message\\ResponseInterface; function cold(ResponseInterface $value): void { $value->getStatusCode(); }';
+  const uri = vscode.Uri.joinPath(root.uri, 'src', 'C1', 'ColdVendorConsumer.php');
+  await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(root.uri, 'src', 'C1'));
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const call = document.positionAt(source.indexOf('$value->getStatusCode()') + '$value->'.length + 2);
+  const target = vscode.Uri.joinPath(root.uri, 'vendor', 'guzzlehttp', 'psr7', 'src', 'Response.php').toString();
+  const started = performance.now();
+  const result = kind === 'references'
+    ? await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call)
+    : await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call);
+  const elapsedMs = Math.round(performance.now() - started);
+  assert.ok(Array.isArray(result), `The first ${kind} command did not return locations.`);
+  if (kind === 'references') {
+    const callStart = document.positionAt(source.indexOf('getStatusCode()'));
+    assert.ok(result.some((item) => item.uri.toString() === uri.toString() && item.range.start.isEqual(callStart)),
+      `The first References command missed its own call: ${JSON.stringify(result)}`);
+  } else {
+    assert.ok(result.some((item) => item.uri.toString() === target),
+      `The first Implementation command missed Guzzle Response: ${JSON.stringify(result)}`);
+  }
+  const timings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
+  console.log(`C1 cold ${kind} query: ${JSON.stringify({ elapsedMs, resultCount: result.length,
+    serverMs: timings[kind]?.at(-1), scanMs: timings[`${kind}Scan`]?.at(-1),
+    candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
+}
+
 async function verifyRealComposerVendor(requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
   assert.ok(root, 'The locked real Composer vendor project was not opened.');
@@ -236,6 +268,13 @@ export async function run(): Promise<void> {
   await extension.activate();
   const timingApi = extension.exports as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
+  const coldQuery = process.env.PHP_COMPANION_TEST_C1_COLD_QUERY;
+  if (coldQuery) {
+    assert.ok(coldQuery === 'references' || coldQuery === 'implementation',
+      'PHP_COMPANION_TEST_C1_COLD_QUERY must be references or implementation.');
+    await verifyColdRealVendorQuery(coldQuery, timingApi.requestLanguageServer);
+    return;
+  }
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
   const runtimeDiscover = process.env.PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER === '1';

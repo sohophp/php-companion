@@ -49,7 +49,7 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 Open Source Pack 现有独立的[默认组合宿主门禁](reports/open-source-pack-composition-gate-2026-09-24.md)：本机 Linux 隔离 Profile 加载 Core、Symfony、Pack 与冻结外部扩展，按 Pack 默认 `onDemand` 实际完成 PHP/Symfony 导航和引用、格式化、调试与 PHPUnit 操作。干净 Alpha 候选与独立 PHP 7.2 Composer 项目的确定性预检已通过。下一步按以下顺序推进，避免把单个 Symfony 项目当作 Core 需求来源：
 
-1. **C1 冷启动和持续编辑。** 在独立 Composer 项目中固定输入与正确结果，记录空缓存首次 References/Implementation、后台准备后首次查询和重载后的可见等待；用较长会话重复未保存编辑的六项查询与建议显示，定位超时、旧结果或内存增长，并补正反例。先复用现有 1k/10k/真实 vendor 夹具。
+1. **C1 冷启动和持续编辑。** [首轮冷查询](reports/c1-cold-first-query-2026-09-24.md)发现并修复了激活完成早于 Provider 注册导致首次 References 返回空结果；10k 独立项目中首次 References/Implementation 现能一次取得正确位置。继续记录空缓存、后台准备后与重载后的可见等待，并用较长会话重复未保存编辑的六项查询与建议显示，定位超时、旧结果或内存增长。先复用现有 1k/10k/真实 vendor 夹具。
 2. **C2 类型与诊断一致性。** 针对 Pack 门禁发现的 `onDemand`、不完整依赖覆盖与 `never` 返回诊断，先判定是否能从当前打开文件完整证明，再修复漏报而不引入误报；保持补全、Hover、导航和诊断消费同一版本的类型事实。PHPDoc 注释生成继续由可选扩展单独评估。
 3. **C3 和 C4 顺序验收。** C1/C2 的高频工作流稳定后，逐项检查 Rename、导入、生成和其它工作区编辑的预览/撤销；C4 再验证 WSL Remote 的 Extension Host 与工具路径、Windows/macOS、PHP 版本矩阵和长时间真实使用。Pack 成员仅在外部扩展通过独立准入门禁后调整。
 

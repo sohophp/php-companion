@@ -156,7 +156,7 @@ function replacePasteAliases(source: string, replacements: Record<string, string
   return result;
 }
 
-export function activate(context: vscode.ExtensionContext): PhpCompanionPluginApi {
+export async function activate(context: vscode.ExtensionContext): Promise<PhpCompanionPluginApi> {
   const started = performance.now();
   const output = vscode.window.createOutputChannel('SoPHP', { log: true });
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 90);
@@ -908,6 +908,7 @@ export function activate(context: vscode.ExtensionContext): PhpCompanionPluginAp
     }),
   );
   output.info(`Activation registered in ${(performance.now() - started).toFixed(1)} ms; no workspace scan or PHP process was started.`);
+  await languageServer;
   return integrations.api;
 }
 
