@@ -237,6 +237,29 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $valu
   assert.ok(aliasDefinitions.some((location) => location.uri.toString() === aliasRealUri.toString()
     && aliasRealDocument.getText(location.range) === 'realOnly'), 'The non-owner tab did not navigate to its own declaration.');
   console.log('C2 onDemand dual-path local queries: project uses linkedOnly; real tab Hover, Completion, Definition use realOnly');
+  const aliasHoverMs: number[] = [];
+  for (let round = 0; round < 10; round += 1) {
+    const latest = round % 2 === 0;
+    const expectedProject = latest ? 'linkedLatestOnly' : 'linkedOnly';
+    await replaceAliasSource(aliasUri, aliasDocument, latest ? aliasLinkSource.replace('linkedOnly', expectedProject) : aliasLinkSource);
+    const projectDeadline = Date.now() + 20_000;
+    while (Date.now() < projectDeadline && !(await projectAliasCompletions()).includes(expectedProject)) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    const projectLabels = await projectAliasCompletions();
+    assert.ok(projectLabels.includes(expectedProject) && !projectLabels.includes('realOnly'),
+      `Project completion lost the current path-alias owner: ${JSON.stringify(projectLabels)}`);
+    const started = performance.now();
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', aliasRealUri, aliasRealDocument.positionAt(localAliasCall + 2)) ?? [];
+    aliasHoverMs.push(performance.now() - started);
+    assert.ok(hovers.some((hover) => hover.contents.some((item) => (typeof item === 'string' ? item : item.value).includes('realOnly'))),
+      'The non-owner tab lost its own method after a linked-tab edit.');
+  }
+  const sortedAliasHoverMs = [...aliasHoverMs].sort((left, right) => left - right);
+  console.log(`C2 onDemand dual-path edits: ${JSON.stringify({ rounds: aliasHoverMs.length,
+    hoverP95Ms: Math.round(sortedAliasHoverMs[Math.floor((sortedAliasHoverMs.length - 1) * 0.95)]!),
+    declarationUnsaved: aliasDocument.isDirty && aliasRealDocument.isDirty })}`);
 
   const recordsUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocRecords.php');
   const consumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocConsumer.php');

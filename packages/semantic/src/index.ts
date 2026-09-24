@@ -864,9 +864,28 @@ export class SemanticWorkspace {
   // Project edits and provider facts may change members between queries.
   private referenceMemberCache?: Map<string, MemberInfo[]>;
   private sourceRevision = 0;
+  private readonly recentMutations: Array<{ revision: number; uri?: string }> = [];
   constructor(private readonly parser: PhpSyntaxParser) {}
 
   revision(): number { return this.sourceRevision; }
+
+  mutationUrisSince(revision: number): Array<string | undefined> | undefined {
+    if (revision === this.sourceRevision) return [];
+    const first = this.recentMutations[0]?.revision;
+    if (first === undefined || revision < first - 1 || revision > this.sourceRevision) return undefined;
+    return this.recentMutations.filter((change) => change.revision > revision).map((change) => change.uri);
+  }
+
+  changesOnlyIn(revision: number, allowedUris: ReadonlySet<string>): boolean {
+    const changes = this.mutationUrisSince(revision);
+    return changes !== undefined && changes.every((uri) => uri !== undefined && allowedUris.has(uri));
+  }
+
+  private recordMutation(uri?: string): void {
+    this.sourceRevision += 1;
+    this.recentMutations.push({ revision: this.sourceRevision, uri });
+    if (this.recentMutations.length > 512) this.recentMutations.shift();
+  }
 
   forkForLocalQuery(uri: string, source: string, excludedUris: ReadonlySet<string>): SemanticWorkspace {
     const fork = new SemanticWorkspace(this.parser);
@@ -1154,7 +1173,7 @@ export class SemanticWorkspace {
   private updateSource(uri: string, source: string, retainTree: boolean, deferImplementation: boolean,
     prepared?: PreparedPhpDocument): SemanticUpdateResult {
     if (prepared && retainTree) throw new TypeError('Prepared PHP facts cannot retain a syntax tree.');
-    this.sourceRevision += 1;
+    this.recordMutation(uri);
     this.referenceResultCache.clear();
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
@@ -1523,7 +1542,9 @@ export class SemanticWorkspace {
     }
   }
   remove(uri: string): void {
-    this.sourceRevision += 1;
+    if (!this.files.has(uri) && !this.trees.has(uri)
+      && !this.deferredSources.has(uri) && !this.deferredImplementations.has(uri)) return;
+    this.recordMutation(uri);
     this.referenceResultCache.clear();
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
@@ -1560,14 +1581,14 @@ export class SemanticWorkspace {
     // Provider generation and registration metadata are not semantic inputs.
     // Preserve completed queries only when all consumed facts are identical.
     if (unchanged) return true;
-    this.sourceRevision += 1;
+    this.recordMutation();
     this.assertedTargetInferenceCache.clear();
     this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches();
     return true;
   }
   removeExternalFacts(providerId: string): boolean {
     const removed = this.externalFacts.delete(providerId);
-    if (removed) { this.sourceRevision += 1; this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); }
+    if (removed) { this.recordMutation(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); }
     return removed;
   }
   /** @deprecated Submit one atomic SemanticFactsContribution with replaceExternalFacts(). */

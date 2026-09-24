@@ -4502,7 +4502,7 @@ const openContentSequences = new Map<string, number>();
 const warnedOpenAliasPairs = new Set<string>();
 const localAliasQueryWorkspaces = new Map<string, {
   documentVersion: number; projectRevision: number; projectWorkspace: SemanticWorkspace;
-  topologyRevision: number; excludedUris: string; workspace: SemanticWorkspace;
+  topologyRevision: number; excludedUris: string; excludedSet: ReadonlySet<string>; workspace: SemanticWorkspace;
 }>();
 let nextOpenContentSequence = 0;
 let openPhysicalTopologyRevision = 0;
@@ -4533,8 +4533,12 @@ async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWor
   const projectWorkspace = await semanticForUri(document.uri);
   const stale = localAliasQueryWorkspaces.get(document.uri);
   const projectRevision = projectWorkspace.revision();
-  if (stale && stale.documentVersion === document.version && stale.projectRevision === projectRevision
-    && stale.projectWorkspace === projectWorkspace && stale.topologyRevision === openPhysicalTopologyRevision) return stale.workspace;
+  if (stale && stale.documentVersion === document.version && stale.projectWorkspace === projectWorkspace
+    && stale.topologyRevision === openPhysicalTopologyRevision
+    && projectWorkspace.changesOnlyIn(stale.projectRevision, stale.excludedSet)) {
+    stale.projectRevision = projectRevision;
+    return stale.workspace;
+  }
   const root = rootForUri(document.uri);
   if (!root || projectWorkspace.source(document.uri) !== undefined || !hasPossibleOpenPhysicalAlias(document, root)) {
     if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
@@ -4547,16 +4551,18 @@ async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWor
     return projectWorkspace;
   }
   const excludedUris = JSON.stringify(excluded);
-  if (stale && stale.documentVersion === document.version && stale.projectRevision === projectRevision
-    && stale.projectWorkspace === projectWorkspace && stale.excludedUris === excludedUris) {
+  if (stale && stale.documentVersion === document.version && stale.projectWorkspace === projectWorkspace
+    && stale.excludedUris === excludedUris && projectWorkspace.changesOnlyIn(stale.projectRevision, stale.excludedSet)) {
+    stale.projectRevision = projectRevision;
     stale.topologyRevision = openPhysicalTopologyRevision;
     return stale.workspace;
   }
   if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
-  const workspace = projectWorkspace.forkForLocalQuery(document.uri, document.getText(), new Set(excluded));
+  const excludedSet = new Set(excluded);
+  const workspace = projectWorkspace.forkForLocalQuery(document.uri, document.getText(), excludedSet);
   localAliasQueryWorkspaces.set(document.uri, { documentVersion: document.version, projectRevision,
     topologyRevision: openPhysicalTopologyRevision,
-    projectWorkspace, excludedUris, workspace });
+    projectWorkspace, excludedUris, excludedSet, workspace });
   return workspace;
 }
 
@@ -5131,7 +5137,10 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return null;
   const queryVersion = document.version;
   if (testPauseNextQueries.has('hover')) await pauseTestQuery('hover');
+  const workspaceStarted = testMode ? performance.now() : 0;
   const workspace = await semanticForOpenQuery(document); if (!currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
+  recordTestQueryDuration('hoverWorkspace', workspaceStarted);
+  const frameworkStarted = testMode ? performance.now() : 0;
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
@@ -5140,6 +5149,8 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (service) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony service** \`${service.id}\`\n\n\`class ${service.className}\`` } };
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
+  recordTestQueryDuration('hoverFrameworkContext', frameworkStarted);
+  const memberStarted = testMode ? performance.now() : 0;
   let member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
   if (!member && serviceRoot && document.languageId === 'php') {
     await hydrateMemberOwnerChain(workspace, serviceRoot, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
@@ -5150,6 +5161,7 @@ connection.onHover(async ({ textDocument, position }, token) => {
   }
   const constant = member ? undefined : workspace.constantAt(document.uri, offset);
   const type = member ? undefined : workspace.typeAt(document.uri, offset);
+  recordTestQueryDuration('hoverMemberLookup', memberStarted);
   if (!member && !constant && !type) return null;
   const signature = constant ? `const ${constant.fqcn}${constant.type ? `: ${constant.type}` : ''}${constant.value ? ` = ${constant.value}` : ''}` : type ? `${type.kind} ${type.fqcn}` : member!.constantKind === 'enum-case'
     ? `case ${member!.name}${member!.value ? ` = ${member!.value}` : ''}` : member!.kind === 'method' || member!.kind === 'function'

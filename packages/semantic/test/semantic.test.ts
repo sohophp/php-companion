@@ -29,6 +29,26 @@ describe('conservative semantic workspace', () => {
       expect(project.completeMembers(consumerUri, consumer.indexOf('$record->') + '$record->'.length).map((item) => item.name)).toContain('linkedOnly');
     } finally { project.dispose(); }
   });
+  it('reuses an alias view only when bounded project changes affect its excluded owner', () => {
+    const project = new SemanticWorkspace(parser);
+    const owner = 'file:///linked/Record.php';
+    try {
+      project.update(owner, '<?php class Record {}');
+      const baseline = project.revision();
+      project.remove('file:///missing.php');
+      expect(project.revision()).toBe(baseline);
+      project.update(owner, '<?php class Record { public function changed(): void {} }');
+      expect(project.changesOnlyIn(baseline, new Set([owner]))).toBe(true);
+      project.update('file:///Other.php', '<?php class Other {}');
+      expect(project.changesOnlyIn(baseline, new Set([owner]))).toBe(false);
+      const afterOther = project.revision();
+      project.replaceExternalFacts(semanticFacts('test.provider', '1', { complete: true }));
+      expect(project.changesOnlyIn(afterOther, new Set([owner]))).toBe(false);
+      const beforeOverflow = project.revision();
+      for (let index = 0; index < 513; index += 1) project.update(owner, `<?php class Record { public const VERSION = ${index}; }`);
+      expect(project.changesOnlyIn(beforeOverflow, new Set([owner]))).toBe(false);
+    } finally { project.dispose(); }
+  });
   it('releases the retained syntax tree when an open file becomes a closed disk snapshot', () => {
     const local = new SemanticWorkspace(parser); const uri = 'file:///ClosedSnapshot.php';
     const source = '<?php class Alpha { public function onlyAlpha(): void {} }';
