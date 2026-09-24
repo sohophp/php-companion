@@ -2,7 +2,7 @@
 
 日期：2026-09-24。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
-2026-09-25 进度：[Open Source Pack 最新整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)确认当前源码仍为 11 项；[方法家族参数删除](reports/c3-remove-method-family-parameter-2026-09-25.md)与[重排](reports/c3-reorder-method-family-parameters-2026-09-25.md)已在单独 Core 和完整 Pack 源码宿主通过预览、取消、应用及一次 Undo/Redo。下一批 C3 工作是生成文件的 Redo 和 PHPUnit 组合问题；下文较早的阶段记录保留当时验收状态。
+2026-09-25 进度：[Open Source Pack 最新整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)确认当前源码仍为 11 项；[方法家族参数删除](reports/c3-remove-method-family-parameter-2026-09-25.md)与[重排](reports/c3-reorder-method-family-parameters-2026-09-25.md)已在单独 Core 和完整 Pack 源码宿主通过预览、取消、应用及一次 Undo/Redo。[已配置项目的 PHPUnit 测试文件 Rename](reports/c3-generation-redo-phpunit-rename-2026-09-25.md)也通过组合门禁。下一批 Core C3 工作继续处理生成文件的 Redo；下文较早的阶段记录保留当时验收状态。
 
 ## 安装入口与能力所有者
 
