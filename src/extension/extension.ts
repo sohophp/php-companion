@@ -520,7 +520,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
     }
   });
-  register('phpCompanion.resolvePastedImports', async () => {
+  register('phpCompanion.resolvePastedImports', async (options?: { testAfterPlan?: () => Promise<void> }) => {
     const document = vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') return;
     const version = document.version;
@@ -546,6 +546,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
       if (!symbols.length) return;
       const plan = await requestImportPlan(document, document.positionAt(document.getText().length), symbols);
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
       if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
       const edit = fromProtocolWorkspaceEdit(plan?.edit); if (edit) await vscode.workspace.applyEdit(edit);
       return;
@@ -557,7 +558,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       await resolveDocumentImports(document, workspace.index);
     }
   });
-  register('phpCompanion.importClass', async (uri?: vscode.Uri, position?: vscode.Position) => {
+  register('phpCompanion.importClass', async (uri?: vscode.Uri, position?: vscode.Position, options?: { testAfterPlan?: () => Promise<void> }) => {
     const editor = vscode.window.activeTextEditor;
     const document = uri ? await vscode.workspace.openTextDocument(uri) : editor?.document;
     const cursor = position ?? editor?.selection.active;
@@ -594,6 +595,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         textDocument: { uri: document.uri.toString() }, position: word.range.start,
         range: { start: word.range.start, end: word.range.end }, name: word.name, fqcn: selected.fqcn, alias,
       });
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
       if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
       const edit = fromProtocolWorkspaceEdit(result);
       if (edit) await vscode.workspace.applyEdit(edit);
@@ -628,7 +630,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const edit = buildAddImportEdit(document, file, selected.fqcn, alias);
     if (edit) await vscode.workspace.applyEdit(edit);
   });
-  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean }) => {
+  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean; testAfterPlan?: () => Promise<void> }) => {
     const document = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') return;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
@@ -644,6 +646,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         context: { diagnostics: [], only: ['source.organizeImports'] },
         phpCompanion: { importSort: configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped') },
       });
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
       if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
       const action = actions.find((candidate) => candidate.kind === 'source.organizeImports' && candidate.edit);
       const edit = fromProtocolWorkspaceEdit(action?.edit);

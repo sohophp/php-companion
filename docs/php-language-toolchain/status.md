@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C3 导入旧计划宿主门禁：`Import Class`、`Resolve Pasted Imports` 和 `Optimize Imports` 在语言服务器计划返回后由测试模式插入一次真实文档编辑，三者均拒绝旧编辑；恢复后正常应用和 Undo/Redo 通过。完整 Core + Symfony 源码宿主退出码 0，真正请求处理中和模态预览 UI 时序仍开放，见[报告](reports/c3-import-stale-plan-host-2026-09-24.md)。
+
 2026-09-24 C3 Safe Move 预览与应用快照：命令现在以同一份完整编辑计划生成差异并应用，参与文件的文档版本、内容、磁盘字节和目标路径会在确认后复核。受控宿主回归在计划后修改引用文件，确认移动被拒绝；恢复后正常应用、Undo/Redo 通过。模态预览和 Remote 交互仍待验收，见[报告](reports/c3-safe-move-preview-snapshot-2026-09-24.md)。
 
 2026-09-24 C3 导入与整理命令版本保护：Core 自身语言服务器的 `Import Class`、`Resolve Pasted Imports`、`Optimize Imports` 现在在异步查询/选择/预览后核对文档仍打开且版本未变，避免把旧范围应用到新内容；旧索引路径同步收紧关闭边界。完整 11 项 Pack 源码宿主的正常导入、整理与 Undo/Redo 通过，TypeScript、Lint、差异检查通过。中途输入和模态取消的可控宿主时序仍需验收，见[报告](reports/c3-import-command-version-2026-09-24.md)。

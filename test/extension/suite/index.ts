@@ -5117,6 +5117,20 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   const importDocument = await vscode.workspace.openTextDocument(importUri);
   await vscode.window.showTextDocument(importDocument);
   const importOffset = importDocument.getText().indexOf('UserService');
+  const editDuringImportPlan = async (uri: vscode.Uri, document: vscode.TextDocument): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.insert(uri, document.positionAt(document.getText().length), '\n// Edited while an import plan was pending.\n');
+    assert.ok(await vscode.workspace.applyEdit(edit), 'Could not edit the PHP document while an import plan was pending');
+  };
+  const beforeImportClassRace = importDocument.getText();
+  let importClassPlanReturned = false;
+  await vscode.commands.executeCommand('phpCompanion.importClass', importUri, importDocument.positionAt(importOffset + 1), {
+    testAfterPlan: async () => { importClassPlanReturned = true; await editDuringImportPlan(importUri, importDocument); },
+  });
+  assert.ok(importClassPlanReturned, 'Import Class did not reach its completed plan');
+  assert.ok(!importDocument.getText().includes('use App\\Service\\UserService;'), 'Import Class applied a stale plan');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => importDocument.getText() === beforeImportClassRace, 'Could not undo the Import Class race edit');
   await vscode.commands.executeCommand('phpCompanion.importClass', importUri, importDocument.positionAt(importOffset + 1));
   assert.ok(importDocument.getText().includes('use App\\Service\\UserService;'), 'Import Class did not add the unique canonical candidate');
   await vscode.commands.executeCommand('undo');
@@ -5126,6 +5140,15 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   assert.ok(await importDocument.save(), 'Import Class fixture could not be saved');
   await restoreTextFixture(importUri, originalImport);
   await vscode.window.showTextDocument(importDocument);
+  const beforeResolveRace = importDocument.getText();
+  let resolvePlanReturned = false;
+  await vscode.commands.executeCommand('phpCompanion.resolvePastedImports', {
+    testAfterPlan: async () => { resolvePlanReturned = true; await editDuringImportPlan(importUri, importDocument); },
+  });
+  assert.ok(resolvePlanReturned, 'Resolve Pasted Imports did not reach its completed plan');
+  assert.ok(!importDocument.getText().includes('use App\\Service\\UserService;'), 'Resolve Pasted Imports applied a stale plan');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => importDocument.getText() === beforeResolveRace, 'Could not undo the Resolve Pasted Imports race edit');
   await vscode.commands.executeCommand('phpCompanion.resolvePastedImports');
   await waitFor(() => importDocument.getText().includes('use App\\Service\\UserService;'), 'Resolve Imports did not consume Language Server candidates');
   await vscode.commands.executeCommand('undo');
@@ -5136,6 +5159,16 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
 
   const optimizeDocument = await vscode.workspace.openTextDocument(optimizeUri);
   await vscode.window.showTextDocument(optimizeDocument);
+  const beforeOptimizeRace = optimizeDocument.getText();
+  let optimizePlanReturned = false;
+  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, {
+    preview: false,
+    testAfterPlan: async () => { optimizePlanReturned = true; await editDuringImportPlan(optimizeUri, optimizeDocument); },
+  });
+  assert.ok(optimizePlanReturned, 'Optimize Imports did not reach its completed plan');
+  assert.strictEqual(optimizeDocument.getText().match(/use App\\Contract\\Runner;/g)?.length, 1, 'Optimize Imports applied a stale plan');
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => optimizeDocument.getText() === beforeOptimizeRace, 'Could not undo the Optimize Imports race edit');
   await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: false });
   assert.ok(!optimizeDocument.getText().includes('App\\Contract\\Runner'), 'Optimize Imports did not remove a known unused class import');
   assert.strictEqual(optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length, 1, 'Optimize Imports did not deduplicate imports');
