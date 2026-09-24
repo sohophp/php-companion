@@ -149,6 +149,85 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
   })}`);
 }
 
+async function verifyRealVendorEditingChain(rounds: number): Promise<void> {
+  const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
+  assert.ok(root, 'The real Composer vendor project was not opened for the editing chain.');
+  const uri = vscode.Uri.joinPath(root.uri, 'src', 'C1', 'RealVendorChain.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php namespace App\\C1;'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const cases = [
+    { type: 'ResponseInterface', method: 'getStatusCode', prefix: 'getSta',
+      declaration: 'vendor/psr/http-message/src/ResponseInterface.php', implementation: 'vendor/guzzlehttp/psr7/src/Response.php',
+      forbidden: 'getRequestTarget' },
+    { type: 'RequestInterface', method: 'getRequestTarget', prefix: 'getReq',
+      declaration: 'vendor/psr/http-message/src/RequestInterface.php', implementation: 'vendor/guzzlehttp/psr7/src/Request.php',
+      forbidden: 'getStatusCode' },
+  ] as const;
+  const samples = new Map<string, number[]>();
+  const checked = async <T>(name: string, read: () => PromiseLike<T>, ready: (value: T) => boolean,
+    message: string): Promise<T> => {
+    const started = performance.now();
+    const result = await waitForResult(read, ready, message);
+    const values = samples.get(name) ?? []; values.push(Math.round(performance.now() - started)); samples.set(name, values);
+    return result;
+  };
+  for (let round = 0; round < rounds; round += 1) {
+    const current = cases[round % cases.length]!;
+    const source = `<?php namespace App\\C1;
+use Psr\\Http\\Message\\ResponseInterface;
+use Psr\\Http\\Message\\RequestInterface;
+function inspect(${current.type} $value): void { $value->${current.method}(); $value->${current.prefix}; }`;
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit), `Could not change the real vendor chain in round ${round}.`);
+    assert.ok(document.isDirty && document.getText() === source, `Real vendor round ${round} lost its unsaved source.`);
+    const callOffset = source.indexOf(`$value->${current.method}()`) + '$value->'.length;
+    const call = document.positionAt(callOffset + 2);
+    const partial = document.positionAt(source.indexOf(`$value->${current.prefix};`) + `$value->${current.prefix}`.length);
+    const declarationUri = vscode.Uri.joinPath(root.uri, current.declaration).toString();
+    const implementationUri = vscode.Uri.joinPath(root.uri, current.implementation).toString();
+    const completion = await checked('completion', () => vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, partial),
+    (result) => result?.items.some((item) => item.label === current.method) === true,
+    `Real vendor round ${round} did not complete ${current.method}.`);
+    assert.ok(!completion.items.some((item) => item.label === current.forbidden),
+      `Real vendor round ${round} returned a method from the previous receiver.`);
+    await checked('hover', () => vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', uri, call),
+      (result) => result?.some((item) => item.contents.some((part) =>
+        (part instanceof vscode.MarkdownString ? part.value : typeof part === 'string' ? part : part.value).includes(current.method))) === true,
+      `Real vendor round ${round} did not show Hover for ${current.method}.`);
+    await checked('signature', () => vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', uri,
+      document.positionAt(callOffset + current.method.length + 1)),
+    (result) => result?.signatures.some((item) => item.label.includes(`${current.method}()`)) === true,
+    `Real vendor round ${round} did not show Signature Help for ${current.method}.`);
+    const definition = await checked('definition', () => vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === declarationUri) === true,
+    `Real vendor round ${round} did not navigate to ${current.type}.`);
+    assert.deepStrictEqual(definition.map((item) => item.uri.toString()), [declarationUri]);
+    const implementation = await checked('implementation', () => vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeImplementationProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === implementationUri) === true,
+    `Real vendor round ${round} did not find the Guzzle implementation of ${current.type}.`);
+    assert.deepStrictEqual(implementation.map((item) => item.uri.toString()), [implementationUri]);
+    const references = await checked('references', () => vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', uri, call),
+    (result) => result?.some((item) => item.uri.toString() === uri.toString()
+      && item.range.start.isEqual(document.positionAt(callOffset))) === true,
+    `Real vendor round ${round} did not find the current unsaved call.`);
+    assert.ok(references.every((item) => item.uri.toString() !== uri.toString()
+      || item.range.start.isEqual(document.positionAt(callOffset))),
+    `Real vendor round ${round} returned another call from the same unsaved document.`);
+  }
+  const summary = Object.fromEntries([...samples].map(([name, values]) => {
+    const sorted = [...values].sort((left, right) => left - right);
+    return [name, { count: sorted.length, median: sorted[Math.ceil(sorted.length * 0.5) - 1],
+      p95: sorted[Math.ceil(sorted.length * 0.95) - 1], max: sorted.at(-1) }];
+  }));
+  console.log(`C1 real vendor unsaved six-query chain: ${JSON.stringify({ rounds, summary })}`);
+}
+
 export async function run(): Promise<void> {
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'C1 Extension Host test has no workspace.');
@@ -643,6 +722,14 @@ function consume(): void { (void) choose(1); }`;
     console.log(`C1 ${runtimeDiscover ? 'PATH discovery' : 'configured'} runtime probe: PHP ${runtimeVersion}, diagnostics and built-in completion passed.`);
   }
   if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') await verifyRealComposerVendor(timingApi.requestLanguageServer);
+  const chainRounds = Number(process.env.PHP_COMPANION_TEST_C1_CHAIN_ROUNDS ?? 0);
+  assert.ok(Number.isSafeInteger(chainRounds) && chainRounds >= 0 && chainRounds <= 100,
+    'PHP_COMPANION_TEST_C1_CHAIN_ROUNDS must be an integer from 0 to 100.');
+  if (chainRounds) {
+    assert.strictEqual(process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR, '1',
+      'The real vendor six-query chain requires PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
+    await verifyRealVendorEditingChain(chainRounds);
+  }
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
     console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);

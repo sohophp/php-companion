@@ -60,3 +60,20 @@
 | 后 100 轮 | 198 ms | 208 ms | — | 218 ms |
 
 外部按进程每约 5 秒读取语言服务器 RSS，共 44 个样本，覆盖进程启动后第 36–252 秒：首样本 290 MiB，范围 219–293 MiB，末样本 224 MiB。样本显示本次会话没有持续增长趋势；它们不是堆内存分析，也不证明数小时、Remote 或其它操作组合的长期稳定性。原始本地运行日志位于 `/tmp/sophp-c1-rapid-1000.log` 与 `/tmp/sophp-c1-rapid-1000-rss.log`，可用本节命令与环境变量重新生成；临时日志不提交仓库。
+
+## 后续：真实 vendor 的六项查询持续链
+
+隔离宿主新增可选的 `PHP_COMPANION_TEST_C1_CHAIN_ROUNDS`（0–100，默认 0），每轮在同一个未保存 PHP 缓冲区中切换 `Psr\Http\Message\ResponseInterface` 与 `RequestInterface`，分别核对当前方法的 Completion、Hover、Signature Help、Definition、Implementation、References。目标声明和实现来自已安装的 PSR、Guzzle 源码；Completion 排除前一类型方法，Definition/Implementation 断言精确 URI，References 必须包含当前未保存调用位置且不能带入同文件旧调用。这个检查调用真实 VS Code 编辑命令和语言客户端，不直接调用 semantic 内部函数。
+
+小型真实 vendor 项目先以两轮试跑通过。随后以 `PHP_COMPANION_TEST_C1_REAL_VENDOR=1 PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE=9100 PHP_COMPANION_TEST_C1_CHAIN_ROUNDS=50` 运行隔离 Core 宿主，在 10,130 文件规模完成 50 轮、共 300 次编辑器查询，全部结果正确，退出码 0；首次真实 vendor Implementation 为 1,410 ms、扫描一次。以下时间从 VS Code 命令发起至取得符合断言的结果，包含可能的重试，单位为毫秒：
+
+| 每轮操作 | 次数 | 中位数 | P95 | 最大值 |
+| --- | ---: | ---: | ---: | ---: |
+| Completion | 50 | 17 | 31 | 86 |
+| Hover | 50 | 4 | 14 | 16 |
+| Signature Help | 50 | 4 | 8 | 12 |
+| Definition | 50 | 4 | 10 | 13 |
+| Implementation | 50 | 689 | 829 | 968 |
+| References | 50 | 589 | 743 | 891 |
+
+类型每轮改变使项目候选版本失效，Implementation 与 References 因此重复扫描；结果正确但等待仍明显，作为 C1 的下一项性能缺口。此项测试没有观察 Workbench 建议列表，列表可见性另见上文 1000 轮数据；本机单次 50 轮分布不能代表跨平台 P95。
