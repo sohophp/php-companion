@@ -45,6 +45,9 @@ async function main(): Promise<void> {
     : join(repository, 'php-companion-0.4.5.vsix');
   const symfonyVsix = process.env.PHP_COMPANION_TEST_SYMFONY_VSIX ? resolve(process.env.PHP_COMPANION_TEST_SYMFONY_VSIX)
     : join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.5.vsix');
+  const packVsix = process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX
+    ? resolve(process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX)
+    : join(repository, 'packages', 'php-companion-extension-pack', 'php-companion-open-source-pack-0.4.5.vsix');
   const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
   await stat(vsix);
   await stat(symfonyVsix);
@@ -56,6 +59,7 @@ async function main(): Promise<void> {
   const fixture = join(temporary, 'workspace');
   const extracted = join(temporary, 'vsix');
   const symfonyExtracted = join(temporary, 'symfony-vsix');
+  const packExtracted = join(temporary, 'open-source-pack-vsix');
   const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
@@ -82,6 +86,7 @@ exit($status);
     phpunitExecutable = proxy;
   }
   if (externalExtensions) await stat(externalExtensions);
+  if (externalExtensions) await stat(packVsix);
   try {
     const userSettingsDirectory = join(profile, 'user-data', 'User');
     await mkdir(userSettingsDirectory, { recursive: true });
@@ -89,6 +94,8 @@ exit($status);
       'extensions.autoCheckUpdates': false,
       'extensions.autoUpdate': false,
       'update.mode': 'none',
+      ...(externalExtensions && process.env.PHP_COMPANION_PHP_EXECUTABLE
+        ? { 'php.validate.executablePath': process.env.PHP_COMPANION_PHP_EXECUTABLE } : {}),
       ...(process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1' ? {
         'phpCompanion.rename.syncFileName': 'never',
         'phpCompanion.pasteImports.mode': 'off',
@@ -100,16 +107,18 @@ exit($status);
     // Packaged tests must exercise the extension manifest default rather than
     // inheriting the explicit development-fixture opt-in.
     delete settings['phpCompanion.languageServer.enabled'];
+    if (externalExtensions) delete settings['phpCompanion.indexing.mode'];
     if (externalExtensions) {
       await writeFile(join(fixture, 'composer.json'), JSON.stringify({
-        require: { php: '>=7.2', 'symfony/framework-bundle': '^7.4' },
+        require: { php: '>=8.5', 'symfony/framework-bundle': '^7.4' },
         autoload: { 'psr-4': { 'App\\': 'src/' } },
       }));
       await mkdir(join(fixture, 'tests'), { recursive: true });
       await writeFile(join(fixture, 'phpunit.xml'), '<?xml version="1.0"?>\n<phpunit><testsuites><testsuite name="Profile"><directory suffix="Test.php">tests</directory></testsuite></testsuites></phpunit>\n');
       await mkdir(join(fixture, 'bin'), { recursive: true });
       await writeFile(join(fixture, 'bin', 'console'), '<?php throw new \\RuntimeException("Static profile must not execute the kernel");\n');
-      await writeFile(join(fixture, 'config', 'routes.yaml'), 'profile_route_home:\n  path: /profile/home\n  controller: App\\Controller\\ProfileRoute::url\ncontrollers:\n  resource: ../src/Controller/**/*.php\n  type: attribute\n  exclude: ../src/Controller/Excluded*.php\nmapped:\n  resource: {path: ../src/Mapped, namespace: App\\Mapped}\n  type: attribute\n  name_prefix: profile_route_\n');
+      const routesPath = join(fixture, 'config', 'routes.yaml');
+      await writeFile(routesPath, `${await readFile(routesPath, 'utf8')}\nprofile_route_home:\n  path: /profile/home\n  controller: App\\Controller\\ProfileRoute::url\ncontrollers:\n  resource: ../src/Controller/ProfileRoute.php\n  type: attribute\nmapped:\n  resource: {path: ../src/Mapped, namespace: App\\Mapped}\n  type: attribute\n  name_prefix: profile_route_\n`);
       await mkdir(join(fixture, 'src', 'Mapped'), { recursive: true });
       await writeFile(join(fixture, 'src', 'Mapped', 'Implicit.php'), String.raw`<?php
 namespace App\Mapped;
@@ -148,9 +157,11 @@ abstract class AbstractController { public function generateUrl(string $route, a
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
     await mkdir(extracted, { recursive: true });
     await mkdir(symfonyExtracted, { recursive: true });
+    if (externalExtensions) await mkdir(packExtracted, { recursive: true });
     if (twigVsix) await mkdir(twigExtracted, { recursive: true });
     execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
     execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
+    if (externalExtensions) execFileSync('unzip', ['-q', packVsix, '-d', packExtracted], { stdio: 'inherit' });
     if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
     if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
       await mkdir(extensionsDirectory, { recursive: true });
@@ -172,6 +183,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
     await runTests({
       vscodeExecutablePath: await testExecutablePath(),
       extensionDevelopmentPath: [join(extracted, 'extension'), join(symfonyExtracted, 'extension'),
+        ...(externalExtensions ? [join(packExtracted, 'extension')] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [

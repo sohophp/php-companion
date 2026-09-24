@@ -47,6 +47,8 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 同一 10,130 文件宿主又完成真实 PSR Response/Request 接口与 Guzzle 实现之间的 50 轮未保存切换，六项编辑查询共 300 次均返回正确目标。Completion、Hover、Signature Help、Definition 的首轮 P95 为 31、14、8、10 ms；Implementation 与 References 原先因每轮候选重扫，P95 分别为 829、743 ms。Implementation 已以打开缓冲区完整更新和项目版本条件复用先前完成的候选覆盖，P95 降至 7 ms；References 随后按文件刷新接收者证据并复用扫描覆盖，完整 stdio 正反例与 10k 隔离宿主 50 轮复测通过，P95 从上一轮 762 ms 降至 132 ms。冷查询、较长会话、跨平台/Remote 和冻结版本的完整组合验收仍是 C1 门槛。正反例与宿主结果见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
 
+Open Source Pack 现有独立的[默认组合宿主门禁](reports/open-source-pack-composition-gate-2026-09-24.md)：本机 Linux 隔离 Profile 加载 Core、Symfony、Pack 与冻结外部扩展，按 Pack 默认 `onDemand` 实际完成 PHP/Symfony 导航和引用、格式化、调试与 PHPUnit 操作。下一步冻结干净 Alpha 候选，验证 WSL Remote 的 Extension Host 归属和实际工具路径，并继续 C1 的冷查询与长会话观察；C2 保留 `onDemand` 下依赖覆盖不足时部分 `never` 控制流诊断不出现的精度缺口。
+
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。
 3. 按用户可见影响排序：错误结果或旧结果 → 缺失的高频结果 → 明显延迟与缺少进度反馈。对每个问题追溯 parser/index 事实、作用域、完整性、失效条件与 schema；一次只修复可证明的场景，同时验证合法反例。

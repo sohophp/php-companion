@@ -164,7 +164,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   const bundleRoots = await registeredBundleRoots(root, parser, mappings, sources, inputPaths,
     () => { inputEvidenceComplete = false; }, options.environment);
   const projectScope: BundleRoot = { path: root, realPath: actualRoot };
-  const routes: SymfonyRouteFact[] = []; const visitedContexts = new Set<string>(); let remaining = options.maxEntries ?? 64; let complete = true;
+  const routes: SymfonyRouteFact[] = []; const visitedContexts = new Set<string>(); let remaining = options.maxEntries ?? 256; let complete = true;
   let defaultNameStyle: 'framework' | undefined;
   try {
     inputPaths.add(resolve(root, 'composer.json'));

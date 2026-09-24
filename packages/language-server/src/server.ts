@@ -772,6 +772,17 @@ async function refreshSymfonyContainerFacts(root: string, generation: number, wo
   await runContainerProvider(root, generation, workspace, shouldContinue);
 }
 
+async function ensureSymfonyContainerFactsForQuery(root: string, cancelled: () => boolean): Promise<boolean> {
+  const current = (): boolean => completeContainerFactsByRoot.get(root)?.revision === containerFactsRevision
+    && completeContainerFactsByRoot.get(root)?.generation === indexingGeneration;
+  if (current()) return !cancelled();
+  if (!await ensureProjectCompleteRoot(root, cancelled)) return false;
+  await activeIndexing?.catch(() => undefined);
+  if (cancelled()) return false;
+  if (!current()) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => !cancelled());
+  return !cancelled() && current();
+}
+
 function scheduleSymfonyContainerRefresh(root: string): void {
   const previous = symfonyContainerRefreshTimers.get(root); if (previous) clearTimeout(previous);
   symfonyContainerRefreshTimers.set(root, setTimeout(() => {
@@ -3733,11 +3744,24 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
     || token.isCancellationRequested) return [];
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
   if (!root || !sourcePath) return [];
-  await semanticForRoot(root);
-  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceReferencesCancelled'));
-  const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri); const syntaxParser = sourceIsPhp ? await parser() : undefined;
-  const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
+  const sourceIsXml = /\.xml$/i.test(uri); const sourceIsPhp = /\.php$/i.test(uri);
+  const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : sourceIsXml ? 'xml' : 'yaml',
+    typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const knownConfig = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
+  const probableConfig = /^(?:app\/)?config\/(?:[^/]+\/)*(?:services|container)(?:_[^/]*)?\.(?:ya?ml|xml|php)$/i
+    .test(relative(root, sourcePath).split(sep).join('/'));
+  const workspaceBeforeIndex = await semanticForRoot(root);
+  const lexicalReference = sourceIsPhp
+    ? symfonyAutowireServiceIdAt(params.source, offset) ?? (workspaceBeforeIndex.literalMethodArgumentCandidateAt(uri, offset) ? true : undefined)
+    : sourceIsXml ? symfonyXmlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root))
+      ?? symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root))
+      : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root))
+        ?? symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
+  if (!knownConfig && !probableConfig && !lexicalReference) return [];
+  if (!await ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested)) return [];
+  if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'serviceReferencesCancelled'));
+  const syntaxParser = sourceIsPhp ? await parser() : undefined;
   const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
   if (!sourceIsPhp && !configSource) return [];
   if (configSource) {

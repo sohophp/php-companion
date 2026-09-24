@@ -156,6 +156,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   assert.ok(phpExecutable, 'Open Source Profile test requires PHP_COMPANION_PHP_EXECUTABLE');
   assert.ok(phpunitExecutable, 'Open Source Profile test requires PHP_COMPANION_PHPUNIT_EXECUTABLE');
   const extensionIds = [
+    'sohophp.php-companion-open-source-pack',
     'sohophp.php-companion-symfony',
     'sohophp.twig-plus',
     'redhat.vscode-yaml',
@@ -164,10 +165,54 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'recca0120.vscode-phpunit',
     'junstyle.php-cs-fixer',
     'editorconfig.editorconfig',
+    'eiminsasete.apacheconf-snippets',
   ];
   for (const id of extensionIds) assert.ok(vscode.extensions.getExtension(id), `${id} is missing from the Open Source Profile`);
+  const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack')!;
+  assert.deepStrictEqual(pack.packageJSON.extensionPack, [
+    'sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.twig-plus',
+    'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
+    'recca0120.vscode-phpunit', 'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig',
+    'eiminsasete.apacheconf-snippets',
+  ], 'The installed Open Source Pack did not declare the frozen extension set');
+  assert.strictEqual(vscode.workspace.getConfiguration('php', workspace.uri).get('suggest.basic'), false,
+    'The Open Source Pack did not disable duplicate built-in PHP suggestions');
+  const languageServer = vscode.workspace.getConfiguration('phpCompanion', workspace.uri).inspect<boolean>('languageServer.enabled');
+  assert.strictEqual(languageServer?.defaultValue, true, 'The Open Source Pack did not enable SoPHP Core by default');
+  assert.strictEqual(languageServer?.workspaceValue, undefined, 'The Open Source Profile explicitly overrode the SoPHP Core default');
+  assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('indexing.mode'), 'onDemand',
+    'The Open Source Pack did not set the supported default indexing mode');
+  assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: workspace.uri, languageId: 'php' }).get('defaultFormatter'), 'junstyle.php-cs-fixer',
+    'The Open Source Pack did not select the PHP formatter');
   assert.strictEqual(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), undefined, 'Open Source Profile unexpectedly contains Intelephense');
   assert.strictEqual(vscode.extensions.getExtension('symfony.language-tools'), undefined, 'Open Source Profile contains the rejected Symfony Rename provider');
+
+  const coreUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileCore.php');
+  const coreSource = '<?php namespace App; class ProfileCore { public function answer(): int { return 42; } } function profile(ProfileCore $value): int { return $value->answer(); }';
+  await vscode.workspace.fs.writeFile(coreUri, Buffer.from(coreSource));
+  const coreDocument = await vscode.workspace.openTextDocument(coreUri);
+  await vscode.window.showTextDocument(coreDocument);
+  const callPosition = coreDocument.positionAt(coreSource.lastIndexOf('answer()') + 2);
+  await waitForAsync(async () => {
+    const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', coreUri, callPosition) ?? [];
+    return definitions.some((location) => location.uri.toString() === coreUri.toString()
+      && coreDocument.getText(location.range) === 'answer');
+  }, 'SoPHP Core did not navigate to a PHP declaration in the Open Source Profile', 30_000, 100);
+  await waitForAsync(async () => {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', coreUri, callPosition) ?? [];
+    return references.some((location) => location.uri.toString() === coreUri.toString()
+      && coreDocument.getText(location.range) === 'answer');
+  }, 'SoPHP Core did not find the PHP call in the Open Source Profile', 30_000, 100);
+  const servicesUri = vscode.Uri.joinPath(workspace.uri, 'config', 'services.yaml');
+  const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
+  const serviceOffset = servicesDocument.getText().indexOf('@App\\Service\\Mailer') + 5;
+  assert.ok(serviceOffset >= 5, 'Open Source Profile fixture is missing the Symfony service reference');
+  await waitForAsync(async () => {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', servicesUri, servicesDocument.positionAt(serviceOffset)) ?? [];
+    return references.filter((location) => location.uri.toString() === servicesUri.toString()
+      && servicesDocument.getText(location.range) === 'App\\Service\\Mailer').length === 2;
+  }, 'SoPHP Symfony did not find both YAML service references with onDemand indexing', 30_000, 100);
 
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('executablePath', formatterExecutable, vscode.ConfigurationTarget.Workspace);
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('autoFixByBracket', false, vscode.ConfigurationTarget.Workspace);
@@ -305,12 +350,21 @@ final class ProfileTest extends TestCase {
   await runPhpUnitUntil('phpunit.run-all', 'ProfileTest.php', 'PHPUnit extension did not discover and execute the configured test suite');
   const movedTestUri = vscode.Uri.joinPath(workspace.uri, 'tests', 'MovedProfileTest.php');
   const verifyMovedSuite = async (expectedFile: string): Promise<void> => {
+    const expectedUri = vscode.Uri.joinPath(workspace.uri, 'tests', expectedFile);
+    const expectedDocument = await vscode.workspace.openTextDocument(expectedUri);
+    assert.ok(expectedDocument.getText().includes(`class ${expectedFile.slice(0, -4)} `),
+      `PHPUnit fixture class did not follow ${expectedFile}`);
+    if (expectedDocument.isDirty) assert.ok(await expectedDocument.save(), `Could not save ${expectedFile}`);
     await vscode.workspace.fs.delete(testResultUri);
     await vscode.workspace.fs.delete(testSourceUri);
     await runPhpUnitUntil('phpunit.run-all', expectedFile, `PHPUnit did not execute the suite from ${expectedFile}`);
   };
   await vscode.window.showTextDocument(testDocument);
   const moveTest = new vscode.WorkspaceEdit();
+  const classStart = testDocument.getText().indexOf('class ProfileTest') + 'class '.length;
+  assert.ok(classStart >= 'class '.length, 'PHPUnit fixture class declaration was not found');
+  moveTest.replace(testUri, new vscode.Range(testDocument.positionAt(classStart),
+    testDocument.positionAt(classStart + 'ProfileTest'.length)), 'MovedProfileTest');
   moveTest.renameFile(testUri, movedTestUri);
   assert.ok(await vscode.workspace.applyEdit(moveTest), 'Could not move PHPUnit fixture');
   await verifyMovedSuite('MovedProfileTest.php');
@@ -438,6 +492,10 @@ export async function run(): Promise<void> {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(!commands.includes('phpCompanion._testCrashLanguageServer'), 'PHP Companion started its language server without an explicit choice beside Intelephense');
     assert.ok(!commands.includes('phpCompanion.provideTwigInterop'), 'PHP Companion exposed language-server interop while defaulting to Intelephense');
+    return;
+  }
+  if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') {
+    await verifyOpenSourceProfile(workspace);
     return;
   }
   if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
@@ -733,13 +791,11 @@ export async function run(): Promise<void> {
   assert.ok(routeItems.items.some((item) => item.label === 'profile_user' && item.detail === '/profile/user (source declaration)'),
     'Symfony static route provider did not return the packaged route completion');
   const controlFlowDiagnosticUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
-  await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
-  await waitFor(
-    () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.control-flow.unreachable').length === 10,
-    'Self-hosted language server did not publish a proven unreachable-statement diagnostic',
-  );
   const controlFlowDocument = await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
+  const unreachableDiagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
+    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.control-flow.unreachable');
+  await waitForAsync(async () => unreachableDiagnostics().length === 10,
+    () => `Self-hosted language server did not publish 10 proven unreachable-statement diagnostics; observed ${JSON.stringify(vscode.languages.getDiagnostics(controlFlowDiagnosticUri).map((diagnostic) => [diagnostic.source, diagnostic.code, controlFlowDocument.getText(diagnostic.range)]))}`);
   assert.deepStrictEqual(vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
     .filter((diagnostic) => diagnostic.code === 'php.control-flow.unreachable')
     .map((diagnostic) => controlFlowDocument.getText(diagnostic.range)), [
@@ -4927,5 +4983,4 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     ordinaryText: "'DeliveryState'",
   });
   if (process.env.PHP_COMPANION_TWIG_ROUTE_RENAME === '1') await verifySymfonyRouteRenameWithTwig(workspace);
-  if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') await verifyOpenSourceProfile(workspace);
 }

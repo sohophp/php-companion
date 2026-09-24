@@ -7895,6 +7895,51 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('loads authoritative Symfony service facts for the first on-demand YAML References request', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-on-demand-service-'));
+    try {
+      const rootUri = pathToFileURL(root).toString();
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const phpSource = '<?php namespace App; final class Service { public function ping(): void {} }';
+      const phpUri = pathToFileURL(join(root, 'src', 'Service.php')).toString();
+      await writeFile(join(root, 'src', 'Service.php'), phpSource);
+      const source = "services:\n  app.service: { class: App\\Service }\n  app.consumer: { arguments: ['@app.service'] }\n";
+      const uri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+      await writeFile(join(root, 'config', 'services.yaml'), source);
+      const provider = join(root, 'provider.mjs');
+      await writeFile(provider, `let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const uri=request.params.rootUri+'/config/services.yaml'; const service={id:'app.service',className:'App\\\\Service',public:false,autowire:true,autowireComplete:true,bindings:[],configuredCalls:[],callsComplete:true,configuredProperties:[],propertiesComplete:true,eventListeners:[],origin:'explicit',uri,start:12,end:23,registrationUri:uri,registrationStart:12,registrationEnd:23}; process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.services',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],containerServices:[service],containerParameters:[],containerMethodArguments:[],containerPropertyArguments:[],containerConfigurationUris:[uri]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 6950, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: {
+          indexingMode: 'onDemand',
+          bundledSemanticProviders: [{ providerId: 'php-companion.symfony.services', command: process.execPath, args: [provider], timeoutMs: 1000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true }],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 6950);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 6952, method: 'phpCompanion/symfonyServiceReferences', params: {
+        textDocument: { uri: phpUri, version: 1 }, source: phpSource, position: lspPosition(phpSource, phpSource.indexOf('ping()') + 2),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 6952)).result).toEqual([]);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[index:1] start'))).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 6951, method: 'phpCompanion/symfonyServiceReferences', params: {
+        textDocument: { uri, version: 1 }, source, position: lspPosition(source, source.indexOf('@app.service') + 5),
+        context: { includeDeclaration: false },
+      } }));
+      expect((await output.waitFor((message) => message.id === 6951, 15_000)).result).toEqual([{ uri,
+        range: { start: lspPosition(source, source.indexOf('@app.service') + 1),
+          end: lspPosition(source, source.indexOf('@app.service') + 1 + 'app.service'.length) },
+      }]);
+      expect(output.messages.some((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('committed authoritative container'))).toBe(true);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 20_000);
+
   it('uses a bundled authoritative container provider for Symfony service references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-container-provider-'));
     try {

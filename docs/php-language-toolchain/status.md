@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 Open Source Pack 默认组合门禁：隔离 VS Code 1.139.0 Linux 宿主实际加载开发构建的 Core、Symfony、Open Source Pack 三份 VSIX 和冻结的 8 个外部扩展；Pack 默认 `onDemand` 下完成 PHP 导航/引用、Symfony YAML 服务引用、PHP/Twig/YAML/XML 格式化、PHP Debug 启动及 PHPUnit 执行和移动恢复，退出码 0。修复测试夹具路由覆盖、首次 onDemand 服务引用空结果与 PHPUnit 11 文件/类名不一致；静态路由 40 Controller 预算回归通过。此为本机开发构建，不代表干净 Alpha 候选、Remote、长会话或 R4；详见[组合门禁报告](reports/open-source-pack-composition-gate-2026-09-24.md)。
+
 2026-09-24 C1/F04-NAV-18c：References 在 onDemand 下复用已完成的候选覆盖，同时按 URI 更新打开文件的接收者方法，旧引用结果的持久证明保持失效。真实 stdio 正反例覆盖同名方法接收者切换、打开文件新增/移除调用及未打开文件新增后的重扫；完整 stdio 141 项通过、1 项原有跳过。10,130 文件隔离宿主的 50 轮六项链共 300 次查询全部正确，References 中位数 89 ms、P95 132 ms，较上轮 645/762 ms 降低；冷查询、Remote、跨平台、长会话与完整组合仍开放。见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。
 
 2026-09-24 C1/F04-NAV-18b：10,130 文件独立 Composer 项目中，隔离 VS Code Core 宿主完成 50 轮未保存类型切换、共 300 次六项编辑查询，结果全部正确。onDemand 模式在打开缓冲区完整更新后复用已经完成的 Implementation 候选覆盖；同一宿主序列的 Implementation 中位数由 689 ms 降至最终复测的 4 ms，P95 由 829 ms 降至 7 ms。真实 stdio 正反例覆盖同名方法不同接口、打开文件新增/移除实现、未打开文件新增实现后的重扫；完整 stdio 140 项通过、1 项跳过。References P95 762 ms、跨平台/Remote 与完整组合仍开放，见[宿主报告](reports/c1-real-composer-10k-host-2026-09-24.md)。

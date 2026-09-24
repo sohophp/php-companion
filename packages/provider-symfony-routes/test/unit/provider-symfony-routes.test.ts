@@ -70,6 +70,21 @@ admin:
     expect(snapshot.routes.map((route) => route.name)).toEqual(['nested']);
   });
 
+  it('keeps a normal controller directory complete within the default route budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-directory-')); roots.push(root);
+    const controllers = join(root, 'src', 'Controller');
+    await mkdir(controllers, { recursive: true }); await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
+    await writeFile(join(root, 'config', 'routes.yaml'), 'home: {path: /home}\ncontrollers: {resource: ../src/Controller/**/*.php, type: attribute}\n');
+    await Promise.all(Array.from({ length: 40 }, (_, index) => writeFile(join(controllers, `Controller${index}.php`),
+      index === 0
+        ? String.raw`<?php namespace App\Controller; class Controller0 { #[\Symfony\Component\Routing\Attribute\Route('/first', name: 'first')] public function run() {} }`
+        : `<?php namespace App\\Controller; class Controller${index} { public function run(): void {} }`)));
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(true);
+    expect(snapshot.routes.map((route) => route.name)).toEqual(['first', 'home']);
+  });
+
   it('marks partial static graphs incomplete instead of publishing authoritative omissions', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-routes-incomplete-')); roots.push(root);
     await mkdir(join(root, 'config', 'routes'), { recursive: true });
