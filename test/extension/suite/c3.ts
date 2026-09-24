@@ -134,12 +134,25 @@ export async function run(): Promise<void> {
   const cancelAction = await extractAction();
   await vscode.commands.executeCommand(cancelAction.command!.command, ...cancelAction.command!.arguments ?? [],
     { testPreviewAction: async () => {
-      assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs)
-        .filter((tab) => tab.label.includes('Extract interface C3ExtractableInterface')).length >= 2,
+      const diffs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+        .filter((tab) => tab.label.includes('Extract interface C3ExtractableInterface'));
+      assert.ok(diffs.length >= 2,
       'Extract Interface did not show source and new interface diffs');
+      for (const tab of diffs) {
+        assert.ok(tab.input instanceof vscode.TabInputTextDiff, 'Extract preview did not open a text diff');
+        const original = await vscode.workspace.openTextDocument(tab.input.original);
+        const modified = await vscode.workspace.openTextDocument(tab.input.modified);
+        assert.strictEqual(original.isDirty, false, 'Extract original preview is editable');
+        assert.strictEqual(modified.isDirty, false, 'Extract modified preview is editable');
+        assert.strictEqual(original.uri.scheme, 'sophp-rename-preview', 'Extract original is not a read-only snapshot');
+        assert.strictEqual(modified.uri.scheme, 'sophp-rename-preview', 'Extract result is not a read-only snapshot');
+      }
       return 'cancel';
     } });
   await assert.rejects(async () => vscode.workspace.fs.stat(interfaceUri), 'Cancelling Extract Interface created the target');
+  assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+    .some((tab) => tab.label.includes('Extract interface C3ExtractableInterface')),
+  'Cancelling Extract Interface left preview tabs open');
   const raceAction = await extractAction();
   await vscode.commands.executeCommand(raceAction.command!.command, ...raceAction.command!.arguments ?? [],
     { testPreviewAction: async () => {

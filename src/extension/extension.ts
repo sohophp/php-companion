@@ -475,20 +475,31 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return true;
     };
     if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
-    const sourcePreview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(sourceText, edit.get(sourceUri)) });
-    await vscode.commands.executeCommand('vscode.diff', sourceUri, sourcePreview.uri,
-      t('extractDiff', request.title, vscode.workspace.asRelativePath(sourceUri)), { preview: false });
-    for (const [uri, edits] of targets) {
-      const previous = existingTargets.get(uri.toString())?.text ?? '';
-      const baseline = existingTargets.has(uri.toString()) ? uri : (await vscode.workspace.openTextDocument({ language: 'php', content: '' })).uri;
-      const preview = await vscode.workspace.openTextDocument({ language: 'php', content: applyTextEdits(previous, edits) });
-      await vscode.commands.executeCommand('vscode.diff', baseline, preview.uri,
-        t('extractDiff', request.title, vscode.workspace.asRelativePath(uri)), { preview: false });
+    const previewUris = new Set<string>();
+    try {
+      const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
+        const baseline = await openRenamePreviewSnapshot(uri, previous);
+        const preview = await openRenamePreviewSnapshot(uri, next);
+        previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+        await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri,
+          t('extractDiff', request.title, vscode.workspace.asRelativePath(uri)), { preview: false });
+      };
+      await showDiff(sourceUri, sourceText, applyTextEdits(sourceText, edit.get(sourceUri)));
+      for (const [uri, edits] of targets) {
+        const previous = existingTargets.get(uri.toString())?.text ?? '';
+        await showDiff(uri, previous, applyTextEdits(previous, edits));
+      }
+      if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;
+      if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
+      if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
+      await vscode.window.showTextDocument(source, { preview: false });
+    } finally {
+      const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
+        && previewUris.has(tab.input.modified.toString()));
+      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      forgetRenamePreviewSnapshots(previewUris);
     }
-    if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;
-    if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
-    if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
-    await vscode.window.showTextDocument(source, { preview: false });
   });
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
