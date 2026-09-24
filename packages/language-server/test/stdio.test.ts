@@ -5260,7 +5260,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       }));
       await symlink(actualPackage, installedPackage, process.platform === 'win32' ? 'junction' : 'dir');
       const declaration = '<?php namespace Local\\Package; class Record { public function alphaOnly(): void {} }';
-      const changed = declaration.replace('alphaOnly', 'betaOnly');
+      const changed = '<?php namespace Local\\Package; class Record { public function betaOnly(): void {} public function inspect(): void { $this->betaOnly(); } }';
       const consumer = '<?php namespace App; use Local\\Package\\Record; function inspect(Record $record): void { $record->; }';
       const actualUri = pathToFileURL(join(actualPackage, 'src', 'Record.php')).toString();
       const installedUri = pathToFileURL(join(installedPackage, 'src', 'Record.php')).toString();
@@ -5314,7 +5314,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         expect(await completion(382 + cycle * 2)).toContain('alphaOnly');
       }
       const installedEdit = declaration.replace('alphaOnly', 'installedOnly');
-      const latestRealEdit = declaration.replace('alphaOnly', 'realLatestOnly');
+      const latestRealEdit = '<?php namespace Local\\Package; class Record { public function realLatestOnly(): void {} public function inspect(): void { $this->realLatestOnly(); } }';
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: actualUri, languageId: 'php', version: 20, text: changed },
       } }));
@@ -5329,6 +5329,27 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         && String(message.params?.message).includes('SoPHP'))).toBe(true);
       expect(await completion(406)).toContain('installedOnly');
       expect(await completion(407)).not.toContain('betaOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 418, method: 'textDocument/hover', params: {
+        textDocument: { uri: actualUri }, position: lspPosition(changed, changed.indexOf('$this->betaOnly') + '$this->'.length + 2),
+      } }));
+      expect(JSON.stringify((await output.waitFor((message) => message.id === 418)).result)).toContain('betaOnly');
+      const localCall = changed.indexOf('$this->betaOnly') + '$this->'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 419, method: 'textDocument/completion', params: {
+        textDocument: { uri: actualUri }, position: lspPosition(changed, localCall),
+      } }));
+      const localCompletions = (await output.waitFor((message) => message.id === 419)).result;
+      expect(localCompletions.map((item: { label: string }) => item.label)).toContain('betaOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 420, method: 'textDocument/definition', params: {
+        textDocument: { uri: actualUri }, position: lspPosition(changed, localCall + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 420)).result).toEqual([{ uri: actualUri, range: {
+        start: lspPosition(changed, changed.indexOf('function betaOnly') + 'function '.length),
+        end: lspPosition(changed, changed.indexOf('function betaOnly') + 'function betaOnly'.length),
+      } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 421, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri: actualUri }, position: lspPosition(changed, localCall + 'betaOnly('.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 421)).result.signatures[0].label).toContain('betaOnly(): void');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: actualUri, version: 22 },
         contentChanges: [{ text: latestRealEdit }],
@@ -5342,6 +5363,11 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         && message.params.uri === installedUri && message.params.version === 23);
       expect(await completion(414)).toContain('installedLatestOnly');
       expect(await completion(415)).not.toContain('realLatestOnly');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 422, method: 'textDocument/hover', params: {
+        textDocument: { uri: actualUri }, position: lspPosition(latestRealEdit,
+          latestRealEdit.indexOf('$this->realLatestOnly') + '$this->'.length + 2),
+      } }));
+      expect(JSON.stringify((await output.waitFor((message) => message.id === 422)).result)).toContain('realLatestOnly');
       const conflictingWatcherAt = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
         changes: [{ uri: actualUri, type: 2 }],

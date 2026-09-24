@@ -4500,6 +4500,10 @@ const openingContentVersions = new Map<string, number>();
 const documentSourcesByUri = new Map<string, string>();
 const openContentSequences = new Map<string, number>();
 const warnedOpenAliasPairs = new Set<string>();
+const localAliasQueryWorkspaces = new Map<string, {
+  documentVersion: number; projectRevision: number; projectWorkspace: SemanticWorkspace;
+  excludedUris: string; workspace: SemanticWorkspace;
+}>();
 let nextOpenContentSequence = 0;
 function hasPossibleOpenPhysicalAlias(document: TextDocument, root: string): boolean {
   if (indexingMode !== 'onDemand') return false;
@@ -4522,6 +4526,31 @@ async function otherOpenPhysicalDocuments(document: TextDocument, root: string):
     if (candidatePhysical && filesystemPathKey(candidatePhysical) === filesystemPathKey(physicalPath)) aliases.push(candidate);
   }
   return aliases;
+}
+
+async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWorkspace> {
+  const projectWorkspace = await semanticForUri(document.uri);
+  const stale = localAliasQueryWorkspaces.get(document.uri);
+  const root = rootForUri(document.uri);
+  if (!root || projectWorkspace.source(document.uri) !== undefined || !hasPossibleOpenPhysicalAlias(document, root)) {
+    if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
+    return projectWorkspace;
+  }
+  const aliases = await otherOpenPhysicalDocuments(document, root);
+  const excluded = aliases.filter((alias) => projectWorkspace.source(alias.uri) !== undefined).map((alias) => alias.uri).sort();
+  if (!excluded.length) {
+    if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
+    return projectWorkspace;
+  }
+  const excludedUris = JSON.stringify(excluded);
+  const projectRevision = projectWorkspace.revision();
+  if (stale && stale.documentVersion === document.version && stale.projectRevision === projectRevision
+    && stale.projectWorkspace === projectWorkspace && stale.excludedUris === excludedUris) return stale.workspace;
+  if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
+  const workspace = projectWorkspace.forkForLocalQuery(document.uri, document.getText(), new Set(excluded));
+  localAliasQueryWorkspaces.set(document.uri, { documentVersion: document.version, projectRevision,
+    projectWorkspace, excludedUris, workspace });
+  return workspace;
 }
 
 async function supersedeOpenPhysicalAliases(document: TextDocument, root: string, workspace: SemanticWorkspace,
@@ -4671,6 +4700,8 @@ function retainClosedOnDemandDocument(root: string, uri: string, workspace: Sema
 
 documents.onDidClose(async ({ document }) => {
   if (document.languageId !== 'php') return;
+  localAliasQueryWorkspaces.get(document.uri)?.workspace.dispose();
+  localAliasQueryWorkspaces.delete(document.uri);
   if (!documents.get(document.uri)) openContentSequences.delete(document.uri);
   for (const pair of warnedOpenAliasPairs) if ((JSON.parse(pair) as string[]).includes(document.uri)) warnedOpenAliasPairs.delete(pair);
   lastPublishedDiagnostics.delete(document.uri);
@@ -4744,7 +4775,7 @@ connection.onDocumentSymbol(async ({ textDocument }, token) => {
 
 connection.languages.semanticTokens.on(async ({ textDocument }, token) => {
   const document = documents.get(textDocument.uri); if (!document || document.languageId !== 'php' || token.isCancellationRequested) return { data: [] };
-  const [syntaxParser, workspace] = await Promise.all([parser(), semanticForUri(document.uri)]);
+  const [syntaxParser, workspace] = await Promise.all([parser(), semanticForOpenQuery(document)]);
   return token.isCancellationRequested ? { data: [] } : analyzePhpSemanticTokens(document, syntaxParser, {
     typeKindAt: (offset) => workspace.typeAt(document.uri, offset)?.kind,
     constantUses: () => workspace.semanticTokenConstantUses(document.uri),
@@ -4753,7 +4784,7 @@ connection.languages.semanticTokens.on(async ({ textDocument }, token) => {
 
 connection.languages.inlayHint.on(async ({ textDocument, range }, token) => {
   const document = documents.get(textDocument.uri); if (!document || document.languageId !== 'php' || token.isCancellationRequested) return [];
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForOpenQuery(document);
   if (token.isCancellationRequested) return [];
   return workspace.inlayTypeHints(document.uri, document.offsetAt(range.start), document.offsetAt(range.end))
     .map((hint) => ({ position: document.positionAt(hint.position), label: hint.label, kind: InlayHintKind.Type as InlayHintKind, paddingLeft: true }))
@@ -4959,7 +4990,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const queryVersion = document.version;
   if (testPauseNextQueries.has('completion')) await pauseTestQuery('completion');
   await semanticProviderReconciliation;
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
@@ -5091,7 +5122,7 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return null;
   const queryVersion = document.version;
   if (testPauseNextQueries.has('hover')) await pauseTestQuery('hover');
-  const workspace = await semanticForUri(document.uri); if (!currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
+  const workspace = await semanticForOpenQuery(document); if (!currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
   const serviceRoot = rootForUri(document.uri);
   const serviceReference = document.languageId === 'php' ? symfonyAutowireServiceIdAt(document.getText(), offset)
     ?? (serviceRoot ? await provenSymfonyContainerServiceReference(document, offset, workspace, serviceRoot) : undefined) : undefined;
@@ -5126,7 +5157,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
   if (testPauseNextQueries.has('definition')) await pauseTestQuery('definition');
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
@@ -5204,7 +5235,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
 connection.onTypeDefinition(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   return workspace.typeDefinition(document.uri, document.offsetAt(position)).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
@@ -5219,7 +5250,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   let member = workspace.referenceMemberAt(document.uri, offset);
@@ -5605,7 +5636,7 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return null;
   const queryVersion = document.version;
   if (testPauseNextQueries.has('signatureHelp')) await pauseTestQuery('signatureHelp');
-  const workspace = await semanticForUri(document.uri); const offset = document.offsetAt(position);
+  const workspace = await semanticForOpenQuery(document); const offset = document.offsetAt(position);
   const root = rootForUri(document.uri);
   if (root && document.languageId === 'php' && !workspace.signatures(document.uri, offset).length) {
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberCallOwnerTypeNamesAt(document.uri, offset),

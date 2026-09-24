@@ -1,4 +1,5 @@
 import * as assert from 'node:assert';
+import { symlink } from 'node:fs/promises';
 import * as vscode from 'vscode';
 
 export async function run(): Promise<void> {
@@ -187,6 +188,55 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $valu
   await waitForMismatch(false);
   console.log(`C2 onDemand cross-file local literal diagnostic: ${JSON.stringify({ visible: [false, true, false, true, false],
     restoredMs: localRestoredMs, declarationUnsaved: methodDocument.isDirty, consumerUnsaved: methodConsumerDocument.isDirty })}`);
+
+  const aliasRealUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'PathAliasRecord.php');
+  const aliasLink = vscode.Uri.joinPath(root.uri, 'alias');
+  const aliasUri = vscode.Uri.joinPath(aliasLink, 'Service', 'PathAliasRecord.php');
+  const aliasConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'PathAliasConsumer.php');
+  const aliasDiskSource = '<?php namespace App\\Service; class PathAliasRecord { public function diskOnly(): void {} }';
+  const aliasRealSource = '<?php namespace App\\Service; class PathAliasRecord { public function realOnly(): void {} public function inspect(): void { $this->realOnly(); } }';
+  const aliasLinkSource = '<?php namespace App\\Service; class PathAliasRecord { public function linkedOnly(): void {} }';
+  const aliasConsumerSource = '<?php namespace App\\Service; function inspectPathAlias(PathAliasRecord $record): void { $record->; }';
+  await vscode.workspace.fs.writeFile(aliasRealUri, Buffer.from(aliasDiskSource));
+  await vscode.workspace.fs.writeFile(aliasConsumerUri, Buffer.from(aliasConsumerSource));
+  await symlink(vscode.Uri.joinPath(root.uri, 'src').fsPath, aliasLink.fsPath, process.platform === 'win32' ? 'junction' : 'dir');
+  const aliasRealDocument = await vscode.workspace.openTextDocument(aliasRealUri);
+  await vscode.window.showTextDocument(aliasRealDocument);
+  const replaceAliasSource = async (target: vscode.Uri, open: vscode.TextDocument, source: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(target, new vscode.Range(new vscode.Position(0, 0), open.positionAt(open.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit), `Could not edit ${target.toString()}.`);
+    assert.ok(open.isDirty, `The path alias buffer ${target.toString()} was unexpectedly saved.`);
+  };
+  await replaceAliasSource(aliasRealUri, aliasRealDocument, aliasRealSource);
+  const aliasDocument = await vscode.workspace.openTextDocument(aliasUri);
+  await vscode.window.showTextDocument(aliasDocument);
+  await replaceAliasSource(aliasUri, aliasDocument, aliasLinkSource);
+  const aliasConsumerDocument = await vscode.workspace.openTextDocument(aliasConsumerUri);
+  await vscode.window.showTextDocument(aliasConsumerDocument);
+  const projectAliasCompletions = async (): Promise<string[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', aliasConsumerUri,
+    aliasConsumerDocument.positionAt(aliasConsumerSource.indexOf('$record->') + '$record->'.length)))?.items.map((item) => String(item.label)) ?? [];
+  const aliasDeadline = Date.now() + 20_000;
+  while (Date.now() < aliasDeadline && !(await projectAliasCompletions()).includes('linkedOnly')) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok((await projectAliasCompletions()).includes('linkedOnly'), 'The latest linked tab did not own project facts.');
+  assert.ok(!(await projectAliasCompletions()).includes('realOnly'), 'The older real-path tab leaked into project facts.');
+  const localAliasCall = aliasRealSource.indexOf('$this->realOnly') + '$this->'.length;
+  const aliasHovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+    'vscode.executeHoverProvider', aliasRealUri, aliasRealDocument.positionAt(localAliasCall + 2)) ?? [];
+  assert.ok(aliasHovers.some((hover) => hover.contents.some((item) => (typeof item === 'string' ? item : item.value).includes('realOnly'))),
+    'The non-owner tab lost Hover for its unsaved local method.');
+  const aliasLocalCompletions = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', aliasRealUri, aliasRealDocument.positionAt(localAliasCall));
+  assert.ok(aliasLocalCompletions?.items.some((item) => String(item.label) === 'realOnly'),
+    'The non-owner tab lost its own local member completion.');
+  const aliasDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', aliasRealUri, aliasRealDocument.positionAt(localAliasCall + 2)) ?? [];
+  assert.ok(aliasDefinitions.some((location) => location.uri.toString() === aliasRealUri.toString()
+    && aliasRealDocument.getText(location.range) === 'realOnly'), 'The non-owner tab did not navigate to its own declaration.');
+  console.log('C2 onDemand dual-path local queries: project uses linkedOnly; real tab Hover, Completion, Definition use realOnly');
 
   const recordsUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocRecords.php');
   const consumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileDocConsumer.php');

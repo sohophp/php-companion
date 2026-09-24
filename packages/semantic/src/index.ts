@@ -863,7 +863,20 @@ export class SemanticWorkspace {
   // Reuse inherited/member composition within one synchronous References query.
   // Project edits and provider facts may change members between queries.
   private referenceMemberCache?: Map<string, MemberInfo[]>;
+  private sourceRevision = 0;
   constructor(private readonly parser: PhpSyntaxParser) {}
+
+  revision(): number { return this.sourceRevision; }
+
+  forkForLocalQuery(uri: string, source: string, excludedUris: ReadonlySet<string>): SemanticWorkspace {
+    const fork = new SemanticWorkspace(this.parser);
+    try {
+      for (const file of this.files.values()) if (!excludedUris.has(file.uri) && file.uri !== uri) fork.update(file.uri, file.source);
+      for (const contribution of this.externalFacts.values()) fork.replaceExternalFacts(contribution);
+      fork.update(uri, source, true);
+      return fork;
+    } catch (error) { fork.dispose(); throw error; }
+  }
 
   private deferSourceImplementation(file: SemanticFile): void {
     this.deferredSources.set(file.uri, file);
@@ -1130,6 +1143,7 @@ export class SemanticWorkspace {
   private updateSource(uri: string, source: string, retainTree: boolean, deferImplementation: boolean,
     prepared?: PreparedPhpDocument): SemanticUpdateResult {
     if (prepared && retainTree) throw new TypeError('Prepared PHP facts cannot retain a syntax tree.');
+    this.sourceRevision += 1;
     this.referenceResultCache.clear();
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
@@ -1498,6 +1512,7 @@ export class SemanticWorkspace {
     }
   }
   remove(uri: string): void {
+    this.sourceRevision += 1;
     this.referenceResultCache.clear();
     this.clearSourceImplementation(uri);
     const oldFile = this.files.get(uri);
@@ -1527,20 +1542,21 @@ export class SemanticWorkspace {
     });
     let unchanged = false;
     if (previous) try {
-      unchanged = JSON.stringify([previous.methods, previous.properties, previous.literalMethodReturns])
+      unchanged = previous.complete === next.complete && JSON.stringify([previous.methods, previous.properties, previous.literalMethodReturns])
         === JSON.stringify([next.methods, next.properties, next.literalMethodReturns]);
     } catch { /* Non-serializable extras must not permit cache reuse. */ }
     this.externalFacts.set(contribution.providerId, next);
     // Provider generation and registration metadata are not semantic inputs.
     // Preserve completed queries only when all consumed facts are identical.
     if (unchanged) return true;
+    this.sourceRevision += 1;
     this.assertedTargetInferenceCache.clear();
     this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches();
     return true;
   }
   removeExternalFacts(providerId: string): boolean {
     const removed = this.externalFacts.delete(providerId);
-    if (removed) { this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); }
+    if (removed) { this.sourceRevision += 1; this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); }
     return removed;
   }
   /** @deprecated Submit one atomic SemanticFactsContribution with replaceExternalFacts(). */
