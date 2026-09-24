@@ -894,7 +894,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const cancellation = new vscode.CancellationTokenSource();
     let staged: { key: string; edit: vscode.WorkspaceEdit } | undefined;
     const previewUris = new Set<string>();
-    const openedChangesTabs: vscode.Tab[] = [];
+    const openedChangesLabels = new Set<string>();
     try {
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
@@ -942,11 +942,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           const group = previewResources.slice(start, start + 20);
           const move = fileRename ? `; ${vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.oldUri))} → ${vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri))}` : '';
           const title = `SoPHP Rename: ${newName} (${start + 1}–${start + group.length} / ${previewResources.length} files${move})`;
-          const before = new Set(vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs));
           await vscode.commands.executeCommand('vscode.changes', title,
             group.map((resource): [vscode.Uri, vscode.Uri, vscode.Uri] => [resource.label, resource.original, resource.modified]));
-          openedChangesTabs.push(...vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs)
-            .filter((tab) => !before.has(tab) && tab.label.startsWith(`SoPHP Rename: ${newName} (`)));
+          for (const tab of vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs)) {
+            if (tab.label.startsWith(`SoPHP Rename: ${newName} (`)
+              && tab.label.includes(`${start + 1}–${start + group.length} / ${previewResources.length} files`))
+              openedChangesLabels.add(tab.label);
+          }
         }
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedRename', newName), options?.testPreviewAction)) return false;
@@ -967,9 +969,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     } finally {
       if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
       const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
-        tab.input instanceof vscode.TabInputTextDiff && previewUris.has(tab.input.original.toString())
-        && previewUris.has(tab.input.modified.toString()));
-      if (previewTabs.length || openedChangesTabs.length) await vscode.window.tabGroups.close([...previewTabs, ...openedChangesTabs]);
+        openedChangesLabels.has(tab.label) || (tab.input instanceof vscode.TabInputTextDiff
+          && previewUris.has(tab.input.original.toString()) && previewUris.has(tab.input.modified.toString())));
+      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
       forgetRenamePreviewSnapshots(previewUris);
       cancellation.dispose();
     }

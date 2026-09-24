@@ -588,7 +588,7 @@ export async function run(): Promise<void> {
   const groupedNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3GroupedRenamed.php');
   const groupedSource = '<?php\nnamespace App\\Service;\nfinal class C3GroupedType {}\n';
   await vscode.workspace.fs.writeFile(groupedTypeUri, Buffer.from(groupedSource));
-  const groupedConsumers = Array.from({ length: 4 }, (_, index) =>
+  const groupedConsumers = Array.from({ length: 21 }, (_, index) =>
     vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `C3GroupedConsumer${index}.php`));
   for (const [index, consumer] of groupedConsumers.entries()) await vscode.workspace.fs.writeFile(consumer,
     Buffer.from(`<?php\nnamespace App\\Controller;\nuse App\\Service\\C3GroupedType;\nfinal class C3GroupedConsumer${index} { public function run(C3GroupedType $item): void {} }\n`));
@@ -612,19 +612,27 @@ export async function run(): Promise<void> {
   assert.strictEqual(await groupedRename(async () => {
     const changesTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs)
       .filter((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed ('));
-    assert.strictEqual(changesTabs.length, 1, 'Grouped Rename opened more than one changes tab for five files');
+    assert.strictEqual(changesTabs.length, 2, 'Grouped Rename did not split 22 files into two changes tabs');
+    assert.ok(changesTabs.some((tab) => tab.label.includes('1–20 / 22 files'))
+      && changesTabs.some((tab) => tab.label.includes('21–22 / 22 files')),
+    'Grouped Rename did not show the complete file range in both tabs');
     return 'cancel';
   }), false);
   assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
     .some((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed (')),
   'Cancelling grouped Rename left the changes tab open');
   assert.strictEqual(await groupedRename(async () => 'apply'), true, 'Grouped Rename did not apply');
+  assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+    .some((tab) => tab.label.startsWith('SoPHP Rename: C3GroupedRenamed (')),
+  'Applying grouped Rename left a changes tab open');
   assert.ok((await vscode.workspace.openTextDocument(groupedNewUri)).getText().includes('class C3GroupedRenamed'));
   for (const consumer of groupedConsumers) assert.ok((await vscode.workspace.openTextDocument(consumer)).getText().includes('C3GroupedRenamed'));
   await vscode.commands.executeCommand('undo');
   assert.ok((await vscode.workspace.openTextDocument(groupedTypeUri)).getText().includes('class C3GroupedType'));
+  for (const consumer of groupedConsumers) assert.ok((await vscode.workspace.openTextDocument(consumer)).getText().includes('C3GroupedType'));
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(groupedNewUri)).getText().includes('class C3GroupedRenamed'));
+  for (const consumer of groupedConsumers) assert.ok((await vscode.workspace.openTextDocument(consumer)).getText().includes('C3GroupedRenamed'));
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();
