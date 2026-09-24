@@ -6603,7 +6603,10 @@ class Example {}`;
     const source = `<?php
       function local(int $value): void {}
       class LocalNamedArguments { public function accept(int $value): void {} }
-      function run(LocalNamedArguments $local): void { local(other: 1); $local->accept(other: 1); external(other: 1); }
+      function run(LocalNamedArguments $local, array $items): void {
+        local(other: 1); $local->accept(other: 1); external(other: 1);
+        local(value: 1, value: 2); local(value: 1, 2); local(value: 1, ...$items);
+      }
     `;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 575, method: 'initialize', params: {
       processId: null, capabilities: {}, rootUri: null,
@@ -6619,13 +6622,18 @@ class Example {}`;
     const initial = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === localUri && message.params.version === 1);
     expect(initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.unknown-named')).toHaveLength(2);
-    const fixed = source.replaceAll('other: 1', 'value: 1');
+    expect(initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.duplicate-named')).toHaveLength(1);
+    expect(initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.positional-after-named')).toHaveLength(1);
+    expect(initial.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.argument.unpack-after-named')).toHaveLength(1);
+    const fixed = source.replaceAll('other: 1', 'value: 1')
+      .replace('local(value: 1, value: 2); local(value: 1, 2); local(value: 1, ...$items);',
+        'local(value: 1); local(2); local(...$items);');
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
       textDocument: { uri: localUri, version: 2 }, contentChanges: [{ text: fixed }],
     } }));
     const updated = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === localUri && message.params.version === 2);
-    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.unknown-named')).toBe(false);
+    expect(updated.params.diagnostics.some((item: { code?: string }) => item.code?.startsWith('php.argument.'))).toBe(false);
   });
 
   it('publishes native never fallthrough only for proven normal completion', async () => {

@@ -1491,6 +1491,17 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     source: 'PHP Companion',
     message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
+  if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')
+    && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri).map((problem) => ({
+    range: { start: document.positionAt(problem.start), end: document.positionAt(problem.end) },
+    severity: DiagnosticSeverity.Error,
+    code: `php.argument.${problem.kind}`,
+    source: 'PHP Companion',
+    message: problem.kind === 'duplicate-named'
+      ? diagnosticMessage(clientDiagnosticLanguage, 'duplicateNamedArgument', String(problem.name))
+      : problem.kind === 'unpack-after-named' ? diagnosticMessage(clientDiagnosticLanguage, 'unpackAfterNamed')
+        : diagnosticMessage(clientDiagnosticLanguage, 'positionalAfterNamed'),
+  })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && (!root || !completeRoots.has(root))) {
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
@@ -1708,16 +1719,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       code: 'php.argument.unknown-named',
       source: 'PHP Companion',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
-    })));
-    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri).map((problem) => ({
-      range: { start: document.positionAt(problem.start), end: document.positionAt(problem.end) },
-      severity: DiagnosticSeverity.Error,
-      code: `php.argument.${problem.kind}`,
-      source: 'PHP Companion',
-      message: problem.kind === 'duplicate-named'
-        ? diagnosticMessage(clientDiagnosticLanguage, 'duplicateNamedArgument', String(problem.name))
-        : problem.kind === 'unpack-after-named' ? diagnosticMessage(clientDiagnosticLanguage, 'unpackAfterNamed')
-          : diagnosticMessage(clientDiagnosticLanguage, 'positionalAfterNamed'),
     })));
     result.diagnostics.push(...workspace.missingInterfaceImplementations(document.uri).filter((item) => !item.abstract).map((item) => ({
       range: { start: document.positionAt(item.classStart), end: document.positionAt(item.classEnd) },
