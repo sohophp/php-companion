@@ -1,5 +1,7 @@
 # 实施状态
 
+2026-09-24 C2 联合形状缓存恢复：10,131 文件、500 轮真实 stdio 编辑后，关闭未保存声明、磁盘 watcher 不兼容/兼容往返及同版本关闭重开均使使用方诊断、Definition、Hover 使用当前事实；最终匹配后 150 ms 未观察到旧诊断回闪。诊断/Definition/Hover P95 为 98.2/19.5/2.93 ms，Language Server RSS 148.2→156.1 MiB。顺序恢复链和短观察窗口不能证明任意并发或长期使用，见[报告](reports/c2-real-vendor-union-shape-session-2026-09-24.md)。
+
 2026-09-24 C2 联合数组形状 Language Server 长序列：独立真实 vendor 与约 10,131 个 PHP 文件的默认 `onDemand` stdio，在 500 轮未保存跨文件 PHPDoc 切换中逐轮核对参数诊断、Definition 和 Hover；受控取消的旧 Hover 返回 `null`。诊断匹配 P95 98.3 ms，随后 Definition/Hover 请求 P95 22.8/3.07 ms；语言服务器 RSS 144.2→153.3 MiB，后半段采样未见持续增长。约 52 秒单机样本不等于长期或 Remote 验收，见[报告](reports/c2-real-vendor-union-shape-session-2026-09-24.md)。
 
 2026-09-24 C2 完整 Pack 大项目联合形状会话：11 项源码 Profile、真实 1,029 个 vendor PHP 文件和 9,100 个生成文件中，原有标量反馈 50 轮后又完成跨文件 PHPDoc 联合形状 30 轮未保存切换。两次隔离宿主均逐轮核对 Definition、Hover 与参数诊断一致，退出码 0；联合形状从编辑到三项一致的 P95 为 201/202 ms。复轮扩展宿主 RSS 采样 228→207 MiB，独立语言服务器 RSS 与长期使用仍需验证。见[大项目 Pack 报告](reports/open-source-pack-c2-real-vendor-host-2026-09-24.md)。

@@ -185,11 +185,52 @@ try {
       timings.definition.push(result.definitionMs); timings.hover.push(result.hoverMs);
       if ((round + 1) % 25 === 0 || round === rounds - 1) rssSamples.push({ round: round + 1, rssMiB: await rssMiB(server.child.pid) });
     }
+    if (rounds % 2 === 1) {
+      version += 1; after = server.messages.length;
+      server.send({ method: 'textDocument/didChange', params: {
+        textDocument: { uri: serviceUri, version }, contentChanges: [{ text: shapeSource(false) }],
+      } });
+      await server.waitFor((message) => mismatch(message, false), after);
+      await feedback(false);
+    }
+    after = server.messages.length;
+    server.send({ method: 'textDocument/didClose', params: { textDocument: { uri: serviceUri } } });
+    await server.waitFor((message) => mismatch(message, true), after);
+    await feedback(true);
+    await writeFile(join(root, 'src', 'Service.php'), shapeSource(false));
+    after = server.messages.length;
+    server.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 2 }] } });
+    await server.waitFor((message) => mismatch(message, false), after);
+    await feedback(false);
+    await writeFile(join(root, 'src', 'Service.php'), shapeSource(true));
+    after = server.messages.length;
+    server.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 2 }] } });
+    await server.waitFor((message) => mismatch(message, true), after);
+    await feedback(true);
+    after = server.messages.length;
+    server.send({ method: 'textDocument/didOpen', params: {
+      textDocument: { uri: serviceUri, languageId: 'php', version: 1, text: shapeSource(false) },
+    } });
+    await server.waitFor((message) => mismatch(message, false), after);
+    await feedback(false);
+    after = server.messages.length;
+    server.send({ method: 'textDocument/didClose', params: { textDocument: { uri: serviceUri } } });
+    server.send({ method: 'textDocument/didOpen', params: {
+      textDocument: { uri: serviceUri, languageId: 'php', version: 1, text: shapeSource(true) },
+    } });
+    await server.waitFor((message) => mismatch(message, true), after);
+    await feedback(true);
+    const settledAt = server.messages.length;
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, 150));
+    if (server.messages.slice(settledAt).some((message) => mismatch(message, false))) {
+      throw new Error('A stale union-shape diagnostic appeared after same-version reopen.');
+    }
     await server.stop(); server = undefined;
     process.stdout.write(`${JSON.stringify({ schema: 1, scenario, rounds, noiseFiles, vendorPhpFiles,
       projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
       elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
-        .map(([name, values]) => [name, summary(values)])), rssSamples }, null, 2)}\n`);
+        .map(([name, values]) => [name, summary(values)])), rssSamples,
+      recovery: { closeRestoredDisk: true, watcherRoundTrip: true, sameVersionReopen: true } }, null, 2)}\n`);
   } else {
     const hoverPosition = positionAt(consumer, consumer.lastIndexOf('$value);') + 2);
     const pausedId = 10_000; const pausedAt = server.messages.length;

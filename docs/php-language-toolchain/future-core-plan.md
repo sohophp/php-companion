@@ -79,6 +79,8 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [联合形状真实 stdio 长序列](reports/c2-real-vendor-union-shape-session-2026-09-24.md)进一步在同一 10,131 文件项目完成 500 轮未保存 PHPDoc 切换：每轮诊断、Definition 与 Hover 匹配，受控取消的旧 Hover 返回 `null`；诊断匹配 P95 98.3 ms，独立 Language Server RSS 后半段未持续上升。下一步仍需更长的编辑器会话、缓存和取消交错、WSL Remote 与跨平台的独立验收；约 52 秒 stdio 不能替代这些证据。
 
+同一[stdio 基准](reports/c2-real-vendor-union-shape-session-2026-09-24.md)再完成 500 轮后的关闭恢复、磁盘 watcher 往返与同版本立即重开，诊断、Definition、Hover 每步与最新事实一致；最终 150 ms 观察窗内未出现旧诊断回闪。下一步针对真正重叠的请求、watcher 和关闭事件建立可控时序，并在更长 VS Code 宿主会话中核对等待和内存；WSL Remote 与跨平台仍按 C4 门槛验收。
+
 [局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
