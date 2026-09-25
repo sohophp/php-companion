@@ -5587,6 +5587,13 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     locations = workspace.definition(document.uri, offset);
   }
+  if (!locations.length && document.languageId === 'php') {
+    const memberAccess = workspace.isMemberAccessAt(document.uri, offset);
+    const owners = memberAccess ? workspace.memberOwnerTypeNamesAt(document.uri, offset) : [];
+    connection.console.info(`[definition-empty] ${JSON.stringify({ uri: document.uri, line: position.line + 1,
+      character: position.character, version: document.version, sourceHash: createHash('sha256').update(document.getText()).digest('hex').slice(0, 16),
+      memberAccess, owners: owners.map((owner) => ({ name: owner, state: workspace.typeByFqcn(owner)?.uri ?? 'unloaded' })) })}`);
+  }
   return locations.flatMap((location) => {
     const openTarget = documents.get(location.uri);
     const source = openTarget?.getText() ?? workspace.source(location.uri);
