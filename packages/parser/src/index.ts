@@ -832,6 +832,7 @@ export class PhpSyntaxParser {
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (condition && body && alternative && scope) {
           narrowings.push(...predicateConditionFacts(condition, true, scope.id, body.startIndex, body.endIndex));
+          narrowings.push(...positiveConditionFacts(condition, scope.id, body.startIndex, body.endIndex));
           narrowings.push(...predicateConditionFacts(condition, false, scope.id, alternative.startIndex, alternative.endIndex));
         }
       }

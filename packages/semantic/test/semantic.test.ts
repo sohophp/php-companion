@@ -2624,6 +2624,32 @@ describe('conservative semantic workspace', () => {
       expect(isolated.definition(uri, offset)).toMatchObject([{ uri: ownerUri, start: owner.indexOf('getContent') }]);
     } finally { isolated.dispose(); }
   });
+  it('resolves a trait method in an instanceof guarded ternary without leaking past the guard', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const uri = 'file:///SolutionReadService.php';
+    const source = `<?php namespace App;
+      class SolutionReadService {
+        public function alternates($entity): array {
+          return $entity instanceof SolutionCategory
+            ? $entity->getTranslations()->toArray()
+            : [];
+        }
+        public function unchecked($entity): void { $entity->getTranslations(); }
+      }`;
+    const ownerUri = 'file:///SolutionCategory.php';
+    const traitUri = 'file:///TranslatableEntityTrait.php';
+    const owner = '<?php namespace App; class SolutionCategory { use TranslatableEntityTrait; }';
+    const trait = '<?php namespace App; trait TranslatableEntityTrait { public function getTranslations(): array { return []; } }';
+    const offset = source.indexOf('->getTranslations') + 3;
+    try {
+      isolated.update(uri, source);
+      expect(isolated.memberOwnerTypeNamesAt(uri, offset)).toContain('App\\SolutionCategory');
+      isolated.update(ownerUri, owner);
+      isolated.update(traitUri, trait);
+      expect(isolated.definition(uri, offset)).toMatchObject([{ uri: traitUri, start: trait.indexOf('getTranslations') }]);
+      expect(isolated.definition(uri, source.lastIndexOf('->getTranslations') + 3)).toEqual([]);
+    } finally { isolated.dispose(); }
+  });
   it('narrows after a guard whose top-level sequence ends in return or exit', () => {
     workspace.update('file:///GuardSequenceType.php', '<?php namespace GuardSequence; class A { public function onlyA(): void {} }');
     const source = '<?php namespace GuardSequence; function run(?A $returned, ?A $exited, ?A $unsafe): void { if ($returned === null) { logIt(); return; } $returned->only; if ($exited === null) exit(1); $exited->only; if ($unsafe === null) { if (maybe()) return; } $unsafe->only; }';

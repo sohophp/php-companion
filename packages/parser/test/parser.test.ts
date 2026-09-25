@@ -944,6 +944,14 @@ class Child extends ParentBase implements Contract {
     expect(result.narrowings.some((item) => item.variable === '$loose')).toBe(false);
     result.tree.delete();
   });
+  it('records instanceof only in the true arm of a ternary', () => {
+    const source = '<?php function run($entity) { return $entity instanceof Card ? $entity->getTranslations() : null; }';
+    const result = parser.parse(source);
+    const call = source.indexOf('->getTranslations');
+    expect(result.narrowings.filter((item) => item.kind === 'instanceof' && item.start <= call && call < item.end))
+      .toMatchObject([{ variable: '$entity', typeName: 'Card', scopeId: 'run' }]);
+    result.tree.delete();
+  });
   it('records positive condition facts after standalone native assert calls', () => {
     const source = `<?php function run(A|B $value, A|B $named, A|B $left, A|B $right, ?A $nullable, string|int $scalar, A|B $described, A|B $namedDescription, A|B $reordered, A|B $excluded, string|int $negativeScalar, ?A $notNull, int|float|string $numeric, array $data, A|B $nested, A|B $dynamicDescription, string $message, A|B $invalidOrder) {
       assert($value instanceof A); $value->a();
