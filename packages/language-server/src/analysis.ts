@@ -144,12 +144,12 @@ function containsPotentialLoopExit(node: FlowSyntaxNode, budget: FlowBudget, dep
 function expressionTerminates(node: FlowSyntaxNode, budget: FlowBudget, depth: number): boolean {
   if (depth > 256 || budget.remaining-- <= 0) { budget.complete = false; return false; }
   if (node.type === 'throw_expression' || budget.terminatingCalls.has(`${node.startIndex}:${node.endIndex}`)) return true;
-  if (node.type === 'binary_expression') {
+  if (node.type === 'binary_expression' || node.type === 'augmented_assignment_expression') {
     const left = node.namedChildren[0]; const right = node.namedChildren.at(-1);
     if (!left || !right) return false;
     if (expressionTerminates(left, budget, depth + 1)) return true;
     const operator = node.text.slice(left.endIndex - node.startIndex, right.startIndex - node.startIndex).trim().toLowerCase();
-    return !['&&', '||', 'and', 'or', '??'].includes(operator) && expressionTerminates(right, budget, depth + 1);
+    return !['&&', '||', 'and', 'or', '??', '??='].includes(operator) && expressionTerminates(right, budget, depth + 1);
   }
   if (node.type === 'conditional_expression') {
     const condition = node.namedChildren[0];
