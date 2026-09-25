@@ -20,6 +20,10 @@ async function main(): Promise<void> {
   if (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 60_000) {
     throw new Error('PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE must be an integer from 0 to 60,000.');
   }
+  const coldWarmRounds = Number(process.env.PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS ?? 0);
+  if (!Number.isSafeInteger(coldWarmRounds) || coldWarmRounds < 0 || coldWarmRounds > 200) {
+    throw new Error('PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS must be an integer from 0 to 200.');
+  }
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
@@ -205,6 +209,8 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE: realVendorNoise ? String(realVendorNoise) : undefined,
         PHP_COMPANION_TEST_C1_COLD_QUERY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COLD_QUERY : undefined,
+        PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS: c1Only ? String(coldWarmRounds) : undefined,
+        PHP_COMPANION_TEST_C1_CHAIN_ROUNDS: c1Only ? process.env.PHP_COMPANION_TEST_C1_CHAIN_ROUNDS : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
         PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION: docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : undefined,
       },

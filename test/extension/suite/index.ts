@@ -206,6 +206,29 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
       && coreDocument.getText(location.range) === 'answer');
   }, 'SoPHP Core did not find the PHP call in the Open Source Profile', 30_000, 100);
 
+  const namedUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileNamedArguments.php');
+  const namedSource = '<?php namespace App; function profileNamed(int $first, int $second, bool $third): void {} profileNamed(third: true, ';
+  await vscode.workspace.fs.writeFile(namedUri, Buffer.from(namedSource));
+  const namedDocument = await vscode.workspace.openTextDocument(namedUri);
+  await vscode.window.showTextDocument(namedDocument);
+  const namedFeedback = async (): Promise<{ active: number | undefined; names: string[] }> => {
+    const position = namedDocument.positionAt(namedDocument.getText().length);
+    const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', namedUri, position);
+    const completion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namedUri, position);
+    return { active: help?.activeParameter, names: completion?.items.map((item) => String(item.label))
+      .filter((label) => ['first:', 'second:', 'third:'].includes(label)) ?? [] };
+  };
+  assert.deepStrictEqual(await namedFeedback(), { active: 0, names: ['first:', 'second:'] },
+    'The full Pack did not highlight and complete only unfilled named arguments.');
+  const namedEdit = new vscode.WorkspaceEdit();
+  namedEdit.replace(namedUri, new vscode.Range(new vscode.Position(0, 0),
+    namedDocument.positionAt(namedDocument.getText().length)), namedSource.replace('third: true, ', '1, third: true, '));
+  assert.ok(await vscode.workspace.applyEdit(namedEdit));
+  assert.ok(namedDocument.isDirty);
+  assert.deepStrictEqual(await namedFeedback(), { active: 1, names: ['second:'] },
+    'The full Pack reoffered a positional argument after an unsaved mixed call edit.');
+  console.log('Open Source Pack C2 named arguments: unfilled signature and completion survive an unsaved mixed call edit');
+
   const returnUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturn.php');
   const consumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturnConsumer.php');
   const returnSource = `<?php namespace App;

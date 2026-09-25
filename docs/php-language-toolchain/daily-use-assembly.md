@@ -2,7 +2,7 @@
 
 日期：2026-09-24。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
-2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。Core 下一步先审计现有代码生成 Action 的正确性；生成新文件的 Redo 独立保留为 C3 阻断项，见[执行清单](reports/open-source-pack-next-core-2026-09-25.md)。
+2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。当前 Core 顺序以[Pack 整理与 Core 下一步](reports/open-source-pack-next-core-2026-09-25.md)开头的执行快照为准；生成新文件的 Redo 独立保留为 C3 阻断项。
 
 此前组合复核发现，`recca0120.vscode-phpunit` 3.9.40 在已配置测试项目的文件事件与 Rename 交错中，间歇性读取旧路径并抛出未处理错误；一次单独重跑通过，不能据此判定稳定。见[Composer 生成快照与 Pack 复核](reports/c3-generation-composer-snapshot-2026-09-25.md)。这一阶段的判断已由上面的默认清单决定取代。
 

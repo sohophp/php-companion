@@ -4,13 +4,13 @@
 
 当前源码组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。已冻结的 0.4.5 私有 VSIX 候选与公开 Marketplace 页面均不能代表此源码清单，须等下一次同批候选冻结。
 
-成员职责、现有验证范围和 Core 下一步见[Open Source Pack 整理与 SoPHP 下一步](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-next-core-2026-09-25.md)。
+成员职责、现有验证范围和 Core 下一步见[Open Source Pack 整理与 SoPHP 下一步](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-next-core-2026-09-25.md)。[Marketplace 与源码清单核对](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-marketplace-audit-2026-09-25.md)记录了公开旧包的实际成员与外部工具的稳定版本快照。
 
 ## 包含内容
 
 | 扩展 | 职责 |
 |---|---|
-| SoPHP | Composer/PSR-4、类型创建、项目工作流和按需安全重构 |
+| SoPHP Core | PHP 补全、类型、导航、诊断、Composer/PSR-4、类型创建与按需安全重构 |
 | SoPHP Symfony | 服务容器、依赖注入、路由、事件及 Controller → Twig 上下文 |
 | TwigPlus | Twig 补全、导航、诊断和格式化 |
 | YAML | YAML 语法、Schema、补全、诊断和格式化 |
@@ -21,9 +21,11 @@
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 | PHP DocBlocker | 输入 `/**` 生成 PHPDoc，补全 `@param` 等标签；SoPHP 负责解析生成的类型 |
 
-以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由该扩展自身声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。[公开 Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)可能仍是旧版，不能用其说明或安装结果验证本仓库源码；Core、Symfony 和 Pack 要使用同一候选的三个 VSIX。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。[公开 Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)仍是旧清单，且 SoPHP Symfony 尚未公开上架；不能用公开包的安装结果验证本仓库源码。Core、Symfony 和 Pack 要使用同一候选的三个 VSIX。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
 
 **测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。`recca0120.vscode-phpunit` 不再由 Pack 自动安装；若你已单独安装原版 3.9.40，在文件 Rename/Undo/Redo 场景遇到旧路径错误时，应在该工作区禁用它。本地最小补丁仅用于隔离评估，尚未进入 Marketplace。见[原版组合复核](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-c3-original-recheck-2026-09-25.md)。
+
+**新文件生成：**类、接口、Trait、Enum 和测试文件先预览再创建。当前隔离 VS Code 宿主中，Undo 可删除生成文件，但一次 Redo 未能恢复；撤销后可重新执行生成命令。该限制仍是 SoPHP Core 的 C3 开放项。
 
 在项目根目录运行已安装的测试工具：
 

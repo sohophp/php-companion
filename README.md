@@ -90,7 +90,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 }
 ```
 
-独立安装和两个组合包均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
+独立安装和当前 Open Source Pack 均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
 
 ## 性能模型
 
@@ -117,11 +117,13 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 
 也可以在资源管理器右键 PHP 文件，使用 `SoPHP: Safe Move PHP File` 选择目标目录；该命令默认先预览 namespace 与已证明引用的改动，再以一个可撤销、可重做的原子编辑完成文件移动与代码更新。可通过 `phpCompanion.move.preview: false` 跳过命令预览。
 
+新建类、接口、Trait、Enum 或测试文件会先显示预览。当前隔离 VS Code 宿主中，生成文件可由一次 Undo 删除，但随后一次 Redo 未能恢复；如果已撤销，可重新执行生成命令。此限制只涉及新文件生成，不代表 Safe Move 等其它已验证编辑操作。
+
 使用 `SoPHP: Show Diagnostics Report` 和 `Show Performance Log` 查看加载与索引情况。日志不会记录源码。
 
 ## 推荐职责边界
 
-- SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；两个组合包默认启用。
+- SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；当前由 Open Source Pack 默认启用。
 - PHP Debug：Xdebug 调试。
 - PHP CS Fixer：格式化。
 - 项目 PHPUnit/Pest CLI：默认测试执行；测试视图扩展按项目单独评估。

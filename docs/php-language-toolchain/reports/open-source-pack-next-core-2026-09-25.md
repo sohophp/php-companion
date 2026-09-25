@@ -2,6 +2,24 @@
 
 日期：2026-09-25。依据本仓库的 Pack manifest、冻结 Profile 清单及已有隔离宿主报告；未修改业务项目，也未重新打包 VSIX。
 
+## 当前执行快照
+
+**Pack：**源码 manifest 与冻结 Profile 对应 10 个唯一 ID：SoPHP Core、SoPHP Symfony，以及 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets、PHP DocBlocker。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由它自身依赖安装。SoPHP 是唯一通用 PHP Language Server，PHP CS Fixer 是 PHP 默认格式化器；测试由项目 PHPUnit/Pest CLI 执行。Recommended Pack 和原版 PHPUnit 测试视图不进入新候选。Pack 只记录扩展 ID，安装时的外部版本必须在候选冻结时核对。[Marketplace 实包核对](open-source-pack-marketplace-audit-2026-09-25.md)确认公开 Open Source Pack 0.4.5 仍是旧组合，Symfony 也未公开上架，不能当作此清单的安装证据。
+
+**已完成的源码门禁：**10 项 manifest/唯一所有者检查、隔离 Linux 源码宿主的 PHP/Symfony、Twig/YAML/XML、格式化、调试入口与项目 PHPUnit CLI 链；真实 vendor 的 200 轮标量和 30 轮联合类型反馈；49,000 文件冷 References 的有界等待样本；未保存编辑与 watcher 交错的真实 LSP 回归。各报告见下文。它们不证明当前已安装的旧 0.4.5 VSIX、WSL Remote、其它系统或长时间人工使用。
+
+[普通函数参数提示的候选索引](c2-function-signature-candidate-index-2026-09-25.md)已代替逐次扫描所有已解析文件；跨文件导入别名的未保存声明修改、同名隔离和真实 stdio 六项查询通过。该语义层优化未用编辑器端到端样本证明可见等待已消失。
+
+[命名实参后的签名高亮与补全](c2-named-signature-next-unused-2026-09-25.md)现跟随第一个未填写参数或唯一匹配的参数名前缀，且补全不再重荐已通过位置实参填写的参数；语义、真实 stdio、Core C2 宿主及当前 10 项 Open Source Pack 的完整源码 Profile 均通过。安装候选与 Remote 的真实操作仍待 C4。
+
+**SoPHP 接下来按此顺序执行：**
+
+1. **C2 日常编辑反馈，保留 C1 导航门槛。** 在独立 Composer 项目和当前 10 项源码 Profile 下，先复核未保存输入的补全、参数提示、Hover、定义与诊断，特别是关闭、取消、文件 watcher 交错后的结果版本；再用同一会话核对 References。先修可复现的旧结果、错误诊断或明显等待；每项保留实际输入、预期与定向回归。C1 的本机 49,000 文件首次 References 五个独立源码宿主均正确，等待中位 1325 ms、五样本 P95 1496 ms；另有 100 轮温态查询结果稳定，命令 P95 为 177 ms。长会话、安装候选与 Remote 门槛仍开放。
+2. **C3 编辑闭环。** 对高频 Import、Rename、Safe Move、Extract、Inline、生成命令按预览、取消、应用失败及 Undo/Redo 收口具体缺口。生成新文件一次 Undo 后的 Redo 尚未恢复，是独立阻断项；[缺失父目录的撤销复核](c3-type-generation-undo-redo-probe-2026-09-24.md)还确认 Undo 会留下 VS Code 自动创建的空目录。只有出现新的资源撤销栈证据时继续 Redo 探针，不用删除事件盲目清理用户目录。
+3. **C4 候选安装与 R4 验收。** 到交付冻结点才生成同批 Core、Symfony、Pack 三份 VSIX，固定八个外部成员的版本与摘要；在干净 Profile 验证唯一 Provider、实际安装位置、项目 PHP/格式化/调试/测试路径，再做 WSL Remote、跨平台和持续使用。用户在另一个窗口的反馈可并行进入，不阻塞前两项自动验证。
+
+以下是此前按时间累积的调查与阶段决定；如有“下一步”表述与上述快照不同，以本节为准。
+
 **最新组合决定：**[原版 PHPUnit 的 C3 复核](open-source-pack-c3-original-recheck-2026-09-25.md)再次在已配置测试目录的完整组合中失败。源码 Pack 已将 `recca0120.vscode-phpunit` 移为可选项，当前 manifest 为 **10 项：Core、Symfony、8 个外部扩展**；测试默认使用项目 PHPUnit/Pest CLI。下文关于“11 项默认 Pack”的阶段记录仅代表此前的组合与验证，不能描述当前 manifest。10 项源码组合的完整 C3 宿主已通过（`/tmp/sophp-c3-pack-10-configured-20260925.log`，退出码 0）；日常组合宿主也通过 PHP 格式化、Twig/YAML/XML、调试及项目 PHPUnit CLI（`/tmp/sophp-pack-10-source-cli-config-20260925.log`，退出码 0）。两者均为隔离 Linux 源码宿主证据。
 
 ## 当前起步顺序

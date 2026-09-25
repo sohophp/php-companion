@@ -63,6 +63,36 @@ async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
     inventoryMs: timings.candidateInventory?.at(-1), indexMs: timings.candidateIndex?.at(-1),
     serverRssMiB: memory.rss === undefined ? undefined : Math.round(memory.rss / 1048576),
     candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
+  const warmRounds = Number(process.env.PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS ?? 0);
+  if (warmRounds) {
+    assert.ok(Number.isSafeInteger(warmRounds) && warmRounds > 0 && warmRounds <= 200);
+    const locations = (items: vscode.Location[]): string[] => items.map((item) =>
+      `${item.uri.toString()}:${item.range.start.line}:${item.range.start.character}:${item.range.end.line}:${item.range.end.character}`).sort();
+    const expected = locations(result);
+    const commandMs: number[] = [];
+    for (let round = 0; round < warmRounds; round += 1) {
+      const warmStarted = performance.now();
+      const warm = kind === 'references'
+        ? await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call)
+        : await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call);
+      commandMs.push(performance.now() - warmStarted);
+      assert.deepStrictEqual(locations(warm ?? []), expected, `Warm ${kind} changed locations in round ${round}.`);
+    }
+    const sorted = commandMs.sort((left, right) => left - right);
+    const warmTimings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
+    const warmMemory = await requestLanguageServer<{ rss?: number }>('phpCompanion/testMemoryUsage', {});
+    const timingSummary = (name: string): { count: number; medianMs?: number; p95Ms?: number; maxMs?: number } => {
+      const values = [...(warmTimings[name] ?? [])].slice(-warmRounds).sort((left, right) => left - right);
+      return { count: values.length, medianMs: values[Math.ceil(values.length * 0.5) - 1],
+        p95Ms: values[Math.ceil(values.length * 0.95) - 1], maxMs: values.at(-1) };
+    };
+    console.log(`C1 warm ${kind} after cold: ${JSON.stringify({ rounds: warmRounds,
+      medianMs: Math.round(sorted[Math.ceil(warmRounds * 0.5) - 1]!),
+      p95Ms: Math.round(sorted[Math.ceil(warmRounds * 0.95) - 1]!), maxMs: Math.round(sorted.at(-1)!),
+      server: timingSummary(kind), scan: timingSummary(`${kind}Scan`),
+      freshness: timingSummary('methodReferenceFreshnessTotal'), candidateIndex: timingSummary('candidateIndex'),
+      serverRssMiB: warmMemory.rss === undefined ? undefined : Math.round(warmMemory.rss / 1048576) })}`);
+  }
 }
 
 async function verifyRealComposerVendor(requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {

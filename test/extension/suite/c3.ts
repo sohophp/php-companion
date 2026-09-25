@@ -280,7 +280,12 @@ export async function run(): Promise<void> {
     }), true, 'Successful nested type generation did not report creation');
   assert.ok((await vscode.workspace.openTextDocument(nestedGeneratedUri)).getText()
     .includes('namespace App\\Service\\C3NewDirectory;'), 'Type generation failed beneath a missing parent directory');
-  await vscode.workspace.fs.delete(generatedDirectory, { recursive: true });
+  await vscode.commands.executeCommand('undo');
+  await assert.rejects(async () => vscode.workspace.fs.stat(nestedGeneratedUri),
+    'Undo did not remove the PHP file generated beneath a missing parent directory');
+  const parentAfterUndo = await vscode.workspace.fs.stat(generatedDirectory).then(() => true, () => false);
+  console.log(`C3 missing-parent generation Undo: parentDirectoryRemains=${parentAfterUndo}`);
+  if (parentAfterUndo) await vscode.workspace.fs.delete(generatedDirectory, { recursive: true });
   const generatedUri = vscode.Uri.joinPath(serviceDirectory, 'C3GeneratedType.php');
   const dottedDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Service.With.Dot');
   const dottedType = vscode.Uri.joinPath(dottedDirectory, 'C3DottedDirectoryType.php');
@@ -674,7 +679,7 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok(variableDocument.getText().includes('$extracted = new \\stdClass();'));
   const inlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineVariable.php');
-  const inlineSource = '<?php\nnamespace App\\Service;\nfunction makeInline(): object\n{\n    $result = new \\stdClass();\n    return $result;\n}\n';
+  const inlineSource = '<?php\nnamespace App\\Service;\nfunction makeInline(): object\n{\n    $result = new \\stdClass();\n    // Explain why this object is returned.\n    return (($result));\n}\n';
   await vscode.workspace.fs.writeFile(inlineUri, Buffer.from(inlineSource));
   const inlineDocument = await vscode.workspace.openTextDocument(inlineUri);
   await vscode.window.showTextDocument(inlineDocument);
@@ -716,12 +721,13 @@ export async function run(): Promise<void> {
   const freshInline = await inlineAction();
   await vscode.commands.executeCommand(freshInline.command!.command, ...freshInline.command!.arguments ?? [],
     { testPreviewAction: async () => 'apply' });
-  assert.ok(inlineDocument.getText().includes('return new \\stdClass();') && !inlineDocument.getText().includes('$result ='));
+  assert.ok(inlineDocument.getText().includes('// Explain why this object is returned.\n    return ((new \\stdClass()));')
+    && !inlineDocument.getText().includes('$result ='));
   assert.strictEqual(vscode.window.activeTextEditor?.document.uri.toString(), inlineUri.toString());
   await vscode.commands.executeCommand('undo');
   assert.strictEqual(inlineDocument.getText(), inlineSource);
   await vscode.commands.executeCommand('redo');
-  assert.ok(inlineDocument.getText().includes('return new \\stdClass();'));
+  assert.ok(inlineDocument.getText().includes('// Explain why this object is returned.\n    return ((new \\stdClass()));'));
   const inlineDiskBefore = await vscode.workspace.fs.readFile(inlineUri);
   const staleDiskSource = Buffer.concat([Buffer.from('// changed externally after Code Action was computed\n'), Buffer.from(inlineDiskBefore)]);
   const staleDiskEdit = new vscode.WorkspaceEdit();

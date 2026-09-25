@@ -204,7 +204,7 @@ function acceptsWeakScalarCoercion(type: PhpType): boolean {
   return parts.some((part) => ['bool', 'int', 'float', 'string'].includes(part))
     && parts.every((part) => ['bool', 'int', 'float', 'string', 'null'].includes(part));
 }
-export interface SignatureInfo extends MemberInfo { activeParameter: number; namedArgumentPrefix?: string; usedNamedArguments: string[]; }
+export interface SignatureInfo extends MemberInfo { activeParameter: number; namedArgumentPrefix?: string; usedNamedArguments: string[]; usedParameterNames?: string[]; }
 export type NamedArgumentInfo = ParsedCallableDeclaration['parameters'][number];
 export interface TypeInfo extends SemanticLocation { name: string; fqcn: string; kind: ParsedDeclaration['kind']; importFqcn?: string; }
 export interface TypeImportCandidate extends TypeInfo { aliasRequired: boolean; }
@@ -2155,13 +2155,22 @@ export class SemanticWorkspace {
     if (!inspection.complete || malformed) return undefined;
     const statement = assignment.parent; const block = statement.parent; if (!block) return undefined;
     const statementIndex = block.namedChildren.findIndex((item) => item.startIndex === statement.startIndex && item.endIndex === statement.endIndex);
-    const next = statementIndex >= 0 ? block.namedChildren[statementIndex + 1] : undefined; if (!next) return undefined;
+    // Comments do not execute or change the value, and belong with the remaining statement after inlining.
+    const next = statementIndex >= 0
+      ? block.namedChildren.slice(statementIndex + 1).find((item) => item.type !== 'comment') : undefined;
+    if (!next) return undefined;
+    const wholeValueVariable = (candidate: SyntaxNode | null | undefined): SyntaxNode | undefined => {
+      let value = candidate;
+      while (value?.type === 'parenthesized_expression' && !value.isError && !value.isMissing
+        && value.namedChildren.length === 1) value = value.namedChildren[0];
+      return value?.type === 'variable_name' && value.text === variable.text ? value : undefined;
+    };
     let use: SyntaxNode | undefined;
     if (next.type === 'return_statement') {
-      const candidate = next.namedChildren[0]; if (candidate?.type === 'variable_name' && candidate.text === variable.text) use = candidate;
+      use = wholeValueVariable(next.namedChildren[0]);
     } else if (next.type === 'expression_statement') {
       const nextAssignment = next.namedChildren[0]; const candidate = nextAssignment?.type === 'assignment_expression' ? nextAssignment.childForFieldName('right') : undefined;
-      if (candidate?.type === 'variable_name' && candidate.text === variable.text) use = candidate;
+      use = wholeValueVariable(candidate);
     }
     if (!use) return undefined;
     const scope = this.containingScope(file, statement.startIndex); if (!scope) return undefined;
@@ -3134,7 +3143,7 @@ export class SemanticWorkspace {
     const signature = this.signature(uri, offset);
     if (!signature || signature.namedArgumentPrefix === undefined) return [];
     const prefix = signature.namedArgumentPrefix.toLowerCase();
-    const used = new Set(signature.usedNamedArguments);
+    const used = new Set(signature.usedParameterNames ?? signature.usedNamedArguments);
     return signature.parameters.filter((parameter) => !used.has(parameter.name) && parameter.name.toLowerCase().startsWith(prefix));
   }
 
@@ -4283,6 +4292,20 @@ export class SemanticWorkspace {
     if (!reference) return undefined;
     const type = this.provenArgumentType(file, reference.start, reference.end);
     return type ? { variable: reference.variable, type: displayType(type), start: reference.start, end: reference.end } : undefined;
+  }
+
+  directScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
+    const source = this.files.get(uri)?.source.slice(start, end).trim();
+    if (!source) return false;
+    if (source.toLowerCase() === 'null') return actualType === 'null';
+    const literal = this.directScalarLiteralType(source);
+    if (literal?.kind !== 'literal') return false;
+    const unsigned = source.replace(/^[+-]/, '');
+    const floatSyntax = !/^0[xXbBoO]/.test(unsigned) && /[.eE]/.test(unsigned);
+    const category = typeof literal.value === 'string' ? 'string'
+      : typeof literal.value === 'boolean' ? 'bool'
+        : floatSyntax || !Number.isInteger(literal.value) ? 'float' : 'int';
+    return actualType === category || actualType === displayType(literal);
   }
 
   stableLocalScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
@@ -7416,6 +7439,7 @@ export class SemanticWorkspace {
   private signaturesWithImplementation(uri: string, offset: number): SignatureInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
+    if (this.cursorInsideSourceTrivia(file, offset)) return [];
     const before = file.source.slice(0, offset);
     const completeAtCursor = file.source[offset] === ')';
     const namespace = this.namespaceAt(file, offset);
@@ -7476,9 +7500,21 @@ export class SemanticWorkspace {
       }));
     }
     const functionCall = /(?<![\\A-Za-z0-9_\x80-\xff])([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
-    if (!functionCall || ['if', 'while', 'for', 'switch', 'match', 'isset', 'empty'].includes(functionCall[1]!.toLowerCase())) return [];
+    if (!functionCall || ['if', 'while', 'for', 'switch', 'match', 'isset', 'empty'].includes(functionCall[1]!.toLowerCase())) {
+      const enclosing = file.calls.filter((call) => call.argumentsStart + 1 < offset && offset <= call.argumentsEnd)
+        .sort((left, right) => right.argumentsStart - left.argumentsStart)[0];
+      const opening = enclosing?.argumentsStart ?? this.unclosedCallOpening(file, offset);
+      if (opening === undefined || opening + 1 >= offset) return [];
+      const members = this.signatures(uri, opening + 1);
+      const argumentsText = file.source.slice(opening + 1, offset);
+      const compatible = this.methodCandidatesForArguments(members, argumentsText, completeAtCursor,
+        file, opening + 1);
+      return (compatible.length ? compatible : members).map((member) => ({
+        ...member, ...this.signatureContext(argumentsText, member.parameters),
+      }));
+    }
     const functionFqcn = this.resolveFunction(file, functionCall[1]!, namespace);
-    const members = [...this.files.values()].flatMap((candidate) => candidate.callables.flatMap((item): MemberInfo[] =>
+    const members = this.filesForReferenceKeys(`declaration:function:${functionFqcn.toLowerCase()}`).flatMap((candidate) => candidate.callables.flatMap((item): MemberInfo[] =>
       item.kind === 'function' && item.fqcn.toLowerCase() === functionFqcn?.toLowerCase() ? [{
         kind: 'function', uri: candidate.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
         parameters: item.parameters, returnType: item.returnType, nativeReturnType: item.nativeReturnType,
@@ -7489,6 +7525,55 @@ export class SemanticWorkspace {
       const member = this.withInferredGeneratorReturn(candidate);
       return { ...member, ...this.signatureContext(functionCall[2]!, member.parameters) };
     });
+  }
+
+  private cursorInsideSourceTrivia(file: SemanticFile, offset: number): boolean {
+    if (file.commentRanges.some((range) => range.start < offset && offset <= range.end)) return true;
+    const string = file.stringRanges.find((range) => range.start < offset && offset < range.end);
+    if (string) return !file.calls.some((call) => call.argumentsStart < string.start && string.end <= call.argumentsEnd);
+    const error = file.syntaxErrors.filter((range) => range.start < offset && offset <= range.end)
+      .sort((left, right) => left.start - right.start)[0];
+    if (!error) return false;
+    let state: 'code' | 'single' | 'double' | 'line' | 'block' = 'code'; let escaped = false; let stringStart = -1;
+    for (let index = error.start; index < offset; index++) {
+      const character = file.source[index]!; const next = file.source[index + 1];
+      if (state === 'line') { if (character === '\n' || character === '\r') state = 'code'; continue; }
+      if (state === 'block') {
+        if (character === '*' && next === '/') { state = 'code'; index++; }
+        continue;
+      }
+      if (state === 'single' || state === 'double') {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === (state === 'single' ? "'" : '"')) state = 'code';
+        continue;
+      }
+      if (character === "'" || character === '"') { state = character === "'" ? 'single' : 'double'; stringStart = index; }
+      else if (character === '#' || character === '/' && next === '/') { state = 'line'; if (character === '/') index++; }
+      else if (character === '/' && next === '*') { state = 'block'; index++; }
+    }
+    if (state === 'single' || state === 'double') {
+      const opening = this.unclosedCallOpening(file, stringStart);
+      return opening === undefined || !this.signatures(file.uri, opening + 1).length;
+    }
+    return state !== 'code';
+  }
+
+  private unclosedCallOpening(file: SemanticFile, offset: number): number | undefined {
+    const trivia = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+    const openings: number[] = [];
+    let triviaIndex = 0;
+    for (let index = 0; index < offset; index++) {
+      while (triviaIndex < trivia.length && trivia[triviaIndex]!.end <= index) triviaIndex++;
+      const range = trivia[triviaIndex];
+      if (range && range.start <= index && index < range.end) {
+        index = Math.min(offset, range.end) - 1;
+        continue;
+      }
+      if (file.source[index] === '(') openings.push(index);
+      else if (file.source[index] === ')') openings.pop();
+    }
+    return openings.at(-1);
   }
 
   signature(uri: string, offset: number): SignatureInfo | undefined {
@@ -7830,10 +7915,11 @@ export class SemanticWorkspace {
 
   private methodCandidatesForArguments(candidates: MemberInfo[], argumentsText: string, complete: boolean,
     callerFile?: SemanticFile, argumentsStart?: number): MemberInfo[] {
-    if (argumentsText.trim()) candidates = candidates.map((candidate) => this.memberForArgumentCount(candidate, 1));
+    const cleaned = this.argumentTextWithoutComments(argumentsText).text;
+    if (cleaned.trim()) candidates = candidates.map((candidate) => this.memberForArgumentCount(candidate, 1));
     const segments: Array<{ text: string; start: number }> = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
-    for (let index = 0; index < argumentsText.length; index += 1) {
-      const character = argumentsText[index]!;
+    for (let index = 0; index < cleaned.length; index += 1) {
+      const character = cleaned[index]!;
       if (escaped) { escaped = false; continue; }
       if (quote) {
         if (character === '\\') escaped = true;
@@ -7843,9 +7929,9 @@ export class SemanticWorkspace {
       if (character === "'" || character === '"') { quote = character; continue; }
       if ('([{'.includes(character)) depth += 1;
       else if (')]}'.includes(character)) depth = Math.max(0, depth - 1);
-      else if (character === ',' && depth === 0) { segments.push({ text: argumentsText.slice(start, index), start }); start = index + 1; }
+      else if (character === ',' && depth === 0) { segments.push({ text: cleaned.slice(start, index), start }); start = index + 1; }
     }
-    if (argumentsText.trim() !== '' || segments.length) segments.push({ text: argumentsText.slice(start), start });
+    if (cleaned.trim() !== '' || segments.length) segments.push({ text: cleaned.slice(start), start });
     const names = segments.map((segment) => /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment.text)?.[1]);
     const supplied = segments.length;
     const shaped = candidates.filter((candidate) => {
@@ -7955,13 +8041,80 @@ export class SemanticWorkspace {
     return { ...member, templateArguments: { ...member.templateArguments, ...[...unique.values()][0]! } };
   }
 
-  private signatureContext(argumentsText: string, parameters: ParsedCallableDeclaration['parameters']): Pick<SignatureInfo, 'activeParameter' | 'namedArgumentPrefix' | 'usedNamedArguments'> {
-    const segments = argumentsText.split(','); const current = segments.at(-1) ?? '';
+  private argumentTextWithoutComments(argumentsText: string): { text: string; insideComment: boolean } {
+    const withoutComments = argumentsText.split('');
+    let comment: 'line' | 'block' | '' = ''; let quoted = ''; let quoteEscaped = false;
+    for (let index = 0; index < withoutComments.length; index += 1) {
+      const character = argumentsText[index]!;
+      if (comment === 'line') {
+        if (character === '\n' || character === '\r') comment = '';
+        else withoutComments[index] = ' ';
+        continue;
+      }
+      if (comment === 'block') {
+        if (character === '*' && argumentsText[index + 1] === '/') {
+          withoutComments[index++] = ' '; withoutComments[index] = ' '; comment = '';
+        } else if (character !== '\n' && character !== '\r') withoutComments[index] = ' ';
+        continue;
+      }
+      if (quoted) {
+        if (quoteEscaped) quoteEscaped = false;
+        else if (character === '\\') quoteEscaped = true;
+        else if (character === quoted) quoted = '';
+        continue;
+      }
+      if (character === "'" || character === '"') { quoted = character; continue; }
+      if (character === '#' || character === '/' && (argumentsText[index + 1] === '/' || argumentsText[index + 1] === '*')) {
+        comment = character === '/' && argumentsText[index + 1] === '*' ? 'block' : 'line';
+        withoutComments[index] = ' ';
+        if (character === '/') withoutComments[++index] = ' ';
+      }
+    }
+    return { text: withoutComments.join(''), insideComment: comment !== '' };
+  }
+
+  private signatureContext(argumentsText: string, parameters: ParsedCallableDeclaration['parameters']): Pick<SignatureInfo, 'activeParameter' | 'namedArgumentPrefix' | 'usedNamedArguments' | 'usedParameterNames'> {
+    const { text: cleaned, insideComment } = this.argumentTextWithoutComments(argumentsText);
+    const segments: string[] = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
+    for (let index = 0; index < cleaned.length; index += 1) {
+      const character = cleaned[index]!;
+      if (escaped) { escaped = false; continue; }
+      if (quote) {
+        if (character === '\\') escaped = true;
+        else if (character === quote) quote = '';
+        continue;
+      }
+      if (character === "'" || character === '"') { quote = character; continue; }
+      if ('([{'.includes(character)) depth += 1;
+      else if (')]}'.includes(character)) depth = Math.max(0, depth - 1);
+      else if (character === ',' && depth === 0) { segments.push(cleaned.slice(start, index)); start = index + 1; }
+    }
+    segments.push(cleaned.slice(start));
+    const current = segments.at(-1) ?? '';
     const currentName = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(current)?.[1];
-    const namedArgumentPrefix = /^\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(current)?.[1] ?? (/^\s*$/.test(current) ? '' : undefined);
-    const usedNamedArguments = [...argumentsText.matchAll(/(?:^|,)\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/g)].map((match) => match[1]!);
+    const namedArgumentPrefix = insideComment ? undefined
+      : /^\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(current)?.[1] ?? (/^\s*$/.test(current) ? '' : undefined);
+    const usedNamedArguments = segments.flatMap((segment) => {
+      const name = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment)?.[1];
+      return name ? [name] : [];
+    });
     const namedIndex = currentName === undefined ? -1 : parameters.findIndex((parameter) => parameter.name === currentName);
-    return { activeParameter: namedIndex >= 0 ? namedIndex : Math.max(0, segments.length - 1), namedArgumentPrefix, usedNamedArguments };
+    const occupied = new Set<number>();
+    for (const segment of segments.slice(0, -1)) {
+      const name = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment)?.[1];
+      const index = name === undefined
+        ? parameters.findIndex((_, parameterIndex) => !occupied.has(parameterIndex))
+        : parameters.findIndex((parameter) => parameter.name === name);
+      if (index >= 0) occupied.add(index);
+    }
+    const matchingPrefix = namedArgumentPrefix
+      ? parameters.flatMap((parameter, index) => !occupied.has(index) && parameter.name.startsWith(namedArgumentPrefix) ? [index] : [])
+      : [];
+    const nextUnused = parameters.findIndex((_, index) => !occupied.has(index));
+    const activeParameter = namedIndex >= 0 ? namedIndex : matchingPrefix.length === 1 ? matchingPrefix[0]!
+      : nextUnused >= 0 ? nextUnused : Math.max(0, parameters.length - 1);
+    return { activeParameter, namedArgumentPrefix, usedNamedArguments,
+      usedParameterNames: [...occupied].map((index) => parameters[index]!.name) };
   }
 
   private resolveFunction(file: SemanticFile, name: string, namespace: string): string {

@@ -149,6 +149,98 @@ dispatchNested(array('x'), 'dev');
   assert.deepStrictEqual(nestedErrors(), [], 'The editor kept nested-array argument diagnostics after unsaved repair.');
   console.log('C2 onDemand nested-array calls: two diagnostics, two parameter hints, unsaved repair clears diagnostics');
 
+  const nestedNamedUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NestedNamedCompletion.php');
+  const nestedNamedSource = `<?php namespace App\\Service;
+function innerNamed(int $second): int { return $second; }
+function outerNamed(int $first, int $second): void {}
+outerNamed(innerNamed(second: 1), /* next, ) argument */ se
+`;
+  await vscode.workspace.fs.writeFile(nestedNamedUri, Buffer.from(nestedNamedSource));
+  const nestedNamedDocument = await vscode.workspace.openTextDocument(nestedNamedUri);
+  await vscode.window.showTextDocument(nestedNamedDocument);
+  const nestedNamedPosition = nestedNamedDocument.positionAt(nestedNamedSource.lastIndexOf(' se\n') + 3);
+  const nestedNamedCompletions = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', nestedNamedUri, nestedNamedPosition);
+  assert.ok(nestedNamedCompletions?.items.some((item) => item.label === 'second:'),
+    'The outer second: completion was hidden by the inner second: argument.');
+  const nestedNamedHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', nestedNamedUri, nestedNamedPosition);
+  assert.ok(nestedNamedHelp?.signatures.some((item) => item.label.includes('outerNamed(')),
+    'Signature Help lost the outer call after a nested named argument.');
+  assert.strictEqual(nestedNamedHelp?.activeParameter, 1,
+    'Signature Help selected the inner parameter instead of the outer second parameter.');
+  console.log('C2 nested named arguments: outer completion and Signature Help keep the second parameter');
+
+  const remainingUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'RemainingNamedSignature.php');
+  const remainingSource = `<?php namespace App\\Service;
+function configure(string $host, int $port, bool $tls): void {}
+configure(tls: true, `;
+  await vscode.workspace.fs.writeFile(remainingUri, Buffer.from(remainingSource));
+  const remainingDocument = await vscode.workspace.openTextDocument(remainingUri);
+  await vscode.window.showTextDocument(remainingDocument);
+  const remainingHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', remainingUri, remainingDocument.positionAt(remainingSource.length));
+  assert.ok(remainingHelp?.signatures.some((item) => item.label.includes('configure(')),
+    'The editor lost the function signature after a named argument.');
+  assert.strictEqual(remainingHelp?.activeParameter, 0,
+    'The editor highlighted $port instead of the first unused $host parameter.');
+  const remainingNames = async (): Promise<string[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', remainingUri,
+    remainingDocument.positionAt(remainingDocument.getText().length)))?.items
+    .map((item) => String(item.label)).filter((label) => ['host:', 'port:', 'tls:'].includes(label)) ?? [];
+  assert.deepStrictEqual(await remainingNames(), ['host:', 'port:'],
+    'The editor offered a named argument that was already provided.');
+  const mixedSource = remainingSource.replace('tls: true, ', '"local", tls: true, ');
+  const mixedEdit = new vscode.WorkspaceEdit();
+  mixedEdit.replace(remainingUri, new vscode.Range(new vscode.Position(0, 0),
+    remainingDocument.positionAt(remainingDocument.getText().length)), mixedSource);
+  assert.ok(await vscode.workspace.applyEdit(mixedEdit));
+  assert.ok(remainingDocument.isDirty, 'The mixed argument update unexpectedly saved the PHP buffer.');
+  assert.deepStrictEqual(await remainingNames(), ['port:'],
+    'The editor offered a positional parameter again as a named argument.');
+  console.log('C2 named arguments: Signature Help and completion skip filled parameters after unsaved mixed arguments');
+
+  const documentedOverloadUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'MagicCommentOverload.php');
+  const documentedOverloadSource = `<?php namespace App\\Service;
+class C2LocatedUser {} class C2LocatedOther {}
+/** @method C2LocatedUser locate(int $id)
+ * @method C2LocatedOther locate(string $slug) */ class C2MagicModel {}
+function inspectC2Magic(C2MagicModel $model): void { $model->locate(/* hint, ) */ id: 1); }
+`;
+  await vscode.workspace.fs.writeFile(documentedOverloadUri, Buffer.from(documentedOverloadSource));
+  const documentedOverloadDocument = await vscode.workspace.openTextDocument(documentedOverloadUri);
+  await vscode.window.showTextDocument(documentedOverloadDocument);
+  const documentedOverloadPosition = documentedOverloadDocument.positionAt(
+    documentedOverloadSource.indexOf('id: 1') + 'id: 1'.length);
+  const documentedOverloadHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', documentedOverloadUri, documentedOverloadPosition);
+  assert.deepStrictEqual(documentedOverloadHelp?.signatures.map((item) => item.label),
+    ['locate(int $id): C2LocatedUser'], 'An argument comment brought back the unrelated documented overload.');
+  console.log('C2 documented overload: punctuation in argument comment keeps the matching signature');
+
+  const triviaSignatureUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'SignatureTrivia.php');
+  const triviaSignatureSource = `<?php namespace App\\Service;
+function outerTrivia(int $first, int $second): void {}
+$text = "outerTrivia(se rest"; // outerTrivia(se rest
+outerTrivia(1, se
+`;
+  await vscode.workspace.fs.writeFile(triviaSignatureUri, Buffer.from(triviaSignatureSource));
+  const triviaSignatureDocument = await vscode.workspace.openTextDocument(triviaSignatureUri);
+  await vscode.window.showTextDocument(triviaSignatureDocument);
+  for (const marker of ['"outerTrivia(se rest', '// outerTrivia(se rest']) {
+    const offset = triviaSignatureSource.indexOf(marker) + marker.indexOf('se') + 2;
+    const ghost = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+      'vscode.executeSignatureHelpProvider', triviaSignatureUri, triviaSignatureDocument.positionAt(offset));
+    assert.ok(!ghost?.signatures.some((item) => item.label.includes('outerTrivia(')),
+      'A PHP signature appeared inside a string or comment.');
+  }
+  const realTrivia = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', triviaSignatureUri,
+    triviaSignatureDocument.positionAt(triviaSignatureSource.lastIndexOf(' se\n') + 3));
+  assert.ok(realTrivia?.signatures.some((item) => item.label.includes('outerTrivia(')),
+    'Suppressing text in trivia also hid the real PHP call.');
+  console.log('C2 signature trivia: no ghost hints in text, real call remains available');
+
   const neverArrayUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NestedArrayNever.php');
   const neverArraySource = `<?php namespace App\\Service;
 function stopNested(array $payload): never { throw new \\Exception(); }
@@ -257,6 +349,35 @@ function inspectExactReceiver(): void { $service = new CrossFileLiteralService()
   const restoredMs = await editType('string $value', 'int $value');
   console.log(`C2 onDemand cross-file literal diagnostic: ${JSON.stringify({ visible: [true, false, true],
     removedMs, restoredMs, unsaved: methodDocument.isDirty })}`);
+
+  const replaceCrossFileCall = async (argument: string): Promise<void> => {
+    const source = methodConsumerSource.replace("'bad'", argument);
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(methodConsumerUri, new vscode.Range(new vscode.Position(0, 0),
+      methodConsumerDocument.positionAt(methodConsumerDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+  };
+  const waitForCrossFileArgument = async (code: string, expected: boolean): Promise<void> => {
+    const hasDiagnostic = (): boolean => vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+      item.source === 'SoPHP' && item.code === code);
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && hasDiagnostic() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.strictEqual(hasDiagnostic(), expected, `C2 cross-file ${code} did not become ${expected}.`);
+  };
+  await replaceCrossFileCall('wrong: 1');
+  await waitForCrossFileArgument('php.argument.unknown-named', true);
+  await replaceCrossFileCall('value: 1');
+  await waitForCrossFileArgument('php.argument.unknown-named', false);
+  await replaceCrossFileCall('');
+  await waitForCrossFileArgument('php.argument.missing-required', true);
+  await changeMethodDeclaration('int $value', 'int $value = 0', false);
+  await waitForCrossFileArgument('php.argument.missing-required', false);
+  await changeMethodDeclaration('int $value = 0', 'int $value', false);
+  await waitForCrossFileArgument('php.argument.missing-required', true);
+  await replaceCrossFileCall("'bad'");
+  await waitForCrossFileArgument('php.argument.missing-required', false);
+  await waitForMismatch(true);
+  console.log('C2 onDemand cross-file named and missing arguments: wrong → corrected; missing → optional → required; unsaved');
 
   await editType('int $value', 'string $value');
   const localConsumerSource = `<?php declare(strict_types=1); namespace App\\Service;

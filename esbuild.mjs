@@ -12,6 +12,7 @@ const options = {
     'language-server': 'packages/language-server/src/server.ts',
     candidateWorker: 'packages/language-server/src/candidateWorker.ts',
     portableCandidateSearchWorker: 'packages/language-server/src/portableCandidateSearchWorker.ts',
+    sourceStatWorker: 'packages/language-server/src/sourceStatWorker.ts',
   },
   bundle: true,
   outdir: 'dist',

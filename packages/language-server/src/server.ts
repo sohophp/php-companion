@@ -61,6 +61,7 @@ import { referenceCandidateEvidenceMatches, skippedCandidateEvidenceMatches, typ
 import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
 import { ReferenceResultStore, type ReferenceLocation, type ReferenceResultProof } from './referenceResultStore.js';
 import { portableCandidatePaths, type CandidatePaths } from './portableCandidatePaths.js';
+import { SourceStatBatches } from './sourceStatBatches.js';
 
 declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
@@ -1539,20 +1540,9 @@ function removeDoctrineDocument(root: string, uri: string, workspace: SemanticWo
   }));
 }
 
-async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, root: string,
-  document: TextDocument): Promise<ReturnType<SemanticWorkspace['incompatibleArguments']>> {
-  const nativeSources = new Map<ReturnType<SemanticWorkspace['incompatibleArguments']>[number],
-    NonNullable<ReturnType<SemanticWorkspace['nativeScalarReturnMethodCall']>>>();
-  const candidates = workspace.incompatibleArguments(document.uri).filter((item) => {
-    if (!item.callable.includes('::')) return false;
-    if (/^\s*(?:'(?:[^'\\]|\\.)*'|-?(?:0|[1-9][0-9_]*)|true|false|null)\s*$/i
-      .test(document.getText().slice(item.start, item.end))
-      || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)) return true;
-    const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType)
-      ?? workspace.stableLocalNativeScalarReturnArgument(document.uri, item.start, item.end, item.actualType);
-    if (source) nativeSources.set(item, source);
-    return Boolean(source);
-  });
+async function provenOnDemandExternalMethodCalls<T extends { callable: string; start: number; end: number }>(workspace: SemanticWorkspace,
+  root: string, document: TextDocument, candidates: T[], additionalProof: (item: T,
+    uniquePsr4Method: (callable: string, uri: string) => boolean) => boolean = () => true): Promise<T[]> {
   if (!candidates.length) return [];
   const project = await composerProjectForRoot(root);
   if (!project?.inputEvidence?.complete || project.warnings.length) return [];
@@ -1571,16 +1561,47 @@ async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, roo
   return candidates.filter((item) => {
     const separator = item.callable.lastIndexOf('::');
     const owner = item.callable.slice(0, separator);
-    const signature = workspace.signature(document.uri, item.start);
+    const callOpen = /^\s*\(/.exec(document.getText().slice(item.end));
+    const signature = workspace.signature(document.uri, item.start)
+      ?? (callOpen ? workspace.signature(document.uri, item.end + callOpen[0].length) : undefined);
     if (signature?.kind !== 'method' || signature.synthetic !== undefined
       || signature.uri === document.uri || signature.fqcn.toLowerCase() !== item.callable.toLowerCase()
       || !uniquePsr4Method(item.callable, signature.uri)) return false;
-    const source = nativeSources.get(item);
-    return (!source || uniquePsr4Method(source.callable, source.uri))
+    return additionalProof(item, uniquePsr4Method)
       && (workspace.isFinalClass(owner) || signature.final === true
-        || workspace.stableLocalExactObjectReceiver(document.uri, item.start, owner))
-      && (!source || source.uri !== document.uri);
+        || workspace.stableLocalExactObjectReceiver(document.uri, item.start, owner));
   });
+}
+
+async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, root: string,
+  document: TextDocument): Promise<ReturnType<SemanticWorkspace['incompatibleArguments']>> {
+  const nativeSources = new Map<ReturnType<SemanticWorkspace['incompatibleArguments']>[number],
+    NonNullable<ReturnType<SemanticWorkspace['nativeScalarReturnMethodCall']>>>();
+  const candidates = workspace.incompatibleArguments(document.uri).filter((item) => {
+    if (!item.callable.includes('::')) return false;
+    if (workspace.directScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)
+      || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)) return true;
+    const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType)
+      ?? workspace.stableLocalNativeScalarReturnArgument(document.uri, item.start, item.end, item.actualType);
+    if (source) nativeSources.set(item, source);
+    return Boolean(source);
+  });
+  return provenOnDemandExternalMethodCalls(workspace, root, document, candidates, (item, uniquePsr4Method) => {
+    const source = nativeSources.get(item);
+    return !source || source.uri !== document.uri && uniquePsr4Method(source.callable, source.uri);
+  });
+}
+
+async function provenOnDemandExternalNamedArguments(workspace: SemanticWorkspace, root: string,
+  document: TextDocument): Promise<ReturnType<SemanticWorkspace['unknownNamedArguments']>> {
+  return provenOnDemandExternalMethodCalls(workspace, root, document,
+    workspace.unknownNamedArguments(document.uri).filter((item) => item.callable.includes('::')));
+}
+
+async function provenOnDemandExternalMissingArguments(workspace: SemanticWorkspace, root: string,
+  document: TextDocument): Promise<ReturnType<SemanticWorkspace['missingRequiredArguments']>> {
+  return provenOnDemandExternalMethodCalls(workspace, root, document,
+    workspace.missingRequiredArguments(document.uri).filter((item) => item.callable.includes('::')));
 }
 
 async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0, onlyIfChanged = false): Promise<void> {
@@ -1655,6 +1676,16 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
     })));
+    if (root && indexingMode === 'onDemand'
+      && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) {
+      result.diagnostics.push(...(await provenOnDemandExternalNamedArguments(workspace, root, document)).map((call) => ({
+        range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.argument.unknown-named',
+        source: 'SoPHP',
+        message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
+      })));
+    }
     result.diagnostics.push(...workspace.missingRequiredArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
@@ -1663,6 +1694,16 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
         call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
     })));
+    if (root && indexingMode === 'onDemand') {
+      result.diagnostics.push(...(await provenOnDemandExternalMissingArguments(workspace, root, document)).map((call) => ({
+        range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
+        severity: DiagnosticSeverity.Error,
+        code: 'php.argument.missing-required',
+        source: 'SoPHP',
+        message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
+          call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
+      })));
+    }
     result.diagnostics.push(...workspace.incompatibleArguments(document.uri, true).map((argument) => ({
       range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
       severity: DiagnosticSeverity.Error,
@@ -2755,7 +2796,11 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted} cached=${cachedPathSearch}`);
   const indexStarted = performance.now();
   let firstCandidateProgress = false;
-  const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128, yieldEvery: 100,
+  const statBatches = prefilterCandidates
+    ? new SourceStatBatches(() => !cancelled() && progress?.token.isCancellationRequested !== true) : undefined;
+  let scan: Awaited<ReturnType<typeof indexComposerSources>>;
+  try { scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128, yieldEvery: 100,
+    inspectSource: statBatches?.inspect,
     skipSourceOutsideBudget: Boolean(prefilterCandidates),
     skipSource: prefilterCandidates ? (path, info): boolean => {
       const normalized = resolve(path);
@@ -2875,7 +2920,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
         return 'source';
       },
     } : undefined,
-  });
+  }); } finally { statBatches?.close(); }
   recordTestQueryDuration('candidateIndex', indexStarted);
   if (prefilterCandidates && !cachedPathSearch && project && !cancelled()
     && (includeDependencies ? scan.complete : scan.projectComplete) && (projectEpochs.get(root) ?? 0) === epoch) {
