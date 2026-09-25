@@ -1736,7 +1736,7 @@ export class SemanticWorkspace {
     const native = member?.nativeReturnType;
     const object = native && this.objectType(native, true);
     if (!member || !file || !object) return undefined;
-    const namespace = member.typeScopeFqcn.split('\\').slice(0, -1).join('\\');
+    const namespace = this.namespaceAt(file, member.start);
     return this.resolveSourceType(file, object.name, namespace, member.typeScopeFqcn);
   }
   private createSnapshot(uri: string, detached: boolean): SemanticSnapshot | undefined {
@@ -8572,7 +8572,7 @@ export class SemanticWorkspace {
       return { fqcn: member.calledOnFqcn, nullable: type.nullable,
         typeArguments: member.calledOnTemplateArguments ?? member.templateArguments };
     }
-    const ownerNamespace = member.typeScopeFqcn.split('\\').slice(0, -1).join('\\');
+    const ownerNamespace = this.namespaceAt(file, member.start);
     const fqcn = this.resolveType(file, type.name, ownerNamespace, member.typeScopeFqcn);
     if (!fqcn) return undefined;
     let typeArguments = this.templateArgumentsFor(fqcn, type.arguments, file, ownerNamespace, member.typeScopeFqcn);

@@ -2650,6 +2650,37 @@ describe('conservative semantic workspace', () => {
       expect(isolated.definition(uri, source.lastIndexOf('->getTranslations') + 3)).toEqual([]);
     } finally { isolated.dispose(); }
   });
+  it('resolves a chained trait return type in the trait namespace', () => {
+    const isolated = new SemanticWorkspace(parser);
+    const uri = 'file:///SolutionReadService.php';
+    const source = `<?php namespace App\\Service;
+      use App\\Entity\\SolutionCategory;
+      function alternates($category): array {
+        return $category instanceof SolutionCategory
+          ? $category->getTranslations()->toArray()
+          : [];
+      }`;
+    const ownerUri = 'file:///SolutionCategory.php';
+    const traitUri = 'file:///TranslatableEntityTrait.php';
+    const collectionUri = 'file:///Collection.php';
+    const readableUri = 'file:///ReadableCollection.php';
+    const owner = '<?php namespace App\\Entity; use App\\ORM\\TranslatableEntityTrait; class SolutionCategory { use TranslatableEntityTrait; }';
+    const trait = '<?php namespace App\\ORM; use Doctrine\\Common\\Collections\\Collection; trait TranslatableEntityTrait { public function getTranslations(): Collection {} }';
+    const collection = '<?php namespace Doctrine\\Common\\Collections; interface Collection extends ReadableCollection {}';
+    const readable = '<?php namespace Doctrine\\Common\\Collections; interface ReadableCollection { public function toArray(): array; }';
+    const offset = source.indexOf('->toArray') + 3;
+    try {
+      isolated.update(uri, source);
+      isolated.update(ownerUri, owner);
+      isolated.update(traitUri, trait);
+      expect(isolated.memberOwnerTypeNamesAt(uri, offset)).toContain('Doctrine\\Common\\Collections\\Collection');
+      isolated.update(collectionUri, collection);
+      expect(isolated.directDeclarationDependencies('Doctrine\\Common\\Collections\\Collection'))
+        .toContain('Doctrine\\Common\\Collections\\ReadableCollection');
+      isolated.update(readableUri, readable);
+      expect(isolated.definition(uri, offset)).toMatchObject([{ uri: readableUri, start: readable.indexOf('toArray') }]);
+    } finally { isolated.dispose(); }
+  });
   it('narrows after a guard whose top-level sequence ends in return or exit', () => {
     workspace.update('file:///GuardSequenceType.php', '<?php namespace GuardSequence; class A { public function onlyA(): void {} }');
     const source = '<?php namespace GuardSequence; function run(?A $returned, ?A $exited, ?A $unsafe): void { if ($returned === null) { logIt(); return; } $returned->only; if ($exited === null) exit(1); $exited->only; if ($unsafe === null) { if (maybe()) return; } $unsafe->only; }';
