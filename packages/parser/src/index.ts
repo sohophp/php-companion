@@ -1433,7 +1433,7 @@ export class PhpSyntaxParser {
           || candidate.namedChildren.some(containsGoto);
         const containsLoopExit = (candidate: SyntaxNode): boolean => candidate.type === 'break_statement'
           || candidate.type === 'continue_statement' || candidate.namedChildren.some(containsLoopExit);
-        const continueExitsCurrentBody = (() => {
+        const continueExitsCurrentBody = ((): boolean => {
           let ancestor = nodeParent;
           while (ancestor) {
             if (ancestor.type === 'switch_statement') return false;
