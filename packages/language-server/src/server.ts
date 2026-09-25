@@ -6079,7 +6079,7 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   const signatures = workspace.signatures(document.uri, offset);
   if (!signatures.length || token.isCancellationRequested) return null;
   const activeSignature = signatures.findIndex((signature) => !signature.activeParameterUncertain
-    && signature.activeParameter < signature.parameters.length);
+    && (signature.parameters.length === 0 || signature.activeParameter < signature.parameters.length));
   if (activeSignature < 0) return null;
   const selected = signatures[activeSignature]!;
   return {
