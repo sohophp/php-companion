@@ -156,6 +156,13 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         let result: Awaited<ReturnType<typeof next>>;
         try { result = await next(document, position, token); }
         finally { clearTimeout(timer); pendingStatus?.dispose(); }
+        const first = Array.isArray(result) ? result[0] : result;
+        output.info(`Definition result: ${JSON.stringify({
+          uri: document.uri.toString(), line: position.line + 1, character: position.character,
+          count: Array.isArray(result) ? result.length : result ? 1 : 0,
+          cancelled: token.isCancellationRequested,
+          target: first ? ('targetUri' in first ? first.targetUri.toString() : first.uri.toString()) : undefined,
+        })}`);
         if (!token.isCancellationRequested && (!result || Array.isArray(result) && result.length === 0)
           && vscode.window.activeTextEditor?.document === document) {
           const key = `${document.uri}:${document.version}:${position.line}:${position.character}`;
