@@ -9,6 +9,41 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', root.uri).get('phpVersion'), '8.5');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load.');
+  if (process.env.PHP_COMPANION_TEST_C2_OPEN_SOURCE_PROFILE === '1') {
+    const profileIds = ['sohophp.php-companion-symfony', 'sohophp.php-companion-open-source-pack',
+      'sohophp.twig-plus', 'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
+      'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig', 'eiminsasete.apacheconf-snippets',
+      'neilbrayfield.php-docblocker'];
+    for (const id of profileIds) assert.ok(vscode.extensions.getExtension(id), `Open Source Pack member ${id} is missing.`);
+    const apacheUri = vscode.Uri.joinPath(root.uri, '.htaccess');
+    const apacheSource = 'a-force-ht';
+    await vscode.workspace.fs.writeFile(apacheUri, Buffer.from(apacheSource));
+    const apacheDocument = await vscode.workspace.openTextDocument(apacheUri);
+    assert.strictEqual(apacheDocument.languageId, 'apacheconf', 'Apache syntax extension did not claim .htaccess.');
+    const apacheEditor = await vscode.window.showTextDocument(apacheDocument);
+    const apacheCompletion = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', apacheUri, apacheDocument.positionAt(apacheSource.length));
+    const forceHttps = apacheCompletion?.items.find((item) => item.kind === vscode.CompletionItemKind.Snippet
+      && (typeof item.label === 'string' ? item.label : item.label.label) === 'a-force-https');
+    assert.ok(forceHttps, 'Apache Conf Snippets did not offer Force HTTPS in .htaccess.');
+    assert.ok(forceHttps.insertText instanceof vscode.SnippetString, 'Force HTTPS did not contain a snippet body.');
+    const replacement = forceHttps.range instanceof vscode.Range ? forceHttps.range
+      : forceHttps.range?.replacing ?? new vscode.Range(0, 0, 0, apacheSource.length);
+    assert.ok(await apacheEditor.insertSnippet(forceHttps.insertText, replacement),
+      'Force HTTPS snippet could not be inserted into .htaccess.');
+    const insertedApache = apacheDocument.getText();
+    assert.ok(insertedApache.startsWith('RewriteEngine on\nRewriteCond %{HTTPS} !on\n')
+      && insertedApache.includes('RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]')
+      && insertedApache.includes('Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"')
+      && !insertedApache.includes(apacheSource),
+    `Force HTTPS snippet produced unexpected Apache configuration: ${JSON.stringify(insertedApache)}`);
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(apacheDocument.getText(), apacheSource, 'Undo did not restore the Apache snippet trigger.');
+    await vscode.commands.executeCommand('redo');
+    assert.strictEqual(apacheDocument.getText(), insertedApache, 'Redo did not restore the Apache configuration.');
+    console.log('C2 Open Source Pack Apache snippet: completion, insertion, one Undo/Redo');
+    console.log(`C2 Open Source Pack profile loaded Core, Pack metadata, Symfony and 8 external members (${profileIds.length + 1} extensions)`);
+  }
   const api = await extension.activate() as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(api.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const uri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
@@ -200,6 +235,72 @@ configure(tls: true, `;
     'The editor offered a positional parameter again as a named argument.');
   console.log('C2 named arguments: Signature Help and completion skip filled parameters after unsaved mixed arguments');
 
+  const unpackedUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'UnpackedNamedSignature.php');
+  const unpackedSource = `<?php namespace App\\Service;
+function dynamicArguments(): array { return []; }
+function unpackedConfigure(string $host, int $port, bool $tls): void {}
+$args = dynamicArguments(); unpackedConfigure(...$args, ho`;
+  await vscode.workspace.fs.writeFile(unpackedUri, Buffer.from(unpackedSource));
+  const unpackedDocument = await vscode.workspace.openTextDocument(unpackedUri);
+  await vscode.window.showTextDocument(unpackedDocument);
+  const unpackedPosition = unpackedDocument.positionAt(unpackedSource.length);
+  const unpackedHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', unpackedUri, unpackedPosition);
+  assert.ok(!unpackedHelp?.signatures.some((item) => item.label.includes('unpackedConfigure(')),
+    'The editor highlighted a parameter whose position is unknown after dynamic unpacking.');
+  const unpackedCompletions = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', unpackedUri, unpackedPosition);
+  assert.ok(!unpackedCompletions?.items.some((item) => ['host:', 'port:', 'tls:'].includes(String(item.label))),
+    'The editor suggested a named parameter that may already be filled by dynamic unpacking.');
+  console.log('C2 dynamic argument unpack: uncertain signature highlight and named completions suppressed');
+
+  const literalUnpackedUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'LiteralUnpackedNamedSignature.php');
+  const literalUnpackedSource = `<?php namespace App\\Service;
+function literalUnpackedConfigure(string $host, int $port, bool $tls): void {}
+literalUnpackedConfigure(...['local', 80], t`;
+  await vscode.workspace.fs.writeFile(literalUnpackedUri, Buffer.from(literalUnpackedSource));
+  const literalUnpackedDocument = await vscode.workspace.openTextDocument(literalUnpackedUri);
+  await vscode.window.showTextDocument(literalUnpackedDocument);
+  const literalUnpackedPosition = literalUnpackedDocument.positionAt(literalUnpackedSource.length);
+  const literalUnpackedHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', literalUnpackedUri, literalUnpackedPosition);
+  assert.ok(literalUnpackedHelp?.signatures.some((item) => item.label.includes('literalUnpackedConfigure(')));
+  assert.strictEqual(literalUnpackedHelp.activeParameter, 2);
+  const literalUnpackedCompletions = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', literalUnpackedUri, literalUnpackedPosition);
+  assert.ok(literalUnpackedCompletions?.items.some((item) => String(item.label) === 'tls:'),
+    'The editor did not suggest the remaining parameter after a literal unpack.');
+  console.log('C2 literal argument unpack: signature and named completion follow known array entries');
+
+  const invalidUnpackUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'InvalidLiteralUnpack.php');
+  const invalidUnpackSource = `<?php namespace App\\Service;
+function literalOrder(string $host, int $port, bool $tls): void {}
+literalOrder(...['port' => 80, 'local'], tls: true);`;
+  await vscode.workspace.fs.writeFile(invalidUnpackUri, Buffer.from(invalidUnpackSource));
+  const invalidUnpackDocument = await vscode.workspace.openTextDocument(invalidUnpackUri);
+  await vscode.window.showTextDocument(invalidUnpackDocument);
+  const unpackOrderDiagnostic = (): vscode.Diagnostic | undefined => vscode.languages.getDiagnostics(invalidUnpackUri)
+    .find((diagnostic) => diagnostic.code === 'php.argument.positional-after-named');
+  const waitForUnpackOrder = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && Boolean(unpackOrderDiagnostic()) !== expected) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.strictEqual(Boolean(unpackOrderDiagnostic()), expected,
+      'The editor did not update the literal unpack argument-order diagnostic.');
+  };
+  await waitForUnpackOrder(true);
+  assert.strictEqual(invalidUnpackDocument.getText(unpackOrderDiagnostic()!.range), "'local'",
+    'The editor did not highlight the positional array entry after a named entry.');
+  const validUnpackEdit = new vscode.WorkspaceEdit();
+  validUnpackEdit.replace(invalidUnpackUri, new vscode.Range(new vscode.Position(0, 0),
+    invalidUnpackDocument.positionAt(invalidUnpackDocument.getText().length)),
+  invalidUnpackSource.replace("'port' => 80, 'local'", "'local', 'port' => 80"));
+  assert.ok(await vscode.workspace.applyEdit(validUnpackEdit));
+  assert.ok(invalidUnpackDocument.isDirty);
+  await waitForUnpackOrder(false);
+  console.log('C2 literal argument unpack: invalid order diagnostic appears and clears after an unsaved repair');
+
   const documentedOverloadUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'MagicCommentOverload.php');
   const documentedOverloadSource = `<?php namespace App\\Service;
 class C2LocatedUser {} class C2LocatedOther {}
@@ -227,6 +328,11 @@ outerTrivia(1, se
   await vscode.workspace.fs.writeFile(triviaSignatureUri, Buffer.from(triviaSignatureSource));
   const triviaSignatureDocument = await vscode.workspace.openTextDocument(triviaSignatureUri);
   await vscode.window.showTextDocument(triviaSignatureDocument);
+  const declarationHelp = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', triviaSignatureUri,
+    triviaSignatureDocument.positionAt(triviaSignatureSource.indexOf('outerTrivia(') + 'outerTrivia('.length));
+  assert.ok(!declarationHelp?.signatures.some((item) => item.label.includes('outerTrivia(')),
+    'A call signature appeared while editing the function declaration.');
   for (const marker of ['"outerTrivia(se rest', '// outerTrivia(se rest']) {
     const offset = triviaSignatureSource.indexOf(marker) + marker.indexOf('se') + 2;
     const ghost = await vscode.commands.executeCommand<vscode.SignatureHelp>(
@@ -239,7 +345,7 @@ outerTrivia(1, se
     triviaSignatureDocument.positionAt(triviaSignatureSource.lastIndexOf(' se\n') + 3));
   assert.ok(realTrivia?.signatures.some((item) => item.label.includes('outerTrivia(')),
     'Suppressing text in trivia also hid the real PHP call.');
-  console.log('C2 signature trivia: no ghost hints in text, real call remains available');
+  console.log('C2 signature context: no ghost hints in declarations or text, real call remains available');
 
   const neverArrayUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NestedArrayNever.php');
   const neverArraySource = `<?php namespace App\\Service;
@@ -291,6 +397,45 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $serv
     return observedAt;
   };
   await waitForMismatch(true);
+  const interpolatedConsumerSource = methodConsumerSource.replace("$service->accept('bad');",
+    '$service->accept("hello {$dynamic}");').replace('CrossFileLiteralService $service)',
+      'CrossFileLiteralService $service, string $dynamic)');
+  const replaceCrossFileConsumer = async (source: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(methodConsumerUri, new vscode.Range(new vscode.Position(0, 0),
+      methodConsumerDocument.positionAt(methodConsumerDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+  };
+  await replaceCrossFileConsumer(interpolatedConsumerSource);
+  const interpolationDeadline = Date.now() + 20_000;
+  while (Date.now() < interpolationDeadline && !vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch'
+      && methodConsumerDocument.getText(item.range) === '"hello {$dynamic}"'))
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.ok(vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch'
+      && methodConsumerDocument.getText(item.range) === '"hello {$dynamic}"'),
+  'Default onDemand did not diagnose the complete interpolated string as string.');
+  await replaceCrossFileConsumer(interpolatedConsumerSource.replace('declare(strict_types=1); ', ''));
+  await waitForMismatch(false);
+  const localInterpolatedSource = methodConsumerSource.replace("$service->accept('bad');",
+    '$text = "hello {$dynamic}"; $service->accept($text);').replace('CrossFileLiteralService $service)',
+      'CrossFileLiteralService $service, string $dynamic)');
+  await replaceCrossFileConsumer(localInterpolatedSource);
+  const localInterpolationDeadline = Date.now() + 20_000;
+  while (Date.now() < localInterpolationDeadline && !vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch'
+      && methodConsumerDocument.getText(item.range) === '$text'))
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.ok(vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch'
+      && methodConsumerDocument.getText(item.range) === '$text'),
+  'Default onDemand lost the interpolated string type after a local assignment.');
+  await replaceCrossFileConsumer(localInterpolatedSource.replace('$service->accept($text);', '$text = 42; $service->accept($text);'));
+  await waitForMismatch(false);
+  await replaceCrossFileConsumer(methodConsumerSource);
+  await waitForMismatch(true);
+  console.log('C2 interpolated string argument: direct/local type, strict mismatch, weak coercion, unsaved restore');
   const changeMethodDeclaration = async (from: string, to: string, expected: boolean): Promise<void> => {
     const offset = methodDocument.getText().indexOf(from);
     assert.ok(offset >= 0, `Missing method declaration text ${from}.`);
@@ -583,4 +728,104 @@ function inspectCrossFileDoc(): void { foreach (crossFileRecords() as $item) { $
   assert.ok(!staleDefinition.some((location) => location.uri.toString() === recordsUri.toString()
     && recordsDocument.getText(location.range).includes('crossAlpha')));
   console.log('C2 onDemand cross-file PHPDoc return: Alpha → Beta, completion and definition updated from unsaved source');
+
+  const reopenSourceUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenFeedback.php');
+  const reopenContractUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenContract.php');
+  const reopenConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenFeedbackConsumer.php');
+  const reopenSource = (method: string, parameterType: string): string => `<?php namespace App\\Service;
+final class ReopenFeedback implements ReopenContract { public function ${method}(${parameterType} $value): void {} }
+`;
+  const reopenContract = (method: string, parameterType: string): string => `<?php namespace App\\Service;
+interface ReopenContract { public function ${method}(${parameterType} $value): void; }
+`;
+  const reopenConsumer = `<?php declare(strict_types=1); namespace App\\Service;
+function inspectReopenFeedback(ReopenFeedback $value): void { $value->reopen; $value->reopenOld(1); }
+`;
+  await vscode.workspace.fs.writeFile(reopenSourceUri, Buffer.from(reopenSource('reopenOld', 'int')));
+  await vscode.workspace.fs.writeFile(reopenContractUri, Buffer.from(reopenContract('reopenOld', 'int')));
+  await vscode.workspace.fs.writeFile(reopenConsumerUri, Buffer.from(reopenConsumer));
+  const reopenConsumerDocument = await vscode.workspace.openTextDocument(reopenConsumerUri);
+  const reopenCompletionPosition = reopenConsumerDocument.positionAt(reopenConsumer.indexOf('$value->reopen') + '$value->reopen'.length);
+  const reopenMethods = async (): Promise<string[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', reopenConsumerUri, reopenCompletionPosition,
+  ))?.items.map((item) => String(item.label)) ?? [];
+  const waitForReopenMethod = async (expectedMethod: string, rejectedMethod: string): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline) {
+      const labels = await reopenMethods();
+      if (labels.includes(expectedMethod) && !labels.includes(rejectedMethod)) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`Reopened declaration did not refresh completion: ${JSON.stringify(await reopenMethods())}`);
+  };
+  await vscode.window.showTextDocument(reopenConsumerDocument);
+  await waitForReopenMethod('reopenOld', 'reopenNew');
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(reopenSourceUri));
+  await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  const closeDeadline = Date.now() + 5_000;
+  while (Date.now() < closeDeadline && vscode.workspace.textDocuments.some((item) => item.uri.toString() === reopenSourceUri.toString())) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const retainedAfterClose = vscode.workspace.textDocuments.some((item) => item.uri.toString() === reopenSourceUri.toString());
+  await vscode.workspace.fs.writeFile(reopenSourceUri, Buffer.from(reopenSource('reopenNew', 'string')));
+  await vscode.workspace.fs.writeFile(reopenContractUri, Buffer.from(reopenContract('reopenNew', 'string')));
+  const reopenedDocument = await vscode.workspace.openTextDocument(reopenSourceUri);
+  const diskRefreshDeadline = Date.now() + 20_000;
+  while (Date.now() < diskRefreshDeadline && !reopenedDocument.getText().includes('reopenNew')) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(reopenedDocument.getText().includes('reopenNew'),
+    `The reopened editor retained the old disk declaration (retainedAfterClose=${retainedAfterClose}).`);
+  await vscode.window.showTextDocument(reopenedDocument);
+  await waitForReopenMethod('reopenNew', 'reopenOld');
+  const oldCallOffset = reopenConsumerDocument.getText().indexOf('reopenOld(1);');
+  const oldDefinition = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', reopenConsumerUri, reopenConsumerDocument.positionAt(oldCallOffset + 2)) ?? [];
+  assert.ok(!oldDefinition.some((location) => location.uri.toString() === reopenSourceUri.toString()),
+    'The reopened source still resolved the removed method.');
+  const reopenEdit = new vscode.WorkspaceEdit();
+  reopenEdit.replace(reopenConsumerUri, new vscode.Range(reopenConsumerDocument.positionAt(oldCallOffset),
+    reopenConsumerDocument.positionAt(oldCallOffset + 'reopenOld'.length)), 'reopenNew');
+  assert.ok(await vscode.workspace.applyEdit(reopenEdit), 'Could not update the consumer to the new method.');
+  const newDefinition = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', reopenConsumerUri, reopenConsumerDocument.positionAt(oldCallOffset + 2)) ?? [];
+  assert.ok(newDefinition.some((location) => location.uri.toString() === reopenSourceUri.toString()
+    && reopenedDocument.getText(location.range) === 'reopenNew'), 'Definition did not follow the reopened source.');
+  const newHover = await vscode.commands.executeCommand<vscode.Hover[]>(
+    'vscode.executeHoverProvider', reopenConsumerUri, reopenConsumerDocument.positionAt(oldCallOffset + 2)) ?? [];
+  assert.ok(newHover.some((hover) => hover.contents.some((item) =>
+    (typeof item === 'string' ? item : item.value).includes('reopenNew'))), 'Hover retained the old method after reopen.');
+  const newCallPosition = reopenConsumerDocument.positionAt(oldCallOffset + 'reopenNew('.length);
+  const newSignatures = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', reopenConsumerUri, newCallPosition);
+  assert.ok(newSignatures?.signatures.some((signature) => signature.label.includes('string $value')),
+    'Signature Help retained the old parameter type after reopen.');
+  const reopenTypeErrors = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(reopenConsumerUri)
+    .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.type-mismatch');
+  const reopenErrorDeadline = Date.now() + 20_000;
+  while (Date.now() < reopenErrorDeadline && reopenTypeErrors().length === 0) await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.strictEqual(reopenTypeErrors().length, 1, 'The reopened string parameter did not reject the old numeric argument.');
+  const argumentOffset = reopenConsumerDocument.getText().indexOf('reopenNew(1)') + 'reopenNew('.length;
+  const argumentEdit = new vscode.WorkspaceEdit();
+  argumentEdit.replace(reopenConsumerUri, new vscode.Range(reopenConsumerDocument.positionAt(argumentOffset),
+    reopenConsumerDocument.positionAt(argumentOffset + 1)), "'ok'");
+  assert.ok(await vscode.workspace.applyEdit(argumentEdit), 'Could not repair the unsaved argument after reopen.');
+  const repairDeadline = Date.now() + 20_000;
+  while (Date.now() < repairDeadline && reopenTypeErrors().length > 0) await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepStrictEqual(reopenTypeErrors(), [], 'The corrected unsaved argument retained a stale type diagnostic.');
+  const reopenedDeclarationOffset = reopenedDocument.getText().indexOf('reopenNew');
+  const reopenedReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', reopenSourceUri, reopenedDocument.positionAt(reopenedDeclarationOffset + 2)) ?? [];
+  assert.ok(reopenedReferences.some((location) => location.uri.toString() === reopenConsumerUri.toString()
+    && reopenConsumerDocument.getText(location.range) === 'reopenNew'),
+  'References did not follow the reopened method and unsaved consumer edit.');
+  const reopenedContractDocument = await vscode.workspace.openTextDocument(reopenContractUri);
+  const contractMethodOffset = reopenedContractDocument.getText().indexOf('reopenNew');
+  assert.ok(contractMethodOffset >= 0, 'The interface retained its old declaration after disk refresh.');
+  const reopenedImplementations = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeImplementationProvider', reopenContractUri, reopenedContractDocument.positionAt(contractMethodOffset + 2)) ?? [];
+  assert.ok(reopenedImplementations.some((location) => location.uri.toString() === reopenSourceUri.toString()
+    && reopenedDocument.getText(location.range) === 'reopenNew'),
+  'Implementation did not follow the refreshed interface and class declaration.');
+  console.log(`C2 editor close, disk change, reopen: six queries and diagnostics use reopenNew(string); retainedAfterClose=${retainedAfterClose}`);
 }

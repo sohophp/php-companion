@@ -43,6 +43,28 @@ describe('conservative semantic workspace', () => {
       expect(project.nativeScalarReturnMethodCall(uri, argument, argument + '$service->text()'.length, 'string')).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('recognizes complete quoted interpolation as string for strict argument feedback', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///InterpolatedArgument.php';
+    try {
+      project.update('file:///InterpolatedService.php', '<?php namespace App; final class Service { public function accept(int $value): void {} }');
+      for (const value of ['"$part"', '"hello {$part}"', '"a\\n{$part}"']) {
+        const source = `<?php declare(strict_types=1); namespace App; function run(Service $service, string $part): void { $service->accept(${value}); }`;
+        project.update(uri, source, true);
+        const start = source.indexOf(value);
+        expect(project.incompatibleArguments(uri)).toMatchObject([{ actualType: 'string', expectedType: 'int' }]);
+        expect(project.directQuotedStringArgument(uri, start, start + value.length, 'string')).toBe(true);
+      }
+      const compound = '<?php declare(strict_types=1); namespace App; function run(Service $service, string $part): void { $service->accept("$part" . "suffix"); }';
+      project.update(uri, compound, true);
+      const start = compound.indexOf('"$part"');
+      expect(project.directQuotedStringArgument(uri, start, compound.indexOf(');', start), 'string')).toBe(false);
+      expect(project.directQuotedStringArgument(uri, start, start + '"$part"'.length, 'int')).toBe(false);
+      const weak = '<?php namespace App; function run(Service $service, string $part): void { $service->accept("$part"); }';
+      project.update(uri, weak, true);
+      expect(project.incompatibleArguments(uri)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('traces an unchanged local scalar back to one native method return', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LocalNativeReturnUse.php';
@@ -76,6 +98,15 @@ describe('conservative semantic workspace', () => {
       project.update(uri, commentedLiteral);
       const commentedStart = commentedLiteral.lastIndexOf('$value);');
       expect(project.stableLocalScalarLiteralArgument(uri, commentedStart, commentedStart + '$value'.length, 'string')).toBe(true);
+      const interpolated = '<?php declare(strict_types=1); namespace App; function literal(Service $service, string $part): void { $value = "hello {$part}"; $service->accept($value); }';
+      project.update(uri, interpolated, true);
+      const interpolatedStart = interpolated.lastIndexOf('$value);');
+      expect(project.incompatibleArguments(uri)).toMatchObject([{ actualType: 'string', expectedType: 'int' }]);
+      expect(project.stableLocalScalarLiteralArgument(uri, interpolatedStart, interpolatedStart + '$value'.length, 'string')).toBe(true);
+      const reassigned = interpolated.replace('$service->accept($value);', '$value = 1; $service->accept($value);');
+      project.update(uri, reassigned, true);
+      const reassignedStart = reassigned.lastIndexOf('$value);');
+      expect(project.stableLocalScalarLiteralArgument(uri, reassignedStart, reassignedStart + '$value'.length, 'string')).toBe(false);
     } finally { project.dispose(); }
   });
   it('shows the current proven local value type only at a variable reference', () => {
@@ -4067,6 +4098,22 @@ describe('conservative semantic workspace', () => {
     workspace.update('file:///StaticCall.php', call);
     expect(workspace.signature('file:///StaticCall.php', call.length)).toMatchObject({ name: 'create', activeParameter: 0 });
   });
+  it('does not show call signatures while editing a function declaration', () => {
+    const uri = 'file:///DeclarationSignature.php';
+    const source = '<?php function describe(string $name): void {} describe(';
+    workspace.update(uri, source);
+    expect(workspace.signatures(uri, source.indexOf('describe(') + 'describe('.length)).toEqual([]);
+    expect(workspace.signature(uri, source.length)).toMatchObject({ name: 'describe', activeParameter: 0 });
+    const incomplete = '<?php function describe(';
+    workspace.update(uri, incomplete);
+    expect(workspace.signatures(uri, incomplete.length)).toEqual([]);
+    const defaultCall = '<?php function describe(string $name = makeName(';
+    workspace.update(uri, defaultCall);
+    expect(workspace.signatures(uri, defaultCall.indexOf('describe(') + 'describe('.length)).toEqual([]);
+    workspace.update('file:///MakeName.php', '<?php function makeName(string $prefix): string { return $prefix; }');
+    expect(workspace.signature(uri, defaultCall.length)).toMatchObject({ name: 'makeName', activeParameter: 0 });
+    workspace.remove('file:///MakeName.php');
+  });
   it('resolves constructor and imported function signatures', () => {
     workspace.update('file:///Signatures.php', '<?php namespace Domain; class Invoice { public function __construct(string $number, int $total) {} } function createInvoice(string $number): Invoice {}');
     const source = '<?php namespace App; use Domain\\Invoice; use function Domain\\createInvoice as create; $a = new Invoice("A", 1); $b = create("B"); $c = \\Domain\\createInvoice("C");';
@@ -4116,6 +4163,56 @@ describe('conservative semantic workspace', () => {
     expect(workspace.completeNamedArguments('file:///NamedRemaining.php', positionalOnly.length).map((item) => item.name)).toEqual(['port', 'tls']);
     workspace.update('file:///NamedRemaining.php', secondRemaining, true);
     expect(workspace.completeNamedArguments('file:///NamedRemaining.php', secondRemaining.length).map((item) => item.name)).toEqual(['port']);
+  });
+  it('does not infer occupied parameters from a dynamic argument unpack', () => {
+    const uri = 'file:///UnpackedNamed.php';
+    const source = '<?php function configure(string $host, int $port, bool $tls): void {} $args = []; configure(...$args, ho';
+    workspace.update(uri, source, true);
+    expect(workspace.signature(uri, source.length)).toMatchObject({ name: 'configure', usedParameterNames: [],
+      uncertainArgumentUnpack: true, activeParameterUncertain: true });
+    expect(workspace.completeNamedArguments(uri, source.length)).toEqual([]);
+    const exactNamed = source.replace(/ho$/u, 'tls: true');
+    workspace.update(uri, exactNamed, true);
+    expect(workspace.signature(uri, exactNamed.length)).toMatchObject({ activeParameter: 2,
+      activeParameterUncertain: false, usedParameterNames: [] });
+    const emptyUnpack = source.replace('...$args', '...[]');
+    workspace.update(uri, emptyUnpack, true);
+    expect(workspace.signature(uri, emptyUnpack.length)).toMatchObject({ usedParameterNames: [], uncertainArgumentUnpack: false });
+    expect(workspace.completeNamedArguments(uri, emptyUnpack.length)).toMatchObject([{ name: 'host' }]);
+  });
+  it('tracks parameter occupancy in a literal argument unpack', () => {
+    const uri = 'file:///LiteralUnpackedNamed.php';
+    const declaration = '<?php function literalConfigure(string $host, int $port, bool $tls): void {} ';
+    const positional = `${declaration}literalConfigure(...['local', 80], t`;
+    workspace.update(uri, positional, true);
+    expect(workspace.signature(uri, positional.length)).toMatchObject({ activeParameter: 2,
+      usedParameterNames: ['host', 'port'], uncertainArgumentUnpack: false });
+    expect(workspace.completeNamedArguments(uri, positional.length).map((item) => item.name)).toEqual(['tls']);
+    const nestedValue = `${declaration}literalConfigure(...[strtolower('LOCAL'), 80], t`;
+    workspace.update(uri, nestedValue, true);
+    expect(workspace.signature(uri, nestedValue.length)).toMatchObject({ activeParameter: 2,
+      usedParameterNames: ['host', 'port'], uncertainArgumentUnpack: false });
+    const named = `${declaration}literalConfigure(...['port' => 80], ho`;
+    workspace.update(uri, named, true);
+    expect(workspace.signature(uri, named.length)).toMatchObject({ activeParameter: 0,
+      usedParameterNames: ['port'], uncertainArgumentUnpack: false });
+    expect(workspace.completeNamedArguments(uri, named.length).map((item) => item.name)).toEqual(['host']);
+    const invalidOrder = `${declaration}literalConfigure(...['port' => 80, /* next */ 'local'], tls: true);`;
+    workspace.update(uri, invalidOrder, true);
+    expect(workspace.argumentOrderProblems(uri)).toMatchObject([{
+      kind: 'positional-after-named', minimumPhpVersion: '8.1',
+      start: invalidOrder.indexOf("'local'"), end: invalidOrder.indexOf("'local'") + "'local'".length,
+    }]);
+    const validOrder = `${declaration}literalConfigure(...['local', 'port' => 80], tls: true);`;
+    workspace.update(uri, validOrder, true);
+    expect(workspace.argumentOrderProblems(uri)).toEqual([]);
+    for (const spread of ['...[$key => 80]', '...[0 => "local", 0 => 80]', '...[...$args]', "...['port' => 80, 'local']"]) {
+      const unknown = `${declaration}literalConfigure(${spread}, ho`;
+      workspace.update(uri, unknown, true);
+      expect(workspace.signature(uri, unknown.length)).toMatchObject({ uncertainArgumentUnpack: true,
+        activeParameterUncertain: true });
+      expect(workspace.completeNamedArguments(uri, unknown.length)).toEqual([]);
+    }
   });
   it('keeps nested named arguments out of the outer call completion context', () => {
     const uri = 'file:///NestedNamedUse.php';
@@ -4898,6 +4995,50 @@ final class Imported { public const TYPE = Stable::class; }`);
       expect.objectContaining({ uri: 'file:///src/Legacy/Consumer.php', newText: '\\MoveType\\Service\\Runner' }),
       expect.objectContaining({ uri: 'file:///src/Consumer/Imported.php', newText: '' }),
     ]));
+  });
+  it('moves a PSR-4 type between global and named namespaces with exact namespace edits', () => {
+    const globalUri = 'file:///GlobalMove/GlobalMoveRunner.php';
+    const namedUri = 'file:///GlobalMove/Sub/GlobalMoveRunner.php';
+    const global = `<?php declare(strict_types=1);
+/** Keep this comment with the class. */
+class GlobalMoveRunner { public const TEXT = '?>'; }`;
+    const globalConsumer = '<?php class GlobalMoveConsumer { public const TYPE = GlobalMoveRunner::class; }';
+    workspace.update(globalUri, global);
+    workspace.update('file:///GlobalMove/Consumer.php', globalConsumer);
+    const intoNamespace = workspace.planTypeMoves([{ oldUri: globalUri, newUri: namedUri, newNamespace: 'Sub' }]);
+    expect(intoNamespace.error).toBeUndefined();
+    const insert = intoNamespace.plan?.edits.find((edit) => edit.uri === namedUri && edit.newText.includes('namespace Sub;'));
+    expect(insert).toMatchObject({ start: global.indexOf('declare(') + 'declare(strict_types=1);'.length,
+      newText: '\nnamespace Sub;\n' });
+    expect(intoNamespace.plan?.edits).toContainEqual(expect.objectContaining({
+      uri: 'file:///GlobalMove/Consumer.php', newText: '\\Sub\\GlobalMoveRunner',
+    }));
+    const inserted = global.slice(0, insert!.start) + insert!.newText + global.slice(insert!.end);
+    expect(inserted).toContain('namespace Sub;\n\n/** Keep this comment with the class. */');
+
+    const namedSource = '<?php namespace Sub; class MoveBackRunner {}';
+    const namedBackUri = 'file:///GlobalMove/Sub/MoveBackRunner.php';
+    const globalBackUri = 'file:///GlobalMove/MoveBackRunner.php';
+    workspace.update(namedBackUri, namedSource);
+    const intoGlobal = workspace.planTypeMoves([{ oldUri: namedBackUri, newUri: globalBackUri, newNamespace: '' }]);
+    expect(intoGlobal.error).toBeUndefined();
+    expect(intoGlobal.plan?.declarations).toContainEqual(expect.objectContaining({ newFqcn: 'MoveBackRunner' }));
+    const removal = intoGlobal.plan?.edits.find((edit) => edit.uri === globalBackUri && edit.newText === '');
+    expect(removal).toBeDefined();
+    expect(namedSource.slice(removal!.start, removal!.end)).toBe('namespace Sub;');
+    workspace.remove(namedBackUri);
+    workspace.update(globalBackUri, namedSource);
+    const reconciled = workspace.planTypeMoveReconciliation([{
+      newUri: globalBackUri, newNamespace: '',
+      declarations: [{ oldFqcn: 'Sub\\MoveBackRunner', newFqcn: 'MoveBackRunner' }],
+    }]);
+    expect(reconciled.error).toBeUndefined();
+    expect(reconciled.plan?.edits).toContainEqual(expect.objectContaining({ uri: globalBackUri, newText: '' }));
+
+    const bracketedUri = 'file:///GlobalMove/Sub/Bracketed.php';
+    workspace.update(bracketedUri, '<?php namespace Sub { class Bracketed {} }');
+    expect(workspace.planTypeMoves([{ oldUri: bracketedUri, newUri: 'file:///GlobalMove/Bracketed.php', newNamespace: '' }]).error)
+      .toContain('namespace declaration is missing or ambiguous');
   });
   it('renames a unique namespace constant across imports and resolved uses while preserving explicit aliases', () => {
     const declaration = '<?php namespace ConstantRename; const API_KEY = "secret";';
@@ -8711,12 +8852,14 @@ use const Vendor\\ACTIVE;
     }
     workspace.remove(uri);
   });
-  it('plans extract-variable only for whole RHS or return expressions in statement blocks', () => {
+  it('plans extract-variable for whole RHS, return and single echo expressions in statement blocks', () => {
     const uri = 'file:///ExtractVariable.php';
     const source = `<?php function run(bool $ok): object {
       $extracted = existing();
       $result = buildObject();
       if ($ok) return inlineObject();
+      echo buildLabel();
+      echo firstLabel(), secondLabel();
       return finalObject();
     }`;
     workspace.update(uri, source, true);
@@ -8726,6 +8869,10 @@ use const Vendor\\ACTIVE;
     });
     const returned = source.indexOf('finalObject()');
     expect(workspace.extractVariable(uri, returned, returned + 'finalObject()'.length)).toMatchObject({ expression: 'finalObject()' });
+    const echoed = source.indexOf('buildLabel()');
+    expect(workspace.extractVariable(uri, echoed, echoed + 'buildLabel()'.length)).toMatchObject({ expression: 'buildLabel()' });
+    const firstEchoed = source.indexOf('firstLabel()');
+    expect(workspace.extractVariable(uri, firstEchoed, firstEchoed + 'firstLabel()'.length)).toBeUndefined();
     expect(workspace.extractVariable(uri, rhsStart, rhsStart + 'buildObject'.length)).toBeUndefined();
     const inline = source.indexOf('inlineObject()');
     expect(workspace.extractVariable(uri, inline, inline + 'inlineObject()'.length)).toBeUndefined();
@@ -8806,7 +8953,7 @@ use const Vendor\\ACTIVE;
     workspace.remove('file:///src/InheritedInterface.php');
     workspace.remove(uri);
   });
-  it('plans inline-variable only for a single whole-value use in the immediately following statement', () => {
+  it('plans inline-variable for immediate whole values or leftmost safe expressions', () => {
     const uri = 'file:///InlineVariable.php';
     const source = `<?php function direct(): object {
       $temporary = buildObject();
@@ -8832,9 +8979,38 @@ use const Vendor\\ACTIVE;
       $result = ($assigned);
       return $result;
     }
+    function assignedExpression(): int {
+      $assignedSum = 1 + 2;
+      $result = $assignedSum * 3;
+      return $result;
+    }
+    function echoSingle(): void {
+      $echoed = buildLabel();
+      echo $echoed;
+    }
+    function echoMultiple(): void {
+      $multiple = buildLabel();
+      echo firstLabel(), $multiple;
+    }
+    function propertyTarget(Holder $holder): void {
+      $property = buildObject();
+      $holder->item = $property;
+    }
     function embedded(): object {
       $embedded = buildObject();
       return ($embedded ?? fallback());
+    }
+    function precedence(): int {
+      $sum = 1 + 2;
+      return $sum * 3;
+    }
+    function laterOperand(): int {
+      $later = sideEffect();
+      return anotherEffect() + $later;
+    }
+    function unorderedRight(): int {
+      $early = sideEffect();
+      return $early * anotherEffect();
     }
     function repeated(): object {
       $item = buildObject();
@@ -8866,8 +9042,27 @@ use const Vendor\\ACTIVE;
     expect(source.slice(0, wrapped!.declarationStart) + source.slice(wrapped!.declarationEnd, wrapped!.useStart)
       + wrapped!.expression + source.slice(wrapped!.useEnd)).toContain('return ((buildObject()));');
     const assigned = workspace.inlineVariable(uri, source.indexOf('$assigned') + 2);
-    expect(assigned).toMatchObject({ variable: 'assigned', useStart: source.lastIndexOf('$assigned') });
-    expect(workspace.inlineVariable(uri, source.indexOf('$embedded') + 2)).toBeUndefined();
+    expect(assigned).toMatchObject({ variable: 'assigned', useStart: source.indexOf('($assigned)') + 1 });
+    const assignedSum = workspace.inlineVariable(uri, source.indexOf('$assignedSum') + 2);
+    expect(assignedSum).toMatchObject({ variable: 'assignedSum', expression: '(1 + 2)' });
+    expect(source.slice(0, assignedSum!.declarationStart) + source.slice(assignedSum!.declarationEnd, assignedSum!.useStart)
+      + assignedSum!.expression + source.slice(assignedSum!.useEnd)).toContain('$result = (1 + 2) * 3;');
+    const echoed = workspace.inlineVariable(uri, source.indexOf('$echoed') + 2);
+    expect(echoed).toMatchObject({ variable: 'echoed', expression: 'buildLabel()' });
+    expect(source.slice(0, echoed!.declarationStart) + source.slice(echoed!.declarationEnd, echoed!.useStart)
+      + echoed!.expression + source.slice(echoed!.useEnd)).toContain('echo buildLabel();');
+    expect(workspace.inlineVariable(uri, source.indexOf('$multiple') + 2)).toBeUndefined();
+    expect(workspace.inlineVariable(uri, source.indexOf('$property') + 2)).toBeUndefined();
+    const embedded = workspace.inlineVariable(uri, source.indexOf('$embedded') + 2);
+    expect(embedded).toMatchObject({ variable: 'embedded', expression: '(buildObject())' });
+    expect(source.slice(0, embedded!.declarationStart) + source.slice(embedded!.declarationEnd, embedded!.useStart)
+      + embedded!.expression + source.slice(embedded!.useEnd)).toContain('return ((buildObject()) ?? fallback());');
+    const precedence = workspace.inlineVariable(uri, source.indexOf('$sum') + 2);
+    expect(precedence).toMatchObject({ variable: 'sum', expression: '(1 + 2)' });
+    expect(source.slice(0, precedence!.declarationStart) + source.slice(precedence!.declarationEnd, precedence!.useStart)
+      + precedence!.expression + source.slice(precedence!.useEnd)).toContain('return (1 + 2) * 3;');
+    expect(workspace.inlineVariable(uri, source.indexOf('$later') + 2)).toBeUndefined();
+    expect(workspace.inlineVariable(uri, source.indexOf('$early') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$value') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$item') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$alias') + 2)).toBeUndefined();
@@ -8875,6 +9070,87 @@ use const Vendor\\ACTIVE;
     expect(workspace.inlineVariable(uri, source.indexOf('$commented') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.lastIndexOf('$temporary') + 2)).toBeUndefined();
     workspace.remove(uri);
+  });
+  it('extracts a proven if/else local output without changing its type', () => {
+    const uri = 'file:///BranchExtract.php';
+    const source = `<?php
+final class BranchExtract {
+    public function run(bool $flag): string {
+        if ($flag) {
+            $result = $this->first();
+        } else {
+            $result = $this->second();
+        }
+        return $result;
+    }
+    private function first(): string { return 'one'; }
+    private function second(): string { return 'two'; }
+}`;
+    try {
+      workspace.update(uri, source, true);
+      const start = source.indexOf('if ($flag)');
+      const end = source.indexOf('\n        return $result;', start);
+      const plan = workspace.extractMethod(uri, start, end);
+      expect(plan).toMatchObject({ output: 'result', parameters: ['flag'], callText: '        $result = $this->extractedMethod($flag);\n' });
+      expect(plan?.methodText).toContain('private function extractedMethod(bool $flag): string');
+      expect(plan?.methodText).toContain('return $result;');
+      if (!plan) throw new Error('Missing branch extraction plan.');
+      const extracted = source.slice(0, plan.selectionStart) + plan.callText
+        + source.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + source.slice(plan.insertOffset);
+      workspace.update(uri, extracted, true);
+      const use = extracted.indexOf('return $result;');
+      expect(workspace.variableValueAt(uri, use + 'return '.length + 2)?.type).toBe('string');
+      for (const condition of ['!$flag', '$flag && $enabled', '$flag || !$enabled', '($flag && !$enabled)']) {
+        const variant = source.replace('run(bool $flag)', 'run(bool $flag, bool $enabled)').replace('if ($flag)', `if (${condition})`);
+        workspace.update(uri, variant, true);
+        const conditionPlan = workspace.extractMethod(uri, variant.indexOf('if ('), variant.indexOf('\n        return $result;'));
+        expect(conditionPlan).toMatchObject({
+          parameters: condition.includes('$enabled') ? ['flag', 'enabled'] : ['flag'],
+          callText: `        $result = $this->extractedMethod(${condition.includes('$enabled') ? '$flag, $enabled' : '$flag'});\n`,
+        });
+        expect(conditionPlan?.methodText).toContain(`if (${condition})`);
+      }
+      const chainSource = source.replace('run(bool $flag)', 'run(bool $flag, bool $enabled)')
+        .replace('} else {\n            $result = $this->second();',
+          '} elseif ($enabled) {\n            $result = $this->second();\n        } else {\n            $result = $this->third();')
+        .replace("private function second(): string { return 'two'; }",
+          "private function second(): string { return 'two'; }\n    private function third(): string { return 'three'; }");
+      workspace.update(uri, chainSource, true);
+      const chainStart = chainSource.indexOf('if ('); const chainEnd = chainSource.indexOf('\n        return $result;');
+      const chainPlan = workspace.extractMethod(uri, chainStart, chainEnd);
+      expect(chainPlan).toMatchObject({
+        output: 'result', parameters: ['flag', 'enabled'],
+        callText: '        $result = $this->extractedMethod($flag, $enabled);\n',
+      });
+      expect(chainPlan?.methodText).toContain('} elseif ($enabled) {');
+      expect(chainPlan?.methodText).toContain('private function extractedMethod(bool $flag, bool $enabled): string');
+      for (const variant of [
+        chainSource.replace('} else {\n            $result = $this->third();\n        }', '}'),
+        chainSource.replace('$result = $this->third();', '$other = $this->third();'),
+        chainSource.replace('$result = $this->third();', '$result = 3;'),
+        chainSource.replace('elseif ($enabled)', 'elseif ($enabled === true)'),
+      ]) {
+        workspace.update(uri, variant, true);
+        expect(workspace.extractMethod(uri, variant.indexOf('if ('), variant.indexOf('\n        return $result;'))).toBeUndefined();
+      }
+      for (const variant of [
+        source.replace('$result = $this->second();', '$other = $this->second();'),
+        source.replace('} else {', '} elseif ($flag) {'),
+        source.replace('} else {\n            $result = $this->second();\n        }', '}'),
+        source.replace('$result = $this->second();', '$result = 2;'),
+        source.replace('$result = $this->second();', '$result = $this->first($result);'),
+        source.replace('if ($flag) {', "if ($flag) {\n            // keep this comment"),
+        source.replace("private function first(): string { return 'one'; }", 'private function first(): void {}')
+          .replace("private function second(): string { return 'two'; }", 'private function second(): void {}'),
+        source.replace('if ($flag)', 'if ($flag & $flag)'),
+        source.replace('if ($flag)', 'if ($flag === true)'),
+        source.replace('if ($flag)', 'if ($this->first())'),
+        source.replace('run(bool $flag)', 'run(string $flag)'),
+      ]) {
+        workspace.update(uri, variant, true);
+        expect(workspace.extractMethod(uri, variant.indexOf('if ('), variant.indexOf('\n        return $result;'))).toBeUndefined();
+      }
+    } finally { workspace.remove(uri); }
   });
   it('plans extract-method with proven receivers and by-value call inputs while rejecting unsafe data flow', () => {
     const uri = 'file:///ExtractMethod.php';
@@ -8911,11 +9187,71 @@ class Worker {
         $count = 1;
         return $count;
     }
+    public function display(string $message): void
+    {
+        echo $message;
+    }
+    public function displayPair(string $first, string $second): void
+    {
+        echo $first, $second;
+    }
+    public function format(string $message): string
+    {
+        $this->finish();
+        return $this->formatLabel($message);
+    }
+    public function passthrough(string $message): string
+    {
+        return $message;
+    }
+    public function untypedReturn($message)
+    {
+        return $message;
+    }
+    public function &referenceReturn(string &$message): string
+    {
+        return $message;
+    }
+    public function pairOutputs(string $seed): string
+    {
+        $first = $this->formatLabel($seed);
+        $second = $this->buildLabel();
+        return $first . $second;
+    }
+    public function partialOutputs(): string
+    {
+        $first = 'one';
+        $second = $this->unknownValue();
+        return $first . $second;
+    }
+    public function tripleOutputs(): string
+    {
+        $first = 'one';
+        $second = 'two';
+        $third = 'three';
+        return $first . $second . $third;
+    }
+    public function dependentOutputs(string $seed): void
+    {
+        $first = $this->formatLabel($seed);
+        $second = $this->formatLabel($first);
+        $this->notify($second);
+    }
+    public function reusedOutput(string $seed): void
+    {
+        $first = 'old';
+        $first = $this->formatLabel($seed);
+        $second = $this->buildLabel();
+        $this->notify($first);
+        $this->notify($second);
+    }
     private function extractedMethod(): void {}
     private function prepare(): void {}
     private function notify(string $message): void {}
     private function touch(string &$message): void {}
     private function buildLabel(): string { return 'ready'; }
+    private function formatLabel(string $message): string { return $message; }
+    private function unknownValue() { return 'two'; }
     private function finish(): void {}
 }`;
     workspace.update(uri, source, true);
@@ -8930,7 +9266,8 @@ class Worker {
     const localReceiver = source.lastIndexOf('$service->prepare()');
     expect(workspace.extractMethod(uri, localReceiver, localReceiver + '$service->prepare();'.length)?.methodText)
       .toContain('private function extractedMethod2(\\WorkerService $service): void');
-    const outputStart = source.lastIndexOf('$this->finish()'); const outputEnd = source.indexOf(';', source.indexOf('$result =', outputStart)) + 1;
+    const outputStart = source.indexOf('$this->finish()', source.indexOf('public function produce('));
+    const outputEnd = source.indexOf(';', source.indexOf('$result =', outputStart)) + 1;
     expect(workspace.extractMethod(uri, outputStart, outputEnd)).toMatchObject({
       output: 'result', callText: '        $result = $this->extractedMethod2();\n',
       methodText: expect.stringContaining('private function extractedMethod2(): \\WorkerService'),
@@ -8939,6 +9276,117 @@ class Worker {
     expect(workspace.extractMethod(uri, scalarStart, scalarEnd)?.methodText).toContain('private function extractedMethod2(): string');
     const literalStart = source.indexOf('$count ='); const literalEnd = source.indexOf(';', literalStart) + 1;
     expect(workspace.extractMethod(uri, literalStart, literalEnd)?.methodText).toContain('private function extractedMethod2(): int');
+    const echoStart = source.indexOf('echo $message;');
+    expect(workspace.extractMethod(uri, echoStart, echoStart + 'echo $message;'.length)).toMatchObject({
+      parameters: ['message'], callText: '        $this->extractedMethod2($message);\n',
+      methodText: expect.stringContaining('private function extractedMethod2(string $message): void'),
+    });
+    const pairStart = source.indexOf('echo $first, $second;');
+    expect(workspace.extractMethod(uri, pairStart, pairStart + 'echo $first, $second;'.length)).toMatchObject({
+      parameters: ['first', 'second'], callText: '        $this->extractedMethod2($first, $second);\n',
+      methodText: expect.stringContaining('private function extractedMethod2(string $first, string $second): void'),
+    });
+    const returnStart = source.indexOf('$this->finish();', source.indexOf('public function format('));
+    const returnEnd = source.indexOf('return $this->formatLabel($message);', returnStart) + 'return $this->formatLabel($message);'.length;
+    expect(workspace.extractMethod(uri, returnStart, returnEnd)).toMatchObject({
+      parameters: ['message'], callText: '        return $this->extractedMethod2($message);\n',
+      methodText: expect.stringContaining('private function extractedMethod2(string $message): string'),
+    });
+    const directReturnStart = source.indexOf('return $message;', source.indexOf('public function passthrough('));
+    expect(workspace.extractMethod(uri, directReturnStart, directReturnStart + 'return $message;'.length)).toMatchObject({
+      parameters: ['message'], callText: '        return $this->extractedMethod2($message);\n',
+      methodText: expect.stringContaining('private function extractedMethod2(string $message): string'),
+    });
+    const untypedReturnStart = source.indexOf('return $message;', source.indexOf('public function untypedReturn('));
+    expect(workspace.extractMethod(uri, untypedReturnStart, untypedReturnStart + 'return $message;'.length)).toMatchObject({
+      parameters: ['message'], callText: '        return $this->extractedMethod2($message);\n',
+      methodText: expect.stringContaining('private function extractedMethod2($message)'),
+    });
+    const referenceReturnStart = source.indexOf('return $message;', source.indexOf('public function &referenceReturn('));
+    expect(workspace.extractMethod(uri, referenceReturnStart, referenceReturnStart + 'return $message;'.length)).toBeUndefined();
+    const pairOutputStart = source.indexOf('$first =', source.indexOf('public function pairOutputs('));
+    const pairOutputEnd = source.indexOf('$second =', pairOutputStart) + '$second = $this->buildLabel();'.length;
+    const pairOutputPlan = workspace.extractMethod(uri, pairOutputStart, pairOutputEnd);
+    expect(pairOutputPlan).toMatchObject({
+      parameters: ['seed'], callText: '        [$first, $second] = $this->extractedMethod2($seed);\n',
+      methodText: expect.stringContaining('private function extractedMethod2(string $seed): array'),
+    });
+    if (!pairOutputPlan) throw new Error('Missing multiple-output plan.');
+    expect(pairOutputPlan.methodText).toContain('/** @return array{0: string, 1: string} */');
+    const literalPairSource = source.replace('$first = $this->formatLabel($seed);\n        $second = $this->buildLabel();',
+      "$first = 'one';\n        $second = 'two';");
+    workspace.update(uri, literalPairSource, true);
+    const literalPairStart = literalPairSource.indexOf('$first =', literalPairSource.indexOf('public function pairOutputs('));
+    const literalPairEnd = literalPairSource.indexOf('$second =', literalPairStart) + "$second = 'two';".length;
+    const literalReturnStart = literalPairSource.indexOf('return $first . $second;', literalPairEnd);
+    expect(workspace.variableValueAt(uri, literalReturnStart + 'return '.length + 2)?.type).toBe('string');
+    expect(workspace.variableValueAt(uri, literalReturnStart + 'return $first . '.length + 2)?.type).toBe('string');
+    const literalPlan = workspace.extractMethod(uri, literalPairStart, literalPairEnd);
+    if (!literalPlan) throw new Error('Missing literal multiple-output plan.');
+    const extractedPairSource = literalPairSource.slice(0, literalPlan.selectionStart) + literalPlan.callText
+      + literalPairSource.slice(literalPlan.selectionEnd, literalPlan.insertOffset) + literalPlan.methodText
+      + literalPairSource.slice(literalPlan.insertOffset);
+    workspace.update(uri, extractedPairSource, true);
+    const extractedReturnStart = extractedPairSource.indexOf('return $first . $second;', extractedPairSource.indexOf('public function pairOutputs('));
+    expect(workspace.variableValueAt(uri, extractedReturnStart + 'return '.length + 2)?.type).toBe('string');
+    expect(workspace.variableValueAt(uri, extractedReturnStart + 'return $first . '.length + 2)?.type).toBe('string');
+    const optionalTupleSource = extractedPairSource.replace('1: string', '1?: string');
+    workspace.update(uri, optionalTupleSource, true);
+    const optionalReturnStart = optionalTupleSource.indexOf('return $first . $second;', optionalTupleSource.indexOf('public function pairOutputs('));
+    expect(workspace.variableValueAt(uri, optionalReturnStart + 'return $first . '.length + 2)).toBeUndefined();
+    const sparseTupleSource = extractedPairSource.replace('[$first, $second] =', '[$first, , $second] =');
+    workspace.update(uri, sparseTupleSource, true);
+    const sparseReturnStart = sparseTupleSource.indexOf('return $first . $second;', sparseTupleSource.indexOf('public function pairOutputs('));
+    expect(workspace.variableValueAt(uri, sparseReturnStart + 'return $first . '.length + 2)).toBeUndefined();
+    workspace.update(uri, source, true);
+    const partialStart = source.indexOf('$first =', source.indexOf('public function partialOutputs('));
+    const partialEnd = source.indexOf('$second =', partialStart) + '$second = $this->unknownValue();'.length;
+    const partialPlan = workspace.extractMethod(uri, partialStart, partialEnd);
+    expect(partialPlan?.methodText).toContain('/** @return array{0: string, 1: mixed} */');
+    if (!partialPlan) throw new Error('Missing partial multiple-output plan.');
+    const extractedPartialSource = source.slice(0, partialPlan.selectionStart) + partialPlan.callText
+      + source.slice(partialPlan.selectionEnd, partialPlan.insertOffset) + partialPlan.methodText + source.slice(partialPlan.insertOffset);
+    workspace.update(uri, extractedPartialSource, true);
+    const partialReturnStart = extractedPartialSource.indexOf('return $first . $second;', extractedPartialSource.indexOf('public function partialOutputs('));
+    expect(workspace.variableValueAt(uri, partialReturnStart + 'return '.length + 2)?.type).toBe('string');
+    workspace.update(uri, source, true);
+    const tripleStart = source.indexOf('$first =', source.indexOf('public function tripleOutputs('));
+    const tripleEnd = source.indexOf('$third =', tripleStart) + "$third = 'three';".length;
+    const triplePlan = workspace.extractMethod(uri, tripleStart, tripleEnd);
+    expect(triplePlan).toMatchObject({
+      callText: '        [$first, $second, $third] = $this->extractedMethod2();\n',
+      methodText: expect.stringContaining('/** @return array{0: string, 1: string, 2: string} */'),
+    });
+    if (!triplePlan) throw new Error('Missing triple multiple-output plan.');
+    const extractedTripleSource = source.slice(0, triplePlan.selectionStart) + triplePlan.callText
+      + source.slice(triplePlan.selectionEnd, triplePlan.insertOffset) + triplePlan.methodText + source.slice(triplePlan.insertOffset);
+    workspace.update(uri, extractedTripleSource, true);
+    const tripleReturnStart = extractedTripleSource.indexOf('return $first . $second . $third;', extractedTripleSource.indexOf('public function tripleOutputs('));
+    expect(workspace.variableValueAt(uri, tripleReturnStart + 'return $first . $second . '.length + 2)?.type).toBe('string');
+    workspace.update(uri, source, true);
+    const dependentStart = source.indexOf('$first =', source.indexOf('public function dependentOutputs('));
+    const dependentEnd = source.indexOf('$second =', dependentStart) + '$second = $this->formatLabel($first);'.length;
+    expect(workspace.extractMethod(uri, dependentStart, dependentEnd)).toBeUndefined();
+    const reusedStart = source.indexOf('$first =', source.indexOf("$first = 'old';") + "$first = 'old';".length);
+    const reusedEnd = source.indexOf('$second =', reusedStart) + '$second = $this->buildLabel();'.length;
+    expect(workspace.extractMethod(uri, reusedStart, reusedEnd)).toBeUndefined();
+    const globalOutputSource = source.replace(
+      '$first = $this->formatLabel($seed);\n        $second = $this->buildLabel();\n        return $first . $second;',
+      '$_GET = $this->formatLabel($seed);\n        $second = $this->buildLabel();\n        return $_GET . $second;');
+    workspace.update(uri, globalOutputSource, true);
+    const globalOutputStart = globalOutputSource.indexOf('$_GET =', globalOutputSource.indexOf('public function pairOutputs('));
+    const globalOutputEnd = globalOutputSource.indexOf('$second =', globalOutputStart) + '$second = $this->buildLabel();'.length;
+    expect(workspace.extractMethod(uri, globalOutputStart, globalOutputEnd)).toBeUndefined();
+    workspace.update(uri, source, true);
+    const unsafePairSource = source.replace('echo $first, $second;', 'echo $first, $this->buildLabel();');
+    workspace.update(uri, unsafePairSource, true);
+    const unsafePairStart = unsafePairSource.indexOf('echo $first, $this->buildLabel();');
+    expect(workspace.extractMethod(uri, unsafePairStart, unsafePairStart + 'echo $first, $this->buildLabel();'.length)).toBeUndefined();
+    const objectPairSource = source.replace('displayPair(string $first, string $second)', 'displayPair(string $first, WorkerService $second)');
+    workspace.update(uri, objectPairSource, true);
+    const objectPairStart = objectPairSource.indexOf('echo $first, $second;');
+    expect(workspace.extractMethod(uri, objectPairStart, objectPairStart + 'echo $first, $second;'.length)).toBeUndefined();
+    workspace.update(uri, source, true);
     expect(workspace.extractMethod(uri, source.indexOf('$service ='), localReceiver + '$service->prepare();'.length)).toBeUndefined();
     const localSource = source.replace('$service->prepare();', '$value->prepare();');
     workspace.update(uri, localSource, true);

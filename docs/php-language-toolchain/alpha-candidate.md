@@ -28,7 +28,7 @@ pnpm alpha:preflight -- \
   --output /tmp/sophp-alpha-preflight.json
 ```
 
-安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端对任一项目追加 `--check-editor`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
+安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端追加 `--check-editor --extensions-dir <当前 Remote 扩展目录>`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack；指定目录后还会逐文件核对三款 SoPHP 产品与候选 VSIX，避免同版本旧包混入。若子进程调用 Remote CLI 超时，可先在同一终端运行 `code --list-extensions --show-versions > /tmp/sophp-alpha-extensions.txt`，再追加 `--extensions-list-file /tmp/sophp-alpha-extensions.txt`；报告会记录清单修改时间，扩展变化后须重新生成清单。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
 
 ## 安装边界
 

@@ -1,6 +1,6 @@
 # SoPHP 日常开发组合方案
 
-日期：2026-09-24。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
+更新：2026-09-25。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
 2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。当前 Core 顺序以[Pack 整理与 Core 下一步](reports/open-source-pack-next-core-2026-09-25.md)开头的执行快照为准；生成新文件的 Redo 独立保留为 C3 阻断项。
 
@@ -80,7 +80,7 @@ PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因�
 
 ## 当前整理结论与进入 Core 的顺序
 
-Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 已加入当前源码 Pack，PHPStan 保持可选。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。PHP DocBlocker 的源码成员 Profile 已完成单独组合门禁；新 VSIX 候选尚未冻结。
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 和 PHP DocBlocker 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHPStan 保持可选。[同批私有 Alpha 候选 65f683c8](reports/alpha-65f683c8-packaged-profile-2026-09-25.md)已包含当前 10 项 Pack 清单并通过隔离 Linux 安装宿主；候选冻结后完成的 Core C2 改动仍只在源码和源码宿主中，须待下一次候选冻结才能进行安装验收。WSL Remote、跨平台及持续使用门槛仍开放。
 
 当前 10 项源码组合的 C3 宿主已通过（`/tmp/sophp-c3-pack-10-configured-20260925.log`，退出码 0）：在不含 PHPUnit 扩展的冻结外部目录、独立临时 Composer 项目和隔离 VS Code Profile 中加载 Core、Symfony、Pack 源码，无需生成 VSIX。日常组合源码宿主也通过（`/tmp/sophp-pack-10-source-cli-config-20260925.log`，退出码 0），实际执行项目 PHPUnit CLI，并检查格式化、Twig/YAML/XML 与调试入口。这些自动门禁仍不能替代下一次候选的 VSIX 安装和 WSL Remote 验收。
 
@@ -95,7 +95,7 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 
 因此可以按已验的 Linux 隔离宿主范围开始使用现有 Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；不能把仓库当前源码清单等同于已安装的 0.4.5 候选。WSL Remote 的实际 Extension Host 归属仍待验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
 
-Core 当前先从 [C3 生成文件的 Undo/Redo 缺口](reports/open-source-pack-next-core-2026-09-25.md)推进：导入和方法参数重构已有部分可靠编辑链，但类型生成文件的一次 Redo 尚不能恢复；修复后再按真实开发操作复核其它 C3 能力。C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。C2 的快速编辑旧诊断已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
+Core 当前按 [Pack 整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)先复核独立 Composer 项目的 C1/C2 日常编辑链，再收口 C3 高频编辑的可复现缺口。类型生成文件一次 Undo 后的标准 Redo 尚不能恢复，作为独立阻断项保留；已有两个 VS Code 次版本的失败证据，取得新的资源撤销栈线索后继续调查。C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
 独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)已覆盖唯一 PSR-4 类方法、直接或稳定局部标量字面量，以及直接或稳定局部赋值的原生标量方法返回；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。[局部值 Hover](reports/c2-local-value-hover-2026-09-24.md)补齐了同一类型事实的显示，[完整 Pack 源码组合](reports/open-source-pack-c2-local-feedback-2026-09-24.md)的 10 轮未保存切换也未出现旧 Hover 或旧诊断。复杂控制流、动态返回和仅 PHPDoc 声明的跨文件返回仍保持保守。下一步在更大的独立 Composer 项目观察等待与长期稳定性，并继续核对数组、联合类型的跨能力反馈。人工使用反馈可以并行进入，不阻塞这些独立测试。
 

@@ -1580,6 +1580,7 @@ async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, roo
   const candidates = workspace.incompatibleArguments(document.uri).filter((item) => {
     if (!item.callable.includes('::')) return false;
     if (workspace.directScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)
+      || workspace.directQuotedStringArgument(document.uri, item.start, item.end, item.actualType)
       || workspace.stableLocalScalarLiteralArgument(document.uri, item.start, item.end, item.actualType)) return true;
     const source = workspace.nativeScalarReturnMethodCall(document.uri, item.start, item.end, item.actualType)
       ?? workspace.stableLocalNativeScalarReturnArgument(document.uri, item.start, item.end, item.actualType);
@@ -1651,7 +1652,10 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')
-    && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri).map((problem) => ({
+    && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri)
+    .filter((problem) => !problem.minimumPhpVersion
+      || SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(problem.minimumPhpVersion))
+    .map((problem) => ({
     range: { start: document.positionAt(problem.start), end: document.positionAt(problem.end) },
     severity: DiagnosticSeverity.Error,
     code: `php.argument.${problem.kind}`,
@@ -6074,10 +6078,12 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   if (token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion) return null;
   const signatures = workspace.signatures(document.uri, offset);
   if (!signatures.length || token.isCancellationRequested) return null;
-  const activeSignature = signatures.findIndex((signature) => signature.activeParameter < signature.parameters.length);
-  const selected = signatures[Math.max(0, activeSignature)]!;
+  const activeSignature = signatures.findIndex((signature) => !signature.activeParameterUncertain
+    && signature.activeParameter < signature.parameters.length);
+  if (activeSignature < 0) return null;
+  const selected = signatures[activeSignature]!;
   return {
-    activeSignature: Math.max(0, activeSignature),
+    activeSignature,
     activeParameter: Math.min(selected.activeParameter, Math.max(0, selected.parameters.length - 1)),
     signatures: signatures.map((signature) => {
       const parameters = signature.parameters.map((parameter) => ({ label: displayPhpParameter(parameter) }));
@@ -6310,8 +6316,9 @@ connection.onCodeAction(async (params, token) => {
   if (wantsExtract) {
     const extraction = localWorkspace.extractVariable(document.uri, document.offsetAt(range.start), document.offsetAt(range.end));
     if (extraction) {
+      const eol = source.includes('\r\n') ? '\r\n' : '\n';
       const plan = createEditPlan(`Extract $${extraction.variable}`, [{ uri: document.uri, version: document.version, length: source.length }], [
-        { uri: document.uri, start: extraction.statementStart, end: extraction.statementStart, newText: `${extraction.indent}$${extraction.variable} = ${extraction.expression};\n` },
+        { uri: document.uri, start: extraction.statementStart, end: extraction.statementStart, newText: `${extraction.indent}$${extraction.variable} = ${extraction.expression};${eol}` },
         { uri: document.uri, start: extraction.expressionStart, end: extraction.expressionEnd, newText: `$${extraction.variable}` },
       ]);
       actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractVariable', extraction.variable), kind: CodeActionKind.RefactorExtract,

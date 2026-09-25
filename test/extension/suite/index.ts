@@ -228,6 +228,13 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   assert.deepStrictEqual(await namedFeedback(), { active: 1, names: ['second:'] },
     'The full Pack reoffered a positional argument after an unsaved mixed call edit.');
   console.log('Open Source Pack C2 named arguments: unfilled signature and completion survive an unsaved mixed call edit');
+  const literalEdit = new vscode.WorkspaceEdit();
+  literalEdit.replace(namedUri, new vscode.Range(new vscode.Position(0, 0),
+    namedDocument.positionAt(namedDocument.getText().length)), namedSource.replace('third: true, ', '...[1, 2], th'));
+  assert.ok(await vscode.workspace.applyEdit(literalEdit));
+  assert.deepStrictEqual(await namedFeedback(), { active: 2, names: ['third:'] },
+    'The full Pack did not retain the remaining parameter after a literal argument unpack.');
+  console.log('Open Source Pack C2 literal unpack: signature and completion follow known array entries');
 
   const returnUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturn.php');
   const consumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturnConsumer.php');

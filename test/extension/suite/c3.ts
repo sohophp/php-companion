@@ -678,6 +678,29 @@ export async function run(): Promise<void> {
   assert.strictEqual(variableDocument.getText(), variableSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(variableDocument.getText().includes('$extracted = new \\stdClass();'));
+  const echoUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ExtractEcho.php');
+  const echoSource = '<?php\r\nnamespace App\\Service;\r\nfunction showEcho(): void\r\n{\r\n    echo strtoupper("hello");\r\n}\r\n';
+  await vscode.workspace.fs.writeFile(echoUri, Buffer.from(echoSource));
+  const echoDocument = await vscode.workspace.openTextDocument(echoUri);
+  await vscode.window.showTextDocument(echoDocument);
+  const echoStart = echoSource.indexOf('strtoupper("hello")');
+  const echoActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', echoUri,
+    new vscode.Range(echoDocument.positionAt(echoStart), echoDocument.positionAt(echoStart + 'strtoupper("hello")'.length)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const echoAction = echoActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract to $extracted');
+  assert.ok(echoAction?.command, 'Single echo expression did not offer Extract Variable.');
+  await vscode.commands.executeCommand(echoAction.command.command, ...echoAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(echoDocument.getText().includes('    $extracted = strtoupper("hello");\r\n    echo $extracted;'),
+    'Extract Variable did not preserve the single echo expression and CRLF line endings.');
+  assert.ok(!/(?<!\r)\n/u.test(echoDocument.getText()), 'Extract Variable introduced a lone LF into the CRLF file.');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(echoDocument.getText(), echoSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(echoDocument.getText().includes('    echo $extracted;'));
+  console.log('C3 Extract Variable from a single echo expression: preview, apply, CRLF and one Undo/Redo');
   const inlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineVariable.php');
   const inlineSource = '<?php\nnamespace App\\Service;\nfunction makeInline(): object\n{\n    $result = new \\stdClass();\n    // Explain why this object is returned.\n    return (($result));\n}\n';
   await vscode.workspace.fs.writeFile(inlineUri, Buffer.from(inlineSource));
@@ -728,6 +751,64 @@ export async function run(): Promise<void> {
   assert.strictEqual(inlineDocument.getText(), inlineSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(inlineDocument.getText().includes('// Explain why this object is returned.\n    return ((new \\stdClass()));'));
+  const echoInlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineEcho.php');
+  const echoInlineSource = '<?php\nnamespace App\\Service;\nfunction showInlineEcho(): void\n{\n    $echoed = strtoupper("hello");\n    // Keep this explanation.\n    echo $echoed;\n}\n';
+  await vscode.workspace.fs.writeFile(echoInlineUri, Buffer.from(echoInlineSource));
+  const echoInlineDocument = await vscode.workspace.openTextDocument(echoInlineUri);
+  await vscode.window.showTextDocument(echoInlineDocument);
+  const echoInlineStart = echoInlineSource.indexOf('$echoed');
+  const echoInlineActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', echoInlineUri,
+    new vscode.Range(echoInlineDocument.positionAt(echoInlineStart), echoInlineDocument.positionAt(echoInlineStart)),
+    vscode.CodeActionKind.RefactorInline.value);
+  const echoInlineAction = echoInlineActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Inline $echoed');
+  assert.ok(echoInlineAction?.command, 'Single echo use did not offer Inline Variable.');
+  await vscode.commands.executeCommand(echoInlineAction.command.command, ...echoInlineAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(echoInlineDocument.getText().includes('// Keep this explanation.\n    echo strtoupper("hello");'));
+  assert.ok(!echoInlineDocument.getText().includes('$echoed'));
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(echoInlineDocument.getText(), echoInlineSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(echoInlineDocument.getText().includes('echo strtoupper("hello");'));
+  console.log('C3 Inline Variable into a single echo expression: preview, apply, comment and one Undo/Redo');
+  const embeddedInlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3EmbeddedInlineVariable.php');
+  const embeddedInlineSource = '<?php\nfunction embeddedInline(): int {\n    $sum = 1 + 2;\n    return $sum * 3;\n}\nfunction assignedInline(): int {\n    $assignedSum = 4 + 5;\n    $result = $assignedSum * 2;\n    return $result;\n}\n';
+  await vscode.workspace.fs.writeFile(embeddedInlineUri, Buffer.from(embeddedInlineSource));
+  const embeddedInlineDocument = await vscode.workspace.openTextDocument(embeddedInlineUri);
+  await vscode.window.showTextDocument(embeddedInlineDocument);
+  const embeddedInlineStart = embeddedInlineSource.indexOf('$sum');
+  const embeddedInlineActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', embeddedInlineUri,
+    new vscode.Range(embeddedInlineDocument.positionAt(embeddedInlineStart), embeddedInlineDocument.positionAt(embeddedInlineStart)),
+    vscode.CodeActionKind.RefactorInline.value);
+  const embeddedInlineAction = embeddedInlineActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Inline $sum');
+  assert.ok(embeddedInlineAction?.command, 'Embedded return Inline Variable action was unavailable');
+  await vscode.commands.executeCommand(embeddedInlineAction.command.command, ...embeddedInlineAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(embeddedInlineDocument.getText().includes('return (1 + 2) * 3;'),
+    'Embedded Inline Variable did not preserve arithmetic precedence');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(embeddedInlineDocument.getText(), embeddedInlineSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(embeddedInlineDocument.getText().includes('return (1 + 2) * 3;'));
+  const assignedInlineStart = embeddedInlineDocument.getText().indexOf('$assignedSum');
+  const assignedInlineActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', embeddedInlineUri,
+    new vscode.Range(embeddedInlineDocument.positionAt(assignedInlineStart), embeddedInlineDocument.positionAt(assignedInlineStart)),
+    vscode.CodeActionKind.RefactorInline.value);
+  const assignedInlineAction = assignedInlineActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Inline $assignedSum');
+  assert.ok(assignedInlineAction?.command, 'Assignment RHS Inline Variable action was unavailable');
+  await vscode.commands.executeCommand(assignedInlineAction.command.command, ...assignedInlineAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(embeddedInlineDocument.getText().includes('$result = (4 + 5) * 2;'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok(embeddedInlineDocument.getText().includes('$assignedSum = 4 + 5;'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok(embeddedInlineDocument.getText().includes('$result = (4 + 5) * 2;'));
   const inlineDiskBefore = await vscode.workspace.fs.readFile(inlineUri);
   const staleDiskSource = Buffer.concat([Buffer.from('// changed externally after Code Action was computed\n'), Buffer.from(inlineDiskBefore)]);
   const staleDiskEdit = new vscode.WorkspaceEdit();
@@ -1655,6 +1736,39 @@ final class C3InlineDocParameter {
   assert.ok((await vscode.workspace.openTextDocument(appliedMoveSourceUri)).getText().includes('namespace App\\Service;'));
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(appliedMoveTargetUri)).getText().includes('namespace App\\Controller;'));
+  const globalProjectUri = vscode.Uri.joinPath(folder.uri, 'global-psr4');
+  const globalSourceRoot = vscode.Uri.joinPath(globalProjectUri, 'src');
+  await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(globalSourceRoot, 'Sub'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(globalProjectUri, 'composer.json'),
+    Buffer.from(JSON.stringify({ autoload: { 'psr-4': { '': 'src/' } } })));
+  const globalMoveSourceUri = vscode.Uri.joinPath(globalSourceRoot, 'C3GlobalMove.php');
+  const globalMoveTargetUri = vscode.Uri.joinPath(globalSourceRoot, 'Sub', 'C3GlobalMove.php');
+  const globalConsumerUri = vscode.Uri.joinPath(globalSourceRoot, 'C3GlobalConsumer.php');
+  await vscode.workspace.fs.writeFile(globalMoveSourceUri, Buffer.from('<?php class C3GlobalMove {}'));
+  await vscode.workspace.fs.writeFile(globalConsumerUri,
+    Buffer.from('<?php class C3GlobalConsumer { public const TYPE = C3GlobalMove::class; }'));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(globalMoveSourceUri));
+  let globalMovePlan: { error?: string; edit?: Record<string, unknown> } = {};
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    globalMovePlan = await api.requestLanguageServer('phpCompanion/planSafeMove', {
+      moves: [{ oldUri: globalMoveSourceUri.toString(), newUri: globalMoveTargetUri.toString() }],
+      includeFileOperations: true, requireCompleteIndex: true });
+    if (globalMovePlan.edit) break;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  assert.ok(globalMovePlan.edit, `Global PSR-4 Safe Move plan unavailable: ${globalMovePlan.error ?? 'no edit'}`);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', globalMoveSourceUri,
+    globalMoveTargetUri, { preview: true, testPreviewAction: async () => 'apply' }), true,
+  'Safe Move did not add a namespace to a global PSR-4 type');
+  assert.ok((await vscode.workspace.openTextDocument(globalMoveTargetUri)).getText().includes('namespace Sub;'));
+  assert.ok((await vscode.workspace.openTextDocument(globalConsumerUri)).getText().includes('\\Sub\\C3GlobalMove::class'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok((await vscode.workspace.openTextDocument(globalMoveSourceUri)).getText().includes('class C3GlobalMove'));
+  assert.ok((await vscode.workspace.openTextDocument(globalConsumerUri)).getText().includes('C3GlobalMove::class'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(globalMoveTargetUri)).getText().includes('namespace Sub;'));
+  assert.ok((await vscode.workspace.openTextDocument(globalConsumerUri)).getText().includes('\\Sub\\C3GlobalMove::class'));
+  console.log('C3 global PSR-4 Safe Move: preview, apply and Undo/Redo preserve declaration and reference');
   const cleanupSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveCleanup.php');
   const cleanupTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveCleanup.php');
   await vscode.workspace.fs.writeFile(cleanupSourceUri, Buffer.from(moveSource.replaceAll('C3MovePreview', 'C3MoveCleanup')));
@@ -1985,6 +2099,278 @@ final class C3NestedArrayInput {
   assert.ok(nestedInputDocument.getText().includes('private function extractedMethod(string $label): void'),
     'C3 nested-array input extraction did not restore its parameter in one Redo.');
   console.log('C3 nested-array Extract Method: typed output and by-value input, cancel/apply, one Undo/Redo');
+  const echoMethodUri = vscode.Uri.joinPath(serviceDirectory, 'C3EchoExtractMethod.php');
+  const echoMethodSource = `<?php namespace App\\Service;
+final class C3EchoExtractMethod {
+    public function display(string $message): void {
+        echo $message;
+    }
+    public function displayPair(string $first, string $second): void {
+        echo $first, $second;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(echoMethodUri, Buffer.from(echoMethodSource));
+  const echoMethodDocument = await vscode.workspace.openTextDocument(echoMethodUri);
+  await vscode.window.showTextDocument(echoMethodDocument);
+  const echoMethodStart = echoMethodSource.indexOf('echo $message;');
+  const echoMethodActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', echoMethodUri,
+    new vscode.Range(echoMethodDocument.positionAt(echoMethodStart),
+      echoMethodDocument.positionAt(echoMethodStart + 'echo $message;'.length)), vscode.CodeActionKind.RefactorExtract.value);
+  const echoMethodAction = echoMethodActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(echoMethodAction?.command, 'Single echo statement did not offer Extract Method.');
+  await vscode.commands.executeCommand(echoMethodAction.command.command, ...echoMethodAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(echoMethodDocument.getText().includes('$this->extractedMethod($message);')
+    && echoMethodDocument.getText().includes('private function extractedMethod(string $message): void')
+    && echoMethodDocument.getText().includes('echo $message;'),
+  'Extract Method did not preserve the echo statement and its input.');
+  await vscode.window.showTextDocument(echoMethodDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(echoMethodDocument.getText(), echoMethodSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(echoMethodDocument.getText().includes('private function extractedMethod(string $message): void'));
+  console.log('C3 Extract Method from a single echo statement: input, preview, apply and one Undo/Redo');
+  const pairMethodSource = echoMethodDocument.getText();
+  const pairMethodStart = pairMethodSource.indexOf('echo $first, $second;');
+  const pairMethodActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', echoMethodUri,
+    new vscode.Range(echoMethodDocument.positionAt(pairMethodStart),
+      echoMethodDocument.positionAt(pairMethodStart + 'echo $first, $second;'.length)), vscode.CodeActionKind.RefactorExtract.value);
+  const pairMethodAction = pairMethodActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod2');
+  assert.ok(pairMethodAction?.command, 'Scalar variable pair did not offer Extract Method.');
+  await vscode.commands.executeCommand(pairMethodAction.command.command, ...pairMethodAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(echoMethodDocument.getText().includes('$this->extractedMethod2($first, $second);')
+    && echoMethodDocument.getText().includes('private function extractedMethod2(string $first, string $second): void')
+    && echoMethodDocument.getText().includes('echo $first, $second;'),
+  'Extract Method did not preserve the scalar echo pair and its order.');
+  await vscode.window.showTextDocument(echoMethodDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(echoMethodDocument.getText(), pairMethodSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(echoMethodDocument.getText().includes('private function extractedMethod2(string $first, string $second): void'));
+  console.log('C3 Extract Method from scalar echo pair: order, preview, apply and one Undo/Redo');
+  const returnMethodUri = vscode.Uri.joinPath(serviceDirectory, 'C3ReturnExtractMethod.php');
+  const returnMethodSource = `<?php namespace App\\Service;
+final class C3ReturnExtractMethod {
+    public function format(string $message): string {
+        $this->mark();
+        return $this->decorate($message);
+    }
+    public function passthrough($value) {
+        return $value;
+    }
+    private function mark(): void {}
+    private function decorate(string $message): string { return $message; }
+}`;
+  await vscode.workspace.fs.writeFile(returnMethodUri, Buffer.from(returnMethodSource));
+  const returnMethodDocument = await vscode.workspace.openTextDocument(returnMethodUri);
+  await vscode.window.showTextDocument(returnMethodDocument);
+  const returnMethodStart = returnMethodSource.indexOf('$this->mark();');
+  const returnMethodEnd = returnMethodSource.indexOf('return $this->decorate($message);') + 'return $this->decorate($message);'.length;
+  const returnMethodActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', returnMethodUri,
+    new vscode.Range(returnMethodDocument.positionAt(returnMethodStart), returnMethodDocument.positionAt(returnMethodEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const returnMethodAction = returnMethodActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(returnMethodAction?.command, 'Returning statement sequence did not offer Extract Method.');
+  await vscode.commands.executeCommand(returnMethodAction.command.command, ...returnMethodAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(returnMethodDocument.getText(), returnMethodSource,
+    'Cancelling returning Extract Method changed the source.');
+  await vscode.commands.executeCommand(returnMethodAction.command.command, ...returnMethodAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(returnMethodDocument.getText().includes('return $this->extractedMethod($message);')
+    && returnMethodDocument.getText().includes('private function extractedMethod(string $message): string')
+    && returnMethodDocument.getText().includes('$this->mark();\n        return $this->decorate($message);'),
+  'Returning Extract Method did not preserve the call, input, type and statement order.');
+  await vscode.window.showTextDocument(returnMethodDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(returnMethodDocument.getText(), returnMethodSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(returnMethodDocument.getText().includes('private function extractedMethod(string $message): string'));
+  console.log('C3 Extract Method from returning sequence: type, input, cancel/apply and one Undo/Redo');
+  const untypedReturnSource = returnMethodDocument.getText();
+  const untypedReturnStart = untypedReturnSource.indexOf('return $value;');
+  const untypedReturnActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', returnMethodUri,
+    new vscode.Range(returnMethodDocument.positionAt(untypedReturnStart),
+      returnMethodDocument.positionAt(untypedReturnStart + 'return $value;'.length)), vscode.CodeActionKind.RefactorExtract.value);
+  const untypedReturnAction = untypedReturnActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod2');
+  assert.ok(untypedReturnAction?.command, 'Untyped return did not offer Extract Method.');
+  await vscode.commands.executeCommand(untypedReturnAction.command.command, ...untypedReturnAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(returnMethodDocument.getText().includes('return $this->extractedMethod2($value);')
+    && returnMethodDocument.getText().includes('private function extractedMethod2($value)')
+    && !returnMethodDocument.getText().includes('private function extractedMethod2($value):'),
+  'Untyped return extraction introduced a native return type or lost the input.');
+  await vscode.window.showTextDocument(returnMethodDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(returnMethodDocument.getText(), untypedReturnSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(returnMethodDocument.getText().includes('private function extractedMethod2($value)'));
+  console.log('C3 Extract Method from untyped return: input, apply and one Undo/Redo');
+  const multipleOutputUri = vscode.Uri.joinPath(serviceDirectory, 'C3MultipleOutputExtractMethod.php');
+  const multipleOutputSource = `<?php namespace App\\Service;
+final class C3MultipleOutputExtractMethod {
+    public function build(string $seed): string {
+        $first = $this->decorate($seed);
+        $second = $this->suffix();
+        return $first . $second;
+    }
+    public function partial(): string {
+        $first = 'one';
+        $second = $this->dynamicSuffix();
+        return $first . $second;
+    }
+    private function decorate(string $seed): string { return strtoupper($seed); }
+    private function suffix(): string { return '!'; }
+    private function dynamicSuffix() { return '!'; }
+}`;
+  await vscode.workspace.fs.writeFile(multipleOutputUri, Buffer.from(multipleOutputSource));
+  const multipleOutputDocument = await vscode.workspace.openTextDocument(multipleOutputUri);
+  await vscode.window.showTextDocument(multipleOutputDocument);
+  const multipleOutputStart = multipleOutputSource.indexOf('$first =');
+  const multipleOutputEnd = multipleOutputSource.indexOf('$second =') + '$second = $this->suffix();'.length;
+  const multipleOutputActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', multipleOutputUri,
+    new vscode.Range(multipleOutputDocument.positionAt(multipleOutputStart), multipleOutputDocument.positionAt(multipleOutputEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const multipleOutputAction = multipleOutputActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(multipleOutputAction?.command, 'Two independent outputs did not offer Extract Method.');
+  await vscode.commands.executeCommand(multipleOutputAction.command.command, ...multipleOutputAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(multipleOutputDocument.getText(), multipleOutputSource,
+    'Cancelling multiple-output Extract Method changed the source.');
+  await vscode.commands.executeCommand(multipleOutputAction.command.command, ...multipleOutputAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  const multipleOutputResult = multipleOutputDocument.getText();
+  assert.ok(multipleOutputResult.includes('[$first, $second] = $this->extractedMethod($seed);')
+    && multipleOutputResult.includes('/** @return array{0: string, 1: string} */')
+    && multipleOutputResult.includes('private function extractedMethod(string $seed): array')
+    && multipleOutputResult.includes('$first = $this->decorate($seed);\n        $second = $this->suffix();\n        return [$first, $second];')
+    && multipleOutputResult.includes('return $first . $second;'),
+  'Multiple-output extraction lost assignment order, return values or the consumer.');
+  const multipleOutputHover = async (variable: '$first' | '$second'): Promise<string> => {
+    const current = multipleOutputDocument.getText();
+    const use = current.indexOf(`return $first . $second;`);
+    const offset = current.indexOf(variable, use) + 2;
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', multipleOutputUri, multipleOutputDocument.positionAt(offset)) ?? [];
+    return hovers.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n');
+  };
+  let firstType = ''; let secondType = '';
+  const multipleOutputHoverDeadline = Date.now() + 20_000;
+  while (Date.now() < multipleOutputHoverDeadline) {
+    [firstType, secondType] = await Promise.all([multipleOutputHover('$first'), multipleOutputHover('$second')]);
+    if (firstType.includes('$first: string') && secondType.includes('$second: string')) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(firstType.includes('$first: string') && secondType.includes('$second: string'),
+    `Multiple-output extraction lost local type feedback: first=${firstType}, second=${secondType}`);
+  await vscode.window.showTextDocument(multipleOutputDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(multipleOutputDocument.getText(), multipleOutputSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(multipleOutputDocument.getText().includes('[$first, $second] = $this->extractedMethod($seed);'));
+  console.log('C3 Extract Method with two outputs: preview, cancel/apply and one Undo/Redo');
+  const partialOutputSource = multipleOutputDocument.getText();
+  const partialOutputStart = partialOutputSource.indexOf("$first = 'one';", partialOutputSource.indexOf('public function partial('));
+  const partialOutputEnd = partialOutputSource.indexOf('$second =', partialOutputStart) + '$second = $this->dynamicSuffix();'.length;
+  const partialOutputActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', multipleOutputUri,
+    new vscode.Range(multipleOutputDocument.positionAt(partialOutputStart), multipleOutputDocument.positionAt(partialOutputEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const partialOutputAction = partialOutputActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod2');
+  assert.ok(partialOutputAction?.command, 'Partially known outputs did not offer Extract Method.');
+  await vscode.commands.executeCommand(partialOutputAction.command.command, ...partialOutputAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(multipleOutputDocument.getText().includes('/** @return array{0: string, 1: mixed} */')
+    && multipleOutputDocument.getText().includes('[$first, $second] = $this->extractedMethod2();'),
+  'Partial output extraction lost the proven first type or the call.');
+  const partialUse = multipleOutputDocument.getText().indexOf('return $first . $second;', multipleOutputDocument.getText().indexOf('public function partial('));
+  let partialHover = '';
+  const partialHoverDeadline = Date.now() + 20_000;
+  while (Date.now() < partialHoverDeadline) {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', multipleOutputUri, multipleOutputDocument.positionAt(partialUse + 'return '.length + 2)) ?? [];
+    partialHover = hovers.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n');
+    if (partialHover.includes('$first: string')) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(partialHover.includes('$first: string'), `Partial output lost its proven string Hover: ${partialHover}`);
+  await vscode.window.showTextDocument(multipleOutputDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(multipleOutputDocument.getText(), partialOutputSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(multipleOutputDocument.getText().includes('/** @return array{0: string, 1: mixed} */'));
+  console.log('C3 partial output Extract Method: preserved known Hover, apply and one Undo/Redo');
+  const branchExtractUri = vscode.Uri.joinPath(serviceDirectory, 'C3BranchExtract.php');
+  const branchExtractSource = `<?php namespace App\\Service;
+final class C3BranchExtract {
+    public function run(bool $flag, bool $enabled): string {
+        if ($flag && !$enabled) {
+            $result = $this->first();
+        } elseif ($enabled) {
+            $result = $this->second();
+        } else {
+            $result = $this->third();
+        }
+        return $result;
+    }
+    private function first(): string { return 'one'; }
+    private function second(): string { return 'two'; }
+    private function third(): string { return 'three'; }
+}`;
+  await vscode.workspace.fs.writeFile(branchExtractUri, Buffer.from(branchExtractSource));
+  const branchExtractDocument = await vscode.workspace.openTextDocument(branchExtractUri);
+  await vscode.window.showTextDocument(branchExtractDocument);
+  const branchExtractStart = branchExtractSource.indexOf('if ($flag && !$enabled)');
+  const branchExtractEnd = branchExtractSource.indexOf('\n        return $result;', branchExtractStart);
+  const branchExtractActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', branchExtractUri,
+    new vscode.Range(branchExtractDocument.positionAt(branchExtractStart), branchExtractDocument.positionAt(branchExtractEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const branchExtractAction = branchExtractActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(branchExtractAction?.command, 'Proven if/else output did not offer Extract Method.');
+  await vscode.commands.executeCommand(branchExtractAction.command.command, ...branchExtractAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(branchExtractDocument.getText(), branchExtractSource,
+    'Cancelling if/else Extract Method changed the source.');
+  await vscode.commands.executeCommand(branchExtractAction.command.command, ...branchExtractAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  const branchExtractResult = branchExtractDocument.getText();
+  assert.ok(branchExtractResult.includes('$result = $this->extractedMethod($flag, $enabled);')
+    && branchExtractResult.includes('private function extractedMethod(bool $flag, bool $enabled): string')
+    && branchExtractResult.includes('if ($flag && !$enabled)')
+    && branchExtractResult.includes('} elseif ($enabled) {')
+    && branchExtractResult.includes('return $result;'),
+  'If/else Extract Method lost the condition, output or return type.');
+  const branchUse = branchExtractResult.indexOf('return $result;');
+  let branchHover = '';
+  const branchHoverDeadline = Date.now() + 20_000;
+  while (Date.now() < branchHoverDeadline) {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', branchExtractUri, branchExtractDocument.positionAt(branchUse + 'return '.length + 2)) ?? [];
+    branchHover = hovers.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n');
+    if (branchHover.includes('$result: string')) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(branchHover.includes('$result: string'), `If/else Extract Method lost output Hover: ${branchHover}`);
+  await vscode.window.showTextDocument(branchExtractDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(branchExtractDocument.getText(), branchExtractSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(branchExtractDocument.getText().includes('$result = $this->extractedMethod($flag, $enabled);'));
+  console.log('C3 if/elseif/else output Extract Method: preview, cancel/apply, Hover and one Undo/Redo');
   const commentedRemoveUri = vscode.Uri.joinPath(serviceDirectory, 'C3CommentedRemove.php');
   const commentedRemoveSource = `<?php namespace App\\Service;
 final class C3CommentedRemove {
