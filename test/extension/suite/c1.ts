@@ -56,10 +56,12 @@ async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
       `The first Implementation command missed Guzzle Response: ${JSON.stringify(result)}`);
   }
   const timings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
+  const memory = await requestLanguageServer<{ rss?: number }>('phpCompanion/testMemoryUsage', {});
   console.log(`C1 cold ${kind} query: ${JSON.stringify({ elapsedMs, resultCount: result.length,
     serverMs: timings[kind]?.at(-1), scanMs: timings[`${kind}Scan`]?.at(-1),
     projectMs: timings.candidateProject?.at(-1), prefilterMs: timings.candidatePrefilter?.at(-1),
-    indexMs: timings.candidateIndex?.at(-1),
+    inventoryMs: timings.candidateInventory?.at(-1), indexMs: timings.candidateIndex?.at(-1),
+    serverRssMiB: memory.rss === undefined ? undefined : Math.round(memory.rss / 1048576),
     candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
 }
 

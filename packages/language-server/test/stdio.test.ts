@@ -2471,6 +2471,50 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('keeps method References available when unrelated project files exceed the candidate budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-candidate-budget-'));
+    try {
+      const sourceDirectory = join(root, 'src'); await mkdir(sourceDirectory);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const service = '<?php namespace App; final class Service { public function recordMessage(string $message): void {} }';
+      const caller = "<?php namespace App; final class Caller { public function run(Service $service): void { $service->recordMessage('x'); } }";
+      const serviceUri = pathToFileURL(join(sourceDirectory, 'Service.php')).toString();
+      const callerUri = pathToFileURL(join(sourceDirectory, 'Caller.php')).toString();
+      await writeFile(join(sourceDirectory, 'Service.php'), service);
+      await writeFile(join(sourceDirectory, 'Caller.php'), caller);
+      await Promise.all(Array.from({ length: 6 }, (_, index) => writeFile(join(sourceDirectory, `Noise${index}.php`),
+        `<?php namespace App; final class Noise${index} {}`)));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 263, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', indexLimits: {
+          maxFiles: 2, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576,
+        } },
+      } }));
+      await output.waitFor((message) => message.id === 263);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: serviceUri, languageId: 'php', version: 1, text: service },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === serviceUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 264, method: 'textDocument/references', params: {
+        textDocument: { uri: serviceUri }, position: lspPosition(service, service.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const response = await output.waitFor((message) => message.id === 264, 20_000);
+      expect(response.error).toBeUndefined();
+      expect((response.result ?? []).map((item: { uri: string }) => item.uri)).toEqual(expect.arrayContaining([serviceUri, callerUri]));
+      await writeFile(join(sourceDirectory, 'LaterCaller.php'), caller.replace('class Caller', 'class LaterCaller'));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 265, method: 'textDocument/references', params: {
+        textDocument: { uri: serviceUri }, position: lspPosition(service, service.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const overBudget = await output.waitFor((message) => message.id === 265, 20_000);
+      expect(overBudget.error).toMatchObject({ message: expect.stringContaining('incomplete') });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('returns references for a local variable without crossing function scopes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-local-references-'));
     try {

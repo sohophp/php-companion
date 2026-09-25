@@ -2754,8 +2754,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   recordTestQueryDuration('candidatePrefilter', prefilterStarted);
   if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted} cached=${cachedPathSearch}`);
   const indexStarted = performance.now();
-  const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
-    skipSourceOutsideBudget: Boolean(prefilterCandidates && includeDependencies),
+  let firstCandidateProgress = false;
+  const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128, yieldEvery: 100,
+    skipSourceOutsideBudget: Boolean(prefilterCandidates),
     skipSource: prefilterCandidates ? (path, info): boolean => {
       const normalized = resolve(path);
       if (prefilterCandidates.paths.has(normalized) || info.mtimeMs >= prefilterCandidates.startedAt || info.ctimeMs >= prefilterCandidates.startedAt) return false;
@@ -2766,8 +2767,11 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       return true;
     } : undefined,
     shouldContinue: (): boolean => !cancelled() && progress?.token.isCancellationRequested !== true, uriForPath: (path) => indexedUriForPath(root, path),
-    onProgress: (state): void => { if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100),
-      progressMessage(clientDiagnosticLanguage, 'fileCount', String(state.files), String(state.total))); },
+    onProgress: (state): void => {
+      if (!firstCandidateProgress) { firstCandidateProgress = true; recordTestQueryDuration('candidateInventory', indexStarted); }
+      if (state.files % 100 === 0) progress?.report(Math.round(state.files / Math.max(1, state.total) * 100),
+        progressMessage(clientDiagnosticLanguage, 'fileCount', String(state.files), String(state.total)));
+    },
     prepareSource: prepareInWorkers ? ({ uri, path, source, hash }): Promise<PreparedCandidate | undefined> => {
       const cachedLight = usableLight?.get(resolve(path));
       if (!documents.get(uri) && cachedLight?.hash === hash && sourceCandidateSummaryDecision(cachedLight.summary, names,

@@ -4,7 +4,7 @@
 
 ## 当前执行顺序
 
-1. **先收口 C1/C2 的日常编码反馈。** [当前 10 项 Pack 的真实 vendor 组合链](reports/open-source-pack-10-real-vendor-c2-2026-09-25.md)已完成 200 轮标量及 30 轮联合形状未保存切换；接下来定位完整组合后首次合成 Hover 的宿主等待，并在独立 Composer 项目核对取消、关闭和 watcher 与未保存输入重叠时的结果。优先修可复现的旧结果、错误诊断或明显等待；数小时会话、跨平台和 Remote 不由短时本机测试代替。
+1. **先收口 C1 冷导航和 C2 日常编码反馈。** [当前 10 项 Pack 的真实 vendor 组合链](reports/open-source-pack-10-real-vendor-c2-2026-09-25.md)已完成 200 轮标量及 30 轮联合形状未保存切换；[49,000 文件冷 References](reports/c1-cold-candidate-scan-2026-09-25.md)已保持结果正确，但首次命令约 2.8–3.0 秒，主要耗在候选遍历及文件元数据核对。下一步先为冷 References/Implementation 建立可证明完整的候选快照或等效增量核对，保持无 watcher 新文件、取消和文件变化时的正确性，再复测 10k/49k 冷热等待与内存；随后核对取消、关闭和 watcher 与未保存输入重叠时的 C2 结果。优先修可复现的旧结果、错误诊断或明显等待；数小时会话、跨平台和 Remote 不由短时本机测试代替。
 2. **继续 C3 高频编辑的剩余阻断项。** Import、生成类型、Safe Move、Extract、Inline 和[私有参数移除](reports/c3-private-signature-preview-2026-09-24.md)已有预览和旧版本保护；当前 10 项 Pack 的 [C3 源码宿主](reports/open-source-pack-next-core-2026-09-25.md)已通过组合操作。Rename 已补上[关闭预览即拒绝应用](reports/c3-rename-preview-close-2026-09-24.md)和多组预览固定；[Extract、Safe Move 与 Optimize Imports](reports/c3-preview-close-all-2026-09-25.md)也会在预览被关闭时取消应用。[跨接口参数家族的 References 与 Rename](reports/c3-parameter-family-references-2026-09-25.md)、[新增参数](reports/c3-add-method-family-parameter-2026-09-25.md)、[删除参数](reports/c3-remove-method-family-parameter-2026-09-25.md)和[参数重排](reports/c3-reorder-method-family-parameters-2026-09-25.md)均已有宿主预览、取消、应用及一次 Undo/Redo 证据。Import 应用失败、Rename 和 Safe Move 预览前的磁盘并发变化也已有受控回归。生成新文件的 Redo 仍是独立阻断项，出现新的资源撤销栈线索时再调查。原版 PHPUnit 测试视图的文件 Rename 异常按 Pack 使用边界单独跟踪。
 3. **候选冻结时做 C4 组合门禁。** 固定 Core、Symfony、Pack 三份 VSIX 与外部扩展版本，再查唯一能力所有者、安装位置、PHP CLI/调试/测试路径和回退。日常 Core 增量只做定向构建及测试，不重复打包三份 VSIX。
 
