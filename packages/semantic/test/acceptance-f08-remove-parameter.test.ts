@@ -51,4 +51,47 @@ describe('F08 private parameter removal acceptance fixtures', () => {
     workspace.update(uri, source, true);
     expect(workspace.removeUnusedPrivateParameter(uri, parameterOffset(source))).toBeUndefined();
   });
+
+  it('finds the private call when a later argument uses legacy array syntax', () => {
+    const source = `<?php final class ArrayFormatter {
+        private function format(string $unused, array $parts): void {}
+        public function run(): void { $this->format('x', array('a')); }
+      }`;
+    workspace.update(uri, source, true);
+    const plan = workspace.removeUnusedPrivateParameter(uri, source.indexOf('$unused') + 2);
+    expect(plan?.edits).toHaveLength(2);
+  });
+
+  it('keeps a comment attached to the next argument when removing the first parameter', () => {
+    const source = `<?php final class CommentedFormatter {
+        private function format(string $unused, /* keep declaration */ string $retained): void {}
+        public function run(): void { $this->format('x', /* keep, retained */ 'a'); }
+      }`;
+    workspace.update(uri, source, true);
+    const plan = workspace.removeUnusedPrivateParameter(uri, source.indexOf('$unused') + 2);
+    expect(plan).toBeDefined();
+    let edited = source;
+    for (const edit of [...plan!.edits].sort((left, right) => right.start - left.start))
+      edited = `${edited.slice(0, edit.start)}${edited.slice(edit.end)}`;
+    expect(edited).toContain("format( /* keep, retained */ 'a')");
+    expect(edited).toContain('format( /* keep declaration */ string $retained)');
+    const parsed = parser.parse(edited);
+    expect(parsed.errors).toEqual([]);
+    parsed.tree.delete();
+  });
+
+  it('keeps the original compact spacing when removing an uncommented first parameter', () => {
+    const source = `<?php final class CompactFormatter {
+        private function build(int $unused, string $name): string { return $name; }
+        public function run(): string { return $this->build(1, "ok"); }
+      }`;
+    workspace.update(uri, source, true);
+    const plan = workspace.removeUnusedPrivateParameter(uri, source.indexOf('$unused') + 2);
+    expect(plan).toBeDefined();
+    let edited = source;
+    for (const edit of [...plan!.edits].sort((left, right) => right.start - left.start))
+      edited = `${edited.slice(0, edit.start)}${edited.slice(edit.end)}`;
+    expect(edited).toContain('build(string $name)');
+    expect(edited).toContain('build("ok")');
+  });
 });

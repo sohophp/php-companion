@@ -29,6 +29,8 @@ export interface RouteProviderRequest {
 
 export interface RouteControllerFact {
   className: string;
+  /** Text at classStart..classEnd when a PHP import alias names className. */
+  classSourceName?: string;
   method?: string;
   uri: string;
   classStart: number;
@@ -71,7 +73,10 @@ function routeFact(value: unknown): value is RouteFact {
     && item.start! >= 0 && item.end! >= item.start!);
   const validController = controller === undefined || (boundedString(controller.className, 4096) && boundedString(controller.uri, 32_768)
     && Number.isSafeInteger(controller.classStart) && Number.isSafeInteger(controller.classEnd)
-    && controller.classStart! >= 0 && controller.classEnd! - controller.classStart! === controller.className.length
+    && controller.classStart! >= 0 && (controller.classSourceName === undefined
+      ? controller.classEnd! - controller.classStart! === controller.className.length
+      : boundedString(controller.classSourceName, 512)
+        && controller.classEnd! - controller.classStart! === controller.classSourceName.length)
     && ((controller.method === undefined && controller.methodStart === undefined && controller.methodEnd === undefined)
       || (boundedString(controller.method, 512) && Number.isSafeInteger(controller.methodStart) && Number.isSafeInteger(controller.methodEnd)
         && controller.methodStart! >= controller.classEnd! + 2 && controller.methodEnd! - controller.methodStart! === controller.method.length)));

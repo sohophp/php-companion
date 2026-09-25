@@ -22,6 +22,7 @@ import {
 import { buildAddImportEdit, buildOptimizeImportsEdit, rankedImportCandidates } from '../imports/importWorkflows.js';
 import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
 import { withBoundedRetry } from '../refactor/retry.js';
+import { moveFileExists } from '../refactor/moveFileState.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { composerRequiresSymfony } from './languageServerPolicy.js';
 import { BUILTIN_DOCUMENT_URI, builtinPhpStub, parseBuiltinDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
@@ -43,6 +44,38 @@ function offsetAt(source: string, position: vscode.Position): number {
 function positionAt(source: string, offset: number): vscode.Position {
   const lines = source.slice(0, offset).split('\n');
   return new vscode.Position(lines.length - 1, lines.at(-1)!.length);
+}
+
+async function sourceDiskSnapshot(uri: vscode.Uri): Promise<string | undefined> {
+  try { return createHash('sha256').update(await vscode.workspace.fs.readFile(uri)).digest('hex'); }
+  catch { return undefined; }
+}
+
+async function captureDocumentSourceGuard(document: vscode.TextDocument): Promise<() => Promise<boolean>> {
+  const version = document.version;
+  const diskHash = document.isUntitled ? undefined : await sourceDiskSnapshot(document.uri);
+  return async (): Promise<boolean> => {
+    if (document.isClosed || document.version !== version) return false;
+    if (!document.isUntitled && (diskHash === undefined || await sourceDiskSnapshot(document.uri) !== diskHash)) return false;
+    return !document.isClosed && document.version === version;
+  };
+}
+
+async function captureDirtyOpenDiskSnapshots(): Promise<Map<string, string | undefined>> {
+  const dirty = vscode.workspace.textDocuments.filter((document) => document.isDirty
+    && (document.uri.scheme === 'file' || document.uri.scheme === 'vscode-remote'));
+  return new Map(await Promise.all(dirty.map(async (document) => [
+    document.uri.toString(), await sourceDiskSnapshot(document.uri),
+  ] as const)));
+}
+
+async function dirtyOpenDisksUnchanged(snapshots: ReadonlyMap<string, string | undefined>, uris: Iterable<string>): Promise<boolean> {
+  for (const uri of uris) {
+    if (!snapshots.has(uri)) continue;
+    const before = snapshots.get(uri);
+    if (before === undefined || await sourceDiskSnapshot(vscode.Uri.parse(uri)) !== before) return false;
+  }
+  return true;
 }
 
 async function recommendStandaloneSymfony(context: vscode.ExtensionContext, output: vscode.LogOutputChannel): Promise<void> {
@@ -105,16 +138,19 @@ type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; doc
 
 async function verifyRenameSources(result: ProtocolWorkspaceEdit): Promise<void> {
   const hashes = result.phpCompanion?.sourceHashes;
-  if (!hashes) throw new Error('Rename omitted source snapshots. Run Rename again.');
+  if (!hashes) throw new Error(t('renameSnapshotsMissing'));
   const editedUris = new Set([...Object.keys(result.changes ?? {}),
     ...(result.documentChanges ?? []).flatMap((change) => 'textDocument' in change ? [change.textDocument.uri] : [])]);
-  for (const uri of editedUris) if (!hashes[uri]) throw new Error('Rename omitted a source snapshot. Run Rename again.');
+  for (const uri of editedUris) if (!hashes[uri]) throw new Error(t('renameSnapshotMissing'));
   for (const [uri, expected] of Object.entries(hashes)) {
     const targetUri = vscode.Uri.parse(uri);
     const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
     const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(targetUri)).toString('utf8');
     if (createHash('sha256').update(source).digest('hex') !== expected) {
-      throw new Error('A PHP file changed while Rename edits were being prepared. Run Rename again.');
+      throw new Error(t('renameSourceChanged'));
+    }
+    if (open && !open.isDirty && await sourceDiskSnapshot(targetUri) !== expected) {
+      throw new Error(t('renameSourceChanged'));
     }
   }
 }
@@ -229,6 +265,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     return client.sendRequest<unknown>(method, params);
   });
   void recommendStandaloneSymfony(context, output);
+  const applyImportWorkspaceEdit = async (edit: vscode.WorkspaceEdit, failure: 'importApplyFailed' | 'optimizeApplyFailed',
+    testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean>): Promise<boolean> => {
+    try {
+      if (await (context.extensionMode === vscode.ExtensionMode.Test && testApplyEdit
+        ? testApplyEdit(edit) : vscode.workspace.applyEdit(edit))) return true;
+    } catch (error) {
+      output.warn(`${failure}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    void vscode.window.showErrorMessage(t(failure));
+    return false;
+  };
   type PasteSymbol = { fqcn: string; alias: string; selectedAlias?: string };
   type ImportPlanResponse = { replacements: Record<string, string>; conflict?: { fqcn: string; sourceAlias: string }; edit?: ProtocolWorkspaceEdit };
   type SafeMoveResponse = { edit?: ProtocolWorkspaceEdit; error?: string; sources?: Record<string, string>; reconciliation?: ServerMoveReconciliation[] };
@@ -239,7 +286,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       symbols: symbols.map((symbol) => ({ fqcn: symbol.fqcn, sourceAlias: symbol.alias, alias: symbol.selectedAlias })),
     });
   };
-  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; reconciliation: ServerMoveReconciliation[] }> => {
+  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; sources: Record<string, string>; reconciliation: ServerMoveReconciliation[] }> => {
     const client = await languageServer;
     if (!client) throw new MoveError(t('languageServerUnavailable'));
     const moveId = ++moveSequence; const started = performance.now();
@@ -256,7 +303,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     })));
     if (snapshots.some(({ document, source }) => document.getText() !== source)) throw new MoveError(t('moveParticipantsChanged'));
     output.info(`[move:${moveId}] planned elapsedMs=${Math.round(performance.now() - started)} editedFiles=${edit.entries().length}`);
-    return { edit, reconciliation: result.reconciliation ?? [] };
+    return { edit, sources: result.sources ?? {}, reconciliation: result.reconciliation ?? [] };
   };
   const requestSafeMove = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[], includeFileOperations: boolean): Promise<vscode.WorkspaceEdit> =>
     (await requestSafeMovePlan(files, includeFileOperations)).edit;
@@ -331,9 +378,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
 
   const serverMoveWasReversed = async (pending: PendingServerSafeMove): Promise<boolean> => {
     const states = await Promise.all(pending.files.map(async (file) => {
-      let oldExists = false; let newExists = false;
-      try { await vscode.workspace.fs.stat(file.oldUri); oldExists = true; } catch { /* Missing is the expected reversed state. */ }
-      try { await vscode.workspace.fs.stat(file.newUri); newExists = true; } catch { /* Missing is the expected reversed state. */ }
+      const oldExists = await moveFileExists(file.oldUri);
+      const newExists = await moveFileExists(file.newUri);
       return oldExists && !newExists;
     }));
     return states.every(Boolean);
@@ -464,32 +510,42 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   };
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
-      targetHashes?: Record<string, string> },
-    options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'> },
-  ) => {
+      sourceDiskHash?: string; targetHashes?: Record<string, string> },
+    options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeOpen?: () => Promise<void> },
+  ): Promise<boolean> => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
     const source = await vscode.workspace.openTextDocument(sourceUri);
-    const diskHash = async (uri: vscode.Uri): Promise<string> =>
-      createHash('sha256').update(await vscode.workspace.fs.readFile(uri)).digest('hex');
-    const sameDiskHash = async (uri: vscode.Uri, expected: string): Promise<boolean> => {
-      try { return await diskHash(uri) === expected; }
+    const diskBytes = async (uri: vscode.Uri): Promise<Uint8Array | undefined> => {
+      try { return await vscode.workspace.fs.readFile(uri); }
       catch (error) {
-        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') return false;
+        if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') return undefined;
         throw error;
       }
     };
+    const diskHash = async (uri: vscode.Uri): Promise<string | undefined> => {
+      const bytes = await diskBytes(uri);
+      return bytes ? createHash('sha256').update(bytes).digest('hex') : undefined;
+    };
+    const sameDiskHash = async (uri: vscode.Uri, expected: string): Promise<boolean> => {
+      return await diskHash(uri) === expected;
+    };
     const sourceDiskHash = await diskHash(sourceUri);
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+    if (request.sourceDiskHash && sourceDiskHash !== request.sourceDiskHash) {
+      void vscode.window.showWarningMessage(t('extractCancelled')); return false;
+    }
     const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
     const existingTargets = new Map<string, { document?: vscode.TextDocument; version?: number; text: string; diskHash: string }>();
     if (request.targetHashes) {
       for (const [uri] of targets) {
         const expected = request.targetHashes[uri.toString()];
-        if (!expected) return void vscode.window.showWarningMessage(t('extractCancelled'));
+        if (!expected) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
         const document = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri.toString());
-        const bytes = await vscode.workspace.fs.readFile(uri);
+        const bytes = await diskBytes(uri);
+        if (!bytes) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
         const text = document?.getText() ?? Buffer.from(bytes).toString('utf8');
         if (createHash('sha256').update(text).digest('hex') !== expected) {
-          return void vscode.window.showWarningMessage(t('extractCancelled'));
+          void vscode.window.showWarningMessage(t('extractCancelled')); return false;
         }
         existingTargets.set(uri.toString(), { document, version: document?.version, text,
           diskHash: createHash('sha256').update(bytes).digest('hex') });
@@ -513,7 +569,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
       return true;
     };
-    if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
+    if (!await unchanged()) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
     const previewUris = new Set<string>();
     try {
       const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
@@ -528,14 +584,32 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const previous = existingTargets.get(uri.toString())?.text ?? '';
         await showDiff(uri, previous, applyTextEdits(previous, edits));
       }
-      if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return;
-      if (!previewDiffsComplete(previewUris)) return void vscode.window.showWarningMessage(t('previewClosed'));
-      if (!await unchanged()) return void vscode.window.showWarningMessage(t('extractCancelled'));
-      if (!await vscode.workspace.applyEdit(edit)) return void vscode.window.showErrorMessage(t('extractApplyFailed'));
-      await vscode.window.showTextDocument(source, { preview: false });
+      if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return false;
+      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
+      if (!await unchanged()) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+      try {
+        if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('extractApplyFailed')); return false; }
+      } catch (error) {
+        output.warn(`Previewed refactoring failed to apply: ${error instanceof Error ? error.message : String(error)}`);
+        void vscode.window.showErrorMessage(t('extractApplyFailed'));
+        return false;
+      }
+      try {
+        if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeOpen?.();
+        await vscode.window.showTextDocument(source, { preview: false });
+      }
+      catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        output.warn(`Previewed refactoring was applied but could not reopen the source: ${reason}`);
+        void vscode.window.showWarningMessage(t('appliedOpenFailed', reason));
+      }
+      return true;
     } finally {
       const previewTabs = previewDiffTabs(previewUris);
-      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      if (previewTabs.length) {
+        try { await vscode.window.tabGroups.close(previewTabs); }
+        catch (error) { output.warn(`Unable to close refactoring previews: ${String(error)}`); }
+      }
       forgetRenamePreviewSnapshots(previewUris);
     }
   });
@@ -543,7 +617,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
     register('phpCompanion._testCreatePhpType', (kind: PhpTypeKind, name: string, target: vscode.Uri,
-      testPreviewAction: () => Promise<'apply' | 'cancel'>) => createPhpType(kind, versions, target, { testName: name, testPreviewAction }));
+      testPreviewAction: () => Promise<'apply' | 'cancel'>,
+      testChooseTestDirectory?: () => Promise<vscode.Uri | undefined>,
+      testClosePreview?: (tab: vscode.Tab) => Promise<boolean>) => createPhpType(kind, versions, target,
+      { testName: name, testPreviewAction, testChooseTestDirectory, testClosePreview }));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
       await Promise.all([versions.ensureForUri(oldUri), versions.ensureForUri(newUri)]);
@@ -569,9 +646,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   });
   register('phpCompanion.showPerformanceLog', () => output.show());
   register('phpCompanion.rebuildIndex', async () => (await experimentalWorkspace())?.rebuild(true));
-  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean; testBeforeApply?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'> }) => {
+  register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean;
+    testAfterPlan?: () => Promise<void>; testBeforeApply?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
+    testClosePreviewTabs?: (tabs: vscode.Tab[]) => Promise<void> }): Promise<boolean> => {
     const source = sourceUri ?? vscode.window.activeTextEditor?.document.uri;
-    if (!source || !source.path.endsWith('.php')) return;
+    if (!source || !source.path.endsWith('.php')) return false;
     let target = targetUri;
     if (!target) {
       const selected = await vscode.window.showOpenDialog({
@@ -581,20 +660,33 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         defaultUri: source.with({ path: source.path.slice(0, source.path.lastIndexOf('/')) }),
         openLabel: t('moveHere'),
       });
-      if (!selected?.[0]) return;
+      if (!selected?.[0]) return false;
       target = vscode.Uri.joinPath(selected[0], basename(source.fsPath));
     }
-    if (target.toString() === source.toString()) return;
+    if (target.toString() === source.toString()) return false;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', source);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showWarningMessage(t('safeMoveIndexingMode'));
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
+      void vscode.window.showWarningMessage(t('safeMoveIndexingMode'));
+      return false;
+    }
     const previewUris = new Set<string>();
+    let applied = false;
     try {
+      const sourceDocument = await vscode.workspace.openTextDocument(source);
+      const sourceUnchanged = await captureDocumentSourceGuard(sourceDocument);
+      const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
       const manager = selfLanguageServer ? undefined : await workspace();
       if (manager) await manager.refreshProjectIndexes([source]);
+      const serverPlan = selfLanguageServer ? await requestSafeMovePlan([{ oldUri: source, newUri: target }], true) : undefined;
       const textEdits = selfLanguageServer
-        ? await requestSafeMove([{ oldUri: source, newUri: target }], true)
+        ? serverPlan!.edit
         : await buildMoveEdits(manager!.index, [{ oldUri: source, newUri: target }], (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
+      if (!await sourceUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
+      if (serverPlan && !await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(serverPlan.sources))) {
+        throw new MoveError(t('moveParticipantsChanged'));
+      }
       const edit = selfLanguageServer ? textEdits : new vscode.WorkspaceEdit();
       if (!selfLanguageServer) {
         edit.renameFile(source, target, { overwrite: false }, { label: t('moveFileLabel', basename(source.fsPath)), needsConfirmation: false });
@@ -610,6 +702,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const disk = await vscode.workspace.fs.readFile(uri);
         return { uri, document, version: document.version, text: document.getText(), disk: Buffer.from(disk) };
       }));
+      if (serverPlan && participants.some((participant) => {
+        const planned = serverPlan.sources[participant.uri.toString()];
+        return planned !== undefined && (planned !== participant.text
+          || !participant.document.isDirty && planned !== participant.disk.toString('utf8'));
+      })) throw new MoveError(t('moveParticipantsChanged'));
       const participantsUnchanged = async (): Promise<boolean> => {
         for (const participant of participants) {
           const current = participant.document.isClosed ? await vscode.workspace.openTextDocument(participant.uri) : participant.document;
@@ -644,7 +741,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri,
             `${t('safeMoveDiff', vscode.workspace.asRelativePath(source))} → ${vscode.workspace.asRelativePath(target)}`, { preview: false });
         }
-        if (!await confirmPreviewedEdit(t('applyPreviewedSafeMove'), options?.testPreviewAction)) return;
+        if (!await confirmPreviewedEdit(t('applyPreviewedSafeMove'), options?.testPreviewAction)) return false;
         if (!previewDiffsComplete(previewUris)) throw new MoveError(t('previewClosed'));
       }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
@@ -653,140 +750,166 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       delegatedSafeMoves.add(key);
       try {
         if (!await vscode.workspace.applyEdit(edit)) throw new MoveError(t('safeMoveApplyFailed'));
+        applied = true;
         if (manager) await refreshMoveIndex(manager, [{ oldUri: source, newUri: target }], textEdits);
       } finally {
         delegatedSafeMoves.delete(key);
       }
+      return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      output.warn(`Safe Move rejected: ${message}`);
-      void vscode.window.showWarningMessage(error instanceof MoveError ? message : t('safeMoveFailed', message));
+      output.warn(`${applied ? 'Safe Move index refresh failed' : 'Safe Move rejected'}: ${message}`);
+      void vscode.window.showWarningMessage(applied ? t('safeMoveIndexRefreshFailed', message)
+        : error instanceof MoveError ? message : t('safeMoveFailed', message));
+      return applied;
     } finally {
       const previewTabs = previewDiffTabs(previewUris);
-      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
-      forgetRenamePreviewSnapshots(previewUris);
+      try {
+        if (previewTabs.length) {
+          if (context.extensionMode === vscode.ExtensionMode.Test && options?.testClosePreviewTabs) {
+            await options.testClosePreviewTabs(previewTabs);
+          } else {
+            await vscode.window.tabGroups.close(previewTabs);
+          }
+        }
+      } catch (error) {
+        output.warn(`Unable to close Safe Move previews: ${error instanceof Error ? error.message : String(error)}`);
+      } finally {
+        forgetRenamePreviewSnapshots(previewUris);
+      }
     }
   });
-  register('phpCompanion.resolvePastedImports', async (options?: { testAfterPlan?: () => Promise<void> }) => {
+  register('phpCompanion.resolvePastedImports', async (options?: { testAfterPlan?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> }): Promise<boolean> => {
     const document = vscode.window.activeTextEditor?.document;
-    if (!document || document.languageId !== 'php') return;
-    const version = document.version;
-    const unchanged = (): boolean => !document.isClosed && document.version === version;
+    if (!document || document.languageId !== 'php') return false;
+    const sourceUnchanged = await captureDocumentSourceGuard(document);
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
     if (selfLanguageServer) {
-      const client = await languageServer; if (!client) return;
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+      const client = await languageServer; if (!client) return false;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
       const symbols: PasteSymbol[] = [];
       const unresolved = await client.sendRequest<Array<{ name: string; position: { line: number; character: number } }>>('phpCompanion/unresolvedTypeNames', {
         textDocument: { uri: document.uri.toString() },
       });
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
       for (const { name, position } of unresolved) {
         const candidates = await client.sendRequest<Array<{ fqcn: string; uri: string }>>('phpCompanion/importCandidates', {
           textDocument: { uri: document.uri.toString() }, position, name,
         });
-        if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+        if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
         const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
           candidates.map((candidate) => ({ label: candidate.fqcn, candidate })), { placeHolder: t('selectImport', name) },
         ))?.candidate;
-        if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+        if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
         if (selected) symbols.push({ fqcn: selected.fqcn, alias: name });
       }
-      if (!symbols.length) return;
+      if (!symbols.length) return false;
       const plan = await requestImportPlan(document, document.positionAt(document.getText().length), symbols);
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
-      const edit = fromProtocolWorkspaceEdit(plan?.edit); if (edit) await vscode.workspace.applyEdit(edit);
-      return;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
+      const edit = fromProtocolWorkspaceEdit(plan?.edit);
+      return edit ? applyImportWorkspaceEdit(edit, 'importApplyFailed', options?.testApplyEdit) : false;
     }
     const workspace = await experimentalWorkspace();
     if (workspace) {
       await workspace.ensureFullIndex();
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
-      await resolveDocumentImports(document, workspace.index);
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
+      try { return await resolveDocumentImports(document, workspace.index, sourceUnchanged); }
+      catch (error) {
+        output.warn(`importApplyFailed: ${error instanceof Error ? error.message : String(error)}`);
+        void vscode.window.showErrorMessage(t('importApplyFailed'));
+        return false;
+      }
     }
+    return false;
   });
-  register('phpCompanion.importClass', async (uri?: vscode.Uri, position?: vscode.Position, options?: { testAfterPlan?: () => Promise<void> }) => {
+  register('phpCompanion.importClass', async (uri?: vscode.Uri, position?: vscode.Position,
+    options?: { testAfterPlan?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> }): Promise<boolean> => {
     const editor = vscode.window.activeTextEditor;
     const document = uri ? await vscode.workspace.openTextDocument(uri) : editor?.document;
     const cursor = position ?? editor?.selection.active;
-    if (!document || document.languageId !== 'php' || !cursor) return;
+    if (!document || document.languageId !== 'php' || !cursor) return false;
     const word = typeNameAt(document, cursor);
-    if (!word) return;
-    const version = document.version;
-    const unchanged = (): boolean => !document.isClosed && document.version === version;
+    if (!word) return false;
+    const sourceUnchanged = await captureDocumentSourceGuard(document);
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
     if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
       void vscode.window.showInformationMessage(t('importClassIndexingMode'));
-      return;
+      return false;
     }
     if (selfLanguageServer) {
-      const client = await languageServer; if (!client) return;
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+      const client = await languageServer; if (!client) return false;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
       const candidates = await client.sendRequest<Array<{ fqcn: string; uri: string; aliasRequired: boolean }>>('phpCompanion/importCandidates', {
         textDocument: { uri: document.uri.toString() }, position: word.range.start, name: word.name,
       });
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
-      if (!candidates.length) return void vscode.window.showInformationMessage(t('noUniqueComposerCandidate', word.name));
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
+      if (!candidates.length) { void vscode.window.showInformationMessage(t('noUniqueComposerCandidate', word.name)); return false; }
       const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
         candidates.map((candidate) => ({ label: candidate.fqcn, description: vscode.workspace.asRelativePath(vscode.Uri.parse(candidate.uri)), candidate })),
         { placeHolder: t('selectClassImport', word.name) },
       ))?.candidate;
-      if (!selected) return;
+      if (!selected) return false;
       const alias = selected.aliasRequired ? await vscode.window.showInputBox({
         prompt: t('chooseAlias', selected.fqcn), value: `${word.name}Alias`,
         validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier'),
       }) : undefined;
-      if (selected.aliasRequired && !alias) return;
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+      if (selected.aliasRequired && !alias) return false;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
       const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/addImport', {
         textDocument: { uri: document.uri.toString() }, position: word.range.start,
         range: { start: word.range.start, end: word.range.end }, name: word.name, fqcn: selected.fqcn, alias,
       });
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
       const edit = fromProtocolWorkspaceEdit(result);
-      if (edit) await vscode.workspace.applyEdit(edit);
-      return;
+      return edit ? applyImportWorkspaceEdit(edit, 'importApplyFailed', options?.testApplyEdit) : false;
     }
     await versions.ensureForUri(document.uri);
-    if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
     const manager = await workspace();
     manager.indexDocument(document);
-    if (!await manager.ensureProjectIndex(document.uri) || !unchanged()) {
+    if (!await manager.ensureProjectIndex(document.uri) || !await sourceUnchanged()) {
       void vscode.window.showWarningMessage(t('importCancelled'));
-      return;
+      return false;
     }
     const file = manager.index.getFile(document.uri.toString());
-    if (!file || file.errors.length) return void vscode.window.showWarningMessage(t('cannotImportSyntax'));
-    if (manager.index.findSymbolAt(document.uri.toString(), document.offsetAt(word.range.start))) return;
+    if (!file || file.errors.length) { void vscode.window.showWarningMessage(t('cannotImportSyntax')); return false; }
+    if (manager.index.findSymbolAt(document.uri.toString(), document.offsetAt(word.range.start))) return false;
     const candidates = rankedImportCandidates(manager.index, file, word.name, versions.stateForUri(document.uri)?.composer?.psr4 ?? []);
-    if (!candidates.length) return void vscode.window.showInformationMessage(t('noComposerPsr4Candidate', word.name));
+    if (!candidates.length) { void vscode.window.showInformationMessage(t('noComposerPsr4Candidate', word.name)); return false; }
     const selected = candidates.length === 1 ? candidates[0] : (await vscode.window.showQuickPick(
       candidates.map((candidate) => ({ label: candidate.fqcn, description: vscode.workspace.asRelativePath(vscode.Uri.parse(candidate.uri)), candidate })),
       { placeHolder: t('selectClassImport', word.name) },
     ))?.candidate;
-    if (!selected) return;
+    if (!selected) return false;
     let alias: string | undefined;
     const collision = file.imports.some((item) => item.alias.toLowerCase() === word.name.toLowerCase() && item.fqcn.toLowerCase() !== selected.fqcn.toLowerCase())
       || file.declarations.some((item) => item.name.toLowerCase() === word.name.toLowerCase());
     if (collision) {
       alias = await vscode.window.showInputBox({ prompt: t('chooseAlias', selected.fqcn), value: word.name, validateInput: (value) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ? undefined : t('validIdentifier') });
-      if (!alias) return;
+      if (!alias) return false;
     }
-    if (!unchanged()) return void vscode.window.showWarningMessage(t('importCancelled'));
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
     const edit = buildAddImportEdit(document, file, selected.fqcn, alias);
-    if (edit) await vscode.workspace.applyEdit(edit);
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('importCancelled')); return false; }
+    return edit ? applyImportWorkspaceEdit(edit, 'importApplyFailed', options?.testApplyEdit) : false;
   });
-  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean; testAfterPlan?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'> }) => {
+  register('phpCompanion.optimizeImports', async (uri?: vscode.Uri, options?: { preview?: boolean; testAfterPlan?: () => Promise<void>;
+    testPreviewAction?: () => Promise<'apply' | 'cancel'>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> }): Promise<boolean> => {
     const document = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
-    if (!document || document.languageId !== 'php') return;
+    if (!document || document.languageId !== 'php') return false;
     const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
-    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') return void vscode.window.showInformationMessage(t('optimizeIndexRequired'));
+    if (configuration.get<string>('indexing.mode', 'onDemand') === 'off') {
+      void vscode.window.showInformationMessage(t('optimizeIndexRequired'));
+      return false;
+    }
+    const sourceUnchanged = await captureDocumentSourceGuard(document);
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('optimizeCancelled')); return false; }
     if (selfLanguageServer) {
-      const version = document.version;
-      const unchanged = (): boolean => !document.isClosed && document.version === version;
-      const client = await languageServer; if (!client) return;
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
+      const client = await languageServer; if (!client) return false;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('optimizeCancelled')); return false; }
       const actions = await client.sendRequest<Array<{ title: string; kind?: string; edit?: ProtocolWorkspaceEdit }>>('textDocument/codeAction', {
         textDocument: { uri: document.uri.toString() },
         range: { start: new vscode.Position(0, 0), end: document.positionAt(document.getText().length) },
@@ -794,31 +917,35 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         phpCompanion: { importSort: configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped') },
       });
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('optimizeCancelled')); return false; }
       const action = actions.find((candidate) => candidate.kind === 'source.organizeImports' && candidate.edit);
       const edit = fromProtocolWorkspaceEdit(action?.edit);
-      if (!edit) return void vscode.window.showInformationMessage(t('importsAlreadyOrganized'));
+      if (!edit) { void vscode.window.showInformationMessage(t('importsAlreadyOrganized')); return false; }
       if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-        if (!await confirmOptimizePreview(document, applyTextEdits(document.getText(), edit.get(document.uri)), options?.testPreviewAction)) return;
+        if (!await confirmOptimizePreview(document, applyTextEdits(document.getText(), edit.get(document.uri)), options?.testPreviewAction)) return false;
       }
-      if (!unchanged()) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
-      await vscode.workspace.applyEdit(edit);
-      return;
+      if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('optimizeCancelled')); return false; }
+      return applyImportWorkspaceEdit(edit, 'optimizeApplyFailed', options?.testApplyEdit);
     }
     await versions.ensureForUri(document.uri);
     const manager = await workspace();
     manager.indexDocument(document);
-    const version = document.version;
-    if (!await manager.ensureProjectIndex(document.uri) || document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
-    const file = manager.index.getFile(document.uri.toString());
-    if (!file || file.errors.length) return void vscode.window.showWarningMessage(t('cannotOptimizeSyntax'));
-    const result = buildOptimizeImportsEdit(document, file, manager.index, configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped'));
-    if (!result.edit || result.optimizedSource === undefined) return void vscode.window.showInformationMessage(t('importsAlreadyOptimized'));
-    if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
-      if (!await confirmOptimizePreview(document, result.optimizedSource, options?.testPreviewAction)) return;
+    if (!await manager.ensureProjectIndex(document.uri) || !await sourceUnchanged()) {
+      void vscode.window.showWarningMessage(t('optimizeCancelled'));
+      return false;
     }
-    if (document.isClosed || document.version !== version) return void vscode.window.showWarningMessage(t('optimizeCancelled'));
-    await vscode.workspace.applyEdit(result.edit);
+    const file = manager.index.getFile(document.uri.toString());
+    if (!file || file.errors.length) { void vscode.window.showWarningMessage(t('cannotOptimizeSyntax')); return false; }
+    const result = buildOptimizeImportsEdit(document, file, manager.index, configuration.get<'grouped' | 'fqcn'>('imports.sort', 'grouped'));
+    if (!result.edit || result.optimizedSource === undefined) {
+      void vscode.window.showInformationMessage(t('importsAlreadyOptimized'));
+      return false;
+    }
+    if (options?.preview ?? configuration.get<boolean>('imports.optimize.preview', true)) {
+      if (!await confirmOptimizePreview(document, result.optimizedSource, options?.testPreviewAction)) return false;
+    }
+    if (!await sourceUnchanged()) { void vscode.window.showWarningMessage(t('optimizeCancelled')); return false; }
+    return applyImportWorkspaceEdit(result.edit, 'optimizeApplyFailed', options?.testApplyEdit);
   });
 
   for (const kind of ['class', 'abstract class', 'interface', 'trait', 'enum', 'test'] as PhpTypeKind[]) {
@@ -863,7 +990,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
             'textDocument/prepareRename', { textDocument: { uri: document.uri.toString() }, position }, token,
           );
           if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested) {
-            throw new Error('The PHP document changed while Rename was being prepared. Run Rename again.');
+            throw new Error(t('renameDocumentChangedPrepare'));
           }
           if (!prepared) return undefined;
           const range = new vscode.Range(prepared.range.start.line, prepared.range.start.character, prepared.range.end.line, prepared.range.end.character);
@@ -894,13 +1021,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested
           || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
             && openVersions.get(item.uri.toString()) !== item.version)) {
-          throw new Error('A PHP document changed while Rename edits were being prepared. Run Rename again.');
+          throw new Error(t('renameDocumentChangedEdits'));
         }
         if (result) await verifyRenameSources(result);
         if (document.isClosed || document.version !== sourceVersion || token.isCancellationRequested
           || vscode.workspace.textDocuments.some((item) => openVersions.has(item.uri.toString())
             && openVersions.get(item.uri.toString()) !== item.version)) {
-          throw new Error('A PHP document changed while Rename edits were being verified. Run Rename again.');
+          throw new Error(t('renameDocumentChangedVerify'));
         }
         const converted = splitProtocolTypeRenameEdit(result);
         if (converted.edit && result) renamePlans.set(converted.edit, { protocol: result, staged: converted.staged });
@@ -918,7 +1045,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     },
   };
   register('phpCompanion.addMethodParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
-    name?: string; type?: string; value?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    name?: string; type?: string; value?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
+    testBeforePreview?: () => Promise<void> }): Promise<boolean> => {
     if (!selfLanguageServer) {
       void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
       return false;
@@ -929,6 +1057,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const document = await vscode.workspace.openTextDocument(uri);
     if (document.languageId !== 'php') return false;
     const sourceVersion = document.version; const sourceText = document.getText();
+    const sourceDiskHash = await sourceDiskSnapshot(uri);
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
     const testOptions = context.extensionMode === vscode.ExtensionMode.Test ? options : undefined;
     const name = testOptions?.name ?? await vscode.window.showInputBox({ prompt: t('addParameterName') });
     if (!name) return false;
@@ -947,11 +1077,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return false;
     }
     if (result.phpCompanion.workspaceMethodFamily) void vscode.window.showWarningMessage(t('addParameterWorkspaceScope'));
-    await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
+    if (context.extensionMode === vscode.ExtensionMode.Test) await testOptions?.testBeforePreview?.();
+    return await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', {
       edit, title: `Add parameter $${name}`, sourceUri: uri, sourceVersion, sourceText,
-      targetHashes: result.phpCompanion.sourceHashes,
-    }, { testPreviewAction: testOptions?.testPreviewAction });
-    return true;
+      sourceDiskHash, targetHashes: result.phpCompanion.sourceHashes,
+    }, { testPreviewAction: testOptions?.testPreviewAction }) ?? false;
   });
   register('phpCompanion.removeMethodParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
     testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
@@ -965,6 +1095,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const document = await vscode.workspace.openTextDocument(uri);
     if (document.languageId !== 'php') return false;
     const sourceVersion = document.version; const sourceText = document.getText();
+    const sourceDiskHash = await sourceDiskSnapshot(uri);
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
     const client = await languageServer;
     if (!client) return false;
     const result = await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/removeMethodParameter', {
@@ -976,11 +1108,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return false;
     }
     if (result.phpCompanion.workspaceMethodFamily) void vscode.window.showWarningMessage(t('addParameterWorkspaceScope'));
-    await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
+    return await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', {
       edit, title: 'Remove method parameter', sourceUri: uri, sourceVersion, sourceText,
-      targetHashes: result.phpCompanion.sourceHashes,
-    }, { testPreviewAction: context.extensionMode === vscode.ExtensionMode.Test ? options?.testPreviewAction : undefined });
-    return true;
+      sourceDiskHash, targetHashes: result.phpCompanion.sourceHashes,
+    }, { testPreviewAction: context.extensionMode === vscode.ExtensionMode.Test ? options?.testPreviewAction : undefined }) ?? false;
   });
   register('phpCompanion.reorderMethodParameters', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
     targetIndex?: number; testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
@@ -994,6 +1125,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const document = await vscode.workspace.openTextDocument(uri);
     if (document.languageId !== 'php') return false;
     const sourceVersion = document.version; const sourceText = document.getText();
+    const sourceDiskHash = await sourceDiskSnapshot(uri);
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
     const client = await languageServer;
     if (!client) return false;
     const selection = await client.sendRequest<{ names: string[]; index: number } | null>('phpCompanion/methodParameterOrder', {
@@ -1021,14 +1154,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return false;
     }
     if (result.phpCompanion.workspaceMethodFamily) void vscode.window.showWarningMessage(t('addParameterWorkspaceScope'));
-    await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', {
+    return await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', {
       edit, title: 'Reorder method parameters', sourceUri: uri, sourceVersion, sourceText,
-      targetHashes: result.phpCompanion.sourceHashes,
-    }, { testPreviewAction: context.extensionMode === vscode.ExtensionMode.Test ? options?.testPreviewAction : undefined });
-    return true;
+      sourceDiskHash, targetHashes: result.phpCompanion.sourceHashes,
+    }, { testPreviewAction: context.extensionMode === vscode.ExtensionMode.Test ? options?.testPreviewAction : undefined }) ?? false;
   });
   register('phpCompanion.safeRename', async (options?: { uri?: vscode.Uri; position?: vscode.Position; newName?: string;
-    testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    testAfterPlan?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
+    testBeforeOpen?: () => Promise<void> }): Promise<boolean> => {
     if (!selfLanguageServer) {
       void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
       return false;
@@ -1045,6 +1178,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const previewUris = new Set<string>();
     const openedChangesLabels = new Set<string>();
     try {
+      const sourceUnchanged = await captureDocumentSourceGuard(document);
+      const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
       const previous = prepared instanceof vscode.Range ? document.getText(prepared) : prepared.placeholder;
@@ -1054,8 +1189,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const edit = await lazyRename.provideRenameEdits(document, position, newName, cancellation.token);
       if (!edit) return false;
       const plan = renamePlans.get(edit);
-      if (!plan) throw new Error('SoPHP could not verify the Rename plan. Run Rename again.');
+      if (!plan) throw new Error(t('renamePlanUnverified'));
       staged = plan.staged;
+      // The provider also serves VS Code's direct Rename request. Its file edit is
+      // staged for onWillRenameFiles, but this command must hold it until the user
+      // confirms the preview. An Explorer rename during preview is a separate action.
+      if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
+      if (!await sourceUnchanged()) throw new Error(t('renameSourceChanged'));
+      if (!await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(plan.protocol.phpCompanion?.sourceHashes ?? {}))) {
+        throw new Error(t('renameDiskChanged'));
+      }
+      await verifyRenameSources(plan.protocol);
       const diskHashes = new Map<string, string>();
       for (const uri of Object.keys(plan.protocol.phpCompanion?.sourceHashes ?? {})) {
         const bytes = await vscode.workspace.fs.readFile(vscode.Uri.parse(uri));
@@ -1110,17 +1255,24 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         : openedChangesLabels.size === Math.ceil(previewResources.length / 20)
           && visiblePreviewTabs.filter((tab) => openedChangesLabels.has(tab.label)).length === openedChangesLabels.size;
       if (!previewComplete) {
-        throw new Error('A Rename preview was closed before confirmation. Run Rename again.');
+        throw new Error(t('renamePreviewClosed'));
       }
       await verifyRenameSources(plan.protocol);
       for (const [uri, hash] of diskHashes) {
         const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
-        if (current !== hash) throw new Error('A PHP file changed on disk during Rename preview. Run Rename again.');
+        if (current !== hash) throw new Error(t('renameDiskChanged'));
       }
       if (staged) pendingTypeRenameEdits.set(staged.key, staged.edit);
-      if (!await vscode.workspace.applyEdit(edit)) throw new Error('SoPHP could not apply Rename changes. Run Rename again.');
-      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(
-        fileRename ? vscode.Uri.parse(fileRename.newUri) : uri), { preview: false });
+      if (!await vscode.workspace.applyEdit(edit)) throw new Error(t('renameApplyFailed'));
+      try {
+        if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeOpen?.();
+        await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(
+          fileRename ? vscode.Uri.parse(fileRename.newUri) : uri), { preview: false });
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        output.warn(`Safe Rename was applied but could not open the result: ${reason}`);
+        void vscode.window.showWarningMessage(t('appliedOpenFailed', reason));
+      }
       return true;
     } catch (error) {
       output.warn(`Safe Rename rejected: ${error instanceof Error ? error.message : String(error)}`);
@@ -1131,7 +1283,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const previewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
         openedChangesLabels.has(tab.label) || (tab.input instanceof vscode.TabInputTextDiff
           && previewUris.has(tab.input.original.toString()) && previewUris.has(tab.input.modified.toString())));
-      if (previewTabs.length) await vscode.window.tabGroups.close(previewTabs);
+      if (previewTabs.length) {
+        try { await vscode.window.tabGroups.close(previewTabs); }
+        catch (error) { output.warn(`Unable to close Rename previews: ${String(error)}`); }
+      }
       forgetRenamePreviewSnapshots(previewUris);
       cancellation.dispose();
     }

@@ -23,7 +23,7 @@ async function manifest(path: string): Promise<ExtensionManifest> {
   return JSON.parse(await readFile(resolve(path), 'utf8')) as ExtensionManifest;
 }
 
-describe('PHP Companion manifests', () => {
+describe('SoPHP manifests', () => {
   it('publishes every extension as version 0.4.5', async () => {
     for (const path of ['package.json', 'packages/php-companion-symfony/package.json', 'packages/php-companion-extension-pack/package.json']) {
       const value = await manifest(path);
@@ -59,10 +59,13 @@ describe('PHP Companion manifests', () => {
     const openSource = await manifest('packages/php-companion-extension-pack/package.json');
     const extensions = await openSourceExtensions();
     expect(openSource.extensionPack).toEqual(extensions);
+    expect(openSource.extensionPack).toHaveLength(10);
+    expect(new Set(openSource.extensionPack).size).toBe(10);
     expect(openSource.extensionPack).not.toContain('bmewburn.vscode-intelephense-client');
     expect(openSource.extensionPack).not.toContain('symfony.language-tools');
     expect(openSource.extensionPack).toContain('sohophp.php-companion-symfony');
     expect(openSource.extensionPack).toContain('neilbrayfield.php-docblocker');
+    expect(openSource.extensionPack).not.toContain('recca0120.vscode-phpunit');
     expect(openSource.contributes).toBeDefined();
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);

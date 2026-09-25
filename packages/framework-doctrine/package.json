@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/framework-doctrine",
   "version": "0.1.0-alpha.1",
-  "description": "Static Doctrine ORM facts for PHP Companion without booting ORM or connecting to a database.",
+  "description": "Static Doctrine ORM facts for SoPHP without booting ORM or connecting to a database.",
   "type": "module",
   "license": "MIT",
   "repository": {

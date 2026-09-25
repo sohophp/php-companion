@@ -1,6 +1,6 @@
 # @php-companion/semantic-provider
 
-框架无关、可独立发布的 PHP Companion 语义事实提供器契约。提供器以一次完整快照提交方法、属性、“字面量参数决定返回类型”及可选服务容器事实；语义工作区按 `providerId` 原子替换或撤销快照，避免增量刷新期间混用新旧事实。
+框架无关、可独立发布的 SoPHP 语义事实提供器契约。提供器以一次完整快照提交方法、属性、“字面量参数决定返回类型”及可选服务容器事实；语义工作区按 `providerId` 原子替换或撤销快照，避免增量刷新期间混用新旧事实。
 
 ```ts
 import { semanticFacts, type SemanticFactsContribution } from '@php-companion/semantic-provider';

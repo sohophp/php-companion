@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/provider-symfony-controller-contexts",
   "version": "0.1.0-alpha.1",
-  "description": "Authoritative Symfony controller-to-template context provider for PHP Companion.",
+  "description": "Authoritative Symfony controller-to-template context provider for SoPHP.",
   "type": "module", "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/provider-symfony-controller-contexts" },
   "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],

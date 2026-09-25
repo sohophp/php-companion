@@ -11,6 +11,9 @@ describe('route provider contract', () => {
     }))).toBe(true);
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '8'), inputDirectoryUris: [42] })).toBe(false);
     expect(isRouteFactsContribution(routeFacts('runtime.routes', '9', [{ name: 'runtime.only', path: '/runtime' }]))).toBe(true);
+    expect(isRouteFactsContribution(routeFacts('vendor.routes', '10', [{ name: 'blog', path: '/blog', uri: 'file:///routes.php', start: 10, end: 14,
+      controller: { className: 'App\\Controller\\BlogController', classSourceName: 'Blog', method: 'list', uri: 'file:///routes.php',
+        classStart: 50, classEnd: 54, methodStart: 64, methodEnd: 68 } }]))).toBe(true);
   });
   it('rejects malformed facts and unbounded descriptors', () => {
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 3, end: 2 }] })).toBe(false);
@@ -19,6 +22,8 @@ describe('route provider contract', () => {
       controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18 } }] })).toBe(false);
     expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
       controller: { className: 'App\\Controller', method: 'run', uri: 'file:///r', classStart: 4, classEnd: 18, methodStart: 20, methodEnd: 24 } }] })).toBe(false);
+    expect(isRouteFactsContribution({ ...routeFacts('vendor.routes', '7'), routes: [{ name: 'x', path: '/', uri: 'file:///r', start: 0, end: 1,
+      controller: { className: 'App\\Controller', classSourceName: 'Alias', uri: 'file:///r', classStart: 4, classEnd: 8 } }] })).toBe(false);
     expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', timeoutMs: 5000, replacesStaticRoutes: true, cacheUntilInvalidated: true })).toBe(true);
     expect(isRouteProviderDescriptor({ providerId: 'vendor.routes', command: '/provider', cacheUntilInvalidated: 'yes' })).toBe(false);
     expect(isRouteProviderDescriptor({ providerId: 'bad!', command: '/provider' })).toBe(false);

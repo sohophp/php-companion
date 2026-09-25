@@ -2,7 +2,7 @@
 
 面向希望直接使用自研 PHP Language Server 和开源 PHP 工具的开发者。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
-当前源码组合为 11 项：SoPHP Core、SoPHP Symfony 和下表的 9 项外部工具。已冻结的 0.4.5 私有 VSIX 候选仍是先前的 10 项组合，尚未包含后来加入的 PHP DocBlocker；要体验 11 项组合，须等下一次同批候选冻结，或使用已验证的源码 Profile。公开 Marketplace 页面也仍显示旧说明，不能当作当前源码清单。
+当前源码组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。已冻结的 0.4.5 私有 VSIX 候选与公开 Marketplace 页面均不能代表此源码清单，须等下一次同批候选冻结。
 
 成员职责、现有验证范围和 Core 下一步见[Open Source Pack 整理与 SoPHP 下一步](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-next-core-2026-09-25.md)。
 
@@ -16,15 +16,25 @@
 | YAML | YAML 语法、Schema、补全、诊断和格式化 |
 | XML | XML 语法、XSD/DTD、补全、诊断、导航、重命名和格式化 |
 | PHP Debug | Xdebug 断点、单步、变量和调用栈 |
-| PHPUnit & Pest Test Explorer | 测试发现、运行和调试 |
 | PHP CS Fixer | PHP 格式化和项目代码风格 |
 | EditorConfig | 项目级缩进、换行和字符集 |
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 | PHP DocBlocker | 输入 `/**` 生成 PHPDoc，补全 `@param` 等标签；SoPHP 负责解析生成的类型 |
 
-以上 11 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由该扩展自身声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。[公开 Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)可能仍是旧版，不能用其说明或安装结果验证本仓库的 0.4.5 私有候选；Core、Symfony 和 Pack 要使用同一候选的三个 VSIX。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由该扩展自身声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。[公开 Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)可能仍是旧版，不能用其说明或安装结果验证本仓库源码；Core、Symfony 和 Pack 要使用同一候选的三个 VSIX。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
 
-使用 PHPUnit & Pest Test Explorer 时，项目应有准确限定测试目录的 `phpunit.xml` 或 `phpunit.xml.dist`；没有测试配置的工作区可单独禁用该测试扩展。当前冻结版本在无配置项目中快速重命名普通 PHP 文件时曾触发旧路径读取异常；已配置项目的测试文件 Rename、Undo/Redo 则通过了[完整 Pack 源码宿主复核](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/c3-generation-redo-phpunit-rename-2026-09-25.md)。
+**测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。`recca0120.vscode-phpunit` 不再由 Pack 自动安装；若你已单独安装原版 3.9.40，在文件 Rename/Undo/Redo 场景遇到旧路径错误时，应在该工作区禁用它。本地最小补丁仅用于隔离评估，尚未进入 Marketplace。见[原版组合复核](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-c3-original-recheck-2026-09-25.md)。
+
+在项目根目录运行已安装的测试工具：
+
+```bash
+./vendor/bin/phpunit
+./vendor/bin/phpunit tests/ExampleTest.php
+./vendor/bin/pest
+./vendor/bin/pest tests/ExampleTest.php
+```
+
+按项目实际测试文件路径选用一条命令；需要指定配置时按项目的 `phpunit.xml` 或 `phpunit.xml.dist` 传入 `--configuration`。若上游修复发布或独立维护的替代扩展通过同一组合门禁，再评估恢复默认测试视图。
 
 JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code 内建语言服务，不重复安装基础语言扩展。XML 由仍在维护的 Red Hat XML/LemMinX 负责，不采用长期未发布且依赖已废弃 `xmldom` 的 DotJoshJohnson XML Tools。拼写检查、CSS Peek 和数据库客户端不是 PHP 编码闭环的必要能力，按需单独安装；其中 Database Client 当前发行版闭源且部分功能收费，不属于本开源包。
 

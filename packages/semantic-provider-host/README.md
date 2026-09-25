@@ -1,6 +1,6 @@
 # @php-companion/semantic-provider-host
 
-为用户显式配置的 PHP Companion 语义 Provider 提供一次一进程的 JSON 协议主机。主机限制运行时间和标准输出，仅在完整响应通过 schema、请求 ID、`providerId` 与 generation 校验后返回快照。它隔离崩溃和失败，但不是操作系统安全沙箱；只应配置可信可执行文件。
+为用户显式配置的 SoPHP 语义 Provider 提供一次一进程的 JSON 协议主机。主机限制运行时间和标准输出，仅在完整响应通过 schema、请求 ID、`providerId` 与 generation 校验后返回快照。它隔离崩溃和失败，但不是操作系统安全沙箱；只应配置可信可执行文件。
 
 ```ts
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';

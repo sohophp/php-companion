@@ -25,13 +25,14 @@ async function main(): Promise<void> {
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
   const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
   const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
+  const c3PhpunitPairProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE === '1';
   const docblockerOnly = process.env.PHP_COMPANION_TEST_DOCBLOCKER_ONLY === '1';
   const docblockerExtensionsDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_EXTENSIONS_DIR;
   const docblockerUserDataDir = process.env.PHP_COMPANION_TEST_DOCBLOCKER_USER_DATA_DIR;
   if (docblockerOnly && (!docblockerExtensionsDir || !docblockerUserDataDir)) {
     throw new Error('DocBlocker profile test requires isolated extensions and user data directories.');
   }
-  if (c3OpenSourceProfile && !process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR) {
+  if ((c3OpenSourceProfile || c3PhpunitPairProfile) && !process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR) {
     throw new Error('C3 Open Source Profile test requires PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   }
   if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
@@ -39,7 +40,7 @@ async function main(): Promise<void> {
   }
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
-  if (c3OpenSourceProfile) {
+  if (c3OpenSourceProfile || c3PhpunitPairProfile) {
     await mkdir(join(fixture, 'tests'), { recursive: true });
     const composerPath = join(fixture, 'composer.json');
     const composer = JSON.parse(await readFile(composerPath, 'utf8')) as Record<string, unknown>;
@@ -136,6 +137,16 @@ async function main(): Promise<void> {
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
 
+  if (c3OpenSourceProfile || c3PhpunitPairProfile) {
+    const userSettingsDirectory = join(fixture, 'profile-user-data', 'User');
+    await mkdir(userSettingsDirectory, { recursive: true });
+    await writeFile(join(userSettingsDirectory, 'settings.json'), JSON.stringify({
+      'extensions.autoCheckUpdates': false,
+      'extensions.autoUpdate': false,
+      'update.mode': 'none',
+    }, null, 2));
+  }
+
   if (withIntelephense) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
@@ -168,12 +179,12 @@ async function main(): Promise<void> {
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony'),
           ...(docblockerOnly || c3OpenSourceProfile ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
-      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c3OpenSourceProfile ? [] : ['--disable-extensions']),
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c3OpenSourceProfile || c3PhpunitPairProfile ? [] : ['--disable-extensions']),
         ...(docblockerOnly ? [
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
           `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
         ] : []),
-        ...(c3OpenSourceProfile ? [
+        ...(c3OpenSourceProfile || c3PhpunitPairProfile ? [
           `--extensions-dir=${resolve(process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR!)}`,
           `--user-data-dir=${join(fixture, 'profile-user-data')}`,
         ] : []),
@@ -184,6 +195,9 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_WITH_INTELEPHENSE: withIntelephense ? '1' : undefined,
         PHP_COMPANION_TEST_CORE_ONLY: coreOnly ? '1' : undefined,
         PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE: c3OpenSourceProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE: c3PhpunitPairProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_C3_PHPUNIT_CHURN: c3OpenSourceProfile || c3PhpunitPairProfile ? process.env.PHP_COMPANION_TEST_C3_PHPUNIT_CHURN : undefined,
+        PHP_COMPANION_TEST_C3_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_REDO_PROBE : undefined,
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,

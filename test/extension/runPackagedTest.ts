@@ -43,9 +43,11 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
   const realVendorProfile = process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1';
+  const hoverIsolation = process.env.PHP_COMPANION_TEST_HOVER_ISOLATION === '1';
   const realVendorNoise = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE ?? 9100);
   const realVendorRounds = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS ?? 50);
   if (realVendorProfile && !sourceProfile) throw new Error('Real vendor Pack gate requires the source Profile.');
+  if (hoverIsolation && (!sourceProfile || !realVendorProfile)) throw new Error('Hover isolation requires the real vendor source Profile.');
   if (realVendorProfile && (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 20_000
     || !Number.isSafeInteger(realVendorRounds) || realVendorRounds < 1 || realVendorRounds > 500)) {
     throw new Error('Real vendor Pack gate needs 0..20000 noise files and 1..500 rounds.');
@@ -236,6 +238,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR: realVendorProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_HOVER_ISOLATION: hoverIsolation ? '1' : undefined,
+        PHP_COMPANION_TEST_HOVER_TIMING: process.env.PHP_COMPANION_TEST_HOVER_TIMING,
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE: realVendorProfile ? String(realVendorNoise) : undefined,
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS: realVendorProfile ? String(realVendorRounds) : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
@@ -245,11 +249,12 @@ abstract class AbstractController { public function generateUrl(string $route, a
       },
     });
     console.log(process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1'
-      ? `Verified legacy Profile Rename and Paste settings in packaged PHP Companion VSIX: ${vsix}`
+      ? `Verified legacy Profile Rename and Paste settings in packaged SoPHP VSIX: ${vsix}`
       : process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
-        ? `Verified Simplified Chinese manifest text in packaged PHP Companion VSIX: ${vsix}`
-        : sourceProfile ? 'Verified source SoPHP extensions in the isolated Open Source Profile'
-          : `Verified packaged PHP Companion VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
+        ? `Verified Simplified Chinese manifest text in packaged SoPHP VSIX: ${vsix}`
+        : hoverIsolation ? 'Verified isolated SoPHP real vendor Hover probe'
+          : sourceProfile ? 'Verified source SoPHP extensions in the isolated Open Source Profile'
+          : `Verified packaged SoPHP VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {
     if (process.env.PHP_COMPANION_TEST_LOG_DIR) {
       await cp(join(profile, 'user-data', 'logs'), resolve(process.env.PHP_COMPANION_TEST_LOG_DIR), { recursive: true }).catch(() => undefined);

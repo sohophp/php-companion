@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/refactor",
   "version": "0.1.0-alpha.1",
-  "description": "Editor-independent versioned refactoring edit plans for PHP Companion.",
+  "description": "Editor-independent versioned refactoring edit plans for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

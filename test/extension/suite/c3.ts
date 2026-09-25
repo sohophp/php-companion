@@ -6,6 +6,15 @@ import * as vscode from 'vscode';
 type QueryState = { paused: boolean; version: number | null };
 type TestApi = { requestLanguageServer<T>(method: string, params: unknown): Promise<T> };
 
+async function waitFor(check: () => boolean, message: string): Promise<void> {
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    if (check()) return;
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  assert.fail(message);
+}
+
 async function waitForState(api: TestApi, method: string, document: vscode.TextDocument,
   matches: (state: QueryState) => boolean, message: string): Promise<void> {
   const deadline = Date.now() + 30_000;
@@ -19,15 +28,17 @@ async function waitForState(api: TestApi, method: string, document: vscode.TextD
 }
 
 async function verifyEditDuringRequest(api: TestApi, method: string, document: vscode.TextDocument,
-  startCommand: () => Thenable<unknown>, staleEditAbsent: () => boolean): Promise<void> {
+  startCommand: () => Thenable<boolean>, staleEditAbsent: () => boolean): Promise<void> {
   await vscode.window.showTextDocument(document);
   const original = document.getText();
   assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method }), true,
     `Could not arm the ${method} request pause`);
   const command = startCommand();
+  let paused = false;
   try {
     await waitForState(api, method, document, (state) => state.paused && state.version === document.version,
       `${method} did not pause with the original document version`);
+    paused = true;
     const edit = new vscode.WorkspaceEdit();
     edit.insert(document.uri, document.positionAt(document.getText().length), '\n// Edited while the server held an import response.\n');
     assert.ok(await vscode.workspace.applyEdit(edit), `Could not edit the document while ${method} was paused`);
@@ -35,10 +46,10 @@ async function verifyEditDuringRequest(api: TestApi, method: string, document: v
     await waitForState(api, method, document, (state) => state.paused && state.version === document.version,
       `${method} did not observe the new document version before release`);
   } finally {
-    assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method }), true,
-      `Could not release the paused ${method} request`);
+    const released = await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method });
+    if (paused) assert.strictEqual(released, true, `Could not release the paused ${method} request`);
   }
-  await command;
+  assert.strictEqual(await command, false, `${method} reported success after the document changed during planning`);
   assert.ok(staleEditAbsent(), `${method} applied an edit calculated from the old document version`);
   assert.ok(document.getText().includes('Edited while the server held'), `${method} discarded the user's concurrent edit`);
   await vscode.window.showTextDocument(document);
@@ -51,24 +62,29 @@ async function verifyEditDuringRequest(api: TestApi, method: string, document: v
 export async function run(): Promise<void> {
   const folder = vscode.workspace.workspaceFolders?.[0];
   assert.ok(folder, 'C3 import request test requires the Composer fixture');
+  const phpunitProfile = process.env.PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE === '1';
+  const openSourceProfile = process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
+  const configuredTestProfile = phpunitProfile || openSourceProfile;
   const profileRenameErrors: string[] = [];
-  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') process.on('unhandledRejection', (reason: unknown) => {
+  if (phpunitProfile) process.on('unhandledRejection', (reason: unknown) => {
     const message = reason instanceof Error ? reason.message : String(reason);
     if (message.includes('ENOENT') && (message.includes('C3GroupedType.php')
       || message.includes('/tests/'))) profileRenameErrors.push(message);
   });
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load');
-  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') {
+  if (openSourceProfile) {
     const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack');
     assert.ok(pack, 'C3 Open Source Profile did not load the Pack');
     const members = pack.packageJSON.extensionPack as string[];
-    assert.strictEqual(members.length, 11, 'C3 Open Source Profile did not use the current 11-member Pack');
+    assert.strictEqual(members.length, 10, 'C3 Open Source Profile did not use the current 10-member Pack');
     for (const id of members) assert.ok(vscode.extensions.getExtension(id), `C3 Open Source Profile is missing ${id}`);
     assert.ok(!vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'),
       'C3 Open Source Profile has a second general PHP language server');
     assert.ok(!vscode.extensions.getExtension('symfony.language-tools'),
       'C3 Open Source Profile has a conflicting Symfony Rename provider');
+    assert.ok(!vscode.extensions.getExtension('recca0120.vscode-phpunit'),
+      'C3 Open Source Profile included the rejected PHPUnit provider');
   }
   const f2Rename = (extension.packageJSON.contributes?.keybindings as Array<{ command: string; key: string; when: string }> | undefined)
     ?.find((entry) => entry.command === 'phpCompanion.safeRename' && entry.key === 'f2');
@@ -81,12 +97,87 @@ export async function run(): Promise<void> {
   const importDocument = await vscode.workspace.openTextDocument(importUri);
   const importOffset = importDocument.getText().indexOf('UserService');
   assert.ok(importOffset > 0);
+  await vscode.window.showTextDocument(importDocument);
+  const importPosition = importDocument.positionAt(importOffset + 1);
+  let importCandidates: Array<{ fqcn: string }> = [];
+  const importReadyDeadline = Date.now() + 30_000;
+  while (Date.now() < importReadyDeadline) {
+    importCandidates = await api.requestLanguageServer<Array<{ fqcn: string }>>('phpCompanion/importCandidates', {
+      textDocument: { uri: importUri.toString() }, position: importPosition, name: 'UserService',
+    });
+    if (importCandidates.some((candidate) => candidate.fqcn === 'App\\Service\\UserService')) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(importCandidates.some((candidate) => candidate.fqcn === 'App\\Service\\UserService'),
+    `The Composer import candidate was not ready: ${JSON.stringify(importCandidates)}`);
   await verifyEditDuringRequest(api, 'addImport', importDocument,
-    () => vscode.commands.executeCommand('phpCompanion.importClass', importUri, importDocument.positionAt(importOffset + 1)),
+    () => vscode.commands.executeCommand<boolean>('phpCompanion.importClass', importUri, importPosition),
     () => !importDocument.getText().includes('use App\\Service\\UserService;'));
   await verifyEditDuringRequest(api, 'planTypeImports', importDocument,
-    () => vscode.commands.executeCommand('phpCompanion.resolvePastedImports'),
+    () => vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports'),
     () => !importDocument.getText().includes('use App\\Service\\UserService;'));
+  for (const commandName of ['importClass', 'resolvePastedImports'] as const) {
+    const className = commandName === 'importClass' ? 'C3ExternalImportClass' : 'C3ExternalResolveImports';
+    const externalUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `${className}.php`);
+    const original = importDocument.getText().replace('ImportConsumer', className);
+    const externalChange = `${original}\n// Written outside the editor while import planning completed.\n`;
+    await vscode.workspace.fs.writeFile(externalUri, Buffer.from(original));
+    try {
+      const externalDocument = await vscode.workspace.openTextDocument(externalUri);
+      await vscode.window.showTextDocument(externalDocument);
+      const version = externalDocument.version;
+      let planReady = false;
+      const afterPlan = async (): Promise<void> => {
+        planReady = true;
+        await writeFile(externalUri.fsPath, externalChange);
+        assert.strictEqual(externalDocument.version, version,
+          `${commandName} external disk write changed the open document version before apply`);
+      };
+      if (commandName === 'importClass') {
+        const offset = externalDocument.getText().indexOf('UserService');
+        assert.ok(offset > 0);
+        assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.importClass', externalUri,
+          externalDocument.positionAt(offset + 1), { testAfterPlan: afterPlan }), false);
+      } else {
+        assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports',
+          { testAfterPlan: afterPlan }), false);
+      }
+      assert.ok(planReady, `${commandName} did not reach the import plan`);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(externalUri)).toString('utf8'), externalChange,
+        `${commandName} overwrote an external disk edit`);
+      assert.ok(!externalDocument.getText().includes('use App\\Service\\UserService;'),
+        `${commandName} applied an import from a stale disk snapshot`);
+    } finally {
+      await vscode.workspace.fs.delete(externalUri);
+    }
+  }
+  for (const commandName of ['importClass', 'resolvePastedImports'] as const) {
+    const className = commandName === 'importClass' ? 'C3NormalImportClass' : 'C3NormalResolveImports';
+    const normalUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `${className}.php`);
+    await vscode.workspace.fs.writeFile(normalUri, Buffer.from(importDocument.getText().replace('ImportConsumer', className)));
+    try {
+      const normalDocument = await vscode.workspace.openTextDocument(normalUri);
+      await vscode.window.showTextDocument(normalDocument);
+      const original = normalDocument.getText();
+      if (commandName === 'importClass') {
+        const offset = original.indexOf('UserService');
+        assert.ok(offset > 0);
+        assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.importClass', normalUri,
+          normalDocument.positionAt(offset + 1)), true);
+      } else {
+        assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports'), true);
+      }
+      const imported = normalDocument.getText();
+      assert.ok(imported.includes('use App\\Service\\UserService;'), `${commandName} rejected an unchanged PHP file`);
+      await vscode.window.showTextDocument(normalDocument);
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(normalDocument.getText(), original, `${commandName} could not be undone once`);
+      await vscode.commands.executeCommand('redo');
+      assert.strictEqual(normalDocument.getText(), imported, `${commandName} could not be redone once`);
+    } finally {
+      await vscode.workspace.fs.delete(normalUri);
+    }
+  }
 
   const optimizeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'OptimizeConsumer.php');
   const optimizeDocument = await vscode.workspace.openTextDocument(optimizeUri);
@@ -95,7 +186,11 @@ export async function run(): Promise<void> {
     () => optimizeDocument.getText().includes('use App\\Contract\\Runner;')
       && optimizeDocument.getText().match(/use App\\Service\\UserService;/g)?.length === 2);
   const optimizeOriginal = optimizeDocument.getText();
-  await vscode.commands.executeCommand('phpCompanion.optimizeImports', optimizeUri, { preview: true, testPreviewAction: async () => {
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', optimizeUri,
+    { preview: true, testPreviewAction: async () => 'cancel' }), false,
+  'Cancelling Optimize Imports reported an applied edit');
+  assert.strictEqual(optimizeDocument.getText(), optimizeOriginal, 'Cancelling Optimize Imports changed the document');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', optimizeUri, { preview: true, testPreviewAction: async () => {
     const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
       tab.input instanceof vscode.TabInputTextDiff && tab.input.original.toString() === optimizeUri.toString());
     assert.strictEqual(previews.length, 1, 'Optimize Imports did not open one diff');
@@ -103,32 +198,301 @@ export async function run(): Promise<void> {
     assert.strictEqual(previews[0]!.input.modified.scheme, 'sophp-rename-preview', 'Optimize Imports result was not read-only');
     assert.ok(await vscode.window.tabGroups.close(previews), 'Could not close the Optimize Imports preview');
     return 'apply';
-  } });
+  } }), false, 'Closing Optimize Imports preview reported an applied edit');
   assert.strictEqual(optimizeDocument.getText(), optimizeOriginal, 'Optimize Imports applied after its preview was closed');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', optimizeUri,
+    { preview: true, testPreviewAction: async () => 'apply' }), true,
+  'Applying Optimize Imports did not report success');
+  const optimizedSource = optimizeDocument.getText();
+  assert.ok(!optimizedSource.includes('use App\\Contract\\Runner;')
+    && optimizedSource.match(/use App\\Service\\UserService;/g)?.length === 1,
+  'Optimize Imports did not remove the unused and duplicate imports');
+  await vscode.window.showTextDocument(optimizeDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(optimizeDocument.getText(), optimizeOriginal, 'Optimize Imports could not be undone once');
+  await vscode.commands.executeCommand('redo');
+  assert.strictEqual(optimizeDocument.getText(), optimizedSource, 'Optimize Imports could not be redone once');
+  for (const [commandName, failureMode] of [
+    ['importClass', 'false'], ['resolvePastedImports', 'throw'], ['optimizeImports', 'false'], ['optimizeImports', 'throw'],
+  ] as const) {
+    const isOptimize = commandName === 'optimizeImports';
+    const className = `C3ApplyFailure${commandName}${failureMode}`;
+    const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `${className}.php`);
+    const original = (isOptimize ? optimizeOriginal : importDocument.getText())
+      .replace(isOptimize ? 'OptimizeConsumer' : 'ImportConsumer', className);
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
+    try {
+      const document = await vscode.workspace.openTextDocument(uri);
+      await vscode.window.showTextDocument(document);
+      let reachedApply = false;
+      const testApplyEdit = async (edit: vscode.WorkspaceEdit): Promise<boolean> => {
+        reachedApply = true;
+        assert.ok(edit.entries().length > 0, `${commandName} did not prepare an edit`);
+        if (failureMode === 'throw') throw new Error('C3 simulated applyEdit failure');
+        return false;
+      };
+      const result = commandName === 'importClass'
+        ? await vscode.commands.executeCommand<boolean>('phpCompanion.importClass', uri,
+          document.positionAt(original.indexOf('UserService') + 1), { testApplyEdit })
+        : commandName === 'resolvePastedImports'
+          ? await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports', { testApplyEdit })
+          : await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', uri,
+            { preview: false, testApplyEdit });
+      assert.ok(reachedApply, `${commandName} did not reach workspace.applyEdit`);
+      assert.strictEqual(result, false, `${commandName} reported success after workspace.applyEdit ${failureMode}`);
+      assert.strictEqual(document.getText(), original, `${commandName} changed the document after an application failure`);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), original,
+        `${commandName} changed the disk file after an application failure`);
+    } finally {
+      await vscode.workspace.fs.delete(uri);
+    }
+  }
+  console.log('C3 import commands kept source unchanged and returned false after applyEdit rejection or exception');
+  const externalOptimizeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ExternalOptimize.php');
+  const externalOptimizeSource = optimizeOriginal.replace('OptimizeConsumer', 'C3ExternalOptimize');
+  const externalChangedSource = `${externalOptimizeSource}\n// Written by an external process during preview.\n`;
+  await vscode.workspace.fs.writeFile(externalOptimizeUri, Buffer.from(externalOptimizeSource));
+  try {
+    const externalDocument = await vscode.workspace.openTextDocument(externalOptimizeUri);
+    await vscode.window.showTextDocument(externalDocument);
+    const versionBeforePreview = externalDocument.version;
+    assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', externalOptimizeUri,
+      { preview: true, testPreviewAction: async () => {
+        await writeFile(externalOptimizeUri.fsPath, externalChangedSource);
+        assert.strictEqual(externalDocument.version, versionBeforePreview,
+          'External disk write unexpectedly changed the open document version before confirmation');
+        return 'apply';
+      } }), false, 'Optimize Imports applied a plan after the disk file changed during preview');
+    assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(externalOptimizeUri)).toString('utf8'), externalChangedSource,
+      'Optimize Imports overwrote the external disk change');
+  } finally {
+    await vscode.workspace.fs.delete(externalOptimizeUri);
+  }
   const serviceDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Service');
+  const generatedDirectory = vscode.Uri.joinPath(serviceDirectory, 'C3NewDirectory');
+  const nestedGeneratedUri = vscode.Uri.joinPath(generatedDirectory, 'C3NestedType.php');
+  await assert.rejects(async () => vscode.workspace.fs.stat(generatedDirectory));
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3NestedType', generatedDirectory,
+    async () => {
+      await assert.rejects(async () => vscode.workspace.fs.stat(generatedDirectory),
+        'Type generation created the parent directory before preview confirmation');
+      return 'apply';
+    }), true, 'Successful nested type generation did not report creation');
+  assert.ok((await vscode.workspace.openTextDocument(nestedGeneratedUri)).getText()
+    .includes('namespace App\\Service\\C3NewDirectory;'), 'Type generation failed beneath a missing parent directory');
+  await vscode.workspace.fs.delete(generatedDirectory, { recursive: true });
   const generatedUri = vscode.Uri.joinPath(serviceDirectory, 'C3GeneratedType.php');
+  const dottedDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Service.With.Dot');
+  const dottedType = vscode.Uri.joinPath(dottedDirectory, 'C3DottedDirectoryType.php');
+  const missingDottedDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Future.With.Dot');
+  const missingDottedType = vscode.Uri.joinPath(missingDottedDirectory, 'C3FutureDottedType.php');
+  await vscode.workspace.fs.createDirectory(dottedDirectory);
+  const dottedComposerUri = vscode.Uri.joinPath(folder.uri, 'composer.json');
+  const dottedComposerBefore = await vscode.workspace.fs.readFile(dottedComposerUri);
+  try {
+    const dottedComposer = JSON.parse(Buffer.from(dottedComposerBefore).toString('utf8')) as {
+      autoload: { 'psr-4': Record<string, string> } };
+    dottedComposer.autoload['psr-4']['App\\Dotted\\'] = 'src/Service.With.Dot/';
+    dottedComposer.autoload['psr-4']['App\\FutureDotted\\'] = 'src/Future.With.Dot/';
+    await vscode.workspace.fs.writeFile(dottedComposerUri, Buffer.from(JSON.stringify(dottedComposer)));
+    await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3DottedDirectoryType', dottedDirectory,
+      async () => 'apply');
+    assert.ok((await vscode.workspace.openTextDocument(dottedType)).getText().includes('namespace App\\Dotted;'),
+      'Generating from a dotted Composer root moved the new type to its parent');
+    await assert.rejects(async () => vscode.workspace.fs.stat(missingDottedDirectory));
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3FutureDottedType', missingDottedDirectory,
+      async () => 'apply');
+    assert.ok((await vscode.workspace.openTextDocument(missingDottedType)).getText().includes('namespace App\\FutureDotted;'),
+      'Generating from a missing dotted Composer root moved the new type to its parent');
+  } finally {
+    await vscode.workspace.fs.writeFile(dottedComposerUri, dottedComposerBefore);
+    await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+    try { await vscode.workspace.fs.delete(dottedType); } catch { /* No file if generation failed. */ }
+    try { await vscode.workspace.fs.delete(missingDottedDirectory, { recursive: true }); } catch { /* No directory if generation failed. */ }
+  }
+  const fileTarget = vscode.Uri.joinPath(serviceDirectory, 'C3TypeTarget.php');
+  const siblingType = vscode.Uri.joinPath(serviceDirectory, 'C3SiblingType.php');
+  await vscode.workspace.fs.writeFile(fileTarget, Buffer.from('<?php\nnamespace App\\Service;\n'));
+  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3SiblingType', fileTarget,
+    async () => 'apply');
+  assert.ok((await vscode.workspace.openTextDocument(siblingType)).getText().includes('namespace App\\Service;'),
+    'Generating from an existing file did not create a sibling type');
+  await vscode.workspace.fs.delete(siblingType);
+  await vscode.workspace.fs.delete(fileTarget);
+  const invalidDirectory = vscode.Uri.joinPath(folder.uri, 'src', 'Invalid.Dir');
+  const invalidType = vscode.Uri.joinPath(invalidDirectory, 'C3InvalidNamespaceType.php');
+  await vscode.workspace.fs.createDirectory(invalidDirectory);
+  let invalidPreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3InvalidNamespaceType', invalidDirectory,
+    async () => { invalidPreviewOpened = true; return 'apply'; }), false);
+  assert.strictEqual(invalidPreviewOpened, false, 'An invalid PSR-4 namespace opened a type preview');
+  await assert.rejects(async () => vscode.workspace.fs.stat(invalidType),
+    'Generating under an invalid PSR-4 namespace created a PHP file');
+  await vscode.workspace.fs.delete(invalidDirectory);
+  const reservedUri = vscode.Uri.joinPath(serviceDirectory, 'class.php');
+  let reservedPreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'class', serviceDirectory,
+    async () => { reservedPreviewOpened = true; return 'apply'; }), false);
+  assert.strictEqual(reservedPreviewOpened, false, 'A reserved type name opened a generation preview');
+  await assert.rejects(async () => vscode.workspace.fs.stat(reservedUri),
+    'A reserved type name generated invalid PHP');
+  const unicodeDirectory = vscode.Uri.joinPath(folder.uri, 'src', '中文');
+  const unicodeType = vscode.Uri.joinPath(unicodeDirectory, '测试类.php');
+  await vscode.workspace.fs.createDirectory(unicodeDirectory);
+  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', '测试类', unicodeDirectory,
+    async () => 'apply');
+  assert.ok((await vscode.workspace.openTextDocument(unicodeType)).getText().includes('namespace App\\中文;'),
+    'A valid Unicode namespace or type name was rejected');
+  await vscode.workspace.fs.delete(unicodeType);
   const checkPreview = (): void => {
     const preview = vscode.window.activeTextEditor?.document;
     assert.ok(preview && preview.uri.scheme === 'sophp-type-preview', 'Generated PHP source was not opened as a read-only preview');
     assert.ok(preview.getText().includes('namespace App\\Service;') && preview.getText().includes('class C3GeneratedType'),
       'Generated PHP preview omitted its PSR-4 namespace or class');
   };
-  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
-    async () => { checkPreview(); return 'cancel'; });
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); return 'cancel'; }), false);
   await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Cancelling generated PHP preview created a file');
+  const failedPreviewUri = vscode.Uri.joinPath(serviceDirectory, 'C3PreviewCloseFailure.php');
+  const openPreviewTab = (): vscode.Tab | undefined => vscode.window.tabGroups.all.flatMap((group) => group.tabs).find((tab) =>
+    tab.input instanceof vscode.TabInputText && tab.input.uri.scheme === 'sophp-type-preview'
+      && tab.input.uri.path === failedPreviewUri.path);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3PreviewCloseFailure', serviceDirectory,
+    async () => { checkPreview(); return 'apply'; }, undefined, async () => false), false,
+  'Type generation reported success when VS Code refused to close its preview');
+  await assert.rejects(async () => vscode.workspace.fs.stat(failedPreviewUri),
+    'Type generation created a file after preview close returned false');
+  const keptPreview = openPreviewTab();
+  assert.ok(keptPreview, 'The refused preview close did not leave a reviewable tab');
+  assert.ok((await vscode.workspace.openTextDocument((keptPreview.input as vscode.TabInputText).uri)).getText()
+    .includes('class C3PreviewCloseFailure'), 'A failed close erased the still-open PHP preview');
+  assert.ok(await vscode.window.tabGroups.close(keptPreview));
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3PreviewCloseFailure', serviceDirectory,
+    async () => { checkPreview(); return 'apply'; }, undefined, async () => { throw new Error('Injected preview close failure'); }), false,
+  'Type generation threw when closing its preview failed');
+  await assert.rejects(async () => vscode.workspace.fs.stat(failedPreviewUri),
+    'Type generation created a file after preview close threw');
+  const thrownPreview = openPreviewTab();
+  if (thrownPreview) assert.ok(await vscode.window.tabGroups.close(thrownPreview));
   const concurrentSource = '<?php\n// Created while SoPHP preview was open.\n';
-  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
-    async () => { checkPreview(); await vscode.workspace.fs.writeFile(generatedUri, Buffer.from(concurrentSource)); return 'apply'; });
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); await vscode.workspace.fs.writeFile(generatedUri, Buffer.from(concurrentSource)); return 'apply'; }), false);
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(generatedUri)).toString('utf8'), concurrentSource,
     'Applying a stale generation preview overwrote a file created concurrently');
   await vscode.workspace.fs.delete(generatedUri);
-  await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
-    async () => { checkPreview(); return 'apply'; });
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
+    async () => { checkPreview(); return 'apply'; }), true);
   const generated = await vscode.workspace.openTextDocument(generatedUri);
   assert.ok(generated.getText().includes('class C3GeneratedType'), 'Applying generated PHP preview did not create the source');
   await vscode.window.showTextDocument(generated);
   await vscode.commands.executeCommand('undo');
   await assert.rejects(async () => vscode.workspace.fs.stat(generatedUri), 'Generated PHP file was not removed by one Undo');
+  if (process.env.PHP_COMPANION_TEST_C3_REDO_PROBE === '1') {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      await vscode.commands.executeCommand('redo');
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const restored = await vscode.workspace.fs.stat(generatedUri).then(() => true, () => false);
+      console.log(`C3 type generation Redo attempt ${attempt}: restored=${restored}`);
+      if (restored) break;
+    }
+  }
+  if (!configuredTestProfile) {
+    const unmappedTests = vscode.Uri.joinPath(folder.uri, 'tests');
+    const unmappedTest = vscode.Uri.joinPath(unmappedTests, 'C3UnmappedTest.php');
+    await vscode.workspace.fs.createDirectory(unmappedTests);
+    let cancelledPreviewOpened = false;
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3UnmappedTest', serviceDirectory,
+      async () => { cancelledPreviewOpened = true; return 'apply'; }, async () => undefined);
+    assert.strictEqual(cancelledPreviewOpened, false, 'Cancelled test-directory selection opened a preview');
+    await assert.rejects(async () => vscode.workspace.fs.stat(unmappedTest),
+      'Cancelled test-directory selection generated a file');
+    const deletedSelection = vscode.Uri.joinPath(unmappedTests, 'C3DeletedSelection.php');
+    let deletedPreviewOpened = false;
+    assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'test', 'C3DeletedSelection', serviceDirectory,
+      async () => { deletedPreviewOpened = true; return 'apply'; }, async () => {
+        await vscode.workspace.fs.delete(unmappedTests);
+        return unmappedTests;
+      }), false, 'A test directory deleted after selection threw instead of rejecting generation');
+    assert.strictEqual(deletedPreviewOpened, false, 'A deleted test directory opened a generation preview');
+    await assert.rejects(async () => vscode.workspace.fs.stat(deletedSelection),
+      'A deleted test directory still generated a PHP file');
+    await vscode.workspace.fs.createDirectory(unmappedTests);
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3UnmappedTest', serviceDirectory,
+      async () => {
+        const preview = vscode.window.activeTextEditor?.document;
+        assert.strictEqual(preview?.uri.path, unmappedTest.path,
+          'A project without autoload-dev did not preview the selected test directory');
+        assert.ok(preview.getText().includes('final class C3UnmappedTest extends \\PHPUnit\\Framework\\TestCase')
+          && !preview.getText().includes('namespace App\\'),
+        'An unmapped PHPUnit test should use the global namespace');
+        return 'apply';
+      }, async () => unmappedTests);
+    assert.ok((await vscode.workspace.openTextDocument(unmappedTest)).getText().includes('class C3UnmappedTest'));
+    await vscode.workspace.fs.delete(unmappedTest);
+    const explicitTest = vscode.Uri.joinPath(unmappedTests, 'C3ExplicitTest.php');
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3ExplicitTest', unmappedTests,
+      async () => {
+        assert.strictEqual(vscode.window.activeTextEditor?.document.uri.path, explicitTest.path,
+          'An explicitly selected test directory was ignored');
+        return 'apply';
+      }, async () => assert.fail('An explicitly selected test directory opened the folder chooser'));
+    assert.ok((await vscode.workspace.openTextDocument(explicitTest)).getText().includes('class C3ExplicitTest'));
+    await vscode.workspace.fs.delete(explicitTest);
+  }
+  const composerUri = vscode.Uri.joinPath(folder.uri, 'composer.json');
+  const composerBefore = await vscode.workspace.fs.readFile(composerUri);
+  const staleComposerUri = vscode.Uri.joinPath(serviceDirectory, 'C3StaleComposerType.php');
+  try {
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3StaleComposerType', serviceDirectory,
+      async () => {
+        const changed = JSON.parse(Buffer.from(composerBefore).toString('utf8')) as Record<string, unknown>;
+        changed.autoload = { 'psr-4': { 'Changed\\': 'src/' } };
+        await vscode.workspace.fs.writeFile(composerUri, Buffer.from(JSON.stringify(changed)));
+        return 'apply';
+      });
+    await assert.rejects(async () => vscode.workspace.fs.stat(staleComposerUri),
+      'Type generation applied a preview based on a changed Composer mapping');
+  } finally {
+    await vscode.workspace.fs.writeFile(composerUri, composerBefore);
+  }
+  const changedBeforeRequest = JSON.parse(Buffer.from(composerBefore).toString('utf8')) as Record<string, unknown>;
+  changedBeforeRequest.autoload = { 'psr-4': { 'Changed\\': 'src/' } };
+  const staleCachedUri = vscode.Uri.joinPath(serviceDirectory, 'C3StaleCachedType.php');
+  try {
+    await vscode.workspace.fs.writeFile(composerUri, Buffer.from(JSON.stringify(changedBeforeRequest)));
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'C3StaleCachedType', serviceDirectory,
+      async () => {
+        assert.ok(vscode.window.activeTextEditor?.document.getText().includes('namespace Changed\\Service;'),
+          'Type generation preview used stale Composer mappings');
+        return 'cancel';
+      });
+    await assert.rejects(async () => vscode.workspace.fs.stat(staleCachedUri),
+      'Type generation created a class from a Composer mapping changed before the command');
+  } finally {
+    await vscode.workspace.fs.writeFile(composerUri, composerBefore);
+  }
+  if (configuredTestProfile) {
+    const generatedTestUri = vscode.Uri.joinPath(folder.uri, 'tests', 'C3GeneratedTest.php');
+    const testFileChurn = process.env.PHP_COMPANION_TEST_C3_PHPUNIT_CHURN === '1';
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3GeneratedTest', serviceDirectory,
+      async () => {
+        const preview = vscode.window.activeTextEditor?.document;
+        assert.strictEqual(preview?.uri.path, generatedTestUri.path,
+          'New PHPUnit Test did not preview the Composer autoload-dev destination');
+        assert.ok(preview.getText().includes('namespace App\\Tests;')
+          && preview.getText().includes('class C3GeneratedTest extends \\PHPUnit\\Framework\\TestCase'),
+        'New PHPUnit Test preview used the wrong namespace or base class');
+        return testFileChurn ? 'apply' : 'cancel';
+      });
+    if (testFileChurn) {
+      assert.ok((await vscode.workspace.openTextDocument(generatedTestUri)).getText().includes('class C3GeneratedTest'));
+      await vscode.workspace.fs.delete(generatedTestUri);
+    } else {
+      await assert.rejects(async () => vscode.workspace.fs.stat(generatedTestUri),
+        'Cancelling New PHPUnit Test created the previewed file');
+    }
+  }
   const classUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3Extractable.php');
   const interfaceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ExtractableInterface.php');
   const classSource = '<?php\nnamespace App\\Service;\nclass C3Extractable { public function handle(string $value): string { return $value; } }\n';
@@ -328,6 +692,9 @@ export async function run(): Promise<void> {
     assert.fail('Inline Variable was not routed through the preview command');
   };
   const staleInline = await inlineAction();
+  assert.strictEqual((staleInline.command?.arguments?.[0] as { sourceDiskHash?: string })?.sourceDiskHash,
+    createHash('sha256').update(await vscode.workspace.fs.readFile(inlineUri)).digest('hex'),
+    'Inline Variable action did not preserve its source disk snapshot');
   const inlineChange = new vscode.WorkspaceEdit();
   inlineChange.insert(inlineUri, new vscode.Position(1, 0), '// edited after selecting inline\n');
   assert.ok(await vscode.workspace.applyEdit(inlineChange));
@@ -355,6 +722,22 @@ export async function run(): Promise<void> {
   assert.strictEqual(inlineDocument.getText(), inlineSource);
   await vscode.commands.executeCommand('redo');
   assert.ok(inlineDocument.getText().includes('return new \\stdClass();'));
+  const inlineDiskBefore = await vscode.workspace.fs.readFile(inlineUri);
+  const staleDiskSource = Buffer.concat([Buffer.from('// changed externally after Code Action was computed\n'), Buffer.from(inlineDiskBefore)]);
+  const staleDiskEdit = new vscode.WorkspaceEdit();
+  staleDiskEdit.insert(inlineUri, new vscode.Position(0, 0), '// should not apply\n');
+  const staleDiskRequest = { edit: staleDiskEdit, title: 'Stale disk refactor', sourceUri: inlineUri,
+    sourceVersion: inlineDocument.version, sourceText: inlineDocument.getText(),
+    sourceDiskHash: createHash('sha256').update(inlineDiskBefore).digest('hex') };
+  await vscode.workspace.fs.writeFile(inlineUri, staleDiskSource);
+  let staleDiskPreviewOpened = false;
+  await vscode.commands.executeCommand('phpCompanion.applyPreviewedExtract', staleDiskRequest,
+    { testPreviewAction: async () => { staleDiskPreviewOpened = true; return 'apply'; } });
+  assert.strictEqual(staleDiskPreviewOpened, false, 'A stale source disk snapshot opened a refactor preview');
+  assert.ok(!inlineDocument.getText().includes('should not apply'), 'A stale source disk snapshot changed the editor');
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(inlineUri)).toString(), staleDiskSource.toString(),
+    'A stale source disk snapshot overwrote the external change');
+  await vscode.workspace.fs.writeFile(inlineUri, inlineDiskBefore);
   const secondUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SecondTarget.php');
   const secondSource = '<?php\nnamespace App\\Service;\nfunction secondTarget(): int { return 1; }\n';
   await vscode.workspace.fs.writeFile(secondUri, Buffer.from(secondSource));
@@ -416,6 +799,15 @@ export async function run(): Promise<void> {
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(diskTargetUri)).toString('utf8'), diskTargetChanged,
     'Extract overwrote a closed target changed on disk during preview');
   assert.ok(!inlineDocument.getText().includes('makeFromDisk'), 'Extract partially applied a stale disk plan');
+  await vscode.workspace.fs.writeFile(diskTargetUri, Buffer.from(diskTargetSource));
+  await vscode.workspace.fs.delete(diskTargetUri);
+  let missingTargetPreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', diskTargetRequest,
+    { testPreviewAction: async () => { missingTargetPreviewOpened = true; return 'apply'; } }), false,
+  'Extract did not reject a target deleted after planning');
+  assert.strictEqual(missingTargetPreviewOpened, false, 'Extract opened a preview for a deleted target');
+  assert.ok(!inlineDocument.getText().includes('makeFromDisk'), 'Extract changed the source after its target was deleted');
+  await vscode.workspace.fs.writeFile(diskTargetUri, Buffer.from(diskTargetSource));
   const signatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3Signature.php');
   const signatureSource = '<?php\nnamespace App\\Service;\nclass C3Signature { private function build(int $unused, string $name): string { return $name; } public function run(): string { return $this->build(1, "ok"); } }\n';
   await vscode.workspace.fs.writeFile(signatureUri, Buffer.from(signatureSource));
@@ -478,8 +870,22 @@ export async function run(): Promise<void> {
     vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
       uri: addParameterUri, position: addPosition, name: 'suffix', type: 'string', value: '"x"', testPreviewAction,
     });
-  assert.strictEqual(await addParameter(async () => 'cancel'), true);
+  assert.strictEqual(await addParameter(async () => 'cancel'), false);
   assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'Cancelling Add Parameter changed the file');
+  const externalAddSource = `// external edit after Add Parameter planning\n${addParameterSource}`;
+  let staleAddPreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
+    uri: addParameterUri, position: addPosition, name: 'suffix', type: 'string', value: '"x"',
+    testBeforePreview: async () => {
+      await vscode.workspace.fs.writeFile(addParameterUri, Buffer.from(externalAddSource));
+    },
+    testPreviewAction: async () => { staleAddPreviewOpened = true; return 'apply'; },
+  }), false);
+  assert.strictEqual(staleAddPreviewOpened, false, 'Add Parameter preview opened after an external source edit');
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(addParameterUri)).toString(), externalAddSource,
+    'Add Parameter overwrote an external source edit');
+  assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'Add Parameter changed the stale editor');
+  await vscode.workspace.fs.writeFile(addParameterUri, Buffer.from(addParameterSource));
   assert.strictEqual(await addParameter(async () => 'apply'), true);
   assert.ok(addParameterDocument.getText().includes('format(string $prefix, string $suffix)'));
   assert.ok(addParameterDocument.getText().includes('* @param string $suffix'));
@@ -489,6 +895,33 @@ export async function run(): Promise<void> {
   assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'One Undo did not restore Add Parameter');
   await vscode.commands.executeCommand('redo');
   assert.ok(addParameterDocument.getText().includes('format(string $prefix, string $suffix)'), 'One Redo did not restore Add Parameter');
+  const inlineDocUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineDocParameter.php');
+  const inlineDocSource = `<?php namespace App\\Service;
+final class C3InlineDocParameter {
+    /** @param string $prefix */
+    private function format(string $prefix /* note, retained */): string { return $prefix; }
+    public function run(): string { return $this->format('a' /* note, retained */); }
+}`;
+  await vscode.workspace.fs.writeFile(inlineDocUri, Buffer.from(inlineDocSource));
+  const inlineDocDocument = await vscode.workspace.openTextDocument(inlineDocUri);
+  await vscode.window.showTextDocument(inlineDocDocument);
+  const inlineDocPosition = inlineDocDocument.positionAt(inlineDocSource.indexOf('format(string') + 1);
+  const addInlineDocParameter = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
+      uri: inlineDocUri, position: inlineDocPosition, name: 'suffix', type: 'string', value: "'x'", testPreviewAction,
+    });
+  assert.strictEqual(await addInlineDocParameter(async () => 'cancel'), false);
+  assert.strictEqual(inlineDocDocument.getText(), inlineDocSource, 'Cancelling inline PHPDoc Add Parameter changed the source');
+  assert.strictEqual(await addInlineDocParameter(async () => 'apply'), true);
+  assert.ok(inlineDocDocument.getText().includes('* @param string $suffix')
+    && inlineDocDocument.getText().includes('string $prefix /* note, retained */, string $suffix')
+    && inlineDocDocument.getText().includes("'a' /* note, retained */, 'x'"),
+  'Add Parameter did not expand one-line PHPDoc with its new parameter');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(inlineDocDocument.getText(), inlineDocSource, 'One Undo did not restore the one-line PHPDoc');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(inlineDocDocument.getText().includes('* @param string $suffix'),
+    'One Redo did not restore the new inline PHPDoc parameter');
   const contractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3SignatureContract.php');
   const firstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureFirst.php');
   const secondSignatureUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureSecond.php');
@@ -557,7 +990,7 @@ export async function run(): Promise<void> {
       .filter((tab) => tab.label.includes('Add parameter $context:'));
     assert.strictEqual(tabs.length, 4, 'Add Parameter did not preview every method-family file');
     return 'cancel';
-  }), true);
+  }), false);
   for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
     familyBeforeAdd.get(uri.toString()), `Cancelling method-family Add Parameter changed ${uri.path}`);
   assert.strictEqual(await addFamilyParameter(async () => 'apply'), true);
@@ -589,7 +1022,7 @@ export async function run(): Promise<void> {
       .filter((tab) => tab.label.includes('Remove method parameter:'));
     assert.strictEqual(tabs.length, 4, 'Remove Parameter did not preview every method-family file');
     return 'cancel';
-  }), true);
+  }), false);
   for (const [uri] of signatureFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
     familyBeforeRemove.get(uri.toString()), `Cancelling method-family Remove Parameter changed ${uri.path}`);
   assert.strictEqual(await removeFamilyParameter(async () => 'apply'), true);
@@ -607,12 +1040,15 @@ export async function run(): Promise<void> {
   const reorderContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3ReorderContract.php');
   const reorderFirstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ReorderFirst.php');
   const reorderCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ReorderCaller.php');
-  const reorderContractSource = '<?php\nnamespace App\\Contract;\ninterface C3ReorderContract {\n    /**\n     * @param string $value\n     * @param string $context\n     * @param int $count\n     */\n    public function send(string $value, string $context, int $count): string;\n}\n';
-  const reorderFirstSource = '<?php\nnamespace App\\Service;\nuse App\\Contract\\C3ReorderContract;\nfinal class C3ReorderFirst implements C3ReorderContract {\n    /**\n     * @param string $payload\n     * @param string $mode\n     * @param int $quantity\n     */\n    public function send(string $payload, string $mode, int $quantity): string { return $payload; }\n}\n';
-  const reorderCallerSource = '<?php\nnamespace App\\Controller;\nuse App\\Contract\\C3ReorderContract;\nuse App\\Service\\C3ReorderFirst;\nfinal class C3ReorderCaller { public function run(C3ReorderContract $contract, C3ReorderFirst $first): void { $contract->send("a", "web", 2); $first->send(payload: "b", mode: "web", quantity: 3); } }\n';
+  const reorderContractSource = '<?php\nnamespace App\\Contract;\ninterface C3ReorderContract {\n    /**\n     * @param string $value\n     * @param string $context\n     * @param int $count\n     * @phpstan-param positive-int $count\n     */\n    public function send(string $value, string $context, int $count): string;\n}\n';
+  const reorderFirstSource = '<?php\nnamespace App\\Service;\nuse App\\Contract\\C3ReorderContract;\nfinal class C3ReorderFirst implements C3ReorderContract {\n    /**\n     * @param string $payload\n     * @param string $mode\n     * @param int $quantity\n     * @psalm-param positive-int $quantity\n     */\n    public function send(string $payload, string $mode, int $quantity): string { return $payload; }\n}\n';
+  const unrelatedReorderUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3UnrelatedReorder.php');
+  const unrelatedReorderSource = '<?php\nnamespace App\\Service;\nfinal class C3UnrelatedReorder { public function send(string $message): void {} }\n';
+  const reorderCallerSource = '<?php\nnamespace App\\Controller;\nuse App\\Contract\\C3ReorderContract;\nuse App\\Service\\C3ReorderFirst;\nfinal class C3ReorderCaller { public function run(C3ReorderContract $contract, C3ReorderFirst $first, string $value, string $context, int $count, \\App\\Service\\C3UnrelatedReorder $unrelated): void { $localValue = $value; $localContext = $context; $localCount = $count; $contract->send("a", "web", 2); $contract->send($value, $context, $count); $contract->send($localValue, $localContext, $localCount); $callback = $unrelated->send(...); $first->send(payload: "b", mode: "web", quantity: 3); $first->send("c", mode: "api", quantity: 4); } }\n';
   const reorderFiles: Array<[vscode.Uri, string]> = [[reorderContractUri, reorderContractSource],
     [reorderFirstUri, reorderFirstSource], [reorderCallerUri, reorderCallerSource]];
-  await Promise.all(reorderFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  await Promise.all([...reorderFiles, [unrelatedReorderUri, unrelatedReorderSource] as [vscode.Uri, string]]
+    .map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
   const reorderContractDocument = await vscode.workspace.openTextDocument(reorderContractUri);
   await vscode.window.showTextDocument(reorderContractDocument);
   const reorderPosition = reorderContractDocument.positionAt(reorderContractSource.indexOf('$count',
@@ -640,18 +1076,110 @@ export async function run(): Promise<void> {
       .filter((tab) => tab.label.includes('Reorder method parameters:'));
     assert.strictEqual(tabs.length, 3, 'Reorder Parameter did not preview every method-family file');
     return 'cancel';
-  }), true);
+  }), false);
   for (const [uri, source] of reorderFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
     source, `Cancelling method-family Reorder Parameter changed ${uri.path}`);
   assert.strictEqual(await reorderParameter(async () => 'apply'), true);
   assert.ok((await vscode.workspace.openTextDocument(reorderContractUri)).getText().includes('send(int $count, string $value, string $context)'));
   assert.ok((await vscode.workspace.openTextDocument(reorderFirstUri)).getText().includes('send(int $quantity, string $payload, string $mode)'));
+  const reorderedContractText = (await vscode.workspace.openTextDocument(reorderContractUri)).getText();
+  const reorderedFirstText = (await vscode.workspace.openTextDocument(reorderFirstUri)).getText();
+  assert.ok(reorderedContractText.indexOf('@phpstan-param positive-int $count') < reorderedContractText.indexOf('@param string $value'),
+    'Reorder Parameter left the PHPStan annotation behind its original position');
+  assert.ok(reorderedFirstText.indexOf('@psalm-param positive-int $quantity') < reorderedFirstText.indexOf('@param string $payload'),
+    'Reorder Parameter left the Psalm annotation behind its original position');
   assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(2, "a", "web")'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send($count, $value, $context)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send($localCount, $localValue, $localContext)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(payload: "c", mode: "api", quantity: 4)'));
+  assert.strictEqual((await vscode.workspace.openTextDocument(unrelatedReorderUri)).getText(), unrelatedReorderSource);
   await vscode.commands.executeCommand('undo');
   for (const [uri, source] of reorderFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
     source, `One Undo did not restore method-family Reorder Parameter in ${uri.path}`);
   await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(reorderContractUri)).getText().includes('send(int $count, string $value, string $context)'),
+    'One Redo did not restore method-family Reorder Parameter in the contract');
+  assert.ok((await vscode.workspace.openTextDocument(reorderFirstUri)).getText().includes('send(int $quantity, string $payload, string $mode)'),
+    'One Redo did not restore method-family Reorder Parameter in the implementation');
+  assert.ok((await vscode.workspace.openTextDocument(reorderContractUri)).getText().indexOf('@phpstan-param positive-int $count')
+    < (await vscode.workspace.openTextDocument(reorderContractUri)).getText().indexOf('@param string $value'),
+  'One Redo did not restore reordered PHPStan annotations');
   assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(2, "a", "web")'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send($count, $value, $context)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send($localCount, $localValue, $localContext)'));
+  assert.ok((await vscode.workspace.openTextDocument(reorderCallerUri)).getText().includes('send(payload: "c", mode: "api", quantity: 4)'));
+  assert.strictEqual((await vscode.workspace.openTextDocument(unrelatedReorderUri)).getText(), unrelatedReorderSource);
+  const arrayReorderUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ArrayReorder.php');
+  const arrayReorderSource = "<?php\nnamespace App\\Service;\nfinal class C3ArrayReorder {\n    public function dispatch(array $payload, array $options, array $flags): void {}\n    public function run(): void { $this->dispatch(['a'], ['mode' => ['fast', 1]], [true, null]); $this->dispatch(array('b'), array('mode' => array('safe', 2)), array(false, null)); }\n}\n";
+  await vscode.workspace.fs.writeFile(arrayReorderUri, Buffer.from(arrayReorderSource));
+  const arrayReorderDocument = await vscode.workspace.openTextDocument(arrayReorderUri);
+  await vscode.window.showTextDocument(arrayReorderDocument);
+  const arrayReorderPosition = arrayReorderDocument.positionAt(arrayReorderSource.indexOf('$flags',
+    arrayReorderSource.indexOf('function dispatch')) + 2);
+  const arrayReorder = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.reorderMethodParameters', {
+      uri: arrayReorderUri, position: arrayReorderPosition, targetIndex: 0, testPreviewAction,
+    });
+  assert.strictEqual(await arrayReorder(async () => 'cancel'), false);
+  assert.strictEqual(arrayReorderDocument.getText(), arrayReorderSource,
+    'Cancelling literal-array Reorder Parameter changed the PHP file');
+  assert.strictEqual(await arrayReorder(async () => 'apply'), true);
+  assert.ok(arrayReorderDocument.getText().includes("dispatch([true, null], ['a'], ['mode' => ['fast', 1]])"),
+    'Literal-array arguments were not reordered in the editor');
+  assert.ok(arrayReorderDocument.getText().includes("dispatch(array(false, null), array('b'), array('mode' => array('safe', 2)))"),
+    'Legacy array arguments were not reordered in the editor');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(arrayReorderDocument.getText(), arrayReorderSource,
+    'One Undo did not restore literal-array Reorder Parameter');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(arrayReorderDocument.getText().includes("dispatch([true, null], ['a'], ['mode' => ['fast', 1]])"),
+    'One Redo did not restore literal-array Reorder Parameter');
+  assert.ok(arrayReorderDocument.getText().includes("dispatch(array(false, null), array('b'), array('mode' => array('safe', 2)))"),
+    'One Redo did not restore legacy-array Reorder Parameter');
+  const optionalContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3OptionalContract.php');
+  const optionalFirstUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3OptionalFirst.php');
+  const optionalCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3OptionalCaller.php');
+  const optionalContractSource = "<?php\nnamespace App\\Contract;\ninterface C3OptionalContract {\n    /**\n     * @param string $head\n     * @param string $mode\n     * @param int $count\n     */\n    public function combine(string $head, string $mode = 'web', int $count = 2): string;\n}\n";
+  const optionalFirstSource = "<?php\nnamespace App\\Service;\nuse App\\Contract\\C3OptionalContract;\nfinal class C3OptionalFirst implements C3OptionalContract {\n    public function combine(string $head, string $mode = 'web', int $count = 2): string { return $head; }\n}\n";
+  const optionalCallerSource = "<?php\nnamespace App\\Controller;\nuse App\\Contract\\C3OptionalContract;\nuse App\\Service\\C3OptionalFirst;\nfinal class C3OptionalCaller {\n    public function run(C3OptionalContract $contract, C3OptionalFirst $first): void {\n        $contract->combine('a');\n        $contract->combine('b', 'api', 3);\n        $contract->combine(head: 'c', count: 4);\n        $first->combine('d', mode: 'admin');\n    }\n}\n";
+  const optionalFiles: Array<[vscode.Uri, string]> = [[optionalContractUri, optionalContractSource],
+    [optionalFirstUri, optionalFirstSource], [optionalCallerUri, optionalCallerSource]];
+  await Promise.all(optionalFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  const optionalDocument = await vscode.workspace.openTextDocument(optionalContractUri);
+  await vscode.window.showTextDocument(optionalDocument);
+  const optionalPosition = optionalDocument.positionAt(optionalContractSource.indexOf('$count',
+    optionalContractSource.indexOf('function combine')) + 2);
+  const requestOptionalPlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
+    api.requestLanguageServer('phpCompanion/reorderMethodParameters', {
+      textDocument: { uri: optionalContractUri.toString() }, position: optionalPosition, targetIndex: 1,
+    });
+  let optionalPlan = await requestOptionalPlan();
+  for (let attempt = 0; attempt < 100 && Object.keys(optionalPlan?.changes ?? {}).length !== 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    optionalPlan = await requestOptionalPlan();
+  }
+  assert.strictEqual(Object.keys(optionalPlan?.changes ?? {}).length, 3,
+    'Language Server omitted the optional method-family Reorder Parameter plan');
+  const reorderOptional = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.reorderMethodParameters', {
+      uri: optionalContractUri, position: optionalPosition, targetIndex: 1, testPreviewAction,
+    });
+  assert.strictEqual(await reorderOptional(async () => 'cancel'), false);
+  for (const [uri, source] of optionalFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    source, 'Cancelling optional Reorder Parameter changed a file');
+  assert.strictEqual(await reorderOptional(async () => 'apply'), true);
+  assert.ok((await vscode.workspace.openTextDocument(optionalContractUri)).getText().includes(
+    "combine(string $head, int $count = 2, string $mode = 'web')"));
+  assert.ok((await vscode.workspace.openTextDocument(optionalCallerUri)).getText().includes("combine('b', 3, 'api')"));
+  assert.ok((await vscode.workspace.openTextDocument(optionalCallerUri)).getText().includes(
+    "combine(head: 'd', mode: 'admin')"));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri, source] of optionalFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(),
+    source, 'One Undo did not restore optional Reorder Parameter');
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(optionalFirstUri)).getText().includes(
+    "combine(string $head, int $count = 2, string $mode = 'web')"));
+  assert.ok((await vscode.workspace.openTextDocument(optionalCallerUri)).getText().includes("combine('b', 3, 'api')"));
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));
@@ -778,6 +1306,21 @@ export async function run(): Promise<void> {
   assert.ok(await safeConsumerReady(), 'New PSR-4 consumer was not indexed before Safe Rename');
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
     uri: safeTypeUri, position: safeTypePosition, newName: 'C3RenamedType', testPreviewAction: async () => {
+      const move = new vscode.WorkspaceEdit();
+      move.renameFile(safeTypeUri, renamedTypeUri, { overwrite: false });
+      assert.ok(await vscode.workspace.applyEdit(move), 'Could not simulate an Explorer rename during Rename preview');
+      assert.ok((await vscode.workspace.openTextDocument(renamedTypeUri)).getText().includes('class C3SafeType'),
+        'Unconfirmed Rename plan changed a file moved independently during preview');
+      const restore = new vscode.WorkspaceEdit();
+      restore.renameFile(renamedTypeUri, safeTypeUri, { overwrite: false });
+      assert.ok(await vscode.workspace.applyEdit(restore), 'Could not restore the type after preview race');
+      return 'cancel';
+    },
+  }), false, 'Rename applied after the preview was cancelled');
+  assert.ok((await vscode.workspace.openTextDocument(safeTypeUri)).getText().includes('class C3SafeType'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(renamedTypeUri));
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: safeTypeUri, position: safeTypePosition, newName: 'C3RenamedType', testPreviewAction: async () => {
       assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) => tab.label.includes('C3SafeType.php')),
         'SoPHP type Rename did not show the declaration or file move preview');
       return 'apply';
@@ -791,6 +1334,71 @@ export async function run(): Promise<void> {
   await assert.rejects(async () => vscode.workspace.fs.stat(renamedTypeUri));
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(renamedTypeUri)).getText().includes('class C3RenamedType'));
+  const renamePlanTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenamePlanType.php');
+  const renamePlanNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenamePlanChanged.php');
+  const renamePlanConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3RenamePlanConsumer.php');
+  const renamePlanTypeSource = '<?php\nnamespace App\\Service;\nfinal class C3RenamePlanType {}\n';
+  const renamePlanConsumerSource = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3RenamePlanType;\nfinal class C3RenamePlanConsumer { public function run(C3RenamePlanType $item): void {} }\n';
+  const renamePlanConsumerChanged = `${renamePlanConsumerSource}// Changed after Rename planning.\n`;
+  await vscode.workspace.fs.writeFile(renamePlanTypeUri, Buffer.from(renamePlanTypeSource));
+  await vscode.workspace.fs.writeFile(renamePlanConsumerUri, Buffer.from(renamePlanConsumerSource));
+  const renamePlanDocument = await vscode.workspace.openTextDocument(renamePlanTypeUri);
+  await vscode.window.showTextDocument(renamePlanDocument);
+  const renamePlanPosition = renamePlanDocument.positionAt(renamePlanTypeSource.indexOf('class C3RenamePlanType') + 'class '.length + 2);
+  let renamePlanReady = false;
+  for (let attempt = 0; attempt < 100 && !renamePlanReady; attempt += 1) {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', renamePlanTypeUri, renamePlanPosition);
+    renamePlanReady = references?.some((reference) => reference.uri.toString() === renamePlanConsumerUri.toString()) ?? false;
+    if (!renamePlanReady) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(renamePlanReady, 'Rename planning race consumer was not indexed');
+  assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === renamePlanConsumerUri.toString()),
+    'Rename planning race consumer was already open');
+  let renamePlanPreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: renamePlanTypeUri, position: renamePlanPosition, newName: 'C3RenamePlanChanged',
+    testAfterPlan: async () => { await writeFile(renamePlanConsumerUri.fsPath, renamePlanConsumerChanged); },
+    testPreviewAction: async () => { renamePlanPreviewOpened = true; return 'apply'; },
+  }), false, 'Rename applied a plan after a closed consumer changed before preview');
+  assert.strictEqual(renamePlanPreviewOpened, false, 'Rename previewed stale edits after a closed consumer changed');
+  assert.strictEqual(await readFile(renamePlanConsumerUri.fsPath, 'utf8'), renamePlanConsumerChanged);
+  assert.strictEqual(await readFile(renamePlanTypeUri.fsPath, 'utf8'), renamePlanTypeSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(renamePlanNewUri));
+  console.log('C3 Rename rejected an external closed-consumer change before preview');
+  const dirtyRaceTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DirtyRaceType.php');
+  const dirtyRaceNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DirtyRaceRenamed.php');
+  const dirtyRaceConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3DirtyRaceConsumer.php');
+  const dirtyRaceTypeSource = '<?php\nnamespace App\\Service;\nfinal class C3DirtyRaceType {}\n';
+  const dirtyRaceConsumerSource = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3DirtyRaceType;\nfinal class C3DirtyRaceConsumer { public function run(C3DirtyRaceType $item): void {} }\n';
+  await vscode.workspace.fs.writeFile(dirtyRaceTypeUri, Buffer.from(dirtyRaceTypeSource));
+  await vscode.workspace.fs.writeFile(dirtyRaceConsumerUri, Buffer.from(dirtyRaceConsumerSource));
+  const dirtyRaceConsumerDocument = await vscode.workspace.openTextDocument(dirtyRaceConsumerUri);
+  await vscode.window.showTextDocument(dirtyRaceConsumerDocument);
+  const dirtyEdit = new vscode.WorkspaceEdit();
+  dirtyEdit.insert(dirtyRaceConsumerUri, dirtyRaceConsumerDocument.positionAt(dirtyRaceConsumerDocument.getText().length),
+    '// Unsaved editor note.\n');
+  assert.ok(await vscode.workspace.applyEdit(dirtyEdit));
+  assert.strictEqual(dirtyRaceConsumerDocument.isDirty, true, 'Rename race consumer was not dirty before planning');
+  const dirtyRaceExternalSource = `${dirtyRaceConsumerSource}// External disk note.\n`;
+  const dirtyRaceTypeDocument = await vscode.workspace.openTextDocument(dirtyRaceTypeUri);
+  await vscode.window.showTextDocument(dirtyRaceTypeDocument);
+  const dirtyRacePosition = dirtyRaceTypeDocument.positionAt(dirtyRaceTypeSource.indexOf('class C3DirtyRaceType') + 'class '.length + 2);
+  let dirtyRacePreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: dirtyRaceTypeUri, position: dirtyRacePosition, newName: 'C3DirtyRaceRenamed',
+    testAfterPlan: async () => {
+      await writeFile(dirtyRaceConsumerUri.fsPath, dirtyRaceExternalSource);
+      assert.ok(dirtyRaceConsumerDocument.isDirty, 'External write cleared the unsaved consumer buffer');
+    },
+    testPreviewAction: async () => { dirtyRacePreviewOpened = true; return 'cancel'; },
+  }), false, 'Rename applied after a dirty consumer changed on disk');
+  assert.strictEqual(dirtyRacePreviewOpened, false, 'Rename previewed stale edits after a dirty consumer changed on disk');
+  assert.strictEqual(await readFile(dirtyRaceConsumerUri.fsPath, 'utf8'), dirtyRaceExternalSource);
+  assert.ok(dirtyRaceConsumerDocument.getText().includes('// Unsaved editor note.'));
+  assert.strictEqual(await readFile(dirtyRaceTypeUri.fsPath, 'utf8'), dirtyRaceTypeSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(dirtyRaceNewUri));
+  console.log('C3 Rename rejected an external disk change behind an unsaved consumer before preview');
   const diskRaceTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DiskRaceType.php');
   const diskRaceNewUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DiskRaceRenamed.php');
   const diskRaceConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3DiskRaceConsumer.php');
@@ -894,9 +1502,9 @@ export async function run(): Promise<void> {
   const moveSource = '<?php\nnamespace App\\Service;\nfinal class C3MovePreview {}\n';
   await vscode.workspace.fs.writeFile(moveSourceUri, Buffer.from(moveSource));
   await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(moveSourceUri));
-  const movePreview = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<void> =>
-    vscode.commands.executeCommand('phpCompanion.safeMove', moveSourceUri, moveTargetUri, { preview: true, testPreviewAction });
-  await movePreview(async () => {
+  const movePreview = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', moveSourceUri, moveTargetUri, { preview: true, testPreviewAction });
+  assert.strictEqual(await movePreview(async () => {
     const diffs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
       tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php'));
     assert.ok(diffs.some((tab) => tab.label.includes('Controller/C3MovePreview.php')),
@@ -911,32 +1519,196 @@ export async function run(): Promise<void> {
       assert.strictEqual(preview.isDirty, false);
     }
     return 'cancel';
-  });
+  }), false, 'Cancelling Safe Move reported success');
   assert.ok(!vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) =>
     tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php')),
   'Cancelling Safe Move left a preview diff open');
   assert.strictEqual((await vscode.workspace.openTextDocument(moveSourceUri)).getText(), moveSource);
   await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri));
-  await movePreview(async () => {
+  assert.strictEqual(await movePreview(async () => {
     const previews = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
       tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MovePreview.php'));
     assert.ok(previews.length >= 1, 'Safe Move did not open its preview');
     assert.ok(await vscode.window.tabGroups.close(previews[0]!), 'Could not close a Safe Move preview');
     return 'apply';
-  });
+  }), false, 'Closing a Safe Move preview reported success');
   assert.strictEqual((await vscode.workspace.openTextDocument(moveSourceUri)).getText(), moveSource,
     'Safe Move applied after its preview was closed');
   await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri));
-  await movePreview(async () => 'apply');
-  assert.ok((await vscode.workspace.openTextDocument(moveTargetUri)).getText().includes('namespace App\\Controller;'));
-  await assert.rejects(async () => vscode.workspace.fs.stat(moveSourceUri));
+  const externallyChangedMoveSource = `${moveSource}// Changed on disk while Safe Move preview was open.\n`;
+  const moveDocument = await vscode.workspace.openTextDocument(moveSourceUri);
+  const moveVersion = moveDocument.version;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', moveSourceUri, moveTargetUri, {
+    preview: true,
+    testPreviewAction: async () => 'apply',
+    testBeforeApply: async () => {
+      await writeFile(moveSourceUri.fsPath, externallyChangedMoveSource);
+      assert.strictEqual(moveDocument.version, moveVersion,
+        'External Safe Move disk write unexpectedly changed the open document version before apply');
+    },
+  }), false, 'Safe Move reported success after an external disk change');
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(moveSourceUri)).toString('utf8'), externallyChangedMoveSource,
+    'Safe Move overwrote an external source edit');
+  await assert.rejects(async () => vscode.workspace.fs.stat(moveTargetUri),
+    'Safe Move moved the source after its disk contents changed');
+  const planRaceSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MovePlanRace.php');
+  const planRaceTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MovePlanRace.php');
+  const planRaceSource = moveSource.replaceAll('C3MovePreview', 'C3MovePlanRace');
+  const planRaceChanged = `${planRaceSource}// Changed after the move plan but before preview snapshots.\n`;
+  await vscode.workspace.fs.writeFile(planRaceSourceUri, Buffer.from(planRaceSource));
+  const planRaceDocument = await vscode.workspace.openTextDocument(planRaceSourceUri);
+  await vscode.window.showTextDocument(planRaceDocument);
+  const planRaceVersion = planRaceDocument.version;
+  let planRacePreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', planRaceSourceUri, planRaceTargetUri, {
+    preview: true,
+    testAfterPlan: async () => {
+      await writeFile(planRaceSourceUri.fsPath, planRaceChanged);
+      assert.strictEqual(planRaceDocument.version, planRaceVersion,
+        'External Safe Move disk write unexpectedly changed the open document version after planning');
+    },
+    testPreviewAction: async () => { planRacePreviewOpened = true; return 'apply'; },
+  }), false, 'Safe Move applied a plan after its source changed before preview snapshots');
+  assert.strictEqual(planRacePreviewOpened, false, 'Safe Move opened a preview for a stale source plan');
+  assert.strictEqual(await readFile(planRaceSourceUri.fsPath, 'utf8'), planRaceChanged,
+    'Safe Move overwrote a source changed after planning');
+  await assert.rejects(async () => vscode.workspace.fs.stat(planRaceTargetUri));
+  console.log('C3 Safe Move rejected an external source change between planning and preview snapshots');
+  const relatedRaceSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveRelatedRace.php');
+  const relatedRaceTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveRelatedRace.php');
+  const relatedRaceConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveRelatedConsumer.php');
+  const relatedRaceSource = moveSource.replaceAll('C3MovePreview', 'C3MoveRelatedRace');
+  const relatedRaceConsumer = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3MoveRelatedRace;\nfinal class C3MoveRelatedConsumer { public function run(C3MoveRelatedRace $value): void {} }\n';
+  const relatedRaceChanged = `${relatedRaceConsumer}// Changed after the move plan but before preview snapshots.\n`;
+  await vscode.workspace.fs.writeFile(relatedRaceSourceUri, Buffer.from(relatedRaceSource));
+  await vscode.workspace.fs.writeFile(relatedRaceConsumerUri, Buffer.from(relatedRaceConsumer));
+  const relatedRaceDocument = await vscode.workspace.openTextDocument(relatedRaceSourceUri);
+  await vscode.window.showTextDocument(relatedRaceDocument);
+  const relatedRacePosition = relatedRaceDocument.positionAt(relatedRaceSource.indexOf('class C3MoveRelatedRace') + 'class '.length + 2);
+  let relatedRaceReady = false;
+  for (let attempt = 0; attempt < 100 && !relatedRaceReady; attempt += 1) {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', relatedRaceSourceUri, relatedRacePosition);
+    relatedRaceReady = references?.some((reference) => reference.uri.toString() === relatedRaceConsumerUri.toString()) ?? false;
+    if (!relatedRaceReady) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(relatedRaceReady, 'Safe Move related file was not indexed before the planning race');
+  assert.ok(!vscode.workspace.textDocuments.some((item) => item.uri.toString() === relatedRaceConsumerUri.toString()),
+    'Safe Move related file was already open before the planning race');
+  let relatedRacePreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', relatedRaceSourceUri, relatedRaceTargetUri, {
+    preview: true,
+    testAfterPlan: async () => { await writeFile(relatedRaceConsumerUri.fsPath, relatedRaceChanged); },
+    testPreviewAction: async () => { relatedRacePreviewOpened = true; return 'apply'; },
+  }), false, 'Safe Move applied a plan after a related file changed before preview snapshots');
+  assert.strictEqual(relatedRacePreviewOpened, false, 'Safe Move previewed stale edits for a related file');
+  assert.strictEqual(await readFile(relatedRaceConsumerUri.fsPath, 'utf8'), relatedRaceChanged);
+  assert.strictEqual(await readFile(relatedRaceSourceUri.fsPath, 'utf8'), relatedRaceSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(relatedRaceTargetUri));
+  console.log('C3 Safe Move rejected an external related-file change between planning and preview snapshots');
+  const dirtyMoveSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveDirtyRace.php');
+  const dirtyMoveTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveDirtyRace.php');
+  const dirtyMoveConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveDirtyConsumer.php');
+  const dirtyMoveSource = moveSource.replaceAll('C3MovePreview', 'C3MoveDirtyRace');
+  const dirtyMoveConsumerSource = '<?php\nnamespace App\\Controller;\nuse App\\Service\\C3MoveDirtyRace;\nfinal class C3MoveDirtyConsumer { public function run(C3MoveDirtyRace $value): void {} }\n';
+  const dirtyMoveExternalSource = `${dirtyMoveConsumerSource}// External disk note.\n`;
+  await vscode.workspace.fs.writeFile(dirtyMoveSourceUri, Buffer.from(dirtyMoveSource));
+  await vscode.workspace.fs.writeFile(dirtyMoveConsumerUri, Buffer.from(dirtyMoveConsumerSource));
+  const dirtyMoveConsumerDocument = await vscode.workspace.openTextDocument(dirtyMoveConsumerUri);
+  await vscode.window.showTextDocument(dirtyMoveConsumerDocument);
+  const dirtyMoveEdit = new vscode.WorkspaceEdit();
+  dirtyMoveEdit.insert(dirtyMoveConsumerUri, dirtyMoveConsumerDocument.positionAt(dirtyMoveConsumerDocument.getText().length),
+    '// Unsaved editor note.\n');
+  assert.ok(await vscode.workspace.applyEdit(dirtyMoveEdit));
+  assert.ok(dirtyMoveConsumerDocument.isDirty, 'Safe Move related file was not dirty before planning');
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(dirtyMoveSourceUri));
+  let dirtyMovePreviewOpened = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', dirtyMoveSourceUri, dirtyMoveTargetUri, {
+    preview: true,
+    testAfterPlan: async () => { await writeFile(dirtyMoveConsumerUri.fsPath, dirtyMoveExternalSource); },
+    testPreviewAction: async () => { dirtyMovePreviewOpened = true; return 'apply'; },
+  }), false, 'Safe Move applied after a dirty related file changed on disk');
+  assert.strictEqual(dirtyMovePreviewOpened, false, 'Safe Move previewed stale edits for a dirty related file');
+  assert.strictEqual(await readFile(dirtyMoveConsumerUri.fsPath, 'utf8'), dirtyMoveExternalSource);
+  assert.ok(dirtyMoveConsumerDocument.getText().includes('// Unsaved editor note.'));
+  assert.strictEqual(await readFile(dirtyMoveSourceUri.fsPath, 'utf8'), dirtyMoveSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(dirtyMoveTargetUri));
+  console.log('C3 Safe Move rejected an external disk change behind an unsaved related file before preview');
+  // Use a fresh file for the success path: the preceding external disk write can
+  // still deliver a watcher update while a second move is being planned.
+  const appliedMoveSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveApplied.php');
+  const appliedMoveTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveApplied.php');
+  await vscode.workspace.fs.writeFile(appliedMoveSourceUri, Buffer.from(moveSource.replaceAll('C3MovePreview', 'C3MoveApplied')));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(appliedMoveSourceUri));
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', appliedMoveSourceUri,
+    appliedMoveTargetUri, { preview: true, testPreviewAction: async () => 'apply' }), true,
+  'Applied Safe Move did not report success');
+  assert.ok((await vscode.workspace.openTextDocument(appliedMoveTargetUri)).getText().includes('namespace App\\Controller;'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(appliedMoveSourceUri));
   await vscode.commands.executeCommand('undo');
-  assert.ok((await vscode.workspace.openTextDocument(moveSourceUri)).getText().includes('namespace App\\Service;'));
+  assert.ok((await vscode.workspace.openTextDocument(appliedMoveSourceUri)).getText().includes('namespace App\\Service;'));
   await vscode.commands.executeCommand('redo');
-  assert.ok((await vscode.workspace.openTextDocument(moveTargetUri)).getText().includes('namespace App\\Controller;'));
+  assert.ok((await vscode.workspace.openTextDocument(appliedMoveTargetUri)).getText().includes('namespace App\\Controller;'));
+  const cleanupSourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveCleanup.php');
+  const cleanupTargetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MoveCleanup.php');
+  await vscode.workspace.fs.writeFile(cleanupSourceUri, Buffer.from(moveSource.replaceAll('C3MovePreview', 'C3MoveCleanup')));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(cleanupSourceUri));
+  let previewCloseAttempted = false;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', cleanupSourceUri, cleanupTargetUri, {
+    preview: true,
+    testPreviewAction: async () => 'apply',
+    testClosePreviewTabs: async (tabs: vscode.Tab[]) => {
+      previewCloseAttempted = true;
+      assert.ok(tabs.length > 0, 'Safe Move did not open a preview before cleanup');
+      throw new Error('C3 simulated preview tab close failure');
+    },
+  }), true, 'Safe Move reported failure after the file had moved and preview cleanup failed');
+  assert.ok(previewCloseAttempted, 'Safe Move preview cleanup was not reached');
+  await assert.rejects(async () => vscode.workspace.fs.stat(cleanupSourceUri));
+  assert.ok((await vscode.workspace.openTextDocument(cleanupTargetUri)).getText().includes('namespace App\\Controller;'));
+  const cleanupTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs).filter((tab) =>
+    tab.input instanceof vscode.TabInputTextDiff && tab.label.includes('C3MoveCleanup.php'));
+  if (cleanupTabs.length) await vscode.window.tabGroups.close(cleanupTabs);
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(cleanupTargetUri));
+  await vscode.commands.executeCommand('undo');
+  assert.ok((await vscode.workspace.openTextDocument(cleanupSourceUri)).getText().includes('namespace App\\Service;'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(cleanupTargetUri)).getText().includes('namespace App\\Controller;'));
+  console.log('C3 Safe Move preserved applied result and Undo/Redo after preview cleanup failure');
   const symfonyExtension = vscode.extensions.getExtension('sohophp.php-companion-symfony');
   assert.ok(symfonyExtension, 'C3 Symfony Rename test requires the independent extension');
   await symfonyExtension.activate();
+  const routeControllerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3PhpRouteController.php');
+  const routeControllerSource = '<?php namespace App\\Controller; final class C3PhpRouteController { public function view(): void {} }';
+  const phpRoutesUri = vscode.Uri.joinPath(folder.uri, 'config', 'routes.php');
+  const phpRoutesSource = `<?php use App\\Controller\\C3PhpRouteController as Target;
+use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
+return static function (RoutingConfigurator $routes): void {
+    $routes->add('c3.route', '/c3')->controller([Target::class, 'view']);
+};`;
+  await vscode.workspace.fs.writeFile(routeControllerUri, Buffer.from(routeControllerSource));
+  await vscode.workspace.fs.writeFile(phpRoutesUri, Buffer.from(phpRoutesSource));
+  const routeControllerDocument = await vscode.workspace.openTextDocument(routeControllerUri);
+  const phpRoutesDocument = await vscode.workspace.openTextDocument(phpRoutesUri);
+  await vscode.window.showTextDocument(phpRoutesDocument);
+  const routeDefinition = async (needle: string): Promise<vscode.Location[]> => vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', phpRoutesUri, phpRoutesDocument.positionAt(phpRoutesDocument.getText().indexOf(needle) + 2))
+    .then((items) => items ?? []);
+  let routeClassDefinitions: vscode.Location[] = []; let routeMethodDefinitions: vscode.Location[] = [];
+  const hasRouteMethod = (): boolean => routeMethodDefinitions.some((item) => item.uri.toString() === routeControllerUri.toString()
+    && routeControllerSource.slice(routeControllerDocument.offsetAt(item.range.start), routeControllerDocument.offsetAt(item.range.end)) === 'view');
+  const routeDeadline = Date.now() + 20_000;
+  while (Date.now() < routeDeadline) {
+    routeClassDefinitions = await routeDefinition('Target::class');
+    routeMethodDefinitions = await routeDefinition("'view'");
+    if (routeClassDefinitions.some((item) => item.uri.toString() === routeControllerUri.toString()) && hasRouteMethod()) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.ok(routeClassDefinitions.some((item) => item.uri.toString() === routeControllerUri.toString()),
+    'Independent SoPHP Symfony Definition missed a PHP route controller alias');
+  assert.ok(hasRouteMethod(),
+    'Independent SoPHP Symfony Definition missed a PHP route controller method string');
+  console.log('C3 PHP routes.php controller alias and method Definition reached the independent Symfony provider');
   const servicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.yaml');
   const xmlServicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.xml');
   const servicesDocument = await vscode.workspace.openTextDocument(servicesUri);
@@ -947,8 +1719,12 @@ export async function run(): Promise<void> {
   const servicePosition = servicesDocument.positionAt(servicesDocument.getText().indexOf('app.mailer:') + 3);
   let readyServiceRename: vscode.WorkspaceEdit | undefined;
   for (let attempt = 0; attempt < 100 && !readyServiceRename; attempt += 1) {
-    readyServiceRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
-      'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed');
+    try {
+      readyServiceRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+        'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed');
+    } catch (error) {
+      if (!/Canceled/.test(error instanceof Error ? error.message : String(error))) throw error;
+    }
     if (!readyServiceRename) await new Promise((resolve) => setTimeout(resolve, 50));
   }
   assert.ok(readyServiceRename?.entries().some(([uri]) => uri.toString() === xmlServicesUri.toString()),
@@ -1017,7 +1793,7 @@ export async function run(): Promise<void> {
   }
   assert.strictEqual(invalidAttributes().length, 4,
     `C3 diagnostic undo probe lost invalid attributes; diagnostics=${JSON.stringify(vscode.languages.getDiagnostics(dynamicUri).map((item) => item.code))}`);
-  if (process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1') {
+  if (phpunitProfile) {
     const phpunit = vscode.extensions.getExtension('recca0120.vscode-phpunit');
     assert.ok(phpunit, 'Open Source Pack did not load PHPUnit');
     await phpunit.activate();
@@ -1057,6 +1833,418 @@ export async function run(): Promise<void> {
     assert.deepStrictEqual(profileRenameErrors, [],
       'Open Source Pack emitted an unhandled stale-file read during C3 Rename');
   }
+  const xmlDocument = await vscode.workspace.openTextDocument(xmlServicesUri);
+  const dirtyXml = changedXml.replace('</container>', '  <!-- unsaved buffer before Rename -->\n</container>');
+  const dirtyXmlEdit = new vscode.WorkspaceEdit();
+  dirtyXmlEdit.replace(xmlServicesUri, new vscode.Range(xmlDocument.positionAt(0),
+    xmlDocument.positionAt(xmlDocument.getText().length)), dirtyXml);
+  assert.ok(await vscode.workspace.applyEdit(dirtyXmlEdit));
+  assert.ok(xmlDocument.isDirty, 'The Symfony XML Rename target was not an unsaved buffer');
+  const expectedXmlHash = createHash('sha256').update(xmlDocument.getText()).digest('hex');
+  let serverXmlHash = '';
+  for (let attempt = 0; attempt < 100 && serverXmlHash !== expectedXmlHash; attempt += 1) {
+    const hashes = await api.requestLanguageServer<Record<string, string>>('phpCompanion/testFrameworkSnapshotHashes', {});
+    serverXmlHash = hashes[xmlServicesUri.toString()] ?? '';
+    if (serverXmlHash !== expectedXmlHash) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.strictEqual(serverXmlHash, expectedXmlHash,
+    'The server did not receive the unsaved Symfony XML source snapshot');
+  let dirtyServiceRename: vscode.WorkspaceEdit | undefined;
+  for (let attempt = 0; attempt < 100 && !dirtyServiceRename; attempt += 1) {
+    dirtyServiceRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+      'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_dirty_probe').then((edit) => edit, () => undefined);
+    if (!dirtyServiceRename) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(dirtyServiceRename?.entries().some(([uri]) => uri.toString() === xmlServicesUri.toString()),
+    'Symfony service Rename did not include the unsaved XML target');
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'symfonyRename' }), true);
+  const heldDirtyServiceRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_dirty_probe')
+    .then((edit) => edit, (error: unknown) => {
+      assert.match(error instanceof Error ? error.message : String(error), /changed|Rename/);
+      return undefined;
+    });
+  await waitForState(api, 'symfonyRename', servicesDocument, (state) => state.paused,
+    'Symfony service Rename response was not held before the dirty XML disk changed');
+  const externalDirtyXml = changedXml.replace('</container>', '  <!-- external disk edit behind unsaved buffer -->\n</container>');
+  await vscode.workspace.fs.writeFile(xmlServicesUri, Buffer.from(externalDirtyXml));
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'symfonyRename' }), true);
+  assert.strictEqual(await heldDirtyServiceRename, undefined,
+    'Symfony Rename returned stale edits after the disk changed behind an unsaved XML target');
+  assert.strictEqual(xmlDocument.getText(), dirtyXml, 'Symfony Rename changed the unsaved XML buffer');
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(xmlServicesUri)).toString('utf8'), externalDirtyXml,
+    'Symfony Rename overwrote the independent disk edit behind the unsaved XML buffer');
+  console.log('C3 Symfony Rename rejected an external XML disk change behind an unsaved buffer');
   console.log('C3 held server import requests: addImport, planTypeImports, organizeImports; all rejected stale edits.');
-  console.log('C3 PHP type generation: preview, cancel, apply and one Undo passed; Redo remains open.');
+  const versionConfiguration = vscode.workspace.getConfiguration('phpCompanion', folder.uri);
+  const originalFolderVersion = versionConfiguration.inspect<string>('phpVersion')?.workspaceFolderValue;
+  const changedVersionUri = vscode.Uri.joinPath(serviceDirectory, 'match.php');
+  let versionPreviewOpened = false;
+  try {
+    await versionConfiguration.update('phpVersion', '7.4', vscode.ConfigurationTarget.WorkspaceFolder);
+    await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+    await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'class', 'match', serviceDirectory,
+      async () => {
+        versionPreviewOpened = true;
+        assert.ok(vscode.window.activeTextEditor?.document.getText().includes('class match'),
+          'PHP 7.4 did not allow a type name reserved only by PHP 8');
+        await versionConfiguration.update('phpVersion', '8.5', vscode.ConfigurationTarget.WorkspaceFolder);
+        return 'apply';
+      });
+    assert.strictEqual(versionPreviewOpened, true, 'PHP 7.4 generation did not open the preview');
+    await assert.rejects(async () => vscode.workspace.fs.stat(changedVersionUri),
+      'Type generation applied a preview after the target PHP version changed');
+  } finally {
+    await versionConfiguration.update('phpVersion', originalFolderVersion, vscode.ConfigurationTarget.WorkspaceFolder);
+    await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+  }
+  const nestedExtractUri = vscode.Uri.joinPath(serviceDirectory, 'C3NestedArrayExtract.php');
+  const nestedExtractSource = `<?php namespace App\\Service;
+function makeNestedLabel(array $payload): string { return 'ready'; }
+final class C3NestedArrayExtract {
+    public function run(): string {
+        $result = makeNestedLabel(array('x'));
+        return $result;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(nestedExtractUri, Buffer.from(nestedExtractSource));
+  const nestedExtractDocument = await vscode.workspace.openTextDocument(nestedExtractUri);
+  await vscode.window.showTextDocument(nestedExtractDocument);
+  const nestedSelection = "$result = makeNestedLabel(array('x'));";
+  const nestedStart = nestedExtractSource.indexOf(nestedSelection);
+  let nestedAction: vscode.CodeAction | undefined;
+  for (let attempt = 0; attempt < 100 && !nestedAction; attempt += 1) {
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+      'vscode.executeCodeActionProvider', nestedExtractUri,
+      new vscode.Range(nestedExtractDocument.positionAt(nestedStart),
+        nestedExtractDocument.positionAt(nestedStart + nestedSelection.length)), vscode.CodeActionKind.RefactorExtract.value);
+    nestedAction = actions.find((action): action is vscode.CodeAction => 'command' in action
+      && action.title === 'Extract method extractedMethod' && Boolean(action.command));
+    if (!nestedAction) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(nestedAction?.command, 'C3 nested-array call did not offer Extract Method for its proven native return.');
+  await vscode.commands.executeCommand(nestedAction.command.command, ...nestedAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(nestedExtractDocument.getText().includes('private function extractedMethod(): string'),
+    'C3 Extract Method lost the native string output type behind a legacy array argument.');
+  await vscode.window.showTextDocument(nestedExtractDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(nestedExtractDocument.getText(), nestedExtractSource,
+    'C3 nested-array Extract Method did not restore its original source in one Undo.');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(nestedExtractDocument.getText().includes('private function extractedMethod(): string'),
+    'C3 nested-array Extract Method did not restore its typed output in one Redo.');
+  const nestedInputUri = vscode.Uri.joinPath(serviceDirectory, 'C3NestedArrayInput.php');
+  const nestedInputSource = `<?php namespace App\\Service;
+final class C3NestedArrayInput {
+    private function dispatch(string $label, array $payload): void {}
+    public function run(string $label): void {
+        $this->dispatch($label, array('x'));
+    }
+}`;
+  await vscode.workspace.fs.writeFile(nestedInputUri, Buffer.from(nestedInputSource));
+  const nestedInputDocument = await vscode.workspace.openTextDocument(nestedInputUri);
+  await vscode.window.showTextDocument(nestedInputDocument);
+  const nestedInputSelection = "$this->dispatch($label, array('x'));";
+  const nestedInputStart = nestedInputSource.indexOf(nestedInputSelection);
+  const nestedInputAction = async (): Promise<vscode.CodeAction> => {
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', nestedInputUri,
+        new vscode.Range(nestedInputDocument.positionAt(nestedInputStart),
+          nestedInputDocument.positionAt(nestedInputStart + nestedInputSelection.length)), vscode.CodeActionKind.RefactorExtract.value);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action
+        && action.title === 'Extract method extractedMethod' && Boolean(action.command));
+      if (found?.command) return found;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail('C3 nested-array call did not offer Extract Method for its proven by-value input.');
+  };
+  const cancelledNestedInput = await nestedInputAction();
+  await vscode.commands.executeCommand(cancelledNestedInput.command!.command, ...cancelledNestedInput.command!.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(nestedInputDocument.getText(), nestedInputSource,
+    'Cancelling C3 nested-array Extract Method changed the source.');
+  const appliedNestedInput = await nestedInputAction();
+  await vscode.commands.executeCommand(appliedNestedInput.command!.command, ...appliedNestedInput.command!.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(nestedInputDocument.getText().includes('private function extractedMethod(string $label): void')
+    && nestedInputDocument.getText().includes('$this->extractedMethod($label);'),
+  'C3 Extract Method omitted the proven by-value input behind a legacy array argument.');
+  await vscode.window.showTextDocument(nestedInputDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(nestedInputDocument.getText(), nestedInputSource,
+    'C3 nested-array input extraction did not restore its source in one Undo.');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(nestedInputDocument.getText().includes('private function extractedMethod(string $label): void'),
+    'C3 nested-array input extraction did not restore its parameter in one Redo.');
+  console.log('C3 nested-array Extract Method: typed output and by-value input, cancel/apply, one Undo/Redo');
+  const commentedRemoveUri = vscode.Uri.joinPath(serviceDirectory, 'C3CommentedRemove.php');
+  const commentedRemoveSource = `<?php namespace App\\Service;
+final class C3CommentedRemove {
+    public function dispatch(string $label /* keep declaration */, string $context): void {}
+    public function run(): void { $this->dispatch('a' /* keep label */, 'web'); }
+}`;
+  await vscode.workspace.fs.writeFile(commentedRemoveUri, Buffer.from(commentedRemoveSource));
+  const commentedRemoveDocument = await vscode.workspace.openTextDocument(commentedRemoveUri);
+  await vscode.window.showTextDocument(commentedRemoveDocument);
+  const commentedPosition = commentedRemoveDocument.positionAt(commentedRemoveSource.indexOf('$context') + 2);
+  const removeCommented = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.removeMethodParameter', {
+      uri: commentedRemoveUri, position: commentedPosition, testPreviewAction,
+    });
+  assert.strictEqual(await removeCommented(async () => 'cancel'), false,
+    'C3 commented Remove Parameter reported success after cancellation.');
+  assert.strictEqual(commentedRemoveDocument.getText(), commentedRemoveSource,
+    'Cancelling C3 commented Remove Parameter changed the source.');
+  assert.strictEqual(await removeCommented(async () => 'apply'), true,
+    'C3 commented Remove Parameter did not apply.');
+  assert.ok(commentedRemoveDocument.getText().includes('dispatch(string $label /* keep declaration */)')
+    && commentedRemoveDocument.getText().includes("dispatch('a' /* keep label */)"),
+  'C3 Remove Parameter discarded comments attached to retained parameters or arguments.');
+  await vscode.window.showTextDocument(commentedRemoveDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(commentedRemoveDocument.getText(), commentedRemoveSource,
+    'C3 commented Remove Parameter did not restore its source in one Undo.');
+  await vscode.commands.executeCommand('redo');
+  assert.ok(commentedRemoveDocument.getText().includes("dispatch('a' /* keep label */)"),
+    'C3 commented Remove Parameter did not restore its retained argument comment in one Redo.');
+  console.log('C3 Remove Parameter kept declaration and argument comments through cancel/apply/Undo/Redo');
+  const commentedAddContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3CommentedAddContract.php');
+  const commentedAddServiceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CommentedAddService.php');
+  const commentedAddCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3CommentedAddCaller.php');
+  const commentedAddContract = `<?php namespace App\\Contract;
+interface C3CommentedAddContract { public function record(string $message /* note, retained */): void; }`;
+  const commentedAddService = `<?php namespace App\\Service;
+use App\\Contract\\C3CommentedAddContract;
+final class C3CommentedAddService implements C3CommentedAddContract {
+    public function record(string $message /* note, retained */): void {}
+}`;
+  const commentedAddCaller = `<?php namespace App\\Controller;
+use App\\Contract\\C3CommentedAddContract;
+final class C3CommentedAddCaller {
+    public function run(C3CommentedAddContract $store): void { $store->record('x' /* note, retained */); }
+}`;
+  const commentedAddFiles: Array<[vscode.Uri, string]> = [[commentedAddContractUri, commentedAddContract],
+    [commentedAddServiceUri, commentedAddService], [commentedAddCallerUri, commentedAddCaller]];
+  await Promise.all(commentedAddFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  const commentedAddDocument = await vscode.workspace.openTextDocument(commentedAddContractUri);
+  await vscode.window.showTextDocument(commentedAddDocument);
+  const commentedAddPosition = commentedAddDocument.positionAt(commentedAddContract.indexOf('function record') + 10);
+  const requestCommentedAddPlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
+    api.requestLanguageServer('phpCompanion/addMethodParameter', {
+      textDocument: { uri: commentedAddContractUri.toString() }, position: commentedAddPosition,
+      name: 'context', type: 'string', value: '"web"',
+    });
+  let commentedAddPlan = await requestCommentedAddPlan();
+  for (let attempt = 0; attempt < 100 && Object.keys(commentedAddPlan?.changes ?? {}).length !== 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    commentedAddPlan = await requestCommentedAddPlan();
+  }
+  assert.strictEqual(Object.keys(commentedAddPlan?.changes ?? {}).length, 3,
+    `Commented method-family Add Parameter omitted an affected file: ${JSON.stringify(commentedAddPlan)}`);
+  const addCommentedFamily = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
+      uri: commentedAddContractUri, position: commentedAddPosition, name: 'context', type: 'string', value: '"web"',
+      testPreviewAction,
+    });
+  assert.strictEqual(await addCommentedFamily(async () => 'cancel'), false);
+  for (const [uri, source] of commentedAddFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source,
+    `Cancelling commented Add Parameter changed ${uri.path}`);
+  assert.strictEqual(await addCommentedFamily(async () => 'apply'), true);
+  assert.ok((await vscode.workspace.openTextDocument(commentedAddContractUri)).getText()
+    .includes('string $message /* note, retained */, string $context'));
+  assert.ok((await vscode.workspace.openTextDocument(commentedAddServiceUri)).getText()
+    .includes('string $message /* note, retained */, string $context'));
+  assert.ok((await vscode.workspace.openTextDocument(commentedAddCallerUri)).getText()
+    .includes("'x' /* note, retained */, \"web\""));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri, source] of commentedAddFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source,
+    `One Undo did not restore commented Add Parameter in ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(commentedAddCallerUri)).getText()
+    .includes("'x' /* note, retained */, \"web\""),
+  'One Redo did not restore commented method-family Add Parameter');
+  console.log('C3 commented method-family Add Parameter: three files, cancel/apply, one Undo/Redo');
+  const closedRemoveContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3ClosedRemoveContract.php');
+  const closedRemoveServiceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ClosedRemoveService.php');
+  const closedRemoveCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ClosedRemoveCaller.php');
+  const closedRemoveContract = commentedAddContract.replaceAll('C3CommentedAddContract', 'C3ClosedRemoveContract');
+  const closedRemoveService = commentedAddService.replaceAll('C3CommentedAddContract', 'C3ClosedRemoveContract')
+    .replaceAll('C3CommentedAddService', 'C3ClosedRemoveService');
+  const closedRemoveCaller = commentedAddCaller.replaceAll('C3CommentedAddContract', 'C3ClosedRemoveContract')
+    .replaceAll('C3CommentedAddCaller', 'C3ClosedRemoveCaller');
+  const closedRemoveFiles: Array<[vscode.Uri, string]> = [[closedRemoveContractUri, closedRemoveContract],
+    [closedRemoveServiceUri, closedRemoveService], [closedRemoveCallerUri, closedRemoveCaller]];
+  await Promise.all(closedRemoveFiles.map(([uri, source]) => vscode.workspace.fs.writeFile(uri, Buffer.from(source))));
+  const closedRemoveDocument = await vscode.workspace.openTextDocument(closedRemoveContractUri);
+  await vscode.window.showTextDocument(closedRemoveDocument);
+  assert.ok(!vscode.workspace.textDocuments.some((document) => document.uri.toString() === closedRemoveServiceUri.toString()
+    || document.uri.toString() === closedRemoveCallerUri.toString()),
+  'Closed-file Remove Parameter fixture opened a consumer before planning');
+  const closedRemovePosition = closedRemoveDocument.positionAt(closedRemoveContract.indexOf('$message') + 2);
+  const requestClosedRemovePlan = (): Thenable<{ changes?: Record<string, unknown> } | null> =>
+    api.requestLanguageServer('phpCompanion/removeMethodParameter', {
+      textDocument: { uri: closedRemoveContractUri.toString() }, position: closedRemovePosition,
+    });
+  let closedRemovePlan = await requestClosedRemovePlan();
+  for (let attempt = 0; attempt < 100 && Object.keys(closedRemovePlan?.changes ?? {}).length !== 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    closedRemovePlan = await requestClosedRemovePlan();
+  }
+  assert.strictEqual(Object.keys(closedRemovePlan?.changes ?? {}).length, 3,
+    `Closed-file Remove Parameter omitted an affected file: ${JSON.stringify(closedRemovePlan)}`);
+  const removeClosedFamily = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.removeMethodParameter', {
+      uri: closedRemoveContractUri, position: closedRemovePosition, testPreviewAction,
+    });
+  assert.strictEqual(await removeClosedFamily(async () => 'cancel'), false);
+  for (const [uri, source] of closedRemoveFiles) assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), source,
+    `Cancelling closed-file Remove Parameter changed ${uri.path}`);
+  assert.strictEqual(await removeClosedFamily(async () => 'apply'), true);
+  assert.ok((await vscode.workspace.openTextDocument(closedRemoveContractUri)).getText().includes('record(): void'));
+  assert.ok((await vscode.workspace.openTextDocument(closedRemoveServiceUri)).getText().includes('record(): void'));
+  assert.ok((await vscode.workspace.openTextDocument(closedRemoveCallerUri)).getText().includes('record()'));
+  await vscode.commands.executeCommand('undo');
+  for (const [uri, source] of closedRemoveFiles) assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source,
+    `One Undo did not restore closed-file Remove Parameter in ${uri.path}`);
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(closedRemoveCallerUri)).getText().includes('record()'),
+    'One Redo did not restore closed-file Remove Parameter');
+  console.log('C3 closed-file method-family Remove Parameter: three files, cancel/apply, one Undo/Redo');
+  const freshReferenceContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3FreshReferenceContract.php');
+  const freshReferenceCallerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3FreshReferenceCaller.php');
+  const freshReferenceContract = `<?php namespace App\\Contract;
+interface C3FreshReferenceContract { public function refreshSnapshot(): void; }`;
+  const freshReferenceCaller = `<?php namespace App\\Controller;
+use App\\Contract\\C3FreshReferenceContract;
+final class C3FreshReferenceCaller {
+    public function run(C3FreshReferenceContract $target): void { $target->refreshSnapshot(); }
+}`;
+  await vscode.workspace.fs.writeFile(freshReferenceContractUri, Buffer.from(freshReferenceContract));
+  const freshReferenceDocument = await vscode.workspace.openTextDocument(freshReferenceContractUri);
+  await vscode.window.showTextDocument(freshReferenceDocument);
+  await vscode.workspace.fs.writeFile(freshReferenceCallerUri, Buffer.from(freshReferenceCaller));
+  assert.ok(!vscode.workspace.textDocuments.some((document) => document.uri.toString() === freshReferenceCallerUri.toString()),
+    'Fresh References fixture opened its new consumer before lookup');
+  const freshReferencePosition = freshReferenceDocument.positionAt(freshReferenceContract.indexOf('refreshSnapshot') + 2);
+  const freshReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', freshReferenceContractUri, freshReferencePosition) ?? [];
+  assert.ok(freshReferences.some((location) => location.uri.toString() === freshReferenceCallerUri.toString()),
+    `References omitted a newly created, unopened consumer: ${JSON.stringify(freshReferences)}`);
+  console.log('C1 References included a newly created unopened consumer');
+  const appliedOpenUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3AppliedOpenResult.php');
+  const appliedOpenSource = '<?php\nnamespace App\\Service;\nfunction c3AppliedOpenResult(): void { $before = 1; echo $before; }\n';
+  await vscode.workspace.fs.writeFile(appliedOpenUri, Buffer.from(appliedOpenSource));
+  const appliedOpenDocument = await vscode.workspace.openTextDocument(appliedOpenUri);
+  await vscode.window.showTextDocument(appliedOpenDocument);
+  const appliedOpenEdit = new vscode.WorkspaceEdit();
+  const appliedOpenPosition = appliedOpenDocument.positionAt(appliedOpenSource.indexOf('$before'));
+  appliedOpenEdit.replace(appliedOpenUri, new vscode.Range(appliedOpenPosition,
+    appliedOpenDocument.positionAt(appliedOpenSource.indexOf('$before') + '$before'.length)), '$after');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', {
+    edit: appliedOpenEdit, title: 'C3 applied result', sourceUri: appliedOpenUri,
+    sourceVersion: appliedOpenDocument.version, sourceText: appliedOpenSource,
+  }, { testPreviewAction: async () => 'apply', testBeforeOpen: async () => { throw new Error('C3 simulated editor open failure'); } }), true,
+  'Previewed edit reported failure after VS Code had applied the change');
+  assert.ok(appliedOpenDocument.getText().includes('$after = 1'), 'Previewed edit lost the applied change after an editor open failure');
+  await vscode.window.showTextDocument(appliedOpenDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(appliedOpenDocument.getText(), appliedOpenSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(appliedOpenDocument.getText().includes('$after = 1'));
+  const renameOpenUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameOpenResult.php');
+  const renameOpenSource = '<?php\nnamespace App\\Service;\nfunction c3RenameOpenResult(): void { $before = 1; echo $before; }\n';
+  await vscode.workspace.fs.writeFile(renameOpenUri, Buffer.from(renameOpenSource));
+  const renameOpenDocument = await vscode.workspace.openTextDocument(renameOpenUri);
+  await vscode.window.showTextDocument(renameOpenDocument);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
+    uri: renameOpenUri, position: renameOpenDocument.positionAt(renameOpenSource.indexOf('$before') + 2), newName: 'after',
+    testPreviewAction: async () => 'apply', testBeforeOpen: async () => { throw new Error('C3 simulated editor open failure'); },
+  }), true, 'Rename reported failure after VS Code had applied the change');
+  assert.ok(renameOpenDocument.getText().includes('$after = 1') && renameOpenDocument.getText().includes('echo $after'),
+    'Rename lost the applied change after an editor open failure');
+  await vscode.window.showTextDocument(renameOpenDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(renameOpenDocument.getText(), renameOpenSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(renameOpenDocument.getText().includes('echo $after'));
+  console.log('C3 applied refactor and Rename retained true outcomes after simulated editor open failures');
+  const signatureTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SignatureType.php');
+  const signatureContractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3CrossSignatures.php');
+  await vscode.workspace.fs.writeFile(signatureTypeUri, Buffer.from('<?php namespace App\\Service; const C3_IMPORTED_LIMIT = 9; class C3SignatureType { public const LIMIT = 7; }'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder.uri, 'src', 'Contract', 'C3RelativeLimit.php'),
+    Buffer.from('<?php namespace App\\Contract\\Limits; const RELATIVE_LIMIT = 11;'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3AliasLimit.php'),
+    Buffer.from('<?php namespace App\\Service\\Limits; const ALIASED_LIMIT = 13;'));
+  await vscode.workspace.fs.writeFile(signatureContractUri, Buffer.from(`<?php namespace App\\Contract;
+use App\\Service\\C3SignatureType as Alias;
+use App\\Service\\Limits as SharedLimits;
+use const App\\Service\\C3_IMPORTED_LIMIT as IMPORTED_LIMIT;
+const LOCAL_LIMIT = 5;
+interface C3CrossContract { public function accept(Alias $value, int $limit = Alias::LIMIT): Alias; }
+abstract class C3CrossAbstract { abstract protected function reset(Alias $value, int $limit = Alias::LIMIT): Alias; }
+class C3CrossBase { public function convert(Alias $value, int $limit = Alias::LIMIT): Alias { return $value; } public function choose(): (\\Traversable&\\Countable)|Alias { return new Alias(); } }
+class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $imported = IMPORTED_LIMIT, object $value = new Alias(), int $explicit = namespace\\LOCAL_LIMIT, int $relative = Limits\\RELATIVE_LIMIT, int $aliased = SharedLimits\\ALIASED_LIMIT, string $label = 'namespace\\LOCAL_LIMIT'): void {} }`));
+  const inheritedSignature = '(\\App\\Service\\C3SignatureType $value, int $limit = \\App\\Service\\C3SignatureType::LIMIT): \\App\\Service\\C3SignatureType';
+  const crossCases = [
+    { name: 'C3CrossInterface', declaration: 'implements \\App\\Contract\\C3CrossContract', title: 'Implement 1 interface method', method: 'accept', signature: inheritedSignature },
+    { name: 'C3CrossAbstractChild', declaration: 'extends \\App\\Contract\\C3CrossAbstract', title: 'Implement 1 abstract method', method: 'reset', signature: inheritedSignature },
+    { name: 'C3CrossOverride', declaration: 'extends \\App\\Contract\\C3CrossBase', title: 'Override App\\Contract\\C3CrossBase::convert', method: 'convert', signature: inheritedSignature },
+    { name: 'C3CrossDnf', declaration: 'extends \\App\\Contract\\C3CrossBase', title: 'Override App\\Contract\\C3CrossBase::choose', method: 'choose',
+      signature: '(): (\\Traversable&\\Countable)|\\App\\Service\\C3SignatureType' },
+  ];
+  for (const item of crossCases) {
+    const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${item.name}.php`);
+    const original = `<?php namespace App\\Service; class ${item.name} ${item.declaration} {}`;
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+    const position = document.positionAt(original.indexOf(`class ${item.name}`) + 8);
+    let action: vscode.CodeAction | undefined;
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline && !action) {
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', uri, new vscode.Range(position, position), vscode.CodeActionKind.RefactorRewrite.value) ?? [];
+      action = actions.find((candidate): candidate is vscode.CodeAction => 'edit' in candidate && candidate.title === item.title);
+      if (!action) await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.ok(action?.edit, `Missing cross-namespace ${item.title} Action`);
+    assert.ok(await vscode.workspace.applyEdit(action.edit), `Could not apply cross-namespace ${item.title}`);
+    assert.ok(document.getText().includes(`${item.method}${item.signature}`), `${item.title} copied an unresolved source alias, default constant or DNF type`);
+    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand('undo');
+    await waitFor(() => document.getText() === original, `${item.title} did not Undo in one step`);
+    await vscode.commands.executeCommand('redo');
+    await waitFor(() => document.getText().includes(`${item.method}${item.signature}`),
+      `${item.title} did not Redo in one step`);
+  }
+  const defaultsUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CrossDefaultsChild.php');
+  const defaultsSource = '<?php namespace App\\Service; class C3CrossDefaultsChild extends \\App\\Contract\\C3CrossDefaults {}';
+  await vscode.workspace.fs.writeFile(defaultsUri, Buffer.from(defaultsSource));
+  const defaultsDocument = await vscode.workspace.openTextDocument(defaultsUri);
+  await vscode.window.showTextDocument(defaultsDocument);
+  const defaultsPosition = defaultsDocument.positionAt(defaultsSource.indexOf('class C3CrossDefaultsChild') + 8);
+  let defaultsAction: vscode.CodeAction | undefined;
+  const defaultsDeadline = Date.now() + 15_000;
+  while (Date.now() < defaultsDeadline && !defaultsAction) {
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+      'vscode.executeCodeActionProvider', defaultsUri, new vscode.Range(defaultsPosition, defaultsPosition), vscode.CodeActionKind.RefactorRewrite.value) ?? [];
+    defaultsAction = actions.find((candidate): candidate is vscode.CodeAction => 'edit' in candidate
+      && candidate.title === 'Override App\\Contract\\C3CrossDefaults::defaults');
+    if (!defaultsAction) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.ok(defaultsAction?.edit, 'Missing cross-namespace Action for namespace, imported and new-expression defaults');
+  assert.ok(await vscode.workspace.applyEdit(defaultsAction.edit), 'Could not apply cross-namespace default expression Action');
+  const generatedDefaults = "defaults(int $local = \\App\\Contract\\LOCAL_LIMIT, int $imported = \\App\\Service\\C3_IMPORTED_LIMIT, object $value = new \\App\\Service\\C3SignatureType(), int $explicit = \\App\\Contract\\LOCAL_LIMIT, int $relative = \\App\\Contract\\Limits\\RELATIVE_LIMIT, int $aliased = \\App\\Service\\Limits\\ALIASED_LIMIT, string $label = 'namespace\\LOCAL_LIMIT'): void";
+  assert.ok(defaultsDocument.getText().includes(generatedDefaults),
+    `Override did not preserve the source default expressions: ${defaultsDocument.getText()}`);
+  await vscode.window.showTextDocument(defaultsDocument);
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => defaultsDocument.getText() === defaultsSource, 'Default expression Action did not Undo in one step');
+  await vscode.commands.executeCommand('redo');
+  await waitFor(() => defaultsDocument.getText().includes(generatedDefaults), 'Default expression Action did not Redo in one step');
+  console.log('C3 cross-namespace interface, abstract, DNF and Override Actions applied with one Undo/Redo');
+  console.log('C3 namespace constant, imported constant and new-expression defaults applied with one Undo/Redo');
+  console.log('C3 PHP type generation: preview, cancel, apply, version change and one Undo passed; Redo remains open.');
 }

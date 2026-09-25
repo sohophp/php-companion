@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build PHP Companion",
+      "label": "Build SoPHP",
       "type": "shell",
       "command": "pnpm build",
       "group": "build",

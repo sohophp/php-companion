@@ -30,7 +30,7 @@ describe('IntegrationRegistry', () => {
     expect(() => registry.register({ integrationId: 'vendor.doctrine', routeProviders: [{ providerId: 'other.routes', command: '/other' }] })).toThrow(/Invalid/);
   });
 
-  it('proxies only bounded PHP Companion language-server requests', async () => {
+  it('proxies only bounded SoPHP language-server requests', async () => {
     const registry = new IntegrationRegistry();
     await expect(registry.api.requestLanguageServer?.('phpCompanion/example', {})).rejects.toThrow(/not available/);
     const request = vi.fn(async (method: string, params: unknown) => ({ method, params }));

@@ -1,6 +1,6 @@
 # @php-companion/testkit
 
-Shared, editor-independent verification helpers for PHP Companion components.
+Shared, editor-independent verification helpers for SoPHP components.
 
 ```ts
 import { markedSource, summarizeDurations, assertPerformanceBudget } from '@php-companion/testkit';

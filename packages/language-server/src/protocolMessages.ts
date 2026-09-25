@@ -17,7 +17,7 @@ const messages = {
   referenceReceiverBound: ['Reference receiver closure exceeded its bound; this is not a zero-reference result.', '引用接收者集合超过上限；不能将此结果视为零处引用。'],
   routeDocumentsChanged: ['Route documents changed during reference query.', '引用查询期间路由文档已更改。'],
   referenceInputsChanged: ['Reference inputs changed during query.', '查询期间引用输入已更改。'],
-  referencesUnavailable: ['PHP references are unavailable: the project index is incomplete or disabled. See PHP Companion output.', 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 PHP Companion 输出。'],
+  referencesUnavailable: ['PHP references are unavailable: the project index is incomplete or disabled. See SoPHP output.', 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 SoPHP 输出。'],
 } as const;
 
 export type ProtocolMessageKey = keyof typeof messages;

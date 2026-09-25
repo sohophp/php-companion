@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/runtime-probe",
   "version": "0.1.0-alpha.1",
-  "description": "Bounded PHP runtime discovery for PHP Companion.",
+  "description": "Bounded PHP runtime discovery for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/index",
   "version": "0.1.0-alpha.1",
-  "description": "Bounded project source indexing primitives for PHP Companion.",
+  "description": "Bounded project source indexing primitives for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

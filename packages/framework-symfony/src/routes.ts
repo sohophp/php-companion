@@ -3,7 +3,7 @@ import type { ParsedImport, PhpSyntaxParser } from '@php-companion/parser';
 
 export interface SymfonyLocalizedPath { locale: string; path: string; }
 export type SymfonyRoutePathPrefix = string | SymfonyLocalizedPath[];
-export interface SymfonyRouteControllerFact { className: string; method?: string; uri: string; classStart: number; classEnd: number; methodStart?: number; methodEnd?: number; }
+export interface SymfonyRouteControllerFact { className: string; classSourceName?: string; method?: string; uri: string; classStart: number; classEnd: number; methodStart?: number; methodEnd?: number; }
 export interface SymfonyRouteFact { name: string; path: string; uri: string; start: number; end: number; locale?: string; controller?: SymfonyRouteControllerFact; }
 export interface SymfonyRouteImport { resource: string; namePrefix: string; pathPrefix: SymfonyRoutePathPrefix; attribute?: boolean; php?: boolean; namespace?: string; exclude?: string[]; environments?: string[]; }
 export interface SymfonyRouteDocument { complete: boolean; routes: SymfonyRouteFact[]; imports: SymfonyRouteImport[]; }
@@ -186,6 +186,44 @@ function routingCallChain(statement: SyntaxNode, variable: string): Array<{ meth
   return current?.type === 'variable_name' && current.text === variable ? outerToInner.reverse() : undefined;
 }
 
+function phpRouteController(uri: string, source: string, namespace: string, imports: ParsedImport[],
+  call: { arguments: SyntaxNode[] }): SymfonyRouteControllerFact | undefined {
+  if (call.arguments.length !== 1 || call.arguments[0]?.namedChildren.length !== 1) return undefined;
+  const argument = call.arguments[0].namedChildren[0]!;
+  const identifier = '[A-Za-z_\\u0080-\\uffff][A-Za-z0-9_\\u0080-\\uffff]*';
+  const classPattern = new RegExp(`^\\\\?${identifier}(?:\\\\${identifier})*$`, 'u');
+  const classConstant = (node: SyntaxNode | undefined): SyntaxNode | undefined => {
+    if (node?.type !== 'class_constant_access_expression' || node.namedChildren[1]?.text.toLowerCase() !== 'class') return undefined;
+    const name = node.namedChildren[0];
+    return name && ['name', 'qualified_name'].includes(name.type) && classPattern.test(name.text) ? name : undefined;
+  };
+  let classNode = classConstant(argument);
+  let methodLiteral: ReturnType<typeof phpString>;
+  if (argument.type === 'array_creation_expression') {
+    const entries = argument.namedChildren;
+    if (entries.length !== 2 || entries.some((entry) => entry.type !== 'array_element_initializer' || entry.namedChildren.length !== 1)) return undefined;
+    classNode = classConstant(entries[0]!.namedChildren[0]);
+    methodLiteral = phpString(entries[1]!.namedChildren[0]);
+    if (!classNode || !methodLiteral || !new RegExp(`^${identifier}$`, 'u').test(methodLiteral.value)
+      || source.slice(methodLiteral.start, methodLiteral.end) !== methodLiteral.value) return undefined;
+  }
+  if (classNode) {
+    const className = resolvePhpName(classNode.text, namespace, imports);
+    return { className, ...(classNode.text === className ? {} : { classSourceName: classNode.text }), uri,
+      classStart: classNode.startIndex, classEnd: classNode.endIndex,
+      ...(methodLiteral ? { method: methodLiteral.value, methodStart: methodLiteral.start, methodEnd: methodLiteral.end } : {}) };
+  }
+  const literal = phpString(argument);
+  if (!literal || source.slice(literal.start, literal.end) !== literal.value) return undefined;
+  const parts = literal.value.split('::');
+  if (parts.length > 2 || !classPattern.test(parts[0]!) || !parts[0]!.replace(/^\\/, '').includes('\\')
+    || parts[1] !== undefined && !new RegExp(`^${identifier}$`, 'u').test(parts[1])) return undefined;
+  const sourceClass = parts[0]!; const className = sourceClass.replace(/^\\/, '');
+  return { className, ...(sourceClass === className ? {} : { classSourceName: sourceClass }), uri,
+    classStart: literal.start, classEnd: literal.start + sourceClass.length,
+    ...(parts[1] === undefined ? {} : { method: parts[1], methodStart: literal.end - parts[1].length, methodEnd: literal.end }) };
+}
+
 /** Parse the deterministic source-declaration subset of Symfony's PHP RoutingConfigurator DSL. */
 export function analyzeSymfonyRoutePhp(parser: PhpSyntaxParser, uri: string, source: string): SymfonyRouteDocument {
   const parsed = parser.parse(source, undefined, uri); const result: SymfonyRouteDocument = { complete: true, routes: [], imports: [] };
@@ -218,7 +256,19 @@ export function analyzeSymfonyRoutePhp(parser: PhpSyntaxParser, uri: string, sou
       if (first.method.toLowerCase() === 'add' && first.arguments.length === 2) {
         const name = first.arguments[0]?.namedChildren.length === 1 ? phpString(first.arguments[0].namedChildren[0]) : undefined;
         const path = first.arguments[1]?.namedChildren.length === 1 ? phpString(first.arguments[1].namedChildren[0]) : undefined;
-        if (name && path) result.routes.push({ name: name.value, path: path.value, uri, start: name.start, end: name.end });
+        const controllerCalls = chain!.slice(1).filter((call) => call.method.toLowerCase() === 'controller');
+        const defaultsOverrideController = chain!.slice(1).some((call) => {
+          if (call.method.toLowerCase() !== 'defaults') return false;
+          const value = call.arguments.length === 1 && call.arguments[0]?.namedChildren.length === 1
+            ? call.arguments[0].namedChildren[0] : undefined;
+          if (value?.type !== 'array_creation_expression') return true;
+          return value.namedChildren.some((entry) => entry.type !== 'array_element_initializer' || entry.namedChildren.length !== 2
+            || phpString(entry.namedChildren[0])?.value === '_controller' || !phpString(entry.namedChildren[0]));
+        });
+        const controller = controllerCalls.length === 1 && !defaultsOverrideController
+          ? phpRouteController(uri, source, parsed.namespace, parsed.imports, controllerCalls[0]!) : undefined;
+        if (name && path) result.routes.push({ name: name.value, path: path.value, uri, start: name.start, end: name.end,
+          ...(controller ? { controller } : {}) });
         else result.complete = false;
         continue;
       }
@@ -236,7 +286,7 @@ export function analyzeSymfonyRoutePhp(parser: PhpSyntaxParser, uri: string, sou
           ? phpString(call.arguments[0].namedChildren[0])?.value : undefined;
         if (call.method.toLowerCase() === 'nameprefix' && value !== undefined) namePrefix += value;
         else if (call.method.toLowerCase() === 'prefix' && value !== undefined) pathPrefix += value;
-        else if (['nameprefix', 'prefix'].includes(call.method.toLowerCase())) valid = false;
+        else valid = false;
       }
       if (!valid || !supportedRoutePattern(resource)) { result.complete = false; continue; }
       const attribute = loader === 'attribute'; const php = loader === 'php' || (loader === undefined && resource.endsWith('.php'));
@@ -269,16 +319,16 @@ export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: s
       }
       return undefined;
     };
-    for (const callable of parsed.callables.filter((item) => item.kind === 'method' && item.name.toLowerCase() === 'configureroutes'
-      && !item.static && item.parameters.length === 1)) {
+    for (const callable of parsed.callables.filter((item) => item.kind === 'method' && item.name.toLowerCase() === 'configureroutes')) {
       const owner = parsed.declarations.find((item) => item.kind === 'class' && item.fqcn === callable.containerFqcn);
       const namespace = owner?.fqcn.split('\\').slice(0, -1).join('\\') ?? '';
-      const parameter = callable.parameters[0]!;
-      if (!owner || owner.extendsNames.length !== 1 || resolvePhpName(owner.extendsNames[0]!, namespace, parsed.imports).toLowerCase()
-        !== 'symfony\\component\\httpkernel\\kernel' || !parameter.nativeType || resolvePhpName(parameter.nativeType, namespace, parsed.imports).toLowerCase()
-        !== 'symfony\\component\\routing\\loader\\configurator\\routingconfigurator') continue;
+      const parameter = callable.parameters.length === 1 ? callable.parameters[0] : undefined;
+      if (!owner || callable.static || owner.extendsNames.length !== 1 || resolvePhpName(owner.extendsNames[0]!, namespace, parsed.imports).toLowerCase()
+        !== 'symfony\\component\\httpkernel\\kernel' || !parameter?.nativeType || resolvePhpName(parameter.nativeType, namespace, parsed.imports).toLowerCase()
+        !== 'symfony\\component\\routing\\loader\\configurator\\routingconfigurator') { result.complete = false; continue; }
       const method = collectNodes(root, 'method_declaration').find((node) => node.startIndex <= callable.start && node.endIndex >= callable.end);
       const body = method?.namedChildren.find((node) => node.type === 'compound_statement');
+      if (!body) { result.complete = false; continue; }
       const environmentCondition = (statement: SyntaxNode): { environments: string[]; body: SyntaxNode } | undefined => {
         if (statement.type !== 'if_statement' || statement.namedChildren.length !== 2) return undefined;
         const [parenthesized, conditionalBody] = statement.namedChildren;
@@ -286,25 +336,46 @@ export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: s
         if (condition?.type !== 'binary_expression' || conditionalBody?.type !== 'compound_statement' || condition.namedChildren.length !== 2) return undefined;
         const [left, right] = condition.namedChildren;
         const operator = source.slice(left!.endIndex, right!.startIndex).trim();
-        const member = left?.type === 'member_access_expression' && left.namedChildren[0]?.text === '$this'
-          && left.namedChildren[1]?.text === 'environment' ? left : undefined;
-        const environment = member && operator === '===' ? phpString(right)?.value : undefined;
+        const isEnvironment = (node: SyntaxNode | undefined): boolean => node?.type === 'member_access_expression'
+          && node.namedChildren[0]?.text === '$this' && node.namedChildren[1]?.text === 'environment';
+        const environment = operator === '===' ? isEnvironment(left) ? phpString(right)?.value
+          : isEnvironment(right) ? phpString(left)?.value : undefined : undefined;
         return environment ? { environments: [environment], body: conditionalBody } : undefined;
       };
       const inspect = (statement: SyntaxNode, environments?: string[]): void => {
         const conditional = environmentCondition(statement);
         if (conditional) {
-          if (environments) return;
+          if (environments) { result.complete = false; return; }
           for (const nested of conditional.body.namedChildren) inspect(nested, conditional.environments);
           return;
         }
-        if (statement.type !== 'expression_statement') return;
+        const usesRoutes = collectNodes(statement, 'variable_name').some((node) => node.text === `$${parameter.name}`);
+        if (statement.type !== 'expression_statement') { if (usesRoutes) result.complete = false; return; }
         const chain = routingCallChain(statement, `$${parameter.name}`); const first = chain?.[0];
-        if (!first || first.method.toLowerCase() !== 'import' || first.arguments.length !== 1) return;
+        if (!first || first.method.toLowerCase() !== 'import' || first.arguments.length < 1 || first.arguments.length > 2) {
+          if (usesRoutes) result.complete = false;
+          return;
+        }
         const argument = first.arguments[0]?.namedChildren.length === 1 ? first.arguments[0].namedChildren[0] : undefined;
         const resource = pathExpression(argument);
-        if (!resource || !/\.(?:ya?ml|php)$/.test(resource)) { result.complete = false; return; }
-        result.imports.push({ resource, namePrefix: '', pathPrefix: '', ...(resource.endsWith('.php') ? { php: true } : {}), ...(environments ? { environments } : {}) });
+        const loaderArgument = first.arguments[1]?.namedChildren.length === 1 ? first.arguments[1].namedChildren[0] : undefined;
+        const loader = loaderArgument ? phpString(loaderArgument)?.value : undefined;
+        if (!resource || !supportedRoutePattern(resource) || (first.arguments[1] && !loader)
+          || (loader !== undefined && !['attribute', 'php', 'yaml'].includes(loader))) { result.complete = false; return; }
+        const attribute = loader === 'attribute'; const php = loader === 'php' || loader === undefined && resource.endsWith('.php');
+        const yaml = loader === 'yaml' || loader === undefined && /\.ya?ml$/.test(resource);
+        if (!attribute && !php && !yaml) { result.complete = false; return; }
+        let namePrefix = ''; let pathPrefix = '';
+        for (const call of chain!.slice(1)) {
+          const value = call.arguments.length === 1 && call.arguments[0]?.namedChildren.length === 1
+            ? phpString(call.arguments[0].namedChildren[0])?.value : undefined;
+          if (value === undefined || value.includes('%')) { result.complete = false; return; }
+          if (call.method.toLowerCase() === 'nameprefix') namePrefix += value;
+          else if (call.method.toLowerCase() === 'prefix') pathPrefix += value;
+          else { result.complete = false; return; }
+        }
+        result.imports.push({ resource, namePrefix, pathPrefix,
+          ...(attribute ? { attribute: true } : {}), ...(php ? { php: true } : {}), ...(environments ? { environments } : {}) });
       };
       for (const statement of body?.namedChildren ?? []) inspect(statement);
     }

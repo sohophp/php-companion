@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { createHash } from 'node:crypto';
 import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
@@ -18,7 +19,9 @@ interface FrameworkDocumentSnapshot { uri: string; languageId: 'yaml' | 'xml'; s
 
 function openFrameworkDocuments(): { complete: boolean; documents: FrameworkDocumentSnapshot[] } {
   const documents: FrameworkDocumentSnapshot[] = []; let characters = 0;
-  for (const document of vscode.workspace.textDocuments.filter((candidate) => ['yaml', 'xml'].includes(candidate.languageId) && !candidate.isUntitled)
+  for (const document of vscode.workspace.textDocuments.filter((candidate) => ['yaml', 'xml'].includes(candidate.languageId)
+    && !candidate.isUntitled && (candidate.uri.scheme === 'file' || candidate.uri.scheme === 'vscode-remote')
+    && vscode.workspace.getWorkspaceFolder(candidate.uri))
     .sort((left, right) => left.uri.toString().localeCompare(right.uri.toString()))) {
     const source = document.getText();
     if (source.length > 1_000_000 || documents.length >= 128 || characters + source.length > 8 * 1024 * 1024) return { complete: false, documents: [] };
@@ -133,6 +136,17 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     middleware: {
+      provideHover: async (document, position, token, next) => {
+        if (process.env.PHP_COMPANION_TEST_HOVER_TIMING !== '1') return next(document, position, token);
+        const started = performance.now();
+        try { return await next(document, position, token); }
+        finally {
+          console.log(`SoPHP client Hover timing: ${JSON.stringify({
+            uri: document.uri.toString(), line: position.line, character: position.character,
+            elapsedMs: Math.round(performance.now() - started),
+          })}`);
+        }
+      },
       provideDefinition: async (document, position, token, next) => {
         let pendingStatus: vscode.Disposable | undefined;
         const timer = setTimeout(() => {
@@ -158,6 +172,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         const sourceText = document.getText();
         const actions = await next(document, range, context, token);
         if (!actions || token.isCancellationRequested) return actions;
+        let sourceDiskHash: string | undefined;
         for (const action of actions) {
           const rewriteSnapshots = action instanceof vscode.CodeAction && action.command?.command === 'phpCompanion.refactorSnapshots'
             ? action.command.arguments?.[0] as Record<string, string> | undefined : undefined;
@@ -165,10 +180,15 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
             || (action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value
               && action.kind?.value !== vscode.CodeActionKind.RefactorInline.value
               && !(action.kind?.value === vscode.CodeActionKind.RefactorRewrite.value && rewriteSnapshots))) continue;
+          if (!sourceDiskHash) {
+            try { sourceDiskHash = createHash('sha256').update(await vscode.workspace.fs.readFile(document.uri)).digest('hex'); }
+            catch { action.edit = undefined; action.disabled = { reason: t('extractCancelled') }; continue; }
+          }
           const edit = action.edit;
           action.edit = undefined;
           action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',
-            arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText, targetHashes: rewriteSnapshots }] };
+            arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText,
+              sourceDiskHash, targetHashes: rewriteSnapshots }] };
         }
         return actions;
       },

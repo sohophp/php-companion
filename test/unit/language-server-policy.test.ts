@@ -22,7 +22,7 @@ describe('Symfony project detection', () => {
 });
 
 describe('language server activation policy', () => {
-  it('starts by default when PHP Companion is the only general PHP language server', () => {
+  it('starts by default when SoPHP is the only general PHP language server', () => {
     expect(resolveLanguageServerActivation({ enabled: true, explicitlyConfigured: false, competingServerInstalled: false }))
       .toEqual({ start: true, blockedByCompetingServer: false });
   });

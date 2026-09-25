@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/semantic-provider",
   "version": "0.1.0-alpha.1",
-  "description": "Versioned framework-neutral semantic fact provider contracts for PHP Companion.",
+  "description": "Versioned framework-neutral semantic fact provider contracts for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

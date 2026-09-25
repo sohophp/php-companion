@@ -269,15 +269,16 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
       if (!facts.complete) complete = false;
       const imports = facts.imports.filter((item) => !item.environments || (options.environment !== undefined && item.environments.includes(options.environment)))
         .sort((left, right) => Number(Boolean(right.environments)) - Number(Boolean(left.environments)));
-      for (const entry of imports) await read(resolve(dirname(path), entry.resource), entry.namePrefix, entry.pathPrefix, new Set(), false, entry.php, [], undefined, projectScope);
+      for (const entry of imports) await read(resolve(dirname(path), entry.resource), entry.namePrefix, entry.pathPrefix,
+        new Set(), entry.attribute, entry.php, [], undefined, projectScope);
     } catch (error) {
       if (!missing(error)) inputEvidenceComplete = false;
       try { await stat(path); complete = false; } catch { /* Conventional Kernel files are optional. */ }
     }
   }
-  for (const filename of ['config/routes.yaml', 'config/routes.yml']) {
+  for (const filename of ['config/routes.yaml', 'config/routes.yml', 'config/routes.php']) {
     const path = resolve(root, filename);
-    try { inputPaths.add(path); if ((await stat(path)).isFile()) await read(path, '', '', new Set()); }
+    try { inputPaths.add(path); if ((await stat(path)).isFile()) await read(path, '', '', new Set(), false, filename.endsWith('.php')); }
     catch (error) { if (!missing(error)) inputEvidenceComplete = false; /* Conventional roots are optional. */ }
   }
   const counts = new Map<string, number>(); for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);

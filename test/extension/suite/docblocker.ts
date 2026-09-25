@@ -55,7 +55,7 @@ export async function run(): Promise<void> {
   assert.match(generated, /@return\s+string/u);
   assert.strictEqual((generated.match(/\/\*\*/gu) ?? []).length, 1,
     `DocBlocker left duplicate opening markers; range=${replacement.start.line}:${replacement.start.character}-${replacement.end.line}:${replacement.end.character}; source=${JSON.stringify(generated)}`);
-  const diagnostics = vscode.languages.getDiagnostics(uri).filter((diagnostic) => diagnostic.source === 'PHP Companion');
+  const diagnostics = vscode.languages.getDiagnostics(uri).filter((diagnostic) => diagnostic.source === 'SoPHP');
   assert.ok(!diagnostics.some((diagnostic) => diagnostic.code === 'php.phpdoc.type-conflict'),
     'SoPHP rejected the generated native-compatible DocBlock.');
   const generatedParam = /@param\s+(int|integer)\s+\$value/u.exec(document.getText());
@@ -71,7 +71,7 @@ export async function run(): Promise<void> {
     assert.ok(document.isDirty);
   };
   const paramConflicts = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(uri)
-    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.phpdoc.type-conflict');
+    .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.phpdoc.type-conflict');
   await changeParamType(nativeDocType, 'string');
   const conflictDeadline = Date.now() + 20_000;
   while (Date.now() < conflictDeadline && paramConflicts().length !== 1) await new Promise((resolve) => setTimeout(resolve, 50));
@@ -267,7 +267,7 @@ function inspectMissingShape(array $data): void { $data['item']->item; $data['it
   const missingHover = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', flowUri, missingCallPosition) ?? [];
   assert.doesNotMatch(missingHover.flatMap((hover) => hover.contents).map((part) => typeof part === 'string' ? part : part.value).join('\n'), /itemAlpha/u);
   const argumentDiagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(flowUri)
-    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.type-mismatch');
+    .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.type-mismatch');
   const argumentDeadline = Date.now() + 20_000;
   while (Date.now() < argumentDeadline && argumentDiagnostics().length !== 1) await new Promise((resolve) => setTimeout(resolve, 50));
   assert.strictEqual(argumentDiagnostics().length, 1, 'The shared shape key did not produce one proven argument mismatch.');

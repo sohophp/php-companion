@@ -8110,6 +8110,91 @@ use const Vendor\\ACTIVE;
     ] });
     expect(workspace.overrideGeneration('file:///OverrideChild.php', source.indexOf('Broken') + 2)).toBeUndefined();
   });
+  it('resolves inherited native types in the declaring namespace before generating overrides', () => {
+    workspace.update('file:///OverrideCrossNamespaceBase.php', `<?php namespace OverrideBase;
+      use Shared\\Thing as Alias;
+      class Base { public function convert(Alias|self $value): Alias { return new Alias(); } }
+    `);
+    const source = '<?php namespace OverrideChild; class Child extends \\OverrideBase\\Base {}';
+    workspace.update('file:///OverrideCrossNamespaceChild.php', source);
+    expect(workspace.overrideGeneration('file:///OverrideCrossNamespaceChild.php', source.indexOf('class Child') + 8)).toMatchObject({ methods: [
+      { name: 'convert', declarationText: 'public function convert(\\Shared\\Thing|\\OverrideBase\\Base $value): \\Shared\\Thing' },
+    ] });
+  });
+  it('keeps the method parameter boundary separate from a parenthesized DNF return type', () => {
+    workspace.update('file:///OverrideDnfBase.php', `<?php namespace OverrideDnfBase;
+      interface Left {} interface Right {} class Alternative {}
+      class Base { public function choose(): (Left&Right)|Alternative { return new Alternative(); } }
+    `);
+    const source = '<?php namespace OverrideDnfChild; class Child extends \\OverrideDnfBase\\Base {}';
+    workspace.update('file:///OverrideDnfChild.php', source);
+    expect(workspace.overrideGeneration('file:///OverrideDnfChild.php', source.indexOf('class Child') + 8)).toMatchObject({ methods: [
+      { declarationText: 'public function choose(): (\\OverrideDnfBase\\Left&\\OverrideDnfBase\\Right)|\\OverrideDnfBase\\Alternative' },
+    ] });
+  });
+  it('resolves native types when implementing an interface or abstract method in another namespace', () => {
+    workspace.update('file:///GenerateCrossContract.php', `<?php namespace GenerateContract;
+      use Shared\\Thing as Alias;
+      use Shared\\Defaults as SourceDefaults;
+      interface Contract { public function accept(Alias $value, int $limit = SourceDefaults::LIMIT): Alias; }
+    `);
+    workspace.update('file:///GenerateCrossAbstract.php', `<?php namespace GenerateAbstract;
+      use Shared\\Thing as Alias;
+      use Shared\\Defaults as SourceDefaults;
+      abstract class Base { abstract protected function accept(Alias $value, int $limit = SourceDefaults::LIMIT): Alias; }
+    `);
+    const interfaceSource = '<?php namespace GenerateTarget; class Worker implements \\GenerateContract\\Contract {}';
+    const abstractSource = '<?php namespace GenerateTarget; class Child extends \\GenerateAbstract\\Base {}';
+    workspace.update('file:///GenerateCrossWorker.php', interfaceSource);
+    workspace.update('file:///GenerateCrossChild.php', abstractSource);
+    expect(workspace.missingInterfaceImplementation('file:///GenerateCrossWorker.php', interfaceSource.indexOf('class Worker') + 8)).toMatchObject({ methods: [
+      { declarationText: 'public function accept(\\Shared\\Thing $value, int $limit = \\Shared\\Defaults::LIMIT): \\Shared\\Thing;' },
+    ] });
+    expect(workspace.missingAbstractImplementation('file:///GenerateCrossChild.php', abstractSource.indexOf('class Child') + 8)).toMatchObject({ methods: [
+      { declarationText: 'abstract protected function accept(\\Shared\\Thing $value, int $limit = \\Shared\\Defaults::LIMIT): \\Shared\\Thing;' },
+    ] });
+  });
+  it('rewrites class constant defaults in overrides without changing string literals', () => {
+    workspace.update('file:///GenerateDefaultBase.php', `<?php namespace DefaultBase;
+      use Shared\\Defaults as Flags;
+      use const Shared\\THRESHOLD as LOCAL_THRESHOLD;
+      const NAMESPACE_LIMIT = 5;
+      class Base { public const LOCAL = 3; public function configure(int $limit = Flags::LIMIT, int $local = self::LOCAL, int $threshold = LOCAL_THRESHOLD, int $namespace = NAMESPACE_LIMIT, string $label = 'Flags::LIMIT LOCAL_THRESHOLD NAMESPACE_LIMIT'): void {} }
+    `);
+    const source = '<?php namespace DefaultChild; class Child extends \\DefaultBase\\Base {}';
+    workspace.update('file:///GenerateDefaultChild.php', source);
+    expect(workspace.overrideGeneration('file:///GenerateDefaultChild.php', source.indexOf('class Child') + 8)).toMatchObject({ methods: [
+      { name: 'configure', declarationText: "public function configure(int $limit = \\Shared\\Defaults::LIMIT, int $local = \\DefaultBase\\Base::LOCAL, int $threshold = \\Shared\\THRESHOLD, int $namespace = \\DefaultBase\\NAMESPACE_LIMIT, string $label = 'Flags::LIMIT LOCAL_THRESHOLD NAMESPACE_LIMIT'): void" },
+    ] });
+  });
+  it('keeps constructor class names in PHP 8.1 parameter defaults bound to the source namespace', () => {
+    workspace.update('file:///GenerateNewDefaultBase.php', `<?php namespace NewDefaultBase;
+      use Shared\\Thing as Alias;
+      class Base { public function configure(object $value = new Alias()): void {} }
+    `);
+    const source = '<?php namespace NewDefaultChild; class Child extends \\NewDefaultBase\\Base {}';
+    workspace.update('file:///GenerateNewDefaultChild.php', source);
+    expect(workspace.overrideGeneration('file:///GenerateNewDefaultChild.php', source.indexOf('class Child') + 8)).toMatchObject({ methods: [
+      { declarationText: 'public function configure(object $value = new \\Shared\\Thing()): void' },
+    ] });
+  });
+  it('rewrites namespace, imported and new-expression defaults in one inherited signature', () => {
+    workspace.update('file:///C3CombinedDefaultType.php', '<?php namespace App\\Service; const C3_IMPORTED_LIMIT = 9; class C3SignatureType { public const LIMIT = 7; }');
+    workspace.update('file:///C3CombinedRelativeDefault.php', '<?php namespace App\\Contract\\Limits; const RELATIVE_LIMIT = 11;');
+    workspace.update('file:///C3CombinedAliasDefault.php', '<?php namespace App\\Service\\Limits; const ALIASED_LIMIT = 13;');
+    workspace.update('file:///C3CombinedDefaultBase.php', `<?php namespace App\\Contract;
+      use App\\Service\\C3SignatureType as Alias;
+      use App\\Service\\Limits as SharedLimits;
+      use const App\\Service\\C3_IMPORTED_LIMIT as IMPORTED_LIMIT;
+      const LOCAL_LIMIT = 5;
+      class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $imported = IMPORTED_LIMIT, object $value = new Alias(), int $explicit = namespace\\LOCAL_LIMIT, int $relative = Limits\\RELATIVE_LIMIT, int $aliased = SharedLimits\\ALIASED_LIMIT, string $label = 'namespace\\LOCAL_LIMIT'): void {} }
+    `);
+    const source = '<?php namespace App\\Service; class C3CrossDefaultsChild extends \\App\\Contract\\C3CrossDefaults {}';
+    workspace.update('file:///C3CombinedDefaultChild.php', source);
+    expect(workspace.overrideGeneration('file:///C3CombinedDefaultChild.php', source.indexOf('class C3CrossDefaultsChild') + 8)).toMatchObject({ methods: [
+      { declarationText: "public function defaults(int $local = \\App\\Contract\\LOCAL_LIMIT, int $imported = \\App\\Service\\C3_IMPORTED_LIMIT, object $value = new \\App\\Service\\C3SignatureType(), int $explicit = \\App\\Contract\\LOCAL_LIMIT, int $relative = \\App\\Contract\\Limits\\RELATIVE_LIMIT, int $aliased = \\App\\Service\\Limits\\ALIASED_LIMIT, string $label = 'namespace\\LOCAL_LIMIT'): void" },
+    ] });
+  });
   it('reports only independently removable imports unused by code or PHPDoc', () => {
     const source = `<?php namespace Imports;
       use Vendor\\Used;

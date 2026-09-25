@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/phpdoc",
   "version": "0.1.0-alpha.1",
-  "description": "Lossless PHPDoc type and tag parser for PHP Companion.",
+  "description": "Lossless PHPDoc type and tag parser for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

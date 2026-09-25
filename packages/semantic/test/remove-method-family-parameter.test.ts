@@ -80,6 +80,20 @@ final class Caller {
     expect(sources.get(callerUri)).toContain('send("c")');
   });
 
+  it('plans across implementations and calls that are indexed but unopened', () => {
+    const closedWorkspace = new SemanticWorkspace(parser);
+    try {
+      closedWorkspace.update(contractUri, contract, true);
+      closedWorkspace.update(firstUri, first, false);
+      closedWorkspace.update(secondUri, second, false);
+      closedWorkspace.update(callerUri, caller, false);
+      const plan = closedWorkspace.removeMethodParameter(contractUri,
+        contract.indexOf('$context', contract.indexOf('function send')) + 2);
+      expect(plan).toBeDefined();
+      expect(new Set(plan!.edits.map((edit) => edit.uri))).toEqual(new Set([contractUri, firstUri, secondUri, callerUri]));
+    } finally { closedWorkspace.dispose(); }
+  });
+
   it('refuses use in an implementation and arguments whose evaluation matters', () => {
     const used = first.replace('return $payload;', 'return $payload . $mode;');
     load(used);
@@ -87,5 +101,50 @@ final class Caller {
     const effectful = caller.replace('context: "web"', 'context: sideEffect()');
     load(first, effectful);
     expect(workspace.removeMethodParameter(contractUri, contract.indexOf('$context', contract.indexOf('function send')) + 2)).toBeUndefined();
+  });
+
+  it('ignores a first-class callable on an unrelated final method', () => {
+    load();
+    const unrelatedUri = 'file:///workspace/src/Audit/Logger.php';
+    workspace.update(unrelatedUri, `<?php namespace App\\Audit;
+final class Logger { public function send(string $message): void {} public function run(): void { $callback = $this->send(...); } }`, true);
+    const plan = workspace.removeMethodParameter(contractUri, contract.indexOf('$context', contract.indexOf('function send')) + 2);
+    expect(plan).toBeDefined();
+    expect(plan?.edits.some((edit) => edit.uri === unrelatedUri)).toBe(false);
+    workspace.remove(unrelatedUri);
+  });
+
+  it('finds the outer method when a later argument uses legacy array syntax', () => {
+    const uri = 'file:///workspace/src/Service/ArrayRemove.php';
+    const source = `<?php namespace App\\Service;
+final class ArrayRemove {
+    public function dispatch(string $label, array $payload): void {}
+    public function run(): void { $this->dispatch('x', array('y')); }
+}`;
+    workspace.update(uri, source, true);
+    const plan = workspace.removeMethodParameter(uri, source.indexOf('$label') + 2);
+    expect(plan?.edits).toHaveLength(2);
+    workspace.remove(uri);
+  });
+
+  it('keeps a comment attached to the retained argument when removing the last parameter', () => {
+    const uri = 'file:///workspace/src/Service/CommentedRemove.php';
+    const source = `<?php namespace App\\Service;
+final class CommentedRemove {
+    public function dispatch(string $label /* keep declaration */, string $context): void {}
+    public function run(): void { $this->dispatch('a' /* keep label */, 'web'); }
+}`;
+    workspace.update(uri, source, true);
+    const plan = workspace.removeMethodParameter(uri, source.indexOf('$context') + 2);
+    expect(plan).toBeDefined();
+    let edited = source;
+    for (const edit of [...plan!.edits].sort((left, right) => right.start - left.start))
+      edited = `${edited.slice(0, edit.start)}${edit.newText}${edited.slice(edit.end)}`;
+    expect(edited).toContain("dispatch('a' /* keep label */)");
+    expect(edited).toContain('dispatch(string $label /* keep declaration */)');
+    const parsed = parser.parse(edited);
+    expect(parsed.errors).toEqual([]);
+    parsed.tree.delete();
+    workspace.remove(uri);
   });
 });

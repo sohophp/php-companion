@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/route-provider",
   "version": "0.1.0-alpha.1",
-  "description": "Versioned framework-neutral route provider contracts for PHP Companion.",
+  "description": "Versioned framework-neutral route provider contracts for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/route-provider" },

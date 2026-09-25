@@ -364,6 +364,10 @@ function configuredExtensionEntryForRoot(root: string): ConfiguredExtensionAvail
     .sort((left, right) => right.path.length - left.path.length)[0];
 }
 
+function phpEnvironmentSignatureForRoot(root: string): string {
+  return JSON.stringify([phpVersionForRoot(root), configuredExtensionEntryForRoot(root)]);
+}
+
 function configuredDisabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
   return configuredExtensionEntryForRoot(root)?.disabledExtensions ?? [];
 }
@@ -966,18 +970,23 @@ connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (para
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
+  const previous = new Map(workspaceRoots.map((root) => [root, phpEnvironmentSignatureForRoot(root)]));
   setConfiguredExtensionAvailability(params?.roots);
-  await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
+  const changedRoots = workspaceRoots.filter((root) => previous.get(root) !== phpEnvironmentSignatureForRoot(root));
+  await Promise.all(changedRoots.map(refreshBuiltinForRoot));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php'
+    && changedRoots.includes(rootForUri(document.uri) ?? '')).map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/phpVersions', async (params: { versions?: unknown; fallback?: unknown; extensionAvailability?: unknown } | undefined) => {
   if (!params || !Array.isArray(params.versions)) return;
-  const previous = new Map(workspaceRoots.map((root) => [root, phpVersionForRoot(root)]));
+  const previousVersions = new Map(workspaceRoots.map((root) => [root, phpVersionForRoot(root)]));
+  const previous = new Map(workspaceRoots.map((root) => [root, phpEnvironmentSignatureForRoot(root)]));
   const previousFallback = targetPhpVersion;
   setTargetPhpVersions(params.versions, params.fallback);
   setConfiguredExtensionAvailability(params.extensionAvailability);
-  for (const root of workspaceRoots) {
-    if (previous.get(root) !== phpVersionForRoot(root)) invalidateCandidates(indexedUriForPath(root, root));
+  const changedRoots = workspaceRoots.filter((root) => previous.get(root) !== phpEnvironmentSignatureForRoot(root));
+  for (const root of changedRoots) {
+    if (previousVersions.get(root) !== phpVersionForRoot(root)) invalidateCandidates(indexedUriForPath(root, root));
   }
   if (previousFallback !== targetPhpVersion) {
     const loose = await semanticWorkspaces.get('loose');
@@ -986,8 +995,10 @@ connection.onNotification('phpCompanion/phpVersions', async (params: { versions?
       loose.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
     }
   }
-  await Promise.all(workspaceRoots.map(refreshBuiltinForRoot));
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
+  await Promise.all(changedRoots.map(refreshBuiltinForRoot));
+  await Promise.all(documents.all().filter((document) => document.languageId === 'php'
+    && (changedRoots.includes(rootForUri(document.uri) ?? '') || (!rootForUri(document.uri) && previousFallback !== targetPhpVersion)))
+    .map((document) => publishDocumentDiagnostics(document)));
 });
 
 function rootForUri(uri: string): string | undefined {
@@ -1596,7 +1607,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     if (primaryType.name !== expectedName) {
       const targetPath = resolve(dirname(documentPath), `${primaryType.name}.php`);
       result.diagnostics.push({
-        range: primaryType.selectionRange, severity: DiagnosticSeverity.Warning, code: 'php.type.filename', source: 'PHP Companion',
+        range: primaryType.selectionRange, severity: DiagnosticSeverity.Warning, code: 'php.type.filename', source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'filename', primaryType.name),
         data: { expectedUri: root ? indexedUriForPath(root, targetPath) : pathToFileURL(targetPath).toString() },
       });
@@ -1606,7 +1617,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
     severity: DiagnosticSeverity.Warning,
     code: 'php.import.unused',
-    source: 'PHP Companion',
+    source: 'SoPHP',
     message: diagnosticMessage(clientDiagnosticLanguage, 'unusedImport',
       diagnosticMessage(clientDiagnosticLanguage, item.kind === 'class' ? 'importClass' : item.kind === 'function' ? 'importFunction' : 'importConst'), item.name),
     data: { statementStart: item.statementStart, statementEnd: item.statementEnd },
@@ -1615,7 +1626,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     range: { start: document.positionAt(variable.start), end: document.positionAt(variable.end) },
     severity: DiagnosticSeverity.Warning,
     code: 'php.variable.undefined',
-    source: 'PHP Companion',
+    source: 'SoPHP',
     message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')
@@ -1623,7 +1634,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     range: { start: document.positionAt(problem.start), end: document.positionAt(problem.end) },
     severity: DiagnosticSeverity.Error,
     code: `php.argument.${problem.kind}`,
-    source: 'PHP Companion',
+    source: 'SoPHP',
     message: problem.kind === 'duplicate-named'
       ? diagnosticMessage(clientDiagnosticLanguage, 'duplicateNamedArgument', String(problem.name))
       : problem.kind === 'unpack-after-named' ? diagnosticMessage(clientDiagnosticLanguage, 'unpackAfterNamed')
@@ -1634,21 +1645,21 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(conflict.start), end: document.positionAt(conflict.end) },
       severity: DiagnosticSeverity.Warning,
       code: 'php.phpdoc.type-conflict',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'phpDocTypeConflict', conflict.subject, conflict.phpDocType, conflict.nativeType),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.unknown-named',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
     })));
     result.diagnostics.push(...workspace.missingRequiredArguments(document.uri, true).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.missing-required',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
         call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
     })));
@@ -1656,7 +1667,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.type-mismatch',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
     if (root && indexingMode === 'onDemand') result.diagnostics.push(...(await provenOnDemandExternalArguments(workspace, root, document))
@@ -1664,7 +1675,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.argument.type-mismatch',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch',
           argument.callable, argument.parameter, argument.expectedType, argument.actualType),
       })));
@@ -1697,28 +1708,28 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(type.start), end: document.positionAt(type.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedType', type.fqcn),
     })));
     result.diagnostics.push(...unresolvedTypes.filter((type) => !unavailableKeys.has(`type:${type.start}:${type.end}`)).map((type) => ({
       range: { start: document.positionAt(type.start), end: document.positionAt(type.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.type.unresolved',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedType', type.fqcn),
     })));
     result.diagnostics.push(...unresolvedFunctions.filter((symbol) => !unavailableKeys.has(`function:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.function.unresolved',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedFunction', symbol.fqcn),
     })));
     result.diagnostics.push(...unresolvedConstants.filter((symbol) => !unavailableKeys.has(`constant:${symbol.start}:${symbol.end}`)).map((symbol) => ({
       range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.constant.unresolved',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedConstant', symbol.fqcn),
     })));
     result.diagnostics.push(...[...unavailableUses.values()].map((use) => {
@@ -1735,7 +1746,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(use.start), end: document.positionAt(use.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.extension.unavailable',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'extensionUnavailable',
           diagnosticMessage(clientDiagnosticLanguage, use.kind === 'type' ? 'extensionType' : use.kind === 'function' ? 'extensionFunction' : 'extensionConstant'),
           use.fqcn, extensionNames, localizedSource),
@@ -1746,7 +1757,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.member.unresolved',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unresolvedMember',
         diagnosticMessage(clientDiagnosticLanguage, member.kind === 'method' ? 'memberMethod' : member.kind === 'property' ? 'memberProperty' : 'memberConstant'),
         member.ownerFqcn, member.name),
@@ -1755,7 +1766,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.member.non-static-access',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'nonStaticMember',
         diagnosticMessage(clientDiagnosticLanguage, member.kind === 'method' ? 'memberMethod' : member.kind === 'property' ? 'memberProperty' : 'memberConstant'),
         member.ownerFqcn, member.name),
@@ -1764,7 +1775,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.member.inaccessible',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: member.kind === 'property' && member.operation
         ? diagnosticMessage(clientDiagnosticLanguage, 'inaccessiblePropertyOperation',
           diagnosticMessage(clientDiagnosticLanguage, member.operation === 'read' ? 'propertyRead' : 'propertyWrite'),
@@ -1779,7 +1790,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
       severity: DiagnosticSeverity.Error,
       code: `php.property.${property.reason}`,
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: property.reason === 'indirect-modification'
         ? diagnosticMessage(clientDiagnosticLanguage, 'hookedIndirectModification', property.ownerFqcn, property.name)
         : property.reason === 'reference-assignment'
@@ -1792,14 +1803,14 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(iteration.start), end: document.positionAt(iteration.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.property.reference-iteration',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'hookedReferenceIteration', iteration.ownerFqcn, iteration.propertyNames.map((name) => `$${name}`).join(', ')),
     })));
     result.diagnostics.push(...workspace.nullableMemberAccesses(document.uri).map((member) => ({
       range: { start: document.positionAt(member.start), end: document.positionAt(member.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.member.possibly-null',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'nullableMember', member.ownerFqcn, member.name),
       data: { operatorStart: member.operatorStart, operatorEnd: member.operatorEnd },
     })));
@@ -1807,14 +1818,14 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(conflict.start), end: document.positionAt(conflict.end) },
       severity: DiagnosticSeverity.Warning,
       code: 'php.phpdoc.type-conflict',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'phpDocTypeConflict', conflict.subject, conflict.phpDocType, conflict.nativeType),
     })));
     result.diagnostics.push(...workspace.missingRequiredArguments(document.uri).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.missing-required',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, call.parameters.length === 1 ? 'missingArgument' : 'missingArguments',
         call.callable, call.parameters.map((name) => `$${name}`).join(', ')),
     })));
@@ -1822,28 +1833,28 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(argument.start), end: document.positionAt(argument.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.type-mismatch',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
     result.diagnostics.push(...workspace.incompatibleReturns(document.uri).map((returned) => ({
       range: { start: document.positionAt(returned.start), end: document.positionAt(returned.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.return.type-mismatch',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'returnTypeMismatch', returned.callable, returned.expectedType, returned.actualType),
     })));
     result.diagnostics.push(...workspace.incompatibleAssignments(document.uri).map((assignment) => ({
       range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.assignment.type-mismatch',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'assignmentTypeMismatch', assignment.variable, assignment.expectedType, assignment.actualType),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.dynamicPropertyCreations(document.uri).map((property) => ({
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
       severity: DiagnosticSeverity.Warning,
       code: 'php.property.dynamic-deprecated',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'dynamicProperty', property.ownerFqcn, property.name),
     })));
     result.diagnostics.push(...workspace.readonlyPropertyAssignments(document.uri)
@@ -1851,7 +1862,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.assignment.readonly-property',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: assignment.operation === 'reference-iteration'
         ? `Cannot iterate ${assignment.ownerFqcn} by reference because these visible properties are already initialized and readonly: ${(assignment.propertyNames ?? [assignment.name]).map((name) => `$${name}`).join(', ')}.`
         : diagnosticMessage(clientDiagnosticLanguage, 'readonlyPropertyModify', assignment.ownerFqcn, assignment.name),
@@ -1860,28 +1871,28 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.argument.unknown-named',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'unknownNamedArgument', call.callable, call.name),
     })));
     result.diagnostics.push(...workspace.missingInterfaceImplementations(document.uri).filter((item) => !item.abstract).map((item) => ({
       range: { start: document.positionAt(item.classStart), end: document.positionAt(item.classEnd) },
       severity: DiagnosticSeverity.Error,
       code: 'php.interface.missing-method',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'missingInterfaceMethods', item.classFqcn, item.methods.map((method) => method.name).join(', ')),
     })));
     result.diagnostics.push(...workspace.missingAbstractImplementations(document.uri).filter((item) => !item.abstract).map((item) => ({
       range: { start: document.positionAt(item.classStart), end: document.positionAt(item.classEnd) },
       severity: DiagnosticSeverity.Error,
       code: 'php.class.missing-abstract-method',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'missingAbstractMethods', item.classFqcn, item.methods.map((method) => method.name).join(', ')),
     })));
     result.diagnostics.push(...workspace.incompatibleMethodOverrides(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.method.incompatible-override',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'incompatibleOverride', item.method, item.inheritedMethod,
         diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
     })));
@@ -1893,7 +1904,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.property.incompatible-override',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'incompatibleOverride', item.property, item.inheritedProperty,
           diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
       })));
@@ -1901,7 +1912,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.property.missing-implementation',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'missingPropertyImplementation', item.classFqcn, item.inheritedProperty,
           diagnosticCompatibilityReason(clientDiagnosticLanguage, item.reason)),
       })));
@@ -1912,7 +1923,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: item.reason === 'final-class' ? 'php.inheritance.final-class' : 'php.inheritance.readonly-mismatch',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: item.reason === 'final-class' ? diagnosticMessage(clientDiagnosticLanguage, 'inheritFinalClass', item.type, item.parent)
         : diagnosticMessage(clientDiagnosticLanguage, 'inheritReadonlyMismatch',
           diagnosticMessage(clientDiagnosticLanguage, item.readonly ? 'readonlyClassLabel' : 'nonReadonlyClassLabel'), item.type,
@@ -1924,7 +1935,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.inheritance.invalid-type-kind',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'invalidTypeRelation', item.owner,
         diagnosticMessage(clientDiagnosticLanguage, relationLabels[item.relation]), item.target,
         diagnosticMessage(clientDiagnosticLanguage, kindLabels[item.expectedKind]),
@@ -1934,7 +1945,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.inheritance.cycle',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'inheritanceCycle', item.owner,
         diagnosticMessage(clientDiagnosticLanguage, item.relation === 'use' ? 'traitUseLabel' : 'inheritanceLabel'), item.target),
     })));
@@ -1942,21 +1953,21 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.enum.invalid-member',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'enumTraitProperty', item.enumFqcn, item.traitFqcn, item.propertyOwner, item.propertyName),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidReadonlyTraitProperties(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.readonly-class.invalid-trait',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'readonlyTraitProperty', item.classFqcn, item.traitFqcn, item.propertyOwner, item.propertyName),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidAllowDynamicProperties(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.attribute.invalid-allow-dynamic-properties',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAllowDynamicProperties',
         diagnosticMessage(clientDiagnosticLanguage, item.readonlyClass ? 'readonlyClassKind' : kindLabels[item.kind]), item.typeFqcn),
     })));
@@ -1967,7 +1978,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.version.unsupported',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'overridePropertyVersion', item.property, targetPhpVersion),
       })));
     } else if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5')) {
@@ -1975,7 +1986,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-override-property',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'overridePropertyMissing', item.property),
       })));
     }
@@ -1984,7 +1995,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Warning,
         code: 'php.return-value.discarded',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'noDiscardReturn', item.callable,
           item.message ? diagnosticMessage(clientDiagnosticLanguage, 'noDiscardMessage', item.message) : ''),
       })));
@@ -1997,7 +2008,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-no-discard',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'noDiscardDeclaration', item.callable,
           diagnosticMessage(clientDiagnosticLanguage, reasons[item.reason])),
       })));
@@ -2005,7 +2016,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
         severity: DiagnosticSeverity.Error,
         code: 'php.attribute.invalid-no-discard-target',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAttributeTarget', '#[NoDiscard]',
           diagnosticAttributeTarget(clientDiagnosticLanguage, item.target)),
       })));
@@ -2018,7 +2029,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
           range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
           severity: DiagnosticSeverity.Error,
           code: 'php.version.unsupported',
-          source: 'PHP Companion',
+          source: 'SoPHP',
           message: diagnosticMessage(clientDiagnosticLanguage, 'deprecatedTargetVersion',
             diagnosticAttributeTarget(clientDiagnosticLanguage, item.target), item.minimumPhpVersion, targetPhpVersion),
         }];
@@ -2027,7 +2038,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
           range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
           severity: DiagnosticSeverity.Error,
           code: 'php.attribute.invalid-deprecated-target',
-          source: 'PHP Companion',
+          source: 'SoPHP',
           message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAttributeTarget', '#[Deprecated]',
             diagnosticAttributeTarget(clientDiagnosticLanguage, item.target)),
         }];
@@ -2041,7 +2052,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
         severity: DiagnosticSeverity.Warning,
         tags: [DiagnosticTag.Deprecated],
         code: 'php.symbol.deprecated',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(clientDiagnosticLanguage, 'deprecatedSymbol',
           diagnosticDeprecatedKind(clientDiagnosticLanguage, item.kind), item.symbol,
           item.since ? diagnosticMessage(clientDiagnosticLanguage, 'deprecatedSince', item.since) : '',
@@ -2051,7 +2062,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.enum.invalid-interface',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: item.reason === 'automatic-interface'
         ? diagnosticMessage(clientDiagnosticLanguage, 'enumAutomaticInterface', item.enumFqcn, item.prohibitedInterface)
         : item.reason === 'serializable'
@@ -2064,7 +2075,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.instantiation.invalid-target',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'invalidInstantiation',
         diagnosticMessage(clientDiagnosticLanguage, item.reason === 'abstract-class' ? 'kindAbstractClass' : kindLabels[item.reason]), item.target),
     })));
@@ -2072,7 +2083,7 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
       code: 'php.instantiation.inaccessible-constructor',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'inaccessibleConstructor', item.visibility, item.constructor, item.target),
     })));
   }
@@ -2229,9 +2240,15 @@ function startIndexWorkspace(reason = 'semantic-query', changedComposerPaths?: r
   return running;
 }
 
+let watchedFileChanges: Promise<void> = Promise.resolve();
+
 async function ensureCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (indexingMode !== 'experimental') return false;
-  if (completeRoots.has(root)) return true;
+  await watchedFileChanges;
+  if (completeRoots.has(root)) {
+    await applyPendingFiles();
+    return !isCancellationRequested() && completeRoots.has(root);
+  }
   // A completed project scan can still have an intentionally partial dependency
   // index when a dependency exceeds a resource budget. Repeating the same bounded
   // scan cannot make that index complete and causes every conservative request to
@@ -2243,6 +2260,7 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
 
 async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (indexingMode === 'off') return false;
+  await watchedFileChanges;
   if (projectCompleteRoots.has(root)) { await applyPendingFiles(); return !isCancellationRequested(); }
   const indexing = activeIndexing ?? startIndexWorkspace();
   if (!projectCompleteRoots.has(root)) await new Promise<void>((resolveReady) => {
@@ -2295,8 +2313,10 @@ const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
 const candidateScanTasks = new Map<string, { epoch: number; workspace: SemanticWorkspace;
   waiters: Set<() => boolean>; promise: Promise<boolean> }>();
-const referenceCandidateReads = new WeakMap<SemanticWorkspace, { root: string; key: string; epoch: number;
-  reads: ReadonlyMap<string, string>; skipped: ReadonlyMap<string, SkippedCandidateStamp> }>();
+type CandidateReadEvidence = { root: string; key: string; epoch: number;
+  reads: ReadonlyMap<string, string>; skipped: ReadonlyMap<string, SkippedCandidateStamp> };
+const referenceCandidateReads = new WeakMap<SemanticWorkspace, CandidateReadEvidence>();
+const methodFreshnessEvidence = new WeakMap<SemanticWorkspace, Map<string, CandidateReadEvidence>>();
 const restoredReferenceResults = new WeakMap<SemanticWorkspace, { proof: ReferenceResultProof; revision: string; epoch: number; generation: number }>();
 let pendingReferenceWrite: (() => Promise<void>) | undefined;
 let referenceWriteTask: Promise<void> | undefined;
@@ -2519,7 +2539,7 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
 function invalidateCandidates(uri: string, preservePreparedSource = false): void {
-  if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', 0);
+  if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', performance.now());
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) {
     const previousEpoch = projectEpochs.get(root) ?? 0;
@@ -2570,6 +2590,12 @@ function reuseCandidateCoverageAfterOpenEdit(root: string, previousEpoch: number
     candidateReceiverMethods.set(key, [...receivers.values()]);
     candidateQueries.set(key, previousEpoch + 1);
   }
+  const freshness = methodFreshnessEvidence.get(workspace);
+  if (freshness) for (const [key, evidence] of freshness) {
+    if (evidence.root === root && evidence.epoch === previousEpoch && candidateQueries.get(key) === previousEpoch + 1) {
+      freshness.set(key, { ...evidence, epoch: previousEpoch + 1 });
+    }
+  }
   referenceCandidateReads.delete(workspace);
 }
 const progressiveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -2595,8 +2621,8 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
   progressiveRefreshTimers.set(root, timer);
 }
 async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string,
-  includeDependencies = false): Promise<CandidatePaths | undefined> {
-  if (!names.length || names.length > 16 || names.some((name) => name.length < 8 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
+  includeDependencies = false, minNameLength = 8): Promise<CandidatePaths | undefined> {
+  if (!names.length || names.length > 16 || names.some((name) => name.length < minNameLength || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
   const paths = includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project);
   if (!paths.length) return undefined;
   const startedAt = Date.now() - 1_000;
@@ -2613,6 +2639,44 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
       done({ paths: new Set(Buffer.concat(chunks).toString('utf8').split('\0').filter(Boolean).map((path) => resolve(path))), startedAt });
     });
   });
+}
+
+async function methodCandidatePathsUnchanged(workspace: SemanticWorkspace, root: string, key: string,
+  names: Set<string>, cancelled: () => boolean): Promise<boolean> {
+  const checkStarted = performance.now();
+  if (candidateQueries.get(key) !== (projectEpochs.get(root) ?? 0) || referenceRipgrepMode === 'off') return false;
+  const normalizedNames = [...names].sort();
+  if (normalizedNames.some((name) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return false;
+  const project = await composerProjectForRoot(root);
+  const evidence = methodFreshnessEvidence.get(workspace)?.get(key);
+  if (!project || !evidence || evidence.root !== root || evidence.key !== key
+    || evidence.epoch !== (projectEpochs.get(root) ?? 0) || cancelled()) return false;
+  const searchStarted = performance.now();
+  const current = referenceRipgrepMode === 'portable'
+    ? await portableCandidatePaths(projectAutoloadPaths(project), normalizedNames, project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles))
+    : await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', false, 1);
+  recordTestQueryDuration('methodReferenceFreshnessSearch', searchStarted);
+  if (!current || current.paths.size > 256 || cancelled()) return false;
+  const hashStarted = performance.now();
+  for (const path of current.paths) {
+    if (cancelled()) return false;
+    const hash = evidence.reads.get(path);
+    if (!hash) return false;
+    let source: string;
+    try { source = await readFile(path, 'utf8'); } catch { return false; }
+    if (createHash('sha256').update(source).digest('hex') !== hash) return false;
+  }
+  recordTestQueryDuration('methodReferenceFreshnessHash', hashStarted);
+  // A source that used to contain the method can lose it without a watcher
+  // event. Open buffers already update the semantic workspace directly.
+  for (const path of evidence.reads.keys()) {
+    const uri = indexedUriForPath(root, path);
+    if (documents.get(uri)) continue;
+    const source = workspace.source(uri)?.toLowerCase();
+    if (source && normalizedNames.some((name) => source.includes(name)) && !current.paths.has(path)) return false;
+  }
+  recordTestQueryDuration('methodReferenceFreshnessTotal', checkStarted);
+  return !cancelled() && evidence.epoch === (projectEpochs.get(root) ?? 0);
 }
 
 async function performNamedCandidateScan(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries: number,
@@ -2632,6 +2696,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   candidateReceiverMethods.delete(key);
   candidateReceiverMethodsByUri.delete(key);
   referenceCandidateReads.delete(workspace);
+  methodFreshnessEvidence.get(workspace)?.delete(key);
   const candidateReads = new Map<string, string>(); const skippedCandidateStamps = new Map<string, SkippedCandidateStamp>();
   let candidateReadsComplete = true;
   const recordCandidateRead = (path: string, hash: string): void => {
@@ -2665,11 +2730,13 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     }).catch((error: unknown) => connection.console.warn(`PHP candidate progress could not start: ${String(error)}`));
   }
   try {
+  const projectStarted = performance.now();
   const project = await composerProjectForRoot(root);
+  recordTestQueryDuration('candidateProject', projectStarted);
   const light = referenceLightSummaries.get(root);
   const usableLight = light?.epoch === epoch && mode === 'symbol'
     && normalizedNames.every((name) => /^[a-z_][a-z0-9_]*$/.test(name)) ? light.entries : undefined;
-  const rgStarted = Date.now();
+  const rgStarted = Date.now(); const prefilterStarted = performance.now();
   const canPrefilter = referenceRipgrepMode !== 'off' && !forceFull && project && mode === 'symbol'
     && normalizedNames.length > 0 && normalizedNames.length <= 16
     && normalizedNames.every((name) => name.length >= 8 && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name));
@@ -2684,7 +2751,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project), normalizedNames,
       project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles));
   }
+  recordTestQueryDuration('candidatePrefilter', prefilterStarted);
   if (prefilterCandidates) connection.console.info(`[reference-candidates] paths=${prefilterCandidates.paths.size} elapsedMs=${Date.now() - rgStarted} cached=${cachedPathSearch}`);
+  const indexStarted = performance.now();
   const scan = await indexComposerSources(root, { project, includeDependencies, limits: indexLimits, readConcurrency: 128,
     skipSourceOutsideBudget: Boolean(prefilterCandidates && includeDependencies),
     skipSource: prefilterCandidates ? (path, info): boolean => {
@@ -2720,6 +2789,9 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
         ? namedArgumentPatterns.some((pattern) => pattern.test(effective))
         : exactSymbols ? sourceCandidateSummaryDecision(summary, names, 'symbol') !== 'skip'
           : normalizedNames.some((name) => effective.toLowerCase().includes(name)));
+      if (!matches && workspace.source(uri) !== undefined && workspace.source(uri) !== effective) {
+        workspace.update(uri, effective, Boolean(open));
+      }
       if (exactSymbols && !matches) {
         skippedExactSources.push({ uri, source: effective }); return undefined;
       }
@@ -2800,6 +2872,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       },
     } : undefined,
   });
+  recordTestQueryDuration('candidateIndex', indexStarted);
   if (prefilterCandidates && !cachedPathSearch && project && !cancelled()
     && (includeDependencies ? scan.complete : scan.projectComplete) && (projectEpochs.get(root) ?? 0) === epoch) {
     const searches = existingPathSearches ?? new Map<string, CandidatePaths>();
@@ -2869,7 +2942,14 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
       mode, deferBodies, prepareInWorkers, showProgress, forceFull, includeDependencies) : false;
   }
   if (candidateReadsComplete && candidateReads.size + skippedCandidateStamps.size === scan.files) {
-    referenceCandidateReads.set(workspace, { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps });
+    const evidence = { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps };
+    referenceCandidateReads.set(workspace, evidence);
+    if (mode === 'symbol' && deferBodies) {
+      const freshness = methodFreshnessEvidence.get(workspace) ?? new Map<string, CandidateReadEvidence>();
+      freshness.delete(key); freshness.set(key, evidence);
+      while (freshness.size > 8) freshness.delete(freshness.keys().next().value!);
+      methodFreshnessEvidence.set(workspace, freshness);
+    }
   }
   candidateReceiverMethods.set(key, [...receiverMethods.values()]);
   candidateReceiverMethodsByUri.set(key, receiverMethodsByUri);
@@ -3431,7 +3511,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     signatureHelpProvider: { triggerCharacters: ['(', ','] },
     codeActionProvider: { codeActionKinds: [CodeActionKind.QuickFix, CodeActionKind.RefactorExtract, CodeActionKind.RefactorInline, CodeActionKind.RefactorRewrite, CodeActionKind.SourceOrganizeImports] },
   },
-  serverInfo: { name: 'PHP Companion Language Server', version: '0.1.0-alpha.1' },
+  serverInfo: { name: 'SoPHP Language Server', version: '0.1.0-alpha.1' },
   });
 });
 
@@ -3459,7 +3539,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -3483,6 +3563,12 @@ connection.onRequest('phpCompanion/testQueryTimings', (params: { reset?: unknown
   const result = Object.fromEntries([...testQueryDurations].map(([method, samples]) => [method, [...samples]]));
   if (params?.reset === true) testQueryDurations.clear();
   return result;
+});
+
+connection.onRequest('phpCompanion/testFrameworkSnapshotHashes', (): Record<string, string> => {
+  if (!testMode) return {};
+  return Object.fromEntries([...frameworkDocumentSnapshots].map(([uri, document]) =>
+    [uri, createHash('sha256').update(document.source).digest('hex')]));
 });
 
 connection.onRequest('phpCompanion/testOnDemandClosedDocuments', (params: { uri?: unknown } | undefined): string[] => {
@@ -3629,6 +3715,42 @@ connection.onRequest('phpCompanion/symfonyControllerDefinition', async (params: 
   const languageId = target.registrationUri.endsWith('.php') ? 'php' : target.registrationUri.endsWith('.xml') ? 'xml' : 'yaml';
   const targetDocument = documents.get(target.registrationUri) ?? TextDocument.create(target.registrationUri, languageId, 0, targetSource);
   return [{ uri: target.registrationUri, range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) } }];
+});
+
+connection.onRequest('phpCompanion/symfonyRouteControllerDefinition', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: unknown; source?: unknown;
+}, token): Promise<Array<{ uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }>> => {
+  const uri = params.textDocument?.uri; const position = params.position as { line?: unknown; character?: unknown } | undefined;
+  if (typeof uri !== 'string' || !/\.php$/i.test(uri) || typeof params.source !== 'string'
+    || params.source.length > indexLimits.maxFileSizeBytes || !position || !Number.isSafeInteger(position.line)
+    || !Number.isSafeInteger(position.character) || Number(position.line) < 0 || Number(position.character) < 0
+    || token.isCancellationRequested) return [];
+  const root = rootForUri(uri); const open = documents.get(uri);
+  if (!root || !open || open.version !== params.textDocument?.version || open.getText() !== params.source) return [];
+  if (!/\bRoutingConfigurator\b/u.test(params.source) || !/->controller\s*\(/u.test(params.source)) return [];
+  const offset = open.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
+  if (token.isCancellationRequested || documents.get(uri)?.version !== open.version) return [];
+  const controller = routes.flatMap((route) => route.controller && route.controller.uri === uri ? [route.controller] : [])
+    .find((item) => offset >= item.classStart && offset < item.classEnd
+      || item.methodStart !== undefined && item.methodEnd !== undefined && offset >= item.methodStart && offset < item.methodEnd);
+  if (!controller || params.source.slice(controller.classStart, controller.classEnd) !== (controller.classSourceName ?? controller.className)
+    || controller.method && (controller.methodStart === undefined || controller.methodEnd === undefined
+      || params.source.slice(controller.methodStart, controller.methodEnd) !== controller.method)) return [];
+  const workspace = await semanticForRoot(root);
+  await hydrateCanonicalTypes(workspace, root, [controller.className]);
+  if (token.isCancellationRequested || documents.get(uri)?.version !== open.version) return [];
+  const target = controller.method && controller.methodStart !== undefined && controller.methodEnd !== undefined
+    && offset >= controller.methodStart && offset < controller.methodEnd
+    ? workspace.publicInstanceMethod(controller.className, controller.method)
+    : canonicalTypeDeclaration(workspace, root, controller.className);
+  if (!target) return [];
+  const targetPath = pathForUri(target.uri);
+  const source = documents.get(target.uri)?.getText() ?? workspace.source(target.uri)
+    ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
+  if (source === undefined || token.isCancellationRequested || documents.get(uri)?.version !== open.version) return [];
+  const targetDocument = documents.get(target.uri) ?? TextDocument.create(target.uri, 'php', 0, source);
+  return [{ uri: target.uri, range: { start: targetDocument.positionAt(target.start), end: targetDocument.positionAt(target.end) } }];
 });
 
 connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
@@ -4628,7 +4750,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
   }
   for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
-connection.onDidChangeWatchedFiles(async ({ changes }) => {
+async function processWatchedFileChanges(changes: readonly { uri: string; type: number }[]): Promise<void> {
   const changedComposerPaths: string[] = [];
   const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
@@ -4677,6 +4799,11 @@ connection.onDidChangeWatchedFiles(async ({ changes }) => {
   } else if (activeIndexing) {
     for (const root of containerRefreshRoots) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
   }
+}
+connection.onDidChangeWatchedFiles(({ changes }) => {
+  const processing = watchedFileChanges.then(() => processWatchedFileChanges(changes));
+  watchedFileChanges = processing.catch(() => undefined);
+  return processing;
 });
 
 const openingContentVersions = new Map<string, number>();
@@ -5545,6 +5672,7 @@ let querySequence = 0;
 connection.onReferences(async ({ textDocument, position, context }, token) => {
   const document = documents.get(textDocument.uri);
   const requestVersion = document?.version;
+  if (document && rootForUri(document.uri)) await watchedFileChanges;
   if (document && indexingMode === 'onDemand') await ensureComposerRootForUri(document.uri);
   if (document && (documents.get(document.uri) !== document || document.version !== requestVersion || token.isCancellationRequested)) return [];
   const openingRoot = document ? rootForUri(document.uri) : undefined;
@@ -5552,7 +5680,7 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const adoptPreparation = preparation && preparation.epoch === (projectEpochs.get(openingRoot!) ?? 0)
     && preparation.total > 0 && preparation.files / preparation.total >= 0.5 ? preparation : undefined;
   if (openingRoot && adoptPreparation) adoptedReferenceSourcePreparations.set(openingRoot, adoptPreparation);
-  const id = ++querySequence; const started = Date.now();
+  const id = ++querySequence; const started = Date.now(); const timingStarted = performance.now();
   if (!adoptPreparation) { referenceSourceWorkers?.dispose(); referenceSourceWorkers = undefined; }
   if (!document) return [];
   const version = document.version;
@@ -5561,7 +5689,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
   const referenceRoot = rootForUri(document.uri);
-  if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project') {
+  const methodAtRequest = workspace.referenceMemberAt(document.uri, offset)?.kind === 'method';
+  if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project'
+    && !methodAtRequest) {
     const restored = await restoreReferenceResult(referenceRoot, workspace, document.uri, offset, context.includeDeclaration,
       id, () => token.isCancellationRequested);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
@@ -5663,12 +5793,18 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
     const sourcePrepared = Boolean(root && referenceSourceMode()
       && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
+    const methodCandidateKey = root && member?.kind === 'method'
+      ? `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}` : undefined;
+    if (root && methodCandidateKey && !await methodCandidatePathsUnchanged(workspace, root, methodCandidateKey,
+      candidateNames, () => token.isCancellationRequested)) candidateQueries.delete(methodCandidateKey);
     const requiresCandidateScan = namedTarget && !sourcePrepared && (referenceSourceMode() || !projectCompleteRoots.has(root!)
-      || indexingMode === 'experimental' && !completeRoots.has(root!));
+      || indexingMode === 'experimental' && !completeRoots.has(root!) || Boolean(methodCandidateKey));
+    const scanStarted = performance.now();
     const ready = scope === 'document' || !root || (requiresCandidateScan
       ? await scanNamedCandidates(workspace, root, candidateNames, () => token.isCancellationRequested, 2,
         closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method', true)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
+    recordTestQueryDuration('referencesScan', scanStarted);
     if (!ready) {
       if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
       void connection.window.showWarningMessage(protocolMessage(clientDiagnosticLanguage, 'referencesUnavailable'));
@@ -5855,7 +5991,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     writeReferenceResult?.(locations);
     connection.console.info(`[references:${id}] result count=${locations.length} coverage=${scope === 'document' ? 'document' : 'project-and-loaded-dependencies'}`);
     return locations;
-  } finally { connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`); }
+  } finally {
+    recordTestQueryDuration('references', timingStarted);
+    connection.console.info(`[references:${id}] end elapsedMs=${Date.now() - started}`);
+  }
   } finally {
     if (openingRoot && adoptPreparation && adoptedReferenceSourcePreparations.get(openingRoot) === adoptPreparation) {
       adoptedReferenceSourcePreparations.delete(openingRoot);

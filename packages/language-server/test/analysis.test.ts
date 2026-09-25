@@ -78,7 +78,7 @@ describe('PHP document analysis', () => {
     const document = TextDocument.create('file:///Broken.php', 'php', 1, '<?php class Broken { public function run( }');
     const result = analyzePhpDocument(document, parser);
     expect(result.diagnostics.length).toBeGreaterThan(0);
-    expect(result.diagnostics.every((item) => item.code === 'php.syntax' && item.source === 'PHP Companion')).toBe(true);
+    expect(result.diagnostics.every((item) => item.code === 'php.syntax' && item.source === 'SoPHP')).toBe(true);
   });
   it('reports a stable target-version diagnostic without rejecting supported syntax', () => {
     const document = TextDocument.create('file:///Version.php', 'php', 1, '<?php enum Status { case Ready; }');

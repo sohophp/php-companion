@@ -1,4 +1,5 @@
 import * as assert from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import * as vscode from 'vscode';
 
 interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => void; dispose(): void; }
@@ -162,7 +163,6 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'redhat.vscode-yaml',
     'redhat.vscode-xml',
     'xdebug.php-debug',
-    'recca0120.vscode-phpunit',
     'junstyle.php-cs-fixer',
     'editorconfig.editorconfig',
     'eiminsasete.apacheconf-snippets',
@@ -173,7 +173,7 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
   assert.deepStrictEqual(pack.packageJSON.extensionPack, [
     'sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.twig-plus',
     'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
-    'recca0120.vscode-phpunit', 'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig',
+    'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig',
     'eiminsasete.apacheconf-snippets', 'neilbrayfield.php-docblocker',
   ], 'The installed Open Source Pack did not declare the frozen extension set');
   assert.strictEqual(vscode.workspace.getConfiguration('php', workspace.uri).get('suggest.basic'), false,
@@ -278,7 +278,7 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
   await vscode.window.showTextDocument(scalarConsumerDocument);
   const hoverPosition = scalarConsumerDocument.positionAt(scalarConsumerSource.indexOf('accept($value)') + 'accept($'.length + 2);
   const scalarMismatch = (): boolean => vscode.languages.getDiagnostics(scalarConsumerUri)
-    .some((item) => item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    .some((item) => item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const scalarHover = async (type: 'int' | 'string'): Promise<boolean> => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', scalarConsumerUri, hoverPosition) ?? [];
     return hovers.some((hover) => hover.contents.some((content) =>
@@ -314,7 +314,10 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
       && servicesDocument.getText(location.range) === 'App\\Service\\Mailer').length === 2;
   }, 'SoPHP Symfony did not find both YAML service references with onDemand indexing', 30_000, 100);
 
+  const fixerConfig = vscode.Uri.joinPath(workspace.uri, '.php-cs-fixer.dist.php');
+  await vscode.workspace.fs.writeFile(fixerConfig, Buffer.from('<?php\nreturn (new PhpCsFixer\\Config())->setRules([\'@PSR12\' => true]);\n'));
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('executablePath', formatterExecutable, vscode.ConfigurationTarget.Workspace);
+  await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('config', fixerConfig.fsPath, vscode.ConfigurationTarget.Workspace);
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('autoFixByBracket', false, vscode.ConfigurationTarget.Workspace);
   await vscode.workspace.getConfiguration('php-cs-fixer', workspace.uri).update('autoFixBySemicolon', false, vscode.ConfigurationTarget.Workspace);
   const formatUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileFormat.php');
@@ -381,7 +384,7 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
   await waitFor(() => editorConfigEditor.options.insertSpaces === true && editorConfigEditor.options.tabSize === 3, 'EditorConfig did not apply the workspace PHP indentation settings');
 
   const commands = await vscode.commands.getCommands(true);
-  assert.ok(commands.includes('phpunit.run-all'), 'PHPUnit test command was not registered');
+  assert.ok(!commands.includes('phpunit.run-all'), 'The default Pack loaded an unverified PHPUnit test provider');
   const debuggers = vscode.extensions.getExtension('xdebug.php-debug')!.packageJSON.contributes?.debuggers as Array<{ type?: string }> | undefined;
   assert.ok(debuggers?.some((debuggerContribution) => debuggerContribution.type === 'php'), 'PHP Debug did not contribute the php debugger');
 
@@ -407,75 +410,22 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
     await waitFor(() => vscode.debug.activeDebugSession === undefined, 'PHP Debug probe did not leave the active session');
   } finally { started.dispose(); await vscode.debug.stopDebugging(); }
 
-  await vscode.workspace.getConfiguration('phpunit', workspace.uri).update('php', phpExecutable, vscode.ConfigurationTarget.Workspace);
-  await vscode.workspace.getConfiguration('phpunit', workspace.uri).update('phpunit', phpunitExecutable, vscode.ConfigurationTarget.Workspace);
   const testUri = vscode.Uri.joinPath(workspace.uri, 'tests', 'ProfileTest.php');
   const testResultUri = vscode.Uri.joinPath(workspace.uri, 'phpunit-ran.txt');
-  const testSourceUri = vscode.Uri.joinPath(workspace.uri, 'phpunit-source.txt');
   await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(workspace.uri, 'tests'));
   await vscode.workspace.fs.writeFile(testUri, Buffer.from(`<?php
 use PHPUnit\\Framework\\TestCase;
 final class ProfileTest extends TestCase {
     public function testProfile(): void {
         file_put_contents(dirname(__DIR__) . '/phpunit-ran.txt', 'passed');
-        file_put_contents(dirname(__DIR__) . '/phpunit-source.txt', basename(__FILE__));
         self::assertTrue(true);
     }
 }
-
 `));
-  const testDocument = await vscode.workspace.openTextDocument(testUri); await vscode.window.showTextDocument(testDocument);
-  await vscode.extensions.getExtension('recca0120.vscode-phpunit')!.activate();
-  await vscode.commands.executeCommand('phpunit.reload');
-  const phpUnitResultMatches = async (expectedFile: string): Promise<boolean> => {
-    try {
-      return Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8') === 'passed'
-        && Buffer.from(await vscode.workspace.fs.readFile(testSourceUri)).toString('utf8') === expectedFile;
-    } catch { return false; }
-  };
-  const runPhpUnitUntil = async (command: 'phpunit.run-file' | 'phpunit.run-all', expectedFile: string, message: string, uri?: vscode.Uri): Promise<void> => {
-    let lastAttempt = 0;
-    await waitForAsync(async () => {
-      if (await phpUnitResultMatches(expectedFile)) return true;
-      if (Date.now() - lastAttempt >= 10_000) {
-        lastAttempt = Date.now();
-        await vscode.commands.executeCommand(command, ...(uri ? [uri] : []));
-      }
-      return false;
-    }, message, 60_000, 250);
-  };
-  await runPhpUnitUntil('phpunit.run-file', 'ProfileTest.php', 'PHPUnit extension did not execute the selected test file through the configured PHP runtime', testUri);
-  await vscode.workspace.fs.delete(testResultUri);
-  await vscode.workspace.fs.delete(testSourceUri);
-  await runPhpUnitUntil('phpunit.run-all', 'ProfileTest.php', 'PHPUnit extension did not discover and execute the configured test suite');
-  const movedTestUri = vscode.Uri.joinPath(workspace.uri, 'tests', 'MovedProfileTest.php');
-  const verifyMovedSuite = async (expectedFile: string): Promise<void> => {
-    const expectedUri = vscode.Uri.joinPath(workspace.uri, 'tests', expectedFile);
-    const expectedDocument = await vscode.workspace.openTextDocument(expectedUri);
-    assert.ok(expectedDocument.getText().includes(`class ${expectedFile.slice(0, -4)} `),
-      `PHPUnit fixture class did not follow ${expectedFile}`);
-    if (expectedDocument.isDirty) assert.ok(await expectedDocument.save(), `Could not save ${expectedFile}`);
-    await vscode.workspace.fs.delete(testResultUri);
-    await vscode.workspace.fs.delete(testSourceUri);
-    await runPhpUnitUntil('phpunit.run-all', expectedFile, `PHPUnit did not execute the suite from ${expectedFile}`);
-  };
-  await vscode.window.showTextDocument(testDocument);
-  const moveTest = new vscode.WorkspaceEdit();
-  const classStart = testDocument.getText().indexOf('class ProfileTest') + 'class '.length;
-  assert.ok(classStart >= 'class '.length, 'PHPUnit fixture class declaration was not found');
-  moveTest.replace(testUri, new vscode.Range(testDocument.positionAt(classStart),
-    testDocument.positionAt(classStart + 'ProfileTest'.length)), 'MovedProfileTest');
-  moveTest.renameFile(testUri, movedTestUri);
-  assert.ok(await vscode.workspace.applyEdit(moveTest), 'Could not move PHPUnit fixture');
-  await verifyMovedSuite('MovedProfileTest.php');
-  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(movedTestUri));
-  await vscode.commands.executeCommand('undo');
-  await waitForAsync(async () => { await vscode.workspace.fs.stat(testUri); return true; }, 'Could not undo PHPUnit fixture move');
-  await verifyMovedSuite('ProfileTest.php');
-  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(testUri));
-  await vscode.commands.executeCommand('redo');
-  await waitForAsync(async () => { await vscode.workspace.fs.stat(movedTestUri); return true; }, 'Could not redo PHPUnit fixture move');
-  await verifyMovedSuite('MovedProfileTest.php');
+  execFileSync(phpExecutable, [phpunitExecutable, '--configuration', 'phpunit.xml', 'tests/ProfileTest.php'],
+    { cwd: workspace.uri.fsPath, timeout: 15_000, encoding: 'utf8' });
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8'), 'passed',
+    'Project PHPUnit CLI did not execute the test in the default Pack Profile');
   await verifyOpenSourceUnionShapeFeedback(workspace);
   if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1') await verifyOpenSourceRealVendorFeedback(workspace);
 }
@@ -531,7 +481,7 @@ function inspectCrossCall(): void { $row = profileShape(); mutate($row); $item =
     }));
   }, 'Open Source Pack lost the union-shape local Hover after a common method call', 15_000);
   await waitForAsync(async () => vscode.languages.getDiagnostics(consumerUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch'),
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch'),
   'Open Source Pack did not reject the union-shape object passed to an int parameter', 15_000);
   const changeDoc = async (text: string): Promise<void> => {
     const sourceEdit = new vscode.WorkspaceEdit();
@@ -547,14 +497,14 @@ function inspectCrossCall(): void { $row = profileShape(); mutate($row); $item =
       && hovers.every((hover) => hover.contents.every((content) =>
         !(typeof content === 'string' ? content : content.value).includes('App\\ProfileShapeAlpha|App\\ProfileShapeBeta')))
       && vscode.languages.getDiagnostics(consumerUri).every((item) =>
-        item.source !== 'PHP Companion' || item.code !== 'php.argument.type-mismatch');
+        item.source !== 'SoPHP' || item.code !== 'php.argument.type-mismatch');
   }, 'Open Source Pack retained stale union-shape navigation, Hover, or diagnosis after an unsaved incompatible PHPDoc edit', 15_000);
   await changeDoc(source);
   await waitForAsync(async () => {
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, callPosition) ?? [];
     return definitions.filter((location) => location.uri.toString() === sourceUri.toString()).length === 2
       && vscode.languages.getDiagnostics(consumerUri).some((item) =>
-        item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+        item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   }, 'Open Source Pack did not restore union-shape navigation and diagnosis after the PHPDoc was restored', 15_000);
   const changeConsumer = async (text: string): Promise<void> => {
     const consumerEdit = new vscode.WorkspaceEdit();
@@ -659,7 +609,16 @@ function inspectCrossCall(): void { $row = profileShape(); mutate($row); $item =
 }
 
 async function verifyOpenSourceRealVendorFeedback(workspace: vscode.WorkspaceFolder): Promise<void> {
+  const core = vscode.extensions.getExtension('sohophp.php-companion');
+  assert.ok(core, 'Real vendor Pack profile requires SoPHP Core');
+  const api = await core.activate() as PhpCompanionPluginApi;
+  assert.ok(api.requestLanguageServer, 'Real vendor Pack profile requires the SoPHP test query bridge');
+  const serverTimings = async (): Promise<Record<string, number[]>> =>
+    await api.requestLanguageServer!('phpCompanion/testQueryTimings', { reset: true }) as Record<string, number[]>;
   const project = vscode.Uri.joinPath(workspace.uri, 'real-vendor');
+  const externalMembers = ['sohophp.twig-plus', 'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
+    'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig', 'eiminsasete.apacheconf-snippets', 'neilbrayfield.php-docblocker'];
+  const presentExternalMembers = externalMembers.filter((id) => vscode.extensions.getExtension(id));
   await vscode.workspace.fs.stat(vscode.Uri.joinPath(project, 'vendor', 'autoload.php'));
   const noiseFiles = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE);
   const rounds = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS);
@@ -680,7 +639,7 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
   await vscode.window.showTextDocument(consumerDocument);
   const hoverPosition = consumerDocument.positionAt(consumer.lastIndexOf('$value);') + 2);
   const mismatch = (): boolean => vscode.languages.getDiagnostics(consumerUri)
-    .some((item) => item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    .some((item) => item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const hoverMatches = async (type: 'int' | 'string'): Promise<boolean> => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, hoverPosition) ?? [];
     return hovers.some((hover) => hover.contents.some((item) =>
@@ -688,17 +647,46 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
   };
   await waitForAsync(async () => mismatch() && await hoverMatches('string'),
     'Real vendor Pack profile did not show the initial local Hover and argument diagnostic', 30_000);
+  await serverTimings();
   const elapsedMs: number[] = []; const definitionWaitMs: number[] = [];
+  const slowRounds: Array<{ round: number; elapsedMs: number; applyEditMs: number;
+    diagnosticReadyMs: number | null; hoverReadyMs: number | null }> = [];
+  let firstRoundServerTimings: Record<string, { count: number; maxMs: number; firstMs: number[] }> | undefined;
+  let firstCompositeHoverCallMs: number | undefined;
   for (let round = 0; round < rounds; round += 1) {
     const type = round % 2 === 0 ? 'int' : 'string';
     const started = performance.now();
     const edit = new vscode.WorkspaceEdit();
     edit.replace(sourceUri, new vscode.Range(sourceDocument.positionAt(0), sourceDocument.positionAt(sourceDocument.getText().length)), source(type));
     assert.ok(await vscode.workspace.applyEdit(edit));
+    const applyEditMs = performance.now() - started;
     assert.ok(sourceDocument.isDirty);
-    await waitForAsync(async () => mismatch() === (type === 'string') && await hoverMatches(type),
+    let diagnosticReadyMs: number | null = null;
+    let hoverReadyMs: number | null = null;
+    await waitForAsync(async () => {
+      if (mismatch() !== (type === 'string')) return false;
+      diagnosticReadyMs ??= performance.now() - started;
+      let hoverReady: boolean;
+      if (round === 0 && firstCompositeHoverCallMs === undefined) {
+        const compositeStarted = performance.now();
+        hoverReady = await hoverMatches(type);
+        firstCompositeHoverCallMs = Math.round(performance.now() - compositeStarted);
+      } else hoverReady = await hoverMatches(type);
+      if (!hoverReady) return false;
+      hoverReadyMs ??= performance.now() - started;
+      return true;
+    },
       `Real vendor Pack profile retained old C2 feedback in round ${round + 1}`, 30_000);
-    elapsedMs.push(performance.now() - started);
+    const elapsed = performance.now() - started;
+    elapsedMs.push(elapsed);
+    if (elapsed >= 500) slowRounds.push({ round: round + 1, elapsedMs: Math.round(elapsed),
+      applyEditMs: Math.round(applyEditMs), diagnosticReadyMs: diagnosticReadyMs === null ? null : Math.round(diagnosticReadyMs),
+      hoverReadyMs: hoverReadyMs === null ? null : Math.round(hoverReadyMs) });
+    if (round === 0) {
+      firstRoundServerTimings = Object.fromEntries(Object.entries(await serverTimings()).map(([name, samples]) => [name, {
+        count: samples.length, maxMs: Math.round(Math.max(...samples)), firstMs: samples.slice(0, 8).map(Math.round),
+      }]));
+    }
     if (round % 10 === 0 || round === rounds - 1) {
       const methodPosition = consumerDocument.positionAt(consumer.indexOf('text()') + 2);
       const definitionStarted = performance.now();
@@ -720,14 +708,17 @@ function inspectFeedback(ProfileFeedbackService $service): void { $value = $serv
   await vscode.workspace.fs.writeFile(versionProbeUri, Buffer.from('<?php namespace App\\C1; enum VersionProbe { case Ready; }'));
   await vscode.workspace.openTextDocument(versionProbeUri);
   await waitForAsync(async () => vscode.languages.getDiagnostics(versionProbeUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.version.unsupported'),
+    item.source === 'SoPHP' && item.code === 'php.version.unsupported'),
   'Real vendor Composer PHP 7.2 target was not applied without a Language Client restart', 15_000);
   const sorted = [...elapsedMs].sort((left, right) => left - right);
   console.log(`Open Source Pack real vendor C2 feedback: ${JSON.stringify({ noiseFiles, rounds,
+    presentExternalMembers,
     p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
     p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
     maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
-    consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), nestedPhp72Verified: true })}`);
+    consumerVersion: consumerDocument.version, definitionWaitMs: definitionWaitMs.map(Math.round), slowRounds,
+    firstCompositeHoverCallMs, firstRoundServerTimings,
+    nestedPhp72Verified: true })}`);
   await verifyOpenSourceRealVendorUnionShapeFeedback(project, Math.min(rounds, 30));
 }
 
@@ -752,7 +743,7 @@ function inspectLargeShape(): void { $row = profileLargeShape(); $item = $row['i
   const call = consumerDocument.positionAt(consumer.indexOf('common();') + 2);
   const value = consumerDocument.positionAt(consumer.indexOf('$item);') + 2);
   const mismatch = (): boolean => vscode.languages.getDiagnostics(consumerUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const consistent = async (compatible: boolean): Promise<boolean> => {
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', consumerUri, call) ?? [];
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, value) ?? [];
@@ -804,13 +795,60 @@ function inspectLargeShape(): void { $row = profileLargeShape(); $item = $row['i
   assert.ok(await consistent(false), 'A late disk watcher update replaced the newer unsaved source');
   await replaceSource(source(true));
   await waitForAsync(() => consistent(true), 'Real vendor Pack profile did not recover the union shape after watcher overlap', 30_000);
+  const core = vscode.extensions.getExtension('sohophp.php-companion');
+  assert.ok(core, 'Paused Hover profile requires SoPHP Core');
+  const api = await core.activate() as PhpCompanionPluginApi;
+  assert.ok(api.requestLanguageServer, 'Paused Hover profile requires the SoPHP test query bridge');
+  const request = api.requestLanguageServer;
+  assert.strictEqual(await request('phpCompanion/testPauseNextQuery', { method: 'hover' }), true);
+  const staleHover = vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, value);
+  await waitForAsync(async () => Boolean((await request('phpCompanion/testQueryState', {
+    method: 'hover', uri: consumerUri.toString(),
+  }) as { paused: boolean } | null)?.paused), 'Old Hover did not pause before the consumer edit', 10_000);
+  const changedConsumer = consumer.replace("$item = $row['item']; $item->common();", '$item = 42;');
+  assert.notStrictEqual(changedConsumer, consumer);
+  try {
+    const change = new vscode.WorkspaceEdit();
+    change.replace(consumerUri, new vscode.Range(consumerDocument.positionAt(0),
+      consumerDocument.positionAt(consumerDocument.getText().length)), changedConsumer);
+    assert.ok(await vscode.workspace.applyEdit(change));
+    await waitForAsync(async () => (await request('phpCompanion/testQueryState', {
+      method: 'hover', uri: consumerUri.toString(),
+    }) as { version: number | null } | null)?.version === consumerDocument.version,
+    'The server did not receive the consumer edit while old Hover was paused', 10_000);
+    beforeWatcher = watcherChanges;
+    await vscode.workspace.fs.writeFile(sourceUri, Buffer.from(source(false)));
+    await waitFor(() => watcherChanges > beforeWatcher,
+      'VS Code did not report the source disk change while old Hover was paused', 10_000);
+    assert.ok(sourceDocument.isDirty, 'The source buffer was saved by the competing disk change');
+  } finally {
+    assert.strictEqual(await request('phpCompanion/testReleaseQuery', { method: 'hover' }), true);
+  }
+  const oldHovers = await staleHover ?? [];
+  assert.ok(!oldHovers.some((hover) => hover.contents.some((item) =>
+    (typeof item === 'string' ? item : item.value).includes('ProfileLargeShapeAlpha|'))),
+  'An old Hover result escaped after the consumer changed during a disk watcher event');
+  const newValue = consumerDocument.positionAt(changedConsumer.indexOf('$item);') + 2);
+  assert.ok(changedConsumer.indexOf('$item);') >= 0 && consumerDocument.getText() === changedConsumer);
+  let newHoverContents: string[] = [];
+  await waitForAsync(async () => {
+    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', consumerUri, newValue) ?? [];
+    newHoverContents = hovers.flatMap((hover) => hover.contents.map((item) => typeof item === 'string' ? item : item.value));
+    return newHoverContents.some((item) => item.includes('$item: int'));
+  }, () => `A fresh Hover did not show int after the consumer edit: ${JSON.stringify(newHoverContents)}`, 15_000);
+  const restore = new vscode.WorkspaceEdit();
+  restore.replace(consumerUri, new vscode.Range(consumerDocument.positionAt(0),
+    consumerDocument.positionAt(consumerDocument.getText().length)), consumer);
+  assert.ok(await vscode.workspace.applyEdit(restore));
+  await waitForAsync(() => consistent(true), 'Consumer feedback did not recover after the paused Hover edit', 15_000);
   watcher.dispose();
   const sorted = [...elapsedMs].sort((left, right) => left - right);
   console.log(`Open Source Pack real vendor union-shape feedback: ${JSON.stringify({ rounds,
     p50Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.5)]!),
     p95Ms: Math.round(sorted[Math.floor((sorted.length - 1) * 0.95)]!),
     maxMs: Math.round(sorted.at(-1)!), declarationUnsaved: sourceDocument.isDirty,
-    consumerVersion: consumerDocument.version, hostRssMiB, watcherBufferPriority: true, watcherChanges })}`);
+    consumerVersion: consumerDocument.version, hostRssMiB, watcherBufferPriority: true, watcherChanges,
+    pausedHoverEditWatcher: true })}`);
 }
 
 async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolder): Promise<void> {
@@ -852,15 +890,15 @@ async function verifySymfonyRouteRenameWithTwig(workspace: vscode.WorkspaceFolde
 
 export async function run(): Promise<void> {
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
-  assert.ok(extension, 'PHP Companion extension was not discovered');
+  assert.ok(extension, 'SoPHP extension was not discovered');
   const api = await extension.activate() as PhpCompanionPluginApi;
-  assert.strictEqual(api.version, 1, 'PHP Companion did not expose plugin API version 1');
-  assert.strictEqual(typeof api.registerIntegration, 'function', 'PHP Companion did not expose integration registration');
-  assert.strictEqual(typeof api.requestLanguageServer, 'function', 'PHP Companion did not expose its bounded language-server request bridge');
+  assert.strictEqual(api.version, 1, 'SoPHP did not expose plugin API version 1');
+  assert.strictEqual(typeof api.registerIntegration, 'function', 'SoPHP did not expose integration registration');
+  assert.strictEqual(typeof api.requestLanguageServer, 'function', 'SoPHP did not expose its bounded language-server request bridge');
   await assertManifestCommandsRegistered(extension);
   if (process.env.PHP_COMPANION_TEST_CORE_ONLY === '1') {
     assert.strictEqual(vscode.extensions.getExtension('sohophp.php-companion-symfony'), undefined,
-      'Core-only profile unexpectedly loaded PHP Companion Symfony');
+      'Core-only profile unexpectedly loaded SoPHP Symfony');
     const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder, 'Fixture workspace was not opened');
     const servicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.yaml');
     const document = await vscode.workspace.openTextDocument(servicesUri); const source = document.getText();
@@ -880,30 +918,30 @@ export async function run(): Promise<void> {
     const lifecycleRegistration = api.registerIntegration({ integrationId: 'php-companion.lifecycle-test', routeProviders: [{
       providerId: 'php-companion.lifecycle-test.routes', command: process.execPath, args: ['lifecycle-a'],
     }] });
-    assert.strictEqual(typeof lifecycleRegistration.update, 'function', 'PHP Companion did not expose atomic integration updates');
+    assert.strictEqual(typeof lifecycleRegistration.update, 'function', 'SoPHP did not expose atomic integration updates');
     lifecycleRegistration.update!({ integrationId: 'PHP-COMPANION.LIFECYCLE-TEST', routeProviders: [{
       providerId: 'php-companion.lifecycle-test.routes', command: process.execPath, args: ['lifecycle-b'],
     }] });
     assert.throws(() => lifecycleRegistration.update!({ integrationId: 'php-companion.foreign', routeProviders: [{
       providerId: 'php-companion.foreign.routes', command: process.execPath,
-    }] }), /Invalid update/, 'PHP Companion accepted an integration identity change during update');
+    }] }), /Invalid update/, 'SoPHP accepted an integration identity change during update');
     lifecycleRegistration.dispose(); lifecycleRegistration.dispose();
     assert.throws(() => lifecycleRegistration.update!({ integrationId: 'php-companion.lifecycle-test', routeProviders: [{
       providerId: 'php-companion.lifecycle-test.routes', command: process.execPath,
-    }] }), /already disposed/, 'PHP Companion updated a disposed integration');
+    }] }), /already disposed/, 'SoPHP updated a disposed integration');
     const symfonyExtension = vscode.extensions.getExtension<PhpCompanionSymfonyApi>('sohophp.php-companion-symfony');
-    assert.ok(symfonyExtension, 'PHP Companion Symfony extension was not discovered');
+    assert.ok(symfonyExtension, 'SoPHP Symfony extension was not discovered');
     const symfonyApi = await symfonyExtension.activate();
-    assert.strictEqual(symfonyApi.version, 1, 'PHP Companion Symfony did not expose API version 1');
+    assert.strictEqual(symfonyApi.version, 1, 'SoPHP Symfony did not expose API version 1');
     await assertManifestCommandsRegistered(symfonyExtension);
     assert.deepStrictEqual(symfonyApi.status(), { apiVersion: 1, languageFeaturesRegistered: true, serviceProviderRegistered: true, eventProviderRegistered: true,
       controllerContextProviderRegistered: true, staticRouteProviderRegistered: true, winstarRouteProviderRegistered: false });
     const folder = vscode.workspace.workspaceFolders?.[0];
     assert.ok(folder, 'Fixture workspace was not opened');
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', true, vscode.ConfigurationTarget.Workspace);
-    await waitFor(() => symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not register its route provider');
+    await waitFor(() => symfonyApi.status().winstarRouteProviderRegistered, 'SoPHP Symfony did not register its route provider');
     await vscode.workspace.getConfiguration('phpCompanion', folder.uri).update('symfony.winstarRoutes.enabled', false, vscode.ConfigurationTarget.Workspace);
-    await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'PHP Companion Symfony did not withdraw its route provider');
+    await waitFor(() => !symfonyApi.status().winstarRouteProviderRegistered, 'SoPHP Symfony did not withdraw its route provider');
   }
   if (process.env.PHP_COMPANION_TEST_LEGACY_PROFILE === '1') {
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -919,14 +957,18 @@ export async function run(): Promise<void> {
   }
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
+  if (process.env.PHP_COMPANION_TEST_HOVER_ISOLATION === '1') {
+    await verifyOpenSourceRealVendorFeedback(workspace);
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1') {
     assert.ok(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), 'Intelephense compatibility profile did not install Intelephense');
     const inspected = vscode.workspace.getConfiguration('phpCompanion', workspace.uri).inspect<boolean>('languageServer.enabled');
     assert.strictEqual(inspected?.workspaceValue, undefined, 'Intelephense compatibility fixture must not explicitly enable the self-hosted language server');
     assert.strictEqual(inspected?.workspaceFolderValue, undefined, 'Intelephense compatibility fixture must not enable the self-hosted language server for a folder');
     const commands = await vscode.commands.getCommands(true);
-    assert.ok(!commands.includes('phpCompanion._testCrashLanguageServer'), 'PHP Companion started its language server without an explicit choice beside Intelephense');
-    assert.ok(!commands.includes('phpCompanion.provideTwigInterop'), 'PHP Companion exposed language-server interop while defaulting to Intelephense');
+    assert.ok(!commands.includes('phpCompanion._testCrashLanguageServer'), 'SoPHP started its language server without an explicit choice beside Intelephense');
+    assert.ok(!commands.includes('phpCompanion.provideTwigInterop'), 'SoPHP exposed language-server interop while defaulting to Intelephense');
     return;
   }
   if (process.env.PHP_COMPANION_OPEN_SOURCE_PROFILE === '1') {
@@ -936,14 +978,14 @@ export async function run(): Promise<void> {
   if (process.env.PHP_COMPANION_PACKAGED_TEST === '1') {
     const languageServerConfiguration = vscode.workspace.getConfiguration('phpCompanion', workspace.uri);
     const inspected = languageServerConfiguration.inspect<boolean>('languageServer.enabled');
-    assert.strictEqual(languageServerConfiguration.get('languageServer.enabled'), true, 'Packaged PHP Companion did not enable its self-hosted language server by default');
+    assert.strictEqual(languageServerConfiguration.get('languageServer.enabled'), true, 'Packaged SoPHP did not enable its self-hosted language server by default');
     assert.strictEqual(inspected?.workspaceValue, undefined, 'Packaged fixture must not explicitly enable the language server');
     assert.strictEqual(inspected?.workspaceFolderValue, undefined, 'Packaged fixture must not explicitly enable the language server for a folder');
   }
   const brokenUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Broken.php');
   await vscode.workspace.openTextDocument(brokenUri);
   await waitFor(
-    () => vscode.languages.getDiagnostics(brokenUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.syntax'),
+    () => vscode.languages.getDiagnostics(brokenUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.syntax'),
     'Self-hosted language server did not publish coded syntax diagnostics',
   );
   await waitForAsync(async () => await vscode.commands.executeCommand('phpCompanion.provideTwigInterop', workspace.uri) !== null,
@@ -1228,7 +1270,7 @@ export async function run(): Promise<void> {
   const controlFlowDiagnosticUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'ControlFlowDiagnostics.php');
   const controlFlowDocument = await vscode.workspace.openTextDocument(controlFlowDiagnosticUri);
   const unreachableDiagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
-    .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.control-flow.unreachable');
+    .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.control-flow.unreachable');
   await waitForAsync(async () => unreachableDiagnostics().length === 10,
     () => `Self-hosted language server did not publish 10 proven unreachable-statement diagnostics; observed ${JSON.stringify(vscode.languages.getDiagnostics(controlFlowDiagnosticUri).map((diagnostic) => [diagnostic.source, diagnostic.code, controlFlowDocument.getText(diagnostic.range)]))}`);
   assert.deepStrictEqual(vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
@@ -1240,7 +1282,7 @@ export async function run(): Promise<void> {
     ], 'Packaged unreachable diagnostics did not preserve the complete-branch boundary');
   await waitFor(
     () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.never.fallthrough').length === 1,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.never.fallthrough').length === 1,
     'Self-hosted language server did not publish the proven never fallthrough diagnostic',
   );
   const neverFallthroughDiagnostics = vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
@@ -1249,7 +1291,7 @@ export async function run(): Promise<void> {
     ['invalidNeverFallthrough'], 'Packaged never fallthrough diagnostics crossed an unknown-call boundary');
   await waitFor(
     () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.return.missing').length === 1,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.return.missing').length === 1,
     'Self-hosted language server did not publish the proven missing-return diagnostic',
   );
   const missingReturnDiagnostics = vscode.languages.getDiagnostics(controlFlowDiagnosticUri)
@@ -1257,17 +1299,17 @@ export async function run(): Promise<void> {
   assert.deepStrictEqual(missingReturnDiagnostics.map((diagnostic) => controlFlowDocument.getText(diagnostic.range)),
     ['missingValueReturn'], 'Packaged missing-return diagnostics crossed an unknown-call boundary');
   await waitFor(
-    () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.inheritance.final-class'),
+    () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.inheritance.final-class'),
     'Self-hosted language server did not reject extending a final class',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.method.incompatible-override'),
+    () => vscode.languages.getDiagnostics(controlFlowDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.method.incompatible-override'),
     'Self-hosted language server did not reject overriding a final method',
   );
   const duplicateDiagnosticUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'DuplicateDeclarations.php');
   const duplicateDiagnosticDocument = await vscode.workspace.openTextDocument(duplicateDiagnosticUri);
   await waitFor(
-    () => vscode.languages.getDiagnostics(duplicateDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.duplicate.function'),
+    () => vscode.languages.getDiagnostics(duplicateDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.duplicate.function'),
     'Self-hosted language server did not publish a duplicate named-function diagnostic',
   );
   const duplicateFunctionDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1281,7 +1323,7 @@ export async function run(): Promise<void> {
   ), 'Duplicate function diagnostic did not mark only the later function name');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.method.invalid-magic-signature').length === 7,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.method.invalid-magic-signature').length === 7,
     'Self-hosted language server did not publish invalid constructor and destructor signature diagnostics',
   );
   const lifecycleDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1299,7 +1341,7 @@ export async function run(): Promise<void> {
   ], 'Classic magic method diagnostics did not retain stable packaged messages');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.method.magic-visibility').length === 1,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.method.magic-visibility').length === 1,
     'Self-hosted language server did not publish the magic method visibility warning',
   );
   const magicVisibilityDiagnostic = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1310,7 +1352,7 @@ export async function run(): Promise<void> {
     'Magic visibility warning did not mark only the method name');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.property.invalid-readonly-declaration').length === 5,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.property.invalid-readonly-declaration').length === 5,
     'Self-hosted language server did not publish invalid readonly property declaration diagnostics',
   );
   const invalidReadonlyPropertyDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1327,7 +1369,7 @@ export async function run(): Promise<void> {
   ], 'Invalid readonly property diagnostics did not retain stable packaged messages');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.inheritance.readonly-mismatch').length === 2,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.inheritance.readonly-mismatch').length === 2,
     'Self-hosted language server did not publish readonly inheritance mismatch diagnostics',
   );
   const readonlyInheritanceDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1341,7 +1383,7 @@ export async function run(): Promise<void> {
   ]);
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.readonly-class.invalid-trait').length === 2,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.readonly-class.invalid-trait').length === 2,
     'Self-hosted language server did not publish readonly Trait compatibility diagnostics',
   );
   const readonlyTraitDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1355,7 +1397,7 @@ export async function run(): Promise<void> {
   ]);
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.enum.invalid-member').length === 9,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.enum.invalid-member').length === 9,
     'Self-hosted language server did not publish invalid enum member diagnostics',
   );
   const invalidEnumMemberDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1376,7 +1418,7 @@ export async function run(): Promise<void> {
   ], 'Invalid enum member diagnostics did not retain stable packaged messages');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.enum.invalid-case').length === 4,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.enum.invalid-case').length === 4,
     'Self-hosted language server did not publish invalid enum case diagnostics',
   );
   const invalidEnumCaseDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1392,7 +1434,7 @@ export async function run(): Promise<void> {
   ], 'Invalid enum case diagnostics did not retain stable packaged messages');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.enum.invalid-interface').length === 5,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.enum.invalid-interface').length === 5,
     'Self-hosted language server did not publish invalid enum interface diagnostics',
   );
   const invalidEnumInterfaceDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1409,7 +1451,7 @@ export async function run(): Promise<void> {
   ], 'Invalid enum interface diagnostics did not retain stable packaged messages');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.type.invalid-declaration').length === 4,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.type.invalid-declaration').length === 4,
     'Self-hosted language server did not publish invalid native type declaration diagnostics',
   );
   const invalidTypeDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1418,7 +1460,7 @@ export async function run(): Promise<void> {
     'Invalid native type diagnostics did not mark only the offending atomic types');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.type.redundant-declaration').length === 5,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.type.redundant-declaration').length === 5,
     'Self-hosted language server did not publish redundant native type diagnostics',
   );
   const redundantTypeDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1434,7 +1476,7 @@ export async function run(): Promise<void> {
   ), 'Duplicate class type diagnostic did not mark only the later type name');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.type.invalid-relative-scope').length === 3,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.type.invalid-relative-scope').length === 3,
     'Self-hosted language server did not publish invalid relative-scope diagnostics',
   );
   const relativeScopeDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1459,7 +1501,7 @@ export async function run(): Promise<void> {
   )), 'Invalid relative-scope diagnostics did not retain exact ranges');
   await waitFor(
     () => vscode.languages.getDiagnostics(duplicateDiagnosticUri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.method.invalid-abstract-declaration').length === 7,
+      .filter((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.method.invalid-abstract-declaration').length === 7,
     'Self-hosted language server did not publish invalid abstract method diagnostics',
   );
   const abstractMethodDiagnostics = vscode.languages.getDiagnostics(duplicateDiagnosticUri)
@@ -1480,7 +1522,7 @@ export async function run(): Promise<void> {
   const strictScalarDocument = await vscode.workspace.openTextDocument(strictScalarDiagnosticUri);
   await waitFor(
     () => ['php.argument.type-mismatch', 'php.return.type-mismatch', 'php.assignment.type-mismatch'].every((code) => vscode.languages.getDiagnostics(strictScalarDiagnosticUri)
-      .some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === code)),
+      .some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === code)),
     'Self-hosted language server did not publish strict scalar literal argument, return, and property-assignment diagnostics',
     15_000,
   );
@@ -1492,7 +1534,7 @@ export async function run(): Promise<void> {
   const phpDocConflictUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'PhpDocTypeConflicts.php');
   const phpDocConflictDocument = await vscode.workspace.openTextDocument(phpDocConflictUri);
   await waitFor(
-    () => vscode.languages.getDiagnostics(phpDocConflictUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.phpdoc.type-conflict'),
+    () => vscode.languages.getDiagnostics(phpDocConflictUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.phpdoc.type-conflict'),
     'Self-hosted language server did not publish a proven PHPDoc/native type conflict',
     15_000,
   );
@@ -2280,7 +2322,7 @@ export async function run(): Promise<void> {
   const dynamicPropertyDocument = await vscode.workspace.openTextDocument(dynamicPropertyUri);
   const dynamicPropertyOriginal = dynamicPropertyDocument.getText();
   await waitFor(
-    () => vscode.languages.getDiagnostics(dynamicPropertyUri).some((diagnostic) => diagnostic.source === 'PHP Companion'
+    () => vscode.languages.getDiagnostics(dynamicPropertyUri).some((diagnostic) => diagnostic.source === 'SoPHP'
       && diagnostic.code === 'php.property.dynamic-deprecated'),
     'Self-hosted language server did not publish a proven dynamic-property creation warning',
   );
@@ -2336,43 +2378,43 @@ export async function run(): Promise<void> {
   assert.ok(invalidDynamicAttributeDiagnostics.every((diagnostic) => dynamicPropertyDocument.getText(diagnostic.range) === '\\AllowDynamicProperties'),
     'Invalid AllowDynamicProperties diagnostics did not mark only the attribute name');
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.member.unresolved'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.member.unresolved'),
     'Self-hosted language server did not publish a proven missing-member diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.missing-required'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.missing-required'),
     'Self-hosted language server did not publish a proven missing-required-argument diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.unknown-named'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.unknown-named'),
     'Self-hosted language server did not publish a proven unknown-named-argument diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.duplicate-named'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.duplicate-named'),
     'Self-hosted language server did not publish a duplicate-named-argument diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.member.non-static-access'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.member.non-static-access'),
     'Self-hosted language server did not publish a proven non-static-member access diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.member.inaccessible'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.member.inaccessible'),
     'Self-hosted language server did not publish a proven member-visibility diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.argument.type-mismatch'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.argument.type-mismatch'),
     'Self-hosted language server did not publish a proven argument-type diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.return.type-mismatch'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.return.type-mismatch'),
     'Self-hosted language server did not publish a proven return-type diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.assignment.type-mismatch'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.assignment.type-mismatch'),
     'Self-hosted language server did not publish a proven assignment-type diagnostic',
   );
   await waitFor(
-    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'PHP Companion' && diagnostic.code === 'php.member.possibly-null'),
+    () => vscode.languages.getDiagnostics(memberDiagnosticUri).some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.member.possibly-null'),
     'Self-hosted language server did not publish a proven nullable-member diagnostic',
   );
   const memberDiagnosticDocument = await vscode.workspace.openTextDocument(memberDiagnosticUri);
@@ -2686,13 +2728,13 @@ export async function run(): Promise<void> {
     const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', diagnosticUnknownsUri) ?? [];
     return symbols.some((symbol) => symbol.name === 'KnownDiagnosticTarget');
   }, 'Diagnostic unknown fixture was not analyzed');
-  const unknownFactDiagnostics = vscode.languages.getDiagnostics(diagnosticUnknownsUri).filter((diagnostic) => diagnostic.source === 'PHP Companion');
+  const unknownFactDiagnostics = vscode.languages.getDiagnostics(diagnosticUnknownsUri).filter((diagnostic) => diagnostic.source === 'SoPHP');
   assert.deepEqual(unknownFactDiagnostics.map((diagnostic) => diagnostic.code), ['php.type.unresolved'],
     `Incomplete hierarchy produced cascading diagnostics: ${unknownFactDiagnostics.map((diagnostic) => String(diagnostic.code)).join(', ')}`);
   assert.equal(unknownFactDiagnostics[0]?.message, 'Cannot resolve type App\\Service\\ExternalBase.', 'Missing parent type diagnostic resolved the wrong identity');
   await waitFor(() => vscode.languages.getDiagnostics(unresolvedSymbolsUri).some((diagnostic) => diagnostic.code === 'php.function.unresolved'),
     'Namespaced unresolved function diagnostic was not published');
-  const unresolvedSymbolDiagnostics = vscode.languages.getDiagnostics(unresolvedSymbolsUri).filter((diagnostic) => diagnostic.source === 'PHP Companion');
+  const unresolvedSymbolDiagnostics = vscode.languages.getDiagnostics(unresolvedSymbolsUri).filter((diagnostic) => diagnostic.source === 'SoPHP');
   assert.deepEqual(unresolvedSymbolDiagnostics.map((diagnostic) => [diagnostic.code, diagnostic.message]), [
     ['php.variable.undefined', 'Variable $definitelyMissing is definitely undefined at this point.'],
     ['php.function.unresolved', 'Cannot resolve function App\\Service\\MissingVendor\\missingFunction.'],
@@ -2718,10 +2760,10 @@ export async function run(): Promise<void> {
     // VS Code can close background documents during this long host suite;
     // the server correctly clears their diagnostics on didClose.
     await vscode.workspace.openTextDocument(item.uri);
-    await waitFor(() => vscode.languages.getDiagnostics(item.uri).some((diagnostic) => diagnostic.source === 'PHP Companion'),
+    await waitFor(() => vscode.languages.getDiagnostics(item.uri).some((diagnostic) => diagnostic.source === 'SoPHP'),
       `Diagnostic corpus did not republish for ${name}`);
     const actual = vscode.languages.getDiagnostics(item.uri)
-      .filter((diagnostic) => diagnostic.source === 'PHP Companion')
+      .filter((diagnostic) => diagnostic.source === 'SoPHP')
       .map((diagnostic) => String(diagnostic.code)).sort();
     assert.deepStrictEqual(actual, [...item.expected].sort(), `Diagnostic corpus mismatch for ${name}`);
   }

@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/plugin-api",
   "version": "0.1.0-alpha.1",
-  "description": "Versioned integration API for independently installed PHP Companion plugins.",
+  "description": "Versioned integration API for independently installed SoPHP plugins.",
   "type": "module",
   "license": "MIT",
   "repository": {

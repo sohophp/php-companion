@@ -8,7 +8,7 @@ export async function run(): Promise<void> {
   const idleMs = Number(process.env.PHP_COMPANION_REFERENCE_PERF_IDLE_MS ?? '0');
   assert.ok(root && Number.isSafeInteger(idleMs) && idleMs >= 0 && idleMs <= 30_000);
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
-  assert.ok(extension, 'Packaged PHP Companion extension is unavailable');
+  assert.ok(extension, 'Packaged SoPHP extension is unavailable');
   await extension.activate();
   const uri = vscode.Uri.file(join(root, 'src', 'Security', 'AdminPasswordChangeGuard.php'));
   const indexing = vscode.workspace.getConfiguration('phpCompanion', uri);

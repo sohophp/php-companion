@@ -52,6 +52,7 @@ jobs:
           if-no-files-found: error
           path: |
             php-companion-0.4.5.vsix
+            packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix
             packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
 
   php-integration:

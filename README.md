@@ -1,6 +1,8 @@
-# PHP Companion
+# SoPHP
 
 SoPHP 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。当前唯一维护的组合入口是 SoPHP Open Source Pack；它默认启用自研核心且不安装其他通用 PHP Language Server。格式化、调试、测试和 Twig Language Server 继续由专门工具负责。
+
+名称已更新为 SoPHP。为了让现有安装与设置继续生效，Marketplace 扩展 ID `sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.php-companion-open-source-pack`，以及 `phpCompanion.*` 配置键和命令 ID 保持原值；包名、仓库路径和历史发布文件名也保持原值。旧版变更记录与验收报告保留发布当时的名称。
 
 当前版本化内建规格已完整覆盖 PHP SPL 函数、十七种 SPL 适配/高级迭代器、四种 SPL 目录迭代器、Strings 与 Filesystem 官方可调用目录；类关系和 autoload 集合、模式相关字符串/正则/目录迭代结果、树格式化结果、CSV/list、locale/stat shape、resource 和失败返回会进入 Signature Help、返回传播及 Definition。
 
@@ -68,7 +70,7 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 
 ## F2 Rename
 
-PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准 Rename Symbol。文件名严格匹配类型名时会随类型同步重命名，并支持 VS Code 标准重构预览；直接短名、全限定名、import 路径、PHPDoc 与 Attribute 引用会同步，显式 alias 的使用名保持不变且不能作为发起点，普通字符串、配置文件、属性、变量和相关测试文件不会被修改。启用自研语言服务器后，可从非魔术方法声明或唯一解析的调用点发起 Rename：private 方法只修改直接解析到同一声明的引用；public/protected 方法要求完整层级，并同步接口、父类、重写实现及已解析直接调用。Trait 源方法 Rename 会同步声明、Trait 内调用、已证明的宿主/子类调用和具名 `Trait::method as alias` 的源方法，同时保留 alias 名；alias 自身也可从 adaptation 或唯一解析调用点独立 Rename，不修改源方法。多个 Trait 的同名方法由完整 `insteadof` 规则收敛到唯一 winner 时，被选中方法会同步 precedence token，被排除方法保留该 token 并同步自己的具名 alias 源。无法唯一收敛的多 Trait 来源、不完整消费关系、层级冲突、动态方法和数组/字符串 callable 会拒绝；无法解析或复合类型中不属于同一方法族的调用点、反射和工作区外引用不会被改写。
+SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename Symbol。文件名严格匹配类型名时会随类型同步重命名，并支持 VS Code 标准重构预览；直接短名、全限定名、import 路径、PHPDoc 与 Attribute 引用会同步，显式 alias 的使用名保持不变且不能作为发起点，普通字符串、配置文件、属性、变量和相关测试文件不会被修改。启用自研语言服务器后，可从非魔术方法声明或唯一解析的调用点发起 Rename：private 方法只修改直接解析到同一声明的引用；public/protected 方法要求完整层级，并同步接口、父类、重写实现及已解析直接调用。Trait 源方法 Rename 会同步声明、Trait 内调用、已证明的宿主/子类调用和具名 `Trait::method as alias` 的源方法，同时保留 alias 名；alias 自身也可从 adaptation 或唯一解析调用点独立 Rename，不修改源方法。多个 Trait 的同名方法由完整 `insteadof` 规则收敛到唯一 winner 时，被选中方法会同步 precedence token，被排除方法保留该 token 并同步自己的具名 alias 源。无法唯一收敛的多 Trait 来源、不完整消费关系、层级冲突、动态方法和数组/字符串 callable 会拒绝；无法解析或复合类型中不属于同一方法族的调用点、反射和工作区外引用不会被改写。
 
 唯一具名函数可从声明或直接解析的调用点发起 Rename，并同步定义、导入路径、普通及全限定调用。显式 `use function ... as alias` 的 alias 名和调用保持不变，因此从 alias 调用点发起会拒绝。
 
@@ -88,7 +90,7 @@ PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准
 }
 ```
 
-独立安装和两个组合包均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，PHP Companion 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
+独立安装和两个组合包均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
 
 ## 性能模型
 
@@ -113,19 +115,19 @@ PHP Companion 默认接管类型声明和唯一解析类型使用点上的标准
 
 资源管理器中的 Safe Move 默认开启，在移动 PSR-4 PHP 文件时同步 namespace 与语义引用。Safe Move 采用全有或全无策略：目标 FQCN 冲突、语法错误、未保存的相关文档、索引缺失或非规范 PSR-4 路径都会取消该次资源管理器移动并显示原因。若需关闭，可设置 `phpCompanion.move.enabled: false`。
 
-也可以在资源管理器右键 PHP 文件，使用 `PHP Companion: Safe Move PHP File` 选择目标目录；该命令默认先预览 namespace 与已证明引用的改动，再以一个可撤销、可重做的原子编辑完成文件移动与代码更新。可通过 `phpCompanion.move.preview: false` 跳过命令预览。
+也可以在资源管理器右键 PHP 文件，使用 `SoPHP: Safe Move PHP File` 选择目标目录；该命令默认先预览 namespace 与已证明引用的改动，再以一个可撤销、可重做的原子编辑完成文件移动与代码更新。可通过 `phpCompanion.move.preview: false` 跳过命令预览。
 
-使用 `PHP Companion: Show Diagnostics Report` 和 `Show Performance Log` 查看加载与索引情况。日志不会记录源码。
+使用 `SoPHP: Show Diagnostics Report` 和 `Show Performance Log` 查看加载与索引情况。日志不会记录源码。
 
 ## 推荐职责边界
 
-- PHP Companion 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；两个组合包默认启用。
+- SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；两个组合包默认启用。
 - PHP Debug：Xdebug 调试。
 - PHP CS Fixer：格式化。
-- PHPUnit/Pest Test Explorer：测试。
+- 项目 PHPUnit/Pest CLI：默认测试执行；测试视图扩展按项目单独评估。
 - TwigPlus：Twig 编辑体验。
 - Red Hat YAML / XML：YAML Schema 与 XML/XSD/DTD 编辑能力。
-- PHP Companion：Composer/PSR-4、文件生成、项目工作流和安全重构。
+- SoPHP：Composer/PSR-4、文件生成、项目工作流和安全重构。
 
 Intelephense 只作为手动启用的旧工作流兼容路径，不属于任何默认组合。
-Symfony Language Tools 0.20.1 与 0.20.2 都在重复组合门禁中干扰普通 PHP F2 Rename，而且目前没有关闭该 Provider 的设置，因此暂不建议与 PHP Companion 同时安装。首发 Symfony/Doctrine 精准能力由仓库内的自研组件提供；上游修复后再重新进入三平台组合门禁。
+Symfony Language Tools 0.20.1 与 0.20.2 都在重复组合门禁中干扰普通 PHP F2 Rename，而且目前没有关闭该 Provider 的设置，因此暂不建议与 SoPHP 同时安装。首发 Symfony/Doctrine 精准能力由仓库内的自研组件提供；上游修复后再重新进入三平台组合门禁。

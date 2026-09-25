@@ -58,6 +58,8 @@ async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
   const timings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
   console.log(`C1 cold ${kind} query: ${JSON.stringify({ elapsedMs, resultCount: result.length,
     serverMs: timings[kind]?.at(-1), scanMs: timings[`${kind}Scan`]?.at(-1),
+    projectMs: timings.candidateProject?.at(-1), prefilterMs: timings.candidatePrefilter?.at(-1),
+    indexMs: timings.candidateIndex?.at(-1),
     candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
 }
 
@@ -181,7 +183,8 @@ function inspect(ResponseInterface $value): void { $value->getStatusCode(); $val
   })}`);
 }
 
-async function verifyRealVendorEditingChain(rounds: number): Promise<void> {
+async function verifyRealVendorEditingChain(rounds: number,
+  requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.find((folder) => folder.name === 'real-vendor');
   assert.ok(root, 'The real Composer vendor project was not opened for the editing chain.');
   const uri = vscode.Uri.joinPath(root.uri, 'src', 'C1', 'RealVendorChain.php');
@@ -197,6 +200,14 @@ async function verifyRealVendorEditingChain(rounds: number): Promise<void> {
       forbidden: 'getStatusCode' },
   ] as const;
   const samples = new Map<string, number[]>();
+  await requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
+  const memorySamples: Array<{ round: number; rssMiB: number; heapUsedMiB: number; externalMiB: number }> = [];
+  const sampleMemory = async (round: number): Promise<void> => {
+    const memory = await requestLanguageServer<{ rss: number; heapUsed: number; external: number }>('phpCompanion/testMemoryUsage',
+      { collect: false });
+    memorySamples.push({ round, rssMiB: Math.round(memory.rss / 1048576),
+      heapUsedMiB: Math.round(memory.heapUsed / 1048576), externalMiB: Math.round(memory.external / 1048576) });
+  };
   const checked = async <T>(name: string, read: () => PromiseLike<T>, ready: (value: T) => boolean,
     message: string): Promise<T> => {
     const started = performance.now();
@@ -204,6 +215,7 @@ async function verifyRealVendorEditingChain(rounds: number): Promise<void> {
     const values = samples.get(name) ?? []; values.push(Math.round(performance.now() - started)); samples.set(name, values);
     return result;
   };
+  await sampleMemory(0);
   for (let round = 0; round < rounds; round += 1) {
     const current = cases[round % cases.length]!;
     const source = `<?php namespace App\\C1;
@@ -251,13 +263,21 @@ function inspect(${current.type} $value): void { $value->${current.method}(); $v
     assert.ok(references.every((item) => item.uri.toString() !== uri.toString()
       || item.range.start.isEqual(document.positionAt(callOffset))),
     `Real vendor round ${round} returned another call from the same unsaved document.`);
+    if ((round + 1) % 25 === 0 || round === rounds - 1) await sampleMemory(round + 1);
   }
   const summary = Object.fromEntries([...samples].map(([name, values]) => {
     const sorted = [...values].sort((left, right) => left - right);
     return [name, { count: sorted.length, median: sorted[Math.ceil(sorted.length * 0.5) - 1],
       p95: sorted[Math.ceil(sorted.length * 0.95) - 1], max: sorted.at(-1) }];
   }));
-  console.log(`C1 real vendor unsaved six-query chain: ${JSON.stringify({ rounds, summary })}`);
+  const serverTimings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: true });
+  const freshnessTimings = Object.fromEntries(['methodReferenceFreshnessSearch', 'methodReferenceFreshnessHash',
+    'methodReferenceFreshnessTotal'].map((name) => {
+    const sorted = [...(serverTimings[name] ?? [])].sort((left, right) => left - right);
+    return [name, { count: sorted.length, median: sorted[Math.ceil(sorted.length * 0.5) - 1],
+      p95: sorted[Math.ceil(sorted.length * 0.95) - 1], max: sorted.at(-1) }];
+  }));
+  console.log(`C1 real vendor unsaved six-query chain: ${JSON.stringify({ rounds, summary, memorySamples, freshnessTimings })}`);
 }
 
 export async function run(): Promise<void> {
@@ -762,12 +782,12 @@ function consume(): void { (void) choose(1); }`;
   }
   if (process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR === '1') await verifyRealComposerVendor(timingApi.requestLanguageServer);
   const chainRounds = Number(process.env.PHP_COMPANION_TEST_C1_CHAIN_ROUNDS ?? 0);
-  assert.ok(Number.isSafeInteger(chainRounds) && chainRounds >= 0 && chainRounds <= 100,
-    'PHP_COMPANION_TEST_C1_CHAIN_ROUNDS must be an integer from 0 to 100.');
+  assert.ok(Number.isSafeInteger(chainRounds) && chainRounds >= 0 && chainRounds <= 1000,
+    'PHP_COMPANION_TEST_C1_CHAIN_ROUNDS must be an integer from 0 to 1000.');
   if (chainRounds) {
     assert.strictEqual(process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR, '1',
       'The real vendor six-query chain requires PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
-    await verifyRealVendorEditingChain(chainRounds);
+    await verifyRealVendorEditingChain(chainRounds, timingApi.requestLanguageServer);
   }
   if (c1DebugPort) {
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);

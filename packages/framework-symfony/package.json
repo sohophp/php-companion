@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/framework-symfony",
   "version": "0.1.0-alpha.1",
-  "description": "Static Symfony facts for PHP Companion without booting project code.",
+  "description": "Static Symfony facts for SoPHP without booting project code.",
   "type": "module",
   "license": "MIT",
   "repository": {

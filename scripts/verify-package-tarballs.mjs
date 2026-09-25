@@ -148,7 +148,7 @@ await request('shutdown', null); notify('exit');
 await new Promise((resolveExit, reject) => { child.on('error', reject); child.on('exit', (code) => code === 0 ? resolveExit() : reject(new Error('Installed language server exited with ' + code + '.'))); });
 `);
   await run(process.execPath, ['smoke.mjs'], { cwd: consumer });
-  process.stdout.write('Verified twenty-four PHP Companion component tarballs from an isolated consumer.\n');
+  process.stdout.write('Verified twenty-four SoPHP component tarballs from an isolated consumer.\n');
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }

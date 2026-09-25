@@ -1,0 +1,40 @@
+diff --git a/packages/phpunit/src/TestParser/TestParser.missing-file.test.ts b/packages/phpunit/src/TestParser/TestParser.missing-file.test.ts
+new file mode 100644
+index 0000000..b652612
+--- /dev/null
++++ b/packages/phpunit/src/TestParser/TestParser.missing-file.test.ts
+@@ -0,0 +1,12 @@
++import { describe, expect, it } from 'vitest';
++import { randomUUID } from 'node:crypto';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { TestParser } from './TestParser';
++
++describe('TestParser', () => {
++    it('ignores a test file removed before a queued parse', async () => {
++        const parser = new TestParser(undefined as never, undefined as never);
++        await expect(parser.parseFile(join(tmpdir(), `${randomUUID()}.php`))).resolves.toBeUndefined();
++    });
++});
+diff --git a/packages/phpunit/src/TestParser/TestParser.ts b/packages/phpunit/src/TestParser/TestParser.ts
+index 46dc76d..d4ecd75 100644
+--- a/packages/phpunit/src/TestParser/TestParser.ts
++++ b/packages/phpunit/src/TestParser/TestParser.ts
+@@ -14,7 +14,16 @@ export class TestParser {
+     ) {}
+ 
+     async parseFile(file: string, testsuite?: string): Promise<ParseResult | undefined> {
+-        return this.parse(textDecoder.decode(await readFile(file)), file, testsuite);
++        let content: Buffer;
++        try {
++            content = await readFile(file);
++        } catch (error) {
++            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
++                return undefined;
++            }
++            throw error;
++        }
++        return this.parse(textDecoder.decode(content), file, testsuite);
+     }
+ 
+     parse(text: Buffer | string, file: string, testsuite?: string): ParseResult | undefined {

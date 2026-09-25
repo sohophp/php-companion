@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/type-system",
   "version": "0.1.0-alpha.1",
-  "description": "Editor-independent PHP type algebra for PHP Companion.",
+  "description": "Editor-independent PHP type algebra for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

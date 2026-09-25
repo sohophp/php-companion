@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/testkit",
   "version": "0.1.0-alpha.1",
-  "description": "Marker fixtures, LSP framing and performance assertions for PHP Companion components.",
+  "description": "Marker fixtures, LSP framing and performance assertions for SoPHP components.",
   "type": "module",
   "license": "MIT",
   "repository": {

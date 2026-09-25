@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/provider-symfony-routes",
   "version": "0.1.0-alpha.1",
-  "description": "Authoritative static Symfony route provider for PHP Companion.",
+  "description": "Authoritative static Symfony route provider for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/provider-symfony-routes" },

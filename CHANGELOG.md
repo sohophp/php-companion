@@ -1,3 +1,4 @@
+- Complete the SoPHP branding in current documentation, component descriptions, editor task labels, diagnostics, language-server messages, and VSIX verification output. Existing extension IDs, package names, commands, and settings remain compatible.
 - Type Doctrine `getArrayResult()`, `getScalarResult()` and `getSingleScalarResult()` with stable broad hydration shapes while keeping DQL field keys and concrete scalar types unknown.
 - Preserve Doctrine entity generics for project methods that return an ORM EntityManager QueryBuilder with one literal `from(Entity::class, 'alias')` root and an optional matching root `select()`.
 - Symfony service tooling now includes exact project PHP `#[Autowire(service: '...')]` literals in cross-format navigation, references, completion and single-undo service-id Rename.

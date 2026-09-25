@@ -709,12 +709,12 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         range: toRange(document, error),
         severity: DiagnosticSeverity.Error,
         code: 'php.syntax',
-        source: 'PHP Companion',
+        source: 'SoPHP',
         message: diagnosticMessage(language, 'syntax'),
       }];
     });
     diagnostics.push(...unsupportedSyntax(parsed.tree.rootNode, targetVersion).map((feature): Diagnostic => ({
-      range: toRange(document, feature), severity: DiagnosticSeverity.Error, code: 'php.version.unsupported', source: 'PHP Companion',
+      range: toRange(document, feature), severity: DiagnosticSeverity.Error, code: 'php.version.unsupported', source: 'SoPHP',
       message: diagnosticMessage(language, 'version', feature.feature, feature.minimumVersion, targetVersion),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.5')) {
@@ -723,43 +723,43 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       } as const;
       diagnostics.push(...invalidConstantExpressionCallables(parsed.tree.rootNode).map((item): Diagnostic => ({
         range: toRange(document, item), severity: DiagnosticSeverity.Error,
-        code: 'php.constant-expression.invalid-callable', source: 'PHP Companion', message: diagnosticMessage(language, messageKeys[item.reason]),
+        code: 'php.constant-expression.invalid-callable', source: 'SoPHP', message: diagnosticMessage(language, messageKeys[item.reason]),
       })));
     }
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.4')) {
       diagnostics.push(...implicitlyNullableParameters(parsed.tree.rootNode).map((parameter): Diagnostic => ({
         range: toRange(document, parameter), severity: DiagnosticSeverity.Warning,
-        code: 'php.parameter.implicitly-nullable', source: 'PHP Companion',
+        code: 'php.parameter.implicitly-nullable', source: 'SoPHP',
         message: diagnosticMessage(language, 'implicitlyNullable'),
         data: { typeStart: parameter.start, typeEnd: parameter.end, newType: parameter.newType },
       })));
       diagnostics.push(...invalidAbstractPropertyDeclarations(parsed, source, language).map((item): Diagnostic => ({
         range: toRange(document, item), severity: DiagnosticSeverity.Error,
-        code: 'php.property.invalid-abstract-declaration', source: 'PHP Companion',
+        code: 'php.property.invalid-abstract-declaration', source: 'SoPHP',
         message: diagnosticMessage(language, 'invalidDeclaration', item.fqcn, item.violations.join('; ')),
       })));
     }
     if (effectiveErrors.length === 0) diagnostics.push(...unreachableRanges(parsed.tree.rootNode, terminatingCalls).map((range): Diagnostic => ({
-      range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.control-flow.unreachable', source: 'PHP Companion',
+      range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.control-flow.unreachable', source: 'SoPHP',
       message: diagnosticMessage(language, 'unreachable'),
     })));
     const fallthroughCallables = effectiveErrors.length === 0 ? callableFallthroughRanges(parsed, terminatingCalls) : [];
     if (isSyntaxAvailable(targetVersion, '8.1')) {
       diagnostics.push(...fallthroughCallables.filter((item) => item.nativeReturnType.trim().toLowerCase() === 'never').map((range): Diagnostic => ({
-        range: toRange(document, range), severity: DiagnosticSeverity.Error, code: 'php.never.fallthrough', source: 'PHP Companion',
+        range: toRange(document, range), severity: DiagnosticSeverity.Error, code: 'php.never.fallthrough', source: 'SoPHP',
         message: diagnosticMessage(language, 'neverFallthrough'),
       })));
     }
     diagnostics.push(...fallthroughCallables.filter((item) => !['never', 'void'].includes(item.nativeReturnType.trim().toLowerCase()))
       .map((item): Diagnostic => ({
-        range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.return.missing', source: 'PHP Companion',
+        range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.return.missing', source: 'SoPHP',
         message: diagnosticMessage(language, 'returnMissing', item.fqcn, item.nativeReturnType),
       })));
     if (effectiveErrors.length === 0) diagnostics.push(...invalidNativeTypeDeclarations(parsed.tree.rootNode, targetVersion).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error,
       code: ['duplicate', 'bool-redundant', 'boolean-literals', 'iterable-array', 'object-class', 'iterable-traversable'].includes(item.reason)
         ? 'php.type.redundant-declaration' : 'php.type.invalid-declaration',
-      source: 'PHP Companion',
+      source: 'SoPHP',
       message: item.reason === 'standalone'
         ? diagnosticMessage(language, 'typeStandalone', item.type)
         : item.reason === 'return-only'
@@ -796,7 +796,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         if (violations.length === 0) return [];
         return [{
           range: toRange(document, property), severity: DiagnosticSeverity.Error,
-          code: 'php.property.invalid-readonly-declaration', source: 'PHP Companion',
+          code: 'php.property.invalid-readonly-declaration', source: 'SoPHP',
           message: diagnosticMessage(language, 'readonlyPropertyInvalid', property.fqcn, violations.join('; ')),
         }];
       }));
@@ -817,30 +817,30 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
                 : undefined;
         return violation ? [{
           range: toRange(document, property), severity: DiagnosticSeverity.Error,
-          code: 'php.property.invalid-hook-declaration', source: 'PHP Companion', message: violation,
+          code: 'php.property.invalid-hook-declaration', source: 'SoPHP', message: violation,
         }] : [];
       }));
     }
     if (effectiveErrors.length === 0) diagnostics.push(...invalidRelativeScopes(parsed, source).map((item): Diagnostic => ({
-      range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.type.invalid-relative-scope', source: 'PHP Companion',
+      range: toRange(document, item), severity: DiagnosticSeverity.Error, code: 'php.type.invalid-relative-scope', source: 'SoPHP',
       message: item.reason === 'outside-scope'
         ? diagnosticMessage(language, 'relativeOutside', item.type)
         : diagnosticMessage(language, 'relativeNoParent', item.container!),
     })));
     if (effectiveErrors.length === 0) diagnostics.push(...invalidAbstractMethodDeclarations(parsed, language).map((item): Diagnostic => ({
       range: toRange(document, item), severity: DiagnosticSeverity.Error,
-      code: 'php.method.invalid-abstract-declaration', source: 'PHP Companion',
+      code: 'php.method.invalid-abstract-declaration', source: 'SoPHP',
       message: diagnosticMessage(language, 'invalidDeclaration', item.fqcn, item.violations.join('; ')),
     })));
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.1')) {
       diagnostics.push(...[...enumProperties.values()].sort((left, right) => left.start - right.start).map((property): Diagnostic => ({
         range: toRange(document, property), severity: DiagnosticSeverity.Error,
-        code: 'php.enum.invalid-member', source: 'PHP Companion',
+        code: 'php.enum.invalid-member', source: 'SoPHP',
         message: diagnosticMessage(language, 'enumProperty', property.containerFqcn!, property.name),
       })));
       diagnostics.push(...parsed.callables.filter(isForbiddenEnumMagicMethod).map((callable): Diagnostic => ({
         range: toRange(document, callable), severity: DiagnosticSeverity.Error,
-        code: 'php.enum.invalid-member', source: 'PHP Companion',
+        code: 'php.enum.invalid-member', source: 'SoPHP',
         message: diagnosticMessage(language, 'enumMagicMethod', callable.containerFqcn!, callable.name),
       })));
       diagnostics.push(...parsed.callables.filter((callable) => callable.kind === 'method' && callable.containerFqcn !== undefined
@@ -848,7 +848,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
           || (parsed.declarations.find((item) => item.fqcn === callable.containerFqcn)?.enumBackingType !== undefined
             && ['from', 'tryfrom'].includes(callable.name.toLowerCase())))).map((callable): Diagnostic => ({
         range: toRange(document, callable), severity: DiagnosticSeverity.Error,
-        code: 'php.enum.invalid-member', source: 'PHP Companion',
+        code: 'php.enum.invalid-member', source: 'SoPHP',
         message: diagnosticMessage(language, 'enumSynthesizedMethod', callable.containerFqcn!, callable.name),
       })));
       const literalKind = (value: string): 'string' | 'int' | 'float' | 'bool' | 'null' | undefined => {
@@ -880,7 +880,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
           }
           if (message) diagnostics.push({
             range: toRange(document, enumCase), severity: DiagnosticSeverity.Error,
-            code: 'php.enum.invalid-case', source: 'PHP Companion', message,
+            code: 'php.enum.invalid-case', source: 'SoPHP', message,
           });
         }
       }
@@ -891,7 +891,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         const identity = key(item); if (!seen.has(identity)) { seen.add(identity); return []; }
         const localizedLabel = language === 'zh' ? ({ type: '类型', function: '函数', method: '方法', property: '属性',
           'namespace constant': '命名空间常量', 'class constant': '类常量' } as Record<string, string>)[label] ?? label : label;
-        return [{ range: toRange(document, item), severity: DiagnosticSeverity.Error, code, source: 'PHP Companion',
+        return [{ range: toRange(document, item), severity: DiagnosticSeverity.Error, code, source: 'SoPHP',
           message: diagnosticMessage(language, 'duplicateDeclaration', localizedLabel) }];
       });
     };
@@ -914,7 +914,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         const joined = language === 'zh' ? violations.join('、')
           : violations.length === 1 ? violations[0]! : `${violations.slice(0, -1).join(', ')} or ${violations.at(-1)}`;
         return [{
-          range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'PHP Companion',
+          range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'SoPHP',
           message: diagnosticMessage(language, name === '__construct' ? 'constructorInvalid' : 'destructorInvalid', callable.fqcn, joined),
         }];
       }
@@ -963,7 +963,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       }
       if (violations.length === 0) return [];
       return [{
-        range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'PHP Companion',
+        range: toRange(document, callable), severity: DiagnosticSeverity.Error, code: 'php.method.invalid-magic-signature', source: 'SoPHP',
         message: diagnosticMessage(language, 'magicInvalid', callable.fqcn, violations.join('; ')),
       }];
     }));
@@ -980,7 +980,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       if (!publicMagicMethods.has(name)) return [];
       return [{
         range: toRange(document, callable), severity: DiagnosticSeverity.Warning,
-        code: 'php.method.magic-visibility', source: 'PHP Companion',
+        code: 'php.method.magic-visibility', source: 'SoPHP',
         message: diagnosticMessage(language, 'magicVisibility', callable.fqcn),
       }];
     }));
@@ -992,7 +992,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         ? { start: namespaceMatch.index + namespaceMatch[0].indexOf(namespaceMatch[1]!), end: namespaceMatch.index + namespaceMatch[0].indexOf(namespaceMatch[1]!) + namespaceMatch[1]!.length }
         : namedDeclarations[0];
       if (range) diagnostics.push({
-        range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.namespace.psr4', source: 'PHP Companion',
+        range: toRange(document, range), severity: DiagnosticSeverity.Warning, code: 'php.namespace.psr4', source: 'SoPHP',
         message: diagnosticMessage(language, 'namespaceMismatch', namespaces[0] || (language === 'zh' ? '全局' : '(global)'),
           expectedNamespace || (language === 'zh' ? '全局' : '(global)')),
         data: { expectedNamespace },

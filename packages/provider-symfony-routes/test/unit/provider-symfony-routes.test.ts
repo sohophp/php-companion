@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { PhpSyntaxParser } from '@php-companion/parser';
+import { isRouteFactsContribution, routeFacts } from '@php-companion/route-provider';
 import { collectSymfonyStaticRouteFacts, collectSymfonyStaticRouteSnapshot } from '../../src/index.js';
 
 describe('Symfony static route provider', () => {
@@ -44,6 +45,63 @@ admin:
       ['admin.edited', '/edited'], ['site.home', '/base/home/{id}'],
     ]);
     expect(routes[0]?.controller).toMatchObject({ className: 'App\\Controller\\HomeController', method: 'home' });
+  });
+
+  it('follows deterministic Kernel attribute imports and refuses dynamic route branches', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-kernel-routes-')); roots.push(root);
+    await mkdir(join(root, 'src', 'Controller'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' }, autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'src', 'Controller', 'HomeController.php'), String.raw`<?php namespace App\Controller;
+      class HomeController { #[\Symfony\Component\Routing\Attribute\Route('/home', name: 'home')] public function index(): void {} }`);
+    const kernelPath = join(root, 'src', 'Kernel.php');
+    const kernel = `<?php namespace App;
+      use Symfony\\Component\\HttpKernel\\Kernel as BaseKernel;
+      use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
+      class Kernel extends BaseKernel {
+        protected function configureRoutes(RoutingConfigurator $routes): void {
+          $routes->import(__DIR__ . '/Controller/', 'attribute')->prefix('/api')->namePrefix('api_');
+        }
+      }`;
+    await writeFile(kernelPath, kernel);
+    const staticRoutes = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(staticRoutes.complete).toBe(true);
+    expect(staticRoutes.routes.map((route) => [route.name, route.path])).toEqual([['api_home', '/api/home']]);
+    await writeFile(kernelPath, kernel.replace("$routes->import(__DIR__ . '/Controller/', 'attribute')->prefix('/api')->namePrefix('api_');",
+      "if (featureEnabled()) { $routes->import(__DIR__ . '/Controller/', 'attribute'); }"));
+    const dynamicRoutes = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(dynamicRoutes.complete).toBe(false);
+    expect(dynamicRoutes.routes).toEqual([]);
+    await writeFile(kernelPath, kernel.replace('extends BaseKernel', 'extends ProjectKernel'));
+    const unknownKernel = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(unknownKernel.complete).toBe(false);
+    expect(unknownKernel.routes).toEqual([]);
+  });
+
+  it('loads the conventional PHP route entrypoint and its unsaved snapshot', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-php-routes-')); roots.push(root);
+    await mkdir(join(root, 'config', 'routes'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    const phpPath = join(root, 'config', 'routes.php');
+    const source = `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator;
+      use App\\Controller\\HomeController as Home;
+      return static function (RoutingConfigurator $routes): void {
+        $routes->add('home', '/home')->controller([Home::class, 'index']);
+        $routes->import('routes/child.yaml')->prefix('/api')->namePrefix('api_');
+      };`;
+    await writeFile(phpPath, source);
+    await writeFile(join(root, 'config', 'routes', 'child.yaml'), 'child: {path: /child}\n');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(true);
+    expect(snapshot.inputUris).toContain(pathToFileURL(phpPath).toString());
+    expect(snapshot.routes.map((route) => [route.name, route.path])).toEqual([['api_child', '/api/child'], ['home', '/home']]);
+    expect(snapshot.routes[1]?.controller).toMatchObject({ className: 'App\\Controller\\HomeController', classSourceName: 'Home', method: 'index' });
+    expect(isRouteFactsContribution(routeFacts('symfony-static', '1', snapshot.routes))).toBe(true);
+    const edited = await collectSymfonyStaticRouteSnapshot(root, parser, { documents: [{
+      uri: pathToFileURL(phpPath).toString(), languageId: 'php', snapshotVersion: '2',
+      source: source.replace("$routes->add('home', '/home')", "$routes->add('home', '/edited')"),
+    }] });
+    expect(edited.complete).toBe(true);
+    expect(edited.routes.map((route) => [route.name, route.path])).toEqual([['api_child', '/api/child'], ['home', '/edited']]);
   });
 
   it('resolves registered bundle route resources without executing project PHP', async () => {

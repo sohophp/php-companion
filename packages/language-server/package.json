@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/language-server",
   "version": "0.1.0-alpha.1",
-  "description": "Standalone PHP language server for PHP Companion.",
+  "description": "Standalone PHP language server for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

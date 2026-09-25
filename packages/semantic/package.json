@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/semantic",
   "version": "0.1.0-alpha.1",
-  "description": "Conservative PHP semantic queries for PHP Companion.",
+  "description": "Conservative PHP semantic queries for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

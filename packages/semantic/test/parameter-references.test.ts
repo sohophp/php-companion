@@ -37,4 +37,33 @@ describe('parameter References across a method family', () => {
       expect(withoutDeclarations).not.toContainEqual(expect.objectContaining({ uri, start: source.indexOf(`$${name}`) + 1 }));
     expect(workspace.referenceScope(firstUri, first.indexOf('$copy') + 2)).toBe('document');
   });
+
+  it('keeps named arguments in parameter Rename when a later argument is a legacy array', () => {
+    const uri = 'file:///workspace/src/NamedArrayCall.php';
+    const source = `<?php namespace App;
+final class NamedArrayCall {
+    private function dispatch(string $label, array $payload): void { echo $label; }
+    public function run(): void { $this->dispatch(label: 'x', payload: array('y')); }
+}`;
+    workspace.update(uri, source, true);
+    const rename = workspace.localVariableRename(uri, source.indexOf('$label') + 2, 'title');
+    expect(rename?.locations.map((location) => source.slice(location.start, location.end)))
+      .toEqual(['label', 'label', 'label']);
+    workspace.remove(uri);
+  });
+
+  it('keeps named arguments in method-family Rename when a later argument is a legacy array', () => {
+    const uri = 'file:///workspace/src/FamilyNamedArrayCall.php';
+    const source = `<?php namespace App;
+interface ArrayContract { public function dispatch(string $label, array $payload): void; }
+final class ArrayWorker implements ArrayContract {
+    public function dispatch(string $label, array $payload): void { echo $label; }
+}
+function callArray(ArrayContract $worker): void { $worker->dispatch(label: 'x', payload: array('y')); }`;
+    workspace.update(uri, source, true);
+    const rename = workspace.localVariableRename(uri, source.indexOf('$label') + 2, 'title');
+    expect(rename?.locations.map((location) => source.slice(location.start, location.end)))
+      .toEqual(['label', 'label', 'label', 'label']);
+    workspace.remove(uri);
+  });
 });

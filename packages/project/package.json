@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/project",
   "version": "0.1.0-alpha.1",
-  "description": "Static Composer project discovery for PHP Companion.",
+  "description": "Static Composer project discovery for SoPHP.",
   "type": "module",
   "license": "MIT",
   "repository": {

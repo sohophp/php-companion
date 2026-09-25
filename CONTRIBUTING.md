@@ -1,6 +1,6 @@
 # Contributing
 
-感谢参与 PHP Companion。提交变更前请先在 Issue 中说明较大的功能设计；小型修复可以直接提交 Pull Request。
+感谢参与 SoPHP。提交变更前请先在 Issue 中说明较大的功能设计；小型修复可以直接提交 Pull Request。
 
 自研语言工具链的架构、开发顺序和最终验收见 [开发计划](docs/php-language-toolchain/README.md)。用户确认该计划后，按其中的执行规则开展已授权的本地开发，无需为开始实施另行创建 Issue；对外发布仍单独确认。
 

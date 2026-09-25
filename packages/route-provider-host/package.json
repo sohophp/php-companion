@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/route-provider-host",
   "version": "0.1.0-alpha.1",
-  "description": "Isolated process host for explicitly configured PHP Companion route providers.",
+  "description": "Isolated process host for explicitly configured SoPHP route providers.",
   "type": "module", "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/route-provider-host" },
   "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],

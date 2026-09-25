@@ -34,7 +34,7 @@ pnpm alpha:preflight -- \
 
 为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`。Open Source Pack 声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。Pack 不能锁定外部扩展版本，安装后按候选目录 `README.zh-CN.md` 中由 `candidate.json` 生成的命令固定成员版本。旧 Recommended Pack 不再构建或发布，新候选 Profile 中应卸载；旧 schema 1/2 候选仍可按其原清单核验。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
 
-Open Source Pack 当前源码使用 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHPUnit、PHP CS Fixer、EditorConfig、Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）和 PHP DocBlocker。已冻结旧候选的实际成员以各自 `candidate.json` 为准。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
+Open Source Pack 当前源码使用 SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）和 PHP DocBlocker，共 10 项。PHPUnit/Pest 默认使用项目 CLI；原版 `recca0120.vscode-phpunit` 3.9.40 因测试文件 Rename 后读取旧路径的异常已移出默认清单。已冻结旧候选的实际成员以各自 `candidate.json` 为准，不能用当前源码清单推断旧候选内容。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
 
 Open Source Pack 默认使用 `onDemand` 索引，先在此默认配置下完成组合检查。若单独评估 References 渐进索引，只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
 

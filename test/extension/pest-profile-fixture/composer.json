@@ -1,0 +1,9 @@
+{
+  "name": "sophp/pest-evaluation",
+  "type": "project",
+  "require": { "php": ">=8.3" },
+  "require-dev": { "pestphp/pest": "^4.0" },
+  "config": {
+    "allow-plugins": { "pestphp/pest-plugin": true }
+  }
+}

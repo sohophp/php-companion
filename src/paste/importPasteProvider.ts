@@ -132,7 +132,8 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
   }
 }
 
-export async function resolveDocumentImports(document: vscode.TextDocument, index: WorkspaceSymbolIndex): Promise<boolean> {
+export async function resolveDocumentImports(document: vscode.TextDocument, index: WorkspaceSymbolIndex,
+  sourceUnchanged?: () => Promise<boolean>): Promise<boolean> {
   const source = document.getText();
   const file = index.getFile(document.uri.toString());
   if (!file) return false;
@@ -151,6 +152,7 @@ export async function resolveDocumentImports(document: vscode.TextDocument, inde
     }
   }
   const built = buildImportEdit(document, symbols, index);
+  if (sourceUnchanged && !await sourceUnchanged()) return false;
   return built.edit ? vscode.workspace.applyEdit(built.edit) : false;
 }
 

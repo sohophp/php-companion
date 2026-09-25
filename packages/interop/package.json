@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/interop",
   "version": "0.1.0-alpha.1",
-  "description": "Versioned framework-neutral interoperability contracts for PHP Companion and template language tools.",
+  "description": "Versioned framework-neutral interoperability contracts for SoPHP and template language tools.",
   "type": "module",
   "license": "MIT",
   "repository": {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createHash } from 'node:crypto';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
+import { t } from './localize.js';
 
 type ProtocolPosition = { line: number; character: number };
 type ProtocolRange = { start: ProtocolPosition; end: ProtocolPosition };
@@ -26,14 +27,30 @@ function workspaceEdit(value: ProtocolWorkspaceEdit | null): vscode.WorkspaceEdi
   return edit;
 }
 
-async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: ReadonlyMap<string, number>): Promise<boolean> {
+async function dirtyOpenDiskSnapshots(): Promise<ReadonlyMap<string, string | undefined>> {
+  const snapshots = new Map<string, string | undefined>();
+  await Promise.all(vscode.workspace.textDocuments.filter((item) => item.isDirty
+    && (item.uri.scheme === 'file' || item.uri.scheme === 'vscode-remote')).map(async (item) => {
+    const uri = item.uri.toString();
+    const bytes = await vscode.workspace.fs.readFile(item.uri).then((value) => value, () => undefined);
+    snapshots.set(uri, bytes ? createHash('sha256').update(bytes).digest('hex') : undefined);
+  }));
+  return snapshots;
+}
+
+async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: ReadonlyMap<string, number>,
+  dirtyDisks: ReadonlyMap<string, string | undefined>): Promise<boolean> {
   const hashes = value.phpCompanion?.sourceHashes;
   if (!hashes) return false;
   for (const uri of Object.keys(value.changes ?? {})) {
     const expected = hashes[uri];
     if (!expected) return false;
     const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
-    const source = open?.getText() ?? Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).toString('utf8');
+    const disk = await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)).then((value) => value, () => undefined);
+    if (!disk) return false;
+    const diskHash = createHash('sha256').update(disk).digest('hex');
+    if (open?.isDirty ? !dirtyDisks.get(uri) || dirtyDisks.get(uri) !== diskHash : open && diskHash !== expected) return false;
+    const source = open?.getText() ?? Buffer.from(disk).toString('utf8');
     if (createHash('sha256').update(source).digest('hex') !== expected) return false;
   }
   return vscode.workspace.textDocuments.every((item) => !openVersions.has(item.uri.toString())
@@ -102,6 +119,8 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
       if (token.isCancellationRequested) return undefined;
       const version = document.version;
       const openVersions = new Map(vscode.workspace.textDocuments.map((item) => [item.uri.toString(), item.version]));
+      const dirtyDisks = await dirtyOpenDiskSnapshots();
+      if (!current(document, version, token)) return undefined;
       let result = await safely<ProtocolWorkspaceEdit | null>('phpCompanion/symfonyServiceRename', {
         ...requestParams(document, position), newName,
       });
@@ -112,8 +131,8 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
         ...requestParams(document, position), newName,
       });
       if (!result || !current(document, version, token)) return undefined;
-      if (!await verifyRenameSources(result, openVersions) || !current(document, version, token)) {
-        throw new Error('A Symfony Rename source changed while edits were being prepared. Run Rename again.');
+      if (!await verifyRenameSources(result, openVersions, dirtyDisks) || !current(document, version, token)) {
+        throw new Error(t('renameSourceChanged'));
       }
       return workspaceEdit(result);
     },
@@ -131,6 +150,7 @@ export function registerSymfonyLanguageFeatures(context: vscode.ExtensionContext
     vscode.languages.registerCompletionItemProvider(xml, completions, '"', "'", '.'),
     vscode.languages.registerRenameProvider(xml, rename),
     vscode.languages.registerDefinitionProvider(php, definition('phpCompanion/symfonyServiceDefinition')),
+    vscode.languages.registerDefinitionProvider(php, definition('phpCompanion/symfonyRouteControllerDefinition')),
     vscode.languages.registerReferenceProvider(php, references),
     vscode.languages.registerCompletionItemProvider(php, completions, '"', "'", '.'),
   );

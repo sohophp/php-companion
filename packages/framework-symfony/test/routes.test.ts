@@ -148,8 +148,38 @@ after: {path: /after}
     expect(facts.routes.map(({ name, path, start, end }) => ({ name, path, text: source.slice(start, end) })))
       .toEqual([{ name: '_home', path: '/home', text: '_home' }]);
     expect(facts.imports).toEqual([{ resource: 'child.php', namePrefix: 'api_', pathPrefix: '/api', php: true }]);
+    const unsupportedImport = source.replace("$routes->import('child.php')->prefix('/api')->namePrefix('api_');",
+      "$routes->import('child.php')->defaults(['enabled' => true]);");
+    expect(analyzeSymfonyRoutePhp(parser, 'file:///vendor/Bundle/Resources/config/routes.php', unsupportedImport).complete).toBe(false);
     expect(analyzeSymfonyRoutePhp(parser, 'file:///routes.php', `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator; return static function (RoutingConfigurator $routes): void { $routes = other(); $routes->add('wrong', '/wrong'); };`).routes).toEqual([]);
     expect(analyzeSymfonyRoutePhp(parser, 'file:///routes.php', `<?php use Symfony\\Component\\Routing\\Loader\\Configurator\\RoutingConfigurator; return static function (RoutingConfigurator $routes): void { $routes->add(path: '/wrong', name: 'swapped'); };`).routes).toEqual([]);
+    parser.dispose();
+  });
+  it('records exact PHP route controller sources while preserving import aliases', async () => {
+    const parser = await PhpSyntaxParser.createDefault();
+    const source = String.raw`<?php namespace App\Routes;
+      use App\Controller\BlogController as Blog;
+      use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+      return static function (RoutingConfigurator $routes): void {
+        $routes->add('blog', '/blog')->controller([Blog::class, 'list'])->defaults(['page' => 1]);
+        $routes->add('direct', '/direct')->controller('\App\Controller\DirectController::show');
+        $routes->add('invoke', '/invoke')->controller(Blog::class);
+        $routes->add('override', '/override')->controller([Blog::class, 'list'])->defaults(['_controller' => 'other']);
+        $routes->add('dynamic', '/dynamic')->controller([$target, 'run']);
+      };`;
+    const facts = analyzeSymfonyRoutePhp(parser, 'file:///config/routes.php', source);
+    expect(facts.complete).toBe(true);
+    expect(facts.routes.map(({ name, controller }) => ({ name, controller: controller && {
+      className: controller.className, classSourceName: controller.classSourceName, method: controller.method,
+      classText: source.slice(controller.classStart, controller.classEnd),
+      methodText: controller.methodStart === undefined ? undefined : source.slice(controller.methodStart, controller.methodEnd),
+    } }))).toEqual([
+      { name: 'blog', controller: { className: 'App\\Controller\\BlogController', classSourceName: 'Blog', method: 'list', classText: 'Blog', methodText: 'list' } },
+      { name: 'direct', controller: { className: 'App\\Controller\\DirectController', classSourceName: '\\App\\Controller\\DirectController', method: 'show', classText: '\\App\\Controller\\DirectController', methodText: 'show' } },
+      { name: 'invoke', controller: { className: 'App\\Controller\\BlogController', classSourceName: 'Blog', method: undefined, classText: 'Blog', methodText: undefined } },
+      { name: 'override', controller: undefined },
+      { name: 'dynamic', controller: undefined },
+    ]);
     parser.dispose();
   });
   it('extracts unconditional and exact environment-gated Kernel route imports', async () => {
@@ -169,8 +199,38 @@ after: {path: /after}
         { resource: './../config/symfony/routes/dev.yaml', namePrefix: '', pathPrefix: '', environments: ['dev'] },
       ]);
     const complex = source.replace("$this->environment === 'dev'", "$this->environment === 'dev' && enabled()");
-    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', complex).imports)
+    const complexFacts = analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', complex);
+    expect(complexFacts.complete).toBe(false);
+    expect(complexFacts.imports)
       .toEqual([{ resource: './../config/symfony/routes.yaml', namePrefix: '', pathPrefix: '' }]);
+    const attribute = source.replace("$routes->import(dirname(__DIR__) . '/config/symfony/routes.yaml');",
+      "$routes->import(dirname(__DIR__) . '/src/Controller/', 'attribute')->prefix('/api')->namePrefix('api_');");
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', attribute)).toMatchObject({
+      complete: true,
+      imports: [
+        { resource: './../src/Controller/', namePrefix: 'api_', pathPrefix: '/api', attribute: true },
+        { resource: './../config/symfony/routes/dev.yaml', namePrefix: '', pathPrefix: '', environments: ['dev'] },
+      ],
+    });
+    const reversedEnvironment = source.replace("$this->environment === 'dev'", "'dev' === $this->environment");
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', reversedEnvironment)).toMatchObject({
+      complete: true,
+      imports: [
+        { resource: './../config/symfony/routes.yaml', namePrefix: '', pathPrefix: '' },
+        { resource: './../config/symfony/routes/dev.yaml', namePrefix: '', pathPrefix: '', environments: ['dev'] },
+      ],
+    });
+    const unsupported = source.replace("$routes->import(dirname(__DIR__) . '/config/symfony/routes.yaml');",
+      "$routes->import(dirname(__DIR__) . '/config/symfony/routes.yaml')->defaults(['enabled' => true]);");
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', unsupported).complete).toBe(false);
+    const dynamic = source.replace("$this->environment === 'dev'", "featureEnabled()");
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', dynamic).complete).toBe(false);
+    const customParent = source.replace('extends BaseKernel', 'extends ProjectKernel');
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', customParent).complete).toBe(false);
+    const unprovedParameter = source.replace('RoutingConfigurator $routes', 'ProjectRoutes $routes');
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', unprovedParameter).complete).toBe(false);
+    const extraParameter = source.replace('RoutingConfigurator $routes', 'RoutingConfigurator $routes, bool $enabled');
+    expect(analyzeSymfonyKernelRouteImports(parser, 'file:///project/src/Kernel.php', extraParameter).complete).toBe(false);
     parser.dispose();
   });
   it('escapes quotes, backslashes and dollar signs for the original PHP string delimiter', () => {

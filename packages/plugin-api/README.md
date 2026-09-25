@@ -1,6 +1,6 @@
 # @php-companion/plugin-api
 
-PHP Companion 独立扩展的版本化接入契约。插件通过 VS Code 的扩展 API 激活核心扩展，再注册由自身安装目录提供的语义或路由 Provider；核心统一负责生命周期、冲突处理、进程边界和 Language Server 同步。
+SoPHP 独立扩展的版本化接入契约。插件通过 VS Code 的扩展 API 激活核心扩展，再注册由自身安装目录提供的语义或路由 Provider；核心统一负责生命周期、冲突处理、进程边界和 Language Server 同步。
 
 ```ts
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';

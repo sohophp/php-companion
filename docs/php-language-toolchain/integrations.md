@@ -12,14 +12,14 @@
 | JSON/JSONC | VS Code 内建 JSON | 不额外安装扩展；可贡献 schema，不重写语言服务 |
 | HTML/CSS/JS/TS | VS Code 内建语言服务 | PHP 混合文件适用范围实测；Twig 内嵌区域继续由 twig-plus 处理 |
 | Twig | `sohophp.twig-plus` | 长期唯一模板语言实现 |
-| Symfony/Doctrine 增强 | PHP Companion 自研组件 | 首发使用静态、可证明的框架事实；`Symfony.language-tools` 0.20.1/0.20.2 均因普通 PHP Rename 冲突退出受支持组合 |
+| Symfony/Doctrine 增强 | SoPHP 自研组件 | 首发使用静态、可证明的框架事实；`Symfony.language-tools` 0.20.1/0.20.2 均因普通 PHP Rename 冲突退出受支持组合 |
 | PHP 格式化 | `junstyle.php-cs-fixer` | 已有组合继续验证，长期复用 |
 | 调试 | `xdebug.php-debug` | 验证现有组合、版本和运行时配置 |
-| PHPUnit | `recca0120.vscode-phpunit` | 现有候选，核验版本/许可和真实测试发现执行；Pest 非首发必需 |
+| PHPUnit/Pest | 项目 CLI | 当前 Pack 默认测试入口；`recca0120.vscode-phpunit` 3.9.40 在完整组合的测试文件 Rename 后曾读取旧路径并抛错，已移出默认安装。测试视图须在修复后重新通过组合门禁 |
 | 编辑约定 | `EditorConfig.EditorConfig` | 保留，验证与 formatter 的规则一致性 |
 | Apache 配置片段 | `eiminsasete.apacheconf-snippets` | Open Source Pack 包含；冻结试用清单记录 1.4.0；该扩展声明依赖 `mrmlnc.vscode-apache` 提供 Apache 配置语法；真实编辑器组合操作待验收 |
 
-Open Source Pack 已在 VS Code 1.136.1 / WSL 的隔离扩展目录完成实际安装，基础组合版本见 [组合报告](reports/open-source-profile-linux-wsl-2026-09-06.md)，Symfony Language Tools 的原组合验收见 [Symfony 组合报告](reports/symfony-language-tools-linux-wsl-2026-09-08.md)，0.20.1 与真实 Winstar 的复核见 [0.20.1 复核报告](reports/symfony-language-tools-0.20.1-recheck-2026-09-12.md)。Red Hat YAML、PHP Debug、PHPUnit & Pest Test Explorer 和 EditorConfig 的安装清单声明 MIT；PHP CS Fixer 扩展 0.3.21 的 VSIX `LICENSE.txt` 为 MIT，但 manifest 写作 ISC，报告保留这一元数据差异。Companion 与 TwigPlus 使用各自仓库声明的 MIT 许可证。许可证和安装核对不替代完整 VSIX 组合行为测试，也不锁定 Marketplace 自动更新后的版本。
+Open Source Pack 曾在 VS Code 1.136.1 / WSL 的隔离扩展目录完成实际安装，历史组合版本见 [组合报告](reports/open-source-profile-linux-wsl-2026-09-06.md)，Symfony Language Tools 的原组合验收见 [Symfony 组合报告](reports/symfony-language-tools-linux-wsl-2026-09-08.md)，0.20.1 的历史复核见 [0.20.1 复核报告](reports/symfony-language-tools-0.20.1-recheck-2026-09-12.md)。当前源码 Pack 的 10 项清单以 [manifest](../../packages/php-companion-extension-pack/package.json) 为准。Red Hat YAML、PHP Debug、EditorConfig，以及现已移出默认 Pack 的 PHPUnit & Pest Test Explorer，其安装清单均声明 MIT；PHP CS Fixer 扩展 0.3.21 的 VSIX `LICENSE.txt` 为 MIT，但 manifest 写作 ISC，报告保留这一元数据差异。Companion 与 TwigPlus 使用各自仓库声明的 MIT 许可证。许可证和安装核对不替代完整 VSIX 组合行为测试，也不锁定 Marketplace 自动更新后的版本。
 
 数据库、Markdown、拼写和 CSS Peek 不作为 PHP 首发必需依赖，已从 Open Source Pack 移除。VS Code 内建 Markdown/CSS 能力足够首发基线；当前 Database Client 发行版闭源且部分功能收费，只能作为用户自行选择的可选工具。
 
@@ -29,7 +29,7 @@ Provider 所有权按能力划分：YAML 语法、Schema 和格式化归 Red Hat
 
 Companion 只为 YAML 中可证明的 Symfony 控制器值追加 Definition Provider，不接管 YAML 文档同步、诊断、补全、Schema 或格式化。光标必须位于带 `path` 的路由 map 中字面量 `controller` / `defaults._controller` 的 FQCN 类段或方法段；目标按 Composer PSR-4 唯一加载，方法还须解析为有效公开实例方法。服务 ID、转义后才成立的值、动态值、普通配置中的同名键和无法唯一证明的目标保持无结果。启用外部 Symfony runtime 所有权时该导航同样让出。
 
-追加审计确认 Symfony Language Tools 0.19.0 的路由名称补全依赖运行时路由表。默认关闭 runtime indexing 时，PHP Companion 在可证明的 YAML/Attribute 加载范围内补齐源码路由候选，并按显式环境处理 Kernel/Bundle、YAML `when@env` 和 Route Attribute `env`，展开字面量 YAML/Attribute 本地化 path map 及 YAML import prefix map；动态 Loader、动态 locale map 和其它运行时生成路由保持 unknown。启用外部运行时索引后，自研候选按工作区停止，由 Symfony Language Tools 接管。支持域与真实组合证据见 Symfony 组合报告。
+追加审计确认 Symfony Language Tools 0.19.0 的路由名称补全依赖运行时路由表。默认关闭 runtime indexing 时，SoPHP 在可证明的 YAML/Attribute 加载范围内补齐源码路由候选，并按显式环境处理 Kernel/Bundle、YAML `when@env` 和 Route Attribute `env`，展开字面量 YAML/Attribute 本地化 path map 及 YAML import prefix map；动态 Loader、动态 locale map 和其它运行时生成路由保持 unknown。启用外部运行时索引后，自研候选按工作区停止，由 Symfony Language Tools 接管。支持域与真实组合证据见 Symfony 组合报告。
 
 Phpactor 只作为提前交付组合的开源候选。官方明确披露性能/准确性局限；PHP 运行时要求、Windows/WSL 与目标 PHP 语法需实测，不承诺适合全部环境。没有合格临时核心时，R0 不宣称完整 PHP 编码可用，优先完成 R1。
 
@@ -37,11 +37,11 @@ Phpactor 只作为提前交付组合的开源候选。官方明确披露性能/�
 
 ## Twig 唯一所有权
 
-twig-plus 已承担 Twig parser、模板索引、语言服务器和 formatter。PHP Companion 不复制这些组件。其已有 Symfony 路由/翻译/资源等索引，在 P8 开始时重新核对，避免重复建设。
+twig-plus 已承担 Twig parser、模板索引、语言服务器和 formatter。SoPHP 不复制这些组件。其已有 Symfony 路由/翻译/资源等索引，在 P8 开始时重新核对，避免重复建设。
 
 PHP 侧提供 Controller render 上下文、PHP 类型、成员查询与定义位置；Twig 侧决定模板作用域、Twig 属性访问语义、变量继承与合并。PHP 的私有成员等不得直接无条件暴露为 Twig 补全项，Twig 访问规则由 Twig 侧判断。
 
-相关本地项目：`/var/www/node/twig-plus`、`/var/www/node/twig-plus-metadata`。2026-09-06 审计确认 metadata schema 4 已包含 globals、callables、types、contexts 和 Controller sources；PHP Companion 复用该消费模型，并以独立 interop v1 增加实时协商，不复制 Twig 组件。
+相关本地项目：`/var/www/node/twig-plus`、`/var/www/node/twig-plus-metadata`。2026-09-06 审计确认 metadata schema 4 已包含 globals、callables、types、contexts 和 Controller sources；SoPHP 复用该消费模型，并以独立 interop v1 增加实时协商，不复制 Twig 组件。
 
 ## interop 契约
 
@@ -133,7 +133,7 @@ YAML 路由文件中的顶层 `when@<env>` 使用相同环境身份。分析器�
 
 动态快照不跨路由查询缓存。补全、Definition 或 References 每次都重新启动一次 provider，因此配置或自定义路由文件变化后不会继续返回旧事实；provider 失败只让该次动态贡献缺席，并记录输出诊断。多个静态/动态来源出现同名路由时整体按歧义处理，不提供该名称的 Companion 跳转。外部 Symfony runtime provider 拥有该工作区路由能力时，语义调用门禁会在启动自定义 provider 前退出。
 
-Winstar 项目可在可信工作区内显式设置 `phpCompanion.symfony.winstarRoutes.enabled: true`。独立 `PHP Companion: Symfony` VSIX 内置的 `@php-companion/provider-winstar-routes` 会执行项目根的 `bin/php-runtime bin/console debug:router --format=json`，用 Symfony 实际路由表决定启用集合；随后只读取 `src/Modules/*/Routes/*.yaml` 来定位直接 `name` 和 `admin_defaults` 的基础 `name`。直接模块路由中可精确读取的 `controller` 或 `defaults._controller` FQCN 会进入 PHP 类/方法 References；生成路由使用 `admin.<base>.<action>` 关系回到基础条目，但没有直接控制器文本时不会制造引用。若一个运行时名称有多个可能来源，适配器保持歧义并拒绝发布。它不会发布标准 Symfony 路由，因为这些路由继续由静态图或外部 runtime provider 负责。
+Winstar 项目可在可信工作区内显式设置 `phpCompanion.symfony.winstarRoutes.enabled: true`。独立 `SoPHP Symfony` VSIX 内置的 `@php-companion/provider-winstar-routes` 会执行项目根的 `bin/php-runtime bin/console debug:router --format=json`，用 Symfony 实际路由表决定启用集合；随后只读取 `src/Modules/*/Routes/*.yaml` 来定位直接 `name` 和 `admin_defaults` 的基础 `name`。直接模块路由中可精确读取的 `controller` 或 `defaults._controller` FQCN 会进入 PHP 类/方法 References；生成路由使用 `admin.<base>.<action>` 关系回到基础条目，但没有直接控制器文本时不会制造引用。若一个运行时名称有多个可能来源，适配器保持歧义并拒绝发布。它不会发布标准 Symfony 路由，因为这些路由继续由静态图或外部 runtime provider 负责。
 
 启用该设置等同于授权执行当前项目的 Symfony Console。适配器仍运行在 route-provider-host 的一次性无 shell 子进程、30 秒和 16 MiB 上限内，但 Symfony Kernel 本身会加载项目代码；只应在可信仓库使用。关闭设置即撤销内置 provider 快照，不影响静态路由能力。
 

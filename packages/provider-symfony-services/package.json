@@ -1,7 +1,7 @@
 {
   "name": "@php-companion/provider-symfony-services",
   "version": "0.1.0-alpha.1",
-  "description": "Authoritative Symfony service-container fact provider for PHP Companion.",
+  "description": "Authoritative Symfony service-container fact provider for SoPHP.",
   "type": "module", "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/sohophp/php-companion.git", "directory": "packages/provider-symfony-services" },
   "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],

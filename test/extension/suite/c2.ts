@@ -19,7 +19,7 @@ export async function run(): Promise<void> {
     'unreachableAfterNestedNeverCall();', 'unreachableAfterNeverCondition();', 'unreachableAfterNestedThrow();',
     'unreachableAfterThrowTernary();'];
   const actual = (): string[] => vscode.languages.getDiagnostics(uri)
-    .filter((item) => item.source === 'PHP Companion' && item.code === 'php.control-flow.unreachable')
+    .filter((item) => item.source === 'SoPHP' && item.code === 'php.control-flow.unreachable')
     .map((item) => document.getText(item.range));
   const waitForCount = async (count: number): Promise<void> => {
     const deadline = Date.now() + 20_000;
@@ -92,7 +92,7 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   const localDocument = await vscode.workspace.openTextDocument(localUri);
   await vscode.window.showTextDocument(localDocument);
   const argumentCodes = (): string[] => vscode.languages.getDiagnostics(localUri)
-    .filter((item) => item.source === 'PHP Companion' && String(item.code).startsWith('php.argument.'))
+    .filter((item) => item.source === 'SoPHP' && String(item.code).startsWith('php.argument.'))
     .map((item) => String(item.code)).sort();
   const expectedArguments = ['php.argument.duplicate-named', 'php.argument.missing-required', 'php.argument.type-mismatch',
     'php.argument.type-mismatch', 'php.argument.unknown-named'];
@@ -112,6 +112,65 @@ function inspect(LocalArgumentDiagnostics $local): void { takeLocal('bad'); take
   assert.deepStrictEqual(argumentCodes(), [], 'Default onDemand kept same-file argument errors after the calls were repaired.');
   console.log('C2 onDemand same-file argument diagnostics: 5 → 0, unsaved');
 
+  const nestedUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NestedArrayFeedback.php');
+  const nestedSource = `<?php namespace App\\Service;
+function dispatchNested(array $payload, string $mode): void {}
+dispatchNested(array('x'));
+dispatchNested(payload: array('x'), extra: 'dev');
+dispatchNested(array('x'), 'dev');
+`;
+  await vscode.workspace.fs.writeFile(nestedUri, Buffer.from(nestedSource));
+  const nestedDocument = await vscode.workspace.openTextDocument(nestedUri);
+  await vscode.window.showTextDocument(nestedDocument);
+  const nestedErrors = (): string[] => vscode.languages.getDiagnostics(nestedUri)
+    .filter((item) => item.source === 'SoPHP' && (item.code === 'php.argument.missing-required'
+      || item.code === 'php.argument.unknown-named'))
+    .map((item) => String(item.code)).sort();
+  const nestedExpected = ['php.argument.missing-required', 'php.argument.unknown-named'];
+  const nestedDeadline = Date.now() + 20_000;
+  while (Date.now() < nestedDeadline && nestedErrors().length !== nestedExpected.length)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepStrictEqual(nestedErrors(), nestedExpected, 'Default onDemand omitted nested-array argument diagnostics.');
+  const nestedHints = await vscode.commands.executeCommand<vscode.InlayHint[]>(
+    'vscode.executeInlayHintProvider', nestedUri, new vscode.Range(nestedDocument.positionAt(0),
+      nestedDocument.positionAt(nestedDocument.getText().length))) ?? [];
+  assert.deepStrictEqual(nestedHints.filter((hint) => nestedDocument.offsetAt(hint.position) >= nestedSource.lastIndexOf('dispatchNested('))
+    .map((hint) => hint.label), ['$payload:', '$mode:'], 'The editor omitted parameter hints for the outer nested-array call.');
+  const correctedNested = nestedSource.replace("dispatchNested(array('x'));", "dispatchNested(array('x'), 'dev');")
+    .replace("extra: 'dev'", "mode: 'dev'");
+  const nestedEdit = new vscode.WorkspaceEdit();
+  nestedEdit.replace(nestedUri, new vscode.Range(nestedDocument.positionAt(0),
+    nestedDocument.positionAt(nestedDocument.getText().length)), correctedNested);
+  assert.ok(await vscode.workspace.applyEdit(nestedEdit));
+  assert.ok(nestedDocument.isDirty, 'The nested-array diagnostic edit unexpectedly saved the PHP buffer.');
+  const nestedCorrectedDeadline = Date.now() + 20_000;
+  while (Date.now() < nestedCorrectedDeadline && nestedErrors().length)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepStrictEqual(nestedErrors(), [], 'The editor kept nested-array argument diagnostics after unsaved repair.');
+  console.log('C2 onDemand nested-array calls: two diagnostics, two parameter hints, unsaved repair clears diagnostics');
+
+  const neverArrayUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'NestedArrayNever.php');
+  const neverArraySource = `<?php namespace App\\Service;
+function stopNested(array $payload): never { throw new \\Exception(); }
+function ordinaryNested(array $payload): void {}
+function afterStopNested(): void {}
+function afterOrdinaryNested(): void {}
+function runStopNested(): void { stopNested(array('x')); afterStopNested(); }
+function runOrdinaryNested(): void { ordinaryNested(array('x')); afterOrdinaryNested(); }
+`;
+  await vscode.workspace.fs.writeFile(neverArrayUri, Buffer.from(neverArraySource));
+  const neverArrayDocument = await vscode.workspace.openTextDocument(neverArrayUri);
+  await vscode.window.showTextDocument(neverArrayDocument);
+  const neverArrayUnreachable = (): string[] => vscode.languages.getDiagnostics(neverArrayUri)
+    .filter((item) => item.source === 'SoPHP' && item.code === 'php.control-flow.unreachable')
+    .map((item) => neverArrayDocument.getText(item.range));
+  const neverArrayDeadline = Date.now() + 20_000;
+  while (Date.now() < neverArrayDeadline && neverArrayUnreachable().length !== 1)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepStrictEqual(neverArrayUnreachable(), ['afterStopNested();'],
+    'Default onDemand missed the outer never call or marked the ordinary call unreachable.');
+  console.log('C2 onDemand nested-array never call: unreachable after native never only');
+
   const methodUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralService.php');
   const methodConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'CrossFileLiteralConsumer.php');
   const methodSource = `<?php namespace App\\Service;
@@ -126,7 +185,7 @@ function inspectCrossFileLiteral(CrossFileLiteralService $service): void { $serv
   const methodConsumerDocument = await vscode.workspace.openTextDocument(methodConsumerUri);
   await vscode.window.showTextDocument(methodConsumerDocument);
   const crossFileMismatch = (): boolean => vscode.languages.getDiagnostics(methodConsumerUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const waitForMismatch = async (expected: boolean): Promise<number> => {
     const deadline = Date.now() + 20_000;
     while (Date.now() < deadline && crossFileMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
@@ -159,7 +218,7 @@ function inspectExactReceiver(): void { $service = new CrossFileLiteralService()
   const exactConsumerDocument = await vscode.workspace.openTextDocument(exactConsumerUri);
   await vscode.window.showTextDocument(exactConsumerDocument);
   const exactMismatch = (): boolean => vscode.languages.getDiagnostics(exactConsumerUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const waitForExactMismatch = async (expected: boolean): Promise<void> => {
     const deadline = Date.now() + 20_000;
     while (Date.now() < deadline && exactMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));
@@ -241,7 +300,7 @@ function inspectNativeReturn(NativeReturnService $service): void { $service->acc
   const returnConsumerDocument = await vscode.workspace.openTextDocument(returnConsumerUri);
   await vscode.window.showTextDocument(returnConsumerDocument);
   const returnMismatch = (): boolean => vscode.languages.getDiagnostics(returnConsumerUri).some((item) =>
-    item.source === 'PHP Companion' && item.code === 'php.argument.type-mismatch');
+    item.source === 'SoPHP' && item.code === 'php.argument.type-mismatch');
   const waitForReturnMismatch = async (expected: boolean): Promise<void> => {
     const deadline = Date.now() + 20_000;
     while (Date.now() < deadline && returnMismatch() !== expected) await new Promise((resolve) => setTimeout(resolve, 20));

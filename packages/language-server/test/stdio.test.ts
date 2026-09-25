@@ -107,6 +107,140 @@ describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
 
+  it('includes newly watched unopened files in method-family edits and References', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-c3-new-family-'));
+    try {
+      const contractPath = join(root, 'src', 'Contract', 'Store.php');
+      const servicePath = join(root, 'src', 'Service', 'Store.php');
+      const callerPath = join(root, 'src', 'Controller', 'Caller.php');
+      await mkdir(dirname(contractPath), { recursive: true });
+      await mkdir(dirname(servicePath), { recursive: true });
+      await mkdir(dirname(callerPath), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const contract = `<?php namespace App\\Contract;
+interface Store { public function recordMessage(string $message /* note, retained */): void; }`;
+      await writeFile(contractPath, contract);
+      const contractUri = pathToFileURL(contractPath).toString();
+      const serviceUri = pathToFileURL(servicePath).toString();
+      const callerUri = pathToFileURL(callerPath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9001, method: 'initialize', params: {
+        processId: null, capabilities: { workspace: { didChangeWatchedFiles: { dynamicRegistration: true } } },
+        rootUri: pathToFileURL(root).toString(), initializationOptions: { indexingMode: 'experimental' },
+      } }));
+      await output.waitFor((message) => message.id === 9001);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const registration = await output.waitFor((message) => message.method === 'client/registerCapability');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: registration.id, result: null }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('complete=true'), 20_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: contractUri, languageId: 'php', version: 1, text: contract },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === contractUri);
+      await writeFile(servicePath, `<?php namespace App\\Service;
+use App\\Contract\\Store;
+final class StoreService implements Store { public function recordMessage(string $message /* note, retained */): void {} }`);
+      await writeFile(callerPath, `<?php namespace App\\Controller;
+use App\\Contract\\Store;
+final class Caller { public function run(Store $store): void { $store->recordMessage('x' /* note, retained */); } }`);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: serviceUri, type: 1 }, { uri: callerUri, type: 1 }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9002, method: 'phpCompanion/addMethodParameter', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('function recordMessage') + 10),
+        name: 'context', type: 'string', value: '"web"',
+      } }));
+      const response = await output.waitFor((message) => message.id === 9002, 20_000);
+      expect(Object.keys(response.result?.changes ?? {})).toEqual(expect.arrayContaining([contractUri, serviceUri, callerUri]));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9003, method: 'phpCompanion/removeMethodParameter', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('$message') + 2),
+      } }));
+      const removeResponse = await output.waitFor((message) => message.id === 9003, 20_000);
+      expect(Object.keys(removeResponse.result?.changes ?? {})).toEqual(expect.arrayContaining([contractUri, serviceUri, callerUri]));
+      const laterCallerPath = join(root, 'src', 'Controller', 'LaterCaller.php');
+      const laterCallerUri = pathToFileURL(laterCallerPath).toString();
+      await writeFile(laterCallerPath, `<?php namespace App\\Controller;
+use App\\Contract\\Store;
+final class LaterCaller { public function run(Store $store): void { $store->recordMessage('later'); } }`);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: laterCallerUri, type: 1 }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9004, method: 'textDocument/references', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const references = await output.waitFor((message) => message.id === 9004, 20_000);
+      expect((references.result ?? []).map((location: { uri: string }) => location.uri)).toContain(laterCallerUri);
+      const newestCallerPath = join(root, 'src', 'Controller', 'NewestCaller.php');
+      const newestCallerUri = pathToFileURL(newestCallerPath).toString();
+      await writeFile(newestCallerPath, `<?php namespace App\\Controller;
+use App\\Contract\\Store;
+final class NewestCaller { public function run(Store $store): void { $store->recordMessage('newest'); } }`);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9005, method: 'textDocument/references', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const repeatedReferences = await output.waitFor((message) => message.id === 9005, 20_000);
+      expect((repeatedReferences.result ?? []).map((location: { uri: string }) => location.uri)).toContain(newestCallerUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9006, method: 'textDocument/references', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const unchangedReferences = await output.waitFor((message) => message.id === 9006, 20_000);
+      expect((unchangedReferences.result ?? []).map((location: { uri: string }) => location.uri)).toContain(newestCallerUri);
+      await writeFile(newestCallerPath, `<?php namespace App\\Controller;
+use App\\Contract\\Store;
+final class NewestCaller { public function run(Store $store): void {} }`);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9007, method: 'textDocument/references', params: {
+        textDocument: { uri: contractUri }, position: lspPosition(contract, contract.indexOf('recordMessage') + 2),
+        context: { includeDeclaration: true },
+      } }));
+      const removedReferences = await output.waitFor((message) => message.id === 9007, 20_000);
+      expect((removedReferences.result ?? []).map((location: { uri: string }) => location.uri)).not.toContain(newestCallerUri);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('publishes outer-call diagnostics and parameter hints for legacy array arguments', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+    } }));
+    await output.waitFor((message) => message.id === 1);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    const uri = 'file:///NestedArrayFeedback.php';
+    const source = `<?php namespace App;
+function dispatch(array $payload, string $mode): void {}
+dispatch(array('x'));
+dispatch(payload: array('x'), extra: 'dev');
+dispatch(array('x'), 'dev');`;
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+      textDocument: { uri, languageId: 'php', version: 1, text: source },
+    } }));
+    const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.version === 1)).params.diagnostics as Array<{ code?: string; range: { start: { line: number; character: number } } }>;
+    expect(diagnostics.filter((item) => item.code === 'php.argument.missing-required').map((item) => lspOffset(source, item.range.start)))
+      .toEqual([source.indexOf('dispatch(array(')]);
+    expect(diagnostics.filter((item) => item.code === 'php.argument.unknown-named').map((item) => lspOffset(source, item.range.start)))
+      .toEqual([source.indexOf('extra:')]);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/inlayHint', params: {
+      textDocument: { uri }, range: { start: { line: 0, character: 0 }, end: { line: 5, character: 0 } },
+    } }));
+    const hints = (await output.waitFor((message) => message.id === 2)).result as Array<{ label: string; position: { line: number; character: number } }>;
+    expect(hints.filter((hint) => lspOffset(source, hint.position) >= source.lastIndexOf('dispatch(')).map((hint) => hint.label))
+      .toEqual(['$payload:', '$mode:']);
+    const corrected = source.replace("dispatch(array('x'));", "dispatch(array('x'), 'dev');")
+      .replace("extra: 'dev'", "mode: 'dev'");
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+      textDocument: { uri, version: 2 }, contentChanges: [{ text: corrected }],
+    } }));
+    const updated = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.version === 2)).params.diagnostics as Array<{ code?: string }>;
+    expect(updated.some((item) => item.code === 'php.argument.missing-required' || item.code === 'php.argument.unknown-named')).toBe(false);
+  });
+
   it('opens the interface method behind a parenthesized coalescing throw', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);
@@ -953,6 +1087,15 @@ function consume(): void { (void) choose(1); }`;
           && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri
           && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.version.unsupported') === expectedDiagnostic);
         expect(await completion(id)).toBe(expectedBuiltin);
+        const diagnosticsBeforeNoop = output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri).length;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpVersions', params: {
+          versions: [{ uri: rootUri, version }], fallback: version, extensionAvailability: [],
+        } }));
+        expect(await completion(id + 100)).toBe(expectedBuiltin);
+        await new Promise<void>((resolve) => setTimeout(resolve, 100));
+        expect(output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri)).toHaveLength(diagnosticsBeforeNoop);
       }
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
@@ -2944,6 +3087,16 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         ]);
+      const diagnosticsBeforeNoop = output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri).length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{
+        uri: rootUri, disabledExtensions: [], runtime: { executable: '/usr/bin/php8.5', version: '8.5.3', versionId: 80503, sapi: 'cli',
+          loadedExtensions: ['core', 'dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlwriter'], scannedConfigurationFiles: [] },
+      }] } }));
+      expect(await definition(208, 'DOMDocument')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
+      await new Promise<void>((resolve) => setTimeout(resolve, 100));
+      expect(output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri)).toHaveLength(diagnosticsBeforeNoop);
       expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
       expect(await definition(206, 'mb_strlen')).toEqual([]);
       expect(await definition(207, 'XMLReader')).toEqual([]);
@@ -4526,6 +4679,66 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('reuses separate method References proofs while an unsaved caller alternates methods', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-references-alternating-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const first = '<?php namespace App; class First { public function renderAction(): void {} }';
+      const second = '<?php namespace App; class Second { public function updateAction(): void {} }';
+      const sourceFor = (type: 'First' | 'Second'): string => `<?php namespace App; function run(${type} $value): void { $value->${type === 'First' ? 'renderAction' : 'updateAction'}(); }`;
+      const firstUri = pathToFileURL(join(src, 'First.php')).toString();
+      const secondUri = pathToFileURL(join(src, 'Second.php')).toString();
+      const consumerUri = pathToFileURL(join(src, 'Consumer.php')).toString();
+      await writeFile(join(src, 'First.php'), first);
+      await writeFile(join(src, 'Second.php'), second);
+      await writeFile(join(src, 'Consumer.php'), sourceFor('First'));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3660, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 3660);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, text] of [[firstUri, first], [secondUri, second], [consumerUri, sourceFor('First')]] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      }
+      let requestId = 3660;
+      const references = async (uri: string, text: string, method: string): Promise<string[]> => {
+        const id = ++requestId;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(text, text.indexOf(method) + 2),
+          context: { includeDeclaration: false },
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result.map((item: { uri: string }) => item.uri);
+      };
+      const change = async (version: number, text: string): Promise<void> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri: consumerUri, version }, contentChanges: [{ text }],
+        } }));
+        await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params?.uri === consumerUri && message.params?.version === version);
+      };
+      const scanCount = (): number => output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('[candidate-scan-start] mode=symbol')
+        && message.params?.message?.includes(`root=${root}`)
+        && message.params?.message?.includes('defer=true')).length;
+      expect(await references(firstUri, first, 'renderAction')).toEqual([consumerUri]);
+      await change(2, sourceFor('Second'));
+      expect(await references(secondUri, second, 'updateAction')).toEqual([consumerUri]);
+      expect(scanCount()).toBe(2);
+      await change(3, sourceFor('First'));
+      expect(await references(firstUri, first, 'renderAction')).toEqual([consumerUri]);
+      await change(4, sourceFor('Second'));
+      expect(await references(secondUri, second, 'updateAction')).toEqual([consumerUri]);
+      expect(scanCount()).toBe(2);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-limit-'));
     try {
@@ -5932,7 +6145,7 @@ class Example {}`;
       expect(response.error).toMatchObject({ message: '项目索引不完整；不能将此结果视为零处引用。' });
       const warning = await output.waitFor((message) => message.method === 'window/showMessageRequest');
       expect(warning.params).toMatchObject({ type: 2,
-        message: 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 PHP Companion 输出。' });
+        message: 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 SoPHP 输出。' });
       server.stdin.write(encode({ jsonrpc: '2.0', id: warning.id, result: null }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -6597,10 +6810,14 @@ class Example {}`;
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
       await writeFile(join(root, 'src', 'Contract.php'), '<?php namespace App; interface Contract { public function run(int &$count, string ...$labels): void; }');
       await writeFile(join(root, 'src', 'Base.php'), "<?php namespace App; abstract class Base { abstract protected function reset(int $value = 0): int; public function label(string $prefix = ''): string { return $prefix; } final public function fixed(): void {} } final class Closed {}");
+      await writeFile(join(root, 'src', 'CrossBase.php'), '<?php namespace App\\BaseNs; use App\\User as Alias; use App\\DefaultFlags as Flags; const LOCAL_LIMIT = 5; class CrossBase { public function convert(Alias $value, int $limit = Flags::LIMIT): Alias { return $value; } public function create(object $value = new Alias()): object { return $value; } public function qualified(int $limit = namespace\\LOCAL_LIMIT): void {} public function choose(): (\\Traversable&\\Countable)|Alias { return new Alias(); } }');
+      await writeFile(join(root, 'src', 'CrossContract.php'), '<?php namespace App\\ContractNs; use App\\User as Alias; use App\\DefaultFlags as Flags; interface CrossContract { public function accept(Alias $value, int $limit = Flags::LIMIT): Alias; }');
+      await writeFile(join(root, 'src', 'CrossAbstract.php'), '<?php namespace App\\AbstractNs; use App\\User as Alias; use App\\DefaultFlags as Flags; abstract class CrossAbstract { abstract protected function accept(Alias $value, int $limit = Flags::LIMIT): Alias; }');
+      await writeFile(join(root, 'src', 'DefaultFlags.php'), '<?php namespace App; class DefaultFlags { public const LIMIT = 7; }');
       await writeFile(join(root, 'src', 'User.php'), '<?php namespace App; class User { public function getName(): string {} private function hidden(): void {} }');
       await writeFile(join(root, 'src', 'PageController.php'), "<?php namespace App; class PageController { public function show(User $user): void { $this->render('site/page.html.twig', ['user' => $user]); } }");
       const uri = pathToFileURL(join(root, 'src', 'Worker.php')).toString();
-      const source = '<?php namespace App; class Child extends Base {} class Bad implements Contract { public function run(string $count, string $label): string {} } class FinalOverride extends Base { public function reset(int $value = 0): int { return $value; } public function fixed(): void {} } class Impossible extends Closed {} class Worker implements Contract {\n    private string $name;\n    protected int $limit = 1;\n} function build(): void { $worker = new Worker(); }';
+      const source = '<?php namespace App; class Child extends Base {} class CrossChild extends \\App\\BaseNs\\CrossBase {} class CrossWorker implements \\App\\ContractNs\\CrossContract {} class CrossAbstractChild extends \\App\\AbstractNs\\CrossAbstract {} class Bad implements Contract { public function run(string $count, string $label): string {} } class FinalOverride extends Base { public function reset(int $value = 0): int { return $value; } public function fixed(): void {} } class Impossible extends Closed {} class Worker implements Contract {\n    private string $name;\n    protected int $limit = 1;\n} function build(): void { $worker = new Worker(); }';
       await writeFile(join(root, 'src', 'Worker.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -6622,7 +6839,7 @@ class Example {}`;
         contexts: [],
         types: {},
       });
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 41, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('Worker') }, end: { line: 0, character: source.indexOf('Worker') + 6 } }, context: { diagnostics: [] } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 41, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('class Worker') + 6 }, end: { line: 0, character: source.indexOf('class Worker') + 12 } }, context: { diagnostics: [] } } }));
       const actions = (await output.waitFor((message) => message.id === 41)).result;
       const implementationAction = actions.find((action: { title?: string }) => action.title === 'Implement 1 interface method');
       expect(implementationAction).toMatchObject({ kind: 'refactor.rewrite' });
@@ -6643,7 +6860,25 @@ class Example {}`;
       expect(overrideAction).toMatchObject({ kind: 'refactor.rewrite' });
       expect(overrideAction.edit.changes[uri][0].newText).toContain("public function label(string $prefix = ''): string\n    {\n        return parent::label($prefix);");
       expect(childActions.some((action: { title?: string }) => action.title?.includes('fixed'))).toBe(false);
-      server.stdin.write(encode({ jsonrpc: '2.0', id: 42, method: 'textDocument/prepareTypeHierarchy', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf('Worker') + 2 } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 48, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('CrossChild') + 2 }, end: { line: 0, character: source.indexOf('CrossChild') + 2 } }, context: { diagnostics: [] } } }));
+      const crossActions = (await output.waitFor((message) => message.id === 48)).result;
+      const crossOverride = crossActions.find((action: { title?: string }) => action.title === 'Override App\\BaseNs\\CrossBase::convert');
+      expect(crossOverride?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function convert(\\App\\User $value, int $limit = \\App\\DefaultFlags::LIMIT): \\App\\User\n    {\n        return parent::convert($value, $limit);');
+      const newDefaultOverride = crossActions.find((action: { title?: string }) => action.title === 'Override App\\BaseNs\\CrossBase::create');
+      expect(newDefaultOverride?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function create(object $value = new \\App\\User()): object\n    {\n        return parent::create($value);');
+      const qualifiedDefaultOverride = crossActions.find((action: { title?: string }) => action.title === 'Override App\\BaseNs\\CrossBase::qualified');
+      expect(qualifiedDefaultOverride?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function qualified(int $limit = \\App\\BaseNs\\LOCAL_LIMIT): void\n    {\n        parent::qualified($limit);');
+      const dnfOverride = crossActions.find((action: { title?: string }) => action.title === 'Override App\\BaseNs\\CrossBase::choose');
+      expect(dnfOverride?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function choose(): (\\Traversable&\\Countable)|\\App\\User\n    {\n        return parent::choose();');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 49, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('CrossWorker') + 2 }, end: { line: 0, character: source.indexOf('CrossWorker') + 2 } }, context: { diagnostics: [] } } }));
+      const interfaceActions = (await output.waitFor((message) => message.id === 49)).result;
+      const crossInterface = interfaceActions.find((action: { title?: string }) => action.title === 'Implement 1 interface method');
+      expect(crossInterface?.edit?.changes?.[uri]?.[0]?.newText).toContain("public function accept(\\App\\User $value, int $limit = \\App\\DefaultFlags::LIMIT): \\App\\User\n    {\n        throw new \\LogicException('Not implemented.');");
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 50, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: { line: 0, character: source.indexOf('CrossAbstractChild') + 2 }, end: { line: 0, character: source.indexOf('CrossAbstractChild') + 2 } }, context: { diagnostics: [] } } }));
+      const abstractActions = (await output.waitFor((message) => message.id === 50)).result;
+      const crossAbstract = abstractActions.find((action: { title?: string }) => action.title === 'Implement 1 abstract method');
+      expect(crossAbstract?.edit?.changes?.[uri]?.[0]?.newText).toContain("protected function accept(\\App\\User $value, int $limit = \\App\\DefaultFlags::LIMIT): \\App\\User\n    {\n        throw new \\LogicException('Not implemented.');");
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 42, method: 'textDocument/prepareTypeHierarchy', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf('class Worker') + 8 } } }));
       const worker = (await output.waitFor((message) => message.id === 42)).result[0];
       expect(worker).toMatchObject({ name: 'Worker', detail: 'App\\Worker', data: { fqcn: 'App\\Worker' } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 43, method: 'typeHierarchy/supertypes', params: { item: worker } }));
@@ -8417,6 +8652,63 @@ echo RANKED_LSP_CONSTANT;`;
         textDocument: { uri: yamlUri, version: 1 }, source: yaml, position: lspPosition(yaml, yaml.lastIndexOf('DemoController') + 2),
       } }));
       expect((await output.waitFor((message) => message.id === 1134)).result).toEqual([]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('navigates PHP route controller aliases and method strings from the independent Symfony provider', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-php-route-controller-definition-'));
+    try {
+      await mkdir(join(root, 'src', 'Controller'), { recursive: true }); await mkdir(join(root, 'config'));
+      const rootUri = pathToFileURL(root).toString();
+      const controllerPath = join(root, 'src', 'Controller', 'DemoController.php');
+      const controllerUri = pathToFileURL(controllerPath).toString();
+      const controller = '<?php namespace App\\Controller; final class DemoController { public function show(): void {} }';
+      const routePath = join(root, 'config', 'routes.php'); const routeUri = pathToFileURL(routePath).toString();
+      const routes = String.raw`<?php use App\Controller\DemoController as Demo;
+        use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+        return static function (RoutingConfigurator $routes): void {
+          $routes->add('demo', '/demo')->controller([Demo::class, 'show']);
+        };`;
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' }, autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(controllerPath, controller); await writeFile(routePath, routes);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1160, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri, initializationOptions: {
+          indexingMode: 'onDemand', bundledRouteProviders: [symfonyStaticRouteProviderDescriptor],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 1160);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: routeUri, languageId: 'php', version: 1, text: routes },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: controllerUri, languageId: 'php', version: 1, text: controller },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1165, method: 'phpCompanion/symfonyRouteControllerDefinition', params: {
+        textDocument: { uri: controllerUri, version: 1 }, source: controller,
+        position: lspPosition(controller, controller.indexOf('show') + 2),
+      } }));
+      expect((await output.waitFor((message) => message.id === 1165)).result).toEqual([]);
+      const query = async (id: number, source: string, version: number, offset: number): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/symfonyRouteControllerDefinition', params: {
+          textDocument: { uri: routeUri, version }, source, position: lspPosition(source, offset),
+        } }));
+        return (await output.waitFor((message) => message.id === id, 20_000)).result;
+      };
+      const classStart = controller.indexOf('DemoController'); const methodStart = controller.indexOf('show');
+      expect(await query(1161, routes, 1, routes.indexOf('Demo::class') + 2)).toEqual([{ uri: controllerUri, range: {
+        start: lspPosition(controller, classStart), end: lspPosition(controller, classStart + 'DemoController'.length),
+      } }]);
+      expect(await query(1162, routes, 1, routes.indexOf("'show'") + 2)).toEqual([{ uri: controllerUri, range: {
+        start: lspPosition(controller, methodStart), end: lspPosition(controller, methodStart + 'show'.length),
+      } }]);
+      const changed = routes.replace("[Demo::class, 'show']", "'app.controller'");
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: routeUri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      expect(await query(1163, routes, 1, routes.indexOf("'show'") + 2)).toEqual([]);
+      expect(await query(1164, changed, 2, changed.indexOf('app.controller') + 2)).toEqual([]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

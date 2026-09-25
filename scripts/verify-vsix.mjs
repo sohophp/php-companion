@@ -116,7 +116,7 @@ for (const artifact of artifacts) {
       throw new Error(`${artifact.path} has an unexpected Symfony extension identity.`);
     }
     if (JSON.stringify(manifest.extensionDependencies) !== JSON.stringify(['sohophp.php-companion'])) {
-      throw new Error(`${artifact.path} must depend only on the PHP Companion core extension.`);
+      throw new Error(`${artifact.path} must depend only on the SoPHP core extension.`);
     }
     for (const entry of ['extension/dist/extension.js', 'extension/dist/service-provider.js', 'extension/dist/event-provider.js', 'extension/dist/controller-context-provider.js', 'extension/dist/static-route-provider.js', 'extension/dist/winstar-route-provider.js']) {
       const bundle = await textEntry(artifact.path, entry);

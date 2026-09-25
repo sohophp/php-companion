@@ -11,7 +11,7 @@ describe('Core runtime localization', () => {
     expect(t('preview')).toBe('Preview');
     expect(t('apply')).toBe('Apply');
     expect(t('selectImport', 'Client')).toBe('Select import for Client');
-    expect(t('createTypeConfirm', 'App\\Client')).toBe('Create App\\Client?');
+    expect(t('createTypeConfirm', 'App\\Client', 'src/Client.php')).toBe('Create App\\Client at src/Client.php?');
   });
 
   it('resolves Simplified Chinese actions and names from VS Code locale', () => {
@@ -20,5 +20,6 @@ describe('Core runtime localization', () => {
     expect(t('apply')).toBe('应用');
     expect(t('selectImport', 'Client')).toBe('为 Client 选择导入项');
     expect(t('newTypeName', t('kindAbstractClass'))).toBe('新建 PHP 抽象类名称');
+    expect(t('createTypeConfirm', 'App\\Client', 'src/Client.php')).toBe('在 src/Client.php 创建 App\\Client？');
   });
 });
