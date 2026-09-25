@@ -10,6 +10,8 @@
 pnpm candidate:alpha
 ```
 
+该命令现在先核对三款 SoPHP 产品版本、外部成员注册表与 Git 工作树；源码未冻结时立即停止，不启动三份 VSIX 的构建。打包后仍由候选组装步骤再次检查工作树，以防构建期间源码变化。2026-09-26 当前有未提交改动的工作树已验证提前拒绝，三份现有 VSIX 未改变；临时干净 Git 仓库的正向预检返回 `clean: true`。这只是打包入口检查，未生成新候选。
+
 命令输出实际候选目录。进入该目录后验证：
 
 ```bash
@@ -28,7 +30,7 @@ pnpm alpha:preflight -- \
   --output /tmp/sophp-alpha-preflight.json
 ```
 
-安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端对任一项目追加 `--check-editor`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
+安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端追加 `--check-editor --extensions-dir <当前 Remote 扩展目录>`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack；指定目录后还会逐文件核对三款 SoPHP 产品与候选 VSIX，同时拒绝旧 bundle 等额外安装文件，避免同版本旧包混入。VS Code 安装生成的 `.vsixmanifest` 被允许。若子进程调用 Remote CLI 超时，可先在同一终端运行 `code --list-extensions --show-versions > /tmp/sophp-alpha-extensions.txt`，再追加 `--extensions-list-file /tmp/sophp-alpha-extensions.txt`；报告会记录清单修改时间，扩展变化后须重新生成清单。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
 
 ## 安装边界
 

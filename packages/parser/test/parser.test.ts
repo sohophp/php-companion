@@ -6,6 +6,15 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('reports an anonymous missing delimiter before later PHP tokens', () => {
+    const source = '<?php function syntaxProbe(: void {}';
+    const parsed = parser.parse(source);
+    try {
+      const missing = source.indexOf(':');
+      expect(parsed.errors).toContainEqual({ start: missing, end: missing + 1 });
+    } finally { parsed.tree.delete(); }
+  });
+
   it('distinguishes string type keywords from string expressions when extracting facts', () => {
     const source = '<?php function format(string $value): string { return "literal"; }';
     const parsed = parser.parse(source);
@@ -1037,7 +1046,8 @@ class Child extends ParentBase implements Contract {
       protected static int $count = 1;
       public private(set) static string $token = 'ready';
       public const string KIND = 'user';
-      public function __construct(private Address $address, public final string $id) {}
+      public function __construct(private Address $address, public final string $id,
+        public /* final */ string $label) {}
     }`);
     expect(result.properties).toMatchObject([
       { name: 'profile', fqcn: 'App\\User::$profile', type: '?Profile', visibility: 'public', static: false, readonly: true, promoted: false },
@@ -1046,6 +1056,7 @@ class Child extends ParentBase implements Contract {
       { name: 'token', type: 'string', defaultValue: "'ready'", visibility: 'public', writeVisibility: 'private', static: true },
       { name: 'address', type: 'Address', defaultValue: undefined, visibility: 'private', promoted: true },
       { name: 'id', type: 'string', visibility: 'public', final: true, promoted: true },
+      { name: 'label', type: 'string', visibility: 'public', final: false, promoted: true },
     ]);
     expect(result.constants).toMatchObject([{ name: 'KIND', fqcn: 'App\\User::KIND', type: 'string', value: "'user'", visibility: 'public', global: false }]);
     result.tree.delete();

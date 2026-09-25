@@ -33,6 +33,7 @@ const artifacts = [
       'extension/dist/language-server.js',
       'extension/dist/candidateWorker.js',
       'extension/dist/portableCandidateSearchWorker.js',
+      'extension/dist/sourceStatWorker.js',
       'extension/resources/icon.png',
     ],
   },

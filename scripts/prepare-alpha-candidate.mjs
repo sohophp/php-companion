@@ -18,14 +18,22 @@ if (!packages.every((candidate) => candidate.version === corePackage.version)) {
 }
 
 const git = (...arguments_) => execFileSync('git', arguments_, { cwd: root, encoding: 'utf8' }).trim();
+const checkSourceOnly = process.argv[2] === '--check-source';
 const commit = git('rev-parse', 'HEAD');
 const branch = git('branch', '--show-current');
 const dirty = git('status', '--porcelain');
-if (dirty) throw new Error(`Refusing to assemble an Alpha candidate from a dirty worktree:\n${dirty}`);
+if (dirty) throw new Error(checkSourceOnly
+  ? `Refusing to build an Alpha candidate: ${dirty.split('\n').length} worktree paths differ from HEAD. Review git status before freezing.`
+  : `Refusing to assemble an Alpha candidate from a dirty worktree:\n${dirty}`);
 
 const specifications = JSON.parse(await readFile(resolve(root, 'test/extension/open-source-profile.extensions.json'), 'utf8'));
 if (!Array.isArray(specifications) || specifications.some((entry) => typeof entry?.id !== 'string' || typeof entry?.version !== 'string')) {
   throw new Error('Open Source Profile extension registry is invalid.');
+}
+if (checkSourceOnly) {
+  process.stdout.write(`${JSON.stringify({ commit, branch, version: corePackage.version, clean: true,
+    extensions: specifications.length })}\n`);
+  process.exit(0);
 }
 
 const sourceArtifacts = [

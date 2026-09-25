@@ -37,6 +37,30 @@
         "category": "SoPHP"
       },
       {
+        "command": "phpCompanion.safeRename",
+        "title": "Rename PHP Symbol with Preview",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.addMethodParameter",
+        "title": "Add PHP Method Parameter with Preview",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.removeMethodParameter",
+        "title": "Remove PHP Method Parameter with Preview",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.reorderMethodParameters",
+        "title": "Reorder PHP Method Parameters with Preview",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
         "command": "phpCompanion.rebuildIndex",
         "title": "Rebuild Experimental Index",
         "category": "SoPHP"

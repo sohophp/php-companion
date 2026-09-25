@@ -3081,7 +3081,7 @@ export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhp
     + auditedNetworkStub(version);
 }
 
-export interface SyntaxNodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: readonly SyntaxNodeLike[]; parent?: SyntaxNodeLike | null; }
+export interface SyntaxNodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: readonly SyntaxNodeLike[]; children?: readonly SyntaxNodeLike[]; parent?: SyntaxNodeLike | null; }
 export interface UnsupportedSyntax { feature: string; minimumVersion: SupportedPhpVersion; start: number; end: number; }
 export interface InvalidConstantExpressionCallable { reason: 'arrow' | 'non-static' | 'capture' | 'dynamic-first-class'; start: number; end: number; }
 const FEATURE_VERSIONS: Record<string, { feature: string; version: SupportedPhpVersion }> = {
@@ -3190,8 +3190,21 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
       const name = fieldNode('name');
       if (name) { rule = { feature: 'named argument', version: '8.0' }; range = name; }
     }
-    if (node.type === 'arguments' && /,\s*\)$/.test(node.text)) rule = { feature: 'trailing comma in a call', version: '7.3' };
-    if (node.type === 'augmented_assignment_expression' && node.text.includes('??=')) rule = { feature: 'null coalescing assignment', version: '7.4' };
+    if (node.type === 'arguments') {
+      const significant = node.children?.filter((child) => child.type !== 'comment');
+      const comma = significant?.at(-2);
+      if (significant?.at(-1)?.type === ')' && comma?.type === ',') {
+        rule = { feature: 'trailing comma in a call', version: '7.3' };
+        range = comma;
+      }
+    }
+    if (node.type === 'augmented_assignment_expression') {
+      const operator = fieldNode('operator');
+      if (operator?.text === '??=') {
+        rule = { feature: 'null coalescing assignment', version: '7.4' };
+        range = operator;
+      }
+    }
     if (node.type === 'integer' && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };
     if (node.type === 'property_declaration' && fieldNode('type')) rule = { feature: 'typed property', version: '7.4' };
     if (node.type === 'disjunctive_normal_form_type') rule = { feature: 'DNF type', version: '8.2' };
@@ -3223,7 +3236,11 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
     if (node.type === 'visibility_modifier' && node.text.includes('(set)') && node.parent?.type === 'property_declaration') {
       rule = { feature: 'asymmetric property visibility', version: node.parent.namedChildren.some((child) => child.type === 'static_modifier') ? '8.5' : '8.4' };
     }
-    if (node.type === 'property_promotion_parameter' && /\bfinal\b/i.test(node.text)) rule = { feature: 'final promoted property', version: '8.5' };
+    if (node.type === 'property_promotion_parameter') {
+      const finalModifier = node.namedChildren.find((child) => child.type === 'final_modifier'
+        || child.type === 'ERROR' && child.text.toLowerCase() === 'final');
+      if (finalModifier) { rule = { feature: 'final promoted property', version: '8.5' }; range = finalModifier; }
+    }
     if (node.type === 'anonymous_function' && isWithinConstantExpression(node)) rule = { feature: 'closure in constant expression', version: '8.5' };
     if (node.type === 'variadic_placeholder') {
       const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
@@ -3232,7 +3249,13 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
     }
     if (node.type === 'final_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'final property', version: '8.4' };
     if (node.type === 'abstract_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'abstract property', version: '8.4' };
-    if (node.type === 'binary_expression' && node.text.includes('|>')) rule = { feature: 'pipe operator', version: '8.5' };
+    if (node.type === 'binary_expression') {
+      const operator = fieldNode('operator');
+      if (operator?.text === '|>') {
+        rule = { feature: 'pipe operator', version: '8.5' };
+        range = operator;
+      }
+    }
     if (node.type === 'clone_expression' && /^clone\s*\(/i.test(node.text)) rule = { feature: 'clone with properties', version: '8.5' };
     if (node.type === 'class_constant_access_expression' && /::\s*\{/.test(node.text)) {
       rule = { feature: 'dynamic class constant access', version: '8.3' };

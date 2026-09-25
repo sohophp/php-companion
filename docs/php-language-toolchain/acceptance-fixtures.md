@@ -4,7 +4,11 @@
 
 | 编号 | 输入 | 预期 | 自动验证 |
 | --- | --- | --- | --- |
-| F02-VERSION-01 | [同一独立 Composer 文件的 PHP 7.2、8.1、8.5 版本设置](../../packages/language-server/test/stdio.test.ts) | 7.2 对 `match`、`enum`、`(void)` 转换报版本诊断；8.1 只报 `(void)`；8.5 均不报；三者均无 parser 语法错误，隔离 Core 宿主可见相同结果 | `stdio.test.ts` 的 F02-VERSION-01；`test/extension/suite/c1.ts` 的三版本宿主流程 |
+| F02-VERSION-01 | [同一独立 Composer 文件的 PHP 7.2、8.1、8.5 版本设置](../../packages/language-server/test/stdio.test.ts) | 7.2 对 `match`、`enum`、`(void)` 转换及带注释的调用尾随逗号报版本诊断；8.1 只报 `(void)`；8.5 均不报；三者均无 parser 语法错误。隔离 Core 宿主已验证前三类，新增尾随逗号由真实 stdio 验证 | `stdio.test.ts` 的 F02-VERSION-01；`test/extension/suite/c1.ts` 的三版本宿主流程 |
+| F02-VERSION-02 | [字符串和注释中的 `|>`，以及真实 PHP 8.5 管道表达式](../../packages/language-server/test/analysis.test.ts) | PHP 7.2/8.4 的普通拼接和算术表达式不因文本中出现 `|>` 报版本错误；真正的管道在 8.4 报错，诊断范围只覆盖操作符 | `analysis.test.ts` 正反例、F02-VERSION-01 真实 stdio；[隔离宿主](reports/f02-version-syntax-host-2026-09-25.md)覆盖文本反例 |
+| F02-VERSION-03 | [字符串和注释中的 `??=`，以及真实 PHP 7.4 空合并赋值](../../packages/language-server/test/analysis.test.ts) | PHP 7.2 的普通追加和加法表达式不因文本中出现 `??=` 报版本错误；真正的赋值在 7.2 报错，诊断范围只覆盖操作符 | `analysis.test.ts` 正反例、F02-VERSION-01 真实 stdio；[隔离宿主](reports/f02-version-syntax-host-2026-09-25.md)覆盖文本反例 |
+| F02-VERSION-04 | [提升属性注释中的 `final` 与真正的 final 修饰符](../../packages/language-server/test/analysis.test.ts) | PHP 8.4 中 `public /* final */ string $name` 不报 PHP 8.5 版本错误，也不限制子类合法覆盖；真实 `public final string $name` 仍在 8.4 报错并保留 final 覆盖限制 | `analysis.test.ts`、`parser.test.ts`、`semantic.test.ts`；[隔离宿主](reports/f02-version-syntax-host-2026-09-25.md)覆盖 7.2/8.1/8.5 诊断 |
+| F02-VERSION-05 | [带注释的调用尾随逗号](../../packages/language-server/test/analysis.test.ts) | PHP 7.2 对 `run(1, /* note */)` 报版本诊断且只标出逗号；注释里的逗号与下一个实参前的逗号不误报；PHP 7.3 接受合法尾随逗号 | `analysis.test.ts` 正反例及 F02-VERSION-01 真实 stdio；[隔离宿主](reports/f02-version-syntax-host-2026-09-25.md)覆盖 7.2/8.1/8.5 诊断 |
 | F04-REF-01 | [有类型接收者与全局函数调用](../../packages/semantic/test/fixtures/acceptance/f04-references-valid.php) | 方法和函数分别返回唯一真实调用；`includeDeclaration` 决定是否包含声明 | `acceptance-f04-references.test.ts` |
 | F04-REF-02 | [字符串、nowdoc 与块注释](../../packages/semantic/test/fixtures/acceptance/f04-references-counterexample.php) | PHP 源码有效，调用样式文本不产生代码引用 | 同上 |
 | F04-REF-03 | [调用后的未完成成员输入](../../packages/semantic/test/fixtures/acceptance/f04-references-incomplete.php) | 保留前面完整调用的引用，不捏造未完成位置 | 同上 |
@@ -39,6 +43,7 @@
 | F04-HOST-09 | [PATH 中默认 PHP 的 auto 版本](../../test/extension/suite/c1.ts) | 无 Composer PHP 约束、无显式 PHP 路径时，`auto` 先采用 PATH 的 `php`；版本化命令只在该命令不可用时兜底。诊断与内建补全跟随实际选择 | [PATH 版本报告](reports/c1-path-php-version-2026-09-24.md) |
 | F04-HOST-10 | [连续输入中的未保存类型切换](../../test/extension/suite/c1Ui.ts) | 同一缓冲区连续 10 轮输入 `r`、改接收者类型、再输入 `e`/`n`；可见建议最终只包含当前类型方法，记录轮询中出现的旧候选 | [连续输入报告](reports/c1-rapid-unsaved-completion-2026-09-24.md) |
 | F04-HOST-11 | [锁定的真实 Composer 依赖树](../../test/extension/real-vendor/composer.json) | 30 个安装包、1,029 个 PHP 文件；PSR 接口六项查询命中 vendor 声明与实现，未保存切到 Logger 再切回后成员候选、定义和实现随之更新；可选 Workbench 模式确认真实候选可见 | `pnpm test:extension:c1:real-vendor`；[真实依赖树报告](reports/c1-real-composer-vendor-2026-09-24.md) |
+| F04-HOST-12 | [带 Attribute 的箭头函数实参](../../test/extension/suite/c2.ts) | PHP 8.5 的外层调用在第一个实参中输入 `fn(#[\SensitiveParameter] ...)` 后，未保存地继续输入第二个命名实参前缀 `se`；补全给出 `second:`，参数提示指向外层第二个参数；真实 `#` 注释内不提供建议 | [C2 修复与宿主报告](reports/c2-attributed-arrow-named-arguments-2026-09-26.md) |
 | F08-EI-01 | [公开抽象与具体方法](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php) | 生成同 namespace 接口，保留 import 与两种公开签名；不包含 protected 方法；原类可加 `implements` | `acceptance-f08-extract-interface.test.ts` |
 | F08-EI-02 | [合法的接口名别名冲突](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php) | PHP 源码有效，但新接口名被 import alias 占用，拒绝编辑 | 同上 |
 | F08-EI-03 | [未完成的方法声明](../../packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php) | 语法树含错误，拒绝编辑 | 同上 |
@@ -51,6 +56,9 @@
 | F09-ROUTE-01 | [有效路由和 Controller](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-valid.yaml) | 字面量名称、路径和 Controller 类/方法范围精确 | `acceptance-f09-routes.test.ts` |
 | F09-ROUTE-02 | [合法的 Attribute 目录导入](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-counterexample.yaml) | 保留导入事实，不捏造目录内的路由 | 同上 |
 | F09-ROUTE-03 | [动态路径](../../packages/framework-symfony/test/fixtures/acceptance/f09-route-incomplete.yaml) | 路由图不完整，不发布该路由的推测事实 | 同上 |
+| F09-ROUTE-04 | [YAML Controller 来源](../../packages/language-server/test/stdio.test.ts) | 约定入口和路由导入图确认的子文件可跳转；普通 YAML 即使有相同 `path`/`controller` 字段也不跳转 | [来源回归](reports/symfony-yaml-controller-provenance-2026-09-26.md) |
+| F09-ROUTE-05 | [通配导入预算](../../packages/provider-symfony-routes/test/unit/provider-symfony-routes.test.ts) | 通配导入只扫描到部分 Controller 时，输入证据和路由表都标为不完整，不发布权威遗漏 | [预算回归](reports/symfony-glob-budget-completeness-2026-09-26.md) |
+| F09-ROUTE-06 | [130 个 Controller 的通配导入](../../packages/provider-symfony-routes/test/unit/provider-symfony-routes.test.ts) | 默认 256 项预算中每个匹配文件只计一次；130 个 Controller 的路由图完整且路由名正确 | [规模回归](reports/symfony-glob-budget-completeness-2026-09-26.md) |
 | F09-DOC-01 | [Entity、关联与 Repository](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-valid.php) | 精确识别 Entity、Nullable ManyToOne 及 Repository 查询返回类型 | `acceptance-f09-doctrine.test.ts` |
 | F09-DOC-02 | [合法的非 Doctrine Entity Attribute](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-counterexample.php) | 不发布 Doctrine Entity 或 Repository 事实 | 同上 |
 | F09-DOC-03 | [同文件中的完整与未闭合 Entity](../../packages/framework-doctrine/test/fixtures/acceptance/f09-doctrine-incomplete.php) | 保留完整 `Team`，抑制未闭合 `User` | 同上 |

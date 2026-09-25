@@ -112,6 +112,25 @@ describe('bounded project source index', () => {
       complete: true, projectComplete: true });
     expect(selected).toEqual([join(root, 'src', 'Target.php')]);
   });
+  it('uses a batch inspector for large inventories and rejects missing metadata', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-inspector-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(Array.from({ length: 1_000 }, (_, index) =>
+      writeFile(join(root!, 'src', `Noise${index}.php`), '<?php class Noise {}')));
+    const inspected: string[] = [];
+    const result = await indexComposerSources(root, { readConcurrency: 128, skipSourceOutsideBudget: true,
+      skipSource: () => true,
+      inspectSource: async (path) => {
+        inspected.push(path);
+        if (path.endsWith('Noise999.php')) throw new Error('metadata unavailable');
+        const info = await stat(path);
+        return { size: info.size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs };
+      },
+      onSource: () => undefined,
+    });
+    expect(inspected).toHaveLength(1_000);
+    expect(result).toMatchObject({ files: 999, complete: false, projectComplete: false });
+  });
   it('reports an incomplete candidate scan when matching sources exceed the read budget', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-overflow-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

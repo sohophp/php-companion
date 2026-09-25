@@ -4,7 +4,8 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  { ignores: ['dist/**', 'dist-test/**', 'packages/*/dist/**', 'coverage/**', 'node_modules/**'] },
+  { ignores: ['dist/**', 'dist-test/**', 'packages/*/dist/**', 'coverage/**', 'node_modules/**',
+    'test/extension/real-vendor/vendor/**'] },
   {
     files: ['**/*.ts'],
     rules: {

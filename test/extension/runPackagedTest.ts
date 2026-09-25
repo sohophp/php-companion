@@ -212,7 +212,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
       }));
     }
     await runTests({
-      vscodeExecutablePath: await testExecutablePath(),
+      vscodeExecutablePath: process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE
+        ? resolve(process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE) : await testExecutablePath(),
       extensionDevelopmentPath: [sourceProfile ? repository : join(extracted, 'extension'),
         sourceProfile ? join(repository, 'packages', 'php-companion-symfony') : join(symfonyExtracted, 'extension'),
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),

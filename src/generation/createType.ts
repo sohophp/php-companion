@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { createHash, randomUUID } from 'node:crypto';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import type { Psr4Mapping } from '../composer/project.js';
 import type { VersionManager } from '../extension/versionManager.js';
@@ -10,6 +12,15 @@ export type PhpTypeKind = 'class' | 'abstract class' | 'interface' | 'trait' | '
 
 const PREVIEW_SCHEME = 'sophp-type-preview';
 const previewSources = new Map<string, string>();
+let stageRootPromise: Promise<string> | undefined;
+
+function stageRoot(): Promise<string> {
+  stageRootPromise ??= mkdtemp(join(tmpdir(), 'sophp-type-stage-')).catch((error: unknown) => {
+    stageRootPromise = undefined;
+    throw error;
+  });
+  return stageRootPromise;
+}
 
 export function registerPhpTypePreviewProvider(): vscode.Disposable {
   const provider = vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, {
@@ -76,7 +87,9 @@ async function directoryFromTarget(target?: vscode.Uri): Promise<vscode.Uri | un
 export async function createPhpType(kind: PhpTypeKind, versions: VersionManager, target?: vscode.Uri,
   options?: { testName?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
     testChooseTestDirectory?: () => Promise<vscode.Uri | undefined>;
-    testClosePreview?: (tab: vscode.Tab) => Promise<boolean> }): Promise<boolean> {
+    testClosePreview?: (tab: vscode.Tab) => Promise<boolean>;
+    testOpenCreatedFile?: (uri: vscode.Uri) => Promise<void>;
+    testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean> }): Promise<boolean> {
   let directoryUri = await directoryFromTarget(target);
   const folder = target ? vscode.workspace.getWorkspaceFolder(target) : vscode.workspace.workspaceFolders?.[0];
   if (!directoryUri && folder) directoryUri = folder.uri;
@@ -160,6 +173,13 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
     validateInput: (value) => validPhpTypeName(value, targetVersion) ? undefined : t('validTypeName') });
   if (!name || !validPhpTypeName(name, targetVersion)) return false;
   const uri = vscode.Uri.joinPath(directoryUri, `${name}.php`);
+  const directoryState = async (): Promise<'missing' | 'directory' | 'other'> => vscode.workspace.fs.stat(directoryUri)
+    .then((stat) => stat.type & vscode.FileType.Directory ? 'directory' : 'other', (error: unknown) => {
+      if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') return 'missing';
+      throw error;
+    });
+  const initialDirectoryState = await directoryState();
+  if (initialDirectoryState === 'other') { void vscode.window.showErrorMessage(t('createNotDirectory')); return false; }
   const exists = async (): Promise<boolean> => {
     try { await vscode.workspace.fs.stat(uri); return true; }
     catch (error) {
@@ -210,17 +230,44 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   const currentComposerHash = await vscode.workspace.fs.readFile(composerUri)
     .then((bytes) => createHash('sha256').update(bytes).digest('hex'), () => undefined);
   if (currentComposerHash !== composerHash) { void vscode.window.showWarningMessage(t('createChangedProject')); return false; }
-  if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
-  try {
-    const edit = new vscode.WorkspaceEdit();
-    edit.createFile(uri, { overwrite: false, contents: Buffer.from(source, 'utf8') });
-    if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('createApplyFailed')); return false; }
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    void vscode.window.showErrorMessage(`${t('createApplyFailed')} ${reason}`);
+  if (await directoryState() !== initialDirectoryState) {
+    void vscode.window.showWarningMessage(t('createChangedDirectory'));
     return false;
   }
-  try { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri), { preview: false }); }
+  if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
+  let created = false;
+  if (uri.scheme === 'file') {
+    let stagedPath: string | undefined;
+    try {
+      stagedPath = join(await stageRoot(), `${randomUUID()}.php`);
+      const stagedUri = vscode.Uri.file(stagedPath);
+      await writeFile(stagedPath, source, { flag: 'wx', mode: 0o600 });
+      const edit = new vscode.WorkspaceEdit();
+      edit.renameFile(stagedUri, uri, { overwrite: false });
+      created = await (options?.testApplyStagedEdit ? options.testApplyStagedEdit(edit) : vscode.workspace.applyEdit(edit));
+    } catch {
+      // Some file systems cannot move a staged file into the project. Keep creation available there.
+    } finally {
+      // A successful move must retain its source path so VS Code can undo and redo the move.
+      if (!created && stagedPath) await rm(stagedPath, { force: true }).catch(() => undefined);
+    }
+  }
+  if (!created) {
+    if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
+    try {
+      const edit = new vscode.WorkspaceEdit();
+      edit.createFile(uri, { overwrite: false, contents: Buffer.from(source, 'utf8') });
+      if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('createApplyFailed')); return false; }
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`${t('createApplyFailed')} ${reason}`);
+      return false;
+    }
+  }
+  try {
+    if (options?.testOpenCreatedFile) await options.testOpenCreatedFile(uri);
+    else await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri), { preview: false });
+  }
   catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     void vscode.window.showWarningMessage(t('createOpenFailed', reason));

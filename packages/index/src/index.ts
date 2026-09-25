@@ -24,6 +24,8 @@ export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) =>
   skipSource?: (path: string, info: { size: number; mtimeMs: number; ctimeMs: number }) => boolean;
   /** Charge only candidate files to read budgets; inspect at most 50,000 PHP paths by default. Requires skipSource. */
   skipSourceOutsideBudget?: boolean;
+  /** Optional bounded metadata inspector for large candidate inventories. Failures make the scan incomplete. */
+  inspectSource?: (path: string) => Promise<{ size: number; mtimeMs: number; ctimeMs: number }>;
   onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
@@ -84,9 +86,9 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
   };
   type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; inspectFailed?: boolean; readFailed?: boolean; omitted?: boolean };
-  const prefetch = async (path: string): Promise<PrefetchedSource> => {
+  const prefetch = async (path: string, inspect: typeof stat | NonNullable<ProjectIndexOptions['inspectSource']>): Promise<PrefetchedSource> => {
     let information;
-    try { information = await stat(path); } catch { return { inspectFailed: true }; }
+    try { information = await inspect(path); } catch { return { inspectFailed: true }; }
     const info = { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs };
     if (info.size > limits.maxFileSizeBytes) return { info };
     if (options.skipSource?.(path, info)) return { info, omitted: true };
@@ -121,11 +123,12 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       return;
     }
     const pending = new Map<number, Promise<PrefetchedSource>>();
+    const inspect = paths.length >= 1_000 ? options.inspectSource ?? stat : stat;
     let nextPath = 0;
     const fill = (): void => {
       while (nextPath < paths.length && pending.size < readConcurrency && options.shouldContinue?.() !== false) {
         const index = nextPath++;
-        pending.set(index, prefetch(paths[index]!).catch(() => ({ readFailed: true })));
+        pending.set(index, prefetch(paths[index]!, inspect).catch(() => ({ inspectFailed: true })));
       }
     };
     fill();

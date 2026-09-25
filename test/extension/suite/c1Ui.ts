@@ -3,11 +3,15 @@ import * as vscode from 'vscode';
 
 interface VisibleSuggestion {
   elapsedMs: number;
+  inputElapsedMs: number | null;
+  startedEpochMs: number;
   labels: string[];
 }
 
 interface VisibleSuggestionRun {
   samplesMs: number[];
+  inputSamplesMs?: Array<number | null>;
+  phaseEpochMs?: Array<{ started: number; input: number | null; visible: number }>;
   medianMs: number;
   maxMs: number;
   labels: string[];
@@ -49,13 +53,33 @@ async function evaluate(socket: WebSocket, expression: string, id: number): Prom
   });
 }
 
-export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false): Promise<VisibleSuggestionRun> {
+async function insertWorkbenchText(socket: WebSocket, value: string, id: number): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => { socket.removeEventListener('message', onMessage); reject(new Error('Workbench text input timed out.')); }, 5_000);
+    const onMessage = (event: MessageEvent): void => {
+      const message = JSON.parse(String(event.data)) as { id?: number; error?: { message: string } };
+      if (message.id !== id) return;
+      clearTimeout(timer);
+      socket.removeEventListener('message', onMessage);
+      if (message.error) reject(new Error(message.error.message));
+      else resolve();
+    };
+    socket.addEventListener('message', onMessage);
+    socket.send(JSON.stringify({ id, method: 'Input.insertText', params: { text: value } }));
+  });
+}
+
+export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false, firstIndex = 0,
+  input: 'command' | 'workbench' = 'command'): Promise<VisibleSuggestionRun> {
   const socket = await connect(await cdpPage(port));
   let id = 1;
   try {
     const samples: number[] = [];
+    const inputSamples: Array<number | null> = [];
+    const phaseEpochMs: Array<{ started: number; input: number | null; visible: number }> = [];
     let lastLabels: string[] = [];
-    for (let index = 0; index < 6; index += 1) {
+    for (let sample = 0; sample < 6; sample += 1) {
+      const index = firstIndex + sample;
       const targetName = vendor ? `UiVendorTarget${index}` : `UiTarget${index}`;
       const methodName = vendor ? `vendorVisible${index}` : `renderVisible${index}`;
       const typed = vendor ? 'v' : 'r';
@@ -68,12 +92,17 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
       const editor = await vscode.window.showTextDocument(document);
       const offset = source.indexOf('$value->;') + '$value->'.length;
       editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+      if (input === 'workbench') await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
       const priorWidgetVisible = await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++);
       assert.strictEqual(priorWidgetVisible, false, 'A previous suggestion widget remained visible before the next typing sample.');
       await evaluate(socket, `(() => {
         globalThis.__sophpSuggestionProbe?.observer.disconnect();
-        const probe = { start: performance.now(), elapsedMs: null, labels: [], observer: null };
+        const probe = { start: performance.now(), startedEpochMs: performance.timeOrigin + performance.now(),
+          inputElapsedMs: null, elapsedMs: null, labels: [], observer: null };
         const inspect = () => {
+          if (probe.inputElapsedMs === null
+            && (document.querySelector('.monaco-editor.focused .view-lines')?.textContent ?? '')
+              .includes(${JSON.stringify(`$value->${typed};`)})) probe.inputElapsedMs = performance.now() - probe.start;
           const widget = document.querySelector('.suggest-widget.visible');
           if (!widget || !widget.getBoundingClientRect().width) return;
           const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
@@ -87,13 +116,16 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
         globalThis.__sophpSuggestionProbe = probe;
         return true;
       })()`, id++);
-      await vscode.commands.executeCommand('type', { text: typed });
+      if (input === 'workbench') {
+        await insertWorkbenchText(socket, typed, id++);
+      } else await vscode.commands.executeCommand('type', { text: typed });
       const deadline = Date.now() + 10_000;
       let visible: VisibleSuggestion | undefined;
       while (Date.now() < deadline) {
         visible = await evaluate(socket, `(() => {
           const probe = globalThis.__sophpSuggestionProbe;
-          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs, labels: probe.labels };
+          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs,
+            inputElapsedMs: probe.inputElapsedMs, startedEpochMs: probe.startedEpochMs, labels: probe.labels };
         })()`, id++) as VisibleSuggestion | undefined;
         if (visible) break;
         await new Promise<void>((resolve) => setTimeout(resolve, 20));
@@ -103,10 +135,15 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
         `The visible PHP suggestion list did not contain ${methodName}: ${JSON.stringify(visible.labels)}`);
       assert.ok(document.isDirty && document.getText().includes(`$value->${typed};`), 'Typing did not update the PHP editor buffer.');
       samples.push(Math.round(visible.elapsedMs));
+      inputSamples.push(visible.inputElapsedMs === null ? null : Math.round(visible.inputElapsedMs));
+      phaseEpochMs.push({ started: Math.round(visible.startedEpochMs),
+        input: visible.inputElapsedMs === null ? null : Math.round(visible.startedEpochMs + visible.inputElapsedMs),
+        visible: Math.round(visible.startedEpochMs + visible.elapsedMs) });
       lastLabels = visible.labels;
     }
     const sorted = [...samples].sort((left, right) => left - right);
-    return { samplesMs: samples, medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
+    return { samplesMs: samples, inputSamplesMs: inputSamples, phaseEpochMs,
+      medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
   } finally {
     socket.close();
   }

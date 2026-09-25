@@ -1,5 +1,5 @@
 import { readFile, realpath } from 'node:fs/promises';
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   analyzeSymfonyEventDispatches,
@@ -36,6 +36,21 @@ function within(root: string, candidate: string): boolean {
   return local === '' || (!isAbsolute(local) && local !== '..' && !local.startsWith(`..${sep}`));
 }
 
+async function resolvedSourcePath(path: string, allowMissing: boolean): Promise<string> {
+  try { return await realpath(path); }
+  catch (error) {
+    if (!allowMissing || (error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    let parent = dirname(path);
+    for (;;) {
+      try { return await realpath(parent); }
+      catch (parentError) {
+        if ((parentError as NodeJS.ErrnoException).code !== 'ENOENT' || parent === dirname(parent)) throw parentError;
+        parent = dirname(parent);
+      }
+    }
+  }
+}
+
 function keyOfSubscription(fact: ExternalEventSubscriptionFact): string {
   return `${fact.subscriberFqcn.toLowerCase()}\0${fact.event.toLowerCase()}\0${fact.listener.toLowerCase()}\0${fact.uri}\0${fact.eventStart}\0${fact.listenerStart}`;
 }
@@ -57,14 +72,17 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
     const path = resolve(type.path); if (!within(root, path)) throw new Error(`Project type path escapes the project root: ${type.path}`);
     if (!unique.has(path)) unique.set(path, type.uri || pathToFileURL(path).toString());
   }
+  for (const [path, document] of snapshots) if (!unique.has(path)) unique.set(path, document.uri);
   if (unique.size > maxFiles) throw new Error(`Symfony event source count exceeds ${maxFiles}.`);
   const result: ProjectSource[] = []; let bytes = 0;
   const paths = [...unique].sort(([left], [right]) => left.localeCompare(right));
   // Bound concurrent IO while preserving source order and all-or-nothing facts.
   for (let index = 0; index < paths.length; index += 8) {
     const batch = await Promise.all(paths.slice(index, index + 8).map(async ([path, uri]) => {
-      const actual = await realpath(path); if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
-      const snapshot = snapshots.get(path); const source = snapshot?.source ?? await readFile(actual, 'utf8');
+      const snapshot = snapshots.get(path);
+      const actual = await resolvedSourcePath(path, Boolean(snapshot));
+      if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+      const source = snapshot?.source ?? await readFile(actual, 'utf8');
       if (source.length > 1_000_000) throw new Error(`Symfony event source budget exceeds ${maxTotalBytes} bytes.`);
       return { path, uri: snapshot?.uri ?? uri, source };
     }));

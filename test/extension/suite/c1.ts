@@ -63,6 +63,36 @@ async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
     inventoryMs: timings.candidateInventory?.at(-1), indexMs: timings.candidateIndex?.at(-1),
     serverRssMiB: memory.rss === undefined ? undefined : Math.round(memory.rss / 1048576),
     candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
+  const warmRounds = Number(process.env.PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS ?? 0);
+  if (warmRounds) {
+    assert.ok(Number.isSafeInteger(warmRounds) && warmRounds > 0 && warmRounds <= 200);
+    const locations = (items: vscode.Location[]): string[] => items.map((item) =>
+      `${item.uri.toString()}:${item.range.start.line}:${item.range.start.character}:${item.range.end.line}:${item.range.end.character}`).sort();
+    const expected = locations(result);
+    const commandMs: number[] = [];
+    for (let round = 0; round < warmRounds; round += 1) {
+      const warmStarted = performance.now();
+      const warm = kind === 'references'
+        ? await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call)
+        : await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call);
+      commandMs.push(performance.now() - warmStarted);
+      assert.deepStrictEqual(locations(warm ?? []), expected, `Warm ${kind} changed locations in round ${round}.`);
+    }
+    const sorted = commandMs.sort((left, right) => left - right);
+    const warmTimings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
+    const warmMemory = await requestLanguageServer<{ rss?: number }>('phpCompanion/testMemoryUsage', {});
+    const timingSummary = (name: string): { count: number; medianMs?: number; p95Ms?: number; maxMs?: number } => {
+      const values = [...(warmTimings[name] ?? [])].slice(-warmRounds).sort((left, right) => left - right);
+      return { count: values.length, medianMs: values[Math.ceil(values.length * 0.5) - 1],
+        p95Ms: values[Math.ceil(values.length * 0.95) - 1], maxMs: values.at(-1) };
+    };
+    console.log(`C1 warm ${kind} after cold: ${JSON.stringify({ rounds: warmRounds,
+      medianMs: Math.round(sorted[Math.ceil(warmRounds * 0.5) - 1]!),
+      p95Ms: Math.round(sorted[Math.ceil(warmRounds * 0.95) - 1]!), maxMs: Math.round(sorted.at(-1)!),
+      server: timingSummary(kind), scan: timingSummary(`${kind}Scan`),
+      freshness: timingSummary('methodReferenceFreshnessTotal'), candidateIndex: timingSummary('candidateIndex'),
+      serverRssMiB: warmMemory.rss === undefined ? undefined : Math.round(warmMemory.rss / 1048576) })}`);
+  }
 }
 
 async function verifyRealComposerVendor(requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
@@ -288,6 +318,13 @@ export async function run(): Promise<void> {
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load in the isolated Extension Host.');
   await extension.activate();
+  if (process.env.PHP_COMPANION_TEST_C1_OPEN_SOURCE_PROFILE === '1') {
+    for (const id of ['sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.php-companion-open-source-pack',
+      'sohophp.twig-plus', 'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug', 'junstyle.php-cs-fixer',
+      'editorconfig.editorconfig', 'eiminsasete.apacheconf-snippets', 'neilbrayfield.php-docblocker']) {
+      assert.ok(vscode.extensions.getExtension(id), `The C1 Open Source Pack profile is missing ${id}.`);
+    }
+  }
   const timingApi = extension.exports as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const coldQuery = process.env.PHP_COMPANION_TEST_C1_COLD_QUERY;
@@ -601,6 +638,56 @@ function consume(): void { (void) choose(1); }`;
       `PHP ${firstTargetPhpVersion} did not report unsupported ${feature}.`);
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${firstTargetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${firstTargetPhpVersion} reported a parser error for the version fixture.`);
+    const syntaxEdgeUri = vscode.Uri.joinPath(folder, 'VersionSyntaxEdges.php');
+    const syntaxEdgeSource = `<?php namespace App\\C1;
+class C1VersionSyntaxMarker {}
+$label = "a|>b" . "c"; $total = 1 + /* |> */ 2;
+$text = "start"; $text .= "??="; $count = 1; $count += /* ??= */ 2;
+function accept(int $value): void {}
+accept(1, /* note */);`;
+    await vscode.workspace.fs.writeFile(syntaxEdgeUri, Buffer.from(syntaxEdgeSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(syntaxEdgeUri));
+    const edgeDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(syntaxEdgeUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && (firstTargetPhpVersion !== '7.2' || result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes('trailing comma in a call'))),
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} syntax-edge diagnostics in VS Code.`,
+    );
+    const edgeVersions = edgeDiagnostics.filter((item) => item.code === 'php.version.unsupported');
+    assert.deepStrictEqual(edgeVersions.map((item) => item.message.includes('trailing comma in a call')),
+      firstTargetPhpVersion === '7.2' ? [true] : [],
+      `PHP ${firstTargetPhpVersion} misdiagnosed operator text or a commented call comma.`);
+    if (edgeVersions.length) assert.strictEqual((await vscode.workspace.openTextDocument(syntaxEdgeUri)).getText(edgeVersions[0]!.range), ',');
+    const commentUri = vscode.Uri.joinPath(folder, 'VersionPromotionComment.php');
+    const commentSource = '<?php namespace App\\C1; class C1PromotionComment { public function __construct(public /* final */ string $name) {} }';
+    await vscode.workspace.fs.writeFile(commentUri, Buffer.from(commentSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(commentUri));
+    const commentDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(commentUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename'),
+      `SoPHP did not process the PHP ${firstTargetPhpVersion} promotion-comment fixture in VS Code.`,
+    );
+    assert.ok(!commentDiagnostics.some((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('final promoted property')), 'SoPHP treated a promotion comment as final.');
+    const finalUri = vscode.Uri.joinPath(folder, 'VersionPromotionFinal.php');
+    const finalSource = '<?php namespace App\\C1; class C1PromotionFinal { public function __construct(public final string $name) {} }';
+    await vscode.workspace.fs.writeFile(finalUri, Buffer.from(finalSource));
+    const finalDocument = await vscode.workspace.openTextDocument(finalUri);
+    await vscode.window.showTextDocument(finalDocument);
+    const promotionDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(finalUri)),
+      (result) => firstTargetPhpVersion === '8.5'
+        ? result.some((item) => item.code === 'php.type.filename')
+        : result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes('final promoted property')),
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} promotion diagnostics in VS Code.`,
+    );
+    const finalVersions = promotionDiagnostics.filter((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('final promoted property'));
+    assert.strictEqual(finalVersions.length, firstTargetPhpVersion === '8.5' ? 0 : 1,
+      `PHP ${firstTargetPhpVersion} missed or misreported a real final modifier.`);
+    if (finalVersions.length) assert.strictEqual(finalDocument.getText(finalVersions[0]!.range), 'final');
     const secondTargetPhpVersion = targetPhpVersion ? targetPhpVersion === '7.2' ? '8.5' : '7.2' : '8.5';
     assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).get('phpVersion'), targetPhpVersion ? secondTargetPhpVersion : 'auto');
     const secondVersionUri = vscode.Uri.joinPath(secondFolder, 'Versioned.php');
@@ -792,8 +879,30 @@ function consume(): void { (void) choose(1); }`;
     await verifyRealVendorEditingChain(chainRounds, timingApi.requestLanguageServer);
   }
   if (c1DebugPort) {
+    await timingApi.requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
-    console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
+    const suggestionServerTimings = await timingApi.requestLanguageServer<Record<string, number[]>>(
+      'phpCompanion/testQueryTimings', { reset: true });
+    console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify({ ...visibleSuggestion,
+      serverCompletionMs: suggestionServerTimings.completion ?? [] })}`);
+    if (process.env.PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE === '1') {
+      const configuration = vscode.workspace.getConfiguration('editor', folder);
+      const originalDelay = configuration.get<number>('quickSuggestionsDelay');
+      try {
+        await configuration.update('quickSuggestionsDelay', 0, vscode.ConfigurationTarget.Workspace);
+        const zeroDelay = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 6);
+        await configuration.update('quickSuggestionsDelay', originalDelay, vscode.ConfigurationTarget.Workspace);
+        const restored = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 12);
+        console.log(`C1 quick suggestions delay A/B/A: ${JSON.stringify({ originalDelay,
+          defaultMs: visibleSuggestion.samplesMs, zeroMs: zeroDelay.samplesMs, restoredMs: restored.samplesMs })}`);
+      } finally {
+        await configuration.update('quickSuggestionsDelay', originalDelay, vscode.ConfigurationTarget.Workspace);
+      }
+    }
+    if (process.env.PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE === '1') {
+      const workbenchInput = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 18, 'workbench');
+      console.log(`C1 Workbench input visible suggestions: ${JSON.stringify(workbenchInput)}`);
+    }
     if (process.env.PHP_COMPANION_TEST_C1_UI === '1') {
       const vendorSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder, true);
       console.log(`C1 visible vendor suggestion after typing: ${JSON.stringify(vendorSuggestion)}`);

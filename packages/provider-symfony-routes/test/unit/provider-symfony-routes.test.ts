@@ -134,13 +134,13 @@ admin:
     await mkdir(controllers, { recursive: true }); await mkdir(join(root, 'config'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
     await writeFile(join(root, 'config', 'routes.yaml'), 'home: {path: /home}\ncontrollers: {resource: ../src/Controller/**/*.php, type: attribute}\n');
-    await Promise.all(Array.from({ length: 40 }, (_, index) => writeFile(join(controllers, `Controller${index}.php`),
-      index === 0
-        ? String.raw`<?php namespace App\Controller; class Controller0 { #[\Symfony\Component\Routing\Attribute\Route('/first', name: 'first')] public function run() {} }`
+    await Promise.all(Array.from({ length: 500 }, (_, index) => writeFile(join(controllers, `Controller${index}.php`),
+      index === 0 || index === 499
+        ? `<?php namespace App\\Controller; class Controller${index} { #[\\Symfony\\Component\\Routing\\Attribute\\Route('/route-${index}', name: 'route_${index}')] public function run() {} }`
         : `<?php namespace App\\Controller; class Controller${index} { public function run(): void {} }`)));
     const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
     expect(snapshot.complete).toBe(true);
-    expect(snapshot.routes.map((route) => route.name)).toEqual(['first', 'home']);
+    expect(snapshot.routes.map((route) => route.name)).toEqual(['home', 'route_0', 'route_499']);
   });
 
   it('marks partial static graphs incomplete instead of publishing authoritative omissions', async () => {
@@ -158,6 +158,36 @@ admin:
     }] });
     expect(malformed.complete).toBe(false);
     expect(malformed.inputEvidenceComplete).toBe(true);
+  });
+
+  it('marks a glob import incomplete when traversal stops at its entry budget', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-glob-budget-')); roots.push(root);
+    await mkdir(join(root, 'src', 'Controller'), { recursive: true }); await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' },
+      autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await writeFile(join(root, 'config', 'routes.yaml'), 'controllers: {resource: ../src/Controller/*.php, type: attribute}\n');
+    for (const name of ['Alpha', 'Beta']) await writeFile(join(root, 'src', 'Controller', `${name}Controller.php`),
+      `<?php namespace App\\Controller; use Symfony\\Component\\Routing\\Attribute\\Route;
+       final class ${name}Controller { #[Route('/${name.toLowerCase()}', name: '${name.toLowerCase()}')] public function show(): void {} }`);
+    const bounded = await collectSymfonyStaticRouteSnapshot(root, parser, { maxEntries: 4 });
+    expect(bounded.routes).toHaveLength(1);
+    expect(bounded.inputEvidenceComplete).toBe(false);
+    expect(bounded.complete).toBe(false);
+    const complete = await collectSymfonyStaticRouteSnapshot(root, parser, { maxEntries: 5 });
+    expect(complete.routes.map((route) => route.name)).toEqual(['alpha', 'beta']);
+    expect(complete.inputEvidenceComplete).toBe(true);
+    expect(complete.complete).toBe(true);
+  });
+
+  it('does not claim a complete graph when a conventional bundle input cannot be read', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-unreadable-bundle-')); roots.push(root);
+    await mkdir(join(root, 'config', 'bundles.php'), { recursive: true });
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'home: {path: /home}\n');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.routes.map((route) => route.name)).toEqual(['home']);
+    expect(snapshot.inputEvidenceComplete).toBe(false);
+    expect(snapshot.complete).toBe(false);
   });
 
   it('marks duplicate route names incomplete instead of claiming an authoritative graph', async () => {

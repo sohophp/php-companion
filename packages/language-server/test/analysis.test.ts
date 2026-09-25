@@ -80,6 +80,13 @@ describe('PHP document analysis', () => {
     expect(result.diagnostics.length).toBeGreaterThan(0);
     expect(result.diagnostics.every((item) => item.code === 'php.syntax' && item.source === 'SoPHP')).toBe(true);
   });
+  it('reports a missing closing delimiter before a return type', () => {
+    const source = '<?php function syntaxProbe(: void {}';
+    const document = TextDocument.create('file:///SyntaxProbe.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '8.5').diagnostics;
+    expect(diagnostics).toContainEqual(expect.objectContaining({ code: 'php.syntax', source: 'SoPHP',
+      range: { start: { line: 0, character: source.indexOf(':') }, end: { line: 0, character: source.indexOf(':') + 1 } } }));
+  });
   it('reports a stable target-version diagnostic without rejecting supported syntax', () => {
     const document = TextDocument.create('file:///Version.php', 'php', 1, '<?php enum Status { case Ready; }');
     expect(analyzePhpDocument(document, parser, '8.0').diagnostics).toMatchObject([{ code: 'php.version.unsupported' }]);
@@ -137,6 +144,58 @@ describe('PHP document analysis', () => {
         if (version === '8.5') expect(diagnostics.filter((item) => item.code === 'php.syntax'), `${fixture.feature} parser support`).toEqual([]);
       }
     }
+  });
+  it('does not mistake pipe text in strings or comments for a PHP 8.5 operator', () => {
+    const source = '<?php $label = "a|>b" . "c"; $total = 1 + /* |> */ 2;';
+    const document = TextDocument.create('file:///PipeText.php', 'php', 1, source);
+    for (const version of ['7.2', '8.4'] as const) {
+      const diagnostics = analyzePhpDocument(document, parser, version).diagnostics;
+      expect(diagnostics.filter((item) => item.code === 'php.version.unsupported' && item.message.includes('pipe operator')),
+        `pipe text on PHP ${version}`).toEqual([]);
+      expect(diagnostics.filter((item) => item.code === 'php.syntax')).toEqual([]);
+    }
+    const pipe = TextDocument.create('file:///RealPipe.php', 'php', 1, '<?php $result = "hello" |> strtoupper(...);');
+    const unsupported = analyzePhpDocument(pipe, parser, '8.4').diagnostics
+      .filter((item) => item.code === 'php.version.unsupported' && item.message.includes('pipe operator'));
+    expect(unsupported).toHaveLength(1);
+    expect(pipe.getText(unsupported[0]!.range)).toBe('|>');
+  });
+  it('does not mistake null-coalescing assignment text for a PHP 7.4 operator', () => {
+    const source = '<?php $text .= "??="; $count += /* ??= */ 2;';
+    const document = TextDocument.create('file:///AssignmentText.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '7.2').diagnostics;
+    expect(diagnostics.filter((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('null coalescing assignment'))).toEqual([]);
+    expect(diagnostics.filter((item) => item.code === 'php.syntax')).toEqual([]);
+    const assignment = TextDocument.create('file:///RealAssignment.php', 'php', 1, '<?php $value ??= 1;');
+    const unsupported = analyzePhpDocument(assignment, parser, '7.2').diagnostics
+      .filter((item) => item.code === 'php.version.unsupported' && item.message.includes('null coalescing assignment'));
+    expect(unsupported).toHaveLength(1);
+    expect(assignment.getText(unsupported[0]!.range)).toBe('??=');
+  });
+  it('does not mistake a constructor promotion comment for a final modifier', () => {
+    const source = '<?php class C { public function __construct(public /* final */ string $name) {} }';
+    const document = TextDocument.create('file:///PromotionComment.php', 'php', 1, source);
+    const diagnostics = analyzePhpDocument(document, parser, '8.4').diagnostics;
+    expect(diagnostics.filter((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('final promoted property'))).toEqual([]);
+    expect(diagnostics.filter((item) => item.code === 'php.syntax')).toEqual([]);
+    const finalSource = '<?php class C { public function __construct(public final string $name) {} }';
+    const finalDocument = TextDocument.create('file:///FinalPromotion.php', 'php', 1, finalSource);
+    const unsupported = analyzePhpDocument(finalDocument, parser, '8.4').diagnostics
+      .filter((item) => item.code === 'php.version.unsupported' && item.message.includes('final promoted property'));
+    expect(unsupported).toHaveLength(1);
+    expect(finalDocument.getText(unsupported[0]!.range)).toBe('final');
+  });
+  it('detects a trailing call comma across comments without reading commas inside comments', () => {
+    const source = '<?php run(1, /* note */); run(1 /*,*/); run(1, /* note */ 2);';
+    const document = TextDocument.create('file:///CallCommas.php', 'php', 1, source);
+    const unsupported = analyzePhpDocument(document, parser, '7.2').diagnostics
+      .filter((item) => item.code === 'php.version.unsupported' && item.message.includes('trailing comma in a call'));
+    expect(unsupported).toHaveLength(1);
+    expect(document.getText(unsupported[0]!.range)).toBe(',');
+    expect(analyzePhpDocument(document, parser, '7.3').diagnostics
+      .filter((item) => item.code === 'php.version.unsupported' && item.message.includes('trailing comma in a call'))).toEqual([]);
   });
   it('does not hide syntax errors near PHP 8.5 grammar compatibility shims', () => {
     const invalidSources = [

@@ -1,4 +1,4 @@
-import { namespaceDeclarations, createIncrementalEdit, controlFlowAssignmentStarts, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
+import { createIncrementalEdit, controlFlowAssignmentStarts, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, type PhpDocTag, type PhpDocType } from '@php-companion/phpdoc';
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
@@ -204,7 +204,8 @@ function acceptsWeakScalarCoercion(type: PhpType): boolean {
   return parts.some((part) => ['bool', 'int', 'float', 'string'].includes(part))
     && parts.every((part) => ['bool', 'int', 'float', 'string', 'null'].includes(part));
 }
-export interface SignatureInfo extends MemberInfo { activeParameter: number; namedArgumentPrefix?: string; usedNamedArguments: string[]; }
+export interface SignatureInfo extends MemberInfo { activeParameter: number; namedArgumentPrefix?: string; usedNamedArguments: string[]; usedParameterNames?: string[];
+  uncertainArgumentUnpack?: boolean; activeParameterUncertain?: boolean; }
 export type NamedArgumentInfo = ParsedCallableDeclaration['parameters'][number];
 export interface TypeInfo extends SemanticLocation { name: string; fqcn: string; kind: ParsedDeclaration['kind']; importFqcn?: string; }
 export interface TypeImportCandidate extends TypeInfo { aliasRequired: boolean; }
@@ -311,7 +312,11 @@ export interface PhpDocTypeConflict extends SemanticLocation {
   phpDocType: string;
 }
 export interface UnknownNamedArgument extends SemanticLocation { callable: string; name: string; }
-export interface ArgumentOrderProblem extends SemanticLocation { kind: 'duplicate-named' | 'positional-after-named' | 'unpack-after-named'; name?: string; }
+export interface ArgumentOrderProblem extends SemanticLocation {
+  kind: 'duplicate-named' | 'positional-after-named' | 'unpack-after-named';
+  name?: string;
+  minimumPhpVersion?: '8.1';
+}
 export interface UnusedImport extends SemanticLocation { name: string; kind: ParsedImport['kind']; statementStart: number; statementEnd: number; }
 export interface IncompatibleMethodOverride extends SemanticLocation { method: string; inheritedMethod: string; reason: string; }
 export interface IncompatiblePropertyOverride extends SemanticLocation {
@@ -850,6 +855,98 @@ function validDeferredImplementation(file: SemanticFile, implementation: Semanti
     }
   }
   return true;
+}
+
+interface LiteralUnpackEntry { name?: string; start: number; end: number; }
+interface LiteralUnpackResult { entries: LiteralUnpackEntry[]; invalidOrder?: { start: number; end: number }; }
+
+/** Reads only completed literal arrays; offsets remain relative to the spread argument. */
+function literalUnpackEntries(segment: string): LiteralUnpackResult | undefined {
+  const opening = /^\s*\.\.\.\s*\[/u.exec(segment);
+  if (!opening) return undefined;
+  const bodyStart = opening[0].length;
+  let level = 1; let quoted = ''; let escaped = false; let entryStart = bodyStart;
+  const entries: Array<{ text: string; start: number; end: number }> = [];
+  for (let index = bodyStart; index < segment.length; index += 1) {
+    const character = segment[index]!;
+    if (escaped) { escaped = false; continue; }
+    if (quoted) {
+      if (character === '\\') escaped = true;
+      else if (character === quoted) quoted = '';
+      continue;
+    }
+    if (character === "'" || character === '"') { quoted = character; continue; }
+    if ('([{'.includes(character)) { level += 1; continue; }
+    if (')]}'.includes(character)) {
+      level -= 1;
+      if (level === 0) {
+        if (character !== ']' || segment.slice(index + 1).trim()) return undefined;
+        entries.push({ text: segment.slice(entryStart, index), start: entryStart, end: index });
+        break;
+      }
+      if (level < 0) return undefined;
+      continue;
+    }
+    if (character === ',' && level === 1) {
+      entries.push({ text: segment.slice(entryStart, index), start: entryStart, end: index });
+      entryStart = index + 1;
+    }
+  }
+  if (level !== 0) return undefined;
+  if (entries.length === 1 && !entries[0]!.text.trim()) return { entries: [] };
+  if (!entries.at(-1)!.text.trim()) entries.pop();
+  if (entries.some((entry) => !entry.text.trim() || /^\s*\.\.\./u.test(entry.text))) return undefined;
+  const parsed: LiteralUnpackEntry[] = [];
+  let sawNamed = false;
+  for (const entry of entries) {
+    const named = /^\s*(['"])([A-Za-z_][A-Za-z0-9_]*)\1\s*=>/u.exec(entry.text);
+    if (named) { sawNamed = true; parsed.push({ name: named[2], start: entry.start, end: entry.end }); continue; }
+    let nested = 0; let string = ''; let escapedString = false;
+    for (let index = 0; index < entry.text.length - 1; index += 1) {
+      const character = entry.text[index]!;
+      if (escapedString) { escapedString = false; continue; }
+      if (string) {
+        if (character === '\\') escapedString = true;
+        else if (character === string) string = '';
+        continue;
+      }
+      if (character === "'" || character === '"') { string = character; continue; }
+      if ('([{'.includes(character)) nested += 1;
+      else if (')]}'.includes(character)) nested -= 1;
+      else if (nested === 0 && entry.text.slice(index, index + 2) === '=>') return undefined;
+    }
+    const start = entry.start + entry.text.length - entry.text.trimStart().length;
+    if (sawNamed) return { entries: parsed, invalidOrder: { start, end: entry.end } };
+    parsed.push({ start, end: entry.end });
+  }
+  return { entries: parsed };
+}
+
+function namespaceMoveEdit(source: string, tree: ReturnType<PhpSyntaxParser['parse']>['tree'],
+  oldNamespace: string, newNamespace: string): SourceRange & { newText: string } | undefined {
+  const nodes = tree.rootNode.namedChildren;
+  const definitions = nodes.filter((node) => node.type === 'namespace_definition');
+  if (oldNamespace) {
+    const matching = definitions.filter((node) => node.childForFieldName('name')?.text.toLowerCase() === oldNamespace.toLowerCase());
+    if (matching.length !== 1 || definitions.length !== 1) return undefined;
+    const definition = matching[0]!; const name = definition.childForFieldName('name');
+    if (!name) return undefined;
+    if (newNamespace) return { start: name.startIndex, end: name.endIndex, newText: newNamespace };
+    if (!definition.text.trimEnd().endsWith(';')) return undefined;
+    return { start: definition.startIndex, end: definition.endIndex, newText: '' };
+  }
+  if (!newNamespace || definitions.length || nodes.some((node) => node.type === 'text_interpolation')) return undefined;
+  const tag = nodes[0];
+  if (tag?.type !== 'php_tag' || tag.startIndex !== 0) return undefined;
+  if (nodes.slice(1).some((node) => node.type === 'php_tag')) return undefined;
+  let offset = tag.endIndex;
+  for (const node of nodes.slice(1)) {
+    if (node.type === 'comment') continue;
+    if (node.type !== 'declare_statement') break;
+    offset = node.endIndex;
+  }
+  const eol = source.includes('\r\n') ? '\r\n' : '\n';
+  return { start: offset, end: offset, newText: `${eol}namespace ${newNamespace};${eol}` };
 }
 
 export class SemanticWorkspace {
@@ -2127,6 +2224,8 @@ export class SemanticWorkspace {
       if (left?.type !== 'variable_name' || right?.startIndex !== expression.startIndex || right.endIndex !== expression.endIndex || parent.parent?.type !== 'expression_statement') return undefined;
       statement = parent.parent;
     } else if (parent?.type === 'return_statement' && parent.namedChildren[0]?.startIndex === expression.startIndex && parent.namedChildren[0].endIndex === expression.endIndex) statement = parent;
+    else if (parent?.type === 'echo_statement' && parent.namedChildren.length === 1
+      && parent.namedChildren[0]?.startIndex === expression.startIndex && parent.namedChildren[0].endIndex === expression.endIndex) statement = parent;
     else return undefined;
     if (statement.parent?.type !== 'compound_statement') return undefined;
     const lineStart = file.source.lastIndexOf('\n', Math.max(0, statement.startIndex - 1)) + 1;
@@ -2155,13 +2254,38 @@ export class SemanticWorkspace {
     if (!inspection.complete || malformed) return undefined;
     const statement = assignment.parent; const block = statement.parent; if (!block) return undefined;
     const statementIndex = block.namedChildren.findIndex((item) => item.startIndex === statement.startIndex && item.endIndex === statement.endIndex);
-    const next = statementIndex >= 0 ? block.namedChildren[statementIndex + 1] : undefined; if (!next) return undefined;
-    let use: SyntaxNode | undefined;
-    if (next.type === 'return_statement') {
-      const candidate = next.namedChildren[0]; if (candidate?.type === 'variable_name' && candidate.text === variable.text) use = candidate;
-    } else if (next.type === 'expression_statement') {
-      const nextAssignment = next.namedChildren[0]; const candidate = nextAssignment?.type === 'assignment_expression' ? nextAssignment.childForFieldName('right') : undefined;
-      if (candidate?.type === 'variable_name' && candidate.text === variable.text) use = candidate;
+    // Comments do not execute or change the value, and belong with the remaining statement after inlining.
+    const next = statementIndex >= 0
+      ? block.namedChildren.slice(statementIndex + 1).find((item) => item.type !== 'comment') : undefined;
+    if (!next) return undefined;
+    const wholeValueVariable = (candidate: SyntaxNode | null | undefined): SyntaxNode | undefined => {
+      let value = candidate;
+      while (value?.type === 'parenthesized_expression' && !value.isError && !value.isMissing
+        && value.namedChildren.length === 1) value = value.namedChildren[0];
+      return value?.type === 'variable_name' && value.text === variable.text ? value : undefined;
+    };
+    const nextAssignment = next.type === 'expression_statement' && next.namedChildren[0]?.type === 'assignment_expression'
+      ? next.namedChildren[0] : undefined;
+    const singleEcho = next.type === 'echo_statement' && next.namedChildren.length === 1 ? next.namedChildren[0] : undefined;
+    // A property or offset target may execute code before its RHS. Moving the initializer there can reorder side effects.
+    const candidate = next.type === 'return_statement' ? next.namedChildren[0]
+      : singleEcho ?? (nextAssignment?.childForFieldName('left')?.type === 'variable_name' ? nextAssignment.childForFieldName('right') : undefined);
+    let use = wholeValueVariable(candidate);
+    let embedded = false;
+    if (!use) {
+      let value = candidate;
+      while (value?.type === 'parenthesized_expression' && value.namedChildren.length === 1) value = value.namedChildren[0];
+      while (value?.type === 'binary_expression') {
+        const left = value.childForFieldName('left'); const rightOperand = value.childForFieldName('right');
+        if (!left || !rightOperand) { value = undefined; break; }
+        const operator = file.source.slice(left.endIndex, rightOperand.startIndex).trim();
+        const ordered = /^(?:\?\?|&&|\|\||and|or)$/iu.test(operator);
+        const constantRight = /^(?:[0-9][0-9_]*(?:\.[0-9_]+)?|true|false|null)$/iu.test(rightOperand.text.trim());
+        if (!ordered && !constantRight) { value = undefined; break; }
+        value = left;
+        while (value?.type === 'parenthesized_expression' && value.namedChildren.length === 1) value = value.namedChildren[0];
+      }
+      if (value?.type === 'variable_name' && value.text === variable.text) { use = value; embedded = true; }
     }
     if (!use) return undefined;
     const scope = this.containingScope(file, statement.startIndex); if (!scope) return undefined;
@@ -2172,7 +2296,9 @@ export class SemanticWorkspace {
     let declarationEnd = statement.endIndex;
     const lineRemainder = /^[ \t]*(?:\r?\n|$)/.exec(file.source.slice(declarationEnd)); if (!lineRemainder) return undefined;
     declarationEnd += lineRemainder[0].length;
-    return { uri, declarationStart: lineStart, declarationEnd, useStart: use.startIndex, useEnd: use.endIndex, variable: variable.text.slice(1), expression: file.source.slice(right.startIndex, right.endIndex) };
+    const expression = file.source.slice(right.startIndex, right.endIndex);
+    return { uri, declarationStart: lineStart, declarationEnd, useStart: use.startIndex, useEnd: use.endIndex,
+      variable: variable.text.slice(1), expression: embedded ? `(${expression})` : expression };
   }
 
   extractInterface(uri: string, offset: number): ExtractInterfaceInfo | undefined {
@@ -2271,13 +2397,32 @@ export class SemanticWorkspace {
     while (start < end && /\s/.test(file.source[start]!)) start += 1;
     while (end > start && /\s/.test(file.source[end - 1]!)) end -= 1;
     const callable = this.containingCallable(file, start);
-    if (!callable || callable.kind !== 'method' || callable.static || !callable.containerFqcn || end > callable.declarationEnd) return undefined;
+    if (!callable || callable.kind !== 'method' || !callable.containerFqcn || end > callable.declarationEnd) return undefined;
     const body = deepestLocalSyntax(tree.rootNode, start, end,
       (node) => node.type === 'compound_statement' && node.parent?.type === 'method_declaration');
     if (!body) return undefined;
     const statements = body.namedChildren.filter((node) => node.startIndex >= start && node.endIndex <= end);
+    const scalarEchoVariable = (node: SyntaxNode): boolean => {
+      if (node.type !== 'variable_name') return false;
+      const type = callable.parameters.find((parameter) => `$${parameter.name}` === node.text)?.nativeType;
+      return Boolean(type && type.replace(/^\?/u, '').split('|').every((part) => /^(?:string|int|float|bool|null|false|true)$/iu.test(part.trim())));
+    };
+    const echoOperands = (node: SyntaxNode): SyntaxNode[] => node.namedChildren[0]?.type === 'sequence_expression'
+      ? node.namedChildren[0].namedChildren : node.namedChildren;
+    const scalarEchoConcatenation = (node: SyntaxNode): boolean => node.type === 'binary_expression'
+      && node.namedChildren.length === 2 && node.namedChildren.every(scalarEchoVariable)
+      && file.source.slice(node.namedChildren[0]!.endIndex, node.namedChildren[1]!.startIndex).trim() === '.';
+    const returnStatement = statements.at(-1)?.type === 'return_statement' ? statements.at(-1) : undefined;
+    const returnType = callable.nativeReturnType?.trim();
+    if (returnStatement && (returnType && /^(?:void|never)$/iu.test(returnType) || returnStatement.namedChildren.length !== 1
+      || /\bfunction\s*&/u.test(file.source.slice(callable.declarationStart, body.startIndex)))) return undefined;
     if (!statements.length || statements[0]!.startIndex !== start || statements.at(-1)!.endIndex !== end
-      || statements.some((node) => node.type !== 'expression_statement')) return undefined;
+      || statements.some((node, index) => node.type !== 'expression_statement' && node.type !== 'echo_statement'
+        && (node.type !== 'if_statement' || !(statements.length === 1
+          || statements.length === 2 && index === 0 && statements[1]?.type === 'return_statement'))
+        && (node.type !== 'return_statement' || index !== statements.length - 1)
+        || node.type === 'echo_statement' && (statements.length !== 1
+          || echoOperands(node).length > 1 && !echoOperands(node).every(scalarEchoVariable)))) return undefined;
     const firstIndex = body.namedChildren.indexOf(statements[0]!);
     if (firstIndex < 0 || statements.some((node, index) => body!.namedChildren[firstIndex + index] !== node)) return undefined;
     const scope = this.containingScope(file, start); if (!scope || scope.id.toLowerCase() !== callable.fqcn.toLowerCase()) return undefined;
@@ -2305,11 +2450,21 @@ export class SemanticWorkspace {
     let malformed = false; const inspect = (root: SyntaxNode): void => {
       const traversal = walkLocalSyntax(root, (node) => {
       if (node.isError || node.isMissing || ['assignment_expression', 'augmented_assignment_expression', 'yield_expression', 'include_expression', 'include_once_expression', 'require_expression', 'require_once_expression', 'anonymous_function', 'arrow_function'].includes(node.type)) malformed = true;
+      if (node.type === 'name' && /^(?:__METHOD__|__FUNCTION__|__LINE__)$/iu.test(node.text)
+        || callable.static && node.type === 'relative_scope' && /^(?:static|parent)$/iu.test(node.text)) malformed = true;
       if (node.type === 'variable_name' && node.text !== '$this') {
         const parent = node.parent; const object = parent?.childForFieldName('object');
         const safeReceiver = Boolean(parent && (parent.type === 'member_call_expression' || parent.type === 'member_access_expression')
           && object?.startIndex === node.startIndex && object.endIndex === node.endIndex && this.variableType(file, node.text, node.startIndex));
-        if (!safeReceiver && !safeByValueArgument(node)) malformed = true;
+        const echo = parent?.type === 'echo_statement' ? parent : parent?.type === 'sequence_expression' && parent.parent?.type === 'echo_statement' ? parent.parent : undefined;
+        const safeEchoInput = Boolean(echo && echoOperands(echo).some((child) => child.startIndex === node.startIndex && child.endIndex === node.endIndex)
+          && (scope.parameters.some((parameter) => `$${parameter.name}` === node.text) || this.variableType(file, node.text, node.startIndex)));
+        const concatenatedEcho = Boolean(parent && scalarEchoConcatenation(parent) && parent.parent?.type === 'echo_statement'
+          && parent.namedChildren.some((child) => child.startIndex === node.startIndex && child.endIndex === node.endIndex));
+        const safeReturnInput = Boolean(parent?.type === 'return_statement' && parent.namedChildren.length === 1
+          && parent.namedChildren[0]?.startIndex === node.startIndex && parent.namedChildren[0].endIndex === node.endIndex
+          && (scope.parameters.some((parameter) => `$${parameter.name}` === node.text) || this.variableType(file, node.text, node.startIndex)));
+        if (!safeReceiver && !safeEchoInput && !concatenatedEcho && !safeReturnInput && !safeByValueArgument(node)) malformed = true;
         else {
           const declaredType = callable.parameters.find((parameter) => `$${parameter.name}` === node.text)?.nativeType;
           const inferredType = !declaredType && safeReceiver ? this.variableType(file, node.text, node.startIndex) : undefined;
@@ -2344,17 +2499,115 @@ export class SemanticWorkspace {
       if (declarations.length !== 1 || !declarations[0]!.item.nativeReturnType) return undefined;
       return declarationType(this.nativeSourceType(declarations[0]!.file, declarations[0]!.item.nativeReturnType, declarations[0]!.item.containerFqcn ?? declarations[0]!.item.fqcn));
     };
+    let branchOutput: { variable: string; type: string } | undefined;
+    let branchReturns = false;
+    if (statements[0]?.type === 'if_statement' && (statements.length === 1 || statements.length === 2 && returnStatement)) {
+      const branch = statements[0]!;
+      const condition = branch.childForFieldName('condition');
+      const conditionInputs: Array<{ variable: string; start: number; type: string }> = [];
+      const safeCondition = (node: SyntaxNode | null | undefined): boolean => {
+        if (!node || node.isError || node.isMissing) return false;
+        if (node.type === 'variable_name') {
+          const parameter = callable.parameters.find((item) => `$${item.name}` === node.text);
+          if (parameter?.nativeType?.toLowerCase() !== 'bool') return false;
+          conditionInputs.push({ variable: node.text, start: node.startIndex, type: parameter.nativeType });
+          return true;
+        }
+        if (node.type === 'parenthesized_expression' && node.namedChildren.length === 1) return safeCondition(node.namedChildren[0]);
+        if (node.type === 'unary_op_expression' && node.namedChildren.length === 1) {
+          const operand = node.namedChildren[0]!;
+          return file.source.slice(node.startIndex, operand.startIndex).trim() === '!' && safeCondition(operand);
+        }
+        if (node.type === 'binary_expression' && node.namedChildren.length === 2) {
+          const [left, right] = node.namedChildren;
+          const operator = file.source.slice(left!.endIndex, right!.startIndex).trim();
+          return (operator === '&&' || operator === '||') && safeCondition(left) && safeCondition(right);
+        }
+        return false;
+      };
+      const thenBody = branch.childForFieldName('body');
+      const alternatives = branch.namedChildren.filter((child) => child.type === 'else_clause' || child.type === 'else_if_clause');
+      const completeBranches = statements.length === 1 && alternatives.length > 0 && alternatives.at(-1)?.type === 'else_clause'
+        && alternatives.slice(0, -1).every((clause) => clause.type === 'else_if_clause');
+      const guardReturn = statements.length === 2 && Boolean(returnStatement)
+        && alternatives.every((clause) => clause.type === 'else_if_clause');
+      const conditionalClauses = guardReturn ? alternatives : alternatives.slice(0, -1);
+      const assignment = (block: SyntaxNode | null | undefined): { variable: string; right: SyntaxNode } | undefined => {
+        if (block?.type !== 'compound_statement' || block.namedChildren.length !== 1) return undefined;
+        const statement = block.namedChildren[0]!;
+        const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+        const left = expression?.type === 'assignment_expression' ? expression.childForFieldName('left') : undefined;
+        const right = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : undefined;
+        return left?.type === 'variable_name' && right && !/=\s*&/u.test(expression!.text) ? { variable: left.text, right } : undefined;
+      };
+      if (!completeBranches && !guardReturn || !safeCondition(condition)
+        || conditionalClauses.some((clause) => !safeCondition(clause.childForFieldName('condition')))
+        || !conditionInputs.length) return undefined;
+      const bodies = [thenBody, ...alternatives.map((clause) => clause.childForFieldName('body'))];
+      const assignments = bodies.map(assignment);
+      const firstAssignment = assignments[0];
+      if (firstAssignment) {
+        if (guardReturn) return undefined;
+        if (assignments.some((item) => !item || item.variable !== firstAssignment.variable)
+          || /^\$(?:this|GLOBALS|_SERVER|_GET|_POST|_FILES|_COOKIE|_SESSION|_REQUEST|_ENV)$/u.test(firstAssignment.variable)
+          || scope.parameters.some((parameter) => `$${parameter.name}` === firstAssignment.variable)
+          || file.variableReferences.some((reference) => reference.scopeId === scope.id && reference.variable === firstAssignment.variable && reference.start < start)
+          || !file.variableReferences.some((reference) => reference.scopeId === scope.id && reference.variable === firstAssignment.variable
+            && reference.start >= end && reference.end <= scope.end)) return undefined;
+        const firstType = outputType(firstAssignment.right);
+        if (!firstType || /^(?:void|never)$/iu.test(firstType)
+          || assignments.some((item) => outputType(item!.right) !== firstType)) return undefined;
+        for (const item of assignments) inspect(item!.right);
+        if (malformed || parameters.some((parameter) => parameter.variable === firstAssignment.variable)) return undefined;
+        branchOutput = { variable: firstAssignment.variable, type: firstType };
+      } else {
+        const returned = [...bodies.map((block) => block?.type === 'compound_statement' && block.namedChildren.length === 1
+          && block.namedChildren[0]?.type === 'return_statement' ? block.namedChildren[0] : undefined),
+        ...(guardReturn ? [returnStatement] : [])];
+        if (returnType && /^(?:void|never)$/iu.test(returnType)
+          || /\bfunction\s*&/u.test(file.source.slice(callable.declarationStart, body.startIndex))
+          || returned.some((statement) => statement?.namedChildren.length !== 1
+            || returnType && outputType(statement.namedChildren[0]!) !== returnType)) return undefined;
+        for (const statement of returned) inspect(statement!.namedChildren[0]!);
+        if (malformed) return undefined;
+        branchReturns = true;
+      }
+      parameters.push(...conditionInputs);
+    }
     let output: { variable: string; statement: SyntaxNode; right: SyntaxNode; type?: string } | undefined;
-    for (const [index, statement] of statements.entries()) {
+    const directAssignments = statements.map((statement) => {
+      const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+      const left = expression?.type === 'assignment_expression' ? expression.childForFieldName('left') : undefined;
+      const right = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : undefined;
+      return expression && left?.type === 'variable_name' && right && !/=\s*&/u.test(expression.text)
+        ? { variable: left.text, statement, right } : undefined;
+    });
+    const multipleOutputs = statements.length >= 2 && directAssignments.every((item) => item)
+      ? directAssignments as Array<{ variable: string; statement: SyntaxNode; right: SyntaxNode }> : undefined;
+    if (multipleOutputs) {
+      const outputNames = new Set(multipleOutputs.map((item) => item.variable));
+      if (outputNames.size !== multipleOutputs.length || multipleOutputs.some((item) =>
+        /^\$(?:this|GLOBALS|_SERVER|_GET|_POST|_FILES|_COOKIE|_SESSION|_REQUEST|_ENV)$/u.test(item.variable)
+        ||
+        scope.parameters.some((parameter) => `$${parameter.name}` === item.variable)
+        || file.variableReferences.some((reference) => reference.scopeId === scope.id && reference.variable === item.variable && reference.start < start)
+        || !file.variableReferences.some((reference) => reference.scopeId === scope.id && reference.variable === item.variable
+          && reference.start >= end && reference.end <= scope.end))) return undefined;
+      for (const item of multipleOutputs) {
+        inspect(item.right);
+        if (malformed || parameters.some((parameter) => outputNames.has(parameter.variable))) return undefined;
+      }
+    } else if (!branchOutput && !branchReturns) for (const [index, statement] of statements.entries()) {
       const expression = statement.namedChildren[0];
       if (expression?.type === 'assignment_expression') {
-        const left = expression.childForFieldName('left'); const right = expression.childForFieldName('right');
-        if (index !== statements.length - 1 || left?.type !== 'variable_name' || !right || /=\s*&/.test(expression.text)) return undefined;
-        inspect(right); if (malformed) return undefined;
-        const usedAfter = file.variableReferences.some((item) => item.scopeId === scope.id && item.variable === left.text && item.start >= statement.endIndex && item.end <= scope.end);
-        if (!usedAfter || parameters.some((parameter) => parameter.variable === left.text)) return undefined;
-        const inferred = this.variableType(file, left.text, statement.endIndex);
-        output = { variable: left.text, statement, right, type: inferred && this.fileAndDeclaration(inferred) ? `\\${inferred}` : outputType(right) };
+        const item = directAssignments[index];
+        if (index !== statements.length - 1 || !item) return undefined;
+        inspect(item.right); if (malformed) return undefined;
+        const usedAfter = file.variableReferences.some((reference) => reference.scopeId === scope.id && reference.variable === item.variable
+          && reference.start >= statement.endIndex && reference.end <= scope.end);
+        if (!usedAfter || parameters.some((parameter) => parameter.variable === item.variable)) return undefined;
+        const inferred = this.variableType(file, item.variable, statement.endIndex);
+        output = { ...item, type: inferred && this.fileAndDeclaration(inferred) ? `\\${inferred}` : outputType(item.right) };
       } else inspect(statement);
     }
     if (malformed) return undefined;
@@ -2371,16 +2624,26 @@ export class SemanticWorkspace {
     const callableLineStart = file.source.lastIndexOf('\n', Math.max(0, callable.declarationStart - 1)) + 1;
     const methodIndent = file.source.slice(callableLineStart, callable.declarationStart); if (!/^[ \t]*$/.test(methodIndent)) return undefined;
     const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
-    const selectedLines = output
+    const selectedLines = branchOutput
+      ? `${file.source.slice(selectionLineStart, end)}${eol}${leading}return ${branchOutput.variable};`
+      : multipleOutputs
+      ? `${file.source.slice(selectionLineStart, end)}${eol}${leading}return [${multipleOutputs.map((item) => item.variable).join(', ')}];`
+      : output
       ? `${file.source.slice(selectionLineStart, output.statement.startIndex)}return ${file.source.slice(output.right.startIndex, output.right.endIndex)};`
       : file.source.slice(selectionLineStart, end);
+    const multipleOutputTypes = multipleOutputs?.map((item) => {
+      const inferred = this.variableType(file, item.variable, item.statement.endIndex);
+      return inferred && this.fileAndDeclaration(inferred) ? `\\${inferred}` : outputType(item.right);
+    });
+    const multipleOutputDoc = multipleOutputTypes?.some((type) => type)
+      ? `/** @return array{${multipleOutputTypes.map((type, index) => `${index}: ${type ?? 'mixed'}`).join(', ')}} */${eol}${methodIndent}` : '';
     const parameterFacts = [...new Map(parameters.sort((left, right) => left.start - right.start).map((item) => [item.variable, item])).values()];
     const parameterNames = parameterFacts.map((item) => item.variable);
     const parameterSignature = parameterFacts.map((item) => `${item.type ? `${item.type} ` : ''}${item.variable}`).join(', ');
     return {
-      uri, selectionStart: selectionLineStart, selectionEnd: selectionLineEnd, insertOffset, methodName, parameters: parameterNames.map((name) => name.slice(1)), output: output?.variable.slice(1),
-      callText: `${leading}${output ? `${output.variable} = ` : ''}$this->${methodName}(${parameterNames.join(', ')});${eol}`,
-      methodText: `${eol}${methodIndent}private function ${methodName}(${parameterSignature})${output?.type ? `: ${output.type}` : output ? '' : ': void'}${eol}${methodIndent}{${eol}${selectedLines}${eol}${methodIndent}}${eol}`,
+      uri, selectionStart: selectionLineStart, selectionEnd: selectionLineEnd, insertOffset, methodName, parameters: parameterNames.map((name) => name.slice(1)), output: (branchOutput?.variable ?? output?.variable)?.slice(1),
+      callText: `${leading}${multipleOutputs ? `[${multipleOutputs.map((item) => item.variable).join(', ')}] = ` : branchOutput ? `${branchOutput.variable} = ` : branchReturns || returnStatement ? 'return ' : output ? `${output.variable} = ` : ''}${callable.static ? 'self::' : '$this->'}${methodName}(${parameterNames.join(', ')});${eol}`,
+      methodText: `${eol}${methodIndent}${multipleOutputDoc}private ${callable.static ? 'static ' : ''}function ${methodName}(${parameterSignature})${multipleOutputs ? ': array' : branchOutput ? `: ${branchOutput.type}` : branchReturns ? returnType ? `: ${returnType}` : '' : returnStatement ? returnType ? `: ${returnType}` : '' : output?.type ? `: ${output.type}` : output ? '' : ': void'}${eol}${methodIndent}{${eol}${selectedLines}${eol}${methodIndent}}${eol}`,
     };
   }
 
@@ -3132,9 +3395,9 @@ export class SemanticWorkspace {
 
   completeNamedArguments(uri: string, offset: number): NamedArgumentInfo[] {
     const signature = this.signature(uri, offset);
-    if (!signature || signature.namedArgumentPrefix === undefined) return [];
+    if (!signature || signature.namedArgumentPrefix === undefined || signature.uncertainArgumentUnpack) return [];
     const prefix = signature.namedArgumentPrefix.toLowerCase();
-    const used = new Set(signature.usedNamedArguments);
+    const used = new Set(signature.usedParameterNames ?? signature.usedNamedArguments);
     return signature.parameters.filter((parameter) => !used.has(parameter.name) && parameter.name.toLowerCase().startsWith(prefix));
   }
 
@@ -3269,10 +3532,10 @@ export class SemanticWorkspace {
       const oldNamespace = [...namespaces][0]!;
       if (oldNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
         const parsed = this.parser.parse(file.source);
-        const ranges = namespaceDeclarations(parsed.tree).filter((item) => item.name.toLowerCase() === oldNamespace.toLowerCase());
+        const edit = namespaceMoveEdit(file.source, parsed.tree, oldNamespace, move.newNamespace);
         parsed.tree.delete();
-        if (ranges.length !== 1) return { error: `Cannot move ${move.oldUri}: its namespace declaration is missing or ambiguous.` };
-        namespaceEdits.push({ uri: move.newUri, ...ranges[0]!, newText: move.newNamespace });
+        if (!edit) return { error: `Cannot move ${move.oldUri}: its namespace declaration is missing or ambiguous.` };
+        namespaceEdits.push({ uri: move.newUri, ...edit });
       }
       for (const declaration of owned) {
         const newFqcn = [move.newNamespace, declaration.name].filter(Boolean).join('\\'); const key = newFqcn.toLowerCase();
@@ -3331,10 +3594,10 @@ export class SemanticWorkspace {
       const currentNamespace = [...currentNamespaces][0]!;
       if (currentNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
         const parsed = this.parser.parse(moved.source);
-        const ranges = namespaceDeclarations(parsed.tree).filter((item) => item.name.toLowerCase() === currentNamespace.toLowerCase());
+        const edit = namespaceMoveEdit(moved.source, parsed.tree, currentNamespace, move.newNamespace);
         parsed.tree.delete();
-        if (ranges.length !== 1) return { error: `Cannot reconcile ${move.newUri}: its namespace declaration is missing or ambiguous.` };
-        edits.push({ uri: move.newUri, ...ranges[0]!, newText: move.newNamespace }); touchedSourceUris.add(move.newUri);
+        if (!edit) return { error: `Cannot reconcile ${move.newUri}: its namespace declaration is missing or ambiguous.` };
+        edits.push({ uri: move.newUri, ...edit }); touchedSourceUris.add(move.newUri);
       }
       for (const replacement of move.declarations) {
         declarations.push({ oldUri: move.newUri, newUri: move.newUri, ...replacement });
@@ -4285,6 +4548,29 @@ export class SemanticWorkspace {
     return type ? { variable: reference.variable, type: displayType(type), start: reference.start, end: reference.end } : undefined;
   }
 
+  directScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
+    const source = this.files.get(uri)?.source.slice(start, end).trim();
+    if (!source) return false;
+    if (source.toLowerCase() === 'null') return actualType === 'null';
+    const literal = this.directScalarLiteralType(source);
+    if (literal?.kind !== 'literal') return false;
+    const unsigned = source.replace(/^[+-]/, '');
+    const floatSyntax = !/^0[xXbBoO]/.test(unsigned) && /[.eE]/.test(unsigned);
+    const category = typeof literal.value === 'string' ? 'string'
+      : typeof literal.value === 'boolean' ? 'bool'
+        : floatSyntax || !Number.isInteger(literal.value) ? 'float' : 'int';
+    return actualType === category || actualType === displayType(literal);
+  }
+
+  directQuotedStringArgument(uri: string, start: number, end: number, actualType: string): boolean {
+    const file = this.files.get(uri); if (!file || actualType !== 'string') return false;
+    const raw = file.source.slice(start, end); const expression = raw.trim();
+    if (!expression.startsWith('"') || !expression.endsWith('"')) return false;
+    const expressionStart = start + raw.indexOf(expression);
+    const syntax = this.expressionSyntax(file, expressionStart, expressionStart + expression.length, 'encapsed_string');
+    return Boolean(syntax && !syntax.hasError);
+  }
+
   stableLocalScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
     const file = this.files.get(uri); if (!file) return false;
     const variable = file.source.slice(start, end).trim();
@@ -4316,7 +4602,8 @@ export class SemanticWorkspace {
           const category = right.text.trim().toLowerCase() === 'null' ? 'null'
             : literal?.kind === 'literal' ? typeof literal.value === 'string' ? 'string'
               : typeof literal.value === 'boolean' ? 'bool' : Number.isInteger(literal.value) ? 'int' : 'float' : undefined;
-          return Boolean(category && (actualType === category || literal && actualType === displayType(literal)));
+          return Boolean(category && (actualType === category || literal && actualType === displayType(literal)))
+            || this.directQuotedStringArgument(uri, right.startIndex, right.endIndex, actualType);
         }
         if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return false;
       }
@@ -5256,6 +5543,14 @@ export class SemanticWorkspace {
     return file.calls.flatMap((call): ArgumentOrderProblem[] => {
       const problems: ArgumentOrderProblem[] = []; const names = new Set<string>(); let sawNamed = false;
       for (const argument of call.arguments) {
+        if (argument.unpacked) {
+          const source = file.source.slice(argument.start, argument.end);
+          const literal = literalUnpackEntries(this.argumentTextWithoutComments(source).text);
+          if (literal?.invalidOrder) problems.push({ uri,
+            start: argument.start + literal.invalidOrder.start,
+            end: argument.start + literal.invalidOrder.end,
+            kind: 'positional-after-named', minimumPhpVersion: '8.1' });
+        }
         if (argument.name) {
           if (names.has(argument.name)) problems.push({ uri, start: argument.nameStart ?? argument.start, end: argument.nameEnd ?? argument.end, kind: 'duplicate-named', name: argument.name });
           names.add(argument.name); sawNamed = true;
@@ -7416,6 +7711,7 @@ export class SemanticWorkspace {
   private signaturesWithImplementation(uri: string, offset: number): SignatureInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
+    if (this.cursorInsideSourceTrivia(file, offset)) return [];
     const before = file.source.slice(0, offset);
     const completeAtCursor = file.source[offset] === ')';
     const namespace = this.namespaceAt(file, offset);
@@ -7476,9 +7772,27 @@ export class SemanticWorkspace {
       }));
     }
     const functionCall = /(?<![\\A-Za-z0-9_\x80-\xff])([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
-    if (!functionCall || ['if', 'while', 'for', 'switch', 'match', 'isset', 'empty'].includes(functionCall[1]!.toLowerCase())) return [];
+    if (!functionCall || ['if', 'while', 'for', 'switch', 'match', 'isset', 'empty'].includes(functionCall[1]!.toLowerCase())) {
+      const enclosing = file.calls.filter((call) => call.argumentsStart + 1 < offset && offset <= call.argumentsEnd)
+        .sort((left, right) => right.argumentsStart - left.argumentsStart)[0];
+      const opening = enclosing?.argumentsStart ?? this.unclosedCallOpening(file, offset);
+      if (opening === undefined || opening + 1 >= offset) return [];
+      const members = this.signatures(uri, opening + 1);
+      const argumentsText = file.source.slice(opening + 1, offset);
+      const compatible = this.methodCandidatesForArguments(members, argumentsText, completeAtCursor,
+        file, opening + 1);
+      return (compatible.length ? compatible : members).map((member) => ({
+        ...member, ...this.signatureContext(argumentsText, member.parameters),
+      }));
+    }
+    const openingOffset = offset - functionCall[2]!.length - 1;
+    const syntaxTree = this.trees.get(uri);
+    const parameterDeclaration = syntaxTree && deepestLocalSyntax(syntaxTree.rootNode,
+      openingOffset, openingOffset, (node) => node.type === 'formal_parameters' && node.startIndex === openingOffset);
+    const prefix = before.slice(0, before.length - functionCall[0].length);
+    if (parameterDeclaration || /\bfunction\s+&?\s*$/iu.test(prefix)) return [];
     const functionFqcn = this.resolveFunction(file, functionCall[1]!, namespace);
-    const members = [...this.files.values()].flatMap((candidate) => candidate.callables.flatMap((item): MemberInfo[] =>
+    const members = this.filesForReferenceKeys(`declaration:function:${functionFqcn.toLowerCase()}`).flatMap((candidate) => candidate.callables.flatMap((item): MemberInfo[] =>
       item.kind === 'function' && item.fqcn.toLowerCase() === functionFqcn?.toLowerCase() ? [{
         kind: 'function', uri: candidate.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
         parameters: item.parameters, returnType: item.returnType, nativeReturnType: item.nativeReturnType,
@@ -7489,6 +7803,78 @@ export class SemanticWorkspace {
       const member = this.withInferredGeneratorReturn(candidate);
       return { ...member, ...this.signatureContext(functionCall[2]!, member.parameters) };
     });
+  }
+
+  private cursorInsideSourceTrivia(file: SemanticFile, offset: number): boolean {
+    if (file.commentRanges.some((range) => range.start < offset && offset <= range.end)) return true;
+    const string = file.stringRanges.find((range) => range.start < offset && offset < range.end);
+    if (string) return !file.calls.some((call) => call.argumentsStart < string.start && string.end <= call.argumentsEnd);
+    const error = file.syntaxErrors.filter((range) => range.start < offset && offset <= range.end)
+      .sort((left, right) => left.start - right.start)[0];
+    if (!error) return false;
+    let state: 'code' | 'single' | 'double' | 'line' | 'block' = 'code'; let escaped = false; let stringStart = -1;
+    for (let index = error.start; index < offset; index++) {
+      const character = file.source[index]!; const next = file.source[index + 1];
+      if (state === 'line') { if (character === '\n' || character === '\r') state = 'code'; continue; }
+      if (state === 'block') {
+        if (character === '*' && next === '/') { state = 'code'; index++; }
+        continue;
+      }
+      if (state === 'single' || state === 'double') {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === (state === 'single' ? "'" : '"')) state = 'code';
+        continue;
+      }
+      if (character === "'" || character === '"') { state = character === "'" ? 'single' : 'double'; stringStart = index; }
+      else if (character === '#' && next !== '[' || character === '/' && next === '/') { state = 'line'; if (character === '/') index++; }
+      else if (character === '/' && next === '*') { state = 'block'; index++; }
+    }
+    if (state === 'single' || state === 'double') {
+      const opening = this.unclosedCallOpening(file, stringStart);
+      return opening === undefined || !this.signatures(file.uri, opening + 1).length;
+    }
+    return state !== 'code';
+  }
+
+  isLegacyHashCommentAt(uri: string, offset: number): boolean {
+    const file = this.files.get(uri);
+    if (!file) return false;
+    const lineStart = Math.max(file.source.lastIndexOf('\n', offset - 1), file.source.lastIndexOf('\r', offset - 1)) + 1;
+    for (let index = lineStart; index < offset; index++) {
+      if (file.source[index] !== '#') continue;
+      if (file.stringRanges.some((range) => range.start <= index && index < range.end)) continue;
+      const existingComment = file.commentRanges.find((range) => range.start <= index && index < range.end);
+      if (existingComment) {
+        if (offset <= existingComment.end) return true;
+        continue;
+      }
+      let closingTag = file.source.indexOf('?>', index + 1);
+      while (closingTag >= 0 && closingTag < offset
+        && file.stringRanges.some((range) => range.start <= closingTag && closingTag < range.end)) {
+        closingTag = file.source.indexOf('?>', closingTag + 2);
+      }
+      if (closingTag >= 0 && closingTag < offset) continue;
+      return true;
+    }
+    return false;
+  }
+
+  private unclosedCallOpening(file: SemanticFile, offset: number): number | undefined {
+    const trivia = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+    const openings: number[] = [];
+    let triviaIndex = 0;
+    for (let index = 0; index < offset; index++) {
+      while (triviaIndex < trivia.length && trivia[triviaIndex]!.end <= index) triviaIndex++;
+      const range = trivia[triviaIndex];
+      if (range && range.start <= index && index < range.end) {
+        index = Math.min(offset, range.end) - 1;
+        continue;
+      }
+      if (file.source[index] === '(') openings.push(index);
+      else if (file.source[index] === ')') openings.pop();
+    }
+    return openings.at(-1);
   }
 
   signature(uri: string, offset: number): SignatureInfo | undefined {
@@ -7830,10 +8216,11 @@ export class SemanticWorkspace {
 
   private methodCandidatesForArguments(candidates: MemberInfo[], argumentsText: string, complete: boolean,
     callerFile?: SemanticFile, argumentsStart?: number): MemberInfo[] {
-    if (argumentsText.trim()) candidates = candidates.map((candidate) => this.memberForArgumentCount(candidate, 1));
+    const cleaned = this.argumentTextWithoutComments(argumentsText).text;
+    if (cleaned.trim()) candidates = candidates.map((candidate) => this.memberForArgumentCount(candidate, 1));
     const segments: Array<{ text: string; start: number }> = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
-    for (let index = 0; index < argumentsText.length; index += 1) {
-      const character = argumentsText[index]!;
+    for (let index = 0; index < cleaned.length; index += 1) {
+      const character = cleaned[index]!;
       if (escaped) { escaped = false; continue; }
       if (quote) {
         if (character === '\\') escaped = true;
@@ -7843,9 +8230,9 @@ export class SemanticWorkspace {
       if (character === "'" || character === '"') { quote = character; continue; }
       if ('([{'.includes(character)) depth += 1;
       else if (')]}'.includes(character)) depth = Math.max(0, depth - 1);
-      else if (character === ',' && depth === 0) { segments.push({ text: argumentsText.slice(start, index), start }); start = index + 1; }
+      else if (character === ',' && depth === 0) { segments.push({ text: cleaned.slice(start, index), start }); start = index + 1; }
     }
-    if (argumentsText.trim() !== '' || segments.length) segments.push({ text: argumentsText.slice(start), start });
+    if (cleaned.trim() !== '' || segments.length) segments.push({ text: cleaned.slice(start), start });
     const names = segments.map((segment) => /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment.text)?.[1]);
     const supplied = segments.length;
     const shaped = candidates.filter((candidate) => {
@@ -7955,13 +8342,98 @@ export class SemanticWorkspace {
     return { ...member, templateArguments: { ...member.templateArguments, ...[...unique.values()][0]! } };
   }
 
-  private signatureContext(argumentsText: string, parameters: ParsedCallableDeclaration['parameters']): Pick<SignatureInfo, 'activeParameter' | 'namedArgumentPrefix' | 'usedNamedArguments'> {
-    const segments = argumentsText.split(','); const current = segments.at(-1) ?? '';
+  private argumentTextWithoutComments(argumentsText: string): { text: string; insideComment: boolean } {
+    const withoutComments = argumentsText.split('');
+    let comment: 'line' | 'block' | '' = ''; let quoted = ''; let quoteEscaped = false;
+    for (let index = 0; index < withoutComments.length; index += 1) {
+      const character = argumentsText[index]!;
+      if (comment === 'line') {
+        if (character === '\n' || character === '\r') comment = '';
+        else withoutComments[index] = ' ';
+        continue;
+      }
+      if (comment === 'block') {
+        if (character === '*' && argumentsText[index + 1] === '/') {
+          withoutComments[index++] = ' '; withoutComments[index] = ' '; comment = '';
+        } else if (character !== '\n' && character !== '\r') withoutComments[index] = ' ';
+        continue;
+      }
+      if (quoted) {
+        if (quoteEscaped) quoteEscaped = false;
+        else if (character === '\\') quoteEscaped = true;
+        else if (character === quoted) quoted = '';
+        continue;
+      }
+      if (character === "'" || character === '"') { quoted = character; continue; }
+      if (character === '#' && argumentsText[index + 1] !== '['
+        || character === '/' && (argumentsText[index + 1] === '/' || argumentsText[index + 1] === '*')) {
+        comment = character === '/' && argumentsText[index + 1] === '*' ? 'block' : 'line';
+        withoutComments[index] = ' ';
+        if (character === '/') withoutComments[++index] = ' ';
+      }
+    }
+    return { text: withoutComments.join(''), insideComment: comment !== '' };
+  }
+
+  private signatureContext(argumentsText: string, parameters: ParsedCallableDeclaration['parameters']): Pick<SignatureInfo, 'activeParameter' | 'namedArgumentPrefix' | 'usedNamedArguments' | 'usedParameterNames' | 'uncertainArgumentUnpack' | 'activeParameterUncertain'> {
+    const { text: cleaned, insideComment } = this.argumentTextWithoutComments(argumentsText);
+    const segments: string[] = []; let start = 0; let depth = 0; let quote = ''; let escaped = false;
+    for (let index = 0; index < cleaned.length; index += 1) {
+      const character = cleaned[index]!;
+      if (escaped) { escaped = false; continue; }
+      if (quote) {
+        if (character === '\\') escaped = true;
+        else if (character === quote) quote = '';
+        continue;
+      }
+      if (character === "'" || character === '"') { quote = character; continue; }
+      if ('([{'.includes(character)) depth += 1;
+      else if (')]}'.includes(character)) depth = Math.max(0, depth - 1);
+      else if (character === ',' && depth === 0) { segments.push(cleaned.slice(start, index)); start = index + 1; }
+    }
+    segments.push(cleaned.slice(start));
+    const current = segments.at(-1) ?? '';
     const currentName = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(current)?.[1];
-    const namedArgumentPrefix = /^\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(current)?.[1] ?? (/^\s*$/.test(current) ? '' : undefined);
-    const usedNamedArguments = [...argumentsText.matchAll(/(?:^|,)\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/g)].map((match) => match[1]!);
+    const unpacked = (segment: string): boolean => /^\s*\.\.\./u.test(segment);
+    const uncertainArgumentUnpack = segments.some((segment) => {
+      if (!unpacked(segment)) return false;
+      const literal = literalUnpackEntries(segment);
+      return !literal || Boolean(literal.invalidOrder);
+    });
+    const namedArgumentPrefix = insideComment ? undefined
+      : /^\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(current)?.[1] ?? (/^\s*$/.test(current) ? '' : undefined);
+    const usedNamedArguments = segments.flatMap((segment) => {
+      const name = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment)?.[1];
+      return name ? [name] : [];
+    });
     const namedIndex = currentName === undefined ? -1 : parameters.findIndex((parameter) => parameter.name === currentName);
-    return { activeParameter: namedIndex >= 0 ? namedIndex : Math.max(0, segments.length - 1), namedArgumentPrefix, usedNamedArguments };
+    const occupied = new Set<number>();
+    for (const segment of segments.slice(0, -1)) {
+      if (unpacked(segment)) {
+        const literal = literalUnpackEntries(segment);
+        for (const entry of literal?.invalidOrder ? [] : literal?.entries ?? []) {
+          const index = entry.name === undefined
+            ? parameters.findIndex((_, parameterIndex) => !occupied.has(parameterIndex))
+            : parameters.findIndex((parameter) => parameter.name === entry.name);
+          if (index >= 0) occupied.add(index);
+        }
+        continue;
+      }
+      const name = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:(?!:)/.exec(segment)?.[1];
+      const index = name === undefined
+        ? parameters.findIndex((_, parameterIndex) => !occupied.has(parameterIndex))
+        : parameters.findIndex((parameter) => parameter.name === name);
+      if (index >= 0) occupied.add(index);
+    }
+    const matchingPrefix = namedArgumentPrefix
+      ? parameters.flatMap((parameter, index) => !occupied.has(index) && parameter.name.startsWith(namedArgumentPrefix) ? [index] : [])
+      : [];
+    const nextUnused = parameters.findIndex((_, index) => !occupied.has(index));
+    const activeParameter = namedIndex >= 0 ? namedIndex : matchingPrefix.length === 1 ? matchingPrefix[0]!
+      : nextUnused >= 0 ? nextUnused : Math.max(0, parameters.length - 1);
+    return { activeParameter, namedArgumentPrefix, usedNamedArguments, uncertainArgumentUnpack,
+      activeParameterUncertain: uncertainArgumentUnpack && namedIndex < 0,
+      usedParameterNames: [...occupied].map((index) => parameters[index]!.name) };
   }
 
   private resolveFunction(file: SemanticFile, name: string, namespace: string): string {
@@ -10688,6 +11160,30 @@ export class SemanticWorkspace {
         const assignment = candidate.type === 'expression_statement' ? candidate.namedChildren[0] : undefined;
         const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
         const right = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('right') : undefined;
+        if (left?.type === 'list_literal' && right) {
+          const entries = left.namedChildren;
+          const entry = entries.findIndex((node) => node.type === 'variable_name' && node.text === variable);
+          if (entry >= 0) {
+            if (!/^\[\s*\$[\p{L}_][\p{L}\p{N}_]*(?:\s*,\s*\$[\p{L}_][\p{L}\p{N}_]*)*\s*\]$/u.test(left.text)
+              || entries.some((node) => node.type !== 'variable_name')
+              || this.containingScope(file, assignment!.startIndex)?.id !== scope.id) return undefined;
+            const collection = this.provenArgumentType(file, right.startIndex, right.endIndex);
+            const requiredElement = (type: PhpType): PhpType | undefined => {
+              if (type.kind === 'shape') {
+                const field = type.fields.find((candidate) => String(candidate.key) === String(entry));
+                return field && !field.optional ? field.type : undefined;
+              }
+              if (type.kind === 'union') {
+                const branches = type.types.map(requiredElement);
+                return branches.every((branch): branch is PhpType => Boolean(branch)) ? union(...branches) : undefined;
+              }
+              return undefined;
+            };
+            const element = collection && requiredElement(collection);
+            const result = withOptionalLoops(element ? applyUpdates(element) : undefined);
+            return !allowMixed && result?.kind === 'primitive' && result.name === 'mixed' ? undefined : result;
+          }
+        }
         if (left?.type === 'variable_name' && left.text === variable) {
           if (!right || this.containingScope(file, assignment!.startIndex)?.id !== scope.id) return undefined;
           if (right.text.trim() === variable) return undefined;
@@ -11868,7 +12364,7 @@ export class SemanticWorkspace {
   }
 
   private expressionSyntax(file: SemanticFile, start: number, end: number, type?: string): {
-    type: string;
+    type: string; hasError: boolean;
     namedChildren: Array<{ start: number; end: number }>;
     left?: { start: number; end: number };
     right?: { start: number; end: number };
@@ -11888,7 +12384,7 @@ export class SemanticWorkspace {
       const condition = syntax.childForFieldName('condition'); const body = syntax.childForFieldName('body');
       const alternative = syntax.childForFieldName('alternative');
       return {
-        type: syntax.type,
+        type: syntax.type, hasError: syntax.hasError,
         namedChildren: syntax.namedChildren.map((child) => ({ start: child.startIndex, end: child.endIndex })),
         ...(left ? { left: { start: left.startIndex, end: left.endIndex } } : {}),
         ...(right ? { right: { start: right.startIndex, end: right.endIndex } } : {}),
@@ -12051,6 +12547,10 @@ export class SemanticWorkspace {
       : resolvedConstant && this.constantLiteralType(resolvedConstant.file, resolvedConstant.constant);
     if (constantType) return constantType;
     if (/^'(?:\\.|[^'\\])*'$|^"(?:\\.|[^"\\])*"$/s.test(expression)) return primitive('string');
+    if (expression.startsWith('"') && expression.endsWith('"')) {
+      const syntax = this.expressionSyntax(file, expressionStart, expressionEnd, 'encapsed_string');
+      if (syntax && !syntax.hasError) return primitive('string');
+    }
     const closure = this.closureLiteralType(file, expressionStart, expressionEnd); if (closure) return closure;
     const arrayLiteral = this.flatArrayLiteral(expression); if (arrayLiteral) return arrayLiteral;
     const structuredList = this.structuredListLiteralType(file, expressionStart, expressionEnd); if (structuredList) return structuredList;

@@ -1,6 +1,98 @@
 # Open Source Pack 整理与 SoPHP 下一步
 
-日期：2026-09-25。依据本仓库的 Pack manifest、冻结 Profile 清单及已有隔离宿主报告；未修改业务项目，也未重新打包 VSIX。
+日期：2026-09-25。依据本仓库的 Pack manifest、冻结 Profile 清单及隔离宿主报告；未修改业务项目。后续已冻结并验证[同批三份私有 VSIX 候选 21977ee1](alpha-21977ee1-packaged-profile-2026-09-25.md)。
+
+> **2026-09-26 当前入口：**Pack 保持 Core、Symfony 和 8 个外部扩展共 10 项；原版 PHPUnit 测试视图不默认安装，项目 CLI 负责测试。Core 的 [C2 Attribute 箭头函数输入](c2-attributed-arrow-named-arguments-2026-09-26.md)已通过语义、真实 stdio、Core 与完整 Pack 源码宿主；[C3 新文件生成](c3-type-generation-staged-redo-2026-09-25.md)在本机 Linux 主路径已通过一次 Undo/Redo。下一步先针对独立 Composer 项目中可复现的错误或可见等待修 C1/C2，再审计 C3 高频编辑结果；冻结交付时才打包 Core、Symfony、Pack 三份 VSIX，进入 C4 的安装、WSL Remote、跨平台和持续使用验收。下文保留阶段记录，其中旧的“Redo 尚未恢复”与旧“下一步”以此处当前状态为准。
+
+同日的 [PHP 语法诊断归属对照](open-source-pack-syntax-diagnostic-ownership-2026-09-26.md)发现保存后的明确语法错误由 SoPHP 与内建 PHP 校验重复报告，而匿名缺失 token 目前只有内建校验报告。现保留 CLI 校验；Core 先补齐缺失 token 的受限实时诊断和合法输入反例，再决定 Pack 的去重默认值。
+
+后续已补齐受限的缺失分隔符实时诊断，并通过完整语言服务回归及 10 项 Pack 的未保存编辑宿主。[C1 可见补全阶段计时](c1-visible-suggestion-delay-attribution-2026-09-26.md)进一步将本次等待分到 Provider 前约 89 ms、Provider 本身约 4 ms、Provider 返回后到列表可见约 108 ms；服务端计算不足 1 ms。现阶段保持 Core 补全算法与 Pack 建议延迟默认值；出现新的可复现慢样本时，优先检查 VS Code 建议触发和列表呈现条件。
+
+[C3 标量拼接 echo 的 Extract Method](c3-extract-method-scalar-concatenation-2026-09-26.md)现通过语义与当前 10 项 Pack 源码宿主的取消、应用及一次 Undo/Redo；对象操作数仍拒绝。下一项 C3 工作继续以可证明的真实编辑场景和完整操作链为准。
+
+[C4 安装内容预检](c4-installed-content-extra-files-2026-09-26.md)现同时拒绝缺失、内容不同和额外残留的产品文件；现有 WSL Remote 安装目录与旧候选内容不一致，不能用其版本号代替 Alpha 安装验收。真实 WSL Remote 仍需隔离 Profile、扩展宿主归属和完整编辑链。
+
+## 当前决定：先形成可用组合，再补 SoPHP 缺口
+
+### 接下来的执行入口
+
+1. **以 10 项 Pack 为组合基线。** `extensionPack` 已列出 Core、Symfony 和 8 个外部成员，Recommended Pack 不再交付；项目 PHPUnit/Pest CLI 负责测试。私有候选 `21977ee1` 包含这套清单，并已通过隔离 Linux 安装宿主；公开 Marketplace Pack 仍是旧成员，不能作为安装入口。下一次交付前核对外部成员实际版本，尤其是已验证的 PHP Debug 1.40.1 与 Marketplace 快照 1.40.2 的差异。
+2. **先完成独立项目的日常开发闭环。** 在不涉及业务仓库的 Composer 项目中，核对实际 PHP、fixer、PHPUnit/Pest 和 Xdebug 路径，再连续执行 PHP 未保存编辑的补全、参数提示、Hover、Definition、References、诊断，以及 Symfony/Twig/YAML/XML、格式化、调试和 CLI 测试。记录操作结果、等待、重复 Provider、错误归属及撤销结果。[独立 Composer 工具组合宿主](open-source-pack-independent-tools-2026-09-25.md)已用 PHP 8.5、PHPUnit 12 和 PHP CS Fixer 3 通过源码 Profile；真实 WSL Remote 的扩展运行位置和长期使用仍需单独验收。
+3. **Core 从可见错误和等待开始。** 优先处理上述流程中可复现的错误结果、旧诊断、缺失导航或明显等待；[独立工具的完整 Pack 大项目复测](open-source-pack-independent-tools-2026-09-25.md)显示首轮等待也可能落在诊断就绪之前，因此按具体慢阶段定位，不预设 Hover Provider 有问题。继续核对取消、关闭、监视事件与未保存编辑交错后的结果。当前[双路径同时打开](c2-dual-path-open-2026-09-24.md)已通过真实 LSP 四项局部查询和隔离宿主四项局部查询，无须将它继续列为本机 C2 缺口；Remote 路径行为仍归 C4。每个新问题先用独立 Composer 夹具复现，再做定向源码和宿主回归。没有这类证据时，按高频完整任务补 C3 的预览、应用与撤销；[新文件生成](c3-type-generation-staged-redo-2026-09-25.md)在本机 Linux 源码宿主已通过一次 Undo/Redo，回退路径、Remote 与跨平台仍开放，不继续按零散 Extract Method 语法逐项扩张。
+4. **到交付点再冻结候选。** 只在有可交付的 Core 增量或组合成员变化时，同批生成 Core、Symfony、Pack 三份 VSIX，并在隔离 Profile 与真实 WSL Remote 检查安装内容、唯一 PHP 语言服务、工具路径和完整任务链。Windows/macOS、PHP 版本矩阵与持续使用是后续 C4/R4 门槛；已有 Linux 源码宿主结果不能代替它们。
+
+Open Source Pack 源码清单固定为 10 项：Core、Symfony、TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets、PHP DocBlocker。各能力的所有者见下表；项目 PHPUnit/Pest CLI 负责测试运行。Recommended Pack 停止新候选交付，原版 PHPUnit 测试视图因已复现的 Rename 旧路径错误不进入默认组合。Pack manifest 的 4 项定向测试本轮通过。
+
+| 用户工作 | 当前所有者 | 组合边界 |
+| --- | --- | --- |
+| 普通 PHP 编码、导航、诊断及安全重构 | SoPHP Core | 工作区只启用一个通用 PHP 语言服务；不再加第二个 PHP 语义扩展 |
+| Symfony 服务、路由、事件及 Controller 上下文 | SoPHP Symfony | 与 Core 使用同批候选，Twig 通用编辑仍归 TwigPlus |
+| Twig、YAML、XML | TwigPlus、Red Hat YAML、Red Hat XML | 三种语言分别由现有扩展负责 |
+| 注释、格式化、调试 | PHP DocBlocker、PHP CS Fixer、PHP Debug | SoPHP 消费 PHPDoc 类型；项目提供兼容 PHP 的 fixer 与 Xdebug 配置 |
+| 编辑约定、Apache 配置 | EditorConfig、Apache Conf Snippets | Apache 语法依赖由片段扩展声明，不重复列入 Pack |
+| 测试运行 | 项目 PHPUnit/Pest CLI | 原版测试视图保持可选评估，不自动安装 |
+
+**从这里开始执行：**
+
+1. **确认组合可开始使用。** 10 项源码 Profile 和[候选 21977ee1 的隔离 VSIX 宿主](alpha-21977ee1-packaged-profile-2026-09-25.md)已通过。下一步在独立 Composer 项目、真实 WSL Remote Profile 中核对各成员版本、扩展运行位置、PHP CLI/fixer/Xdebug/测试命令路径，并按 PHP 编码→Symfony/Twig/YAML/XML→格式化→调试→CLI 测试走一遍完整任务。[PHPDoc 的 PHP 7.2/8.5 组合证据](open-source-pack-10-docblocker-2026-09-25.md)可复用；公开 Marketplace 的旧 Pack 不能冒充这套清单。不为日常改动重复打包。
+2. **SoPHP Core 先修真实编辑缺口。** 保留 C1/C2 的独立 Composer 项目六项查询及未保存编辑门禁；出现可复现的错结果、旧诊断或明显等待时先修。[`if / elseif / else` 同一局部输出](c3-extract-method-if-else-output-2026-09-25.md)、[完整条件返回](c3-extract-method-conditional-return-2026-09-25.md)、[提前返回加最终返回](c3-extract-method-guard-return-2026-09-25.md)与[静态方法](c3-extract-method-static-2026-09-25.md)的 Extract Method 已完成语义与完整 Pack 源码宿主验证；下一步按实际高频场景扩展尚不能提取的控制流，并保持预览、取消、应用及一次 Undo/Redo 门禁。类型生成的一次 Redo 已在本机 Linux 的预先准备文件移动路径通过；回退路径、临时文件清理、Remote 与跨平台仍需验收。
+3. **进入 C4 安装与日常使用验收。** 到交付点冻结一次三份 VSIX 及八个外部成员的版本和摘要，在干净 Profile 验证唯一 Provider、实际安装位置、项目工具路径、WSL Remote、跨平台与持续编辑。源码宿主通过只说明可进入候选验证；这些安装门槛与 R4 最终体验目标仍开放。
+
+全程使用独立 Composer 项目做编辑器门禁，不修改 Winstar 代码。下文各阶段的旧“下一步”是历史记录，若与以上顺序不同，以本节为准。
+
+[双标量变量 echo 的 Extract Method](c3-extract-method-scalar-echo-pair-2026-09-25.md)已作为这条 C3 主线的首项落地：当前 10 项 Pack 源码宿主通过预览、应用及一次 Undo/Redo；含对象类型或其它表达式的多项 echo 继续拒绝。
+
+[末尾 return 与连续语句的 Extract Method](c3-extract-method-return-sequence-2026-09-25.md)随后通过同一完整 Pack 源码宿主：有类型和无类型返回均保留返回语义，预览、应用及一次 Undo/Redo 通过；返回引用和未知输入仍拒绝。
+
+[双输出 Extract Method](c3-extract-method-multiple-outputs-2026-09-25.md)现在能将独立局部赋值提取为数组返回，在调用点解构，并保留已证明的输出类型 Hover；完整 Pack 源码宿主的预览、取消、应用与一次 Undo/Redo 通过。跨分支与复杂输出仍开放。
+
+## 当前执行快照
+
+**Pack：**源码 manifest 与冻结 Profile 对应 10 个唯一 ID：SoPHP Core、SoPHP Symfony，以及 TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets、PHP DocBlocker。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 由它自身依赖安装。SoPHP 是唯一通用 PHP Language Server，PHP CS Fixer 是 PHP 默认格式化器；测试由项目 PHPUnit/Pest CLI 执行。Recommended Pack 和原版 PHPUnit 测试视图不进入新候选。Pack 只记录扩展 ID，安装时的外部版本必须在候选冻结时核对。[Marketplace 实包核对](open-source-pack-marketplace-audit-2026-09-25.md)确认公开 Open Source Pack 0.4.5 仍是旧组合，Symfony 也未公开上架，不能当作此清单的安装证据。
+
+本轮重新核对 Alpha 工具链：`prepare-alpha-candidate.mjs` 的 schema 3 产物数组固定为 Core、Symfony、Open Source Pack；预检保留 Recommended Pack 名称仅用于旧 schema 1/2 候选兼容及识别新 Profile 误装。Pack manifest 与 Alpha 预检的定向测试合计 11/11 通过。当前源码没有 Recommended Pack 包目录或新候选第四份构建入口。
+
+**已完成的源码门禁：**10 项 manifest/唯一所有者检查、隔离 Linux 源码宿主的 PHP/Symfony、Twig/YAML/XML、格式化、调试入口与项目 PHPUnit CLI 链；真实 vendor 的 200 轮标量和 30 轮联合类型反馈；49,000 文件冷 References 的有界等待样本；未保存编辑与 watcher 交错的真实 LSP 回归。各报告见下文。它们不证明当前已安装的旧 0.4.5 VSIX、WSL Remote、其它系统或长时间人工使用。
+
+[普通函数参数提示的候选索引](c2-function-signature-candidate-index-2026-09-25.md)已代替逐次扫描所有已解析文件；跨文件导入别名的未保存声明修改、同名隔离和真实 stdio 六项查询通过。该语义层优化未用编辑器端到端样本证明可见等待已消失。
+
+[命名实参后的签名高亮与补全](c2-named-signature-next-unused-2026-09-25.md)现跟随第一个未填写参数或唯一匹配的参数名前缀，且补全不再重荐已通过位置实参填写的参数；语义、真实 stdio、Core C2 宿主及当前 10 项 Open Source Pack 的完整源码 Profile 均通过。安装候选与 Remote 的真实操作仍待 C4。
+
+[同批私有 Alpha 候选 65f683c8](alpha-65f683c8-packaged-profile-2026-09-25.md)现已从干净独立 worktree 一次生成 Core、Symfony、Pack 三份 VSIX，摘要、包内清单、独立 Composer 预检与隔离 Linux 安装宿主均通过。此项把近期源码改动带入可安装候选；真实 WSL Remote、跨平台、持续使用和 C3 生成文件 Redo 仍开放，不据此判定 C4 或 R4 完成。
+
+[当前 WSL Remote 只读清单](alpha-65f683c8-wsl-remote-inventory-2026-09-25.md)显示已安装的三个 SoPHP 0.4.5 均不是本私有候选，PHP Debug 为 1.40.2 而候选固定 1.40.1。预检现在可在指定实际扩展目录后逐文件比较候选与安装内容；当前正在使用的 WSL 环境未被更换，不能直接用于候选 C4 验收。
+
+[C3 Inline Variable 返回表达式最左侧使用](c3-inline-leftmost-return-2026-09-25.md)已通过语义与隔离 C3 源码宿主：紧邻赋值可内联到 `return $sum * 3` 并用括号保留优先级；右操作数等可能改变执行顺序的情形仍拒绝。生成新文件的标准 Redo 与 C4 Remote 验收仍开放。
+
+[C2 函数声明参数提示](c2-declaration-signature-context-2026-09-25.md)修复了在 `function name(` 内错误弹出调用签名的结果；真实调用仍返回提示，语义、stdio 和隔离 C2 源码宿主通过。当前私有 Alpha 候选在此修复之前生成，不能当作安装验收。
+
+[C3 Inline Variable 普通赋值右侧](c3-inline-assignment-rhs-2026-09-25.md)现支持在安全条件下把紧邻赋值内联到 `$result = $sum * 3`，并拒绝可能重排求值的属性目标。语义与隔离 C3 源码宿主通过；C3 新文件 Redo 和 C4 Remote 仍需验收。
+
+生成新文件的 [Redo 版本对照](c3-type-generation-undo-redo-probe-2026-09-24.md)已补 VS Code 1.138.0：与 1.139.0 相同，Undo 删除文件、三次 Redo 均未恢复。此现象不能靠单纯回退一个 VS Code 次版本解决；生成命令继续保留现有安全创建方式，C3 Redo 门槛仍开放。
+
+[C2 动态展开后的命名参数反馈](c2-dynamic-unpack-named-arguments-2026-09-25.md)现避免将 `...$args` 伪装成单个已填位置参数；不确定时不提供可能错误的参数名建议或浮层，完整命名参数和空展开继续工作。语义、stdio 和隔离 C2 源码宿主通过，私有候选和 Remote 仍待新构建验收。
+
+[C2 字面量数组展开后的参数反馈](c2-literal-unpack-named-arguments-2026-09-25.md)现在能按 `...['local', 80]` 与 `...['port' => 80]` 的已知元素占用参数，继续给出剩余参数提示和补全；动态键、显式数字键、嵌套展开及命名键后的非法位置元素仍保持未知。语义、stdio、隔离 C2 宿主及当前 10 项 Pack 的完整源码宿主通过；安装候选与 Remote 未据此判定完成。
+
+[C2 同版本重开后的旧查询防护](c2-same-version-reopen-queries-2026-09-25.md)现以真实 LSP 对 Completion、Hover、Signature Help 和 Definition 逐项验证：暂停旧查询、关闭、以相同版本号重开为另一类型，再释放旧查询；四项旧结果均被丢弃，新结果都归属重开的文档。编辑器标签页关闭与 LSP `didClose` 的关系仍需在实际宿主单独验收。
+
+[C2 字面量展开参数顺序诊断](c2-literal-unpack-order-diagnostic-2026-09-25.md)现能对 PHP 8.1+ 的 `...['port' => 80, 'local']` 精确标出非法位置元素；未保存地修正顺序后诊断撤回。语义、8.0/8.1 真实 stdio 版本门禁和隔离 C2 源码宿主通过；当前私有候选与 Remote 尚未包含本修复。
+
+[C3 全局命名空间 Safe Move](c3-global-namespace-safe-move-2026-09-25.md)现覆盖空 PSR-4 前缀下从项目根到子目录的移动及反向 namespace 编辑；独立语义、真实 stdio 和 VS Code 1.139.0 C3 源码宿主的预览、应用、一次 Undo/Redo 通过。已冻结候选与 Remote 仍待验收。
+
+[Apache 配置片段的完整 Pack 宿主验证](open-source-pack-apache-snippet-host-2026-09-25.md)确认 `.htaccess` 由 Apache 语法依赖识别，`a-force-https` 在当前 10 项源码 Profile 中作为 Snippet 出现，实际插入文本包含预期重写规则与 HSTS 头，并通过一次 Undo/Redo；同一宿主的 C2 查询与诊断编辑链也通过。已安装候选和 WSL Remote 仍需单独验收。
+
+**SoPHP 接下来按此顺序执行：**
+
+[C1 可见补全对照](c1-visible-suggestion-delay-attribution-2026-09-26.md)显示，将 VS Code 建议延迟从默认 10 ms 临时改为 0 ms，或改由 Workbench 输入接口键入，六样本可见等待均无明显改善；这两组短样本不足以定位完整的 UI 长尾。当前不改 Pack 默认值，继续按下列顺序处理有确切结果与等待证据的缺口。
+
+[C2 带 Attribute 的箭头函数实参](c2-attributed-arrow-named-arguments-2026-09-26.md)后丢失外层参数提示与命名补全的错误已修复，语义红绿、真实 stdio、隔离 Core 与当前 10 项 Pack 源码宿主通过。它尚未进入已冻结私有候选；保持 Remote 安装门禁。
+
+1. **C2 日常编辑反馈，保留 C1 导航门槛。** 在独立 Composer 项目和当前 10 项源码 Profile 下，先复核未保存输入的补全、参数提示、Hover、定义与诊断，特别是关闭、取消、文件 watcher 交错后的结果版本；再用同一会话核对 References。先修可复现的旧结果、错误诊断或明显等待；每项保留实际输入、预期与定向回归。C1 的本机 49,000 文件首次 References 五个独立源码宿主均正确，等待中位 1325 ms、五样本 P95 1496 ms；另有 100 轮温态查询结果稳定，命令 P95 为 177 ms。长会话、安装候选与 Remote 门槛仍开放。
+2. **C3 编辑闭环。** 对高频 Import、Rename、Safe Move、Extract、Inline、生成命令按预览、取消、应用失败及 Undo/Redo 收口具体缺口。[生成文件的一次 Redo](c3-type-generation-staged-redo-2026-09-25.md)已在本机 Linux 的独立与完整 Pack 源码宿主通过；移动不可用时的原创建路径、安装候选和其它平台还没有同等证据。[缺失父目录的撤销复核](c3-type-generation-undo-redo-probe-2026-09-24.md)确认 Undo 会留下 VS Code 自动创建的空目录，不用删除事件盲目清理用户目录。
+3. **C4 候选安装与 R4 验收。** 到交付冻结点才生成同批 Core、Symfony、Pack 三份 VSIX，固定八个外部成员的版本与摘要；在干净 Profile 验证唯一 Provider、实际安装位置、项目 PHP/格式化/调试/测试路径，再做 WSL Remote、跨平台和持续使用。用户在另一个窗口的反馈可并行进入，不阻塞前两项自动验证。
+
+以下是此前按时间累积的调查与阶段决定；如有“下一步”表述与上述快照不同，以本节为准。
 
 **最新组合决定：**[原版 PHPUnit 的 C3 复核](open-source-pack-c3-original-recheck-2026-09-25.md)再次在已配置测试目录的完整组合中失败。源码 Pack 已将 `recca0120.vscode-phpunit` 移为可选项，当前 manifest 为 **10 项：Core、Symfony、8 个外部扩展**；测试默认使用项目 PHPUnit/Pest CLI。下文关于“11 项默认 Pack”的阶段记录仅代表此前的组合与验证，不能描述当前 manifest。10 项源码组合的完整 C3 宿主已通过（`/tmp/sophp-c3-pack-10-configured-20260925.log`，退出码 0）；日常组合宿主也通过 PHP 格式化、Twig/YAML/XML、调试及项目 PHPUnit CLI（`/tmp/sophp-pack-10-source-cli-config-20260925.log`，退出码 0）。两者均为隔离 Linux 源码宿主证据。
 
@@ -132,7 +224,7 @@ JSON、HTML、CSS、JavaScript 和 TypeScript 继续使用 VS Code 内建语言�
 1. **收口 C3 高频编辑链。** 先核对 Import、Rename 与 Safe Move 在文件变动、预览取消和应用失败后的结果与一次 Undo/Redo；现有生成文件资源编辑探针已覆盖常见交互但一次 Redo 仍未恢复，只有出现新的可观察撤销栈假设时才继续探针，不能把生成流程标为完成。已配置测试目录的 PHPUnit 测试文件 Rename 有[一次完整 Pack 通过记录](c3-generation-redo-phpunit-rename-2026-09-25.md)，但后续完整组合也复现过原版扩展的旧路径错误。已定位的外部异常按上节单独处理。
    [测试类目标目录与预览](c3-test-generation-target-2026-09-25.md)已显示最终路径，并在多个 Composer 测试目录时要求选择；新增文件事件与配置过的 PHPUnit Rename 交错仍需单独验证外部扩展稳定性。
    [生成目标的文件系统类型判定](c3-generation-target-file-type-2026-09-25.md)已修正带点的 Composer 映射根目录，并在独立 C3 宿主验证；生成文件的一次 Redo 门槛仍开放。
-   [类型生成命令结果](c3-generation-command-outcome-2026-09-25.md)现在只在文件已创建后返回 `true`，取消、过期或创建失败返回 `false`；创建后打开编辑器失败会明确提示“文件已创建”。独立与当前 10 项 Pack 的 C3 源码宿主通过，打开失败异常注入及安装候选仍待核对，Redo 门槛不因此关闭。
+   [类型生成命令结果](c3-generation-command-outcome-2026-09-25.md)现在只在文件已创建后返回 `true`，取消、过期或创建失败返回 `false`；创建后打开编辑器失败会明确提示“文件已创建”。独立与当前 10 项 Pack 的 C3 源码宿主通过，打开失败异常也已在独立宿主注入并验证文件仍存在；人工通知呈现及安装候选仍待核对，Redo 门槛不因此关闭。
    [PHP 类型名与命名空间保留词校验](c3-generation-php-identifiers-2026-09-25.md)已按目标版本拒绝确定无效的生成输入，并在独立 C3 宿主验证；它不改变文件创建的 Redo 门槛。
    [预览期间目标 PHP 版本变化防护](c3-generation-version-preview-2026-09-25.md)已拒绝旧版本下预览、新版本下应用的无效生成；仍需解决资源 Redo。
    [Composer 映射变化防护](c3-generation-composer-snapshot-2026-09-25.md)在独立 Core/Symfony 宿主通过；同次完整 Pack 宿主再现 PHPUnit 扩展的间歇性旧路径读取异常，因此这次完整组合门禁失败。

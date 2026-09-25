@@ -4,11 +4,59 @@
 
 ## 当前执行顺序
 
-1. **先收口 C1 冷导航和 C2 日常编码反馈。** [当前 10 项 Pack 的真实 vendor 组合链](reports/open-source-pack-10-real-vendor-c2-2026-09-25.md)已完成 200 轮标量及 30 轮联合形状未保存切换；[49,000 文件冷 References](reports/c1-cold-candidate-scan-2026-09-25.md)已保持结果正确，但首次命令约 2.8–3.0 秒，主要耗在候选遍历及文件元数据核对。下一步先为冷 References/Implementation 建立可证明完整的候选快照或等效增量核对，保持无 watcher 新文件、取消和文件变化时的正确性，再复测 10k/49k 冷热等待与内存；随后核对取消、关闭和 watcher 与未保存输入重叠时的 C2 结果。优先修可复现的旧结果、错误诊断或明显等待；数小时会话、跨平台和 Remote 不由短时本机测试代替。
-2. **继续 C3 高频编辑的剩余阻断项。** Import、生成类型、Safe Move、Extract、Inline 和[私有参数移除](reports/c3-private-signature-preview-2026-09-24.md)已有预览和旧版本保护；当前 10 项 Pack 的 [C3 源码宿主](reports/open-source-pack-next-core-2026-09-25.md)已通过组合操作。Rename 已补上[关闭预览即拒绝应用](reports/c3-rename-preview-close-2026-09-24.md)和多组预览固定；[Extract、Safe Move 与 Optimize Imports](reports/c3-preview-close-all-2026-09-25.md)也会在预览被关闭时取消应用。[跨接口参数家族的 References 与 Rename](reports/c3-parameter-family-references-2026-09-25.md)、[新增参数](reports/c3-add-method-family-parameter-2026-09-25.md)、[删除参数](reports/c3-remove-method-family-parameter-2026-09-25.md)和[参数重排](reports/c3-reorder-method-family-parameters-2026-09-25.md)均已有宿主预览、取消、应用及一次 Undo/Redo 证据。Import 应用失败、Rename 和 Safe Move 预览前的磁盘并发变化也已有受控回归。生成新文件的 Redo 仍是独立阻断项，出现新的资源撤销栈线索时再调查。原版 PHPUnit 测试视图的文件 Rename 异常按 Pack 使用边界单独跟踪。
+2026-09-25 最新进展：[类型生成的一次 Undo/Redo](reports/c3-type-generation-staged-redo-2026-09-25.md)已在 VS Code 1.139.0 Linux 的独立与当前 10 项 Pack 源码宿主通过，包括原本不存在的目标父目录。下方“生成文件 Redo 未恢复”的段落记录此前直接 `createFile` 路径的历史状态；当前回退路径、跨平台、真实 WSL Remote、安装候选、临时文件清理和 Undo 后空目录仍需验收。C1/C2 的可见错误与等待、C3 其余高频编辑链和 C4 整体门槛继续按本节顺序推进。
+
+2026-09-25 更新：先按 [Open Source Pack 整理与 SoPHP 起点](reports/open-source-pack-next-core-2026-09-25.md)使用固定的 10 项组合，明确各能力所有者、项目工具路径和独立 Composer 项目门禁。[私有候选 21977ee1](reports/alpha-21977ee1-packaged-profile-2026-09-25.md)已完成同批三份 VSIX 的隔离安装检查；真实 WSL Remote 仍待验。[C3 的 `if / elseif / else` 同一局部输出](reports/c3-extract-method-if-else-output-2026-09-25.md)、[完整条件返回](reports/c3-extract-method-conditional-return-2026-09-25.md)、[提前返回加最终返回](reports/c3-extract-method-guard-return-2026-09-25.md)和[静态方法提取](reports/c3-extract-method-static-2026-09-25.md)已通过完整 Pack 源码宿主；后三项尚未进入该候选。C1/C2 有可复现的用户可见错误时优先修复。新文件生成 Redo 只有取得新的资源撤销栈线索才重开调查。日常增量不重复打包 VSIX，真实安装和 Remote 属于 C4。
+
+这条 C3 主线现已完成[双标量变量 echo 的 Extract Method](reports/c3-extract-method-scalar-echo-pair-2026-09-25.md)源码组合宿主验收。下一项继续覆盖常用且可证明输入、输出关系的语句提取；对象转换、引用与副作用顺序未证明时保持拒绝。
+
+[末尾 return 与连续语句提取](reports/c3-extract-method-return-sequence-2026-09-25.md)现也通过有类型和无类型两种返回的完整 Pack 宿主门禁。下一项 C3 工作应转向复杂控制流或多输出的明确用户场景，并继续解决生成新文件的资源 Redo；只在具备可验证语义与编辑器操作链时扩大支持范围。
+
+[独立局部变量的双输出提取](reports/c3-extract-method-multiple-outputs-2026-09-25.md)已通过完整 Pack 源码宿主，并补齐解构后的必有数组位置类型反馈。下一步继续覆盖跨分支或部分输出的可证明场景；资源 Redo 等待上游公开路由证据，不能用重复焦点探针替代修复。
+
+同一提取流程现能在一个输出类型未知时保留其它已知位置的 Hover；三个独立输出的顺序和类型在语义层通过。跨分支控制流仍是下一项 C3 设计与验证目标，不把它归入已完成范围。
+
+1. **继续 C3 高频编辑的剩余阻断项。** Import、生成类型、Safe Move、Extract、Inline 和[私有参数移除](reports/c3-private-signature-preview-2026-09-24.md)已有预览和旧版本保护；当前 10 项 Pack 的 [C3 源码宿主](reports/open-source-pack-next-core-2026-09-25.md)已通过组合操作。下一项实现扩大 Extract Method 的可证明场景，并验证真实预览、应用及一次 Undo/Redo。Rename 已补上[关闭预览即拒绝应用](reports/c3-rename-preview-close-2026-09-24.md)和多组预览固定；[Extract、Safe Move 与 Optimize Imports](reports/c3-preview-close-all-2026-09-25.md)也会在预览被关闭时取消应用。[跨接口参数家族的 References 与 Rename](reports/c3-parameter-family-references-2026-09-25.md)、[新增参数](reports/c3-add-method-family-parameter-2026-09-25.md)、[删除参数](reports/c3-remove-method-family-parameter-2026-09-25.md)和[参数重排](reports/c3-reorder-method-family-parameters-2026-09-25.md)均已有宿主预览、取消、应用及一次 Undo/Redo 证据。Import 应用失败、Rename 和 Safe Move 预览前的磁盘并发变化也已有受控回归。生成新文件的 Redo 仍是独立阻断项，出现新的资源撤销栈线索时再调查。原版 PHPUnit 测试视图的文件 Rename 异常按 Pack 使用边界单独跟踪。
+2. **保留 C2 日常编码反馈和 C1 导航门槛。** [当前 10 项 Pack 的真实 vendor 组合链](reports/open-source-pack-10-real-vendor-c2-2026-09-25.md)已完成 200 轮标量及 30 轮联合形状未保存切换；[49,000 文件 References](reports/c1-cold-candidate-scan-2026-09-25.md)已保留逐文件元数据检查，五个独立 Linux 源码宿主首次查询均返回两个正确位置，命令等待中位 1325 ms、五样本 P95 1496 ms；100 轮温态结果稳定，命令 P95 为 177 ms。独立 Composer 项目和当前 Pack 源码 Profile 中继续检查取消、关闭和 watcher 与未保存输入重叠时的补全、参数提示、Hover、定义、诊断与 References；发现可复现的错误或明显等待时优先修复。数小时会话、跨平台和 Remote 不由短时本机测试代替。
 3. **候选冻结时做 C4 组合门禁。** 固定 Core、Symfony、Pack 三份 VSIX 与外部扩展版本，再查唯一能力所有者、安装位置、PHP CLI/调试/测试路径和回退。日常 Core 增量只做定向构建及测试，不重复打包三份 VSIX。
 
 2026-09-25 进度：C3 的 Import 应用失败、Rename 和 Safe Move 的预览前磁盘变动及未保存关联文件背后写盘已在独立宿主做受控回归。C3 新文件创建的一次 Redo 仍是单列阻断项，待找到可验证的 VS Code 资源撤销路径后继续；C4 仅在冻结新候选时做完整安装门禁。
+
+[新文件生成 Redo 的 1.138.0 对照](reports/c3-type-generation-undo-redo-probe-2026-09-24.md)与 1.139.0 一样未恢复已撤销文件，不能通过回退一个 VS Code 次版本关闭该门槛。公开 `isRefactoring` 标记只影响自动保存，下一步仍需公开资源撤销栈路径证据；先推进其它可验证的 C3 编辑闭环。
+
+同日 C1 元数据工作线程的两次 49,000 文件冷查询和 25 轮真实 vendor 六项编辑链已通过；[C2 未保存声明与 watcher 交错](reports/c2-open-buffer-watcher-burst-2026-09-25.md)的真实 LSP 回归及日常隔离宿主也通过。接下来按具体可复现的用户结果缺口推进 C2；C3 新文件 Redo 和 C4 Remote/长会话门槛仍开放。
+
+后续 [49,000 文件 C1 复测](reports/c1-cold-candidate-scan-2026-09-25.md)补齐了五个独立冷进程，并在另一个进程核对 100 次温态 References：位置始终正确，温态命令中位 161 ms、P95 177 ms；服务器内新鲜度检查约占 111 ms 中位等待。保留无 watcher 新文件的下一次查询完整性门槛，优化须先建立等价证明。
+
+C3 的 [Inline Variable 注释间隔](reports/c3-inline-comment-gap-2026-09-25.md)现可保留 `//` 与块注释并完成预览、应用及一次 Undo/Redo；含可执行中间语句的情况继续拒绝。生成文件 Redo 仍未解决。
+
+[Inline Variable 带括号整值使用](reports/c3-inline-parenthesized-value-2026-09-25.md)现支持 `return (($value));` 和赋值右侧 `($value)`；嵌入复杂表达式仍拒绝。语义定向回归与隔离 VS Code C3 预览、取消、应用及一次 Undo/Redo 已通过；新文件 Redo 仍开放。
+
+[Inline Variable 返回表达式最左侧使用](reports/c3-inline-leftmost-return-2026-09-25.md)现可把紧邻赋值内联到 `return $value ?? fallback()` 或 `return $sum * 3`，并加括号保留原表达式优先级；右操作数或中间有可执行语句仍拒绝。语义包与隔离 C3 源码宿主通过，安装候选和新文件资源 Redo 仍开放。
+
+[Inline Variable 普通赋值右侧](reports/c3-inline-assignment-rhs-2026-09-25.md)现沿用受限最左侧规则，支持 `$result = $sum * 3`；属性或下标赋值目标会改变原表达式的求值顺序，现明确拒绝。语义与隔离 C3 宿主通过，已安装候选和新文件资源 Redo 仍开放。
+
+C2 的[按需跨文件标量参数诊断](reports/c2-ondemand-double-quoted-literal-2026-09-25.md)已由真实 stdio 红绿回归修复并复用语义层的类型规则：`"bad"`、`"$dynamic"` 与 `3.5` 作为 `int` 参数，在严格类型下报告可证明的类型错误；完整插值字符串及其稳定局部赋值已有独立语法树证明及 10 项 Pack 宿主未保存编辑证据。拼接或不完整字符串仍保持保守。
+
+C2 的[按需跨文件未知命名参数与缺参](reports/c2-ondemand-external-named-arguments-2026-09-25.md)现复用唯一 PSR-4 声明和动态派发证明：final 类上的错误名称与缺少必填参数报告诊断，改正名称或增加默认值后消失；方法可覆写且子类契约可能不同则保持保守。真实 stdio 正反例及隔离 VS Code Core 源码宿主的未保存往返已通过。
+
+C2 的[嵌套调用后外层命名参数补全](reports/c2-nested-named-completion-2026-09-25.md)现只按顶层实参统计外层已用名称，内层命名参数不会屏蔽外层候选；外层右括号尚未输入、实参之间含注释时也能返回外层签名与候选。`@method` 多签名的候选筛选同样忽略注释中的逗号与括号。真实 LSP、隔离 VS Code Core 源码宿主的 Completion/Signature Help 以及完整语义包 332 项回归通过。已安装候选的可见建议列表仍待验收。
+
+[C2 字符串与注释中的伪参数提示](reports/c2-signature-trivia-2026-09-25.md)已被抑制，同时保留真实调用内的字符串实参提示；语义包 333 项、真实 stdio 和隔离 VS Code Core 源码宿主正反例通过。字符串插值表达式及安装候选仍待对应验收。
+
+[C2 函数声明中的伪参数提示](reports/c2-declaration-signature-context-2026-09-25.md)已修正：完整与未完成的 `function name(` 参数声明不再被当作调用，默认值里的真实调用及声明外的调用仍显示正确提示。语义、真实 stdio 和隔离 VS Code C2 源码宿主通过；安装候选与 Remote 仍待验收。
+
+[C2 动态实参展开后的参数提示](reports/c2-dynamic-unpack-named-arguments-2026-09-25.md)不再把 `...$args` 当成一个确定位置参数；未知展开时压制可能误导的命名补全和浮层，明确的 `tls:` 仍有准确高亮，空展开仍正常补全。[已完成的字面量数组映射](reports/c2-literal-unpack-named-arguments-2026-09-25.md)还会按已知位置元素和简单字符串键计算占用参数；动态键、显式数字键和非法顺序保持未知。语义、stdio、隔离 C2 宿主及当前 10 项 Pack 的源码宿主通过；安装候选与 Remote 继续开放。
+
+[字面量展开的参数顺序诊断](reports/c2-literal-unpack-order-diagnostic-2026-09-25.md)已让 PHP 8.1+ 的命名键后位置元素产生精确 Error，并随未保存修正撤回；不确定或未完成展开仍保持保守。语义、真实 stdio 版本门禁与隔离 C2 宿主通过，安装候选和 Remote 仍开放。
+
+[编辑器关闭后磁盘更新与重开](reports/c2-editor-close-disk-reopen-2026-09-25.md)已在独立 Composer 项目的 VS Code 1.139.0 Core 和当前 10 项 Pack 源码宿主贯通补全、定义、Hover、参数提示、Implementation、References，以及严格类型诊断的出现与撤回。关闭标签页后宿主仍保留文档，因此这是实际编辑操作的结果证据，不等同于 `didClose/didOpen` 时序证据。下一步继续使用真实操作暴露的缺口推进 C1/C2，安装候选与 Remote 仍归 C4。
+
+[C3 单项 echo 的 Extract Variable](reports/c3-extract-single-echo-crlf-2026-09-25.md)现可从函数块里的完整 `echo` 表达式提取变量，生成声明沿用源文件 CRLF/LF；多项 echo 保持拒绝。独立语义测试与完整 C3 源码宿主的预览、应用和一次 Undo/Redo 已通过。其它表达式位置与新文件资源 Redo 仍依各自支持范围验收。
+
+[C3 单项 echo 的 Inline Variable](reports/c3-inline-single-echo-2026-09-25.md)也已支持紧邻赋值后的唯一单项 `echo $value;`，注释原位保留，语义测试和完整 C3 源码宿主的一次 Undo/Redo 通过。多项 echo 与可能改变求值顺序的用法继续拒绝。
+
+[C3 单条 echo 的 Extract Method](reports/c3-extract-method-single-echo-2026-09-25.md)已支持类方法中把 `echo $message;` 提成接收已证明按值输入的私有方法；多表达式与跨多语句混合仍拒绝。语义正反例及完整 C3 源码宿主的预览、应用、一次 Undo/Redo 通过，多输出和控制流提取继续开放。
 
 Open Source Pack 的当前源码清单为 Core、Symfony 和 8 项外部扩展；原版 PHPUnit/Pest 测试视图因文件 Rename 的旧路径错误已移出默认清单，测试由项目 CLI 执行。公开 Marketplace 页面与已冻结 0.4.5 候选仍对应旧组合；实际安装状态见[日常开发组合方案](daily-use-assembly.md)。以上顺序从真实用户操作出发，R4 的最终验收目标保持不变。
 
@@ -97,7 +145,7 @@ C2 的[本轮 PHPDoc 类型反馈](reports/c2-generated-phpdoc-flow-2026-09-24.m
 
 [C3 导入命令版本保护](reports/c3-import-command-version-2026-09-24.md)已在 Core 的 `Import Class`、`Resolve Pasted Imports` 和 `Optimize Imports` 异步链路加入文档关闭/版本检查；完整 Pack 源码宿主的正常应用及 Undo/Redo 已通过。[旧计划宿主门禁](reports/c3-import-stale-plan-host-2026-09-24.md)进一步在三条命令的服务器计划返回后插入文档编辑，均拒绝应用旧结果。[请求处理中编辑门禁](reports/c3-import-inflight-editor-2026-09-24.md)现让服务器保留三种已计算响应，等待收到新缓冲区版本后再释放，宿主均拒绝旧编辑。[Safe Move 预览与应用快照](reports/c3-safe-move-preview-snapshot-2026-09-24.md)现使用同一份计划，并在确认后复核参与文件；受控宿主已证明中途编辑会拒绝移动。[可查看的预览与确认](reports/c3-preview-review-flow-2026-09-24.md)已让差异标签保持打开，取消及预览后应用在宿主通过。下一步在真实编辑器中验收非模态通知的点击、取消及 Remote 可见性，并继续覆盖其它 C3 重构命令；不能仅凭这些子集宣称 C3 关闭。
 
-[局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
+[局部字面量变量来源](reports/c2-ondemand-local-literal-source-2026-09-24.md)现纳入同一按需跨文件参数诊断证明链；隔离编辑器宿主已验证未保存编辑后的诊断出现、撤销和恢复，函数改写保持保守。[双路径局部查询](reports/c2-dual-path-open-2026-09-24.md)现让非事实所有者标签页继续读取自己的未保存内容，同时保持跨文件项目事实归属；隔离宿主已验证项目补全与局部 Hover、补全、Definition、Signature Help 分别使用正确的版本。[规模基准](reports/c2-alias-query-scale-2026-09-24.md)发现并消除了重复解析项目源码及空移除误触发重建造成的等待；1,024 文件、20 轮隔离 stdio 的所有者编辑后 Hover P95 约 1.7 ms，隔离宿主 10 轮本机样本 P95 为 5 ms，两边均核对项目所有者与局部结果。下一步检查完整 Pack 与 WSL Remote 的连续编辑，并在真实长期使用中测量等待分布与取消响应；条件赋值和跨文件返回传播须分别建立可靠来源证明后才能扩展。
 
 1. 在 SoPHP 仓库建立独立 Composer 示例项目和可重复的编辑序列：打开 PHP 文件 → 成员补全 → 参数提示 → Hover → Definition → Implementation → References → 修改未保存内容后重复查询。记录候选、落点、等待时间和错误反馈，作为 C1 基线。先用真实 stdio 自动化完成可重复部分，不等待人工试用。
 2. 为这条序列补齐 F04 编号输入，覆盖有类型接收者、文件顶层变量、跨文件类、同名无关符号、Trait/继承、namespace/use、未完成输入及未保存版本；断言精确候选、位置和失效后的新结果。现有 F04-REF 夹具直接复用，不重复造一套。

@@ -136,6 +136,21 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     middleware: {
+      provideCompletionItem: async (document, position, completionContext, token, next) => {
+        if (process.env.PHP_COMPANION_TEST_COMPLETION_TIMING !== '1')
+          return next(document, position, completionContext, token);
+        const started = performance.now();
+        const startedEpochMs = performance.timeOrigin + started;
+        try { return await next(document, position, completionContext, token); }
+        finally {
+          const finished = performance.now();
+          console.log(`SoPHP client Completion timing: ${JSON.stringify({
+            uri: document.uri.toString(), version: document.version, line: position.line, character: position.character,
+            startedEpochMs: Math.round(startedEpochMs), finishedEpochMs: Math.round(performance.timeOrigin + finished),
+            elapsedMs: Math.round(finished - started), cancelled: token.isCancellationRequested,
+          })}`);
+        }
+      },
       provideHover: async (document, position, token, next) => {
         if (process.env.PHP_COMPANION_TEST_HOVER_TIMING !== '1') return next(document, position, token);
         const started = performance.now();

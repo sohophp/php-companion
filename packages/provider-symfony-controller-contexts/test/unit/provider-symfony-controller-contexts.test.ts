@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -33,5 +33,20 @@ describe('Symfony controller context provider', () => {
     }] });
     expect(facts.sourceUris).toEqual([uri]);
     expect(facts.contexts).toMatchObject([{ template: 'new.html.twig', sources: [{ location: { uri, snapshotVersion: 'open:1' } }] }]);
+  });
+
+  it('rejects an open snapshot whose symlink resolves outside the project', async () => {
+    const external = await mkdtemp(join(tmpdir(), 'symfony-controller-outside-'));
+    try {
+      const outsidePath = join(external, 'OutsideController.php');
+      await writeFile(outsidePath, '<?php class OutsideController {}');
+      const path = join(root, 'LinkedController.php');
+      await symlink(outsidePath, path);
+      const uri = pathToFileURL(path).toString();
+      await expect(collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents: [{
+        uri, languageId: 'php', snapshotVersion: 'open:1',
+        source: "<?php class LinkedController { function show() { return $this->render('outside.html.twig'); } }",
+      }] })).rejects.toThrow('outside the project root');
+    } finally { await rm(external, { recursive: true, force: true }); }
   });
 });

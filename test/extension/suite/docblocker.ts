@@ -9,10 +9,12 @@ export async function run(): Promise<void> {
   assert.ok(core, 'SoPHP Core did not load.');
   assert.ok(docblocker, 'The isolated profile did not load PHP DocBlocker.');
   for (const id of ['sohophp.php-companion-symfony', 'sohophp.php-companion-open-source-pack', 'sohophp.twig-plus',
-    'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug', 'recca0120.vscode-phpunit',
+    'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',
     'junstyle.php-cs-fixer', 'EditorConfig.EditorConfig', 'eiminsasete.apacheconf-snippets']) {
     assert.ok(vscode.extensions.getExtension(id), `The isolated Pack profile is missing ${id}.`);
   }
+  assert.ok(!vscode.extensions.getExtension('recca0120.vscode-phpunit'),
+    'The default Open Source Pack loaded the excluded PHPUnit test provider.');
   const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack');
   assert.ok((pack?.packageJSON.extensionPack as string[] | undefined)?.includes('neilbrayfield.php-docblocker'),
     'The source Pack manifest did not include PHP DocBlocker.');

@@ -821,6 +821,12 @@ export class PhpSyntaxParser {
       if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
       if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
+      if (hasSyntaxErrors) for (const child of node.children) {
+        if (child.isMissing && !child.isNamed && [')', ']', '}'].includes(child.type)
+          && child.startIndex < source.length) {
+          errors.push({ start: child.startIndex, end: child.startIndex + 1 });
+        }
+      }
       if (nodeType === 'variable_name' && nodeParent?.type !== 'scoped_property_access_expression') {
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
@@ -1105,7 +1111,8 @@ export class PhpSyntaxParser {
               // tree-sitter-php 0.24 parses PHP 8.5 final promotion as a recoverable
               // ERROR node. Preserve the semantic modifier until the grammar exposes
               // it as final_modifier, while still accepting that future shape.
-              final: parameter.namedChildren.some((child) => child.type === 'final_modifier') || /\bfinal\b/i.test(parameter.text),
+              final: parameter.namedChildren.some((child) => child.type === 'final_modifier'
+                || child.type === 'ERROR' && child.text.toLowerCase() === 'final'),
               abstract: false,
               promoted: true,
               declarationStart: parameter.startIndex,

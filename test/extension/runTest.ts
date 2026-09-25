@@ -20,9 +20,16 @@ async function main(): Promise<void> {
   if (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 60_000) {
     throw new Error('PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE must be an integer from 0 to 60,000.');
   }
+  const coldWarmRounds = Number(process.env.PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS ?? 0);
+  if (!Number.isSafeInteger(coldWarmRounds) || coldWarmRounds < 0 || coldWarmRounds > 200) {
+    throw new Error('PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS must be an integer from 0 to 200.');
+  }
   const withIntelephense = process.env.PHP_COMPANION_TEST_WITH_INTELEPHENSE === '1';
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
+  const c1OpenSourceProfile = c1Only && process.env.PHP_COMPANION_TEST_C1_OPEN_SOURCE_PROFILE === '1';
   const c2Only = process.env.PHP_COMPANION_TEST_C2_ONLY === '1';
+  const c2OpenSourceProfile = c2Only && process.env.PHP_COMPANION_TEST_C2_OPEN_SOURCE_PROFILE === '1';
+  const vscodeExecutablePath = process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE;
   const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
   const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
   const c3PhpunitPairProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE === '1';
@@ -32,8 +39,8 @@ async function main(): Promise<void> {
   if (docblockerOnly && (!docblockerExtensionsDir || !docblockerUserDataDir)) {
     throw new Error('DocBlocker profile test requires isolated extensions and user data directories.');
   }
-  if ((c3OpenSourceProfile || c3PhpunitPairProfile) && !process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR) {
-    throw new Error('C3 Open Source Profile test requires PHP_COMPANION_TEST_EXTENSIONS_DIR.');
+  if ((c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile) && !process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR) {
+    throw new Error('Open Source Profile test requires PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   }
   if (realVendorNoise && (!c1Only || process.env.PHP_COMPANION_TEST_C1_REAL_VENDOR !== '1')) {
     throw new Error('Real vendor noise needs C1 mode and PHP_COMPANION_TEST_C1_REAL_VENDOR=1.');
@@ -53,7 +60,8 @@ async function main(): Promise<void> {
     await writeFile(join(fixture, 'tests', 'C3ConfiguredTest.php'),
       '<?php\nnamespace App\\Tests;\nfinal class C3ConfiguredTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
   }
-  const coreOnly = c1Only || c2Only || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
+  const coreOnly = (c1Only && !c1OpenSourceProfile) || (c2Only && !c2OpenSourceProfile)
+    || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const c1DebugPort = c1Only
     ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' ? String(await availableDebugPort()) : undefined)
@@ -137,7 +145,7 @@ async function main(): Promise<void> {
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
 
-  if (c3OpenSourceProfile || c3PhpunitPairProfile) {
+  if (c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile) {
     const userSettingsDirectory = join(fixture, 'profile-user-data', 'User');
     await mkdir(userSettingsDirectory, { recursive: true });
     await writeFile(join(userSettingsDirectory, 'settings.json'), JSON.stringify({
@@ -175,16 +183,19 @@ async function main(): Promise<void> {
       ...(realVendorFixture ? [{ path: realVendorFixture, name: 'real-vendor' }] : []),
     ] }));
     await runTests({
+      ...(vscodeExecutablePath ? { vscodeExecutablePath: resolve(vscodeExecutablePath) } : {}),
       extensionDevelopmentPath: coreOnly ? resolve(__dirname, '..')
         : [resolve(__dirname, '..'), resolve(__dirname, '..', 'packages', 'php-companion-symfony'),
-          ...(docblockerOnly || c3OpenSourceProfile ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
+          ...(docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile
+            ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
-      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c3OpenSourceProfile || c3PhpunitPairProfile ? [] : ['--disable-extensions']),
+      launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile
+        || c3OpenSourceProfile || c3PhpunitPairProfile ? [] : ['--disable-extensions']),
         ...(docblockerOnly ? [
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
           `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
         ] : []),
-        ...(c3OpenSourceProfile || c3PhpunitPairProfile ? [
+        ...(c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile ? [
           `--extensions-dir=${resolve(process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR!)}`,
           `--user-data-dir=${join(fixture, 'profile-user-data')}`,
         ] : []),
@@ -194,17 +205,26 @@ async function main(): Promise<void> {
         VSCODE_ESM_ENTRYPOINT: undefined,
         PHP_COMPANION_TEST_WITH_INTELEPHENSE: withIntelephense ? '1' : undefined,
         PHP_COMPANION_TEST_CORE_ONLY: coreOnly ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_OPEN_SOURCE_PROFILE: c1OpenSourceProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_C2_OPEN_SOURCE_PROFILE: c2OpenSourceProfile ? '1' : undefined,
         PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE: c3OpenSourceProfile ? '1' : undefined,
         PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE: c3PhpunitPairProfile ? '1' : undefined,
+        PHP_COMPANION_TEST_TEST_PROVIDER_ID: c3PhpunitPairProfile || c3OpenSourceProfile ? process.env.PHP_COMPANION_TEST_TEST_PROVIDER_ID : undefined,
+        PHP_COMPANION_TEST_TEST_PROVIDER_PHP: c3PhpunitPairProfile || c3OpenSourceProfile ? process.env.PHP_COMPANION_TEST_TEST_PROVIDER_PHP : undefined,
+        PHP_COMPANION_TEST_TEST_PROVIDER_PHPUNIT: c3PhpunitPairProfile || c3OpenSourceProfile ? process.env.PHP_COMPANION_TEST_TEST_PROVIDER_PHPUNIT : undefined,
         PHP_COMPANION_TEST_C3_PHPUNIT_CHURN: c3OpenSourceProfile || c3PhpunitPairProfile ? process.env.PHP_COMPANION_TEST_C3_PHPUNIT_CHURN : undefined,
         PHP_COMPANION_TEST_C3_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_REDO_PROBE : undefined,
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
+        PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE: c1Only ? process.env.PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE : undefined,
+        PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE: c1Only ? process.env.PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
         PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE: realVendorNoise ? String(realVendorNoise) : undefined,
         PHP_COMPANION_TEST_C1_COLD_QUERY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COLD_QUERY : undefined,
+        PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS: c1Only ? String(coldWarmRounds) : undefined,
+        PHP_COMPANION_TEST_C1_CHAIN_ROUNDS: c1Only ? process.env.PHP_COMPANION_TEST_C1_CHAIN_ROUNDS : undefined,
         PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
         PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION: docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : undefined,
       },
