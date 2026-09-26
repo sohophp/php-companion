@@ -713,6 +713,35 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         message: diagnosticMessage(language, 'syntax'),
       }];
     });
+    if (isSyntaxAvailable(targetVersion, '8.5')) {
+      const nodes = [parsed.tree.rootNode];
+      while (nodes.length > 0) {
+        const node = nodes.pop()!;
+        if (node.type === 'parenthesized_expression' && /^\(\s*void\s*\)$/iu.test(node.text)) {
+          let next = node.endIndex;
+          while (next < source.length) {
+            if (/\s/u.test(source[next]!)) { next += 1; continue; }
+            if (source.startsWith('/*', next)) {
+              const end = source.indexOf('*/', next + 2);
+              if (end < 0) break;
+              next = end + 2;
+              continue;
+            }
+            if (source.startsWith('//', next) || source[next] === '#') {
+              const end = source.indexOf('\n', next);
+              next = end < 0 ? source.length : end + 1;
+              continue;
+            }
+            break;
+          }
+          if (next === source.length || /[,;)}\]]/u.test(source[next]!) || source.startsWith('?>', next)) {
+            diagnostics.push({ range: toRange(document, { start: node.startIndex, end: node.endIndex }),
+              severity: DiagnosticSeverity.Error, code: 'php.syntax', source: 'SoPHP', message: diagnosticMessage(language, 'syntax') });
+          }
+        }
+        nodes.push(...node.namedChildren);
+      }
+    }
     const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion);
     const hasLegacyNativeName = versionFeatures.some((feature) => feature.feature === 'mixed type' || feature.feature === 'never type');
     const namespaceRegions = hasLegacyNativeName ? parsed.tree.rootNode.namedChildren

@@ -1,5 +1,7 @@
 # Open Source Pack 执行清单与 SoPHP 起点
 
+2026-09-27 最新执行入口：[Pack 当前状态与 SoPHP 下一步](open-source-pack-current-priority-2026-09-27.md)。下文是此前阶段记录，候选以最新报告为准。
+
 日期：2026-09-26。本页按当前可用组合整理下一步。只改 SoPHP 仓库；没有修改业务项目。
 
 ## 组合已经定下
