@@ -382,6 +382,36 @@ export async function run(): Promise<void> {
   assert.ok(await vscode.workspace.applyEdit(middleWordEdit));
   assert.strictEqual(middleWordDocument.getText(), middleWordSource.replace('$custOldTail;', '$customerName;'),
     'Accepting PHP variable completion left the old variable suffix in the document.');
+  const interpolationSource = `<?php function c1Interpolation(string $username): void {
+  echo "Hello {$userOldTail}";
+  echo 'Hello $user';
+  echo "Hello \\$user";
+}`;
+  const interpolationUri = vscode.Uri.joinPath(folder, 'C1Interpolation.php');
+  await vscode.workspace.fs.writeFile(interpolationUri, Buffer.from(interpolationSource));
+  const interpolationDocument = await vscode.workspace.openTextDocument(interpolationUri);
+  await vscode.window.showTextDocument(interpolationDocument);
+  const interpolationStart = interpolationSource.indexOf('$userOldTail');
+  const interpolationSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    interpolationUri, interpolationDocument.positionAt(interpolationStart + '$user'.length));
+  const interpolationItem = interpolationSuggestions?.items.find((item) => item.label === '$username');
+  assert.ok(interpolationItem, 'PHP interpolated string did not suggest the visible parameter.');
+  const interpolationRange = interpolationItem.range instanceof vscode.Range ? interpolationItem.range : interpolationItem.range?.replacing;
+  assert.ok(interpolationRange, 'PHP interpolated variable completion did not provide a replacement range.');
+  assert.strictEqual(interpolationDocument.offsetAt(interpolationRange.start), interpolationStart);
+  assert.strictEqual(interpolationDocument.offsetAt(interpolationRange.end), interpolationStart + '$userOldTail'.length);
+  for (const literal of ["'Hello $user'", 'Hello \\$user']) {
+    const offset = interpolationSource.indexOf('$user', interpolationSource.indexOf(literal)) + '$user'.length;
+    const suggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      interpolationUri, interpolationDocument.positionAt(offset));
+    assert.ok(!suggestions?.items.some((item) => item.label === '$username'),
+      `PHP suggested a variable inside ${literal}.`);
+  }
+  const interpolationEdit = new vscode.WorkspaceEdit();
+  interpolationEdit.replace(interpolationUri, interpolationRange, '$username');
+  assert.ok(await vscode.workspace.applyEdit(interpolationEdit));
+  assert.ok(interpolationDocument.getText().includes('"Hello {$username}"'),
+    'Accepting interpolated variable completion damaged the surrounding braces.');
   const scopedWordSource = '<?php function c1First(): void { $otherFunctionSecret = 1; } function c1Second(): void { $otherFunctionSec; }';
   const scopedWordUri = vscode.Uri.joinPath(folder, 'C1ScopedWord.php');
   await vscode.workspace.fs.writeFile(scopedWordUri, Buffer.from(scopedWordSource));

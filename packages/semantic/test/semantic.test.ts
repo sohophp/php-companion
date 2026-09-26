@@ -86,6 +86,44 @@ function run(string $username, bool $flag): void {
       expect(project.completeVariables(uri, staticOffset)).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('completes scoped variables in PHP interpolated strings without suggesting literal or escaped dollars', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///InterpolatedVariables.php';
+    const source = `<?php
+function unrelated(): void { $secretName = 'x'; }
+function greet(string $username): void {
+  echo "Hello $user";
+  echo "Hello {$user}";
+  echo "Hello {$userOldTail}";
+  echo <<<TXT
+Hello $user
+TXT;
+  echo 'Hello $user';
+  echo "Hello \\$user";
+  echo <<<'TXT'
+Hello $user
+TXT;
+  // $user
+}`;
+    try {
+      project.update(uri, source);
+      const offsets = [source.indexOf('Hello $user'), source.indexOf('Hello {$user'), source.indexOf('Hello $user', source.indexOf('<<<TXT'))]
+        .map((at) => source.indexOf('$user', at) + '$user'.length);
+      for (const at of offsets) {
+        expect(project.completeVariables(uri, at)?.names).toContain('$username');
+        expect(project.completeVariables(uri, at)?.names).not.toContain('$secretName');
+      }
+      const middleStart = source.indexOf('$userOldTail');
+      expect(project.completeVariables(uri, middleStart + '$user'.length)).toMatchObject({
+        start: middleStart, end: middleStart + '$userOldTail'.length,
+        names: expect.arrayContaining(['$username']),
+      });
+      for (const marker of ["'Hello $user'", 'Hello \\$user', "<<<'TXT'", '// $user']) {
+        const at = source.indexOf('$user', source.indexOf(marker)) + '$user'.length;
+        expect(project.completeVariables(uri, at), marker).toBeUndefined();
+      }
+    } finally { project.dispose(); }
+  });
   it('indexes recovered legacy class declarations for PHP type navigation', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LegacyNames.php';

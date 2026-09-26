@@ -3431,7 +3431,17 @@ export class SemanticWorkspace {
     let before = start - 1;
     while (before >= 0 && /\s/u.test(file.source[before]!)) before -= 1;
     if (file.source[before] === ':' && file.source[before - 1] === ':') return undefined;
-    if ([...file.commentRanges, ...file.stringRanges].some((range) => start >= range.start && start < range.end)) return undefined;
+    if (file.commentRanges.some((range) => start >= range.start && start < range.end)) return undefined;
+    if (file.stringRanges.some((range) => start >= range.start && start < range.end)) {
+      const retainedTree = this.trees.get(uri);
+      const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+      try {
+        const variable = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(start, start + 1);
+        let parent = variable?.parent;
+        while (parent && !['encapsed_string', 'heredoc_body', 'shell_command_expression'].includes(parent.type)) parent = parent.parent;
+        if (variable?.type !== 'variable_name' || variable.startIndex !== start || variable.endIndex < end || !parent) return undefined;
+      } finally { temporaryTree?.delete(); }
+    }
     const scope = this.containingScope(file, offset); if (!scope) return undefined;
     const names = new Set<string>();
     const add = (name: string): void => { if (/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name)) names.add(name); };
