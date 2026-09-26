@@ -1,6 +1,6 @@
 # VS Code issue draft: Redo does not restore a file created by an extension WorkspaceEdit
 
-Local draft, not submitted. Reproduced in isolated VS Code 1.138.0 and 1.139.0 Linux x64 Extension Hosts using an independent temporary Composer workspace; no user workspace was changed.
+Local draft, not submitted. Reproduced in isolated VS Code 1.138.0, 1.139.0 and 1.139.1 Linux x64 Extension Hosts using an independent temporary Composer workspace; no user workspace was changed. The 1.139.1 probe also forced SoPHP's three staged moves to fail before running its final `WorkspaceEdit.createFile` path.
 
 ## Reproduction
 
@@ -19,11 +19,13 @@ Run the standard `undo` command once, then `redo` once. Observe the created file
 
 Expected: Undo removes the newly created file; Redo restores the same file and contents. Actual: Undo removes it, but Redo leaves it missing. In both tested versions, two additional Redo attempts also leave it missing. Invoking Redo with the URI, focusing the Explorer first, and injecting Ctrl+Shift+Z or Ctrl+Y in the isolated Linux host did not restore the file. A single edit that creates an empty file and inserts content produces the same result. The minimal file edit itself reports successful application.
 
-Logs: `/tmp/sophp-c3-resource-probe-20260924.log`, `/tmp/sophp-c3-redo-vscode-1.138.0-20260925.log`, `/tmp/sophp-c3-multi-redo-20260925.log`, `/tmp/sophp-c3-explorer-first-probe.log`, `/tmp/sophp-c3-create-insert-redo-20260925.log`.
+Logs: `/tmp/sophp-c3-resource-probe-20260924.log`, `/tmp/sophp-c3-redo-vscode-1.138.0-20260925.log`, `/tmp/sophp-c3-multi-redo-20260925.log`, `/tmp/sophp-c3-explorer-first-probe.log`, `/tmp/sophp-c3-create-insert-redo-20260925.log`, `/tmp/sophp-c3-final-create-redo-probe-after-destination-stage-20260927.log`.
 
 ## Source route to inspect
 
 In 1.139.0, `ExtHostBulkEdits.applyWorkspaceEdit` passes no group ID, `MainThreadBulkEdits` passes no `undoRedoSource`, and `BulkEditService` forwards that empty source to `BulkFileEdits`. The file undo element implements both `undo()` and `redo()`. The Explorer command implementation only handles its own `UNDO_REDO_SOURCE` while the Explorer has focus. Please clarify which public command route should redo a resource edit created through `vscode.workspace.applyEdit` after Undo deletes and closes the new file's editor, or whether this is an editor issue.
+
+The [public VS Code API](https://code.visualstudio.com/api/references/vscode-api) documents `workspace.applyEdit(edit, metadata)` for text and resource edits, plus editor undo stops for `TextEditor.edit`. It does not expose the internal file edit undo source to extensions. SoPHP's staged `renameFile` routes restore the generated file on standard Redo in the same host; the final `createFile` route does not.
 
 - [ExtHostBulkEdits](https://github.com/microsoft/vscode/blob/1.139.0/src/vs/workbench/api/common/extHostBulkEdits.ts)
 - [MainThreadBulkEdits](https://github.com/microsoft/vscode/blob/1.139.0/src/vs/workbench/api/browser/mainThreadBulkEdits.ts)

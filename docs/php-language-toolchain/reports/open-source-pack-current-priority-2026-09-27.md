@@ -42,4 +42,6 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 [C2 缓冲区关闭往返](c2-phpdoc-buffer-close-reference-2026-09-27.md)又确认默认 `onDemand` 下跨行 PHPDoc 的 References 与 Definition 跟随未保存内容，关闭后 References 恢复磁盘事实；单独运行时 `experimental` 模式的即时关闭查询尚无同样结论。继续检查更高频的普通 PHP 输入和跨能力反馈。
 
+[完整语言服务器回归](c2-post-phpdoc-full-lsp-regression-2026-09-27.md)在最近 PHPDoc 解析改动后通过 21 个测试文件、383 项用例（1 项跳过），包括已有的普通 PHP 未保存成员与多能力反馈链。当前未复现新的普通 PHP 错误；下一项优先处理 C3 明确失败的文件创建 Redo 路径，或用户实际操作反馈中影响更大的 C1/C2 问题。
+
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。

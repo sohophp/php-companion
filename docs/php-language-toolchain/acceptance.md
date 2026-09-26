@@ -2,7 +2,7 @@
 
 状态：R1 的 S01–S08 已在 Linux / WSL 通过，形成首发候选；R4 最终验收仍未完成。证据见 [R1 验收审计](reports/r1-acceptance-linux-wsl-2026-09-06.md)。
 
-最新私有候选、产物摘要及 Winstar/CoreRepo 真实项目复核见 [P9 当前候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)；F01–F14 的逐项证据强度与缺口见 [P9 最终验收审计](reports/p9-acceptance-audit-2026-09-23.md)。公开发布与 R4 长期门槛仍按下文分别判定。
+2026-09-27 当前私有候选与产物摘要见 [0.4.7 后续候选记录](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)；[Open Source Pack 与 Core 起点](reports/open-source-pack-current-priority-2026-09-27.md)记录当前组合和开发顺序。此前的 [P9 候选报告](reports/p9-alpha-candidate-current-2026-09-23.md)及 [P9 最终验收审计](reports/p9-acceptance-audit-2026-09-23.md)是阶段证据。公开发布与 R4 长期门槛仍按下文分别判定。
 
 可运行输入的编号与覆盖进度见[验收 fixtures](acceptance-fixtures.md)；首组 F08 Extract Interface 已包含正例、合法反例和未完成输入，其余映射仍开放。
 
