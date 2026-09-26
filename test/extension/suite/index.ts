@@ -1130,6 +1130,12 @@ export async function run(): Promise<void> {
     source: servicesDocument.getText(), position: servicesDocument.positionAt(parameterReferenceOffset),
   });
   assert.ok(preparedParameterRename, 'Symfony parameter Rename returned no preparation for its exact YAML placeholder');
+  const plannedParameterRename = await api.requestLanguageServer!('phpCompanion/symfonyParameterRename', {
+    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+    source: servicesDocument.getText(), position: servicesDocument.positionAt(parameterReferenceOffset),
+    newName: 'app.renamed-transport',
+  });
+  assert.ok(plannedParameterRename, 'Symfony parameter Rename returned no edit plan for its exact YAML placeholder');
   const parameterRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset), 'app.renamed-transport',
   );
