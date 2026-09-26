@@ -67,6 +67,21 @@ describe('Symfony controller context provider', () => {
       variables: [{ name: 'user', type: { kind: 'named', name: 'User' }, sources: [{ uri, snapshotVersion: 'open:5' }] }] }]);
   });
 
+  it('withdraws shadowed compact context and restores explicit global compact after an unsaved edit', async () => {
+    const path = join(root, 'ShadowedCompactController.php'); const uri = pathToFileURL(path).toString();
+    const source = (call: string): string => `<?php namespace App; use function Vendor\\compact; class ShadowedCompactController {
+      public function show(User $user): void { $this->render('shadowed.html.twig', ${call}('user')); }
+    }`;
+    const facts = async (call: string, version: number): ReturnType<typeof collectSymfonyControllerContexts> => collectSymfonyControllerContexts(root, parser, {
+      projectTypes: [], snapshotVersion: 'project', documents: [{ uri, languageId: 'php', snapshotVersion: `open:${version}`,
+        source: source(call) }],
+    });
+    expect((await facts('compact', 1)).contexts).toEqual([]);
+    expect((await facts('\\compact', 2)).contexts).toMatchObject([{ template: 'shadowed.html.twig', complete: true,
+      variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' }, sources: [{ snapshotVersion: 'open:2' }] }] }]);
+    expect((await facts('compact', 3)).contexts).toEqual([]);
+  });
+
   it('publishes a directly assigned local compact variable from an unsaved controller', async () => {
     const path = join(root, 'LocalCompactController.php'); const uri = pathToFileURL(path).toString();
     const facts = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents: [{

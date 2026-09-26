@@ -303,8 +303,14 @@ function directlyAssignedContext(body: NodeLike | undefined, use: NodeLike, cont
 }
 
 function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpType>, namespace: string, imports: ParsedImport[], document: SymfonyControllerDocument,
-  compactValueLocations = new Map<string, InteropLocation>()): { complete: boolean; variables: ControllerContextVariable[] } | undefined {
-  if (node.type === 'function_call_expression' && ['compact', '\\compact'].includes(node.namedChildren[0]?.text ?? '')) {
+  localFunctions: ReadonlySet<string>, compactValueLocations = new Map<string, InteropLocation>()): { complete: boolean; variables: ControllerContextVariable[] } | undefined {
+  const callName = node.type === 'function_call_expression' ? node.namedChildren[0]?.text.toLowerCase() : undefined;
+  const importedCompact = imports.find((item) => item.kind === 'function' && item.namespace.toLowerCase() === namespace.toLowerCase()
+    && item.alias.toLowerCase() === 'compact');
+  const builtinCompact = callName === '\\compact' || callName === 'compact'
+    && (importedCompact ? importedCompact.fqcn.replace(/^\\/, '').toLowerCase() === 'compact'
+      : !localFunctions.has(`${namespace ? `${namespace}\\` : ''}compact`.toLowerCase()));
+  if (node.type === 'function_call_expression' && builtinCompact) {
     const args = node.namedChildren[1];
     if (args?.type !== 'arguments') return undefined;
     const result: ControllerContextVariable[] = []; let complete = true;
@@ -366,6 +372,7 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
   const parsed = parser.parse(document.source, undefined, document.uri);
   try {
     const contexts: ControllerTemplateContext[] = [];
+    const localFunctions = new Set(parsed.callables.filter((item) => item.kind === 'function').map((item) => item.fqcn.toLowerCase()));
     const visit = (node: NodeLike, methodBody?: NodeLike): void => {
       if (node.type === 'method_declaration') {
         const callable = parsed.callables.find((item) => item.kind === 'method' && item.declarationStart === node.startIndex
@@ -393,7 +400,7 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
             for (const parameter of callable.parameters) variables.set(`$${parameter.name}`, serializedType(parameter.nativeType, namespace, parsed.imports));
             const compactValues = precedingLocalAssignments(body, returned, variables, namespace, parsed.imports, document);
             const context = contextVariables(directlyAssignedContext(body, returned, returned),
-              variables, namespace, parsed.imports, document, compactValues);
+              variables, namespace, parsed.imports, document, localFunctions, compactValues);
             if (context) contexts.push({ template, complete: context.complete, variables: context.variables,
               sources: [{ symbol: callable.fqcn, location: { uri: document.uri, start: callable.start, end: callable.end,
                 line: document.source.slice(0, callable.start).split('\n').length - 1, snapshotVersion: document.snapshotVersion } }] });
@@ -415,7 +422,7 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
             const parameters = arguments_?.parameters;
             const context = parameters
               ? contextVariables(directlyAssignedContext(methodBody, node, parameters),
-              variables, namespace, parsed.imports, document, compactValues)
+              variables, namespace, parsed.imports, document, localFunctions, compactValues)
               : { complete: true, variables: [] };
             if (context) contexts.push({
               template, complete: context.complete, variables: context.variables,

@@ -373,6 +373,43 @@ class AttributeOnlyController {
       .every((location) => location.uri.toString() !== uri.toString()),
     'TwigPlus kept the unsaved Controller source after revert and close', 30_000, 100);
   }
+  const shadowedUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'ShadowedCompactController.php');
+  const shadowedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'shadowed-compact.html.twig');
+  const globalTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'global-compact.html.twig');
+  const shadowedSource = `<?php namespace App\\Controller;
+use function Vendor\\compact;
+class ShadowedCompactController {
+  public function show(\\App\\Service\\UserService $user): void {
+    $this->render('templates/shadowed-compact.html.twig', compact('user'));
+    $this->render('templates/global-compact.html.twig', \\compact('user'));
+  }
+}\n`;
+  await vscode.workspace.fs.writeFile(shadowedUri, Buffer.from(shadowedSource));
+  await vscode.workspace.fs.writeFile(shadowedTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(globalTemplateUri, Buffer.from('{{ user }}\n'));
+  const shadowedDocument = await vscode.workspace.openTextDocument(shadowedUri);
+  await vscode.window.showTextDocument(shadowedDocument);
+  await waitForAsync(async () => {
+    const result = await contexts();
+    const global = result.find(({ template }) => template === 'templates/global-compact.html.twig');
+    return !result.some(({ template }) => template === 'templates/shadowed-compact.html.twig')
+      && global?.complete === true && global.variables[0]?.name === 'user'
+      && global.variables[0]?.sources?.[0]?.uri === shadowedUri.toString();
+  }, 'Symfony Twig interop treated imported compact as the global builtin', 30_000, 100);
+  if (twigPlus) {
+    const globalTemplate = await vscode.workspace.openTextDocument(globalTemplateUri);
+    await vscode.window.showTextDocument(globalTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', globalTemplateUri, globalTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === shadowedUri.toString()),
+    'TwigPlus did not navigate the explicit global compact variable', 30_000, 100);
+    const shadowedTemplate = await vscode.workspace.openTextDocument(shadowedTemplateUri);
+    await vscode.window.showTextDocument(shadowedTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', shadowedTemplateUri, shadowedTemplate.positionAt(4)) ?? [])
+      .every((location) => location.uri.toString() !== shadowedUri.toString()),
+    'TwigPlus navigated a variable from the imported compact function', 30_000, 100);
+  }
 }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {

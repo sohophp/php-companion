@@ -75,6 +75,33 @@ describe('static Symfony Controller context analysis', () => {
     expect(contexts[2]).toMatchObject({ complete: false, variables: [] });
   });
 
+  it('does not treat a shadowed compact function as the PHP builtin', () => {
+    const imported = `<?php namespace App; use function Vendor\\compact; use Symfony\\Bridge\\Twig\\Attribute\\Template; class Controller {
+      public function show(User $user): void {
+        $this->render('imported.html.twig', compact('user'));
+        $this->render('global.html.twig', \\compact('user'));
+      }
+      #[Template('shadowed-attribute.html.twig')]
+      public function shadowedAttribute(User $user): array { return compact('user'); }
+      #[Template('global-attribute.html.twig')]
+      public function globalAttribute(User $user): array { return \\compact('user'); }
+    }`;
+    const local = `<?php namespace App; function compact(string $name): array { return []; } class Controller {
+      public function show(User $user): void {
+        $this->render('local.html.twig', compact('user'));
+        $this->render('explicit.html.twig', \\compact('user'));
+      }
+    }`;
+    for (const [index, source] of [imported, local].entries()) {
+      const contexts = analyzeSymfonyControllerContexts(parser, { uri: `file:///src/Shadowed${index}.php`, source,
+        snapshotVersion: `open:${index}` });
+      expect(contexts.map(({ template }) => template)).toEqual(index === 0
+        ? ['global.html.twig', 'global-attribute.html.twig'] : ['explicit.html.twig']);
+      expect(contexts).toMatchObject(Array.from({ length: contexts.length }, () => ({ complete: true,
+        variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] })));
+    }
+  });
+
   it('proves local compact variables from consecutive direct assignments', () => {
     const source = `<?php namespace App; class PageController {
       function direct() {

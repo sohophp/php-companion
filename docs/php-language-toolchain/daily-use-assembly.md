@@ -4,7 +4,7 @@
 
 更新：2026-09-25。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
-2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。当前 Core 顺序以[Pack 整理与 Core 下一步](reports/open-source-pack-next-core-2026-09-25.md)开头的执行快照为准；生成新文件的 Redo 独立保留为 C3 阻断项。
+当前 [Open Source Pack](../../packages/php-companion-extension-pack/package.json)为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在完整组合中因测试文件 Rename 读取旧路径，已从默认清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是历史阶段证据；当前能力所有者、候选及 Core 顺序以[执行入口](reports/open-source-pack-current-priority-2026-09-27.md)为准。
 
 此前组合复核发现，`recca0120.vscode-phpunit` 3.9.40 在已配置测试项目的文件事件与 Rename 交错中，间歇性读取旧路径并抛出未处理错误；一次单独重跑通过，不能据此判定稳定。见[Composer 生成快照与 Pack 复核](reports/c3-generation-composer-snapshot-2026-09-25.md)。这一阶段的判断已由上面的默认清单决定取代。
 
@@ -22,7 +22,7 @@
 
 [Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。当前源码清单为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、Twig、YAML、XML、PHPDoc 生成各有明确所有者，测试默认归项目 CLI。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
-截至 2026-09-24，公开 Marketplace 的 Open Source Pack 页面仍显示旧版说明；本仓库的 0.4.5 manifest 与冻结 Profile 已核对，但尚无证据表明公开页面提供这一组合。日常试用应以同一私有候选的三个 VSIX 为准。
+公开 Marketplace 的 Open Source Pack 页面仍显示旧版说明。日常试用以同一私有候选的三个 VSIX、`candidate.json` 和 `SHA256SUMS` 为准；[当前候选记录](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)列出了确切源码和外部成员版本。
 
 当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`、`neilbrayfield.php-docblocker`。Apache Conf Snippets 依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
 
