@@ -1,0 +1,289 @@
+{
+  "schema": 1,
+  "candidateCommit": "248ee1f899c2d47cb19326d0f9fffcc9b2a5427d",
+  "candidateVersion": "0.4.7",
+  "kernelRelease": "5.15.167.4-microsoft-standard-WSL2",
+  "editing1000": {
+    "schema": 1,
+    "iterations": 1000,
+    "warmupIterations": 100,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "updateToDiagnosticsMs": {
+      "samples": 1000,
+      "p50": 28.172114999997575,
+      "p95": 29.76268699999855,
+      "maximum": 31.303281000000425
+    },
+    "hotCompletionMs": {
+      "samples": 1000,
+      "p50": 0.9887149999995017,
+      "p95": 1.601872999999614,
+      "maximum": 3.7035439999999653
+    },
+    "hotHoverMs": {
+      "samples": 1000,
+      "p50": 0.9522609999985434,
+      "p95": 1.5835020000013174,
+      "maximum": 3.102825000001758
+    },
+    "hotDefinitionMs": {
+      "samples": 1000,
+      "p50": 1.1280399999996007,
+      "p95": 1.9725160000007236,
+      "maximum": 4.580352999999377
+    },
+    "cancellationMs": 1.2403829999966547,
+    "cancellationOutcome": "cancelled",
+    "languageServerRssMb": {
+      "baseline": 162.01171875,
+      "peak": 184.515625,
+      "final": 167.375,
+      "retainedGrowth": 5.36328125
+    },
+    "persistentCache": {
+      "files": 1,
+      "corruptCacheRecovered": true,
+      "completionRecoveredAfterRestart": true
+    },
+    "staleCompletionFailures": 0,
+    "staleHoverFailures": 0,
+    "staleDefinitionFailures": 0,
+    "budgets": {
+      "hotCompletionP95Ms": 150,
+      "hotHoverP95Ms": 150,
+      "hotDefinitionP95Ms": 150,
+      "updateToDiagnosticsP95Ms": 500,
+      "cancellationMs": 100,
+      "retainedRssGrowthMb": 128
+    }
+  },
+  "coldIndex": {
+    "files1000": {
+      "schema": 1,
+      "files": 1000,
+      "repeats": 5,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 1586.7366949999996,
+        "p95": 1840.6849770000001,
+        "maximum": 1840.6849770000001
+      },
+      "firstAvailableMs": {
+        "samples": 5,
+        "p50": 14.012610999999652,
+        "p95": 29.228744000000006,
+        "maximum": 29.228744000000006
+      },
+      "peakRssMb": 132.3,
+      "frozenBudget": {
+        "coldIndexMs": 8000,
+        "peakRssMb": 384
+      }
+    },
+    "files10000": {
+      "schema": 1,
+      "files": 10000,
+      "repeats": 5,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 14585.731501000002,
+        "p95": 15262.386735000002,
+        "maximum": 15262.386735000002
+      },
+      "firstAvailableMs": {
+        "samples": 5,
+        "p50": 40.2774419999987,
+        "p95": 84.47422400000005,
+        "maximum": 84.47422400000005
+      },
+      "peakRssMb": 269.3,
+      "frozenBudget": {
+        "coldIndexMs": 60000,
+        "peakRssMb": 768
+      }
+    },
+    "files50000": {
+      "schema": 1,
+      "files": 50000,
+      "repeats": 5,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 73663.12121699999,
+        "p95": 75203.325036,
+        "maximum": 75203.325036
+      },
+      "firstAvailableMs": {
+        "samples": 5,
+        "p50": 255.7360209999897,
+        "p95": 277.8733069999871,
+        "maximum": 277.8733069999871
+      },
+      "peakRssMb": 1115.3,
+      "frozenBudget": {
+        "coldIndexMs": 300000,
+        "peakRssMb": 1536
+      }
+    }
+  },
+  "persistence": {
+    "files1000": {
+      "schema": 1,
+      "files": 1000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 2195.34,
+        "parsed": 1000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 642.48,
+        "parsed": 0,
+        "restored": 1000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.2927,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 5649284,
+          "mebibytes": 5.39
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 5649284,
+          "mebibytes": 5.39
+        },
+        "frozenBudgetMb": 64
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 1000,
+        "implementationsLoadedByQuery": 3,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 1999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1
+      }
+    },
+    "files10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 16985.98,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 5939.96,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3497,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 56484814,
+          "mebibytes": 53.87
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 56484814,
+          "mebibytes": 53.87
+        },
+        "frozenBudgetMb": 512
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 3,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1
+      }
+    },
+    "files50000": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 86246.53,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 29406.22,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.341,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 282444814,
+          "mebibytes": 269.36
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 282444814,
+          "mebibytes": 269.36
+        },
+        "frozenBudgetMb": 2560
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 3,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1
+      }
+    }
+  }
+}

@@ -14,6 +14,8 @@
 
 这批产物包含前一冻结 `be1c39b2` 之后的 PHPDoc 类型补全、Symfony Controller→Twig 紧邻赋值与未保存编辑反馈、类型生成最终创建结果核对，以及 Symfony Rename 只对受影响文档执行版本校验。源码总门禁在 `93d9d43` 通过；其后改动的 Symfony 单元测试、TypeScript、ESLint、完整 10 项源码 C3 宿主通过。后加的最终 `createFile` Redo 探针仅用于暴露已知失败，不纳入默认通过统计。
 
+该候选在 WSL2 的 [1k/10k/50k 冷索引、三档缓存与 1000 次连续编辑自动化基准](sophp-047-248ee1f8-wsl-benchmarks-2026-09-27.md)均在冻结预算内。这是生成语料和 stdio 服务证据，仍须真实 Remote 与其它平台复核。
+
 ## 隔离宿主结果
 
 使用 VS Code 1.139.1 Linux x64、TwigPlus 1.3.8、其余冻结外部扩展，以及独立测试工具中的 PHP 8.5.9、PHP CS Fixer 3.95.27、PHPUnit 11.5.56：
