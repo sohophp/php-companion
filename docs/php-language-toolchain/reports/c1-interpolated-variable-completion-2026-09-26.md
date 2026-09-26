@@ -4,12 +4,13 @@
 
 Open Source Pack 关闭 PHP 通用单词建议后，SoPHP 独占 PHP 变量补全。原实现把所有字符串位置都排除，因此 `echo "Hello $user"`、`echo "Hello {$user}"` 和 heredoc 中无法建议当前作用域的 `$username`。
 
-修复仅在语法树确认光标所在 token 是插值字符串、heredoc 或 shell 字符串中的 `variable_name` 时使用现有作用域候选。单引号、nowdoc、转义的 `$` 和注释仍不提供变量建议；光标位于名称中间时替换整个变量 token，不吞掉花括号。
+修复在语法树确认光标所在 token 是插值字符串、heredoc 或 shell 字符串中的 `variable_name` 时使用现有作用域候选。用户刚输入单独的 `$` 时，解析器尚把它视为字符串内容；现在对这些插值容器中的未转义 `$` 也提供候选。单引号、nowdoc、转义的 `$` 和注释仍不提供变量建议；光标位于名称中间时替换整个变量 token，不吞掉花括号。
 
 验证：
 
-- 新增语义正反例先失败后通过；`packages/semantic` 完整测试退出码 0。
+- 有名称和刚输入 `$` 的语义正反例均先失败后通过；`packages/semantic` 完整测试 410/410，通过。单独的 `$` 还覆盖双引号、heredoc、奇偶反斜杠转义、单引号与 nowdoc。
 - TypeScript 主扩展检查、三处变更文件的 ESLint 与 `git diff --check` 通过。
 - 隔离 VS Code 1.139.1 Linux x64 Core C1 源码宿主在显式 PHP 8.5 和 7.2 目标下均退出码 0。测试从 `vscode.executeCompletionItemProvider` 取得 `$username`，核对替换范围，实际应用后保持 `{$username}`，并确认单引号与转义 `$` 不返回该候选。两次宿主日志分别是 `/tmp/sophp-c1-interpolation-host-85-20260926.log` 与 `/tmp/sophp-c1-interpolation-host-72-20260926.log`。
+- 增补“刚输入 `$`”的实际 VS Code 补全请求后，显式 PHP 8.5 的完整 C1 宿主再次退出码 0；日志为 `/tmp/sophp-c1-bare-dollar-host-85-20260926.log`。
 
 未指定目标版本的首轮 C1 宿主在后续 PHP 7.2 版本诊断断言失败：用例默认预期 7.2，实际没有得到所预期的三项 SoPHP 版本诊断。显式 7.2 与 8.5 均通过；该默认环境差异单独保留，不用本次插值补全结论覆盖。该源码改动还没有进入已打包 VSIX，真实 WSL Remote 与人工输入体验仍待 C4。

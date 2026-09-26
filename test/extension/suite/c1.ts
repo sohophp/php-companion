@@ -384,6 +384,7 @@ export async function run(): Promise<void> {
     'Accepting PHP variable completion left the old variable suffix in the document.');
   const interpolationSource = `<?php function c1Interpolation(string $username): void {
   echo "Hello {$userOldTail}";
+  echo "Just $";
   echo 'Hello $user';
   echo "Hello \\$user";
 }`;
@@ -391,6 +392,10 @@ export async function run(): Promise<void> {
   await vscode.workspace.fs.writeFile(interpolationUri, Buffer.from(interpolationSource));
   const interpolationDocument = await vscode.workspace.openTextDocument(interpolationUri);
   await vscode.window.showTextDocument(interpolationDocument);
+  const bareDollarSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    interpolationUri, interpolationDocument.positionAt(interpolationSource.indexOf('Just $') + 'Just $'.length));
+  assert.ok(bareDollarSuggestions?.items.some((item) => item.label === '$username'),
+    'PHP did not suggest the visible parameter immediately after an interpolation dollar.');
   const interpolationStart = interpolationSource.indexOf('$userOldTail');
   const interpolationSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
     interpolationUri, interpolationDocument.positionAt(interpolationStart + '$user'.length));

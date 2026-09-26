@@ -124,6 +124,32 @@ TXT;
       }
     } finally { project.dispose(); }
   });
+  it('offers scoped variables immediately after an unescaped interpolation dollar', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///BareInterpolationDollar.php';
+    const source = String.raw`<?php function greet(string $username): void {
+  echo "Hello $";
+  echo "Hello \$";
+  echo "Hello \\$";
+  echo 'Hello $';
+  echo <<<TXT
+Hello $
+TXT;
+  echo <<<'TXT'
+Hello $
+TXT;
+}`;
+    try {
+      project.update(uri, source);
+      const at = (marker: string, from = 0): number => source.indexOf(marker, from) + marker.indexOf('$') + 1;
+      expect(project.completeVariables(uri, at('echo "Hello $'))?.names).toContain('$username');
+      expect(project.completeVariables(uri, at(String.raw`echo "Hello \$`))).toBeUndefined();
+      expect(project.completeVariables(uri, at(String.raw`echo "Hello \\$`))?.names).toContain('$username');
+      expect(project.completeVariables(uri, at("echo 'Hello $"))).toBeUndefined();
+      expect(project.completeVariables(uri, at('Hello $\nTXT;'))?.names).toContain('$username');
+      expect(project.completeVariables(uri, at('Hello $\nTXT;', source.indexOf("<<<'TXT'")))).toBeUndefined();
+    } finally { project.dispose(); }
+  });
   it('indexes recovered legacy class declarations for PHP type navigation', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LegacyNames.php';
