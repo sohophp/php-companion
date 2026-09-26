@@ -8113,12 +8113,11 @@ export class SemanticWorkspace {
     return matches.map(({ candidate, declaration }) => ({ uri: candidate.uri, start: declaration.start, end: declaration.end, name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind }));
   }
 
-  private phpDocTypeNameAt(file: SemanticFile, offset: number): RawName | undefined {
-    const raw = file.rawNames.find((name) => name.context === 'phpdoc' && offset >= name.start && offset < name.end);
-    if (!raw) return undefined;
-    const context = phpDocTypeCompletionContext(file, raw.end, this.namespaceAt(file, raw.start));
-    const last = raw.text.split('\\').at(-1);
-    return context && last?.toLowerCase() === context.prefix.toLowerCase() ? raw : undefined;
+  private phpDocTypeNameAt(file: SemanticFile, offset: number): boolean {
+    const word = wordAt(file.source, offset);
+    if (!word || offset < word.start || offset >= word.end) return false;
+    const context = phpDocTypeCompletionContext(file, word.end, this.namespaceAt(file, word.start));
+    return context?.prefix.toLowerCase() === word.text.split('\\').at(-1)?.toLowerCase();
   }
 
   private namespaceAt(file: SemanticFile, offset: number): string {

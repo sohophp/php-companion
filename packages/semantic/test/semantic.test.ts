@@ -42,6 +42,28 @@ class Widget {} class Owner {}
       expect(project.definition(useUri, offset), marker).toEqual([]);
     }
   });
+  it('navigates a continued PHPDoc type after an unsaved type change', () => {
+    const project = new SemanticWorkspace(parser);
+    const targetUri = 'file:///src/Types.php';
+    const target = '<?php namespace App; class Widget {} class Other {}';
+    const uri = 'file:///src/Consumer.php';
+    const source = (name: string): string => `<?php namespace App;
+/** @return list<
+ * ${name}
+ */
+function values(): array { return []; }
+`;
+    project.update(targetUri, target);
+    project.update(uri, source('Widget'));
+    expect(project.definition(uri, source('Widget').indexOf(' * Widget') + ' * Wi'.length))
+      .toMatchObject([{ uri: targetUri, start: target.indexOf('class Widget') + 'class '.length }]);
+    project.update(uri, source('Other'));
+    expect(project.definition(uri, source('Other').indexOf(' * Other') + ' * Ot'.length))
+      .toMatchObject([{ uri: targetUri, start: target.indexOf('class Other') + 'class '.length }]);
+    project.update(uri, source('Widget'));
+    expect(project.definition(uri, source('Widget').indexOf(' * Widget') + ' * Wi'.length))
+      .toMatchObject([{ uri: targetUri, start: target.indexOf('class Widget') + 'class '.length }]);
+  });
   it('completes only variables visible in the current PHP scope', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///ScopedVariables.php';

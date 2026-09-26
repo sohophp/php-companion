@@ -614,6 +614,37 @@ class C1DocNavigationConsumer {}
   assert.deepStrictEqual(await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider',
     navigationUri, shapeKey) ?? [], [],
     'SoPHP treated an array shape key as a type.');
+  const continuationOtherUri = vscode.Uri.joinPath(folder, 'C1DocNavigationOther.php');
+  await vscode.workspace.fs.writeFile(continuationOtherUri,
+    Buffer.from('<?php namespace App\\C1; class C1DocNavigationOther {}'));
+  const continuationSource = `<?php namespace App\\C1;
+/** @return list<
+ * C1DocNavigationTarget
+ */
+function documentedValues(): array { return []; }
+`;
+  const continuationUri = vscode.Uri.joinPath(folder, 'C1DocContinuation.php');
+  await vscode.workspace.fs.writeFile(continuationUri, Buffer.from(continuationSource));
+  const continuationDocument = await vscode.workspace.openTextDocument(continuationUri);
+  const continuationEditor = await vscode.window.showTextDocument(continuationDocument);
+  const continuedDefinition = async (name: string, targetUri: vscode.Uri): Promise<void> => {
+    const offset = continuationDocument.getText().indexOf(` * ${name}`) + ' * '.length + 2;
+    assert.ok(offset >= ' * '.length + 2, `Missing continued PHPDoc type ${name}.`);
+    await waitForResult(() => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider',
+      continuationUri, continuationDocument.positionAt(offset)),
+    (items) => (items ?? []).some((item) => item.uri.toString() === targetUri.toString()),
+    `SoPHP did not navigate continued PHPDoc type ${name}.`);
+  };
+  await continuedDefinition('C1DocNavigationTarget', navigationTargetUri);
+  const continuedStart = continuationDocument.positionAt(continuationDocument.getText().indexOf(' * C1DocNavigationTarget') + ' * '.length);
+  assert.ok(await continuationEditor.edit((edit) => edit.replace(new vscode.Range(continuedStart,
+    continuedStart.translate(0, 'C1DocNavigationTarget'.length)), 'C1DocNavigationOther')),
+  'Could not change the continued PHPDoc type in the unsaved editor.');
+  await continuedDefinition('C1DocNavigationOther', continuationOtherUri);
+  await vscode.commands.executeCommand('undo');
+  assert.ok(continuationDocument.getText().includes(' * C1DocNavigationTarget'),
+    'Undo did not restore the continued PHPDoc type.');
+  await continuedDefinition('C1DocNavigationTarget', navigationTargetUri);
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));
