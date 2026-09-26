@@ -16,7 +16,7 @@ PHPUnit/Pest 默认由项目 CLI 执行。`recca0120.vscode-phpunit` 3.9.40 在�
 | --- | --- | --- |
 | 1. C1 输入与导航 | 在独立 Composer 项目用完整 10 项 Profile 连续输入 PHP，核对候选可见、作用域、版本、Definition 和 References；优先处理可复现的错误建议或缺失跳转 | 同一输入在语义、真实 LSP 和 VS Code 可见建议中一致；HTML 与 PHP 边界、字符串插值均有正反例 |
 | 2. C2 编辑反馈 | 未保存地改声明和用法，检查补全、签名、Hover、Definition、诊断，以及关闭重开和 watcher 事件后的恢复 | 旧结果被撤回，新结果归属当前文档与 Composer 根；有明确输入和宿主证据 |
-| 3. C3 安全编辑 | 按实际频率验证 Import、Rename、Safe Move、Extract、Inline、类型生成的预览、取消、应用及一次 Undo/Redo | 完整应用才报成功；`createFile` 最终兜底的 Redo 单列为已知缺口，只在有新资源撤销路径证据时重开 |
+| 3. C3 安全编辑 | 按实际频率验证 Import、Rename、Safe Move、Extract、Inline、类型生成的预览、取消、应用及一次 Undo/Redo | [0.4.7 完整打包 Profile](open-source-pack-047-frozen-profile-2026-09-26.md) 已通过现有自动套件；`createFile` 最终兜底的 Redo、暂存清理和真实 Remote 仍开放 |
 | 4. C4 / R4 | 到下一个交付点冻结同批三份 VSIX，再验证真实 WSL Remote、PHP 版本、跨平台、规模、缓存恢复及持续使用 | 安装内容、唯一 PHP 提供者、工具路径和完整 PHP→Symfony/Twig/YAML/XML→格式化→调试→CLI 测试链通过；R4 保持最终目标 |
 
 这条顺序已经开始执行：隔离分支 `feat/c1-interpolated-variable-completion` 修复了[插值字符串变量补全](c1-interpolated-variable-completion-2026-09-26.md)、[插值成员与普通文本的边界](c1-interpolated-member-boundary-2026-09-26.md)、[普通函数与常量建议的表达式边界](c1-function-constant-completion-boundary-2026-09-26.md)、[类名补全的代码边界](c1-type-completion-code-boundary-2026-09-26.md)、[混合 PHP/HTML 文件的补全边界](c1-mixed-php-html-variable-completion-2026-09-26.md)和[自动 PHP 版本宿主门禁](c1-auto-version-host-gate-2026-09-26.md)。语义回归与实际 VS Code 补全请求通过，完整 10 项源码 Profile 通过。这些增量已包含在 0.4.7 冻结候选中。后续继续按可见错误推进 C1/C2；不因每个小改动重新打包，也不等待人工反馈才执行独立验证。

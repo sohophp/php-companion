@@ -43,6 +43,7 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const releaseVersion = (JSON.parse(await readFile(join(repository, 'package.json'), 'utf8')) as { version: string }).version;
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
+  const c3OpenSourceProfile = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
   const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
   if (twigPlusDevelopmentPath && !sourceProfile) throw new Error('TwigPlus development path requires the source Profile.');
   const realVendorProfile = process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1';
@@ -80,6 +81,7 @@ async function main(): Promise<void> {
   const profile = join(temporary, 'profile');
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   if (sourceProfile && !externalExtensions) throw new Error('Source Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
+  if (c3OpenSourceProfile && !externalExtensions) throw new Error('Packaged C3 Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   const extensionsDirectory = externalExtensions ?? join(profile, 'extensions');
   let formatterExecutable = process.env.PHP_COMPANION_FORMATTER_EXECUTABLE;
   let phpunitExecutable = process.env.PHP_COMPANION_PHPUNIT_EXECUTABLE;
@@ -137,14 +139,21 @@ exit($status);
     // Packaged tests must exercise the extension manifest default rather than
     // inheriting the explicit development-fixture opt-in.
     delete settings['phpCompanion.languageServer.enabled'];
-    if (externalExtensions) delete settings['phpCompanion.indexing.mode'];
+    if (externalExtensions && !c3OpenSourceProfile) delete settings['phpCompanion.indexing.mode'];
     if (externalExtensions) {
       await writeFile(join(fixture, 'composer.json'), JSON.stringify({
         require: { php: '>=8.5', 'symfony/framework-bundle': '^7.4' },
         autoload: { 'psr-4': { 'App\\': 'src/' } },
+        ...(c3OpenSourceProfile ? { 'autoload-dev': { 'psr-4': { 'App\\Tests\\': 'tests/' } } } : {}),
       }));
       await mkdir(join(fixture, 'tests'), { recursive: true });
       await writeFile(join(fixture, 'phpunit.xml'), '<?xml version="1.0"?>\n<phpunit><testsuites><testsuite name="Profile"><directory suffix="Test.php">tests</directory></testsuite></testsuites></phpunit>\n');
+      if (c3OpenSourceProfile) {
+        await writeFile(join(fixture, 'tests', 'ProfileTest.php'),
+          '<?php\nfinal class ProfileTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
+        await writeFile(join(fixture, 'tests', 'C3ConfiguredTest.php'),
+          '<?php\nnamespace App\\Tests;\nfinal class C3ConfiguredTest extends \\PHPUnit\\Framework\\TestCase { public function testReady(): void { self::assertTrue(true); } }\n');
+      }
       await mkdir(join(fixture, 'bin'), { recursive: true });
       await writeFile(join(fixture, 'bin', 'console'), '<?php throw new \\RuntimeException("Static profile must not execute the kernel");\n');
       const routesPath = join(fixture, 'config', 'routes.yaml');
@@ -225,7 +234,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
         ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
-      extensionTestsPath: resolve(__dirname, 'suite', 'index'),
+      extensionTestsPath: resolve(__dirname, 'suite', c3OpenSourceProfile ? 'c3' : 'index'),
       launchArgs: [
         ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
         fixture,
@@ -245,6 +254,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
         PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
+        PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE: c3OpenSourceProfile ? '1' : undefined,
         PHP_COMPANION_TEST_TWIG_PLUS_PATH: twigPlusDevelopmentPath,
         PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH: twigVsix ? join(twigExtracted, 'extension') : undefined,
         PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_VERSION: twigPackage?.version,
