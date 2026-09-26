@@ -3594,7 +3594,8 @@ export class SemanticWorkspace {
 
   namespaceImportContext(uri: string, offset: number): { qualifier: string; prefix: string } | undefined {
     const file = this.files.get(uri);
-    if (!file || file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
+    if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
+      || file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
     return namespaceImportCompletion(file.source, offset);
   }
 
@@ -3602,6 +3603,7 @@ export class SemanticWorkspace {
     replacementStart?: number; replacementEnd?: number } | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
+    if (this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     const importContext = qualifiedImportCompletion(file.source, offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
@@ -3617,6 +3619,7 @@ export class SemanticWorkspace {
   completeTypes(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
+    if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const importContext = qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
     const contextPrefix = typeCompletionPrefix(file.source, offset);

@@ -457,12 +457,13 @@ TXT;
       `PHP suggested a member inside literal text: ${marker}.`);
   }
   const expressionSource = `<?php
+class C1Invoice {}
 function c1FunctionName(): void {}
 const C1_CONSTANT = 1;
 function c1Expressions(): void {
-  c1Fun; C1_CON;
-  echo 'c1Fun C1_CON';
-  // c1Fun C1_CON
+  c1Fun; C1_CON; $invoice = new C1Inv;
+  echo 'c1Fun C1_CON new C1Inv';
+  // c1Fun C1_CON new C1Inv
 }`;
   const expressionUri = vscode.Uri.joinPath(folder, 'C1ExpressionSuggestions.php');
   await vscode.workspace.fs.writeFile(expressionUri, Buffer.from(expressionSource));
@@ -476,7 +477,9 @@ function c1Expressions(): void {
     item.label === 'c1FunctionName' && item.kind === vscode.CompletionItemKind.Function));
   assert.ok((await expressionSuggestions('C1_CON', expressionBody)).some((item) =>
     item.label === 'C1_CONSTANT' && item.kind === vscode.CompletionItemKind.Constant));
-  for (const marker of ["'c1Fun C1_CON'", '// c1Fun C1_CON']) {
+  assert.ok((await expressionSuggestions('new C1Inv', expressionBody)).some((item) =>
+    item.label === 'C1Invoice' && item.kind === vscode.CompletionItemKind.Class));
+  for (const marker of ["'c1Fun C1_CON new C1Inv'", '// c1Fun C1_CON new C1Inv']) {
     const start = expressionSource.indexOf(marker);
     assert.ok(!(await expressionSuggestions('c1Fun', start)).some((item) =>
       item.label === 'c1FunctionName' && item.kind === vscode.CompletionItemKind.Function),
@@ -484,6 +487,9 @@ function c1Expressions(): void {
     assert.ok(!(await expressionSuggestions('C1_CON', start)).some((item) =>
       item.label === 'C1_CONSTANT' && item.kind === vscode.CompletionItemKind.Constant),
     `SoPHP suggested a constant inside ${marker}.`);
+    assert.ok(!(await expressionSuggestions('new C1Inv', start)).some((item) =>
+      item.label === 'C1Invoice' && item.kind === vscode.CompletionItemKind.Class),
+    `SoPHP suggested a type inside ${marker}.`);
   }
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');

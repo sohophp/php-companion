@@ -4823,6 +4823,36 @@ function useNames(): void {
     workspace.update('file:///FunctionImportConsumer.php', functionImport);
     expect(workspace.completeTypes('file:///FunctionImportConsumer.php', functionImport.indexOf('Billing\\Inv') + 'Billing\\Inv'.length)).toEqual([]);
   });
+  it('keeps type completion out of comments and string text', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///TypeTextBoundary.php';
+    const source = `<?php class Invoice {} function work(): void {
+  $invoice = new Inv;
+  echo 'new Inv';
+  echo "new Inv";
+  // new Inv
+  /* new Inv */
+}`;
+    try {
+      project.update(uri, source);
+      const positive = source.indexOf('new Inv') + 'new Inv'.length;
+      expect(project.typeCompletionContext(uri, positive)?.prefix).toBe('Inv');
+      expect(project.completeTypes(uri, positive).map((item) => item.name)).toContain('Invoice');
+      let from = positive;
+      for (let index = 0; index < 4; index += 1) {
+        const start = source.indexOf('new Inv', from + 1);
+        const offset = start + 'new Inv'.length;
+        expect(project.typeCompletionContext(uri, offset), `case ${index}`).toBeUndefined();
+        expect(project.completeTypes(uri, offset), `case ${index}`).toEqual([]);
+        from = start;
+      }
+      const commentedImport = '<?php class Invoice {} /*\nuse Inv\n*/';
+      project.update(uri, commentedImport);
+      const importOffset = commentedImport.indexOf('use Inv') + 'use Inv'.length;
+      expect(project.namespaceImportContext(uri, importOffset)).toBeUndefined();
+      expect(project.typeCompletionContext(uri, importOffset)).toBeUndefined();
+    } finally { project.dispose(); }
+  });
   it('completes a class member inside a qualified group use without importing it twice', () => {
     workspace.update('file:///GroupInvoice.php', '<?php namespace Domain\\Billing; class Invoice {}');
     workspace.update('file:///OtherInvoice.php', '<?php namespace Domain\\Other; class Invoice {}');
