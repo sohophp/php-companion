@@ -12,14 +12,22 @@ import { clearTimeout, setTimeout } from 'node:timers';
 const sizes = process.env.SOPHP_BENCH_GROUPS ? process.env.SOPHP_BENCH_GROUPS.split(',').map(Number) : [2, 20, 100];
 const rounds = 3;
 const mode = process.argv[2] ?? 'psr4';
-if (!['psr4', 'classmap', 'psr0', 'classmapNamespace'].includes(mode)
+if (!['psr4', 'psr4RootNamespace', 'psr4EmptyRootNamespace', 'classmap', 'psr0', 'classmapNamespace', 'classmapRootNamespace'].includes(mode)
   || sizes.some((size) => !Number.isSafeInteger(size) || size < 1 || size > 100))
-  throw new Error('Usage: node scripts/benchmark-ondemand-type-completion.mjs [psr4|classmap|psr0|classmapNamespace]');
-const prefix = mode === 'psr0' ? 'Domain_Target_Requ' : mode === 'classmapNamespace' ? 'Dom' : 'Requ';
+  throw new Error('Usage: node scripts/benchmark-ondemand-type-completion.mjs [psr4|psr4RootNamespace|psr4EmptyRootNamespace|classmap|psr0|classmapNamespace|classmapRootNamespace]');
+const prefix = mode === 'psr0' ? 'Domain_Target_Requ' : mode === 'psr4EmptyRootNamespace' ? ''
+  : ['classmapNamespace', 'classmapRootNamespace', 'psr4RootNamespace'].includes(mode) ? 'Dom' : 'Requ';
 const expected = mode === 'psr0' ? 'Domain_Target_RequestTarget'
-  : mode === 'classmapNamespace' ? 'Domain\\' : 'Domain\\Target\\RequestTarget';
-const label = mode === 'psr0' ? expected : mode === 'classmapNamespace' ? 'Domain\\' : 'RequestTarget';
-const source = mode === 'classmapNamespace' ? `<?php namespace App; use ${prefix};` : `<?php namespace App; new ${prefix};`;
+  : ['classmapNamespace', 'classmapRootNamespace', 'psr4RootNamespace', 'psr4EmptyRootNamespace'].includes(mode)
+    ? 'Domain\\' : 'Domain\\Target\\RequestTarget';
+const label = mode === 'psr0' ? expected
+  : ['classmapNamespace', 'classmapRootNamespace', 'psr4RootNamespace', 'psr4EmptyRootNamespace'].includes(mode)
+    ? 'Domain\\' : 'RequestTarget';
+const source = mode === 'classmapNamespace' ? `<?php namespace App; use ${prefix};`
+  : ['classmapRootNamespace', 'psr4RootNamespace', 'psr4EmptyRootNamespace'].includes(mode)
+    ? `<?php namespace App; new \\${prefix};` : `<?php namespace App; new ${prefix};`;
+const completionOffset = mode === 'psr4EmptyRootNamespace' ? source.indexOf('new \\') + 'new \\'.length
+  : source.indexOf(prefix) + prefix.length;
 
 function client(process) {
   let buffer = Buffer.alloc(0);
@@ -64,7 +72,7 @@ async function fixture(groups) {
   const root = await mkdtemp(join(tmpdir(), 'sophp-c1-types-'));
   await mkdir(join(root, 'src'));
   await mkdir(join(root, 'lib'));
-  await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: mode === 'psr4'
+  await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: ['psr4', 'psr4RootNamespace', 'psr4EmptyRootNamespace'].includes(mode)
     ? { 'psr-4': { 'App\\': 'src/', 'Domain\\': 'lib/' } }
     : mode === 'psr0' ? { 'psr-4': { 'App\\': 'src/' }, 'psr-0': { 'Domain_': 'lib/' } }
       : { 'psr-4': { 'App\\': 'src/' }, classmap: ['lib/'] } }));
@@ -107,7 +115,7 @@ async function run({ root, uri }) {
     for (const id of [2, 3]) {
       const started = performance.now();
       lsp.send({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
-        textDocument: { uri }, position: { line: 0, character: source.indexOf(prefix) + prefix.length },
+        textDocument: { uri }, position: { line: 0, character: completionOffset },
       } });
       const result = (await lsp.wait((message) => message.id === id)).result;
       const items = Array.isArray(result) ? result : result?.items;

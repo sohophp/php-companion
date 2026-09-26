@@ -87,7 +87,7 @@ const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefin
 type TypeNameCatalog = { names: Map<string, string[]>; sortedNames: string[]; complete: boolean };
 const typeNameCatalogsByRoot = new Map<string, Promise<TypeNameCatalog>>();
 const typeNameSearchesByRoot = new Map<string, { prefix: string; fqcns: string[] }>();
-const nonPsr4TypeSearchesByRoot = new Map<string, Map<string, string[]>>();
+const nonPsr4TypeSearchesByRoot = new Map<string, Map<string, { paths: string[]; complete: boolean }>>();
 const classmapNamespacePathsByRoot = new Map<string, Map<string, { epoch: number; paths: string[]; complete: boolean }>>();
 const classmapNamespaceResultsByRoot = new Map<string, Map<string, { epoch: number; workspace: SemanticWorkspace;
   names: string[]; complete: boolean }>>();
@@ -5721,18 +5721,18 @@ async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspa
     if (stale()) return 'stale';
   }
   const previousNonPsr4 = nonPsr4TypeSearchesByRoot.get(root)?.get(normalizedPrefix);
-  const nonPsr4 = previousNonPsr4 ? { paths: previousNonPsr4, complete: true }
-    : await nonPsr4TypeSourcePaths(project, context.prefix, cancelled);
+  const nonPsr4 = previousNonPsr4 ?? await nonPsr4TypeSourcePaths(project, context.prefix, cancelled);
   if (stale()) return 'stale';
-  if (nonPsr4.complete && !previousNonPsr4) {
-    const searches = nonPsr4TypeSearchesByRoot.get(root) ?? new Map<string, string[]>();
-    searches.set(normalizedPrefix, nonPsr4.paths);
+  if (!previousNonPsr4 && (nonPsr4.complete || nonPsr4.paths.length)) {
+    const searches = nonPsr4TypeSearchesByRoot.get(root) ?? new Map<string, typeof nonPsr4>();
+    searches.set(normalizedPrefix, nonPsr4);
     if (searches.size > 16) searches.delete(searches.keys().next().value!);
     nonPsr4TypeSearchesByRoot.set(root, searches);
   }
   let nonPsr4Complete = nonPsr4.complete;
   for (const path of nonPsr4.paths) {
     if (cancelled()) return false;
+    if (previousNonPsr4 && workspace.source(indexedUriForPath(root, path)) !== undefined) continue;
     if (!await hydrateNonPsr4TypeSource(workspace, root, path, project)) nonPsr4Complete = false;
     if (stale()) return 'stale';
   }

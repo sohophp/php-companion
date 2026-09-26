@@ -466,9 +466,33 @@ describe('language server stdio', () => {
       const broad = (await output.waitFor((message) => message.id === 120)).result;
       expect(broad).toMatchObject({ isIncomplete: true });
       expect(broad.items.length).toBeLessThanOrEqual(64);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 123, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('new CMap') + 'new CMap'.length),
+      } }));
+      const repeatedBroad = (await output.waitFor((message) => message.id === 123)).result;
+      expect(repeatedBroad).toMatchObject({ isIncomplete: true });
+      expect(repeatedBroad.items).toEqual(broad.items);
+      const changedPath = join(root, 'legacy', 'BundleNew.php');
+      const changedUri = pathToFileURL(changedPath).toString();
+      await writeFile(changedPath, '<?php namespace Legacy; class CMapNew {}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: changedUri, type: 1 }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes(`[index:delta] complete uri=${changedUri}`));
+      const changed = source.replace('new CMap;', 'new CMapNew;');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 124, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(changed, changed.indexOf('new CMapNew') + 'new CMapNew'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 124)).result).toEqual(expect.arrayContaining([
+        expect.objectContaining({ label: 'CMapNew', detail: 'Legacy\\CMapNew' }),
+      ]));
       const narrow = source.replace('new CMap;', 'new CMap69;');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
-        textDocument: { uri, version: 2 }, contentChanges: [{ text: narrow }],
+        textDocument: { uri, version: 3 }, contentChanges: [{ text: narrow }],
       } }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(narrow, narrow.indexOf('new CMap69') + 'new CMap69'.length),

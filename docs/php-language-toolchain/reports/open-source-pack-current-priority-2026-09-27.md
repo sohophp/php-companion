@@ -63,3 +63,5 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 限定类型名的同一输入链还补上了下一段 namespace 建议，并阻止类型位置被同前缀的 PHP 函数补全抢占。独立 Composer PSR-4 stdio、完整语义包及语言服务器 stdio 回归已通过；隔离 VS Code 1.139.1 C1 源码宿主还实际接受了 namespace 建议并核对别名类补全。已安装 VSIX 与真实 WSL Remote 仍待下次候选验收。
 
 绝对类型名的第一段也已补齐：`new \Dom` 可建议 Composer 的根 namespace。语义、定向真实 LSP 和隔离 C1 源码宿主已通过，结果仍属于冻结后源码。
+
+[classmap 根 namespace 等待](c1-classmap-root-namespace-latency-2026-09-27.md)进一步显示，约 1 万 PHP 文件时同前缀重复请求原需 247 ms。复用有界的不完整搜索结果及已装载文件后，该脚本样本降到 4 ms；首次请求仍约 406 ms，保留为 C1 的可见等待改进项。
