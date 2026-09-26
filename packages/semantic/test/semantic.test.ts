@@ -219,6 +219,8 @@ class UserSession {}
  * @return array{owner: UserService, reviewer?: UserSe
  * @var array{meta: array{owner: UserSe
  * @method UserService find(array{owner: UserService, reviewer: UserSe
+ * @return array{owner: UserService}|UserSe
+ * @var array<array{owner: UserService}, UserSe
  * @return array{
  * owner: UserSe
  * @param array{owner: UserService, review
@@ -229,6 +231,7 @@ function consume(): void {}`;
       project.update(uri, source);
       for (const marker of ['@param array{owner: UserSe', '@return array{owner: UserService, reviewer?: UserSe',
         '@var array{meta: array{owner: UserSe', '@method UserService find(array{owner: UserService, reviewer: UserSe',
+        '@return array{owner: UserService}|UserSe', '@var array<array{owner: UserService}, UserSe',
         ' * owner: UserSe']) {
         const offset = source.indexOf(marker) + marker.length;
         expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe('UserSe');
@@ -236,7 +239,7 @@ function consume(): void {}`;
           .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
       }
       for (const marker of ['@param array{owner:', '@param array{owner: UserService, review',
-        '@return array{owner: UserService} explanation']) {
+        '@return array{owner: UserService} explanation', '@return array{owner: UserService}']) {
         const offset = source.indexOf(marker) + marker.length;
         const isEmptyValue = marker.endsWith('owner:');
         expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe(isEmptyValue ? '' : undefined);

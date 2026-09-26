@@ -564,19 +564,36 @@ function phpDocMethodTypeFragment(body: string, following: string): string | und
 }
 
 function phpDocShapeValueFragment(body: string): string | undefined {
-  const openings: Array<{ start: number; shape: boolean }> = [];
+  const openings: Array<{ start: number; kind?: string; wordStart?: number }> = [];
+  const closedShapes: Array<{ start: number; end: number; kind: string }> = [];
   let quote: string | undefined; let escaped = false;
   for (let index = 0; index < body.length; index += 1) {
     const char = body[index]!;
     if (escaped) { escaped = false; continue; }
     if (quote) { if (char === '\\') escaped = true; else if (char === quote) quote = undefined; continue; }
     if (char === '"' || char === "'") { quote = char; continue; }
-    if (char === '{') openings.push({ start: index + 1, shape: /\b(?:array|object)$/u.test(body.slice(0, index)) });
-    else if (char === '}') openings.pop();
+    if (char === '{') {
+      const shape = /\b(array|object)$/u.exec(body.slice(0, index));
+      openings.push({ start: index + 1, kind: shape?.[1], wordStart: shape?.index });
+    } else if (char === '}') {
+      const closed = openings.pop();
+      if (closed?.kind && closed.wordStart !== undefined && !openings.length) {
+        closedShapes.push({ start: closed.wordStart, end: index + 1, kind: closed.kind });
+      }
+    }
   }
   const open = openings.at(-1);
-  if (!open) return body;
-  if (!open.shape) return undefined;
+  if (!open) {
+    if (!closedShapes.length) return body;
+    if (/\}\s*$/u.test(body)) return undefined;
+    let normalized = ''; let last = 0;
+    for (const shape of closedShapes) {
+      normalized += body.slice(last, shape.start) + shape.kind;
+      last = shape.end;
+    }
+    return normalized + body.slice(last);
+  }
+  if (!open.kind) return undefined;
   let start = open.start; let angles = 0; let parentheses = 0; let brackets = 0;
   quote = undefined; escaped = false;
   for (let index = start; index < body.length; index += 1) {
