@@ -19,3 +19,5 @@
 - 这是源码回归证据；`248ee1f8` 私有安装候选、真实 WSL Remote、长会话和其它平台尚未包含或验证该修复。
 
 Open Source Pack 的 10 项职责和版本仍以[当前执行入口](open-source-pack-current-priority-2026-09-27.md)为准。下一步优先收集普通 PHP 编码中 C1/C2 的可复现错误；若没有新的高影响错误，继续 C3 已知的文件创建 Redo 闭环。冻结下一候选时才重新打包 Core、Symfony 和 Pack。
+
+后续将两个已有生命周期用例扩展到 `onDemand`、`experimental` 和 `progressive`：关闭过程中立即重开后的诊断不被旧关闭事件清空；旧 Completion、Hover、Signature Help、Definition 请求暂停时，以相同版本号重开不同内容，旧结果被丢弃，新结果来自重开的缓冲区。合并定向运行 6/6 通过，修改文件 ESLint 与差异检查通过。这里只增强自动回归范围，没有新增 VSIX 或人工操作证据。

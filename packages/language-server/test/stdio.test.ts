@@ -1652,7 +1652,7 @@ function run(Formatter $local, External $remote): void {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
-  it('F04-NAV-13 discards paused editing queries when a document is reopened with the same version', async () => {
+  it.each(['onDemand', 'experimental', 'progressive'] as const)('F04-NAV-13 discards paused editing queries after a same-version reopen in %s mode', async (indexingMode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-f04-reopen-query-'));
     try {
       await mkdir(join(root, 'src'));
@@ -1669,7 +1669,7 @@ function run(Formatter $local, External $remote): void {
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 985, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { indexingMode: 'onDemand', testMode: true,
+        initializationOptions: { indexingMode, testMode: true,
           testPauseNextQueries: ['completion', 'hover', 'signatureHelp', 'definition'] },
       } }));
       await output.waitFor((message) => message.id === 985);
@@ -7999,7 +7999,7 @@ class Example {}`;
       && message.params.uri === uri && message.params.version === 23)).toBe(false);
   });
 
-  it('keeps reopened diagnostics when an onDemand close is still restoring disk source', async () => {
+  it.each(['onDemand', 'experimental', 'progressive'] as const)('keeps reopened diagnostics when a %s close is still restoring disk source', async (indexingMode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-reopen-diagnostics-'));
     try {
       await writeFile(join(root, 'composer.json'), '{}');
@@ -8012,7 +8012,7 @@ class Example {}`;
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 573, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true },
+        initializationOptions: { phpVersion: '8.5', indexingMode, versionedDiagnostics: true },
       } }));
       await output.waitFor((message) => message.id === 573);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
