@@ -3131,6 +3131,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
           [expect.objectContaining({ extension: 'mbstring', setting: false, composer: true })],
         ]);
+      // The preceding refresh may still have an in-flight publication after the first matching notification.
+      // Settle that work before measuring whether the identical update publishes anything new.
+      await new Promise<void>((resolve) => setTimeout(resolve, 300));
       const diagnosticsBeforeNoop = output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
         && message.params.uri === uri).length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpExtensionAvailability', params: { roots: [{
@@ -3138,7 +3141,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           loadedExtensions: ['core', 'dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlwriter'], scannedConfigurationFiles: [] },
       }] } }));
       expect(await definition(208, 'DOMDocument')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
-      await new Promise<void>((resolve) => setTimeout(resolve, 100));
+      await new Promise<void>((resolve) => setTimeout(resolve, 300));
       expect(output.messages.filter((message: any) => message.method === 'textDocument/publishDiagnostics'
         && message.params.uri === uri)).toHaveLength(diagnosticsBeforeNoop);
       expect(await definition(205, 'DOMDocument')).toMatchObject([{ uri: expect.stringContaining('php-companion-builtin:/common-core.php?php=8.5') }]);
