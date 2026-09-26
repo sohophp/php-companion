@@ -4024,6 +4024,40 @@ export class SemanticWorkspace {
           }
           if (owner) unresolvedOwners.add(owner.fqcn);
         }
+        for (const assignment of file.assignments.filter((item) => item.scopeId === scope.id && item.variable === receiver
+          && item.end <= offset && item.sourceArrayElement).slice(-8)) {
+          const element = assignment.sourceArrayElement!;
+          const origin = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === element.variable
+            && item.end <= assignment.start && item.sourceCall?.kind === 'member').at(-1);
+          const call = origin?.sourceCall;
+          if (call?.kind !== 'member') continue;
+          const owner = this.variableClass(file, call.variable, origin!.start, new Set(), true);
+          if (!owner) continue;
+          const methods = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
+            .filter((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === call.method.toLowerCase());
+          if (methods.length !== 1 || !methods[0]!.returnType) continue;
+          const method = methods[0]!;
+          const methodFile = this.files.get(method.uri); if (!methodFile) continue;
+          const documented = parsePhpDocType(method.returnType!).type;
+          const shapes = documented?.kind === 'union' ? documented.types : documented ? [documented] : [];
+          if (!shapes.length || shapes.some((shape) => shape.kind !== 'shape' || shape.shapeKind !== 'array')) continue;
+          const names: string[] = [];
+          for (const shape of shapes) {
+            if (shape.kind !== 'shape') break;
+            const field = shape.fields.find((candidate) => candidate.key === element.key && !candidate.optional);
+            if (!field) { names.length = 0; break; }
+            const branches = field.type.kind === 'union' ? field.type.types : [field.type];
+            if (branches.some((branch) => branch.kind !== 'name' || BUILTIN_PARAMETER_TYPES.has(branch.name.toLowerCase()))) {
+              names.length = 0; break;
+            }
+            const resolved = branches.map((branch) => branch.kind === 'name'
+              ? this.resolveSourceType(methodFile, branch.name, this.namespaceAt(methodFile, method.start), method.typeScopeFqcn)
+              : undefined);
+            if (resolved.some((fqcn) => !fqcn)) { names.length = 0; break; }
+            names.push(...(resolved as string[]));
+          }
+          if (names.length) names.forEach((name) => unresolvedOwners.add(name));
+        }
       }
       return [...unresolvedOwners];
     });

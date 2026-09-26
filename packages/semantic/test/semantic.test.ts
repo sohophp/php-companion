@@ -435,6 +435,30 @@ TXT;
       expect(project.variableValueAt(consumerUri, replaced.indexOf('$item->alphaO') + 2)?.type).toBe('App\\Alpha');
     } finally { project.dispose(); }
   });
+  it('resolves a method PHPDoc union shape through a local array item', () => {
+    const project = new SemanticWorkspace(parser);
+    const sourceUri = 'file:///Factory.php'; const consumerUri = 'file:///Consumer.php';
+    const source = `<?php namespace App;
+      class Factory { /** @return array{item: Alpha}|array{item: Beta} */ public function choose(): array { return []; } }`;
+    const consumer = `<?php namespace App; function inspect(Factory $factory): void {
+      $row = $factory->choose(); $item = $row['item']; $item->com;
+    }`;
+    try {
+      project.update(sourceUri, source); project.update(consumerUri, consumer);
+      const memberOffset = consumer.indexOf('$item->com') + '$item->com'.length;
+      expect(project.memberOwnerTypeNamesAt(consumerUri, memberOffset)).toEqual(['App\\Alpha', 'App\\Beta']);
+      for (const unproven of ['array{item?: Alpha}|array{item: Beta}', 'array{item: Alpha}|array{other: Beta}',
+        'array{item: Alpha}|array{item: string}']) {
+        project.update(sourceUri, source.replace('array{item: Alpha}|array{item: Beta}', unproven));
+        expect(project.memberOwnerTypeNamesAt(consumerUri, memberOffset), unproven).toEqual([]);
+      }
+      project.update(sourceUri, source);
+      project.update('file:///Alpha.php', '<?php namespace App; class Alpha { public function common(): void {} }');
+      project.update('file:///Beta.php', '<?php namespace App; class Beta { public function common(): void {} }');
+      expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com') + 2)?.type).toBe('App\\Alpha|App\\Beta');
+      expect(project.completeMembers(consumerUri, memberOffset).map((item) => item.name)).toEqual(['common']);
+    } finally { project.dispose(); }
+  });
   it('keeps an unrelated union-shape field after a known nested array write', () => {
     const project = new SemanticWorkspace(parser);
     const sourceUri = 'file:///NestedUnionSource.php'; const consumerUri = 'file:///NestedUnionConsumer.php';

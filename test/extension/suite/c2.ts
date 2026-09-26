@@ -782,6 +782,53 @@ function inspectCrossFileDoc(): void { foreach (crossFileRecords() as $item) { $
     && recordsDocument.getText(location.range).includes('crossAlpha')));
   console.log('C2 onDemand cross-file PHPDoc return: Alpha → Beta, completion and definition updated from unsaved source');
 
+  const shapeAlphaUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ShapeAlpha.php');
+  const shapeBetaUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ShapeBeta.php');
+  const shapeFactoryUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ShapeFactory.php');
+  const shapeConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ShapeConsumer.php');
+  const shapeFactorySource = `<?php namespace App\\Service;
+class ShapeFactory { /** @return array{item: ShapeAlpha}|array{item: ShapeBeta} */ public function choose(): array { return []; } }`;
+  const shapeConsumerSource = `<?php namespace App\\Service;
+function inspectShape(ShapeFactory $factory): void {
+  $row = $factory->choose(); $item = $row['item']; $item->com; $item->alpha; $item->common();
+}`;
+  await vscode.workspace.fs.writeFile(shapeAlphaUri, Buffer.from('<?php namespace App\\Service; class ShapeAlpha { public function common(): void {} public function alphaOnly(): void {} }'));
+  await vscode.workspace.fs.writeFile(shapeBetaUri, Buffer.from('<?php namespace App\\Service; class ShapeBeta { public function common(): void {} public function betaOnly(): void {} }'));
+  await vscode.workspace.fs.writeFile(shapeFactoryUri, Buffer.from(shapeFactorySource));
+  await vscode.workspace.fs.writeFile(shapeConsumerUri, Buffer.from(shapeConsumerSource));
+  const shapeFactoryDocument = await vscode.workspace.openTextDocument(shapeFactoryUri);
+  const shapeConsumerDocument = await vscode.workspace.openTextDocument(shapeConsumerUri);
+  await vscode.window.showTextDocument(shapeConsumerDocument);
+  const shapeMethods = async (marker: string): Promise<string[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', shapeConsumerUri,
+    shapeConsumerDocument.positionAt(shapeConsumerSource.indexOf(marker) + marker.length),
+  ))?.items.filter((item) => item.kind === vscode.CompletionItemKind.Method).map((item) => String(item.label)) ?? [];
+  const shapeDeadline = Date.now() + 20_000;
+  while (Date.now() < shapeDeadline && !(await shapeMethods('$item->com')).includes('common'))
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok((await shapeMethods('$item->com')).includes('common'), 'Cold onDemand union shape omitted the shared member.');
+  assert.ok(!(await shapeMethods('$item->alpha')).includes('alphaOnly'), 'Union shape exposed a branch-only member.');
+  const shapeDefinitionPosition = shapeConsumerDocument.positionAt(shapeConsumerSource.indexOf('$item->common()') + '$item->co'.length);
+  const shapeDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', shapeConsumerUri, shapeDefinitionPosition) ?? [];
+  assert.deepStrictEqual(shapeDefinitions.map((item) => item.uri.toString()).sort(),
+    [shapeAlphaUri.toString(), shapeBetaUri.toString()].sort());
+  const shapeReturn = 'array{item: ShapeAlpha}|array{item: ShapeBeta}';
+  const shapeStart = shapeFactorySource.indexOf(shapeReturn);
+  const shapeEdit = new vscode.WorkspaceEdit();
+  shapeEdit.replace(shapeFactoryUri, new vscode.Range(shapeFactoryDocument.positionAt(shapeStart),
+    shapeFactoryDocument.positionAt(shapeStart + shapeReturn.length)), 'array{item: ShapeAlpha}');
+  assert.ok(await vscode.workspace.applyEdit(shapeEdit));
+  assert.ok(shapeFactoryDocument.isDirty, 'The union-shape source edit was unexpectedly saved.');
+  const alphaDeadline = Date.now() + 20_000;
+  while (Date.now() < alphaDeadline && !(await shapeMethods('$item->alpha')).includes('alphaOnly'))
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok((await shapeMethods('$item->alpha')).includes('alphaOnly'), 'The unsaved shape did not update member completion.');
+  const updatedShapeDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeDefinitionProvider', shapeConsumerUri, shapeDefinitionPosition) ?? [];
+  assert.deepStrictEqual(updatedShapeDefinitions.map((item) => item.uri.toString()), [shapeAlphaUri.toString()]);
+  console.log('C2 cold onDemand union-shape return: shared member → unsaved Alpha-only member and definition');
+
   const reopenSourceUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenFeedback.php');
   const reopenContractUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenContract.php');
   const reopenConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'ReopenFeedbackConsumer.php');

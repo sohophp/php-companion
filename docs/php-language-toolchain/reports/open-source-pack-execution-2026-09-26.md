@@ -20,3 +20,5 @@ PHPUnit/Pest 默认由项目 CLI 执行。`recca0120.vscode-phpunit` 3.9.40 在�
 | 4. C4 / R4 | 到下一个交付点冻结同批三份 VSIX，再验证真实 WSL Remote、PHP 版本、跨平台、规模、缓存恢复及持续使用 | 安装内容、唯一 PHP 提供者、工具路径和完整 PHP→Symfony/Twig/YAML/XML→格式化→调试→CLI 测试链通过；R4 保持最终目标 |
 
 这条顺序已经开始执行：隔离分支 `feat/c1-interpolated-variable-completion` 修复了[插值字符串变量补全](c1-interpolated-variable-completion-2026-09-26.md)、[插值成员与普通文本的边界](c1-interpolated-member-boundary-2026-09-26.md)、[普通函数与常量建议的表达式边界](c1-function-constant-completion-boundary-2026-09-26.md)、[类名补全的代码边界](c1-type-completion-code-boundary-2026-09-26.md)、[混合 PHP/HTML 文件的补全边界](c1-mixed-php-html-variable-completion-2026-09-26.md)和[自动 PHP 版本宿主门禁](c1-auto-version-host-gate-2026-09-26.md)。语义回归与实际 VS Code 补全请求通过，完整 10 项源码 Profile 通过。它们位于冻结候选之后，**0.4.6 VSIX 不包含这些增量**。后续继续按可见错误推进 C1/C2；不因每个小改动重新打包，也不等待人工反馈才执行独立验证。
+
+C2 已补上[按需模式的跨文件联合数组形状反馈](c2-ondemand-union-shape-feedback-2026-09-26.md)：未打开形状字段的类文件时，共有成员仍能补全并跳到两个定义；Factory 的 PHPDoc 在未保存缓冲区改为单一分支后，使用方的补全、Hover 和定义同步更新。独立 Composer 真实 LSP 和完整 10 项源码宿主通过，安装候选与 Remote 仍待 C4。

@@ -8663,6 +8663,74 @@ class ChildService extends Service { public function call(int|string $value): vo
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('keeps onDemand union-shape completion, hover and definition aligned with an unsaved source edit', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-union-shape-feedback-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const alpha = '<?php namespace App; class Alpha { public function common(): void {} public function alphaOnly(): void {} }';
+      const beta = '<?php namespace App; class Beta { public function common(): void {} public function betaOnly(): void {} }';
+      const factory = `<?php namespace App; class Factory {
+        /** @return array{item: Alpha}|array{item: Beta} */
+        public function choose(): array { return []; }
+      }`;
+      const consumer = `<?php namespace App; function inspect(Factory $factory): void {
+        $row = $factory->choose(); $item = $row['item'];
+        $item->com; $item->alpha; $item->common();
+      }`;
+      await writeFile(join(root, 'src', 'Alpha.php'), alpha);
+      await writeFile(join(root, 'src', 'Beta.php'), beta);
+      await writeFile(join(root, 'src', 'Factory.php'), factory);
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      const factoryUri = pathToFileURL(join(root, 'src', 'Factory.php')).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const alphaUri = pathToFileURL(join(root, 'src', 'Alpha.php')).toString();
+      const betaUri = pathToFileURL(join(root, 'src', 'Beta.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 594, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 594);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, text] of [[factoryUri, factory], [consumerUri, consumer]]) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+      }
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === consumerUri);
+      const request = async (id: number, method: string, offset: number): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: `textDocument/${method}`, params: {
+          textDocument: { uri: consumerUri }, position: lspPosition(consumer, offset),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      const completionNames = async (id: number, marker: string): Promise<string[]> => {
+        const result = await request(id, 'completion', consumer.indexOf(marker) + marker.length);
+        return (Array.isArray(result) ? result : result?.items ?? []).map((item: { label: string }) => item.label);
+      };
+      expect(await completionNames(595, '$item->com')).toContain('common');
+      expect(await completionNames(596, '$item->alpha')).toEqual([]);
+      const hoverAt = consumer.indexOf('$item->com') + 2;
+      expect((await request(597, 'hover', hoverAt))?.contents?.value).toContain('App\\Alpha|App\\Beta');
+      const definitionAt = consumer.indexOf('$item->common()') + '$item->'.length + 2;
+      expect((await request(598, 'definition', definitionAt)).map((item: { uri: string }) => item.uri).sort())
+        .toEqual([alphaUri, betaUri].sort());
+      const changed = factory.replace('array{item: Alpha}|array{item: Beta}', 'array{item: Alpha}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: factoryUri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === factoryUri);
+      expect(await completionNames(599, '$item->alpha')).toContain('alphaOnly');
+      expect((await request(600, 'hover', hoverAt))?.contents?.value).toContain('App\\Alpha');
+      expect((await request(601, 'definition', definitionAt)).map((item: { uri: string }) => item.uri))
+        .toEqual([alphaUri]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('moves closed PHPDoc facts when a nested Composer project appears in onDemand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-closed-nested-root-'));
     const nested = join(root, 'apps', 'api');
