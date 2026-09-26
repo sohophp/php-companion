@@ -336,9 +336,7 @@ function walk(node: SyntaxNode, callback: (node: SyntaxNode, parent?: SyntaxNode
 function parsePhpDocNames(source: string, range: SourceRange): RawName[] {
   const text = source.slice(range.start, range.end);
   const names: RawName[] = [];
-  for (const annotation of text.matchAll(PHPDOC_TAG)) {
-    const body = annotation.groups?.body ?? '';
-    const bodyOffset = range.start + annotation.index + annotation[0].indexOf(body);
+  const collect = (body: string, bodyOffset: number): void => {
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
     for (const match of body.matchAll(pattern)) {
       const last = match[0].split('\\').at(-1) ?? '';
@@ -346,6 +344,23 @@ function parsePhpDocNames(source: string, range: SourceRange): RawName[] {
       const start = bodyOffset + match.index;
       names.push({ text: match[0], start, end: start + match[0].length, context: 'phpdoc' });
     }
+  };
+  for (const annotation of text.matchAll(PHPDOC_TAG)) {
+    const body = annotation.groups?.body ?? '';
+    const bodyOffset = range.start + annotation.index + annotation[0].indexOf(body);
+    collect(body, bodyOffset);
+  }
+  let previous = '';
+  for (let lineStart = 0; lineStart < text.length;) {
+    const newline = text.indexOf('\n', lineStart);
+    const lineEnd = newline < 0 ? text.length : newline;
+    const line = text.slice(lineStart, lineEnd).replace(/\r$/u, '');
+    const continuation = /^\s*\*\s*(.*)$/u.exec(line);
+    if (continuation && !continuation[1]!.startsWith('@') && /[|&<,(?\\{:]\s*$/u.test(previous)) {
+      collect(continuation[1]!, range.start + lineStart + line.indexOf(continuation[1]!));
+    }
+    previous = (continuation?.[1] ?? line.replace(/^\s*\/\*\*\s*/u, '')).trimEnd();
+    lineStart = newline < 0 ? text.length : newline + 1;
   }
   return names;
 }

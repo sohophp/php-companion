@@ -1697,6 +1697,49 @@ final class C3InlineDocParameter {
   }
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(crossConsumerUri)).toString('utf8'), changedConsumer);
   assert.strictEqual(crossRenameDocument.getText(), crossRenameSource);
+  const docTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3DocSafetyType.php');
+  const docUseUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3DocSafetyConsumer.php');
+  const docTypeSource = '<?php namespace App\\Service; class C3DocSafetyType {}';
+  const docUseSource = `<?php namespace App\\Controller;
+use App\\Service\\C3DocSafetyType;
+/**
+ * @return C3DocSafetyType description C3DocSafetyType
+ * @return list<
+ * C3DocSafetyType
+ * @var array{C3DocSafetyType: C3DocSafetyType} $value
+ * @method C3DocSafetyType find(C3DocSafetyType $value) explanation C3DocSafetyType
+ */
+class C3DocSafetyConsumer {}
+`;
+  await vscode.workspace.fs.writeFile(docTypeUri, Buffer.from(docTypeSource));
+  await vscode.workspace.fs.writeFile(docUseUri, Buffer.from(docUseSource));
+  const docUseDocument = await vscode.workspace.openTextDocument(docUseUri);
+  await vscode.window.showTextDocument(docUseDocument);
+  const docTypeDocument = await vscode.workspace.openTextDocument(docTypeUri);
+  await vscode.window.showTextDocument(docTypeDocument);
+  const docTypePosition = docTypeDocument.positionAt(docTypeSource.indexOf('class C3DocSafetyType') + 'class '.length + 2);
+  const expectedDocOffsets = [docUseSource.indexOf('@return C3DocSafetyType') + '@return '.length,
+    docUseSource.indexOf(' * C3DocSafetyType\n') + ' * '.length,
+    docUseSource.indexOf('C3DocSafetyType: C3DocSafetyType') + 'C3DocSafetyType: '.length,
+    docUseSource.indexOf('@method C3DocSafetyType') + '@method '.length,
+    docUseSource.indexOf('find(C3DocSafetyType') + 'find('.length];
+  const docStart = docUseSource.indexOf('/**'); const docEnd = docUseSource.indexOf('*/') + 2;
+  const docTypeReady = async (): Promise<boolean> => {
+    const references = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', docTypeUri, docTypePosition);
+    return references?.filter((item) => item.uri.toString() === docUseUri.toString())
+      .map((item) => docUseDocument.offsetAt(item.range.start))
+      .filter((offset) => offset >= docStart && offset < docEnd).length === expectedDocOffsets.length;
+  };
+  for (let attempt = 0; attempt < 100 && !await docTypeReady(); attempt += 1)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(await docTypeReady(), 'PHPDoc safety consumer was not indexed before Rename.');
+  const docRename = await vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', docTypeUri, docTypePosition, 'C3DocSafetyRenamed');
+  assert.ok(docRename, 'PHPDoc safety Rename did not return an edit.');
+  assert.deepStrictEqual((docRename.get(docUseUri) ?? []).map((item) => docUseDocument.offsetAt(item.range.start))
+    .filter((offset) => offset >= docStart && offset < docEnd).sort((a, b) => a - b), expectedDocOffsets,
+  'PHPDoc Rename included prose or a shape key, or missed a continued type.');
   const safeTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3SafeType.php');
   const renamedTypeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenamedType.php');
   const safeConsumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3SafeTypeConsumer.php');

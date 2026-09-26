@@ -38,6 +38,6 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 | 3. C3 安全编辑 | 继续按实际使用频率验证 Import、Rename、Safe Move、Extract、Inline 和类型生成的预览、取消、应用结果、Undo/Redo | 每个支持场景可撤销且失败可解释；最终 `WorkspaceEdit.createFile` 兜底的 Redo 仍是明确未通过项，偶发 `Canceled` 根因未明 |
 | 4. C4 交付组合 | 下个交付点一次性冻结三份 VSIX 和外部成员版本，在真实 WSL Remote Profile 检查 PHP→Symfony/Twig/YAML/XML→格式化→调试→CLI 测试 | 安装位置、唯一 Provider、工具路径及完整操作链通过；之后继续 Windows/macOS、PHP 版本矩阵和长会话 |
 
-第一项的起手点已完成：[PHPDoc 类型跳转](c1-phpdoc-type-navigation-2026-09-27.md)在独立夹具复现了说明文字误跳，[跨行续写与未保存修改](c1-phpdoc-continued-type-navigation-2026-09-27.md)也已通过完整 Pack 源码宿主。PHPDoc 注释生成继续交给 DocBlocker。接下来优先处理可复现的 C1/C2 高频输入、反馈错误与等待；按用户可见影响调整顺序。
+第一项的起手点已完成：[PHPDoc 类型跳转](c1-phpdoc-type-navigation-2026-09-27.md)在独立夹具复现了说明文字误跳，[跨行续写与未保存修改](c1-phpdoc-continued-type-navigation-2026-09-27.md)也已通过完整 Pack 源码宿主。[PHPDoc 引用及安全改名范围](c3-phpdoc-type-rename-safety-2026-09-27.md)随后修复了同名说明文字和数组形状键被误改的风险。PHPDoc 注释生成继续交给 DocBlocker。接下来优先处理可复现的 C1/C2 高频输入、反馈错误与等待；按用户可见影响调整顺序。
 
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。

@@ -64,6 +64,53 @@ function values(): array { return []; }
     expect(project.definition(uri, source('Widget').indexOf(' * Widget') + ' * Wi'.length))
       .toMatchObject([{ uri: targetUri, start: target.indexOf('class Widget') + 'class '.length }]);
   });
+  it('keeps PHPDoc prose and array shape keys out of class References and Rename', () => {
+    const project = new SemanticWorkspace(parser);
+    const targetUri = 'file:///src/Widget.php';
+    const target = '<?php namespace App; class Widget {}';
+    const uri = 'file:///src/Consumer.php';
+    const source = `<?php namespace App;
+/**
+ * @return Widget description Widget
+ * @return list<
+ * Widget
+ * @var array{Widget: Widget} $shape
+ * @method Widget find(Widget $value) explanation Widget
+ * @throws MissingType explanation Ghost
+ */
+class Consumer {}
+// Widget in a regular comment
+`;
+    project.update(targetUri, target);
+    project.update(uri, source);
+    const expected = [source.indexOf('@return Widget') + '@return '.length,
+      source.indexOf(' * Widget\n') + ' * '.length,
+      source.indexOf('Widget: Widget') + 'Widget: '.length,
+      source.indexOf('@method Widget') + '@method '.length,
+      source.indexOf('find(Widget') + 'find('.length];
+    const declaration = target.indexOf('class Widget') + 'class '.length + 2;
+    expect(project.references(targetUri, declaration).filter((item) => item.uri === uri).map((item) => item.start).sort((a, b) => a - b))
+      .toEqual(expected);
+    expect(project.typeRename(targetUri, declaration, 'Gadget')?.locations.filter((item) => item.uri === uri)
+      .map((item) => item.start).sort((a, b) => a - b)).toEqual(expected);
+    const moved = project.planTypeMoves([{ oldUri: targetUri, newUri: 'file:///src/Moved/Widget.php', newNamespace: 'App\\Moved' }]);
+    expect(moved.error).toBeUndefined();
+    expect(moved.plan?.edits.filter((item) => item.uri === uri).map((item) => item.start).sort((a, b) => a - b))
+      .toEqual(expected);
+    expect(project.unresolvedTypeNames(uri).map((item) => item.name)).toEqual(['MissingType']);
+    const constantUri = 'file:///src/Constants.php';
+    const constant = '<?php namespace App; const STATUS_FLAG = 1;';
+    const constantUseUri = 'file:///src/ConstantConsumer.php';
+    const constantUse = '<?php namespace App; /** @return int STATUS_FLAG */ function status(): int { return STATUS_FLAG; }';
+    project.update(constantUri, constant);
+    project.update(constantUseUri, constantUse);
+    expect(project.constantRename(constantUri, constant.indexOf('STATUS_FLAG') + 2, 'READY_FLAG')?.locations
+      .filter((item) => item.uri === constantUseUri).map((item) => item.start))
+      .toEqual([constantUse.lastIndexOf('STATUS_FLAG')]);
+    const documentedConstant = constantUse.indexOf('STATUS_FLAG');
+    expect(project.constantRename(constantUseUri, documentedConstant + 2, 'READY_FLAG')).toBeUndefined();
+    expect(project.references(constantUseUri, documentedConstant + 2)).toEqual([]);
+  });
   it('completes only variables visible in the current PHP scope', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///ScopedVariables.php';

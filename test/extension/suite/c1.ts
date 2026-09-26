@@ -645,6 +645,37 @@ function documentedValues(): array { return []; }
   assert.ok(continuationDocument.getText().includes(' * C1DocNavigationTarget'),
     'Undo did not restore the continued PHPDoc type.');
   await continuedDefinition('C1DocNavigationTarget', navigationTargetUri);
+  const safetyTypeUri = vscode.Uri.joinPath(folder, 'C1DocSafetyTarget.php');
+  const safetyUseUri = vscode.Uri.joinPath(folder, 'C1DocSafetyConsumer.php');
+  const safetyType = '<?php namespace App\\C1; class C1DocSafetyTarget {}';
+  const safetyUse = `<?php namespace App\\C1;
+/**
+ * @return C1DocSafetyTarget description C1DocSafetyTarget
+ * @return list<
+ * C1DocSafetyTarget
+ * @var array{C1DocSafetyTarget: C1DocSafetyTarget} $value
+ * @method C1DocSafetyTarget find(C1DocSafetyTarget $value) explanation C1DocSafetyTarget
+ */
+class C1DocSafetyConsumer {}
+`;
+  await vscode.workspace.fs.writeFile(safetyTypeUri, Buffer.from(safetyType));
+  await vscode.workspace.fs.writeFile(safetyUseUri, Buffer.from(safetyUse));
+  const safetyUseDocument = await vscode.workspace.openTextDocument(safetyUseUri);
+  await vscode.window.showTextDocument(safetyUseDocument);
+  const safetyTypeDocument = await vscode.workspace.openTextDocument(safetyTypeUri);
+  await vscode.window.showTextDocument(safetyTypeDocument);
+  const safetyPosition = safetyTypeDocument.positionAt(safetyType.indexOf('class C1DocSafetyTarget') + 'class '.length + 2);
+  const expectedSafetyOffsets = [safetyUse.indexOf('@return C1DocSafetyTarget') + '@return '.length,
+    safetyUse.indexOf(' * C1DocSafetyTarget\n') + ' * '.length,
+    safetyUse.indexOf('C1DocSafetyTarget: C1DocSafetyTarget') + 'C1DocSafetyTarget: '.length,
+    safetyUse.indexOf('@method C1DocSafetyTarget') + '@method '.length,
+    safetyUse.indexOf('find(C1DocSafetyTarget') + 'find('.length];
+  const safetyReferences = await waitForResult(() => vscode.commands.executeCommand<vscode.Location[]>(
+    'vscode.executeReferenceProvider', safetyTypeUri, safetyPosition),
+  (items) => (items ?? []).filter((item) => item.uri.toString() === safetyUseUri.toString()).length === expectedSafetyOffsets.length,
+  'SoPHP did not return the exact PHPDoc type References.');
+  assert.deepStrictEqual((safetyReferences ?? []).filter((item) => item.uri.toString() === safetyUseUri.toString())
+    .map((item) => safetyUseDocument.offsetAt(item.range.start)).sort((a, b) => a - b), expectedSafetyOffsets);
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));

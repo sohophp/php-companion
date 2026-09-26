@@ -618,7 +618,7 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
     && file.source.startsWith('/**', range.start));
   if (!comment) return undefined;
   const lines = file.source.slice(comment.start, offset).split(/\r?\n/u);
-  const tagPattern = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|extends|implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u;
+  const tagPattern = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|(?:template-)?extends|(?:template-)?implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u;
   const methodTagPattern = /^\s*(?:\/\*\*|\*)\s*@method\s+(.*)$/u;
   let body: string | undefined;
   let suffix = '';
@@ -3830,7 +3830,8 @@ export class SemanticWorkspace {
     const unresolved = file.rawNames.flatMap((raw): Array<SemanticLocation & { name: string }> => {
       const name = raw.text.slice(raw.text.lastIndexOf('\\') + 1);
       const typeContext = raw.context === 'phpdoc' || file.typeReferences.some((type) => raw.start >= type.start && raw.end <= type.end);
-      if (!typeContext || raw.text.includes('\\') || !/^[A-Z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name) || this.typeCandidatesAt(uri, raw.start).length) return [];
+      if (!typeContext || !this.isSemanticTypeRawName(file, raw) || raw.text.includes('\\')
+        || !/^[A-Z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name) || this.typeCandidatesAt(uri, raw.start).length) return [];
       return [{ uri, start: raw.start, end: raw.end, name }];
     });
     return [...new Map(unresolved.map((item) => [item.name.toLowerCase(), item])).values()];
@@ -3841,7 +3842,7 @@ export class SemanticWorkspace {
     const within = (start: number, end: number): boolean => ranges.some((range) => start >= range.start && end <= range.end);
     const symbols: TypeCopySymbol[] = file.declarations.filter((item) => !item.anonymous && within(item.start, item.end))
       .map((item) => ({ uri, start: item.start, end: item.end, fqcn: item.fqcn, alias: item.name }));
-    for (const raw of file.rawNames.filter((item) => within(item.start, item.end))) {
+    for (const raw of file.rawNames.filter((item) => within(item.start, item.end) && this.isSemanticTypeRawName(file, item))) {
       const fqcn = this.resolveSourceType(file, raw.text, this.namespaceAt(file, raw.start), this.containingCallable(file, raw.start)?.containerFqcn);
       if (!fqcn) continue;
       symbols.push({ uri, start: raw.start, end: raw.end, fqcn, alias: raw.text.includes('\\') ? fqcn.slice(fqcn.lastIndexOf('\\') + 1) : raw.text });
@@ -3925,7 +3926,8 @@ export class SemanticWorkspace {
       const oldNamespace = replacement.oldFqcn.split('\\').slice(0, -1).join('\\');
       for (const file of this.files.values()) {
         const matchingImports = file.imports.filter((item) => item.kind === 'class' && item.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase());
-        const matchingRaw = file.rawNames.filter((raw) => this.resolveSourceType(file, raw.text, this.namespaceAt(file, raw.start), this.containingCallable(file, raw.start)?.containerFqcn)?.toLowerCase() === replacement.oldFqcn.toLowerCase());
+        const matchingRaw = file.rawNames.filter((raw) => this.isSemanticTypeRawName(file, raw)
+          && this.resolveSourceType(file, raw.text, this.namespaceAt(file, raw.start), this.containingCallable(file, raw.start)?.containerFqcn)?.toLowerCase() === replacement.oldFqcn.toLowerCase());
         if (!matchingImports.length && !matchingRaw.length && file.uri !== replacement.oldUri) continue;
         if (file.syntaxErrors.length) return { error: `Cannot move ${replacement.oldFqcn}: a related file has PHP syntax errors.` };
         touchedSourceUris.add(file.uri);
@@ -3978,6 +3980,7 @@ export class SemanticWorkspace {
           const matching = file.imports.filter((item) => item.kind === 'class'
             && [replacement.oldFqcn.toLowerCase(), replacement.newFqcn.toLowerCase()].includes(item.fqcn.toLowerCase()));
           const matchingRaw = file.rawNames.filter((raw) => {
+            if (!this.isSemanticTypeRawName(file, raw)) return false;
             const resolved = this.resolveSourceType(file, raw.text, this.namespaceAt(file, raw.start), this.containingCallable(file, raw.start)?.containerFqcn)?.toLowerCase();
             return resolved === replacement.oldFqcn.toLowerCase() || resolved === replacement.newFqcn.toLowerCase();
           });
@@ -4397,6 +4400,7 @@ export class SemanticWorkspace {
 
   private constantAtWithImplementation(uri: string, offset: number): ConstantCompletionInfo | undefined {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return undefined;
+    if (file.commentRanges.some((range) => offset >= range.start && offset < range.end)) return undefined;
     const declared = file.constants.find((item) => item.global && offset >= item.start && offset <= item.end);
     const imported = file.imports.find((item) => item.kind === 'const' && offset >= item.pathStart && offset <= item.pathEnd);
     const raw = file.rawNames.filter((item) => item.context === 'code' && offset >= item.start && offset <= item.end)
@@ -7602,7 +7606,7 @@ export class SemanticWorkspace {
       for (const imported of candidate.imports.filter((item) => item.kind === 'const' && item.fqcn === constant.fqcn)) {
         locations.push({ uri: candidate.uri, start: imported.pathEnd - constant.name.length, end: imported.pathEnd });
       }
-      for (const raw of candidate.rawNames) {
+      for (const raw of candidate.rawNames.filter((item) => item.context === 'code')) {
         if (this.resolveConstant(candidate, raw.text, this.namespaceAt(candidate, raw.start)) !== constant.fqcn) continue;
         const explicitAlias = candidate.imports.some((item) => item.kind === 'const' && item.explicitAlias
           && item.fqcn === constant.fqcn && item.alias === raw.text);
@@ -7987,7 +7991,7 @@ export class SemanticWorkspace {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: constant.uri, start: constant.start, end: constant.end }] : [];
       for (const file of this.filesForReferenceKeys(`raw-cs:${constant.name}`, `import:const:${constant.fqcn}`)) {
         for (const imported of file.imports.filter((item) => item.kind === 'const' && item.fqcn === constant.fqcn)) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
-        for (const raw of file.rawNames) {
+        for (const raw of file.rawNames.filter((item) => item.context === 'code')) {
           if (this.resolveConstant(file, raw.text, this.namespaceAt(file, raw.start)) === constant.fqcn) locations.push({ uri: file.uri, start: raw.start, end: raw.end });
         }
       }
@@ -7997,7 +8001,7 @@ export class SemanticWorkspace {
     const locations: SemanticLocation[] = includeDeclaration ? [{ uri: type.uri, start: type.start, end: type.end }] : [];
     for (const file of this.filesForReferenceKeys(`raw-ci:${type.name.toLowerCase()}`, `import:class:${type.fqcn.toLowerCase()}`)) {
       for (const imported of file.imports.filter((item) => item.kind === 'class' && item.fqcn.toLowerCase() === type.fqcn.toLowerCase())) locations.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd });
-      for (const raw of file.rawNames) {
+      for (const raw of file.rawNames.filter((item) => this.isSemanticTypeRawName(file, item))) {
         const namespace = this.namespaceAt(file, raw.start);
         if (this.resolveSourceType(file, raw.text, namespace)?.toLowerCase() === type.fqcn.toLowerCase()) locations.push({ uri: file.uri, start: raw.start, end: raw.end });
       }
@@ -8050,7 +8054,7 @@ export class SemanticWorkspace {
         const part = imported.fqcn.slice(imported.fqcn.lastIndexOf('\\') + 1);
         if (part.toLowerCase() === target.name.toLowerCase()) locations.push({ uri: candidate.uri, start: imported.pathEnd - part.length, end: imported.pathEnd });
       }
-      for (const raw of candidate.rawNames) {
+      for (const raw of candidate.rawNames.filter((item) => this.isSemanticTypeRawName(candidate, item))) {
         if (raw.context === 'phpdoc' && !includePhpDoc) continue;
         const resolved = this.resolveSourceType(candidate, raw.text, this.namespaceAt(candidate, raw.start), this.containingCallable(candidate, raw.start)?.containerFqcn);
         const part = raw.text.slice(raw.text.lastIndexOf('\\') + 1);
@@ -8118,6 +8122,10 @@ export class SemanticWorkspace {
     if (!word || offset < word.start || offset >= word.end) return false;
     const context = phpDocTypeCompletionContext(file, word.end, this.namespaceAt(file, word.start));
     return context?.prefix.toLowerCase() === word.text.split('\\').at(-1)?.toLowerCase();
+  }
+
+  private isSemanticTypeRawName(file: SemanticFile, raw: RawName): boolean {
+    return raw.context === 'code' || this.phpDocTypeNameAt(file, raw.start);
   }
 
   private namespaceAt(file: SemanticFile, offset: number): string {
@@ -10871,6 +10879,7 @@ export class SemanticWorkspace {
       const escaped = item.alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const flags = item.kind === 'const' ? 'u' : 'iu';
       const phpDocUse = item.kind === 'class' && file.rawNames.some((name) => name.context === 'phpdoc'
+        && this.isSemanticTypeRawName(file, name)
         && this.resolveSourceType(file, name.text, this.namespaceAt(file, name.start))?.toLowerCase() === item.fqcn.toLowerCase());
       return phpDocUse || new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, flags).test(searchable)
         ? [`${item.statementStart}:${item.start}`] : [];
