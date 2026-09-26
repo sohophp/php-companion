@@ -2227,6 +2227,23 @@ return static function (RoutingConfigurator $routes): void {
     'Symfony Rename returned a stale WorkspaceEdit after a closed XML reference changed');
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(xmlServicesUri)).toString('utf8'), changedXml);
   assert.ok(servicesDocument.getText().includes('app.mailer:'));
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'symfonyRename' }), true);
+  const unrelatedEditRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
+    'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed');
+  await waitForState(api, 'symfonyRename', servicesDocument, (state) => state.paused,
+    'Symfony service Rename response was not held before an unrelated document changed');
+  const unrelatedRouteEdit = new vscode.WorkspaceEdit();
+  unrelatedRouteEdit.insert(routeControllerUri, routeControllerDocument.positionAt(routeControllerDocument.getText().length), '\n// unrelated edit');
+  assert.ok(await vscode.workspace.applyEdit(unrelatedRouteEdit), 'Could not edit the unrelated open PHP document');
+  assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'symfonyRename' }), true);
+  const unaffectedRename = await unrelatedEditRename;
+  assert.ok(unaffectedRename?.entries().some(([uri]) => uri.toString() === xmlServicesUri.toString()),
+    'An unrelated open document edit cancelled a valid Symfony service Rename');
+  const restoreRoute = new vscode.WorkspaceEdit();
+  restoreRoute.delete(routeControllerUri, new vscode.Range(routeControllerDocument.positionAt(routeControllerSource.length),
+    routeControllerDocument.positionAt(routeControllerDocument.getText().length)));
+  assert.ok(await vscode.workspace.applyEdit(restoreRoute), 'Could not restore the unrelated PHP document');
+  console.log('C3 Symfony service Rename ignored an unrelated open document edit');
   const containerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'ContainerConsumer.php');
   const containerDocument = await vscode.workspace.openTextDocument(containerUri);
   await vscode.window.showTextDocument(containerDocument);

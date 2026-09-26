@@ -46,6 +46,7 @@ async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: R
     const expected = hashes[uri];
     if (!expected) return false;
     const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
+    if (openVersions.has(uri) && open?.version !== openVersions.get(uri)) return false;
     const disk = await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)).then((value) => value, () => undefined);
     if (!disk) return false;
     const diskHash = createHash('sha256').update(disk).digest('hex');
@@ -53,8 +54,7 @@ async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: R
     const source = open?.getText() ?? Buffer.from(disk).toString('utf8');
     if (createHash('sha256').update(source).digest('hex') !== expected) return false;
   }
-  return vscode.workspace.textDocuments.every((item) => !openVersions.has(item.uri.toString())
-    || openVersions.get(item.uri.toString()) === item.version);
+  return true;
 }
 
 function requestParams(document: vscode.TextDocument, position: vscode.Position): {
