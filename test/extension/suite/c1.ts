@@ -427,6 +427,8 @@ function c1Display(C1DisplayItem $item): void {
   echo "plain $item->ti";
   echo 'literal $item->ti';
   echo "escaped \$item->ti";
+  // $item->ti
+  /* $item->ti */
   echo <<<'TXT'
 $item->ti
 TXT;
@@ -446,6 +448,8 @@ TXT;
   for (const [marker, length] of [
     ['literal $item->ti', 'literal $item->ti'.length],
     [String.raw`escaped \$item->ti`, String.raw`escaped \$item->ti`.length],
+    ['// $item->ti', '// $item->ti'.length],
+    ['/* $item->ti', '/* $item->ti'.length],
     ['$item->ti\nTXT;', '$item->ti'.length],
   ] as const) {
     const suggestions = await memberSuggestions(marker, length);

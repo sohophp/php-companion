@@ -160,6 +160,8 @@ function display(DisplayItem $item): void {
   echo "plain $item->ti";
   echo 'literal $item->ti';
   echo "escaped \$item->ti";
+  // $item->ti
+  /* $item->ti */
   echo <<<'TXT'
 $item->ti
 TXT;
@@ -172,7 +174,15 @@ TXT;
       expect(members('plain $item->ti')).toEqual(expect.arrayContaining(['title', 'titleCase']));
       expect(members('literal $item->ti')).toEqual([]);
       expect(members(String.raw`escaped \$item->ti`)).toEqual([]);
+      expect(members('// $item->ti')).toEqual([]);
+      expect(members('/* $item->ti')).toEqual([]);
       expect(members('$item->ti\nTXT;', '$item->ti'.length)).toEqual([]);
+      const mixed = '<?php class DisplayItem { public string $title = ""; } $item = new DisplayItem(); ?><div>$item->ti</div><?php $item->ti; ?>';
+      project.update(uri, mixed);
+      const html = mixed.indexOf('$item->ti');
+      const php = mixed.lastIndexOf('$item->ti');
+      expect(project.completeMembers(uri, html + '$item->ti'.length)).toEqual([]);
+      expect(project.completeMembers(uri, php + '$item->ti'.length).map((item) => item.name)).toContain('title');
     } finally { project.dispose(); }
   });
   it('keeps PHP variable completion out of HTML between PHP tags', () => {
