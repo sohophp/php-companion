@@ -1219,6 +1219,15 @@ export async function run(): Promise<void> {
   assert.ok(!businessDefinitions.some((location) => location.uri.toString() === servicesUri.toString()),
     'Ordinary business get() was incorrectly treated as a Symfony service lookup');
   const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
+  const yamlRegistration = xmlServiceDefinitions.find((location) => location.uri.toString() === servicesUri.toString());
+  assert.ok(yamlRegistration, 'Symfony XML service Definition did not return the YAML registration');
+  assert.strictEqual(servicesDocument.getText(yamlRegistration.range), 'app.mailer',
+    `Symfony service registration range did not match its YAML source: ${JSON.stringify(yamlRegistration.range)}`);
+  const preparedServiceReferenceRename = await api.requestLanguageServer!('phpCompanion/symfonyServicePrepareRename', {
+    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+    source: servicesDocument.getText(), position: servicesDocument.positionAt(serviceReferenceOffset),
+  });
+  assert.ok(preparedServiceReferenceRename, 'Symfony service ID Rename returned no preparation for its YAML reference');
   let preparedServiceRename: unknown;
   await waitForAsync(async () => {
     preparedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServicePrepareRename', {
