@@ -207,6 +207,43 @@ class Repository {}`;
       }
     } finally { project.dispose(); }
   });
+  it('completes PHPDoc array shape value types without suggesting shape keys', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocShapes.php';
+    const source = `<?php
+namespace App;
+class UserService {}
+class UserSession {}
+/**
+ * @param array{owner: UserSe
+ * @return array{owner: UserService, reviewer?: UserSe
+ * @var array{meta: array{owner: UserSe
+ * @method UserService find(array{owner: UserService, reviewer: UserSe
+ * @return array{
+ * owner: UserSe
+ * @param array{owner: UserService, review
+ * @return array{owner: UserService} explanation
+ */
+function consume(): void {}`;
+    try {
+      project.update(uri, source);
+      for (const marker of ['@param array{owner: UserSe', '@return array{owner: UserService, reviewer?: UserSe',
+        '@var array{meta: array{owner: UserSe', '@method UserService find(array{owner: UserService, reviewer: UserSe',
+        ' * owner: UserSe']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name), marker)
+          .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
+      }
+      for (const marker of ['@param array{owner:', '@param array{owner: UserService, review',
+        '@return array{owner: UserService} explanation']) {
+        const offset = source.indexOf(marker) + marker.length;
+        const isEmptyValue = marker.endsWith('owner:');
+        expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe(isEmptyValue ? '' : undefined);
+        if (!isEmptyValue) expect(project.completeTypes(uri, offset), marker).toEqual([]);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes scoped variables in PHP interpolated strings without suggesting literal or escaped dollars', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///InterpolatedVariables.php';

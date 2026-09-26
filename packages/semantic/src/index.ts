@@ -544,7 +544,7 @@ function phpDocMethodTypeFragment(body: string, following: string): string | und
   while (/\s/u.test(signature[cursor] ?? '')) cursor += 1;
   if (signature[cursor] !== '(') return undefined;
   let start = cursor + 1;
-  let parentheses = 0; let angles = 0; let brackets = 0; let quote: string | undefined; let escaped = false;
+  let parentheses = 0; let angles = 0; let brackets = 0; let braces = 0; let quote: string | undefined; let escaped = false;
   for (let index = start; index < signature.length; index += 1) {
     const char = signature[index]!;
     if (escaped) { escaped = false; continue; }
@@ -556,9 +556,43 @@ function phpDocMethodTypeFragment(body: string, following: string): string | und
     else if (char === '>') angles = Math.max(0, angles - 1);
     else if (char === '[') brackets += 1;
     else if (char === ']') brackets = Math.max(0, brackets - 1);
-    else if (char === ',' && !parentheses && !angles && !brackets) start = index + 1;
+    else if (char === '{') braces += 1;
+    else if (char === '}') braces = Math.max(0, braces - 1);
+    else if (char === ',' && !parentheses && !angles && !brackets && !braces) start = index + 1;
   }
   return signature.slice(start).trimStart().replace(/^\.\.\./u, '');
+}
+
+function phpDocShapeValueFragment(body: string): string | undefined {
+  const openings: Array<{ start: number; shape: boolean }> = [];
+  let quote: string | undefined; let escaped = false;
+  for (let index = 0; index < body.length; index += 1) {
+    const char = body[index]!;
+    if (escaped) { escaped = false; continue; }
+    if (quote) { if (char === '\\') escaped = true; else if (char === quote) quote = undefined; continue; }
+    if (char === '"' || char === "'") { quote = char; continue; }
+    if (char === '{') openings.push({ start: index + 1, shape: /\b(?:array|object)$/u.test(body.slice(0, index)) });
+    else if (char === '}') openings.pop();
+  }
+  const open = openings.at(-1);
+  if (!open) return body;
+  if (!open.shape) return undefined;
+  let start = open.start; let angles = 0; let parentheses = 0; let brackets = 0;
+  quote = undefined; escaped = false;
+  for (let index = start; index < body.length; index += 1) {
+    const char = body[index]!;
+    if (escaped) { escaped = false; continue; }
+    if (quote) { if (char === '\\') escaped = true; else if (char === quote) quote = undefined; continue; }
+    if (char === '"' || char === "'") { quote = char; continue; }
+    if (char === '<') angles += 1;
+    else if (char === '>') angles = Math.max(0, angles - 1);
+    else if (char === '(') parentheses += 1;
+    else if (char === ')') parentheses = Math.max(0, parentheses - 1);
+    else if (char === '[') brackets += 1;
+    else if (char === ']') brackets = Math.max(0, brackets - 1);
+    else if (char === ',' && !angles && !parentheses && !brackets) start = index + 1;
+  }
+  return /^\s*(?:[A-Za-z_][A-Za-z0-9_-]*|-?\d+|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")\??\s*:\s*(.*)$/su.exec(body.slice(start))?.[1];
 }
 
 function phpDocTypeCompletionContext(file: SemanticFile, offset: number, currentNamespace: string):
@@ -573,12 +607,13 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
   let suffix = '';
   for (let index = lines.length - 1; index >= 0 && lines.length - index <= 8; index -= 1) {
     const tag = tagPattern.exec(lines[index]!);
-    if (tag) { body = tag[2]! + suffix; break; }
+    if (tag) { body = phpDocShapeValueFragment(tag[2]! + suffix); break; }
     const methodTag = methodTagPattern.exec(lines[index]!);
     if (methodTag) {
       const lineEnd = file.source.indexOf('\n', offset);
-      body = phpDocMethodTypeFragment(methodTag[1]! + suffix,
+      const methodFragment = phpDocMethodTypeFragment(methodTag[1]! + suffix,
         file.source.slice(offset, lineEnd < 0 ? comment.end : Math.min(lineEnd, comment.end)));
+      body = methodFragment === undefined ? undefined : phpDocShapeValueFragment(methodFragment);
       break;
     }
     const continuation = /^\s*\*\s*(.*)$/u.exec(lines[index]!);
@@ -586,7 +621,7 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
     const previous = tagPattern.exec(lines[index - 1]!)?.[2]
       ?? methodTagPattern.exec(lines[index - 1]!)?.[1]
       ?? /^\s*\*\s*(.*)$/u.exec(lines[index - 1]!)?.[1];
-    if (previous === undefined || !/[|&<,(?\\]\s*$/u.test(previous)) return undefined;
+    if (previous === undefined || !/[|&<,(?\\{:]\s*$/u.test(previous)) return undefined;
     suffix = continuation[1]!.trimStart() + suffix;
   }
   if (body === undefined) return undefined;

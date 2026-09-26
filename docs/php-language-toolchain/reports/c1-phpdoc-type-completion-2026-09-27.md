@@ -10,4 +10,6 @@
 
 同日继续接入 `@method` 的显式返回类型和参数类型：支持 `@method static UserSe`，以及已有方法名后的首个和后续参数类型。方法名、参数变量名和签名后的说明文字不触发项目类建议；只在能够明确识别类型位置时提供补全。语义测试 419/419 通过，日志 `/tmp/sophp-c1-phpdoc-method-semantic-20260927.log`。完整 10 项 Open Source Pack 的 PHP 8.5 按需源码宿主验证了未打开的 PSR-4 类及上述正反例，退出码 0，日志 `/tmp/sophp-c1-phpdoc-method-pack10-20260927.log`。相关 TypeScript、ESLint 和差异检查通过。
 
-当前仍未覆盖任意复杂的多行 PHPDoc 类型、数组形状内部键/值语法、`@method` 的复杂嵌套类型或默认值位置，以及注释内跳转。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。
+同日继续接入 PHPDoc 数组形状字段的值类型：`array{owner: UserSe`、逗号后的可选字段 `reviewer?: UserSe`、嵌套形状和 `@method` 参数内的形状值均可沿用项目类建议；形状键和闭合形状后的说明文字不触发这条补全。跨行 `array{` 后的字段值也可继续输入。先前 `@method` 参数扫描把形状内部的逗号误判为参数分隔符，此次一并修正。语义测试 420/420 通过，日志 `/tmp/sophp-c1-phpdoc-shape-semantic-20260927.log`；完整 10 项 Open Source Pack 的 PHP 8.5 按需源码宿主对未打开的 PSR-4 类通过实际补全请求，退出码 0，日志 `/tmp/sophp-c1-phpdoc-shape-pack10-20260927.log`。相关 TypeScript、ESLint 和差异检查通过。
+
+当前仍未覆盖任意复杂的多行 PHPDoc 类型、已闭合形状后的复合类型位置、`@method` 的模板边界或默认值位置，以及注释内跳转。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。

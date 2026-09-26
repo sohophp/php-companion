@@ -504,6 +504,11 @@ namespace App\C1;
  * @method C1DocTarget find(C1DocTa
  * @method C1DocTarget find(C1DocTarget $owner, C1DocTa
  * @method C1DocTarget find(C1DocTarget $owner) description
+ * @param array{owner: C1DocTa
+ * @return array{owner: C1DocTarget, reviewer?: C1DocTa
+ * @var array{meta: array{owner: C1DocTa
+ * @method C1DocTarget find(array{owner: C1DocTarget, reviewer: C1DocTa
+ * @param array{owner: C1DocTarget, review
  * @return C1DocTarget description
  */
 function documented(): void {}
@@ -542,6 +547,16 @@ function documented(): void {}
       item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
     `SoPHP did not suggest the project class in @method type position ${marker}.`);
   }
+  for (const marker of ['@param array{owner: C1DocTa', '@return array{owner: C1DocTarget, reviewer?: C1DocTa',
+    '@var array{meta: array{owner: C1DocTa',
+    '@method C1DocTarget find(array{owner: C1DocTarget, reviewer: C1DocTa']) {
+    assert.ok((await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
+    `SoPHP did not suggest the project class in PHPDoc array shape value ${marker}.`);
+  }
+  assert.ok(!(await phpDocSuggestions('@param array{owner: C1DocTarget, review')).some((item) =>
+    item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
+  'SoPHP suggested a project class for a PHPDoc array shape key.');
   for (const marker of ['@method C1DocTarget find', '@method C1DocTarget find(C1DocTarget $owner) description']) {
     assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
