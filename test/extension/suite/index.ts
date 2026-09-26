@@ -70,7 +70,7 @@ class AttributeOnlyController {
   await vscode.workspace.fs.writeFile(compactTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(localCompactTemplateUri, Buffer.from('{{ localUser }}\n'));
   await vscode.workspace.fs.writeFile(multipleCompactTemplateUri, Buffer.from('{{ localUser }} {{ title }} {{ headline }}\n'));
-  await vscode.workspace.fs.writeFile(assignedTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(assignedTemplateUri, Buffer.from('{{ user }} {{ headline }}\n'));
   await vscode.workspace.fs.writeFile(attributeTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeOnlyTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeCompactTemplateUri, Buffer.from('{{ user }}\n'));
@@ -171,6 +171,43 @@ class AttributeOnlyController {
         .some((location) => location.uri.toString() === ownerUri.toString()),
       'TwigPlus did not navigate an assigned context variable to its PHP source', 30_000, 100);
     }
+    const assignedTemplate = await vscode.workspace.openTextDocument(assignedTemplateUri);
+    const headlinePosition = assignedTemplate.positionAt(assignedTemplate.getText().indexOf('headline') + 2);
+    const assignedKeyStart = source.indexOf("$params = ['user' => $user]") + "$params = ['".length;
+    assert.ok(assignedKeyStart >= "$params = ['".length, 'Assigned Controller context fixture lost its literal key');
+    const assignedControllerEditor = await vscode.window.showTextDocument(document);
+    assert.ok(await assignedControllerEditor.edit((edit) => edit.replace(new vscode.Range(document.positionAt(assignedKeyStart),
+      document.positionAt(assignedKeyStart + 'user'.length)), 'headline')));
+    assert.ok(document.isDirty, 'Assigned Controller context edit unexpectedly saved the source');
+    await waitForAsync(async () => {
+      const assigned = (await contexts()).find(({ template }) => template === 'templates/assigned.html.twig');
+      return assigned?.complete === true && assigned.variables.length === 1 && assigned.variables[0]?.name === 'headline';
+    }, 'Unsaved assigned context did not replace user with headline', 30_000, 100);
+    await vscode.window.showTextDocument(assignedTemplate);
+    await waitForAsync(async () => {
+      const oldLocations = await vscode.commands.executeCommand<vscode.Location[]>(
+        'vscode.executeDefinitionProvider', assignedTemplateUri, assignedTemplate.positionAt(4)) ?? [];
+      const newLocations = await vscode.commands.executeCommand<vscode.Location[]>(
+        'vscode.executeDefinitionProvider', assignedTemplateUri, headlinePosition) ?? [];
+      return oldLocations.every((location) => location.uri.toString() !== uri.toString())
+        && newLocations.some((location) => location.uri.toString() === uri.toString());
+    }, 'TwigPlus kept the old assigned variable or missed the new PHP source', 30_000, 100);
+    const updatedCompletions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', assignedTemplateUri, headlinePosition);
+    const updatedItems = Array.isArray(updatedCompletions) ? updatedCompletions : updatedCompletions?.items ?? [];
+    assert.ok(updatedItems.some((item) => item.label === 'headline'), 'TwigPlus did not complete the unsaved assigned variable');
+    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(document.getText(), source, 'Undo did not restore the assigned Controller context');
+    await waitForAsync(async () => {
+      const assigned = (await contexts()).find(({ template }) => template === 'templates/assigned.html.twig');
+      return assigned?.complete === true && assigned.variables.length === 1 && assigned.variables[0]?.name === 'user';
+    }, 'Undo did not restore the assigned Controller context in Twig interop', 30_000, 100);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', assignedTemplateUri, assignedTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not restore the old assigned variable source after Undo', 30_000, 100);
+    console.log('Symfony assigned context: unsaved key edit and Undo refreshed Twig completion and Definition');
     const attributeTemplate = await vscode.workspace.openTextDocument(attributeTemplateUri);
     await vscode.window.showTextDocument(attributeTemplate);
     await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(

@@ -9,3 +9,5 @@
 完整 10 项 Open Source Pack 的 PHP 8.5 按需源码 Profile 使用 SoPHP Core、SoPHP Symfony 与 TwigPlus，实际核对两个模板的上下文以及 TwigPlus Definition 返回 PHP Controller，Extension Host 退出码 **0**；日志 `/tmp/sophp-symfony-assigned-context-pack10-20260927.log`。同轮的 PHP 编辑、Symfony、格式化、调试与项目 CLI 测试组合链继续通过。
 
 较远的赋值、变量间转发和复杂控制流仍不据此推断模板变量。本源码增量不在 0.4.7 冻结 VSIX 中；真实 WSL Remote、跨平台和持续使用仍属 R4 验收。
+
+后续补充 C2 未保存编辑往返：保持 Controller 与 Twig 模板打开，把 `$params` 字面量键 `user` 改为 `headline`，桥接上下文只剩新键；TwigPlus 对旧 `user` 的 PHP Definition 消失，新 `headline` 的 Completion 与 Definition 出现。执行一次编辑器 Undo 后，源文本和旧变量来源恢复。完整 10 项 Open Source Pack 的同一 PHP 8.5 源码 Profile 退出码 0，日志 `/tmp/sophp-symfony-assigned-context-edit-pack10-20260927.log`。此处是源码宿主反馈证据，仍不代表已安装 VSIX 的真实 WSL Remote 操作。
