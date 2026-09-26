@@ -41,6 +41,7 @@ function resolvePhpScriptCommand(command: string): string {
 
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
+  const releaseVersion = (JSON.parse(await readFile(join(repository, 'package.json'), 'utf8')) as { version: string }).version;
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
   const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
   if (twigPlusDevelopmentPath && !sourceProfile) throw new Error('TwigPlus development path requires the source Profile.');
@@ -55,12 +56,12 @@ async function main(): Promise<void> {
     throw new Error('Real vendor Pack gate needs 0..20000 noise files and 1..500 rounds.');
   }
   const vsix = process.env.PHP_COMPANION_TEST_CORE_VSIX ? resolve(process.env.PHP_COMPANION_TEST_CORE_VSIX)
-    : join(repository, 'php-companion-0.4.6.vsix');
+    : join(repository, `php-companion-${releaseVersion}.vsix`);
   const symfonyVsix = process.env.PHP_COMPANION_TEST_SYMFONY_VSIX ? resolve(process.env.PHP_COMPANION_TEST_SYMFONY_VSIX)
-    : join(repository, 'packages', 'php-companion-symfony', 'php-companion-symfony-0.4.6.vsix');
+    : join(repository, 'packages', 'php-companion-symfony', `php-companion-symfony-${releaseVersion}.vsix`);
   const packVsix = process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX
     ? resolve(process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX)
-    : join(repository, 'packages', 'php-companion-extension-pack', 'php-companion-open-source-pack-0.4.5.vsix');
+    : join(repository, 'packages', 'php-companion-extension-pack', `php-companion-open-source-pack-${releaseVersion}.vsix`);
   const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
   if (!sourceProfile) {
     await stat(vsix);

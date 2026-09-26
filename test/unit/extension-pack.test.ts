@@ -24,10 +24,10 @@ async function manifest(path: string): Promise<ExtensionManifest> {
 }
 
 describe('SoPHP manifests', () => {
-  it('publishes the Core, Symfony, and Open Source Pack candidate at 0.4.6', async () => {
-    for (const [path, version] of [['package.json', '0.4.6'],
-      ['packages/php-companion-symfony/package.json', '0.4.6'],
-      ['packages/php-companion-extension-pack/package.json', '0.4.6']] as const) {
+  it('keeps the Core, Symfony, and Open Source Pack candidate on one version', async () => {
+    const version = (await manifest('package.json')).version;
+    for (const path of ['package.json', 'packages/php-companion-symfony/package.json',
+      'packages/php-companion-extension-pack/package.json']) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
       expect(value.version).toBe(version);

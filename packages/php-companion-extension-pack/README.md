@@ -2,7 +2,7 @@
 
 面向希望直接使用自研 PHP Language Server 和开源 PHP 工具的开发者。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
-当前源码组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。最新私有冻结候选是 `f394e41f` / 0.4.6，已通过三份实际 VSIX 的隔离 Linux 组合宿主；公开 Marketplace 页面仍是旧清单。后续源码改动不会自动进入该候选。
+当前源码组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。私有候选的准确源码提交、三份 VSIX 摘要与外部成员版本以其 `candidate.json` 和 `SHA256SUMS` 为准；公开 Marketplace 页面仍是旧清单。
 
 成员职责、现有验证范围和 Core 下一步见[Open Source Pack 当前执行清单](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-execution-2026-09-26.md)。[Marketplace 与源码清单核对](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-marketplace-audit-2026-09-25.md)记录了公开旧包的实际成员与外部工具的稳定版本快照。
 
@@ -56,9 +56,6 @@ JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code �
 
 ## 本地候选安装
 
-最新私有候选保存在本机的 `/tmp/sophp-integration-0.4.6-alpha-20260926/artifacts/php-companion-alpha-0.4.6-f394e41f/`，不属于仓库或公开 Marketplace 的发行文件。Symfony 尚按私有候选交付。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。
+私有候选在 `artifacts/php-companion-alpha-<版本>-<提交号>/`，由 `pnpm candidate:alpha` 输出准确目录；它不属于公开 Marketplace 的发行文件。Symfony 尚按私有候选交付。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。
 
-```bash
-cd /tmp/sophp-integration-0.4.6-alpha-20260926/artifacts/php-companion-alpha-0.4.6-f394e41f
-sha256sum -c SHA256SUMS
-```
+进入 `pnpm candidate:alpha` 输出的目录后运行 `sha256sum -c SHA256SUMS`。

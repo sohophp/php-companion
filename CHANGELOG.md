@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.7 - 2026-09-26
+
+- Complete scoped variables and members in interpolated PHP strings, including a newly typed dollar sign, while keeping ordinary strings, comments and HTML outside PHP completion.
+- Restrict general function, constant and class suggestions to PHP code positions so literal text does not trigger project type searches.
+- Load proven PHPDoc union array-shape member owners on demand, including immediately after a bare `->`, and refresh completion, Hover and Definition after unsaved declaration edits.
+
 ## 0.4.6 - 2026-09-26
 
 - Infer the semantic type of values passed through literal Symfony Controller `render()` arrays, including local objects with safely loaded declarations. Export public methods and zero-argument getter aliases to TwigPlus for completion, hover, signatures, and declaration navigation.

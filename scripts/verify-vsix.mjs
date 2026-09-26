@@ -5,10 +5,16 @@ import { URL } from 'node:url';
 import yauzl from 'yauzl';
 
 const openSourceProfile = JSON.parse(await readFile(new URL('../test/extension/open-source-profile.extensions.json', import.meta.url), 'utf8'));
+const productManifests = await Promise.all([
+  '../package.json', '../packages/php-companion-symfony/package.json', '../packages/php-companion-extension-pack/package.json',
+].map(async (path) => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'))));
+const releaseVersion = productManifests[0].version;
+if (!productManifests.every((manifest) => manifest.version === releaseVersion))
+  throw new Error('Core, Symfony and Open Source Pack versions must match.');
 
 const artifacts = [
   {
-    path: 'packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix',
+    path: `packages/php-companion-symfony/php-companion-symfony-${releaseVersion}.vsix`,
     symfony: true,
     required: [
       'extension/package.json',
@@ -25,7 +31,7 @@ const artifacts = [
     ],
   },
   {
-    path: 'php-companion-0.4.6.vsix',
+    path: `php-companion-${releaseVersion}.vsix`,
     core: true,
     required: [
       'extension/package.json',
@@ -38,7 +44,7 @@ const artifacts = [
     ],
   },
   {
-    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.6.vsix',
+    path: `packages/php-companion-extension-pack/php-companion-open-source-pack-${releaseVersion}.vsix`,
     focusedPack: true,
     required: [
       'extension/package.json',
@@ -101,6 +107,8 @@ for (const artifact of artifacts) {
       throw new Error(`${artifact.path} must not bundle the standalone Symfony Winstar route provider.`);
     }
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion' || manifest.version !== releaseVersion)
+      throw new Error(`${artifact.path} has an unexpected Core extension identity.`);
     if (manifest.contributes?.configuration?.properties?.['phpCompanion.languageServer.enabled']?.default !== true) {
       throw new Error(`${artifact.path} must enable the self-hosted PHP language server by default.`);
     }
@@ -113,7 +121,7 @@ for (const artifact of artifacts) {
   }
   if (artifact.symfony) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-symfony' || manifest.version !== '0.4.6') {
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-symfony' || manifest.version !== releaseVersion) {
       throw new Error(`${artifact.path} has an unexpected Symfony extension identity.`);
     }
     if (JSON.stringify(manifest.extensionDependencies) !== JSON.stringify(['sohophp.php-companion'])) {
@@ -126,7 +134,7 @@ for (const artifact of artifacts) {
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-open-source-pack' || manifest.version !== '0.4.6') {
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-open-source-pack' || manifest.version !== releaseVersion) {
       throw new Error(`${artifact.path} has an unexpected Open Source Pack identity.`);
     }
     const expectedExtensions = ['sohophp.php-companion', 'sohophp.php-companion-symfony', ...openSourceProfile.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)]

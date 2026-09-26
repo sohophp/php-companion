@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7 - 2026-09-26
+
+- Align the Symfony extension version with the 0.4.7 SoPHP Core and Open Source Pack candidate.
+
 ## 0.4.6 - 2026-09-26
 
 - Include exact value-expression ranges for literal Controller `render()` arrays so SoPHP Core can infer local variable types for TwigPlus.
