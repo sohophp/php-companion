@@ -1125,6 +1125,11 @@ export async function run(): Promise<void> {
   );
   assert.ok(parameterCompletionList.items.some((item) => item.label === 'app.transport'),
     'Symfony YAML parameter completion did not return the authoritative parameter id');
+  const preparedParameterRename = await api.requestLanguageServer!('phpCompanion/symfonyParameterPrepareRename', {
+    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+    source: servicesDocument.getText(), position: servicesDocument.positionAt(parameterReferenceOffset),
+  });
+  assert.ok(preparedParameterRename, 'Symfony parameter Rename returned no preparation for its exact YAML placeholder');
   const parameterRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset), 'app.renamed-transport',
   );
