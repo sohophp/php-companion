@@ -4064,6 +4064,11 @@ function symfonyParameterDeclarationsAt(source: string, offset: number, sourceIs
   return declarations.filter((declaration) => offset >= declaration.start && offset <= declaration.end);
 }
 
+function sameFilePath(left: string, right: string): boolean {
+  const a = resolve(left); const b = resolve(right);
+  return process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b;
+}
+
 async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
   parameterId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
@@ -4088,11 +4093,19 @@ async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, ca
   const newName = typeof params.newName === 'string' ? params.newName : parameterId;
   if (!/^[A-Za-z0-9_.-]+$/.test(newName) || newName !== parameterId && symfonyParameterCatalog(root).some((parameter) => parameter.id === newName)) return undefined;
   const references = await scanSymfonyParameterReferences(root, parameterId, uri, params.source, cancelled); if (!references || cancelled()) return undefined;
-  const targetPath = pathForUri(target.uri); const targetSource = target.uri === uri ? params.source
+  const targetPath = pathForUri(target.uri);
+  const targetIsCurrent = !!targetPath && sameFilePath(sourcePath, targetPath);
+  const localDeclaration = targetIsCurrent ? (sourceIsPhp ? symfonyPhpParameterDeclarations(syntaxParser!, params.source, symfonyEnvironmentForRoot(root))
+    : sourceIsXml ? symfonyXmlParameterDeclarations(params.source, symfonyEnvironmentForRoot(root))
+      : symfonyYamlParameterDeclarations(params.source, symfonyEnvironmentForRoot(root))).filter((candidate) => candidate.value === parameterId) : [];
+  if (targetIsCurrent && localDeclaration.length !== 1) return undefined;
+  const targetUri = targetIsCurrent ? uri : target.uri;
+  const targetStart = localDeclaration[0]?.start ?? target.start; const targetEnd = localDeclaration[0]?.end ?? target.end;
+  const targetSource = targetIsCurrent ? params.source
     : frameworkDocumentSnapshots.get(target.uri)?.source ?? documents.get(target.uri)?.getText()
       ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
-  if (targetSource === undefined || targetSource.slice(target.start, target.end) !== parameterId) return undefined;
-  const edits = [{ uri: target.uri, source: targetSource, start: target.start, end: target.end }, ...references];
+  if (targetSource === undefined || targetSource.slice(targetStart, targetEnd) !== parameterId) return undefined;
+  const edits = [{ uri: targetUri, source: targetSource, start: targetStart, end: targetEnd }, ...references];
   const unique = [...new Map(edits.map((edit) => [`${edit.uri}:${edit.start}:${edit.end}`, edit])).values()]
     .sort((left, right) => left.uri.localeCompare(right.uri) || left.start - right.start);
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
@@ -4148,7 +4161,7 @@ async function scanSymfonyParameterReferences(root: string, parameterId: string,
   const syntaxParser = await parser();
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].filter((path) => /\.(?:ya?ml|xml|php)$/i.test(path)).sort()) {
     if (cancelled()) return undefined;
-    const uri = currentPath && resolve(configPath) === resolve(currentPath) ? currentUri : pathToFileURL(configPath).toString();
+    const uri = currentPath && sameFilePath(configPath, currentPath) ? currentUri : pathToFileURL(configPath).toString();
     const source = uri === currentUri ? currentSource : frameworkDocumentSnapshots.get(uri)?.source
       ?? documents.get(uri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
     if (source === undefined || source.length > indexLimits.maxFileSizeBytes) return undefined;

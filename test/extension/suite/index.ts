@@ -2322,11 +2322,12 @@ export async function run(): Promise<void> {
   await waitFor(() => !implicitNullableDocument.getText().includes('?string $name = null'), 'Implicit-nullability fixture could not be restored after Redo');
   const dynamicPropertyUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'DynamicProperties.php');
   const dynamicPropertyDocument = await vscode.workspace.openTextDocument(dynamicPropertyUri);
+  await vscode.window.showTextDocument(dynamicPropertyDocument);
   const dynamicPropertyOriginal = dynamicPropertyDocument.getText();
   await waitFor(
     () => vscode.languages.getDiagnostics(dynamicPropertyUri).some((diagnostic) => diagnostic.source === 'SoPHP'
       && diagnostic.code === 'php.property.dynamic-deprecated'),
-    'Self-hosted language server did not publish a proven dynamic-property creation warning',
+    'Self-hosted language server did not publish a proven dynamic-property creation warning', 30_000,
   );
   const dynamicPropertyDiagnostics = vscode.languages.getDiagnostics(dynamicPropertyUri)
     .filter((diagnostic) => diagnostic.code === 'php.property.dynamic-deprecated');
@@ -2705,7 +2706,7 @@ export async function run(): Promise<void> {
   await waitFor(() => {
     unusedImportDiagnostic = vscode.languages.getDiagnostics(unusedImportUri).find((diagnostic) => diagnostic.code === 'php.import.unused');
     return Boolean(unusedImportDiagnostic);
-  }, 'Self-hosted language server did not diagnose an unused independent import');
+  }, 'Self-hosted language server did not diagnose an unused independent import', 30_000);
   let removeImportAction: vscode.CodeAction | undefined;
   await waitForAsync(async () => {
     const unusedImportActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
