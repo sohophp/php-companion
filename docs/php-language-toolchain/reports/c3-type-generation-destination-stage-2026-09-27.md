@@ -7,3 +7,5 @@
 完整 10 项 Open Source Pack 的隔离 VS Code 1.139.1 Linux x64 源码宿主中，测试强制前两次移动返回失败，第三次目标目录移动成功。Undo 删除目标并恢复隐藏 `.tmp`，Redo 恢复目标并移走 `.tmp`；宿主断言无残留暂存文件。它又强制三次移动全失败，确认暂存源清理及最终创建结果核对仍工作。定向宿主退出码 0，日志 `/tmp/sophp-c3-destination-stage-pack10-20260927.log`。包含其它 Rename、Safe Move、Extract、参数编辑与 Symfony 链的**完整 C3 Pack 宿主**也退出码 0，日志 `/tmp/sophp-c3-destination-stage-full-pack10-20260927.log`。根扩展、Symfony 与测试入口 TypeScript、改动文件 ESLint、`git diff --check` 通过。
 
 最终 `createFile` 的预期失败探针仍在三次移动被拒绝后执行，记录 `C3 createFile fallback Redo: restored=false`，退出码 1，日志 `/tmp/sophp-c3-final-create-redo-probe-after-destination-stage-20260927.log`。该路径仍会用于目录不可写、非 `file` scheme 或资源移动被拒绝的情况，Redo 缺口没有关闭。第三次移动成功后若用户执行 Undo 而不执行 Redo，隐藏 `.tmp` 会留在项目目录以供 Redo；不能自动删除而破坏撤销栈。真实 WSL Remote、其它平台和长期文件事件交错仍需单独验收。
+
+后续发现移动保留了旧暂存文件的 `0600` 权限；[生成文件权限修复](c3-generated-file-permissions-2026-09-27.md)已让最终文件遵循进程 umask，并在同一目标目录移动的 Undo/Redo 后完成宿主断言。

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
@@ -589,6 +589,8 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok((await vscode.workspace.openTextDocument(destinationFallbackUri)).getText().includes('class C3DestinationFallback'),
     'Redo did not restore the destination-stage generated file');
+  assert.strictEqual((await stat(destinationFallbackUri.fsPath)).mode & 0o777, 0o666 & ~process.umask(),
+    'The generated PHP file kept restrictive staging permissions after Redo');
   await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(destinationStagePath!)),
     'Redo left a hidden destination stage behind');
   await vscode.workspace.fs.delete(destinationFallbackUri);

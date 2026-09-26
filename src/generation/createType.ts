@@ -268,7 +268,7 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
       let staged = false;
       try {
         const stagedUri = vscode.Uri.file(stagedPath);
-        await writeFile(stagedPath, source, { flag: 'wx', mode: 0o600 });
+        await writeFile(stagedPath, source, { flag: 'wx', mode: 0o666 });
         staged = true;
         const edit = new vscode.WorkspaceEdit();
         edit.renameFile(stagedUri, uri, { overwrite: false });
