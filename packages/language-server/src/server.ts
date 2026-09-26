@@ -6037,36 +6037,26 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (constants.length) return constants;
   const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
     ?? workspace.namespaceTypeContext(document.uri, offset);
-  let namespaceCandidatesComplete = true;
-  let namespaceItems: CompletionItem[] = [];
-  if (namespaceContext) {
-    const root = rootForUri(document.uri);
-    if (root) {
-      const segments = await importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested);
-      if (segments === 'stale') return [];
-      namespaceCandidatesComplete = segments.complete;
-      namespaceItems = segments.names.map((name, index) => ({
-        label: `${name}\\`, kind: CompletionItemKind.Module,
-        detail: `${namespaceContext.qualifier ? `${namespaceContext.qualifier}\\` : ''}${name}\\`,
-        sortText: `0${String(index).padStart(6, '0')}`, preselect: index === 0,
-        textEdit: { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
-          end: document.positionAt(offset) }, newText: `${name}\\` },
-      }));
-    }
-    if (!currentQueryDocument(document, token, queryVersion)) return [];
-  }
-  let typeCandidatesComplete = true;
-  if (indexingMode === 'onDemand' && typeContext) {
-    const root = rootForUri(document.uri);
-    if (root) {
-      const outcome = await hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, () => token.isCancellationRequested);
-      if (outcome === 'stale') return [];
-      typeCandidatesComplete = outcome;
-    }
-    if (!currentQueryDocument(document, token, queryVersion)) return [];
-  }
-  const allTypes = workspace.completeTypes(document.uri, offset);
   const root = rootForUri(document.uri);
+  const [segments, typeOutcome] = await Promise.all([
+    namespaceContext && root ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
+      : Promise.resolve(undefined),
+    indexingMode === 'onDemand' && typeContext && root
+      ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, () => token.isCancellationRequested)
+      : Promise.resolve(undefined),
+  ]);
+  if (segments === 'stale' || typeOutcome === 'stale' || !currentQueryDocument(document, token, queryVersion)) return [];
+  const namespaceCandidatesComplete = segments?.complete ?? true;
+  let namespaceItems: CompletionItem[] = [];
+  if (segments && namespaceContext) namespaceItems = segments.names.map((name, index) => ({
+    label: `${name}\\`, kind: CompletionItemKind.Module,
+    detail: `${namespaceContext.qualifier ? `${namespaceContext.qualifier}\\` : ''}${name}\\`,
+    sortText: `0${String(index).padStart(6, '0')}`, preselect: index === 0,
+    textEdit: { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
+      end: document.positionAt(offset) }, newText: `${name}\\` },
+  }));
+  let typeCandidatesComplete = typeOutcome ?? true;
+  const allTypes = workspace.completeTypes(document.uri, offset);
   const project = root && allTypes.length ? await composerProjectForRoot(root) : undefined;
   const psr4Mappings = root && project ? projectMappingsByRoot.get(root) ?? allPsr4Mappings(project) : [];
   const psr0Mappings = project ? [...project.psr0, ...project.dependencies.flatMap((dependency) => dependency.psr0)] : [];

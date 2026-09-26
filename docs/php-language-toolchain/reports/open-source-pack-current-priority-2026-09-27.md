@@ -64,4 +64,4 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 
 绝对类型名的第一段也已补齐：`new \Dom` 可建议 Composer 的根 namespace。语义、定向真实 LSP 和隔离 C1 源码宿主已通过，结果仍属于冻结后源码。
 
-[classmap 根 namespace 等待](c1-classmap-root-namespace-latency-2026-09-27.md)进一步显示，约 1 万 PHP 文件时同前缀重复请求原需 247 ms。复用有界的不完整搜索结果及已装载文件后，该脚本样本降到 4 ms；首次请求仍约 406 ms，保留为 C1 的可见等待改进项。
+[classmap 根 namespace 等待](c1-classmap-root-namespace-latency-2026-09-27.md)进一步显示，约 1 万 PHP 文件时同前缀重复请求原需 247 ms。复用有界的不完整搜索结果及已装载文件后，该脚本样本降到 4 ms；namespace 与类型候选并行查询又让首次请求从约 406 ms 降到 239 ms。真实 VS Code 与更大 classmap 项目仍须复核等待。
