@@ -99,7 +99,8 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
     testOpenCreatedFile?: (uri: vscode.Uri) => Promise<void>;
     testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>;
     testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean>;
-    testApplyCreateEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean> }): Promise<boolean> {
+    testApplyCreateEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>;
+    testApplyDestinationEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean> }): Promise<boolean> {
   let directoryUri = await directoryFromTarget(target);
   const folder = target ? vscode.workspace.getWorkspaceFolder(target)
     : directoryUri ? vscode.workspace.getWorkspaceFolder(directoryUri) : vscode.workspace.workspaceFolders?.[0];
@@ -299,6 +300,14 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
         created = await moveStagedFile(siblingStage.fsPath, applySiblingEdit
           ? (edit): Promise<boolean> => applySiblingEdit(edit, siblingStage.fsPath) : vscode.workspace.applyEdit);
       }
+    }
+    if (!created && !await exists() && await directoryState() === 'directory') {
+      // The destination directory may be writable even when its parent is not.
+      // Keep this last stage out of PHP indexing with a hidden non-PHP suffix.
+      const destinationStage = join(directoryUri.fsPath, `.sophp-type-stage-${randomUUID()}.tmp`);
+      const applyDestinationEdit = options?.testApplyDestinationEdit;
+      created = await moveStagedFile(destinationStage, applyDestinationEdit
+        ? (edit): Promise<boolean> => applyDestinationEdit(edit, destinationStage) : vscode.workspace.applyEdit);
     }
   }
   if (!created) {

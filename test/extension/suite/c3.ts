@@ -567,6 +567,32 @@ export async function run(): Promise<void> {
   } else {
     await vscode.workspace.fs.delete(stageFallbackUri);
   }
+  const destinationFallbackUri = vscode.Uri.joinPath(serviceDirectory, 'C3DestinationFallback.php');
+  let destinationStagePath: string | undefined;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
+    'C3DestinationFallback', serviceDirectory, async () => 'apply', undefined, undefined, undefined,
+    async () => false, async () => false, undefined, undefined,
+    async (edit: vscode.WorkspaceEdit, stagedPath: string) => {
+      destinationStagePath = stagedPath;
+      return vscode.workspace.applyEdit(edit);
+    }), true, 'Type generation did not move the destination-directory stage');
+  assert.ok(destinationStagePath && dirname(destinationStagePath) === serviceDirectory.fsPath
+    && destinationStagePath.endsWith('.tmp'), 'The final staged move exposed a PHP file outside the destination directory');
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(destinationStagePath!)),
+    'The destination stage remained after the generated PHP file was created');
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(destinationFallbackUri));
+  await vscode.commands.executeCommand('undo');
+  await assert.rejects(async () => vscode.workspace.fs.stat(destinationFallbackUri),
+    'Undo did not remove the destination-stage generated file');
+  assert.ok(await vscode.workspace.fs.stat(vscode.Uri.file(destinationStagePath!)),
+    'Undo did not retain the hidden destination stage for Redo');
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(destinationFallbackUri)).getText().includes('class C3DestinationFallback'),
+    'Redo did not restore the destination-stage generated file');
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(destinationStagePath!)),
+    'Redo left a hidden destination stage behind');
+  await vscode.workspace.fs.delete(destinationFallbackUri);
+  console.log('C3 destination-directory stage Undo/Redo restored the generated file');
   const creationFallbackUri = vscode.Uri.joinPath(serviceDirectory, 'C3CreationFallback.php');
   let siblingWasAttempted = false;
   let rejectedSiblingStagePath: string | undefined;
@@ -577,7 +603,7 @@ export async function run(): Promise<void> {
       rejectedSiblingStagePath = stagedPath;
       assert.ok(edit.size > 0, 'Type generation did not prepare the same-filesystem staged move');
       return false;
-    }), true, 'Type generation did not use createFile when both staged moves were rejected');
+    }, undefined, undefined, async () => false), true, 'Type generation did not use createFile when all staged moves were rejected');
   assert.ok(siblingWasAttempted && rejectedSiblingStagePath, 'Type generation skipped the same-filesystem staged move');
   await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(rejectedSiblingStagePath!)),
     'A rejected same-filesystem move left its staged PHP source beside the workspace');
@@ -608,7 +634,7 @@ export async function run(): Promise<void> {
         if (applyBeforeFailure) assert.ok(await vscode.workspace.applyEdit(edit), 'Injected create edit did not apply');
         if (throwAfterFailure) throw new Error('Injected create result failure');
         return false;
-      });
+      }, async () => false);
     assert.ok(applyCalled, 'The final createFile fallback was not attempted');
     assert.strictEqual(result, applyBeforeFailure, `Create result did not match the actual file for ${suffix}`);
     if (applyBeforeFailure) {

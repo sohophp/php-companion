@@ -25,7 +25,7 @@
 
 **测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。需要 PHPUnit 测试视图时，可单独试用 `aossoftware.aos-phpunit` 0.2.0：它已在隔离 Linux 的完整组合中通过实际 PHPUnit 运行和测试文件 Rename/Undo/Redo，但 Pest 与真实 WSL Remote 尚未验收，因此不随 Pack 自动安装。`recca0120.vscode-phpunit` 原版 3.9.40 在完整组合的文件 Rename 后有旧路径错误；若已单独安装并遇到此错误，应在该工作区禁用。见[测试提供者评估](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-test-provider-candidates-2026-09-25.md)。
 
-**新文件生成：**类、接口、Trait、Enum 和测试文件先预览再创建。本机 Linux 主路径已通过一次 Undo/Redo；若预先准备文件的移动失败并转为备用 `createFile`，一次 Undo 可删除文件，但隔离宿主的一次 Redo 未恢复。该情况下可重新执行生成命令。真实 WSL Remote 和其它平台仍需验收。
+**新文件生成：**类、接口、Trait、Enum 和测试文件先预览再创建。本机 Linux 的主移动路径、工作区同级移动及目标目录隐藏 `.tmp` 备用移动均已通过一次 Undo/Redo。若所有移动失败并转为 `createFile`，一次 Undo 可删除文件，但隔离宿主的一次 Redo 未恢复；该情况下可重新执行生成命令。目标目录备用移动被 Undo 后，隐藏 `.tmp` 会保留给 Redo。真实 WSL Remote 和其它平台仍需验收。
 
 在项目根目录运行已安装的测试工具：
 

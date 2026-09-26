@@ -660,9 +660,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>,
       testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean>,
       testChooseNamespace?: (namespaces: string[]) => Promise<string | undefined>,
-      testApplyCreateEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>) => createPhpType(kind, versions, target,
+      testApplyCreateEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>,
+      testApplyDestinationEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean>) => createPhpType(kind, versions, target,
       { testName: name, testPreviewAction, testChooseTestDirectory, testClosePreview, testOpenCreatedFile,
-        testApplyStagedEdit, testApplySiblingEdit, testChooseNamespace, testApplyCreateEdit }));
+        testApplyStagedEdit, testApplySiblingEdit, testChooseNamespace, testApplyCreateEdit, testApplyDestinationEdit }));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
       await Promise.all([versions.ensureForUri(oldUri), versions.ensureForUri(newUri)]);

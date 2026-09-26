@@ -12,7 +12,7 @@ Open Source Pack 的 10 个直接成员是 Core、Symfony、TwigPlus、Red Hat Y
 
 1. **保持 Pack 清单稳定。** 不因 Core 的小修复换成员或重打三份 VSIX。外部成员升级须重新核对版本、职责冲突和组合操作链。测试视图扩展先保持可选：原版 PHPUnit/Pest Test Explorer 在完整组合的文件 Rename 后有旧路径异常。
 2. **先收口 Core 的可复现错误。** F02 真实 CLI 对照发现 PHP 8.5 无操作数 `(void)` 转换漏报及合法 clone-with 误报，均已在源码修复；见[void 诊断记录](f02-void-cast-runtime-2026-09-27.md)和[clone-with 对照](f02-clone-with-runtime-2026-09-27.md)。随后继续 C1/C2 的实际输入、补全、导航与未保存编辑反馈，按用户可见错误和等待时间排优先级。PHPDoc 注释生成继续交给 PHP DocBlocker，Core 只消费与反馈项目类型。
-3. **C3 只追确定的阻断项。** 最终 `WorkspaceEdit.createFile` 兜底路径的 Redo 仍不能恢复文件；完整 C3 打包宿主曾偶发 VS Code `Canceled`，后续两次通过但根因未明。用独立复现和阶段日志定位，避免把偶发绿灯当稳定结论。
+3. **C3 只追确定的阻断项。** [目标目录备用移动](c3-type-generation-destination-stage-2026-09-27.md)已让两次原有移动失败后的文件生成也能 Undo/Redo；最终 `WorkspaceEdit.createFile` 兜底路径的 Redo 仍不能恢复文件。完整 C3 打包宿主曾偶发 VS Code `Canceled`，后续两次通过但根因未明。用独立复现和阶段日志定位，避免把偶发绿灯当稳定结论。
 4. **下一交付点再做 C4。** 将以上源码修复合入一个干净提交后，同批冻结 Core、Symfony、Pack；核对摘要及八个外部成员版本，再在真实 WSL Remote Profile 完成安装位置、唯一 PHP Provider、PHP→Symfony/Twig/YAML/XML→格式化→调试→CLI 测试与编辑撤销链。Windows/macOS、持续会话和 R4 的其余门槛随后逐项验收。
 
 这套组合已经能在**已验证的隔离 Linux 范围**开展 PHP 开发；真实 Remote 与 R4 最终完成仍按各自验收记录判断。人工使用反馈可随时进入上述顺序，不阻塞独立源码与自动化工作。
