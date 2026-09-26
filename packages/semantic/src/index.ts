@@ -7497,6 +7497,8 @@ export class SemanticWorkspace {
   }
 
   private completedCallSignature(file: SemanticFile, call: ParsedCall): SignatureInfo | undefined {
+    if (call.kind === 'function' && ['isset', 'empty'].includes(file.source.slice(call.nameStart, call.nameEnd).toLowerCase()))
+      return undefined;
     const candidates = this.signatures(file.uri, call.argumentsStart + 1);
     const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
     const selected = this.methodCandidatesForArguments(candidates, argumentsText, true, file, call.argumentsStart + 1);
