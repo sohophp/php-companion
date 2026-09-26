@@ -119,18 +119,20 @@ describe('language server stdio', () => {
       await mkdir(join(root, 'src'));
       await mkdir(join(root, 'lib'));
       await mkdir(join(root, 'lib', 'Billing'));
+      await mkdir(join(root, 'lib', 'Billing', 'Operations'));
       await mkdir(join(root, 'lib', 'Other'));
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Domain\\': 'lib/' } } }));
       await writeFile(join(root, 'src', 'ProjectType.php'), '<?php namespace App; class ProjectType {}');
       await writeFile(join(root, 'src', 'ProjectGhost.php'), '<?php namespace App; class AnotherType {}');
       await writeFile(join(root, 'lib', 'OtherType.php'), '<?php namespace Domain; class OtherType {}');
       await writeFile(join(root, 'lib', 'Billing', 'Invoice.php'), '<?php namespace Domain\\Billing; class Invoice {}');
+      await writeFile(join(root, 'lib', 'Billing', 'Operations', 'Receipt.php'), '<?php namespace Domain\\Billing\\Operations; class Receipt {}');
       await writeFile(join(root, 'lib', 'Other', 'Invoice.php'), '<?php namespace Domain\\Other; class Invoice {}');
       await writeFile(join(root, 'lib', 'Other', 'Ghost.php'), '<?php namespace Domain\\Other; class DifferentType {}');
       const source = '<?php namespace App; use Domain\\OtherType as ImportedType; use Domain\\Billing as BillingAlias; '
         + 'function typed(string|Inv $value): string|Inv { return $value; } '
         + 'function mapped(#[MapRequestPayload(validationGroups: ["create", "write"])] Inv $value): void {} '
-        + 'function run(): void { new Proj; new Impor; new Inv; new \\Domain\\Billing\\Inv; new BillingAlias\\Inv; new Gho; }';
+        + 'function run(): void { new Proj; new Impor; new Inv; new \\Domain\\Bil; new BillingAlias\\Ope; new \\Domain\\Billing\\Inv; new BillingAlias\\Inv; new Gho; }';
       const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
       await writeFile(join(root, 'src', 'Consumer.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
@@ -264,6 +266,19 @@ describe('language server stdio', () => {
       const result = (await output.waitFor((message) => message.id === 102)).result;
       expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ProjectType', detail: 'App\\ProjectType' })]));
       expect(result.some((item: { label: string }) => item.label === 'ProjectGhost')).toBe(false);
+      for (const [id, marker, label, detail] of [
+        [123, 'new \\Domain\\Bil', 'Billing\\', 'Domain\\Billing\\'],
+        [124, 'new BillingAlias\\Ope', 'Operations\\', 'Domain\\Billing\\Operations\\'],
+      ] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + marker.length),
+        } }));
+        const completion = (await output.waitFor((message) => message.id === id)).result;
+        const items = Array.isArray(completion) ? completion : completion.items;
+        expect(items).toEqual(expect.arrayContaining([
+          expect.objectContaining({ label, detail, kind: 9 }),
+        ]));
+      }
       for (const [id, marker] of [[121, 'new \\Domain\\Billing\\Inv'], [122, 'new BillingAlias\\Inv']] as const) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + marker.length),

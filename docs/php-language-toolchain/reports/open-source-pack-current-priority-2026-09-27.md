@@ -59,3 +59,5 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 [已限定原生类型名补全](c1-qualified-native-type-completion-2026-09-27.md)进一步修复了 `new \Vendor\...`、导入的 namespace 别名、相对限定名、`extends` 和原生返回类型位置。独立语义测试及真实按需 stdio 请求验证了未打开的 PSR-4 类、准确 namespace 与不重复插入 import。它仍只是冻结后源码，尚未进入 `248ee1f8` 候选；下一个 C1 输入缺口继续按真实复现和用户可见影响选择。
 
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。
+
+限定类型名的同一输入链还补上了下一段 namespace 建议，并阻止类型位置被同前缀的 PHP 函数补全抢占。独立 Composer PSR-4 stdio、完整语义包及语言服务器 stdio 回归已通过；真实 VS Code 建议列表仍待下次候选验收。

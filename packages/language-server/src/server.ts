@@ -6010,7 +6010,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     sortText: `0${String(index).padStart(6, '0')}`,
     textEdit: { range: { start: document.positionAt(variables.start), end: document.positionAt(variables.end) }, newText: name },
   }));
-  const functions = workspace.completeFunctions(document.uri, offset).map((callable, index) => {
+  const typeContext = workspace.typeCompletionContext(document.uri, offset);
+  const functions = (typeContext ? [] : workspace.completeFunctions(document.uri, offset)).map((callable, index) => {
     const insertion = callable.importFqfn ? workspace.importInsertion(document.uri, offset, callable.importFqfn, 'function') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
     return {
@@ -6022,7 +6023,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     };
   });
   if (functions.length) return functions;
-  const constants = workspace.completeConstants(document.uri, offset).map((constant, index) => {
+  const constants = (typeContext ? [] : workspace.completeConstants(document.uri, offset)).map((constant, index) => {
     const insertion = constant.importFqcn ? workspace.importInsertion(document.uri, offset, constant.importFqcn, 'const') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
     return {
@@ -6034,7 +6035,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     };
   });
   if (constants.length) return constants;
-  const namespaceContext = workspace.namespaceImportContext(document.uri, offset);
+  const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
+    ?? workspace.namespaceTypeContext(document.uri, offset);
   let namespaceCandidatesComplete = true;
   let namespaceItems: CompletionItem[] = [];
   if (namespaceContext) {
@@ -6053,7 +6055,6 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     }
     if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
-  const typeContext = workspace.typeCompletionContext(document.uri, offset);
   let typeCandidatesComplete = true;
   if (indexingMode === 'onDemand' && typeContext) {
     const root = rootForUri(document.uri);

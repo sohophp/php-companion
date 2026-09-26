@@ -3748,6 +3748,13 @@ export class SemanticWorkspace {
     return namespace === undefined ? undefined : { prefix, namespace };
   }
 
+  namespaceTypeContext(uri: string, offset: number): { qualifier: string; prefix: string } | undefined {
+    const file = this.files.get(uri);
+    if (!file || this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
+    const context = this.qualifiedNativeTypeCompletion(file, offset);
+    return context && { qualifier: context.namespace, prefix: context.prefix };
+  }
+
   typeCompletionContext(uri: string, offset: number): { prefix: string; namespace: string; importedTypes: string[];
     replacementStart?: number; replacementEnd?: number } | undefined {
     const file = this.files.get(uri);

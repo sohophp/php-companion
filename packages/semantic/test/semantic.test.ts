@@ -4932,6 +4932,18 @@ TXT;
     expect(workspace.typeCompletionContext('file:///QualifiedExpression.php', nonType.length)).toBeUndefined();
     expect(workspace.completeTypes('file:///QualifiedExpression.php', nonType.length)).toEqual([]);
   });
+  it('offers namespace segments while typing a qualified native type', () => {
+    const source = '<?php namespace App; use Vendor\\Catalog as Alias; '
+      + 'function run(): void { new \\Vendor\\Cat; new Alias\\Sub; echo \\Vendor\\Cat; }';
+    const uri = 'file:///QualifiedNamespaceSegments.php';
+    workspace.update(uri, source);
+    expect(workspace.namespaceTypeContext(uri, source.indexOf('new \\Vendor\\Cat') + 'new \\Vendor\\Cat'.length))
+      .toEqual({ qualifier: 'Vendor', prefix: 'Cat' });
+    expect(workspace.namespaceTypeContext(uri, source.indexOf('new Alias\\Sub') + 'new Alias\\Sub'.length))
+      .toEqual({ qualifier: 'Vendor\\Catalog', prefix: 'Sub' });
+    expect(workspace.namespaceTypeContext(uri, source.indexOf('echo \\Vendor\\Cat') + 'echo \\Vendor\\Cat'.length))
+      .toBeUndefined();
+  });
   it('offers indexed external types with an exact import insertion and suppresses alias collisions', () => {
     workspace.update('file:///Invoice.php', '<?php namespace Domain\\Billing; class Invoice {}');
     const source = '<?php\r\nnamespace App;\r\n\r\nuse Existing\\Thing;\r\n\r\nfunction run(): void { $invoice = new Inv; }';
