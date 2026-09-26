@@ -2,6 +2,14 @@
 
 日期：2026-09-27。本文是当前执行入口；历史报告保留当时的候选与测试结果。只核对 SoPHP 仓库和独立 Composer 夹具，不修改业务项目。
 
+## 先用这套组合开始开发
+
+1. 以同一批候选安装 SoPHP Core、SoPHP Symfony 和 Open Source Pack 三份 VSIX；`SHA256SUMS` 与 `candidate.json` 标识这批确切内容。公开 Marketplace 的 Pack 页面仍是旧组合，不能用它安装下表的当前组合。Pack manifest 只固定扩展 ID，外部成员版本以候选记录和实际安装结果为准。
+2. 在 PHP 项目使用的 VS Code Extension Host 中确认只有 SoPHP 负责通用 PHP 语言能力，PHP CS Fixer 是唯一默认 PHP formatter，TwigPlus 负责 Twig，Red Hat 扩展分别负责 YAML/XML。`php.validate.executablePath`、PHP CS Fixer、Xdebug 和测试 CLI 指向同一个项目运行环境；Pack 不会安装这些项目工具。
+3. 在独立 Composer 项目走一次输入、补全、跳转、PHPDoc、Symfony/Twig、格式化、调试和 PHPUnit/Pest CLI 的链路。任何一步缺失时记录候选摘要、扩展宿主位置、操作输入和结果。真实 WSL Remote 及长期使用仍是 C4 验收项，现有隔离 Linux 宿主结果不能替代它们。
+
+这套 10 项组合可用于已列明的功能范围；测试视图和额外通用 PHP 语言服务器暂不自动安装。Open Source Pack 继续作为唯一维护的组合入口，不恢复 Recommended Pack。
+
 ## 固定组合
 
 [Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.7 冻结候选记录](open-source-pack-047-postfreeze-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。
@@ -47,5 +55,7 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 [关闭未保存文件后的即时引用](c2-phpdoc-close-index-modes-2026-09-27.md)已在源码中补上同项目关闭事件与后续语义查询的顺序约束，并让尚未完成全量索引的 `experimental`/`progressive` 模式按有界缓存恢复磁盘事实。独立 stdio 用例覆盖默认 `onDemand`、`experimental` 和 `progressive`，完整 stdio 回归 196 项通过、1 项跳过；该增量未进入 `248ee1f8` 冻结候选。Pack 默认仍使用 `onDemand`。
 
 [PHPDoc 模板约束补全](c1-phpdoc-type-completion-2026-09-27.md)继续推进 C1：Core 识别 `@template T of ...`、`as ...` 和 PHPStan/Psalm 方言中的类型输入位置，隔离 Core 源码宿主验证建议与 Definition；DocBlocker 仍负责注释生成。此源码增量也未进入现有候选。
+
+[已限定原生类型名补全](c1-qualified-native-type-completion-2026-09-27.md)进一步修复了 `new \Vendor\...`、导入的 namespace 别名、相对限定名、`extends` 和原生返回类型位置。独立语义测试及真实按需 stdio 请求验证了未打开的 PSR-4 类、准确 namespace 与不重复插入 import。它仍只是冻结后源码，尚未进入 `248ee1f8` 候选；下一个 C1 输入缺口继续按真实复现和用户可见影响选择。
 
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。

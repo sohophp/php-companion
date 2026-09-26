@@ -4908,6 +4908,30 @@ TXT;
     expect(workspace.completeTypes('file:///Types.php', source.indexOf('Dom;') + 3).map((item) => item.name)).toEqual(['DomainUser']);
     expect(workspace.completeTypes('file:///Types.php', source.indexOf('Uti;') + 3).map((item) => item.name)).toEqual(['Utility']);
   });
+  it('completes qualified native type names without adding an import', () => {
+    workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
+    workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');
+    const fragments = [
+      ['new \\Vendor\\Catalog\\Wid', 'Vendor\\Catalog', 'Widget'],
+      ['new Alias\\Wid', 'Vendor\\Catalog', 'Widget'],
+      ['new Local\\Wid', 'App\\Local', 'WidgetLocal'],
+      ['class Child extends \\Vendor\\Catalog\\Wid', 'Vendor\\Catalog', 'Widget'],
+      ['function make(): \\Vendor\\Catalog\\Wid', 'Vendor\\Catalog', 'Widget'],
+    ] as const;
+    for (const [index, [fragment, namespace, name]] of fragments.entries()) {
+      const uri = `file:///QualifiedConsumer-${index}.php`;
+      const source = `<?php namespace App; use Vendor\\Catalog as Alias; ${fragment}`;
+      workspace.update(uri, source);
+      expect(workspace.typeCompletionContext(uri, source.length)).toMatchObject({ prefix: 'Wid', namespace });
+      expect(workspace.completeTypes(uri, source.length)).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name, fqcn: `${namespace}\\${name}`, importFqcn: undefined }),
+      ]));
+    }
+    const nonType = '<?php namespace App; function run(): void { echo \\Vendor\\Catalog\\Wid';
+    workspace.update('file:///QualifiedExpression.php', nonType);
+    expect(workspace.typeCompletionContext('file:///QualifiedExpression.php', nonType.length)).toBeUndefined();
+    expect(workspace.completeTypes('file:///QualifiedExpression.php', nonType.length)).toEqual([]);
+  });
   it('offers indexed external types with an exact import insertion and suppresses alias collisions', () => {
     workspace.update('file:///Invoice.php', '<?php namespace Domain\\Billing; class Invoice {}');
     const source = '<?php\r\nnamespace App;\r\n\r\nuse Existing\\Thing;\r\n\r\nfunction run(): void { $invoice = new Inv; }';

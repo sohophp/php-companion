@@ -3736,6 +3736,18 @@ export class SemanticWorkspace {
     return namespaceImportCompletion(file.source, offset);
   }
 
+  private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
+    const before = file.source.slice(0, offset);
+    const match = /((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
+    if (!match) return undefined;
+    const prefix = match[2] ?? '';
+    const unqualified = before.slice(0, match.index) + prefix;
+    if (typeCompletionPrefix(unqualified, unqualified.length) !== prefix) return undefined;
+    const qualifier = match[1]!.slice(0, -1);
+    const namespace = this.resolveSourceType(file, qualifier, this.namespaceAt(file, offset));
+    return namespace === undefined ? undefined : { prefix, namespace };
+  }
+
   typeCompletionContext(uri: string, offset: number): { prefix: string; namespace: string; importedTypes: string[];
     replacementStart?: number; replacementEnd?: number } | undefined {
     const file = this.files.get(uri);
@@ -3745,9 +3757,10 @@ export class SemanticWorkspace {
     const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
-    const prefix = docContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const qualifiedContext = docContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
+    const prefix = docContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (prefix === undefined) return undefined;
-    const namespace = docContext?.namespace ?? importContext?.qualifier ?? this.namespaceAt(file, offset);
+    const namespace = docContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
     return { prefix, namespace, importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
       && item.namespace === namespace && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
     ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
@@ -3761,11 +3774,12 @@ export class SemanticWorkspace {
     if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
-    const contextPrefix = docContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const qualifiedContext = docContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
+    const contextPrefix = docContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
-    const qualifiedNamespace = docContext?.namespace ?? importContext?.qualifier;
+    const qualifiedNamespace = docContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
     const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
     const importedVisible = new Map<string, string>();
     const importAliases = new Map<string, string>();

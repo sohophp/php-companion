@@ -127,10 +127,10 @@ describe('language server stdio', () => {
       await writeFile(join(root, 'lib', 'Billing', 'Invoice.php'), '<?php namespace Domain\\Billing; class Invoice {}');
       await writeFile(join(root, 'lib', 'Other', 'Invoice.php'), '<?php namespace Domain\\Other; class Invoice {}');
       await writeFile(join(root, 'lib', 'Other', 'Ghost.php'), '<?php namespace Domain\\Other; class DifferentType {}');
-      const source = '<?php namespace App; use Domain\\OtherType as ImportedType; '
+      const source = '<?php namespace App; use Domain\\OtherType as ImportedType; use Domain\\Billing as BillingAlias; '
         + 'function typed(string|Inv $value): string|Inv { return $value; } '
         + 'function mapped(#[MapRequestPayload(validationGroups: ["create", "write"])] Inv $value): void {} '
-        + 'function run(): void { new Proj; new Impor; new Inv; new Gho; }';
+        + 'function run(): void { new Proj; new Impor; new Inv; new \\Domain\\Billing\\Inv; new BillingAlias\\Inv; new Gho; }';
       const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
       await writeFile(join(root, 'src', 'Consumer.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
@@ -264,6 +264,18 @@ describe('language server stdio', () => {
       const result = (await output.waitFor((message) => message.id === 102)).result;
       expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ProjectType', detail: 'App\\ProjectType' })]));
       expect(result.some((item: { label: string }) => item.label === 'ProjectGhost')).toBe(false);
+      for (const [id, marker] of [[121, 'new \\Domain\\Billing\\Inv'], [122, 'new BillingAlias\\Inv']] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + marker.length),
+        } }));
+        const qualified = (await output.waitFor((message) => message.id === id)).result;
+        expect(qualified).toEqual(expect.arrayContaining([
+          expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
+        ]));
+        expect(qualified.find((item: { detail?: string }) => item.detail === 'Domain\\Billing\\Invoice')?.additionalTextEdits)
+          .toBeUndefined();
+        expect(qualified.some((item: { detail?: string }) => item.detail === 'Domain\\Other\\Invoice')).toBe(false);
+      }
       for (const [id, marker] of [[115, 'string|Inv $value'], [116, 'string|Inv {']] as const) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + 'string|Inv'.length),
