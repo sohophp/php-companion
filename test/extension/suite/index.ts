@@ -1219,11 +1219,14 @@ export async function run(): Promise<void> {
   assert.ok(!businessDefinitions.some((location) => location.uri.toString() === servicesUri.toString()),
     'Ordinary business get() was incorrectly treated as a Symfony service lookup');
   const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
-  const preparedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServicePrepareRename', {
-    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
-    source: servicesDocument.getText(), position: servicesDocument.positionAt(yamlServiceIdOffset),
-  });
-  assert.ok(preparedServiceRename, 'Symfony service ID Rename returned no preparation for its YAML declaration');
+  let preparedServiceRename: unknown;
+  await waitForAsync(async () => {
+    preparedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServicePrepareRename', {
+      textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+      source: servicesDocument.getText(), position: servicesDocument.positionAt(yamlServiceIdOffset),
+    });
+    return Boolean(preparedServiceRename);
+  }, 'Symfony service ID Rename returned no preparation for its YAML declaration', 30_000, 200);
   const plannedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServiceRename', {
     textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
     source: servicesDocument.getText(), position: servicesDocument.positionAt(yamlServiceIdOffset),
