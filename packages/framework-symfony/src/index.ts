@@ -288,6 +288,20 @@ function precedingLocalAssignments(body: NodeLike | undefined, use: NodeLike, va
   return locations;
 }
 
+function directlyAssignedContext(body: NodeLike | undefined, use: NodeLike, context: NodeLike): NodeLike {
+  if (body?.type !== 'compound_statement' || context.type !== 'variable_name') return context;
+  const index = body.namedChildren.findIndex((statement) => ['return_statement', 'expression_statement'].includes(statement.type)
+    && statement.namedChildren[0]?.type === use.type
+    && statement.namedChildren[0]?.startIndex === use.startIndex && statement.namedChildren[0]?.endIndex === use.endIndex);
+  if (index < 1) return context;
+  const previous = body.namedChildren[index - 1];
+  const assignment = previous?.type === 'expression_statement' ? previous.namedChildren[0] : undefined;
+  const target = assignment?.type === 'assignment_expression' ? assignment.namedChildren[0] : undefined;
+  const value = assignment?.type === 'assignment_expression' ? assignment.namedChildren[1] : undefined;
+  return target?.type === 'variable_name' && target.text === context.text
+    && (value?.type === 'array_creation_expression' || value?.type === 'function_call_expression') ? value : context;
+}
+
 function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpType>, namespace: string, imports: ParsedImport[], document: SymfonyControllerDocument,
   compactValueLocations = new Map<string, InteropLocation>()): { complete: boolean; variables: ControllerContextVariable[] } | undefined {
   if (node.type === 'function_call_expression' && ['compact', '\\compact'].includes(node.namedChildren[0]?.text ?? '')) {
@@ -378,7 +392,8 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
             const variables = new Map<string, SerializedPhpType>([['$this', { kind: 'named', name: callable.containerFqcn }]]);
             for (const parameter of callable.parameters) variables.set(`$${parameter.name}`, serializedType(parameter.nativeType, namespace, parsed.imports));
             const compactValues = precedingLocalAssignments(body, returned, variables, namespace, parsed.imports, document);
-            const context = contextVariables(returned, variables, namespace, parsed.imports, document, compactValues);
+            const context = contextVariables(directlyAssignedContext(body, returned, returned),
+              variables, namespace, parsed.imports, document, compactValues);
             if (context) contexts.push({ template, complete: context.complete, variables: context.variables,
               sources: [{ symbol: callable.fqcn, location: { uri: document.uri, start: callable.start, end: callable.end,
                 line: document.source.slice(0, callable.start).split('\n').length - 1, snapshotVersion: document.snapshotVersion } }] });
@@ -397,8 +412,10 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
             const variables = new Map<string, SerializedPhpType>([['$this', { kind: 'named', name: callable.containerFqcn }]]);
             for (const parameter of callable.parameters) variables.set(`$${parameter.name}`, serializedType(parameter.nativeType, namespace, parsed.imports));
             const compactValues = precedingLocalAssignments(methodBody, node, variables, namespace, parsed.imports, document);
-            const context = arguments_?.parameters
-              ? contextVariables(arguments_.parameters, variables, namespace, parsed.imports, document, compactValues)
+            const parameters = arguments_?.parameters;
+            const context = parameters
+              ? contextVariables(directlyAssignedContext(methodBody, node, parameters),
+              variables, namespace, parsed.imports, document, compactValues)
               : { complete: true, variables: [] };
             if (context) contexts.push({
               template, complete: context.complete, variables: context.variables,

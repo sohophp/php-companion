@@ -28,3 +28,5 @@ C3 冻结候选已通过完整 10 项打包宿主；冻结后源码又修正了[
 后续[类型生成暂存清理门禁](c3-type-generation-stage-cleanup-2026-09-27.md)已在 10 项源码 Pack 下验证：被拒绝的同文件系统移动清理暂存源，成功的备用移动可 Undo/Redo；完整 C3 宿主在 Symfony Rename 阶段仍有偶发 `Canceled`，最终 `createFile` 的 Redo 缺口保持开放。
 
 C1 冻结后源码又接通了[PHPDoc 项目类型补全](c1-phpdoc-type-completion-2026-09-27.md)，与 Pack 中负责注释块生成的 PHP DocBlocker 分工。跨文件按需补全和反例已通过完整 10 项源码宿主；这项增量同样不在 0.4.7 VSIX 中。
+
+Symfony→Twig 编辑链又补上[紧邻赋值的模板上下文](symfony-controller-assigned-context-2026-09-27.md)：Controller 先赋字面量数组或 `compact()` 再传给 `render()`、或从 `#[Template]` 方法返回时，完整 10 项源码 Pack 中的 TwigPlus 能从模板变量跳回 PHP 来源。

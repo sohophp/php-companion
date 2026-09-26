@@ -174,6 +174,34 @@ describe('static Symfony Controller context analysis', () => {
     ] }]);
   });
 
+  it('resolves an immediately assigned literal context passed to render or returned from Template', () => {
+    const source = `<?php namespace App; use Symfony\\Bridge\\Twig\\Attribute\\Template;
+      class Controller {
+        public function show(User $user): void {
+          $params = ['user' => $user];
+          $this->render('templates/local-render.html.twig', $params);
+        }
+        #[Template('templates/local-attribute.html.twig')]
+        public function attribute(User $user): array {
+          $params = compact('user');
+          return $params;
+        }
+        public function changed(User $user): void {
+          $params = ['user' => $user];
+          $params['user'] = new Other();
+          $this->render('templates/changed.html.twig', $params);
+        }
+      }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/Controller.php', source,
+      snapshotVersion: 'open:7' });
+    expect(contexts.map(({ template }) => template)).toEqual(['templates/local-render.html.twig', 'templates/local-attribute.html.twig']);
+    expect(contexts[0]).toMatchObject({ complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' },
+      sources: [{ uri: 'file:///src/Controller.php', snapshotVersion: 'open:7' }] }] });
+    expect(source.slice(contexts[0]!.variables[0]!.valueLocation!.start, contexts[0]!.variables[0]!.valueLocation!.end)).toBe('$user');
+    expect(contexts[1]).toMatchObject({ complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] });
+    expect(source.slice(contexts[1]!.variables[0]!.sources[0]!.start, contexts[1]!.variables[0]!.sources[0]!.end)).toBe('user');
+  });
+
   it('extracts literal event subscriber maps and rejects dynamic or inaccessible listeners', () => {
     const source = `<?php namespace App;
       use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;

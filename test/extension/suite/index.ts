@@ -30,6 +30,10 @@ class NamedRenderController {
     $title = 'Profile';
     $this->render('templates/multiple-compact.html.twig', compact('localUser', 'title'));
   }
+  public function assigned(UserService $user): void {
+    $params = ['user' => $user];
+    $this->render('templates/assigned.html.twig', $params);
+  }
   #[Template('templates/attribute.html.twig')]
   public function attribute(UserService $user): array { return ['user' => $user]; }
 }\n`;
@@ -44,6 +48,8 @@ class AttributeOnlyController {
   public function compact(UserService $user): array { return compact('user'); }
   #[Template('templates/attribute-local.html.twig')]
   public function local(UserService $user): array { $selected = $user; return compact('selected'); }
+  #[Template('templates/attribute-assigned.html.twig')]
+  public function assigned(UserService $user): array { $params = compact('user'); return $params; }
 }\n`;
   await vscode.workspace.fs.writeFile(attributeOnlyUri, Buffer.from(attributeOnlySource));
   const namedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'named.html.twig');
@@ -51,10 +57,12 @@ class AttributeOnlyController {
   const compactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'compact.html.twig');
   const localCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'local-compact.html.twig');
   const multipleCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'multiple-compact.html.twig');
+  const assignedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'assigned.html.twig');
   const attributeTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute.html.twig');
   const attributeOnlyTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-only.html.twig');
   const attributeCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-compact.html.twig');
   const attributeLocalTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-local.html.twig');
+  const attributeAssignedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-assigned.html.twig');
   const attributeRenamedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-renamed.html.twig');
   const editedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'edited.html.twig');
   await vscode.workspace.fs.writeFile(namedTemplateUri, Buffer.from('{{ user }}\n'));
@@ -62,10 +70,12 @@ class AttributeOnlyController {
   await vscode.workspace.fs.writeFile(compactTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(localCompactTemplateUri, Buffer.from('{{ localUser }}\n'));
   await vscode.workspace.fs.writeFile(multipleCompactTemplateUri, Buffer.from('{{ localUser }} {{ title }} {{ headline }}\n'));
+  await vscode.workspace.fs.writeFile(assignedTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeOnlyTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeCompactTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeLocalTemplateUri, Buffer.from('{{ selected }}\n'));
+  await vscode.workspace.fs.writeFile(attributeAssignedTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(attributeRenamedTemplateUri, Buffer.from('{{ user }}\n'));
   await vscode.workspace.fs.writeFile(editedTemplateUri, Buffer.from('{{ user }}\n'));
   const document = await vscode.workspace.openTextDocument(uri);
@@ -80,7 +90,9 @@ class AttributeOnlyController {
     const attributeCompact = result.find(({ template }) => template === 'templates/attribute-compact.html.twig');
     const localCompact = result.find(({ template }) => template === 'templates/local-compact.html.twig');
     const multipleCompact = result.find(({ template }) => template === 'templates/multiple-compact.html.twig');
+    const assigned = result.find(({ template }) => template === 'templates/assigned.html.twig');
     const attributeLocal = result.find(({ template }) => template === 'templates/attribute-local.html.twig');
+    const attributeAssigned = result.find(({ template }) => template === 'templates/attribute-assigned.html.twig');
     return matches.length === 4 && matches.every((context) => context.complete && context.variables.length === 1
       && context.variables[0]?.name === 'user' && context.variables[0].type.kind === 'named'
       && context.variables[0].type.name === 'App\\Service\\UserService'
@@ -93,8 +105,12 @@ class AttributeOnlyController {
       && multipleCompact?.complete === true && multipleCompact.variables.map((item) => item.name).join(',') === 'localUser,title'
       && multipleCompact.variables[0]?.type.name === 'App\\Service\\UserService'
       && multipleCompact.variables[1]?.type.kind === 'primitive'
+      && assigned?.complete === true && assigned.variables[0]?.name === 'user'
+      && assigned.variables[0]?.type.name === 'App\\Service\\UserService'
       && attributeLocal?.complete === true && attributeLocal.variables[0]?.name === 'selected'
-      && attributeLocal.variables[0]?.type.kind === 'named' && attributeLocal.variables[0]?.type.name === 'App\\Service\\UserService';
+      && attributeLocal.variables[0]?.type.kind === 'named' && attributeLocal.variables[0]?.type.name === 'App\\Service\\UserService'
+      && attributeAssigned?.complete === true && attributeAssigned.variables[0]?.name === 'user'
+      && attributeAssigned.variables[0]?.type.name === 'App\\Service\\UserService';
   }, 'Symfony named render and renderView contexts did not reach the Twig interop bridge', 30_000, 100);
   const twigPlus = vscode.extensions.getExtension('sohophp.twig-plus');
   if (process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH) {
@@ -147,6 +163,14 @@ class AttributeOnlyController {
       'vscode.executeCompletionItemProvider', multipleCompactTemplateUri, multipleCompactTemplate.positionAt(titleOffset + 2));
     const multipleCompactItems = Array.isArray(multipleCompactCompletions) ? multipleCompactCompletions : multipleCompactCompletions?.items ?? [];
     assert.ok(multipleCompactItems.some((item) => item.label === 'title'), 'TwigPlus did not complete the second compact variable');
+    for (const [templateUri, ownerUri] of [[assignedTemplateUri, uri], [attributeAssignedTemplateUri, attributeOnlyUri]]) {
+      const assignedTemplate = await vscode.workspace.openTextDocument(templateUri);
+      await vscode.window.showTextDocument(assignedTemplate);
+      await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+        'vscode.executeDefinitionProvider', templateUri, assignedTemplate.positionAt(4)) ?? [])
+        .some((location) => location.uri.toString() === ownerUri.toString()),
+      'TwigPlus did not navigate an assigned context variable to its PHP source', 30_000, 100);
+    }
     const attributeTemplate = await vscode.workspace.openTextDocument(attributeTemplateUri);
     await vscode.window.showTextDocument(attributeTemplate);
     await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
