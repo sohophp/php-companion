@@ -1219,6 +1219,17 @@ export async function run(): Promise<void> {
   assert.ok(!businessDefinitions.some((location) => location.uri.toString() === servicesUri.toString()),
     'Ordinary business get() was incorrectly treated as a Symfony service lookup');
   const yamlServiceIdOffset = servicesSource.indexOf('app.mailer:') + 4;
+  const preparedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServicePrepareRename', {
+    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+    source: servicesDocument.getText(), position: servicesDocument.positionAt(yamlServiceIdOffset),
+  });
+  assert.ok(preparedServiceRename, 'Symfony service ID Rename returned no preparation for its YAML declaration');
+  const plannedServiceRename = await api.requestLanguageServer!('phpCompanion/symfonyServiceRename', {
+    textDocument: { uri: servicesUri.toString(), version: servicesDocument.version },
+    source: servicesDocument.getText(), position: servicesDocument.positionAt(yamlServiceIdOffset),
+    newName: 'app.renamed-mailer',
+  });
+  assert.ok(plannedServiceRename, 'Symfony service ID Rename returned no edit plan for its YAML declaration');
   const serviceRenameEdit = await vscode.commands.executeCommand<vscode.WorkspaceEdit>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicesDocument.positionAt(yamlServiceIdOffset), 'app.renamed-mailer',
   );
