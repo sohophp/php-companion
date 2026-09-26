@@ -642,6 +642,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
     register('phpCompanion._testVersionStatus', () => status.text);
+    register('phpCompanion._testEffectivePhpVersion', (uri: vscode.Uri) => versions.stateForUri(uri)?.resolution.target);
     register('phpCompanion._testVersionStateFolders', () => versions.allStates().map((state) => state.folder.uri.toString()));
     register('phpCompanion._testVersionChoices', async () => {
       let result: { placeHolder: string; items: Array<{ label: string; description?: string }> } | undefined;

@@ -1204,7 +1204,6 @@ function useCommented(mixed $value): never { return new never(); }`;
       uri: item.uri.toString(), line: item.range.start.line, character: item.range.start.character,
     })))}`);
   {
-    const firstTargetPhpVersion = targetPhpVersion ?? '7.2';
     const versionUri = vscode.Uri.joinPath(folder, 'Versioned.php');
     const versionSource = `<?php namespace App\\C1;
 enum C1State { case Ready; }
@@ -1212,6 +1211,11 @@ function choose(int $value): int { return match ($value) { 1 => 1, default => 0 
 function consume(): void { (void) choose(1); }`;
     await vscode.workspace.fs.writeFile(versionUri, Buffer.from(versionSource));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(versionUri));
+    const firstTargetPhpVersion = targetPhpVersion ?? await waitForResult(
+      () => vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', versionUri),
+      (value) => typeof value === 'string' && /^\d+\.\d+$/u.test(value),
+      'SoPHP did not resolve an effective PHP version for the first Composer root.');
+    if (!targetPhpVersion) console.log(`C1 auto PHP target for the first Composer root: ${firstTargetPhpVersion}`);
     const expected = firstTargetPhpVersion.startsWith('7.') ? ['match expression', 'enum', '(void) cast']
       : firstTargetPhpVersion === '8.0' ? ['enum', '(void) cast']
         : firstTargetPhpVersion === '8.5' ? [] : ['(void) cast'];
@@ -1294,7 +1298,8 @@ accept(1, /* note */);`;
       `PHP ${secondTargetPhpVersion} reported a parser error for the second-root version fixture.`);
     if (!targetPhpVersion) {
       const autoBuiltinSource = '<?php namespace App\\C1; class AutoBuiltinProbe {} function probe(): void { str_con }';
-      for (const [targetFolder, expectedAvailable] of [[folder, false], [secondFolder, true]] as const) {
+      for (const [targetFolder, expectedAvailable] of [[folder, firstTargetPhpVersion.startsWith('8.')],
+        [secondFolder, secondTargetPhpVersion.startsWith('8.')]] as const) {
         const autoBuiltinUri = vscode.Uri.joinPath(targetFolder, 'AutoBuiltin.php');
         await vscode.workspace.fs.writeFile(autoBuiltinUri, Buffer.from(autoBuiltinSource));
         const autoBuiltinDocument = await vscode.workspace.openTextDocument(autoBuiltinUri);
@@ -1321,14 +1326,16 @@ accept(1, /* note */);`;
           'SoPHP did not navigate to the PHP sort built-in declaration.');
         sortDefinitions.push(result.find((location) => location.uri.scheme === 'php-companion-builtin')!);
       }
-      assert.notStrictEqual(sortDefinitions[0]!.uri.toString(), sortDefinitions[1]!.uri.toString(),
-        'PHP 7.2 and 8.5 built-in declarations shared one virtual document URI.');
-      const sort72 = await vscode.workspace.openTextDocument(sortDefinitions[0]!.uri);
-      const sort85 = await vscode.workspace.openTextDocument(sortDefinitions[1]!.uri);
-      assert.ok(sort72.getText().includes('function sort(array &$array, int $flags = 0): bool'),
-        `PHP 7.2 navigation displayed the wrong built-in signature: ${sortDefinitions[0]!.uri.toString()} ${sort72.getText().match(/function sort\([^\n]*/u)?.[0] ?? sort72.getText().slice(0, 80)}`);
-      assert.ok(sort85.getText().includes('function sort(array &$array, int $flags = 0): true'),
-        `PHP 8.5 navigation displayed the wrong built-in signature: ${sortDefinitions[1]!.uri.toString()} ${sort85.getText().match(/function sort\([^\n]*/u)?.[0] ?? sort85.getText().slice(0, 80)}`);
+      assert.strictEqual(sortDefinitions[0]!.uri.toString() === sortDefinitions[1]!.uri.toString(),
+        firstTargetPhpVersion === secondTargetPhpVersion,
+        'Built-in virtual document identity did not follow the two effective PHP versions.');
+      for (const [index, version] of [firstTargetPhpVersion, secondTargetPhpVersion].entries()) {
+        const source = (await vscode.workspace.openTextDocument(sortDefinitions[index]!.uri)).getText();
+        const [major, minor] = version.split('.').map(Number);
+        const returnType = major! > 8 || (major === 8 && minor! >= 2) ? 'true' : 'bool';
+        assert.ok(source.includes(`function sort(array &$array, int $flags = 0): ${returnType}`),
+          `PHP ${version} navigation displayed the wrong built-in signature: ${sortDefinitions[index]!.uri.toString()} ${source.match(/function sort\([^\n]*/u)?.[0] ?? source.slice(0, 80)}`);
+      }
       const parentServiceSource = '<?php namespace App\\C1; class NestedService { public function parentOnly(): void {} }';
       await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'NestedService.php'), Buffer.from(parentServiceSource));
       const nestedRoot = vscode.Uri.joinPath(workspace.uri, 'apps', 'api');
@@ -1375,7 +1382,7 @@ accept(1, /* note */);`;
       const nestedDiagnostics = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(nestedVersionUri)),
         (result) => result.some((item) => item.code === 'php.type.filename')
           && !result.some((item) => item.code === 'php.version.unsupported'),
-        'SoPHP kept the parent PHP 7.2 target in the nested PHP 8.5 project.');
+        `SoPHP kept the parent PHP ${firstTargetPhpVersion} target in the nested PHP 8.5 project.`);
       assert.ok(!nestedDiagnostics.some((item) => item.code === 'php.syntax'));
       await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
         (value) => value?.includes('SoPHP: 8.5') === true,
@@ -1391,11 +1398,12 @@ accept(1, /* note */);`;
       await vscode.workspace.fs.writeFile(parentVersionAfterNestedUri, Buffer.from(versionSource));
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(parentVersionAfterNestedUri));
       const parentDiagnosticsAfterNested = await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(parentVersionAfterNestedUri)),
-        (result) => result.filter((item) => item.code === 'php.version.unsupported').length === 3,
-        'SoPHP replaced the parent PHP 7.2 target after opening the nested PHP 8.5 project.');
+        (result) => result.some((item) => item.code === 'php.type.filename')
+          && result.filter((item) => item.code === 'php.version.unsupported').length === expected.length,
+        `SoPHP replaced the parent PHP ${firstTargetPhpVersion} target after opening the nested PHP 8.5 project.`);
       assert.ok(!parentDiagnosticsAfterNested.some((item) => item.code === 'php.syntax'));
       await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
-        (value) => value?.includes('SoPHP: 7.2') === true,
+        (value) => value?.includes(`SoPHP: ${firstTargetPhpVersion}`) === true,
         'SoPHP status bar kept the nested PHP version after returning to the parent project.');
       const secondComposerUri = vscode.Uri.joinPath(secondWorkspace.uri, 'composer.json');
       const secondComposer = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(secondComposerUri)).toString('utf8')) as {

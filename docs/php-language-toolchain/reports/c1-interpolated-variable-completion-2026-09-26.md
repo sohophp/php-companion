@@ -13,4 +13,4 @@ Open Source Pack 关闭 PHP 通用单词建议后，SoPHP 独占 PHP 变量补�
 - 隔离 VS Code 1.139.1 Linux x64 Core C1 源码宿主在显式 PHP 8.5 和 7.2 目标下均退出码 0。测试从 `vscode.executeCompletionItemProvider` 取得 `$username`，核对替换范围，实际应用后保持 `{$username}`，并确认单引号与转义 `$` 不返回该候选。两次宿主日志分别是 `/tmp/sophp-c1-interpolation-host-85-20260926.log` 与 `/tmp/sophp-c1-interpolation-host-72-20260926.log`。
 - 增补“刚输入 `$`”的实际 VS Code 补全请求后，显式 PHP 8.5 的完整 C1 宿主再次退出码 0；日志为 `/tmp/sophp-c1-bare-dollar-host-85-20260926.log`。
 
-未指定目标版本的首轮 C1 宿主在后续 PHP 7.2 版本诊断断言失败：用例默认预期 7.2，实际没有得到所预期的三项 SoPHP 版本诊断。显式 7.2 与 8.5 均通过；该默认环境差异单独保留，不用本次插值补全结论覆盖。该源码改动还没有进入已打包 VSIX，真实 WSL Remote 与人工输入体验仍待 C4。
+未指定目标版本的首轮 C1 宿主曾在 PHP 7.2 版本诊断断言失败：测试默认预期 7.2，实际自动目标为 8.5。[自动版本宿主门禁](c1-auto-version-host-gate-2026-09-26.md)已修正该测试假设，默认宿主随后退出码 0。显式 7.2 与 8.5 的验证仍有效。该源码改动还没有进入已打包 VSIX，真实 WSL Remote 与人工输入体验仍待 C4。
