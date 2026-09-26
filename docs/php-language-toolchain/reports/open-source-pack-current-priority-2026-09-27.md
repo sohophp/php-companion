@@ -40,4 +40,6 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 第一项的起手点已完成：[PHPDoc 类型跳转](c1-phpdoc-type-navigation-2026-09-27.md)在独立夹具复现了说明文字误跳，[跨行续写与未保存修改](c1-phpdoc-continued-type-navigation-2026-09-27.md)也已通过完整 Pack 源码宿主。[PHPDoc 引用及安全改名范围](c3-phpdoc-type-rename-safety-2026-09-27.md)随后修复了同名说明文字和数组形状键被误改的风险。PHPDoc 注释生成继续交给 DocBlocker。接下来优先处理可复现的 C1/C2 高频输入、反馈错误与等待；按用户可见影响调整顺序。
 
+[C2 缓冲区关闭往返](c2-phpdoc-buffer-close-reference-2026-09-27.md)又确认默认 `onDemand` 下跨行 PHPDoc 的 References 与 Definition 跟随未保存内容，关闭后 References 恢复磁盘事实；单独运行时 `experimental` 模式的即时关闭查询尚无同样结论。继续检查更高频的普通 PHP 输入和跨能力反馈。
+
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。

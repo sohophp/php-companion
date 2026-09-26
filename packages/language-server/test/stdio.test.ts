@@ -4055,6 +4055,72 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     }
   });
 
+  it('keeps PHPDoc references on the current buffer and restores disk facts after close', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-phpdoc-reference-buffer-'));
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const widget = '<?php namespace App; class Widget {}';
+      const other = '<?php namespace App; class Other {}';
+      const source = (name: string): string => `<?php namespace App;
+/** @return list<
+ * ${name}
+ */
+function values(): array { return []; }
+`;
+      const widgetUri = pathToFileURL(join(root, 'src', 'Widget.php')).toString();
+      const otherUri = pathToFileURL(join(root, 'src', 'Other.php')).toString();
+      const useUri = pathToFileURL(join(root, 'src', 'Use.php')).toString();
+      await writeFile(join(root, 'src', 'Widget.php'), widget);
+      await writeFile(join(root, 'src', 'Other.php'), other);
+      await writeFile(join(root, 'src', 'Use.php'), source('Widget'));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9601, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 9601);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [uri, text] of [[widgetUri, widget], [otherUri, other], [useUri, source('Widget')]] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }));
+      }
+      const references = async (id: number, uri: string, text: string, name: string): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+          textDocument: { uri }, position: lspPosition(text, text.indexOf(`class ${name}`) + 'class '.length + 2),
+          context: { includeDeclaration: false },
+        } }));
+        return (await output.waitFor((message) => message.id === id, 10_000)).result;
+      };
+      const referenceOffsets = (items: any[], text: string): number[] => items.filter((item) => item.uri === useUri)
+        .map((item) => lspOffset(text, item.range.start));
+      const definition = async (id: number, text: string, name: string): Promise<any[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: {
+          textDocument: { uri: useUri }, position: lspPosition(text, text.indexOf(` * ${name}`) + ' * '.length + 2),
+        } }));
+        return (await output.waitFor((message) => message.id === id, 10_000)).result;
+      };
+      expect(referenceOffsets(await references(9602, widgetUri, widget, 'Widget'), source('Widget')))
+        .toEqual([source('Widget').indexOf(' * Widget') + ' * '.length]);
+      expect(await definition(9607, source('Widget'), 'Widget')).toMatchObject([{ uri: widgetUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: useUri, version: 2 }, contentChanges: [{ text: source('Other') }],
+      } }));
+      expect(referenceOffsets(await references(9603, widgetUri, widget, 'Widget'), source('Other'))).toEqual([]);
+      expect(referenceOffsets(await references(9604, otherUri, other, 'Other'), source('Other')))
+        .toEqual([source('Other').indexOf(' * Other') + ' * '.length]);
+      expect(await definition(9608, source('Other'), 'Other')).toMatchObject([{ uri: otherUri }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: useUri } } }));
+      expect(referenceOffsets(await references(9605, widgetUri, widget, 'Widget'), source('Widget')))
+        .toEqual([source('Widget').indexOf(' * Widget') + ' * '.length]);
+      expect(referenceOffsets(await references(9606, otherUri, other, 'Other'), source('Widget'))).toEqual([]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('renames a unique type and its matching PSR-4 file through documentChanges', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-type-rename-'));
     try {
