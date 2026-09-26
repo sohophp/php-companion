@@ -74,7 +74,7 @@ PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，当�
 ## 从安装到日常使用
 
 1. **选版本与 Profile。** 对当前已安装的 0.4.5，只使用其已声明的 R1 范围；评估当前源码的新功能时，冻结单一候选并记录 Core/Symfony/Pack 的版本与摘要。在干净 VS Code Profile 中安装 Open Source Pack。私有候选的安装和预检步骤见[Alpha 试用说明](alpha-candidate.md)。
-2. **确认运行位置。** 在 Windows+WSL Remote、SSH 或容器中，检查 SoPHP、Symfony、formatter 和 PHP Debug 运行于能访问项目 PHP 与 Composer 的 Extension Host；PHP CLI、fixer、测试命令和路径映射使用该环境的实际路径。仅本地安装成功不足以证明 Remote 可用。
+2. **确认运行位置和 PHP 校验器。** 在 Windows+WSL Remote、SSH 或容器中，检查 SoPHP、Symfony、formatter 和 PHP Debug 运行于能访问项目 PHP 与 Composer 的 Extension Host；PHP CLI、fixer、测试命令和路径映射使用该环境的实际路径。内建 PHP 校验默认启用，`php.validate.executablePath` 应指向同一目标 PHP；多根 `.code-workspace` 须在工作区级 `settings` 指定，且内建校验一次只使用一个 PHP 可执行文件，混合 PHP 版本的根目录应分开工作区验证。仅本地安装成功不足以证明 Remote 可用。
 3. **确认唯一所有者。** 禁用其它通用 PHP LS；PHP 只由 SoPHP 返回通用补全、Definition、Rename 与诊断。PHP 格式化只由 PHP CS Fixer 提供，Twig 只由 TwigPlus 提供；YAML/XML 的通用语言功能归 Red Hat 扩展。可选静态分析诊断单独标明来源。
 4. **用独立 Composer 项目完成日常闭环。** 打开项目和 vendor → 输入并修改尚未保存的 PHP → 补全、Hover、参数提示、定义、实现、引用 → import/生成 → 预览一次受支持 Rename 并撤销 → 编辑 Twig 与 YAML/XML → 格式化 → 运行及调试测试。记录每步的扩展版本、结果、等待、重复 Provider 和失败提示。业务项目只做只读复核，不为编辑器验收修改其代码。
 5. **开始受限试用。** 上述闭环通过且已知限制可见时，可用该候选进行日常开发并持续报告问题。动态或歧义 PHP、工作区外公开 API、未完成索引及跨语言编辑按当前支持清单处理；不把候选称为已达到 R4。发现回归时按候选摘要退回上一已验证版本或关闭对应可选增强，保留问题输入与日志。

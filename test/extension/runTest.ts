@@ -86,6 +86,7 @@ async function main(): Promise<void> {
   const coreOnly = routeStatusOnly || (c1Only && !c1OpenSourceProfile) || (c2Only && !c2OpenSourceProfile)
     || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
+  const c1ValidatePhp = c1Only ? process.env.PHP_COMPANION_TEST_C1_VALIDATE_PHP : undefined;
   const c1DebugPort = c1Only || routeStatusOnly
     ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' || routeStatusOnly ? String(await availableDebugPort()) : undefined)
     : undefined;
@@ -204,7 +205,7 @@ async function main(): Promise<void> {
       { path: fixture, name: 'first' }, { path: secondFixture, name: 'second' },
       ...(runtimeFixture ? [{ path: runtimeFixture, name: 'runtime' }] : []),
       ...(realVendorFixture ? [{ path: realVendorFixture, name: 'real-vendor' }] : []),
-    ] }));
+    ], ...(c1ValidatePhp ? { settings: { 'php.validate.executablePath': c1ValidatePhp } } : {}) }));
     const c1ProductPaths = c1ProductsDir ? ['core', 'symfony', 'pack'].map((member) =>
       resolve(c1ProductsDir, member, 'extension')) : undefined;
     if (c1ProductPaths) {
@@ -262,6 +263,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE: c1Only ? process.env.PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE : undefined,
         PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE: c1Only ? process.env.PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE : undefined,
         PHP_COMPANION_TEST_C1_PHP_VERSION: c1Only ? c1PhpVersion : undefined,
+        PHP_COMPANION_TEST_C1_VALIDATE_PHP: c1ValidatePhp,
         PHP_COMPANION_TEST_C1_RUNTIME_VERSION: runtimeVersion,
         PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER: runtimeDiscover ? '1' : undefined,
         PHP_COMPANION_TEST_C1_REAL_VENDOR: realVendorFixture ? '1' : undefined,

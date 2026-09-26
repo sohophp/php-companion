@@ -54,6 +54,8 @@ JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code �
 
 推荐在项目内安装 PHP CS Fixer，并通过工作区设置指定可执行文件和配置。
 
+VS Code 内建 PHP 校验默认在保存时调用 PHP CLI。项目使用 PHP 8.5 等非 PATH 默认版本时，将 `php.validate.executablePath` 指向**运行项目的同一个环境**中的 PHP，例如 WSL Remote 中的 `/usr/bin/php85`；同时确认 SoPHP 的目标版本与项目一致。在多根 `.code-workspace` 中，把该设置放在工作区级 `settings`：内建校验只读取一个工作区级可执行文件，混合 PHP 版本的根目录应分开工作区验证。否则旧 CLI 可能把合法新语法报成错误。
+
 ## 本地候选安装
 
 私有候选在 `artifacts/php-companion-alpha-<版本>-<提交号>/`，由 `pnpm candidate:alpha` 输出准确目录；它不属于公开 Marketplace 的发行文件。Symfony 尚按私有候选交付。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。

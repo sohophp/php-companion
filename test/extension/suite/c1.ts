@@ -1383,6 +1383,46 @@ function consume(): void { (void) choose(1); }`;
       `PHP ${firstTargetPhpVersion} did not report unsupported ${feature}.`);
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${firstTargetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${firstTargetPhpVersion} reported a parser error for the version fixture.`);
+    const cloneUri = vscode.Uri.joinPath(folder, 'VersionCloneWith.php');
+    const cloneSource = `<?php namespace App\\C1;
+class C1CloneWith { public $name = 'a'; }
+$copy = clone(new C1CloneWith(), ['name' => strtoupper('b')],);`;
+    await vscode.workspace.fs.writeFile(cloneUri, Buffer.from(cloneSource));
+    const cloneDocument = await vscode.workspace.openTextDocument(cloneUri);
+    await vscode.window.showTextDocument(cloneDocument);
+    const cloneExpected = firstTargetPhpVersion !== '8.5';
+    const cloneDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(cloneUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && (!cloneExpected || result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes('clone with properties'))),
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} clone-with diagnostic set in VS Code.`,
+    );
+    assert.ok(!cloneDiagnostics.some((item) => item.code === 'php.syntax'),
+      `PHP ${firstTargetPhpVersion} treated a valid clone-with call as invalid syntax.`);
+    if (process.env.PHP_COMPANION_TEST_C1_VALIDATE_PHP) {
+      assert.ok(!cloneDiagnostics.some((item) => item.severity === vscode.DiagnosticSeverity.Error
+        && item.message.includes('syntax error')),
+      `The configured PHP CLI still reported a syntax error for valid PHP ${firstTargetPhpVersion} clone-with code: `
+        + `${JSON.stringify({ configured: vscode.workspace.getConfiguration('php.validate', cloneUri).get('executablePath'),
+          diagnostics: cloneDiagnostics.map((item) => ({ source: item.source, code: item.code, message: item.message })) })}`);
+    }
+    assert.strictEqual(cloneDiagnostics.filter((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('clone with properties')).length, cloneExpected ? 1 : 0);
+    const missingValue = new vscode.WorkspaceEdit();
+    const valueStart = cloneSource.indexOf("strtoupper('b')");
+    missingValue.delete(cloneUri, new vscode.Range(cloneDocument.positionAt(valueStart),
+      cloneDocument.positionAt(valueStart + "strtoupper('b')".length)));
+    assert.ok(await vscode.workspace.applyEdit(missingValue), 'Could not make the clone-with argument incomplete.');
+    await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(cloneUri)),
+      (result) => result.some((item) => item.code === 'php.syntax'),
+      'SoPHP did not diagnose the incomplete clone-with argument.');
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(cloneUri)),
+      (result) => !result.some((item) => item.code === 'php.syntax')
+        && result.some((item) => item.code === 'php.type.filename'),
+      'SoPHP did not withdraw the clone-with syntax error after Undo.');
+    console.log(`C1 PHP ${firstTargetPhpVersion} clone-with Problems and Undo matched the target version`);
     const syntaxEdgeUri = vscode.Uri.joinPath(folder, 'VersionSyntaxEdges.php');
     const syntaxEdgeSource = `<?php namespace App\\C1;
 class C1VersionSyntaxMarker {}
