@@ -4055,7 +4055,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     }
   });
 
-  it('keeps PHPDoc references on the current buffer and restores disk facts after close', async () => {
+  it.each(['onDemand', 'experimental', 'progressive'] as const)('restores PHPDoc disk references after closing an unsaved buffer in %s mode', async (indexingMode) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-phpdoc-reference-buffer-'));
     try {
       await mkdir(join(root, 'src'), { recursive: true });
@@ -4078,7 +4078,7 @@ function values(): array { return []; }
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 9601, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { indexingMode: 'onDemand' },
+        initializationOptions: { indexingMode },
       } }));
       await output.waitFor((message) => message.id === 9601);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));

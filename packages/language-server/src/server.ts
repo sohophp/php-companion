@@ -78,8 +78,9 @@ let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
 let indexingGeneration = 0;
 let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
-const onDemandClosedDocumentsByRoot = new Map<string, Map<string, true>>();
-const MAX_ON_DEMAND_CLOSED_DOCUMENTS_PER_ROOT = 256;
+const retainedClosedDocumentsByRoot = new Map<string, Map<string, true>>();
+const pendingDocumentClosesByRoot = new Map<string, Set<Promise<void>>>();
+const MAX_RETAINED_CLOSED_DOCUMENTS_PER_ROOT = 256;
 const projectIndexedUrisByRoot = new Map<string, Set<string>>();
 const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefined>>();
@@ -1181,7 +1182,7 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
           const source = open?.getText() ?? ownerWorkspace.source(sourceUri);
           if (source === undefined) continue;
           ownerWorkspace.remove(sourceUri);
-          onDemandClosedDocumentsByRoot.get(ownerRoot)?.delete(sourceUri);
+          retainedClosedDocumentsByRoot.get(ownerRoot)?.delete(sourceUri);
           interopContextsByRoot.get(ownerRoot)?.delete(sourceUri);
           removeDoctrineDocument(ownerRoot, sourceUri, ownerWorkspace);
           for (const mapping of [indexedUrisByRoot, projectIndexedUrisByRoot, scanFilesByRoot]) {
@@ -1190,7 +1191,7 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
             projectUris.add(sourceUri); mapping.set(project, projectUris);
           }
           projectWorkspace.update(sourceUri, source, Boolean(open));
-          if (!open) retainClosedOnDemandDocument(project, sourceUri, projectWorkspace);
+          if (!open) retainClosedUnindexedDocument(project, sourceUri, projectWorkspace);
           migrated.push({ uri: sourceUri, source });
         }
       }
@@ -1206,15 +1207,17 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
   await pending;
 }
 
-function semanticForUri(uri: string): Promise<SemanticWorkspace> {
+async function semanticForUri(uri: string): Promise<SemanticWorkspace> {
+  const initialRoot = rootForUri(uri);
+  const closing = initialRoot ? pendingDocumentClosesByRoot.get(initialRoot) : undefined;
+  if (closing?.size) await Promise.allSettled([...closing]);
   if (indexingMode !== 'onDemand') {
     const root = rootForUri(uri);
     return root ? semanticForRoot(root) : semanticForKey('loose');
   }
-  return ensureComposerRootForUri(uri).then(() => {
-    const root = rootForUri(uri);
-    return root ? semanticForRoot(root) : semanticForKey('loose');
-  });
+  await ensureComposerRootForUri(uri);
+  const root = rootForUri(uri);
+  return root ? semanticForRoot(root) : semanticForKey('loose');
 }
 
 const SYMFONY_SERVICE_CONFIGS = ['config/services.yaml', 'config/services.yml', 'config/packages/services.yaml', 'config/packages/services.yml', 'config/symfony/services.yaml', 'config/symfony/services.yml', 'app/config/services.yaml', 'app/config/services.yml'];
@@ -2313,7 +2316,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
       classmapNamespacePathsByRoot.delete(key.slice('root:'.length));
       classmapNamespaceResultsByRoot.delete(key.slice('root:'.length));
       typeNameSearchEpochsByRoot.delete(key.slice('root:'.length));
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); onDemandClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); retainedClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
@@ -3725,7 +3728,7 @@ connection.onRequest('phpCompanion/testFrameworkSnapshotHashes', (): Record<stri
 connection.onRequest('phpCompanion/testOnDemandClosedDocuments', (params: { uri?: unknown } | undefined): string[] => {
   if (!testMode || typeof params?.uri !== 'string') return [];
   const root = rootForUri(params.uri);
-  return root ? [...(onDemandClosedDocumentsByRoot.get(root)?.keys() ?? [])] : [];
+  return root ? [...(retainedClosedDocumentsByRoot.get(root)?.keys() ?? [])] : [];
 });
 
 connection.onRequest('phpCompanion/testMemoryUsage', (params: { collect?: unknown } | undefined): NodeJS.MemoryUsage | undefined => {
@@ -4895,7 +4898,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     }
     source = (open && documents.get(open.uri))?.getText() ?? source;
     for (const aliasUri of aliasUris) {
-      onDemandClosedDocumentsByRoot.get(root)?.delete(aliasUri);
+      retainedClosedDocumentsByRoot.get(root)?.delete(aliasUri);
       indexedUrisByRoot.get(root)?.delete(aliasUri);
       projectIndexedUrisByRoot.get(root)?.delete(aliasUri);
       scanFilesByRoot.get(root)?.delete(aliasUri);
@@ -4903,7 +4906,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
       interopContextsByRoot.get(root)?.delete(aliasUri);
       removeDoctrineDocument(root, aliasUri, workspace);
     }
-    onDemandClosedDocumentsByRoot.get(root)?.delete(targetUri);
+    retainedClosedDocumentsByRoot.get(root)?.delete(targetUri);
     if (source === undefined) {
       workspace.remove(targetUri); scanFilesByRoot.get(root)?.delete(targetUri); indexedUrisByRoot.get(root)?.delete(targetUri); projectIndexedUrisByRoot.get(root)?.delete(targetUri);
       interopContextsByRoot.get(root)?.delete(targetUri); externalSymfonyEventsByRoot.delete(root); removeDoctrineDocument(root, targetUri, workspace);
@@ -5077,7 +5080,7 @@ async function supersedeOpenPhysicalAliases(document: TextDocument, root: string
       }
     }
     workspace.remove(alias.uri);
-    onDemandClosedDocumentsByRoot.get(root)?.delete(alias.uri);
+    retainedClosedDocumentsByRoot.get(root)?.delete(alias.uri);
     indexedUrisByRoot.get(root)?.delete(alias.uri);
     projectIndexedUrisByRoot.get(root)?.delete(alias.uri);
     scanFilesByRoot.get(root)?.delete(alias.uri);
@@ -5101,7 +5104,7 @@ documents.onDidOpen(async ({ document }) => {
   const workspace = await semanticForUri(document.uri);
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
-  if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+  if (root) retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
   if (root && hasPossibleOpenPhysicalAlias(document, root)
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
@@ -5157,7 +5160,7 @@ documents.onDidChangeContent(async ({ document }) => {
   const workspace = await semanticForUri(document.uri);
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
   const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
-  if (opening && root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+  if (opening && root) retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
   if (root && hasPossibleOpenPhysicalAlias(document, root)
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
@@ -5195,11 +5198,11 @@ documents.onDidChangeContent(async ({ document }) => {
   }
 });
 
-function retainClosedOnDemandDocument(root: string, uri: string, workspace: SemanticWorkspace): void {
+function retainClosedUnindexedDocument(root: string, uri: string, workspace: SemanticWorkspace): void {
   if (indexedUrisByRoot.get(root)?.has(uri)) return;
-  const cached = onDemandClosedDocumentsByRoot.get(root) ?? new Map<string, true>();
-  cached.delete(uri); cached.set(uri, true); onDemandClosedDocumentsByRoot.set(root, cached);
-  while (cached.size > MAX_ON_DEMAND_CLOSED_DOCUMENTS_PER_ROOT) {
+  const cached = retainedClosedDocumentsByRoot.get(root) ?? new Map<string, true>();
+  cached.delete(uri); cached.set(uri, true); retainedClosedDocumentsByRoot.set(root, cached);
+  while (cached.size > MAX_RETAINED_CLOSED_DOCUMENTS_PER_ROOT) {
     const oldest = cached.keys().next().value;
     if (!oldest) break;
     cached.delete(oldest);
@@ -5210,7 +5213,7 @@ function retainClosedOnDemandDocument(root: string, uri: string, workspace: Sema
   }
 }
 
-documents.onDidClose(async ({ document }) => {
+async function closeDocument(document: TextDocument): Promise<void> {
   if (document.languageId !== 'php') return;
   openPhysicalTopologyRevision += 1;
   localAliasQueryWorkspaces.get(document.uri)?.workspace.dispose();
@@ -5237,7 +5240,7 @@ documents.onDidClose(async ({ document }) => {
   if (workspace && root && remainingAlias && !documents.get(document.uri)) {
     relatedFactsChanged = workspace.source(document.uri) !== undefined;
     workspace.remove(document.uri);
-    onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+    retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
     interopContextsByRoot.get(root)?.delete(document.uri);
     removeDoctrineDocument(root, document.uri, workspace);
     const restored = workspace.update(remainingAlias.uri, remainingAlias.getText(), true);
@@ -5245,16 +5248,17 @@ documents.onDidClose(async ({ document }) => {
     if (restored.kind === 'declaration') await refreshDoctrineDocument(root, remainingAlias.uri, remainingAlias.getText(), workspace);
     scheduleSymfonyContainerRefresh(root);
     invalidateCandidates(remainingAlias.uri);
-  } else if (workspace && root && (indexedUrisByRoot.get(root)?.has(document.uri) || indexingMode === 'onDemand')) {
+  } else if (workspace && root && (indexedUrisByRoot.get(root)?.has(document.uri)
+    || indexingMode !== 'off' && workspace.source(document.uri) !== undefined)) {
     const path = pathForUri(document.uri);
     try {
       if (!path) throw new Error('Document URI has no filesystem path.');
-      if (indexingMode === 'onDemand' && !indexedUrisByRoot.get(root)?.has(document.uri)
-        && (await stat(path)).size > indexLimits.maxFileSizeBytes) throw new Error('Closed PHP source exceeds the on-demand file limit.');
+      if (!indexedUrisByRoot.get(root)?.has(document.uri)
+        && (await stat(path)).size > indexLimits.maxFileSizeBytes) throw new Error('Closed PHP source exceeds the file limit.');
       const diskSource = await readFile(path, 'utf8');
       const reopened = documents.get(document.uri);
       const source = reopened?.getText() ?? diskSource; const update = workspace.update(document.uri, source, Boolean(reopened));
-      if (indexingMode === 'onDemand' && !reopened) retainClosedOnDemandDocument(root, document.uri, workspace);
+      if (!reopened) retainClosedUnindexedDocument(root, document.uri, workspace);
       relatedFactsChanged = update.kind !== 'none';
       if (update.kind !== 'none') {
         await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
@@ -5264,13 +5268,13 @@ documents.onDidClose(async ({ document }) => {
       if (update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
     } catch { if (!documents.get(document.uri)) {
       relatedFactsChanged = workspace.source(document.uri) !== undefined;
-      onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+      retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
       workspace.remove(document.uri); interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace);
       scheduleSymfonyContainerRefresh(root);
     } }
   } else {
     relatedFactsChanged = workspace?.source(document.uri) !== undefined;
-    if (root) onDemandClosedDocumentsByRoot.get(root)?.delete(document.uri);
+    if (root) retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
     workspace?.remove(document.uri);
     if (workspace && root) {
       interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); scheduleSymfonyContainerRefresh(root);
@@ -5282,6 +5286,18 @@ documents.onDidClose(async ({ document }) => {
   // A new didOpen can arrive while the disk snapshot above is still loading.
   // Clearing diagnostics here would erase the reopened document's new version.
   if (!documents.get(document.uri)) await connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
+}
+
+documents.onDidClose(({ document }) => {
+  const root = rootForUri(document.uri);
+  const closing = closeDocument(document);
+  if (!root) { void closing.catch((error: unknown) => connection.console.warn(String(error))); return; }
+  const pending = pendingDocumentClosesByRoot.get(root) ?? new Set<Promise<void>>();
+  pending.add(closing); pendingDocumentClosesByRoot.set(root, pending);
+  void closing.catch((error: unknown) => connection.console.warn(String(error))).finally(() => {
+    pending.delete(closing);
+    if (pending.size === 0) pendingDocumentClosesByRoot.delete(root);
+  });
 });
 
 connection.onDocumentSymbol(async ({ textDocument }, token) => {
@@ -7104,7 +7120,8 @@ connection.onShutdown(async () => {
   (await parserPromise)?.dispose();
   parserPromise = undefined;
   semanticWorkspaces.clear();
-  onDemandClosedDocumentsByRoot.clear();
+  pendingDocumentClosesByRoot.clear();
+  retainedClosedDocumentsByRoot.clear();
   externalSymfonyEventsByRoot.clear();
   semanticProviderRevisionsByRoot.clear();
   genericSemanticProviderRevisionsByRoot.clear();
