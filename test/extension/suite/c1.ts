@@ -500,6 +500,10 @@ namespace App\C1;
  * @return \App\C1\Nested\C1DocTa
  * @var array<
  * C1DocTa
+ * @method static C1DocTa
+ * @method C1DocTarget find(C1DocTa
+ * @method C1DocTarget find(C1DocTarget $owner, C1DocTa
+ * @method C1DocTarget find(C1DocTarget $owner) description
  * @return C1DocTarget description
  */
 function documented(): void {}
@@ -532,6 +536,17 @@ function documented(): void {}
   assert.ok((await phpDocSuggestions(' * C1DocTa')).some((item) =>
     item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
   'SoPHP did not continue the PHPDoc generic type on the next line.');
+  for (const marker of ['@method static C1DocTa', '@method C1DocTarget find(C1DocTa',
+    '@method C1DocTarget find(C1DocTarget $owner, C1DocTa']) {
+    assert.ok((await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
+    `SoPHP did not suggest the project class in @method type position ${marker}.`);
+  }
+  for (const marker of ['@method C1DocTarget find', '@method C1DocTarget find(C1DocTarget $owner) description']) {
+    assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
+    `SoPHP suggested a class in an @method name or description: ${marker}.`);
+  }
   for (const marker of ['@return C1DocTarget description', '// @param C1DocTa']) {
     assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),

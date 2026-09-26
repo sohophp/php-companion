@@ -174,6 +174,39 @@ function consume(): void {}`;
       expect(project.completeTypes(uri, description)).toEqual([]);
     } finally { project.dispose(); }
   });
+  it('completes explicit @method return and parameter types without suggesting method or parameter names', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocMethods.php';
+    const source = `<?php
+namespace App;
+class UserService {}
+class UserSession {}
+/**
+ * @method static UserSe
+ * @method UserSe find()
+ * @method UserService find(UserSe
+ * @method UserService find(UserService $owner, UserSe
+ * @method UserService find(UserService $owner) description
+ * @method UserService find(UserService $owner)
+ */
+class Repository {}`;
+    try {
+      project.update(uri, source);
+      for (const marker of ['@method static UserSe', '@method UserSe',
+        '@method UserService find(UserSe', '@method UserService find(UserService $owner, UserSe']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name), marker)
+          .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
+      }
+      for (const [marker, cursorLength] of [['find(', 'find'.length], ['$owner)', '$owner)'.length],
+        ['description', 'description'.length]] as const) {
+        const offset = source.lastIndexOf(marker) + cursorLength;
+        expect(project.typeCompletionContext(uri, offset), marker).toBeUndefined();
+        expect(project.completeTypes(uri, offset), marker).toEqual([]);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes scoped variables in PHP interpolated strings without suggesting literal or escaped dollars', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///InterpolatedVariables.php';

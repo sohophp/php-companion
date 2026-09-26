@@ -532,6 +532,35 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
   return compositeParameter?.index === 0 ? compositeParameter[1] ?? '' : undefined;
 }
 
+function phpDocMethodTypeFragment(body: string, following: string): string | undefined {
+  const isStatic = /^static\s+/iu.test(body);
+  const signature = isStatic ? body.replace(/^static\s+/iu, '') : body;
+  const parsed = parsePhpDocType(signature);
+  let cursor = parsed.consumed;
+  while (/\s/u.test(signature[cursor] ?? '')) cursor += 1;
+  const method = /^([A-Za-z_][A-Za-z0-9_]*)/u.exec(signature.slice(cursor));
+  if (!method) return isStatic || /^\s+[A-Za-z_][A-Za-z0-9_]*\s*\(/u.test(following) ? signature : undefined;
+  cursor += method[0].length;
+  while (/\s/u.test(signature[cursor] ?? '')) cursor += 1;
+  if (signature[cursor] !== '(') return undefined;
+  let start = cursor + 1;
+  let parentheses = 0; let angles = 0; let brackets = 0; let quote: string | undefined; let escaped = false;
+  for (let index = start; index < signature.length; index += 1) {
+    const char = signature[index]!;
+    if (escaped) { escaped = false; continue; }
+    if (quote) { if (char === '\\') escaped = true; else if (char === quote) quote = undefined; continue; }
+    if (char === '"' || char === "'") { quote = char; continue; }
+    if (char === '(') parentheses += 1;
+    else if (char === ')') { if (!parentheses) return undefined; parentheses -= 1; }
+    else if (char === '<') angles += 1;
+    else if (char === '>') angles = Math.max(0, angles - 1);
+    else if (char === '[') brackets += 1;
+    else if (char === ']') brackets = Math.max(0, brackets - 1);
+    else if (char === ',' && !parentheses && !angles && !brackets) start = index + 1;
+  }
+  return signature.slice(start).trimStart().replace(/^\.\.\./u, '');
+}
+
 function phpDocTypeCompletionContext(file: SemanticFile, offset: number, currentNamespace: string):
   { prefix: string; namespace?: string } | undefined {
   const comment = file.commentRanges.find((range) => range.start < offset && offset <= range.end
@@ -539,14 +568,23 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
   if (!comment) return undefined;
   const lines = file.source.slice(comment.start, offset).split(/\r?\n/u);
   const tagPattern = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|extends|implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u;
+  const methodTagPattern = /^\s*(?:\/\*\*|\*)\s*@method\s+(.*)$/u;
   let body: string | undefined;
   let suffix = '';
   for (let index = lines.length - 1; index >= 0 && lines.length - index <= 8; index -= 1) {
     const tag = tagPattern.exec(lines[index]!);
     if (tag) { body = tag[2]! + suffix; break; }
+    const methodTag = methodTagPattern.exec(lines[index]!);
+    if (methodTag) {
+      const lineEnd = file.source.indexOf('\n', offset);
+      body = phpDocMethodTypeFragment(methodTag[1]! + suffix,
+        file.source.slice(offset, lineEnd < 0 ? comment.end : Math.min(lineEnd, comment.end)));
+      break;
+    }
     const continuation = /^\s*\*\s*(.*)$/u.exec(lines[index]!);
     if (!continuation || index === 0) return undefined;
     const previous = tagPattern.exec(lines[index - 1]!)?.[2]
+      ?? methodTagPattern.exec(lines[index - 1]!)?.[1]
       ?? /^\s*\*\s*(.*)$/u.exec(lines[index - 1]!)?.[1];
     if (previous === undefined || !/[|&<,(?\\]\s*$/u.test(previous)) return undefined;
     suffix = continuation[1]!.trimStart() + suffix;
