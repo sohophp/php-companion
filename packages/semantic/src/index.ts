@@ -620,6 +620,8 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
   const lines = file.source.slice(comment.start, offset).split(/\r?\n/u);
   const tagPattern = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|(?:template-)?extends|(?:template-)?implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u;
   const methodTagPattern = /^\s*(?:\/\*\*|\*)\s*@method\s+(.*)$/u;
+  const templateTagPattern = /^\s*(?:\/\*\*|\*)\s*@(?:(?:phpstan|psalm)-)?template(?:-(?:covariant|contravariant))?\s+(.*)$/u;
+  const templateBound = (value: string): string | undefined => /^[A-Za-z_][A-Za-z0-9_]*\s+(?:of|as)\s+(.*)$/u.exec(value)?.[1];
   let body: string | undefined;
   let suffix = '';
   for (let index = lines.length - 1; index >= 0 && lines.length - index <= 8; index -= 1) {
@@ -633,10 +635,17 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
       body = methodFragment === undefined ? undefined : phpDocShapeValueFragment(methodFragment);
       break;
     }
+    const templateTag = templateTagPattern.exec(lines[index]!);
+    if (templateTag) {
+      const bound = templateBound(templateTag[1]! + suffix);
+      body = bound === undefined ? undefined : phpDocShapeValueFragment(bound);
+      break;
+    }
     const continuation = /^\s*\*\s*(.*)$/u.exec(lines[index]!);
     if (!continuation || index === 0) return undefined;
     const previous = tagPattern.exec(lines[index - 1]!)?.[2]
       ?? methodTagPattern.exec(lines[index - 1]!)?.[1]
+      ?? templateTagPattern.exec(lines[index - 1]!)?.[1]
       ?? /^\s*\*\s*(.*)$/u.exec(lines[index - 1]!)?.[1];
     if (previous === undefined || !/[|&<,(?\\{:]\s*$/u.test(previous)) return undefined;
     suffix = continuation[1]!.trimStart() + suffix;

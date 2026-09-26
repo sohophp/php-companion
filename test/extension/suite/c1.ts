@@ -504,6 +504,11 @@ namespace App\C1;
  * @method C1DocTarget find(C1DocTa
  * @method C1DocTarget find(C1DocTarget $owner, C1DocTa
  * @method C1DocTarget find(C1DocTarget $owner) description
+ * @template T of C1DocTa
+ * @template-covariant TView as C1DocTa
+ * @phpstan-template TKey of C1DocTa
+ * @psalm-template TItem as C1DocTa
+ * @template TDescription of C1DocTarget description
  * @param array{owner: C1DocTa
  * @return array{owner: C1DocTarget, reviewer?: C1DocTa
  * @var array{meta: array{owner: C1DocTa
@@ -549,6 +554,18 @@ function documented(): void {}
       item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
     `SoPHP did not suggest the project class in @method type position ${marker}.`);
   }
+  for (const marker of ['@template T of C1DocTa', '@template-covariant TView as C1DocTa',
+    '@phpstan-template TKey of C1DocTa', '@psalm-template TItem as C1DocTa']) {
+    assert.ok((await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
+    `SoPHP did not suggest the project class in PHPDoc template bound ${marker}.`);
+  }
+  for (const marker of ['@template T', '@template-covariant TView', '@phpstan-template TKey',
+    '@psalm-template TItem', '@template TDescription of C1DocTarget description']) {
+    assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
+    `SoPHP suggested a project class outside a PHPDoc template bound: ${marker}.`);
+  }
   for (const marker of ['@param array{owner: C1DocTa', '@return array{owner: C1DocTarget, reviewer?: C1DocTa',
     '@var array{meta: array{owner: C1DocTa',
     '@method C1DocTarget find(array{owner: C1DocTarget, reviewer: C1DocTa',
@@ -582,6 +599,7 @@ function documented(): void {}
  * @return list<C1DocNavigationTarget> explanation C1DocNavigationTarget
  * @var array{C1DocNavigationTarget: C1DocNavigationTarget} $shape
  * @method C1DocNavigationTarget find(C1DocNavigationTarget $value) explanation C1DocNavigationTarget
+ * @template T of C1DocNavigationTarget description C1DocNavigationTarget
  */
 class C1DocNavigationConsumer {}
 // C1DocNavigationTarget in an ordinary comment
@@ -599,7 +617,7 @@ class C1DocNavigationConsumer {}
   };
   for (const marker of ['@param C1DocNavigationTarget', 'list<C1DocNavigationTarget',
     'C1DocNavigationTarget: C1DocNavigationTarget', '@method C1DocNavigationTarget',
-    'find(C1DocNavigationTarget']) {
+    'find(C1DocNavigationTarget', '@template T of C1DocNavigationTarget']) {
     const locations = await waitForResult(() => docDefinition(marker),
       (items) => items.some((item) => item.uri.toString() === navigationTargetUri.toString()),
       `SoPHP did not navigate from PHPDoc type ${marker}.`);
@@ -610,6 +628,8 @@ class C1DocNavigationConsumer {}
     assert.deepStrictEqual(await docDefinition(marker), [],
       `SoPHP treated PHPDoc description or ordinary comment as a type: ${marker}.`);
   }
+  assert.deepStrictEqual(await docDefinition('description C1DocNavigationTarget', 1), [],
+    'SoPHP treated the PHPDoc template description as a type.');
   const shapeKey = navigationDocument.positionAt(navigationSource.indexOf('array{C1DocNavigationTarget') + 'array{'.length + 2);
   assert.deepStrictEqual(await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider',
     navigationUri, shapeKey) ?? [], [],

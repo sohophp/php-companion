@@ -311,6 +311,38 @@ class Repository {}`;
       }
     } finally { project.dispose(); }
   });
+  it('completes PHPDoc template bounds without suggesting template names or descriptions', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocTemplateBounds.php';
+    const source = `<?php
+namespace App;
+class UserService {}
+class UserSession {}
+/**
+ * @template T of UserSe
+ * @template-covariant TView as UserSe
+ * @phpstan-template TKey of UserSe
+ * @psalm-template TItem as UserSe
+ * @template TDescription of UserService description
+ */
+class Repository {}`;
+    try {
+      project.update(uri, source);
+      for (const marker of ['@template T of UserSe', '@template-covariant TView as UserSe',
+        '@phpstan-template TKey of UserSe', '@psalm-template TItem as UserSe']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name), marker)
+          .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
+      }
+      for (const marker of ['@template T', '@template-covariant TView', '@phpstan-template TKey',
+        '@psalm-template TItem', 'description']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset), marker).toBeUndefined();
+        expect(project.completeTypes(uri, offset), marker).toEqual([]);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes PHPDoc array shape value types without suggesting shape keys', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///DocShapes.php';

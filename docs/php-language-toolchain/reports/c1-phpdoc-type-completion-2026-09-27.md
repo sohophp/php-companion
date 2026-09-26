@@ -14,4 +14,6 @@
 
 随后补齐闭合数组形状后的复合类型输入：`array{owner: UserService}|UserSe` 和 `array<array{owner: UserService}, UserSe` 能继续获得项目类型建议；光标紧随 `}` 时不提示新的类。已闭合形状仅在判断补全上下文时视作 `array` 或 `object`，原注释文本不变。语义测试 420/420 通过，日志 `/tmp/sophp-c1-phpdoc-closed-shape-semantic-20260927.log`；完整 10 项 Open Source Pack 的 PHP 8.5 按需源码宿主退出码 0，日志 `/tmp/sophp-c1-phpdoc-closed-shape-pack10-20260927.log`。相关 TypeScript、ESLint 和差异检查通过。
 
-当前仍未覆盖任意复杂的多行 PHPDoc 类型、`@method` 的模板边界或默认值位置，以及注释内跳转。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。
+截至上述形状补全阶段，复杂多行 PHPDoc 类型、`@method` 的模板边界或默认值位置，以及注释内跳转仍未覆盖。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。后续 PHPDoc 类型跳转另见[专项报告](c1-phpdoc-type-navigation-2026-09-27.md)。
+
+后续补上 `@template T of UserSe`、`@template-covariant TView as UserSe` 及 PHPStan/Psalm 模板约束中的项目类补全；模板名和约束后的说明文字仍不建议项目类。同一上下文也让明确的约束类型可以走 Core Definition。定向语义用例先从 `undefined` 红灯变为通过，完整 `semantic.test.ts` **369/369**；隔离 VS Code 1.139.1 Core 源码宿主的实际 Completion 和 Definition、反例均通过，退出码 0。`pnpm build`、扩展测试 TypeScript、相关 ESLint 与差异检查通过。此增量未进入 0.4.7 VSIX，也未在完整 10 项 Pack 或真实 WSL Remote 中验收；多行模板约束和 `@method` 内联模板仍开放。

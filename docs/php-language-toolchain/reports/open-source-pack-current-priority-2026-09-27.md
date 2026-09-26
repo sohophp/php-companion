@@ -46,4 +46,6 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 [关闭未保存文件后的即时引用](c2-phpdoc-close-index-modes-2026-09-27.md)已在源码中补上同项目关闭事件与后续语义查询的顺序约束，并让尚未完成全量索引的 `experimental`/`progressive` 模式按有界缓存恢复磁盘事实。独立 stdio 用例覆盖默认 `onDemand`、`experimental` 和 `progressive`，完整 stdio 回归 196 项通过、1 项跳过；该增量未进入 `248ee1f8` 冻结候选。Pack 默认仍使用 `onDemand`。
 
+[PHPDoc 模板约束补全](c1-phpdoc-type-completion-2026-09-27.md)继续推进 C1：Core 识别 `@template T of ...`、`as ...` 和 PHPStan/Psalm 方言中的类型输入位置，隔离 Core 源码宿主验证建议与 Definition；DocBlocker 仍负责注释生成。此源码增量也未进入现有候选。
+
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。
