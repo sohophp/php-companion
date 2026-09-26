@@ -532,6 +532,23 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
   return compositeParameter?.index === 0 ? compositeParameter[1] ?? '' : undefined;
 }
 
+function phpDocTypeCompletionPrefix(file: SemanticFile, offset: number): string | undefined {
+  const comment = file.commentRanges.find((range) => range.start < offset && offset <= range.end
+    && file.source.startsWith('/**', range.start));
+  if (!comment) return undefined;
+  const lineStart = Math.max(comment.start, file.source.lastIndexOf('\n', offset - 1) + 1);
+  const line = file.source.slice(lineStart, offset);
+  const tag = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|extends|implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u.exec(line);
+  if (!tag) return undefined;
+  const body = tag[2]!;
+  if (!/^[\s?\\A-Za-z0-9_\x80-\xff|&<>,[\]()]*$/u.test(body)) return undefined;
+  const prefix = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(body)?.[1] ?? '';
+  const before = body.slice(0, body.length - prefix.length);
+  if (!prefix && body.trim() && !/[|&<,(?]\s*$/u.test(body)) return undefined;
+  if (before.includes('\\') || /[A-Za-z0-9_>\])]+\s+$/u.test(before)) return undefined;
+  return prefix;
+}
+
 function namespaceCompletionRank(currentNamespace: string, qualifiedName: string): { common: number; distance: number } {
   const namespaceParts = currentNamespace.toLowerCase().split('\\').filter(Boolean);
   const candidateParts = qualifiedName.toLowerCase().split('\\').slice(0, -1).filter(Boolean);
@@ -3603,11 +3620,12 @@ export class SemanticWorkspace {
     replacementStart?: number; replacementEnd?: number } | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
-    if (this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
+    const docPrefix = phpDocTypeCompletionPrefix(file, offset);
+    if (docPrefix === undefined && this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     const importContext = qualifiedImportCompletion(file.source, offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
-    const prefix = typeCompletionPrefix(file.source, offset);
+    const prefix = docPrefix ?? typeCompletionPrefix(file.source, offset);
     if (prefix === undefined) return undefined;
     const namespace = importContext?.qualifier ?? this.namespaceAt(file, offset);
     return { prefix, namespace, importedTypes: file.imports.filter((item) => item.kind === 'class'
@@ -3619,10 +3637,11 @@ export class SemanticWorkspace {
   completeTypes(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
-    if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
+    const docPrefix = phpDocTypeCompletionPrefix(file, offset);
+    if (docPrefix === undefined && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const importContext = qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
-    const contextPrefix = typeCompletionPrefix(file.source, offset);
+    const contextPrefix = docPrefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);

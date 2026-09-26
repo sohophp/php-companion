@@ -24,3 +24,5 @@ PHPUnit/Pest 默认由项目 CLI 执行。`recca0120.vscode-phpunit` 3.9.40 在�
 C2 已补上[按需模式的跨文件联合数组形状反馈](c2-ondemand-union-shape-feedback-2026-09-26.md)：未打开形状字段的类文件时，共有成员仍能补全并跳到两个定义；Factory 的 PHPDoc 在未保存缓冲区改为单一分支后，使用方的补全、Hover 和定义同步更新。独立 Composer 真实 LSP、完整 10 项源码宿主及 0.4.7 打包宿主通过；真实 WSL Remote 仍待 C4。
 
 C3 冻结候选已通过完整 10 项打包宿主；冻结后源码又修正了[类型生成最终创建路径的应用结果](c3-type-generation-create-postapply-2026-09-26.md)。这项增量只通过完整 10 项源码 C3 宿主，**不在 0.4.7 VSIX 中**。下一次交付冻结时再同批纳入三份 VSIX。
+
+C1 冻结后源码又接通了[PHPDoc 项目类型补全](c1-phpdoc-type-completion-2026-09-27.md)，与 Pack 中负责注释块生成的 PHP DocBlocker 分工。跨文件按需补全和反例已通过完整 10 项源码宿主；这项增量同样不在 0.4.7 VSIX 中。

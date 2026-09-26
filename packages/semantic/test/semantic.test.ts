@@ -86,6 +86,44 @@ function run(string $username, bool $flag): void {
       expect(project.completeVariables(uri, staticOffset)).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('completes project types in PHPDoc type positions without suggesting them in descriptions', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///PhpDocTypes.php';
+    const source = `<?php
+namespace App;
+class UserService {}
+class UserSession {}
+/**
+ * @param UserSe
+ * @return array<UserSe
+ * @var UserService|UserSe
+ * @throws UserSe
+ * @var UserSession[]
+ * @return UserService explanation
+ * @param UserService $value description
+ */
+function consume(): void {}
+// @return UserSe
+`;
+    try {
+      project.update(uri, source);
+      for (const marker of ['@param UserSe', '@return array<UserSe', '@var UserService|UserSe', '@throws UserSe']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset)?.prefix, marker).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name), marker)
+          .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
+      }
+      const bareType = source.indexOf('@param ') + '@param '.length;
+      expect(project.typeCompletionContext(uri, bareType)?.prefix).toBe('');
+      expect(project.completeTypes(uri, bareType).map((item) => item.name)).toContain('UserService');
+      for (const marker of ['@var UserSession[]', '@return UserService explanation',
+        '@param UserService $value description', '// @return UserSe']) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset), marker).toBeUndefined();
+        expect(project.completeTypes(uri, offset), marker).toEqual([]);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes scoped variables in PHP interpolated strings without suggesting literal or escaped dollars', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///InterpolatedVariables.php';

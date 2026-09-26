@@ -491,6 +491,35 @@ function c1Expressions(): void {
       item.label === 'C1Invoice' && item.kind === vscode.CompletionItemKind.Class),
     `SoPHP suggested a type inside ${marker}.`);
   }
+  const phpDocSource = `<?php
+namespace App\\C1;
+/**
+ * @param C1DocTa
+ * @return array<C1DocTa
+ * @return C1DocTarget description
+ */
+function documented(): void {}
+// @param C1DocTa
+`;
+  const phpDocTypeUri = vscode.Uri.joinPath(folder, 'C1DocTarget.php');
+  await vscode.workspace.fs.writeFile(phpDocTypeUri, Buffer.from('<?php namespace App\\C1; class C1DocTarget {}'));
+  const phpDocUri = vscode.Uri.joinPath(folder, 'C1DocConsumer.php');
+  await vscode.workspace.fs.writeFile(phpDocUri, Buffer.from(phpDocSource));
+  const phpDocDocument = await vscode.workspace.openTextDocument(phpDocUri);
+  await vscode.window.showTextDocument(phpDocDocument);
+  const phpDocSuggestions = async (marker: string): Promise<vscode.CompletionItem[]> =>
+    (await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      phpDocUri, phpDocDocument.positionAt(phpDocSource.indexOf(marker) + marker.length)))?.items ?? [];
+  for (const marker of ['@param C1DocTa', '@return array<C1DocTa']) {
+    assert.ok((await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
+    `SoPHP did not suggest the project class in PHPDoc type position ${marker}.`);
+  }
+  for (const marker of ['@return C1DocTarget description', '// @param C1DocTa']) {
+    assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
+      item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
+    `SoPHP suggested the project class outside a PHPDoc type position ${marker}.`);
+  }
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));
