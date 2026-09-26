@@ -20,6 +20,7 @@
 
 - 打包 Open Source Profile 的 PHP/Symfony/Twig/YAML/XML/格式化/调试配置/CLI 测试组合链退出码 0，日志 `/tmp/sophp-047-248ee1f8-packaged-profile-20260927.log`。
 - 打包完整 C3 Profile 首次在 Symfony 服务 Rename 回归之后以 VS Code `Canceled` 退出码 1，日志 `/tmp/sophp-047-248ee1f8-c3-packaged-profile-20260927.log`。增加阶段日志后，同一冻结 VSIX 连续两次完整退出码 0，日志 `/tmp/sophp-047-248ee1f8-c3-cancel-phase-20260927.log`、`/tmp/sophp-047-248ee1f8-c3-cancel-phase-repeat-20260927.log`。阶段日志属于冻结后的测试入口改动，不改变三份 VSIX。它没有找到首次取消的根因。
+- 在当前 WSL2 内，以独立 `test/extension/baseline` Composer 夹具、`/usr/bin/php85` 执行 `alpha:preflight --require-wsl`，候选摘要、PHP 8.5 和 WSL 检查通过；报告 `/tmp/sophp-047-248ee1f8-preflight-wsl-20260927.json`。此命令未用 `--check-editor`，报告明确 `vscodeTerminal=false`，因此不证明 VS Code WSL Remote 扩展安装或实际编辑交互。
 
 ## 继续工作的边界
 
