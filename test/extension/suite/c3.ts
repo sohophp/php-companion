@@ -583,6 +583,16 @@ export async function run(): Promise<void> {
     'A rejected same-filesystem move left its staged PHP source beside the workspace');
   assert.ok((await vscode.workspace.openTextDocument(creationFallbackUri)).getText().includes('class C3CreationFallback'),
     'The last-resort file creation lost the generated PHP source');
+  if (process.env.PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE === '1') {
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(creationFallbackUri));
+    await vscode.commands.executeCommand('undo');
+    await assert.rejects(async () => vscode.workspace.fs.stat(creationFallbackUri),
+      'Undo did not remove the last-resort generated file');
+    await vscode.commands.executeCommand('redo');
+    const restored = await vscode.workspace.fs.stat(creationFallbackUri).then(() => true, () => false);
+    console.log(`C3 createFile fallback Redo: restored=${restored}`);
+    assert.ok(restored, 'Redo did not restore the last-resort generated file');
+  }
   await vscode.workspace.fs.delete(creationFallbackUri);
   for (const [suffix, applyBeforeFailure, throwAfterFailure] of [
     ['AppliedFalse', true, false], ['AppliedThrow', true, true],

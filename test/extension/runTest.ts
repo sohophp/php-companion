@@ -254,6 +254,7 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_TEST_PROVIDER_PHPUNIT: c3PhpunitPairProfile || c3OpenSourceProfile ? process.env.PHP_COMPANION_TEST_TEST_PROVIDER_PHPUNIT : undefined,
         PHP_COMPANION_TEST_C3_PHPUNIT_CHURN: c3OpenSourceProfile || c3PhpunitPairProfile ? process.env.PHP_COMPANION_TEST_C3_PHPUNIT_CHURN : undefined,
         PHP_COMPANION_TEST_C3_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_REDO_PROBE : undefined,
+        PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE : undefined,
         PHP_COMPANION_TEST_C3_STAGE_ONLY: c3Only ? process.env.PHP_COMPANION_TEST_C3_STAGE_ONLY : undefined,
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
         PHP_COMPANION_TEST_C1_SOURCE_CLASSMAP: c1Only && !c1ProductsDir ? '1' : undefined,

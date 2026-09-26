@@ -4,7 +4,7 @@
 
 在现有 C3 生成命令中，通过 `testApplyStagedEdit` 注入移动编辑返回 `false`，让产品实际执行备用的 `WorkspaceEdit.createFile`。命令返回 `true`，目标 PHP 文件内容正确；随后打开目标，执行一次标准 `undo`，文件消失；执行一次标准 `redo`，文件仍不存在。日志 `/tmp/sophp-c3-fallback-redo-probe-20260926.log` 记录 `C3 fallback createFile Redo: restored=false` 与断言失败，测试退出码 1。这是针对开放缺口的**预期失败探针**，不是完整 C3 套件通过。
 
-复现入口是 `PHP_COMPANION_TEST_C3_FALLBACK_REDO_PROBE=1 pnpm test:extension:c3`。该环境变量只在备用创建路径后追加 Undo/Redo 断言；默认 C3 回归不启用这个预期失败探针。正常的预先准备文件移动路径已有[独立与完整 Pack 宿主的一次 Undo/Redo 通过证据](c3-type-generation-staged-redo-2026-09-25.md)。更早的 VS Code 最小 `createFile` 对照也未恢复文件；本次把缺口明确定位到**SoPHP 实际备用命令路径**。
+当时的复现入口是 `PHP_COMPANION_TEST_C3_FALLBACK_REDO_PROBE=1 pnpm test:extension:c3`；后来加入同文件系统备用移动，该变量的测试目标已变更，当前最终创建路径的入口见文末复核。正常的预先准备文件移动路径已有[独立与完整 Pack 宿主的一次 Undo/Redo 通过证据](c3-type-generation-staged-redo-2026-09-25.md)。更早的 VS Code 最小 `createFile` 对照也未恢复文件；本次把缺口明确定位到**SoPHP 实际备用命令路径**。
 
 因此备用创建路径只保证预览后成功创建及 Undo 删除，**不满足 C3 的一次 Redo 门槛**。若用户在该路径撤销后想恢复文件，可重新执行生成命令；不能把正常移动路径的通过结果推广到移动失败、跨文件系统或虚拟文件系统。下一步要么找到可验证的同文件系统预先准备文件移动方案，要么由 VS Code 公共资源编辑 API 修正 Redo 路由；任何方案都须检查残留临时文件、覆盖保护与真实 Remote 行为。
 
@@ -21,3 +21,7 @@
 此结果关闭了**已测 Linux 文件工作区中首个移动失败时**的 Redo 缺口。若同级目录不可写、工作区根位于文件系统根目录、跨 scheme 或虚拟文件系统仍落到 `createFile`，其一次 Redo 缺口继续开放；实际 WSL Remote 与其他平台尚未验收。
 
 后续清理检查修正了一个边界：临时路径只在本命令的独占写入成功、随后移动失败时删除；若独占写入因路径已存在而失败，不删除该路径。根扩展与测试入口 TypeScript、相关 ESLint 和 `git diff --check` 通过。此处没有重新运行 VS Code 宿主；前述完整 C3 宿主结果对应修正前的清理条件。
+
+## 2026-09-27 当前宿主复核
+
+随着同文件系统备用移动加入，旧的 `PHP_COMPANION_TEST_C3_FALLBACK_REDO_PROBE=1` 现在检验第二次**移动**成功后的 Redo，不能再用它判定最终 `createFile` 路径。新探针为 `PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE=1 PHP_COMPANION_TEST_C3_STAGE_ONLY=1 pnpm test:extension:c3`，在两次移动都被注入拒绝后，针对实际最终创建路径执行一次标准 Undo/Redo。VS Code 1.139.1 Linux x64 源码宿主记录 `C3 createFile fallback Redo: restored=false`，断言失败、退出码 1；日志 `/tmp/sophp-c3-createfile-redo-vscode-11391-20260927.log`。这是预期失败探针，证明此版本缺口仍在；默认 C3 回归不启用它。它没有证明其它平台或未来版本也失败。
