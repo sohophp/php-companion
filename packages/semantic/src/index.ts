@@ -3441,6 +3441,13 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
+  private isNonCodeExpressionPosition(uri: string, file: SemanticFile, offset: number): boolean {
+    const at = offset - 1;
+    return !this.isPhpCodeContext(uri, offset)
+      || file.commentRanges.some((range) => at >= range.start && at < range.end)
+      || file.stringRanges.some((range) => at >= range.start && at < range.end);
+  }
+
   isPhpCodeContext(uri: string, offset: number): boolean {
     const file = this.files.get(uri); if (!file) return false;
     if (!file.source.includes('?>') && /^\s*<\?(?:php|=)/u.test(file.source)) return true;
@@ -3870,6 +3877,7 @@ export class SemanticWorkspace {
 
   completeFunctions(uri: string, offset: number): FunctionCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
+    if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const before = file.source.slice(0, offset); const match = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
     if (!match || typeCompletionPrefix(file.source, offset) !== undefined) return [];
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 32), prefixStart);
@@ -3908,6 +3916,7 @@ export class SemanticWorkspace {
 
   completeConstants(uri: string, offset: number): ConstantCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
+    if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const before = file.source.slice(0, offset); const match = /([A-Z_][A-Z0-9_]*)?$/.exec(before);
     if (!match || typeCompletionPrefix(file.source, offset) !== undefined) return [];
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 24), prefixStart);

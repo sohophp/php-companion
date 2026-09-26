@@ -4689,6 +4689,35 @@ TXT;
     workspace.update('file:///FunctionAliasCompletion.php', aliasSource);
     expect(workspace.completeFunctions('file:///FunctionAliasCompletion.php', aliasSource.indexOf('makeI;') + 5)).toMatchObject([{ name: 'makeInvoice', importFqfn: undefined }]);
   });
+  it('keeps function and constant suggestions in PHP code rather than comments or string text', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///LiteralCallableNames.php';
+    const source = `<?php
+function customHelper(): void {}
+const CUSTOM_FLAG = 1;
+function useNames(): void {
+  customH; CUST;
+  echo 'customH CUST';
+  echo "customH CUST";
+  // customH CUST
+  /* customH CUST */
+}`;
+    try {
+      project.update(uri, source);
+      const namesAt = (needle: string, from = 0): { functions: string[]; constants: string[] } => {
+        const offset = source.indexOf(needle, from) + needle.length;
+        return { functions: project.completeFunctions(uri, offset).map((item) => item.name),
+          constants: project.completeConstants(uri, offset).map((item) => item.name) };
+      };
+      expect(namesAt('customH;', source.indexOf('function useNames')).functions).toContain('customHelper');
+      expect(namesAt('CUST', source.indexOf('function useNames')).constants).toContain('CUSTOM_FLAG');
+      for (const marker of ["'customH CUST'", '"customH CUST"', '// customH CUST', '/* customH CUST']) {
+        const start = source.indexOf(marker);
+        expect(namesAt('customH', start).functions, marker).toEqual([]);
+        expect(namesAt('CUST', start).constants, marker).toEqual([]);
+      }
+    } finally { project.dispose(); }
+  });
   it('ranks same-namespace, imported, global, and namespace-near function completions deterministically', () => {
     workspace.update('file:///RankedFunctionLocal.php', '<?php namespace RankedFunction\\Controller\\Admin; function ranked_function_local(): void {}');
     workspace.update('file:///RankedFunctionNear.php', '<?php namespace RankedFunction\\Controller; function ranked_function_near(): void {}');
