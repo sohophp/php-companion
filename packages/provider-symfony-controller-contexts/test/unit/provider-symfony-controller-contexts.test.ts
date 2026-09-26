@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -33,5 +33,17 @@ describe('Symfony controller context provider', () => {
     }] });
     expect(facts.sourceUris).toEqual([uri]);
     expect(facts.contexts).toMatchObject([{ template: 'new.html.twig', sources: [{ location: { uri, snapshotVersion: 'open:1' } }] }]);
+  });
+
+  it('reads a controller through a project root alias', async () => {
+    const realRoot = join(root, 'real'); const aliasRoot = join(root, 'alias');
+    await mkdir(realRoot); await symlink(realRoot, aliasRoot, 'dir');
+    const path = join(aliasRoot, 'AliasedController.php'); const uri = pathToFileURL(path).toString();
+    await writeFile(path, "<?php class AliasedController { function show(User $user) { return $this->render('aliased.html.twig', ['user' => $user]); } }");
+    const facts = await collectSymfonyControllerContexts(aliasRoot, parser, { projectTypes: [{
+      fqcn: 'AliasedController', kind: 'class', abstract: false, path, uri, start: 12, end: 29,
+    }], snapshotVersion: 'disk' });
+    expect(facts.sourceUris).toEqual([uri]);
+    expect(facts.contexts).toMatchObject([{ template: 'aliased.html.twig', complete: true }]);
   });
 });

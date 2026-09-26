@@ -24,7 +24,7 @@ function within(root: string, candidate: string): boolean {
   return local === '' || (!isAbsolute(local) && local !== '..' && !local.startsWith(`..${sep}`));
 }
 
-async function projectSources(root: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
+async function projectSources(root: string, canonicalRoot: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
   snapshotVersion: string, maxFiles: number, maxTotalBytes: number): Promise<ProjectSource[]> {
   const snapshots = new Map<string, SemanticProviderDocument>();
   for (const document of documents) {
@@ -43,7 +43,7 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
   for (const [path, uri] of [...unique].sort(([left], [right]) => left.localeCompare(right))) {
     const snapshot = snapshots.get(path);
     const actual = snapshot ? path : await realpath(path);
-    if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+    if (!within(snapshot ? root : canonicalRoot, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
     const source = snapshot?.source ?? await readFile(actual, 'utf8');
     bytes += Buffer.byteLength(source); if (source.length > 1_000_000 || bytes > maxTotalBytes) {
       throw new Error(`Symfony controller source budget exceeds ${maxTotalBytes} bytes.`);
@@ -56,8 +56,9 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
 /** Collect literal Symfony render contexts without booting the project Kernel or executing project PHP. */
 export async function collectSymfonyControllerContexts(rootPath: string, parser: PhpSyntaxParser,
   options: SymfonyControllerContextProviderOptions): Promise<SymfonyControllerContextProviderFacts> {
-  const root = await realpath(resolve(rootPath));
-  const sources = await projectSources(root, options.projectTypes, options.documents ?? [], options.snapshotVersion,
+  const root = resolve(rootPath);
+  const canonicalRoot = await realpath(root);
+  const sources = await projectSources(root, canonicalRoot, options.projectTypes, options.documents ?? [], options.snapshotVersion,
     options.maxFiles ?? 10_000, options.maxTotalBytes ?? 128 * 1024 * 1024);
   const contexts = sources.filter(({ source }) => source.includes('render')).flatMap(({ uri, source, snapshotVersion }) =>
     analyzeSymfonyControllerContexts(parser, { uri, source, snapshotVersion }));
