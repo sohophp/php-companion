@@ -1,5 +1,5 @@
 import { readFile, realpath } from 'node:fs/promises';
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { analyzeSymfonyControllerContexts } from '@php-companion/framework-symfony';
 import type { ControllerTemplateContext } from '@php-companion/interop';
@@ -24,6 +24,21 @@ function within(root: string, candidate: string): boolean {
   return local === '' || (!isAbsolute(local) && local !== '..' && !local.startsWith(`..${sep}`));
 }
 
+async function resolvedSourcePath(path: string, allowMissing: boolean): Promise<string> {
+  try { return await realpath(path); }
+  catch (error) {
+    if (!allowMissing || (error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    let parent = dirname(path);
+    for (;;) {
+      try { return await realpath(parent); }
+      catch (parentError) {
+        if ((parentError as NodeJS.ErrnoException).code !== 'ENOENT' || parent === dirname(parent)) throw parentError;
+        parent = dirname(parent);
+      }
+    }
+  }
+}
+
 async function projectSources(root: string, canonicalRoot: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
   snapshotVersion: string, maxFiles: number, maxTotalBytes: number): Promise<ProjectSource[]> {
   const snapshots = new Map<string, SemanticProviderDocument>();
@@ -42,8 +57,8 @@ async function projectSources(root: string, canonicalRoot: string, types: readon
   const result: ProjectSource[] = []; let bytes = 0;
   for (const [path, uri] of [...unique].sort(([left], [right]) => left.localeCompare(right))) {
     const snapshot = snapshots.get(path);
-    const actual = snapshot ? path : await realpath(path);
-    if (!within(snapshot ? root : canonicalRoot, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+    const actual = await resolvedSourcePath(path, Boolean(snapshot));
+    if (!within(canonicalRoot, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
     const source = snapshot?.source ?? await readFile(actual, 'utf8');
     bytes += Buffer.byteLength(source); if (source.length > 1_000_000 || bytes > maxTotalBytes) {
       throw new Error(`Symfony controller source budget exceeds ${maxTotalBytes} bytes.`);
@@ -60,7 +75,7 @@ export async function collectSymfonyControllerContexts(rootPath: string, parser:
   const canonicalRoot = await realpath(root);
   const sources = await projectSources(root, canonicalRoot, options.projectTypes, options.documents ?? [], options.snapshotVersion,
     options.maxFiles ?? 10_000, options.maxTotalBytes ?? 128 * 1024 * 1024);
-  const contexts = sources.filter(({ source }) => source.includes('render')).flatMap(({ uri, source, snapshotVersion }) =>
+  const contexts = sources.filter(({ source }) => /render|template/i.test(source)).flatMap(({ uri, source, snapshotVersion }) =>
     analyzeSymfonyControllerContexts(parser, { uri, source, snapshotVersion }));
   return { contexts, sourceUris: sources.map((source) => source.uri) };
 }

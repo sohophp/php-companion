@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { createHash, randomUUID } from 'node:crypto';
-import { join, relative, resolve, sep } from 'node:path';
+import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import type { Psr4Mapping } from '../composer/project.js';
 import type { VersionManager } from '../extension/versionManager.js';
 import { t } from '../extension/localize.js';
@@ -10,6 +12,15 @@ export type PhpTypeKind = 'class' | 'abstract class' | 'interface' | 'trait' | '
 
 const PREVIEW_SCHEME = 'sophp-type-preview';
 const previewSources = new Map<string, string>();
+let stageRootPromise: Promise<string> | undefined;
+
+function stageRoot(): Promise<string> {
+  stageRootPromise ??= mkdtemp(join(tmpdir(), 'sophp-type-stage-')).catch((error: unknown) => {
+    stageRootPromise = undefined;
+    throw error;
+  });
+  return stageRootPromise;
+}
 
 export function registerPhpTypePreviewProvider(): vscode.Disposable {
   const provider = vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, {
@@ -21,19 +32,21 @@ export function registerPhpTypePreviewProvider(): vscode.Disposable {
   return vscode.Disposable.from(provider, closed);
 }
 
-function mappingForDirectory(directory: string, mappings: Psr4Mapping[]): { mapping: Psr4Mapping; root: string } | undefined {
+function mappingsForDirectory(directory: string, mappings: Psr4Mapping[]): { mapping: Psr4Mapping; root: string }[] {
   return mappings
     .flatMap((mapping) => mapping.directories.map((root) => ({ mapping, root: resolve(root) })))
     .filter(({ root }) => {
       const path = relative(root, resolve(directory));
-      return path === '' || (path !== '..' && !path.startsWith(`..${sep}`));
+      return path === '' || (!isAbsolute(path) && path !== '..' && !path.startsWith(`..${sep}`));
     })
-    .sort((left, right) => right.root.length - left.root.length)[0];
+    .sort((left, right) => right.root.length - left.root.length);
 }
 
-export function namespaceForDirectory(directory: string, mappings: Psr4Mapping[], targetVersion = '8.5'): string | undefined {
-  const candidate = mappingForDirectory(directory, mappings);
-  if (!candidate) return undefined;
+function mappingForDirectory(directory: string, mappings: Psr4Mapping[]): { mapping: Psr4Mapping; root: string } | undefined {
+  return mappingsForDirectory(directory, mappings)[0];
+}
+
+function namespaceForMapping(directory: string, candidate: { mapping: Psr4Mapping; root: string }, targetVersion: string): string | undefined {
   const prefix = candidate.mapping.prefix.replace(/^\\+|\\+$/g, '');
   const parts = [
     ...(prefix ? prefix.split('\\') : []),
@@ -41,6 +54,11 @@ export function namespaceForDirectory(directory: string, mappings: Psr4Mapping[]
   ];
   if (parts.some((part) => !validPhpNamespaceSegment(part, targetVersion))) return undefined;
   return parts.join('\\');
+}
+
+export function namespaceForDirectory(directory: string, mappings: Psr4Mapping[], targetVersion = '8.5'): string | undefined {
+  const candidate = mappingForDirectory(directory, mappings);
+  return candidate && namespaceForMapping(directory, candidate, targetVersion);
 }
 
 export function renderPhpType(kind: PhpTypeKind, name: string, namespace: string, strictTypes: boolean): string {
@@ -75,10 +93,15 @@ async function directoryFromTarget(target?: vscode.Uri): Promise<vscode.Uri | un
 
 export async function createPhpType(kind: PhpTypeKind, versions: VersionManager, target?: vscode.Uri,
   options?: { testName?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
+    testChooseNamespace?: (namespaces: string[]) => Promise<string | undefined>;
     testChooseTestDirectory?: () => Promise<vscode.Uri | undefined>;
-    testClosePreview?: (tab: vscode.Tab) => Promise<boolean> }): Promise<boolean> {
+    testClosePreview?: (tab: vscode.Tab) => Promise<boolean>;
+    testOpenCreatedFile?: (uri: vscode.Uri) => Promise<void>;
+    testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>;
+    testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean> }): Promise<boolean> {
   let directoryUri = await directoryFromTarget(target);
-  const folder = target ? vscode.workspace.getWorkspaceFolder(target) : vscode.workspace.workspaceFolders?.[0];
+  const folder = target ? vscode.workspace.getWorkspaceFolder(target)
+    : directoryUri ? vscode.workspace.getWorkspaceFolder(directoryUri) : vscode.workspace.workspaceFolders?.[0];
   if (!directoryUri && folder) directoryUri = folder.uri;
   if (!directoryUri || !folder) { void vscode.window.showErrorMessage(t('createNoWorkspace')); return false; }
   const sourceDirectoryUri = directoryUri;
@@ -135,7 +158,20 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   const versionConfiguration = vscode.workspace.getConfiguration('phpCompanion', directoryUri);
   const versionSetting = versionConfiguration.get<string>('phpVersion', 'auto');
   const executableSetting = versionConfiguration.get<string | null>('phpExecutablePath', null);
-  const namespace = unmappedTestDirectory ? '' : namespaceForDirectory(directoryUri.fsPath, mappings, targetVersion);
+  const candidates = unmappedTestDirectory ? [] : mappingsForDirectory(directoryUri.fsPath, mappings);
+  const closestRootLength = candidates[0]?.root.length;
+  const namespaces = [...new Set(candidates.filter((candidate) => candidate.root.length === closestRootLength)
+    .map((candidate) => namespaceForMapping(directoryUri.fsPath, candidate, targetVersion))
+    .filter((value): value is string => value !== undefined))];
+  let namespace = unmappedTestDirectory ? '' : namespaces[0];
+  if (namespaces.length > 1) {
+    namespace = options?.testChooseNamespace
+      ? await options.testChooseNamespace(namespaces)
+      : (await vscode.window.showQuickPick(namespaces.map((value) => ({ label: value || t('globalNamespace'), value })),
+        { placeHolder: t('chooseTypeNamespace') }))?.value;
+    if (namespace === undefined) return false;
+    if (!namespaces.includes(namespace)) { void vscode.window.showErrorMessage(t('createChangedProject')); return false; }
+  }
   if (namespace === undefined) {
     void vscode.window.showErrorMessage(t(mappingForDirectory(directoryUri.fsPath, mappings)
       ? 'createInvalidNamespace' : 'createOutsidePsr4'));
@@ -160,6 +196,13 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
     validateInput: (value) => validPhpTypeName(value, targetVersion) ? undefined : t('validTypeName') });
   if (!name || !validPhpTypeName(name, targetVersion)) return false;
   const uri = vscode.Uri.joinPath(directoryUri, `${name}.php`);
+  const directoryState = async (): Promise<'missing' | 'directory' | 'other'> => vscode.workspace.fs.stat(directoryUri)
+    .then((stat) => stat.type & vscode.FileType.Directory ? 'directory' : 'other', (error: unknown) => {
+      if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') return 'missing';
+      throw error;
+    });
+  const initialDirectoryState = await directoryState();
+  if (initialDirectoryState === 'other') { void vscode.window.showErrorMessage(t('createNotDirectory')); return false; }
   const exists = async (): Promise<boolean> => {
     try { await vscode.workspace.fs.stat(uri); return true; }
     catch (error) {
@@ -210,20 +253,74 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   const currentComposerHash = await vscode.workspace.fs.readFile(composerUri)
     .then((bytes) => createHash('sha256').update(bytes).digest('hex'), () => undefined);
   if (currentComposerHash !== composerHash) { void vscode.window.showWarningMessage(t('createChangedProject')); return false; }
-  if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
-  try {
-    const edit = new vscode.WorkspaceEdit();
-    edit.createFile(uri, { overwrite: false, contents: Buffer.from(source, 'utf8') });
-    if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('createApplyFailed')); return false; }
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    void vscode.window.showErrorMessage(`${t('createApplyFailed')} ${reason}`);
+  if (await directoryState() !== initialDirectoryState) {
+    void vscode.window.showWarningMessage(t('createChangedDirectory'));
     return false;
   }
-  try { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri), { preview: false }); }
+  if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
+  let created = false;
+  let usedFileCreationFallback = false;
+  if (uri.scheme === 'file') {
+    const moveStagedFile = async (stagedPath: string, apply: (edit: vscode.WorkspaceEdit) => PromiseLike<boolean>): Promise<boolean> => {
+      let moved = false;
+      let staged = false;
+      try {
+        const stagedUri = vscode.Uri.file(stagedPath);
+        await writeFile(stagedPath, source, { flag: 'wx', mode: 0o600 });
+        staged = true;
+        const edit = new vscode.WorkspaceEdit();
+        edit.renameFile(stagedUri, uri, { overwrite: false });
+        try { await apply(edit); } catch { /* Check whether the resource move still completed. */ }
+        try {
+          await stat(stagedPath);
+          return false;
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return false;
+        }
+        moved = await readFile(uri.fsPath).then((contents) => contents.equals(Buffer.from(source, 'utf8')), () => false);
+        return moved;
+      } catch { return false; }
+      finally {
+        // A successful move must retain its source path so VS Code can undo and redo the move.
+        if (staged && !moved) await rm(stagedPath, { force: true }).catch(() => undefined);
+      }
+    };
+    try {
+      created = await moveStagedFile(join(await stageRoot(), `${randomUUID()}.php`),
+        options?.testApplyStagedEdit ?? vscode.workspace.applyEdit);
+    } catch { /* Try a stage on the destination's file system. */ }
+    if (!created && !await exists()) {
+      // A workspace sibling is normally on the destination's file system. Keep the
+      // stage outside every workspace so Undo does not expose it as project source.
+      const siblingStage = vscode.Uri.file(join(dirname(folder.uri.fsPath), `.sophp-type-stage-${randomUUID()}.php`));
+      if (!vscode.workspace.getWorkspaceFolder(siblingStage)) {
+        const applySiblingEdit = options?.testApplySiblingEdit;
+        created = await moveStagedFile(siblingStage.fsPath, applySiblingEdit
+          ? (edit): Promise<boolean> => applySiblingEdit(edit, siblingStage.fsPath) : vscode.workspace.applyEdit);
+      }
+    }
+  }
+  if (!created) {
+    if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
+    try {
+      const edit = new vscode.WorkspaceEdit();
+      edit.createFile(uri, { overwrite: false, contents: Buffer.from(source, 'utf8') });
+      if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('createApplyFailed')); return false; }
+      usedFileCreationFallback = uri.scheme === 'file';
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      void vscode.window.showErrorMessage(`${t('createApplyFailed')} ${reason}`);
+      return false;
+    }
+  }
+  try {
+    if (options?.testOpenCreatedFile) await options.testOpenCreatedFile(uri);
+    else await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri), { preview: false });
+  }
   catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     void vscode.window.showWarningMessage(t('createOpenFailed', reason));
   }
+  if (usedFileCreationFallback) void vscode.window.showWarningMessage(t('createRedoMayNotRestore'));
   return true;
 }

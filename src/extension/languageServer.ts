@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { createHash } from 'node:crypto';
-import { CloseAction, ErrorAction, LanguageClient, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
+import { CloseAction, ErrorAction, LanguageClient, State, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
@@ -136,6 +136,21 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
     middleware: {
+      provideCompletionItem: async (document, position, completionContext, token, next) => {
+        if (process.env.PHP_COMPANION_TEST_COMPLETION_TIMING !== '1')
+          return next(document, position, completionContext, token);
+        const started = performance.now();
+        const startedEpochMs = performance.timeOrigin + started;
+        try { return await next(document, position, completionContext, token); }
+        finally {
+          const finished = performance.now();
+          console.log(`SoPHP client Completion timing: ${JSON.stringify({
+            uri: document.uri.toString(), version: document.version, line: position.line, character: position.character,
+            startedEpochMs: Math.round(startedEpochMs), finishedEpochMs: Math.round(performance.timeOrigin + finished),
+            elapsedMs: Math.round(finished - started), cancelled: token.isCancellationRequested,
+          })}`);
+        }
+      },
       provideHover: async (document, position, token, next) => {
         if (process.env.PHP_COMPANION_TEST_HOVER_TIMING !== '1') return next(document, position, token);
         const started = performance.now();
@@ -246,9 +261,37 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     })(),
   };
   const client = new LanguageClient('phpCompanionLanguageServer', 'SoPHP Language Server', serverOptions, clientOptions);
+  const routeStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 89);
+  routeStatus.text = t('symfonyRoutesUnavailable');
+  routeStatus.tooltip = t('symfonyRoutesUnavailableDetail');
+  const unavailableRouteRoots = new Map<string, vscode.Uri>();
+  const updateRouteStatus = (): void => {
+    const document = vscode.window.activeTextEditor?.document;
+    if (!document || document.languageId !== 'php') { routeStatus.hide(); return; }
+    const current = document.uri;
+    const unavailable = [...unavailableRouteRoots.values()].some((root) => current.scheme === root.scheme
+      && current.authority === root.authority && (current.path === root.path || current.path.startsWith(`${root.path.replace(/\/$/, '')}/`)));
+    if (unavailable) routeStatus.show(); else routeStatus.hide();
+  };
   // VS Code disposes subscriptions in reverse order; notification sources
   // leave before their language client and stdio transport.
-  context.subscriptions.push(client);
+  context.subscriptions.push(client, routeStatus);
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateRouteStatus));
+  context.subscriptions.push(client.onDidChangeState(({ newState }) => {
+    if (newState === State.Running) return;
+    unavailableRouteRoots.clear();
+    updateRouteStatus();
+  }));
+  context.subscriptions.push(client.onNotification('phpCompanion/symfonyRouteStatus', (params: unknown): void => {
+    const status = params as { rootUri?: unknown; available?: unknown } | null;
+    if (!status || typeof status.rootUri !== 'string' || typeof status.available !== 'boolean') return;
+    let root: vscode.Uri;
+    try { root = vscode.Uri.parse(status.rootUri); } catch { return; }
+    if (!['file', 'vscode-remote'].includes(root.scheme)) return;
+    if (status.available) unavailableRouteRoots.delete(status.rootUri);
+    else unavailableRouteRoots.set(status.rootUri, root);
+    updateRouteStatus();
+  }));
   context.subscriptions.push(client.onNotification('phpCompanion/versionedDiagnostics', async (params: PublishDiagnosticsParams): Promise<void> => {
     if (typeof params.version !== 'number') return;
     const uri = vscode.Uri.parse(params.uri);

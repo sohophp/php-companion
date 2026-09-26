@@ -1,4 +1,4 @@
-import type { ControllerTemplateContext, ControllerContextVariable, SerializedPhpType } from '@php-companion/interop';
+import type { ControllerTemplateContext, ControllerContextVariable, InteropLocation, SerializedPhpType } from '@php-companion/interop';
 import type { PhpSyntaxParser, ParsedImport } from '@php-companion/parser';
 import type { ExternalLiteralMethodReturnFact } from '@php-companion/semantic-provider';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
@@ -260,7 +260,55 @@ function expressionType(node: NodeLike, variables: Map<string, SerializedPhpType
   return { kind: 'unknown', reason: `unsupported expression ${node.type}` };
 }
 
-function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpType>, namespace: string, imports: ParsedImport[], document: SymfonyControllerDocument): { complete: boolean; variables: ControllerContextVariable[] } | undefined {
+function precedingLocalAssignments(body: NodeLike | undefined, use: NodeLike, variables: Map<string, SerializedPhpType>,
+  namespace: string, imports: ParsedImport[], document: SymfonyControllerDocument): Map<string, InteropLocation> {
+  const locations = new Map<string, InteropLocation>();
+  if (body?.type !== 'compound_statement') return locations;
+  const index = body.namedChildren.findIndex((statement) => {
+    const expression = statement.namedChildren[0];
+    return expression?.type === use.type && expression.startIndex === use.startIndex && expression.endIndex === use.endIndex
+      && ['return_statement', 'expression_statement'].includes(statement.type);
+  });
+  const assignments: { target: NodeLike; value: NodeLike }[] = [];
+  for (let previous = index - 1; previous >= 0; previous -= 1) {
+    const statement = body.namedChildren[previous];
+    const assignment = statement?.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+    const target = assignment?.type === 'assignment_expression' ? assignment.namedChildren[0] : undefined;
+    const value = assignment?.type === 'assignment_expression' ? assignment.namedChildren[1] : undefined;
+    if (target?.type !== 'variable_name' || !value) break;
+    assignments.unshift({ target, value });
+    // A call in a later assignment may mutate an older value, so it ends the backward proof.
+    if (!['variable_name', 'string', 'integer', 'float', 'boolean', 'null'].includes(value.type)) break;
+  }
+  for (const { target, value } of assignments) {
+    variables.set(target.text, expressionType(value, variables, namespace, imports));
+    locations.set(target.text, { uri: document.uri, start: value.startIndex, end: value.endIndex,
+      snapshotVersion: document.snapshotVersion });
+  }
+  return locations;
+}
+
+function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpType>, namespace: string, imports: ParsedImport[], document: SymfonyControllerDocument,
+  compactValueLocations = new Map<string, InteropLocation>()): { complete: boolean; variables: ControllerContextVariable[] } | undefined {
+  if (node.type === 'function_call_expression' && ['compact', '\\compact'].includes(node.namedChildren[0]?.text ?? '')) {
+    const args = node.namedChildren[1];
+    if (args?.type !== 'arguments') return undefined;
+    const result: ControllerContextVariable[] = []; let complete = true;
+    for (const argument of args.namedChildren) {
+      const nameNode = argument.type === 'argument' && argument.namedChildren.length === 1 && !argument.text.startsWith('...')
+        ? argument.namedChildren[0] : undefined;
+      const name = literalString(nameNode);
+      const type = name && /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? variables.get(`$${name}`) : undefined;
+      if (!nameNode || !name || !type) { complete = false; continue; }
+      if (result.some((entry) => entry.name === name)) continue;
+      const start = nameNode.startIndex + 1; const end = start + name.length;
+      const before = document.source.slice(0, start); const line = before.split('\n').length - 1; const character = start - (before.lastIndexOf('\n') + 1);
+      result.push({ name, type, optional: false,
+        sources: [{ uri: document.uri, start, end, line, character, snapshotVersion: document.snapshotVersion }],
+        ...(compactValueLocations.has(`$${name}`) ? { valueLocation: compactValueLocations.get(`$${name}`) } : {}) });
+    }
+    return { complete, variables: result };
+  }
   if (node.type !== 'array_creation_expression') return undefined;
   const result: ControllerContextVariable[] = [];
   for (const element of node.namedChildren) {
@@ -276,23 +324,82 @@ function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpTy
   return { complete: true, variables: result };
 }
 
+function renderArguments(args: NodeLike, method: string): { view?: NodeLike; parameters?: NodeLike } | undefined {
+  const names = method === 'render' ? ['view', 'parameters', 'response'] : ['view', 'parameters'];
+  const values = new Map<string, NodeLike>();
+  let positional = 0;
+  let named = false;
+  for (const argument of args.namedChildren) {
+    if (argument.type !== 'argument' || argument.text.startsWith('...')) return undefined;
+    const children = argument.namedChildren;
+    let name: string;
+    let value: NodeLike;
+    if (children.length === 2 && children[0]?.type === 'name') {
+      named = true;
+      name = children[0].text;
+      value = children[1]!;
+    } else if (children.length === 1 && !named) {
+      name = names[positional++] ?? '';
+      value = children[0]!;
+    } else return undefined;
+    if (!names.includes(name) || values.has(name)) return undefined;
+    values.set(name, value);
+  }
+  return { view: values.get('view'), parameters: values.get('parameters') };
+}
+
 export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, document: SymfonyControllerDocument): ControllerTemplateContext[] {
   const parsed = parser.parse(document.source, undefined, document.uri);
   try {
     const contexts: ControllerTemplateContext[] = [];
-    const visit = (node: NodeLike): void => {
+    const visit = (node: NodeLike, methodBody?: NodeLike): void => {
+      if (node.type === 'method_declaration') {
+        const callable = parsed.callables.find((item) => item.kind === 'method' && item.declarationStart === node.startIndex
+          && item.declarationEnd === node.endIndex && item.containerFqcn && item.visibility === 'public');
+        const body = node.namedChildren.find((child) => child.type === 'compound_statement');
+        const statements = body?.namedChildren ?? [];
+        const directPrefix = statements.slice(0, -1).every((statement) => {
+          const assignment = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+          return assignment?.type === 'assignment_expression' && assignment.namedChildren[0]?.type === 'variable_name';
+        });
+        const returned = statements.length > 0 && directPrefix
+          && statements.at(-1)?.type === 'return_statement' ? statements.at(-1)?.namedChildren[0] : undefined;
+        if (callable?.containerFqcn && returned) {
+          const namespace = callable.containerFqcn.split('\\').slice(0, -1).join('\\');
+          const attributes = node.namedChildren.filter((child) => child.type === 'attribute_list')
+            .flatMap((list) => list.namedChildren.flatMap((group) => group.namedChildren))
+            .filter((attribute) => attribute.type === 'attribute' && attribute.namedChildren[0]
+              && resolveName(attribute.namedChildren[0].text, namespace, parsed.imports).toLowerCase()
+                === 'symfony\\bridge\\twig\\attribute\\template');
+          const args = attributes.length === 1 ? attributes[0]!.namedChildren.find((child) => child.type === 'arguments') : undefined;
+          const template = args?.namedChildren.length === 1 && args.namedChildren[0]?.namedChildren.length === 1
+            ? literalString(args.namedChildren[0].namedChildren[0]) : undefined;
+          if (template !== undefined) {
+            const variables = new Map<string, SerializedPhpType>([['$this', { kind: 'named', name: callable.containerFqcn }]]);
+            for (const parameter of callable.parameters) variables.set(`$${parameter.name}`, serializedType(parameter.nativeType, namespace, parsed.imports));
+            const compactValues = precedingLocalAssignments(body, returned, variables, namespace, parsed.imports, document);
+            const context = contextVariables(returned, variables, namespace, parsed.imports, document, compactValues);
+            if (context) contexts.push({ template, complete: context.complete, variables: context.variables,
+              sources: [{ symbol: callable.fqcn, location: { uri: document.uri, start: callable.start, end: callable.end,
+                line: document.source.slice(0, callable.start).split('\n').length - 1, snapshotVersion: document.snapshotVersion } }] });
+          }
+        }
+      }
       if (node.type === 'member_call_expression') {
         const [receiver, method, args] = node.namedChildren;
-        if (receiver?.text === '$this' && method?.text === 'render' && args?.type === 'arguments') {
-          const arguments_ = args.namedChildren.map((argument) => argument.namedChildren[0] ?? argument);
-          const template = literalString(arguments_[0]);
+        if (receiver?.text === '$this' && (method?.text === 'render' || method?.text === 'renderView') && args?.type === 'arguments') {
+          const arguments_ = renderArguments(args, method.text);
+          const template = literalString(arguments_?.view);
           const callable = parsed.callables.filter((item) => item.kind === 'method' && node.startIndex >= item.declarationStart && node.endIndex <= item.declarationEnd)
             .sort((left, right) => left.declarationEnd - left.declarationStart - (right.declarationEnd - right.declarationStart))[0];
           if (template !== undefined && callable?.containerFqcn) {
             const namespace = callable.containerFqcn.split('\\').slice(0, -1).join('\\');
             const variables = new Map<string, SerializedPhpType>([['$this', { kind: 'named', name: callable.containerFqcn }]]);
             for (const parameter of callable.parameters) variables.set(`$${parameter.name}`, serializedType(parameter.nativeType, namespace, parsed.imports));
-            const context = arguments_[1] ? contextVariables(arguments_[1], variables, namespace, parsed.imports, document) : { complete: true, variables: [] };
+            const compactValues = precedingLocalAssignments(methodBody, node, variables, namespace, parsed.imports, document);
+            const context = arguments_?.parameters
+              ? contextVariables(arguments_.parameters, variables, namespace, parsed.imports, document, compactValues)
+              : { complete: true, variables: [] };
             if (context) contexts.push({
               template, complete: context.complete, variables: context.variables,
               sources: [{ symbol: callable.fqcn, location: { uri: document.uri, start: callable.start, end: callable.end, line: document.source.slice(0, callable.start).split('\n').length - 1, snapshotVersion: document.snapshotVersion } }],
@@ -300,7 +407,9 @@ export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, docume
           }
         }
       }
-      for (const child of node.namedChildren) visit(child);
+      const childBody = node.type === 'method_declaration'
+        ? node.namedChildren.find((child) => child.type === 'compound_statement') : methodBody;
+      for (const child of node.namedChildren) visit(child, childBody);
     };
     visit(parsed.tree.rootNode as unknown as NodeLike);
     return contexts;

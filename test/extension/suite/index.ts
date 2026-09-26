@@ -6,6 +6,314 @@ interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => v
 interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; requestLanguageServer?: (method: string, params: unknown) => Promise<unknown>; }
 interface PhpCompanionSymfonyApi { version: number; status(): { apiVersion: number; languageFeaturesRegistered: boolean; serviceProviderRegistered: boolean; eventProviderRegistered: boolean; controllerContextProviderRegistered: boolean; staticRouteProviderRegistered: boolean; winstarRouteProviderRegistered: boolean }; }
 
+async function verifySymfonyControllerContextBridge(workspace: vscode.WorkspaceFolder): Promise<void> {
+  if (process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1') {
+    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('indexing.mode'), 'onDemand');
+  }
+  const uri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'NamedRenderController.php');
+  const attributeOnlyUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'AttributeOnlyController.php');
+  const source = `<?php namespace App\\Controller;
+use App\\Service\\UserService;
+use Symfony\\Bridge\\Twig\\Attribute\\Template;
+class NamedRenderController {
+  public function show(UserService $user): void {
+    $this->render(parameters: ['user' => $user], view: 'templates/named.html.twig');
+    $this->renderView('templates/view.html.twig', parameters: ['user' => $user]);
+    $this->render('templates/compact.html.twig', compact('user'));
+  }
+  public function local(): void {
+    $localUser = new UserService();
+    $this->render('templates/local-compact.html.twig', compact('localUser'));
+  }
+  public function multiple(): void {
+    $localUser = new UserService();
+    $title = 'Profile';
+    $this->render('templates/multiple-compact.html.twig', compact('localUser', 'title'));
+  }
+  #[Template('templates/attribute.html.twig')]
+  public function attribute(UserService $user): array { return ['user' => $user]; }
+}\n`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const attributeOnlySource = `<?php namespace App\\Controller;
+use App\\Service\\UserService;
+use Symfony\\Bridge\\Twig\\Attribute\\Template;
+class AttributeOnlyController {
+  #[Template('templates/attribute-only.html.twig')]
+  public function show(UserService $user): array { return ['user' => $user]; }
+  #[Template('templates/attribute-compact.html.twig')]
+  public function compact(UserService $user): array { return compact('user'); }
+  #[Template('templates/attribute-local.html.twig')]
+  public function local(UserService $user): array { $selected = $user; return compact('selected'); }
+}\n`;
+  await vscode.workspace.fs.writeFile(attributeOnlyUri, Buffer.from(attributeOnlySource));
+  const namedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'named.html.twig');
+  const viewTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'view.html.twig');
+  const compactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'compact.html.twig');
+  const localCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'local-compact.html.twig');
+  const multipleCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'multiple-compact.html.twig');
+  const attributeTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute.html.twig');
+  const attributeOnlyTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-only.html.twig');
+  const attributeCompactTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-compact.html.twig');
+  const attributeLocalTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-local.html.twig');
+  const attributeRenamedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'attribute-renamed.html.twig');
+  const editedTemplateUri = vscode.Uri.joinPath(workspace.uri, 'templates', 'edited.html.twig');
+  await vscode.workspace.fs.writeFile(namedTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(viewTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(compactTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(localCompactTemplateUri, Buffer.from('{{ localUser }}\n'));
+  await vscode.workspace.fs.writeFile(multipleCompactTemplateUri, Buffer.from('{{ localUser }} {{ title }} {{ headline }}\n'));
+  await vscode.workspace.fs.writeFile(attributeTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(attributeOnlyTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(attributeCompactTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(attributeLocalTemplateUri, Buffer.from('{{ selected }}\n'));
+  await vscode.workspace.fs.writeFile(attributeRenamedTemplateUri, Buffer.from('{{ user }}\n'));
+  await vscode.workspace.fs.writeFile(editedTemplateUri, Buffer.from('{{ user }}\n'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  type Context = { template: string; complete: boolean; variables: Array<{ name: string; type: { kind: string; name?: string }; sources?: Array<{ uri: string; start: number }> }> };
+  const contexts = async (): Promise<Context[]> => (await vscode.commands.executeCommand<{ contexts: Context[] }>(
+    'phpCompanion.provideTwigInterop', workspace.uri))?.contexts ?? [];
+  await waitForAsync(async () => {
+    const result = await contexts();
+    const matches = result.filter(({ template }) => ['templates/named.html.twig', 'templates/view.html.twig', 'templates/compact.html.twig', 'templates/attribute.html.twig'].includes(template));
+    const attributeOnly = result.find(({ template }) => template === 'templates/attribute-only.html.twig');
+    const attributeCompact = result.find(({ template }) => template === 'templates/attribute-compact.html.twig');
+    const localCompact = result.find(({ template }) => template === 'templates/local-compact.html.twig');
+    const multipleCompact = result.find(({ template }) => template === 'templates/multiple-compact.html.twig');
+    const attributeLocal = result.find(({ template }) => template === 'templates/attribute-local.html.twig');
+    return matches.length === 4 && matches.every((context) => context.complete && context.variables.length === 1
+      && context.variables[0]?.name === 'user' && context.variables[0].type.kind === 'named'
+      && context.variables[0].type.name === 'App\\Service\\UserService'
+      && context.variables[0].sources?.[0]?.uri === uri.toString())
+      && attributeOnly?.complete === true && attributeOnly.variables[0]?.sources?.[0]?.uri === attributeOnlyUri.toString()
+      && attributeCompact?.complete === true && attributeCompact.variables[0]?.name === 'user'
+      && attributeCompact.variables[0]?.sources?.[0]?.uri === attributeOnlyUri.toString()
+      && localCompact?.complete === true && localCompact.variables[0]?.name === 'localUser'
+      && localCompact.variables[0]?.type.kind === 'named' && localCompact.variables[0]?.type.name === 'App\\Service\\UserService'
+      && multipleCompact?.complete === true && multipleCompact.variables.map((item) => item.name).join(',') === 'localUser,title'
+      && multipleCompact.variables[0]?.type.name === 'App\\Service\\UserService'
+      && multipleCompact.variables[1]?.type.kind === 'primitive'
+      && attributeLocal?.complete === true && attributeLocal.variables[0]?.name === 'selected'
+      && attributeLocal.variables[0]?.type.kind === 'named' && attributeLocal.variables[0]?.type.name === 'App\\Service\\UserService';
+  }, 'Symfony named render and renderView contexts did not reach the Twig interop bridge', 30_000, 100);
+  const twigPlus = vscode.extensions.getExtension('sohophp.twig-plus');
+  if (process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH) {
+    assert.ok(twigPlus, 'TwigPlus source extension was not discovered');
+    await twigPlus.activate();
+    const namedTemplate = await vscode.workspace.openTextDocument(namedTemplateUri);
+    await vscode.window.showTextDocument(namedTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', namedTemplateUri, namedTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the named render variable to its PHP source', 30_000, 100);
+    const completions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', namedTemplateUri, namedTemplate.positionAt(5));
+    const items = Array.isArray(completions) ? completions : completions?.items ?? [];
+    assert.ok(items.some((item) => item.label === 'user'), 'TwigPlus did not complete the named render variable');
+    const viewTemplate = await vscode.workspace.openTextDocument(viewTemplateUri);
+    await vscode.window.showTextDocument(viewTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', viewTemplateUri, viewTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the renderView variable to its PHP source', 30_000, 100);
+    const compactTemplate = await vscode.workspace.openTextDocument(compactTemplateUri);
+    await vscode.window.showTextDocument(compactTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', compactTemplateUri, compactTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the compact variable to its PHP source', 30_000, 100);
+    const compactCompletions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', compactTemplateUri, compactTemplate.positionAt(5));
+    const compactItems = Array.isArray(compactCompletions) ? compactCompletions : compactCompletions?.items ?? [];
+    assert.ok(compactItems.some((item) => item.label === 'user'), 'TwigPlus did not complete the compact variable');
+    const localCompactTemplate = await vscode.workspace.openTextDocument(localCompactTemplateUri);
+    await vscode.window.showTextDocument(localCompactTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', localCompactTemplateUri, localCompactTemplate.positionAt(5)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the local compact variable to its PHP source', 30_000, 100);
+    const localCompactCompletions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', localCompactTemplateUri, localCompactTemplate.positionAt(7));
+    const localCompactItems = Array.isArray(localCompactCompletions) ? localCompactCompletions : localCompactCompletions?.items ?? [];
+    assert.ok(localCompactItems.some((item) => item.label === 'localUser'), 'TwigPlus did not complete the local compact variable');
+    const multipleCompactTemplate = await vscode.workspace.openTextDocument(multipleCompactTemplateUri);
+    await vscode.window.showTextDocument(multipleCompactTemplate);
+    const titleOffset = multipleCompactTemplate.getText().indexOf('title');
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', multipleCompactTemplateUri, multipleCompactTemplate.positionAt(titleOffset + 2)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the second compact variable to its PHP source', 30_000, 100);
+    const multipleCompactCompletions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', multipleCompactTemplateUri, multipleCompactTemplate.positionAt(titleOffset + 2));
+    const multipleCompactItems = Array.isArray(multipleCompactCompletions) ? multipleCompactCompletions : multipleCompactCompletions?.items ?? [];
+    assert.ok(multipleCompactItems.some((item) => item.label === 'title'), 'TwigPlus did not complete the second compact variable');
+    const attributeTemplate = await vscode.workspace.openTextDocument(attributeTemplateUri);
+    await vscode.window.showTextDocument(attributeTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeTemplateUri, attributeTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the Template attribute variable to its PHP source', 30_000, 100);
+    const attributeOnlyTemplate = await vscode.workspace.openTextDocument(attributeOnlyTemplateUri);
+    await vscode.window.showTextDocument(attributeOnlyTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeOnlyTemplateUri, attributeOnlyTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === attributeOnlyUri.toString()),
+    'TwigPlus did not navigate the attribute-only Controller variable to its PHP source', 30_000, 100);
+    const attributeCompactTemplate = await vscode.workspace.openTextDocument(attributeCompactTemplateUri);
+    await vscode.window.showTextDocument(attributeCompactTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeCompactTemplateUri, attributeCompactTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === attributeOnlyUri.toString()),
+    'TwigPlus did not navigate the Template compact variable to its PHP source', 30_000, 100);
+    const attributeLocalTemplate = await vscode.workspace.openTextDocument(attributeLocalTemplateUri);
+    await vscode.window.showTextDocument(attributeLocalTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeLocalTemplateUri, attributeLocalTemplate.positionAt(5)) ?? [])
+      .some((location) => location.uri.toString() === attributeOnlyUri.toString()),
+    'TwigPlus did not navigate the Template local compact variable to its PHP source', 30_000, 100);
+    // Let the startup retry finish so it cannot hide a missing refresh on the next unsaved edit.
+    await new Promise<void>((resolve) => setTimeout(resolve, 2_500));
+  }
+  const attributeOnlyDocument = await vscode.workspace.openTextDocument(attributeOnlyUri);
+  const attributeOnlyEditor = await vscode.window.showTextDocument(attributeOnlyDocument);
+  const attributeStart = attributeOnlySource.indexOf('attribute-only.html.twig');
+  assert.ok(await attributeOnlyEditor.edit((edit) => edit.replace(new vscode.Range(attributeOnlyDocument.positionAt(attributeStart),
+    attributeOnlyDocument.positionAt(attributeStart + 'attribute-only.html.twig'.length)), 'attribute-renamed.html.twig')));
+  await waitForAsync(async () => {
+    const result = await contexts();
+    return result.some(({ template }) => template === 'templates/attribute-renamed.html.twig')
+      && !result.some(({ template }) => template === 'templates/attribute-only.html.twig');
+  }, 'An unsaved Template attribute edit left stale Twig interop context', 30_000, 100);
+  if (twigPlus) {
+    const renamedTemplate = await vscode.workspace.openTextDocument(attributeRenamedTemplateUri);
+    await vscode.window.showTextDocument(renamedTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeRenamedTemplateUri, renamedTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === attributeOnlyUri.toString()),
+    'TwigPlus did not refresh the unsaved Template attribute', 30_000, 100);
+    const oldTemplate = await vscode.workspace.openTextDocument(attributeOnlyTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeOnlyTemplateUri, oldTemplate.positionAt(4)) ?? [])
+      .every((location) => location.uri.toString() !== attributeOnlyUri.toString()),
+    'TwigPlus kept the old Template attribute source after its template name changed', 30_000, 100);
+  }
+  const attributeEditor = await vscode.window.showTextDocument(attributeOnlyDocument);
+  const attributeText = "#[Template('templates/attribute-renamed.html.twig')]\n  ";
+  const attributeOffset = attributeOnlyDocument.getText().indexOf(attributeText);
+  assert.ok(attributeOffset >= 0);
+  assert.ok(await attributeEditor.edit((edit) => edit.delete(new vscode.Range(attributeOnlyDocument.positionAt(attributeOffset),
+    attributeOnlyDocument.positionAt(attributeOffset + attributeText.length)))));
+  await waitForAsync(async () => !(await contexts()).some(({ template }) => template === 'templates/attribute-renamed.html.twig'),
+    'Removing Template attribute did not withdraw its Twig context', 30_000, 100);
+  if (twigPlus) {
+    const renamedTemplate = await vscode.workspace.openTextDocument(attributeRenamedTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeRenamedTemplateUri, renamedTemplate.positionAt(4)) ?? [])
+      .every((location) => location.uri.toString() !== attributeOnlyUri.toString()),
+    'TwigPlus kept a PHP source after Template attribute removal', 30_000, 100);
+  }
+  await vscode.commands.executeCommand('workbench.action.files.revert');
+  assert.strictEqual(attributeOnlyDocument.getText(), attributeOnlySource);
+  await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  await waitForAsync(async () => (await contexts()).some(({ template }) => template === 'templates/attribute-only.html.twig'),
+    'Reverting Template attribute did not restore its disk context', 30_000, 100);
+  if (twigPlus) {
+    const originalTemplate = await vscode.workspace.openTextDocument(attributeOnlyTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', attributeOnlyTemplateUri, originalTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === attributeOnlyUri.toString()),
+    'TwigPlus did not restore the Template attribute source after revert', 30_000, 100);
+  }
+  const controllerEditor = await vscode.window.showTextDocument(editor.document);
+  const start = source.indexOf('named.html.twig');
+  assert.ok(await controllerEditor.edit((edit) => edit.replace(new vscode.Range(document.positionAt(start), document.positionAt(start + 'named.html.twig'.length)), 'edited.html.twig')));
+  await waitForAsync(async () => {
+    const result = await contexts();
+    return result.some(({ template }) => template === 'templates/edited.html.twig') && !result.some(({ template }) => template === 'templates/named.html.twig');
+  }, 'An unsaved Symfony render edit left stale Twig interop context', 30_000, 100);
+  if (twigPlus) {
+    const editedTemplate = await vscode.workspace.openTextDocument(editedTemplateUri);
+    await vscode.window.showTextDocument(editedTemplate);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', editedTemplateUri, editedTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not refresh the unsaved Controller context', 30_000, 100);
+    const namedTemplate = await vscode.workspace.openTextDocument(namedTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', namedTemplateUri, namedTemplate.positionAt(4)) ?? [])
+      .every((location) => location.uri.toString() !== uri.toString()),
+    'TwigPlus kept a stale PHP source for the old template', 30_000, 100);
+  }
+  const renamedControllerEditor = await vscode.window.showTextDocument(document);
+  const currentControllerSource = document.getText();
+  const titleAssignment = currentControllerSource.indexOf('$title =');
+  const titleCompactArgument = currentControllerSource.indexOf("'title'", titleAssignment);
+  assert.ok(titleAssignment >= 0 && titleCompactArgument > titleAssignment);
+  assert.ok(await renamedControllerEditor.edit((edit) => {
+    edit.replace(new vscode.Range(document.positionAt(titleAssignment), document.positionAt(titleAssignment + '$title'.length)), '$headline');
+    edit.replace(new vscode.Range(document.positionAt(titleCompactArgument + 1), document.positionAt(titleCompactArgument + 6)), 'headline');
+  }));
+  let editedMultipleContext: Context | undefined;
+  await waitForAsync(async () => {
+    editedMultipleContext = (await contexts()).find(({ template }) => template === 'templates/multiple-compact.html.twig');
+    return editedMultipleContext?.complete === true
+      && editedMultipleContext.variables.map((item) => item.name).sort().join(',') === 'headline,localUser';
+  }, () => `An unsaved compact variable rename left the old Twig context: ${JSON.stringify(editedMultipleContext)}`, 30_000, 100);
+  if (twigPlus) {
+    const oldTemplate = await vscode.workspace.openTextDocument(multipleCompactTemplateUri);
+    const oldTitleOffset = oldTemplate.getText().indexOf('title');
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', multipleCompactTemplateUri, oldTemplate.positionAt(oldTitleOffset + 2)) ?? [])
+      .every((location) => location.uri.toString() !== uri.toString()),
+    'TwigPlus retained the stale compact variable after an unsaved rename', 30_000, 100);
+    const newTemplate = await vscode.workspace.openTextDocument(multipleCompactTemplateUri);
+    await vscode.window.showTextDocument(newTemplate);
+    const headlineOffset = newTemplate.getText().indexOf('headline');
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', multipleCompactTemplateUri, newTemplate.positionAt(headlineOffset + 2)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not navigate the renamed compact variable', 30_000, 100);
+    const newCompletions = await vscode.commands.executeCommand<vscode.CompletionList | vscode.CompletionItem[]>(
+      'vscode.executeCompletionItemProvider', multipleCompactTemplateUri, newTemplate.positionAt(headlineOffset + 2));
+    const newItems = Array.isArray(newCompletions) ? newCompletions : newCompletions?.items ?? [];
+    assert.ok(newItems.some((item) => item.label === 'headline'), 'TwigPlus did not complete the renamed compact variable');
+  }
+  await vscode.window.showTextDocument(document);
+  await vscode.commands.executeCommand('workbench.action.files.revert');
+  assert.strictEqual(document.getText(), source, 'Revert did not restore the Controller disk version');
+  await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  await waitForAsync(async () => {
+    const result = await contexts();
+    const multiple = result.find(({ template }) => template === 'templates/multiple-compact.html.twig');
+    return result.some(({ template }) => template === 'templates/named.html.twig')
+      && !result.some(({ template }) => template === 'templates/edited.html.twig')
+      && multiple?.complete === true && multiple.variables.map((item) => item.name).sort().join(',') === 'localUser,title';
+  }, 'Closing the restored Controller did not return to disk template context', 30_000, 100);
+  if (twigPlus) {
+    const multipleTemplate = await vscode.workspace.openTextDocument(multipleCompactTemplateUri);
+    const restoredTitleOffset = multipleTemplate.getText().indexOf('title');
+    const staleHeadlineOffset = multipleTemplate.getText().indexOf('headline');
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', multipleCompactTemplateUri, multipleTemplate.positionAt(restoredTitleOffset + 2)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not restore the disk compact variable after Revert', 30_000, 100);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', multipleCompactTemplateUri, multipleTemplate.positionAt(staleHeadlineOffset + 2)) ?? [])
+      .every((location) => location.uri.toString() !== uri.toString()),
+    'TwigPlus retained the unsaved compact variable after Revert', 30_000, 100);
+    const namedTemplate = await vscode.workspace.openTextDocument(namedTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', namedTemplateUri, namedTemplate.positionAt(4)) ?? [])
+      .some((location) => location.uri.toString() === uri.toString()),
+    'TwigPlus did not restore the disk Controller source after close', 30_000, 100);
+    const editedTemplate = await vscode.workspace.openTextDocument(editedTemplateUri);
+    await waitForAsync(async () => (await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', editedTemplateUri, editedTemplate.positionAt(4)) ?? [])
+      .every((location) => location.uri.toString() !== uri.toString()),
+    'TwigPlus kept the unsaved Controller source after revert and close', 30_000, 100);
+  }
+}
+
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!predicate() && Date.now() < deadline) await new Promise<void>((resolve) => setTimeout(resolve, 20));
@@ -169,6 +477,17 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'neilbrayfield.php-docblocker',
   ];
   for (const id of extensionIds) assert.ok(vscode.extensions.getExtension(id), `${id} is missing from the Open Source Profile`);
+  if (process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH) {
+    assert.strictEqual(vscode.extensions.getExtension('sohophp.twig-plus')?.extensionPath,
+      process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH, 'The Open Source Profile loaded a stale installed TwigPlus instead of its current source');
+  }
+  if (process.env.PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH) {
+    const twigPlus = vscode.extensions.getExtension('sohophp.twig-plus');
+    assert.strictEqual(twigPlus?.extensionPath, process.env.PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH,
+      'The Open Source Profile loaded an installed TwigPlus instead of the selected release VSIX');
+    assert.strictEqual(twigPlus.packageJSON.version, process.env.PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_VERSION,
+      'The Open Source Profile loaded an unexpected TwigPlus release version');
+  }
   const pack = vscode.extensions.getExtension('sohophp.php-companion-open-source-pack')!;
   assert.deepStrictEqual(pack.packageJSON.extensionPack, [
     'sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.twig-plus',
@@ -205,6 +524,36 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     return references.some((location) => location.uri.toString() === coreUri.toString()
       && coreDocument.getText(location.range) === 'answer');
   }, 'SoPHP Core did not find the PHP call in the Open Source Profile', 30_000, 100);
+
+  const namedUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileNamedArguments.php');
+  const namedSource = '<?php namespace App; function profileNamed(int $first, int $second, bool $third): void {} profileNamed(third: true, ';
+  await vscode.workspace.fs.writeFile(namedUri, Buffer.from(namedSource));
+  const namedDocument = await vscode.workspace.openTextDocument(namedUri);
+  await vscode.window.showTextDocument(namedDocument);
+  const namedFeedback = async (): Promise<{ active: number | undefined; names: string[] }> => {
+    const position = namedDocument.positionAt(namedDocument.getText().length);
+    const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', namedUri, position);
+    const completion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namedUri, position);
+    return { active: help?.activeParameter, names: completion?.items.map((item) => String(item.label))
+      .filter((label) => ['first:', 'second:', 'third:'].includes(label)) ?? [] };
+  };
+  assert.deepStrictEqual(await namedFeedback(), { active: 0, names: ['first:', 'second:'] },
+    'The full Pack did not highlight and complete only unfilled named arguments.');
+  const namedEdit = new vscode.WorkspaceEdit();
+  namedEdit.replace(namedUri, new vscode.Range(new vscode.Position(0, 0),
+    namedDocument.positionAt(namedDocument.getText().length)), namedSource.replace('third: true, ', '1, third: true, '));
+  assert.ok(await vscode.workspace.applyEdit(namedEdit));
+  assert.ok(namedDocument.isDirty);
+  assert.deepStrictEqual(await namedFeedback(), { active: 1, names: ['second:'] },
+    'The full Pack reoffered a positional argument after an unsaved mixed call edit.');
+  console.log('Open Source Pack C2 named arguments: unfilled signature and completion survive an unsaved mixed call edit');
+  const literalEdit = new vscode.WorkspaceEdit();
+  literalEdit.replace(namedUri, new vscode.Range(new vscode.Position(0, 0),
+    namedDocument.positionAt(namedDocument.getText().length)), namedSource.replace('third: true, ', '...[1, 2], th'));
+  assert.ok(await vscode.workspace.applyEdit(literalEdit));
+  assert.deepStrictEqual(await namedFeedback(), { active: 2, names: ['third:'] },
+    'The full Pack did not retain the remaining parameter after a literal argument unpack.');
+  console.log('Open Source Pack C2 literal unpack: signature and completion follow known array entries');
 
   const returnUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturn.php');
   const consumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'ProfileReturnConsumer.php');
@@ -427,6 +776,7 @@ final class ProfileTest extends TestCase {
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8'), 'passed',
     'Project PHPUnit CLI did not execute the test in the default Pack Profile');
   await verifyOpenSourceUnionShapeFeedback(workspace);
+  if (process.env.PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS === '1') await verifySymfonyControllerContextBridge(workspace);
   if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1') await verifyOpenSourceRealVendorFeedback(workspace);
 }
 
@@ -957,6 +1307,10 @@ export async function run(): Promise<void> {
   }
   const workspace = vscode.workspace.workspaceFolders?.[0];
   assert.ok(workspace, 'Fixture workspace was not opened');
+  if (process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ONLY === '1') {
+    await verifySymfonyControllerContextBridge(workspace);
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_HOVER_ISOLATION === '1') {
     await verifyOpenSourceRealVendorFeedback(workspace);
     return;

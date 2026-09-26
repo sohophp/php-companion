@@ -15,7 +15,7 @@ const messages = {
   findServiceReferences: ['Finding Symfony service references', '查找 Symfony 服务引用'],
   scanServiceUsages: ['Scanning project PHP service usages', '扫描项目 PHP 服务用法'],
   findControllerContexts: ['Finding Symfony controller contexts', '查找 Symfony Controller 上下文'],
-  scanRenderCalls: ['Scanning project render calls', '扫描项目 render 调用'],
+  scanControllerContexts: ['Scanning controller template contexts', '扫描 Controller 模板上下文'],
 } as const;
 
 export type ProgressMessageKey = keyof typeof messages;

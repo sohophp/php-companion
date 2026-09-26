@@ -33,11 +33,12 @@ const artifacts = [
       'extension/dist/language-server.js',
       'extension/dist/candidateWorker.js',
       'extension/dist/portableCandidateSearchWorker.js',
+      'extension/dist/sourceStatWorker.js',
       'extension/resources/icon.png',
     ],
   },
   {
-    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix',
+    path: 'packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.6.vsix',
     focusedPack: true,
     required: [
       'extension/package.json',
@@ -125,6 +126,9 @@ for (const artifact of artifacts) {
   }
   if (artifact.focusedPack) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-open-source-pack' || manifest.version !== '0.4.6') {
+      throw new Error(`${artifact.path} has an unexpected Open Source Pack identity.`);
+    }
     const expectedExtensions = ['sohophp.php-companion', 'sohophp.php-companion-symfony', ...openSourceProfile.filter((entry) => entry.defaultPack !== false).map((entry) => entry.id)]
       .map((id) => id.toLowerCase()).sort();
     const actualExtensions = Array.isArray(manifest.extensionPack)

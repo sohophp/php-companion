@@ -1,8 +1,10 @@
 # SoPHP 日常开发组合方案
 
-日期：2026-09-24。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
+2026-09-26 当前私有候选为 [15a5254](reports/alpha-15a5254-packaged-profile-2026-09-26.md)：Core、Symfony、Open Source Pack 同批三份 VSIX 已通过隔离 Linux 组合宿主，真实 WSL Remote 安装和长时间使用仍待验。[当前 Pack 整理与 SoPHP 开发顺序](reports/open-source-pack-current-entry-2026-09-26.md)是执行入口；下文的 `21977ee1` 是此前候选的历史验证记录。
 
-2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。Core 下一步先审计现有代码生成 Action 的正确性；生成新文件的 Redo 独立保留为 C3 阻断项，见[执行清单](reports/open-source-pack-next-core-2026-09-25.md)。
+更新：2026-09-25。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
+
+2026-09-25 最新决定：[Open Source Pack](../../packages/php-companion-extension-pack/package.json)当前源码为 **10 项**（Core、Symfony、8 个外部扩展）。原版 PHPUnit & Pest Test Explorer 3.9.40 在已配置测试目录的完整组合中再次因测试文件 Rename 读取旧路径而失败，已从默认安装清单移出；PHPUnit/Pest 默认由项目 CLI 执行。详见[同日原版复核](reports/open-source-pack-c3-original-recheck-2026-09-25.md)。下文的 11 项记录是当时的阶段证据，不能当作当前默认清单或稳定声明。当前 Core 顺序以[Pack 整理与 Core 下一步](reports/open-source-pack-next-core-2026-09-25.md)开头的执行快照为准；生成新文件的 Redo 独立保留为 C3 阻断项。
 
 此前组合复核发现，`recca0120.vscode-phpunit` 3.9.40 在已配置测试项目的文件事件与 Rename 交错中，间歇性读取旧路径并抛出未处理错误；一次单独重跑通过，不能据此判定稳定。见[Composer 生成快照与 Pack 复核](reports/c3-generation-composer-snapshot-2026-09-25.md)。这一阶段的判断已由上面的默认清单决定取代。
 
@@ -56,17 +58,18 @@
 
 这份整理对应当前 10 项 `extensionPack` 清单；它是已选工具的安装入口，不表示每个成员在所有 PHP 版本、系统和 Remote 环境都已通过最终验收。成员版本及其依赖以 [Profile 清单](../../test/extension/open-source-profile.extensions.json)和下一次候选冻结记录为准。
 
-SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 默认设为 `false`。VS Code 内建 PHP Language Features 原本也提供 Completion、Hover 和参数提示；关闭基础提示后，这三项默认由 SoPHP 负责，隔离 Core 宿主中的 `abs` 函数补全只出现一次。若明确关闭 SoPHP 语言服务器、又希望改用 VS Code 内建 PHP 提示，可在用户或工作区设置显式指定 `"php.suggest.basic": true`。此设置不改变 PHP 语法验证的配置；同版本完整 Pack 的实际安装仍须在候选门禁复核。
+SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 默认设为 `false`。VS Code 内建 PHP Language Features 原本也提供 Completion、Hover 和参数提示；关闭基础提示后，这三项默认由 SoPHP 负责，隔离 Core 宿主中的 `abs` 函数补全只出现一次。PHP 的 `editor.wordBasedSuggestions` 默认设为 `off`，由 SoPHP 按当前作用域补全参数、已赋值和解构绑定的局部变量、函数内 `global` / `static` 名字、`foreach` 键和值、闭包显式捕获和箭头函数自动捕获的变量、可用的 `$this` 以及常见超全局变量；这样同一文件其它函数里的局部变量不会作为普通单词混入建议。[变量作用域记录](reports/c1-scoped-variable-completion-2026-09-26.md)、[闭包和循环补充范围](reports/c1-scoped-foreach-and-this-completion-2026-09-26.md)、[解构补充范围](reports/c1-destructured-variable-completion-2026-09-26.md)及[声明补充范围](reports/c1-global-static-local-completion-2026-09-26.md)包含复现与源码宿主结果。若明确关闭 SoPHP 语言服务器、又希望改用 VS Code 内建 PHP 提示，可在用户或工作区设置显式指定 `"php.suggest.basic": true` 及适合自己的 PHP 单词建议范围。这些默认设置可被用户配置覆盖；同版本完整 Pack 的实际安装仍须在候选门禁复核。
 
 ## 可选增强：先隔离验证，再决定是否纳入 Pack
 
 | 候选 | 可提供的增益 | 准入检查 |
 | --- | --- | --- |
+| [PHPUnit Runner 0.2.0](https://marketplace.visualstudio.com/items?itemName=AOSSoftware.aos-phpunit) | 可选的原生 PHPUnit 测试视图和编辑器内运行 | 已在隔离 Linux 的完整 Pack 中通过实际 PHPUnit 12 运行、测试文件 Rename 与 Undo/Redo；Pest、真实 WSL Remote 和持续使用仍待验，默认继续用项目 CLI。见[组合记录](reports/open-source-pack-test-provider-candidates-2026-09-25.md) |
 | [PHPStan 扩展](https://marketplace.visualstudio.com/items?itemName=swordev.phpstan)及项目 PHPStan | 项目选择的更深静态分析诊断 | 仅在项目已有兼容的 PHPStan 配置与运行时、用户明确选择时启用；核查重复诊断、自动运行耗时及关闭后的恢复。暂不作为默认 Pack 成员 |
 
 其他候选也走同一门禁：明确能补哪段工作流、许可与维护、PHP/VS Code/WSL 兼容性、唯一能力所有者、自动和真实操作证据、失败后的回退。Symfony Language Tools 0.20.1/0.20.2 已在普通 PHP Rename 中发生 Provider 冲突，目前不进入受支持组合；不能因为它能补部分路由能力就绕过冲突结果。
 
-PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因此加入当前源码 Pack；现有已安装候选不会自动获得这个新成员，须待下一次同批候选冻结。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
+PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，当前 `21977ee1` 私有候选包含它；用户机器已安装的旧 0.4.5 不会自动获得该成员。PHPStan 更适合作为显式启用的项目分析入口。数据库管理、容器和 HTTP 客户端可由用户按项目选择，不作为通用 PHP 编码闭环的默认依赖；没有通过组合门禁的候选不写成“稳定成员”。
 
 ## 从安装到日常使用
 
@@ -80,7 +83,7 @@ PHP DocBlocker 已通过 PHP 7.2/8.5 的隔离完整成员 Profile 门禁，因�
 
 ## 当前整理结论与进入 Core 的顺序
 
-Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHP DocBlocker 已加入当前源码 Pack，PHPStan 保持可选。三份 VSIX 已在[隔离 Linux Open Source Profile 组合门禁](reports/open-source-pack-composition-gate-2026-09-24.md)完成默认 `onDemand` 的 Core、Symfony 与外部工具操作，并从干净提交冻结为私有 Alpha 候选；WSL Remote、跨平台及持续使用门槛仍开放。PHP DocBlocker 的源码成员 Profile 已完成单独组合门禁；新 VSIX 候选尚未冻结。
+Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/extension-pack.test.ts)及冻结 Profile 清单对齐；Apache Conf Snippets 和 PHP DocBlocker 已纳入，Recommended Pack 不再维护。已移出组合的 Symfony Language Tools 设置也从 Pack 默认值和组合测试中清除，见[本轮整理记录](reports/open-source-pack-core-start-2026-09-24.md)。PHPStan 保持可选。[同批私有 Alpha 候选 21977ee1](reports/alpha-21977ee1-packaged-profile-2026-09-25.md)包含当前 10 项 Pack 清单并通过隔离 Linux 安装宿主；候选冻结后完成的 Core 改动仍只在源码和源码宿主中，须待下一次候选冻结才能进行安装验收。WSL Remote、跨平台及持续使用门槛仍开放。
 
 当前 10 项源码组合的 C3 宿主已通过（`/tmp/sophp-c3-pack-10-configured-20260925.log`，退出码 0）：在不含 PHPUnit 扩展的冻结外部目录、独立临时 Composer 项目和隔离 VS Code Profile 中加载 Core、Symfony、Pack 源码，无需生成 VSIX。日常组合源码宿主也通过（`/tmp/sophp-pack-10-source-cli-config-20260925.log`，退出码 0），实际执行项目 PHPUnit CLI，并检查格式化、Twig/YAML/XML 与调试入口。这些自动门禁仍不能替代下一次候选的 VSIX 安装和 WSL Remote 验收。
 
@@ -89,13 +92,13 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 | 层次 | 当前可核对的结果 | 下一道门槛 |
 | --- | --- | --- |
 | Pack 源码 | 10 项清单；Core、Symfony、8 个外部扩展；manifest 定向检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |
-| 已冻结 0.4.5 私有候选 | Core、Symfony、Pack 三份 VSIX 及 8 个当时的外部成员完成隔离 Linux 组合门禁 | 该候选不包含后来加入 Pack 源码的 PHP DocBlocker |
-| 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 原 11 项 Profile 已单独通过；[原 11 项 Pack 的 C2 编辑链](reports/open-source-pack-c2-local-feedback-2026-09-24.md)在隔离宿主完成 10 轮未保存切换 | 下次冻结 10 项候选时记录版本与摘要，并复核实际安装和 Extension Host |
+| 已冻结 0.4.5 私有候选 `21977ee1` | Core、Symfony、Pack 三份 VSIX 及 8 个外部成员（包括 PHP DocBlocker）完成隔离 Linux 组合门禁 | 尚未进入该候选的 Core 源码改动和真实 WSL Remote 仍需验收 |
+| 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 原 11 项 Profile 已单独通过；[原 11 项 Pack 的 C2 编辑链](reports/open-source-pack-c2-local-feedback-2026-09-24.md)在隔离宿主完成 10 轮未保存切换 | 后续 Core 改动进入新候选时重跑组合门禁，并复核实际安装和 Extension Host |
 | 更广的日常使用 | 独立 Composer 项目的编码、格式化、测试和调试有自动宿主证据 | WSL Remote、Windows/macOS、较长真实使用及项目工具路径仍需验收 |
 
-因此可以按已验的 Linux 隔离宿主范围开始使用现有 Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；不能把仓库当前源码清单等同于已安装的 0.4.5 候选。WSL Remote 的实际 Extension Host 归属仍待验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
+因此可以按已验的 Linux 隔离宿主范围开始使用 `21977ee1` Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；仓库当前未冻结的 Core 改动和用户机器已安装的 0.4.5 不等同于该候选。WSL Remote 的实际 Extension Host 归属仍待验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
 
-Core 当前先从 [C3 生成文件的 Undo/Redo 缺口](reports/open-source-pack-next-core-2026-09-25.md)推进：导入和方法参数重构已有部分可靠编辑链，但类型生成文件的一次 Redo 尚不能恢复；修复后再按真实开发操作复核其它 C3 能力。C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据，冷查询分布和长会话等退出门槛仍开放。C2 的快速编辑旧诊断已修复，仍需继续观察可见等待、跨文件类型、复杂 PHPDoc 和长会话。真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
+Core 当前按 [Pack 整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)复核独立 Composer 项目的 C1/C2 日常编辑链，并收口 C3 高频编辑的可复现缺口。类型生成改用预先准备文件的移动编辑后，已在本机 Linux 源码宿主通过一次 Undo/Redo；移动失败时的创建回退路径、临时文件过期清理、真实 Remote 和跨平台仍开放，见[生成文件验证报告](reports/c3-type-generation-staged-redo-2026-09-25.md)。C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据；真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 
 独立 Composer path repository 的[双路径打开回归](reports/c2-dual-path-open-2026-09-24.md)现规定冲突时最近编辑的缓冲区拥有跨文件项目事实，并向用户说明歧义。默认 `onDemand` 的[可证明跨文件参数诊断](reports/c2-ondemand-psr4-literal-diagnostics-2026-09-24.md)已覆盖唯一 PSR-4 类方法、直接或稳定局部标量字面量，以及直接或稳定局部赋值的原生标量方法返回；未保存声明、使用方编辑及 watcher 的诊断往返已有真实 stdio 证据，隔离 VS Code 宿主也观察到诊断撤销和恢复。[局部值 Hover](reports/c2-local-value-hover-2026-09-24.md)补齐了同一类型事实的显示，[完整 Pack 源码组合](reports/open-source-pack-c2-local-feedback-2026-09-24.md)的 10 轮未保存切换也未出现旧 Hover 或旧诊断。复杂控制流、动态返回和仅 PHPDoc 声明的跨文件返回仍保持保守。下一步在更大的独立 Composer 项目观察等待与长期稳定性，并继续核对数组、联合类型的跨能力反馈。人工使用反馈可以并行进入，不阻塞这些独立测试。
 

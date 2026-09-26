@@ -17,7 +17,7 @@ export interface FolderState {
 export class VersionManager implements vscode.Disposable {
   private readonly states = new Map<string, FolderState>();
   private readonly projectStates = new Map<string, FolderState>();
-  private readonly watchedProjects = new Set<string>();
+  private readonly watchedProjects = new Map<string, { folderUri: string; disposable: vscode.Disposable }>();
   private readonly refreshTimers = new Map<string, NodeJS.Timeout>();
   private readonly disposables: vscode.Disposable[] = [];
   private readonly stateEmitter = new vscode.EventEmitter<FolderState>();
@@ -38,8 +38,24 @@ export class VersionManager implements vscode.Disposable {
     const folders = folder ? [folder] : (vscode.workspace.workspaceFolders ?? []);
     const folderUris = new Set(folders.map((item) => item.uri.toString()));
     this.runtimeProbes.clear();
-    for (const key of folderUris) this.states.delete(key);
-    for (const [root, state] of this.projectStates) if (folderUris.has(state.folder.uri.toString())) this.projectStates.delete(root);
+    if (folder) {
+      this.states.delete(folder.uri.toString());
+      for (const [root, state] of this.projectStates) if (state.folder.uri.toString() === folder.uri.toString()) this.projectStates.delete(root);
+    } else {
+      this.states.clear();
+      this.projectStates.clear();
+      for (const [root, watcher] of this.watchedProjects) {
+        if (folderUris.has(watcher.folderUri)) continue;
+        watcher.disposable.dispose();
+        this.watchedProjects.delete(root);
+        const timer = this.refreshTimers.get(root);
+        if (timer) clearTimeout(timer);
+        this.refreshTimers.delete(root);
+      }
+      this.activeFolder = vscode.window.activeTextEditor
+        ? vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri) ?? folders[0]
+        : folders[0];
+    }
     await Promise.all(folders.map(async (workspaceFolder) => {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', workspaceFolder.uri);
       const composerRoot = await findComposerRoot(workspaceFolder.uri.fsPath, workspaceFolder.uri.fsPath);
@@ -108,17 +124,19 @@ export class VersionManager implements vscode.Disposable {
     return [...new Set([...this.states.values(), ...this.projectStates.values()])];
   }
 
-  async selectVersion(): Promise<void> {
+  async selectVersion(choose?: (items: vscode.QuickPickItem[], placeHolder: string) => Promise<vscode.QuickPickItem | undefined>): Promise<void> {
     const folder = this.activeFolder ?? vscode.workspace.workspaceFolders?.[0];
     if (!folder) return void vscode.window.showInformationMessage(t('noWorkspace'));
-    const state = this.states.get(folder.uri.toString());
+    const activeUri = vscode.window.activeTextEditor?.document.uri;
+    const state = activeUri ? this.stateForUri(activeUri) : this.states.get(folder.uri.toString());
     const items: vscode.QuickPickItem[] = [
       { label: `$(sync) ${t('auto')}`, description: state ? t('detectedFrom', state.resolution.sourceDetail) : undefined },
       ...SUPPORTED_PHP_VERSIONS.map((version) => ({ label: `PHP ${version}`, description: version === state?.resolution.target ? '$(check)' : undefined })),
       { label: `$(refresh) ${t('redetect')}` },
       { label: `$(gear) ${t('settings')}` },
     ];
-    const selected = await vscode.window.showQuickPick(items, { placeHolder: `SoPHP — ${folder.name}` });
+    const placeHolder = t('versionScopeWorkspace', folder.name);
+    const selected = choose ? await choose(items, placeHolder) : await vscode.window.showQuickPick(items, { placeHolder });
     if (!selected) return;
     if (selected.label.includes(t('redetect'))) return this.refresh(folder);
     if (selected.label.includes(t('settings'))) {
@@ -132,7 +150,8 @@ export class VersionManager implements vscode.Disposable {
 
   private render(): void {
     const folder = this.activeFolder ?? vscode.workspace.workspaceFolders?.[0];
-    const state = folder ? this.states.get(folder.uri.toString()) : undefined;
+    const activeUri = vscode.window.activeTextEditor?.document.uri;
+    const state = activeUri ? this.stateForUri(activeUri) : folder ? this.states.get(folder.uri.toString()) : undefined;
     if (!state) {
       this.status.hide();
       return;
@@ -162,7 +181,6 @@ export class VersionManager implements vscode.Disposable {
 
   private watchComposerProject(root: string, uri: vscode.Uri): void {
     if (this.watchedProjects.has(root)) return;
-    this.watchedProjects.add(root);
     const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(root, '{composer.json,composer.lock}'));
     const schedule = (): void => {
       const pending = this.refreshTimers.get(root);
@@ -173,11 +191,13 @@ export class VersionManager implements vscode.Disposable {
         void this.ensureForUri(uri);
       }, 250));
     };
-    this.disposables.push(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule));
+    this.watchedProjects.set(root, { folderUri: vscode.workspace.getWorkspaceFolder(uri)?.uri.toString() ?? '',
+      disposable: vscode.Disposable.from(watcher, watcher.onDidChange(schedule), watcher.onDidCreate(schedule), watcher.onDidDelete(schedule)) });
   }
 
   dispose(): void {
     for (const timer of this.refreshTimers.values()) clearTimeout(timer);
+    for (const watcher of this.watchedProjects.values()) watcher.disposable.dispose();
     this.disposables.forEach((item) => item.dispose());
     this.stateEmitter.dispose();
   }

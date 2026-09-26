@@ -45,6 +45,21 @@ describe('standalone Symfony event provider', () => {
     await expect(collectSymfonyEventFacts(root, parser, { containerServices: [], projectTypes: [{
       fqcn: 'Outside', kind: 'class', abstract: false, path, uri: pathToFileURL(path).toString(), start: 12, end: 19,
     }] })).rejects.toThrow('outside the project root');
+    await expect(collectSymfonyEventFacts(root, parser, { containerServices: [], projectTypes: [], documents: [{
+      uri: pathToFileURL(path).toString(), languageId: 'php', snapshotVersion: 'open:1',
+      source: '<?php function send($dispatcher) { $dispatcher->dispatch(new OutsideEvent()); }',
+    }] })).rejects.toThrow('outside the project root');
+  });
+
+  it('includes a new unsaved PHP dispatch before its type enters the project catalog', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'symfony-events-new-open-')); roots.push(root);
+    const path = join(root, 'NewDispatch.php'); const uri = pathToFileURL(path).toString();
+    const facts = await collectSymfonyEventFacts(root, parser, { projectTypes: [], containerServices: [], documents: [{
+      uri, languageId: 'php', snapshotVersion: 'open:1',
+      source: '<?php namespace App; function send($dispatcher): void { $dispatcher->dispatch(new ReadyEvent()); }',
+    }] });
+    expect(facts.sourceUris).toEqual([uri]);
+    expect(facts.dispatches).toContainEqual(expect.objectContaining({ event: 'App\\ReadyEvent', uri }));
   });
 
   it('accepts a project root reached through a filesystem alias', async () => {

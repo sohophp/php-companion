@@ -48,7 +48,7 @@ jobs:
           path: |
             php-companion-0.4.6.vsix
             packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix
-            packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
+            packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.6.vsix
 
   publish-marketplace:
     if: github.event_name == 'workflow_dispatch' && inputs.publish

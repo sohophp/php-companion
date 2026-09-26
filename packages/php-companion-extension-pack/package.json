@@ -2,7 +2,7 @@
   "name": "php-companion-open-source-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -52,7 +52,8 @@
       "phpCompanion.experimental.refactoring": false,
       "phpCompanion.rename.enabled": true,
       "[php]": {
-        "editor.defaultFormatter": "junstyle.php-cs-fixer"
+        "editor.defaultFormatter": "junstyle.php-cs-fixer",
+        "editor.wordBasedSuggestions": "off"
       },
       "[xml]": {
         "editor.defaultFormatter": "redhat.vscode-xml"

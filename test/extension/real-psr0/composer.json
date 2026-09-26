@@ -1,0 +1,24 @@
+{
+  "name": "sohophp/c1-psr0-consumer",
+  "description": "Independent Composer PSR-0 dependency fixture for SoPHP C1",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.2",
+    "sohophp/legacy-psr0-fixture": "^1.0"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "packages/legacy",
+      "options": {
+        "symlink": false,
+        "versions": { "sohophp/legacy-psr0-fixture": "1.0.0" }
+      }
+    }
+  ],
+  "autoload": {
+    "psr-4": { "Consumer\\": "src/" }
+  },
+  "config": { "allow-plugins": false }
+}

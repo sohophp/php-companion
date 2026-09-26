@@ -299,6 +299,7 @@ const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES,
   'member_access_expression', 'nullsafe_member_access_expression', 'scoped_property_access_expression',
   'class_constant_access_expression', 'function_call_expression', 'object_creation_expression',
   'anonymous_function', 'arrow_function', 'assignment_expression', 'foreach_statement', 'catch_clause',
+  'global_declaration', 'function_static_declaration',
   'while_statement', 'for_statement', 'do_statement', 'if_statement'];
 const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
 
@@ -391,7 +392,11 @@ function parseUseClause(text: string, start: number, namespace: string): ParsedI
   return imports;
 }
 
+const LEGACY_CLASS_TRIVIA = String.raw`(?:\s|/\*[^]*?\*/|//[^\r\n]*(?:\r?\n|$)|#[^\r\n]*(?:\r?\n|$))+`;
+const LEGACY_CLASS_ERROR = new RegExp(`^(?:(?:final|abstract)${LEGACY_CLASS_TRIVIA})?class${LEGACY_CLASS_TRIVIA}(mixed|never)(?=\\s|$)`, 'iu');
+
 export class PhpSyntaxParser {
+  private readonly recoveredLegacyClassTrees = new WeakSet<Tree>();
   private constructor(private readonly parser: Parser) {}
 
   static async create(paths: PhpParserPaths): Promise<PhpSyntaxParser> {
@@ -407,10 +412,40 @@ export class PhpSyntaxParser {
     return this.create(defaultPhpParserPaths());
   }
 
-  /** Build only the syntax tree. The caller owns and must delete the returned tree. */
+  /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names may be masked in the tree. */
   parseTree(source: string, oldTree?: Tree): Tree {
-    const tree = this.parser.parse(source, oldTree);
+    let tree = this.parser.parse(source, oldTree && !this.recoveredLegacyClassTrees.has(oldTree) ? oldTree : undefined);
     if (!tree) throw new Error('Tree-sitter returned no parse tree.');
+    if (tree.rootNode.hasError) {
+      // The current grammar reserves these names, but PHP 7 accepted them as class names.
+      // Repair only matching error nodes with equal-width names so all source ranges survive.
+      const replacements: Array<{ start: number; end: number; value: string }> = [];
+      const inspect = (node: SyntaxNode): void => {
+        if (!node.hasError) return;
+        if (node.type === 'ERROR') {
+          const text = node.text;
+          const declaration = LEGACY_CLASS_ERROR.exec(text)
+            ?? (node.parent?.type === 'class_declaration' ? /^(mixed|never)(?=\s+(?:extends|implements)\b)/iu.exec(text) : null);
+          if (declaration) {
+            const name = declaration[1]!;
+            const start = node.startIndex + declaration[0].lastIndexOf(name);
+            replacements.push({ start, end: start + name.length, value: name.toLowerCase() === 'mixed' ? '_ixed' : '_ever' });
+          }
+        }
+        for (const child of node.namedChildren) inspect(child);
+      };
+      inspect(tree.rootNode);
+      if (replacements.length > 0) {
+        let recovered = source;
+        for (const replacement of replacements.sort((left, right) => right.start - left.start)) {
+          recovered = `${recovered.slice(0, replacement.start)}${replacement.value}${recovered.slice(replacement.end)}`;
+        }
+        tree.delete();
+        tree = this.parser.parse(recovered);
+        if (!tree) throw new Error('Tree-sitter returned no recovered parse tree.');
+        this.recoveredLegacyClassTrees.add(tree);
+      }
+    }
     return tree;
   }
 
@@ -821,6 +856,12 @@ export class PhpSyntaxParser {
       if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
       if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
+      if (hasSyntaxErrors) for (const child of node.children) {
+        if (child.isMissing && !child.isNamed && [')', ']', '}'].includes(child.type)
+          && child.startIndex < source.length) {
+          errors.push({ start: child.startIndex, end: child.startIndex + 1 });
+        }
+      }
       if (nodeType === 'variable_name' && nodeParent?.type !== 'scoped_property_access_expression') {
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
@@ -1034,8 +1075,8 @@ export class PhpSyntaxParser {
           const declarationNamespace = namespaceAt(node.startIndex);
           declarations.push({
             ...range,
-            name: nameNode.text,
-            fqcn: declarationNamespace ? `${declarationNamespace}\\${nameNode.text}` : nameNode.text,
+            name: source.slice(range.start, range.end),
+            fqcn: declarationNamespace ? `${declarationNamespace}\\${source.slice(range.start, range.end)}` : source.slice(range.start, range.end),
             kind,
             anonymous: false,
             declarationStart: node.startIndex,
@@ -1105,7 +1146,8 @@ export class PhpSyntaxParser {
               // tree-sitter-php 0.24 parses PHP 8.5 final promotion as a recoverable
               // ERROR node. Preserve the semantic modifier until the grammar exposes
               // it as final_modifier, while still accepting that future shape.
-              final: parameter.namedChildren.some((child) => child.type === 'final_modifier') || /\bfinal\b/i.test(parameter.text),
+              final: parameter.namedChildren.some((child) => child.type === 'final_modifier'
+                || child.type === 'ERROR' && child.text.toLowerCase() === 'final'),
               abstract: false,
               promoted: true,
               declarationStart: parameter.startIndex,
@@ -1216,7 +1258,22 @@ export class PhpSyntaxParser {
       if (nodeType === 'assignment_expression') {
         const left = node.childForFieldName('left');
         const right = node.childForFieldName('right');
-        if (left?.type !== 'variable_name' || !right) return;
+        if (!left || !right) return;
+        if (left.type === 'list_literal') {
+          const scope = scopeAt(node.startIndex, node.endIndex);
+          if (!scope) return;
+          const boundVariables = (list: SyntaxNode): SyntaxNode[] => list.namedChildren.flatMap((child, index) => {
+            const next = list.namedChildren[index + 1];
+            if (next && source.slice(child.endIndex, next.startIndex).includes('=>')) return [];
+            if (child.type === 'variable_name') return [child];
+            if (child.type === 'list_literal' || child.type === 'by_ref') return boundVariables(child);
+            return [];
+          });
+          for (const variable of boundVariables(left)) assignments.push({ ...nodeRange(source, node), variable: variable.text,
+            callableFqcn: scope.id, scopeId: scope.id });
+          return;
+        }
+        if (left.type !== 'variable_name') return;
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (!scope) return;
         const anonymous = right.type === 'object_creation_expression' ? right.namedChildren.find((child) => child.type === 'anonymous_class') : undefined;
@@ -1334,12 +1391,26 @@ export class PhpSyntaxParser {
           sourceCall,
         });
       }
+      if (nodeType === 'global_declaration' || nodeType === 'function_static_declaration') {
+        const scope = scopeAt(node.startIndex, node.endIndex);
+        if (!scope) return;
+        const variables = nodeType === 'global_declaration'
+          ? node.namedChildren.filter((child) => child.type === 'variable_name')
+          : node.namedChildren.filter((child) => child.type === 'static_variable_declaration')
+            .map((child) => child.childForFieldName('name') ?? child.namedChildren[0])
+            .filter((child): child is SyntaxNode => child?.type === 'variable_name');
+        for (const variable of variables) assignments.push({ ...nodeRange(source, node), variable: variable.text,
+          callableFqcn: scope.id, scopeId: scope.id });
+      }
       if (nodeType === 'foreach_statement') {
         const [collection, target] = node.namedChildren; if (!collection || !target) return;
         const value = target.type === 'pair' ? target.namedChildren.at(-1) : target;
         const body = node.childForFieldName('body'); if (value?.type !== 'variable_name' || !body) return;
         const scope = scopeAt(node.startIndex, node.endIndex);
         if (!scope) return;
+        const key = target.type === 'pair' ? target.namedChildren[0] : undefined;
+        if (key?.type === 'variable_name') assignments.push({ ...nodeRange(source, key), variable: key.text,
+          callableFqcn: scope.id, scopeId: scope.id, validRange: nodeRange(source, body) });
         let sourceIterable: ParsedAssignment['sourceIterable'];
         if (collection.type === 'variable_name') sourceIterable = { ...nodeRange(source, collection), kind: 'variable', variable: collection.text, part: 'value' };
         else if (collection.type === 'member_access_expression' || collection.type === 'member_call_expression') {

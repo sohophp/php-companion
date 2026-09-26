@@ -24,10 +24,10 @@ async function manifest(path: string): Promise<ExtensionManifest> {
 }
 
 describe('SoPHP manifests', () => {
-  it('publishes Core and Symfony 0.4.6 while retaining Open Source Pack 0.4.5', async () => {
+  it('publishes the Core, Symfony, and Open Source Pack candidate at 0.4.6', async () => {
     for (const [path, version] of [['package.json', '0.4.6'],
       ['packages/php-companion-symfony/package.json', '0.4.6'],
-      ['packages/php-companion-extension-pack/package.json', '0.4.5']] as const) {
+      ['packages/php-companion-extension-pack/package.json', '0.4.6']] as const) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
       expect(value.version).toBe(version);
@@ -55,6 +55,8 @@ describe('SoPHP manifests', () => {
     expect(defaults?.['phpCompanion.symfony.environment']?.default).toBeNull();
     expect(defaults?.['phpCompanion.symfony.winstarRoutes.enabled']?.default).toBe(false);
     expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['php.suggest.basic']).toBe(false);
+    expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['[php]'])
+      .toEqual({ 'editor.wordBasedSuggestions': 'off' });
   });
 
   it('ships the Open Source Pack without another PHP language server', async () => {
@@ -73,6 +75,8 @@ describe('SoPHP manifests', () => {
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
     expect(defaults?.['php.suggest.basic']).toBe(false);
     expect(Object.keys(defaults ?? {}).some((key) => key.startsWith('symfonyLsp.'))).toBe(false);
+    expect(defaults?.['[php]']).toEqual({ 'editor.defaultFormatter': 'junstyle.php-cs-fixer',
+      'editor.wordBasedSuggestions': 'off' });
     expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
   });
 });

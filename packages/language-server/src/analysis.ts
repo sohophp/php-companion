@@ -713,10 +713,47 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         message: diagnosticMessage(language, 'syntax'),
       }];
     });
-    diagnostics.push(...unsupportedSyntax(parsed.tree.rootNode, targetVersion).map((feature): Diagnostic => ({
+    const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion);
+    const hasLegacyNativeName = versionFeatures.some((feature) => feature.feature === 'mixed type' || feature.feature === 'never type');
+    const namespaceRegions = hasLegacyNativeName ? parsed.tree.rootNode.namedChildren
+      .filter((node) => node.type === 'namespace_definition')
+      .map((node) => {
+        const body = node.childForFieldName('body');
+        return { name: node.childForFieldName('name')?.text.replace(/^\\+|\\+$/gu, '') ?? '',
+          start: body?.startIndex ?? node.endIndex, end: body?.endIndex ?? source.length, braced: Boolean(body) };
+      }) : [];
+    namespaceRegions.sort((left, right) => left.start - right.start);
+    for (let index = 0; index < namespaceRegions.length; index += 1) {
+      const region = namespaceRegions[index]!;
+      if (!region.braced) region.end = namespaceRegions[index + 1]?.start ?? source.length;
+    }
+    const namespaceAt = (offset: number): string => {
+      const braced = namespaceRegions.find((region) => region.braced && offset >= region.start && offset <= region.end);
+      if (braced) return braced.name;
+      return [...namespaceRegions].reverse().find((region) => !region.braced && offset >= region.start && offset < region.end)?.name ?? '';
+    };
+    const knownLegacyClass = (feature: typeof versionFeatures[number]): boolean => {
+      const name = feature.feature === 'mixed type' ? 'mixed' : feature.feature === 'never type' ? 'never' : undefined;
+      if (!name) return false;
+      const namespace = namespaceAt(feature.start);
+      const fqcn = namespace ? `${namespace}\\${name}` : name;
+      return parsed.declarations.some((declaration) => declaration.kind === 'class' && !declaration.anonymous
+        && declaration.fqcn.toLowerCase() === fqcn.toLowerCase())
+        || parsed.imports.some((item) => item.kind === 'class' && item.namespace.toLowerCase() === namespace.toLowerCase()
+          && item.alias.toLowerCase() === name);
+    };
+    diagnostics.push(...versionFeatures.filter((feature) => !knownLegacyClass(feature)).map((feature): Diagnostic => ({
       range: toRange(document, feature), severity: DiagnosticSeverity.Error, code: 'php.version.unsupported', source: 'SoPHP',
       message: diagnosticMessage(language, 'version', feature.feature, feature.minimumVersion, targetVersion),
     })));
+    for (const declaration of parsed.declarations) {
+      if (declaration.kind !== 'class' || declaration.anonymous) continue;
+      const name = declaration.name.toLowerCase();
+      if (name !== 'mixed' && name !== 'never') continue;
+      if (!isSyntaxAvailable(targetVersion, name === 'mixed' ? '8.0' : '8.1')) continue;
+      diagnostics.push({ range: toRange(document, declaration), severity: DiagnosticSeverity.Error,
+        code: 'php.syntax', source: 'SoPHP', message: diagnosticMessage(language, 'syntax') });
+    }
     if (effectiveErrors.length === 0 && isSyntaxAvailable(targetVersion, '8.5')) {
       const messageKeys: Record<'arrow' | 'non-static' | 'capture' | 'dynamic-first-class', DiagnosticMessageKey> = {
         arrow: 'constantArrow', 'non-static': 'constantNonStatic', capture: 'constantCapture', 'dynamic-first-class': 'constantDynamicCallable',

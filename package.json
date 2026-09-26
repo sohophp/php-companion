@@ -79,7 +79,7 @@
     "package:symfony": "pnpm --dir packages/php-companion-symfony package",
     "package:open-source-pack": "pnpm --dir packages/php-companion-extension-pack package",
     "package:all": "pnpm package && pnpm package:symfony && pnpm package:open-source-pack",
-    "candidate:alpha": "pnpm package:all && pnpm verify:vsix && node scripts/prepare-alpha-candidate.mjs",
+    "candidate:alpha": "node scripts/prepare-alpha-candidate.mjs --check-source && pnpm package:all && pnpm verify:vsix && node scripts/prepare-alpha-candidate.mjs",
     "alpha:preflight": "node scripts/alpha-preflight.mjs",
     "verify:vsix": "node scripts/verify-vsix.mjs",
     "verify:packages": "pnpm build:packages && node scripts/verify-package-tarballs.mjs",
@@ -105,7 +105,10 @@
   },
   "contributes": {
     "configurationDefaults": {
-      "php.suggest.basic": false
+      "php.suggest.basic": false,
+      "[php]": {
+        "editor.wordBasedSuggestions": "off"
+      }
     },
     "commands": [
       { "command": "phpCompanion.selectPhpVersion", "title": "%command.selectPhpVersion%", "category": "SoPHP" },

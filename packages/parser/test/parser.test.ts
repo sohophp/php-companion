@@ -6,6 +6,63 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('reports an anonymous missing delimiter before later PHP tokens', () => {
+    const source = '<?php function syntaxProbe(: void {}';
+    const parsed = parser.parse(source);
+    try {
+      const missing = source.indexOf(':');
+      expect(parsed.errors).toContainEqual({ start: missing, end: missing + 1 });
+    } finally { parsed.tree.delete(); }
+  });
+
+  it('recovers PHP 7 class names that later became native types without shifting source ranges', () => {
+    const source = '<?php namespace App; class mixed {} class never {} function accepts(mixed $value): never { return new never(); }';
+    const syntaxTree = parser.parseTree(source);
+    try {
+      expect(syntaxTree.rootNode.hasError).toBe(false);
+      const name = source.indexOf('class mixed') + 'class '.length;
+      const node = syntaxTree.rootNode.descendantForIndex(name, name + 'mixed'.length);
+      expect(source.slice(node.startIndex, node.endIndex)).toBe('mixed');
+    } finally { syntaxTree.delete(); }
+    const parsed = parser.parse(source);
+    try {
+      expect(parsed.errors).toEqual([]);
+      expect(parsed.declarations.map((item) => [item.name, item.fqcn, source.slice(item.start, item.end)])).toEqual([
+        ['mixed', 'App\\mixed', 'mixed'], ['never', 'App\\never', 'never'],
+      ]);
+      expect(parsed.callables.find((item) => item.name === 'accepts')?.parameters[0]?.type).toBe('mixed');
+    } finally { parsed.tree.delete(); }
+  });
+
+  it('recovers commented legacy declarations after a namespace statement', () => {
+    const source = '<?php namespace App; class /* legacy */ mixed {} final /* legacy */ class never {} function accepts(mixed $value): never { return new never(); }';
+    const parsed = parser.parse(source);
+    try {
+      expect(parsed.errors).toEqual([]);
+      expect(parsed.declarations.map((item) => item.name)).toEqual(['mixed', 'never']);
+    } finally { parsed.tree.delete(); }
+  });
+
+  it('keeps legacy class recovery scoped to declarations and supports incremental edits', () => {
+    for (const declaration of ['final class mixed extends Base', 'abstract class never implements I',
+      'class /* legacy */ mixed', 'final /* legacy */ class never',
+      'class // legacy\nmixed', 'final # legacy\nclass never']) {
+      const source = `<?php // class never is a comment\n$text = "class mixed"; ${declaration} {}`;
+      const parsed = parser.parse(source);
+      try {
+        expect(parsed.errors).toEqual([]);
+        expect(parsed.declarations).toHaveLength(1);
+        expect(source.slice(parsed.declarations[0]!.start, parsed.declarations[0]!.end))
+          .toBe(declaration.includes('mixed') ? 'mixed' : 'never');
+        const changed = source.replace(declaration, declaration.replace(/\b(?:mixed|never)\b/u, 'Normal'));
+        parsed.tree.edit(createIncrementalEdit(source, changed));
+        const next = parser.parse(changed, parsed.tree);
+        try { expect(next.errors).toEqual([]); expect(next.declarations.map((item) => item.name)).toEqual(['Normal']); }
+        finally { next.tree.delete(); }
+      } finally { parsed.tree.delete(); }
+    }
+  });
+
   it('distinguishes string type keywords from string expressions when extracting facts', () => {
     const source = '<?php function format(string $value): string { return "literal"; }';
     const parsed = parser.parse(source);
@@ -550,7 +607,37 @@ class Child extends ParentBase implements Contract {
       ['$item', expect.objectContaining({ kind: 'variable', variable: '$users', part: 'value', start: 98, end: 104 })],
       ['$order', expect.objectContaining({ kind: 'member', variable: '$entity', member: 'orders', memberKind: 'property', part: 'value', start: 151, end: 166 })],
     ]);
+    expect(result.assignments.find((item) => item.variable === '$key')).toMatchObject({
+      variable: '$key', scopeId: 'run', validRange: expect.any(Object),
+    });
     result.tree.delete();
+  });
+  it('records bound variables from array and list destructuring without treating keys as bindings', () => {
+    const source = `<?php function unpack(array $tuple): void {
+      [$first, $second] = $tuple;
+      list($legacy) = $tuple;
+      ['id' => $id, [$nested]] = $tuple;
+      [$lookup => $value] = $tuple;
+      [$reference, &$alias] = $tuple;
+    }`;
+    const result = parser.parse(source);
+    try {
+      expect(result.assignments.map((item) => item.variable)).toEqual([
+        '$first', '$second', '$legacy', '$id', '$nested', '$value', '$reference', '$alias',
+      ]);
+      expect(result.assignments.every((item) => item.scopeId === 'unpack')).toBe(true);
+      expect(result.assignments.find((item) => item.variable === '$first')?.end).toBe(source.indexOf(' = $tuple;') + ' = $tuple'.length);
+    } finally { result.tree.delete(); }
+  });
+  it('records function global and static declarations as scoped variable sources', () => {
+    const source = '<?php function first(): void { global $shared, $other; static $cache = [], $count = 0; $sha; $cac; } function second(): void { $sha; }';
+    const result = parser.parse(source);
+    try {
+      expect(result.assignments.map((item) => [item.variable, item.scopeId])).toEqual([
+        ['$shared', 'first'], ['$other', 'first'], ['$cache', 'first'], ['$count', 'first'],
+      ]);
+      expect(result.assignments.every((item) => item.end <= source.indexOf('$sha;'))).toBe(true);
+    } finally { result.tree.delete(); }
   });
   it('records a bounded foreach collection expression for semantic proof', () => {
     const source = '<?php function run($repo): void { foreach ($repo->query()->getResult() as $item) { $item->name(); } }';
@@ -1037,7 +1124,8 @@ class Child extends ParentBase implements Contract {
       protected static int $count = 1;
       public private(set) static string $token = 'ready';
       public const string KIND = 'user';
-      public function __construct(private Address $address, public final string $id) {}
+      public function __construct(private Address $address, public final string $id,
+        public /* final */ string $label) {}
     }`);
     expect(result.properties).toMatchObject([
       { name: 'profile', fqcn: 'App\\User::$profile', type: '?Profile', visibility: 'public', static: false, readonly: true, promoted: false },
@@ -1046,6 +1134,7 @@ class Child extends ParentBase implements Contract {
       { name: 'token', type: 'string', defaultValue: "'ready'", visibility: 'public', writeVisibility: 'private', static: true },
       { name: 'address', type: 'Address', defaultValue: undefined, visibility: 'private', promoted: true },
       { name: 'id', type: 'string', visibility: 'public', final: true, promoted: true },
+      { name: 'label', type: 'string', visibility: 'public', final: false, promoted: true },
     ]);
     expect(result.constants).toMatchObject([{ name: 'KIND', fqcn: 'App\\User::KIND', type: 'string', value: "'user'", visibility: 'public', global: false }]);
     result.tree.delete();

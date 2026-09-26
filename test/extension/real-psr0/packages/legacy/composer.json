@@ -1,0 +1,9 @@
+{
+  "name": "sohophp/legacy-psr0-fixture",
+  "description": "Local installed dependency with Composer PSR-0 autoloading",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-0": { "Legacy_": "src/" }
+  }
+}

@@ -61,15 +61,20 @@ function snapshotSources(root: string, documents: readonly SemanticProviderDocum
 }
 
 async function bundleRoots(root: string, parser: PhpSyntaxParser, projectTypes: readonly SemanticProviderProjectType[],
-  mappings: readonly Psr4Mapping[], sources: Map<string, string>, inputPaths: Set<string>): Promise<Map<string, BundleRoot>> {
+  mappings: readonly Psr4Mapping[], sources: Map<string, string>, inputPaths: Set<string>, markIncomplete: (inputEvidenceIncomplete: boolean) => void): Promise<Map<string, BundleRoot>> {
   const sourceFor = async (path: string): Promise<string> => {
     inputPaths.add(resolve(path)); return sources.get(resolve(path)) ?? readFile(path, 'utf8');
   };
   const registrations: SymfonyBundleRegistrationFact[] = [];
   for (const filename of ['config/bundles.php', 'src/Kernel.php', 'app/AppKernel.php']) {
     const path = resolve(root, filename);
-    try { registrations.push(...analyzeSymfonyBundleRegistrations(parser, pathToFileURL(path).toString(), await sourceFor(path)).bundles); }
-    catch { /* A project can omit either registration convention. */ }
+    try {
+      const facts = analyzeSymfonyBundleRegistrations(parser, pathToFileURL(path).toString(), await sourceFor(path));
+      if (!facts.complete) markIncomplete(false);
+      registrations.push(...facts.bundles);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') markIncomplete(true);
+    }
   }
   const classPath = async (fqcn: string): Promise<string | undefined> => {
     const candidates = [...projectTypes.filter((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()).map((item) => item.path),
@@ -174,7 +179,8 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
     inputPaths.add(resolve(path)); return sources.get(resolve(path)) ?? readFile(path, 'utf8');
   };
   const project = await loadComposerProject(root); const mappings = project ? allPsr4Mappings(project) : [];
-  const roots = await bundleRoots(root, parser, options.projectTypes, mappings, sources, inputPaths);
+  const roots = await bundleRoots(root, parser, options.projectTypes, mappings, sources, inputPaths,
+    (inputEvidenceIncomplete) => { complete = false; if (inputEvidenceIncomplete) inputEvidenceComplete = false; });
   const catalog: SymfonyServiceFact[] = []; const methodArguments: SymfonyCompiledMethodArgumentFact[] = [];
   const propertyArguments: SymfonyCompiledPropertyArgumentFact[] = []; const parameters: Array<{ id: string; uri: string; start: number; end: number }> = [];
   const configuredPaths = new Set<string>();
@@ -219,7 +225,7 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
   };
   for (const filename of [...XML_CONFIGS, ...YAML_CONFIGS, ...PHP_CONFIGS]) await load(resolve(root, filename));
   const services = [...new Map(catalog.map((service) => [`${service.registrationUri}\0${service.id}`, service])).values()];
-  return { complete, services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
+  return { complete: complete && inputEvidenceComplete, services, parameters: [...new Map(parameters.map((parameter) => [`${parameter.uri}\0${parameter.start}\0${parameter.end}`, parameter])).values()],
     methodArguments, propertyArguments, literalMethodReturns: symfonyContainerMethodReturnFacts(services),
     inputUris: [...inputPaths].sort().map((path) => pathToFileURL(path).toString()),
     inputEvidenceComplete,

@@ -1,6 +1,7 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
-import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUnsavedReceiverSuggestion, measureVisibleSuggestion } from './c1Ui.js';
+import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUnsavedReceiverSuggestion, measureVisibleInstalledPsr0Type, measureVisibleSuggestion,
+  measureVisibleTypeSuggestion } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -63,6 +64,36 @@ async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
     inventoryMs: timings.candidateInventory?.at(-1), indexMs: timings.candidateIndex?.at(-1),
     serverRssMiB: memory.rss === undefined ? undefined : Math.round(memory.rss / 1048576),
     candidateEpochRetries: timings.candidateEpochRetry?.length ?? 0 })}`);
+  const warmRounds = Number(process.env.PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS ?? 0);
+  if (warmRounds) {
+    assert.ok(Number.isSafeInteger(warmRounds) && warmRounds > 0 && warmRounds <= 200);
+    const locations = (items: vscode.Location[]): string[] => items.map((item) =>
+      `${item.uri.toString()}:${item.range.start.line}:${item.range.start.character}:${item.range.end.line}:${item.range.end.character}`).sort();
+    const expected = locations(result);
+    const commandMs: number[] = [];
+    for (let round = 0; round < warmRounds; round += 1) {
+      const warmStarted = performance.now();
+      const warm = kind === 'references'
+        ? await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', uri, call)
+        : await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeImplementationProvider', uri, call);
+      commandMs.push(performance.now() - warmStarted);
+      assert.deepStrictEqual(locations(warm ?? []), expected, `Warm ${kind} changed locations in round ${round}.`);
+    }
+    const sorted = commandMs.sort((left, right) => left - right);
+    const warmTimings = await requestLanguageServer<Record<string, number[]>>('phpCompanion/testQueryTimings', { reset: false });
+    const warmMemory = await requestLanguageServer<{ rss?: number }>('phpCompanion/testMemoryUsage', {});
+    const timingSummary = (name: string): { count: number; medianMs?: number; p95Ms?: number; maxMs?: number } => {
+      const values = [...(warmTimings[name] ?? [])].slice(-warmRounds).sort((left, right) => left - right);
+      return { count: values.length, medianMs: values[Math.ceil(values.length * 0.5) - 1],
+        p95Ms: values[Math.ceil(values.length * 0.95) - 1], maxMs: values.at(-1) };
+    };
+    console.log(`C1 warm ${kind} after cold: ${JSON.stringify({ rounds: warmRounds,
+      medianMs: Math.round(sorted[Math.ceil(warmRounds * 0.5) - 1]!),
+      p95Ms: Math.round(sorted[Math.ceil(warmRounds * 0.95) - 1]!), maxMs: Math.round(sorted.at(-1)!),
+      server: timingSummary(kind), scan: timingSummary(`${kind}Scan`),
+      freshness: timingSummary('methodReferenceFreshnessTotal'), candidateIndex: timingSummary('candidateIndex'),
+      serverRssMiB: warmMemory.rss === undefined ? undefined : Math.round(warmMemory.rss / 1048576) })}`);
+  }
 }
 
 async function verifyRealComposerVendor(requestLanguageServer: <T>(method: string, params: unknown) => Promise<T>): Promise<void> {
@@ -288,6 +319,19 @@ export async function run(): Promise<void> {
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load in the isolated Extension Host.');
   await extension.activate();
+  if (process.env.PHP_COMPANION_TEST_C1_OPEN_SOURCE_PROFILE === '1') {
+    for (const id of ['sohophp.php-companion', 'sohophp.php-companion-symfony', 'sohophp.php-companion-open-source-pack',
+      'sohophp.twig-plus', 'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug', 'junstyle.php-cs-fixer',
+      'editorconfig.editorconfig', 'eiminsasete.apacheconf-snippets', 'neilbrayfield.php-docblocker']) {
+      assert.ok(vscode.extensions.getExtension(id), `The C1 Open Source Pack profile is missing ${id}.`);
+    }
+    assert.ok(!vscode.extensions.getExtension('bmewburn.vscode-intelephense-client')
+      && !vscode.extensions.getExtension('symfony.language-tools'),
+    'The C1 Open Source Pack profile contains a competing PHP or Symfony language server.');
+    assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: workspace.uri, languageId: 'php' })
+      .get('defaultFormatter'), 'junstyle.php-cs-fixer',
+    'The C1 Open Source Pack profile lost the PHP formatter while setting completion defaults.');
+  }
   const timingApi = extension.exports as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(timingApi.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
   const coldQuery = process.env.PHP_COMPANION_TEST_C1_COLD_QUERY;
@@ -306,6 +350,184 @@ export async function run(): Promise<void> {
     'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
   const folder = vscode.Uri.joinPath(workspace.uri, 'src', 'C1');
   await vscode.workspace.fs.createDirectory(folder);
+  assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
+    languageId: 'php' }).get('wordBasedSuggestions'), 'off',
+    'PHP variable suggestions should come from SoPHP with PHP scope ownership.');
+  const localWordSource = '<?php function c1LocalWord(): void { $customerName = "Ada"; $cust }';
+  const localWordUri = vscode.Uri.joinPath(folder, 'C1LocalWord.php');
+  await vscode.workspace.fs.writeFile(localWordUri, Buffer.from(localWordSource));
+  const localWordDocument = await vscode.workspace.openTextDocument(localWordUri);
+  await vscode.window.showTextDocument(localWordDocument);
+  const localWordSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    localWordUri, localWordDocument.positionAt(localWordSource.indexOf('$cust }') + '$cust'.length));
+  assert.ok(localWordSuggestions?.items.some((item) => item.label === 'customerName' || item.label === '$customerName'),
+    'PHP no longer suggests a variable word from the current file.');
+  const middleWordSource = '<?php function c1MiddleWord(): void { $customerName = "Ada"; $custOldTail; }';
+  const middleWordUri = vscode.Uri.joinPath(folder, 'C1MiddleWord.php');
+  await vscode.workspace.fs.writeFile(middleWordUri, Buffer.from(middleWordSource));
+  const middleWordDocument = await vscode.workspace.openTextDocument(middleWordUri);
+  await vscode.window.showTextDocument(middleWordDocument);
+  const middleWordStart = middleWordSource.indexOf('$custOldTail;');
+  const middleWordSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    middleWordUri, middleWordDocument.positionAt(middleWordStart + '$cust'.length));
+  const middleWordItem = middleWordSuggestions?.items.find((item) => item.label === '$customerName');
+  assert.ok(middleWordItem, 'PHP did not suggest the visible variable when the cursor was inside another variable token.');
+  const middleWordRange = middleWordItem.range instanceof vscode.Range ? middleWordItem.range : middleWordItem.range?.replacing;
+  assert.ok(middleWordRange, 'PHP variable completion did not provide a replacement range.');
+  assert.strictEqual(middleWordDocument.offsetAt(middleWordRange.start), middleWordStart);
+  assert.strictEqual(middleWordDocument.offsetAt(middleWordRange.end), middleWordStart + '$custOldTail'.length,
+    'PHP variable completion left the existing suffix outside its replacement range.');
+  const middleWordEdit = new vscode.WorkspaceEdit();
+  middleWordEdit.replace(middleWordUri, middleWordRange, '$customerName');
+  assert.ok(await vscode.workspace.applyEdit(middleWordEdit));
+  assert.strictEqual(middleWordDocument.getText(), middleWordSource.replace('$custOldTail;', '$customerName;'),
+    'Accepting PHP variable completion left the old variable suffix in the document.');
+  const scopedWordSource = '<?php function c1First(): void { $otherFunctionSecret = 1; } function c1Second(): void { $otherFunctionSec; }';
+  const scopedWordUri = vscode.Uri.joinPath(folder, 'C1ScopedWord.php');
+  await vscode.workspace.fs.writeFile(scopedWordUri, Buffer.from(scopedWordSource));
+  const scopedWordDocument = await vscode.workspace.openTextDocument(scopedWordUri);
+  await vscode.window.showTextDocument(scopedWordDocument);
+  const scopedWordSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    scopedWordUri, scopedWordDocument.positionAt(scopedWordSource.indexOf('$otherFunctionSec;') + '$otherFunctionSec'.length));
+  assert.ok(!scopedWordSuggestions?.items.some((item) => item.label === 'otherFunctionSecret' || item.label === '$otherFunctionSecret'),
+    'PHP suggested a local variable from a different function in the current file.');
+  const colonWordSource = `<?php function c1ColonConsume(string $value): void {}
+function c1ColonWords(string $username, bool $flag): void {
+  c1ColonConsume(value:$user);
+  $result = $flag ? 'fallback' :$user;
+}`;
+  const colonWordUri = vscode.Uri.joinPath(folder, 'C1ColonWords.php');
+  await vscode.workspace.fs.writeFile(colonWordUri, Buffer.from(colonWordSource));
+  const colonWordDocument = await vscode.workspace.openTextDocument(colonWordUri);
+  await vscode.window.showTextDocument(colonWordDocument);
+  for (const marker of ['value:$user', ':$user;']) {
+    const offset = colonWordSource.indexOf(marker) + marker.length - (marker.endsWith(';') ? 1 : 0);
+    const suggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      colonWordUri, colonWordDocument.positionAt(offset));
+    assert.ok(suggestions?.items.some((item) => item.label === '$username'),
+      `PHP did not suggest the local variable after the colon in ${marker}`);
+  }
+  const arrowWordSource = '<?php function c1Arrow(string $customer): void { $customerName = $customer; $read = fn () => $cust; }';
+  const arrowWordUri = vscode.Uri.joinPath(folder, 'C1ArrowWord.php');
+  await vscode.workspace.fs.writeFile(arrowWordUri, Buffer.from(arrowWordSource));
+  const arrowWordDocument = await vscode.workspace.openTextDocument(arrowWordUri);
+  await vscode.window.showTextDocument(arrowWordDocument);
+  const arrowWordSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    arrowWordUri, arrowWordDocument.positionAt(arrowWordSource.indexOf('$cust;') + '$cust'.length));
+  assert.ok(arrowWordSuggestions?.items.some((item) => item.label === '$customerName'),
+    'PHP arrow function no longer suggests a visible captured local variable.');
+  const nestedWordSource = `<?php class C1NestedWords {
+  public function run(array $rows): void {
+    foreach ($rows as $entryKey => $entryValue) { $entryK; }
+    $bound = function () { $thi; };
+    $unbound = static function () { $thi; };
+    [$firstPart, $secondPart] = $rows; $firstP;
+    list($legacyPart) = $rows; $legacyP;
+    global $sharedThing; static $cachedThing = []; $shar; $cach;
+  }
+}`;
+  const nestedWordUri = vscode.Uri.joinPath(folder, 'C1NestedWords.php');
+  await vscode.workspace.fs.writeFile(nestedWordUri, Buffer.from(nestedWordSource));
+  const nestedWordDocument = await vscode.workspace.openTextDocument(nestedWordUri);
+  await vscode.window.showTextDocument(nestedWordDocument);
+  const nestedSuggestions = async (offset: number): Promise<vscode.CompletionItem[]> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', nestedWordUri, nestedWordDocument.positionAt(offset)))?.items ?? [];
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$entryK;') + '$entryK'.length))
+    .some((item) => item.label === '$entryKey'), 'PHP foreach key variable was missing from scoped completion.');
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$thi;') + '$thi'.length))
+    .some((item) => item.label === '$this'), 'PHP bound closure lost the $this suggestion.');
+  assert.ok(!(await nestedSuggestions(nestedWordSource.lastIndexOf('$thi;') + '$thi'.length))
+    .some((item) => item.label === '$this'), 'PHP static closure incorrectly suggested $this.');
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$firstP;') + '$firstP'.length))
+    .some((item) => item.label === '$firstPart'), 'PHP short-array destructuring variable was missing from scoped completion.');
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$legacyP;') + '$legacyP'.length))
+    .some((item) => item.label === '$legacyPart'), 'PHP list destructuring variable was missing from scoped completion.');
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$shar;') + '$shar'.length))
+    .some((item) => item.label === '$sharedThing'), 'PHP global declaration variable was missing from scoped completion.');
+  assert.ok((await nestedSuggestions(nestedWordSource.indexOf('$cach;') + '$cach'.length))
+    .some((item) => item.label === '$cachedThing'), 'PHP static local variable was missing from scoped completion.');
+  if (process.env.PHP_COMPANION_TEST_C1_LEGACY_TYPE_NAMES === '1') {
+    assert.ok(targetPhpVersion === '7.2' || targetPhpVersion === '7.4',
+      'Legacy native-name class probe requires a PHP 7.2 or 7.4 target.');
+    const legacySource = `<?php namespace App\\C1;
+class mixed { public function ready(): void {} }
+class never {}
+function useLegacy(mixed $value): never { $value->ready(); return new never(); }`;
+    const legacyUri = vscode.Uri.joinPath(folder, 'LegacyNativeNames.php');
+    await vscode.workspace.fs.writeFile(legacyUri, Buffer.from(legacySource));
+    const legacyDocument = await vscode.workspace.openTextDocument(legacyUri);
+    await vscode.window.showTextDocument(legacyDocument);
+    for (const name of ['mixed', 'never'] as const) {
+      const declarationOffset = legacySource.indexOf(`class ${name}`) + 'class '.length;
+      const typeOffset = legacySource.indexOf(name, legacySource.indexOf('function useLegacy'));
+      const definitions = await waitForResult(
+        () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', legacyUri,
+          legacyDocument.positionAt(typeOffset + 1)),
+        (result) => result?.some((location) => location.uri.toString() === legacyUri.toString()
+          && location.range.start.isEqual(legacyDocument.positionAt(declarationOffset))) === true,
+        `SoPHP did not navigate to the PHP 7 ${name} class declaration.`,
+      );
+      assert.ok(definitions.length > 0);
+    }
+    const legacyDiagnostics = vscode.languages.getDiagnostics(legacyUri);
+    assert.ok(!legacyDiagnostics.some((diagnostic) => diagnostic.code === 'php.syntax'
+      || diagnostic.code === 'php.version.unsupported'),
+    `SoPHP reported a false PHP ${targetPhpVersion} error for legacy class names: ${JSON.stringify(legacyDiagnostics)}`);
+    const commentedSource = `<?php namespace App\\C1\\Commented;
+class /* legacy */ mixed {}
+final /* legacy */ class never {}
+function useCommented(mixed $value): never { return new never(); }`;
+    const commentedUri = vscode.Uri.joinPath(folder, 'CommentedLegacyNames.php');
+    await vscode.workspace.fs.writeFile(commentedUri, Buffer.from(commentedSource));
+    const commentedDocument = await vscode.workspace.openTextDocument(commentedUri);
+    await vscode.window.showTextDocument(commentedDocument);
+    for (const name of ['mixed', 'never'] as const) {
+      const declarationOffset = commentedSource.indexOf(`${name} {}`);
+      const typeOffset = commentedSource.indexOf(name, commentedSource.indexOf('function useCommented'));
+      await waitForResult(
+        () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', commentedUri,
+          commentedDocument.positionAt(typeOffset + 1)),
+        (result) => result?.some((location) => location.uri.toString() === commentedUri.toString()
+          && location.range.start.isEqual(commentedDocument.positionAt(declarationOffset))) === true,
+        `SoPHP did not navigate to the commented PHP 7 ${name} class declaration.`,
+      );
+    }
+    assert.ok(!vscode.languages.getDiagnostics(commentedUri).some((diagnostic) => diagnostic.code === 'php.syntax'
+      || diagnostic.code === 'php.version.unsupported'),
+    `SoPHP reported a false PHP ${targetPhpVersion} error for commented legacy class declarations.`);
+    const renamedDeclaration = new vscode.WorkspaceEdit();
+    const oldDeclaration = legacySource.indexOf('class mixed') + 'class '.length;
+    renamedDeclaration.replace(legacyUri,
+      new vscode.Range(legacyDocument.positionAt(oldDeclaration), legacyDocument.positionAt(oldDeclaration + 'mixed'.length)),
+      'LegacyMixed');
+    assert.ok(await vscode.workspace.applyEdit(renamedDeclaration));
+    await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(legacyUri)),
+      (result) => result.some((diagnostic) => diagnostic.code === 'php.version.unsupported'
+        && diagnostic.message.includes('mixed type')),
+      `SoPHP did not refresh PHP ${targetPhpVersion} diagnostics after the legacy class was renamed without saving.`,
+    );
+    const renamedReference = new vscode.WorkspaceEdit();
+    const oldType = legacyDocument.getText().indexOf('mixed $value');
+    renamedReference.replace(legacyUri,
+      new vscode.Range(legacyDocument.positionAt(oldType), legacyDocument.positionAt(oldType + 'mixed'.length)),
+      'LegacyMixed');
+    assert.ok(await vscode.workspace.applyEdit(renamedReference));
+    const edited = legacyDocument.getText();
+    const newDeclaration = edited.indexOf('class LegacyMixed') + 'class '.length;
+    const newType = edited.indexOf('LegacyMixed $value');
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', legacyUri,
+        legacyDocument.positionAt(newType + 1)),
+      (result) => result?.some((location) => location.uri.toString() === legacyUri.toString()
+        && location.range.start.isEqual(legacyDocument.positionAt(newDeclaration))) === true,
+      `SoPHP kept the old PHP ${targetPhpVersion} class navigation after an unsaved rename.`,
+    );
+    assert.ok(!vscode.languages.getDiagnostics(legacyUri).some((diagnostic) => diagnostic.code === 'php.version.unsupported'
+      && diagnostic.message.includes('mixed type')),
+    `SoPHP kept the old PHP ${targetPhpVersion} mixed-type diagnostic after the reference was updated.`);
+    console.log(`C1 PHP ${targetPhpVersion} legacy mixed/never navigation and unsaved diagnostic transition passed.`);
+  }
   const contractSource = '<?php namespace App\\C1; interface C1Contract { public function renderC1(int $count): string; }';
   const printerSource = '<?php namespace App\\C1; final class C1Printer implements C1Contract { public function renderC1(int $count): string { return (string) $count; } }';
   const otherSource = '<?php namespace App\\C1; final class C1Other { public function renderC1(): void {} }';
@@ -402,6 +624,328 @@ export async function run(): Promise<void> {
   );
   assert.strictEqual(builtinCompletion.items.filter((item) => item.label === 'abs').length, 1,
     'PHP built-in completion was returned by more than one provider.');
+  const typeSource = '<?php namespace App\\C1; function instantiate(): void { new C1TypeCompletionPro; }';
+  const typeUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionConsumer.php');
+  const typeDeclarationUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionProbe.php');
+  await vscode.workspace.fs.writeFile(typeDeclarationUri, Buffer.from('<?php namespace App\\C1; class C1TypeCompletionProbe {}'));
+  await vscode.workspace.fs.writeFile(typeUri, Buffer.from(typeSource));
+  const typeDocument = await vscode.workspace.openTextDocument(typeUri);
+  await vscode.window.showTextDocument(typeDocument);
+  const typeCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', typeUri,
+      typeDocument.positionAt(typeSource.indexOf('C1TypeCompletionPro') + 'C1TypeCompletionPro'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1TypeCompletionProbe') === true,
+    'SoPHP did not complete a project class name in VS Code.',
+  );
+  assert.strictEqual(typeCompletion.items.filter((item) => item.label === 'C1TypeCompletionProbe').length, 1,
+    'Project class completion was returned more than once.');
+  const externalFolder = vscode.Uri.joinPath(folder, 'External');
+  await vscode.workspace.fs.createDirectory(externalFolder);
+  const externalTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalTypeProbe.php');
+  await vscode.workspace.fs.writeFile(externalTypeUri, Buffer.from('<?php namespace App\\C1\\External; class C1ExternalTypeProbe {}'));
+  const externalTypeSource = '<?php namespace App\\C1; function externalType(): void { new C1ExternalTypePro; }';
+  const externalTypeConsumerUri = vscode.Uri.joinPath(folder, 'C1ExternalTypeConsumer.php');
+  await vscode.workspace.fs.writeFile(externalTypeConsumerUri, Buffer.from(externalTypeSource));
+  const externalTypeDocument = await vscode.workspace.openTextDocument(externalTypeConsumerUri);
+  await vscode.window.showTextDocument(externalTypeDocument);
+  const externalTypeCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', externalTypeConsumerUri,
+      externalTypeDocument.positionAt(externalTypeSource.indexOf('C1ExternalTypePro') + 'C1ExternalTypePro'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.additionalTextEdits?.some((entry) => entry.newText.includes('use App\\C1\\External\\C1ExternalTypeProbe;'))) === true,
+    'SoPHP did not offer a cross-namespace class with its import in VS Code.',
+  );
+  assert.strictEqual(externalTypeCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1,
+    'Cross-namespace class completion was returned more than once.');
+  const namespaceImportSource = '<?php namespace App\\C1; use Ap; class NamespaceImportConsumer {}';
+  const namespaceImportUri = vscode.Uri.joinPath(folder, 'C1NamespaceImportConsumer.php');
+  await vscode.workspace.fs.writeFile(namespaceImportUri, Buffer.from(namespaceImportSource));
+  const namespaceImportDocument = await vscode.workspace.openTextDocument(namespaceImportUri);
+  const namespaceImportEditor = await vscode.window.showTextDocument(namespaceImportDocument);
+  const namespaceImportOffset = namespaceImportSource.indexOf('use Ap') + 'use Ap'.length;
+  const namespaceImportCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namespaceImportUri,
+      namespaceImportDocument.positionAt(namespaceImportOffset)),
+    (result) => result?.items.some((item) => item.label === 'App\\' && item.kind === vscode.CompletionItemKind.Module) === true,
+    'SoPHP did not suggest the Composer PSR-4 root namespace after use Ap.',
+  );
+  assert.strictEqual(namespaceImportCompletion.items.filter((item) => item.label === 'App\\').length, 1);
+  namespaceImportEditor.selection = new vscode.Selection(namespaceImportDocument.positionAt(namespaceImportOffset),
+    namespaceImportDocument.positionAt(namespaceImportOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(namespaceImportDocument.getText(), namespaceImportSource.replace('use Ap;', 'use App\\;'),
+    'Accepting the Composer namespace suggestion did not finish the use prefix.');
+  const nestedNamespaceCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namespaceImportUri,
+      namespaceImportDocument.positionAt(namespaceImportDocument.getText().indexOf('use App\\') + 'use App\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1\\' && item.kind === vscode.CompletionItemKind.Module) === true,
+    'SoPHP did not offer the next Composer namespace segment after accepting App.',
+  );
+  assert.strictEqual(nestedNamespaceCompletion.items.filter((item) => item.label === 'C1\\').length, 1);
+  const namespacePathEdit = new vscode.WorkspaceEdit();
+  namespacePathEdit.insert(namespaceImportUri,
+    namespaceImportDocument.positionAt(namespaceImportDocument.getText().indexOf('use App\\') + 'use App\\'.length),
+    'C1\\External\\');
+  assert.ok(await vscode.workspace.applyEdit(namespacePathEdit));
+  const openImportText = namespaceImportDocument.getText();
+  const emptyClassCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namespaceImportUri,
+      namespaceImportDocument.positionAt(openImportText.indexOf('use App\\C1\\External\\') + 'use App\\C1\\External\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not offer a class immediately after the completed namespace path.',
+  );
+  assert.strictEqual(emptyClassCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1);
+  const manualImportSource = '<?php namespace App\\C1; use App\\C1\\External\\C1ExternalTypePro; class ManualImportConsumer {}';
+  const manualImportUri = vscode.Uri.joinPath(folder, 'C1ManualImportConsumer.php');
+  await vscode.workspace.fs.writeFile(manualImportUri, Buffer.from(manualImportSource));
+  const manualImportDocument = await vscode.workspace.openTextDocument(manualImportUri);
+  const manualImportEditor = await vscode.window.showTextDocument(manualImportDocument);
+  const manualImportCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', manualImportUri,
+      manualImportDocument.positionAt(manualImportSource.indexOf('External\\C1ExternalTypePro') + 'External\\C1ExternalTypePro'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not complete a hand-written qualified use import in VS Code.',
+  );
+  assert.strictEqual(manualImportCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1);
+  manualImportEditor.selection = new vscode.Selection(
+    manualImportDocument.positionAt(manualImportSource.indexOf('External\\C1ExternalTypePro') + 'External\\C1ExternalTypePro'.length),
+    manualImportDocument.positionAt(manualImportSource.indexOf('External\\C1ExternalTypePro') + 'External\\C1ExternalTypePro'.length));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(manualImportDocument.getText(), manualImportSource.replace('C1ExternalTypePro;', 'C1ExternalTypeProbe;'),
+    'Accepting the class suggestion did not finish the existing use statement exactly once.');
+  const groupImportSource = '<?php namespace App\\C1; use App\\C1\\External\\{C1ExternalTypePro}; class GroupImportConsumer {}';
+  const groupImportUri = vscode.Uri.joinPath(folder, 'C1GroupImportConsumer.php');
+  await vscode.workspace.fs.writeFile(groupImportUri, Buffer.from(groupImportSource));
+  const groupImportDocument = await vscode.workspace.openTextDocument(groupImportUri);
+  const groupImportEditor = await vscode.window.showTextDocument(groupImportDocument);
+  const groupImportOffset = groupImportSource.indexOf('{C1ExternalTypePro') + '{C1ExternalTypePro'.length;
+  const groupImportCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupImportUri,
+      groupImportDocument.positionAt(groupImportOffset)),
+    (result) => result?.items.filter((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe'
+      && !item.additionalTextEdits?.length).length === 1,
+    'SoPHP did not complete a class member in a hand-written group use.',
+  );
+  assert.strictEqual(groupImportCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1);
+  const groupItem = groupImportCompletion.items.find((item) => item.label === 'C1ExternalTypeProbe')!;
+  const groupRange = groupItem.range instanceof vscode.Range ? groupItem.range : groupItem.range?.replacing;
+  assert.ok(groupRange && groupImportDocument.getText(groupRange) === '{C1ExternalTypePro}'
+    && groupItem.insertText === '{C1ExternalTypeProbe}',
+  'The group use completion would lose its braces while replacing the member.');
+  groupImportEditor.selection = new vscode.Selection(groupImportDocument.positionAt(groupImportOffset),
+    groupImportDocument.positionAt(groupImportOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  assert.strictEqual(groupImportDocument.getText(), groupImportSource,
+    'Opening group use suggestions changed the source before any suggestion was accepted.');
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(groupImportDocument.getText(), groupImportSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
+    'Accepting the class suggestion did not finish the existing group use member exactly once.');
+  const laterGroupSource = groupImportSource.replace('{C1ExternalTypePro}', '{ExistingType, C1ExternalTypePro}')
+    .replace('GroupImportConsumer', 'LaterGroupImportConsumer');
+  const laterGroupUri = vscode.Uri.joinPath(folder, 'C1LaterGroupImportConsumer.php');
+  await vscode.workspace.fs.writeFile(laterGroupUri, Buffer.from(laterGroupSource));
+  const laterGroupDocument = await vscode.workspace.openTextDocument(laterGroupUri);
+  const laterGroupEditor = await vscode.window.showTextDocument(laterGroupDocument);
+  const laterGroupOffset = laterGroupSource.indexOf('C1ExternalTypePro}') + 'C1ExternalTypePro'.length;
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', laterGroupUri,
+      laterGroupDocument.positionAt(laterGroupOffset)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe') === true,
+    'SoPHP did not complete a later class member in a group use.',
+  );
+  laterGroupEditor.selection = new vscode.Selection(laterGroupDocument.positionAt(laterGroupOffset),
+    laterGroupDocument.positionAt(laterGroupOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(laterGroupDocument.getText(), laterGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
+    'Accepting a later group use member changed an earlier member or the braces.');
+  const alternateFolder = vscode.Uri.joinPath(folder, 'Alternative');
+  await vscode.workspace.fs.createDirectory(alternateFolder);
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(alternateFolder, 'C1ExternalTypeProbe.php'),
+    Buffer.from('<?php namespace App\\C1\\Alternative; class C1ExternalTypeProbe {}'));
+  const transitionSource = manualImportSource.replace('ManualImportConsumer', 'ManualImportTransition');
+  const transitionUri = vscode.Uri.joinPath(folder, 'C1ManualImportTransition.php');
+  await vscode.workspace.fs.writeFile(transitionUri, Buffer.from(transitionSource));
+  let transitionDocument = await vscode.workspace.openTextDocument(transitionUri);
+  await vscode.window.showTextDocument(transitionDocument);
+  const transitionCandidates = async (expectedNamespace: 'External' | 'Alternative'): Promise<vscode.CompletionList> => {
+    const text = transitionDocument.getText();
+    const prefix = `${expectedNamespace}\\C1ExternalTypePro`;
+    return waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', transitionUri,
+        transitionDocument.positionAt(text.indexOf(prefix) + prefix.length)),
+      (result) => result?.items.filter((item) => item.label === 'C1ExternalTypeProbe').length === 1
+        && result.items.some((item) => item.label === 'C1ExternalTypeProbe'
+          && item.detail === `App\\C1\\${expectedNamespace}\\C1ExternalTypeProbe`),
+      `SoPHP kept a stale manual import completion after switching to ${expectedNamespace}.`,
+    );
+  };
+  await transitionCandidates('External');
+  const pathEdit = new vscode.WorkspaceEdit();
+  const pathStart = transitionSource.indexOf('External\\C1ExternalTypePro');
+  pathEdit.replace(transitionUri, new vscode.Range(transitionDocument.positionAt(pathStart),
+    transitionDocument.positionAt(pathStart + 'External'.length)), 'Alternative');
+  assert.ok(await vscode.workspace.applyEdit(pathEdit), 'Could not switch the manual import without saving.');
+  assert.ok(transitionDocument.isDirty);
+  await transitionCandidates('Alternative');
+  await vscode.commands.executeCommand('workbench.action.files.revert');
+  assert.strictEqual(transitionDocument.getText(), transitionSource, 'Revert did not restore the on-disk manual import.');
+  await transitionCandidates('External');
+  await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  transitionDocument = await vscode.workspace.openTextDocument(transitionUri);
+  assert.strictEqual(transitionDocument.getText(), transitionSource);
+  await vscode.window.showTextDocument(transitionDocument);
+  await transitionCandidates('External');
+  if (/^8\./.test(targetPhpVersion ?? runtimeVersion ?? '')) {
+    const compositeSource = '<?php namespace App\\C1; '
+      + 'function acceptComposite(int|C1ExternalTypePro $value): void {} '
+      + 'function returnComposite(): int|C1ExternalTypePro {} '
+      + 'function acceptMapped(#[MapRequestPayload(validationGroups: ["create", "write"])] C1ExternalTypePro $value): void {} '
+      + 'class CompositeHolder { public Countable&C1ExternalTypePro $value; }';
+    const compositeUri = vscode.Uri.joinPath(folder, 'C1CompositeTypeConsumer.php');
+    await vscode.workspace.fs.writeFile(compositeUri, Buffer.from(compositeSource));
+    const compositeDocument = await vscode.workspace.openTextDocument(compositeUri);
+    await vscode.window.showTextDocument(compositeDocument);
+    for (const marker of ['int|C1ExternalTypePro $value', 'int|C1ExternalTypePro {}',
+      '] C1ExternalTypePro $value',
+      'Countable&C1ExternalTypePro $value']) {
+      const position = compositeDocument.positionAt(compositeSource.indexOf(marker) + marker.indexOf('C1ExternalTypePro')
+        + 'C1ExternalTypePro'.length);
+      const result = await waitForResult(
+        () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', compositeUri, position),
+        (list) => list?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+          && item.additionalTextEdits?.some((entry) => entry.newText.includes('use App\\C1\\External\\C1ExternalTypeProbe;'))) === true,
+        `SoPHP did not complete and import the class in ${marker}.`,
+      );
+      assert.strictEqual(result.items.filter((item) => item.label === 'C1ExternalTypeProbe'
+        && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe').length, 1);
+    }
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_SOURCE_CLASSMAP === '1') {
+    const classmapProject = vscode.Uri.joinPath(workspace.uri, 'c1-classmap-project');
+    const classmapDirectory = vscode.Uri.joinPath(classmapProject, 'legacy');
+    await vscode.workspace.fs.createDirectory(classmapDirectory);
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(classmapProject, 'composer.json'), Buffer.from(JSON.stringify({
+      autoload: { classmap: ['legacy/'] },
+    })));
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(classmapDirectory, 'Bundle.php'), Buffer.from(
+      '<?php namespace Legacy\\Host; class C1ClassmapTypeProbe {}'));
+    const classmapSource = '<?php namespace Consumer; function useClassmap(): void { new C1ClassmapTypePro; }';
+    const classmapConsumerUri = vscode.Uri.joinPath(classmapProject, 'Consumer.php');
+    await vscode.workspace.fs.writeFile(classmapConsumerUri, Buffer.from(classmapSource));
+    const classmapDocument = await vscode.workspace.openTextDocument(classmapConsumerUri);
+    await vscode.window.showTextDocument(classmapDocument);
+    const classmapCompletion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', classmapConsumerUri,
+        classmapDocument.positionAt(classmapSource.indexOf('C1ClassmapTypePro') + 'C1ClassmapTypePro'.length)),
+      (result) => result?.items.some((item) => item.label === 'C1ClassmapTypeProbe'
+        && item.additionalTextEdits?.some((entry) => entry.newText.includes('use Legacy\\Host\\C1ClassmapTypeProbe;'))) === true,
+      'SoPHP did not complete a class from an unopened Composer classmap file in VS Code.',
+    );
+    assert.strictEqual(classmapCompletion.items.filter((item) => item.label === 'C1ClassmapTypeProbe').length, 1);
+    const classmapImportSource = '<?php namespace Consumer; use Leg; class C1ClassmapImportConsumer {}';
+    const classmapImportUri = vscode.Uri.joinPath(classmapProject, 'ImportConsumer.php');
+    await vscode.workspace.fs.writeFile(classmapImportUri, Buffer.from(classmapImportSource));
+    const classmapImportDocument = await vscode.workspace.openTextDocument(classmapImportUri);
+    const classmapImportEditor = await vscode.window.showTextDocument(classmapImportDocument);
+    const classmapImportOffset = classmapImportSource.indexOf('use Leg') + 'use Leg'.length;
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', classmapImportUri,
+        classmapImportDocument.positionAt(classmapImportOffset)),
+      (result) => result?.items.some((item) => item.label === 'Legacy\\' && item.kind === vscode.CompletionItemKind.Module) === true,
+      'SoPHP did not suggest a classmap namespace from the declaration in VS Code.',
+    );
+    classmapImportEditor.selection = new vscode.Selection(classmapImportDocument.positionAt(classmapImportOffset),
+      classmapImportDocument.positionAt(classmapImportOffset));
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+    await vscode.commands.executeCommand('acceptSelectedSuggestion');
+    assert.strictEqual(classmapImportDocument.getText(), classmapImportSource.replace('use Leg;', 'use Legacy\\;'),
+      'Accepting the classmap namespace suggestion did not finish the use prefix.');
+    const classmapImportText = classmapImportDocument.getText();
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', classmapImportUri,
+        classmapImportDocument.positionAt(classmapImportText.indexOf('use Legacy\\') + 'use Legacy\\'.length)),
+      (result) => result?.items.some((item) => item.label === 'Host\\' && item.kind === vscode.CompletionItemKind.Module) === true,
+      'SoPHP did not suggest the nested classmap namespace in VS Code.',
+    );
+
+    const psr0Project = vscode.Uri.joinPath(workspace.uri, 'c1-psr0-project');
+    const psr0Directory = vscode.Uri.joinPath(psr0Project, 'legacy', 'Legacy');
+    await vscode.workspace.fs.createDirectory(psr0Directory);
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(psr0Project, 'composer.json'), Buffer.from(JSON.stringify({
+      autoload: { 'psr-0': { 'Legacy_': 'legacy/' } },
+    })));
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(psr0Directory, 'C1Psr0TypeProbe.php'), Buffer.from(
+      '<?php class Legacy_C1Psr0TypeProbe {}'));
+    const wrongPsr0Uri = vscode.Uri.joinPath(psr0Project, 'legacy', 'Wrong.php');
+    await vscode.workspace.fs.writeFile(wrongPsr0Uri, Buffer.from(
+      '<?php class Legacy_C1Psr0WrongProbe {}'));
+    const psr0Source = '<?php namespace Consumer; function usePsr0(): void { new Legacy_C1Psr0TypePro; new Legacy_C1Psr0WrongPro; }';
+    const psr0ConsumerUri = vscode.Uri.joinPath(psr0Project, 'Consumer.php');
+    await vscode.workspace.fs.writeFile(psr0ConsumerUri, Buffer.from(psr0Source));
+    const psr0Document = await vscode.workspace.openTextDocument(psr0ConsumerUri);
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(wrongPsr0Uri));
+    await vscode.window.showTextDocument(psr0Document);
+    const psr0Completion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', psr0ConsumerUri,
+        psr0Document.positionAt(psr0Source.indexOf('Legacy_C1Psr0TypePro') + 'Legacy_C1Psr0TypePro'.length)),
+      (result) => result?.items.some((item) => item.label === 'Legacy_C1Psr0TypeProbe'
+        && item.additionalTextEdits?.some((entry) => entry.newText.includes('use Legacy_C1Psr0TypeProbe;'))) === true,
+      'SoPHP did not complete an unopened Composer PSR-0 class in VS Code.',
+    );
+    assert.strictEqual(psr0Completion.items.filter((item) => item.label === 'Legacy_C1Psr0TypeProbe').length, 1);
+    const wrongPsr0Completion = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', psr0ConsumerUri,
+      psr0Document.positionAt(psr0Source.indexOf('Legacy_C1Psr0WrongPro') + 'Legacy_C1Psr0WrongPro'.length));
+    assert.ok(!wrongPsr0Completion?.items.some((item) => item.label === 'Legacy_C1Psr0WrongProbe'),
+      `SoPHP suggested a PSR-0 class from a path that Composer cannot load: ${JSON.stringify(
+        wrongPsr0Completion?.items.filter((item) => item.label === 'Legacy_C1Psr0WrongProbe'))}`);
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_PSR0_DEPENDENCY === '1') {
+    const psr0Project = vscode.Uri.joinPath(workspace.uri, 'c1-psr0-dependency');
+    const consumerUri = vscode.Uri.joinPath(psr0Project, 'src', 'Consumer.php');
+    const vendorUri = vscode.Uri.joinPath(psr0Project, 'vendor', 'sohophp', 'legacy-psr0-fixture',
+      'src', 'Legacy', 'Component', 'Widget.php');
+    const qualifiedSource = '<?php namespace Consumer; function navigate(): void { new \\Legacy_Component_Widget; }';
+    const qualifiedUri = vscode.Uri.joinPath(psr0Project, 'src', 'Qualified.php');
+    await vscode.workspace.fs.writeFile(qualifiedUri, Buffer.from(qualifiedSource));
+    const qualified = await vscode.workspace.openTextDocument(qualifiedUri);
+    await vscode.window.showTextDocument(qualified);
+    const definition = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', qualifiedUri,
+        qualified.positionAt(qualifiedSource.indexOf('Legacy_Component_Widget') + 8)),
+      (result) => result?.some((item) => item.uri.toString() === vendorUri.toString()) === true,
+      'SoPHP did not navigate cold to the installed Composer PSR-0 dependency.',
+    );
+    assert.ok(definition.every((item) => item.uri.toString() === vendorUri.toString()));
+    const consumer = await vscode.workspace.openTextDocument(consumerUri);
+    await vscode.window.showTextDocument(consumer);
+    const source = consumer.getText();
+    const completion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', consumerUri,
+        consumer.positionAt(source.indexOf('Legacy_Component_Wid') + 'Legacy_Component_Wid'.length)),
+      (result) => result?.items.some((item) => item.label === 'Legacy_Component_Widget'
+        && item.additionalTextEdits?.some((entry) => entry.newText.includes('use Legacy_Component_Widget;'))) === true,
+      'SoPHP did not complete the installed Composer PSR-0 dependency with its import.',
+    );
+    assert.strictEqual(completion.items.filter((item) => item.label === 'Legacy_Component_Widget').length, 1);
+  }
   const edit = new vscode.WorkspaceEdit();
   const receiverOffset = consumerSource.indexOf('C1Contract $value');
   edit.replace(consumerUri, new vscode.Range(document.positionAt(receiverOffset),
@@ -588,8 +1132,9 @@ function choose(int $value): int { return match ($value) { 1 => 1, default => 0 
 function consume(): void { (void) choose(1); }`;
     await vscode.workspace.fs.writeFile(versionUri, Buffer.from(versionSource));
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(versionUri));
-    const expected = firstTargetPhpVersion === '7.2' ? ['match expression', 'enum', '(void) cast']
-      : firstTargetPhpVersion === '8.1' ? ['(void) cast'] : [];
+    const expected = firstTargetPhpVersion.startsWith('7.') ? ['match expression', 'enum', '(void) cast']
+      : firstTargetPhpVersion === '8.0' ? ['enum', '(void) cast']
+        : firstTargetPhpVersion === '8.5' ? [] : ['(void) cast'];
     const diagnostics = await waitForResult(
       () => Promise.resolve(vscode.languages.getDiagnostics(versionUri)),
       (result) => result.some((item) => item.code === 'php.type.filename')
@@ -601,6 +1146,56 @@ function consume(): void { (void) choose(1); }`;
       `PHP ${firstTargetPhpVersion} did not report unsupported ${feature}.`);
     assert.strictEqual(versionMessages.length, expected.length, `PHP ${firstTargetPhpVersion} returned unexpected version diagnostics.`);
     assert.ok(!diagnostics.some((item) => item.code === 'php.syntax'), `PHP ${firstTargetPhpVersion} reported a parser error for the version fixture.`);
+    const syntaxEdgeUri = vscode.Uri.joinPath(folder, 'VersionSyntaxEdges.php');
+    const syntaxEdgeSource = `<?php namespace App\\C1;
+class C1VersionSyntaxMarker {}
+$label = "a|>b" . "c"; $total = 1 + /* |> */ 2;
+$text = "start"; $text .= "??="; $count = 1; $count += /* ??= */ 2;
+function accept(int $value): void {}
+accept(1, /* note */);`;
+    await vscode.workspace.fs.writeFile(syntaxEdgeUri, Buffer.from(syntaxEdgeSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(syntaxEdgeUri));
+    const edgeDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(syntaxEdgeUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename')
+        && (firstTargetPhpVersion !== '7.2' || result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes('trailing comma in a call'))),
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} syntax-edge diagnostics in VS Code.`,
+    );
+    const edgeVersions = edgeDiagnostics.filter((item) => item.code === 'php.version.unsupported');
+    assert.deepStrictEqual(edgeVersions.map((item) => item.message.includes('trailing comma in a call')),
+      firstTargetPhpVersion === '7.2' ? [true] : [],
+      `PHP ${firstTargetPhpVersion} misdiagnosed operator text or a commented call comma.`);
+    if (edgeVersions.length) assert.strictEqual((await vscode.workspace.openTextDocument(syntaxEdgeUri)).getText(edgeVersions[0]!.range), ',');
+    const commentUri = vscode.Uri.joinPath(folder, 'VersionPromotionComment.php');
+    const commentSource = '<?php namespace App\\C1; class C1PromotionComment { public function __construct(public /* final */ string $name) {} }';
+    await vscode.workspace.fs.writeFile(commentUri, Buffer.from(commentSource));
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(commentUri));
+    const commentDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(commentUri)),
+      (result) => result.some((item) => item.code === 'php.type.filename'),
+      `SoPHP did not process the PHP ${firstTargetPhpVersion} promotion-comment fixture in VS Code.`,
+    );
+    assert.ok(!commentDiagnostics.some((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('final promoted property')), 'SoPHP treated a promotion comment as final.');
+    const finalUri = vscode.Uri.joinPath(folder, 'VersionPromotionFinal.php');
+    const finalSource = '<?php namespace App\\C1; class C1PromotionFinal { public function __construct(public final string $name) {} }';
+    await vscode.workspace.fs.writeFile(finalUri, Buffer.from(finalSource));
+    const finalDocument = await vscode.workspace.openTextDocument(finalUri);
+    await vscode.window.showTextDocument(finalDocument);
+    const promotionDiagnostics = await waitForResult(
+      () => Promise.resolve(vscode.languages.getDiagnostics(finalUri)),
+      (result) => firstTargetPhpVersion === '8.5'
+        ? result.some((item) => item.code === 'php.type.filename')
+        : result.some((item) => item.code === 'php.version.unsupported'
+          && item.message.includes('final promoted property')),
+      `SoPHP did not publish the PHP ${firstTargetPhpVersion} promotion diagnostics in VS Code.`,
+    );
+    const finalVersions = promotionDiagnostics.filter((item) => item.code === 'php.version.unsupported'
+      && item.message.includes('final promoted property'));
+    assert.strictEqual(finalVersions.length, firstTargetPhpVersion === '8.5' ? 0 : 1,
+      `PHP ${firstTargetPhpVersion} missed or misreported a real final modifier.`);
+    if (finalVersions.length) assert.strictEqual(finalDocument.getText(finalVersions[0]!.range), 'final');
     const secondTargetPhpVersion = targetPhpVersion ? targetPhpVersion === '7.2' ? '8.5' : '7.2' : '8.5';
     assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', secondWorkspace.uri).get('phpVersion'), targetPhpVersion ? secondTargetPhpVersion : 'auto');
     const secondVersionUri = vscode.Uri.joinPath(secondFolder, 'Versioned.php');
@@ -702,6 +1297,16 @@ function consume(): void { (void) choose(1); }`;
           && !result.some((item) => item.code === 'php.version.unsupported'),
         'SoPHP kept the parent PHP 7.2 target in the nested PHP 8.5 project.');
       assert.ok(!nestedDiagnostics.some((item) => item.code === 'php.syntax'));
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes('SoPHP: 8.5') === true,
+        'SoPHP status bar displayed the parent PHP version while editing the nested project.');
+      const nestedVersionChoices = await vscode.commands.executeCommand<{
+        placeHolder: string; items: Array<{ label: string; description?: string }>
+      }>('phpCompanion._testVersionChoices');
+      assert.ok(nestedVersionChoices?.placeHolder.includes('workspace'),
+        'The PHP version picker did not explain its workspace-wide setting scope.');
+      assert.strictEqual(nestedVersionChoices.items.find((item) => item.label === 'PHP 8.5')?.description, '$(check)',
+        'The PHP version picker marked the parent version instead of the active nested project version.');
       const parentVersionAfterNestedUri = vscode.Uri.joinPath(folder, 'AfterNestedVersioned.php');
       await vscode.workspace.fs.writeFile(parentVersionAfterNestedUri, Buffer.from(versionSource));
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(parentVersionAfterNestedUri));
@@ -709,6 +1314,9 @@ function consume(): void { (void) choose(1); }`;
         (result) => result.filter((item) => item.code === 'php.version.unsupported').length === 3,
         'SoPHP replaced the parent PHP 7.2 target after opening the nested PHP 8.5 project.');
       assert.ok(!parentDiagnosticsAfterNested.some((item) => item.code === 'php.syntax'));
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes('SoPHP: 7.2') === true,
+        'SoPHP status bar kept the nested PHP version after returning to the parent project.');
       const secondComposerUri = vscode.Uri.joinPath(secondWorkspace.uri, 'composer.json');
       const secondComposer = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(secondComposerUri)).toString('utf8')) as {
         config: { platform: { php: string } };
@@ -792,8 +1400,37 @@ function consume(): void { (void) choose(1); }`;
     await verifyRealVendorEditingChain(chainRounds, timingApi.requestLanguageServer);
   }
   if (c1DebugPort) {
+    await timingApi.requestLanguageServer('phpCompanion/testQueryTimings', { reset: true });
     const visibleSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder);
-    console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify(visibleSuggestion)}`);
+    const suggestionServerTimings = await timingApi.requestLanguageServer<Record<string, number[]>>(
+      'phpCompanion/testQueryTimings', { reset: true });
+    console.log(`C1 visible PHP suggestion after typing: ${JSON.stringify({ ...visibleSuggestion,
+      serverCompletionMs: suggestionServerTimings.completion ?? [] })}`);
+    const visibleTypeSuggestion = await measureVisibleTypeSuggestion(Number(c1DebugPort), folder);
+    console.log(`C1 visible cross-namespace type suggestion after typing: ${JSON.stringify(visibleTypeSuggestion)}`);
+    if (process.env.PHP_COMPANION_TEST_C1_PSR0_DEPENDENCY === '1') {
+      const psr0Suggestion = await measureVisibleInstalledPsr0Type(Number(c1DebugPort),
+        vscode.Uri.joinPath(workspace.uri, 'c1-psr0-dependency'));
+      console.log(`C1 visible installed Composer PSR-0 type suggestion: ${JSON.stringify(psr0Suggestion)}`);
+    }
+    if (process.env.PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE === '1') {
+      const configuration = vscode.workspace.getConfiguration('editor', folder);
+      const originalDelay = configuration.get<number>('quickSuggestionsDelay');
+      try {
+        await configuration.update('quickSuggestionsDelay', 0, vscode.ConfigurationTarget.Workspace);
+        const zeroDelay = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 6);
+        await configuration.update('quickSuggestionsDelay', originalDelay, vscode.ConfigurationTarget.Workspace);
+        const restored = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 12);
+        console.log(`C1 quick suggestions delay A/B/A: ${JSON.stringify({ originalDelay,
+          defaultMs: visibleSuggestion.samplesMs, zeroMs: zeroDelay.samplesMs, restoredMs: restored.samplesMs })}`);
+      } finally {
+        await configuration.update('quickSuggestionsDelay', originalDelay, vscode.ConfigurationTarget.Workspace);
+      }
+    }
+    if (process.env.PHP_COMPANION_TEST_C1_WORKBENCH_INPUT_PROBE === '1') {
+      const workbenchInput = await measureVisibleSuggestion(Number(c1DebugPort), folder, false, 18, 'workbench');
+      console.log(`C1 Workbench input visible suggestions: ${JSON.stringify(workbenchInput)}`);
+    }
     if (process.env.PHP_COMPANION_TEST_C1_UI === '1') {
       const vendorSuggestion = await measureVisibleSuggestion(Number(c1DebugPort), folder, true);
       console.log(`C1 visible vendor suggestion after typing: ${JSON.stringify(vendorSuggestion)}`);
@@ -824,4 +1461,16 @@ function consume(): void { (void) choose(1); }`;
     }]),
   ))}`);
   console.log(`C1 Language Client round trip (12 samples, ms): ${JSON.stringify(languageClientRoundTrip)}`);
+  const removedFolder = vscode.workspace.workspaceFolders?.[1];
+  assert.ok(removedFolder, 'The C1 workspace removal check needs a second Composer root.');
+  const versionStateFolders = async (): Promise<string[]> => (await vscode.commands.executeCommand<string[]>(
+    'phpCompanion._testVersionStateFolders')) ?? [];
+  assert.ok((await versionStateFolders()).includes(removedFolder.uri.toString()),
+    'The second Composer root had no version state before removal.');
+  assert.ok(vscode.workspace.updateWorkspaceFolders(removedFolder.index, 1),
+    'Could not remove the second Composer root from the workspace.');
+  await waitForResult(versionStateFolders,
+    (folders) => !folders.includes(removedFolder.uri.toString()) && folders.includes(workspace.uri.toString()),
+    'SoPHP retained version state for a removed Composer workspace.');
+  console.log('C1 removed Composer workspace no longer appears in active PHP version states');
 }

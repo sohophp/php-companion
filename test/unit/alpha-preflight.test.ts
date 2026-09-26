@@ -6,16 +6,19 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 type PreflightModule = {
   parseExtensionList(source: string): Map<string, string>;
-  extensionAssessment(manifest: { schema?: number; supportedExtensions: Array<{ id: string; version: string }>; artifacts?: Array<{ role: string; id: string; version: string }> }, installed: Map<string, string>): {
+  extensionAssessment(manifest: { schema?: number; supportedExtensions: Array<{ id: string; version: string }>;
+    rejectedExtensions?: Array<{ id: string; version: string }>; artifacts?: Array<{ role: string; id: string; version: string }> }, installed: Map<string, string>): {
     missing: string[];
     mismatched: Array<{ id: string; expected: string; installed?: string }>;
     competingInstalled: string[];
+    rejectedInstalled: Array<{ id: string; version: string }>;
     productMissing: string[];
     productMismatched: Array<{ id: string; expected: string; installed?: string }>;
     installedPacks: Array<{ id: string }>;
     legacyRecommendedInstalled: boolean;
   };
   isWslEnvironment(environment: NodeJS.ProcessEnv, kernelRelease?: string): boolean;
+  matchesInstalledPackageJson(expectedSource: string, installedSource: string): boolean;
   verifyCandidate(directory: string): Promise<{ artifacts: Array<{ file: string; valid: boolean }> }>;
 };
 const modulePath = '../../scripts/alpha-preflight.mjs';
@@ -48,12 +51,12 @@ describe('Alpha preflight', () => {
   afterEach(async () => { await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))); });
 
   it('parses exact extension versions and assesses missing, mismatched, and competing providers', () => {
-    const installed = preflight.parseExtensionList('SOHOPHP.TWIG-PLUS@1.3.7\nredhat.vscode-yaml@1.23.0\nbmewburn.vscode-intelephense-client@1.0.0\ninvalid\n');
+    const installed = preflight.parseExtensionList('SOHOPHP.TWIG-PLUS@1.3.7\nredhat.vscode-yaml@1.23.0\nbmewburn.vscode-intelephense-client@1.0.0\nrecca0120.vscode-phpunit@3.9.40\ninvalid\n');
     const result = preflight.extensionAssessment({ supportedExtensions: [
       { id: 'sohophp.twig-plus', version: '1.3.7' },
       { id: 'redhat.vscode-yaml', version: '1.24.0' },
       { id: 'redhat.vscode-xml', version: '0.29.3' },
-    ], artifacts: [
+    ], rejectedExtensions: [{ id: 'recca0120.vscode-phpunit', version: '3.9.40' }], artifacts: [
       { role: 'core', id: 'sohophp.php-companion', version: '0.4.5' },
       { role: 'symfony', id: 'sohophp.php-companion-symfony', version: '0.4.5' },
       { role: 'open-source-pack', id: 'sohophp.php-companion-open-source-pack', version: '0.4.5' },
@@ -62,6 +65,7 @@ describe('Alpha preflight', () => {
     expect(result.missing).toEqual(['redhat.vscode-xml']);
     expect(result.mismatched).toEqual([{ id: 'redhat.vscode-yaml', expected: '1.24.0', installed: '1.23.0' }]);
     expect(result.competingInstalled).toEqual(['bmewburn.vscode-intelephense-client']);
+    expect(result.rejectedInstalled).toEqual([{ id: 'recca0120.vscode-phpunit', version: '3.9.40' }]);
     expect(result.productMissing).toEqual(['sohophp.php-companion', 'sohophp.php-companion-symfony']);
     expect(result.installedPacks).toEqual([]);
   });
@@ -70,6 +74,18 @@ describe('Alpha preflight', () => {
     expect(preflight.isWslEnvironment({ WSL_DISTRO_NAME: 'Ubuntu' })).toBe(true);
     expect(preflight.isWslEnvironment({}, '6.6.87.2-microsoft-standard-WSL2')).toBe(true);
     expect(preflight.isWslEnvironment({}, '6.8.0-generic')).toBe(false);
+  });
+
+  it('accepts only VS Code installer metadata in an otherwise identical installed manifest', () => {
+    const expected = { name: 'php-companion', version: '0.4.5', contributes: { commands: [{ command: 'phpCompanion.safeRename' }] } };
+    const installed = { ...expected, __metadata: { installedTimestamp: 1790372478155, targetPlatform: 'undefined', size: 4528519 } };
+    expect(preflight.matchesInstalledPackageJson(JSON.stringify(expected), JSON.stringify(installed))).toBe(true);
+    expect(preflight.matchesInstalledPackageJson(JSON.stringify(expected), JSON.stringify({ ...installed,
+      contributes: { commands: [{ command: 'phpCompanion.unexpected' }] } }))).toBe(false);
+    expect(preflight.matchesInstalledPackageJson(JSON.stringify(expected), JSON.stringify({ ...installed,
+      __metadata: { ...installed.__metadata, unexpected: true } }))).toBe(false);
+    expect(preflight.matchesInstalledPackageJson(JSON.stringify(expected), JSON.stringify({ ...expected,
+      __metadata: { installedTimestamp: 'invalid', targetPlatform: 'undefined', size: 4528519 } }))).toBe(false);
   });
 
   it('verifies candidate artifact size and SHA-256', async () => {

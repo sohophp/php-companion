@@ -44,6 +44,136 @@ describe('static Symfony Controller context analysis', () => {
     expect(mergeControllerContexts(contexts)).toMatchObject({ complete: false, variables: [{ name: 'actor', type: { kind: 'union' } }], sources: [{ symbol: 'App\\First::show' }, { symbol: 'App\\Second::show' }] });
   });
 
+  it('extracts render and renderView contexts with named PHP arguments', () => {
+    const source = `<?php namespace App; class PageController { function show(User $user) {
+      $this->render(parameters: ['user' => $user], view: 'named.html.twig');
+      $this->renderView('view.html.twig', parameters: ['user' => $user]);
+      $this->render(view: 'empty.html.twig');
+      $this->render(view: 'invalid.html.twig', parameters: ['user' => $user], bogus: 1);
+      $this->render(view: 'duplicate.html.twig', view: 'other.html.twig');
+      $this->render(view: 'unpacked.html.twig', ...$extra);
+    } }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/PageController.php', source, snapshotVersion: 'open:1' });
+    expect(contexts.map(({ template }) => template)).toEqual(['named.html.twig', 'view.html.twig', 'empty.html.twig']);
+    expect(contexts.slice(0, 2)).toMatchObject([
+      { complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] },
+      { complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] },
+    ]);
+  });
+
+  it('keeps known Controller parameters passed through compact and marks unknown arguments incomplete', () => {
+    const source = `<?php namespace App; class PageController { function show(User $user) {
+      $this->render('compact.html.twig', compact('user'));
+      $this->render('partial.html.twig', compact('user', $dynamic));
+      $this->render('missing.html.twig', compact('missing'));
+    } }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/PageController.php', source, snapshotVersion: 'open:3' });
+    expect(contexts.map(({ template }) => template)).toEqual(['compact.html.twig', 'partial.html.twig', 'missing.html.twig']);
+    expect(contexts[0]).toMatchObject({ complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' },
+      sources: [{ uri: 'file:///src/PageController.php', snapshotVersion: 'open:3' }] }] });
+    expect(contexts[1]).toMatchObject({ complete: false, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] });
+    expect(contexts[2]).toMatchObject({ complete: false, variables: [] });
+  });
+
+  it('proves local compact variables from consecutive direct assignments', () => {
+    const source = `<?php namespace App; class PageController {
+      function direct() {
+        $user = new User();
+        return $this->render('local.html.twig', compact('user'));
+      }
+      function inferred() {
+        $account = $this->loadAccount();
+        return $this->render('inferred.html.twig', compact('account'));
+      }
+      function multiple() {
+        $user = new User();
+        $title = 'Profile';
+        return $this->render('multiple.html.twig', compact('user', 'title'));
+      }
+      function possibleMutation() {
+        $user = new User();
+        $title = mutate($user);
+        return $this->render('possible-mutation.html.twig', compact('user', 'title'));
+      }
+      function branch(bool $flag) {
+        if ($flag) { $user = new User(); }
+        return $this->render('branch.html.twig', compact('user'));
+      }
+      function intervening() {
+        $user = new User();
+        mutate($user);
+        return $this->render('intervening.html.twig', compact('user'));
+      }
+    }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/PageController.php', source, snapshotVersion: 'open:5' });
+    expect(contexts.map(({ template }) => template)).toEqual(['local.html.twig', 'inferred.html.twig', 'multiple.html.twig', 'possible-mutation.html.twig', 'branch.html.twig', 'intervening.html.twig']);
+    expect(contexts[0]).toMatchObject({ complete: true, variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] });
+    expect(contexts[1]).toMatchObject({ complete: true, variables: [{ name: 'account', type: { kind: 'unknown' } }] });
+    const inferred = contexts[1]!.variables[0]!.valueLocation!;
+    expect(source.slice(inferred.start, inferred.end)).toBe('$this->loadAccount()');
+    expect(contexts[2]).toMatchObject({ complete: true, variables: [
+      { name: 'user', type: { kind: 'named', name: 'App\\User' } },
+      { name: 'title', type: { kind: 'primitive', name: 'string' } },
+    ] });
+    expect(contexts[2]!.variables.map((item) => source.slice(item.valueLocation!.start, item.valueLocation!.end)))
+      .toEqual(['new User()', "'Profile'"]);
+    expect(contexts[3]).toMatchObject({ complete: false, variables: [{ name: 'title', type: { kind: 'unknown' } }] });
+    expect(contexts.slice(4)).toMatchObject([{ complete: false, variables: [] }, { complete: false, variables: [] }]);
+    const edited = source.replace("$title = 'Profile';", "$headline = 'Profile';")
+      .replace("compact('user', 'title'))", "compact('user', 'headline'))");
+    const editedContexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/PageController.php', source: edited,
+      snapshotVersion: 'open:6' });
+    expect(editedContexts[2]).toMatchObject({ complete: true, variables: [
+      { name: 'user', type: { kind: 'named', name: 'App\\User' } },
+      { name: 'headline', type: { kind: 'primitive', name: 'string' }, valueLocation: { snapshotVersion: 'open:6' } },
+    ] });
+  });
+
+  it('extracts an exact Symfony Template attribute with a literal returned array', () => {
+    const source = `<?php namespace App; use Symfony\\Bridge\\Twig\\Attribute\\Template as TwigTemplate;
+      class Controller {
+        #[TwigTemplate('templates/attribute.html.twig')]
+        public function show(User $user): array { return ['user' => $user]; }
+        #[TwigTemplate('templates/unknown.html.twig')]
+        public function unknown(User $user): array { return buildContext($user); }
+        #[\\Other\\Template('templates/lookalike.html.twig')]
+        public function lookalike(User $user): array { return ['user' => $user]; }
+      }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/Controller.php', source, snapshotVersion: 'open:2' });
+    expect(contexts).toMatchObject([{ template: 'templates/attribute.html.twig', complete: true,
+      variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' }, sources: [{ uri: 'file:///src/Controller.php', snapshotVersion: 'open:2' }] }],
+      sources: [{ symbol: 'App\\Controller::show' }] }]);
+    expect(contexts).toHaveLength(1);
+  });
+
+  it('extracts a known compact parameter from an exact Symfony Template attribute', () => {
+    const source = `<?php namespace App; use Symfony\\Bridge\\Twig\\Attribute\\Template;
+      class Controller {
+        #[Template('templates/compact.html.twig')]
+        public function show(User $user): array { return compact('user'); }
+      }`;
+    expect(analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/Controller.php', source, snapshotVersion: 'open:4' }))
+      .toMatchObject([{ template: 'templates/compact.html.twig', complete: true,
+        variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }] }]);
+  });
+
+  it('keeps consecutive local compact values in a Template attribute', () => {
+    const source = `<?php namespace App; use Symfony\\Bridge\\Twig\\Attribute\\Template;
+      class Controller {
+        #[Template('templates/multiple.html.twig')]
+        public function show(): array {
+          $user = new User();
+          $title = 'Profile';
+          return compact('user', 'title');
+        }
+      }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///src/Controller.php', source, snapshotVersion: 'open:6' });
+    expect(contexts).toMatchObject([{ template: 'templates/multiple.html.twig', complete: true, variables: [
+      { name: 'user', type: { kind: 'named', name: 'App\\User' } },
+      { name: 'title', type: { kind: 'primitive', name: 'string' } },
+    ] }]);
+  });
+
   it('extracts literal event subscriber maps and rejects dynamic or inaccessible listeners', () => {
     const source = `<?php namespace App;
       use Symfony\\Component\\EventDispatcher\\EventSubscriberInterface;

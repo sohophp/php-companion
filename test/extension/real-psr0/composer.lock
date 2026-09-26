@@ -1,0 +1,44 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "d8dd98dea5e8590d94411ee8edeb282a",
+    "packages": [
+        {
+            "name": "sohophp/legacy-psr0-fixture",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/legacy",
+                "reference": "be78aa2e5b1bd18ed37911d53ef70b08ee55f3a9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Legacy_": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Local installed dependency with Composer PSR-0 autoloading",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=7.2"
+    },
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

@@ -69,6 +69,31 @@ describe('standalone Symfony service provider', () => {
     expect((await collectSymfonyServiceFacts(root, parser, { projectTypes: [] })).complete).toBe(false);
   });
 
+  it('does not publish a complete graph when compiled-container input evidence is unavailable', async () => {
+    const root = await project();
+    await mkdir(join(root, 'var', 'cache', 'dev'), { recursive: true });
+    await writeFile(join(root, 'var', 'cache', 'dev', 'App_KernelDevDebugContainer.xml'), '<container><services/></container>');
+    await rm(join(root, 'config'), { recursive: true });
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [] });
+    expect(facts.inputEvidenceComplete).toBe(false);
+    expect(facts.complete).toBe(false);
+  });
+
+  it('does not publish a complete graph when a conventional bundle registration cannot be read', async () => {
+    const root = await project();
+    await writeFile(join(root, 'config', 'services.yaml'), 'services:\n  app.mailer: { class: App\\Mailer }\n');
+    await mkdir(join(root, 'config', 'bundles.php'));
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [] });
+    expect(facts.services.map((service) => service.id)).toContain('app.mailer');
+    expect(facts.inputEvidenceComplete).toBe(false);
+    expect(facts.complete).toBe(false);
+    await rm(join(root, 'config', 'bundles.php'), { recursive: true });
+    await writeFile(join(root, 'config', 'bundles.php'), '<?php return [');
+    const malformed = await collectSymfonyServiceFacts(root, parser, { projectTypes: [] });
+    expect(malformed.inputEvidenceComplete).toBe(true);
+    expect(malformed.complete).toBe(false);
+  });
+
   it('marks circular service imports incomplete', async () => {
     const root = await project();
     await writeFile(join(root, 'config', 'services.yaml'), "imports:\n  - { resource: services/extra.yaml }\nservices:\n  app.main: { class: App\\Mailer }\n");

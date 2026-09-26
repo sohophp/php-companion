@@ -3,11 +3,15 @@ import * as vscode from 'vscode';
 
 interface VisibleSuggestion {
   elapsedMs: number;
+  inputElapsedMs: number | null;
+  startedEpochMs: number;
   labels: string[];
 }
 
 interface VisibleSuggestionRun {
   samplesMs: number[];
+  inputSamplesMs?: Array<number | null>;
+  phaseEpochMs?: Array<{ started: number; input: number | null; visible: number }>;
   medianMs: number;
   maxMs: number;
   labels: string[];
@@ -49,13 +53,41 @@ async function evaluate(socket: WebSocket, expression: string, id: number): Prom
   });
 }
 
-export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false): Promise<VisibleSuggestionRun> {
+export async function visibleStatusBarContains(port: number, label: string): Promise<boolean> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    return await evaluate(socket, `Array.from(document.querySelectorAll('.part.statusbar .statusbar-item'))
+      .some(item => item.getBoundingClientRect().width > 0 && item.textContent?.includes(${JSON.stringify(label)}))`, 1) === true;
+  } finally { socket.close(); }
+}
+
+async function insertWorkbenchText(socket: WebSocket, value: string, id: number): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => { socket.removeEventListener('message', onMessage); reject(new Error('Workbench text input timed out.')); }, 5_000);
+    const onMessage = (event: MessageEvent): void => {
+      const message = JSON.parse(String(event.data)) as { id?: number; error?: { message: string } };
+      if (message.id !== id) return;
+      clearTimeout(timer);
+      socket.removeEventListener('message', onMessage);
+      if (message.error) reject(new Error(message.error.message));
+      else resolve();
+    };
+    socket.addEventListener('message', onMessage);
+    socket.send(JSON.stringify({ id, method: 'Input.insertText', params: { text: value } }));
+  });
+}
+
+export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false, firstIndex = 0,
+  input: 'command' | 'workbench' = 'command'): Promise<VisibleSuggestionRun> {
   const socket = await connect(await cdpPage(port));
   let id = 1;
   try {
     const samples: number[] = [];
+    const inputSamples: Array<number | null> = [];
+    const phaseEpochMs: Array<{ started: number; input: number | null; visible: number }> = [];
     let lastLabels: string[] = [];
-    for (let index = 0; index < 6; index += 1) {
+    for (let sample = 0; sample < 6; sample += 1) {
+      const index = firstIndex + sample;
       const targetName = vendor ? `UiVendorTarget${index}` : `UiTarget${index}`;
       const methodName = vendor ? `vendorVisible${index}` : `renderVisible${index}`;
       const typed = vendor ? 'v' : 'r';
@@ -68,12 +100,17 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
       const editor = await vscode.window.showTextDocument(document);
       const offset = source.indexOf('$value->;') + '$value->'.length;
       editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+      if (input === 'workbench') await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
       const priorWidgetVisible = await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++);
       assert.strictEqual(priorWidgetVisible, false, 'A previous suggestion widget remained visible before the next typing sample.');
       await evaluate(socket, `(() => {
         globalThis.__sophpSuggestionProbe?.observer.disconnect();
-        const probe = { start: performance.now(), elapsedMs: null, labels: [], observer: null };
+        const probe = { start: performance.now(), startedEpochMs: performance.timeOrigin + performance.now(),
+          inputElapsedMs: null, elapsedMs: null, labels: [], observer: null };
         const inspect = () => {
+          if (probe.inputElapsedMs === null
+            && (document.querySelector('.monaco-editor.focused .view-lines')?.textContent ?? '')
+              .includes(${JSON.stringify(`$value->${typed};`)})) probe.inputElapsedMs = performance.now() - probe.start;
           const widget = document.querySelector('.suggest-widget.visible');
           if (!widget || !widget.getBoundingClientRect().width) return;
           const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
@@ -87,13 +124,16 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
         globalThis.__sophpSuggestionProbe = probe;
         return true;
       })()`, id++);
-      await vscode.commands.executeCommand('type', { text: typed });
+      if (input === 'workbench') {
+        await insertWorkbenchText(socket, typed, id++);
+      } else await vscode.commands.executeCommand('type', { text: typed });
       const deadline = Date.now() + 10_000;
       let visible: VisibleSuggestion | undefined;
       while (Date.now() < deadline) {
         visible = await evaluate(socket, `(() => {
           const probe = globalThis.__sophpSuggestionProbe;
-          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs, labels: probe.labels };
+          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs,
+            inputElapsedMs: probe.inputElapsedMs, startedEpochMs: probe.startedEpochMs, labels: probe.labels };
         })()`, id++) as VisibleSuggestion | undefined;
         if (visible) break;
         await new Promise<void>((resolve) => setTimeout(resolve, 20));
@@ -103,13 +143,138 @@ export async function measureVisibleSuggestion(port: number, folder: vscode.Uri,
         `The visible PHP suggestion list did not contain ${methodName}: ${JSON.stringify(visible.labels)}`);
       assert.ok(document.isDirty && document.getText().includes(`$value->${typed};`), 'Typing did not update the PHP editor buffer.');
       samples.push(Math.round(visible.elapsedMs));
+      inputSamples.push(visible.inputElapsedMs === null ? null : Math.round(visible.inputElapsedMs));
+      phaseEpochMs.push({ started: Math.round(visible.startedEpochMs),
+        input: visible.inputElapsedMs === null ? null : Math.round(visible.startedEpochMs + visible.inputElapsedMs),
+        visible: Math.round(visible.startedEpochMs + visible.elapsedMs) });
       lastLabels = visible.labels;
     }
     const sorted = [...samples].sort((left, right) => left - right);
-    return { samplesMs: samples, medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
+    return { samplesMs: samples, inputSamplesMs: inputSamples, phaseEpochMs,
+      medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
   } finally {
     socket.close();
   }
+}
+
+export async function measureVisibleTypeSuggestion(port: number, folder: vscode.Uri): Promise<{
+  samplesMs: number[]; inputSamplesMs: Array<number | null>; medianMs: number; maxMs: number; labels: string[];
+}> {
+  const external = vscode.Uri.joinPath(folder, 'External');
+  await vscode.workspace.fs.createDirectory(external);
+  const socket = await connect(await cdpPage(port));
+  let id = 1;
+  try {
+    const samplesMs: number[] = [];
+    const inputSamplesMs: Array<number | null> = [];
+    let lastLabels: string[] = [];
+    for (let sample = 0; sample < 6; sample += 1) {
+      const name = `C1VisibleType${sample}Probe`;
+      await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(external, `${name}.php`), Buffer.from(
+        `<?php namespace App\\C1\\External; class ${name} {}`));
+      const source = `<?php namespace App\\C1; function visibleType${sample}(): void { new C1VisibleType${sample}Prob; }`;
+      const uri = vscode.Uri.joinPath(folder, `UiVisibleType${sample}.php`);
+      await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+      const document = await vscode.workspace.openTextDocument(uri);
+      const editor = await vscode.window.showTextDocument(document);
+      const offset = source.indexOf(`C1VisibleType${sample}Prob`) + `C1VisibleType${sample}Prob`.length;
+      editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+      assert.strictEqual(await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++), false);
+      await evaluate(socket, `(() => {
+        globalThis.__sophpSuggestionProbe?.observer.disconnect();
+        const probe = { start: performance.now(), inputElapsedMs: null, elapsedMs: null, labels: [], observer: null };
+        const inspect = () => {
+          if (probe.inputElapsedMs === null
+            && (document.querySelector('.monaco-editor.focused .view-lines')?.textContent ?? '')
+              .includes(${JSON.stringify(`${name};`)})) probe.inputElapsedMs = performance.now() - probe.start;
+          const widget = document.querySelector('.suggest-widget.visible');
+          if (!widget || !widget.getBoundingClientRect().width) return;
+          const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
+          if (!labels.some((label) => label.includes(${JSON.stringify(name)}))) return;
+          probe.elapsedMs = performance.now() - probe.start;
+          probe.labels = labels;
+          probe.observer.disconnect();
+        };
+        probe.observer = new MutationObserver(inspect);
+        probe.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        globalThis.__sophpSuggestionProbe = probe;
+        return true;
+      })()`, id++);
+      await vscode.commands.executeCommand('type', { text: 'e' });
+      const deadline = Date.now() + 10_000;
+      let visible: VisibleSuggestion | null = null;
+      while (Date.now() < deadline) {
+        visible = await evaluate(socket, `(() => {
+          const probe = globalThis.__sophpSuggestionProbe;
+          return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs,
+            inputElapsedMs: probe.inputElapsedMs, labels: probe.labels };
+        })()`, id++) as VisibleSuggestion | null;
+        if (visible) break;
+        await new Promise<void>((resolve) => setTimeout(resolve, 20));
+      }
+      assert.ok(visible, `Cross-namespace type suggestion ${sample} did not become visible within 10 seconds.`);
+      assert.ok(document.isDirty && document.getText().includes(`new ${name};`));
+      samplesMs.push(Math.round(visible.elapsedMs));
+      inputSamplesMs.push(visible.inputElapsedMs === null ? null : Math.round(visible.inputElapsedMs));
+      lastLabels = visible.labels;
+    }
+    const sorted = [...samplesMs].sort((left, right) => left - right);
+    return { samplesMs, inputSamplesMs, medianMs: Math.round((sorted[2]! + sorted[3]!) / 2), maxMs: sorted[5]!, labels: lastLabels };
+  } finally { socket.close(); }
+}
+
+export async function measureVisibleInstalledPsr0Type(port: number, project: vscode.Uri): Promise<{
+  elapsedMs: number; inputElapsedMs: number | null; labels: string[];
+}> {
+  const uri = vscode.Uri.joinPath(project, 'src', 'Consumer.php');
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const prefix = 'Legacy_Component_Wid';
+  const expected = 'Legacy_Component_Widget';
+  const offset = document.getText().indexOf(prefix) + prefix.length;
+  assert.ok(offset >= prefix.length, 'The installed PSR-0 consumer lost its partial class name.');
+  editor.selection = new vscode.Selection(document.positionAt(offset), document.positionAt(offset));
+  const socket = await connect(await cdpPage(port));
+  let id = 1;
+  try {
+    assert.strictEqual(await evaluate(socket, `Boolean(document.querySelector('.suggest-widget.visible'))`, id++), false);
+    await evaluate(socket, `(() => {
+      globalThis.__sophpSuggestionProbe?.observer.disconnect();
+      const probe = { start: performance.now(), inputElapsedMs: null, elapsedMs: null, labels: [], observer: null };
+      const inspect = () => {
+        if (probe.inputElapsedMs === null
+          && (document.querySelector('.monaco-editor.focused .view-lines')?.textContent ?? '')
+            .includes(${JSON.stringify(`${prefix}g`)})) probe.inputElapsedMs = performance.now() - probe.start;
+        const widget = document.querySelector('.suggest-widget.visible');
+        if (!widget || !widget.getBoundingClientRect().width) return;
+        const labels = [...widget.querySelectorAll('.monaco-list-row')].map((row) => row.textContent?.trim() ?? '').filter(Boolean);
+        if (!labels.some((label) => label.includes(${JSON.stringify(expected)}))) return;
+        probe.elapsedMs = performance.now() - probe.start;
+        probe.labels = labels;
+        probe.observer.disconnect();
+      };
+      probe.observer = new MutationObserver(inspect);
+      probe.observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+      globalThis.__sophpSuggestionProbe = probe;
+      return true;
+    })()`, id++);
+    await vscode.commands.executeCommand('type', { text: 'g' });
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const visible = await evaluate(socket, `(() => {
+        const probe = globalThis.__sophpSuggestionProbe;
+        return probe?.elapsedMs === null ? null : { elapsedMs: probe.elapsedMs,
+          inputElapsedMs: probe.inputElapsedMs, labels: probe.labels };
+      })()`, id++) as VisibleSuggestion | null;
+      if (visible) {
+        assert.ok(document.isDirty && document.getText().includes(`${prefix}g;`));
+        return { elapsedMs: Math.round(visible.elapsedMs),
+          inputElapsedMs: visible.inputElapsedMs === null ? null : Math.round(visible.inputElapsedMs), labels: visible.labels };
+      }
+      await new Promise<void>((resolve) => setTimeout(resolve, 20));
+    }
+    assert.fail('The installed Composer PSR-0 type did not become visible within 10 seconds.');
+  } finally { socket.close(); }
 }
 
 export async function measureUnsavedReceiverSuggestion(port: number, folder: vscode.Uri): Promise<{

@@ -11,6 +11,7 @@ export interface Psr4Mapping {
 export interface ComposerProject {
   root: string;
   composerPath: string;
+  vendorDirectory?: string;
   lockPath?: string;
   platformPhp?: string;
   lockPlatformPhp?: string;
@@ -29,6 +30,44 @@ export interface ComposerProject {
 
 export type ComposerMetadataRead = { kind: 'source'; path: string; hash: string } | { kind: 'missing'; path: string };
 export interface ComposerInputEvidence { complete: boolean; reads: ComposerMetadataRead[]; }
+
+export type GeneratedClassmap = { kind: 'missing' | 'invalid' } | { kind: 'complete'; classes: Map<string, string> };
+const generatedClassmaps = new Map<string, { size: number; mtimeMs: number; ctimeMs: number; result: GeneratedClassmap }>();
+
+/** Parse only Composer's generated literal classmap. Never execute project PHP while proving a source path. */
+export async function loadGeneratedClassmap(project: ComposerProject): Promise<GeneratedClassmap> {
+  const vendorDirectory = resolve(project.vendorDirectory ?? join(project.root, 'vendor'));
+  const path = join(vendorDirectory, 'composer', 'autoload_classmap.php');
+  let information;
+  try { information = await stat(path); }
+  catch (error) { return (error as NodeJS.ErrnoException).code === 'ENOENT' ? { kind: 'missing' } : { kind: 'invalid' }; }
+  if (!information.isFile() || information.size > 16 * 1024 * 1024) return { kind: 'invalid' };
+  const cached = generatedClassmaps.get(path);
+  if (cached && cached.size === information.size && cached.mtimeMs === information.mtimeMs && cached.ctimeMs === information.ctimeMs)
+    return cached.result;
+  let source: string;
+  try { source = await readFile(path, 'utf8'); } catch { return { kind: 'invalid' }; }
+  const match = /^<\?php\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)\s*)*\$vendorDir = dirname\(__DIR__\);\s*\$baseDir = dirname\(\$vendorDir\);\s*return array\(\s*([\s\S]*?)\s*\);\s*$/.exec(source);
+  let result: GeneratedClassmap = { kind: 'invalid' };
+  if (match) {
+    const classes = new Map<string, string>();
+    let valid = true;
+    for (const line of match[1]!.split('\n')) {
+      if (!line.trim()) continue;
+      const entry = /^\s*'((?:[^'\\]|\\\\)*)'\s*=>\s*(\$vendorDir|\$baseDir)\s*\.\s*'((?:[^'\\]|\\\\)*)'\s*,\s*$/.exec(line);
+      if (!entry) { valid = false; break; }
+      const fqcn = entry[1]!.replaceAll('\\\\', '\\');
+      const suffix = entry[3]!.replaceAll('\\\\', '\\');
+      if (!/^[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(fqcn)
+        || !suffix.startsWith('/') || classes.has(fqcn.toLowerCase())) { valid = false; break; }
+      const base = entry[2] === '$vendorDir' ? vendorDirectory : dirname(vendorDirectory);
+      classes.set(fqcn.toLowerCase(), resolve(base, `.${suffix}`));
+    }
+    if (valid) result = { kind: 'complete', classes };
+  }
+  generatedClassmaps.set(path, { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs, result });
+  return result;
+}
 
 export interface ComposerDependency {
   name: string;
@@ -134,6 +173,17 @@ export function resolvePsr4Class(fqcn: string, mappings: Psr4Mapping[]): string[
       const relative = normalized.slice(mapping.prefix.length).replace(/\\/g, '/');
       return mapping.directories.map((directory) => join(directory, `${relative}.php`));
     });
+}
+
+export function resolvePsr0Class(fqcn: string, mappings: Psr4Mapping[]): string[] {
+  const normalized = fqcn.replace(/^\\+/, '');
+  const lastSeparator = normalized.lastIndexOf('\\');
+  const namespacePath = lastSeparator < 0 ? '' : `${normalized.slice(0, lastSeparator).replace(/\\/g, '/')}/`;
+  const classPath = normalized.slice(lastSeparator + 1).replace(/_/g, '/');
+  return mappings
+    .filter((mapping) => normalized.startsWith(mapping.prefix))
+    .sort((left, right) => right.prefix.length - left.prefix.length)
+    .flatMap((mapping) => mapping.directories.map((directory) => join(directory, `${namespacePath}${classPath}.php`)));
 }
 
 export function resolvePsr4Namespaces(filePath: string, mappings: Psr4Mapping[]): string[] {
@@ -286,6 +336,7 @@ export async function loadComposerProject(root: string, includeDev = true): Prom
   return {
     root,
     composerPath,
+    vendorDirectory,
     lockPath: lock ? lockPathCandidate : undefined,
     platformPhp: typeof composer.config?.platform?.php === 'string' ? composer.config.platform.php : undefined,
     lockPlatformPhp: typeof lock?.['platform-overrides']?.php === 'string' ? lock['platform-overrides'].php : undefined,

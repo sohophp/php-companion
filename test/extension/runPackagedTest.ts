@@ -42,6 +42,8 @@ function resolvePhpScriptCommand(command: string): string {
 async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
+  const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
+  if (twigPlusDevelopmentPath && !sourceProfile) throw new Error('TwigPlus development path requires the source Profile.');
   const realVendorProfile = process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1';
   const hoverIsolation = process.env.PHP_COMPANION_TEST_HOVER_ISOLATION === '1';
   const realVendorNoise = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE ?? 9100);
@@ -194,6 +196,9 @@ abstract class AbstractController { public function generateUrl(string $route, a
       if (externalExtensions) execFileSync('unzip', ['-q', packVsix, '-d', packExtracted], { stdio: 'inherit' });
     }
     if (twigVsix) execFileSync('unzip', ['-q', twigVsix, '-d', twigExtracted], { stdio: 'inherit' });
+    const twigPackage = twigVsix
+      ? JSON.parse(await readFile(join(twigExtracted, 'extension', 'package.json'), 'utf8')) as { version: string }
+      : undefined;
     if (process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn') {
       await mkdir(extensionsDirectory, { recursive: true });
       const languagePackInstall = await runVSCodeCommand(['--install-extension', 'ms-ceintl.vscode-language-pack-zh-hans', '--force',
@@ -212,10 +217,12 @@ abstract class AbstractController { public function generateUrl(string $route, a
       }));
     }
     await runTests({
-      vscodeExecutablePath: await testExecutablePath(),
+      vscodeExecutablePath: process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE
+        ? resolve(process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE) : await testExecutablePath(),
       extensionDevelopmentPath: [sourceProfile ? repository : join(extracted, 'extension'),
         sourceProfile ? join(repository, 'packages', 'php-companion-symfony') : join(symfonyExtracted, 'extension'),
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
+        ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
       extensionTestsPath: resolve(__dirname, 'suite', 'index'),
       launchArgs: [
@@ -237,6 +244,10 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
         PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
+        PHP_COMPANION_TEST_TWIG_PLUS_PATH: twigPlusDevelopmentPath,
+        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH: twigVsix ? join(twigExtracted, 'extension') : undefined,
+        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_VERSION: twigPackage?.version,
+        PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS: process.env.PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS,
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR: realVendorProfile ? '1' : undefined,
         PHP_COMPANION_TEST_HOVER_ISOLATION: hoverIsolation ? '1' : undefined,
         PHP_COMPANION_TEST_HOVER_TIMING: process.env.PHP_COMPANION_TEST_HOVER_TIMING,

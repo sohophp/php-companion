@@ -267,12 +267,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   void recommendStandaloneSymfony(context, output);
   const applyImportWorkspaceEdit = async (edit: vscode.WorkspaceEdit, failure: 'importApplyFailed' | 'optimizeApplyFailed',
     testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean>): Promise<boolean> => {
+    let expected: Array<{ uri: vscode.Uri; source: string; result: string }> = [];
     try {
-      if (await (context.extensionMode === vscode.ExtensionMode.Test && testApplyEdit
-        ? testApplyEdit(edit) : vscode.workspace.applyEdit(edit))) return true;
+      expected = await Promise.all(edit.entries().map(async ([uri, edits]) => {
+        const document = await vscode.workspace.openTextDocument(uri);
+        const source = document.getText();
+        return { uri, source, result: applyTextEdits(source, edits) };
+      }));
+      await (context.extensionMode === vscode.ExtensionMode.Test && testApplyEdit
+        ? testApplyEdit(edit) : vscode.workspace.applyEdit(edit));
     } catch (error) {
       output.warn(`${failure}: ${error instanceof Error ? error.message : String(error)}`);
     }
+    if (expected.length && expected.some(({ source, result }) => source !== result)
+      && (await Promise.all(expected.map(async ({ uri, result }) =>
+        (await vscode.workspace.openTextDocument(uri)).getText() === result))).every(Boolean)) return true;
     void vscode.window.showErrorMessage(t(failure));
     return false;
   };
@@ -511,7 +520,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
       sourceDiskHash?: string; targetHashes?: Record<string, string> },
-    options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeOpen?: () => Promise<void> },
+    options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeApply?: () => Promise<void>;
+      testBeforeOpen?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> },
   ): Promise<boolean> => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
     const source = await vscode.workspace.openTextDocument(sourceUri);
@@ -586,11 +596,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return false;
       if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
       if (!await unchanged()) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
+      const expectedSource = applyTextEdits(sourceText, edit.get(sourceUri));
+      const expectedTargets = targets.map(([uri, edits]) => ({ uri,
+        text: applyTextEdits(existingTargets.get(uri.toString())?.text ?? '', edits) }));
       try {
-        if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('extractApplyFailed')); return false; }
+        await (context.extensionMode === vscode.ExtensionMode.Test && options?.testApplyEdit
+          ? options.testApplyEdit(edit) : vscode.workspace.applyEdit(edit));
       } catch (error) {
         output.warn(`Previewed refactoring failed to apply: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      let applied = source.getText() === expectedSource;
+      if (applied) for (const target of expectedTargets) {
+        try {
+          if ((await vscode.workspace.openTextDocument(target.uri)).getText() !== target.text) { applied = false; break; }
+        } catch { applied = false; break; }
+      }
+      if (!applied || (expectedSource === sourceText && expectedTargets.every(({ uri, text }) =>
+        text === (existingTargets.get(uri.toString())?.text ?? '')))) {
         void vscode.window.showErrorMessage(t('extractApplyFailed'));
         return false;
       }
@@ -616,11 +641,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     register('phpCompanion._testEffectivePasteMode', (uri: vscode.Uri) => configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', uri)));
     register('phpCompanion._testLocalize', (key: Parameters<typeof t>[0], ...args: string[]) => t(key, ...args));
+    register('phpCompanion._testVersionStatus', () => status.text);
+    register('phpCompanion._testVersionStateFolders', () => versions.allStates().map((state) => state.folder.uri.toString()));
+    register('phpCompanion._testVersionChoices', async () => {
+      let result: { placeHolder: string; items: Array<{ label: string; description?: string }> } | undefined;
+      await versions.selectVersion(async (items, placeHolder) => {
+        result = { placeHolder, items: items.map((item) => ({ label: item.label, description: item.description })) };
+        return undefined;
+      });
+      return result;
+    });
     register('phpCompanion._testCreatePhpType', (kind: PhpTypeKind, name: string, target: vscode.Uri,
       testPreviewAction: () => Promise<'apply' | 'cancel'>,
       testChooseTestDirectory?: () => Promise<vscode.Uri | undefined>,
-      testClosePreview?: (tab: vscode.Tab) => Promise<boolean>) => createPhpType(kind, versions, target,
-      { testName: name, testPreviewAction, testChooseTestDirectory, testClosePreview }));
+      testClosePreview?: (tab: vscode.Tab) => Promise<boolean>,
+      testOpenCreatedFile?: (uri: vscode.Uri) => Promise<void>,
+      testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>,
+      testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean>,
+      testChooseNamespace?: (namespaces: string[]) => Promise<string | undefined>) => createPhpType(kind, versions, target,
+      { testName: name, testPreviewAction, testChooseTestDirectory, testClosePreview, testOpenCreatedFile,
+        testApplyStagedEdit, testApplySiblingEdit, testChooseNamespace }));
     register('phpCompanion._testBuildMoveEdits', async (oldUri: vscode.Uri, newUri: vscode.Uri) => {
       if (selfLanguageServer) return requestSafeMove([{ oldUri, newUri }], false);
       await Promise.all([versions.ensureForUri(oldUri), versions.ensureForUri(newUri)]);
@@ -648,7 +688,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   register('phpCompanion.rebuildIndex', async () => (await experimentalWorkspace())?.rebuild(true));
   register('phpCompanion.safeMove', async (sourceUri?: vscode.Uri, targetUri?: vscode.Uri, options?: { preview?: boolean;
     testAfterPlan?: () => Promise<void>; testBeforeApply?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
-    testClosePreviewTabs?: (tabs: vscode.Tab[]) => Promise<void> }): Promise<boolean> => {
+    testClosePreviewTabs?: (tabs: vscode.Tab[]) => Promise<void>;
+    testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> }): Promise<boolean> => {
     const source = sourceUri ?? vscode.window.activeTextEditor?.document.uri;
     if (!source || !source.path.endsWith('.php')) return false;
     let target = targetUri;
@@ -702,6 +743,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const disk = await vscode.workspace.fs.readFile(uri);
         return { uri, document, version: document.version, text: document.getText(), disk: Buffer.from(disk) };
       }));
+      const expectedResults = new Map<string, string>([[target.toString(), participants.find((item) => item.uri.toString() === source.toString())!.text]]);
+      for (const [uri, edits] of textEdits.entries()) {
+        const originalUri = uri.toString() === target.toString() ? source : uri;
+        const original = participants.find((item) => item.uri.toString() === originalUri.toString())!;
+        expectedResults.set(uri.toString() === source.toString() ? target.toString() : uri.toString(),
+          applyTextEdits(original.text, edits));
+      }
       if (serverPlan && participants.some((participant) => {
         const planned = serverPlan.sources[participant.uri.toString()];
         return planned !== undefined && (planned !== participant.text
@@ -720,7 +768,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound'; }
       };
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
-      if (options?.preview ?? configuration.get<boolean>('move.preview', true)) {
+      const previewRequired = options?.preview ?? configuration.get<boolean>('move.preview', true);
+      if (previewRequired) {
         let sourceShown = false;
         for (const [uri, edits] of textEdits.entries()) {
           const originalUri = uri.toString() === target.toString() ? source : uri;
@@ -746,10 +795,28 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
+      if (previewRequired && !previewDiffsComplete(previewUris)) throw new MoveError(t('previewClosed'));
       const key = fileRenameKey(source, target);
       delegatedSafeMoves.add(key);
       try {
-        if (!await vscode.workspace.applyEdit(edit)) throw new MoveError(t('safeMoveApplyFailed'));
+        let reported = false;
+        let applyError: unknown;
+        try {
+          reported = await (context.extensionMode === vscode.ExtensionMode.Test && options?.testApplyEdit
+            ? options.testApplyEdit(edit) : vscode.workspace.applyEdit(edit));
+        } catch (error) { applyError = error; }
+        if (!reported) {
+          const moved = await vscode.workspace.fs.stat(target).then(() => true, () => false)
+            && !await vscode.workspace.fs.stat(source).then(() => true, () => false);
+          const resultsMatch = moved && (await Promise.all([...expectedResults].map(async ([uriText, expected]) => {
+            const uri = vscode.Uri.parse(uriText);
+            const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uriText && !item.isClosed);
+            const actual = open?.getText() ?? await vscode.workspace.fs.readFile(uri)
+              .then((bytes) => Buffer.from(bytes).toString('utf8'), () => undefined);
+            return actual === expected;
+          }))).every(Boolean);
+          if (!resultsMatch) throw applyError instanceof Error ? applyError : new MoveError(t('safeMoveApplyFailed'));
+        }
         applied = true;
         if (manager) await refreshMoveIndex(manager, [{ oldUri: source, newUri: target }], textEdits);
       } finally {
@@ -1161,7 +1228,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   });
   register('phpCompanion.safeRename', async (options?: { uri?: vscode.Uri; position?: vscode.Position; newName?: string;
     testAfterPlan?: () => Promise<void>; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
-    testBeforeOpen?: () => Promise<void> }): Promise<boolean> => {
+    testBeforeApply?: () => Promise<void>;
+    testBeforeOpen?: () => Promise<void>;
+    testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> }): Promise<boolean> => {
     if (!selfLanguageServer) {
       void vscode.window.showWarningMessage(t('safeRenameUnavailable'));
       return false;
@@ -1215,6 +1284,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const fileRename = plan.protocol.documentChanges?.find((change): change is Extract<ProtocolDocumentChange, { kind: 'rename' }> =>
         'kind' in change && change.kind === 'rename');
       const previewResources: Array<{ label: vscode.Uri; original: vscode.Uri; modified: vscode.Uri; title: string }> = [];
+      const expectedResults = new Map<string, string>();
+      let hasExpectedTextChange = false;
       for (const [targetUri, changes] of editsByUri) {
         const target = vscode.Uri.parse(targetUri);
         const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === targetUri);
@@ -1222,7 +1293,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const textEdits = changes.map((change) => new vscode.TextEdit(new vscode.Range(
           change.range.start.line, change.range.start.character, change.range.end.line, change.range.end.character), change.newText));
         const baseline = await openRenamePreviewSnapshot(target, source);
-        const preview = await openRenamePreviewSnapshot(target, applyTextEdits(source, textEdits));
+        const expected = applyTextEdits(source, textEdits);
+        if (expected !== source) hasExpectedTextChange = true;
+        expectedResults.set(fileRename?.oldUri === targetUri ? fileRename.newUri : targetUri, expected);
+        const preview = await openRenamePreviewSnapshot(target, expected);
         previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
         const destination = fileRename?.oldUri === targetUri ? vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri)) : undefined;
         const title = `SoPHP Rename: ${vscode.workspace.asRelativePath(target)}${destination ? ` → ${destination}` : ''}`;
@@ -1247,23 +1321,44 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         }
       }
       if (!await confirmPreviewedEdit(t('applyPreviewedRename', newName), options?.testPreviewAction)) return false;
-      const visiblePreviewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs);
-      const diffTabs = visiblePreviewTabs.filter((tab) => tab.input instanceof vscode.TabInputTextDiff
-        && previewUris.has(tab.input.original.toString()) && previewUris.has(tab.input.modified.toString()));
-      const previewComplete = previewResources.length <= 3
-        ? diffTabs.length === previewResources.length
-        : openedChangesLabels.size === Math.ceil(previewResources.length / 20)
-          && visiblePreviewTabs.filter((tab) => openedChangesLabels.has(tab.label)).length === openedChangesLabels.size;
-      if (!previewComplete) {
-        throw new Error(t('renamePreviewClosed'));
-      }
+      const previewComplete = (): boolean => {
+        const visiblePreviewTabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs);
+        const diffTabs = visiblePreviewTabs.filter((tab) => tab.input instanceof vscode.TabInputTextDiff
+          && previewUris.has(tab.input.original.toString()) && previewUris.has(tab.input.modified.toString()));
+        return previewResources.length <= 3
+          ? diffTabs.length === previewResources.length
+          : openedChangesLabels.size === Math.ceil(previewResources.length / 20)
+            && visiblePreviewTabs.filter((tab) => openedChangesLabels.has(tab.label)).length === openedChangesLabels.size;
+      };
+      if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
+      if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
       await verifyRenameSources(plan.protocol);
       for (const [uri, hash] of diskHashes) {
         const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
         if (current !== hash) throw new Error(t('renameDiskChanged'));
       }
+      if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
       if (staged) pendingTypeRenameEdits.set(staged.key, staged.edit);
-      if (!await vscode.workspace.applyEdit(edit)) throw new Error(t('renameApplyFailed'));
+      let applied = false;
+      try {
+        applied = await (context.extensionMode === vscode.ExtensionMode.Test && options?.testApplyEdit
+          ? options.testApplyEdit(edit) : vscode.workspace.applyEdit(edit));
+      } catch { /* The resource edit may have completed before the API threw. */ }
+      if (!applied) {
+        const resultExists = async (resultUri: string): Promise<boolean> => {
+          const uri = vscode.Uri.parse(resultUri);
+          const expected = expectedResults.get(resultUri);
+          if (expected === undefined) return false;
+          const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === resultUri && !item.isClosed);
+          const actual = open?.getText() ?? await vscode.workspace.fs.readFile(uri).then((bytes) => Buffer.from(bytes).toString('utf8'), () => undefined);
+          return actual === expected;
+        };
+        const moved = !fileRename || await vscode.workspace.fs.stat(vscode.Uri.parse(fileRename.newUri)).then(() => true, () => false)
+          && !await vscode.workspace.fs.stat(vscode.Uri.parse(fileRename.oldUri)).then(() => true, () => false);
+        applied = moved && (hasExpectedTextChange || Boolean(fileRename)) && expectedResults.size > 0
+          && (await Promise.all([...expectedResults.keys()].map(resultExists))).every(Boolean);
+      }
+      if (!applied) throw new Error(t('renameApplyFailed'));
       try {
         if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeOpen?.();
         await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(
@@ -1312,10 +1407,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
       const pasteMode = configuredPasteImportMode(configuration);
       if (pasteMode === 'off' || configuration.get<string>('indexing.mode', 'onDemand') === 'off') return undefined;
+      const sourceUnchanged = await captureDocumentSourceGuard(document);
       if (!transfer.get(PHP_IMPORT_METADATA_MIME)) {
         const plain = transfer.get('text/plain');
         if (!plain || !mayNeedPhpImportResolution(await plain.asString())) return undefined;
       }
+      if (!await sourceUnchanged()) return undefined;
       if (selfLanguageServer) {
         const client = await languageServer; const plain = transfer.get('text/plain'); if (!client || !plain) return undefined;
         const text = await plain.asString(); const position = ranges[0]?.start ?? new vscode.Position(0, 0);
@@ -1351,15 +1448,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           if (pasteMode === 'prompt') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
           edits.push(paste);
         }
-        return edits.length ? edits : undefined;
+        return edits.length && await sourceUnchanged() ? edits : undefined;
       }
       await versions.ensureForUri(document.uri);
       const manager = await workspace();
       const version = document.version;
       if (!await manager.ensureProjectIndex(document.uri) || document.version !== version) return undefined;
-      return new PhpImportPasteProvider(manager.index, (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []).provideDocumentPasteEdits(document, ranges, transfer);
+      const edits = await new PhpImportPasteProvider(manager.index, (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? [])
+        .provideDocumentPasteEdits(document, ranges, transfer);
+      return await sourceUnchanged() ? edits : undefined;
     },
   };
+  if (context.extensionMode === vscode.ExtensionMode.Test) register('phpCompanion._testPasteImportEdits', async (uri: vscode.Uri, text: string) => {
+    const document = await vscode.workspace.openTextDocument(uri);
+    const transfer = new vscode.DataTransfer();
+    transfer.set('text/plain', new vscode.DataTransferItem(text));
+    const edits = await (lazyPaste.provideDocumentPasteEdits as (document: vscode.TextDocument, ranges: readonly vscode.Range[],
+      transfer: vscode.DataTransfer) => Promise<vscode.DocumentPasteEdit[] | undefined>)(document,
+      [new vscode.Range(0, 0, 0, 0)], transfer);
+    return edits?.map((edit) => ({ text: edit.insertText, imports: edit.additionalEdit?.entries().flatMap(([, changes]) =>
+      changes.map((change) => change.newText)) ?? [] }));
+  });
   context.subscriptions.push(
     output, status, versions, diagnostics, ...commands,
     vscode.languages.registerCodeActionsProvider(phpSelector, new NamespaceCodeActions(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }),

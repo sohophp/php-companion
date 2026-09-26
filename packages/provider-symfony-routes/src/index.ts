@@ -164,7 +164,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   const bundleRoots = await registeredBundleRoots(root, parser, mappings, sources, inputPaths,
     () => { inputEvidenceComplete = false; }, options.environment);
   const projectScope: BundleRoot = { path: root, realPath: actualRoot };
-  const routes: SymfonyRouteFact[] = []; const visitedContexts = new Set<string>(); let remaining = options.maxEntries ?? 256; let complete = true;
+  const routes: SymfonyRouteFact[] = []; const visitedContexts = new Set<string>(); let remaining = options.maxEntries ?? 1024; let complete = true;
   let defaultNameStyle: 'framework' | undefined;
   try {
     inputPaths.add(resolve(root, 'composer.json'));
@@ -175,12 +175,13 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
     /* Generated attribute names remain unknown without an explicit loader style. */
   }
   const read = async (path: string, namePrefix: string, pathPrefix: SymfonyRoutePathPrefix, ancestors: Set<string>, attribute = false, php = false,
-    excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope): Promise<void> => {
+    excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope,
+    countedByGlob = false): Promise<void> => {
     const local = relative(scope.path, path);
     if (excludedRoutePath(path, excludedPaths)) return;
     if (ancestors.has(path)) { complete = false; return; }
     if (isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`)) { complete = false; return; }
-    if (remaining-- <= 0) { complete = false; inputEvidenceComplete = false; return; }
+    if (!countedByGlob && remaining-- <= 0) { complete = false; inputEvidenceComplete = false; return; }
     try {
       if (/[*?{[]/.test(path)) {
         const segments = path.split(sep); const firstMagic = segments.findIndex((segment) => /[*?{[]/.test(segment));
@@ -194,13 +195,19 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
             if (!within(scope.realPath, actual)) { complete = false; return; }
             const info = await stat(candidate);
             if (info.isDirectory()) { inputPaths.delete(resolve(candidate)); inputDirectories.add(resolve(candidate)); }
-            if (routePathMatches(candidate, path)) { await read(candidate, namePrefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope); return; }
+            if (routePathMatches(candidate, path)) {
+              await read(candidate, namePrefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope, true);
+              return;
+            }
             if (!info.isDirectory()) return;
             const next = new Set([...seen, actual]);
             inputDirectories.add(resolve(candidate));
             for (const entry of (await readdir(candidate, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
-              if (remaining <= 0) { inputEvidenceComplete = false; break; }
-              if (!entry.name.startsWith('.')) await walk(resolve(candidate, entry.name), next);
+              if (entry.name.startsWith('.')) continue;
+              const child = resolve(candidate, entry.name);
+              if (excludedRoutePath(child, excludedPaths) || entry.isFile() && !routePathMatches(child, path)) continue;
+              if (remaining <= 0) { complete = false; inputEvidenceComplete = false; break; }
+              await walk(child, next);
             }
           } catch (error) { complete = false; if (!missing(error)) inputEvidenceComplete = false; }
         };
@@ -283,7 +290,8 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   }
   const counts = new Map<string, number>(); for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
   if ([...counts.values()].some((count) => count > 1)) complete = false;
-  return { complete, routes: routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name)),
+  return { complete: complete && inputEvidenceComplete,
+    routes: routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name)),
     inputUris: [...inputPaths].sort().map((path) => pathToFileURL(path).toString()),
     inputDirectoryUris: [...inputDirectories].sort().map((path) => pathToFileURL(path).toString()), inputEvidenceComplete };
 }
