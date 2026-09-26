@@ -25,4 +25,6 @@ C2 已补上[按需模式的跨文件联合数组形状反馈](c2-ondemand-union
 
 C3 冻结候选已通过完整 10 项打包宿主；冻结后源码又修正了[类型生成最终创建路径的应用结果](c3-type-generation-create-postapply-2026-09-26.md)。这项增量只通过完整 10 项源码 C3 宿主，**不在 0.4.7 VSIX 中**。下一次交付冻结时再同批纳入三份 VSIX。
 
+后续[类型生成暂存清理门禁](c3-type-generation-stage-cleanup-2026-09-27.md)已在 10 项源码 Pack 下验证：被拒绝的同文件系统移动清理暂存源，成功的备用移动可 Undo/Redo；完整 C3 宿主在 Symfony Rename 阶段仍有偶发 `Canceled`，最终 `createFile` 的 Redo 缺口保持开放。
+
 C1 冻结后源码又接通了[PHPDoc 项目类型补全](c1-phpdoc-type-completion-2026-09-27.md)，与 Pack 中负责注释块生成的 PHP DocBlocker 分工。跨文件按需补全和反例已通过完整 10 项源码宿主；这项增量同样不在 0.4.7 VSIX 中。

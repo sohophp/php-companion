@@ -569,14 +569,18 @@ export async function run(): Promise<void> {
   }
   const creationFallbackUri = vscode.Uri.joinPath(serviceDirectory, 'C3CreationFallback.php');
   let siblingWasAttempted = false;
+  let rejectedSiblingStagePath: string | undefined;
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
     'C3CreationFallback', serviceDirectory, async () => 'apply', undefined, undefined, undefined,
-    async () => false, async (edit: vscode.WorkspaceEdit) => {
+    async () => false, async (edit: vscode.WorkspaceEdit, stagedPath: string) => {
       siblingWasAttempted = true;
+      rejectedSiblingStagePath = stagedPath;
       assert.ok(edit.size > 0, 'Type generation did not prepare the same-filesystem staged move');
       return false;
     }), true, 'Type generation did not use createFile when both staged moves were rejected');
-  assert.ok(siblingWasAttempted, 'Type generation skipped the same-filesystem staged move');
+  assert.ok(siblingWasAttempted && rejectedSiblingStagePath, 'Type generation skipped the same-filesystem staged move');
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(rejectedSiblingStagePath!)),
+    'A rejected same-filesystem move left its staged PHP source beside the workspace');
   assert.ok((await vscode.workspace.openTextDocument(creationFallbackUri)).getText().includes('class C3CreationFallback'),
     'The last-resort file creation lost the generated PHP source');
   await vscode.workspace.fs.delete(creationFallbackUri);
@@ -605,6 +609,10 @@ export async function run(): Promise<void> {
       'A rejected fallback unexpectedly created its PHP file');
   }
   console.log('C3 createFile fallback reconciled false and thrown applyEdit results with actual file contents');
+  if (process.env.PHP_COMPANION_TEST_C3_STAGE_ONLY === '1') {
+    console.log('C3 type generation stage-only gate passed');
+    return;
+  }
   const concurrentSource = '<?php\n// Created while SoPHP preview was open.\n';
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class', 'C3GeneratedType', serviceDirectory,
     async () => { checkPreview(); await vscode.workspace.fs.writeFile(generatedUri, Buffer.from(concurrentSource)); return 'apply'; }), false);
