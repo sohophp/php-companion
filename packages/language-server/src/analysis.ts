@@ -640,7 +640,8 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
   const parsed = parser.parse(document.getText());
   try {
     const source = document.getText();
-    const grammarGapRanges = newestSyntaxGrammarGapRanges(source);
+    const grammarGaps = newestSyntaxGrammarGapRanges(source, parser, parsed.tree.rootNode, parsed.errors);
+    const grammarGapRanges = grammarGaps.ranges;
     const grammarNodes = [parsed.tree.rootNode];
     while (grammarNodes.length > 0) {
       const node = grammarNodes.pop()!;
@@ -743,6 +744,12 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       }
     }
     const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion);
+    if (!isSyntaxAvailable(targetVersion, '8.5')) for (const call of grammarGaps.cloneCalls) {
+      if (!versionFeatures.some((feature) => feature.feature === 'clone with properties'
+        && feature.start <= call.start && feature.end >= call.end)) {
+        versionFeatures.push({ feature: 'clone with properties', minimumVersion: '8.5', ...call });
+      }
+    }
     const hasLegacyNativeName = versionFeatures.some((feature) => feature.feature === 'mixed type' || feature.feature === 'never type');
     const namespaceRegions = hasLegacyNativeName ? parsed.tree.rootNode.namedChildren
       .filter((node) => node.type === 'namespace_definition')
@@ -1117,10 +1124,20 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
   }
 }
 
-function newestSyntaxGrammarGapRanges(source: string): SourceRange[] {
+function newestSyntaxGrammarGapRanges(source: string, parser: PhpSyntaxParser,
+  root: ReturnType<PhpSyntaxParser['parseTree']>['rootNode'], errors: SourceRange[]): { ranges: SourceRange[]; cloneCalls: SourceRange[] } {
   const ranges: SourceRange[] = [];
-  for (const match of source.matchAll(/\bclone\s*\(/gi)) {
-    let depth = 1; let quote = ''; let escaped = false; let index = match.index + match[0].length;
+  const cloneCalls: SourceRange[] = [];
+  for (const match of source.matchAll(/\bclone\s*\(/giu)) {
+    let node = root.descendantForIndex(match.index);
+    let code = false;
+    while (node) {
+      if (['comment', 'string_content', 'encapsed_string', 'heredoc', 'nowdoc'].includes(node.type)) { code = false; break; }
+      if (node.type === 'ERROR' || node.type === 'clone_expression') code = true;
+      node = node.parent!;
+    }
+    if (!code) continue;
+    let depth = 1; let quote = ''; let escaped = false; let sawArgumentComma = false; let index = match.index + match[0].length;
     for (; index < source.length && depth > 0; index += 1) {
       const character = source[index]!;
       if (quote) {
@@ -1129,17 +1146,40 @@ function newestSyntaxGrammarGapRanges(source: string): SourceRange[] {
         else if (character === quote) quote = '';
         continue;
       }
+      if (source.startsWith('/*', index)) {
+        const end = source.indexOf('*/', index + 2);
+        if (end < 0) break;
+        index = end + 1;
+        continue;
+      }
+      if (source.startsWith('//', index) || character === '#') {
+        const end = source.indexOf('\n', index);
+        if (end < 0) break;
+        index = end;
+        continue;
+      }
       if (character === "'" || character === '"') quote = character;
+      else if (character === ',' && depth === 1) sawArgumentComma = true;
       else if (character === '(' || character === '[' || character === '{') depth += 1;
       else if (character === ')' || character === ']' || character === '}') depth -= 1;
     }
-    if (depth === 0) {
-      const expression = source.slice(match.index, index);
-      const stringLiteral = String.raw`(?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")`;
-      const key = String.raw`(?:${stringLiteral}|[0-9]+)`;
-      const value = String.raw`(?:${stringLiteral}|-?[0-9]+(?:\.[0-9]+)?|true|false|null)`;
-      const propertyArray = new RegExp(String.raw`^clone\s*\(\s*\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\s*->\s*[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*\s*,\s*\[\s*(?:${key}\s*=>\s*${value}\s*(?:,\s*${key}\s*=>\s*${value}\s*)*,?\s*)?\]\s*\)$`, 'iu');
-      if (propertyArray.test(expression)) ranges.push({ start: match.index, end: index });
+    if (depth !== 0 || !sawArgumentComma) continue;
+    const expression = source.slice(match.index, index);
+    // PHP 8.5 treats clone(...) as a call. Parse its arguments as an ordinary call;
+    // only a complete argument list may suppress errors from the older grammar.
+    const call = parser.parseTree(`<?php clonx${expression.slice('clone'.length)};`);
+    try {
+      if (call.rootNode.hasError) continue;
+    } finally { call.delete(); }
+    const cloneRange = { start: match.index, end: index };
+    cloneCalls.push(cloneRange);
+    ranges.push(cloneRange);
+    const enclosing = errors.filter((error) => error.start < cloneRange.start && error.end >= cloneRange.end);
+    if (enclosing.length > 0) {
+      const repaired = parser.parse(`${source.slice(0, match.index)}clonx${source.slice(match.index + 'clone'.length)}`);
+      try {
+        for (const error of enclosing) if (!repaired.errors.some((remaining) => remaining.start < error.end && remaining.end > error.start)) ranges.push(error);
+      } finally { repaired.tree.delete(); }
     }
   }
   for (const constructor of source.matchAll(/\bfunction\s+__construct\s*\(/gi)) {
@@ -1164,5 +1204,5 @@ function newestSyntaxGrammarGapRanges(source: string): SourceRange[] {
       ranges.push({ start, end: start + promotion[1]!.length });
     }
   }
-  return ranges;
+  return { ranges, cloneCalls };
 }

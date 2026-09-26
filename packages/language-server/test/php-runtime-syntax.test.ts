@@ -14,12 +14,24 @@ const binaries = Object.entries(configured) as Array<[SupportedPhpVersion, strin
 const cases: Array<{ name: string; introduced: SupportedPhpVersion; source: string }> = [
   { name: 'trailing-call-comma', introduced: '7.3', source: '<?php function f($x) {} f(1,);' },
   { name: 'arrow-function', introduced: '7.4', source: '<?php $f = fn(int $x): int => $x + 1;' },
+  { name: 'named-argument', introduced: '8.0', source: '<?php function f(int $value) {} f(value: 1);' },
+  { name: 'union-type', introduced: '8.0', source: '<?php function f(int|string $value): int|string { return $value; }' },
+  { name: 'nullsafe-access', introduced: '8.0', source: '<?php $x = $object?->name;' },
   { name: 'match-expression', introduced: '8.0', source: '<?php $x = match (1) { 1 => 2, default => 0 };' },
   { name: 'enum', introduced: '8.1', source: '<?php enum State { case Ready; }' },
+  { name: 'first-class-callable', introduced: '8.1', source: '<?php function f(int $x): int { return $x; } $f = f(...);' },
   { name: 'readonly-class', introduced: '8.2', source: '<?php readonly class State { public function __construct(public int $id) {} }' },
+  { name: 'dnf-type', introduced: '8.2', source: '<?php function f((Countable&Iterator)|null $value): void {}' },
   { name: 'typed-class-constant', introduced: '8.3', source: '<?php class State { public const int ID = 1; }' },
+  { name: 'dynamic-class-constant', introduced: '8.3', source: '<?php class A { const X = 1; } $name = "X"; echo A::{$name};' },
   { name: 'property-hook', introduced: '8.4', source: '<?php class State { public int $id { get => 1; } }' },
+  { name: 'asymmetric-property-visibility', introduced: '8.4', source: '<?php class A { public private(set) int $value = 1; }' },
   { name: 'void-cast', introduced: '8.5', source: '<?php (void) strlen("x");' },
+  { name: 'pipe-operator', introduced: '8.5', source: '<?php $result = "hello" |> strtoupper(...);' },
+  { name: 'clone-with', introduced: '8.5', source: '<?php class A { public string $name = "a"; } $copy = clone(new A(), ["name" => "b"]);' },
+  { name: 'clone-with-expressions', introduced: '8.5', source: '<?php class A { public function __construct(int $value) {} } $copy = clone(new A(1), ["name" => strtoupper("b")]);' },
+  { name: 'clone-with-array-variable', introduced: '8.5', source: '<?php $copy = clone($object, $properties);' },
+  { name: 'clone-with-trailing-comma', introduced: '8.5', source: '<?php $copy = clone($object, ["name" => "b"],);' },
 ];
 
 it('requires a PHP 8.5 void cast operand without flagging comments or string content', async () => {

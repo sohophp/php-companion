@@ -240,6 +240,8 @@ function accepts(mixed $value): never { return new never(); }`);
   it('does not hide syntax errors near PHP 8.5 grammar compatibility shims', () => {
     const invalidSources = [
       '<?php $copy = clone($object, [\'name\' => ]);',
+      '<?php $copy = clone(new A(), [\'name\' => ]);',
+      '<?php $copy = clone($object, [\'name\' => \'new\'],); $broken = ;',
       '<?php function run(public final string $name): void {}',
     ];
     for (const source of invalidSources) {
