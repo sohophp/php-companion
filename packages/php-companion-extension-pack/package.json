@@ -53,7 +53,8 @@
       "phpCompanion.rename.enabled": true,
       "[php]": {
         "editor.defaultFormatter": "junstyle.php-cs-fixer",
-        "editor.wordBasedSuggestions": "off"
+        "editor.wordBasedSuggestions": "off",
+        "editor.suggest.showWords": false
       },
       "[xml]": {
         "editor.defaultFormatter": "redhat.vscode-xml"

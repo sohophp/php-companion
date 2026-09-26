@@ -504,6 +504,8 @@ async function verifyOpenSourceProfile(workspace: vscode.WorkspaceFolder): Promi
     'The Open Source Pack did not set the supported default indexing mode');
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: workspace.uri, languageId: 'php' }).get('defaultFormatter'), 'junstyle.php-cs-fixer',
     'The Open Source Pack did not select the PHP formatter');
+  assert.strictEqual(vscode.workspace.getConfiguration('editor.suggest', { uri: workspace.uri, languageId: 'php' }).get('showWords'), false,
+    'The Open Source Pack did not hide duplicate PHP word suggestions');
   assert.strictEqual(vscode.extensions.getExtension('bmewburn.vscode-intelephense-client'), undefined, 'Open Source Profile unexpectedly contains Intelephense');
   assert.strictEqual(vscode.extensions.getExtension('symfony.language-tools'), undefined, 'Open Source Profile contains the rejected Symfony Rename provider');
   assert.strictEqual(vscode.extensions.getExtension('dotjoshjohnson.xml'), undefined, 'Open Source Profile contains the rejected XML provider');

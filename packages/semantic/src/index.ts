@@ -3432,19 +3432,24 @@ export class SemanticWorkspace {
     while (before >= 0 && /\s/u.test(file.source[before]!)) before -= 1;
     if (file.source[before] === ':' && file.source[before - 1] === ':') return undefined;
     if (file.commentRanges.some((range) => start >= range.start && start < range.end)) return undefined;
-    if (file.stringRanges.some((range) => start >= range.start && start < range.end)) {
+    const insideString = file.stringRanges.some((range) => start >= range.start && start < range.end);
+    const mayContainHtml = file.source.includes('?>') || !/^\s*<\?(?:php|=)/u.test(file.source);
+    if (insideString || mayContainHtml) {
       const retainedTree = this.trees.get(uri);
       const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
       try {
         const node = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(start, start + 1);
-        let parent = node?.parent;
-        while (parent && !['encapsed_string', 'heredoc_body', 'shell_command_expression'].includes(parent.type)) parent = parent.parent;
-        let backslashes = 0;
-        for (let index = start - 1; file.source[index] === '\\'; index -= 1) backslashes += 1;
-        const parsedVariable = node?.type === 'variable_name' && node.startIndex === start && node.endIndex >= end;
-        const bareDollar = match[0] === '$' && node?.type === 'string_content'
-          && node.startIndex <= start && start < node.endIndex && backslashes % 2 === 0;
-        if (!parent || (!parsedVariable && !bareDollar)) return undefined;
+        if (node?.type === 'text') return undefined;
+        if (insideString) {
+          let parent = node?.parent;
+          while (parent && !['encapsed_string', 'heredoc_body', 'shell_command_expression'].includes(parent.type)) parent = parent.parent;
+          let backslashes = 0;
+          for (let index = start - 1; file.source[index] === '\\'; index -= 1) backslashes += 1;
+          const parsedVariable = node?.type === 'variable_name' && node.startIndex === start && node.endIndex >= end;
+          const bareDollar = match[0] === '$' && node?.type === 'string_content'
+            && node.startIndex <= start && start < node.endIndex && backslashes % 2 === 0;
+          if (!parent || (!parsedVariable && !bareDollar)) return undefined;
+        }
       } finally { temporaryTree?.delete(); }
     }
     const scope = this.containingScope(file, offset); if (!scope) return undefined;

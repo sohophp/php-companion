@@ -56,7 +56,7 @@ describe('SoPHP manifests', () => {
     expect(defaults?.['phpCompanion.symfony.winstarRoutes.enabled']?.default).toBe(false);
     expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['php.suggest.basic']).toBe(false);
     expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['[php]'])
-      .toEqual({ 'editor.wordBasedSuggestions': 'off' });
+      .toEqual({ 'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false });
   });
 
   it('ships the Open Source Pack without another PHP language server', async () => {
@@ -76,7 +76,7 @@ describe('SoPHP manifests', () => {
     expect(defaults?.['php.suggest.basic']).toBe(false);
     expect(Object.keys(defaults ?? {}).some((key) => key.startsWith('symfonyLsp.'))).toBe(false);
     expect(defaults?.['[php]']).toEqual({ 'editor.defaultFormatter': 'junstyle.php-cs-fixer',
-      'editor.wordBasedSuggestions': 'off' });
+      'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false });
     expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
   });
 });

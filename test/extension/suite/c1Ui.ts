@@ -53,6 +53,21 @@ async function evaluate(socket: WebSocket, expression: string, id: number): Prom
   });
 }
 
+export async function visibleCompletionLabels(port: number): Promise<string[]> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    const deadline = Date.now() + 2_000;
+    let id = 1;
+    while (Date.now() < deadline) {
+      const labels = await evaluate(socket, `Array.from(document.querySelectorAll('.suggest-widget.visible .monaco-list-row'))
+        .map(row => row.textContent?.trim() ?? '').filter(Boolean)`, id++) as string[];
+      if (labels.length) return labels;
+      await new Promise<void>((resolve) => setTimeout(resolve, 30));
+    }
+    return [];
+  } finally { socket.close(); }
+}
+
 export async function visibleStatusBarContains(port: number, label: string): Promise<boolean> {
   const socket = await connect(await cdpPage(port));
   try {

@@ -150,6 +150,20 @@ TXT;
       expect(project.completeVariables(uri, at('Hello $\nTXT;', source.indexOf("<<<'TXT'")))).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('keeps PHP variable completion out of HTML between PHP tags', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///MixedPhpHtml.php';
+    const source = '<div>$G</div><?php $globalName = 1; ?><div>$G</div><?php $G; ?>';
+    try {
+      project.update(uri, source);
+      const firstHtml = source.indexOf('$G');
+      const secondHtml = source.indexOf('$G', firstHtml + 1);
+      const php = source.lastIndexOf('$G;');
+      expect(project.completeVariables(uri, firstHtml + 2)).toBeUndefined();
+      expect(project.completeVariables(uri, secondHtml + 2)).toBeUndefined();
+      expect(project.completeVariables(uri, php + 2)?.names).toContain('$globalName');
+    } finally { project.dispose(); }
+  });
   it('indexes recovered legacy class declarations for PHP type navigation', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LegacyNames.php';

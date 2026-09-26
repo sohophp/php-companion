@@ -1,7 +1,7 @@
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUnsavedReceiverSuggestion, measureVisibleInstalledPsr0Type, measureVisibleSuggestion,
-  measureVisibleTypeSuggestion } from './c1Ui.js';
+  measureVisibleTypeSuggestion, visibleCompletionLabels } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -353,6 +353,9 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',
     'PHP variable suggestions should come from SoPHP with PHP scope ownership.');
+  assert.strictEqual(vscode.workspace.getConfiguration('editor.suggest', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
+    languageId: 'php' }).get('showWords'), false,
+    'PHP should hide word candidates while SoPHP owns scoped variable suggestions.');
   const localWordSource = '<?php function c1LocalWord(): void { $customerName = "Ada"; $cust }';
   const localWordUri = vscode.Uri.joinPath(folder, 'C1LocalWord.php');
   await vscode.workspace.fs.writeFile(localWordUri, Buffer.from(localWordSource));
@@ -417,6 +420,33 @@ export async function run(): Promise<void> {
   assert.ok(await vscode.workspace.applyEdit(interpolationEdit));
   assert.ok(interpolationDocument.getText().includes('"Hello {$username}"'),
     'Accepting interpolated variable completion damaged the surrounding braces.');
+  const mixedSource = '<div>$G</div><?php $globalName = 1; ?><p>$G</p><?php $G; ?>';
+  const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
+  await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));
+  const mixedDocument = await vscode.workspace.openTextDocument(mixedUri);
+  await vscode.window.showTextDocument(mixedDocument);
+  const htmlDollar = mixedSource.indexOf('$G', mixedSource.indexOf('<p>')) + '$G'.length;
+  const htmlSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    mixedUri, mixedDocument.positionAt(htmlDollar));
+  // The command can include VS Code's Text-kind word candidates even with the editor's word setting off.
+  // Check SoPHP's Variable-kind result here; the visible suggestion widget needs separate Workbench coverage.
+  assert.ok(!htmlSuggestions?.items.some((item) => item.label === '$globalName' && item.kind === vscode.CompletionItemKind.Variable),
+    'SoPHP suggested a variable in HTML between PHP tags.');
+  const phpDollar = mixedSource.lastIndexOf('$G;') + '$G'.length;
+  const phpSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    mixedUri, mixedDocument.positionAt(phpDollar));
+  assert.ok(phpSuggestions?.items.some((item) => item.label === '$globalName' && item.kind === vscode.CompletionItemKind.Variable),
+    'PHP lost the variable suggestion after returning from HTML to PHP.');
+  if (c1DebugPort) {
+    const mixedEditor = await vscode.window.showTextDocument(mixedDocument);
+    mixedEditor.selection = new vscode.Selection(mixedDocument.positionAt(htmlDollar), mixedDocument.positionAt(htmlDollar));
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const labels = await visibleCompletionLabels(Number(c1DebugPort));
+    assert.ok(!labels.some((label) => label.includes('$globalName')),
+      `The Workbench visibly suggested a PHP variable in HTML: ${JSON.stringify(labels)}`);
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  }
   const scopedWordSource = '<?php function c1First(): void { $otherFunctionSecret = 1; } function c1Second(): void { $otherFunctionSec; }';
   const scopedWordUri = vscode.Uri.joinPath(folder, 'C1ScopedWord.php');
   await vscode.workspace.fs.writeFile(scopedWordUri, Buffer.from(scopedWordSource));

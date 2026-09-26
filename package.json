@@ -107,7 +107,8 @@
     "configurationDefaults": {
       "php.suggest.basic": false,
       "[php]": {
-        "editor.wordBasedSuggestions": "off"
+        "editor.wordBasedSuggestions": "off",
+        "editor.suggest.showWords": false
       }
     },
     "commands": [
