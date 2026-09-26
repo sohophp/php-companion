@@ -7,8 +7,10 @@ import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ReferenceResultStore } from '../src/referenceResultStore.js';
 
-// macOS exposes /var through /private/var; keep fixture URIs aligned with indexed real paths.
-function tmpdir(): string { return realpathSync(osTmpdir()); }
+// macOS exposes /var through /private/var; keep the test and spawned server on one path spelling.
+const testTempRoot = realpathSync(osTmpdir());
+if (process.platform === 'darwin') process.env.TMPDIR = testTempRoot;
+function tmpdir(): string { return testTempRoot; }
 
 function encode(message: object): string {
   const body = JSON.stringify(message);
