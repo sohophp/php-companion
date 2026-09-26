@@ -150,6 +150,31 @@ TXT;
       expect(project.completeVariables(uri, at('Hello $\nTXT;', source.indexOf("<<<'TXT'")))).toBeUndefined();
     } finally { project.dispose(); }
   });
+  it('completes object members only in PHP interpolation expressions', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///InterpolatedMembers.php';
+    const source = String.raw`<?php
+class DisplayItem { public string $title = ''; public function titleCase(): string { return ''; } }
+function display(DisplayItem $item): void {
+  echo "{$item->ti}";
+  echo "plain $item->ti";
+  echo 'literal $item->ti';
+  echo "escaped \$item->ti";
+  echo <<<'TXT'
+$item->ti
+TXT;
+}`;
+    try {
+      project.update(uri, source);
+      const members = (marker: string, length = marker.length): string[] => project.completeMembers(uri,
+        source.indexOf(marker) + length).map((item) => item.name);
+      expect(members('{$item->ti')).toEqual(expect.arrayContaining(['title', 'titleCase']));
+      expect(members('plain $item->ti')).toEqual(expect.arrayContaining(['title', 'titleCase']));
+      expect(members('literal $item->ti')).toEqual([]);
+      expect(members(String.raw`escaped \$item->ti`)).toEqual([]);
+      expect(members('$item->ti\nTXT;', '$item->ti'.length)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('keeps PHP variable completion out of HTML between PHP tags', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///MixedPhpHtml.php';

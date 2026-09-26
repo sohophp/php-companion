@@ -3418,7 +3418,25 @@ export class SemanticWorkspace {
   isMemberCompletionContext(uri: string, offset: number): boolean {
     const file = this.files.get(uri);
     if (!file) return false;
+    if (this.isLiteralMemberTextPosition(uri, file, offset)) return false;
     return /(?:\?->|->|::)\s*\$?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(file.source.slice(0, offset));
+  }
+
+  private isLiteralMemberTextPosition(uri: string, file: SemanticFile, offset: number): boolean {
+    const at = offset - 1;
+    if (at < 0 || !file.stringRanges.some((range) => at >= range.start && at < range.end)) return false;
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(at);
+      while (node) {
+        if (node.type === 'string_content' || node.type === 'string' || node.type === 'nowdoc') return true;
+        if (node.type === 'encapsed_string' || node.type === 'heredoc_body'
+          || node.type === 'shell_command_expression') return false;
+        node = node.parent;
+      }
+      return false;
+    } finally { temporaryTree?.delete(); }
   }
 
   isPhpCodeContext(uri: string, offset: number): boolean {
@@ -8870,6 +8888,7 @@ export class SemanticWorkspace {
   private memberTarget(uri: string, offset: number, unresolvedOwners?: Set<string>): MemberTarget | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
+    if (this.isLiteralMemberTextPosition(uri, file, offset)) return undefined;
     const tree = this.trees.get(uri);
     let statementStart = 0;
     if (tree && !tree.rootNode.hasError && offset > 0 && offset <= file.source.length) {

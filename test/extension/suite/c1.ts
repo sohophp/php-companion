@@ -420,6 +420,38 @@ export async function run(): Promise<void> {
   assert.ok(await vscode.workspace.applyEdit(interpolationEdit));
   assert.ok(interpolationDocument.getText().includes('"Hello {$username}"'),
     'Accepting interpolated variable completion damaged the surrounding braces.');
+  const memberStringSource = String.raw`<?php
+class C1DisplayItem { public string $title = ''; public function titleCase(): string { return ''; } }
+function c1Display(C1DisplayItem $item): void {
+  echo "{$item->ti}";
+  echo "plain $item->ti";
+  echo 'literal $item->ti';
+  echo "escaped \$item->ti";
+  echo <<<'TXT'
+$item->ti
+TXT;
+}`;
+  const memberStringUri = vscode.Uri.joinPath(folder, 'C1InterpolatedMembers.php');
+  await vscode.workspace.fs.writeFile(memberStringUri, Buffer.from(memberStringSource));
+  const memberStringDocument = await vscode.workspace.openTextDocument(memberStringUri);
+  await vscode.window.showTextDocument(memberStringDocument);
+  const memberSuggestions = async (marker: string, length = marker.length): Promise<vscode.CompletionItem[]> =>
+    (await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      memberStringUri, memberStringDocument.positionAt(memberStringSource.indexOf(marker) + length)))?.items ?? [];
+  for (const marker of ['{$item->ti', 'plain $item->ti']) {
+    const suggestions = await memberSuggestions(marker);
+    assert.ok(suggestions.some((item) => item.label === 'title' && item.kind === vscode.CompletionItemKind.Property),
+      `PHP lost member completion in ${marker}.`);
+  }
+  for (const [marker, length] of [
+    ['literal $item->ti', 'literal $item->ti'.length],
+    [String.raw`escaped \$item->ti`, String.raw`escaped \$item->ti`.length],
+    ['$item->ti\nTXT;', '$item->ti'.length],
+  ] as const) {
+    const suggestions = await memberSuggestions(marker, length);
+    assert.ok(!suggestions.some((item) => item.label === 'title' && item.kind === vscode.CompletionItemKind.Property),
+      `PHP suggested a member inside literal text: ${marker}.`);
+  }
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));
