@@ -16,6 +16,8 @@
 
 `pnpm benchmark:editing -- 1000 100` 在 100 次预热后执行 1000 次交替类型编辑，逐次检查最新补全、Hover 和 Definition；退出码 0。更新到诊断 P95 为 29.76 ms（预算 500 ms），热补全/Hover/Definition P95 分别为 1.60/1.58/1.97 ms（各预算 150 ms）；取消响应 1.24 ms（预算 100 ms）。三类旧结果失败均为 0。Language Server RSS 从 162.01 到 167.38 MiB，保留增长 5.36 MiB（预算 128 MiB）；实际破坏持久缓存后重启，日志与补全均确认恢复。
 
+在同一已构建源码上执行 `node scripts/benchmark-local-change.mjs 10000 200`：完整 10k 文件语料中连续 200 次只改同一方法体，每次只重解析该文件，不触发声明解析或类型目录变化；局部更新 P95 为 0.62 ms，退出码 0。原始结果见机器可读报告的 `localChange10000`。
+
 ## 分层缓存
 
 `node scripts/benchmark-persistent-index.mjs` 顺序运行 1k、10k、50k。三档冷索引分别解析全部文件，热恢复分别恢复全部 1,000/10,000/50,000 个文件且重解析均为 0；Doctrine 事实恢复、目标 Callable 按需加载、派生事实失效及损坏层/单条 Callable 的局部重建均通过。缓存体积分别为 5.39/53.87/269.36 MiB，低于 64/512/2560 MiB 冻结上限；三档命令均退出码 0。

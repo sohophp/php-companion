@@ -285,5 +285,31 @@
         "corruptCallableReparsedFiles": 1
       }
     }
+  },
+  "localChange10000": {
+    "schema": 1,
+    "files": 10000,
+    "iterations": 200,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "baseline": {
+      "indexedFiles": 10000,
+      "complete": true
+    },
+    "implementationEditMs": {
+      "samples": 200,
+      "p50": 0.44947099999990314,
+      "p95": 0.6161619999984396,
+      "maximum": 3.5204159999993863
+    },
+    "affected": {
+      "uniqueFilesReparsed": 1,
+      "totalFileParses": 200,
+      "declarationParseCalls": 0,
+      "changedTypes": 0,
+      "changedCallablesPerEdit": 1
+    }
   }
 }
