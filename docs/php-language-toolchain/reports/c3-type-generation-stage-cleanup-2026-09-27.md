@@ -8,4 +8,6 @@
 
 同轮的完整 C3 Pack 宿主先有两次在 Symfony 服务 Rename 准备阶段以 VS Code `Canceled` 中断，第三次完整通过，日志 `/tmp/sophp-c3-current-pack10-stage-20260927.log`；加入暂存清理断言后的又一次完整运行已执行并通过类型生成断言，但仍在该 Rename 阶段中断，日志 `/tmp/sophp-c3-stage-cleanup-pack10-20260927.log`。因此本轮只把定向门禁记为稳定通过，不把完整 C3 宿主认作稳定绿灯。
 
+继续在 Symfony 服务 Rename 的预热结果、暂停请求与暂停生效处记录阶段日志后，包含暂存清理断言的**完整** 10 项 Pack C3 源码宿主连续两次退出码 0，日志 `/tmp/sophp-c3-rename-cancel-phase-20260927.log` 和 `/tmp/sophp-c3-rename-cancel-phase-repeat-20260927.log`。阶段日志只帮助定位再次出现的取消，不能证明取消根因已消除；稳定性结论仍需更多会话样本。它们确实补足了新断言加入后的完整套件通过证据。
+
 成功移动后用户执行 Undo，暂存路径可能重新出现，供 Redo 使用；本轮没有清除这种可恢复文件。最终 `createFile` 兜底的一次 Redo 仍是已知缺口。真实 WSL Remote、跨平台和已安装 VSIX 尚未由上述源码宿主验收。

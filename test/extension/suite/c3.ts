@@ -2208,7 +2208,9 @@ return static function (RoutingConfigurator $routes): void {
   }
   assert.ok(readyServiceRename?.entries().some(([uri]) => uri.toString() === xmlServicesUri.toString()),
     'Symfony service Rename fixture did not include the closed XML reference');
+  console.log('C3 Symfony service Rename warm result contains closed XML');
   assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', { method: 'symfonyRename' }), true);
+  console.log('C3 Symfony service Rename pause armed');
   const heldServiceRename = vscode.commands.executeCommand<vscode.WorkspaceEdit | undefined>(
     'vscode.executeDocumentRenameProvider', servicesUri, servicePosition, 'app.mailer_renamed')
     .then((edit) => edit, (error: unknown) => {
@@ -2217,6 +2219,7 @@ return static function (RoutingConfigurator $routes): void {
     });
   await waitForState(api, 'symfonyRename', servicesDocument, (state) => state.paused,
     'Symfony service Rename response was not held before the XML reference changed');
+  console.log('C3 Symfony service Rename query paused');
   const changedXml = xmlServicesSource.replace('</container>', '  <!-- external edit during Rename -->\n</container>');
   await vscode.workspace.fs.writeFile(xmlServicesUri, Buffer.from(changedXml));
   assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', { method: 'symfonyRename' }), true);
