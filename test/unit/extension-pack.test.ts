@@ -27,7 +27,7 @@ describe('SoPHP manifests', () => {
   it('publishes Core and Symfony 0.4.6 while retaining Open Source Pack 0.4.5', async () => {
     for (const [path, version] of [['package.json', '0.4.6'],
       ['packages/php-companion-symfony/package.json', '0.4.6'],
-      ['packages/php-companion-extension-pack/package.json', '0.4.5']]) {
+      ['packages/php-companion-extension-pack/package.json', '0.4.5']] as const) {
       const value = await manifest(path);
       expect(value.publisher).toBe('sohophp');
       expect(value.version).toBe(version);
