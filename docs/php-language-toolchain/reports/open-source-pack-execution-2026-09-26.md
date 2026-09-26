@@ -30,3 +30,5 @@ C3 冻结候选已通过完整 10 项打包宿主；冻结后源码又修正了[
 C1 冻结后源码又接通了[PHPDoc 项目类型补全](c1-phpdoc-type-completion-2026-09-27.md)，与 Pack 中负责注释块生成的 PHP DocBlocker 分工。跨文件按需补全和反例已通过完整 10 项源码宿主；这项增量同样不在 0.4.7 VSIX 中。
 
 Symfony→Twig 编辑链又补上[紧邻赋值的模板上下文](symfony-controller-assigned-context-2026-09-27.md)：Controller 先赋字面量数组或 `compact()` 再传给 `render()`、或从 `#[Template]` 方法返回时，完整 10 项源码 Pack 中的 TwigPlus 能从模板变量跳回 PHP 来源。
+
+2026-09-27 的源码总门禁在 `93d9d43` 通过：`pnpm typecheck`、`pnpm lint`、`pnpm test` 均退出 0；测试合计 82 个文件、1266 项通过、1 项跳过，其中 Language Server 为 20 个文件、381 项通过、1 项跳过。C2 的[未保存 Symfony→Twig 编辑与 Undo](symfony-controller-assigned-context-2026-09-27.md)也已进入这次总门禁。此次没有运行包含 `package:all` 的 `pnpm check`，也没有重打 VSIX；上述冻结后源码改动仍未进入 0.4.7 安装包。下一交付点先处理 C3 `createFile` 兜底 Redo 缺口及偶发 Rename `Canceled` 的可复现性，再同批冻结 Core、Symfony、Pack 三份 VSIX，执行打包宿主与真实 WSL Remote 组合验收。源码测试通过不关闭 R4 的平台、规模和持续使用门槛。
