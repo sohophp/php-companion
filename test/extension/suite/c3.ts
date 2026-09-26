@@ -2255,8 +2255,11 @@ return static function (RoutingConfigurator $routes): void {
   assert.ok(await vscode.workspace.applyEdit(restoreRoute), 'Could not restore the unrelated PHP document');
   console.log('C3 Symfony service Rename ignored an unrelated open document edit');
   const containerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'ContainerConsumer.php');
+  console.log('C3 Symfony service Rename opening PHP consumer');
   const containerDocument = await vscode.workspace.openTextDocument(containerUri);
+  console.log('C3 Symfony service Rename showing PHP consumer');
   await vscode.window.showTextDocument(containerDocument);
+  console.log('C3 Symfony service Rename invoking safeRename');
   const containerPosition = containerDocument.positionAt(containerDocument.getText().indexOf("get('app.mailer')") + 7);
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
     uri: containerUri, position: containerPosition, newName: 'app.mailer_safe', testPreviewAction: async () => {

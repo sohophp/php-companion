@@ -36,3 +36,5 @@ Symfony→Twig 编辑链又补上[紧邻赋值的模板上下文](symfony-contro
 随后修正了[Symfony Rename 的无关文档版本误拒绝](c3-symfony-rename-affected-source-versions-2026-09-27.md)。完整 10 项源码 C3 宿主确认：暂停服务 Rename 时编辑无关的打开文档，返回编辑仍包含关闭 XML 引用；受影响来源变化的拒绝测试继续通过。偶发 `Canceled` 与最终 `createFile` Redo 仍未关闭。
 
 最终 `createFile` 的 Redo 已用[独立探针](c3-type-generation-fallback-redo-2026-09-26.md)在 VS Code 1.139.1 重新定位：两次移动均被拒绝后，Undo 删除文件，而一次标准 Redo 未恢复。旧 `FALLBACK_REDO_PROBE` 已转为备用移动的验证入口；该失败不计作默认 C3 测试失败，也不关闭 R4。
+
+后续源码增量已在[新的 0.4.7 私有 Alpha 候选](open-source-pack-047-postfreeze-alpha-2026-09-27.md)同批冻结为三份 VSIX。打包常规 Profile 通过；完整 C3 Profile 一次 `Canceled`、后续连续两次通过。此候选可供下一步独立 WSL Remote 验证，但 C3 稳定性、最终创建 Redo 和 R4 矩阵仍开放。
