@@ -1014,11 +1014,20 @@ function useCommented(mixed $value): never { return new never(); }`;
   assert.strictEqual(externalTypeCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1,
     'Cross-namespace class completion was returned more than once.');
   const qualifiedTypeSource = '<?php namespace App\\C1; use App\\C1\\External as ExtAlias; '
-    + 'function qualified(): void { new \\App\\C1\\Ext; new ExtAlias\\C1ExternalTypePro; }';
+    + 'function qualified(): void { new \\App; new \\App\\C1\\Ext; new ExtAlias\\C1ExternalTypePro; }';
   const qualifiedTypeUri = vscode.Uri.joinPath(folder, 'C1QualifiedTypeConsumer.php');
   await vscode.workspace.fs.writeFile(qualifiedTypeUri, Buffer.from(qualifiedTypeSource));
   const qualifiedTypeDocument = await vscode.workspace.openTextDocument(qualifiedTypeUri);
   const qualifiedTypeEditor = await vscode.window.showTextDocument(qualifiedTypeDocument);
+  const rootNamespaceOffset = qualifiedTypeSource.indexOf('new \\App;') + 'new \\App'.length;
+  const rootNamespaceCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', qualifiedTypeUri,
+      qualifiedTypeDocument.positionAt(rootNamespaceOffset)),
+    (result) => result?.items.some((item) => item.label === 'App\\'
+      && item.kind === vscode.CompletionItemKind.Module && item.detail === 'App\\') === true,
+    'SoPHP did not suggest the first absolute namespace segment in a native type position.',
+  );
+  assert.strictEqual(rootNamespaceCompletion.items.filter((item) => item.label === 'App\\').length, 1);
   const namespaceOffset = qualifiedTypeSource.indexOf('new \\App\\C1\\Ext') + 'new \\App\\C1\\Ext'.length;
   const qualifiedNamespaceCompletion = await waitForResult(
     () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', qualifiedTypeUri,

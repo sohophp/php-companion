@@ -3739,13 +3739,19 @@ export class SemanticWorkspace {
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
     const before = file.source.slice(0, offset);
     const match = /((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
-    if (!match) return undefined;
-    const prefix = match[2] ?? '';
-    const unqualified = before.slice(0, match.index) + prefix;
-    if (typeCompletionPrefix(unqualified, unqualified.length) !== prefix) return undefined;
-    const qualifier = match[1]!.slice(0, -1);
-    const namespace = this.resolveSourceType(file, qualifier, this.namespaceAt(file, offset));
-    return namespace === undefined ? undefined : { prefix, namespace };
+    if (match) {
+      const prefix = match[2] ?? '';
+      const unqualified = before.slice(0, match.index) + prefix;
+      if (typeCompletionPrefix(unqualified, unqualified.length) !== prefix) return undefined;
+      const qualifier = match[1]!.slice(0, -1);
+      const namespace = this.resolveSourceType(file, qualifier, this.namespaceAt(file, offset));
+      return namespace === undefined ? undefined : { prefix, namespace };
+    }
+    const absolute = /\\([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
+    if (!absolute) return undefined;
+    const prefix = absolute[1] ?? '';
+    const unqualified = before.slice(0, absolute.index) + prefix;
+    return typeCompletionPrefix(unqualified, unqualified.length) === prefix ? { prefix, namespace: '' } : undefined;
   }
 
   namespaceTypeContext(uri: string, offset: number): { qualifier: string; prefix: string } | undefined {

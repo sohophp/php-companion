@@ -23,3 +23,9 @@
 在 VS Code 1.139.1 Linux x64 的隔离 Core C1 宿主中，Composer PSR-4 项目提供了 `External` 目录和未打开的类。`new \App\C1\Ext` 返回唯一的 `External\` namespace 建议，不含同前缀的 PHP 函数 `extract`；在真实编辑器中触发并接受建议后，文本为 `new \App\C1\External\`。同文件的 `new ExtAlias\C1ExternalTypePro` 返回唯一的正确类且没有额外 import。整个 C1 源码宿主退出码 0，原有 `abs` 函数补全仍只出现一次。
 
 这是隔离源码宿主的编辑操作证据；已安装 VSIX、真实 WSL Remote 和用户长期使用仍须在 C4 分别验收。
+
+## 绝对名第一段
+
+后续检查发现，输入绝对类型名的第一段时，原有解析器只识别第二段起的限定名，导致 namespace 根建议缺失。现在第一段也归入已证明的原生类型位置：例如 `new \Dom` 能给出根 namespace `Domain\`；单个前导反斜线也会形成空前缀上下文。`echo` 等普通表达式不受影响。
+
+独立语义包 426 项通过；真实 `onDemand` stdio 用例从 Composer PSR-4 映射找到了根 namespace；VS Code 1.139.1 隔离 Core C1 宿主返回唯一的首段 `App\` 建议，随后原有的下一段建议接受和别名类补全仍通过。该宿主退出码 0，日志见 `/tmp/sophp-c1-root-namespace-host-20260927.log`。本轮未打包 VSIX。

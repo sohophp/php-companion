@@ -61,3 +61,5 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成熟扩展可以长期负责独立能力；只有同场景准确性、等待和回退的独立证据证明 SoPHP 更好时才切换所有者。人工反馈可随时纳入，不阻塞独立源码与自动化工作。
 
 限定类型名的同一输入链还补上了下一段 namespace 建议，并阻止类型位置被同前缀的 PHP 函数补全抢占。独立 Composer PSR-4 stdio、完整语义包及语言服务器 stdio 回归已通过；隔离 VS Code 1.139.1 C1 源码宿主还实际接受了 namespace 建议并核对别名类补全。已安装 VSIX 与真实 WSL Remote 仍待下次候选验收。
+
+绝对类型名的第一段也已补齐：`new \Dom` 可建议 Composer 的根 namespace。语义、定向真实 LSP 和隔离 C1 源码宿主已通过，结果仍属于冻结后源码。

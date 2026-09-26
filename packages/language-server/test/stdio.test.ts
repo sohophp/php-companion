@@ -132,7 +132,7 @@ describe('language server stdio', () => {
       const source = '<?php namespace App; use Domain\\OtherType as ImportedType; use Domain\\Billing as BillingAlias; '
         + 'function typed(string|Inv $value): string|Inv { return $value; } '
         + 'function mapped(#[MapRequestPayload(validationGroups: ["create", "write"])] Inv $value): void {} '
-        + 'function run(): void { new Proj; new Impor; new Inv; new \\Domain\\Bil; new BillingAlias\\Ope; new \\Domain\\Billing\\Inv; new BillingAlias\\Inv; new Gho; }';
+        + 'function run(): void { new Proj; new Impor; new Inv; new \\Dom; new \\Domain\\Bil; new BillingAlias\\Ope; new \\Domain\\Billing\\Inv; new BillingAlias\\Inv; new Gho; }';
       const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
       await writeFile(join(root, 'src', 'Consumer.php'), source);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
@@ -267,6 +267,7 @@ describe('language server stdio', () => {
       expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ProjectType', detail: 'App\\ProjectType' })]));
       expect(result.some((item: { label: string }) => item.label === 'ProjectGhost')).toBe(false);
       for (const [id, marker, label, detail] of [
+        [125, 'new \\Dom', 'Domain\\', 'Domain\\'],
         [123, 'new \\Domain\\Bil', 'Billing\\', 'Domain\\Billing\\'],
         [124, 'new BillingAlias\\Ope', 'Operations\\', 'Domain\\Billing\\Operations\\'],
       ] as const) {

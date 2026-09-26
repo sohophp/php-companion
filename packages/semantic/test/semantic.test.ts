@@ -4934,9 +4934,15 @@ TXT;
   });
   it('offers namespace segments while typing a qualified native type', () => {
     const source = '<?php namespace App; use Vendor\\Catalog as Alias; '
-      + 'function run(): void { new \\Vendor\\Cat; new Alias\\Sub; echo \\Vendor\\Cat; }';
+      + 'function run(): void { new \\Ven; new \\; new \\Vendor\\Cat; new Alias\\Sub; echo \\Vendor\\Cat; }';
     const uri = 'file:///QualifiedNamespaceSegments.php';
     workspace.update(uri, source);
+    expect(workspace.namespaceTypeContext(uri, source.indexOf('new \\Ven') + 'new \\Ven'.length))
+      .toEqual({ qualifier: '', prefix: 'Ven' });
+    expect(workspace.typeCompletionContext(uri, source.indexOf('new \\Ven') + 'new \\Ven'.length))
+      .toMatchObject({ namespace: '', prefix: 'Ven' });
+    expect(workspace.namespaceTypeContext(uri, source.indexOf('new \\;') + 'new \\'.length))
+      .toEqual({ qualifier: '', prefix: '' });
     expect(workspace.namespaceTypeContext(uri, source.indexOf('new \\Vendor\\Cat') + 'new \\Vendor\\Cat'.length))
       .toEqual({ qualifier: 'Vendor', prefix: 'Cat' });
     expect(workspace.namespaceTypeContext(uri, source.indexOf('new Alias\\Sub') + 'new Alias\\Sub'.length))
