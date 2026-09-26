@@ -47,6 +47,20 @@ describe('standalone Symfony event provider', () => {
     }] })).rejects.toThrow('outside the project root');
   });
 
+  it('accepts a project root reached through a filesystem alias', async () => {
+    const parent = await mkdtemp(join(tmpdir(), 'symfony-events-root-alias-')); roots.push(parent);
+    const realRoot = join(parent, 'real'); const aliasRoot = join(parent, 'alias');
+    await mkdir(realRoot); await symlink(realRoot, aliasRoot, 'dir');
+    const path = join(aliasRoot, 'Dispatch.php');
+    await writeFile(path, '<?php namespace App; class Dispatch { function run($dispatcher) { $dispatcher->dispatch(new ReadyEvent()); } }');
+    const uri = pathToFileURL(path).toString();
+    const facts = await collectSymfonyEventFacts(aliasRoot, parser, { containerServices: [], projectTypes: [{
+      fqcn: 'App\\Dispatch', kind: 'class', abstract: false, path, uri, start: 27, end: 35,
+    }] });
+    expect(facts.sourceUris).toEqual([uri]);
+    expect(facts.dispatches.map((fact) => fact.event)).toEqual(['App\\ReadyEvent']);
+  });
+
   it('extracts registered direct and inherited subscriptions plus dispatch candidates from open snapshots', async () => {
     const root = await mkdtemp(join(tmpdir(), 'symfony-events-provider-')); roots.push(root); await mkdir(join(root, 'src'));
     const files = {

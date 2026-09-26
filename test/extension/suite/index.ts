@@ -1112,12 +1112,14 @@ export async function run(): Promise<void> {
   assert.ok(parameterDefinitions.some((location) => location.uri.toString() === servicesUri.toString()
     && servicesDocument.getText(location.range) === 'app.transport'),
   'Symfony YAML parameter reference did not navigate to its authoritative declaration');
-  const parameterReferences = await vscode.commands.executeCommand<vscode.Location[]>(
-    'vscode.executeReferenceProvider', servicesUri, servicesDocument.positionAt(parameterRegistrationOffset),
-  );
-  assert.ok(parameterReferences.some((location) => location.uri.toString() === servicesUri.toString()
-    && servicesDocument.getText(location.range) === 'app.transport'),
-  'Symfony YAML parameter References missed its exact placeholder');
+  let parameterReferences: vscode.Location[] = [];
+  await waitForAsync(async () => {
+    parameterReferences = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeReferenceProvider', servicesUri, servicesDocument.positionAt(parameterRegistrationOffset)) ?? [];
+    return parameterReferences.some((location) => location.uri.toString() === servicesUri.toString()
+      && servicesDocument.getText(location.range) === 'app.transport');
+  }, () => `Symfony YAML parameter References missed its exact placeholder: ${JSON.stringify(parameterReferences.map((location) => [location.uri.toString(), servicesDocument.getText(location.range)]))}`,
+  10_000, 100);
   const parameterCompletionList = await vscode.commands.executeCommand<vscode.CompletionList>(
     'vscode.executeCompletionItemProvider', servicesUri, servicesDocument.positionAt(parameterReferenceOffset),
   );

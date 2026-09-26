@@ -43,7 +43,7 @@ function keyOfDispatch(fact: ExternalEventDispatchFact): string {
   return `${fact.event.toLowerCase()}\0${fact.uri}\0${fact.eventStart}\0${fact.dispatchStart}`;
 }
 
-async function projectSources(root: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
+async function projectSources(root: string, canonicalRoot: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
   maxFiles: number, maxTotalBytes: number): Promise<ProjectSource[]> {
   const pathByUri = new Map(types.map((type) => [type.uri, resolve(type.path)]));
   const snapshots = new Map<string, SemanticProviderDocument>();
@@ -63,7 +63,7 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
   // Bound concurrent IO while preserving source order and all-or-nothing facts.
   for (let index = 0; index < paths.length; index += 8) {
     const batch = await Promise.all(paths.slice(index, index + 8).map(async ([path, uri]) => {
-      const actual = await realpath(path); if (!within(root, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
+      const actual = await realpath(path); if (!within(canonicalRoot, actual)) throw new Error(`Project type resolves outside the project root: ${path}`);
       const snapshot = snapshots.get(path); const source = snapshot?.source ?? await readFile(actual, 'utf8');
       if (source.length > 1_000_000) throw new Error(`Symfony event source budget exceeds ${maxTotalBytes} bytes.`);
       return { path, uri: snapshot?.uri ?? uri, source };
@@ -80,8 +80,9 @@ async function projectSources(root: string, types: readonly SemanticProviderProj
 /** Collect a complete static event-relation snapshot without booting Symfony or executing project PHP. */
 export async function collectSymfonyEventFacts(rootPath: string, parser: PhpSyntaxParser,
   options: SymfonyEventProviderOptions): Promise<SymfonyEventProviderFacts> {
-  const root = await realpath(resolve(rootPath));
-  const sources = await projectSources(root, options.projectTypes, options.documents ?? [], options.maxFiles ?? 10_000,
+  const root = resolve(rootPath);
+  const canonicalRoot = await realpath(root);
+  const sources = await projectSources(root, canonicalRoot, options.projectTypes, options.documents ?? [], options.maxFiles ?? 10_000,
     options.maxTotalBytes ?? 128 * 1024 * 1024);
   const sourcesByUri = new Map(sources.map((source) => [source.uri, source.source]));
   const types = new Map(options.projectTypes.map((type) => [type.fqcn.toLowerCase(), type]));
