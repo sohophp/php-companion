@@ -1013,6 +1013,41 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.strictEqual(externalTypeCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1,
     'Cross-namespace class completion was returned more than once.');
+  const qualifiedTypeSource = '<?php namespace App\\C1; use App\\C1\\External as ExtAlias; '
+    + 'function qualified(): void { new \\App\\C1\\Ext; new ExtAlias\\C1ExternalTypePro; }';
+  const qualifiedTypeUri = vscode.Uri.joinPath(folder, 'C1QualifiedTypeConsumer.php');
+  await vscode.workspace.fs.writeFile(qualifiedTypeUri, Buffer.from(qualifiedTypeSource));
+  const qualifiedTypeDocument = await vscode.workspace.openTextDocument(qualifiedTypeUri);
+  const qualifiedTypeEditor = await vscode.window.showTextDocument(qualifiedTypeDocument);
+  const namespaceOffset = qualifiedTypeSource.indexOf('new \\App\\C1\\Ext') + 'new \\App\\C1\\Ext'.length;
+  const qualifiedNamespaceCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', qualifiedTypeUri,
+      qualifiedTypeDocument.positionAt(namespaceOffset)),
+    (result) => result?.items.some((item) => item.label === 'External\\'
+      && item.kind === vscode.CompletionItemKind.Module && item.detail === 'App\\C1\\External\\') === true,
+    'SoPHP did not suggest the next namespace segment in a native type position.',
+  );
+  assert.strictEqual(qualifiedNamespaceCompletion.items.filter((item) => item.label === 'External\\').length, 1);
+  assert.ok(!qualifiedNamespaceCompletion.items.some((item) => item.label === 'extract'),
+    'A PHP function displaced native type namespace completion.');
+  qualifiedTypeEditor.selection = new vscode.Selection(qualifiedTypeDocument.positionAt(namespaceOffset),
+    qualifiedTypeDocument.positionAt(namespaceOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.ok(qualifiedTypeDocument.getText().includes('new \\App\\C1\\External\\;'),
+    'Accepting a native type namespace suggestion did not preserve the typed qualifier.');
+  const qualifiedClassText = qualifiedTypeDocument.getText();
+  const qualifiedClassCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', qualifiedTypeUri,
+      qualifiedTypeDocument.positionAt(qualifiedClassText.indexOf('ExtAlias\\C1ExternalTypePro')
+        + 'ExtAlias\\C1ExternalTypePro'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not complete an imported namespace alias in a native type position.',
+  );
+  assert.strictEqual(qualifiedClassCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1);
   const namespaceImportSource = '<?php namespace App\\C1; use Ap; class NamespaceImportConsumer {}';
   const namespaceImportUri = vscode.Uri.joinPath(folder, 'C1NamespaceImportConsumer.php');
   await vscode.workspace.fs.writeFile(namespaceImportUri, Buffer.from(namespaceImportSource));
