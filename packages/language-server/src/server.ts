@@ -5902,6 +5902,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const offset = document.offsetAt(position);
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return [];
+  if (document.languageId === 'php' && !workspace.isPhpCodeContext(document.uri, offset)) return [];
   const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeParameterCall) {

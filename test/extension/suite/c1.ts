@@ -420,7 +420,7 @@ export async function run(): Promise<void> {
   assert.ok(await vscode.workspace.applyEdit(interpolationEdit));
   assert.ok(interpolationDocument.getText().includes('"Hello {$username}"'),
     'Accepting interpolated variable completion damaged the surrounding braces.');
-  const mixedSource = '<div>$G</div><?php $globalName = 1; ?><p>$G</p><?php $G; ?>';
+  const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));
   const mixedDocument = await vscode.workspace.openTextDocument(mixedUri);
@@ -437,6 +437,16 @@ export async function run(): Promise<void> {
     mixedUri, mixedDocument.positionAt(phpDollar));
   assert.ok(phpSuggestions?.items.some((item) => item.label === '$globalName' && item.kind === vscode.CompletionItemKind.Variable),
     'PHP lost the variable suggestion after returning from HTML to PHP.');
+  const htmlFunction = mixedSource.indexOf('globalHel</p>') + 'globalHel'.length;
+  const htmlFunctionSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    mixedUri, mixedDocument.positionAt(htmlFunction));
+  assert.ok(!htmlFunctionSuggestions?.items.some((item) => item.label === 'globalHelper' && item.kind === vscode.CompletionItemKind.Function),
+    'SoPHP suggested a PHP function in HTML between PHP tags.');
+  const phpFunction = mixedSource.lastIndexOf('globalHel;') + 'globalHel'.length;
+  const phpFunctionSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    mixedUri, mixedDocument.positionAt(phpFunction));
+  assert.ok(phpFunctionSuggestions?.items.some((item) => item.label === 'globalHelper' && item.kind === vscode.CompletionItemKind.Function),
+    'PHP lost the function suggestion after returning from HTML to PHP.');
   if (c1DebugPort) {
     const mixedEditor = await vscode.window.showTextDocument(mixedDocument);
     mixedEditor.selection = new vscode.Selection(mixedDocument.positionAt(htmlDollar), mixedDocument.positionAt(htmlDollar));
@@ -445,6 +455,11 @@ export async function run(): Promise<void> {
     const labels = await visibleCompletionLabels(Number(c1DebugPort));
     assert.ok(!labels.some((label) => label.includes('$globalName')),
       `The Workbench visibly suggested a PHP variable in HTML: ${JSON.stringify(labels)}`);
+    mixedEditor.selection = new vscode.Selection(mixedDocument.positionAt(htmlFunction), mixedDocument.positionAt(htmlFunction));
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const functionLabels = await visibleCompletionLabels(Number(c1DebugPort));
+    assert.ok(!functionLabels.some((label) => label.includes('globalHelper')),
+      `The Workbench visibly suggested a PHP function in HTML: ${JSON.stringify(functionLabels)}`);
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
   }
   const scopedWordSource = '<?php function c1First(): void { $otherFunctionSecret = 1; } function c1Second(): void { $otherFunctionSec; }';

@@ -164,6 +164,20 @@ TXT;
       expect(project.completeVariables(uri, php + 2)?.names).toContain('$globalName');
     } finally { project.dispose(); }
   });
+  it('identifies PHP code and HTML positions in a mixed PHP document', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///MixedCodeContext.php';
+    const source = '<div>globalHel</div><?php function globalHelper(): void {} ?><p>globalHel</p><?php globalHel; ?>';
+    try {
+      project.update(uri, source);
+      const firstHtml = source.indexOf('globalHel');
+      const secondHtml = source.indexOf('globalHel', source.indexOf('<p>'));
+      const php = source.lastIndexOf('globalHel;');
+      expect(project.isPhpCodeContext(uri, firstHtml + 'globalHel'.length)).toBe(false);
+      expect(project.isPhpCodeContext(uri, secondHtml + 'globalHel'.length)).toBe(false);
+      expect(project.isPhpCodeContext(uri, php + 'globalHel'.length)).toBe(true);
+    } finally { project.dispose(); }
+  });
   it('indexes recovered legacy class declarations for PHP type navigation', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LegacyNames.php';
