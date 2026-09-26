@@ -22,6 +22,20 @@ describe('static Symfony Controller context analysis', () => {
     }]);
   });
 
+  it('records the value expression range for semantic render type inference', () => {
+    const source = `<?php namespace App; final class PageController {
+      public function show(): void {
+        $user = $this->loadUser();
+        $this->render('page.html.twig', ['user' => $user]);
+      }
+    }`;
+    const contexts = analyzeSymfonyControllerContexts(parser, { uri: 'file:///PageController.php', source, snapshotVersion: 'open:2' });
+    const value = contexts[0]?.variables[0];
+    expect(value?.type.kind).toBe('unknown');
+    expect(source.slice(value!.valueLocation!.start, value!.valueLocation!.end)).toBe('$user');
+    expect(value?.valueLocation).toMatchObject({ uri: 'file:///PageController.php', snapshotVersion: 'open:2' });
+  });
+
   it('marks dynamic context shapes incomplete and lets interop merge controller alternatives', () => {
     const first = `<?php namespace App; class First { function show(User $actor) { $this->render('shared.html.twig', ['actor' => $actor, ...$extra]); } }`;
     const second = `<?php namespace App; class Second { function show(Admin $actor) { $this->render('shared.html.twig', ['actor' => $actor]); } }`;

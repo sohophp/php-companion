@@ -46,8 +46,8 @@ jobs:
           name: php-companion-vsix
           if-no-files-found: error
           path: |
-            php-companion-0.4.5.vsix
-            packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix
+            php-companion-0.4.6.vsix
+            packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix
             packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
 
   publish-marketplace:
@@ -70,14 +70,10 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish SoPHP
-        run: pnpm exec vsce publish --packagePath php-companion-0.4.5.vsix
+        run: pnpm exec vsce publish --packagePath php-companion-0.4.6.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish SoPHP Symfony
-        run: pnpm exec vsce publish --packagePath packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      - name: Publish Open Source Pack
-        run: pnpm exec vsce publish --packagePath packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.5.vsix
+        run: pnpm exec vsce publish --packagePath packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

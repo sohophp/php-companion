@@ -18,7 +18,7 @@ export type SerializedPhpType =
 
 export interface InteropLocation { uri: string; start: number; end: number; line?: number; character?: number; snapshotVersion: string; }
 export interface ControllerContextSource { symbol: string; location: InteropLocation; }
-export interface ControllerContextVariable { name: string; type: SerializedPhpType; optional: boolean; sources?: InteropLocation[]; }
+export interface ControllerContextVariable { name: string; type: SerializedPhpType; optional: boolean; sources?: InteropLocation[]; valueLocation?: InteropLocation; }
 export interface ControllerTemplateContext {
   template: string;
   complete: boolean;
@@ -63,7 +63,8 @@ export function isControllerTemplateContext(value: unknown): value is Controller
   return value.variables.every((variable) => isRecord(variable) && typeof variable.name === 'string'
       && variable.name.length > 0 && variable.name.length <= 8_192 && typeof variable.optional === 'boolean'
       && isSerializedPhpType(variable.type) && (variable.sources === undefined || Array.isArray(variable.sources)
-        && variable.sources.length <= 10_000 && variable.sources.every(isInteropLocation)))
+        && variable.sources.length <= 10_000 && variable.sources.every(isInteropLocation))
+      && (variable.valueLocation === undefined || isInteropLocation(variable.valueLocation)))
     && value.sources.every((source) => isRecord(source) && typeof source.symbol === 'string'
       && source.symbol.length > 0 && source.symbol.length <= 8_192 && isInteropLocation(source.location));
 }

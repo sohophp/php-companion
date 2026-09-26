@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6 - 2026-09-26
+
+- Include exact value-expression ranges for literal Controller `render()` arrays so SoPHP Core can infer local variable types for TwigPlus.
+
+
 - Support PHP array-return Symfony service configuration and exact `when@environment` branches through the standalone container provider and editor requests.
 
 - Select complete exact `$container->env() === 'literal'` PHP Configurator `if`/`elseif`/`else` chains, including nested exact guards, and keep service or parameter navigation, completion and Rename aligned with runtime environment changes.

@@ -4285,6 +4285,13 @@ export class SemanticWorkspace {
     return type ? { variable: reference.variable, type: displayType(type), start: reference.start, end: reference.end } : undefined;
   }
 
+  provenExpressionType(uri: string, start: number, end: number): string | undefined {
+    const file = this.files.get(uri);
+    if (!file || !Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end <= start || end > file.source.length) return undefined;
+    const type = this.provenArgumentType(file, start, end);
+    return type ? displayType(type) : undefined;
+  }
+
   stableLocalScalarLiteralArgument(uri: string, start: number, end: number, actualType: string): boolean {
     const file = this.files.get(uri); if (!file) return false;
     const variable = file.source.slice(start, end).trim();

@@ -717,7 +717,8 @@ function controllerContextMap(contexts: readonly ControllerTemplateContext[], al
     const uri = [...uris][0]!; const source = sourceFor(uri);
     if (!allowedUris.has(uri) || source === undefined
       || context.sources.some((item) => item.location.end > source.length)
-      || context.variables.some((variable) => variable.sources?.some((item) => item.uri !== uri || item.end > source.length))) return undefined;
+      || context.variables.some((variable) => variable.sources?.some((item) => item.uri !== uri || item.end > source.length)
+        || variable.valueLocation && (variable.valueLocation.uri !== uri || variable.valueLocation.end > source.length))) return undefined;
     result.set(uri, [...(result.get(uri) ?? []), context]);
   }
   return result;
@@ -768,6 +769,32 @@ async function runControllerContextProvider(root: string, generation: number, wo
       : result.contribution.controllerContexts;
     const contexts = controllerContextMap(contributedContexts, allowedUris, sourceFor);
     if (contexts) {
+      for (const [uri, entries] of contexts) {
+        const source = sourceFor(uri);
+        if (!source || workspace.source(uri) !== source) continue;
+        if (entries.some((context) => context.variables.some((variable) => variable.valueLocation
+          && variable.type.kind === 'unknown'))) {
+          let lastValueEnd = 0;
+          for (const context of entries) for (const variable of context.variables)
+            lastValueEnd = Math.max(lastValueEnd, variable.valueLocation?.end ?? 0);
+          const candidates = new Set<string>();
+          for (const match of source.slice(0, lastValueEnd).matchAll(/\bnew\s+([\\A-Za-z_][\\A-Za-z0-9_]*)/g)) {
+            const nameStart = match.index + match[0].lastIndexOf(match[1]!);
+            const name = workspace.resolvedTypeNameAt(uri, nameStart);
+            if (name) {
+              candidates.delete(name); candidates.add(name);
+              if (candidates.size > 16) candidates.delete(candidates.values().next().value!);
+            }
+          }
+          if (candidates.size) await hydrateCanonicalTypes(workspace, root, [...candidates]);
+        }
+        contexts.set(uri, entries.map((context) => ({ ...context, variables: context.variables.map((variable) => {
+          const range = variable.valueLocation;
+          const inferred = range && workspace.provenExpressionType(uri, range.start, range.end);
+          return inferred && /^[\\A-Za-z_][\\A-Za-z0-9_|&?]*$/.test(inferred)
+            ? { ...variable, type: serializedInteropType(inferred) } : variable;
+        }) })));
+      }
       if (commitScope.kind === 'scoped') {
         const byFile = interopContextsByRoot.get(root) ?? new Map<string, ControllerTemplateContext[]>();
         for (const scope of scopes ?? []) if (commitScope.currentUris.has(scope.uri)) byFile.set(scope.uri, contexts.get(scope.uri) ?? []);
@@ -1473,15 +1500,19 @@ async function interopTypes(workspace: SemanticWorkspace, root: string, contexts
     const fqcn = pending.shift()!; if (result[fqcn]) continue;
     await hydrateCanonicalTypes(workspace, root, [fqcn]);
     const declaration = workspace.typeByFqcn(fqcn); if (!declaration) continue;
-    const members = workspace.publicTypeMembers(fqcn).flatMap((member) => {
+    const publicMembers = workspace.publicTypeMembers(fqcn);
+    const propertyNames = new Set(publicMembers.filter((member) => member.kind === 'property').map((member) => member.name));
+    const members = publicMembers.flatMap((member) => {
       if (member.kind !== 'method' && member.kind !== 'property') return [];
       const resolved = workspace.resolvedMemberReturnType(member); const type = serializedInteropType(resolved);
       pending.push(...namedInteropTypes(type));
-      const getter = member.kind === 'method' ? /^(?:get|is|has)([A-Z].*)$/.exec(member.name)?.[1] : undefined;
-      const name = getter ? `${getter[0]!.toLowerCase()}${getter.slice(1)}` : member.name;
+      const getter = member.kind === 'method' && member.parameters.length === 0
+        ? /^(?:get|is|has)([A-Z].*)$/.exec(member.name)?.[1] : undefined;
+      const alias = getter ? `${getter[0]!.toLowerCase()}${getter.slice(1)}` : undefined;
       const memberSource = workspace.source(member.uri); const memberPosition = memberSource === undefined ? undefined : TextDocument.create(member.uri, 'php', 0, memberSource).positionAt(member.start);
-      return [{ name, kind: getter ? 'property' as const : member.kind, type, signature: member.kind === 'method' ? `${member.name}(${member.parameters.map(displayPhpParameter).join(', ')})` : undefined,
-        location: { uri: member.uri, start: member.start, end: member.end, line: memberPosition?.line, character: memberPosition?.character, snapshotVersion: String(indexingGeneration) } }];
+      const location = { uri: member.uri, start: member.start, end: member.end, line: memberPosition?.line, character: memberPosition?.character, snapshotVersion: String(indexingGeneration) };
+      const original = { name: member.name, kind: member.kind, type, signature: member.kind === 'method' ? `${member.name}(${member.parameters.map(displayPhpParameter).join(', ')})` : undefined, location };
+      return alias && !propertyNames.has(alias) ? [original, { name: alias, kind: 'property' as const, type, location }] : [original];
     });
     result[fqcn] = { name: fqcn, members, location: { uri: declaration.uri, start: declaration.start, end: declaration.end, snapshotVersion: String(indexingGeneration) } };
   }

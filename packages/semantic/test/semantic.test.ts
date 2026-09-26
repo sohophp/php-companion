@@ -93,6 +93,8 @@ describe('conservative semantic workspace', () => {
       project.update(sourceUri, '<?php namespace App; class Service { public function text(): string { return "bad"; } public function accept(int $value): void {} }');
       project.update(uri, source);
       expect(project.variableValueAt(uri, offset + 2)).toMatchObject({ variable: '$value', type: 'string', start: offset });
+      expect(project.provenExpressionType(uri, offset, offset + '$value'.length)).toBe('string');
+      expect(project.provenExpressionType(uri, offset, source.length + 1)).toBeUndefined();
       expect(project.variableValueAt(uri, source.indexOf('$value is mentioned') + 2)).toBeUndefined();
       project.update(sourceUri, '<?php namespace App; class Service { public function text(): int { return 42; } public function accept(int $value): void {} }');
       expect(project.variableValueAt(uri, offset + 2)?.type).toBe('int');

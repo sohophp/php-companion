@@ -268,8 +268,10 @@ function contextVariables(node: NodeLike, variables: Map<string, SerializedPhpTy
     const name = literalString(element.namedChildren[0]); if (name === undefined) return { complete: false, variables: result };
     const key = element.namedChildren[0]!; const start = key.startIndex + 1; const end = Math.max(start, key.endIndex - 1);
     const before = document.source.slice(0, start); const line = before.split('\n').length - 1; const character = start - (before.lastIndexOf('\n') + 1);
-    result.push({ name, type: expressionType(element.namedChildren[1]!, variables, namespace, imports), optional: false,
-      sources: [{ uri: document.uri, start, end, line, character, snapshotVersion: document.snapshotVersion }] });
+    const value = element.namedChildren[1]!;
+    result.push({ name, type: expressionType(value, variables, namespace, imports), optional: false,
+      sources: [{ uri: document.uri, start, end, line, character, snapshotVersion: document.snapshotVersion }],
+      valueLocation: { uri: document.uri, start: value.startIndex, end: value.endIndex, snapshotVersion: document.snapshotVersion } });
   }
   return { complete: true, variables: result };
 }

@@ -10,10 +10,13 @@ const context = (variables: ControllerTemplateContext['variables'], symbol: stri
 describe('versioned PHP/template interop contract', () => {
   it('validates bounded controller contexts', () => {
     const valid = context([{ name: 'user', type: { kind: 'named', name: 'App\\User' }, optional: false,
-      sources: [{ uri: 'file:///src/Page.php', start: 30, end: 34, snapshotVersion: '1' }] }], 'PageController::show');
+      sources: [{ uri: 'file:///src/Page.php', start: 30, end: 34, snapshotVersion: '1' }],
+      valueLocation: { uri: 'file:///src/Page.php', start: 38, end: 43, snapshotVersion: '1' } }], 'PageController::show');
     expect(isControllerTemplateContext(valid)).toBe(true);
     expect(isControllerTemplateContext({ ...valid, sources: [] })).toBe(false);
     expect(isControllerTemplateContext({ ...valid, variables: [{ ...valid.variables[0], type: { kind: 'union', types: [] } }] })).toBe(false);
+    expect(isControllerTemplateContext({ ...valid, variables: [{ ...valid.variables[0],
+      valueLocation: { uri: 'file:///src/Page.php', start: 43, end: 38, snapshotVersion: '1' } }] })).toBe(false);
   });
 
   it('negotiates only shared capabilities for the same project', () => {

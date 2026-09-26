@@ -10197,7 +10197,8 @@ final class Dispatching { public function __construct(private EventDispatcherInt
       server.stdin.write(encode({ jsonrpc: '2.0', id: 664, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
       expect((await output.waitFor((message) => message.id === 664)).result).toMatchObject({ contexts: [{ template: 'provider.html.twig',
         variables: [{ name: 'user', type: { kind: 'named', name: 'App\\User' } }], sources: [{ symbol: 'App\\PageController::show' }] }],
-      types: { 'App\\User': { members: [expect.objectContaining({ name: 'name', kind: 'property' })] } } });
+      types: { 'App\\User': { members: expect.arrayContaining([expect.objectContaining({ name: 'name', kind: 'property' }),
+        expect.objectContaining({ name: 'getName', kind: 'method' })]) } } });
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('[controller-context-candidates] files=3 cached=0 parsed=1'))).toBe(true);
       expect(output.messages.some((message: any) => message.method === 'window/logMessage' && message.params?.message?.includes('[index:'))).toBe(false);
@@ -10218,6 +10219,50 @@ final class Dispatching { public function __construct(private EventDispatcherInt
       ]) });
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+
+  it('infers render variable types from local values and exports callable Twig methods', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-render-value-types-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const controllerPath = join(root, 'src', 'PageController.php');
+      const controllerUri = pathToFileURL(controllerPath).toString();
+      const controllerSource = "<?php namespace App; final class PageController { public function show(): void { $user = new User(); $this->render('page.html.twig', ['user' => $user]); } }";
+      await writeFile(controllerPath, controllerSource);
+      await writeFile(join(root, 'src', 'User.php'), "<?php namespace App; final class User { public function getName(): string { return 'Ada'; } }");
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          bundledSemanticProviders: [{ providerId: 'php-companion.symfony.controller-contexts', command: process.execPath,
+            args: [resolve('../provider-symfony-controller-contexts/dist/cli.js'),
+              '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
+              '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm')], timeoutMs: 10_000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }], indexingMode: 'onDemand',
+        },
+      } }));
+      await output.waitFor((message) => message.id === 680);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: controllerUri, languageId: 'php', version: 1, text: controllerSource },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === controllerUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 681, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      const response = await output.waitFor((message) => message.id === 681, 15_000);
+      if (!response.result?.contexts) throw new Error(JSON.stringify({ response, messages: output.messages.slice(-12) }));
+      const result = response.result;
+      expect(result?.contexts).toEqual(expect.arrayContaining([expect.objectContaining({
+        template: 'page.html.twig', variables: expect.arrayContaining([expect.objectContaining({
+          name: 'user', type: { kind: 'named', name: 'App\\User' },
+        })]),
+      })]));
+      expect(result?.types?.['App\\User']?.members).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: 'getName', kind: 'method' }),
+        expect.objectContaining({ name: 'name', kind: 'property' }),
+      ]));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 25_000);
+
 
   it('clears removed controller contexts without spawning the provider for an ineligible PHP edit', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-prefilter-'));

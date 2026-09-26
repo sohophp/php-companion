@@ -8,7 +8,7 @@ const openSourceProfile = JSON.parse(await readFile(new URL('../test/extension/o
 
 const artifacts = [
   {
-    path: 'packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix',
+    path: 'packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix',
     symfony: true,
     required: [
       'extension/package.json',
@@ -25,7 +25,7 @@ const artifacts = [
     ],
   },
   {
-    path: 'php-companion-0.4.5.vsix',
+    path: 'php-companion-0.4.6.vsix',
     core: true,
     required: [
       'extension/package.json',
@@ -112,7 +112,7 @@ for (const artifact of artifacts) {
   }
   if (artifact.symfony) {
     const manifest = JSON.parse(await textEntry(artifact.path, 'extension/package.json'));
-    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-symfony' || manifest.version !== '0.4.5') {
+    if (manifest.publisher !== 'sohophp' || manifest.name !== 'php-companion-symfony' || manifest.version !== '0.4.6') {
       throw new Error(`${artifact.path} has an unexpected Symfony extension identity.`);
     }
     if (JSON.stringify(manifest.extensionDependencies) !== JSON.stringify(['sohophp.php-companion'])) {

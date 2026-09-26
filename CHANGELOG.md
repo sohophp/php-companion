@@ -1,3 +1,8 @@
+# Changelog
+
+## 0.4.6 - 2026-09-26
+
+- Infer the semantic type of values passed through literal Symfony Controller `render()` arrays, including local objects with safely loaded declarations. Export public methods and zero-argument getter aliases to TwigPlus for completion, hover, signatures, and declaration navigation.
 - Complete the SoPHP branding in current documentation, component descriptions, editor task labels, diagnostics, language-server messages, and VSIX verification output. Existing extension IDs, package names, commands, and settings remain compatible.
 - Type Doctrine `getArrayResult()`, `getScalarResult()` and `getSingleScalarResult()` with stable broad hydration shapes while keeping DQL field keys and concrete scalar types unknown.
 - Preserve Doctrine entity generics for project methods that return an ORM EntityManager QueryBuilder with one literal `from(Entity::class, 'alias')` root and an optional matching root `select()`.
