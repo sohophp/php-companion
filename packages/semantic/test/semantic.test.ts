@@ -124,6 +124,56 @@ function consume(): void {}
       }
     } finally { project.dispose(); }
   });
+  it('resolves qualified and continued PHPDoc type positions without importing a qualified name', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocQualified.php';
+    const source = String.raw`<?php
+namespace App;
+use Vendor\Widget as WidgetAlias;
+/**
+ * @return \Vendor\Widget\Wid
+ * @param Nested\Nes
+ * @var WidgetAlias\Wid
+ * @throws \Vendor\Widget\
+ * @return array<
+ * UserSe
+ * @param UserService|
+ * UserSe
+ * @return UserService
+ * Description
+ */
+function consume(): void {}`;
+    try {
+      project.update('file:///Vendor/Widget/WidgetExtra.php', String.raw`<?php namespace Vendor\Widget; class WidgetExtra {}`);
+      project.update('file:///App/Nested/NestedWidget.php', String.raw`<?php namespace App\Nested; class NestedWidget {}`);
+      project.update('file:///App/UserService.php', '<?php namespace App; class UserService {}');
+      project.update('file:///App/UserSession.php', '<?php namespace App; class UserSession {}');
+      project.update(uri, source);
+      for (const [marker, namespace, name] of [
+        [String.raw`@return \Vendor\Widget\Wid`, 'Vendor\\Widget', 'WidgetExtra'],
+        [String.raw`@param Nested\Nes`, 'App\\Nested', 'NestedWidget'],
+        [String.raw`@var WidgetAlias\Wid`, 'Vendor\\Widget', 'WidgetExtra'],
+      ]) {
+        const offset = source.indexOf(marker) + marker.length;
+        expect(project.typeCompletionContext(uri, offset)?.namespace, marker).toBe(namespace);
+        expect(project.completeTypes(uri, offset), marker).toEqual(expect.arrayContaining([
+          expect.objectContaining({ name, importFqcn: undefined }),
+        ]));
+      }
+      const bareMarker = '@throws \\Vendor\\Widget\\';
+      const bareQualified = source.indexOf(bareMarker) + bareMarker.length;
+      expect(project.typeCompletionContext(uri, bareQualified)).toMatchObject({ prefix: '', namespace: 'Vendor\\Widget' });
+      expect(project.completeTypes(uri, bareQualified).map((item) => item.name)).toContain('WidgetExtra');
+      for (const tag of ['@return array<', '@param UserService|']) {
+        const offset = source.indexOf('UserSe', source.indexOf(tag)) + 'UserSe'.length;
+        expect(project.typeCompletionContext(uri, offset)?.prefix, tag).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name), tag).toContain('UserSession');
+      }
+      const description = source.indexOf('Description') + 'Description'.length;
+      expect(project.typeCompletionContext(uri, description)).toBeUndefined();
+      expect(project.completeTypes(uri, description)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('completes scoped variables in PHP interpolated strings without suggesting literal or escaped dollars', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///InterpolatedVariables.php';

@@ -491,11 +491,15 @@ function c1Expressions(): void {
       item.label === 'C1Invoice' && item.kind === vscode.CompletionItemKind.Class),
     `SoPHP suggested a type inside ${marker}.`);
   }
-  const phpDocSource = `<?php
-namespace App\\C1;
+  const phpDocSource = String.raw`<?php
+namespace App\C1;
 /**
  * @param C1DocTa
  * @return array<C1DocTa
+ * @param Nested\C1DocTa
+ * @return \App\C1\Nested\C1DocTa
+ * @var array<
+ * C1DocTa
  * @return C1DocTarget description
  */
 function documented(): void {}
@@ -503,6 +507,10 @@ function documented(): void {}
 `;
   const phpDocTypeUri = vscode.Uri.joinPath(folder, 'C1DocTarget.php');
   await vscode.workspace.fs.writeFile(phpDocTypeUri, Buffer.from('<?php namespace App\\C1; class C1DocTarget {}'));
+  const nestedDocFolder = vscode.Uri.joinPath(folder, 'Nested');
+  await vscode.workspace.fs.createDirectory(nestedDocFolder);
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(nestedDocFolder, 'C1DocTarget.php'),
+    Buffer.from('<?php namespace App\\C1\\Nested; class C1DocTarget {}'));
   const phpDocUri = vscode.Uri.joinPath(folder, 'C1DocConsumer.php');
   await vscode.workspace.fs.writeFile(phpDocUri, Buffer.from(phpDocSource));
   const phpDocDocument = await vscode.workspace.openTextDocument(phpDocUri);
@@ -515,6 +523,15 @@ function documented(): void {}
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
     `SoPHP did not suggest the project class in PHPDoc type position ${marker}.`);
   }
+  for (const marker of [String.raw`@param Nested\C1DocTa`, String.raw`@return \App\C1\Nested\C1DocTa`]) {
+    const type = (await phpDocSuggestions(marker)).find((item) =>
+      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\Nested\\C1DocTarget');
+    assert.ok(type, `SoPHP did not resolve the qualified PHPDoc type ${marker}.`);
+    assert.ok(!type.additionalTextEdits?.length, 'Qualified PHPDoc completion added an unnecessary import.');
+  }
+  assert.ok((await phpDocSuggestions(' * C1DocTa')).some((item) =>
+    item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
+  'SoPHP did not continue the PHPDoc generic type on the next line.');
   for (const marker of ['@return C1DocTarget description', '// @param C1DocTa']) {
     assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),

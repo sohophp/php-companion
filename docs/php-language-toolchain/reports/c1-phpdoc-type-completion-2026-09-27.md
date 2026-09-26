@@ -6,4 +6,6 @@
 
 语义正反例覆盖直接类型、Union、泛型内部、空类型位置、说明文字、变量名和普通注释。完整语义测试结果见 `/tmp/sophp-c1-phpdoc-semantic-final-20260927.log`。隔离 VS Code 1.139.1 Linux x64 的完整 10 项 Open Source Pack 源码 Profile 使用 PHP 8.5、按需索引，在 PHPDoc 所在文件之外创建未打开的 `C1DocTarget.php`；实际补全请求返回项目类，并在说明文字和普通注释位置不返回该类，Extension Host 退出码 0，日志 `/tmp/sophp-c1-phpdoc-crossfile-pack10-20260927.log`。`pnpm build`、扩展测试 TypeScript、改动文件 ESLint 与差异检查通过。
 
-当前范围只处理单行标签中的未限定项目类型名及其 Union、Intersection、泛型片段；多行复杂 PHPDoc 类型、显式限定名称、`@method` 签名和注释内跳转尚未验收或实现。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。
+同日继续补齐限定名称与跨行输入：绝对名称 `\Vendor\Widget\Wid`、当前命名空间下的 `Nested\Nes` 和 `use` 别名 `WidgetAlias\Wid` 现在按实际限定目录寻找候选，限定写法不会额外插入 `use`。当上一行以 `|`、`&`、`<`、逗号或其它未完成类型分隔符结束时，下一行仍可继续补全；完整类型后开始的说明文字不会被误认为续行。语义包最终 418/418 通过，TypeScript、相关 ESLint 和差异检查通过。完整 10 项 Open Source Pack 的 PHP 8.5 按需源码宿主对未打开的 PSR-4 类验证相对与绝对限定名称、跨行泛型及无多余导入，退出码 0，日志 `/tmp/sophp-c1-phpdoc-qualified-pack10-20260927.log`。
+
+当前仍未覆盖任意复杂的多行 PHPDoc 类型、数组形状内部键/值语法、`@method` 签名和注释内跳转。真实 WSL Remote、其它 PHP 版本与现有 0.4.7 安装候选均不由此次源码宿主通过证明。

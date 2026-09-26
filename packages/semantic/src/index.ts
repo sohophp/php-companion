@@ -532,21 +532,42 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
   return compositeParameter?.index === 0 ? compositeParameter[1] ?? '' : undefined;
 }
 
-function phpDocTypeCompletionPrefix(file: SemanticFile, offset: number): string | undefined {
+function phpDocTypeCompletionContext(file: SemanticFile, offset: number, currentNamespace: string):
+  { prefix: string; namespace?: string } | undefined {
   const comment = file.commentRanges.find((range) => range.start < offset && offset <= range.end
     && file.source.startsWith('/**', range.start));
   if (!comment) return undefined;
-  const lineStart = Math.max(comment.start, file.source.lastIndexOf('\n', offset - 1) + 1);
-  const line = file.source.slice(lineStart, offset);
-  const tag = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|extends|implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u.exec(line);
-  if (!tag) return undefined;
-  const body = tag[2]!;
+  const lines = file.source.slice(comment.start, offset).split(/\r?\n/u);
+  const tagPattern = /^\s*(?:\/\*\*|\*)\s*@(param|return|var|throws|property(?:-read|-write)?|mixin|extends|implements|phpstan-(?:param|return|var)|psalm-(?:param|return|var))\s+(.*)$/u;
+  let body: string | undefined;
+  let suffix = '';
+  for (let index = lines.length - 1; index >= 0 && lines.length - index <= 8; index -= 1) {
+    const tag = tagPattern.exec(lines[index]!);
+    if (tag) { body = tag[2]! + suffix; break; }
+    const continuation = /^\s*\*\s*(.*)$/u.exec(lines[index]!);
+    if (!continuation || index === 0) return undefined;
+    const previous = tagPattern.exec(lines[index - 1]!)?.[2]
+      ?? /^\s*\*\s*(.*)$/u.exec(lines[index - 1]!)?.[1];
+    if (previous === undefined || !/[|&<,(?\\]\s*$/u.test(previous)) return undefined;
+    suffix = continuation[1]!.trimStart() + suffix;
+  }
+  if (body === undefined) return undefined;
   if (!/^[\s?\\A-Za-z0-9_\x80-\xff|&<>,[\]()]*$/u.test(body)) return undefined;
   const prefix = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(body)?.[1] ?? '';
   const before = body.slice(0, body.length - prefix.length);
-  if (!prefix && body.trim() && !/[|&<,(?]\s*$/u.test(body)) return undefined;
-  if (before.includes('\\') || /[A-Za-z0-9_>\])]+\s+$/u.test(before)) return undefined;
-  return prefix;
+  if (!prefix && body.trim() && !/[|&<,(?\\]\s*$/u.test(body)) return undefined;
+  if (/[A-Za-z0-9_>\])]+\s+$/u.test(before)) return undefined;
+  const token = /(?:^|[|&<>,(?\s])([^|&<>,(?\s]*)$/u.exec(before)?.[1] ?? '';
+  if (!token.endsWith('\\')) return { prefix };
+  const qualifier = token.slice(0, -1);
+  if (qualifier && !/^\\?(?:[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)*[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(qualifier)) return undefined;
+  const parts = qualifier.replace(/^\\/u, '').split('\\').filter(Boolean);
+  if (token.startsWith('\\')) return { prefix, namespace: parts.join('\\') };
+  const first = parts.shift();
+  if (first?.toLowerCase() === 'namespace') return { prefix, namespace: [currentNamespace, ...parts].filter(Boolean).join('\\') };
+  const imported = file.imports.find((item) => item.kind === 'class' && item.namespace === currentNamespace
+    && item.alias.toLowerCase() === first?.toLowerCase());
+  return { prefix, namespace: [imported?.fqcn ?? currentNamespace, ...(imported ? parts : [first, ...parts])].filter(Boolean).join('\\') };
 }
 
 function namespaceCompletionRank(currentNamespace: string, qualifiedName: string): { common: number; distance: number } {
@@ -3620,15 +3641,15 @@ export class SemanticWorkspace {
     replacementStart?: number; replacementEnd?: number } | undefined {
     const file = this.files.get(uri);
     if (!file) return undefined;
-    const docPrefix = phpDocTypeCompletionPrefix(file, offset);
-    if (docPrefix === undefined && this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
-    const importContext = qualifiedImportCompletion(file.source, offset);
+    const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
+    if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
+    const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
-    const prefix = docPrefix ?? typeCompletionPrefix(file.source, offset);
+    const prefix = docContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (prefix === undefined) return undefined;
-    const namespace = importContext?.qualifier ?? this.namespaceAt(file, offset);
-    return { prefix, namespace, importedTypes: file.imports.filter((item) => item.kind === 'class'
+    const namespace = docContext?.namespace ?? importContext?.qualifier ?? this.namespaceAt(file, offset);
+    return { prefix, namespace, importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
       && item.namespace === namespace && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
     ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
       replacementEnd: file.source[offset] === '}' ? offset + 1 : offset } : {}) };
@@ -3637,14 +3658,15 @@ export class SemanticWorkspace {
   completeTypes(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
-    const docPrefix = phpDocTypeCompletionPrefix(file, offset);
-    if (docPrefix === undefined && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
-    const importContext = qualifiedImportCompletion(file.source, offset);
+    const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
+    if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
+    const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
-    const contextPrefix = docPrefix ?? typeCompletionPrefix(file.source, offset);
+    const contextPrefix = docContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
+    const qualifiedNamespace = docContext?.namespace ?? importContext?.qualifier;
     const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
     const importedVisible = new Map<string, string>();
     const importAliases = new Map<string, string>();
@@ -3674,14 +3696,14 @@ export class SemanticWorkspace {
     const results: TypeInfo[] = [];
     for (const { declaration: candidate, owner, namespace: candidateNamespace } of declarations.values()) {
       const candidateKey = candidate.fqcn.toLowerCase();
-      if (importContext && candidateNamespace.toLowerCase() !== importContext.qualifier.toLowerCase()) continue;
+      if (qualifiedNamespace !== undefined && candidateNamespace.toLowerCase() !== qualifiedNamespace.toLowerCase()) continue;
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);
-      const name = importContext ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
+      const name = qualifiedNamespace !== undefined ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
       if (!name.toLowerCase().startsWith(prefix)) continue;
       const collision = localFqcn(candidate.name.toLowerCase()) ?? importedVisible.get(candidate.name.toLowerCase());
-      if (!importContext && !visibleName && collision && collision.toLowerCase() !== candidateKey) continue;
+      if (qualifiedNamespace === undefined && !visibleName && collision && collision.toLowerCase() !== candidateKey) continue;
       results.push({ uri: owner.uri, start: candidate.start, end: candidate.end, name, fqcn: candidate.fqcn, kind: candidate.kind,
-        importFqcn: importContext || visibleName || candidateNamespace === namespace ? undefined : candidate.fqcn });
+        importFqcn: qualifiedNamespace !== undefined || visibleName || candidateNamespace === namespace ? undefined : candidate.fqcn });
     }
     return results.sort((left, right) => {
       const visibility = Number(Boolean(left.importFqcn)) - Number(Boolean(right.importFqcn));
