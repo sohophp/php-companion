@@ -1,6 +1,6 @@
 # SoPHP 日常开发组合方案
 
-2026-09-26 当前私有候选为 [15a5254](reports/alpha-15a5254-packaged-profile-2026-09-26.md)：Core、Symfony、Open Source Pack 同批三份 VSIX 已通过隔离 Linux 组合宿主，真实 WSL Remote 安装和长时间使用仍待验。[当前 Pack 整理与 SoPHP 开发顺序](reports/open-source-pack-current-entry-2026-09-26.md)是执行入口；下文的 `21977ee1` 是此前候选的历史验证记录。
+2026-09-27 当前可安装的私有候选为 [248ee1f8](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)：Core、Symfony、Open Source Pack 同批三份 VSIX 已通过隔离 Linux 组合宿主，真实 WSL Remote 安装和长时间使用仍待验。[当前 Pack 整理与 SoPHP 开发顺序](reports/open-source-pack-current-priority-2026-09-27.md)是执行入口；下文的旧候选号是历史验证记录。
 
 更新：2026-09-25。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
