@@ -159,8 +159,10 @@ function display(DisplayItem $item): void {
   echo "{$item->ti}";
   echo "plain $item->ti";
   echo 'literal $item->ti';
+  echo 'literal $item->';
   echo "escaped \$item->ti";
   // $item->ti
+  // $item->
   /* $item->ti */
   echo <<<'TXT'
 $item->ti
@@ -173,8 +175,10 @@ TXT;
       expect(members('{$item->ti')).toEqual(expect.arrayContaining(['title', 'titleCase']));
       expect(members('plain $item->ti')).toEqual(expect.arrayContaining(['title', 'titleCase']));
       expect(members('literal $item->ti')).toEqual([]);
+      expect(project.isMemberCompletionContext(uri, source.indexOf("literal $item->'") + 'literal $item->'.length)).toBe(false);
       expect(members(String.raw`escaped \$item->ti`)).toEqual([]);
       expect(members('// $item->ti')).toEqual([]);
+      expect(project.isMemberCompletionContext(uri, source.indexOf('// $item->\n') + '// $item->'.length)).toBe(false);
       expect(members('/* $item->ti')).toEqual([]);
       expect(members('$item->ti\nTXT;', '$item->ti'.length)).toEqual([]);
       const mixed = '<?php class DisplayItem { public string $title = ""; } $item = new DisplayItem(); ?><div>$item->ti</div><?php $item->ti; ?>';
@@ -441,11 +445,14 @@ TXT;
     const source = `<?php namespace App;
       class Factory { /** @return array{item: Alpha}|array{item: Beta} */ public function choose(): array { return []; } }`;
     const consumer = `<?php namespace App; function inspect(Factory $factory): void {
-      $row = $factory->choose(); $item = $row['item']; $item->com;
+      $row = $factory->choose(); $item = $row['item']; $item->; $item->com;
     }`;
     try {
       project.update(sourceUri, source); project.update(consumerUri, consumer);
       const memberOffset = consumer.indexOf('$item->com') + '$item->com'.length;
+      const bareOffset = consumer.indexOf('$item->;') + '$item->'.length;
+      expect(project.isMemberCompletionContext(consumerUri, bareOffset)).toBe(true);
+      expect(project.memberOwnerTypeNamesAt(consumerUri, bareOffset)).toEqual(['App\\Alpha', 'App\\Beta']);
       expect(project.memberOwnerTypeNamesAt(consumerUri, memberOffset)).toEqual(['App\\Alpha', 'App\\Beta']);
       for (const unproven of ['array{item?: Alpha}|array{item: Beta}', 'array{item: Alpha}|array{other: Beta}',
         'array{item: Alpha}|array{item: string}']) {
@@ -456,6 +463,7 @@ TXT;
       project.update('file:///Alpha.php', '<?php namespace App; class Alpha { public function common(): void {} }');
       project.update('file:///Beta.php', '<?php namespace App; class Beta { public function common(): void {} }');
       expect(project.variableValueAt(consumerUri, consumer.indexOf('$item->com') + 2)?.type).toBe('App\\Alpha|App\\Beta');
+      expect(project.completeMembers(consumerUri, bareOffset).map((item) => item.name)).toEqual(['common']);
       expect(project.completeMembers(consumerUri, memberOffset).map((item) => item.name)).toEqual(['common']);
     } finally { project.dispose(); }
   });

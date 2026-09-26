@@ -3419,7 +3419,7 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     if (!file) return false;
     if (this.isNonCodeMemberTextPosition(uri, file, offset)) return false;
-    return /(?:\?->|->|::)\s*\$?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(file.source.slice(0, offset));
+    return /(?:\?->|->|::)\s*(?:\$?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.test(file.source.slice(0, offset));
   }
 
   private isNonCodeMemberTextPosition(uri: string, file: SemanticFile, offset: number): boolean {
@@ -4003,10 +4003,14 @@ export class SemanticWorkspace {
   memberOwnerTypeNamesAt(uri: string, offset: number): string[] {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset);
-      if (!file || !word || !file.memberAccesses.some((access) => offset >= access.start && offset <= access.end)) return [];
-      const unresolvedOwners = new Set<string>(); const target = this.memberTarget(uri, word.end, unresolvedOwners);
+      if (!file) return [];
+      const bareOperator = !word && this.isMemberCompletionContext(uri, offset)
+        && /(?:\?->|->|::)\s*$/.test(file.source.slice(0, offset));
+      if (!bareOperator && (!word || !file.memberAccesses.some((access) => offset >= access.start && offset <= access.end))) return [];
+      const memberStart = word?.start ?? offset;
+      const unresolvedOwners = new Set<string>(); const target = this.memberTarget(uri, word?.end ?? offset, unresolvedOwners);
       if (target) return [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])];
-      const receiver = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*(?:\?->|->)\s*$/.exec(file.source.slice(Math.max(0, word.start - 96), word.start))?.[1];
+      const receiver = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*(?:\?->|->)\s*$/.exec(file.source.slice(Math.max(0, memberStart - 96), memberStart))?.[1];
       const scope = receiver && this.containingScope(file, offset);
       if (receiver && scope) {
         const assignments = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === receiver

@@ -790,7 +790,7 @@ function inspectCrossFileDoc(): void { foreach (crossFileRecords() as $item) { $
 class ShapeFactory { /** @return array{item: ShapeAlpha}|array{item: ShapeBeta} */ public function choose(): array { return []; } }`;
   const shapeConsumerSource = `<?php namespace App\\Service;
 function inspectShape(ShapeFactory $factory): void {
-  $row = $factory->choose(); $item = $row['item']; $item->com; $item->alpha; $item->common();
+  $row = $factory->choose(); $item = $row['item']; $item->; $item->com; $item->alpha; $item->common();
 }`;
   await vscode.workspace.fs.writeFile(shapeAlphaUri, Buffer.from('<?php namespace App\\Service; class ShapeAlpha { public function common(): void {} public function alphaOnly(): void {} }'));
   await vscode.workspace.fs.writeFile(shapeBetaUri, Buffer.from('<?php namespace App\\Service; class ShapeBeta { public function common(): void {} public function betaOnly(): void {} }'));
@@ -804,8 +804,9 @@ function inspectShape(ShapeFactory $factory): void {
     shapeConsumerDocument.positionAt(shapeConsumerSource.indexOf(marker) + marker.length),
   ))?.items.filter((item) => item.kind === vscode.CompletionItemKind.Method).map((item) => String(item.label)) ?? [];
   const shapeDeadline = Date.now() + 20_000;
-  while (Date.now() < shapeDeadline && !(await shapeMethods('$item->com')).includes('common'))
+  while (Date.now() < shapeDeadline && !(await shapeMethods('$item->')).includes('common'))
     await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok((await shapeMethods('$item->')).includes('common'), 'Cold onDemand bare arrow omitted the shared member.');
   assert.ok((await shapeMethods('$item->com')).includes('common'), 'Cold onDemand union shape omitted the shared member.');
   assert.ok(!(await shapeMethods('$item->alpha')).includes('alphaOnly'), 'Union shape exposed a branch-only member.');
   const shapeDefinitionPosition = shapeConsumerDocument.positionAt(shapeConsumerSource.indexOf('$item->common()') + '$item->co'.length);

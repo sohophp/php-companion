@@ -8676,7 +8676,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       }`;
       const consumer = `<?php namespace App; function inspect(Factory $factory): void {
         $row = $factory->choose(); $item = $row['item'];
-        $item->com; $item->alpha; $item->common();
+        $item->; $item->com; $item->alpha; $item->common();
       }`;
       await writeFile(join(root, 'src', 'Alpha.php'), alpha);
       await writeFile(join(root, 'src', 'Beta.php'), beta);
@@ -8711,6 +8711,7 @@ class ChildService extends Service { public function call(int|string $value): vo
         const result = await request(id, 'completion', consumer.indexOf(marker) + marker.length);
         return (Array.isArray(result) ? result : result?.items ?? []).map((item: { label: string }) => item.label);
       };
+      expect(await completionNames(602, '$item->')).toContain('common');
       expect(await completionNames(595, '$item->com')).toContain('common');
       expect(await completionNames(596, '$item->alpha')).toEqual([]);
       const hoverAt = consumer.indexOf('$item->com') + 2;
