@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["php-companion-open-source-pack", "php-companion-recommended-pack"]
+  "ignore": ["php-companion-open-source-pack"]
 }

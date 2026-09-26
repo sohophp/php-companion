@@ -44,6 +44,7 @@ import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
 import { allPsr4Mappings, discoverComposerRoots, findComposerRoot, loadComposerProject, allAutoloadPaths, projectAutoloadPaths, isAutoloadPathExcluded, resolvePsr4Class, resolvePsr4Namespaces,
   type ComposerProject, type Psr4Mapping } from '@php-companion/project';
 import { symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, symfonyPhpParameterReferences, symfonyPhpServiceReferenceAt, symfonyPhpServiceReferencePrefixAt, symfonyPhpServiceReferences, symfonyRouteCallAt, symfonyRouteParameterCallAt, symfonyRouteNameText, symfonyXmlParameterReferenceAt, symfonyXmlParameterReferencePrefixAt, symfonyXmlParameterReferences, symfonyXmlServiceReferenceAt, symfonyXmlServiceReferencePrefixAt, symfonyXmlServiceReferences, symfonyYamlParameterReferenceAt, symfonyYamlParameterReferencePrefixAt, symfonyYamlParameterReferences, symfonyYamlRouteControllerAt, symfonyYamlServiceReferenceAt, symfonyYamlServiceReferencePrefixAt, symfonyYamlServiceReferences, type SymfonyRouteCall, type SymfonyRouteParameterCall, resolveSymfonyAutowireTypes, symfonyAutowireServiceIdAt, symfonyAutowireServiceIdReferences, type SymfonyAutowireResolution, type SymfonyCompiledMethodArgumentFact, type SymfonyCompiledPropertyArgumentFact, type SymfonyServiceFact } from '@php-companion/framework-symfony';
+import { symfonyPhpParameterDeclarations, symfonyXmlParameterDeclarations, symfonyYamlParameterDeclarations } from '@php-companion/framework-symfony';
 import { doctrineQueryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
@@ -4056,6 +4057,13 @@ async function symfonyRouteRenamePlan(params: SymfonyRouteRenameParams, cancelle
   return { routeName, range: { start: sourceDocument.positionAt(selected.start), end: sourceDocument.positionAt(selected.end) }, changes, sourceHashes };
 }
 
+function symfonyParameterDeclarationsAt(source: string, offset: number, sourceIsPhp: boolean, sourceIsXml: boolean,
+  syntaxParser: PhpSyntaxParser | undefined, environment: string | undefined): Array<{ value: string; start: number; end: number }> {
+  const declarations = sourceIsPhp ? symfonyPhpParameterDeclarations(syntaxParser!, source, environment)
+    : sourceIsXml ? symfonyXmlParameterDeclarations(source, environment) : symfonyYamlParameterDeclarations(source, environment);
+  return declarations.filter((declaration) => offset >= declaration.start && offset <= declaration.end);
+}
+
 async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, cancelled: () => boolean): Promise<{
   parameterId: string; range: { start: { line: number; character: number }; end: { line: number; character: number } };
   changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
@@ -4073,8 +4081,9 @@ async function symfonyParameterRenamePlan(params: SymfonyServiceRenameParams, ca
   const offset = document.offsetAt({ line: Number(position.line), character: Number(position.character) });
   const reference = sourceIsPhp ? symfonyPhpParameterReferenceAt(syntaxParser!, params.source, offset, symfonyEnvironmentForRoot(root))
     : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)) : symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
-  const declarations = symfonyParameterCatalog(root).filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end);
-  const ids = new Set(reference ? [reference.value] : declarations.map((parameter) => parameter.id)); if (ids.size !== 1) return undefined;
+  const declarations = reference ? [] : symfonyParameterDeclarationsAt(params.source, offset, sourceIsPhp,
+    sourceIsXml, sourceIsPhp ? await parser() : undefined, symfonyEnvironmentForRoot(root));
+  const ids = new Set(reference ? [reference.value] : declarations.map((declaration) => declaration.value)); if (ids.size !== 1) return undefined;
   const parameterId = [...ids][0]!; const target = uniqueSymfonyParameterRegistration(root, parameterId); if (!target) return undefined;
   const newName = typeof params.newName === 'string' ? params.newName : parameterId;
   if (!/^[A-Za-z0-9_.-]+$/.test(newName) || newName !== parameterId && symfonyParameterCatalog(root).some((parameter) => parameter.id === newName)) return undefined;
@@ -4187,8 +4196,8 @@ connection.onRequest('phpCompanion/symfonyServiceReferences', async (params: {
     const parameterReference = sourceIsPhp ? symfonyPhpParameterReferenceAt(syntaxParser!, params.source, offset, symfonyEnvironmentForRoot(root))
       : sourceIsXml ? symfonyXmlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root))
       : symfonyYamlParameterReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
-    const declarationIds = symfonyParameterCatalog(root)
-      .filter((parameter) => parameter.uri === uri && offset >= parameter.start && offset <= parameter.end).map((parameter) => parameter.id);
+    const declarationIds = symfonyParameterDeclarationsAt(params.source, offset, sourceIsPhp, sourceIsXml,
+      syntaxParser, symfonyEnvironmentForRoot(root)).map((declaration) => declaration.value);
     const parameterIds = new Set(parameterReference ? [parameterReference.value] : declarationIds);
     if (parameterIds.size === 1) {
       const parameterId = [...parameterIds][0]!; const target = uniqueSymfonyParameterRegistration(root, parameterId);
