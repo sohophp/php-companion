@@ -2700,6 +2700,7 @@ export async function run(): Promise<void> {
 
   const unusedImportUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'UnusedImport.php');
   const unusedImportDocument = await vscode.workspace.openTextDocument(unusedImportUri);
+  await vscode.window.showTextDocument(unusedImportDocument);
   let unusedImportDiagnostic: vscode.Diagnostic | undefined;
   await waitFor(() => {
     unusedImportDiagnostic = vscode.languages.getDiagnostics(unusedImportUri).find((diagnostic) => diagnostic.code === 'php.import.unused');
@@ -2714,7 +2715,6 @@ export async function run(): Promise<void> {
     return Boolean(removeImportAction?.edit);
   }, 'Unused import diagnostic did not provide its removal Quick Fix');
   assert.ok(removeImportAction?.edit, 'Unused import diagnostic did not provide its removal Quick Fix');
-  await vscode.window.showTextDocument(unusedImportDocument);
   assert.ok(await vscode.workspace.applyEdit(removeImportAction.edit), 'Unused import Quick Fix could not be applied');
   assert.ok(!unusedImportDocument.getText().includes('use App\\Contract\\Runner;'), 'Unused import Quick Fix left the import statement');
   await vscode.commands.executeCommand('undo');
@@ -5396,7 +5396,8 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
       'ShouldNotRename',
     );
   } catch (error) {
-    assert.match(error instanceof Error ? error.message : String(error), /No result|can't be renamed/, 'Alias Rename failed for an unexpected reason');
+    const message = error instanceof Error ? error.message : String(error);
+    assert.match(message, /No result|can't be renamed/, `Alias Rename failed for an unexpected reason: ${message}`);
   }
   assert.strictEqual(aliasRename, undefined, 'Type Rename unexpectedly started from an explicit alias use');
   assert.ok(aliasDocument.getText().includes('use App\\Service\\UserService as Service;'), 'Rejected alias Rename changed the document');

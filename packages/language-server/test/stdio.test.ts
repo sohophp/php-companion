@@ -1,10 +1,14 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { dirname, join, resolve, sep } from 'node:path';
+import { realpathSync } from 'node:fs';
 import { copyFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir as osTmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ReferenceResultStore } from '../src/referenceResultStore.js';
+
+// macOS exposes /var through /private/var; keep fixture URIs aligned with indexed real paths.
+function tmpdir(): string { return realpathSync(osTmpdir()); }
 
 function encode(message: object): string {
   const body = JSON.stringify(message);

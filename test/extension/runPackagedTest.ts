@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdtemp, mkdir, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from '@vscode/test-electron';
@@ -68,7 +68,7 @@ async function main(): Promise<void> {
   // macOS limits Unix-domain socket paths to roughly 104 bytes. GitHub's
   // per-user tmpdir is already long enough that VS Code's profile socket can
   // exceed that limit before the tests start.
-  const temporary = await mkdtemp(join(process.platform === 'darwin' ? '/tmp' : tmpdir(), 'php-companion-packaged-'));
+  const temporary = await realpath(await mkdtemp(join(process.platform === 'darwin' ? '/tmp' : tmpdir(), 'php-companion-packaged-')));
   const fixture = join(temporary, 'workspace');
   const extracted = join(temporary, 'vsix');
   const symfonyExtracted = join(temporary, 'symfony-vsix');
