@@ -22,3 +22,5 @@ PHPUnit/Pest 默认由项目 CLI 执行。`recca0120.vscode-phpunit` 3.9.40 在�
 这条顺序已经开始执行：隔离分支 `feat/c1-interpolated-variable-completion` 修复了[插值字符串变量补全](c1-interpolated-variable-completion-2026-09-26.md)、[插值成员与普通文本的边界](c1-interpolated-member-boundary-2026-09-26.md)、[普通函数与常量建议的表达式边界](c1-function-constant-completion-boundary-2026-09-26.md)、[类名补全的代码边界](c1-type-completion-code-boundary-2026-09-26.md)、[混合 PHP/HTML 文件的补全边界](c1-mixed-php-html-variable-completion-2026-09-26.md)和[自动 PHP 版本宿主门禁](c1-auto-version-host-gate-2026-09-26.md)。语义回归与实际 VS Code 补全请求通过，完整 10 项源码 Profile 通过。这些增量已包含在 0.4.7 冻结候选中。后续继续按可见错误推进 C1/C2；不因每个小改动重新打包，也不等待人工反馈才执行独立验证。
 
 C2 已补上[按需模式的跨文件联合数组形状反馈](c2-ondemand-union-shape-feedback-2026-09-26.md)：未打开形状字段的类文件时，共有成员仍能补全并跳到两个定义；Factory 的 PHPDoc 在未保存缓冲区改为单一分支后，使用方的补全、Hover 和定义同步更新。独立 Composer 真实 LSP、完整 10 项源码宿主及 0.4.7 打包宿主通过；真实 WSL Remote 仍待 C4。
+
+C3 冻结候选已通过完整 10 项打包宿主；冻结后源码又修正了[类型生成最终创建路径的应用结果](c3-type-generation-create-postapply-2026-09-26.md)。这项增量只通过完整 10 项源码 C3 宿主，**不在 0.4.7 VSIX 中**。下一次交付冻结时再同批纳入三份 VSIX。

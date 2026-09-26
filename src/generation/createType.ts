@@ -98,7 +98,8 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
     testClosePreview?: (tab: vscode.Tab) => Promise<boolean>;
     testOpenCreatedFile?: (uri: vscode.Uri) => Promise<void>;
     testApplyStagedEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean>;
-    testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean> }): Promise<boolean> {
+    testApplySiblingEdit?: (edit: vscode.WorkspaceEdit, stagedPath: string) => Promise<boolean>;
+    testApplyCreateEdit?: (edit: vscode.WorkspaceEdit) => Promise<boolean> }): Promise<boolean> {
   let directoryUri = await directoryFromTarget(target);
   const folder = target ? vscode.workspace.getWorkspaceFolder(target)
     : directoryUri ? vscode.workspace.getWorkspaceFolder(directoryUri) : vscode.workspace.workspaceFolders?.[0];
@@ -302,16 +303,20 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   }
   if (!created) {
     if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
-    try {
-      const edit = new vscode.WorkspaceEdit();
-      edit.createFile(uri, { overwrite: false, contents: Buffer.from(source, 'utf8') });
-      if (!await vscode.workspace.applyEdit(edit)) { void vscode.window.showErrorMessage(t('createApplyFailed')); return false; }
-      usedFileCreationFallback = uri.scheme === 'file';
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      void vscode.window.showErrorMessage(`${t('createApplyFailed')} ${reason}`);
+    const contents = Buffer.from(source, 'utf8');
+    const edit = new vscode.WorkspaceEdit();
+    edit.createFile(uri, { overwrite: false, contents });
+    let applyError: unknown;
+    try { await (options?.testApplyCreateEdit ?? vscode.workspace.applyEdit)(edit); }
+    catch (error) { applyError = error; }
+    const complete = await vscode.workspace.fs.readFile(uri)
+      .then((actual) => Buffer.from(actual).equals(contents), () => false);
+    if (!complete) {
+      const reason = applyError instanceof Error ? applyError.message : applyError === undefined ? '' : String(applyError);
+      void vscode.window.showErrorMessage(reason ? `${t('createApplyFailed')} ${reason}` : t('createApplyFailed'));
       return false;
     }
+    usedFileCreationFallback = uri.scheme === 'file';
   }
   try {
     if (options?.testOpenCreatedFile) await options.testOpenCreatedFile(uri);
