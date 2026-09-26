@@ -5986,6 +5986,8 @@ export class SemanticWorkspace {
 
   private definitionWithImplementation(uri: string, offset: number): SemanticLocation[] {
     const file = this.files.get(uri);
+    if (file?.commentRanges.some((range) => offset >= range.start && offset < range.end)
+      && !this.phpDocTypeNameAt(file, offset)) return [];
     const declaredMethod = file?.callables.find((item) => item.kind === 'method' && offset >= item.start && offset < item.end);
     if (declaredMethod?.containerFqcn) {
       const current = this.memberDeclarationAt(uri, offset);
@@ -8089,6 +8091,8 @@ export class SemanticWorkspace {
   resolvedTypeNameAt(uri: string, offset: number): string | undefined {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return undefined;
+      if (file.commentRanges.some((range) => offset >= range.start && offset < range.end)
+        && !this.phpDocTypeNameAt(file, offset)) return undefined;
       const declared = file.declarations.find((item) => offset >= item.start && offset <= item.end);
       const imported = file.imports.find((item) => offset >= item.pathStart && offset <= item.pathEnd);
       return declared?.fqcn ?? imported?.fqcn
@@ -8098,6 +8102,8 @@ export class SemanticWorkspace {
 
   private typeCandidatesAtWithImplementation(uri: string, offset: number): TypeInfo[] {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return [];
+    if (file.commentRanges.some((range) => offset >= range.start && offset < range.end)
+      && !this.phpDocTypeNameAt(file, offset)) return [];
     const declared = file.declarations.find((item) => offset >= item.start && offset <= item.end);
     const imported = file.imports.find((item) => offset >= item.pathStart && offset <= item.pathEnd);
     const fqcn = declared?.fqcn ?? imported?.fqcn ?? this.resolveSourceType(file, word.text, this.namespaceAt(file, offset), this.containingCallable(file, offset)?.containerFqcn);
@@ -8105,6 +8111,14 @@ export class SemanticWorkspace {
     const matches = this.filesForReferenceKeys(`declaration:type:${fqcn.toLowerCase()}`).flatMap((candidate) => candidate.declarations
       .filter((item) => !item.anonymous && item.fqcn.toLowerCase() === fqcn.toLowerCase()).map((declaration) => ({ candidate, declaration })));
     return matches.map(({ candidate, declaration }) => ({ uri: candidate.uri, start: declaration.start, end: declaration.end, name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind }));
+  }
+
+  private phpDocTypeNameAt(file: SemanticFile, offset: number): RawName | undefined {
+    const raw = file.rawNames.find((name) => name.context === 'phpdoc' && offset >= name.start && offset < name.end);
+    if (!raw) return undefined;
+    const context = phpDocTypeCompletionContext(file, raw.end, this.namespaceAt(file, raw.start));
+    const last = raw.text.split('\\').at(-1);
+    return context && last?.toLowerCase() === context.prefix.toLowerCase() ? raw : undefined;
   }
 
   private namespaceAt(file: SemanticFile, offset: number): string {

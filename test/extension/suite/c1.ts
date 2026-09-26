@@ -573,6 +573,47 @@ function documented(): void {}
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
     `SoPHP suggested the project class outside a PHPDoc type position ${marker}.`);
   }
+  const navigationTargetUri = vscode.Uri.joinPath(folder, 'C1DocNavigationTarget.php');
+  await vscode.workspace.fs.writeFile(navigationTargetUri,
+    Buffer.from('<?php namespace App\\C1; class C1DocNavigationTarget {}'));
+  const navigationSource = `<?php namespace App\\C1;
+/**
+ * @param C1DocNavigationTarget $value description C1DocNavigationTarget
+ * @return list<C1DocNavigationTarget> explanation C1DocNavigationTarget
+ * @var array{C1DocNavigationTarget: C1DocNavigationTarget} $shape
+ * @method C1DocNavigationTarget find(C1DocNavigationTarget $value) explanation C1DocNavigationTarget
+ */
+class C1DocNavigationConsumer {}
+// C1DocNavigationTarget in an ordinary comment
+`;
+  const navigationUri = vscode.Uri.joinPath(folder, 'C1DocNavigationConsumer.php');
+  await vscode.workspace.fs.writeFile(navigationUri, Buffer.from(navigationSource));
+  const navigationDocument = await vscode.workspace.openTextDocument(navigationUri);
+  await vscode.window.showTextDocument(navigationDocument);
+  const docDefinition = async (marker: string, occurrence = 0): Promise<vscode.Location[]> => {
+    let start = -1;
+    for (let index = 0; index <= occurrence; index += 1) start = navigationSource.indexOf(marker, start + 1);
+    assert.ok(start >= 0, `Missing PHPDoc navigation marker ${marker}.`);
+    return await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider',
+      navigationUri, navigationDocument.positionAt(start + marker.length - 2)) ?? [];
+  };
+  for (const marker of ['@param C1DocNavigationTarget', 'list<C1DocNavigationTarget',
+    'C1DocNavigationTarget: C1DocNavigationTarget', '@method C1DocNavigationTarget',
+    'find(C1DocNavigationTarget']) {
+    const locations = await waitForResult(() => docDefinition(marker),
+      (items) => items.some((item) => item.uri.toString() === navigationTargetUri.toString()),
+      `SoPHP did not navigate from PHPDoc type ${marker}.`);
+    assert.ok(locations.some((item) => item.uri.toString() === navigationTargetUri.toString()));
+  }
+  for (const marker of ['description C1DocNavigationTarget', 'explanation C1DocNavigationTarget',
+    '// C1DocNavigationTarget']) {
+    assert.deepStrictEqual(await docDefinition(marker), [],
+      `SoPHP treated PHPDoc description or ordinary comment as a type: ${marker}.`);
+  }
+  const shapeKey = navigationDocument.positionAt(navigationSource.indexOf('array{C1DocNavigationTarget') + 'array{'.length + 2);
+  assert.deepStrictEqual(await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider',
+    navigationUri, shapeKey) ?? [], [],
+    'SoPHP treated an array shape key as a type.');
   const mixedSource = '<div>$G</div><?php $globalName = 1; function globalHelper(): void {} ?><p>$G globalHel</p><?php $G; globalHel; ?>';
   const mixedUri = vscode.Uri.joinPath(folder, 'C1MixedPhpHtml.php');
   await vscode.workspace.fs.writeFile(mixedUri, Buffer.from(mixedSource));

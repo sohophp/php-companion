@@ -7,6 +7,41 @@ describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('navigates PHPDoc type positions without treating descriptions or shape keys as classes', () => {
+    const project = new SemanticWorkspace(parser);
+    const typeUri = 'file:///vendor/acme/src/Widget.php';
+    const typeSource = '<?php namespace Acme\\Model; class Widget {} class Owner {}';
+    const useUri = 'file:///src/Use.php';
+    const source = `<?php namespace App;
+use Acme\\Model\\Widget as Item;
+/**
+ * @param Item $item description Widget
+ * @return list<Item|\\Acme\\Model\\Owner> explanation Widget
+ * @var array{Owner: Item, next: \\Acme\\Model\\Owner} $value
+ * @method Item make(\\Acme\\Model\\Owner $owner) explanation Owner
+ */
+class UseCase {}
+class Widget {} class Owner {}
+// Widget in a regular comment
+`;
+    project.update(typeUri, typeSource);
+    project.update(useUri, source);
+    const target = (name: 'Widget' | 'Owner'): { uri: string; start: number } =>
+      ({ uri: typeUri, start: typeSource.indexOf(`class ${name}`) + 'class '.length });
+    for (const marker of ['@param Item', 'list<Item', 'Owner: Item', '@method Item']) {
+      const name = marker.endsWith('Item') ? 'Widget' : 'Owner';
+      expect(project.definition(useUri, source.indexOf(marker) + marker.length - 2), marker)
+        .toMatchObject([target(name)]);
+    }
+    for (const marker of ['\\Acme\\Model\\Owner', 'next: \\Acme\\Model\\Owner', 'make(\\Acme\\Model\\Owner']) {
+      expect(project.definition(useUri, source.indexOf(marker) + marker.length - 2), marker)
+        .toMatchObject([target('Owner')]);
+    }
+    for (const marker of ['description Widget', 'explanation Widget', 'Owner: Item', 'explanation Owner', '// Widget']) {
+      const offset = marker === 'Owner: Item' ? source.indexOf(marker) + 2 : source.indexOf(marker) + marker.length - 2;
+      expect(project.definition(useUri, offset), marker).toEqual([]);
+    }
+  });
   it('completes only variables visible in the current PHP scope', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///ScopedVariables.php';
