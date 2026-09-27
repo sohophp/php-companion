@@ -815,6 +815,7 @@ function semanticTypeSurfaces(file: SemanticFile | undefined): Map<string, strin
         name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind,
         extendsNames: declaration.extendsNames, implementsNames: declaration.implementsNames,
         traitNames: declaration.traitNames, traitAdaptations, readonlyClass: declaration.readonlyClass,
+        abstractClass: declaration.abstractClass,
         enumBackingType: declaration.enumBackingType,
       }, callables, properties, constants,
       templates: file.templates.filter((item) => item.ownerFqcn.toLowerCase() === key || item.ownerFqcn.toLowerCase().startsWith(`${key}::`)),
@@ -2331,7 +2332,7 @@ export class SemanticWorkspace {
   workspaceTypes(): Array<TypeInfo & { abstract: boolean }> {
     return [...this.files.values()].flatMap((file) => file.declarations.filter((item) => !item.anonymous).map((item) => ({
       uri: file.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn, kind: item.kind,
-      abstract: item.kind === 'class' && /\babstract\b/i.test(file.source.slice(item.declarationStart, item.start)),
+      abstract: item.abstractClass,
     })));
   }
 
@@ -4044,6 +4045,7 @@ export class SemanticWorkspace {
       if (traitContext && candidate.kind !== 'trait') continue;
       if (inheritanceKind && candidate.kind !== inheritanceKind) continue;
       if (constructKind === 'class' && candidate.kind !== 'class') continue;
+      if (constructKind === 'class' && candidate.abstractClass) continue;
       if (constructKind === 'instanceof' && candidate.kind === 'trait') continue;
       const candidateKey = candidate.fqcn.toLowerCase();
       if (qualifiedNamespace !== undefined && candidateNamespace.toLowerCase() !== qualifiedNamespace.toLowerCase()) continue;

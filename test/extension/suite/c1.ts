@@ -991,6 +991,9 @@ function useCommented(mixed $value): never { return new never(); }`;
   const typeUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionConsumer.php');
   const typeDeclarationUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionProbe.php');
   await vscode.workspace.fs.writeFile(typeDeclarationUri, Buffer.from('<?php namespace App\\C1; class C1TypeCompletionProbe {}'));
+  const abstractTypeUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionPrototype.php');
+  await vscode.workspace.fs.writeFile(abstractTypeUri,
+    Buffer.from('<?php namespace App\\C1; abstract class C1TypeCompletionPrototype {}'));
   await vscode.workspace.fs.writeFile(typeUri, Buffer.from(typeSource));
   const typeDocument = await vscode.workspace.openTextDocument(typeUri);
   await vscode.window.showTextDocument(typeDocument);
@@ -1002,6 +1005,8 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.strictEqual(typeCompletion.items.filter((item) => item.label === 'C1TypeCompletionProbe').length, 1,
     'Project class completion was returned more than once.');
+  assert.ok(!typeCompletion.items.some((item) => item.label === 'C1TypeCompletionPrototype'),
+    'Construction completion suggested an abstract class.');
   const externalFolder = vscode.Uri.joinPath(folder, 'External');
   await vscode.workspace.fs.createDirectory(externalFolder);
   const externalTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalTypeProbe.php');

@@ -99,6 +99,13 @@ describe('@php-companion/parser', () => {
     ]);
     result.tree.delete();
   });
+  it('records an abstract class modifier without reading attribute text', () => {
+    const result = parser.parse('<?php #[Label("abstract")] class Concrete {} abstract class AbstractService {} interface Contract {}');
+    expect(result.declarations.map((item) => [item.name, item.abstractClass])).toEqual([
+      ['Concrete', false], ['AbstractService', true], ['Contract', false],
+    ]);
+    result.tree.delete();
+  });
   it('records final methods inside extensible classes', () => {
     const result = parser.parse('<?php class Service { final public function closed(int $value): void {} public function open(int $value): void {} }');
     expect(result.callables.map((item) => [item.name, item.finalMethod])).toEqual([

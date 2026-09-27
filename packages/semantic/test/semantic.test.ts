@@ -5023,12 +5023,14 @@ TXT;
   it('filters new, instanceof and attribute candidates by PHP declaration kind', () => {
     workspace.update('file:///ConstructionKinds.php', `<?php namespace Domain;
       #[\\Attribute] class C1ConstructClass {} interface C1ConstructInterface {}
-      trait C1ConstructTrait {} enum C1ConstructEnum { case One; }`);
+      trait C1ConstructTrait {} enum C1ConstructEnum { case One; }
+      abstract class C1ConstructAbstract {} #[Label("abstract")] class C1ConstructDecorated {}`);
     const cases = [
-      ['<?php namespace App; function run(): void { new C1Construct', ['Domain\\C1ConstructClass']],
-      ['<?php namespace App; function run(): void { new \\Domain\\C1Construct', ['Domain\\C1ConstructClass']],
+      ['<?php namespace App; function run(): void { new C1Construct', ['Domain\\C1ConstructClass', 'Domain\\C1ConstructDecorated']],
+      ['<?php namespace App; function run(): void { new \\Domain\\C1Construct', ['Domain\\C1ConstructClass', 'Domain\\C1ConstructDecorated']],
       ['<?php namespace App; function run(): void { $value instanceof C1Construct',
-        ['Domain\\C1ConstructClass', 'Domain\\C1ConstructEnum', 'Domain\\C1ConstructInterface']],
+        ['Domain\\C1ConstructAbstract', 'Domain\\C1ConstructClass', 'Domain\\C1ConstructDecorated',
+          'Domain\\C1ConstructEnum', 'Domain\\C1ConstructInterface']],
       ['<?php namespace App; #[C1Construct', ['Domain\\C1ConstructClass']],
     ] as const;
     for (const [index, [source, expected]] of cases.entries()) {
@@ -5036,6 +5038,18 @@ TXT;
       workspace.update(uri, source);
       expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), source).toEqual(expected);
     }
+  });
+  it('refreshes new candidates when an unsaved class becomes abstract', () => {
+    const declarationUri = 'file:///AbstractToggle.php';
+    const queryUri = 'file:///AbstractToggleConsumer.php';
+    const query = '<?php namespace App; new ToggleCandidate';
+    workspace.update(queryUri, query);
+    workspace.update(declarationUri, '<?php namespace Domain; class ToggleCandidate {}');
+    expect(workspace.completeTypes(queryUri, query.length).map((item) => item.fqcn)).toContain('Domain\\ToggleCandidate');
+    workspace.update(declarationUri, '<?php namespace Domain; abstract class ToggleCandidate {}');
+    expect(workspace.completeTypes(queryUri, query.length).map((item) => item.fqcn)).not.toContain('Domain\\ToggleCandidate');
+    workspace.update(declarationUri, '<?php namespace Domain; class ToggleCandidate {}');
+    expect(workspace.completeTypes(queryUri, query.length).map((item) => item.fqcn)).toContain('Domain\\ToggleCandidate');
   });
   it('suggests only proven attribute classes at an attribute name', () => {
     const project = new SemanticWorkspace(parser);
