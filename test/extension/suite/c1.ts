@@ -1038,6 +1038,32 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.ok(!traitCompletion.items.some((item) => item.label === 'C1ExternalTraitThing'),
     'SoPHP offered a class where PHP requires a trait.');
+  for (const [kind, suffix, body] of [
+    ['class', 'Class', '{}'], ['interface', 'Interface', '{}'],
+    ['trait', 'Trait', '{}'], ['enum', 'Enum', '{ case One; }'],
+  ] as const) {
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, `C1Inheritance${suffix}.php`),
+      Buffer.from(`<?php namespace App\\C1\\External; ${kind} C1Inheritance${suffix} ${body}`));
+  }
+  const inheritanceSource = '<?php namespace App\\C1; class C1Child extends C1Inheritance {} class C1Adapter implements C1Inheritance {}';
+  const inheritanceUri = vscode.Uri.joinPath(folder, 'C1InheritanceConsumer.php');
+  await vscode.workspace.fs.writeFile(inheritanceUri, Buffer.from(inheritanceSource));
+  const inheritanceDocument = await vscode.workspace.openTextDocument(inheritanceUri);
+  await vscode.window.showTextDocument(inheritanceDocument);
+  for (const [marker, expected, excluded] of [
+    ['extends C1Inheritance', 'C1InheritanceClass', 'C1InheritanceInterface'],
+    ['implements C1Inheritance', 'C1InheritanceInterface', 'C1InheritanceClass'],
+  ] as const) {
+    const suggestions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', inheritanceUri,
+        inheritanceDocument.positionAt(inheritanceSource.indexOf(marker) + marker.length)),
+      (result) => result?.items.some((item) => item.label === expected) === true,
+      `SoPHP did not suggest ${expected} in ${marker}.`,
+    );
+    assert.ok(!suggestions.items.some((item) => item.label === excluded
+      || item.label === 'C1InheritanceTrait' || item.label === 'C1InheritanceEnum'),
+    `SoPHP suggested an invalid declaration kind in ${marker}.`);
+  }
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));

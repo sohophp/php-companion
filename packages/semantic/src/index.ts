@@ -467,6 +467,7 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
   const direct = [
     /\b(?:new|extends|instanceof)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
     /\bimplements\s+(?:[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*,\s*)*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
+    /\bextends\s+(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*\s*,\s*)+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
     /\)\s*:\s*\??([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
     /\bcatch\s*\(\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
     /#\[\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
@@ -3783,6 +3784,19 @@ export class SemanticWorkspace {
       ? { prefix: current } : undefined;
   }
 
+  private inheritanceTypeCompletionKind(file: SemanticFile, offset: number): 'class' | 'interface' | undefined {
+    const before = file.source.slice(0, offset);
+    const boundary = Math.max(before.lastIndexOf(';'), before.lastIndexOf('{'), before.lastIndexOf('}'));
+    const header = before.slice(boundary + 1).trimStart();
+    const owner = /^(?:#\[[^\]]*\]\s*)*(?:(?:abstract|final|readonly)\s+)*(class|interface|enum)\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\s*:\s*(?:int|string))?(?:\s+([\s\S]*))?$/u.exec(header);
+    if (!owner) return undefined;
+    const clauses = [...(owner[2] ?? '').matchAll(/\b(extends|implements)\s+/gu)];
+    const clause = clauses.at(-1)?.[1];
+    if (clause === 'implements') return owner[1] === 'interface' ? undefined : 'interface';
+    if (clause === 'extends') return owner[1] === 'class' ? 'class' : owner[1] === 'interface' ? 'interface' : undefined;
+    return undefined;
+  }
+
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
     const before = file.source.slice(0, offset);
     const match = /((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
@@ -3839,6 +3853,7 @@ export class SemanticWorkspace {
     const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
     const contextPrefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
+    const inheritanceKind = docContext || traitContext || importContext ? undefined : this.inheritanceTypeCompletionKind(file, offset);
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
     const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
@@ -3871,6 +3886,7 @@ export class SemanticWorkspace {
     const results: TypeInfo[] = [];
     for (const { declaration: candidate, owner, namespace: candidateNamespace } of declarations.values()) {
       if (traitContext && candidate.kind !== 'trait') continue;
+      if (inheritanceKind && candidate.kind !== inheritanceKind) continue;
       const candidateKey = candidate.fqcn.toLowerCase();
       if (qualifiedNamespace !== undefined && candidateNamespace.toLowerCase() !== qualifiedNamespace.toLowerCase()) continue;
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);

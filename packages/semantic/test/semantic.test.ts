@@ -4974,6 +4974,26 @@ TXT;
     expect(workspace.completeTypes(uri, ownerOffsets[1]!).map((item) => item.fqcn)).toContain('Domain\\RemoteTrait');
     expect(workspace.typeCompletionContext(uri, ownerOffsets[2]!)).toBeUndefined();
   });
+  it('offers only valid declaration kinds in extends and implements clauses', () => {
+    workspace.update('file:///InheritanceKinds.php', `<?php namespace Domain;
+      class C1InheritanceKindClass {} interface C1InheritanceKindInterface {}
+      trait C1InheritanceKindTrait {} enum C1InheritanceKindEnum { case One; }`);
+    const cases = [
+      ['class Child extends C1InheritanceKind', ['Domain\\C1InheritanceKindClass']],
+      ['class Child extends \\Domain\\C1InheritanceKind', ['Domain\\C1InheritanceKindClass']],
+      ['class Child implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+      ['class Child extends \\Domain\\C1InheritanceKindClass implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+      ['interface Child extends C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+      ['interface Child extends \\Domain\\C1InheritanceKindInterface, C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+      ['enum Child implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+    ] as const;
+    for (const [index, [fragment, expected]] of cases.entries()) {
+      const uri = `file:///Inheritance-${index}.php`;
+      const source = `<?php namespace App; ${fragment}`;
+      workspace.update(uri, source);
+      expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), fragment).toEqual(expected);
+    }
+  });
   it('completes qualified native type names without adding an import', () => {
     workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
     workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');
