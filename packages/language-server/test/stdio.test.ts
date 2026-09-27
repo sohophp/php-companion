@@ -1912,6 +1912,44 @@ final class Consumer { public function __construct(#[Autowire(service: 'app.mail
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('finds a service declaration in a new unsaved services.yaml snapshot', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-unsaved-service-'));
+    try {
+      await mkdir(join(root, 'config')); await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'src', 'Mailer.php'), '<?php namespace App; final class Mailer {}');
+      const source = `<?php namespace App;
+use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;
+final class Consumer { public function __construct(#[Autowire(service: 'app.mailer')] object $mailer) {} }`;
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      await writeFile(join(root, 'src', 'Consumer.php'), source);
+      const configSource = 'services:\n  app.mailer: { class: App\\Mailer }\n';
+      const configUri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9091, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'progressive', bundledSemanticProviders: [symfonyServiceProviderDescriptor],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 9091);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: configUri, languageId: 'yaml', snapshotVersion: '1', source: configSource }],
+      } }));
+      await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('committed authoritative container generation'), 15_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 9092, method: 'phpCompanion/symfonyServiceDefinition', params: {
+        textDocument: { uri: consumerUri, version: 1 }, source,
+        position: lspPosition(source, source.indexOf('app.mailer') + 4),
+      } }));
+      const start = configSource.indexOf('app.mailer:');
+      expect((await output.waitFor((message) => message.id === 9092)).result).toEqual([{ uri: configUri, range: {
+        start: lspPosition(configSource, start), end: lspPosition(configSource, start + 'app.mailer'.length),
+      } }]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('does not publish Symfony service facts when bundle registration input is unreadable', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-bundle-input-'));
     try {

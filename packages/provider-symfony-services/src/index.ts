@@ -1,5 +1,5 @@
 import { readFile, readdir, realpath, stat } from 'node:fs/promises';
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   analyzeSymfonyBundleRegistrations,
@@ -201,7 +201,12 @@ export async function collectSymfonyServiceFacts(rootPath: string, parser: PhpSy
     inputPaths.add(path);
     loading.add(path);
     try {
-      const actual = await realpath(path); if (!within(containmentRoot, actual)) { complete = false; return; }
+      const actual = await realpath(path).catch(async (error: unknown) => {
+        if (sources.has(path) && (error as NodeJS.ErrnoException).code === 'ENOENT')
+          return resolve(await realpath(dirname(path)), basename(path));
+        throw error;
+      });
+      if (!within(containmentRoot, actual)) { complete = false; return; }
       configuredPaths.add(path);
       const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
       const extension = path.split('.').at(-1)?.toLowerCase();

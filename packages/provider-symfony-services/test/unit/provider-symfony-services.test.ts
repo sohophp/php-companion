@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readFile, rm, utimes, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -55,6 +55,34 @@ describe('standalone Symfony service provider', () => {
     const bounded = await collectSymfonyServiceFacts(root, parser, { projectTypes: [], maxImports: 1 });
     expect(bounded.inputEvidenceComplete).toBe(false);
     expect(bounded.complete).toBe(false);
+  });
+
+  it('collects a new conventional service file from an unsaved editor snapshot', async () => {
+    const root = await project();
+    const path = join(root, 'src', 'Mailer.php');
+    await writeFile(path, '<?php namespace App; final class Mailer {}');
+    const uri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [type(root, 'App\\Mailer', 'Mailer.php')],
+      documents: [{ uri, languageId: 'yaml', snapshotVersion: '1',
+        source: 'services:\n  app.mailer: { class: App\\Mailer }\n' }],
+    });
+    expect(facts.complete).toBe(true);
+    expect(facts.services.map((service) => service.id)).toContain('app.mailer');
+    expect(facts.configurationUris).toContain(uri);
+  });
+
+  it('rejects an unsaved service file through a config symlink outside the project', async () => {
+    const root = await project();
+    const outside = await mkdtemp(join(tmpdir(), 'symfony-services-outside-')); roots.push(outside);
+    await rm(join(root, 'config'), { recursive: true });
+    await symlink(outside, join(root, 'config'));
+    const uri = pathToFileURL(join(root, 'config', 'services.yaml')).toString();
+    const facts = await collectSymfonyServiceFacts(root, parser, { projectTypes: [],
+      documents: [{ uri, languageId: 'yaml', snapshotVersion: '1',
+        source: 'services:\n  app.outside: { class: App\\Mailer }\n' }],
+    });
+    expect(facts.complete).toBe(false);
+    expect(facts.services.map((service) => service.id)).not.toContain('app.outside');
   });
 
   it('does not publish an authoritative graph when a declared import is absent or unsupported', async () => {
