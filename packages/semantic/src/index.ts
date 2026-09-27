@@ -448,9 +448,15 @@ function qualifiedImportCompletion(source: string, offset: number): { qualifier:
   const group = /(?:^|[;\n])\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/.exec(before);
   if (group) {
     const member = group[2]!.split(',').at(-1)!.trimStart();
-    if (/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(member)
-      && !/^(?:function|const)\b/.test(member)) {
-      return { qualifier: group[1]!.replace(/^\\/, '').slice(0, -1), prefix: member, grouped: true };
+    if (!/^(?:function|const)\b/.test(member)) {
+      const base = group[1]!.replace(/^\\/, '').slice(0, -1);
+      const segments = member.split('\\');
+      const prefix = segments.pop()!;
+      if (base.split('\\').every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))
+        && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))
+        && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(prefix))) {
+        return { qualifier: [base, ...segments].join('\\'), prefix, grouped: true };
+      }
     }
   }
   const match = /(?:^|[;\n])\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);

@@ -5607,6 +5607,7 @@ function useNames(): void {
   it('completes a class member inside a qualified group use without importing it twice', () => {
     workspace.update('file:///GroupInvoice.php', '<?php namespace Domain\\Billing; class Invoice {}');
     workspace.update('file:///OtherInvoice.php', '<?php namespace Domain\\Other; class Invoice {}');
+    workspace.update('file:///GroupOperationsReceipt.php', '<?php namespace Domain\\Billing\\Operations; class Receipt {}');
     for (const group of ['use Domain\\Billing\\{Inv};', 'use Domain\\Billing\\{Receipt, Inv};',
       'use Domain\\Billing\\{function lookup, Inv};']) {
       const source = `<?php namespace App; ${group} class Consumer {}`;
@@ -5618,6 +5619,26 @@ function useNames(): void {
         { name: 'Invoice', fqcn: 'Domain\\Billing\\Invoice', importFqcn: undefined },
       ]);
     }
+    const nestedGroup = '<?php namespace App; use Domain\\Billing\\{Operations\\Rec}; class Consumer {}';
+    workspace.update('file:///NestedGroupConsumer.php', nestedGroup);
+    const nestedOffset = nestedGroup.indexOf('Rec}') + 'Rec'.length;
+    expect(workspace.typeCompletionContext('file:///NestedGroupConsumer.php', nestedOffset))
+      .toMatchObject({ namespace: 'Domain\\Billing\\Operations', prefix: 'Rec' });
+    expect(workspace.completeTypes('file:///NestedGroupConsumer.php', nestedOffset)).toMatchObject([
+      { name: 'Receipt', fqcn: 'Domain\\Billing\\Operations\\Receipt', importFqcn: undefined },
+    ]);
+    const mixedNestedGroup = '<?php namespace App; use Domain\\Billing\\{function lookup, Operations\\Rec}; class Consumer {}';
+    workspace.update('file:///MixedNestedGroupConsumer.php', mixedNestedGroup);
+    const mixedNestedOffset = mixedNestedGroup.indexOf('Rec}') + 'Rec'.length;
+    expect(workspace.completeTypes('file:///MixedNestedGroupConsumer.php', mixedNestedOffset)).toMatchObject([
+      { name: 'Receipt', fqcn: 'Domain\\Billing\\Operations\\Receipt', importFqcn: undefined },
+    ]);
+    const emptyGroup = '<?php namespace App; use Domain\\Billing\\{';
+    workspace.update('file:///EmptyGroupConsumer.php', emptyGroup);
+    expect(workspace.typeCompletionContext('file:///EmptyGroupConsumer.php', emptyGroup.length))
+      .toMatchObject({ namespace: 'Domain\\Billing', prefix: '' });
+    expect(workspace.completeTypes('file:///EmptyGroupConsumer.php', emptyGroup.length).map((item) => item.fqcn))
+      .toContain('Domain\\Billing\\Invoice');
     const functionMember = '<?php namespace App; use Domain\\Billing\\{function Inv};';
     workspace.update('file:///GroupFunction.php', functionMember);
     expect(workspace.completeTypes('file:///GroupFunction.php', functionMember.indexOf('Inv};') + 3)).toEqual([]);

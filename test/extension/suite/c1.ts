@@ -1451,6 +1451,32 @@ class C1ConstructionPositions {
   await vscode.commands.executeCommand('acceptSelectedSuggestion');
   assert.strictEqual(laterGroupDocument.getText(), laterGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
     'Accepting a later group use member changed an earlier member or the braces.');
+  const nestedGroupSource = '<?php namespace App\\C1; use App\\C1\\{External\\C1ExternalTypePro}; class NestedGroupImportConsumer {}';
+  const nestedGroupUri = vscode.Uri.joinPath(folder, 'C1NestedGroupImportConsumer.php');
+  await vscode.workspace.fs.writeFile(nestedGroupUri, Buffer.from(nestedGroupSource));
+  const nestedGroupDocument = await vscode.workspace.openTextDocument(nestedGroupUri);
+  const nestedGroupEditor = await vscode.window.showTextDocument(nestedGroupDocument);
+  const nestedGroupOffset = nestedGroupSource.indexOf('C1ExternalTypePro}') + 'C1ExternalTypePro'.length;
+  const nestedGroupCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', nestedGroupUri,
+      nestedGroupDocument.positionAt(nestedGroupOffset)),
+    (result) => result?.items.filter((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe' && !item.additionalTextEdits?.length).length === 1,
+    'SoPHP did not complete a nested class member in a group use.',
+  );
+  const nestedGroupItem = nestedGroupCompletion.items.find((item) => item.label === 'C1ExternalTypeProbe')!;
+  const nestedGroupRange = nestedGroupItem.range instanceof vscode.Range ? nestedGroupItem.range : nestedGroupItem.range?.replacing;
+  assert.ok(nestedGroupRange && nestedGroupDocument.getText(nestedGroupRange) === '{External\\C1ExternalTypePro}'
+    && nestedGroupItem.insertText === '{External\\C1ExternalTypeProbe}',
+  'The nested group use completion would change its namespace prefix or braces.');
+  nestedGroupEditor.selection = new vscode.Selection(nestedGroupDocument.positionAt(nestedGroupOffset),
+    nestedGroupDocument.positionAt(nestedGroupOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(nestedGroupDocument.getText(), nestedGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
+    'Accepting the nested group use member changed its prefix or braces.');
   const alternateFolder = vscode.Uri.joinPath(folder, 'Alternative');
   await vscode.workspace.fs.createDirectory(alternateFolder);
   await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(alternateFolder, 'C1ExternalTypeProbe.php'),

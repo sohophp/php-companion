@@ -202,6 +202,29 @@ describe('language server stdio', () => {
         textEdit: { range: { start: lspPosition(laterGroupImport, laterGroupImport.indexOf('{Receipt')),
           end: lspPosition(laterGroupImport, laterGroupImport.indexOf('{Receipt') + '{Receipt, Inv}'.length) },
         newText: '{Receipt, Invoice}' } })]);
+      const nestedGroupImport = '<?php namespace App; use Domain\\Billing\\{Operations\\Rec}; class NestedGroupImport {}';
+      const nestedGroupUri = pathToFileURL(join(root, 'src', 'NestedGroupImport.php')).toString();
+      await writeFile(join(root, 'src', 'NestedGroupImport.php'), nestedGroupImport);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: nestedGroupUri, languageId: 'php', version: 1, text: nestedGroupImport },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === nestedGroupUri);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1186, method: 'textDocument/completion', params: {
+        textDocument: { uri: nestedGroupUri }, position: lspPosition(nestedGroupImport,
+          nestedGroupImport.indexOf('Rec}') + 'Rec'.length),
+      } }));
+      const nestedGroupResult = (await output.waitFor((message) => message.id === 1186)).result;
+      const nestedGroupItems = Array.isArray(nestedGroupResult) ? nestedGroupResult : nestedGroupResult.items;
+      expect(nestedGroupItems).toHaveLength(1);
+      const receiptItems = nestedGroupItems.filter((item: { label: string }) => item.label === 'Receipt');
+      expect(receiptItems).toEqual([
+        expect.objectContaining({ detail: 'Domain\\Billing\\Operations\\Receipt',
+          filterText: '{Operations\\Rec}',
+          textEdit: { range: { start: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('{Operations')),
+            end: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('{Operations') + '{Operations\\Rec}'.length) },
+          newText: '{Operations\\Receipt}' } }),
+      ]);
+      expect(receiptItems[0]?.additionalTextEdits).toBeUndefined();
       const namespaceImport = '<?php namespace App; use Dom; class NamespaceImport {}';
       const namespaceImportUri = pathToFileURL(join(root, 'src', 'NamespaceImport.php')).toString();
       await writeFile(join(root, 'src', 'NamespaceImport.php'), namespaceImport);
