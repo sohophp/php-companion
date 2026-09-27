@@ -74,7 +74,7 @@ let workspaceRoots: string[] = [];
 const composerRootChecks = new Map<string, Promise<void>>();
 let clientDiagnosticLanguage: DiagnosticLanguage = 'en';
 let workspaceFolderRoots: string[] = [];
-let workspaceFolderLocations: Array<{ uri: string; path: string }> = [];
+let workspaceFolderLocations: Array<{ uri: string; path: string; physicalPath?: string }> = [];
 let indexingGeneration = 0;
 let activeIndexing: Promise<void> | undefined;
 const indexedUrisByRoot = new Map<string, Set<string>>();
@@ -1084,9 +1084,21 @@ connection.onNotification('phpCompanion/phpVersions', async (params: { versions?
     .map((document) => publishDocumentDiagnostics(document)));
 });
 
+function workspaceAliasPath(path: string): string {
+  if (process.platform !== 'win32') return path;
+  for (const location of workspaceFolderLocations) {
+    if (pathWithin(location.path, path)) return path;
+    if (location.physicalPath && pathWithin(location.physicalPath, path)) {
+      return resolve(location.path, relative(location.physicalPath, path));
+    }
+  }
+  return path;
+}
+
 function rootForUri(uri: string): string | undefined {
   const path = pathForUri(uri); if (!path) return undefined;
-  return workspaceRoots.filter((candidate) => pathWithin(candidate, path)).sort((left, right) => right.length - left.length)[0];
+  const workspacePath = workspaceAliasPath(path);
+  return workspaceRoots.filter((candidate) => pathWithin(candidate, workspacePath)).sort((left, right) => right.length - left.length)[0];
 }
 
 function pathForUri(uri: string): string | undefined {
@@ -1104,7 +1116,7 @@ function pathForUri(uri: string): string | undefined {
 
 function sameFilesystemPath(left: string | undefined, right: string): boolean {
   if (!left) return false;
-  const normalizedLeft = resolve(left); const normalizedRight = resolve(right);
+  const normalizedLeft = resolve(workspaceAliasPath(left)); const normalizedRight = resolve(workspaceAliasPath(right));
   return process.platform === 'win32'
     ? normalizedLeft.toLowerCase() === normalizedRight.toLowerCase()
     : normalizedLeft === normalizedRight;
@@ -1144,11 +1156,12 @@ function isPlannedSafeMovePath(path: string): boolean {
 }
 
 function indexedUriForPath(root: string, path: string): string {
+  const workspacePath = workspaceAliasPath(path);
   const location = workspaceFolderLocations.filter((candidate) => pathWithin(candidate.path, root))
     .sort((left, right) => right.path.length - left.path.length)[0];
   if (!location) return pathToFileURL(path).toString();
   const uri = new URL(location.uri); uri.search = ''; uri.hash = '';
-  const suffix = relative(location.path, path);
+  const suffix = relative(location.path, workspacePath);
   if (!suffix) return uri.toString();
   const encodedSuffix = suffix.split(sep).map((segment) => encodeURIComponent(segment)).join('/');
   return `${uri.toString().replace(/\/?$/, '/')}${encodedSuffix}`;
@@ -2327,7 +2340,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
     workspaceRoots = [...new Set(discoveries.flatMap((result, index) => result.roots.length ? result.roots : [workspaceFolderRoots[index]!]))];
     for (const result of discoveries) for (const warning of result.warnings) connection.console.warn(warning);
     const affectedFolders = changedComposerPaths && workspaceFolderRoots.filter((folder) =>
-      changedComposerPaths.some((path) => pathWithin(folder, path)));
+      changedComposerPaths.some((path) => pathWithin(folder, workspaceAliasPath(path))));
     let scanAllRoots = !affectedFolders?.length || discoveries.some((result) => !result.complete);
     if (!scanAllRoots && affectedFolders) {
       // A path repository in another folder can observe the changed manifest.
@@ -2338,7 +2351,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
         if (!project) continue;
         for (const dependency of project.dependencies) {
           const target = await realpath(dependency.root).catch(() => dependency.root);
-          if (affectedFolders.some((folder) => pathWithin(folder, target))) { scanAllRoots = true; break; }
+          if (affectedFolders.some((folder) => pathWithin(folder, workspaceAliasPath(target)))) { scanAllRoots = true; break; }
         }
         if (scanAllRoots) break;
       }
@@ -3677,7 +3690,10 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testDisablePersistentReferences = testMode && initialization?.testDisablePersistentReferences === true;
   supportsWorkDoneProgress = params.capabilities.window?.workDoneProgress === true;
   const uris = params.workspaceFolders?.map((folder) => folder.uri) ?? (params.rootUri ? [params.rootUri] : []);
-  workspaceFolderLocations = uris.flatMap((uri) => { const path = pathForUri(uri); return path ? [{ uri, path }] : []; });
+  workspaceFolderLocations = (await Promise.all(uris.map(async (uri) => {
+    const path = pathForUri(uri);
+    return path ? { uri, path, physicalPath: await realpath(path).catch(() => undefined) } : undefined;
+  }))).filter((location): location is { uri: string; path: string; physicalPath: string | undefined } => location !== undefined);
   workspaceFolderRoots = workspaceFolderLocations.map((location) => location.path);
   workspaceRoots = [...workspaceFolderRoots];
   composerRootChecks.clear();

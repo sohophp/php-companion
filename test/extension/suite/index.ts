@@ -3275,6 +3275,9 @@ export async function run(): Promise<void> {
     const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', diagnosticUnknownsUri) ?? [];
     return symbols.some((symbol) => symbol.name === 'KnownDiagnosticTarget');
   }, 'Diagnostic unknown fixture was not analyzed');
+  await waitForAsync(async () => vscode.languages.getDiagnostics(diagnosticUnknownsUri)
+    .some((diagnostic) => diagnostic.source === 'SoPHP' && diagnostic.code === 'php.type.unresolved'),
+  'Incomplete hierarchy did not publish its unresolved parent diagnostic', 30_000, 100);
   const unknownFactDiagnostics = vscode.languages.getDiagnostics(diagnosticUnknownsUri).filter((diagnostic) => diagnostic.source === 'SoPHP');
   assert.deepEqual(unknownFactDiagnostics.map((diagnostic) => diagnostic.code), ['php.type.unresolved'],
     `Incomplete hierarchy produced cascading diagnostics: ${unknownFactDiagnostics.map((diagnostic) => String(diagnostic.code)).join(', ')}`);

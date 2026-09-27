@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { dirname, join, resolve, sep } from 'node:path';
 import { realpathSync } from 'node:fs';
+import { once } from 'node:events';
 import { copyFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir as osTmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
@@ -112,6 +113,12 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
 describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
+  const stopServerBeforeRemovingFixture = async (): Promise<void> => {
+    if (!server || server.exitCode !== null || server.signalCode !== null) return;
+    const exited = once(server, 'exit');
+    server.kill();
+    await exited;
+  };
 
   it('completes unopened PSR-4 classes across namespaces in onDemand mode', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sophp-c1-unopened-type-'));
@@ -5528,7 +5535,10 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect(namespaceDiagnostics.params.diagnostics).toMatchObject([{ code: 'php.namespace.psr4', data: { expectedNamespace: 'App' } }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 14, method: 'textDocument/codeAction', params: { textDocument: { uri: wrongUri }, range: namespaceDiagnostics.params.diagnostics[0].range, context: { diagnostics: namespaceDiagnostics.params.diagnostics } } }));
       expect((await output.waitFor((message) => message.id === 14)).result).toMatchObject([{ kind: 'quickfix', isPreferred: true, edit: { changes: { [wrongUri]: [{ newText: 'App' }] } } }]);
-    } finally { await rm(root, { recursive: true, force: true }); }
+    } finally {
+      await stopServerBeforeRemovingFixture();
+      await rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    }
   });
 
   it('isolates semantic queries between workspace roots with identical FQCNs', async () => {
@@ -5749,7 +5759,8 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await change(2, sourceFor('BagB'));
       expect(await references(bagAUri, bagA)).toEqual([]);
       expect(await references(bagBUri, bagB)).toEqual([consumerUri]);
-      expect(scanCount()).toBe(1);
+      expect(scanCount(), JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(1);
       await change(3, sourceFor('BagA'));
       expect(await references(bagAUri, bagA)).toEqual([consumerUri]);
       expect(await references(bagBUri, bagB)).toEqual([]);
@@ -5843,7 +5854,8 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect(await references(firstUri, first, 'renderAction')).toEqual([consumerUri]);
       await change(4, sourceFor('Second'));
       expect(await references(secondUri, second, 'updateAction')).toEqual([consumerUri]);
-      expect(scanCount()).toBe(2);
+      expect(scanCount(), JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(2);
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
@@ -10949,7 +10961,9 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect(references).toHaveLength(1);
       expect(references[0].uri).toBe(uri);
       expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && message.params?.message?.includes('[named-candidates]'))).toHaveLength(1);
+        && message.params?.message?.includes('[named-candidates]')),
+      JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toHaveLength(1);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -11079,7 +11093,10 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect(references[0].uri).toBe(pathToFileURL(join(root, 'Use.php')).toString());
       expect(output.messages.some((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('[named-candidates]'))).toBe(true);
-    } finally { await rm(root, { recursive: true, force: true }); }
+    } finally {
+      await stopServerBeforeRemovingFixture();
+      await rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    }
   });
 
   it('updates progressive References after a watched file move', async () => {
