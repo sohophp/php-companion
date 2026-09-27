@@ -468,8 +468,18 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
   return { qualifier: segments.join('\\'), prefix };
 }
 
+function symbolImportCompletion(source: string, offset: number): { kind: 'function' | 'const'; qualifier: string; prefix: string } | undefined {
+  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(source.slice(0, offset));
+  if (!match) return undefined;
+  const segments = (match[2] ?? '').replace(/^\\/u, '').split('\\');
+  const prefix = segments.pop()!;
+  if (segments.some((segment) => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
+    || (prefix && !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) return undefined;
+  return { kind: match[1] as 'function' | 'const', qualifier: segments.join('\\'), prefix };
+}
+
 function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
-  return /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:function|const)\s+[\\A-Za-z0-9_\x80-\xff]*$/u.test(source.slice(0, offset));
+  return symbolImportCompletion(source, offset) !== undefined;
 }
 
 function isCatchTypeCompletion(source: string, offset: number): boolean {
@@ -3769,6 +3779,13 @@ export class SemanticWorkspace {
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
       || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;
     return namespaceImportCompletion(file.source, offset);
+  }
+
+  symbolImportContext(uri: string, offset: number): { kind: 'function' | 'const'; qualifier: string; prefix: string } | undefined {
+    const file = this.files.get(uri);
+    if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
+      || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;
+    return symbolImportCompletion(file.source, offset);
   }
 
   private traitUseTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string } | undefined {

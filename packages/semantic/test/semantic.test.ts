@@ -5340,6 +5340,11 @@ use Attribute as Marker;
     const importSource = '<?php namespace App; use function Domain\\Factory\\createI;';
     workspace.update('file:///FunctionImportCompletion.php', importSource);
     expect(workspace.completeFunctions('file:///FunctionImportCompletion.php', importSource.indexOf('createI;') + 7)).toEqual([]);
+    expect(workspace.symbolImportContext('file:///FunctionImportCompletion.php', importSource.indexOf('createI;') + 7))
+      .toEqual({ kind: 'function', qualifier: 'Domain\\Factory', prefix: 'createI' });
+    const bareImport = '<?php use function cre'; workspace.update('file:///BareFunctionImport.php', bareImport);
+    expect(workspace.symbolImportContext('file:///BareFunctionImport.php', bareImport.length))
+      .toEqual({ kind: 'function', qualifier: '', prefix: 'cre' });
   });
   it('keeps function and constant suggestions in PHP code rather than comments or string text', () => {
     const project = new SemanticWorkspace(parser);
@@ -5989,6 +5994,13 @@ function useNames(): void {
       workspace.update(uri, invalid);
       expect(workspace.completeConstants(uri, invalid.indexOf('api_') + 4), invalid).toEqual([]);
     }
+    const constImport = '<?php namespace Consumer; use const Config\\API_';
+    workspace.update('file:///ConstantImportContext.php', constImport);
+    expect(workspace.symbolImportContext('file:///ConstantImportContext.php', constImport.length))
+      .toEqual({ kind: 'const', qualifier: 'Config', prefix: 'API_' });
+    const classUse = '<?php class InvalidImport { use const Config\\API_';
+    workspace.update('file:///ClassConstantImportContext.php', classUse);
+    expect(workspace.symbolImportContext('file:///ClassConstantImportContext.php', classUse.length)).toBeUndefined();
     expect(workspace.importInsertion('file:///ConstantExternal.php', external.length, 'Config\\API_KEY', 'const')?.text).toContain('use const Config\\API_KEY;');
     workspace.update('file:///DuplicateConstants.php', '<?php namespace Config; const API_KEY = "duplicate";');
     expect(workspace.constantAt('file:///ConstantImported.php', imported.lastIndexOf('KEY') + 1)).toBeUndefined();

@@ -369,6 +369,24 @@ export async function run(): Promise<void> {
   );
   assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'c1_mix_function').length, 1);
   assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'C1_MIX_CONSTANT').length, 1);
+  for (const [kind, prefix, expected] of [
+    ['function', 'c1_mix', 'c1_mix_function'], ['const', 'c1_mix', 'C1_MIX_CONSTANT'],
+  ] as const) {
+    const source = `<?php namespace App\\C1; use ${kind} App\\C1\\${prefix}`;
+    const uri = vscode.Uri.joinPath(folder, `C1${kind}ImportConsumer.php`);
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+    const result = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri,
+        document.positionAt(source.length)),
+      (completion) => completion?.items.some((item) => item.label === expected) === true,
+      `SoPHP did not complete the ${kind} import from its namespace.`,
+    );
+    assert.strictEqual(result.items.filter((item) => item.label === expected).length, 1);
+    assert.ok(!result.items.find((item) => item.label === expected)?.additionalTextEdits?.length,
+      `SoPHP added another use statement while completing the ${kind} import.`);
+  }
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',
     'PHP variable suggestions should come from SoPHP with PHP scope ownership.');

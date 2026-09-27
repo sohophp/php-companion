@@ -10378,6 +10378,53 @@ echo ranked_lsp_over;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('completes function and constant imports from unopened Composer autoload files', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symbol-import-completion-'));
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['src/functions.php', 'src/constants.php'] } }));
+      await writeFile(join(root, 'src', 'functions.php'), '<?php namespace Vendor; function createInvoice(): string { return ""; } const CREATE_INVOICE = 1; class CreateInvoiceType {}');
+      await writeFile(join(root, 'src', 'constants.php'), '<?php namespace Vendor; const API_KEY = 1; function api_helper(): void {}');
+      const functionSource = '<?php namespace App; use function Vendor\\crea';
+      const constantSource = '<?php namespace App; use const Vendor\\api_';
+      const namespaceSource = '<?php namespace App; use function Ven';
+      const functionUri = pathToFileURL(join(root, 'src', 'FunctionConsumer.php')).toString();
+      const constantUri = pathToFileURL(join(root, 'src', 'ConstantConsumer.php')).toString();
+      const namespaceUri = pathToFileURL(join(root, 'src', 'NamespaceConsumer.php')).toString();
+      await writeFile(join(root, 'src', 'FunctionConsumer.php'), functionSource);
+      await writeFile(join(root, 'src', 'ConstantConsumer.php'), constantSource);
+      await writeFile(join(root, 'src', 'NamespaceConsumer.php'), namespaceSource);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 115, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 115);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [id, uri, source, expected] of [
+        [116, functionUri, functionSource, 'createInvoice'],
+        [117, constantUri, constantSource, 'API_KEY'],
+        [118, namespaceUri, namespaceSource, 'Vendor\\'],
+      ] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, source.length),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id, 20_000)).result;
+        const items = Array.isArray(result) ? result : result.items;
+        expect(items).toContainEqual(expect.objectContaining({ label: expected }));
+        const matching = items.filter((item: { label: string }) => item.label === expected);
+        expect(matching).toHaveLength(1);
+        expect(matching[0]?.additionalTextEdits).toBeUndefined();
+        if (id === 116) expect(items.map((item: { label: string }) => item.label)).not.toContain('CREATE_INVOICE');
+        if (id === 117) expect(items.map((item: { label: string }) => item.label)).not.toContain('api_helper');
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('navigates exact YAML controller segments to PHP without taking over YAML documents', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-yaml-controller-definition-'));
     try {

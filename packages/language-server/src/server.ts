@@ -5778,6 +5778,30 @@ async function hydrateNonPsr4TypeSource(workspace: SemanticWorkspace, root: stri
   } catch { return false; }
 }
 
+async function hydrateOnDemandSymbolImports(workspace: SemanticWorkspace, root: string,
+  context: { qualifier: string; prefix: string }, cancelled: () => boolean): Promise<boolean> {
+  const project = await composerProjectForRoot(root);
+  if (!project || cancelled()) return false;
+  const explicitFiles = [...new Set([...project.files, ...project.dependencies.flatMap((dependency) => dependency.files)]
+    .map((path) => resolve(path)))].sort();
+  let paths = explicitFiles;
+  let complete = true;
+  if (paths.length > 256) {
+    const needle = context.prefix.length >= 3 ? context.prefix : context.qualifier.split('\\').at(-1) ?? '';
+    if (!needle) return false;
+    const matches = await portableCandidatePaths(paths, [needle], project, () => !cancelled(), 10_000, 3_000);
+    if (!matches || cancelled()) return false;
+    paths = [...matches.paths].sort();
+    if (paths.length > 256) { paths = paths.slice(0, 256); complete = false; }
+  }
+  for (const path of paths) {
+    if (cancelled()) return false;
+    if (workspace.source(indexedUriForPath(root, path)) !== undefined) continue;
+    if (!await hydrateNonPsr4TypeSource(workspace, root, path, project)) complete = false;
+  }
+  return complete;
+}
+
 async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspace, root: string,
   context: { prefix: string; namespace: string; importedTypes: string[] }, cancelled: () => boolean): Promise<boolean | 'stale'> {
   const epoch = typeNameSearchEpochsByRoot.get(root) ?? 0;
@@ -6127,6 +6151,45 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     sortText: `0${String(index).padStart(6, '0')}`,
     textEdit: { range: { start: document.positionAt(variables.start), end: document.positionAt(variables.end) }, newText: name },
   }));
+  const root = rootForUri(document.uri);
+  const symbolImport = workspace.symbolImportContext(document.uri, offset);
+  if (symbolImport) {
+    const complete = indexingMode === 'onDemand' && root
+      ? await hydrateOnDemandSymbolImports(workspace, root, symbolImport, () => token.isCancellationRequested)
+      : true;
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+    const allSymbols = symbolImport.kind === 'function' ? workspace.workspaceFunctions() : workspace.workspaceConstants();
+    const qualifier = symbolImport.qualifier.toLowerCase();
+    const prefix = symbolImport.prefix.toLowerCase();
+    const names = new Map<string, string>();
+    const symbols = allSymbols.flatMap((symbol) => {
+      const parts = symbol.fqcn.split('\\'); const name = parts.pop()!;
+      const namespace = parts.join('\\');
+      if (namespace.toLowerCase() === qualifier) return name.toLowerCase().startsWith(prefix) ? [symbol] : [];
+      if (!namespace.toLowerCase().startsWith(qualifier ? `${qualifier}\\` : '')) return [];
+      const rest = namespace.slice(qualifier ? symbolImport.qualifier.length + 1 : 0);
+      const segment = rest.split('\\')[0]!;
+      if (segment.toLowerCase().startsWith(prefix)) names.set(segment.toLowerCase(), segment);
+      return [];
+    }).sort((left, right) => left.name.localeCompare(right.name) || left.fqcn.localeCompare(right.fqcn));
+    const modules = [...names.values()].sort((left, right) => left.localeCompare(right)).map((name, index) => ({
+      label: `${name}\\`, kind: CompletionItemKind.Module,
+      detail: `${symbolImport.qualifier ? `${symbolImport.qualifier}\\` : ''}${name}\\`,
+      sortText: `0${String(index).padStart(6, '0')}`,
+      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
+        newText: `${name}\\` },
+    }));
+    const candidates = symbols.map((symbol, index) => ({
+      label: symbol.name,
+      kind: symbolImport.kind === 'function' ? CompletionItemKind.Function : CompletionItemKind.Constant,
+      detail: symbol.fqcn,
+      sortText: `1${String(index).padStart(6, '0')}`,
+      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
+        newText: symbol.name },
+    }));
+    const items = [...modules, ...candidates].slice(0, 64);
+    return complete && modules.length + candidates.length <= 64 ? items : { isIncomplete: true, items };
+  }
   const typeContext = workspace.typeCompletionContext(document.uri, offset);
   const functions = (typeContext ? [] : workspace.completeFunctions(document.uri, offset)).map((callable, index) => {
     const insertion = callable.importFqfn ? workspace.importInsertion(document.uri, offset, callable.importFqfn, 'function') : undefined;
@@ -6153,7 +6216,6 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (functions.length || constants.length) return [...functions, ...constants];
   const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
     ?? workspace.namespaceTypeContext(document.uri, offset);
-  const root = rootForUri(document.uri);
   const [segments, typeOutcome] = await Promise.all([
     namespaceContext && root ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
       : Promise.resolve(undefined),
