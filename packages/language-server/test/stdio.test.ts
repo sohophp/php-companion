@@ -2047,7 +2047,10 @@ final class Consumer { public function __construct(#[Autowire(service: 'app.mail
         complete: true, documents: [],
       } }));
       expect(await definition(9096)).toEqual(diskDefinition);
-    } finally { await rm(root, { recursive: true, force: true }); }
+    } finally {
+      await stopServerBeforeRemovingFixture();
+      await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    }
   });
 
   it('does not publish Symfony service facts when bundle registration input is unreadable', async () => {
