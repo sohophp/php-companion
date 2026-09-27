@@ -821,6 +821,87 @@ return array(
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it('uses a new unsaved PHP declaration consistently until its buffer closes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'sophp-c2-new-unsaved-php-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const declarationUri = pathToFileURL(join(root, 'src', 'Draft.php')).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const consumer = '<?php declare(strict_types=1); namespace App; '
+        + 'function run(Draft $draft): void { $draft->send("text"); $draft->se; }';
+      const original = '<?php namespace App; final class Draft { public function send(int $value): void {} }';
+      const changed = original.replace('int $value', 'string $value');
+      await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 154, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true },
+      } }));
+      await output.waitFor((message) => message.id === 154);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: original },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === declarationUri && message.params.version === 1);
+      const request = async (id: number, method: string, marker: string): Promise<any> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: {
+          textDocument: { uri: consumerUri }, position: lspPosition(consumer, consumer.indexOf(marker) + marker.length),
+        } }));
+        return (await output.waitFor((message) => message.id === id)).result;
+      };
+      expect(await request(155, 'textDocument/completion', '$draft->se')).toEqual(expect.arrayContaining([
+        expect.objectContaining({ label: 'send' }),
+      ]));
+      expect((await request(156, 'textDocument/signatureHelp', '$draft->send(')).signatures[0].label)
+        .toContain('send(int $value): void');
+      expect(JSON.stringify(await request(157, 'textDocument/hover', '$draft->send'))).toContain('send(int $value): void');
+      expect(await request(158, 'textDocument/definition', '$draft->send')).toEqual(expect.arrayContaining([
+        expect.objectContaining({ uri: declarationUri }),
+      ]));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: consumerUri, version: 2 }, contentChanges: [{ text: consumer }],
+      } }));
+      const mismatch = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 2);
+      expect(mismatch.params.diagnostics.map((item: { code?: string }) => item.code)).toContain('php.argument.type-mismatch');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: declarationUri, version: 2 }, contentChanges: [{ text: changed }],
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === declarationUri && message.params.version === 2);
+      expect((await request(159, 'textDocument/signatureHelp', '$draft->send(')).signatures[0].label)
+        .toContain('send(string $value): void');
+      expect(JSON.stringify(await request(160, 'textDocument/hover', '$draft->send'))).toContain('send(string $value): void');
+      const refreshed = await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
+        && message.params.uri === consumerUri && message.params.version === 2
+        && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      expect(refreshed.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch')).toBe(false);
+      const beforeRevert = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: declarationUri, version: 3 }, contentChanges: [{ text: original }],
+      } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= beforeRevert
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && message.params.version === 2
+        && message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      const beforeClose = output.messages.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: declarationUri } } }));
+      await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose
+        && message.method === 'phpCompanion/versionedDiagnostics' && message.params.uri === consumerUri
+        && message.params.version === 2
+        && !message.params.diagnostics.some((item: { code?: string }) => item.code === 'php.argument.type-mismatch'));
+      expect(await request(161, 'textDocument/definition', '$draft->send')).toEqual([]);
+    } finally { await stopServerBeforeRemovingFixture(); await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+
   it('completes unopened PSR-0 classes only at Composer-loadable paths', async () => {
     const root = await mkdtemp(join(tmpdir(), 'sophp-c1-psr0-types-'));
     try {
