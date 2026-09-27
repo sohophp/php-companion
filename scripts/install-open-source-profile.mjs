@@ -10,7 +10,7 @@ if (!process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR && !process.argv[2]) {
   throw new Error('Set PHP_COMPANION_TEST_EXTENSIONS_DIR or pass the isolated extensions directory.');
 }
 const userDataDirectory = resolve(process.env.PHP_COMPANION_TEST_USER_DATA_DIR ?? `${extensionsDirectory}-user-data`);
-const vscodeVersion = process.env.PHP_COMPANION_TEST_VSCODE_VERSION ?? '1.137.0';
+const vscodeVersion = process.env.PHP_COMPANION_TEST_VSCODE_VERSION ?? '1.139.1';
 const specifications = JSON.parse(await readFile(new URL('../test/extension/open-source-profile.extensions.json', import.meta.url), 'utf8'));
 if (!Array.isArray(specifications) || specifications.some((entry) => typeof entry?.id !== 'string' || typeof entry?.version !== 'string'
   || (entry.defaultPack !== undefined && typeof entry.defaultPack !== 'boolean')

@@ -2,7 +2,7 @@
 
 本流程用于把已经通过自动门禁的源码提交交给真实项目试用。它不改变公开发布状态。
 
-当前私有候选：[15a5254 的清单、摘要与隔离宿主报告](reports/alpha-15a5254-packaged-profile-2026-09-26.md)。同版本旧候选或当前 WSL 已安装扩展不能凭显示版本号代替它；以完整提交号和三份 SHA-256 核对。
+2026-09-27 当前已冻结的私有候选为 [0.4.7 / 248ee1f8](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)。后续 Core 源码修复尚未进入该候选；同版本旧候选或当前 WSL 已安装扩展不能凭显示版本号代替它，以完整提交号和三份 SHA-256 核对。
 
 ## 生成与核验
 
@@ -12,7 +12,7 @@
 pnpm candidate:alpha
 ```
 
-该命令现在先核对三款 SoPHP 产品版本、外部成员注册表与 Git 工作树；源码未冻结时立即停止，不启动三份 VSIX 的构建。打包后仍由候选组装步骤再次检查工作树，以防构建期间源码变化。2026-09-26 当前有未提交改动的工作树已验证提前拒绝，三份现有 VSIX 未改变；临时干净 Git 仓库的正向预检返回 `clean: true`。这只是打包入口检查，未生成新候选。
+该命令先核对三款 SoPHP 产品版本、外部成员注册表与 Git 工作树；源码未冻结时立即停止，不启动三份 VSIX 的构建。打包后由候选组装步骤再次检查工作树，以防构建期间源码变化。已有不干净工作树被提前拒绝、干净临时仓库通过预检的独立回归；运行预检本身不会生成新候选。
 
 命令输出实际候选目录。进入该目录后验证：
 
@@ -20,13 +20,13 @@ pnpm candidate:alpha
 sha256sum -c SHA256SUMS
 ```
 
-`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、三个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.5`。
+`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、三个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.7`。
 
 从 SoPHP 源码根目录执行只读预检，先验证候选完整性、WSL 环境、Composer 根与项目 PHP 包装器：
 
 ```bash
 pnpm alpha:preflight -- \
-  --candidate artifacts/php-companion-alpha-0.4.5-<commit> \
+  --candidate artifacts/php-companion-alpha-0.4.7-248ee1f8 \
   --workspace /path/to/independent-composer-project \
   --php /path/to/project-php --expected-php 8.5 --require-wsl \
   --output /tmp/sophp-alpha-preflight.json
@@ -35,6 +35,16 @@ pnpm alpha:preflight -- \
 安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端追加 `--check-editor --extensions-dir <当前 Remote 扩展目录>`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack；指定目录后还会逐文件核对三款 SoPHP 产品与候选 VSIX，同时拒绝旧 bundle 等额外安装文件，避免同版本旧包混入。VS Code 安装生成的 `.vsixmanifest` 被允许；安装器在 `package.json` 添加的受限 `__metadata` 会单独记录，其它 manifest 字段仍须与 VSIX 完全相同。若子进程调用 Remote CLI 超时，可先在同一终端运行 `code --list-extensions --show-versions > /tmp/sophp-alpha-extensions.txt`，再追加 `--extensions-list-file /tmp/sophp-alpha-extensions.txt`；报告会记录清单修改时间，扩展变化后须重新生成清单。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
 
 ## 安装边界
+
+自动化隔离 Linux Profile 可先从源码根目录安装冻结的八项外部成员：
+
+```bash
+PHP_COMPANION_TEST_EXTENSIONS_DIR=/tmp/sophp-alpha-extensions \
+PHP_COMPANION_TEST_VSCODE_VERSION=1.139.1 \
+pnpm install:open-source-profile
+```
+
+该脚本清除 VS Code Remote CLI 转发环境变量，始终向指定的隔离目录安装；只安装外部成员，不安装 Core、Symfony 或 Pack 三份候选 VSIX。它用于本机自动宿主，不代表用户 WSL Remote Profile 已安装。真实 Remote 试用应按候选目录中的安装命令在目标 Remote 窗口执行，并核对扩展运行位置。
 
 为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`。Open Source Pack 声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。Pack 不能锁定外部扩展版本，安装后按候选目录 `README.zh-CN.md` 中由 `candidate.json` 生成的命令固定成员版本。旧 Recommended Pack 不再构建或发布，新候选 Profile 中应卸载；旧 schema 1/2 候选仍可按其原清单核验。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
 
