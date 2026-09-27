@@ -20,6 +20,8 @@
 
 [同组第二个 Attribute 名称补全](c1-grouped-attribute-completion-2026-09-27.md)修复了 `#[First, Sec]` 原本没有候选的问题，继续使用类身份与目标标志筛选；语义正反例和 10 项 Pack C1 源码宿主已通过。
 
+[Symfony 新建未保存路由文件的 Rename 链](symfony-unsaved-route-rename-2026-09-27.md)补上了静态 Provider 对新建 `config/routes.yaml` 快照的识别，并让独立 Symfony 扩展在磁盘始终不存在且缓冲区未变化时接受 Rename。Provider、真实 LSP 和客户端正反例通过；实际窗口的 F2/Undo 仍待组合宿主验收。
+
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。

@@ -154,4 +154,48 @@ describe('Symfony editor language features', () => {
       'admin.start', { isCancellationRequested: false } as vscodeTypes.CancellationToken))
       .rejects.toThrow('A Symfony Rename source changed');
   });
+
+  it.each([false, true])('handles an unsaved new Symfony Rename source when a disk file appears=%s', async (appears) => {
+    let disk: string | undefined;
+    vi.mocked(vscode.workspace.fs.readFile).mockImplementation(async () => {
+      if (disk === undefined) throw Object.assign(new Error('missing'), { code: 'FileNotFound' });
+      return Buffer.from(disk);
+    });
+    const source = 'admin.home';
+    const sourceHash = createHash('sha256').update(source).digest('hex');
+    const requestLanguageServer = vi.fn(async (method: string) => {
+      if (method !== 'phpCompanion/symfonyRouteRename') return null;
+      if (appears) disk = 'external-file';
+      return { changes: { 'file:///routes.yaml': [{ range: { start: { line: 0, character: 0 }, end: { line: 0, character: 10 } }, newText: 'admin.start' }] },
+        phpCompanion: { sourceHashes: { 'file:///routes.yaml': sourceHash } } };
+    });
+    const context = { subscriptions: [] } as unknown as vscodeTypes.ExtensionContext;
+    const core = { version: 1, registerIntegration: vi.fn(), requestLanguageServer } as unknown as PhpCompanionPluginApi;
+    registerSymfonyLanguageFeatures(context, core);
+    const document = { uri: vscode.Uri.parse('file:///routes.yaml'), version: 1,
+      getText: () => source, isClosed: false, isDirty: true } as unknown as vscodeTypes.TextDocument;
+    openDocuments().push(document);
+    const rename = renameProvider!.provideRenameEdits(document, { line: 0, character: 3 } as vscodeTypes.Position,
+      'admin.start', { isCancellationRequested: false } as vscodeTypes.CancellationToken);
+    if (appears) await expect(rename).rejects.toThrow('A Symfony Rename source changed');
+    else expect((await rename as unknown as { replacements: unknown[] }).replacements).toHaveLength(1);
+  });
+
+  it('rejects Symfony Rename when a dirty source disk read is unavailable', async () => {
+    vi.mocked(vscode.workspace.fs.readFile).mockRejectedValue(Object.assign(new Error('Remote unavailable'), { code: 'Unavailable' }));
+    const source = 'admin.home';
+    const sourceHash = createHash('sha256').update(source).digest('hex');
+    const requestLanguageServer = vi.fn(async (method: string) => method === 'phpCompanion/symfonyRouteRename'
+      ? { changes: { 'file:///routes.yaml': [{ range: { start: { line: 0, character: 0 }, end: { line: 0, character: 10 } }, newText: 'admin.start' }] },
+        phpCompanion: { sourceHashes: { 'file:///routes.yaml': sourceHash } } } : null);
+    const context = { subscriptions: [] } as unknown as vscodeTypes.ExtensionContext;
+    const core = { version: 1, registerIntegration: vi.fn(), requestLanguageServer } as unknown as PhpCompanionPluginApi;
+    registerSymfonyLanguageFeatures(context, core);
+    const document = { uri: vscode.Uri.parse('file:///routes.yaml'), version: 1,
+      getText: () => source, isClosed: false, isDirty: true } as unknown as vscodeTypes.TextDocument;
+    openDocuments().push(document);
+    await expect(renameProvider!.provideRenameEdits(document, { line: 0, character: 3 } as vscodeTypes.Position,
+      'admin.start', { isCancellationRequested: false } as vscodeTypes.CancellationToken))
+      .rejects.toThrow('A Symfony Rename source changed');
+  });
 });

@@ -47,6 +47,32 @@ admin:
     expect(routes[0]?.controller).toMatchObject({ className: 'App\\Controller\\HomeController', method: 'home' });
   });
 
+  it('collects a new conventional route file from an unsaved editor snapshot', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-new-routes-')); roots.push(root);
+    await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
+    const uri = pathToFileURL(join(root, 'config', 'routes.yaml')).toString();
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser, { documents: [{
+      uri, languageId: 'yaml', snapshotVersion: '1', source: 'new.route: {path: /new}\n',
+    }] });
+    expect(snapshot.complete).toBe(true);
+    expect(snapshot.routes.map((route) => route.name)).toEqual(['new.route']);
+    expect(snapshot.inputUris).toContain(uri);
+  });
+
+  it('rejects an unsaved route snapshot below a symlink escaping the project', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-route-link-root-')); roots.push(root);
+    const outside = await mkdtemp(join(tmpdir(), 'php-companion-route-link-outside-')); roots.push(outside);
+    await symlink(outside, join(root, 'config'), 'dir');
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
+    const uri = pathToFileURL(join(root, 'config', 'routes.yaml')).toString();
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser, { documents: [{
+      uri, languageId: 'yaml', snapshotVersion: '1', source: 'escaped.route: {path: /outside}\n',
+    }] });
+    expect(snapshot.complete).toBe(false);
+    expect(snapshot.routes).toEqual([]);
+  });
+
   it('follows deterministic Kernel attribute imports and refuses dynamic route branches', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-kernel-routes-')); roots.push(root);
     await mkdir(join(root, 'src', 'Controller'), { recursive: true });

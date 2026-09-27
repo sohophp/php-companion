@@ -18,5 +18,6 @@ Twig 语言能力继续由 TwigPlus 提供，通用 YAML/XML 语法和格式化�
 
 ```bash
 pnpm package:symfony
-code --install-extension packages/php-companion-symfony/php-companion-symfony-0.4.5.vsix --force
 ```
+
+VSIX 文件名以打包命令输出的当前版本为准。日常试用应按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装 Core、Symfony 和 Open Source Pack；不混用旧版本的独立 VSIX。源码增量验证无需每次重新打包。

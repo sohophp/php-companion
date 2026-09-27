@@ -1988,6 +1988,39 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('plans a Symfony route Rename from a new unsaved conventional route file', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-unsaved-route-'));
+    try {
+      await mkdir(join(root, 'config'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { 'symfony/framework-bundle': '^7.4' } }));
+      const source = 'new.route: {path: /new}\n';
+      const uri = pathToFileURL(join(root, 'config', 'routes.yaml')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 906, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          indexingMode: 'onDemand', bundledRouteProviders: [symfonyStaticRouteProviderDescriptor],
+        },
+      } }));
+      await output.waitFor((message) => message.id === 906);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'yaml', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri, languageId: 'yaml', snapshotVersion: '1', source }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 907, method: 'phpCompanion/symfonyRouteRename', params: {
+        textDocument: { uri, version: 1 }, source, position: lspPosition(source, 4), newName: 'renamed.route',
+      } }));
+      const result = (await output.waitFor((message) => message.id === 907, 15_000)).result;
+      expect(result?.changes?.[uri]).toEqual([{ range: {
+        start: lspPosition(source, 0), end: lspPosition(source, 'new.route'.length),
+      }, newText: 'renamed.route' }]);
+      expect(result?.phpCompanion?.sourceHashes?.[uri]).toMatch(/^[a-f0-9]{64}$/);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('reports invalid bundled Symfony Providers in the client language', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

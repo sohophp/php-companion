@@ -1,5 +1,5 @@
 import { readFile, readdir, realpath, stat } from 'node:fs/promises';
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { minimatch } from 'minimatch';
 import {
@@ -214,10 +214,14 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
         await walk(base, new Set(ancestors)); return;
       }
       inputPaths.add(resolve(path));
-      const actualPath = await realpath(path);
+      const snapshot = sources.get(resolve(path));
+      const info = await stat(path).catch((error: unknown) => {
+        if (snapshot !== undefined && missing(error)) return undefined;
+        throw error;
+      });
+      const actualPath = info ? await realpath(path) : resolve(await realpath(dirname(path)), basename(path));
       if (ancestors.has(actualPath)) {
-        const repeated = await stat(path);
-        if (attribute && repeated.isDirectory()) {
+        if (attribute && info?.isDirectory()) {
           inputPaths.delete(resolve(path)); inputDirectories.add(resolve(path));
           return;
         }
@@ -226,10 +230,10 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
       if (!within(scope.realPath, actualPath)) { complete = false; return; }
       const contextKey = JSON.stringify([actualPath, namePrefix, pathPrefix, attribute, php, [...excludedPaths].sort(), mapping?.root, mapping?.namespace]);
       if (visitedContexts.has(contextKey)) return; visitedContexts.add(contextKey);
-      const info = await stat(path);
-      if (info.isDirectory()) { inputPaths.delete(resolve(path)); inputDirectories.add(resolve(path)); }
-      if (mapping && path === mapping.root && !info.isDirectory()) { complete = false; return; }
-      if (attribute && info.isDirectory()) {
+      if (info?.isDirectory()) { inputPaths.delete(resolve(path)); inputDirectories.add(resolve(path)); }
+      if (!info) inputDirectories.add(resolve(dirname(path)));
+      if (mapping && path === mapping.root && !info?.isDirectory()) { complete = false; return; }
+      if (attribute && info?.isDirectory()) {
         const next = new Set([...ancestors, path, actualPath]);
         inputDirectories.add(resolve(path));
         for (const entry of (await readdir(path, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -239,7 +243,8 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
         }
         return;
       }
-      if (!info.isFile() || (attribute && !path.endsWith('.php')) || info.size > 1_000_000) { complete = false; return; }
+      if (info && !info.isFile() || attribute && !path.endsWith('.php')
+        || (info?.size ?? Buffer.byteLength(snapshot ?? '', 'utf8')) > 1_000_000) { complete = false; return; }
       const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
       if (attribute) {
         const facts = analyzeSymfonyRouteAttributes(parser, uri, source, defaultNameStyle, options.environment);
@@ -285,7 +290,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   }
   for (const filename of ['config/routes.yaml', 'config/routes.yml', 'config/routes.php']) {
     const path = resolve(root, filename);
-    try { inputPaths.add(path); if ((await stat(path)).isFile()) await read(path, '', '', new Set(), false, filename.endsWith('.php')); }
+    try { inputPaths.add(path); if (sources.has(path) || (await stat(path)).isFile()) await read(path, '', '', new Set(), false, filename.endsWith('.php')); }
     catch (error) { if (!missing(error)) inputEvidenceComplete = false; /* Conventional roots are optional. */ }
   }
   const counts = new Map<string, number>(); for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);

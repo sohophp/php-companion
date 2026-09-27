@@ -27,19 +27,30 @@ function workspaceEdit(value: ProtocolWorkspaceEdit | null): vscode.WorkspaceEdi
   return edit;
 }
 
-async function dirtyOpenDiskSnapshots(): Promise<ReadonlyMap<string, string | undefined>> {
-  const snapshots = new Map<string, string | undefined>();
+type DiskSnapshot = { kind: 'present'; hash: string } | { kind: 'missing' } | { kind: 'unavailable' };
+
+async function readDisk(uri: vscode.Uri): Promise<{ snapshot: DiskSnapshot; bytes?: Uint8Array }> {
+  try {
+    const bytes = await vscode.workspace.fs.readFile(uri);
+    return { snapshot: { kind: 'present', hash: createHash('sha256').update(bytes).digest('hex') }, bytes };
+  } catch (error) {
+    return { snapshot: typeof error === 'object' && error !== null && 'code' in error && error.code === 'FileNotFound'
+      ? { kind: 'missing' } : { kind: 'unavailable' } };
+  }
+}
+
+async function dirtyOpenDiskSnapshots(): Promise<ReadonlyMap<string, DiskSnapshot>> {
+  const snapshots = new Map<string, DiskSnapshot>();
   await Promise.all(vscode.workspace.textDocuments.filter((item) => item.isDirty
     && (item.uri.scheme === 'file' || item.uri.scheme === 'vscode-remote')).map(async (item) => {
     const uri = item.uri.toString();
-    const bytes = await vscode.workspace.fs.readFile(item.uri).then((value) => value, () => undefined);
-    snapshots.set(uri, bytes ? createHash('sha256').update(bytes).digest('hex') : undefined);
+    snapshots.set(uri, (await readDisk(item.uri)).snapshot);
   }));
   return snapshots;
 }
 
 async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: ReadonlyMap<string, number>,
-  dirtyDisks: ReadonlyMap<string, string | undefined>): Promise<boolean> {
+  dirtyDisks: ReadonlyMap<string, DiskSnapshot>): Promise<boolean> {
   const hashes = value.phpCompanion?.sourceHashes;
   if (!hashes) return false;
   const affectedUris = Object.keys(value.changes ?? {});
@@ -47,11 +58,15 @@ async function verifyRenameSources(value: ProtocolWorkspaceEdit, openVersions: R
     const expected = hashes[uri];
     if (!expected) return false;
     const open = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri);
-    const disk = await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)).then((value) => value, () => undefined);
-    if (!disk) return false;
-    const diskHash = createHash('sha256').update(disk).digest('hex');
-    if (open?.isDirty ? !dirtyDisks.get(uri) || dirtyDisks.get(uri) !== diskHash : open && diskHash !== expected) return false;
-    const source = open?.getText() ?? Buffer.from(disk).toString('utf8');
+    const disk = await readDisk(vscode.Uri.parse(uri));
+    if (disk.snapshot.kind === 'unavailable') return false;
+    if (open?.isDirty) {
+      const previous = dirtyDisks.get(uri);
+      if (open.isClosed || !openVersions.has(uri) || !previous || previous.kind !== disk.snapshot.kind
+        || previous.kind === 'present' && disk.snapshot.kind === 'present' && previous.hash !== disk.snapshot.hash) return false;
+    } else if (disk.snapshot.kind !== 'present' || open && disk.snapshot.hash !== expected) return false;
+    const source = open?.getText() ?? (disk.bytes ? Buffer.from(disk.bytes).toString('utf8') : undefined);
+    if (source === undefined) return false;
     if (createHash('sha256').update(source).digest('hex') !== expected) return false;
   }
   return affectedUris.every((uri) => !openVersions.has(uri) || vscode.workspace.textDocuments.some((item) =>
