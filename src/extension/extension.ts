@@ -1462,13 +1462,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return await sourceUnchanged() ? edits : undefined;
     },
   };
-  if (context.extensionMode === vscode.ExtensionMode.Test) register('phpCompanion._testPasteImportEdits', async (uri: vscode.Uri, text: string) => {
+  if (context.extensionMode === vscode.ExtensionMode.Test) register('phpCompanion._testPasteImportEdits', async (uri: vscode.Uri, text: string, position: vscode.Position) => {
     const document = await vscode.workspace.openTextDocument(uri);
     const transfer = new vscode.DataTransfer();
     transfer.set('text/plain', new vscode.DataTransferItem(text));
     const edits = await (lazyPaste.provideDocumentPasteEdits as (document: vscode.TextDocument, ranges: readonly vscode.Range[],
       transfer: vscode.DataTransfer) => Promise<vscode.DocumentPasteEdit[] | undefined>)(document,
-      [new vscode.Range(0, 0, 0, 0)], transfer);
+      [new vscode.Range(position, position)], transfer);
     return edits?.map((edit) => ({ text: edit.insertText, imports: edit.additionalEdit?.entries().flatMap(([, changes]) =>
       changes.map((change) => change.newText)) ?? [] }));
   });

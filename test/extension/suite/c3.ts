@@ -122,7 +122,7 @@ export async function run(): Promise<void> {
     () => !importDocument.getText().includes('use App\\Service\\UserService;'));
   const pasteEdits = (): Thenable<Array<{ text: string; imports: string[] }> | undefined> =>
     vscode.commands.executeCommand<Array<{ text: string; imports: string[] }> | undefined>(
-    'phpCompanion._testPasteImportEdits', importUri, 'UserService');
+    'phpCompanion._testPasteImportEdits', importUri, 'UserService', importPosition);
   const freshPasteEdits = await pasteEdits();
   assert.ok(freshPasteEdits?.some((item) => item.imports.some((line) => line.includes('use App\\Service\\UserService;'))),
     'A current paste request did not offer the Composer type import.');

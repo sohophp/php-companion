@@ -5241,6 +5241,7 @@ use Attribute as Marker;
     const uri = 'file:///GlobalBracketedImport.php';
     const source = '<?php namespace { function run(): void { new Widget(); } }';
     workspace.update(uri, source);
+    expect(workspace.planTypeImports(uri, 0, [{ fqcn: 'Vendor\\Widget', sourceAlias: 'Widget' }])).toBeUndefined();
     const offset = source.indexOf('new Widget');
     for (const insertion of [workspace.importInsertion(uri, offset, 'Vendor\\Widget'),
       workspace.planTypeImports(uri, offset, [{ fqcn: 'Vendor\\Widget', sourceAlias: 'Widget' }])]) {
