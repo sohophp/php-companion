@@ -10438,7 +10438,7 @@ echo ranked_lsp_over;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('completes function and constant imports from unopened Composer autoload files', async () => {
+  it('completes class, function, and constant imports from unopened Composer autoload files', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symbol-import-completion-'));
     try {
       await mkdir(join(root, 'src'), { recursive: true });
@@ -10516,7 +10516,7 @@ echo ranked_lsp_over;`;
         expect(items.map((item: { label: string }) => item.label), source).not.toContain(excluded);
       }
       const declarationUri = pathToFileURL(join(root, 'src', 'functions.php')).toString();
-      const editedDeclaration = '<?php namespace Vendor; function createInvoiceDraft(): string { return ""; } const CREATE_INVOICE = 1; class CreateInvoiceType {}';
+      const editedDeclaration = '<?php namespace Vendor; function createInvoiceDraft(): string { return ""; } const CREATE_INVOICE = 1; class CreateInvoiceDraft {}';
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: editedDeclaration },
       } }));
@@ -10533,22 +10533,45 @@ echo ranked_lsp_over;`;
         const items = Array.isArray(result) ? result : result.items;
         return items.map((item: { label: string }) => item.label);
       };
+      const classConsumerUri = pathToFileURL(join(root, 'src', 'UnsavedClassGroupImportConsumer.php')).toString();
+      const classConsumer = '<?php namespace App; use Vendor\\{CreateInvoice}; class Consumer {}';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: classConsumerUri, languageId: 'php', version: 1, text: classConsumer },
+      } }));
+      const requestClassCompletion = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: classConsumerUri }, position: lspPosition(classConsumer, classConsumer.indexOf('CreateInvoice}') + 'CreateInvoice'.length),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id, 20_000)).result;
+        const items = Array.isArray(result) ? result : result.items;
+        return items.map((item: { label: string }) => item.label);
+      };
       const openedSuggestions = await requestChangedCompletion(134);
       expect(openedSuggestions).toContain('createInvoiceDraft');
       expect(openedSuggestions).not.toContain('createInvoice');
-      const renamedDeclaration = editedDeclaration.replace('createInvoiceDraft', 'createInvoiceFinal');
+      const openedClasses = await requestClassCompletion(137);
+      expect(openedClasses).toContain('CreateInvoiceDraft');
+      expect(openedClasses).not.toContain('CreateInvoiceType');
+      const renamedDeclaration = editedDeclaration.replace('createInvoiceDraft', 'createInvoiceFinal')
+        .replace('CreateInvoiceDraft', 'CreateInvoiceFinal');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: declarationUri, version: 2 }, contentChanges: [{ text: renamedDeclaration }],
       } }));
       const editedSuggestions = await requestChangedCompletion(135);
       expect(editedSuggestions).toContain('createInvoiceFinal');
       expect(editedSuggestions).not.toContain('createInvoiceDraft');
+      const editedClasses = await requestClassCompletion(138);
+      expect(editedClasses).toContain('CreateInvoiceFinal');
+      expect(editedClasses).not.toContain('CreateInvoiceDraft');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: {
         textDocument: { uri: declarationUri },
       } }));
       const closedSuggestions = await requestChangedCompletion(136);
       expect(closedSuggestions).toContain('createInvoice');
       expect(closedSuggestions).not.toContain('createInvoiceFinal');
+      const closedClasses = await requestClassCompletion(139);
+      expect(closedClasses).toContain('CreateInvoiceType');
+      expect(closedClasses).not.toContain('CreateInvoiceFinal');
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
