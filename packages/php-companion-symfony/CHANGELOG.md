@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.11 - 2026-09-27
+
+- Align the standalone Symfony extension with SoPHP Core and Open Source Pack 0.4.11.
+
 ## 0.4.10 - 2026-09-27
 
 - Publish the standalone Symfony extension alongside SoPHP Core and Open Source Pack.

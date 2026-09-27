@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.11 - 2026-09-27
+
+- Preserve separate namespace blocks and import aliases when Safe Move updates PHP class imports.
+- Show function and constant completion together in PHP expression positions where both kinds match.
+- Complete direct `use function` and `use const` imports from indexed declarations and Composer `autoload.files`, without adding a duplicate import.
+- Grouped function and constant imports remain outside this release's new import completion coverage.
+
 ## 0.4.10 - 2026-09-27
 
 - Publish the self-hosted SoPHP Core, SoPHP Symfony, and the 10-member Open Source Pack as one aligned release after the 0.4.6–0.4.9 private Alpha milestones.
