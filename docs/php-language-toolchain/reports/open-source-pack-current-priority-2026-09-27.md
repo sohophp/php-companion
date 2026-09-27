@@ -14,6 +14,8 @@
 
 [创建、类型检查与 Attribute 候选种类](c1-construction-kind-completion-2026-09-27.md)进一步筛选 `new`、`instanceof` 和 Attribute 的声明种类。随后 [Attribute 类身份筛选](c1-attribute-class-completion-2026-09-27.md) 在按需声明层保留类头标记，排除未标记的普通 class；解析器、语义和 10 项 Pack C1 源码宿主通过。目标位、重复使用与真实 Remote 仍待验收。
 
+[未保存 Attribute 声明跨文件刷新](c2-unsaved-attribute-marker-completion-2026-09-27.md)补齐了 C2 的对应宿主证据：去掉、恢复 `#[Attribute]` 后，另一文件的候选会撤回、再出现；10 项 Pack C2 源码宿主通过。下一步仍按普通 PHP 连续编辑的错误结果与可见等待推进，优先修可复现的高频问题，再处理 C3 剩余安全编辑与 C4 安装验收。
+
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。
@@ -32,12 +34,12 @@
 
 ## 固定组合
 
-[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.7 冻结候选记录](open-source-pack-047-postfreeze-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。
+[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.8 冻结候选记录](open-source-pack-048-private-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。冻结后的 C1/C2 源码修改尚未进入这批 VSIX。
 
 | 成员 | 候选版本 | 唯一负责的能力 |
 | --- | --- | --- |
-| `sohophp.php-companion` | 0.4.7 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
-| `sohophp.php-companion-symfony` | 0.4.7 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
+| `sohophp.php-companion` | 0.4.8 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
+| `sohophp.php-companion-symfony` | 0.4.8 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
 | `sohophp.twig-plus` | 1.3.8 | Twig 语言服务与格式化 |
 | `redhat.vscode-yaml` | 1.24.0 | YAML 编辑 |
 | `redhat.vscode-xml` | 0.29.3 | XML 编辑 |

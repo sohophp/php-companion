@@ -987,4 +987,41 @@ return array(
     (typeof item === 'string' ? item : item.value).includes('string $value'))),
   'Classmap method Hover retained the old parameter type.');
   console.log('C2 Composer classmap: argument diagnostic, completion, Definition and unsaved Hover/diagnostic refresh');
+
+  const attributeUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2LiveAttribute.php');
+  const attributeConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2LiveAttributeConsumer.php');
+  const markedAttribute = '<?php namespace App\\Service; #[\\Attribute] class C2LiveAttribute {}';
+  const plainAttribute = '<?php namespace App\\Service; class C2LiveAttribute {}';
+  const attributeConsumer = '<?php namespace App\\Service; #[C2LiveAttr] class C2LiveAttributeConsumer {}';
+  await vscode.workspace.fs.writeFile(attributeUri, Buffer.from(markedAttribute));
+  await vscode.workspace.fs.writeFile(attributeConsumerUri, Buffer.from(attributeConsumer));
+  const attributeDocument = await vscode.workspace.openTextDocument(attributeUri);
+  const attributeConsumerDocument = await vscode.workspace.openTextDocument(attributeConsumerUri);
+  await vscode.window.showTextDocument(attributeDocument);
+  await vscode.window.showTextDocument(attributeConsumerDocument);
+  const attributePosition = attributeConsumerDocument.positionAt(attributeConsumer.indexOf('C2LiveAttr]') + 'C2LiveAttr'.length);
+  const attributeCompletion = async (): Promise<boolean> => (await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', attributeConsumerUri, attributePosition))?.items
+    .some((item) => (typeof item.label === 'string' ? item.label : item.label.label) === 'C2LiveAttribute') ?? false;
+  const waitForAttribute = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    while (Date.now() < deadline && await attributeCompletion() !== expected) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.strictEqual(await attributeCompletion(), expected,
+      `C2 cross-file Attribute completion did not become ${expected} after the declaration changed.`);
+  };
+  const replaceAttribute = async (source: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(attributeUri, new vscode.Range(new vscode.Position(0, 0),
+      attributeDocument.positionAt(attributeDocument.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit), 'Could not edit the Attribute declaration buffer.');
+    assert.ok(attributeDocument.isDirty, 'The Attribute declaration edit was unexpectedly saved.');
+  };
+  await waitForAttribute(true);
+  await replaceAttribute(plainAttribute);
+  await waitForAttribute(false);
+  await replaceAttribute(markedAttribute);
+  await waitForAttribute(true);
+  console.log('C2 onDemand cross-file Attribute marker: completion present → withdrawn → restored from unsaved declaration');
 }
