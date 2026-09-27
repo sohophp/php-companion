@@ -21,6 +21,8 @@
 
 以上增量汇总到本地提交 `8a80a19` 后，集中源码门禁 `pnpm typecheck`、`pnpm lint`、`pnpm test` 均以退出码 0 结束。完整语义包 447 项通过，语言服务器 399 项通过、1 项跳过；`pnpm test` 原始日志为 `/tmp/sophp-head-8a80a19-test.log`。此门禁只证明该提交的源码测试，没有为 `8a80a19` 重打 VSIX、运行完整 Pack 打包宿主或取得跨平台 CI，也没有更新 WSL 扩展目录。
 
+同一 `8a80a19` 产品源码在 VS Code 1.139.1 的隔离 10 项 Open Source Pack **源码宿主**通过，日志 `/tmp/sophp-head-8a80a19-pack-source-host.log`、退出码 0。C3 专项首次在测试专用 Paste 命令失败：命令把插入点固定到 `<?php` 之前的文件开头，而新的作用域检查会拒绝在 PHP 代码外插入 Import。提交 `2ac18ee` 将该测试命令改为接收代码中的真实光标，并固定文件开头拒绝导入的语义断言；同一 C3 专项随后退出码 0，日志 `/tmp/sophp-head-c3-position-recheck.log`。这些是源码宿主证据，尚不是新提交的 VSIX 打包宿主、跨平台 CI 或用户 WSL 编辑器验收；`WorkspaceEdit.createFile` 最终兜底 Redo 仍未通过。
+
 ## 延后的人工验收
 
 在已安装 0.4.13 的 WSL VS Code 窗口执行 `Developer: Reload Window`。然后从该窗口的**集成终端**、在仓库根目录运行：
