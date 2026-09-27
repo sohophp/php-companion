@@ -410,6 +410,55 @@ class ShadowedCompactController {
       .every((location) => location.uri.toString() !== shadowedUri.toString()),
     'TwigPlus navigated a variable from the imported compact function', 30_000, 100);
   }
+  const crossFileUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'CrossFileCompactController.php');
+  const functionsUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'functions.php');
+  const crossFileSource = `<?php namespace App\\Controller;
+class CrossFileCompactController {
+  public function show(\\App\\Service\\UserService $user): void {
+    $this->render('templates/cross-file-shadowed.html.twig', compact('user'));
+    $this->render('templates/cross-file-global.html.twig', \\compact('user'));
+  }
+}\n`;
+  const functionsSource = '<?php namespace App\\Controller; function compact(string $name): array { return []; }\n';
+  await vscode.workspace.fs.writeFile(crossFileUri, Buffer.from(crossFileSource));
+  await vscode.workspace.fs.writeFile(functionsUri, Buffer.from(functionsSource));
+  const crossFileDocument = await vscode.workspace.openTextDocument(crossFileUri);
+  await vscode.window.showTextDocument(crossFileDocument);
+  await waitForAsync(async () => (await contexts()).some(({ template }) => template === 'templates/cross-file-shadowed.html.twig'),
+  'The Controller context did not load before opening its separate function file', 30_000, 100);
+  const functionsDocument = await vscode.workspace.openTextDocument(functionsUri);
+  await vscode.window.showTextDocument(functionsDocument);
+  let crossFileContexts: Context[] = [];
+  await waitForAsync(async () => {
+    crossFileContexts = await contexts();
+    return !crossFileContexts.some(({ template }) => template === 'templates/cross-file-shadowed.html.twig')
+      && crossFileContexts.some(({ template, variables }) => template === 'templates/cross-file-global.html.twig'
+        && variables[0]?.sources?.[0]?.uri === crossFileUri.toString());
+  }, () => `A separate open PHP function did not shadow the Controller compact call: ${JSON.stringify(crossFileContexts
+    .filter(({ template }) => template.includes('cross-file')))}`, 30_000, 100);
+  const functionNameStart = functionsSource.indexOf('function compact') + 'function '.length;
+  const functionsEditor = await vscode.window.showTextDocument(functionsDocument);
+  assert.ok(await functionsEditor.edit((edit) => edit.replace(new vscode.Range(functionsDocument.positionAt(functionNameStart),
+    functionsDocument.positionAt(functionNameStart + 'compact'.length)), 'otherFunction')));
+  await waitForAsync(async () => (await contexts()).some(({ template }) => template === 'templates/cross-file-shadowed.html.twig'),
+  'Renaming a separate unsaved function did not restore the builtin compact context', 30_000, 100);
+  await vscode.commands.executeCommand('undo');
+  await waitForAsync(async () => !(await contexts()).some(({ template }) => template === 'templates/cross-file-shadowed.html.twig'),
+  'Undoing the separate function rename did not withdraw the builtin compact context', 30_000, 100);
+  const laterControllerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Controller', 'LaterCompactController.php');
+  const laterSource = `<?php namespace App\\Controller; class LaterCompactController {
+    public function show(\\App\\Service\\UserService $user): void {
+      $this->render('templates/later-shadowed.html.twig', compact('user'));
+      $this->render('templates/later-global.html.twig', \\compact('user'));
+    }
+  }`;
+  await vscode.workspace.fs.writeFile(laterControllerUri, Buffer.from(laterSource));
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(laterControllerUri));
+  await waitForAsync(async () => {
+    const result = await contexts();
+    return !result.some(({ template }) => template === 'templates/later-shadowed.html.twig')
+      && result.some(({ template }) => template === 'templates/later-global.html.twig');
+  }, 'A Controller opened after the separate function still treated compact as the builtin', 30_000, 100);
 }
 
 async function waitFor(predicate: () => boolean, message: string, timeoutMs = 5_000): Promise<void> {

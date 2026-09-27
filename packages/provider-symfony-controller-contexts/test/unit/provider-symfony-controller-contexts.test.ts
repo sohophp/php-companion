@@ -82,6 +82,42 @@ describe('Symfony controller context provider', () => {
     expect((await facts('compact', 3)).contexts).toEqual([]);
   });
 
+  it('resolves a same-namespace compact declared in a separate open PHP document', async () => {
+    const controllerPath = join(root, 'CrossFileController.php'); const controllerUri = pathToFileURL(controllerPath).toString();
+    const functionsPath = join(root, 'functions.php'); const functionsUri = pathToFileURL(functionsPath).toString();
+    const controller = `<?php namespace App; class CrossFileController {
+      public function show(User $user): void {
+        $this->render('cross-file.html.twig', compact('user'));
+        $this->render('global-file.html.twig', \\compact('user'));
+      }
+    }`;
+    const documents = [{ uri: controllerUri, languageId: 'php' as const, snapshotVersion: 'open:1', source: controller },
+      { uri: functionsUri, languageId: 'php' as const, snapshotVersion: 'open:1', source: '<?php namespace App; function compact(string $name): array { return []; }' }];
+    const facts = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents });
+    expect(facts.contexts.map(({ template }) => template)).toEqual(['global-file.html.twig']);
+    expect(facts.contexts[0]?.variables[0]?.name).toBe('user');
+    const renamed = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project',
+      documents: [documents[0]!, { ...documents[1]!, snapshotVersion: 'open:2',
+        source: '<?php namespace App; function anotherFunction(string $name): array { return []; }' }] });
+    expect(renamed.contexts.map(({ template }) => template)).toEqual(['cross-file.html.twig', 'global-file.html.twig']);
+    const restored = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents });
+    expect(restored.contexts.map(({ template }) => template)).toEqual(['global-file.html.twig']);
+  });
+
+  it('resolves a Composer autoload.files compact declared in a separate disk file', async () => {
+    const fixture = join(root, 'composer-functions'); await mkdir(fixture);
+    await writeFile(join(fixture, 'composer.json'), JSON.stringify({ autoload: { files: ['functions.php'] } }));
+    await writeFile(join(fixture, 'functions.php'), '<?php namespace App; function /* exact */ compact(string $name): array { return []; }');
+    const controllerPath = join(fixture, 'Controller.php'); const controllerUri = pathToFileURL(controllerPath).toString();
+    await writeFile(controllerPath, `<?php namespace App; class Controller {
+      public function show(User $user): void { $this->render('composer.html.twig', compact('user')); }
+    }`);
+    const facts = await collectSymfonyControllerContexts(fixture, parser, { projectTypes: [{
+      fqcn: 'App\\Controller', kind: 'class', abstract: false, path: controllerPath, uri: controllerUri, start: 27, end: 42,
+    }], snapshotVersion: 'project' });
+    expect(facts.contexts).toEqual([]);
+  });
+
   it('publishes a directly assigned local compact variable from an unsaved controller', async () => {
     const path = join(root, 'LocalCompactController.php'); const uri = pathToFileURL(path).toString();
     const facts = await collectSymfonyControllerContexts(root, parser, { projectTypes: [], snapshotVersion: 'project', documents: [{

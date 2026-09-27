@@ -11944,6 +11944,79 @@ final class Subscriber implements \\Symfony\\Component\\EventDispatcher\\EventSu
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('withdraws an open cross-file compact shadow when its document closes', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-function-close-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const controllerPath = join(root, 'src', 'PageController.php'); const controllerUri = pathToFileURL(controllerPath).toString();
+      const functionsPath = join(root, 'src', 'functions.php'); const functionsUri = pathToFileURL(functionsPath).toString();
+      const controllerSource = "<?php namespace App; final class PageController { public function show(User $user): void { $this->render('page.html.twig', compact('user')); } }";
+      const functionsSource = '<?php namespace App; function compact(string $name): array { return []; }';
+      await writeFile(controllerPath, controllerSource); await writeFile(functionsPath, functionsSource);
+      const provider = join(root, 'controllers.mjs');
+      await writeFile(provider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const shadowed=request.params.documents?.some((item)=>item.uri===${JSON.stringify(functionsUri)}&&item.source.includes('function compact'));const location=type?{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}:undefined;process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:type&&!shadowed?[{template:'page.html.twig',complete:true,variables:[],sources:[{symbol:'App\\\\PageController::show',location}]}]:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 678, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
+        ], indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 678); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 679, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 679)).result.contexts.map((context: { template: string }) => context.template))
+        .toEqual(['page.html.twig']);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: functionsUri, languageId: 'php', version: 1, text: functionsSource },
+      } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated'
+        && message.params.changedUris.includes(controllerUri));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 680)).result.contexts).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: functionsUri } } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated'
+        && message.params.changedUris.includes(controllerUri));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 681, method: 'phpCompanion/testOnDemandClosedDocuments', params: { uri: controllerUri } }));
+      await output.waitFor((message) => message.id === 681);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 682, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 682)).result.contexts.map((context: { template: string }) => context.template))
+        .toEqual(['page.html.twig']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 25_000);
+
+  it('refreshes a controller when a Composer autoload.files function changes on disk', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-function-watch-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, files: ['src/functions.php'] } }));
+      const controllerPath = join(root, 'src', 'PageController.php'); const controllerUri = pathToFileURL(controllerPath).toString();
+      const functionsPath = join(root, 'src', 'functions.php'); const functionsUri = pathToFileURL(functionsPath).toString();
+      await writeFile(controllerPath, "<?php namespace App; final class PageController { public function show(): void { $this->render('page.html.twig', compact('user')); } }");
+      await writeFile(functionsPath, '<?php namespace App; function compact(string $name): array { return []; }');
+      const provider = join(root, 'controllers.mjs');
+      await writeFile(provider, `import{readFileSync}from'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);const type=request.params.projectTypes?.find((item)=>item.fqcn==='App\\\\PageController');const shadowed=readFileSync(${JSON.stringify(functionsPath)},'utf8').includes('function compact');const location=type?{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}:undefined;process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'php-companion.symfony.controller-contexts',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:type&&!shadowed?[{template:'page.html.twig',complete:true,variables:[],sources:[{symbol:'App\\\\PageController::show',location}]}]:[]}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 683, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { bundledSemanticProviders: [
+          { providerId: 'php-companion.symfony.controller-contexts', command: process.execPath, args: [provider], timeoutMs: 5000,
+            requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true },
+        ], indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 683); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 684, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 684)).result.contexts).toEqual([]);
+      await writeFile(functionsPath, '<?php namespace App; function otherFunction(string $name): array { return []; }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: functionsUri, type: 2 }] } }));
+      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated'
+        && message.params.changedUris.includes(controllerUri), 5_000);
+      await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes(`[index:delta] complete uri=${functionsUri}`));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 685, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
+      expect((await output.waitFor((message) => message.id === 685)).result.contexts.map((context: { template: string }) => context.template))
+        .toEqual(['page.html.twig']);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 25_000);
+
   it('merges unchanged files from a full controller refresh with a newer scoped result', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-controller-context-partial-full-'));
     try {

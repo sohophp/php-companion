@@ -215,6 +215,7 @@ const completeContainerFactsByRoot = new Map<string, { revision: number; generat
 function invalidateContainerFacts(): void { containerFactsRevision += 1; completeContainerFactsByRoot.clear(); }
 let frameworkDocumentSnapshots = new Map<string, SemanticProviderDocument>();
 let frameworkDocumentSnapshotsComplete = true;
+const compactFunctionDocumentUris = new Set<string>();
 let disabledDiagnosticCodes = new Set<string>();
 type DiagnosticLevel = 'error' | 'warning' | 'information' | 'hint' | 'off';
 let diagnosticSeverityOverrides = new Map<string, DiagnosticLevel>();
@@ -591,6 +592,29 @@ function semanticProviderDocuments(root: string): { complete: boolean; documents
   return { complete: true, documents: snapshots };
 }
 
+function controllerContextScopedDocuments(root: string,
+  scopes: readonly { uri: string; source: string; snapshotVersion: string }[]): { complete: boolean; documents: SemanticProviderDocument[] } {
+  if (!frameworkDocumentSnapshotsComplete) return { complete: false, documents: [] };
+  const snapshots = new Map<string, SemanticProviderDocument>();
+  for (const document of frameworkDocumentSnapshots.values()) {
+    const path = pathForUri(document.uri);
+    if (document.languageId === 'php' && path && pathWithin(root, path) && mayDeclareCompactFunction(document.source)) {
+      snapshots.set(document.uri, document);
+    }
+  }
+  for (const document of documents.all()) {
+    const path = pathForUri(document.uri);
+    if (document.languageId === 'php' && path && pathWithin(root, path) && mayDeclareCompactFunction(document.getText())) {
+      snapshots.set(document.uri, { uri: document.uri, languageId: 'php', source: document.getText(), snapshotVersion: String(document.version) });
+    }
+  }
+  for (const scope of scopes) snapshots.set(scope.uri, { ...scope, languageId: 'php' });
+  const result = [...snapshots.values()];
+  return result.length <= 128 && result.reduce((sum, document) => sum + document.source.length, 0) <= 8 * 1024 * 1024
+    && result.every((document) => document.source.length <= 1_000_000)
+    ? { complete: true, documents: result } : { complete: false, documents: [] };
+}
+
 async function semanticProviderProjectTypes(root: string, workspace: SemanticWorkspace,
   effectiveMethodsFor = new Set<string>()): Promise<{ complete: boolean; projectTypes: SemanticProviderProjectType[] }> {
   const projectTypes: SemanticProviderProjectType[] = []; let characters = 0;
@@ -781,9 +805,7 @@ async function runControllerContextProvider(root: string, generation: number, wo
   const descriptor = authoritative[0]!; const allTypes = await semanticProviderProjectTypes(root, workspace);
   const scopedUris = providerScopes ? new Set(providerScopes.map((scope) => scope.uri)) : undefined;
   const projectTypes = scopedUris ? allTypes.projectTypes.filter((type) => scopedUris.has(type.uri)) : allTypes.projectTypes;
-  const snapshots = providerScopes
-    ? { complete: true, documents: providerScopes.map((scope) => ({ ...scope, languageId: 'php' as const })) }
-    : semanticProviderDocuments(root);
+  const snapshots = providerScopes ? controllerContextScopedDocuments(root, providerScopes) : semanticProviderDocuments(root);
   if (!allTypes.complete || !snapshots.complete) {
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); return false;
   }
@@ -1555,12 +1577,28 @@ async function interopTypes(workspace: SemanticWorkspace, root: string, contexts
   return result;
 }
 
+function mayDeclareCompactFunction(source: string): boolean {
+  return /\bfunction\b/i.test(source) && /\bcompact\b/i.test(source);
+}
+
 async function refreshInteropDocument(document: TextDocument): Promise<void> {
   const root = rootForUri(document.uri); if (!root) return;
   const workspace = await semanticForRoot(root); const source = document.getText(); const snapshotVersion = String(document.version);
-  await runControllerContextProvider(root, indexingGeneration, workspace, () => true,
-    [{ uri: document.uri, source, snapshotVersion }]);
-  connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION, projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: [document.uri] });
+  const previouslyRelevant = compactFunctionDocumentUris.has(document.uri);
+  const currentlyRelevant = mayDeclareCompactFunction(source);
+  if (currentlyRelevant) compactFunctionDocumentUris.add(document.uri); else compactFunctionDocumentUris.delete(document.uri);
+  const scopes = [{ uri: document.uri, source, snapshotVersion }];
+  if (previouslyRelevant || currentlyRelevant) {
+    for (const uri of interopContextsByRoot.get(root)?.keys() ?? []) {
+      if (uri === document.uri) continue;
+      const controllerSource = workspace.source(uri);
+      if (controllerSource && /render|template/i.test(controllerSource)) {
+        scopes.push({ uri, source: controllerSource, snapshotVersion: String(documents.get(uri)?.version ?? indexingGeneration) });
+      }
+    }
+  }
+  await runControllerContextProvider(root, indexingGeneration, workspace, () => true, scopes);
+  connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION, projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: scopes.map((scope) => scope.uri) });
 }
 
 async function refreshDoctrineDocument(root: string, uri: string, source: string, workspace: SemanticWorkspace): Promise<void> {
@@ -4883,6 +4921,7 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     matchingOpen.sort((left, right) => (openContentSequences.get(right.uri) ?? 0) - (openContentSequences.get(left.uri) ?? 0));
     const open = matchingOpen[0];
     const targetUri = open?.uri ?? uri;
+    const previousSource = workspace.source(targetUri);
     const aliasUris: string[] = [];
     if (physicalPath) for (const aliasUri of workspace.documentUris()) {
       if (aliasUri === targetUri) continue;
@@ -4927,10 +4966,27 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
           [...update.changedTypes, ...update.changedCallables]);
       }
     }
+    const composerFunctionFile = (await composerProjectForRoot(root))?.files.some((file) => sameFilesystemPath(file, path));
+    if (previousSource !== source && (composerFunctionFile
+      || mayDeclareCompactFunction(previousSource ?? '') || mayDeclareCompactFunction(source ?? ''))) {
+      const scopes = controllerScopesByRoot.get(root) ?? [];
+      const included = new Set(scopes.map((scope) => scope.uri));
+      for (const controllerUri of interopContextsByRoot.get(root)?.keys() ?? []) {
+        if (controllerUri === targetUri || included.has(controllerUri)) continue;
+        const controllerSource = workspace.source(controllerUri);
+        if (!controllerSource || !/render|template/i.test(controllerSource)) continue;
+        scopes.push({ uri: controllerUri, source: controllerSource, snapshotVersion: String(documents.get(controllerUri)?.version ?? indexingGeneration) });
+        included.add(controllerUri);
+      }
+      if (scopes.length) controllerScopesByRoot.set(root, scopes);
+    }
     const completed = completedByRoot.get(root) ?? []; completed.push(uri); completedByRoot.set(root, completed);
   });
   for (const [root, scopes] of controllerScopesByRoot) {
-    await runControllerContextProvider(root, indexingGeneration, await semanticForRoot(root), () => true, scopes);
+    if (await runControllerContextProvider(root, indexingGeneration, await semanticForRoot(root), () => true, scopes)) {
+      connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION,
+        projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: scopes.map((scope) => scope.uri) });
+    }
   }
   for (const root of containerRefreshRoots) {
     if (projectCompleteRoots.has(root)) await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
@@ -5104,6 +5160,10 @@ documents.onDidOpen(async ({ document }) => {
   const workspace = await semanticForUri(document.uri);
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  if (root) {
+    if (mayDeclareCompactFunction(document.getText())) compactFunctionDocumentUris.add(document.uri);
+    else compactFunctionDocumentUris.delete(document.uri);
+  }
   if (root) retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
   if (root && hasPossibleOpenPhysicalAlias(document, root)
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
@@ -5131,7 +5191,7 @@ documents.onDidOpen(async ({ document }) => {
   const path = pathForUri(document.uri); if (root && path && (affectsSymfonyContainerProvider(root, path) || isSymfonyServiceConfig(root, path))) scheduleSymfonyContainerRefresh(root);
   else if (root && update.kind === 'declaration') scheduleSymfonyContainerRefresh(root);
   await publishDocumentDiagnostics(document);
-  if (update.kind !== 'none') await refreshInteropDocument(document);
+  if (update.kind !== 'none' || root && mayDeclareCompactFunction(document.getText())) await refreshInteropDocument(document);
   const pending = pendingReferenceSelections.get(document.uri);
   if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {
     scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
@@ -5278,6 +5338,24 @@ async function closeDocument(document: TextDocument): Promise<void> {
     workspace?.remove(document.uri);
     if (workspace && root) {
       interopContextsByRoot.get(root)?.delete(document.uri); removeDoctrineDocument(root, document.uri, workspace); scheduleSymfonyContainerRefresh(root);
+    }
+  }
+  if (root && workspace) {
+    const hadOpenCompact = compactFunctionDocumentUris.delete(document.uri);
+    const functionPath = pathForUri(document.uri);
+    const diskFunctionSource = functionPath ? await readFile(functionPath, 'utf8').catch(() => undefined) : undefined;
+    if (hadOpenCompact || diskFunctionSource && mayDeclareCompactFunction(diskFunctionSource)) {
+      const scopes = [...(interopContextsByRoot.get(root)?.keys() ?? [])].flatMap((uri) => {
+        if (uri === document.uri) return [];
+        const source = workspace.source(uri);
+        return source && /render|template/i.test(source)
+          ? [{ uri, source, snapshotVersion: String(documents.get(uri)?.version ?? indexingGeneration) }] : [];
+      });
+      if (scopes.length) {
+        await runControllerContextProvider(root, indexingGeneration, workspace, () => true, scopes);
+        connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION,
+          projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: scopes.map((scope) => scope.uri) });
+      }
     }
   }
   const closedPath = pathForUri(document.uri); if (root && closedPath

@@ -67,3 +67,5 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 [classmap 根 namespace 等待](c1-classmap-root-namespace-latency-2026-09-27.md)进一步显示，约 1 万 PHP 文件时同前缀重复请求原需 247 ms。复用有界的不完整搜索结果及已装载文件后，该脚本样本降到 4 ms；namespace 与类型候选并行查询又让首次请求从约 406 ms 降到 239 ms。真实 VS Code 与更大 classmap 项目仍须复核等待。
 
 [Pack 清单复核与 Symfony `compact()` 函数身份](open-source-pack-audit-and-symfony-compact-2026-09-27.md)已核对当前 10 项 manifest、冻结 Profile 和 0.4.7 候选摘要，默认成员无需调整。随后修复了 Controller 导入同名 `compact()` 时向 Twig 发布虚假变量的问题；框架、Provider 与按需索引的 VS Code 源码宿主通过。该修复尚未进入 `248ee1f8` 安装候选。下一项先核对同命名空间跨文件 `compact()` 的实际解析与 Twig 上下文，再处理独立 Composer 项目的可见 C1/C2 错误；C3 创建文件 Redo 与 C4 Remote 验收门槛仍开放。
+
+[跨文件 `compact()` 函数身份](symfony-cross-file-compact-context-2026-09-27.md)现覆盖已打开 PHP 文件与项目 Composer `autoload.files` 中的同命名空间声明，并处理未保存编辑、Undo、关闭及 watcher 导致的上下文刷新。默认按需索引的 VS Code 源码宿主与最终源码的定向真实 LSP 回归通过；完整 LSP 回归在最后一条 watcher 改动前通过，详细证据边界见报告。此增量未进入现有 0.4.7 VSIX；下一步回到普通 PHP 的 C1 候选可见性和 C2 同版本编辑反馈，同时继续保留 C3、C4 和 R4 验收门槛。

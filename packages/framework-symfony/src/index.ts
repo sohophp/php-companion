@@ -368,11 +368,13 @@ function renderArguments(args: NodeLike, method: string): { view?: NodeLike; par
   return { view: values.get('view'), parameters: values.get('parameters') };
 }
 
-export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, document: SymfonyControllerDocument): ControllerTemplateContext[] {
+export function analyzeSymfonyControllerContexts(parser: PhpSyntaxParser, document: SymfonyControllerDocument,
+  projectFunctions: ReadonlySet<string> = new Set()): ControllerTemplateContext[] {
   const parsed = parser.parse(document.source, undefined, document.uri);
   try {
     const contexts: ControllerTemplateContext[] = [];
-    const localFunctions = new Set(parsed.callables.filter((item) => item.kind === 'function').map((item) => item.fqcn.toLowerCase()));
+    const localFunctions = new Set([...projectFunctions].map((name) => name.toLowerCase()).concat(
+      parsed.callables.filter((item) => item.kind === 'function').map((item) => item.fqcn.toLowerCase())));
     const visit = (node: NodeLike, methodBody?: NodeLike): void => {
       if (node.type === 'method_declaration') {
         const callable = parsed.callables.find((item) => item.kind === 'method' && item.declarationStart === node.startIndex

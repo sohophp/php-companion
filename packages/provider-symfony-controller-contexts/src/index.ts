@@ -1,5 +1,5 @@
 import { readFile, realpath } from 'node:fs/promises';
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { analyzeSymfonyControllerContexts } from '@php-companion/framework-symfony';
 import type { ControllerTemplateContext } from '@php-companion/interop';
@@ -39,6 +39,23 @@ async function resolvedSourcePath(path: string, allowMissing: boolean): Promise<
   }
 }
 
+async function composerFunctionFiles(root: string): Promise<string[]> {
+  let source: string;
+  try { source = await readFile(join(root, 'composer.json'), 'utf8'); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []; throw error; }
+  if (source.length > 1_000_000) return [];
+  let manifest: unknown;
+  try { manifest = JSON.parse(source); } catch { return []; }
+  if (!manifest || typeof manifest !== 'object') return [];
+  const sections = ['autoload', 'autoload-dev'].map((key) => (manifest as Record<string, unknown>)[key]);
+  return sections.flatMap((section) => {
+    if (!section || typeof section !== 'object') return [];
+    const files = (section as Record<string, unknown>).files;
+    return Array.isArray(files) ? files.filter((file): file is string => typeof file === 'string'
+      && file.length > 0 && !isAbsolute(file)).map((file) => resolve(root, file)).filter((file) => within(root, file)) : [];
+  });
+}
+
 async function projectSources(root: string, canonicalRoot: string, types: readonly SemanticProviderProjectType[], documents: readonly SemanticProviderDocument[],
   snapshotVersion: string, maxFiles: number, maxTotalBytes: number): Promise<ProjectSource[]> {
   const snapshots = new Map<string, SemanticProviderDocument>();
@@ -52,6 +69,7 @@ async function projectSources(root: string, canonicalRoot: string, types: readon
     const path = resolve(type.path); if (!within(root, path)) throw new Error(`Project type path escapes the project root: ${type.path}`);
     if (!unique.has(path)) unique.set(path, type.uri || pathToFileURL(path).toString());
   }
+  for (const path of await composerFunctionFiles(root)) if (!unique.has(path)) unique.set(path, pathToFileURL(path).toString());
   for (const [path, document] of snapshots) if (!unique.has(path)) unique.set(path, document.uri);
   if (unique.size > maxFiles) throw new Error(`Symfony controller source count exceeds ${maxFiles}.`);
   const result: ProjectSource[] = []; let bytes = 0;
@@ -75,7 +93,17 @@ export async function collectSymfonyControllerContexts(rootPath: string, parser:
   const canonicalRoot = await realpath(root);
   const sources = await projectSources(root, canonicalRoot, options.projectTypes, options.documents ?? [], options.snapshotVersion,
     options.maxFiles ?? 10_000, options.maxTotalBytes ?? 128 * 1024 * 1024);
+  const projectFunctions = new Set<string>();
+  for (const { source, uri } of sources) {
+    if (!/\bfunction\b/i.test(source) || !/\bcompact\b/i.test(source)) continue;
+    const parsed = parser.parse(source, undefined, uri);
+    try {
+      for (const callable of parsed.callables) if (callable.kind === 'function' && callable.name.toLowerCase() === 'compact') {
+        projectFunctions.add(callable.fqcn.toLowerCase());
+      }
+    } finally { parsed.tree.delete(); }
+  }
   const contexts = sources.filter(({ source }) => /render|template/i.test(source)).flatMap(({ uri, source, snapshotVersion }) =>
-    analyzeSymfonyControllerContexts(parser, { uri, source, snapshotVersion }));
+    analyzeSymfonyControllerContexts(parser, { uri, source, snapshotVersion }, projectFunctions));
   return { contexts, sourceUris: sources.map((source) => source.uri) };
 }
