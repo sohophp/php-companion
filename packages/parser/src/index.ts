@@ -20,6 +20,7 @@ export interface ParsedDeclaration extends SourceRange {
   implementsNames: string[];
   traitNames: string[];
   attributeNames?: string[];
+  attributeMarkers?: Array<{ name: string; arguments?: string }>;
   traitAdaptations: ParsedTraitAdaptation[];
   readonlyClass: boolean;
   finalClass?: boolean;
@@ -320,17 +321,20 @@ function traitAdaptations(node: SyntaxNode): ParsedTraitAdaptation[] {
   });
 }
 
-function declarationAttributeNames(node: SyntaxNode): string[] {
-  const names: string[] = [];
+function declarationAttributeMarkers(node: SyntaxNode): Array<{ name: string; arguments?: string }> {
+  const markers: Array<{ name: string; arguments?: string }> = [];
   for (const list of node.namedChildren.filter((child) => child.type === 'attribute_list')) {
     for (const group of list.namedChildren) {
       for (const attribute of group.namedChildren.filter((child) => child.type === 'attribute')) {
         const name = attribute.childForFieldName('name') ?? attribute.namedChildren[0];
-        if (name) names.push(name.text);
+        if (name) {
+          const argumentsNode = attribute.namedChildren.find((child) => child.type === 'arguments');
+          markers.push({ name: name.text, ...(argumentsNode ? { arguments: argumentsNode.text } : {}) });
+        }
       }
     }
   }
-  return names;
+  return markers;
 }
 
 let parserInitialization: Promise<void> | undefined;
@@ -1102,6 +1106,7 @@ export class PhpSyntaxParser {
         if (nameNode) {
           const range = nodeRange(source, nameNode);
           const declarationNamespace = namespaceAt(node.startIndex);
+          const attributeMarkers = declarationAttributeMarkers(node);
           declarations.push({
             ...range,
             name: source.slice(range.start, range.end),
@@ -1113,7 +1118,8 @@ export class PhpSyntaxParser {
             extendsNames: node.namedChildren.find((child) => child.type === 'base_clause')?.namedChildren.map((child) => child.text) ?? [],
             implementsNames: node.namedChildren.find((child) => child.type === 'class_interface_clause')?.namedChildren.map((child) => child.text) ?? [],
             traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
-            attributeNames: declarationAttributeNames(node),
+            attributeNames: attributeMarkers.map((item) => item.name),
+            attributeMarkers,
             traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
             readonlyClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'readonly_modifier'),
             finalClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'final_modifier'),

@@ -1095,6 +1095,34 @@ class C1ConstructionPositions {
     for (const name of rejected) assert.ok(!suggestions.items.some((item) => item.label === name),
       `SoPHP suggested invalid ${name} in ${marker}.`);
   }
+  for (const [name, flags] of [
+    ['C1TargetClass', '\\Attribute::TARGET_CLASS'],
+    ['C1TargetMethod', '\\Attribute::TARGET_METHOD'],
+    ['C1TargetAll', undefined],
+  ] as const) {
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, `${name}.php`),
+      Buffer.from(`<?php namespace App\\C1\\External; #[\\Attribute${flags ? `(${flags})` : ''}] class ${name} {}`));
+  }
+  const targetSource = `<?php namespace App\\C1;
+#[C1Target] class C1TargetConsumer { #[C1Target] public function run(): void {} }`;
+  const targetUri = vscode.Uri.joinPath(folder, 'C1TargetConsumer.php');
+  await vscode.workspace.fs.writeFile(targetUri, Buffer.from(targetSource));
+  const targetDocument = await vscode.workspace.openTextDocument(targetUri);
+  await vscode.window.showTextDocument(targetDocument);
+  for (const [at, expected, rejected] of [
+    [targetSource.indexOf('C1Target]'), 'C1TargetClass', 'C1TargetMethod'],
+    [targetSource.lastIndexOf('C1Target]'), 'C1TargetMethod', 'C1TargetClass'],
+  ] as const) {
+    const suggestions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', targetUri,
+        targetDocument.positionAt(at + 'C1Target'.length)),
+      (result) => result?.items.some((item) => item.label === expected) === true,
+      `SoPHP omitted ${expected} at an Attribute target.`,
+    );
+    assert.ok(suggestions.items.some((item) => item.label === 'C1TargetAll'), 'Default Attribute target was omitted.');
+    assert.ok(!suggestions.items.some((item) => item.label === rejected),
+      `SoPHP suggested ${rejected} at the wrong Attribute target.`);
+  }
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));

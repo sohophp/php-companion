@@ -369,6 +369,11 @@ const BUILTIN_ATTRIBUTE_CLASSES = new Set([
   'attribute', 'returntypewillchange', 'allowdynamicproperties', 'sensitiveparameter',
   'override', 'deprecated', 'nodiscard', 'delayedtargetvalidation',
 ]);
+const ATTRIBUTE_TARGET_FLAGS: Record<string, number> = {
+  TARGET_CLASS: 1, TARGET_FUNCTION: 2, TARGET_METHOD: 4, TARGET_PROPERTY: 8,
+  TARGET_CLASS_CONSTANT: 16, TARGET_PARAMETER: 32, TARGET_CONSTANT: 64, TARGET_ALL: 127,
+  IS_REPEATABLE: 1024,
+};
 const MAX_SEMANTIC_GRAPH_DEPTH = 64;
 const MAX_ASSERTED_TARGET_INFERENCE_DEPTH = 4;
 const MAX_LOCAL_CONTROL_FLOW_DEPTH = 16;
@@ -3820,6 +3825,51 @@ export class SemanticWorkspace {
       this.resolveSourceType(file, name, namespace, declaration.fqcn)?.toLowerCase() === 'attribute') ?? false;
   }
 
+  private attributeTargetAt(uri: string, file: SemanticFile, offset: number): number | undefined {
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
+      while (node && node.type !== 'attribute_list') node = node.parent;
+      if (!node) return undefined;
+      const owner = node.parent;
+      switch (owner?.type) {
+        case 'class_declaration': case 'anonymous_class': case 'interface_declaration': case 'trait_declaration': case 'enum_declaration':
+          return ATTRIBUTE_TARGET_FLAGS.TARGET_CLASS;
+        case 'function_definition': case 'anonymous_function': case 'arrow_function':
+          return ATTRIBUTE_TARGET_FLAGS.TARGET_FUNCTION;
+        case 'method_declaration': return ATTRIBUTE_TARGET_FLAGS.TARGET_METHOD;
+        case 'property_declaration': return ATTRIBUTE_TARGET_FLAGS.TARGET_PROPERTY;
+        case 'simple_parameter': case 'variadic_parameter': case 'property_promotion_parameter':
+          return ATTRIBUTE_TARGET_FLAGS.TARGET_PARAMETER;
+        case 'const_declaration':
+          return owner.parent?.type === 'declaration_list'
+            ? ATTRIBUTE_TARGET_FLAGS.TARGET_CLASS_CONSTANT : ATTRIBUTE_TARGET_FLAGS.TARGET_CONSTANT;
+        default: return undefined;
+      }
+    } finally { temporaryTree?.delete(); }
+  }
+
+  private attributeTargetFlags(file: SemanticFile, declaration: ParsedDeclaration): number | undefined {
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const marker = declaration.attributeMarkers?.find((item) =>
+      this.resolveSourceType(file, item.name, namespace, declaration.fqcn)?.toLowerCase() === 'attribute');
+    if (!marker) return undefined;
+    if (!marker.arguments || marker.arguments === '()') return ATTRIBUTE_TARGET_FLAGS.TARGET_ALL;
+    const expression = marker.arguments.slice(1, -1).trim().replace(/^flags\s*:\s*/u, '');
+    if (!expression) return ATTRIBUTE_TARGET_FLAGS.TARGET_ALL;
+    let flags = 0;
+    for (const part of expression.split('|')) {
+      const token = /^(\\?[A-Za-z_][A-Za-z0-9_\\]*)::(TARGET_[A-Z_]+|IS_REPEATABLE)$/u.exec(part.trim());
+      if (!token || this.resolveSourceType(file, token[1]!, namespace, declaration.fqcn)?.toLowerCase() !== 'attribute')
+        return undefined;
+      const flag = ATTRIBUTE_TARGET_FLAGS[token[2]!];
+      if (flag === undefined) return undefined;
+      flags |= flag;
+    }
+    return flags;
+  }
+
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
     const before = file.source.slice(0, offset);
     const match = /((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
@@ -3878,6 +3928,7 @@ export class SemanticWorkspace {
     if (contextPrefix === undefined) return [];
     const inheritanceKind = docContext || traitContext || importContext ? undefined : this.inheritanceTypeCompletionKind(file, offset);
     const constructKind = docContext || traitContext || importContext ? undefined : this.constructTypeCompletionKind(file, offset);
+    const attributeTarget = constructKind === 'attribute' ? this.attributeTargetAt(uri, file, offset) : undefined;
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
     const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
@@ -3919,6 +3970,10 @@ export class SemanticWorkspace {
       const name = qualifiedNamespace !== undefined ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
       if (!name.toLowerCase().startsWith(prefix)) continue;
       if (constructKind === 'attribute' && !this.isAttributeClass(owner, candidate)) continue;
+      if (constructKind === 'attribute' && attributeTarget !== undefined) {
+        const flags = this.attributeTargetFlags(owner, candidate);
+        if (flags !== undefined && !(flags & attributeTarget)) continue;
+      }
       const collision = localFqcn(candidate.name.toLowerCase()) ?? importedVisible.get(candidate.name.toLowerCase());
       if (qualifiedNamespace === undefined && !visibleName && collision && collision.toLowerCase() !== candidateKey) continue;
       results.push({ uri: owner.uri, start: candidate.start, end: candidate.end, name, fqcn: candidate.fqcn, kind: candidate.kind,

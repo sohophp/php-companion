@@ -16,6 +16,8 @@
 
 [未保存 Attribute 声明跨文件刷新](c2-unsaved-attribute-marker-completion-2026-09-27.md)补齐了 C2 的对应宿主证据：去掉、恢复 `#[Attribute]` 后，另一文件的候选会撤回、再出现；10 项 Pack C2 源码宿主通过。下一步仍按普通 PHP 连续编辑的错误结果与可见等待推进，优先修可复现的高频问题，再处理 C3 剩余安全编辑与 C4 安装验收。
 
+[Attribute 目标位置补全](c1-attribute-target-completion-2026-09-27.md)又让已完成的 class、method 等 Attribute 位置按可证明的 `TARGET_*` 标志筛选，并覆盖未打开 Composer 类型与未保存声明切换；10 项 Pack C1/C2 源码宿主通过。动态标志、重复使用和构造参数适配仍待处理。
+
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。

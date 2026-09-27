@@ -5042,6 +5042,39 @@ class C1AttributePlain { #[\\Attribute] public function run(): void {} }`;
       }
     } finally { project.dispose(); }
   });
+  it('filters proven Attribute target flags while retaining unknown flag expressions', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.updateDeclarations('file:///AttributeTargets.php', `<?php namespace Domain;
+use Attribute as Marker;
+#[Marker] class C1TargetAll {}
+#[Marker(Marker::TARGET_CLASS)] class C1TargetClass {}
+#[\\Attribute(\\Attribute::TARGET_METHOD | \\Attribute::IS_REPEATABLE)] class C1TargetMethod {}
+#[Marker(flags: dynamicFlags())] class C1TargetDynamic {}`);
+      const cases = [
+        ['<?php namespace App; #[C1Target] class Consumer {}',
+          ['C1TargetAll', 'C1TargetClass', 'C1TargetDynamic']],
+        ['<?php namespace App; $value = new #[C1Target] class {};',
+          ['C1TargetAll', 'C1TargetClass', 'C1TargetDynamic']],
+        ['<?php namespace App; class Consumer { #[C1Target] public function run(): void {} }',
+          ['C1TargetAll', 'C1TargetDynamic', 'C1TargetMethod']],
+        ['<?php namespace App; class Consumer { #[C1Target] public string $value; }',
+          ['C1TargetAll', 'C1TargetDynamic']],
+        ['<?php namespace App; function run(#[C1Target] string $value): void {}',
+          ['C1TargetAll', 'C1TargetDynamic']],
+        ['<?php namespace App; #[C1Target] function (): void {}',
+          ['C1TargetAll', 'C1TargetDynamic']],
+        ['<?php namespace App; class Consumer { public function __construct(#[C1Target] public string $value) {} }',
+          ['C1TargetAll', 'C1TargetDynamic']],
+      ] as const;
+      for (const [index, [source, expected]] of cases.entries()) {
+        const uri = `file:///AttributeTargetUse-${index}.php`;
+        project.update(uri, source);
+        const offset = source.indexOf('C1Target]') + 'C1Target'.length;
+        expect(project.completeTypes(uri, offset).map((item) => item.name), source).toEqual(expected);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes qualified native type names without adding an import', () => {
     workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
     workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');

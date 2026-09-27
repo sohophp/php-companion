@@ -256,12 +256,16 @@ function helper(User $user): string { return $user->label(1); }
 
   it('keeps class-header attribute names in declaration-only facts', () => {
     const source = `<?php namespace App; use Attribute as Marker;
-      #[Marker, \\Attribute] class Annotated { #[\\Other] public function run(): void {} }`;
+      #[Marker, \\Attribute(\\Attribute::TARGET_METHOD | \\Attribute::IS_REPEATABLE)] class Annotated { #[\\Other] public function run(): void {} }`;
     const result = parser.parse(source);
     const declarations = parser.parseDeclarations(source);
     try {
       expect(result.declarations[0]).toMatchObject({ name: 'Annotated', attributeNames: ['Marker', '\\Attribute'] });
       expect(declarations.declarations[0]?.attributeNames).toEqual(['Marker', '\\Attribute']);
+      expect(declarations.declarations[0]?.attributeMarkers).toEqual([
+        { name: 'Marker' },
+        { name: '\\Attribute', arguments: '(\\Attribute::TARGET_METHOD | \\Attribute::IS_REPEATABLE)' },
+      ]);
     } finally { result.tree.delete(); declarations.tree.delete(); }
   });
 

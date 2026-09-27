@@ -990,7 +990,8 @@ return array(
 
   const attributeUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2LiveAttribute.php');
   const attributeConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2LiveAttributeConsumer.php');
-  const markedAttribute = '<?php namespace App\\Service; #[\\Attribute] class C2LiveAttribute {}';
+  const markedAttribute = '<?php namespace App\\Service; #[\\Attribute(\\Attribute::TARGET_CLASS)] class C2LiveAttribute {}';
+  const methodAttribute = markedAttribute.replace('TARGET_CLASS', 'TARGET_METHOD');
   const plainAttribute = '<?php namespace App\\Service; class C2LiveAttribute {}';
   const attributeConsumer = '<?php namespace App\\Service; #[C2LiveAttr] class C2LiveAttributeConsumer {}';
   await vscode.workspace.fs.writeFile(attributeUri, Buffer.from(markedAttribute));
@@ -1023,5 +1024,9 @@ return array(
   await waitForAttribute(false);
   await replaceAttribute(markedAttribute);
   await waitForAttribute(true);
-  console.log('C2 onDemand cross-file Attribute marker: completion present → withdrawn → restored from unsaved declaration');
+  await replaceAttribute(methodAttribute);
+  await waitForAttribute(false);
+  await replaceAttribute(markedAttribute);
+  await waitForAttribute(true);
+  console.log('C2 onDemand cross-file Attribute marker and target: completion present → withdrawn → restored → wrong target withdrawn → restored');
 }
