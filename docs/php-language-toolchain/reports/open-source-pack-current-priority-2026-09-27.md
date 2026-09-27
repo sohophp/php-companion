@@ -5,10 +5,10 @@
 ## 当前决定
 
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
-- **先使用同批私有候选。** 当前 [0.4.8 候选](open-source-pack-048-private-alpha-2026-09-27.md)是 Core、Symfony、Pack 三份 VSIX；公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 安装及完整操作链仍属 C4 验收。
+- **先使用同批私有候选。** 当前 [0.4.9 候选](open-source-pack-049-private-alpha-2026-09-27.md)是 Core、Symfony、Pack 三份 VSIX，已装入 WSL Alpha Profile；当前窗口需 Reload Window 才会切换旧版 Language Server。公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 操作链仍属 C4 验收。
 - **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
 
-最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它尚未进入 0.4.8 私有候选；日常增量继续不重复打包。
+最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。
 
@@ -40,12 +40,12 @@
 
 ## 固定组合
 
-[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.8 冻结候选记录](open-source-pack-048-private-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。冻结后的 C1/C2 源码修改尚未进入这批 VSIX。
+[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.9 冻结候选记录](open-source-pack-049-private-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。
 
 | 成员 | 候选版本 | 唯一负责的能力 |
 | --- | --- | --- |
-| `sohophp.php-companion` | 0.4.8 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
-| `sohophp.php-companion-symfony` | 0.4.8 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
+| `sohophp.php-companion` | 0.4.9 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
+| `sohophp.php-companion-symfony` | 0.4.9 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
 | `sohophp.twig-plus` | 1.3.8 | Twig 语言服务与格式化 |
 | `redhat.vscode-yaml` | 1.24.0 | YAML 编辑 |
 | `redhat.vscode-xml` | 0.29.3 | XML 编辑 |
@@ -61,7 +61,7 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 ## 当前可使用范围
 
-最新可安装的私有候选冻结于 [`cbd82a72`](open-source-pack-048-private-alpha-2026-09-27.md)：同批 Core、Symfony、Pack 三份 VSIX，八个外部成员版本和产物摘要已记录。隔离 Linux 的完整组合与 C3 打包宿主通过。PHP 7.2–8.5 九个**目标设置**的 C1 宿主，以及 WSL2 自动化规模基准属于先前 0.4.7 候选的通过记录，尚未用 0.4.8 重跑。真实 VS Code WSL Remote 安装、Extension Host 归属、实际工具路径、人工编辑、其它平台和长会话仍待验收。
+最新可安装的私有候选冻结于 [`f0ca6ddc`](open-source-pack-049-private-alpha-2026-09-27.md)：同批 Core、Symfony、Pack 三份 VSIX，八个外部成员版本和产物摘要已记录。隔离 Linux 的完整组合与 C3 打包宿主通过，WSL Alpha Profile 的安装文件与摘要也已核对。PHP 7.2–8.5 九个**目标设置**的 C1 宿主，以及 WSL2 自动化规模基准属于先前 0.4.7 候选的通过记录，尚未用 0.4.9 重跑。当前窗口还需 Reload Window；新进程的 Extension Host 归属、实际工具路径、人工编辑、其它平台和长会话仍待验收。
 
 公开 [Marketplace Pack 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)仍展示旧组合和旧说明，不能作为当前 10 项清单的安装入口。私有候选要从同一目录安装三份 VSIX，并以 `SHA256SUMS` 和实际安装成员为准。对已有 PHP 开发环境，先核对唯一通用 PHP 语言服务、唯一 PHP 默认 formatter、项目 PHP CLI 版本和 Remote 运行位置；不为每个 Core 小修复重打 VSIX。
 
