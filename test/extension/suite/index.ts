@@ -1570,11 +1570,14 @@ export async function run(): Promise<void> {
   assert.ok(xmlServiceCompletion.range instanceof vscode.Range, 'Symfony XML service completion did not return one replacement range');
   assert.strictEqual(xmlServicesDocument.getText(xmlServiceCompletion.range), 'App\\Service\\Mailer',
     'Symfony XML service completion did not replace only the service id attribute value');
-  const phpServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
-    'vscode.executeDefinitionProvider', phpServicesUri, phpServicesDocument.positionAt(phpServiceReferenceOffset),
-  );
-  assert.ok(phpServiceDefinitions.some((location) => location.uri.toString() === servicesUri.toString()),
-    'Symfony PHP Configurator service Definition did not reach the authoritative YAML registration');
+  let phpServiceDefinitions: vscode.Location[] = [];
+  await waitForAsync(async () => {
+    phpServiceDefinitions = await vscode.commands.executeCommand<vscode.Location[]>(
+      'vscode.executeDefinitionProvider', phpServicesUri, phpServicesDocument.positionAt(phpServiceReferenceOffset),
+    ) ?? [];
+    return phpServiceDefinitions.some((location) => location.uri.toString() === servicesUri.toString());
+  }, () => 'Symfony PHP Configurator service Definition did not reach the authoritative YAML registration: '
+    + JSON.stringify(phpServiceDefinitions), 30_000, 100);
   const phpServiceReferenceList = await vscode.commands.executeCommand<vscode.Location[]>(
     'vscode.executeReferenceProvider', phpServicesUri, phpServicesDocument.positionAt(phpServiceReferenceOffset),
   );

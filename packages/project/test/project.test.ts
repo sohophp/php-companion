@@ -10,8 +10,8 @@ describe('Composer dependency discovery', () => {
   it('resolves PSR-0 class underscores while preserving namespace underscores', () => {
     const mappings = [{ prefix: 'Legacy_', directories: ['/project/legacy'], development: false },
       { prefix: 'Vendor\\Name\\', directories: ['/project/vendor'], development: false }];
-    expect(resolvePsr0Class('Legacy_Foo_Bar', mappings)).toEqual(['/project/legacy/Legacy/Foo/Bar.php']);
-    expect(resolvePsr0Class('Vendor\\Name\\Foo_Bar', mappings)).toEqual(['/project/vendor/Vendor/Name/Foo/Bar.php']);
+    expect(resolvePsr0Class('Legacy_Foo_Bar', mappings)).toEqual([join('/project/legacy', 'Legacy/Foo/Bar.php')]);
+    expect(resolvePsr0Class('Vendor\\Name\\Foo_Bar', mappings)).toEqual([join('/project/vendor', 'Vendor/Name/Foo/Bar.php')]);
     expect(resolvePsr0Class('Elsewhere\\Foo', mappings)).toEqual([]);
   });
   it('records the exact metadata consumed with custom vendor and installed package paths', async () => {

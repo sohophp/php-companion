@@ -2794,7 +2794,10 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
   if (!names.length || names.length > 16 || names.some((name) => name.length < minNameLength || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
   const paths = rootsOverride ?? (includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project));
   if (!paths.length) return undefined;
-  const startedAt = Date.now() - 1_000;
+  // Compare with the actual search start. A one-second cushion treats freshly
+  // created but unchanged project files as concurrent edits and can exhaust
+  // a small candidate budget before any matching source is read.
+  const startedAt = Date.now();
   return new Promise((done) => {
     const child = spawn(executable, ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
       '--glob', '*.[pP][hH][pP]', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
@@ -4077,7 +4080,8 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
       ?? attributeReference ?? containerReference
     : isXml ? symfonyXmlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root)) : symfonyYamlServiceReferenceAt(params.source, offset, symfonyEnvironmentForRoot(root));
   const declarationIds = symfonyServiceRegistrations(root)
-    .filter((service) => service.registrationUri === uri && offset >= service.registrationStart && offset <= service.registrationEnd)
+    .filter((service) => sameFilesystemPath(pathForUri(service.registrationUri), sourcePath)
+      && offset >= service.registrationStart && offset <= service.registrationEnd)
     .map((service) => service.id);
   const ids = new Set(reference ? [reference.value] : declarationIds);
   if (ids.size !== 1) return undefined;
@@ -4086,27 +4090,28 @@ async function symfonyServiceRenamePlan(params: SymfonyServiceRenameParams, canc
   const target = uniqueSymfonyServiceRegistration(root, serviceId);
   if (!target) return undefined;
   const targetPath = pathForUri(target.registrationUri);
-  const targetSource = target.registrationUri === uri ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source
+  const targetIsCurrent = sameFilesystemPath(targetPath, sourcePath);
+  const targetSource = targetIsCurrent ? params.source : frameworkDocumentSnapshots.get(target.registrationUri)?.source
     ?? documents.get(target.registrationUri)?.getText() ?? (targetPath ? await readFile(targetPath, 'utf8').catch(() => undefined) : undefined);
   if (targetSource === undefined || targetSource.slice(target.registrationStart, target.registrationEnd) !== serviceId) {
     return undefined;
   }
   const targetLanguage = target.registrationUri.endsWith('.php') ? 'php' : target.registrationUri.endsWith('.xml') ? 'xml' : 'yaml';
-  const targetDocument = target.registrationUri === uri ? sourceDocument
+  const targetDocument = targetIsCurrent ? sourceDocument
     : TextDocument.create(target.registrationUri, targetLanguage, documents.get(target.registrationUri)?.version ?? 0, targetSource);
   const newName = typeof params.newName === 'string' ? params.newName : serviceId;
   if (!/^[A-Za-z_.][A-Za-z0-9_.-]*$/.test(newName)) return undefined;
   const attributeReferences = await scanSymfonyPhpServiceReferences(root, serviceId, cancelled);
   if (!attributeReferences || cancelled()) return undefined;
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {
-    [target.registrationUri]: [{ range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) }, newText: newName }],
+    [targetIsCurrent ? uri : target.registrationUri]: [{ range: { start: targetDocument.positionAt(target.registrationStart), end: targetDocument.positionAt(target.registrationEnd) }, newText: newName }],
   };
   const sourceHashes: Record<string, string> = {};
-  if (!addRenameSourceHash(sourceHashes, target.registrationUri, targetSource)) return undefined;
+  if (!addRenameSourceHash(sourceHashes, targetIsCurrent ? uri : target.registrationUri, targetSource)) return undefined;
   for (const configPath of [...(symfonyServiceConfigPathsByRoot.get(root) ?? [])].sort()) {
     if (!/\.(?:ya?ml|xml|php)$/i.test(configPath)) continue;
     if (cancelled()) return undefined;
-    const configUri = resolve(configPath) === resolve(sourcePath) ? uri : pathToFileURL(configPath).toString();
+    const configUri = sameFilesystemPath(configPath, sourcePath) ? uri : indexedUriForPath(root, configPath);
     const source = configUri === uri ? params.source : frameworkDocumentSnapshots.get(configUri)?.source
       ?? documents.get(configUri)?.getText() ?? await readFile(configPath, 'utf8').catch(() => undefined);
     if (source === undefined || source.length > indexLimits.maxFileSizeBytes) {
