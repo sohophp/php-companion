@@ -169,6 +169,22 @@ describe('language server stdio', () => {
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
       ]));
       expect(manualImportResult.find((item: { label: string }) => item.label === 'Invoice')?.additionalTextEdits).toBeUndefined();
+      const repeatedBlock = '<?php namespace App { use Domain\\Billing\\Invoice; class First {} } '
+        + 'namespace App { function second(): void { new Inv; } }';
+      const repeatedBlockUri = pathToFileURL(join(root, 'src', 'RepeatedBlock.php')).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: repeatedBlockUri, languageId: 'php', version: 1, text: repeatedBlock },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11805, method: 'textDocument/completion', params: {
+        textDocument: { uri: repeatedBlockUri }, position: lspPosition(repeatedBlock, repeatedBlock.indexOf('Inv;') + 3),
+      } }));
+      const repeatedItems = (await output.waitFor((message) => message.id === 11805)).result;
+      const repeatedInvoice = repeatedItems.find((item: { detail?: string }) => item.detail === 'Domain\\Billing\\Invoice');
+      expect(repeatedInvoice?.additionalTextEdits).toEqual([expect.objectContaining({
+        range: { start: lspPosition(repeatedBlock, repeatedBlock.lastIndexOf('namespace App {') + 'namespace App {'.length),
+          end: lspPosition(repeatedBlock, repeatedBlock.lastIndexOf('namespace App {') + 'namespace App {'.length) },
+        newText: expect.stringContaining('use Domain\\Billing\\Invoice;'),
+      })]);
       for (const [id, globalImport, fragment, expected] of [
         [11801, '<?php use Dom; class GlobalNamespaceImport {}', 'use Dom', 'Domain\\'],
         [11802, '<?php use Domain\\Billing\\Inv; class GlobalTypeImport {}', 'use Domain\\Billing\\Inv', 'Invoice'],

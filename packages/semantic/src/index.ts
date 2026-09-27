@@ -4427,7 +4427,10 @@ export class SemanticWorkspace {
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 32), prefixStart);
     if (/(?:->|\?->|::|\$|\bfunction\s+|\bnamespace\s+|\buse(?:\s+function)?\s+)\s*$/.test(context)) return [];
     const prefix = (match[1] ?? '').toLowerCase(); const namespace = this.namespaceAt(file, offset);
-    const imported = new Map(file.imports.filter((item) => item.kind === 'function' && item.namespace === namespace).map((item) => [item.alias.toLowerCase(), item.fqcn]));
+    const scope = this.importScope(file, offset);
+    const imports = file.imports.filter((item) => item.kind === 'function' && item.namespace === namespace
+      && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);
+    const imported = new Map(imports.map((item) => [item.alias.toLowerCase(), item.fqcn]));
     const callables = [...new Map([...this.files.values()].flatMap((candidate) => candidate.callables.map((item) => ({ file: candidate, item })))
       .filter(({ item }) => item.kind === 'function').map((entry) => [entry.item.fqcn.toLowerCase(), entry])).values()];
     const visible = new Map(imported);
@@ -4444,7 +4447,7 @@ export class SemanticWorkspace {
     return callables.flatMap(({ file: owner, item }): FunctionCompletionInfo[] => {
       const alias = [...imported.entries()].find(([, fqfn]) => fqfn.toLowerCase() === item.fqcn.toLowerCase())?.[0];
       const candidateNamespace = item.fqcn.split('\\').slice(0, -1).join('\\');
-      const name = alias ? file.imports.find((entry) => entry.kind === 'function' && entry.namespace === namespace && entry.fqcn.toLowerCase() === item.fqcn.toLowerCase())!.alias : item.name;
+      const name = alias ? imports.find((entry) => entry.fqcn.toLowerCase() === item.fqcn.toLowerCase())!.alias : item.name;
       if (!name.toLowerCase().startsWith(prefix)) return [];
       const collision = visible.get(item.name.toLowerCase());
       if (!alias && candidateNamespace !== namespace && candidateNamespace !== '' && collision && collision.toLowerCase() !== item.fqcn.toLowerCase()) return [];
@@ -4467,7 +4470,9 @@ export class SemanticWorkspace {
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 24), prefixStart);
     if (/(?:->|\?->|::|\$|\b(?:function|namespace|const)\s+|\buse(?:\s+(?:function|const))?\s+)\s*$/.test(context)) return [];
     const prefix = match[1] ?? ''; if (!prefix) return [];
-    const namespace = this.namespaceAt(file, offset); const imports = file.imports.filter((item) => item.kind === 'const' && item.namespace === namespace);
+    const namespace = this.namespaceAt(file, offset); const scope = this.importScope(file, offset);
+    const imports = file.imports.filter((item) => item.kind === 'const' && item.namespace === namespace
+      && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);
     const imported = new Map(imports.map((item) => [item.alias, item.fqcn]));
     const constants = [...new Map([...this.files.values()].flatMap((candidate) => candidate.constants.filter((item) => item.global).map((item) => ({ file: candidate, item })))
       .map((entry) => [entry.item.fqcn, entry])).values()];

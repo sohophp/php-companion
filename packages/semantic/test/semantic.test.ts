@@ -5387,6 +5387,21 @@ use Attribute as Marker;
     expect(workspace.symbolImportContext('file:///BareFunctionImport.php', bareImport.length))
       .toEqual({ kind: 'function', qualifier: '', prefix: 'cre' });
   });
+  it('does not reuse function and constant imports from a previous bracketed namespace block', () => {
+    workspace.update('file:///ScopedFunction.php', '<?php namespace Domain\\Factory; function createInvoice(): void {}');
+    workspace.update('file:///ScopedConstant.php', '<?php namespace Domain\\Config; const BLOCK_ONLY_KEY = "value";');
+    const uri = 'file:///ScopedSymbolImports.php';
+    const source = '<?php namespace App { use function Domain\\Factory\\createInvoice; '
+      + 'use const Domain\\Config\\BLOCK_ONLY_KEY; function first(): void {} } '
+      + 'namespace App { function second(): void { crea; echo BLOCK_; } }';
+    workspace.update(uri, source);
+    const functionOffset = source.indexOf('crea;') + 4;
+    const constantOffset = source.indexOf('BLOCK_;') + 6;
+    expect(workspace.completeFunctions(uri, functionOffset).find((item) => item.fqcn === 'Domain\\Factory\\createInvoice'))
+      .toMatchObject({ name: 'createInvoice', importFqfn: 'Domain\\Factory\\createInvoice' });
+    expect(workspace.completeConstants(uri, constantOffset).find((item) => item.fqcn === 'Domain\\Config\\BLOCK_ONLY_KEY'))
+      .toMatchObject({ name: 'BLOCK_ONLY_KEY', importFqcn: 'Domain\\Config\\BLOCK_ONLY_KEY' });
+  });
   it('keeps function and constant suggestions in PHP code rather than comments or string text', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LiteralCallableNames.php';
