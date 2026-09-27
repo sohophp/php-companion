@@ -1020,6 +1020,24 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.strictEqual(externalTypeCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1,
     'Cross-namespace class completion was returned more than once.');
+  const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
+  await vscode.workspace.fs.writeFile(catchTypeUri,
+    Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));
+  const catchSource = '<?php namespace App\\C1; function catchTypes(): void { try {} catch (\\LogicException|C1ExternalCatchEx';
+  const catchUri = vscode.Uri.joinPath(folder, 'C1MultiCatchConsumer.php');
+  await vscode.workspace.fs.writeFile(catchUri, Buffer.from(catchSource));
+  const catchDocument = await vscode.workspace.openTextDocument(catchUri);
+  await vscode.window.showTextDocument(catchDocument);
+  const catchCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', catchUri,
+      catchDocument.positionAt(catchSource.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalCatchException'
+      && item.kind === vscode.CompletionItemKind.Class
+      && item.additionalTextEdits?.some((edit) => edit.newText.includes('use App\\C1\\External\\C1ExternalCatchException;'))) === true,
+    'SoPHP did not complete the second exception type in a multi-catch clause.',
+  );
+  assert.strictEqual(catchCompletion.items.filter((item) => item.label === 'C1ExternalCatchException').length, 1,
+    'Multi-catch completion returned the project exception more than once.');
   const qualifiedTypeSource = '<?php namespace App\\C1; use App\\C1\\External as ExtAlias; '
     + 'function qualified(): void { new \\App; new \\App\\C1\\Ext; new ExtAlias\\C1ExternalTypePro; }';
   const qualifiedTypeUri = vscode.Uri.joinPath(folder, 'C1QualifiedTypeConsumer.php');

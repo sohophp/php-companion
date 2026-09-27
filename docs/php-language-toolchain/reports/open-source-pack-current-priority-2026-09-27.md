@@ -12,6 +12,8 @@
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码不在现有 0.4.7 候选内。
 
+[多异常 catch 类型补全](c1-multicatch-type-completion-2026-09-27.md)已从语义红灯修复到完整 Pack 源码宿主通过，覆盖跨命名空间异常类、自动导入和不重复候选；普通表达式与无效交叉符号不进入该上下文。它仍是冻结后源码，不在当前安装候选内。
+
 ## 先用这套组合开始开发
 
 1. 以同一批候选安装 SoPHP Core、SoPHP Symfony 和 Open Source Pack 三份 VSIX；`SHA256SUMS` 与 `candidate.json` 标识这批确切内容。公开 Marketplace 的 Pack 页面仍是旧组合，不能用它安装下表的当前组合。Pack manifest 只固定扩展 ID，外部成员版本以候选记录和实际安装结果为准。

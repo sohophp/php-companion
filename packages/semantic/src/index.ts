@@ -473,6 +473,8 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
     /\b(?:public|protected|private|static|readonly|var)(?:\s+(?:public|protected|private|static|readonly))*\s+\??([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/,
   ].map((pattern) => pattern.exec(before)).find(Boolean);
   if (direct) return direct[1] ?? '';
+  const catchUnion = /\bcatch\s*\(\s*(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*\s*\|\s*)+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(before);
+  if (catchUnion) return catchUnion[1] ?? '';
   const composite = compositeType.exec(before);
   if (composite) {
     const start = before.slice(0, composite.index);
