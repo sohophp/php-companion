@@ -4496,6 +4496,59 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('reconciles Safe Move imports without crossing namespace or alias boundaries', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-safe-move-import-scopes-'));
+    try {
+      await mkdir(join(root, 'src', 'Contact'), { recursive: true });
+      await mkdir(join(root, 'src', 'Service'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const declaration = '<?php namespace App\\Contact; final class MovableService {}';
+      const consumer = `<?php
+namespace App\\First {
+    use App\\Contact\\MovableService as ContactService;
+    use App\\Service\\MovableService as Service;
+    final class First { public const TYPE = ContactService::class; }
+}
+namespace App\\Second {
+    use App\\Service\\MovableService as ContactService;
+    final class Second { public const TYPE = ContactService::class; }
+}`;
+      const oldPath = join(root, 'src', 'Contact', 'MovableService.php');
+      const newPath = join(root, 'src', 'Service', 'MovableService.php');
+      const oldUri = pathToFileURL(oldPath).toString(); const newUri = pathToFileURL(newPath).toString();
+      const consumerUri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      await writeFile(oldPath, declaration); await writeFile(join(root, 'src', 'Consumer.php'), consumer);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 650, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 650);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 651, method: 'phpCompanion/planSafeMove', params: {
+        moves: [{ oldUri, newUri }], includeFileOperations: false,
+      } }));
+      const move = (await output.waitFor((message) => message.id === 651, 20_000)).result;
+      expect(move.error).toBeUndefined();
+      await rename(oldPath, newPath);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 652, method: 'phpCompanion/reconcileSafeMove', params: {
+        moves: move.reconciliation,
+      } }));
+      const result = (await output.waitFor((message) => message.id === 652, 20_000)).result;
+      expect(result.error).toBeUndefined();
+      const edits = result.edit.changes[consumerUri] as Array<{ range: {
+        start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>;
+      expect(edits).toBeDefined();
+      const updated = edits.map((edit) => ({ ...edit, start: lspOffset(consumer, edit.range.start), end: lspOffset(consumer, edit.range.end) }))
+        .sort((left, right) => right.start - left.start)
+        .reduce((text, edit) => text.slice(0, edit.start) + edit.newText + text.slice(edit.end), consumer);
+      expect(updated).not.toContain('App\\Contact\\MovableService');
+      expect(updated).toContain('use App\\Service\\MovableService as Service;');
+      expect(updated.match(/use App\\Service\\MovableService as ContactService;/g)).toHaveLength(2);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('completes static YAML routes only for proven Symfony methods and observes unsaved route edits', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-route-completion-'));
     try {

@@ -4,4 +4,6 @@
 
 Safe Move 的移动后协调原先按整份 PHP 文件只保留一个目标导入。同一文件含多个 `namespace` 块，或同一命名空间以不同别名引用同一类时，这会删除仍被使用的导入。现在按命名空间与别名分别协调：同组已有目标导入时去重；其它组把旧 FQCN 改为新 FQCN，并保留各自的别名。
 
-新增语义回归覆盖两个 namespace 块及两个不同别名，断言移动后两个块的引用都仍有对应导入，旧 FQCN 被清除。完整 Semantic 测试为 441/441；该包 TypeScript、改动文件 ESLint 和 `git diff --check` 通过。VS Code 打包宿主、Windows/macOS 和真实 WSL Remote 尚未验证此发布后增量；冻结下一候选时进入组合门禁。
+新增语义回归覆盖两个 namespace 块及两个不同别名，断言移动后两个块的引用都仍有对应导入，旧 FQCN 被清除。随后在独立 Composer 项目中，经真实 LSP `planSafeMove`、磁盘文件移动和 `reconcileSafeMove` 验证协议编辑：应用返回的范围后，两个 namespace 块的导入仍在，同一块的不同别名也保留，旧 FQCN 消失。定向 stdio 测试通过。
+
+完整 Semantic 测试为 441/441；该包 TypeScript、改动文件 ESLint 和 `git diff --check` 通过。VS Code 打包宿主、Windows/macOS 和真实 WSL Remote 尚未验证此发布后增量；冻结下一候选时进入组合门禁。
