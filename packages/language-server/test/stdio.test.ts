@@ -11992,7 +11992,10 @@ final class ReadyEvent {}`;
       } }));
       expect((await output.waitFor((message) => message.id === 6663, 15_000)).result)
         .not.toContainEqual(expect.objectContaining({ uri: dispatchUri }));
-    } finally { await rm(root, { recursive: true, force: true }); }
+    } finally {
+      await stopServerBeforeRemovingFixture();
+      await rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    }
   }, 20_000);
 
   it('keeps a newly discovered Symfony subscriber registered after its editor closes', async () => {
