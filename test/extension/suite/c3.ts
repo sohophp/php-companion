@@ -595,6 +595,50 @@ export async function run(): Promise<void> {
     'Redo left a hidden destination stage behind');
   await vscode.workspace.fs.delete(destinationFallbackUri);
   console.log('C3 destination-directory stage Undo/Redo restored the generated file');
+  const missingStageDirectory = vscode.Uri.joinPath(serviceDirectory, 'C3MissingStage');
+  const missingStageUri = vscode.Uri.joinPath(missingStageDirectory, 'C3MissingStage.php');
+  await assert.rejects(async () => vscode.workspace.fs.stat(missingStageDirectory),
+    'The missing-directory stage fixture already exists');
+  let missingStagePath: string | undefined;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
+    'C3MissingStage', missingStageDirectory, async () => 'apply', undefined, undefined, undefined,
+    async () => false, async () => false, undefined, undefined,
+    async (edit: vscode.WorkspaceEdit, stagedPath: string) => {
+      missingStagePath = stagedPath;
+      return vscode.workspace.applyEdit(edit);
+    }), true, 'Type generation did not move a stage from the nearest existing target ancestor');
+  assert.ok(missingStagePath && dirname(missingStagePath) === serviceDirectory.fsPath,
+    'The missing-directory stage was not placed in the nearest existing ancestor');
+  await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(missingStageUri));
+  await vscode.commands.executeCommand('undo');
+  await assert.rejects(async () => vscode.workspace.fs.stat(missingStageUri),
+    'Undo did not remove the class generated into a missing directory');
+  assert.ok(await vscode.workspace.fs.stat(vscode.Uri.file(missingStagePath!)),
+    'Undo did not restore the missing-directory stage for Redo');
+  await vscode.commands.executeCommand('redo');
+  assert.ok((await vscode.workspace.openTextDocument(missingStageUri)).getText().includes('class C3MissingStage'),
+    'Redo did not restore the class generated into a missing directory');
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(missingStagePath!)),
+    'Redo left the missing-directory stage behind');
+  await vscode.workspace.fs.delete(missingStageDirectory, { recursive: true });
+  console.log('C3 nearest-existing-ancestor stage Undo/Redo restored the generated file');
+  const rejectedStageDirectory = vscode.Uri.joinPath(serviceDirectory, 'C3MissingRejectedStage');
+  let rejectedStagePath: string | undefined;
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
+    'C3MissingRejectedStage', rejectedStageDirectory, async () => 'apply', undefined, undefined, undefined,
+    async () => false, async () => false, undefined, undefined,
+    async (_edit: vscode.WorkspaceEdit, stagedPath: string) => {
+      rejectedStagePath = stagedPath;
+      return false;
+    }), true, 'Type generation lost the createFile fallback after a rejected ancestor move');
+  assert.ok(rejectedStagePath && dirname(rejectedStagePath) === serviceDirectory.fsPath,
+    'The rejected stage was not placed in the nearest existing ancestor');
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(rejectedStagePath!)),
+    'A rejected missing-directory move left its stage in the project');
+  assert.ok((await vscode.workspace.openTextDocument(vscode.Uri.joinPath(rejectedStageDirectory,
+    'C3MissingRejectedStage.php'))).getText().includes('class C3MissingRejectedStage'),
+  'The createFile fallback lost its PHP source after the ancestor move was rejected');
+  await vscode.workspace.fs.delete(rejectedStageDirectory, { recursive: true });
   const creationFallbackUri = vscode.Uri.joinPath(serviceDirectory, 'C3CreationFallback.php');
   let siblingWasAttempted = false;
   let rejectedSiblingStagePath: string | undefined;

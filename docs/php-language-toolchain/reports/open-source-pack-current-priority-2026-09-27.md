@@ -14,6 +14,8 @@
 
 [多异常 catch 类型补全](c1-multicatch-type-completion-2026-09-27.md)已从语义红灯修复到完整 Pack 源码宿主通过，覆盖跨命名空间异常类、自动导入和不重复候选；普通表达式与无效交叉符号不进入该上下文。它仍是冻结后源码，不在当前安装候选内。
 
+[新目录类型生成的最近父目录暂存移动](c3-type-generation-missing-directory-stage-2026-09-27.md)已在完整 Pack 源码宿主通过一次 Undo/Redo：即使系统临时目录和工作区同级移动失败，只要目标目录的现有父目录可用，仍能保持可重做的资源移动。所有移动都失败时最终创建兜底仍可创建文件，但该路径的 Redo 缺口继续开放。
+
 ## 先用这套组合开始开发
 
 1. 以同一批候选安装 SoPHP Core、SoPHP Symfony 和 Open Source Pack 三份 VSIX；`SHA256SUMS` 与 `candidate.json` 标识这批确切内容。公开 Marketplace 的 Pack 页面仍是旧组合，不能用它安装下表的当前组合。Pack manifest 只固定扩展 ID，外部成员版本以候选记录和实际安装结果为准。

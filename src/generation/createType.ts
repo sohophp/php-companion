@@ -301,13 +301,31 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
           ? (edit): Promise<boolean> => applySiblingEdit(edit, siblingStage.fsPath) : vscode.workspace.applyEdit);
       }
     }
-    if (!created && !await exists() && await directoryState() === 'directory') {
-      // The destination directory may be writable even when its parent is not.
-      // Keep this last stage out of PHP indexing with a hidden non-PHP suffix.
-      const destinationStage = join(directoryUri.fsPath, `.sophp-type-stage-${randomUUID()}.tmp`);
-      const applyDestinationEdit = options?.testApplyDestinationEdit;
-      created = await moveStagedFile(destinationStage, applyDestinationEdit
-        ? (edit): Promise<boolean> => applyDestinationEdit(edit, destinationStage) : vscode.workspace.applyEdit);
+    if (!created && !await exists()) {
+      // The nearest existing target ancestor may be writable even when the
+      // workspace sibling is not. A hidden non-PHP stage also works when the
+      // requested PSR-4 subdirectory does not exist yet.
+      const workspaceRoot = resolve(folder.uri.fsPath);
+      let ancestor = resolve(directoryUri.fsPath);
+      let stageDirectory: string | undefined;
+      while (true) {
+        const path = relative(workspaceRoot, ancestor);
+        if (isAbsolute(path) || path === '..' || path.startsWith(`..${sep}`)) break;
+        try {
+          const entry = await stat(ancestor);
+          if (entry.isDirectory()) stageDirectory = ancestor;
+          break;
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || ancestor === workspaceRoot) break;
+          ancestor = dirname(ancestor);
+        }
+      }
+      if (stageDirectory) {
+        const destinationStage = join(stageDirectory, `.sophp-type-stage-${randomUUID()}.tmp`);
+        const applyDestinationEdit = options?.testApplyDestinationEdit;
+        created = await moveStagedFile(destinationStage, applyDestinationEdit
+          ? (edit): Promise<boolean> => applyDestinationEdit(edit, destinationStage) : vscode.workspace.applyEdit);
+      }
     }
   }
   if (!created) {
