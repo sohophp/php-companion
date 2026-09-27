@@ -2755,7 +2755,6 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
 }
 function reuseCandidateCoverageAfterOpenEdit(root: string, previousEpoch: number, document: TextDocument,
   workspace: SemanticWorkspace): void {
-  connection.console.info(`[candidate-reuse] mode=${indexingMode} indexing=${Boolean(activeIndexing)} current=${documents.get(document.uri) === document} source=${workspace.source(document.uri) === document.getText()} epoch=${previousEpoch}->${projectEpochs.get(root) ?? 0} keys=${[...candidateQueries].filter(([key, epoch]) => key.startsWith(`${root}:symbol:declarations:`) && epoch === previousEpoch).length}`);
   if (indexingMode !== 'onDemand' || activeIndexing || documents.get(document.uri) !== document
     || workspace.source(document.uri) !== document.getText() || (projectEpochs.get(root) ?? 0) !== previousEpoch + 1) return;
   // A complete scan has covered unchanged files. The open file is fully updated
@@ -2857,13 +2856,14 @@ async function methodCandidatePathsUnchanged(workspace: SemanticWorkspace, root:
   if (!project || !evidence || evidence.root !== root || evidence.key !== key
     || evidence.epoch !== (projectEpochs.get(root) ?? 0) || cancelled()) return false;
   const searchStarted = performance.now();
-  const current = referenceRipgrepMode === 'portable'
-    ? await portableCandidatePaths(projectAutoloadPaths(project), normalizedNames, project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles))
+  const current = referenceRipgrepMode === 'portable' ? undefined
     : await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg', false, 1);
+  const candidates = current ?? await portableCandidatePaths(projectAutoloadPaths(project), normalizedNames,
+    project, () => !cancelled(), Math.max(50_000, indexLimits.maxFiles));
   recordTestQueryDuration('methodReferenceFreshnessSearch', searchStarted);
-  if (!current || current.paths.size > 256 || cancelled()) return false;
+  if (!candidates || candidates.paths.size > 256 || cancelled()) return false;
   const hashStarted = performance.now();
-  for (const path of current.paths) {
+  for (const path of candidates.paths) {
     if (cancelled()) return false;
     const hash = evidence.reads.get(path);
     if (!hash) return false;
@@ -2878,7 +2878,7 @@ async function methodCandidatePathsUnchanged(workspace: SemanticWorkspace, root:
     const uri = indexedUriForPath(root, path);
     if (documents.get(uri)) continue;
     const source = workspace.source(uri)?.toLowerCase();
-    if (source && normalizedNames.some((name) => source.includes(name)) && !current.paths.has(path)) return false;
+    if (source && normalizedNames.some((name) => source.includes(name)) && !candidates.paths.has(path)) return false;
   }
   recordTestQueryDuration('methodReferenceFreshnessTotal', checkStarted);
   return !cancelled() && evidence.epoch === (projectEpochs.get(root) ?? 0);
@@ -3147,7 +3147,6 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
-  if (testMode) connection.console.info(`[candidate-scan-result] projectComplete=${scan.projectComplete} complete=${scan.complete} cancelled=${cancelled()} epoch=${epoch}->${projectEpochs.get(root) ?? 0}`);
   if (!(includeDependencies ? scan.complete : scan.projectComplete) || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     recordTestQueryDuration('candidateEpochRetry', scanBegan);
