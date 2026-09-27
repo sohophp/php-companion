@@ -2,7 +2,7 @@
 
 日期：2026-09-27。本文是当前执行入口；历史报告保留当时的候选与测试结果。只核对 SoPHP 仓库和独立 Composer 夹具，不修改业务项目。
 
-交付顺序已收紧为[稳定版优先的执行计划](../stability-first-delivery.md)：先冻结可用范围并完成真实安装验收，再改善高频体验，最后关闭 R4 全部范围。[首轮基线](stability-first-baseline-2026-09-27.md)已通过源码与 Core/Symfony 打包宿主门禁，完整组合及真实 WSL Remote 仍待验收。
+交付顺序已收紧为[稳定版优先的执行计划](../stability-first-delivery.md)：先冻结可用范围并完成真实安装验收，再改善高频体验，最后关闭 R4 全部范围。[最新候选门禁](stability-first-candidate-gate-2026-09-27.md)已通过源码、24 个组件包、完整 10 项 Pack 与 C3 打包宿主；真实 WSL 编辑器和新源码的跨平台 CI 仍待验收。
 
 ## 当前决定
 
