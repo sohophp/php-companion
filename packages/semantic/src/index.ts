@@ -478,7 +478,7 @@ function symbolImportCompletion(source: string, offset: number): {
   kind: 'function' | 'const'; qualifier: string; prefix: string; replacementStart?: number; replacementEnd?: number;
 } | undefined {
   const before = source.slice(0, offset);
-  const group = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
+  const group = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
   if (group) {
     const member = group[3]!.split(',').at(-1)!.trimStart();
     const mixed = group[1] ? undefined : /^(function|const)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(member);
@@ -498,7 +498,7 @@ function symbolImportCompletion(source: string, offset: number): {
       }
     }
   }
-  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(before);
+  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(before);
   if (!match) return undefined;
   const segments = (match[2] ?? '').replace(/^\\/u, '').split('\\');
   const prefix = segments.pop()!;
@@ -510,8 +510,8 @@ function symbolImportCompletion(source: string, offset: number): {
 function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
   if (symbolImportCompletion(source, offset) !== undefined) return true;
   const before = source.slice(0, offset);
-  return /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/u.test(before)
-    || /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/u.test(before);
+  return /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/u.test(before)
+    || /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/u.test(before);
 }
 
 function isCatchTypeCompletion(source: string, offset: number): boolean {

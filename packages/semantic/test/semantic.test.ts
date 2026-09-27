@@ -5423,6 +5423,28 @@ function useNames(): void {
     }
     project.dispose();
   });
+  it('recognizes function and constant imports in one-line bracketed namespaces', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      for (const [source, kind, prefix, grouped] of [
+        ['<?php namespace App { use function Vendor\\crea', 'function', 'crea', false],
+        ['<?php namespace App { use const Vendor\\api_', 'const', 'api_', false],
+        ['<?php namespace App { use function Vendor\\{crea', 'function', 'crea', true],
+        ['<?php namespace { use Vendor\\{const api_', 'const', 'api_', true],
+      ] as const) {
+        const uri = `file:///BracketedSymbolImport-${kind}-${grouped}.php`;
+        project.update(uri, source);
+        expect(project.symbolImportContext(uri, source.length), source).toEqual({
+          kind, qualifier: 'Vendor', prefix,
+          ...(grouped ? { replacementStart: source.lastIndexOf('{'), replacementEnd: source.length } : {}),
+        });
+      }
+      const alias = '<?php namespace App { use function Vendor\\createInvoice as cre';
+      project.update('file:///BracketedSymbolAlias.php', alias);
+      expect(project.symbolImportContext('file:///BracketedSymbolAlias.php', alias.length)).toBeUndefined();
+      expect(project.completeFunctions('file:///BracketedSymbolAlias.php', alias.length)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('ranks same-namespace, imported, global, and namespace-near function completions deterministically', () => {
     workspace.update('file:///RankedFunctionLocal.php', '<?php namespace RankedFunction\\Controller\\Admin; function ranked_function_local(): void {}');
     workspace.update('file:///RankedFunctionNear.php', '<?php namespace RankedFunction\\Controller; function ranked_function_near(): void {}');

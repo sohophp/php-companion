@@ -10490,6 +10490,10 @@ echo ranked_lsp_over;`;
         [131, '<?php namespace App; use function Vendor\\{Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
         [132, '<?php namespace App; use const Vendor\\{Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
         [133, '<?php namespace App; use Vendor\\{function api_helper, const Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
+        [11534, '<?php namespace App { use function Vendor\\crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [11535, '<?php namespace App { use const Vendor\\api_', 'API_KEY', 'api_', 'api_helper'],
+        [11536, '<?php namespace App { use function Vendor\\{crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [11537, '<?php namespace { use Vendor\\{const api_', 'API_KEY', 'api_', 'api_helper'],
       ] as const;
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -10516,7 +10520,8 @@ echo ranked_lsp_over;`;
         const matching = items.filter((item: { label: string }) => item.label === expected);
         expect(matching).toHaveLength(1);
         expect(matching[0]?.additionalTextEdits).toBeUndefined();
-        const groupStart = source.indexOf('{');
+        const groupOpener = source.indexOf('\\{', source.indexOf('use '));
+        const groupStart = groupOpener === -1 ? -1 : groupOpener + 1;
         const replacementStart = groupStart === -1 ? offset - prefix.length : groupStart;
         const replacementEnd = groupStart !== -1 && source[offset] === '}' ? offset + 1 : offset;
         const newText = groupStart === -1 ? expected
@@ -10532,6 +10537,7 @@ echo ranked_lsp_over;`;
         [128, '<?php namespace App; use Vendor\\{const API_KEY as api', 'API_KEY'],
         [129, '<?php namespace App; use function Vendor\\createInvoice as crea', 'createInvoice'],
         [130, '<?php namespace App; use const Vendor\\API_KEY as api', 'API_KEY'],
+        [11538, '<?php namespace App { use function Vendor\\createInvoice as crea', 'createInvoice'],
       ] as const) {
         const uri = pathToFileURL(join(root, 'src', `AliasConsumer-${id}.php`)).toString();
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
