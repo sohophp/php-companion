@@ -1,6 +1,6 @@
 # SoPHP 核心功能后续计划
 
-2026-09-27 当前交付点：[SoPHP 0.4.11 发布门禁](reports/sophp-0411-release-gate-2026-09-27.md)。Core、Symfony 与 10 项 Open Source Pack 已作为同一版本公开发布；Linux、Windows、macOS 的源码与扩展宿主矩阵及标签构建门禁通过。真实 WSL Remote Profile 的安装、宿主位置和完整操作链仍待验收；日常增量不重复打包。[当前 Pack 整理和 Core 起点](reports/open-source-pack-current-priority-2026-09-27.md)是执行入口。下方较早的候选与 Redo 描述保留为阶段记录。
+2026-09-27 当前交付点：[SoPHP 0.4.12 发布门禁](reports/sophp-0412-release-gate-2026-09-27.md)。Core、Symfony 与 10 项 Open Source Pack 已作为同一版本公开发布；Linux、Windows、macOS 的源码与扩展宿主矩阵及标签构建门禁通过。真实 WSL Remote Profile 的安装、宿主位置和完整操作链仍待验收；日常增量不重复打包。[当前 Pack 整理和 Core 起点](reports/open-source-pack-current-priority-2026-09-27.md)是执行入口。下方较早的候选与 Redo 描述保留为阶段记录。
 
 日期：2026-09-24。本文按用户在 VS Code 中完成 PHP 工作的顺序组织 C1–C4；[长期工程路线图](roadmap.md)记录 P0–P9 的技术任务，[最终验收](acceptance.md)记录 F01–F14 的门槛，实际完成情况以[实施状态](status.md)和测试报告为准。
 
