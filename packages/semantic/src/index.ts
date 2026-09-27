@@ -474,7 +474,9 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
   return { qualifier: segments.join('\\'), prefix };
 }
 
-function symbolImportCompletion(source: string, offset: number): { kind: 'function' | 'const'; qualifier: string; prefix: string } | undefined {
+function symbolImportCompletion(source: string, offset: number): {
+  kind: 'function' | 'const'; qualifier: string; prefix: string; replacementStart?: number; replacementEnd?: number;
+} | undefined {
   const before = source.slice(0, offset);
   const group = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
   if (group) {
@@ -490,7 +492,9 @@ function symbolImportCompletion(source: string, offset: number): { kind: 'functi
         && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
         && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) {
         const qualifier = [base, ...segments].join('\\');
-        return { kind: kind as 'function' | 'const', qualifier, prefix };
+        const replacementStart = before.lastIndexOf('{');
+        const replacementEnd = source[offset] === '}' ? offset + 1 : offset;
+        return { kind: kind as 'function' | 'const', qualifier, prefix, replacementStart, replacementEnd };
       }
     }
   }
@@ -3809,7 +3813,9 @@ export class SemanticWorkspace {
     return namespaceImportCompletion(file.source, offset);
   }
 
-  symbolImportContext(uri: string, offset: number): { kind: 'function' | 'const'; qualifier: string; prefix: string } | undefined {
+  symbolImportContext(uri: string, offset: number): {
+    kind: 'function' | 'const'; qualifier: string; prefix: string; replacementStart?: number; replacementEnd?: number;
+  } | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
       || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;

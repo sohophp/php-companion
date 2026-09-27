@@ -28,6 +28,7 @@ import {
   type Diagnostic,
   type InitializeResult,
   type InitializeParams,
+  type TextEdit,
   type TypeHierarchyItem,
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -6161,6 +6162,15 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const allSymbols = symbolImport.kind === 'function' ? workspace.workspaceFunctions() : workspace.workspaceConstants();
     const qualifier = symbolImport.qualifier.toLowerCase();
     const prefix = symbolImport.prefix.toLowerCase();
+    const source = document.getText();
+    const groupedFilterText = symbolImport.replacementStart === undefined ? undefined
+      : source.slice(symbolImport.replacementStart, symbolImport.replacementEnd ?? offset);
+    const importCompletionEdit = (name: string): TextEdit => symbolImport.replacementStart === undefined
+      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
+        newText: name }
+      : { range: { start: document.positionAt(symbolImport.replacementStart),
+        end: document.positionAt(symbolImport.replacementEnd ?? offset) },
+        newText: `${source.slice(symbolImport.replacementStart, offset - symbolImport.prefix.length)}${name}${symbolImport.replacementEnd === offset + 1 ? '}' : ''}` };
     const names = new Map<string, string>();
     const symbols = allSymbols.flatMap((symbol) => {
       const parts = symbol.fqcn.split('\\'); const name = parts.pop()!;
@@ -6176,16 +6186,16 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       label: `${name}\\`, kind: CompletionItemKind.Module,
       detail: `${symbolImport.qualifier ? `${symbolImport.qualifier}\\` : ''}${name}\\`,
       sortText: `0${String(index).padStart(6, '0')}`,
-      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
-        newText: `${name}\\` },
+      filterText: groupedFilterText,
+      textEdit: importCompletionEdit(`${name}\\`),
     }));
     const candidates = symbols.map((symbol, index) => ({
       label: symbol.name,
       kind: symbolImport.kind === 'function' ? CompletionItemKind.Function : CompletionItemKind.Constant,
       detail: symbol.fqcn,
       sortText: `1${String(index).padStart(6, '0')}`,
-      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
-        newText: symbol.name },
+      filterText: groupedFilterText,
+      textEdit: importCompletionEdit(symbol.name),
     }));
     const items = [...modules, ...candidates].slice(0, 64);
     return complete && modules.length + candidates.length <= 64 ? items : { isIncomplete: true, items };

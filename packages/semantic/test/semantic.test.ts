@@ -5392,7 +5392,9 @@ function useNames(): void {
     ] as const) {
       const uri = `file:///GroupSymbolImport-${kind}-${source.length}.php`;
       project.update(uri, source);
-      expect(project.symbolImportContext(uri, source.length), source).toEqual({ kind, qualifier, prefix });
+      expect(project.symbolImportContext(uri, source.length), source).toEqual({
+        kind, qualifier, prefix, replacementStart: source.lastIndexOf('{'), replacementEnd: source.length,
+      });
       expect(project.completeFunctions(uri, source.length), source).toEqual([]);
       expect(project.completeConstants(uri, source.length), source).toEqual([]);
     }

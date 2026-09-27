@@ -397,10 +397,54 @@ export async function run(): Promise<void> {
     if (kind.startsWith('group') || kind.startsWith('mixed')) {
       const selected = result.items.find((item) => item.label === expected)!;
       const range = selected.range instanceof vscode.Range ? selected.range : selected.range?.replacing;
-      assert.ok(range && document.getText(range) === 'c1_mix',
-        `SoPHP would replace more than the current member in the ${kind} import.`);
+      const groupStart = source.indexOf('{');
+      const expectedRange = source.slice(groupStart, offset + (source[offset] === '}' ? 1 : 0));
+      const expectedText = `${source.slice(groupStart, offset - 'c1_mix'.length)}${expected}${source[offset] === '}' ? '}' : ''}`;
+      assert.ok(range && document.getText(range) === expectedRange && selected.insertText === expectedText,
+        `SoPHP would damage a member or brace in the ${kind} import.`);
     }
   }
+  const nestedSymbolsFolder = vscode.Uri.joinPath(folder, 'Nested');
+  await vscode.workspace.fs.createDirectory(nestedSymbolsFolder);
+  const nestedSymbolsUri = vscode.Uri.joinPath(nestedSymbolsFolder, 'C1NestedSymbols.php');
+  await vscode.workspace.fs.writeFile(nestedSymbolsUri, Buffer.from(
+    '<?php namespace App\\C1\\Nested; function c1_nested_function(): void {} const C1_NESTED_CONSTANT = 1;',
+  ));
+  await vscode.workspace.openTextDocument(nestedSymbolsUri);
+  const groupedFunctionSource = '<?php namespace App\\C1; use function App\\C1\\{Nes}; class GroupedFunctionConsumer {}';
+  const groupedFunctionUri = vscode.Uri.joinPath(folder, 'C1GroupedFunctionConsumer.php');
+  await vscode.workspace.fs.writeFile(groupedFunctionUri, Buffer.from(groupedFunctionSource));
+  const groupedFunctionDocument = await vscode.workspace.openTextDocument(groupedFunctionUri);
+  const groupedFunctionEditor = await vscode.window.showTextDocument(groupedFunctionDocument);
+  const groupedFunctionOffset = groupedFunctionSource.indexOf('Nes}') + 'Nes'.length;
+  const groupedFunctionCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupedFunctionUri,
+      groupedFunctionDocument.positionAt(groupedFunctionOffset)),
+    (result) => result?.items.some((item) => item.label === 'Nested\\'
+      && item.detail === 'App\\C1\\Nested\\' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not suggest a namespace inside a function group use.',
+  );
+  const groupedFunctionItem = groupedFunctionCompletion.items.find((item) => item.label === 'Nested\\')!;
+  const groupedFunctionRange = groupedFunctionItem.range instanceof vscode.Range
+    ? groupedFunctionItem.range : groupedFunctionItem.range?.replacing;
+  assert.ok(groupedFunctionRange && groupedFunctionDocument.getText(groupedFunctionRange) === '{Nes}'
+    && groupedFunctionItem.insertText === '{Nested\\}',
+  'The function group namespace suggestion would change the braces.');
+  groupedFunctionEditor.selection = new vscode.Selection(groupedFunctionDocument.positionAt(groupedFunctionOffset),
+    groupedFunctionDocument.positionAt(groupedFunctionOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(groupedFunctionDocument.getText(), groupedFunctionSource.replace('{Nes}', '{Nested\\}'),
+    'Accepting the function group namespace suggestion changed the braces or other source text.');
+  const groupedFunctionText = groupedFunctionDocument.getText();
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupedFunctionUri,
+      groupedFunctionDocument.positionAt(groupedFunctionText.indexOf('Nested\\}') + 'Nested\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'c1_nested_function') === true,
+    'SoPHP did not continue with function completion after accepting the group namespace.',
+  );
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',
     'PHP variable suggestions should come from SoPHP with PHP scope ownership.');

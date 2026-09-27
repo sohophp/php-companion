@@ -7,6 +7,7 @@
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
 - **使用同版本组合。** [0.4.12 发布版本](sophp-0412-release-gate-2026-09-27.md)的 Core、Symfony、Pack 三份 VSIX 已公开；标签构建及跨平台自动门禁通过。旧 0.4.9 私有候选仍是历史测试记录，不代表当前窗口已切到 0.4.12。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；真实 WSL Remote 操作链仍属 C4 验收。
 - **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
+- **日常增量不打包发布。** 源码改动用定向测试和本地提交收口；达到需要安装验收的阶段后，再集中生成候选 VSIX。只有候选通过发布门禁并确有交付需要时才更新版本与发布。
 
 发布后 C3 审计发现并修复了[Safe Move 在多个 namespace 或别名间误删导入](c3-safe-move-import-scope-2026-09-27.md)的风险。此项已进入 0.4.11，同次打包宿主和跨平台门禁均通过。
 
@@ -17,6 +18,8 @@ C1 普通表达式中[同前缀函数和常量的合并补全](c1-function-const
 0.4.11 发布后的[分组函数与常量导入补全](c1-grouped-symbol-import-completion-2026-09-27.md)已覆盖同类与混合 `use`、逗号后当前成员、子命名空间以及已有闭合大括号的编辑范围，并抑制别名输入时的表达式建议。完整语义、独立 Composer 真实 LSP 和 C1 源码宿主通过；这一增量及[分组类导入子命名空间补全](c1-nested-class-group-import-completion-2026-09-27.md)已进入公开的 0.4.12。
 
 0.4.12 发布后的[分组类导入子命名空间建议](c1-grouped-namespace-completion-2026-09-27.md)补齐 `{Ope}` → `{Operations\}` → 类名的连续输入链。独立 Composer 真实 LSP、逗号后成员编辑范围和 C1 源码宿主实际接受建议均通过；这是尚未打包的源码增量。
+
+[分组函数与常量导入的实际接受建议](c1-grouped-symbol-import-acceptance-2026-09-27.md)也已在独立 C1 源码宿主验证：子命名空间建议保留大括号，并能继续补全组内函数。普通导入不改变编辑范围；此项仍为未打包的源码增量。
 
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 

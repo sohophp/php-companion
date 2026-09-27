@@ -10455,6 +10455,9 @@ echo ranked_lsp_over;`;
         [124, '<?php namespace App; use Vendor\\{function Nested\\crea', 'createNested', 'crea', 'NESTED_FLAG'],
         [125, '<?php namespace App; use Vendor\\{function Nest', 'Nested\\', 'Nest', undefined],
         [126, '<?php namespace App; use function Vendor\\{crea}; class Consumer {}', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [131, '<?php namespace App; use function Vendor\\{Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
+        [132, '<?php namespace App; use const Vendor\\{Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
+        [133, '<?php namespace App; use Vendor\\{function api_helper, const Nest}; class Consumer {}', 'Nested\\', 'Nest', undefined],
       ] as const;
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -10481,9 +10484,15 @@ echo ranked_lsp_over;`;
         const matching = items.filter((item: { label: string }) => item.label === expected);
         expect(matching).toHaveLength(1);
         expect(matching[0]?.additionalTextEdits).toBeUndefined();
+        const groupStart = source.indexOf('{');
+        const replacementStart = groupStart === -1 ? offset - prefix.length : groupStart;
+        const replacementEnd = groupStart !== -1 && source[offset] === '}' ? offset + 1 : offset;
+        const newText = groupStart === -1 ? expected
+          : `${source.slice(groupStart, offset - prefix.length)}${expected}${replacementEnd === offset + 1 ? '}' : ''}`;
         expect(matching[0]?.textEdit).toEqual({ range: {
-          start: lspPosition(source, offset - prefix.length), end: lspPosition(source, offset),
-        }, newText: expected });
+          start: lspPosition(source, replacementStart), end: lspPosition(source, replacementEnd),
+        }, newText });
+        if (groupStart !== -1) expect(matching[0]?.filterText).toBe(source.slice(groupStart, replacementEnd));
         if (excluded) expect(items.map((item: { label: string }) => item.label)).not.toContain(excluded);
       }
       for (const [id, source, excluded] of [
