@@ -5027,6 +5027,19 @@ class C1AttributePlain { #[\\Attribute] public function run(): void {} }`;
       expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual([
         'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
       ]);
+      for (const grouped of [
+        '<?php namespace App; #[\\Domain\\C1AttributeAlias, C1Attribute] class Consumer {}',
+        '<?php namespace App; #[\\Domain\\C1AttributeAlias(1, 2), C1Attribute',
+        '<?php namespace App; #[\\Domain\\C1AttributeAlias, /* next */ C1Attribute] class Consumer {}',
+        '<?php namespace App; #[\\Domain\\C1AttributeAlias, \\Domain\\C1Attribute] class Consumer {}',
+      ]) {
+        project.update(uri, grouped);
+        const offset = grouped.lastIndexOf('C1Attribute') + 'C1Attribute'.length;
+        expect(project.completeTypes(uri, offset).map((item) => item.fqcn), grouped).toEqual([
+          'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
+        ]);
+      }
+      project.update(uri, source);
       project.updateDeclarations('file:///AttributeCandidates.php', declarations.replace(
         '#[\\Attribute] class C1AttributeQualified', 'class C1AttributeQualified'));
       expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual(['Domain\\C1AttributeAlias']);

@@ -3817,6 +3817,39 @@ export class SemanticWorkspace {
     return undefined;
   }
 
+  private groupedAttributeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string } | undefined {
+    const before = file.source.slice(0, offset);
+    let start = before.length;
+    while (start > 0 && /[\\A-Za-z0-9_\x80-\xff]/u.test(before[start - 1]!)) start -= 1;
+    const token = before.slice(start);
+    if (!/^(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)*[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$|^$/u.test(token)) return undefined;
+    const marker = before.lastIndexOf('#[', start);
+    const triviaRanges = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+    if (marker < 0 || triviaRanges.some((range) => range.start <= marker && marker < range.end))
+      return undefined;
+    let parentheses = 0; let brackets = 0; let lastComma = -1; let nonTriviaSinceComma = false;
+    let triviaIndex = 0;
+    for (let index = marker + 2; index < start; index += 1) {
+      while (triviaIndex < triviaRanges.length && triviaRanges[triviaIndex]!.end <= index) triviaIndex += 1;
+      const range = triviaRanges[triviaIndex];
+      const trivia = range && range.start <= index && index < range.end ? range : undefined;
+      if (trivia) { index = trivia.end - 1; continue; }
+      const char = before[index];
+      if (char === '(') parentheses += 1;
+      else if (char === ')') { if (!parentheses) return undefined; parentheses -= 1; }
+      else if (char === '[') brackets += 1;
+      else if (char === ']') { if (!brackets) return undefined; brackets -= 1; }
+      else if (char === ',' && !parentheses && !brackets) { lastComma = index; nonTriviaSinceComma = false; }
+      else if (char === ';' && !parentheses && !brackets) return undefined;
+      if (lastComma >= 0 && index !== lastComma && char && !/\s/u.test(char)) nonTriviaSinceComma = true;
+    }
+    if (parentheses || brackets || lastComma < 0 || nonTriviaSinceComma) return undefined;
+    const separator = token.lastIndexOf('\\');
+    if (separator < 0) return { prefix: token };
+    const namespace = this.resolveSourceType(file, token.slice(0, separator), this.namespaceAt(file, offset));
+    return namespace === undefined ? undefined : { prefix: token.slice(separator + 1), namespace };
+  }
+
   private isAttributeClass(file: SemanticFile, declaration: ParsedDeclaration): boolean {
     if (declaration.kind !== 'class') return false;
     if (file.uri.startsWith('php-companion-builtin:')) return BUILTIN_ATTRIBUTE_CLASSES.has(declaration.fqcn.toLowerCase());
@@ -3906,9 +3939,12 @@ export class SemanticWorkspace {
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
     const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
-    const prefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const groupedAttribute = docContext || traitContext || importContext ? undefined : this.groupedAttributeCompletion(file, offset);
+    const prefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? groupedAttribute?.prefix
+      ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (prefix === undefined) return undefined;
-    const namespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
+    const namespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier
+      ?? groupedAttribute?.namespace ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
     return { prefix, namespace, importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
       && item.namespace === namespace && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
     ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
@@ -3924,14 +3960,18 @@ export class SemanticWorkspace {
     const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
     const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
-    const contextPrefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const groupedAttribute = docContext || traitContext || importContext ? undefined : this.groupedAttributeCompletion(file, offset);
+    const contextPrefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? groupedAttribute?.prefix
+      ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const inheritanceKind = docContext || traitContext || importContext ? undefined : this.inheritanceTypeCompletionKind(file, offset);
-    const constructKind = docContext || traitContext || importContext ? undefined : this.constructTypeCompletionKind(file, offset);
+    const constructKind = docContext || traitContext || importContext ? undefined
+      : groupedAttribute ? 'attribute' : this.constructTypeCompletionKind(file, offset);
     const attributeTarget = constructKind === 'attribute' ? this.attributeTargetAt(uri, file, offset) : undefined;
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
-    const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
+    const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier
+      ?? groupedAttribute?.namespace ?? qualifiedContext?.namespace;
     const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
     const importedVisible = new Map<string, string>();
     const importAliases = new Map<string, string>();

@@ -1123,6 +1123,28 @@ class C1ConstructionPositions {
     assert.ok(!suggestions.items.some((item) => item.label === rejected),
       `SoPHP suggested ${rejected} at the wrong Attribute target.`);
   }
+  const groupedSource = `<?php namespace App\\C1;
+#[\\App\\C1\\External\\C1TargetAll, C1Target] class C1GroupedTargetConsumer {
+  #[\\App\\C1\\External\\C1TargetAll, C1Target] public function run(): void {}
+}`;
+  const groupedUri = vscode.Uri.joinPath(folder, 'C1GroupedTargetConsumer.php');
+  await vscode.workspace.fs.writeFile(groupedUri, Buffer.from(groupedSource));
+  const groupedDocument = await vscode.workspace.openTextDocument(groupedUri);
+  await vscode.window.showTextDocument(groupedDocument);
+  for (const [at, expected, rejected] of [
+    [groupedSource.indexOf(', C1Target'), 'C1TargetClass', 'C1TargetMethod'],
+    [groupedSource.lastIndexOf(', C1Target'), 'C1TargetMethod', 'C1TargetClass'],
+  ] as const) {
+    const suggestions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupedUri,
+        groupedDocument.positionAt(at + ', C1Target'.length)),
+      (result) => result?.items.some((item) => item.label === expected) === true,
+      `SoPHP omitted ${expected} as the second name in an Attribute group.`,
+    );
+    assert.ok(suggestions.items.some((item) => item.label === 'C1TargetAll'), 'Grouped Attribute omitted the default target.');
+    assert.ok(!suggestions.items.some((item) => item.label === rejected),
+      `Grouped Attribute suggested ${rejected} at the wrong target.`);
+  }
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));
