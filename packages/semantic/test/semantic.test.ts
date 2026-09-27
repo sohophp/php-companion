@@ -5011,6 +5011,37 @@ TXT;
       expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), source).toEqual(expected);
     }
   });
+  it('suggests only proven attribute classes at an attribute name', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      const declarations = `<?php namespace Domain;
+use Attribute as BuiltinAttribute;
+#[BuiltinAttribute] class C1AttributeAlias {}
+#[\\Attribute] class C1AttributeQualified {}
+#[\\Other] class C1AttributeWrong {}
+class C1AttributePlain { #[\\Attribute] public function run(): void {} }`;
+      project.updateDeclarations('file:///AttributeCandidates.php', declarations);
+      const uri = 'file:///AttributeUse.php';
+      const source = '<?php namespace App; #[C1Attribute';
+      project.update(uri, source);
+      expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual([
+        'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
+      ]);
+      project.updateDeclarations('file:///AttributeCandidates.php', declarations.replace(
+        '#[\\Attribute] class C1AttributeQualified', 'class C1AttributeQualified'));
+      expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual(['Domain\\C1AttributeAlias']);
+      project.updateDeclarations('file:///AttributeCandidates.php', declarations);
+      expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual([
+        'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
+      ]);
+      project.updateDeclarations('php-companion-builtin:/attribute-candidates.php', '<?php class Deprecated {} class stdClass {}');
+      for (const [prefix, expected] of [['Dep', ['Deprecated']], ['std', []]] as const) {
+        const builtins = `<?php namespace App; #[${prefix}`;
+        project.update(uri, builtins);
+        expect(project.completeTypes(uri, builtins.length).map((item) => item.fqcn)).toEqual(expected);
+      }
+    } finally { project.dispose(); }
+  });
   it('completes qualified native type names without adding an import', () => {
     workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
     workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');
@@ -5211,13 +5242,19 @@ function useNames(): void {
     ]);
     expect(candidates.map((item) => Boolean(item.importFqfn))).toEqual([false, false, false, true, true, true]);
   });
-  it('offers types in parameter, return, property, catch and attribute positions only', () => {
-    workspace.update('file:///RemoteType.php', '<?php namespace Domain; class Invoice {}');
-    for (const fragment of ['function run(Inv', 'function run(): Inv', 'class C { public Inv', 'try {} catch (Inv', '#[Inv']) {
+  it('offers types in parameter, return, property and catch positions while requiring a real attribute class', () => {
+    workspace.update('file:///RemoteType.php', '<?php namespace Domain; class Invoice {} #[\\Attribute] class InvoiceAttribute {}');
+    for (const fragment of ['function run(Inv', 'function run(): Inv', 'class C { public Inv', 'try {} catch (Inv']) {
       const source = `<?php namespace App; ${fragment}`;
       workspace.update(`file:///Context-${fragment.length}.php`, source);
       expect(workspace.completeTypes(`file:///Context-${fragment.length}.php`, source.length).map((item) => item.name)).toContain('Invoice');
     }
+    const attribute = '<?php namespace App; #[Inv';
+    workspace.update('file:///AttributeContext.php', attribute);
+    expect(workspace.completeTypes('file:///AttributeContext.php', attribute.length).map((item) => item.name))
+      .toEqual(expect.arrayContaining(['InvoiceAttribute']));
+    expect(workspace.completeTypes('file:///AttributeContext.php', attribute.length).map((item) => item.name))
+      .not.toContain('Invoice');
     const expression = '<?php namespace App; function run(): void { echo Inv';
     workspace.update('file:///NotAType.php', expression);
     expect(workspace.completeTypes('file:///NotAType.php', expression.length)).toEqual([]);

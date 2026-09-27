@@ -19,6 +19,7 @@ export interface ParsedDeclaration extends SourceRange {
   extendsNames: string[];
   implementsNames: string[];
   traitNames: string[];
+  attributeNames?: string[];
   traitAdaptations: ParsedTraitAdaptation[];
   readonlyClass: boolean;
   finalClass?: boolean;
@@ -317,6 +318,19 @@ function traitAdaptations(node: SyntaxNode): ParsedTraitAdaptation[] {
     }
     return [];
   });
+}
+
+function declarationAttributeNames(node: SyntaxNode): string[] {
+  const names: string[] = [];
+  for (const list of node.namedChildren.filter((child) => child.type === 'attribute_list')) {
+    for (const group of list.namedChildren) {
+      for (const attribute of group.namedChildren.filter((child) => child.type === 'attribute')) {
+        const name = attribute.childForFieldName('name') ?? attribute.namedChildren[0];
+        if (name) names.push(name.text);
+      }
+    }
+  }
+  return names;
 }
 
 let parserInitialization: Promise<void> | undefined;
@@ -1099,6 +1113,7 @@ export class PhpSyntaxParser {
             extendsNames: node.namedChildren.find((child) => child.type === 'base_clause')?.namedChildren.map((child) => child.text) ?? [],
             implementsNames: node.namedChildren.find((child) => child.type === 'class_interface_clause')?.namedChildren.map((child) => child.text) ?? [],
             traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
+            attributeNames: declarationAttributeNames(node),
             traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
             readonlyClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'readonly_modifier'),
             finalClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'final_modifier'),

@@ -365,6 +365,10 @@ export interface InaccessibleInstantiation extends SemanticLocation {
 export interface ConstructorParameterInfo extends SemanticLocation { ownerFqcn: string; name: string; parameterIndex?: number; typeFqcn: string; typeFqcns: string[]; typeGroups: string[][]; typeOperator?: 'union' | 'intersection' | 'dnf'; typeStart: number; typeEnd: number; explicitWiring: boolean; targetName?: string; requiredMethodName?: string; requiredPropertyName?: string; callableFqcn?: string; }
 export interface WorkspaceSymbolInfo extends SemanticLocation { name: string; container?: string; kind: 'class' | 'interface' | 'trait' | 'enum' | 'function' | 'method' | 'property' | 'constant'; }
 const BUILTIN_PARAMETER_TYPES = new Set(['array', 'bool', 'callable', 'false', 'float', 'int', 'iterable', 'mixed', 'never', 'null', 'object', 'string', 'true', 'void']);
+const BUILTIN_ATTRIBUTE_CLASSES = new Set([
+  'attribute', 'returntypewillchange', 'allowdynamicproperties', 'sensitiveparameter',
+  'override', 'deprecated', 'nodiscard', 'delayedtargetvalidation',
+]);
 const MAX_SEMANTIC_GRAPH_DEPTH = 64;
 const MAX_ASSERTED_TARGET_INFERENCE_DEPTH = 4;
 const MAX_LOCAL_CONTROL_FLOW_DEPTH = 16;
@@ -3797,14 +3801,23 @@ export class SemanticWorkspace {
     return undefined;
   }
 
-  private constructTypeCompletionKind(file: SemanticFile, offset: number): 'class' | 'instanceof' | undefined {
+  private constructTypeCompletionKind(file: SemanticFile, offset: number): 'class' | 'instanceof' | 'attribute' | undefined {
     const before = file.source.slice(0, offset);
     let start = before.length;
     while (start > 0 && /[\\A-Za-z0-9_\x80-\xff]/u.test(before[start - 1]!)) start -= 1;
     const keyword = before.slice(0, start).trimEnd();
-    if (/\bnew$/u.test(keyword) || keyword.endsWith('#[')) return 'class';
+    if (/\bnew$/u.test(keyword)) return 'class';
+    if (keyword.endsWith('#[')) return 'attribute';
     if (/\binstanceof$/u.test(keyword)) return 'instanceof';
     return undefined;
+  }
+
+  private isAttributeClass(file: SemanticFile, declaration: ParsedDeclaration): boolean {
+    if (declaration.kind !== 'class') return false;
+    if (file.uri.startsWith('php-companion-builtin:')) return BUILTIN_ATTRIBUTE_CLASSES.has(declaration.fqcn.toLowerCase());
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    return declaration.attributeNames?.some((name) =>
+      this.resolveSourceType(file, name, namespace, declaration.fqcn)?.toLowerCase() === 'attribute') ?? false;
   }
 
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
@@ -3905,6 +3918,7 @@ export class SemanticWorkspace {
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);
       const name = qualifiedNamespace !== undefined ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
       if (!name.toLowerCase().startsWith(prefix)) continue;
+      if (constructKind === 'attribute' && !this.isAttributeClass(owner, candidate)) continue;
       const collision = localFqcn(candidate.name.toLowerCase()) ?? importedVisible.get(candidate.name.toLowerCase());
       if (qualifiedNamespace === undefined && !visibleName && collision && collision.toLowerCase() !== candidateKey) continue;
       results.push({ uri: owner.uri, start: candidate.start, end: candidate.end, name, fqcn: candidate.fqcn, kind: candidate.kind,

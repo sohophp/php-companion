@@ -1045,6 +1045,10 @@ function useCommented(mixed $value): never { return new never(); }`;
     await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, `C1Inheritance${suffix}.php`),
       Buffer.from(`<?php namespace App\\C1\\External; ${kind === 'class' ? '#[\\Attribute] ' : ''}${kind} C1Inheritance${suffix} ${body}`));
   }
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, 'C1InheritancePlain.php'),
+    Buffer.from('<?php namespace App\\C1\\External; class C1InheritancePlain {}'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, 'C1InheritanceAlias.php'),
+    Buffer.from('<?php namespace App\\C1\\External; use Attribute as Marker; #[Marker] class C1InheritanceAlias {}'));
   const inheritanceSource = '<?php namespace App\\C1; class C1Child extends C1Inheritance {} class C1Adapter implements C1Inheritance {}';
   const inheritanceUri = vscode.Uri.joinPath(folder, 'C1InheritanceConsumer.php');
   await vscode.workspace.fs.writeFile(inheritanceUri, Buffer.from(inheritanceSource));
@@ -1079,7 +1083,8 @@ class C1ConstructionPositions {
   for (const [marker, allowed, rejected] of [
     ['new C1Inheritance', ['C1InheritanceClass'], ['C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
     ['instanceof C1Inheritance', ['C1InheritanceClass', 'C1InheritanceInterface', 'C1InheritanceEnum'], ['C1InheritanceTrait']],
-    ['#[C1Inheritance', ['C1InheritanceClass'], ['C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
+    ['#[C1Inheritance', ['C1InheritanceClass', 'C1InheritanceAlias'],
+      ['C1InheritancePlain', 'C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
   ] as const) {
     const suggestions = await waitForResult(
       () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructionUri,

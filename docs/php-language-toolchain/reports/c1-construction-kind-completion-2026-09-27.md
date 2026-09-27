@@ -6,4 +6,4 @@
 
 完整语义包 431/431、语义包 TypeScript、测试入口 TypeScript、改动文件 ESLint 和 `git diff --check` 通过。VS Code 1.139.1 Linux x64 的当前 10 项 Open Source Pack 源码宿主从未打开的 Composer PSR-4 类型取得上述位置的候选，排除错误声明种类；最终宿主退出码 0，日志 `/tmp/sophp-c1-construction-pack10-final-20260927.log`。
 
-Attribute 位置目前只证明声明种类是 class，尚未进一步筛选 `#[Attribute]` 标记；宿主夹具使用真正带该标记的类。本修复在 0.4.8 私有候选冻结后，尚未进入该 VSIX。真实 WSL Remote、其它平台及 R4 其余验收继续开放。
+本报告记录当时仅按 class 种类筛选的状态；随后 [Attribute 类身份筛选](c1-attribute-class-completion-2026-09-27.md) 已进一步排除未标记的普通 class。本修复在 0.4.8 私有候选冻结后，尚未进入该 VSIX。真实 WSL Remote、其它平台及 R4 其余验收继续开放。

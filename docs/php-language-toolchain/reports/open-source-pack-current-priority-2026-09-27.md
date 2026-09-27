@@ -12,7 +12,7 @@
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。
 
-[创建、类型检查与 Attribute 候选种类](c1-construction-kind-completion-2026-09-27.md)进一步筛选 `new`、`instanceof` 和 Attribute 的声明种类，完整语义与 10 项 Pack C1 源码宿主通过；Attribute 标记证明、真实 Remote 及其它 C1/C2 操作链继续开放。
+[创建、类型检查与 Attribute 候选种类](c1-construction-kind-completion-2026-09-27.md)进一步筛选 `new`、`instanceof` 和 Attribute 的声明种类。随后 [Attribute 类身份筛选](c1-attribute-class-completion-2026-09-27.md) 在按需声明层保留类头标记，排除未标记的普通 class；解析器、语义和 10 项 Pack C1 源码宿主通过。目标位、重复使用与真实 Remote 仍待验收。
 
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
