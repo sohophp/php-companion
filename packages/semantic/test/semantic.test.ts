@@ -1445,13 +1445,14 @@ TXT;
     workspace.update('file:///InstantiationTargets.php', `<?php namespace Instantiate;
       interface Contract {} trait Shared {} enum State { case Ready; }
       abstract class AbstractBase {} class Concrete {}
+      #[Label("abstract")] class DecoratedConcrete {}
     `);
     workspace.update('file:///InstantiationDuplicateA.php', '<?php namespace Instantiate; interface Duplicate {}');
     workspace.update('file:///InstantiationDuplicateB.php', '<?php namespace Instantiate; class Duplicate {}');
     const source = `<?php namespace Instantiate;
       function build(): void {
         new Contract(); new Shared(); new State(); new AbstractBase();
-        new Concrete(); new Missing(); new Duplicate();
+        new Concrete(); new DecoratedConcrete(); new Missing(); new Duplicate();
       }
     `;
     workspace.update('file:///InvalidInstantiations.php', source);
@@ -5050,6 +5051,30 @@ TXT;
     expect(workspace.completeTypes(queryUri, query.length).map((item) => item.fqcn)).not.toContain('Domain\\ToggleCandidate');
     workspace.update(declarationUri, '<?php namespace Domain; class ToggleCandidate {}');
     expect(workspace.completeTypes(queryUri, query.length).map((item) => item.fqcn)).toContain('Domain\\ToggleCandidate');
+  });
+  it('keeps new completion to classes with an accessible proven constructor', () => {
+    const declarations = `<?php namespace CompletionVisibility;
+      class C1CtorPublic { public function __construct() {} }
+      class C1CtorPrivate { private function __construct() {} public static function make(): self { return new C1CtorPrivate(); } }
+      class C1CtorProtected { protected function __construct() {} }
+      class C1CtorChild extends C1CtorProtected { public function make(): C1CtorProtected { return new C1CtorProtected(); } }
+      class C1CtorUnknown extends MissingParent {}`;
+    const ownerUri = 'file:///CompletionVisibilityTypes.php';
+    workspace.update(ownerUri, declarations);
+    const uri = 'file:///CompletionVisibilityUse.php';
+    const global = '<?php namespace CompletionVisibility; new C1Ctor';
+    workspace.update(uri, global);
+    expect(workspace.completeTypes(uri, global.length).map((item) => item.fqcn)).toEqual([
+      'CompletionVisibility\\C1CtorPublic', 'CompletionVisibility\\C1CtorUnknown',
+    ]);
+    const privateOffset = declarations.indexOf('new C1CtorPrivate()') + 'new C1CtorPr'.length;
+    expect(workspace.completeTypes(ownerUri, privateOffset).map((item) => item.fqcn))
+      .toContain('CompletionVisibility\\C1CtorPrivate');
+    const childOffset = declarations.indexOf('new C1CtorProtected()') + 'new C1CtorPro'.length;
+    expect(workspace.completeTypes(ownerUri, childOffset).map((item) => item.fqcn))
+      .toContain('CompletionVisibility\\C1CtorProtected');
+    workspace.update(ownerUri, declarations.replace('private function __construct', 'public function __construct'));
+    expect(workspace.completeTypes(uri, global.length).map((item) => item.fqcn)).toContain('CompletionVisibility\\C1CtorPrivate');
   });
   it('suggests only proven attribute classes at an attribute name', () => {
     const project = new SemanticWorkspace(parser);

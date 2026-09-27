@@ -2989,7 +2989,7 @@ export class SemanticWorkspace {
     const results: MissingPropertyImplementation[] = [];
     for (const declaration of file.declarations.filter((item) => item.kind === 'class' && !item.anonymous)) {
       if (!this.hasCompleteHierarchy(declaration.fqcn)) continue;
-      const abstract = /\babstract\b/i.test(file.source.slice(declaration.declarationStart, declaration.start));
+      const abstract = declaration.abstractClass;
       if (abstract) continue;
       for (const requirement of this.ancestorPropertyDeclarations(declaration.fqcn).filter((item) => item.declaration.hooks?.some((hook) => hook.abstract))) {
         if (file.properties.some((property) => property.containerFqcn.toLowerCase() === declaration.fqcn.toLowerCase()
@@ -3509,7 +3509,7 @@ export class SemanticWorkspace {
       if (matches.length !== 1) return [];
       const target = matches[0]!; const kind = target.declaration.kind;
       const reason: InvalidInstantiation['reason'] | undefined = kind === 'interface' || kind === 'trait' || kind === 'enum' ? kind
-        : kind === 'class' && /\babstract\b/i.test(target.file.source.slice(target.declaration.declarationStart, target.declaration.start)) ? 'abstract-class' : undefined;
+        : kind === 'class' && target.declaration.abstractClass ? 'abstract-class' : undefined;
       return reason ? [{ uri, start: call.nameStart, end: call.nameEnd, target: fqcn, reason }] : [];
     });
   }
@@ -3522,6 +3522,24 @@ export class SemanticWorkspace {
       const matches = declarations.filter((candidate) => candidate.declaration.fqcn.toLowerCase() === fqcn.toLowerCase());
       return matches.length === 1 ? matches[0] : undefined;
     };
+    return file.calls.flatMap((call): InaccessibleInstantiation[] => {
+      if (call.kind !== 'constructor') return [];
+      const name = file.source.slice(call.nameStart, call.nameEnd);
+      const enclosingType = file.declarations.filter((item) => call.nameStart >= item.declarationStart && call.nameEnd <= item.declarationEnd)
+        .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0]?.fqcn;
+      const accessFrom = this.containingCallable(file, call.nameStart)?.containerFqcn ?? enclosingType;
+      const target = this.resolveSourceType(file, name, this.namespaceAt(file, call.nameStart), accessFrom); if (!target) return [];
+      const targetOwner = uniqueDeclaration(target);
+      if (!targetOwner || targetOwner.declaration.kind !== 'class' || targetOwner.declaration.abstractClass) return [];
+      const resolved = this.inaccessibleConstructorFor(target, accessFrom, uniqueDeclaration);
+      return resolved ? [{ uri, start: call.nameStart, end: call.nameEnd, target,
+        constructor: resolved.fqcn, visibility: resolved.visibility }] : [];
+    });
+  }
+
+  private inaccessibleConstructorFor(target: string, accessFrom: string | undefined,
+    uniqueDeclaration: (fqcn: string) => { file: SemanticFile; declaration: ParsedDeclaration } | undefined):
+    { fqcn: string; visibility: 'private' | 'protected' } | undefined {
     const constructor = (fqcn: string, visited = new Set<string>()): { file: SemanticFile; callable: ParsedCallableDeclaration } | null | undefined => {
       const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return undefined; visited.add(key);
       const owner = uniqueDeclaration(fqcn); if (!owner || owner.declaration.kind !== 'class') return undefined;
@@ -3541,25 +3559,14 @@ export class SemanticWorkspace {
       const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn);
       return Boolean(parent && completeClassChain(parent, visited));
     };
-    return file.calls.flatMap((call): InaccessibleInstantiation[] => {
-      if (call.kind !== 'constructor') return [];
-      const name = file.source.slice(call.nameStart, call.nameEnd);
-      const enclosingType = file.declarations.filter((item) => call.nameStart >= item.declarationStart && call.nameEnd <= item.declarationEnd)
-        .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0]?.fqcn;
-      const accessFrom = this.containingCallable(file, call.nameStart)?.containerFqcn ?? enclosingType;
-      const target = this.resolveSourceType(file, name, this.namespaceAt(file, call.nameStart), accessFrom); if (!target) return [];
-      const targetOwner = uniqueDeclaration(target);
-      if (!targetOwner || targetOwner.declaration.kind !== 'class'
-        || /\babstract\b/i.test(targetOwner.file.source.slice(targetOwner.declaration.declarationStart, targetOwner.declaration.start))) return [];
-      const resolved = constructor(target); if (!resolved || resolved.callable.visibility === 'public') return [];
-      const constructorOwner = resolved.callable.containerFqcn!;
-      if (resolved.callable.visibility === 'protected' && accessFrom
-        && (!completeClassChain(accessFrom) || !completeClassChain(constructorOwner))) return [];
-      const allowed = accessFrom && (accessFrom.toLowerCase() === constructorOwner.toLowerCase()
-        || this.isSubclassOf(accessFrom, constructorOwner) || this.isSubclassOf(constructorOwner, accessFrom));
-      if (resolved.callable.visibility === 'private' ? accessFrom?.toLowerCase() === constructorOwner.toLowerCase() : allowed) return [];
-      return [{ uri, start: call.nameStart, end: call.nameEnd, target, constructor: resolved.callable.fqcn, visibility: resolved.callable.visibility }];
-    });
+    const resolved = constructor(target); if (!resolved || resolved.callable.visibility === 'public') return undefined;
+    const constructorOwner = resolved.callable.containerFqcn!;
+    if (resolved.callable.visibility === 'protected' && accessFrom
+      && (!completeClassChain(accessFrom) || !completeClassChain(constructorOwner))) return undefined;
+    const allowed = accessFrom && (accessFrom.toLowerCase() === constructorOwner.toLowerCase()
+      || this.isSubclassOf(accessFrom, constructorOwner) || this.isSubclassOf(constructorOwner, accessFrom));
+    if (resolved.callable.visibility === 'private' ? accessFrom?.toLowerCase() === constructorOwner.toLowerCase() : allowed) return undefined;
+    return { fqcn: resolved.callable.fqcn, visibility: resolved.callable.visibility };
   }
 
   completeMembers(uri: string, offset: number): MemberInfo[] {
@@ -4022,6 +4029,7 @@ export class SemanticWorkspace {
       if (!importAliases.has(imported.fqcn.toLowerCase())) importAliases.set(imported.fqcn.toLowerCase(), imported.alias);
     }
     const declarations = new Map<string, { declaration: ParsedDeclaration; owner: SemanticFile; namespace: string }>();
+    const declarationCounts = new Map<string, number>();
     for (const owner of this.files.values()) {
       let prepared = this.typeCompletionFileEntries.get(owner);
       if (!prepared || prepared.declarations !== owner.declarations) {
@@ -4029,8 +4037,20 @@ export class SemanticWorkspace {
           .map((declaration) => ({ declaration, owner, namespace: declaration.fqcn.split('\\').slice(0, -1).join('\\') })) };
         this.typeCompletionFileEntries.set(owner, prepared);
       }
-      for (const entry of prepared.entries) declarations.set(entry.declaration.fqcn.toLowerCase(), entry);
+      for (const entry of prepared.entries) {
+        const key = entry.declaration.fqcn.toLowerCase();
+        declarations.set(key, entry);
+        if (constructKind === 'class') declarationCounts.set(key, (declarationCounts.get(key) ?? 0) + 1);
+      }
     }
+    const uniqueDeclaration = (fqcn: string): { file: SemanticFile; declaration: ParsedDeclaration } | undefined => {
+      const key = fqcn.toLowerCase(); const entry = declarations.get(key);
+      return entry && declarationCounts.get(key) === 1 ? { file: entry.owner, declaration: entry.declaration } : undefined;
+    };
+    const enclosingType = constructKind === 'class' ? file.declarations
+      .filter((item) => item.declarationStart <= offset && offset <= item.declarationEnd)
+      .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0]?.fqcn : undefined;
+    const accessFrom = constructKind === 'class' ? this.containingCallable(file, offset)?.containerFqcn ?? enclosingType : undefined;
     const localFqcn = (name: string): string | undefined => {
       const entry = declarations.get(`${namespace ? `${namespace}\\` : ''}${name}`.toLowerCase());
       return entry?.namespace === namespace ? entry.declaration.fqcn : undefined;
@@ -4052,6 +4072,7 @@ export class SemanticWorkspace {
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);
       const name = qualifiedNamespace !== undefined ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
       if (!name.toLowerCase().startsWith(prefix)) continue;
+      if (constructKind === 'class' && this.inaccessibleConstructorFor(candidate.fqcn, accessFrom, uniqueDeclaration)) continue;
       if (catchType && candidateKey !== 'throwable') {
         if (candidate.kind !== 'class') continue;
         if (!this.isSubtype(candidate.fqcn, 'Throwable') && this.hasCompleteHierarchy(candidate.fqcn)) continue;
@@ -6540,7 +6561,7 @@ export class SemanticWorkspace {
     const insertOffset = file.source.lastIndexOf('}', declaration.declarationEnd - 1);
     return insertOffset >= declaration.declarationStart ? {
       uri, classFqcn: declaration.fqcn, classStart: declaration.start, classEnd: declaration.end,
-      abstract: /\babstract\b/i.test(file.source.slice(declaration.declarationStart, declaration.start)), insertOffset, methods,
+      abstract: declaration.abstractClass, insertOffset, methods,
     } : undefined;
   }
 
@@ -6577,7 +6598,7 @@ export class SemanticWorkspace {
     const insertOffset = file.source.lastIndexOf('}', declaration.declarationEnd - 1);
     return insertOffset >= declaration.declarationStart ? {
       uri, classFqcn: declaration.fqcn, classStart: declaration.start, classEnd: declaration.end,
-      abstract: /\babstract\b/i.test(file.source.slice(declaration.declarationStart, declaration.start)), insertOffset, methods,
+      abstract: declaration.abstractClass, insertOffset, methods,
     } : undefined;
   }
 
@@ -6608,7 +6629,7 @@ export class SemanticWorkspace {
       .sort((left, right) => left.declarationEnd - left.declarationStart - (right.declarationEnd - right.declarationStart))[0];
     if (!declaration || !this.hasCompleteHierarchy(declaration.fqcn)) return undefined;
     const methodNames = new Set(this.members(declaration.fqcn, declaration.fqcn, new Set(), true).filter((item) => item.kind === 'method').map((item) => item.name.toLowerCase()));
-    const readonlyClass = /\breadonly\s+class\b/i.test(file.source.slice(declaration.declarationStart, declaration.start));
+    const readonlyClass = declaration.readonlyClass;
     const accessors = file.properties.filter((property) => property.containerFqcn === declaration.fqcn && !property.static && property.type
       && file.source.slice(property.declarationStart, property.declarationEnd).trimEnd().endsWith(';')).flatMap((property) => {
       const suffix = `${property.name.charAt(0).toUpperCase()}${property.name.slice(1)}`;
@@ -7635,7 +7656,7 @@ export class SemanticWorkspace {
     const property = file.properties.find((item) => item.promoted && offset >= item.start && offset <= item.end);
     const owner = property && this.fileAndDeclaration(property.containerFqcn);
     const closedPrivateOwner = Boolean(property?.visibility === 'private' && owner?.declaration.kind === 'class'
-      && /\bfinal\s+class\b/i.test(owner.file.source.slice(owner.declaration.declarationStart, owner.declaration.start)));
+      && owner.declaration.finalClass);
     if (!property || owner?.declaration.kind === 'trait'
       || (!closedPrivateOwner && !this.hasCompleteHierarchy(property.containerFqcn))) return undefined;
     const constructor = file.callables.find((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === property.containerFqcn.toLowerCase()

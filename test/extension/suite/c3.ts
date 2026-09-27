@@ -691,6 +691,25 @@ export async function run(): Promise<void> {
       'A rejected fallback unexpectedly created its PHP file');
   }
   console.log('C3 createFile fallback reconciled false and thrown applyEdit results with actual file contents');
+  if (process.env.PHP_COMPANION_TEST_C3_SPLIT_CREATE_REDO_PROBE === '1') {
+    const splitUri = vscode.Uri.joinPath(serviceDirectory, 'C3SplitCreateProbe.php');
+    const splitSource = '<?php class C3SplitCreateProbe {}\n';
+    const splitEdit = new vscode.WorkspaceEdit();
+    splitEdit.createFile(splitUri, { overwrite: false });
+    splitEdit.insert(splitUri, new vscode.Position(0, 0), splitSource);
+    assert.ok(await vscode.workspace.applyEdit(splitEdit), 'Split createFile probe failed to apply');
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(splitUri));
+    assert.strictEqual((await vscode.workspace.openTextDocument(splitUri)).getText(), splitSource);
+    await vscode.commands.executeCommand('undo');
+    await assert.rejects(async () => vscode.workspace.fs.stat(splitUri),
+      'Split createFile probe Undo did not remove the file');
+    await vscode.commands.executeCommand('redo');
+    const restored = await vscode.workspace.fs.readFile(splitUri)
+      .then((contents) => Buffer.from(contents).toString('utf8') === splitSource, () => false);
+    console.log(`C3 split createFile Redo: restored=${restored}`);
+    assert.ok(restored, 'Split createFile probe Redo did not restore its contents');
+    await vscode.workspace.fs.delete(splitUri);
+  }
   if (process.env.PHP_COMPANION_TEST_C3_STAGE_ONLY === '1') {
     console.log('C3 type generation stage-only gate passed');
     return;

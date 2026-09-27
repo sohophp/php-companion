@@ -1007,6 +1007,49 @@ function useCommented(mixed $value): never { return new never(); }`;
     'Project class completion was returned more than once.');
   assert.ok(!typeCompletion.items.some((item) => item.label === 'C1TypeCompletionPrototype'),
     'Construction completion suggested an abstract class.');
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'C1CtorPublicProbe.php'),
+    Buffer.from('<?php namespace App\\C1; class C1CtorPublicProbe { public function __construct() {} }'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'C1CtorPrivateProbe.php'),
+    Buffer.from('<?php namespace App\\C1; class C1CtorPrivateProbe { private function __construct() {} }'));
+  const constructorSource = '<?php namespace App\\C1; function create(): void { new C1CtorP';
+  const constructorUri = vscode.Uri.joinPath(folder, 'C1CtorConsumer.php');
+  await vscode.workspace.fs.writeFile(constructorUri, Buffer.from(constructorSource));
+  const constructorDocument = await vscode.workspace.openTextDocument(constructorUri);
+  await vscode.window.showTextDocument(constructorDocument);
+  const constructorCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructorUri,
+      constructorDocument.positionAt(constructorSource.length)),
+    (result) => result?.items.some((item) => item.label === 'C1CtorPublicProbe') === true,
+    'SoPHP did not suggest a class with a public constructor.',
+  );
+  assert.ok(!constructorCompletion.items.some((item) => item.label === 'C1CtorPrivateProbe'),
+    'Construction completion suggested a class with an inaccessible private constructor.');
+  const privateConstructorDocument = await vscode.workspace.openTextDocument(vscode.Uri.joinPath(folder, 'C1CtorPrivateProbe.php'));
+  await vscode.window.showTextDocument(privateConstructorDocument);
+  const constructorVisibilityStart = privateConstructorDocument.getText().indexOf('private function __construct');
+  const constructorVisibilityRange = new vscode.Range(privateConstructorDocument.positionAt(constructorVisibilityStart),
+    privateConstructorDocument.positionAt(constructorVisibilityStart + 'private'.length));
+  const revealConstructor = new vscode.WorkspaceEdit();
+  revealConstructor.replace(privateConstructorDocument.uri, constructorVisibilityRange, 'public');
+  assert.ok(await vscode.workspace.applyEdit(revealConstructor), 'Could not make the project constructor public without saving.');
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructorUri,
+      constructorDocument.positionAt(constructorSource.length)),
+    (result) => result?.items.some((item) => item.label === 'C1CtorPrivateProbe') === true,
+    'Construction completion did not refresh an unsaved public constructor.',
+  );
+  const hideConstructor = new vscode.WorkspaceEdit();
+  hideConstructor.replace(privateConstructorDocument.uri, new vscode.Range(privateConstructorDocument.positionAt(constructorVisibilityStart),
+    privateConstructorDocument.positionAt(constructorVisibilityStart + 'public'.length)), 'private');
+  assert.ok(await vscode.workspace.applyEdit(hideConstructor), 'Could not restore the project constructor visibility.');
+  const privateCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructorUri,
+      constructorDocument.positionAt(constructorSource.length)),
+    (result) => result?.items.some((item) => item.label === 'C1CtorPublicProbe') === true
+      && !result.items.some((item) => item.label === 'C1CtorPrivateProbe'),
+    'Construction completion did not retract an unsaved private constructor.',
+  );
+  assert.ok(!privateCompletion.items.some((item) => item.label === 'C1CtorPrivateProbe'));
   const externalFolder = vscode.Uri.joinPath(folder, 'External');
   await vscode.workspace.fs.createDirectory(externalFolder);
   const externalTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalTypeProbe.php');

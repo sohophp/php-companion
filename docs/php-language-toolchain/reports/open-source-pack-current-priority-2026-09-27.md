@@ -108,4 +108,6 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 
 [抽象类创建候选](c1-abstract-construction-completion-2026-09-27.md)修正 `new` 补全对抽象类的误推荐，并让未保存的修饰符变化更新候选。解析器、语义层和 10 项 Pack 源码宿主均通过。Pack 成员不变，源码仍待下一次候选冻结。
 
+[构造函数可见性补全](c1-constructor-visibility-completion-2026-09-27.md)继续收紧 `new` 候选，并验证未打开项目类与未保存构造函数修饰符的候选往返；完整语义测试和 10 项 Pack 源码宿主通过。此项在 0.4.9 冻结之后，留待下一阶段统一打包。[最终创建兜底的分步编辑探针](c3-split-create-redo-probe-2026-09-27.md)仍未恢复一次 Redo，C3 该缺口保持开放。
+
 [Attribute 参数的跨文件反馈](c2-attribute-constructor-buffer-feedback-2026-09-27.md)又以独立 Composer 项目确认 Completion 和 Signature Help 同步跟随未保存构造函数声明，关闭后立即恢复磁盘参数。此项进入 C2 回归，不改变 Pack 成员或候选冻结节奏。
