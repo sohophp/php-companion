@@ -4937,6 +4937,43 @@ TXT;
     expect(workspace.completeTypes('file:///Types.php', source.indexOf('Dom;') + 3).map((item) => item.name)).toEqual(['DomainUser']);
     expect(workspace.completeTypes('file:///Types.php', source.indexOf('Uti;') + 3).map((item) => item.name)).toEqual(['Utility']);
   });
+  it('completes traits in a class use declaration without suggesting classes', () => {
+    workspace.update('file:///RemoteTrait.php', '<?php namespace Domain; trait RemoteTrait {} trait RemoteExtra {} class RemoteThing {}');
+    const source = '<?php namespace App; class Consumer { use Rem }';
+    const uri = 'file:///TraitUse.php';
+    workspace.update(uri, source);
+    const offset = source.indexOf('Rem }') + 3;
+    expect(workspace.typeCompletionContext(uri, offset)?.prefix).toBe('Rem');
+    expect(workspace.completeTypes(uri, offset)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ fqcn: 'Domain\\RemoteTrait', importFqcn: 'Domain\\RemoteTrait' }),
+    ]));
+    expect(workspace.completeTypes(uri, offset).map((item) => item.fqcn)).not.toContain('Domain\\RemoteThing');
+    const unfinished = '<?php namespace App; class Consumer { use Rem';
+    workspace.update(uri, unfinished);
+    expect(workspace.typeCompletionContext(uri, unfinished.length)?.prefix).toBe('Rem');
+    expect(workspace.completeTypes(uri, unfinished.length).map((item) => item.fqcn)).toContain('Domain\\RemoteTrait');
+    const unfinishedMethod = '<?php namespace App; class Consumer { public function run(): void { use Rem';
+    workspace.update(uri, unfinishedMethod);
+    expect(workspace.typeCompletionContext(uri, unfinishedMethod.length)).toBeUndefined();
+    const qualified = '<?php namespace App; use Domain as Alias; class Consumer { use RemoteTrait, Alias\\Rem }';
+    workspace.update(uri, qualified);
+    const qualifiedOffset = qualified.indexOf('Alias\\Rem') + 'Alias\\Rem'.length;
+    expect(workspace.namespaceImportContext(uri, qualifiedOffset)).toBeUndefined();
+    expect(workspace.namespaceTypeContext(uri, qualifiedOffset)).toEqual({ qualifier: 'Domain', prefix: 'Rem' });
+    expect(workspace.typeCompletionContext(uri, qualifiedOffset)).toMatchObject({ prefix: 'Rem', namespace: 'Domain' });
+    expect(workspace.completeTypes(uri, qualifiedOffset).map((item) => item.fqcn)).toEqual(['Domain\\RemoteExtra', 'Domain\\RemoteTrait']);
+    expect(workspace.completeTypes(uri, qualifiedOffset).every((item) => item.importFqcn === undefined)).toBe(true);
+    const closure = '<?php namespace App; class Consumer { public function run(): void { $fn = function () use ($value) {}; } }';
+    workspace.update(uri, closure);
+    expect(workspace.typeCompletionContext(uri, closure.indexOf('use ($value') + 'use '.length)).toBeUndefined();
+    const owners = '<?php namespace App; trait Composed { use Rem; } enum Choice { use Rem; case One; } interface Contract { use Rem; }';
+    workspace.update(uri, owners);
+    const ownerOffsets = [...owners.matchAll(/use Rem;/gu)].map((match) => match.index + 'use Rem'.length);
+    expect(ownerOffsets).toHaveLength(3);
+    expect(workspace.completeTypes(uri, ownerOffsets[0]!).map((item) => item.fqcn)).toContain('Domain\\RemoteTrait');
+    expect(workspace.completeTypes(uri, ownerOffsets[1]!).map((item) => item.fqcn)).toContain('Domain\\RemoteTrait');
+    expect(workspace.typeCompletionContext(uri, ownerOffsets[2]!)).toBeUndefined();
+  });
   it('completes qualified native type names without adding an import', () => {
     workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
     workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');

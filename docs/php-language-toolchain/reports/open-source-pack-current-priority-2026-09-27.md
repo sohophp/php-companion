@@ -8,6 +8,8 @@
 - **先使用同批私有候选。** 当前 [0.4.8 候选](open-source-pack-048-private-alpha-2026-09-27.md)是 Core、Symfony、Pack 三份 VSIX；公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 安装及完整操作链仍属 C4 验收。
 - **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
 
+最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它尚未进入 0.4.8 私有候选；日常增量继续不重复打包。
+
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。

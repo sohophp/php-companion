@@ -25,3 +25,5 @@
 ## 2026-09-27 当前宿主复核
 
 随着同文件系统备用移动加入，旧的 `PHP_COMPANION_TEST_C3_FALLBACK_REDO_PROBE=1` 现在检验第二次**移动**成功后的 Redo，不能再用它判定最终 `createFile` 路径。新探针为 `PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE=1 PHP_COMPANION_TEST_C3_STAGE_ONLY=1 pnpm test:extension:c3`，在两次移动都被注入拒绝后，针对实际最终创建路径执行一次标准 Undo/Redo。VS Code 1.139.1 Linux x64 源码宿主记录 `C3 createFile fallback Redo: restored=false`，断言失败、退出码 1；日志 `/tmp/sophp-c3-createfile-redo-vscode-11391-20260927.log`。这是预期失败探针，证明此版本缺口仍在；默认 C3 回归不启用它。它没有证明其它平台或未来版本也失败。
+
+另一项临时对照将 `WorkspaceEdit.createFile` 与 `insert` 放在同一编辑中。VS Code 1.139.1 的隔离宿主仍记录 `afterUndo=false, restored=false`；日志 `/tmp/sophp-c3-split-create-probe-20260927.log`。对照代码已撤回，产品源码未变。这条编辑组合不能解决当前版本的最终创建 Redo，后续仍以可撤销的暂存移动及实际平台验收为主。

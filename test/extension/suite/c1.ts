@@ -1020,6 +1020,24 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.strictEqual(externalTypeCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1,
     'Cross-namespace class completion was returned more than once.');
+  const traitUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalTraitProbe.php');
+  const nonTraitUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalTraitThing.php');
+  await vscode.workspace.fs.writeFile(traitUri, Buffer.from('<?php namespace App\\C1\\External; trait C1ExternalTraitProbe {}'));
+  await vscode.workspace.fs.writeFile(nonTraitUri, Buffer.from('<?php namespace App\\C1\\External; class C1ExternalTraitThing {}'));
+  const traitSource = '<?php namespace App\\C1; class C1TraitConsumer { use C1ExternalTraitPro; }';
+  const traitConsumerUri = vscode.Uri.joinPath(folder, 'C1TraitConsumer.php');
+  await vscode.workspace.fs.writeFile(traitConsumerUri, Buffer.from(traitSource));
+  const traitDocument = await vscode.workspace.openTextDocument(traitConsumerUri);
+  await vscode.window.showTextDocument(traitDocument);
+  const traitCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', traitConsumerUri,
+      traitDocument.positionAt(traitSource.indexOf('C1ExternalTraitPro') + 'C1ExternalTraitPro'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTraitProbe'
+      && item.additionalTextEdits?.some((entry) => entry.newText.includes('use App\\C1\\External\\C1ExternalTraitProbe;'))) === true,
+    'SoPHP did not offer a cross-namespace trait with its import inside a class use declaration.',
+  );
+  assert.ok(!traitCompletion.items.some((item) => item.label === 'C1ExternalTraitThing'),
+    'SoPHP offered a class where PHP requires a trait.');
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));

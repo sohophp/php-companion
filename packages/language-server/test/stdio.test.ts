@@ -9973,6 +9973,40 @@ class ChildService extends Service { public function call(int|string $value): vo
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it('offers unloaded PSR-4 traits inside a class use declaration', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-trait-use-types-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await mkdir(join(root, 'vendor-src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/', 'Domain\\': 'vendor-src/' } } }));
+      await writeFile(join(root, 'vendor-src', 'RemoteTrait.php'), '<?php namespace Domain; trait RemoteTrait {}');
+      await writeFile(join(root, 'vendor-src', 'RemoteThing.php'), '<?php namespace Domain; class RemoteThing {}');
+      const consumerPath = join(root, 'src', 'Consumer.php');
+      const source = '<?php namespace App; class Consumer { use Rem; }';
+      await writeFile(consumerPath, source);
+      const uri = pathToFileURL(consumerPath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 120, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 120);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, source.indexOf('Rem;') + 3),
+      } }));
+      const result = (await output.waitFor((message) => message.id === 121)).result as Array<{
+        label: string; detail: string; additionalTextEdits?: unknown[] }>;
+      expect(result).toContainEqual(expect.objectContaining({ label: 'RemoteTrait', detail: 'Domain\\RemoteTrait' }));
+      expect(result.map((item) => item.label)).not.toContain('RemoteThing');
+      expect(result.find((item) => item.label === 'RemoteTrait')?.additionalTextEdits).toHaveLength(1);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('preserves semantic function and constant completion ranking with stable sortText', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-ranked-symbols-'));
     try {

@@ -3737,8 +3737,50 @@ export class SemanticWorkspace {
   namespaceImportContext(uri: string, offset: number): { qualifier: string; prefix: string } | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
-      || file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
+      || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;
     return namespaceImportCompletion(file.source, offset);
+  }
+
+  private traitUseTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string } | undefined {
+    const before = file.source.slice(0, offset);
+    const boundary = Math.max(before.lastIndexOf(';'), before.lastIndexOf('{'), before.lastIndexOf('}'));
+    const statement = before.slice(boundary + 1).trimStart();
+    const use = /^use\s+(.*)$/su.exec(statement);
+    if (!use) return undefined;
+    const declaration = file.declarations.find((item) => item.kind !== 'interface'
+      && item.declarationStart < offset && offset <= item.declarationEnd);
+    let bodyStart = declaration ? file.source.indexOf('{', declaration.end) : -1;
+    if (!declaration) {
+      // An unfinished class body has no parser declaration yet. Recognize only
+      // an unmatched opening brace with a plain class, trait or enum header.
+      let depth = 0;
+      for (let index = offset - 1; index >= 0; index -= 1) {
+        const char = file.source[index];
+        if (char === '}') depth += 1;
+        else if (char === '{') {
+          if (depth === 0) { bodyStart = index; break; }
+          depth -= 1;
+        }
+      }
+      if (bodyStart < 0) return undefined;
+      const headerStart = Math.max(file.source.lastIndexOf(';', bodyStart - 1),
+        file.source.lastIndexOf('{', bodyStart - 1), file.source.lastIndexOf('}', bodyStart - 1)) + 1;
+      const header = file.source.slice(headerStart, bodyStart).trim();
+      if (!/^(?:(?:abstract|final|readonly)\s+)*(?:class|trait|enum)\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\s+(?:(?:extends|implements)\s+[\\A-Za-z0-9_,\s\x80-\xff]+))*?(?:\s*:\s*(?:int|string))?$/u.test(header)) return undefined;
+    }
+    if (bodyStart < 0 || bodyStart >= offset) return undefined;
+    const parts = use[1]!.split(',');
+    if (parts.slice(0, -1).some((part) => !/^\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*$/u.test(part.trim()))) return undefined;
+    const current = parts.at(-1)!.trimStart();
+    const qualified = /^((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(current);
+    if (qualified) {
+      const namespace = this.resolveSourceType(file, qualified[1]!.slice(0, -1), this.namespaceAt(file, offset));
+      return namespace === undefined ? undefined : { prefix: qualified[2] ?? '', namespace };
+    }
+    const absolute = /^\\([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(current);
+    if (absolute) return { prefix: absolute[1] ?? '', namespace: '' };
+    return /^([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.test(current)
+      ? { prefix: current } : undefined;
   }
 
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
@@ -3762,8 +3804,8 @@ export class SemanticWorkspace {
   namespaceTypeContext(uri: string, offset: number): { qualifier: string; prefix: string } | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
-    const context = this.qualifiedNativeTypeCompletion(file, offset);
-    return context && { qualifier: context.namespace, prefix: context.prefix };
+    const context = this.traitUseTypeCompletion(file, offset) ?? this.qualifiedNativeTypeCompletion(file, offset);
+    return context?.namespace === undefined ? undefined : { qualifier: context.namespace, prefix: context.prefix };
   }
 
   typeCompletionContext(uri: string, offset: number): { prefix: string; namespace: string; importedTypes: string[];
@@ -3772,13 +3814,14 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
     if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
-    const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
+    const traitContext = docContext ? undefined : this.traitUseTypeCompletion(file, offset);
+    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
-    const qualifiedContext = docContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
-    const prefix = docContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
+    const prefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (prefix === undefined) return undefined;
-    const namespace = docContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
+    const namespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
     return { prefix, namespace, importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
       && item.namespace === namespace && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
     ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
@@ -3790,14 +3833,15 @@ export class SemanticWorkspace {
     if (!file) return [];
     const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
     if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
-    const importContext = docContext ? undefined : qualifiedImportCompletion(file.source, offset);
+    const traitContext = docContext ? undefined : this.traitUseTypeCompletion(file, offset);
+    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(file.source, offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
-    const qualifiedContext = docContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
-    const contextPrefix = docContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
+    const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
+    const contextPrefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
-    const qualifiedNamespace = docContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
+    const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
     const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
     const importedVisible = new Map<string, string>();
     const importAliases = new Map<string, string>();
@@ -3826,6 +3870,7 @@ export class SemanticWorkspace {
     }
     const results: TypeInfo[] = [];
     for (const { declaration: candidate, owner, namespace: candidateNamespace } of declarations.values()) {
+      if (traitContext && candidate.kind !== 'trait') continue;
       const candidateKey = candidate.fqcn.toLowerCase();
       if (qualifiedNamespace !== undefined && candidateNamespace.toLowerCase() !== qualifiedNamespace.toLowerCase()) continue;
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);
