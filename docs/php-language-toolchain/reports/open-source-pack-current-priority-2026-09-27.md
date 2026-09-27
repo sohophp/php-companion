@@ -100,4 +100,4 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 
 [新建未保存服务配置](symfony-unsaved-service-config-2026-09-27.md)补上了 Pack 的 Symfony 服务 Provider 对 `config/services.yaml` 的快照入口：PHP 服务引用的定义跳转现在可指向尚未落盘的声明；项目外符号链接仍被拒绝。定向 Provider 与真实 LSP stdio 已通过。关闭、磁盘 watcher、同版本重开及再次关闭的定义位置往返也已验证，并修复了查询早于服务图刷新的旧偏移问题。Pack 维持现有 10 项与唯一能力所有者，不因这次源码修复改变成员或重打 VSIX。下一步回到独立 Composer 项目的普通 PHP C1/C2 高频编辑反馈；C3 创建文件 Redo 和 C4 真实安装验收继续开放。
 
-[Attribute 重复使用补全](c1-attribute-repeatability-completion-2026-09-27.md)继续补齐 Core 的 C1 输入体验：同一声明已使用且可证明不可重复的 Attribute 不再二次建议；允许重复或标志未知的类仍保留。语义包及隔离 Core 源码宿主通过。下一步仍以独立 Composer 项目的 C1/C2 错误和等待为优先证据；这项源码增量尚未进入冻结候选，也不改变 Pack 成员。
+[Attribute 重复使用补全](c1-attribute-repeatability-completion-2026-09-27.md)继续补齐 Core 的 C1 输入体验：同一声明已使用且可证明不可重复的 Attribute 不再二次建议；允许重复或标志未知的类仍保留。语义包、隔离 Core 宿主与完整 10 项 Pack 源码 Profile 的 C1 操作链通过。下一步仍以独立 Composer 项目的 C1/C2 错误和等待为优先证据；这项源码增量尚未进入冻结候选，也不改变 Pack 成员。
