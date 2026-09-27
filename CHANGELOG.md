@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.8 - 2026-09-27
+
+- Complete project and imported PHP type suggestions in qualified namespaces, PHPDoc template bounds across lines, and multi-catch exception clauses.
+- Restrict PHPDoc Definition, References, and Rename to proven type positions; restore disk-backed references after an unsaved PHPDoc buffer closes across supported indexing modes.
+- Resolve local values passed through Symfony Controller `compact()` to Twig, including cross-file shadows, without claiming ambiguous values.
+- Diagnose PHP 8.5 operandless `void` casts while accepting supported clone-call syntax.
+- Preserve normal file permissions and one-step Undo/Redo when a generated PSR-4 type needs new destination directories and a staged workspace move is available.
+- Keep the 10-member Open Source Pack composition and align Core, Symfony, and Pack versions for one private Alpha candidate.
+
 ## 0.4.7 - 2026-09-26
 
 - Complete scoped variables and members in interpolated PHP strings, including a newly typed dollar sign, while keeping ordinary strings, comments and HTML outside PHP completion.

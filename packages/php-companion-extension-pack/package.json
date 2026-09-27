@@ -2,7 +2,7 @@
   "name": "php-companion-open-source-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {

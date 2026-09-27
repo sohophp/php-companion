@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.8 - 2026-09-27
+
+- Align the Symfony extension version with the 0.4.8 SoPHP Core and Open Source Pack candidate; the Symfony extension still owns framework editor providers.
+
 ## 0.4.7 - 2026-09-26
 
 - Align the Symfony extension version with the 0.4.7 SoPHP Core and Open Source Pack candidate.
