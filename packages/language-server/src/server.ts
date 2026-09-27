@@ -6139,7 +6139,6 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  if (functions.length) return functions;
   const constants = (typeContext ? [] : workspace.completeConstants(document.uri, offset)).map((constant, index) => {
     const insertion = constant.importFqcn ? workspace.importInsertion(document.uri, offset, constant.importFqcn, 'const') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
@@ -6151,7 +6150,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  if (constants.length) return constants;
+  if (functions.length || constants.length) return [...functions, ...constants];
   const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
     ?? workspace.namespaceTypeContext(document.uri, offset);
   const root = rootForUri(document.uri);

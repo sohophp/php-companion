@@ -350,6 +350,25 @@ export async function run(): Promise<void> {
     'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
   const folder = vscode.Uri.joinPath(workspace.uri, 'src', 'C1');
   await vscode.workspace.fs.createDirectory(folder);
+  const mixedSymbolsUri = vscode.Uri.joinPath(folder, 'C1MixedSymbols.php');
+  await vscode.workspace.fs.writeFile(mixedSymbolsUri, Buffer.from(
+    '<?php namespace App\\C1; function c1_mix_function(): void {} const C1_MIX_CONSTANT = 1;',
+  ));
+  await vscode.workspace.openTextDocument(mixedSymbolsUri);
+  const mixedConsumerSource = '<?php namespace App\\C1; function c1MixedConsumer(): void { echo c1_mix; }';
+  const mixedConsumerUri = vscode.Uri.joinPath(folder, 'C1MixedConsumer.php');
+  await vscode.workspace.fs.writeFile(mixedConsumerUri, Buffer.from(mixedConsumerSource));
+  const mixedConsumerDocument = await vscode.workspace.openTextDocument(mixedConsumerUri);
+  await vscode.window.showTextDocument(mixedConsumerDocument);
+  const mixedSuggestions = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', mixedConsumerUri,
+      mixedConsumerDocument.positionAt(mixedConsumerSource.indexOf('c1_mix;') + 'c1_mix'.length)),
+    (result) => result?.items.some((item) => item.label === 'c1_mix_function') === true
+      && result.items.some((item) => item.label === 'C1_MIX_CONSTANT'),
+    'SoPHP omitted a matching constant when a function shared the typed prefix.',
+  );
+  assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'c1_mix_function').length, 1);
+  assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'C1_MIX_CONSTANT').length, 1);
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',
     'PHP variable suggestions should come from SoPHP with PHP scope ownership.');

@@ -10261,7 +10261,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       await mkdir(join(root, 'src', 'Controller'), { recursive: true });
       await mkdir(join(root, 'vendor-src'), { recursive: true });
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'RankedLsp\\': 'src/', 'Vendor\\': 'vendor-src/' } } }));
-      await writeFile(join(root, 'src', 'Controller', 'Admin', 'Local.php'), '<?php namespace RankedLsp\\Controller\\Admin; function ranked_lsp_function_local(): void {} const RANKED_LSP_CONSTANT_LOCAL = 1;');
+      await writeFile(join(root, 'src', 'Controller', 'Admin', 'Local.php'), '<?php namespace RankedLsp\\Controller\\Admin; function ranked_lsp_function_local(): void {} const RANKED_LSP_CONSTANT_LOCAL = 1; function ranked_lsp_overlap(): void {} const RANKED_LSP_OVERLAP = 1;');
       await writeFile(join(root, 'src', 'Controller', 'Near.php'), '<?php namespace RankedLsp\\Controller; function ranked_lsp_function_near(): void {} const RANKED_LSP_CONSTANT_NEAR = 1;');
       await writeFile(join(root, 'src', 'Mid.php'), '<?php namespace RankedLsp; function ranked_lsp_function_mid(): void {} const RANKED_LSP_CONSTANT_MID = 1;');
       await writeFile(join(root, 'src', 'Global.php'), '<?php function ranked_lsp_function_global(): void {} const RANKED_LSP_CONSTANT_GLOBAL = 1;');
@@ -10271,7 +10271,8 @@ class ChildService extends Service { public function call(int|string $value): vo
 use function Vendor\\Symbols\\imported_function as ranked_lsp_function_imported;
 use const Vendor\\Symbols\\IMPORTED_CONSTANT as RANKED_LSP_CONSTANT_IMPORTED;
 ranked_lsp_function;
-echo RANKED_LSP_CONSTANT;`;
+echo RANKED_LSP_CONSTANT;
+echo ranked_lsp_over;`;
       await writeFile(consumerPath, source); const uri = pathToFileURL(consumerPath).toString();
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
@@ -10314,6 +10315,13 @@ echo RANKED_LSP_CONSTANT;`;
       ]);
       expect(constants.map((item) => item.sortText)).toEqual(['1000000', '1000001', '1000002', '1000003', '1000004', '1000005']);
       expect(constants.map((item) => Boolean(item.additionalTextEdits))).toEqual([false, false, false, true, true, true]);
+      const overlapOffset = source.indexOf('ranked_lsp_over;') + 'ranked_lsp_over'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, overlapOffset),
+      } }));
+      const overlap = (await output.waitFor((message) => message.id === 114)).result as Array<{ label: string; sortText?: string }>;
+      expect(overlap.map((item) => item.label)).toEqual(['ranked_lsp_overlap', 'RANKED_LSP_OVERLAP']);
+      expect(overlap.map((item) => item.sortText)).toEqual(['0000000', '1000000']);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

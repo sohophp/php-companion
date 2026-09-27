@@ -468,6 +468,10 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
   return { qualifier: segments.join('\\'), prefix };
 }
 
+function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
+  return /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:function|const)\s+[\\A-Za-z0-9_\x80-\xff]*$/u.test(source.slice(0, offset));
+}
+
 function isCatchTypeCompletion(source: string, offset: number): boolean {
   const before = source.slice(0, offset);
   const token = /(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*|\\)?$/u.exec(before)?.[0] ?? '';
@@ -4336,7 +4340,8 @@ export class SemanticWorkspace {
     const file = this.files.get(uri); if (!file) return [];
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const before = file.source.slice(0, offset); const match = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
-    if (!match || typeCompletionPrefix(file.source, offset) !== undefined) return [];
+    if (!match || typeCompletionPrefix(file.source, offset) !== undefined
+      || isFunctionOrConstantImportPosition(file.source, offset)) return [];
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 32), prefixStart);
     if (/(?:->|\?->|::|\$|\bfunction\s+|\bnamespace\s+|\buse(?:\s+function)?\s+)\s*$/.test(context)) return [];
     const prefix = (match[1] ?? '').toLowerCase(); const namespace = this.namespaceAt(file, offset);
@@ -4374,10 +4379,11 @@ export class SemanticWorkspace {
   completeConstants(uri: string, offset: number): ConstantCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
-    const before = file.source.slice(0, offset); const match = /([A-Z_][A-Z0-9_]*)?$/.exec(before);
-    if (!match || typeCompletionPrefix(file.source, offset) !== undefined) return [];
+    const before = file.source.slice(0, offset); const match = /([A-Z_][A-Z0-9_]*)?$/i.exec(before);
+    if (!match || typeCompletionPrefix(file.source, offset) !== undefined
+      || isFunctionOrConstantImportPosition(file.source, offset)) return [];
     const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 24), prefixStart);
-    if (/(?:->|\?->|::|\$|\bconst\s+|\buse(?:\s+const)?\s+)\s*$/.test(context)) return [];
+    if (/(?:->|\?->|::|\$|\b(?:function|namespace|const)\s+|\buse(?:\s+(?:function|const))?\s+)\s*$/.test(context)) return [];
     const prefix = match[1] ?? ''; if (!prefix) return [];
     const namespace = this.namespaceAt(file, offset); const imports = file.imports.filter((item) => item.kind === 'const' && item.namespace === namespace);
     const imported = new Map(imports.map((item) => [item.alias, item.fqcn]));

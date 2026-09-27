@@ -10,6 +10,8 @@
 
 发布后 C3 审计发现并修复了[Safe Move 在多个 namespace 或别名间误删导入](c3-safe-move-import-scope-2026-09-27.md)的风险。此项目前只有源码与语义回归证据，留到下一次冻结候选时做打包宿主和跨平台门禁。
 
+C1 普通表达式中[同前缀函数和常量的合并补全](c1-function-constant-overlap-completion-2026-09-27.md)也已从独立 Composer 项目的真实 LSP 失败用例推进到定向通过；这项发布后源码增量仍须进入下次候选的编辑器宿主验收。
+
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。

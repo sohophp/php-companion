@@ -5337,6 +5337,9 @@ use Attribute as Marker;
     const aliasSource = '<?php namespace App; use function Domain\\Factory\\createInvoice as makeInvoice; $value = makeI;';
     workspace.update('file:///FunctionAliasCompletion.php', aliasSource);
     expect(workspace.completeFunctions('file:///FunctionAliasCompletion.php', aliasSource.indexOf('makeI;') + 5)).toMatchObject([{ name: 'makeInvoice', importFqfn: undefined }]);
+    const importSource = '<?php namespace App; use function Domain\\Factory\\createI;';
+    workspace.update('file:///FunctionImportCompletion.php', importSource);
+    expect(workspace.completeFunctions('file:///FunctionImportCompletion.php', importSource.indexOf('createI;') + 7)).toEqual([]);
   });
   it('keeps function and constant suggestions in PHP code rather than comments or string text', () => {
     const project = new SemanticWorkspace(parser);
@@ -5976,6 +5979,16 @@ function useNames(): void {
     expect(workspace.references('file:///ConstantImported.php', imported.lastIndexOf('KEY') + 1)).toHaveLength(3);
     const external = '<?php namespace Consumer; echo API_;'; workspace.update('file:///ConstantExternal.php', external);
     expect(workspace.completeConstants('file:///ConstantExternal.php', external.indexOf('API_') + 4)).toMatchObject([{ name: 'API_KEY', importFqcn: 'Config\\API_KEY' }]);
+    const lowerPrefix = '<?php namespace Consumer; echo api_;'; workspace.update('file:///ConstantLowerPrefix.php', lowerPrefix);
+    expect(workspace.completeConstants('file:///ConstantLowerPrefix.php', lowerPrefix.indexOf('api_') + 4)).toMatchObject([{ name: 'API_KEY', importFqcn: 'Config\\API_KEY' }]);
+    for (const [uri, invalid] of [
+      ['file:///ConstantInFunctionName.php', '<?php namespace Consumer; function api_(): void {}'],
+      ['file:///ConstantInNamespaceName.php', '<?php namespace api_;'],
+      ['file:///ConstantInFunctionImport.php', '<?php namespace Consumer; use function Config\\api_;'],
+    ] as const) {
+      workspace.update(uri, invalid);
+      expect(workspace.completeConstants(uri, invalid.indexOf('api_') + 4), invalid).toEqual([]);
+    }
     expect(workspace.importInsertion('file:///ConstantExternal.php', external.length, 'Config\\API_KEY', 'const')?.text).toContain('use const Config\\API_KEY;');
     workspace.update('file:///DuplicateConstants.php', '<?php namespace Config; const API_KEY = "duplicate";');
     expect(workspace.constantAt('file:///ConstantImported.php', imported.lastIndexOf('KEY') + 1)).toBeUndefined();
