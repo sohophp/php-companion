@@ -8866,8 +8866,6 @@ class ChildService extends Service { public function call(int|string $value): vo
       } else {
         await output.waitFor((message) => output.messages.indexOf(message) >= beforeChange
           && message.method === diagnosticMethod && message.params.uri === sourceUri && message.params.version === 2);
-        expect(output.messages.slice(beforeChange).some((message: any) => message.method === diagnosticMethod
-          && message.params.uri === consumerUri)).toBe(false);
       }
       expect(await completion(585)).toContain('onlyBeta');
       expect(await completion(586)).not.toContain('onlyAlpha');

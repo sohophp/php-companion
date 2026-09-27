@@ -9,7 +9,7 @@ export interface CandidatePaths { paths: Set<string>; startedAt: number; }
 export async function portableCandidatePaths(roots: readonly string[], names: readonly string[], project: ComposerProject,
   shouldContinue: () => boolean, maxFiles: number, timeoutMs = 8_000): Promise<CandidatePaths | undefined> {
   if (!shouldContinue()) return undefined;
-  const startedAt = Date.now() - 1_000;
+  const startedAt = Date.now();
   const cancelled = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
   const flag = new Int32Array(cancelled);
   const input: PortableCandidateSearchInput = {

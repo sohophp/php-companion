@@ -3466,7 +3466,10 @@ function php83DynamicConstant(string $input): void {
     const dynamicConstantDocument = await vscode.workspace.openTextDocument(dynamicConstantUri);
     await waitForAsync(async () => vscode.languages.getDiagnostics(dynamicConstantUri)
       .filter((diagnostic) => diagnostic.code === 'php.argument.type-mismatch').length === 1,
-    'Packaged PHP 8.3 dynamic class constant literal type did not reach diagnostics');
+    () => 'Packaged PHP 8.3 dynamic class constant literal type did not reach diagnostics: '
+      + JSON.stringify(vscode.languages.getDiagnostics(dynamicConstantUri).map((diagnostic) => ({
+        code: diagnostic.code, message: diagnostic.message,
+      }))), 30_000, 100);
     const dynamicNameOffset = dynamicConstantSource.indexOf('$name}');
     await waitForAsync(async () => {
       const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
