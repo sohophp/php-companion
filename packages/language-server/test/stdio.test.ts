@@ -1988,7 +1988,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('plans a Symfony route Rename from a new unsaved conventional route file', async () => {
+  it('plans a Symfony route Rename from a new unsaved file and restores disk facts after close', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-unsaved-route-'));
     try {
       await mkdir(join(root, 'config'));
@@ -2018,6 +2018,50 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         start: lspPosition(source, 0), end: lspPosition(source, 'new.route'.length),
       }, newText: 'renamed.route' }]);
       expect(result?.phpCompanion?.sourceHashes?.[uri]).toMatch(/^[a-f0-9]{64}$/);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 908, method: 'phpCompanion/symfonyRouteRename', params: {
+        textDocument: { uri, version: 1 }, source, position: lspPosition(source, 4), newName: 'stale.route',
+      } }));
+      expect((await output.waitFor((message) => message.id === 908, 15_000)).result).toBeNull();
+      const diskSource = 'disk.route: {path: /disk}\n';
+      await writeFile(join(root, 'config', 'routes.yaml'), diskSource);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri, type: 1 }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 909, method: 'phpCompanion/symfonyRouteRename', params: {
+        textDocument: { uri, version: 2 }, source: diskSource, position: lspPosition(diskSource, 4), newName: 'renamed.disk',
+      } }));
+      expect((await output.waitFor((message) => message.id === 909, 15_000)).result?.changes?.[uri]).toEqual([{ range: {
+        start: lspPosition(diskSource, 0), end: lspPosition(diskSource, 'disk.route'.length),
+      }, newText: 'renamed.disk' }]);
+      const reopenedSource = 'reopened.route: {path: /buffer}\n';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'yaml', version: 1, text: reopenedSource },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri, languageId: 'yaml', snapshotVersion: '1', source: reopenedSource }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 910, method: 'phpCompanion/symfonyRouteRename', params: {
+        textDocument: { uri, version: 1 }, source: reopenedSource,
+        position: lspPosition(reopenedSource, 4), newName: 'renamed.buffer',
+      } }));
+      expect((await output.waitFor((message) => message.id === 910, 15_000)).result?.changes?.[uri]).toEqual([{ range: {
+        start: lspPosition(reopenedSource, 0), end: lspPosition(reopenedSource, 'reopened.route'.length),
+      }, newText: 'renamed.buffer' }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 911, method: 'phpCompanion/symfonyRouteRename', params: {
+        textDocument: { uri, version: 2 }, source: diskSource,
+        position: lspPosition(diskSource, 4), newName: 'renamed.disk.again',
+      } }));
+      expect((await output.waitFor((message) => message.id === 911, 15_000)).result?.changes?.[uri]).toEqual([{ range: {
+        start: lspPosition(diskSource, 0), end: lspPosition(diskSource, 'disk.route'.length),
+      }, newText: 'renamed.disk.again' }]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
