@@ -6195,6 +6195,24 @@ final class Imported { public const TYPE = Stable::class; }`);
       expect.objectContaining({ uri: 'file:///src/Consumer/Imported.php', newText: '' }),
     ]));
   });
+  it('removes an old import when a type move already has the destination import', () => {
+    const sourceUri = 'file:///src/Contact/MovableService.php';
+    const consumerUri = 'file:///src/Consumer/Consumer.php';
+    const consumer = `<?php namespace App\\Consumer;
+use App\\Contact\\MovableService;
+use App\\Service\\MovableService;
+final class Consumer { public const TYPE = MovableService::class; }`;
+    workspace.update(sourceUri, '<?php namespace App\\Contact; final class MovableService {}');
+    workspace.update(consumerUri, consumer);
+    const result = workspace.planTypeMoves([{
+      oldUri: sourceUri, newUri: 'file:///src/Service/MovableService.php', newNamespace: 'App\\Service',
+    }]);
+    expect(result.error).toBeUndefined();
+    const edits = result.plan!.edits.filter((edit) => edit.uri === consumerUri).sort((left, right) => right.start - left.start);
+    const updated = edits.reduce((text, edit) => text.slice(0, edit.start) + edit.newText + text.slice(edit.end), consumer);
+    expect(updated.match(/use App\\Service\\MovableService;/g)).toHaveLength(1);
+    expect(updated).not.toContain('use App\\Contact\\MovableService;');
+  });
   it('moves a PSR-4 type between global and named namespaces with exact namespace edits', () => {
     const globalUri = 'file:///GlobalMove/GlobalMoveRunner.php';
     const namedUri = 'file:///GlobalMove/Sub/GlobalMoveRunner.php';

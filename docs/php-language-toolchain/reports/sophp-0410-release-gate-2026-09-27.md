@@ -7,6 +7,7 @@
 - 隔离打包宿主首次发现 Trait 声明 F2 已更新文件、PHP 引用，却漏改 `class-string<LogsActivity>` PHPDoc。新增语义回归先失败；PHPDoc 上下文现只允许已识别的连字符伪类型，非法 `invalid-type<...>` 仍不参与 Rename。语义包 439/439 通过，重新生成 Core VSIX 后，同一完整打包宿主退出码 0。
 - 跨平台 CI 发现 Windows 工作区短路径与真实路径混用，会使外部 Symfony Provider 的位置返回另一种 URI。语言服务器现把工作区内 Provider 位置归一到工作区 URI；Windows 扩展宿主及相关源码测试在第五轮通过。
 - `rg` 不可用或搜索失败时，首次引用候选扫描会使用备用搜索；缓存新鲜度检查现也使用同一备用搜索，避免重复扫描。Windows、macOS 和 Linux 的跨平台质量结果以最终 CI 为准。
+- Windows 打包宿主复现反向 Safe Move 时两个相同 `use` 导入。预处理现直接删除已有目标导入对应的旧导入，并增加语义回归；最终跨平台打包宿主结果以修复后的 CI 为准。
 - 发布工作流不再固定 `0.4.6` 文件名；标签必须与三包版本一致。Core、Symfony、Pack 按依赖顺序发布，进入受保护的 `marketplace` 环境之前运行源码、组件包、VSIX、打包宿主和固定成员 Open Source Profile 门禁。发布工作流只构建三份 VSIX 一次，后续宿主直接使用已生成的包。
 
 ## 本机证据

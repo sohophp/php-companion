@@ -4230,7 +4230,20 @@ export class SemanticWorkspace {
         if (file.syntaxErrors.length) return { error: `Cannot move ${replacement.oldFqcn}: a related file has PHP syntax errors.` };
         touchedSourceUris.add(file.uri);
         const targetUri = movedUri.get(file.uri) ?? file.uri;
-        for (const imported of matchingImports) edits.push({ uri: targetUri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn });
+        for (const imported of matchingImports) {
+          const targetImportExists = file.imports.some((candidate) => candidate !== imported && candidate.kind === 'class'
+            && candidate.namespace.toLowerCase() === imported.namespace.toLowerCase()
+            && candidate.alias.toLowerCase() === imported.alias.toLowerCase()
+            && candidate.fqcn.toLowerCase() === replacement.newFqcn.toLowerCase());
+          const standaloneImport = file.imports.filter((candidate) => candidate.statementStart === imported.statementStart).length === 1;
+          if (targetImportExists && standaloneImport) {
+            let end = imported.statementEnd;
+            while (end < file.source.length && (file.source[end] === ' ' || file.source[end] === '\t')) end += 1;
+            if (file.source[end] === '\r') end += 1;
+            if (file.source[end] === '\n') end += 1;
+            edits.push({ uri: targetUri, start: imported.statementStart, end, newText: '' });
+          } else edits.push({ uri: targetUri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn });
+        }
         for (const raw of matchingRaw) {
           const namespace = this.namespaceAt(file, raw.start);
           const imported = matchingImports.some((item) => item.namespace.toLowerCase() === namespace.toLowerCase());
