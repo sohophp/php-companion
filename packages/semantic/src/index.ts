@@ -3817,7 +3817,7 @@ export class SemanticWorkspace {
     return undefined;
   }
 
-  private groupedAttributeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string } | undefined {
+  private groupedAttributeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string; precedingNames: string[] } | undefined {
     const before = file.source.slice(0, offset);
     let start = before.length;
     while (start > 0 && /[\\A-Za-z0-9_\x80-\xff]/u.test(before[start - 1]!)) start -= 1;
@@ -3828,6 +3828,7 @@ export class SemanticWorkspace {
     if (marker < 0 || triviaRanges.some((range) => range.start <= marker && marker < range.end))
       return undefined;
     let parentheses = 0; let brackets = 0; let lastComma = -1; let nonTriviaSinceComma = false;
+    let segmentStart = marker + 2; const precedingNames: string[] = [];
     let triviaIndex = 0;
     for (let index = marker + 2; index < start; index += 1) {
       while (triviaIndex < triviaRanges.length && triviaRanges[triviaIndex]!.end <= index) triviaIndex += 1;
@@ -3839,15 +3840,20 @@ export class SemanticWorkspace {
       else if (char === ')') { if (!parentheses) return undefined; parentheses -= 1; }
       else if (char === '[') brackets += 1;
       else if (char === ']') { if (!brackets) return undefined; brackets -= 1; }
-      else if (char === ',' && !parentheses && !brackets) { lastComma = index; nonTriviaSinceComma = false; }
+      else if (char === ',' && !parentheses && !brackets) {
+        const name = /^\s*(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)/u
+          .exec(before.slice(segmentStart, index))?.[1];
+        if (name) precedingNames.push(name);
+        segmentStart = index + 1; lastComma = index; nonTriviaSinceComma = false;
+      }
       else if (char === ';' && !parentheses && !brackets) return undefined;
       if (lastComma >= 0 && index !== lastComma && char && !/\s/u.test(char)) nonTriviaSinceComma = true;
     }
     if (parentheses || brackets || lastComma < 0 || nonTriviaSinceComma) return undefined;
     const separator = token.lastIndexOf('\\');
-    if (separator < 0) return { prefix: token };
+    if (separator < 0) return { prefix: token, precedingNames };
     const namespace = this.resolveSourceType(file, token.slice(0, separator), this.namespaceAt(file, offset));
-    return namespace === undefined ? undefined : { prefix: token.slice(separator + 1), namespace };
+    return namespace === undefined ? undefined : { prefix: token.slice(separator + 1), namespace, precedingNames };
   }
 
   private isAttributeClass(file: SemanticFile, declaration: ParsedDeclaration): boolean {
@@ -3880,6 +3886,29 @@ export class SemanticWorkspace {
             ? ATTRIBUTE_TARGET_FLAGS.TARGET_CLASS_CONSTANT : ATTRIBUTE_TARGET_FLAGS.TARGET_CONSTANT;
         default: return undefined;
       }
+    } finally { temporaryTree?.delete(); }
+  }
+
+  private precedingAttributesAt(uri: string, file: SemanticFile, offset: number): Set<string> {
+    const used = new Set<string>();
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
+      while (node && node.type !== 'attribute_list') node = node.parent;
+      const owner = node?.parent;
+      if (!owner) return used;
+      for (const list of owner.namedChildren.filter((child) => child.type === 'attribute_list')) {
+        for (const group of list.namedChildren) {
+          for (const attribute of group.namedChildren.filter((child) => child.type === 'attribute')) {
+            const name = attribute.childForFieldName('name') ?? attribute.namedChildren[0];
+            if (!name || name.endIndex >= offset) continue;
+            const resolved = this.resolveSourceType(file, name.text, this.namespaceAt(file, name.startIndex));
+            if (resolved) used.add(resolved.toLowerCase());
+          }
+        }
+      }
+      return used;
     } finally { temporaryTree?.delete(); }
   }
 
@@ -3968,6 +3997,11 @@ export class SemanticWorkspace {
     const constructKind = docContext || traitContext || importContext ? undefined
       : groupedAttribute ? 'attribute' : this.constructTypeCompletionKind(file, offset);
     const attributeTarget = constructKind === 'attribute' ? this.attributeTargetAt(uri, file, offset) : undefined;
+    const precedingAttributes = constructKind === 'attribute' ? this.precedingAttributesAt(uri, file, offset) : undefined;
+    for (const name of groupedAttribute?.precedingNames ?? []) {
+      const resolved = this.resolveSourceType(file, name, this.namespaceAt(file, offset));
+      if (resolved) precedingAttributes?.add(resolved.toLowerCase());
+    }
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
     const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier
@@ -4013,6 +4047,10 @@ export class SemanticWorkspace {
       if (constructKind === 'attribute' && attributeTarget !== undefined) {
         const flags = this.attributeTargetFlags(owner, candidate);
         if (flags !== undefined && !(flags & attributeTarget)) continue;
+      }
+      if (constructKind === 'attribute' && precedingAttributes?.has(candidateKey)) {
+        const flags = this.attributeTargetFlags(owner, candidate);
+        if (flags !== undefined && !(flags & (ATTRIBUTE_TARGET_FLAGS.IS_REPEATABLE ?? 0))) continue;
       }
       const collision = localFqcn(candidate.name.toLowerCase()) ?? importedVisible.get(candidate.name.toLowerCase());
       if (qualifiedNamespace === undefined && !visibleName && collision && collision.toLowerCase() !== candidateKey) continue;

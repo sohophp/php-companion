@@ -5027,17 +5027,19 @@ class C1AttributePlain { #[\\Attribute] public function run(): void {} }`;
       expect(project.completeTypes(uri, source.length).map((item) => item.fqcn)).toEqual([
         'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
       ]);
-      for (const grouped of [
-        '<?php namespace App; #[\\Domain\\C1AttributeAlias, C1Attribute] class Consumer {}',
-        '<?php namespace App; #[\\Domain\\C1AttributeAlias(1, 2), C1Attribute',
-        '<?php namespace App; #[\\Domain\\C1AttributeAlias, /* next */ C1Attribute] class Consumer {}',
-        '<?php namespace App; #[\\Domain\\C1AttributeAlias, \\Domain\\C1Attribute] class Consumer {}',
-      ]) {
+      for (const [grouped, expected] of [
+        ['<?php namespace App; #[\\Domain\\C1AttributeAlias, C1Attribute] class Consumer {}',
+          ['Domain\\C1AttributeQualified']],
+        ['<?php namespace App; #[\\Domain\\C1AttributeAlias(1, 2), C1Attribute',
+          ['Domain\\C1AttributeQualified']],
+        ['<?php namespace App; #[\\Domain\\C1AttributeAlias, /* next */ C1Attribute] class Consumer {}',
+          ['Domain\\C1AttributeQualified']],
+        ['<?php namespace App; #[\\Domain\\C1AttributeAlias, \\Domain\\C1Attribute] class Consumer {}',
+          ['Domain\\C1AttributeQualified']],
+      ] as const) {
         project.update(uri, grouped);
         const offset = grouped.lastIndexOf('C1Attribute') + 'C1Attribute'.length;
-        expect(project.completeTypes(uri, offset).map((item) => item.fqcn), grouped).toEqual([
-          'Domain\\C1AttributeAlias', 'Domain\\C1AttributeQualified',
-        ]);
+        expect(project.completeTypes(uri, offset).map((item) => item.fqcn), grouped).toEqual(expected);
       }
       project.update(uri, source);
       project.updateDeclarations('file:///AttributeCandidates.php', declarations.replace(
@@ -5086,6 +5088,37 @@ use Attribute as Marker;
         const offset = source.indexOf('C1Target]') + 'C1Target'.length;
         expect(project.completeTypes(uri, offset).map((item) => item.name), source).toEqual(expected);
       }
+    } finally { project.dispose(); }
+  });
+  it('excludes a proven non-repeatable Attribute already used on the same declaration', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.updateDeclarations('file:///AttributeRepeatability.php', `<?php namespace Domain;
+#[\\Attribute] class C1Once {}
+#[\\Attribute(\\Attribute::TARGET_CLASS | \\Attribute::IS_REPEATABLE)] class C1Repeat {}
+#[\\Attribute(dynamicFlags())] class C1Unknown {}`);
+      const uri = 'file:///AttributeRepeatUse.php';
+      for (const source of [
+        '<?php namespace App; #[\\Domain\\C1Once, C1] class Consumer {}',
+        '<?php namespace App; #[\\Domain\\C1Once] #[C1] class Consumer {}',
+        '<?php namespace App; #[\\Domain\\C1Once(1, 2), C1',
+      ]) {
+        project.update(uri, source);
+        const offset = source.includes('C1]') ? source.lastIndexOf('C1]') + 2 : source.length;
+        expect(project.completeTypes(uri, offset).map((item) => item.name), source).toEqual(['C1Repeat', 'C1Unknown']);
+      }
+      const repeatable = '<?php namespace App; #[\\Domain\\C1Repeat, C1] class Consumer {}';
+      project.update(uri, repeatable);
+      expect(project.completeTypes(uri, repeatable.lastIndexOf('C1]') + 2).map((item) => item.name))
+        .toEqual(['C1Once', 'C1Repeat', 'C1Unknown']);
+      const editing = '<?php namespace App; #[C1Once] class Consumer {}';
+      project.update(uri, editing);
+      expect(project.completeTypes(uri, editing.indexOf('C1Once') + 2).map((item) => item.name))
+        .toContain('C1Once');
+      const differentDeclaration = '<?php namespace App; #[\\Domain\\C1Once] class First {} #[C1] class Second {}';
+      project.update(uri, differentDeclaration);
+      expect(project.completeTypes(uri, differentDeclaration.lastIndexOf('C1]') + 2).map((item) => item.name))
+        .toContain('C1Once');
     } finally { project.dispose(); }
   });
   it('completes qualified native type names without adding an import', () => {

@@ -1099,6 +1099,7 @@ class C1ConstructionPositions {
     ['C1TargetClass', '\\Attribute::TARGET_CLASS'],
     ['C1TargetMethod', '\\Attribute::TARGET_METHOD'],
     ['C1TargetAll', undefined],
+    ['C1TargetRepeat', '\\Attribute::TARGET_ALL | \\Attribute::IS_REPEATABLE'],
   ] as const) {
     await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, `${name}.php`),
       Buffer.from(`<?php namespace App\\C1\\External; #[\\Attribute${flags ? `(${flags})` : ''}] class ${name} {}`));
@@ -1141,7 +1142,10 @@ class C1ConstructionPositions {
       (result) => result?.items.some((item) => item.label === expected) === true,
       `SoPHP omitted ${expected} as the second name in an Attribute group.`,
     );
-    assert.ok(suggestions.items.some((item) => item.label === 'C1TargetAll'), 'Grouped Attribute omitted the default target.');
+    assert.ok(!suggestions.items.some((item) => item.label === 'C1TargetAll'),
+      'Grouped Attribute repeated a non-repeatable class.');
+    assert.ok(suggestions.items.some((item) => item.label === 'C1TargetRepeat'),
+      'Grouped Attribute omitted a repeatable class.');
     assert.ok(!suggestions.items.some((item) => item.label === rejected),
       `Grouped Attribute suggested ${rejected} at the wrong target.`);
   }
