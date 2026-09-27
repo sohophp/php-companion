@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.9 - 2026-09-27
+
+- Accept new unsaved Symfony service configuration snapshots and await current container facts for service Definition.
+- Align with the 0.4.9 SoPHP Core and Open Source Pack private Alpha candidate.
+
 ## 0.4.8 - 2026-09-27
 
 - Align the Symfony extension version with the 0.4.8 SoPHP Core and Open Source Pack candidate; the Symfony extension still owns framework editor providers.

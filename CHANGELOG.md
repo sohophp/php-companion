@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.9 - 2026-09-27
+
+- Complete PHP trait, inheritance, construction, catch and Attribute input contexts with more precise candidates, including abstract-class and exception-type filtering.
+- Keep PHP Attribute constructor arguments and Symfony service definitions current as unopened Composer sources and unsaved buffers change.
+- Retain the 10-member Open Source Pack and align Core, Symfony and Pack for one private Alpha milestone.
+
 ## 0.4.8 - 2026-09-27
 
 - Complete project and imported PHP type suggestions in qualified namespaces, PHPDoc template bounds across lines, and multi-catch exception clauses.
