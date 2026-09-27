@@ -672,7 +672,9 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
     suffix = (templateBoundContinues ? ' ' : '') + continuation[1]!.trimStart() + suffix;
   }
   if (body === undefined) return undefined;
-  if (!/^[\s?\\A-Za-z0-9_\x80-\xff|&<>,[\]()]*$/u.test(body)) return undefined;
+  const typeBody = body.replace(/\b(?:array-key|class-string|interface-string|trait-string|key-of|value-of|non-empty-string|numeric-string|literal-string|non-empty-array|non-empty-list|positive-int|negative-int|non-negative-int|non-positive-int|non-zero-int|int-mask-of|int-mask)\b/giu,
+    (name) => name.replaceAll('-', '_'));
+  if (!/^[\s?\\A-Za-z0-9_\x80-\xff|&<>,[\]()]*$/u.test(typeBody)) return undefined;
   const prefix = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(body)?.[1] ?? '';
   const before = body.slice(0, body.length - prefix.length);
   if (!prefix && body.trim() && !/[|&<,(?\\]\s*$/u.test(body)) return undefined;

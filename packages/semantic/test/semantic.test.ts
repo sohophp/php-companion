@@ -6133,6 +6133,27 @@ function useNames(): void {
     workspace.update('file:///RenameType/NewName.php', '<?php namespace RenameType; class NewName {}');
     expect(workspace.typeRename('file:///RenameType/OldName.php', declaration.indexOf('OldName') + 2, 'NewName')).toBeUndefined();
   });
+  it('renames imported trait names inside class-string PHPDoc types', () => {
+    const declarationUri = 'file:///RenameTrait/LogsActivity.php';
+    const consumerUri = 'file:///RenameTrait/ActivityService.php';
+    const declaration = '<?php namespace App\\Support; trait LogsActivity {}';
+    const consumer = `<?php namespace App\\Service;
+      use App\\Support\\LogsActivity;
+      final class ActivityService {
+        use LogsActivity;
+        /** @return class-string<LogsActivity> */
+        public function traitName(): string { return LogsActivity::class; }
+        /** @return invalid-type<LogsActivity> */
+        public function invalidDoc(): string { return 'LogsActivity'; }
+      }`;
+    workspace.update(declarationUri, declaration);
+    workspace.update(consumerUri, consumer);
+    const rename = workspace.typeRename(declarationUri, declaration.indexOf('LogsActivity') + 2, 'TracksActivity');
+    const docOffset = consumer.indexOf('class-string<LogsActivity>') + 'class-string<'.length;
+    expect(rename?.locations).toContainEqual({ uri: consumerUri, start: docOffset, end: docOffset + 'LogsActivity'.length });
+    const invalidOffset = consumer.indexOf('invalid-type<LogsActivity>') + 'invalid-type<'.length;
+    expect(rename?.locations).not.toContainEqual({ uri: consumerUri, start: invalidOffset, end: invalidOffset + 'LogsActivity'.length });
+  });
   it('plans atomic type moves with namespace, import and proven reference edits', () => {
     const declaration = '<?php namespace MoveType\\Legacy; class Runner { public static function make(): Runner { return new \\MoveType\\Legacy\\Runner(); } }';
     const sameNamespace = '<?php namespace MoveType\\Legacy; final class Consumer { public const TYPE = Runner::class; }';

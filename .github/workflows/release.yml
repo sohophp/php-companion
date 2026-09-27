@@ -27,6 +27,14 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      - name: Verify release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: test "$GITHUB_REF" = "refs/tags/v$(node -p 'require("./package.json").version')"
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          tools: phpunit:9.6.36, php-cs-fixer:3.95.22
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
@@ -35,7 +43,19 @@ jobs:
       - run: node scripts/benchmark-editing.mjs 1000 100 > editing-resilience-Linux-X64.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
-      - run: pnpm test:extension:packaged
+      - run: pnpm exec tsc -p test/extension/tsconfig.json
+      - run: node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js
+      - name: Install pinned Open Source Profile
+        run: pnpm install:open-source-profile
+        env:
+          PHP_COMPANION_TEST_EXTENSIONS_DIR: ${{ runner.temp }}/php-companion-open-source-extensions
+      - name: Test packaged Open Source Profile
+        run: node scripts/run-extension-test.mjs ./dist-test/runPackagedTest.js
+        env:
+          PHP_COMPANION_TEST_EXTENSIONS_DIR: ${{ runner.temp }}/php-companion-open-source-extensions
+          PHP_COMPANION_PHP_EXECUTABLE: php
+          PHP_COMPANION_FORMATTER_EXECUTABLE: php-cs-fixer
+          PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunit
       - uses: actions/upload-artifact@v7
         with:
           name: editing-resilience-Linux-X64
@@ -46,12 +66,12 @@ jobs:
           name: php-companion-vsix
           if-no-files-found: error
           path: |
-            php-companion-0.4.6.vsix
-            packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix
-            packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.6.vsix
+            php-companion-*.vsix
+            packages/php-companion-symfony/php-companion-symfony-*.vsix
+            packages/php-companion-extension-pack/php-companion-open-source-pack-*.vsix
 
   publish-marketplace:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
     needs: build
     runs-on: ubuntu-latest
     environment: marketplace
@@ -65,15 +85,24 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: php-companion-vsix
+      - name: Verify release tag and package version
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          test "$GITHUB_REF" = "refs/tags/v$VERSION"
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
       - name: Verify Marketplace credentials
         run: pnpm exec vsce verify-pat sohophp
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish SoPHP
-        run: pnpm exec vsce publish --packagePath php-companion-0.4.6.vsix
+        run: pnpm exec vsce publish --packagePath "php-companion-${RELEASE_VERSION}.vsix"
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Publish SoPHP Symfony
-        run: pnpm exec vsce publish --packagePath packages/php-companion-symfony/php-companion-symfony-0.4.6.vsix
+        run: pnpm exec vsce publish --packagePath "packages/php-companion-symfony/php-companion-symfony-${RELEASE_VERSION}.vsix"
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Publish SoPHP Open Source Pack
+        run: pnpm exec vsce publish --packagePath "packages/php-companion-extension-pack/php-companion-open-source-pack-${RELEASE_VERSION}.vsix"
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

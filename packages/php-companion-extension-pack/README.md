@@ -2,7 +2,7 @@
 
 面向希望直接使用自研 PHP Language Server 和开源 PHP 工具的开发者。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
-当前源码组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。私有候选的准确源码提交、三份 VSIX 摘要与外部成员版本以其 `candidate.json` 和 `SHA256SUMS` 为准；公开 Marketplace 页面仍是旧清单。
+0.4.10 组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。Pack 声明扩展 ID，但外部成员版本仍随 Marketplace 更新；需要复现验证组合时，请使用对应候选的 `candidate.json` 和 `SHA256SUMS`。
 
 成员职责、现有验证范围和 Core 下一步见[Open Source Pack 当前执行清单](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-current-priority-2026-09-27.md)。[Marketplace 与源码清单核对](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-marketplace-audit-2026-09-25.md)记录了公开旧包的实际成员与外部工具的稳定版本快照。
 
@@ -21,7 +21,7 @@
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 | PHP DocBlocker | 输入 `/**` 生成 PHPDoc，补全 `@param` 等标签；SoPHP 负责解析生成的类型 |
 
-以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新候选生成。[公开 Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)仍是旧清单，且 SoPHP Symfony 尚未公开上架；不能用公开包的安装结果验证本仓库源码。Core、Symfony 和 Pack 要使用同一候选的三个 VSIX。实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新版本生成。安装时核对 Core、Symfony 和 Pack 都为 0.4.10；实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
 
 **测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。需要 PHPUnit 测试视图时，可单独试用 `aossoftware.aos-phpunit` 0.2.0：它已在隔离 Linux 的完整组合中通过实际 PHPUnit 运行和测试文件 Rename/Undo/Redo，但 Pest 与真实 WSL Remote 尚未验收，因此不随 Pack 自动安装。`recca0120.vscode-phpunit` 原版 3.9.40 在完整组合的文件 Rename 后有旧路径错误；若已单独安装并遇到此错误，应在该工作区禁用。见[测试提供者评估](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-test-provider-candidates-2026-09-25.md)。
 
@@ -58,6 +58,6 @@ VS Code 内建 PHP 校验默认在保存时调用 PHP CLI。项目使用 PHP 8.5
 
 ## 本地候选安装
 
-私有候选在 `artifacts/php-companion-alpha-<版本>-<提交号>/`，由 `pnpm candidate:alpha` 输出准确目录；它不属于公开 Marketplace 的发行文件。Symfony 尚按私有候选交付。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。
+私有候选在 `artifacts/php-companion-alpha-<版本>-<提交号>/`，由 `pnpm candidate:alpha` 输出准确目录；它们用于验证未发布增量，不代表公开 Marketplace 版本。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。
 
 进入 `pnpm candidate:alpha` 输出的目录后运行 `sha256sum -c SHA256SUMS`。

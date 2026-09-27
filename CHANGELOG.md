@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.10 - 2026-09-27
+
+- Publish the self-hosted SoPHP Core, SoPHP Symfony, and the 10-member Open Source Pack as one aligned release after the 0.4.6–0.4.9 private Alpha milestones.
+- Keep construction, catch, inheritance, trait, and Attribute completion limited to proven PHP contexts, including constructor visibility and repeatable Attribute rules.
+- Preserve imported type renames inside recognized hyphenated PHPDoc generics such as `class-string<T>`; malformed pseudo-types remain outside semantic Rename.
+- Refresh Symfony route, service, event, and Controller-to-Twig facts after unsaved edits without retaining stale definitions.
+- Run package identity, full source tests, packaged Extension Host, and the pinned Open Source Profile before Marketplace publication; publish Core, Symfony, then Pack.
+- Known limit: when every staged file move is rejected, the final `createFile` fallback creates the requested type but VS Code 1.139.1 does not restore it with one Redo after Undo. The command warns when this fallback is used.
+
 ## 0.4.9 - 2026-09-27
 
 - Complete PHP trait, inheritance, construction, catch and Attribute input contexts with more precise candidates, including abstract-class and exception-type filtering.

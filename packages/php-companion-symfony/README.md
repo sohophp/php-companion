@@ -20,4 +20,4 @@ Twig 语言能力继续由 TwigPlus 提供，通用 YAML/XML 语法和格式化�
 pnpm package:symfony
 ```
 
-VSIX 文件名以打包命令输出的当前版本为准。日常试用应按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装 Core、Symfony 和 Open Source Pack；不混用旧版本的独立 VSIX。源码增量验证无需每次重新打包。
+VSIX 文件名以打包命令输出的当前版本为准。公开安装时应让 Core、Symfony 和 Open Source Pack 保持同一版本；试用未发布增量时按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装三份 VSIX。源码增量验证无需每次重新打包。

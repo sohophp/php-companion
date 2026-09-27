@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.10 - 2026-09-27
+
+- Publish the standalone Symfony extension alongside SoPHP Core and Open Source Pack.
+- Keep route, service, event, and Controller-to-Twig facts synchronized with unsaved PHP and configuration edits.
+- Retain conservative source proof when a route scan, service graph, or Controller context is incomplete.
+
 ## 0.4.9 - 2026-09-27
 
 - Accept new unsaved Symfony service configuration snapshots and await current container facts for service Definition.
