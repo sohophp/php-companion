@@ -103,3 +103,5 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 [Attribute 重复使用补全](c1-attribute-repeatability-completion-2026-09-27.md)继续补齐 Core 的 C1 输入体验：同一声明已使用且可证明不可重复的 Attribute 不再二次建议；允许重复或标志未知的类仍保留。语义包、隔离 Core 宿主与完整 10 项 Pack 源码 Profile 的 C1 操作链通过。下一步仍以独立 Composer 项目的 C1/C2 错误和等待为优先证据；这项源码增量尚未进入冻结候选，也不改变 Pack 成员。
 
 [Attribute 构造参数输入](c1-attribute-constructor-arguments-2026-09-27.md)补上未闭合 `#[Config(na` 的命名参数建议与构造函数参数提示，并按需载入未打开的 Composer Attribute 类。语义、真实 LSP 和完整 Pack 源码宿主均通过；现有成员分工维持不变。下一步继续检查高频普通 PHP 编辑中的错误结果、旧结果和明显等待，然后处理 C3 的可复现阻断项。偶发的 VS Code `Canceled` 已有三次同配置完整 C3 复核未复现，仍需在下一次出现时记录命令与文档版本；最终 `createFile` 兜底 Redo 仍开放。
+
+[Attribute 参数的跨文件反馈](c2-attribute-constructor-buffer-feedback-2026-09-27.md)又以独立 Composer 项目确认 Completion 和 Signature Help 同步跟随未保存构造函数声明，关闭后立即恢复磁盘参数。此项进入 C2 回归，不改变 Pack 成员或候选冻结节奏。

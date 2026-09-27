@@ -9422,6 +9422,60 @@ class ChildService extends Service { public function call(int|string $value): vo
     });
   });
 
+  it('follows an unsaved Composer Attribute constructor and restores disk parameters after close', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-attribute-arguments-'));
+    try {
+      await mkdir(join(root, 'lib')); await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'Lib\\': 'lib/', 'App\\': 'src/' } } }));
+      const declarationUri = pathToFileURL(join(root, 'lib', 'Config.php')).toString();
+      const disk = '<?php namespace Lib; #[\\Attribute] class Config { public function __construct(string $name) {} }';
+      const buffer = disk.replace('$name', '$label');
+      await writeFile(join(root, 'lib', 'Config.php'), disk);
+      const uri = pathToFileURL(join(root, 'src', 'Consumer.php')).toString();
+      const source = '<?php namespace App; use Lib\\Config; #[Config(';
+      await writeFile(join(root, 'src', 'Consumer.php'), source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 6244, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 6244);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 1);
+      const position = lspPosition(source, source.length);
+      const completion = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position,
+        } }));
+        const result = (await output.waitFor((message) => message.id === id, 15_000)).result as Array<{ label: string }>;
+        return result.map((item) => item.label).filter((label) => label === 'name:' || label === 'label:');
+      };
+      const signature = async (id: number): Promise<string | undefined> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/signatureHelp', params: {
+          textDocument: { uri }, position,
+        } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result?.signatures?.[0]?.label;
+      };
+      expect(await completion(6245)).toEqual(['name:']);
+      expect(await signature(6246)).toContain('$name');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: buffer },
+      } }));
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === declarationUri && message.params.version === 1);
+      expect(await completion(6247)).toEqual(['label:']);
+      expect(await signature(6248)).toContain('$label');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: declarationUri } } }));
+      expect(await completion(6249)).toEqual(['name:']);
+      expect(await signature(6250)).toContain('$name');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('selects the documented overload across punctuation in an argument comment', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);
