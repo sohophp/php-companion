@@ -5650,6 +5650,13 @@ function useNames(): void {
     const trait = '<?php namespace App; class Consumer { use Domain\\Billing\\{Inv}; }';
     workspace.update('file:///GroupTrait.php', trait);
     expect(workspace.completeTypes('file:///GroupTrait.php', trait.indexOf('Inv};') + 3)).toEqual([]);
+    const globalGroup = '<?php use Domain\\Billing\\{Inv};';
+    workspace.update('file:///GlobalGroupConsumer.php', globalGroup);
+    const globalGroupOffset = globalGroup.indexOf('Inv}') + 'Inv'.length;
+    expect(workspace.typeCompletionContext('file:///GlobalGroupConsumer.php', globalGroupOffset))
+      .toMatchObject({ namespace: 'Domain\\Billing', prefix: 'Inv' });
+    expect(workspace.completeTypes('file:///GlobalGroupConsumer.php', globalGroupOffset).map((item) => item.fqcn))
+      .toContain('Domain\\Billing\\Invoice');
   });
   it('locates the namespace segment in an ordinary class use statement', () => {
     for (const [text, expected] of [
@@ -5668,6 +5675,12 @@ function useNames(): void {
     const trait = '<?php namespace App; class C { use Domain\\Bil; }';
     workspace.update('file:///NamespaceTrait.php', trait);
     expect(workspace.namespaceImportContext('file:///NamespaceTrait.php', trait.indexOf('Bil;') + 3)).toBeUndefined();
+    const globalImport = '<?php use Domain\\Bil';
+    workspace.update('file:///GlobalNamespaceImport.php', globalImport);
+    expect(workspace.namespaceImportContext('file:///GlobalNamespaceImport.php', globalImport.length))
+      .toEqual({ qualifier: 'Domain', prefix: 'Bil' });
+    expect(workspace.typeCompletionContext('file:///GlobalNamespaceImport.php', globalImport.length))
+      .toMatchObject({ namespace: 'Domain', prefix: 'Bil' });
     workspace.update('file:///NamespaceDirectType.php', '<?php namespace NamespaceProbe; class DirectType {}');
     workspace.update('file:///NamespaceNestedType.php', '<?php namespace NamespaceProbe\\Nested; class NestedType {}');
     const emptyMember = '<?php namespace App; use NamespaceProbe\\';

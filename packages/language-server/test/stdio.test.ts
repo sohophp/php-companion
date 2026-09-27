@@ -169,6 +169,20 @@ describe('language server stdio', () => {
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
       ]));
       expect(manualImportResult.find((item: { label: string }) => item.label === 'Invoice')?.additionalTextEdits).toBeUndefined();
+      for (const [id, globalImport, fragment, expected] of [
+        [11801, '<?php use Dom; class GlobalNamespaceImport {}', 'use Dom', 'Domain\\'],
+        [11802, '<?php use Domain\\Billing\\Inv; class GlobalTypeImport {}', 'use Domain\\Billing\\Inv', 'Invoice'],
+      ] as const) {
+        const globalUri = pathToFileURL(join(root, 'src', `GlobalImport-${id}.php`)).toString();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri: globalUri, languageId: 'php', version: 1, text: globalImport },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: globalUri }, position: lspPosition(globalImport, globalImport.indexOf(fragment) + fragment.length),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id)).result;
+        expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: expected })]));
+      }
       const groupImport = '<?php namespace App; use Domain\\Billing\\{Inv}; class GroupImport {}';
       const groupImportUri = pathToFileURL(join(root, 'src', 'GroupImport.php')).toString();
       await writeFile(join(root, 'src', 'GroupImport.php'), groupImport);
@@ -188,6 +202,19 @@ describe('language server stdio', () => {
           end: lspPosition(groupImport, groupImport.indexOf('{Inv') + '{Inv}'.length) },
         newText: '{Invoice}',
       });
+      const globalGroupImport = '<?php use Domain\\Billing\\{Inv}; class GlobalGroupImport {}';
+      const globalGroupUri = pathToFileURL(join(root, 'src', 'GlobalGroupImport.php')).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: globalGroupUri, languageId: 'php', version: 1, text: globalGroupImport },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 11803, method: 'textDocument/completion', params: {
+        textDocument: { uri: globalGroupUri }, position: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv'.length),
+      } }));
+      expect((await output.waitFor((message) => message.id === 11803)).result).toEqual([
+        expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice',
+          textEdit: { range: { start: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv')),
+            end: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv}'.length) }, newText: '{Invoice}' } }),
+      ]);
       const laterGroupImport = groupImport.replace('{Inv}', '{Receipt, Inv}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: groupImportUri, version: 2 }, contentChanges: [{ text: laterGroupImport }],

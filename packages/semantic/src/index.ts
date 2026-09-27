@@ -445,7 +445,7 @@ function wordAt(source: string, offset: number): { text: string; start: number; 
 
 function qualifiedImportCompletion(source: string, offset: number): { qualifier: string; prefix: string; grouped: boolean } | undefined {
   const before = source.slice(0, offset);
-  const group = /(?:^|[;\n])\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/.exec(before);
+  const group = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/.exec(before);
   if (group) {
     const member = group[2]!.split(',').at(-1)!.trimStart();
     if (!/^(?:function|const)\b/.test(member)) {
@@ -459,13 +459,13 @@ function qualifiedImportCompletion(source: string, offset: number): { qualifier:
       }
     }
   }
-  const match = /(?:^|[;\n])\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
+  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
   if (!match) return undefined;
   return { qualifier: match[1]!.replace(/^\\/, '').slice(0, -1), prefix: match[2] ?? '', grouped: false };
 }
 
 function namespaceImportCompletion(source: string, offset: number): { qualifier: string; prefix: string } | undefined {
-  const match = /(?:^|[;\n])\s*use\s+(?!function\b|const\b)(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(source.slice(0, offset));
+  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?!function\b|const\b)(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(source.slice(0, offset));
   if (!match) return undefined;
   const segments = match[1]!.replace(/^\\/, '').split('\\');
   if (segments.slice(0, -1).some((segment) => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))) return undefined;
