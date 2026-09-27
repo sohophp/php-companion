@@ -4045,8 +4045,10 @@ export class SemanticWorkspace {
     if (prefix === undefined) return undefined;
     const namespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier
       ?? groupedAttribute?.namespace ?? qualifiedContext?.namespace ?? this.namespaceAt(file, offset);
+    const scope = this.importScope(file, offset);
     return { prefix, namespace, importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
-      && item.namespace === namespace && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
+      && item.namespace === namespace && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end
+      && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
     ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
       replacementEnd: file.source[offset] === '}' ? offset + 1 : offset } : {}) };
   }
@@ -4078,7 +4080,9 @@ export class SemanticWorkspace {
     const namespace = this.namespaceAt(file, offset);
     const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier
       ?? groupedAttribute?.namespace ?? qualifiedContext?.namespace;
-    const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
+    const scope = this.importScope(file, offset);
+    const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace
+      && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);
     const importedVisible = new Map<string, string>();
     const importAliases = new Map<string, string>();
     for (const imported of imports) {
@@ -4160,7 +4164,9 @@ export class SemanticWorkspace {
   typeImportCandidates(uri: string, offset: number, name: string): TypeImportCandidate[] {
     const file = this.files.get(uri); if (!file || !/^[A-Z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name)) return [];
     const namespace = this.namespaceAt(file, offset);
-    const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
+    const scope = this.importScope(file, offset);
+    const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace
+      && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);
     const existing = new Set(imports.map((item) => item.fqcn.toLowerCase()));
     const occupied = new Set([...imports.map((item) => item.alias.toLowerCase()), ...file.declarations.map((item) => item.name.toLowerCase())]);
     return [...this.files.values()].flatMap((candidateFile) => candidateFile.declarations
@@ -4203,10 +4209,38 @@ export class SemanticWorkspace {
     return [...new Map(symbols.map((item) => [`${item.fqcn.toLowerCase()}:${item.alias.toLowerCase()}`, item])).values()];
   }
 
+  private importScope(file: SemanticFile, offset: number): {
+    namespace: string; start: number; end: number; insertionOffset: number;
+  } | undefined {
+    const retainedTree = this.trees.get(file.uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    const root = (retainedTree ?? temporaryTree!).rootNode;
+    try {
+      const definitions = (root.hasError ? root.descendantsOfType('namespace_definition')
+        : root.namedChildren.filter((node) => node.type === 'namespace_definition'))
+        .sort((left, right) => left.startIndex - right.startIndex);
+      for (const [index, definition] of definitions.entries()) {
+        const body = definition.childForFieldName('body');
+        const start = body ? body.startIndex + 1 : definition.endIndex;
+        const end = body ? body.endIndex - Number(file.source[body.endIndex - 1] === '}')
+          : definitions[index + 1]?.startIndex ?? file.source.length;
+        if (offset < start || offset > end) continue;
+        return { namespace: definition.childForFieldName('name')?.text.replace(/^\\+|\\+$/g, '') ?? '',
+          start, end, insertionOffset: start };
+      }
+      if (definitions.length) return undefined;
+      const opening = /^<\?php(?:\s+declare\s*\([^;]+;)?/.exec(file.source);
+      return opening ? { namespace: '', start: 0, end: file.source.length, insertionOffset: opening[0].length } : undefined;
+    } finally { temporaryTree?.delete(); }
+  }
+
   planTypeImports(uri: string, offset: number, symbols: readonly { fqcn: string; sourceAlias: string; alias?: string }[]): TypeImportPlan | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
-    const namespace = this.namespaceAt(file, offset); const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
-    const imports = file.imports.filter((item) => item.kind === 'class' && item.namespace === namespace);
+    const scope = this.importScope(file, offset); if (!scope) return undefined;
+    const { namespace } = scope; const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
+    const inScope = (item: ParsedImport): boolean => item.namespace === namespace
+      && item.statementStart >= scope.start && item.statementEnd <= scope.end;
+    const imports = file.imports.filter((item) => item.kind === 'class' && inScope(item));
     const occupied = new Map(imports.map((item) => [item.alias.toLowerCase(), item.fqcn]));
     for (const declaration of file.declarations.filter((item) => item.fqcn.split('\\').slice(0, -1).join('\\') === namespace)) occupied.set(declaration.name.toLowerCase(), declaration.fqcn);
     const existing = new Map(imports.map((item) => [item.fqcn.toLowerCase(), item.alias]));
@@ -4226,13 +4260,10 @@ export class SemanticWorkspace {
       if (alias !== symbol.sourceAlias) replacements[symbol.sourceAlias] = alias;
     }
     if (!lines.length) return { offset: 0, text: '', replacements };
-    const prior = file.imports.filter((item) => item.namespace === namespace && item.statementStart < offset).sort((left, right) => right.statementEnd - left.statementEnd)[0];
+    const prior = file.imports.filter((item) => inScope(item) && item.statementStart < offset)
+      .sort((left, right) => right.statementEnd - left.statementEnd)[0];
     if (prior) return { offset: prior.statementEnd, text: `${eol}${lines.sort().join(eol)}`, replacements };
-    const prefix = file.source.slice(0, offset); const namespaces = [...prefix.matchAll(/\bnamespace\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*[;{]/g)];
-    const declaration = namespaces.at(-1);
-    if (declaration) return { offset: declaration.index + declaration[0].length, text: `${eol}${eol}${lines.sort().join(eol)}`, replacements };
-    const opening = /^<\?php(?:\s+declare\s*\([^;]+;)?/.exec(file.source);
-    return opening ? { offset: opening[0].length, text: `${eol}${eol}${lines.sort().join(eol)}`, replacements } : undefined;
+    return { offset: scope.insertionOffset, text: `${eol}${eol}${lines.sort().join(eol)}`, replacements };
   }
 
   planTypeMoves(moves: readonly TypeMoveInput[]): TypeMoveResult {
@@ -4468,30 +4499,30 @@ export class SemanticWorkspace {
 
   importInsertion(uri: string, offset: number, fqcn: string, kind: 'class' | 'function' | 'const' = 'class', alias?: string): ImportInsertion | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
-    const namespace = this.namespaceAt(file, offset); const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
+    const scope = this.importScope(file, offset); if (!scope) return undefined;
+    const { namespace } = scope; const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
+    const inScope = (item: ParsedImport): boolean => item.namespace === namespace
+      && item.statementStart >= scope.start && item.statementEnd <= scope.end;
     const shortName = fqcn.slice(fqcn.lastIndexOf('\\') + 1); const visibleName = alias ?? shortName;
     if (kind === 'class' && (!/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(visibleName)
-      || file.imports.some((item) => item.kind === 'class' && item.namespace === namespace
+      || file.imports.some((item) => item.kind === 'class' && inScope(item)
         && (item.fqcn.toLowerCase() === fqcn.toLowerCase() || item.alias.toLowerCase() === visibleName.toLowerCase()))
       || file.declarations.some((item) => item.name.toLowerCase() === visibleName.toLowerCase()))) return undefined;
     if (kind === 'function' && (!/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(visibleName)
-      || file.imports.some((item) => item.kind === 'function' && item.namespace === namespace
+      || file.imports.some((item) => item.kind === 'function' && inScope(item)
         && (item.fqcn.toLowerCase() === fqcn.toLowerCase() || item.alias.toLowerCase() === visibleName.toLowerCase()))
       || file.callables.some((item) => item.kind === 'function' && item.fqcn.split('\\').slice(0, -1).join('\\') === namespace
         && item.name.toLowerCase() === visibleName.toLowerCase()))) return undefined;
     if (kind === 'const' && (!/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(visibleName)
-      || file.imports.some((item) => item.kind === 'const' && item.namespace === namespace
+      || file.imports.some((item) => item.kind === 'const' && inScope(item)
         && (item.fqcn === fqcn || item.alias === visibleName))
       || file.constants.some((item) => item.global && item.fqcn.split('\\').slice(0, -1).join('\\') === namespace
         && item.name === visibleName))) return undefined;
-    const imports = file.imports.filter((item) => item.namespace === namespace && item.statementStart < offset).sort((a, b) => b.statementEnd - a.statementEnd);
+    const imports = file.imports.filter((item) => inScope(item) && item.statementStart < offset)
+      .sort((a, b) => b.statementEnd - a.statementEnd);
     const statement = kind === 'function' ? `use function ${fqcn};` : kind === 'const' ? `use const ${fqcn};` : `use ${fqcn}${alias && alias !== shortName ? ` as ${alias}` : ''};`;
     if (imports[0]) return { offset: imports[0].statementEnd, text: `${eol}${statement}` };
-    const prefix = file.source.slice(0, offset); const namespaces = [...prefix.matchAll(/\bnamespace\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*[;{]/g)];
-    const declaration = namespaces.at(-1);
-    if (declaration) return { offset: declaration.index + declaration[0].length, text: `${eol}${eol}${statement}` };
-    const opening = /^<\?php(?:\s+declare\s*\([^;]+;)?/.exec(file.source);
-    return opening ? { offset: opening[0].length, text: `${eol}${eol}${statement}` } : undefined;
+    return { offset: scope.insertionOffset, text: `${eol}${eol}${statement}` };
   }
 
   private fileForDeclaration(declaration: ParsedDeclaration): SemanticFile | undefined {

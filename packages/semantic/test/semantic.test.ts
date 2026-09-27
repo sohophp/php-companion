@@ -5237,6 +5237,47 @@ use Attribute as Marker;
     const insertion = workspace.importInsertion('file:///AutoImport.php', source.indexOf('Inv;'), candidate!.importFqcn!);
     expect(insertion && `${source.slice(0, insertion.offset)}${insertion.text}${source.slice(insertion.offset)}`).toContain('use Existing\\Thing;\r\nuse Domain\\Billing\\Invoice;');
   });
+  it('inserts imports inside a bracketed global namespace', () => {
+    const uri = 'file:///GlobalBracketedImport.php';
+    const source = '<?php namespace { function run(): void { new Widget(); } }';
+    workspace.update(uri, source);
+    const offset = source.indexOf('new Widget');
+    for (const insertion of [workspace.importInsertion(uri, offset, 'Vendor\\Widget'),
+      workspace.planTypeImports(uri, offset, [{ fqcn: 'Vendor\\Widget', sourceAlias: 'Widget' }])]) {
+      expect(insertion).toBeDefined();
+      expect(insertion!.offset).toBeGreaterThan(source.indexOf('namespace {') + 'namespace {'.length - 1);
+      expect(insertion!.offset).toBeLessThan(source.indexOf('function run'));
+      const edited = `${source.slice(0, insertion!.offset)}${insertion!.text}${source.slice(insertion!.offset)}`;
+      expect(edited).toContain('namespace {\n\nuse Vendor\\Widget;');
+    }
+  });
+  it('keeps imports in their own repeated bracketed namespace block', () => {
+    const uri = 'file:///RepeatedBracketedImport.php';
+    const source = '<?php namespace App { use Vendor\\Widget; class First {} } '
+      + 'namespace App { function run(): void { new Widget(); } }';
+    workspace.update(uri, source);
+    const offset = source.indexOf('new Widget');
+    for (const insertion of [workspace.importInsertion(uri, offset, 'Vendor\\Widget'),
+      workspace.planTypeImports(uri, offset, [{ fqcn: 'Vendor\\Widget', sourceAlias: 'Widget' }])]) {
+      expect(insertion).toBeDefined();
+      expect(insertion!.offset).toBeGreaterThan(source.lastIndexOf('namespace App {'));
+      expect(insertion!.text).toContain('use Vendor\\Widget;');
+    }
+  });
+  it('offers a fresh import when another bracketed block already imports the type', () => {
+    workspace.update('file:///RepeatedBlockInvoice.php', '<?php namespace Domain\\Billing; class Invoice {}');
+    const uri = 'file:///RepeatedBlockCompletion.php';
+    const source = '<?php namespace App { use Domain\\Billing\\Invoice; class First {} } '
+      + 'namespace App { function run(): void { new Inv; } }';
+    workspace.update(uri, source);
+    const offset = source.indexOf('Inv;') + 3;
+    expect(workspace.typeCompletionContext(uri, offset)?.importedTypes).toEqual([]);
+    expect(workspace.completeTypes(uri, offset).find((item) => item.fqcn === 'Domain\\Billing\\Invoice'))
+      .toMatchObject({ name: 'Invoice', importFqcn: 'Domain\\Billing\\Invoice' });
+    expect(workspace.typeImportCandidates(uri, offset, 'Invoice')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ fqcn: 'Domain\\Billing\\Invoice', aliasRequired: false }),
+    ]));
+  });
   it('ranks visible and namespace-near type completions deterministically', () => {
     workspace.update('file:///LocalService.php', '<?php namespace App\\Controller\\Admin; class RankedLocal {}');
     workspace.update('file:///NearService.php', '<?php namespace App\\Controller; class RankedNear {}');
