@@ -3797,6 +3797,16 @@ export class SemanticWorkspace {
     return undefined;
   }
 
+  private constructTypeCompletionKind(file: SemanticFile, offset: number): 'class' | 'instanceof' | undefined {
+    const before = file.source.slice(0, offset);
+    let start = before.length;
+    while (start > 0 && /[\\A-Za-z0-9_\x80-\xff]/u.test(before[start - 1]!)) start -= 1;
+    const keyword = before.slice(0, start).trimEnd();
+    if (/\bnew$/u.test(keyword) || keyword.endsWith('#[')) return 'class';
+    if (/\binstanceof$/u.test(keyword)) return 'instanceof';
+    return undefined;
+  }
+
   private qualifiedNativeTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace: string } | undefined {
     const before = file.source.slice(0, offset);
     const match = /((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
@@ -3854,6 +3864,7 @@ export class SemanticWorkspace {
     const contextPrefix = docContext?.prefix ?? traitContext?.prefix ?? importContext?.prefix ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const inheritanceKind = docContext || traitContext || importContext ? undefined : this.inheritanceTypeCompletionKind(file, offset);
+    const constructKind = docContext || traitContext || importContext ? undefined : this.constructTypeCompletionKind(file, offset);
     const prefix = contextPrefix.toLowerCase();
     const namespace = this.namespaceAt(file, offset);
     const qualifiedNamespace = docContext?.namespace ?? traitContext?.namespace ?? importContext?.qualifier ?? qualifiedContext?.namespace;
@@ -3887,6 +3898,8 @@ export class SemanticWorkspace {
     for (const { declaration: candidate, owner, namespace: candidateNamespace } of declarations.values()) {
       if (traitContext && candidate.kind !== 'trait') continue;
       if (inheritanceKind && candidate.kind !== inheritanceKind) continue;
+      if (constructKind === 'class' && candidate.kind !== 'class') continue;
+      if (constructKind === 'instanceof' && candidate.kind === 'trait') continue;
       const candidateKey = candidate.fqcn.toLowerCase();
       if (qualifiedNamespace !== undefined && candidateNamespace.toLowerCase() !== qualifiedNamespace.toLowerCase()) continue;
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);

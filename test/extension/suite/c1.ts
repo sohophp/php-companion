@@ -1043,7 +1043,7 @@ function useCommented(mixed $value): never { return new never(); }`;
     ['trait', 'Trait', '{}'], ['enum', 'Enum', '{ case One; }'],
   ] as const) {
     await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, `C1Inheritance${suffix}.php`),
-      Buffer.from(`<?php namespace App\\C1\\External; ${kind} C1Inheritance${suffix} ${body}`));
+      Buffer.from(`<?php namespace App\\C1\\External; ${kind === 'class' ? '#[\\Attribute] ' : ''}${kind} C1Inheritance${suffix} ${body}`));
   }
   const inheritanceSource = '<?php namespace App\\C1; class C1Child extends C1Inheritance {} class C1Adapter implements C1Inheritance {}';
   const inheritanceUri = vscode.Uri.joinPath(folder, 'C1InheritanceConsumer.php');
@@ -1063,6 +1063,32 @@ function useCommented(mixed $value): never { return new never(); }`;
     assert.ok(!suggestions.items.some((item) => item.label === excluded
       || item.label === 'C1InheritanceTrait' || item.label === 'C1InheritanceEnum'),
     `SoPHP suggested an invalid declaration kind in ${marker}.`);
+  }
+  const constructionSource = `<?php namespace App\\C1;
+#[C1Inheritance]
+class C1ConstructionPositions {
+  public function run(object $value): void {
+    new C1Inheritance;
+    if ($value instanceof C1Inheritance) {}
+  }
+}`;
+  const constructionUri = vscode.Uri.joinPath(folder, 'C1ConstructionPositions.php');
+  await vscode.workspace.fs.writeFile(constructionUri, Buffer.from(constructionSource));
+  const constructionDocument = await vscode.workspace.openTextDocument(constructionUri);
+  await vscode.window.showTextDocument(constructionDocument);
+  for (const [marker, allowed, rejected] of [
+    ['new C1Inheritance', ['C1InheritanceClass'], ['C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
+    ['instanceof C1Inheritance', ['C1InheritanceClass', 'C1InheritanceInterface', 'C1InheritanceEnum'], ['C1InheritanceTrait']],
+    ['#[C1Inheritance', ['C1InheritanceClass'], ['C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
+  ] as const) {
+    const suggestions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructionUri,
+        constructionDocument.positionAt(constructionSource.indexOf(marker) + marker.length)),
+      (result) => allowed.every((name) => result?.items.some((item) => item.label === name)),
+      `SoPHP did not complete the valid PHP types in ${marker}.`,
+    );
+    for (const name of rejected) assert.ok(!suggestions.items.some((item) => item.label === name),
+      `SoPHP suggested invalid ${name} in ${marker}.`);
   }
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,

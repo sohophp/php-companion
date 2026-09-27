@@ -12,6 +12,8 @@
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。
 
+[创建、类型检查与 Attribute 候选种类](c1-construction-kind-completion-2026-09-27.md)进一步筛选 `new`、`instanceof` 和 Attribute 的声明种类，完整语义与 10 项 Pack C1 源码宿主通过；Attribute 标记证明、真实 Remote 及其它 C1/C2 操作链继续开放。
+
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
 本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。

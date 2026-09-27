@@ -4994,6 +4994,23 @@ TXT;
       expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), fragment).toEqual(expected);
     }
   });
+  it('filters new, instanceof and attribute candidates by PHP declaration kind', () => {
+    workspace.update('file:///ConstructionKinds.php', `<?php namespace Domain;
+      #[\\Attribute] class C1ConstructClass {} interface C1ConstructInterface {}
+      trait C1ConstructTrait {} enum C1ConstructEnum { case One; }`);
+    const cases = [
+      ['<?php namespace App; function run(): void { new C1Construct', ['Domain\\C1ConstructClass']],
+      ['<?php namespace App; function run(): void { new \\Domain\\C1Construct', ['Domain\\C1ConstructClass']],
+      ['<?php namespace App; function run(): void { $value instanceof C1Construct',
+        ['Domain\\C1ConstructClass', 'Domain\\C1ConstructEnum', 'Domain\\C1ConstructInterface']],
+      ['<?php namespace App; #[C1Construct', ['Domain\\C1ConstructClass']],
+    ] as const;
+    for (const [index, [source, expected]] of cases.entries()) {
+      const uri = `file:///Construction-${index}.php`;
+      workspace.update(uri, source);
+      expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), source).toEqual(expected);
+    }
+  });
   it('completes qualified native type names without adding an import', () => {
     workspace.update('file:///QualifiedType.php', '<?php namespace Vendor\\Catalog; class Widget {} class WidgetExtra {}');
     workspace.update('file:///RelativeType.php', '<?php namespace App\\Local; class WidgetLocal {}');
