@@ -117,7 +117,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 
 也可以在资源管理器右键 PHP 文件，使用 `SoPHP: Safe Move PHP File` 选择目标目录；该命令默认先预览 namespace 与已证明引用的改动，再以一个可撤销、可重做的原子编辑完成文件移动与代码更新。可通过 `phpCompanion.move.preview: false` 跳过命令预览。
 
-新建类、接口、Trait、Enum 或测试文件会先显示预览。当前隔离 VS Code 宿主中，生成文件可由一次 Undo 删除，但随后一次 Redo 未能恢复；如果已撤销，可重新执行生成命令。此限制只涉及新文件生成，不代表 Safe Move 等其它已验证编辑操作。
+新建类、接口、Trait、Enum 或测试文件会先显示预览。当前隔离 VS Code 宿主中，经暂存文件移动创建的文件已通过一次 Undo/Redo。只有暂存移动全部不可用、最终回退到 `WorkspaceEdit.createFile` 的本机文件路径时，已观察到 Undo 删除文件后 Redo 未恢复；命令会显示警告，撤销后可重新执行生成命令。该限制不代表 Safe Move 等其它已验证编辑操作。
 
 使用 `SoPHP: Show Diagnostics Report` 和 `Show Performance Log` 查看加载与索引情况。日志不会记录源码。
 

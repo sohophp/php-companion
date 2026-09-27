@@ -2,11 +2,13 @@
 
 日期：2026-09-27。本文是当前执行入口；历史报告保留当时的候选与测试结果。只核对 SoPHP 仓库和独立 Composer 夹具，不修改业务项目。
 
+交付顺序已收紧为[稳定版优先的执行计划](../stability-first-delivery.md)：先冻结可用范围并完成真实安装验收，再改善高频体验，最后关闭 R4 全部范围。[首轮基线](stability-first-baseline-2026-09-27.md)已通过源码与 Core/Symfony 打包宿主门禁，完整组合及真实 WSL Remote 仍待验收。
+
 ## 当前决定
 
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
 - **使用同版本组合。** [0.4.12 发布版本](sophp-0412-release-gate-2026-09-27.md)的 Core、Symfony、Pack 三份 VSIX 已公开；标签构建及跨平台自动门禁通过。旧 0.4.9 私有候选仍是历史测试记录，不代表当前窗口已切到 0.4.12。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；真实 WSL Remote 操作链仍属 C4 验收。
-- **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
+- **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。没有新的高影响 C1/C2 回归时，推进已支持 C3 操作的稳定性和 C4 候选验收。`createFile` 兜底 Redo 保留失败记录，只有新的可验证线索才重新调查。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
 - **日常增量不打包发布。** 源码改动用定向测试和本地提交收口；达到需要安装验收的阶段后，再集中生成候选 VSIX。只有候选通过发布门禁并确有交付需要时才更新版本与发布。
 
 发布后 C3 审计发现并修复了[Safe Move 在多个 namespace 或别名间误删导入](c3-safe-move-import-scope-2026-09-27.md)的风险。此项已进入 0.4.11，同次打包宿主和跨平台门禁均通过。
