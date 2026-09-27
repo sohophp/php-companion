@@ -508,6 +508,10 @@ namespace App\C1;
  * @template-covariant TView as C1DocTa
  * @phpstan-template TKey of C1DocTa
  * @psalm-template TItem as C1DocTa
+ * @template TNext of
+ * C1DocTa
+ * @phpstan-template TAfter as
+ * C1DocTa
  * @template TDescription of C1DocTarget description
  * @param array{owner: C1DocTa
  * @return array{owner: C1DocTarget, reviewer?: C1DocTa
@@ -555,7 +559,8 @@ function documented(): void {}
     `SoPHP did not suggest the project class in @method type position ${marker}.`);
   }
   for (const marker of ['@template T of C1DocTa', '@template-covariant TView as C1DocTa',
-    '@phpstan-template TKey of C1DocTa', '@psalm-template TItem as C1DocTa']) {
+    '@phpstan-template TKey of C1DocTa', '@psalm-template TItem as C1DocTa',
+    '@template TNext of\n * C1DocTa', '@phpstan-template TAfter as\n * C1DocTa']) {
     assert.ok((await phpDocSuggestions(marker)).some((item) =>
       item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
     `SoPHP did not suggest the project class in PHPDoc template bound ${marker}.`);

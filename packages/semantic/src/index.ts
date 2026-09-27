@@ -643,12 +643,15 @@ function phpDocTypeCompletionContext(file: SemanticFile, offset: number, current
     }
     const continuation = /^\s*\*\s*(.*)$/u.exec(lines[index]!);
     if (!continuation || index === 0) return undefined;
+    const previousTemplate = templateTagPattern.exec(lines[index - 1]!)?.[1];
     const previous = tagPattern.exec(lines[index - 1]!)?.[2]
       ?? methodTagPattern.exec(lines[index - 1]!)?.[1]
-      ?? templateTagPattern.exec(lines[index - 1]!)?.[1]
+      ?? previousTemplate
       ?? /^\s*\*\s*(.*)$/u.exec(lines[index - 1]!)?.[1];
-    if (previous === undefined || !/[|&<,(?\\{:]\s*$/u.test(previous)) return undefined;
-    suffix = continuation[1]!.trimStart() + suffix;
+    const templateBoundContinues = previousTemplate !== undefined
+      && /^[A-Za-z_][A-Za-z0-9_]*\s+(?:of|as)\s*$/u.test(previousTemplate);
+    if (previous === undefined || (!/[|&<,(?\\{:]\s*$/u.test(previous) && !templateBoundContinues)) return undefined;
+    suffix = (templateBoundContinues ? ' ' : '') + continuation[1]!.trimStart() + suffix;
   }
   if (body === undefined) return undefined;
   if (!/^[\s?\\A-Za-z0-9_\x80-\xff|&<>,[\]()]*$/u.test(body)) return undefined;

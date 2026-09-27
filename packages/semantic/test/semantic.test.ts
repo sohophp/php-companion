@@ -343,6 +343,35 @@ class Repository {}`;
       }
     } finally { project.dispose(); }
   });
+  it('continues PHPDoc template bounds on the next line without treating descriptions as types', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocMultilineTemplateBounds.php';
+    const source = `<?php
+namespace App;
+class UserService {}
+class UserSession {}
+/**
+ * @template T of
+ * UserSe
+ * @phpstan-template U as
+ * UserSe
+ * @template V of UserService description
+ * plain UserSe
+ */
+class Repository {}`;
+    try {
+      project.update(uri, source);
+      const marker = '* UserSe';
+      for (const offset of [source.indexOf(marker) + marker.length, source.indexOf(marker, source.indexOf(marker) + 1) + marker.length]) {
+        expect(project.typeCompletionContext(uri, offset)?.prefix).toBe('UserSe');
+        expect(project.completeTypes(uri, offset).map((item) => item.name))
+          .toEqual(expect.arrayContaining(['UserService', 'UserSession']));
+      }
+      const description = source.lastIndexOf('plain UserSe') + 'plain UserSe'.length;
+      expect(project.typeCompletionContext(uri, description)).toBeUndefined();
+      expect(project.completeTypes(uri, description)).toEqual([]);
+    } finally { project.dispose(); }
+  });
   it('completes PHPDoc array shape value types without suggesting shape keys', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///DocShapes.php';
