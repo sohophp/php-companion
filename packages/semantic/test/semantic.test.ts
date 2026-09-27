@@ -5375,6 +5375,52 @@ function useNames(): void {
       }
     } finally { project.dispose(); }
   });
+  it('recognizes function and constant members inside grouped imports', () => {
+    const project = new SemanticWorkspace(parser);
+    for (const [source, kind, qualifier, prefix] of [
+      ['<?php namespace App; use function Vendor\\{crea', 'function', 'Vendor', 'crea'],
+      ['<?php namespace App; use function Vendor\\{', 'function', 'Vendor', ''],
+      ['<?php namespace App; use function Vendor\\{api_helper, crea', 'function', 'Vendor', 'crea'],
+      ['<?php namespace App; use \\Vendor\\{function crea', 'function', 'Vendor', 'crea'],
+      ['<?php namespace App; use const Vendor\\{CREATE_INVOICE, api_', 'const', 'Vendor', 'api_'],
+      ['<?php namespace App; use Vendor\\{CreateInvoiceType, function crea', 'function', 'Vendor', 'crea'],
+      ['<?php namespace App; use Vendor\\{ ClassName, function crea', 'function', 'Vendor', 'crea'],
+      ['<?php namespace App; use Vendor\\{function ', 'function', 'Vendor', ''],
+      ['<?php namespace App; use Vendor\\{function api_helper, const api_', 'const', 'Vendor', 'api_'],
+      ['<?php namespace App; use Vendor\\{const ', 'const', 'Vendor', ''],
+      ['<?php namespace App; use Vendor\\{function Nested\\crea', 'function', 'Vendor\\Nested', 'crea'],
+    ] as const) {
+      const uri = `file:///GroupSymbolImport-${kind}-${source.length}.php`;
+      project.update(uri, source);
+      expect(project.symbolImportContext(uri, source.length), source).toEqual({ kind, qualifier, prefix });
+      expect(project.completeFunctions(uri, source.length), source).toEqual([]);
+      expect(project.completeConstants(uri, source.length), source).toEqual([]);
+    }
+    for (const source of [
+      '<?php namespace App; use Vendor\\{CreateInvoiceType, crea',
+      '<?php namespace App; use function Vendor\\{const api_',
+      '<?php namespace App; use Vendor\\\\Nested\\{function crea',
+      '<?php class Consumer { use Vendor\\{function crea',
+    ]) {
+      const uri = `file:///InvalidGroupSymbolImport-${source.length}.php`;
+      project.update(uri, source);
+      expect(project.symbolImportContext(uri, source.length), source).toBeUndefined();
+    }
+    project.update('file:///GroupAliasSymbols.php', '<?php namespace Vendor; function createInvoice(): void {} const API_KEY = 1;');
+    for (const source of [
+      '<?php namespace App; use Vendor\\{function createInvoice as cre',
+      '<?php namespace App; use Vendor\\{const API_KEY as api',
+      '<?php namespace App; use function Vendor\\createInvoice as cre',
+      '<?php namespace App; use const Vendor\\API_KEY as api',
+    ]) {
+      const uri = `file:///GroupAliasImport-${source.length}.php`;
+      project.update(uri, source);
+      expect(project.symbolImportContext(uri, source.length), source).toBeUndefined();
+      expect(project.completeFunctions(uri, source.length), source).toEqual([]);
+      expect(project.completeConstants(uri, source.length), source).toEqual([]);
+    }
+    project.dispose();
+  });
   it('ranks same-namespace, imported, global, and namespace-near function completions deterministically', () => {
     workspace.update('file:///RankedFunctionLocal.php', '<?php namespace RankedFunction\\Controller\\Admin; function ranked_function_local(): void {}');
     workspace.update('file:///RankedFunctionNear.php', '<?php namespace RankedFunction\\Controller; function ranked_function_near(): void {}');

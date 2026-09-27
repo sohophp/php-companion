@@ -469,7 +469,26 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
 }
 
 function symbolImportCompletion(source: string, offset: number): { kind: 'function' | 'const'; qualifier: string; prefix: string } | undefined {
-  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(source.slice(0, offset));
+  const before = source.slice(0, offset);
+  const group = /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
+  if (group) {
+    const member = group[3]!.split(',').at(-1)!.trimStart();
+    const mixed = group[1] ? undefined : /^(function|const)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(member);
+    const kind = group[1] ?? mixed?.[1];
+    const path = group[1] ? member : mixed ? mixed[2] ?? '' : undefined;
+    if (kind && path !== undefined && !/^(?:function|const)\b/u.test(path)) {
+      const base = group[2]!.replace(/^\\/u, '').slice(0, -1);
+      const segments = path.split('\\');
+      const prefix = segments.pop()!;
+      if (base.split('\\').every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
+        && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
+        && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) {
+        const qualifier = [base, ...segments].join('\\');
+        return { kind: kind as 'function' | 'const', qualifier, prefix };
+      }
+    }
+  }
+  const match = /(?:^|[;\n]|<\?php\s+)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(before);
   if (!match) return undefined;
   const segments = (match[2] ?? '').replace(/^\\/u, '').split('\\');
   const prefix = segments.pop()!;
@@ -479,7 +498,10 @@ function symbolImportCompletion(source: string, offset: number): { kind: 'functi
 }
 
 function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
-  return symbolImportCompletion(source, offset) !== undefined;
+  if (symbolImportCompletion(source, offset) !== undefined) return true;
+  const before = source.slice(0, offset);
+  return /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/u.test(before)
+    || /(?:^|[;\n]|<\?php\s+)\s*use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/u.test(before);
 }
 
 function isCatchTypeCompletion(source: string, offset: number): boolean {

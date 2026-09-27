@@ -369,23 +369,37 @@ export async function run(): Promise<void> {
   );
   assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'c1_mix_function').length, 1);
   assert.strictEqual(mixedSuggestions.items.filter((item) => item.label === 'C1_MIX_CONSTANT').length, 1);
-  for (const [kind, prefix, expected] of [
-    ['function', 'c1_mix', 'c1_mix_function'], ['const', 'c1_mix', 'C1_MIX_CONSTANT'],
+  for (const [kind, source, expected, excluded] of [
+    ['function', '<?php namespace App\\C1; use function App\\C1\\c1_mix', 'c1_mix_function', 'C1_MIX_CONSTANT'],
+    ['const', '<?php namespace App\\C1; use const App\\C1\\c1_mix', 'C1_MIX_CONSTANT', 'c1_mix_function'],
+    ['group-function', '<?php namespace App\\C1; use function App\\C1\\{c1_mix', 'c1_mix_function', 'C1_MIX_CONSTANT'],
+    ['group-closed-function', '<?php namespace App\\C1; use function App\\C1\\{c1_mix}; class GroupImportConsumer {}', 'c1_mix_function', 'C1_MIX_CONSTANT'],
+    ['group-const', '<?php namespace App\\C1; use const App\\C1\\{c1_mix', 'C1_MIX_CONSTANT', 'c1_mix_function'],
+    ['mixed-function', '<?php namespace App\\C1; use App\\C1\\{const C1_MIX_CONSTANT, function c1_mix', 'c1_mix_function', 'C1_MIX_CONSTANT'],
+    ['mixed-const', '<?php namespace App\\C1; use App\\C1\\{function c1_mix_function, const c1_mix', 'C1_MIX_CONSTANT', 'c1_mix_function'],
   ] as const) {
-    const source = `<?php namespace App\\C1; use ${kind} App\\C1\\${prefix}`;
     const uri = vscode.Uri.joinPath(folder, `C1${kind}ImportConsumer.php`);
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
     const document = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(document);
+    const offset = source.includes('};') ? source.indexOf('};') : source.length;
     const result = await waitForResult(
       () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri,
-        document.positionAt(source.length)),
+        document.positionAt(offset)),
       (completion) => completion?.items.some((item) => item.label === expected) === true,
       `SoPHP did not complete the ${kind} import from its namespace.`,
     );
     assert.strictEqual(result.items.filter((item) => item.label === expected).length, 1);
+    assert.ok(!result.items.some((item) => item.label === excluded),
+      `SoPHP suggested the wrong symbol kind for the ${kind} import.`);
     assert.ok(!result.items.find((item) => item.label === expected)?.additionalTextEdits?.length,
       `SoPHP added another use statement while completing the ${kind} import.`);
+    if (kind.startsWith('group') || kind.startsWith('mixed')) {
+      const selected = result.items.find((item) => item.label === expected)!;
+      const range = selected.range instanceof vscode.Range ? selected.range : selected.range?.replacing;
+      assert.ok(range && document.getText(range) === 'c1_mix',
+        `SoPHP would replace more than the current member in the ${kind} import.`);
+    }
   }
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',

@@ -10382,18 +10382,23 @@ echo ranked_lsp_over;`;
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symbol-import-completion-'));
     try {
       await mkdir(join(root, 'src'), { recursive: true });
-      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['src/functions.php', 'src/constants.php'] } }));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['src/functions.php', 'src/constants.php', 'src/nested.php'] } }));
       await writeFile(join(root, 'src', 'functions.php'), '<?php namespace Vendor; function createInvoice(): string { return ""; } const CREATE_INVOICE = 1; class CreateInvoiceType {}');
       await writeFile(join(root, 'src', 'constants.php'), '<?php namespace Vendor; const API_KEY = 1; function api_helper(): void {}');
-      const functionSource = '<?php namespace App; use function Vendor\\crea';
-      const constantSource = '<?php namespace App; use const Vendor\\api_';
-      const namespaceSource = '<?php namespace App; use function Ven';
-      const functionUri = pathToFileURL(join(root, 'src', 'FunctionConsumer.php')).toString();
-      const constantUri = pathToFileURL(join(root, 'src', 'ConstantConsumer.php')).toString();
-      const namespaceUri = pathToFileURL(join(root, 'src', 'NamespaceConsumer.php')).toString();
-      await writeFile(join(root, 'src', 'FunctionConsumer.php'), functionSource);
-      await writeFile(join(root, 'src', 'ConstantConsumer.php'), constantSource);
-      await writeFile(join(root, 'src', 'NamespaceConsumer.php'), namespaceSource);
+      await writeFile(join(root, 'src', 'nested.php'), '<?php namespace Vendor\\Nested; function createNested(): void {} const NESTED_FLAG = 1;');
+      const cases = [
+        [116, '<?php namespace App; use function Vendor\\crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [117, '<?php namespace App; use const Vendor\\api_', 'API_KEY', 'api_', 'api_helper'],
+        [118, '<?php namespace App; use function Ven', 'Vendor\\', 'Ven', undefined],
+        [119, '<?php namespace App; use function Vendor\\{crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [120, '<?php namespace App; use function Vendor\\{api_helper, crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [121, '<?php namespace App; use const Vendor\\{CREATE_INVOICE, api_', 'API_KEY', 'api_', 'api_helper'],
+        [122, '<?php namespace App; use Vendor\\{CreateInvoiceType, function crea', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+        [123, '<?php namespace App; use Vendor\\{function api_helper, const api_', 'API_KEY', 'api_', 'api_helper'],
+        [124, '<?php namespace App; use Vendor\\{function Nested\\crea', 'createNested', 'crea', 'NESTED_FLAG'],
+        [125, '<?php namespace App; use Vendor\\{function Nest', 'Nested\\', 'Nest', undefined],
+        [126, '<?php namespace App; use function Vendor\\{crea}; class Consumer {}', 'createInvoice', 'crea', 'CREATE_INVOICE'],
+      ] as const;
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 115, method: 'initialize', params: {
@@ -10402,11 +10407,35 @@ echo ranked_lsp_over;`;
       } }));
       await output.waitFor((message) => message.id === 115);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-      for (const [id, uri, source, expected] of [
-        [116, functionUri, functionSource, 'createInvoice'],
-        [117, constantUri, constantSource, 'API_KEY'],
-        [118, namespaceUri, namespaceSource, 'Vendor\\'],
+      for (const [id, source, expected, prefix, excluded] of cases) {
+        const path = join(root, 'src', `ImportConsumer-${id}.php`);
+        const uri = pathToFileURL(path).toString();
+        const offset = source.includes('};') ? source.indexOf('};') : source.length;
+        await writeFile(path, source);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: source },
+        } }));
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, offset),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id, 20_000)).result;
+        const items = Array.isArray(result) ? result : result.items;
+        expect(items).toContainEqual(expect.objectContaining({ label: expected }));
+        const matching = items.filter((item: { label: string }) => item.label === expected);
+        expect(matching).toHaveLength(1);
+        expect(matching[0]?.additionalTextEdits).toBeUndefined();
+        expect(matching[0]?.textEdit).toEqual({ range: {
+          start: lspPosition(source, offset - prefix.length), end: lspPosition(source, offset),
+        }, newText: expected });
+        if (excluded) expect(items.map((item: { label: string }) => item.label)).not.toContain(excluded);
+      }
+      for (const [id, source, excluded] of [
+        [127, '<?php namespace App; use Vendor\\{function createInvoice as crea', 'createInvoice'],
+        [128, '<?php namespace App; use Vendor\\{const API_KEY as api', 'API_KEY'],
+        [129, '<?php namespace App; use function Vendor\\createInvoice as crea', 'createInvoice'],
+        [130, '<?php namespace App; use const Vendor\\API_KEY as api', 'API_KEY'],
       ] as const) {
+        const uri = pathToFileURL(join(root, 'src', `AliasConsumer-${id}.php`)).toString();
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
           textDocument: { uri, languageId: 'php', version: 1, text: source },
         } }));
@@ -10415,12 +10444,7 @@ echo ranked_lsp_over;`;
         } }));
         const result = (await output.waitFor((message) => message.id === id, 20_000)).result;
         const items = Array.isArray(result) ? result : result.items;
-        expect(items).toContainEqual(expect.objectContaining({ label: expected }));
-        const matching = items.filter((item: { label: string }) => item.label === expected);
-        expect(matching).toHaveLength(1);
-        expect(matching[0]?.additionalTextEdits).toBeUndefined();
-        if (id === 116) expect(items.map((item: { label: string }) => item.label)).not.toContain('CREATE_INVOICE');
-        if (id === 117) expect(items.map((item: { label: string }) => item.label)).not.toContain('api_helper');
+        expect(items.map((item: { label: string }) => item.label), source).not.toContain(excluded);
       }
     } finally { await rm(root, { recursive: true, force: true }); }
   });

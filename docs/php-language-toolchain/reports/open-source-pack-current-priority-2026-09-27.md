@@ -14,6 +14,8 @@ C1 普通表达式中[同前缀函数和常量的合并补全](c1-function-const
 
 随后补上[顶层 `use function` / `use const` 导入补全](c1-function-constant-import-completion-2026-09-27.md)：未打开的 Composer `autoload.files` 函数与常量也能按需建议，独立 C1 源码宿主已核对实际结果；组合和跨平台门禁已随 0.4.11 执行并通过。
 
+0.4.11 发布后的[分组函数与常量导入补全](c1-grouped-symbol-import-completion-2026-09-27.md)已覆盖同类与混合 `use`、逗号后当前成员、子命名空间以及已有闭合大括号的编辑范围，并抑制别名输入时的表达式建议。完整语义、独立 Composer 真实 LSP 和 C1 源码宿主通过；此源码增量留待下次交付候选，不改变当前已安装的 0.4.11。
+
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。
