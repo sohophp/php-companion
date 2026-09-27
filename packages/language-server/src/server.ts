@@ -6215,6 +6215,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   });
   if (functions.length || constants.length) return [...functions, ...constants];
   const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
+    ?? (typeContext?.replacementStart !== undefined
+      ? { qualifier: typeContext.namespace, prefix: typeContext.prefix } : undefined)
     ?? workspace.namespaceTypeContext(document.uri, offset);
   const [segments, typeOutcome] = await Promise.all([
     namespaceContext && root ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
@@ -6230,8 +6232,14 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     label: `${name}\\`, kind: CompletionItemKind.Module,
     detail: `${namespaceContext.qualifier ? `${namespaceContext.qualifier}\\` : ''}${name}\\`,
     sortText: `0${String(index).padStart(6, '0')}`, preselect: index === 0,
-    textEdit: { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
-      end: document.positionAt(offset) }, newText: `${name}\\` },
+    filterText: typeContext?.replacementStart === undefined ? undefined
+      : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
+    textEdit: typeContext?.replacementStart === undefined
+      ? { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
+        end: document.positionAt(offset) }, newText: `${name}\\` }
+      : { range: { start: document.positionAt(typeContext.replacementStart),
+        end: document.positionAt(typeContext.replacementEnd ?? offset) },
+      newText: `${document.getText().slice(typeContext.replacementStart, offset - namespaceContext.prefix.length)}${name}\\${typeContext.replacementEnd === offset + 1 ? '}' : ''}` },
   }));
   let typeCandidatesComplete = typeOutcome ?? true;
   const allTypes = workspace.completeTypes(document.uri, offset);

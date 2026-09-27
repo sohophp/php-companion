@@ -1477,6 +1477,41 @@ class C1ConstructionPositions {
   await vscode.commands.executeCommand('acceptSelectedSuggestion');
   assert.strictEqual(nestedGroupDocument.getText(), nestedGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
     'Accepting the nested group use member changed its prefix or braces.');
+  const groupNamespaceSource = '<?php namespace App\\C1; use App\\C1\\{Exte}; class GroupNamespaceImportConsumer {}';
+  const groupNamespaceUri = vscode.Uri.joinPath(folder, 'C1GroupNamespaceImportConsumer.php');
+  await vscode.workspace.fs.writeFile(groupNamespaceUri, Buffer.from(groupNamespaceSource));
+  const groupNamespaceDocument = await vscode.workspace.openTextDocument(groupNamespaceUri);
+  const groupNamespaceEditor = await vscode.window.showTextDocument(groupNamespaceDocument);
+  const groupNamespaceOffset = groupNamespaceSource.indexOf('Exte}') + 'Exte'.length;
+  const groupNamespaceCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupNamespaceUri,
+      groupNamespaceDocument.positionAt(groupNamespaceOffset)),
+    (result) => result?.items.some((item) => item.label === 'External\\'
+      && item.detail === 'App\\C1\\External\\' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not suggest a namespace inside a class group use.',
+  );
+  const groupNamespaceItem = groupNamespaceCompletion.items.find((item) => item.label === 'External\\')!;
+  const groupNamespaceRange = groupNamespaceItem.range instanceof vscode.Range
+    ? groupNamespaceItem.range : groupNamespaceItem.range?.replacing;
+  assert.ok(groupNamespaceRange && groupNamespaceDocument.getText(groupNamespaceRange) === '{Exte}'
+    && groupNamespaceItem.insertText === '{External\\}',
+  'The group namespace suggestion would alter an existing group member or brace.');
+  groupNamespaceEditor.selection = new vscode.Selection(groupNamespaceDocument.positionAt(groupNamespaceOffset),
+    groupNamespaceDocument.positionAt(groupNamespaceOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(groupNamespaceDocument.getText(), groupNamespaceSource.replace('{Exte}', '{External\\}'),
+    'Accepting the group namespace suggestion changed the braces or other source text.');
+  const groupNamespaceText = groupNamespaceDocument.getText();
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupNamespaceUri,
+      groupNamespaceDocument.positionAt(groupNamespaceText.indexOf('External\\}') + 'External\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe') === true,
+    'SoPHP did not continue with class completion after accepting the group namespace.',
+  );
   const alternateFolder = vscode.Uri.joinPath(folder, 'Alternative');
   await vscode.workspace.fs.createDirectory(alternateFolder);
   await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(alternateFolder, 'C1ExternalTypeProbe.php'),

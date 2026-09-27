@@ -225,6 +225,40 @@ describe('language server stdio', () => {
           newText: '{Operations\\Receipt}' } }),
       ]);
       expect(receiptItems[0]?.additionalTextEdits).toBeUndefined();
+      const groupNamespaceImport = nestedGroupImport.replace('Operations\\Rec', 'Ope')
+        .replace('NestedGroupImport', 'GroupNamespaceImport');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: nestedGroupUri, version: 2 }, contentChanges: [{ text: groupNamespaceImport }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1187, method: 'textDocument/completion', params: {
+        textDocument: { uri: nestedGroupUri }, position: lspPosition(groupNamespaceImport,
+          groupNamespaceImport.indexOf('Ope}') + 'Ope'.length),
+      } }));
+      const groupNamespaceResult = (await output.waitFor((message) => message.id === 1187)).result;
+      const groupNamespaceItems = Array.isArray(groupNamespaceResult) ? groupNamespaceResult : groupNamespaceResult.items;
+      expect(groupNamespaceItems).toEqual([expect.objectContaining({ label: 'Operations\\', kind: 9,
+        detail: 'Domain\\Billing\\Operations\\',
+        filterText: '{Ope}',
+        textEdit: { range: { start: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('{Ope}')),
+          end: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('{Ope}') + '{Ope}'.length) },
+        newText: '{Operations\\}' } })]);
+      expect(groupNamespaceItems[0]?.additionalTextEdits).toBeUndefined();
+      const laterGroupNamespaceImport = groupNamespaceImport.replace('{Ope}', '{Invoice, Ope}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: nestedGroupUri, version: 3 }, contentChanges: [{ text: laterGroupNamespaceImport }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1188, method: 'textDocument/completion', params: {
+        textDocument: { uri: nestedGroupUri }, position: lspPosition(laterGroupNamespaceImport,
+          laterGroupNamespaceImport.indexOf('Ope}') + 'Ope'.length),
+      } }));
+      const laterGroupNamespaceResult = (await output.waitFor((message) => message.id === 1188)).result;
+      const laterGroupNamespaceItems = Array.isArray(laterGroupNamespaceResult)
+        ? laterGroupNamespaceResult : laterGroupNamespaceResult.items;
+      expect(laterGroupNamespaceItems).toEqual([expect.objectContaining({ label: 'Operations\\',
+        filterText: '{Invoice, Ope}',
+        textEdit: { range: { start: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('{Invoice')),
+          end: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('{Invoice')
+            + '{Invoice, Ope}'.length) }, newText: '{Invoice, Operations\\}' } })]);
       const namespaceImport = '<?php namespace App; use Dom; class NamespaceImport {}';
       const namespaceImportUri = pathToFileURL(join(root, 'src', 'NamespaceImport.php')).toString();
       await writeFile(join(root, 'src', 'NamespaceImport.php'), namespaceImport);
