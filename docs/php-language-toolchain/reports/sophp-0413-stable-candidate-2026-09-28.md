@@ -1,25 +1,26 @@
 # SoPHP 0.4.13：稳定支持范围候选交接
 
-日期：2026-09-28。当前公开版本仍是 0.4.12；0.4.13 是未发布候选，VSIX 对应源码提交 `e197c97abc0864afcc81444af6d7ed6125819352`，草稿 [PR #3](https://github.com/sohophp/php-companion/pull/3)。本候选只交付[第一阶段声明的范围](../stability-first-delivery.md)，不代表 R4 全部完成。
+日期：2026-09-28。当前公开版本仍是 0.4.12；0.4.13 是未发布候选，VSIX 对应源码提交 `77761b4ca394c3681191c12df3c6f38d3e494f52`。远端[草稿 PR #3](https://github.com/sohophp/php-companion/pull/3)仍停在旧提交，本候选没有推送。本候选只交付[第一阶段声明的范围](../stability-first-delivery.md)，不代表 R4 全部完成。
 
 ## 已验证的交付物
 
-- `pnpm candidate:alpha` 与 `pnpm verify:vsix` 通过。`artifacts/php-companion-alpha-0.4.13-e197c97a/` 的三份 VSIX 均与 `SHA256SUMS` 相符：Core `fd0e359bef1e40c7d090732df4006092edf78c39e9977b20a1ed0f57d9541d30`，Symfony `4cf390cf0540a2bdf7bb667f7a47ad4bfcda015b6027a742e33559de970548a4`，Pack `8ca9a43fecf936dec422954dbaad074f29ac02250fb7c6ece99cc3c2e6867fd4`。
-- 本批源码修复了全局命名空间中与 `<?php` 同行的 `use` 导入补全，并覆盖分组导入及未保存声明的关闭、还原。相关语义、真实 LSP 专项及完整源码测试已通过；跨平台状态以 [PR #3 最新检查](https://github.com/sohophp/php-companion/pull/3/checks)为准。前一候选 `66c255d0` 的完整 10 项 Pack 与 C3 支持路径打包宿主曾通过；其日志 `/tmp/sophp-stable-0413-full-pack-host-20260927.log`、`/tmp/sophp-stable-0413-c3-full-pack-host-20260928.log` **不代表当前 VSIX 已通过相同宿主检查**。
-- WSL CLI 已使用 `--force` 安装本候选的三份 VSIX。`/tmp/sophp-0413-e197c97a-wsl-preflight-cli-20260928.json` 中候选文件、扩展版本及安装文件均匹配，未列出竞争通用 PHP Provider；该命令从普通 shell 运行，唯一错误为 `vscode-remote-terminal-required`。当前运行中的编辑器窗口尚未确认重载，**不算真实窗口通过**。
+- `pnpm candidate:alpha` 与 `pnpm verify:vsix` 通过。`artifacts/php-companion-alpha-0.4.13-77761b4c/` 的三份 VSIX 均与 `SHA256SUMS` 相符：Core `8e6c790258777c669ff70f92ba34c6ffb2fac9b441d9568b839754ee22853700`，Symfony `6a48028c0fc2c9dff8aa482cdfe518a8a88b52c2941773a187b754f3e36d9776`，Pack `c75f819600849edac5ce8b3579b2139540f9d8dbb43d045787227602e1b28678`。
+- 本批包含全局与括号式 namespace 中同一行的类、函数、常量导入补全修复。`pnpm typecheck`、`pnpm lint`、`pnpm test` 均通过：语义测试 443 项、语言服务器测试 398 项通过且 1 项跳过。`pnpm verify:packages` 在隔离消费者中验证 24 个组件包，日志 `/tmp/sophp-0413-77761b4-verify-packages.log`。
+- 当前三份 VSIX 的完整 10 项 Pack 打包宿主退出码 0，日志 `/tmp/sophp-0413-77761b4-full-pack-host.log`；C3 已支持路径专项打包宿主退出码 0，日志 `/tmp/sophp-0413-77761b4-c3-pack-host.log`。两者是隔离宿主证据。此源码尚未推送，因此**没有对应提交的跨平台 CI 结果**。
+- WSL CLI 已使用 `--force` 安装本候选的三份 VSIX。`/tmp/sophp-0413-77761b4c-wsl-preflight-cli-20260928.json` 中候选文件、扩展版本及安装文件均匹配，未列出竞争通用 PHP Provider；该命令从普通 shell 运行，唯一错误为 `vscode-remote-terminal-required`。当前运行中的编辑器窗口尚未确认重载，**不算真实窗口通过**。
 
 ## 同一分支的日常使用
 
-`work/sophp-next` 同时承载开发和随时发生的真实使用反馈，不另建人工测试分支。用户报告可复现的问题后，在此分支修复、验证并记录源码提交；积累一批改动后更新 WSL Profile，而非每次改动都安装或公开发布。真实使用反馈可随时进入，正式稳定版验收记录留到用户方便时进行。
+`work/sophp-next` 同时承载开发和随时发生的真实使用反馈，不另建人工测试分支。用户报告可复现的问题后，在此分支修复、验证并记录源码提交。日常开发只在本地构建和隔离环境验证；以后只有用户要试用或进入正式验收时才更新其 WSL 扩展目录，不为每个开发增量安装、推送或公开发布。真实使用反馈可随时进入，正式稳定版验收记录留到用户方便时进行。
 
-本地分支现已到 `bb5745d037bf38f48603f5b95ade09bc80a99d8e`，比上述已安装候选多两笔括号式 namespace 的类、函数和常量导入补全修复。该源码的 `pnpm typecheck`、`pnpm lint`、`pnpm test` 均通过；语义测试 443 项、语言服务器测试 398 项通过且 1 项跳过。**这两笔修复尚未打包、安装或接受跨平台检查**；本报告开头的 VSIX 摘要仍只对应 `e197c97a`。
+本报告开头的 VSIX 摘要只对应 `77761b4c`，后续本地源码提交不能自动算进已安装候选。
 
 ## 延后的人工验收
 
 在已安装 0.4.13 的 WSL VS Code 窗口执行 `Developer: Reload Window`。然后从该窗口的**集成终端**、在仓库根目录运行：
 
 ```bash
-pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-e197c97a --workspace test/extension/fixture --php /usr/bin/php --expected-php 7.2 --require-wsl --check-editor --extensions-dir /home/jason/.vscode-server/extensions --output /tmp/sophp-0413-e197c97a-wsl-integrated-preflight-20260928.json
+pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-77761b4c --workspace test/extension/fixture --php /usr/bin/php --expected-php 7.2 --require-wsl --check-editor --extensions-dir /home/jason/.vscode-server/extensions --output /tmp/sophp-0413-77761b4c-wsl-integrated-preflight-20260928.json
 ```
 
 记录 `gates.deterministicPassed`、WSL 扩展宿主中的 Core/Symfony 激活、唯一通用 PHP Provider，以及项目 PHP、fixer、Xdebug、测试 CLI 的实际路径。再在独立 Composer 项目进行至少两小时连续编辑，记录起止时间和 PHP 补全/参数提示/Hover/Definition/References、未保存修改、确定性 Import、受支持 Rename/Safe Move/类型生成预览与一次 Undo/Redo、Twig/YAML/XML、格式化、调试和 CLI 测试的结果。自动宿主结果不能代替这份记录。
