@@ -575,9 +575,11 @@ function documented(): void {}
     '@var array{meta: array{owner: C1DocTa',
     '@method C1DocTarget find(array{owner: C1DocTarget, reviewer: C1DocTa',
     '@return array{owner: C1DocTarget}|C1DocTa', '@var array<array{owner: C1DocTarget}, C1DocTa']) {
-    assert.ok((await phpDocSuggestions(marker)).some((item) =>
+    const suggestions = await phpDocSuggestions(marker);
+    assert.ok(suggestions.some((item) =>
       item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
-    `SoPHP did not suggest the project class in PHPDoc array shape value ${marker}.`);
+    `SoPHP did not suggest the project class in PHPDoc array shape value ${marker}; received ${JSON.stringify(
+      suggestions.map((item) => ({ label: item.label, detail: item.detail, kind: item.kind })).slice(0, 20))}.`);
   }
   assert.ok(!(await phpDocSuggestions('@param array{owner: C1DocTarget, review')).some((item) =>
     item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
