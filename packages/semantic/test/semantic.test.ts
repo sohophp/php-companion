@@ -5657,6 +5657,13 @@ function useNames(): void {
       .toMatchObject({ namespace: 'Domain\\Billing', prefix: 'Inv' });
     expect(workspace.completeTypes('file:///GlobalGroupConsumer.php', globalGroupOffset).map((item) => item.fqcn))
       .toContain('Domain\\Billing\\Invoice');
+    const bracketedGroup = '<?php namespace App { use Domain\\Billing\\{Inv}; class Consumer {} }';
+    workspace.update('file:///BracketedGroupConsumer.php', bracketedGroup);
+    const bracketedGroupOffset = bracketedGroup.indexOf('Inv}') + 'Inv'.length;
+    expect(workspace.typeCompletionContext('file:///BracketedGroupConsumer.php', bracketedGroupOffset))
+      .toMatchObject({ namespace: 'Domain\\Billing', prefix: 'Inv' });
+    expect(workspace.completeTypes('file:///BracketedGroupConsumer.php', bracketedGroupOffset))
+      .toMatchObject([{ name: 'Invoice', fqcn: 'Domain\\Billing\\Invoice', importFqcn: undefined }]);
   });
   it('locates the namespace segment in an ordinary class use statement', () => {
     for (const [text, expected] of [
@@ -5680,6 +5687,12 @@ function useNames(): void {
     expect(workspace.namespaceImportContext('file:///GlobalNamespaceImport.php', globalImport.length))
       .toEqual({ qualifier: 'Domain', prefix: 'Bil' });
     expect(workspace.typeCompletionContext('file:///GlobalNamespaceImport.php', globalImport.length))
+      .toMatchObject({ namespace: 'Domain', prefix: 'Bil' });
+    const bracketedImport = '<?php namespace App { use Domain\\Bil';
+    workspace.update('file:///BracketedNamespaceImport.php', bracketedImport);
+    expect(workspace.namespaceImportContext('file:///BracketedNamespaceImport.php', bracketedImport.length))
+      .toEqual({ qualifier: 'Domain', prefix: 'Bil' });
+    expect(workspace.typeCompletionContext('file:///BracketedNamespaceImport.php', bracketedImport.length))
       .toMatchObject({ namespace: 'Domain', prefix: 'Bil' });
     workspace.update('file:///NamespaceDirectType.php', '<?php namespace NamespaceProbe; class DirectType {}');
     workspace.update('file:///NamespaceNestedType.php', '<?php namespace NamespaceProbe\\Nested; class NestedType {}');

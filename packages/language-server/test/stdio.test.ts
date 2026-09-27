@@ -172,6 +172,8 @@ describe('language server stdio', () => {
       for (const [id, globalImport, fragment, expected] of [
         [11801, '<?php use Dom; class GlobalNamespaceImport {}', 'use Dom', 'Domain\\'],
         [11802, '<?php use Domain\\Billing\\Inv; class GlobalTypeImport {}', 'use Domain\\Billing\\Inv', 'Invoice'],
+        [11804, '<?php namespace App { use Domain\\Billing\\Inv; class BracketedImport {} }',
+          'use Domain\\Billing\\Inv', 'Invoice'],
       ] as const) {
         const globalUri = pathToFileURL(join(root, 'src', `GlobalImport-${id}.php`)).toString();
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
