@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.13 - unreleased candidate
+
+- Continue grouped class, function, and constant imports through nested namespace segments, keeping completion edits inside the active group.
+- Preserve grouped function and constant import syntax when accepting completion, including an existing closing brace.
+- Refresh grouped symbol suggestions after unsaved function or constant changes, and restore disk-backed suggestions when the buffer closes.
+- Freeze the first stable supported scope with the 10-member Open Source Pack. The final `WorkspaceEdit.createFile` fallback still has a known Redo limitation; supported staged moves retain their verified Undo/Redo behavior.
+
 ## 0.4.12 - 2026-09-27
 
 - Complete grouped `use function`, `use const`, and mixed PHP imports from indexed declarations and Composer `autoload.files`, preserving the active member, delimiters, and existing imports.

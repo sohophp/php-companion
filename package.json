@@ -2,7 +2,7 @@
   "name": "php-companion",
   "displayName": "SoPHP",
   "description": "Stable, on-demand PhpStorm-inspired PHP project workflows for Visual Studio Code.",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.13 - unreleased candidate
+
+- Align the standalone Symfony extension with SoPHP Core and Open Source Pack 0.4.13; framework ownership and supported operations are unchanged.
+
 ## 0.4.12 - 2026-09-27
 
 - Align the standalone Symfony extension with SoPHP Core and Open Source Pack 0.4.12.
