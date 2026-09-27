@@ -6038,6 +6038,10 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     detail: service.className,
     textEdit: { range: { start: document.positionAt(serviceReference.start), end: document.positionAt(serviceReference.end) }, newText: service.id },
   }));
+  const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
+  if (attributeConstructorType && serviceRoot && !workspace.typeByFqcn(attributeConstructorType))
+    await hydrateCanonicalTypes(workspace, serviceRoot, [attributeConstructorType]);
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   const namedArguments = workspace.completeNamedArguments(document.uri, offset).map((parameter) => ({
     label: `${parameter.name}:`,
     insertText: `${parameter.name}: `,
@@ -6741,6 +6745,10 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return null;
   const root = rootForUri(document.uri);
+  const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
+  if (root && attributeConstructorType && !workspace.typeByFqcn(attributeConstructorType))
+    await hydrateCanonicalTypes(workspace, root, [attributeConstructorType]);
+  if (token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion) return null;
   if (root && document.languageId === 'php' && !workspace.signatures(document.uri, offset).length) {
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberCallOwnerTypeNamesAt(document.uri, offset),
       () => workspace.signatures(document.uri, offset).length > 0,

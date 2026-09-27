@@ -4781,6 +4781,32 @@ TXT;
     workspace.update('file:///NamedRemaining.php', secondRemaining, true);
     expect(workspace.completeNamedArguments('file:///NamedRemaining.php', secondRemaining.length).map((item) => item.name)).toEqual(['port']);
   });
+  it('completes named constructor arguments in a PHP Attribute', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.updateDeclarations('file:///AttributeConstructor.php', `<?php namespace Domain;
+#[\\Attribute] class Config { public function __construct(string $name, int $count = 0) {} }`);
+      const uri = 'file:///AttributeConstructorUse.php';
+      const first = '<?php namespace App; #[\\Domain\\Config(na';
+      project.update(uri, first, true);
+      expect(project.signature(uri, first.length)).toMatchObject({ name: 'Config', activeParameter: 0 });
+      expect(project.completeNamedArguments(uri, first.length).map((item) => item.name)).toEqual(['name']);
+      const remaining = '<?php namespace App; #[\\Domain\\Config(name: strtolower("A"), co';
+      project.update(uri, remaining, true);
+      expect(project.signature(uri, remaining.length)).toMatchObject({ name: 'Config', activeParameter: 1,
+        usedNamedArguments: ['name'] });
+      expect(project.completeNamedArguments(uri, remaining.length).map((item) => item.name)).toEqual(['count']);
+      const grouped = '<?php namespace App; #[\\Domain\\Config(name: "A"), \\Domain\\Config(co';
+      project.update(uri, grouped, true);
+      expect(project.completeNamedArguments(uri, grouped.length).map((item) => item.name)).toEqual(['count']);
+      const plain = '<?php namespace Domain; class Plain { public function __construct(string $name) {} } #[Plain(na';
+      project.update(uri, plain, true);
+      expect(project.completeNamedArguments(uri, plain.length)).toEqual([]);
+      const ordinary = '<?php namespace App; function Config(string $name): void {} Config(na';
+      project.update(uri, ordinary, true);
+      expect(project.signature(uri, ordinary.length)).toMatchObject({ kind: 'function' });
+    } finally { project.dispose(); }
+  });
   it('does not infer occupied parameters from a dynamic argument unpack', () => {
     const uri = 'file:///UnpackedNamed.php';
     const source = '<?php function configure(string $host, int $port, bool $tls): void {} $args = []; configure(...$args, ho';

@@ -1149,6 +1149,26 @@ class C1ConstructionPositions {
     assert.ok(!suggestions.items.some((item) => item.label === rejected),
       `Grouped Attribute suggested ${rejected} at the wrong target.`);
   }
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(externalFolder, 'C1AttrArguments.php'),
+    Buffer.from(`<?php namespace App\\C1\\External;
+#[\\Attribute] class C1AttrArguments { public function __construct(string $name, int $count = 0) {} }`));
+  const attributeArgumentsSource = '<?php namespace App\\C1; use App\\C1\\External\\C1AttrArguments; #[C1AttrArguments(na';
+  const attributeArgumentsUri = vscode.Uri.joinPath(folder, 'C1AttrArgumentsConsumer.php');
+  await vscode.workspace.fs.writeFile(attributeArgumentsUri, Buffer.from(attributeArgumentsSource));
+  const attributeArgumentsDocument = await vscode.workspace.openTextDocument(attributeArgumentsUri);
+  await vscode.window.showTextDocument(attributeArgumentsDocument);
+  const attributeArgumentsPosition = attributeArgumentsDocument.positionAt(attributeArgumentsSource.length);
+  const attributeArgumentSuggestions = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+      attributeArgumentsUri, attributeArgumentsPosition),
+    (result) => result?.items.some((item) => item.label === 'name:') === true,
+    'SoPHP did not suggest a PHP Attribute constructor parameter.',
+  );
+  assert.ok(attributeArgumentSuggestions.items.some((item) => item.label === 'name:'));
+  const attributeSignature = await vscode.commands.executeCommand<vscode.SignatureHelp>(
+    'vscode.executeSignatureHelpProvider', attributeArgumentsUri, attributeArgumentsPosition);
+  assert.ok(attributeSignature?.signatures.some((item) => item.label.includes('name')),
+    'SoPHP did not show the PHP Attribute constructor signature.');
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));

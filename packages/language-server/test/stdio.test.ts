@@ -9390,6 +9390,38 @@ class ChildService extends Service { public function call(int|string $value): vo
     expect(await namedCompletions(637, literalNamed)).toEqual(['host:']);
   });
 
+  it('offers PHP Attribute constructor parameter names before the attribute is closed', async () => {
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    const uri = 'file:///AttributeConstructorCompletion.php';
+    const source = `<?php namespace App;
+#[\\Attribute] class Configure { public function __construct(string $name, int $count = 0) {} }
+#[Configure(na`;
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 6241, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null,
+      initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+    } }));
+    await output.waitFor((message) => message.id === 6241);
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+    server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+      textDocument: { uri, languageId: 'php', version: 1, text: source },
+    } }));
+    await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params.uri === uri && message.params.version === 1);
+    const position = lspPosition(source, source.length);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 6242, method: 'textDocument/completion', params: {
+      textDocument: { uri }, position,
+    } }));
+    const completions = (await output.waitFor((message) => message.id === 6242)).result as Array<{ label: string }>;
+    expect(completions.map((item) => item.label)).toContain('name:');
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 6243, method: 'textDocument/signatureHelp', params: {
+      textDocument: { uri }, position,
+    } }));
+    expect((await output.waitFor((message) => message.id === 6243)).result).toMatchObject({
+      activeParameter: 0, signatures: [expect.objectContaining({ label: expect.stringContaining('name') })],
+    });
+  });
+
   it('selects the documented overload across punctuation in an argument comment', async () => {
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);

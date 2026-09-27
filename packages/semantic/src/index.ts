@@ -8409,6 +8409,58 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.signaturesWithImplementation(uri, offset));
   }
 
+  attributeConstructorTypeAt(uri: string, offset: number): string | undefined {
+    const file = this.files.get(uri);
+    const context = file && this.attributeConstructorAt(file, offset);
+    return file && context ? this.resolveSourceType(file, context.name, this.namespaceAt(file, offset)) : undefined;
+  }
+
+  private attributeConstructorAt(file: SemanticFile, offset: number): { name: string; argumentsText: string; argumentsStart: number } | undefined {
+    const source = file.source;
+    if (source.lastIndexOf('#[', offset) < 0) return undefined;
+    const trivia = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+    const rangeAt = (index: number): SourceRange | undefined => {
+      let low = 0; let high = trivia.length;
+      while (low < high) {
+        const middle = (low + high) >>> 1;
+        if (trivia[middle]!.start <= index) low = middle + 1; else high = middle;
+      }
+      const candidate = trivia[low - 1];
+      return candidate && index < candidate.end ? candidate : undefined;
+    };
+    let depth = 0; let opening = -1;
+    for (let index = offset - 1; index >= 0; index -= 1) {
+      const range = rangeAt(index);
+      if (range) { index = range.start; continue; }
+      const char = source[index];
+      if (char === ')') depth += 1;
+      else if (char === '(') {
+        if (depth === 0) { opening = index; break; }
+        depth -= 1;
+      }
+      else if (depth === 0 && char === ';') return undefined;
+    }
+    if (opening < 0) return undefined;
+    const match = /(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)\s*$/u.exec(source.slice(0, opening));
+    if (!match) return undefined;
+    const nameStart = match.index; const marker = source.lastIndexOf('#[', nameStart);
+    if (marker < 0 || rangeAt(marker)) return undefined;
+    let parentheses = 0; let brackets = 0; let hasPriorToken = false;
+    for (let index = marker + 2; index < nameStart; index += 1) {
+      const range = rangeAt(index);
+      if (range) { index = range.end - 1; continue; }
+      const char = source[index];
+      if (char === '(') parentheses += 1;
+      else if (char === ')') { if (!parentheses) return undefined; parentheses -= 1; }
+      else if (char === '[') brackets += 1;
+      else if (char === ']') { if (!brackets) return undefined; brackets -= 1; }
+      else if (char === ',' && !parentheses && !brackets) { hasPriorToken = false; continue; }
+      if (!parentheses && !brackets && char && !/\s/u.test(char)) hasPriorToken = true;
+    }
+    if (parentheses || brackets || hasPriorToken) return undefined;
+    return { name: match[1]!, argumentsText: source.slice(opening + 1, offset), argumentsStart: opening + 1 };
+  }
+
   private signaturesWithImplementation(uri: string, offset: number): SignatureInfo[] {
     const file = this.files.get(uri);
     if (!file) return [];
@@ -8470,6 +8522,23 @@ export class SemanticWorkspace {
       const compatible = this.methodCandidatesForArguments(candidates, constructor[2]!, completeAtCursor, file, offset - constructor[2]!.length);
       return (compatible.length ? compatible : candidates).map((candidate) => ({
         ...candidate, ...this.signatureContext(constructor[2]!, candidate.parameters),
+      }));
+    }
+    const attribute = this.attributeConstructorAt(file, offset);
+    if (attribute) {
+      const fqcn = this.resolveSourceType(file, attribute.name, namespace, accessFrom);
+      const owner = fqcn ? this.fileAndDeclaration(fqcn) : undefined;
+      if (!fqcn || !owner || !this.isAttributeClass(owner.file, owner.declaration)) return [];
+      const candidates = this.constructorsFor(fqcn).filter(({ callable }) => callable.visibility === 'public')
+        .map(({ file: declarationFile, callable: init }): MemberInfo => ({
+          kind: 'method', uri: declarationFile.uri, start: init.start, end: init.end, name: owner.declaration.name,
+          fqcn: init.fqcn, parameters: init.parameters, returnType: fqcn, visibility: init.visibility, static: false,
+          typeScopeFqcn: init.containerFqcn!, calledOnFqcn: fqcn,
+        }));
+      const compatible = this.methodCandidatesForArguments(candidates, attribute.argumentsText, completeAtCursor,
+        file, attribute.argumentsStart);
+      return (compatible.length ? compatible : candidates).map((candidate) => ({
+        ...candidate, ...this.signatureContext(attribute.argumentsText, candidate.parameters),
       }));
     }
     const functionCall = /(?<![\\A-Za-z0-9_\x80-\xff])([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
