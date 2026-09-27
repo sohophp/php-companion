@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.12 - 2026-09-27
+
+- Complete grouped `use function`, `use const`, and mixed PHP imports from indexed declarations and Composer `autoload.files`, preserving the active member, delimiters, and existing imports.
+- Complete nested class members inside grouped imports such as `use Domain\Billing\{Operations\Rec}` without adding another import.
+- Keep ordinary function and constant suggestions out of import alias input.
+
 ## 0.4.11 - 2026-09-27
 
 - Preserve separate namespace blocks and import aliases when Safe Move updates PHP class imports.
