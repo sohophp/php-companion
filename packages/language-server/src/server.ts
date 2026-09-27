@@ -651,10 +651,14 @@ async function semanticProviderProjectTypes(root: string, workspace: SemanticWor
 function applyExternalContainerFacts(root: string, workspace: SemanticWorkspace, contribution: SemanticFactsContribution): boolean {
   if (!contribution.containerServices || !contribution.containerMethodArguments || !contribution.containerPropertyArguments || !contribution.containerConfigurationUris) return false;
   const catalog = new Map<string, SymfonyServiceFact[]>();
-  for (const service of contribution.containerServices) catalog.set(service.registrationUri,
-    [...(catalog.get(service.registrationUri) ?? []), service as SymfonyServiceFact]);
+  for (const service of contribution.containerServices) {
+    const registrationUri = workspaceUriAlias(service.registrationUri);
+    catalog.set(registrationUri,
+      [...(catalog.get(registrationUri) ?? []), { ...service, registrationUri } as SymfonyServiceFact]);
+  }
   symfonyServiceCatalogByRoot.set(root, catalog);
-  symfonyParameterCatalogByRoot.set(root, [...(contribution.containerParameters ?? [])]);
+  symfonyParameterCatalogByRoot.set(root, (contribution.containerParameters ?? []).map((parameter) =>
+    ({ ...parameter, uri: workspaceUriAlias(parameter.uri) })));
   symfonyCompiledMethodArgumentsByRoot.set(root, [...contribution.containerMethodArguments]);
   symfonyCompiledPropertyArgumentsByRoot.set(root, [...contribution.containerPropertyArguments]);
   const paths = contribution.containerConfigurationUris.flatMap((uri) => { try { return [resolve(fileURLToPath(uri))]; } catch { return []; } });
@@ -1165,6 +1169,12 @@ function indexedUriForPath(root: string, path: string): string {
   if (!suffix) return uri.toString();
   const encodedSuffix = suffix.split(sep).map((segment) => encodeURIComponent(segment)).join('/');
   return `${uri.toString().replace(/\/?$/, '/')}${encodedSuffix}`;
+}
+
+function workspaceUriAlias(uri: string): string {
+  const path = pathForUri(uri);
+  const root = path && rootForUri(uri);
+  return path && root ? indexedUriForPath(root, path) : uri;
 }
 
 function semanticForKey(key: string): Promise<SemanticWorkspace> {
@@ -2745,6 +2755,7 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
 }
 function reuseCandidateCoverageAfterOpenEdit(root: string, previousEpoch: number, document: TextDocument,
   workspace: SemanticWorkspace): void {
+  connection.console.info(`[candidate-reuse] mode=${indexingMode} indexing=${Boolean(activeIndexing)} current=${documents.get(document.uri) === document} source=${workspace.source(document.uri) === document.getText()} epoch=${previousEpoch}->${projectEpochs.get(root) ?? 0} keys=${[...candidateQueries].filter(([key, epoch]) => key.startsWith(`${root}:symbol:declarations:`) && epoch === previousEpoch).length}`);
   if (indexingMode !== 'onDemand' || activeIndexing || documents.get(document.uri) !== document
     || workspace.source(document.uri) !== document.getText() || (projectEpochs.get(root) ?? 0) !== previousEpoch + 1) return;
   // A complete scan has covered unchanged files. The open file is fully updated
@@ -3136,6 +3147,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
   }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
+  if (testMode) connection.console.info(`[candidate-scan-result] projectComplete=${scan.projectComplete} complete=${scan.complete} cancelled=${cancelled()} epoch=${epoch}->${projectEpochs.get(root) ?? 0}`);
   if (!(includeDependencies ? scan.complete : scan.projectComplete) || cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     recordTestQueryDuration('candidateEpochRetry', scanBegan);
@@ -5560,7 +5572,9 @@ async function availableSymfonyRoutes(root: string, cancelled: () => boolean): P
   if (cancelled()) return [];
   const counts = new Map<string, number>();
   for (const route of routes) counts.set(route.name, (counts.get(route.name) ?? 0) + 1);
-  return routes.filter((route) => counts.get(route.name) === 1).sort((left, right) => left.name.localeCompare(right.name));
+  return routes.filter((route) => counts.get(route.name) === 1)
+    .map((route) => route.uri ? { ...route, uri: workspaceUriAlias(route.uri) } : route)
+    .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 const SYMFONY_ROUTE_METHODS = new Set([

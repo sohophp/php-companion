@@ -5760,7 +5760,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       expect(await references(bagAUri, bagA)).toEqual([]);
       expect(await references(bagBUri, bagB)).toEqual([consumerUri]);
       expect(scanCount(), JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(1);
+        && /candidate-scan-start|candidate-scan-result|candidate-reuse|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(1);
       await change(3, sourceFor('BagA'));
       expect(await references(bagAUri, bagA)).toEqual([consumerUri]);
       expect(await references(bagBUri, bagB)).toEqual([]);
@@ -5855,7 +5855,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
       await change(4, sourceFor('Second'));
       expect(await references(secondUri, second, 'updateAction')).toEqual([consumerUri]);
       expect(scanCount(), JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(2);
+        && /candidate-scan-start|candidate-scan-result|candidate-reuse|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toBe(2);
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
@@ -10963,7 +10963,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect(output.messages.filter((message: any) => message.method === 'window/logMessage'
         && message.params?.message?.includes('[named-candidates]')),
       JSON.stringify(output.messages.filter((message: any) => message.method === 'window/logMessage'
-        && /candidate-scan-start|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toHaveLength(1);
+        && /candidate-scan-start|candidate-scan-result|candidate-reuse|named-candidates|reference-closure/.test(message.params?.message ?? '')).map((message: any) => message.params.message))).toHaveLength(1);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

@@ -5930,8 +5930,9 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     'Contact to Service move kept the stale Contact namespace', 30_000);
   const restoredMovableServiceDocument = await vscode.workspace.openTextDocument(movableServiceUri);
   if (restoredMovableServiceDocument.isDirty) assert.ok(await restoredMovableServiceDocument.save(), 'Contact to Service declaration could not be saved');
-  await waitFor(() => moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length === 1
-    && !moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;'), 'Reverse move did not reconcile imports', 30_000);
+  await waitForAsync(async () => moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length === 1
+    && !moveConsumerDocument.getText().includes('use App\\Contact\\MovableService;'),
+  () => 'Reverse move did not reconcile imports: ' + moveConsumerDocument.getText(), 30_000, 100);
   if (moveConsumerDocument.isDirty) assert.ok(await moveConsumerDocument.save(), 'Reverse move references could not be saved');
   assert.strictEqual(moveConsumerDocument.getText().match(/use App\\Service\\MovableService;/g)?.length, 1, 'Reverse move left duplicate use statements');
 
