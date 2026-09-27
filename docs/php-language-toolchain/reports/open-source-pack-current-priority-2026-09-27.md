@@ -5,14 +5,14 @@
 ## 当前决定
 
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
-- **先使用同批私有候选。** 当前 0.4.7 候选是 Core、Symfony、Pack 三份 VSIX；公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 安装及完整操作链仍属 C4 验收。冻结后的源码修复不在该候选中。
+- **先使用同批私有候选。** 当前 [0.4.8 候选](open-source-pack-048-private-alpha-2026-09-27.md)是 Core、Symfony、Pack 三份 VSIX；公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 安装及完整操作链仍属 C4 验收。
 - **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
 
 下表、证据和历史进展解释这些决定；以本节顺序为准。
 
-本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码不在现有 0.4.7 候选内。
+本轮[普通 PHP C1/C2 基线复核与 PHPDoc 模板续行](c1-multiline-template-bound-completion-2026-09-27.md)已通过独立 Composer vendor 的六项查询和 C2 源码宿主，并修复多行模板约束的项目类补全。完整 Pack 源码宿主第二次运行通过，首次在原有数组形状补全处有一次尚未归因的失败；该 C1 波动继续记录，C3 最终创建 Redo 和 C4 安装门槛仍开放。新增源码已进入 0.4.8 候选。
 
-[多异常 catch 类型补全](c1-multicatch-type-completion-2026-09-27.md)已从语义红灯修复到完整 Pack 源码宿主通过，覆盖跨命名空间异常类、自动导入和不重复候选；普通表达式与无效交叉符号不进入该上下文。它仍是冻结后源码，不在当前安装候选内。
+[多异常 catch 类型补全](c1-multicatch-type-completion-2026-09-27.md)已从语义红灯修复到完整 Pack 源码宿主通过，覆盖跨命名空间异常类、自动导入和不重复候选；普通表达式与无效交叉符号不进入该上下文。它已进入 0.4.8 候选。
 
 [新目录类型生成的最近父目录暂存移动](c3-type-generation-missing-directory-stage-2026-09-27.md)已在完整 Pack 源码宿主通过一次 Undo/Redo：即使系统临时目录和工作区同级移动失败，只要目标目录的现有父目录可用，仍能保持可重做的资源移动。所有移动都失败时最终创建兜底仍可创建文件，但该路径的 Redo 缺口继续开放。
 
@@ -47,7 +47,7 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 ## 当前可使用范围
 
-最新可安装的私有候选冻结于 [`248ee1f8`](open-source-pack-047-postfreeze-alpha-2026-09-27.md)：同批 Core、Symfony、Pack 三份 VSIX，八个外部成员版本和产物摘要已记录。隔离 Linux 的完整组合宿主、PHP 7.2–8.5 九个**目标设置**的 C1 宿主，以及 WSL2 自动化规模基准已有通过记录。冻结后的源码修复不在该候选内。真实 VS Code WSL Remote 安装、Extension Host 归属、实际工具路径、人工编辑、其它平台和长会话仍待验收。
+最新可安装的私有候选冻结于 [`cbd82a72`](open-source-pack-048-private-alpha-2026-09-27.md)：同批 Core、Symfony、Pack 三份 VSIX，八个外部成员版本和产物摘要已记录。隔离 Linux 的完整组合与 C3 打包宿主通过。PHP 7.2–8.5 九个**目标设置**的 C1 宿主，以及 WSL2 自动化规模基准属于先前 0.4.7 候选的通过记录，尚未用 0.4.8 重跑。真实 VS Code WSL Remote 安装、Extension Host 归属、实际工具路径、人工编辑、其它平台和长会话仍待验收。
 
 公开 [Marketplace Pack 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)仍展示旧组合和旧说明，不能作为当前 10 项清单的安装入口。私有候选要从同一目录安装三份 VSIX，并以 `SHA256SUMS` 和实际安装成员为准。对已有 PHP 开发环境，先核对唯一通用 PHP 语言服务、唯一 PHP 默认 formatter、项目 PHP CLI 版本和 Remote 运行位置；不为每个 Core 小修复重打 VSIX。
 

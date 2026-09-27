@@ -2,7 +2,7 @@
 
 本流程用于把已经通过自动门禁的源码提交交给真实项目试用。它不改变公开发布状态。
 
-2026-09-27 当前已冻结的私有候选为 [0.4.7 / 248ee1f8](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)。后续 Core 源码修复尚未进入该候选；同版本旧候选或当前 WSL 已安装扩展不能凭显示版本号代替它，以完整提交号和三份 SHA-256 核对。
+2026-09-27 当前已冻结的私有候选为 [0.4.8 / cbd82a72](reports/open-source-pack-048-private-alpha-2026-09-27.md)。它包含 0.4.7 冻结后的 Core 源码修复；当前 WSL 已安装扩展不能凭显示版本号代替它，以完整提交号和三份 SHA-256 核对。
 
 ## 生成与核验
 
@@ -20,13 +20,13 @@ pnpm candidate:alpha
 sha256sum -c SHA256SUMS
 ```
 
-`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、三个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.7`。
+`candidate.json` 是本次试用的权威清单。试用记录必须保存其中的完整提交号、三个 VSIX 摘要和外部插件版本，不能只记录显示版本 `0.4.8`。
 
 从 SoPHP 源码根目录执行只读预检，先验证候选完整性、WSL 环境、Composer 根与项目 PHP 包装器：
 
 ```bash
 pnpm alpha:preflight -- \
-  --candidate artifacts/php-companion-alpha-0.4.7-248ee1f8 \
+  --candidate artifacts/php-companion-alpha-0.4.8-cbd82a72 \
   --workspace /path/to/independent-composer-project \
   --php /path/to/project-php --expected-php 8.5 --require-wsl \
   --output /tmp/sophp-alpha-preflight.json
