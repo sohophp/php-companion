@@ -1,20 +1,23 @@
 # SoPHP 0.4.13：稳定支持范围候选交接
 
-日期：2026-09-28。当前公开版本仍是 0.4.12；0.4.13 是未发布候选，源码提交 `66c255d0c9af67984435fc3059942a4c7e350dfb`，草稿 [PR #3](https://github.com/sohophp/php-companion/pull/3)。本候选只交付[第一阶段声明的范围](../stability-first-delivery.md)，不代表 R4 全部完成。
+日期：2026-09-28。当前公开版本仍是 0.4.12；0.4.13 是未发布候选，VSIX 对应源码提交 `e197c97abc0864afcc81444af6d7ed6125819352`，草稿 [PR #3](https://github.com/sohophp/php-companion/pull/3)。本候选只交付[第一阶段声明的范围](../stability-first-delivery.md)，不代表 R4 全部完成。
 
 ## 已验证的交付物
 
-- `pnpm candidate:alpha` 与 `pnpm verify:vsix` 通过。`artifacts/php-companion-alpha-0.4.13-66c255d0/` 的三份 VSIX 均与 `SHA256SUMS` 相符：Core `9c70220131be24bfb0bf25bf6fae02ecec5fd6a36f8c4841428d4db2f4836dd2`，Symfony `0865f7c301f57def75ddeb7379cabe172275391bb2e56c4d8e4eaee1293e99a1`，Pack `b002bab7c6df8ca714bcac989debe90e154fa4e5c833eaeae9a5b2f34319a130`。
-- 完整 10 项 Pack 的 0.4.13 打包宿主退出码 0，日志 `/tmp/sophp-stable-0413-full-pack-host-20260927.log`。C3 支持路径的打包专项退出码 0，日志 `/tmp/sophp-stable-0413-c3-full-pack-host-20260928.log`。这是隔离宿主证据。
-- [0.4.13 PR 跨平台 CI](https://github.com/sohophp/php-companion/actions/runs/36331468043) 18/18 作业通过，覆盖 Windows、Linux、macOS 质量与扩展宿主、完整 Profile，以及 PHP 7.2–8.5 集成矩阵。
-- WSL CLI 已成功安装三份 0.4.13 VSIX。`/tmp/sophp-0413-wsl-preflight-cli-20260927.json` 中候选文件、扩展版本及安装文件均匹配，未列出竞争通用 PHP Provider；该命令从普通 shell 运行，唯一错误为 `vscode-remote-terminal-required`，因此**不算真实窗口通过**。
+- `pnpm candidate:alpha` 与 `pnpm verify:vsix` 通过。`artifacts/php-companion-alpha-0.4.13-e197c97a/` 的三份 VSIX 均与 `SHA256SUMS` 相符：Core `fd0e359bef1e40c7d090732df4006092edf78c39e9977b20a1ed0f57d9541d30`，Symfony `4cf390cf0540a2bdf7bb667f7a47ad4bfcda015b6027a742e33559de970548a4`，Pack `8ca9a43fecf936dec422954dbaad074f29ac02250fb7c6ece99cc3c2e6867fd4`。
+- 本批源码修复了全局命名空间中与 `<?php` 同行的 `use` 导入补全，并覆盖分组导入及未保存声明的关闭、还原。相关语义、真实 LSP 专项及完整源码测试已通过；跨平台状态以 [PR #3 最新检查](https://github.com/sohophp/php-companion/pull/3/checks)为准。前一候选 `66c255d0` 的完整 10 项 Pack 与 C3 支持路径打包宿主曾通过；其日志 `/tmp/sophp-stable-0413-full-pack-host-20260927.log`、`/tmp/sophp-stable-0413-c3-full-pack-host-20260928.log` **不代表当前 VSIX 已通过相同宿主检查**。
+- WSL CLI 已使用 `--force` 安装本候选的三份 VSIX。`/tmp/sophp-0413-e197c97a-wsl-preflight-cli-20260928.json` 中候选文件、扩展版本及安装文件均匹配，未列出竞争通用 PHP Provider；该命令从普通 shell 运行，唯一错误为 `vscode-remote-terminal-required`。当前运行中的编辑器窗口尚未确认重载，**不算真实窗口通过**。
 
-## 下次人工验收
+## 同一分支的日常使用
+
+`work/sophp-next` 同时承载开发和随时发生的真实使用反馈，不另建人工测试分支。用户报告可复现的问题后，在此分支修复、验证并记录源码提交；积累一批改动后更新 WSL Profile，而非每次改动都安装或公开发布。真实使用反馈可随时进入，正式稳定版验收记录留到用户方便时进行。
+
+## 延后的人工验收
 
 在已安装 0.4.13 的 WSL VS Code 窗口执行 `Developer: Reload Window`。然后从该窗口的**集成终端**、在仓库根目录运行：
 
 ```bash
-pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-66c255d0 --workspace test/extension/fixture --php /usr/bin/php --expected-php 7.2 --require-wsl --check-editor --extensions-dir /home/jason/.vscode-server/extensions --output /tmp/sophp-0413-wsl-integrated-preflight-20260928.json
+pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-e197c97a --workspace test/extension/fixture --php /usr/bin/php --expected-php 7.2 --require-wsl --check-editor --extensions-dir /home/jason/.vscode-server/extensions --output /tmp/sophp-0413-e197c97a-wsl-integrated-preflight-20260928.json
 ```
 
 记录 `gates.deterministicPassed`、WSL 扩展宿主中的 Core/Symfony 激活、唯一通用 PHP Provider，以及项目 PHP、fixer、Xdebug、测试 CLI 的实际路径。再在独立 Composer 项目进行至少两小时连续编辑，记录起止时间和 PHP 补全/参数提示/Hover/Definition/References、未保存修改、确定性 Import、受支持 Rename/Safe Move/类型生成预览与一次 Undo/Redo、Twig/YAML/XML、格式化、调试和 CLI 测试的结果。自动宿主结果不能代替这份记录。
