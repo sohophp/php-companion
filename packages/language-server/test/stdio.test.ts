@@ -10512,6 +10512,40 @@ echo ranked_lsp_over;`;
         const items = Array.isArray(result) ? result : result.items;
         expect(items.map((item: { label: string }) => item.label), source).not.toContain(excluded);
       }
+      const declarationUri = pathToFileURL(join(root, 'src', 'functions.php')).toString();
+      const editedDeclaration = '<?php namespace Vendor; function createInvoiceDraft(): string { return ""; } const CREATE_INVOICE = 1; class CreateInvoiceType {}';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: editedDeclaration },
+      } }));
+      const changedConsumerUri = pathToFileURL(join(root, 'src', 'UnsavedGroupImportConsumer.php')).toString();
+      const changedConsumer = '<?php namespace App; use function Vendor\\{crea}; class Consumer {}';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: changedConsumerUri, languageId: 'php', version: 1, text: changedConsumer },
+      } }));
+      const requestChangedCompletion = async (id: number): Promise<string[]> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri: changedConsumerUri }, position: lspPosition(changedConsumer, changedConsumer.indexOf('crea}') + 4),
+        } }));
+        const result = (await output.waitFor((message) => message.id === id, 20_000)).result;
+        const items = Array.isArray(result) ? result : result.items;
+        return items.map((item: { label: string }) => item.label);
+      };
+      const openedSuggestions = await requestChangedCompletion(134);
+      expect(openedSuggestions).toContain('createInvoiceDraft');
+      expect(openedSuggestions).not.toContain('createInvoice');
+      const renamedDeclaration = editedDeclaration.replace('createInvoiceDraft', 'createInvoiceFinal');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: declarationUri, version: 2 }, contentChanges: [{ text: renamedDeclaration }],
+      } }));
+      const editedSuggestions = await requestChangedCompletion(135);
+      expect(editedSuggestions).toContain('createInvoiceFinal');
+      expect(editedSuggestions).not.toContain('createInvoiceDraft');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: {
+        textDocument: { uri: declarationUri },
+      } }));
+      const closedSuggestions = await requestChangedCompletion(136);
+      expect(closedSuggestions).toContain('createInvoice');
+      expect(closedSuggestions).not.toContain('createInvoiceFinal');
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

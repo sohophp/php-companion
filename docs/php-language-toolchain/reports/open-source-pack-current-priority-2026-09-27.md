@@ -21,6 +21,8 @@ C1 普通表达式中[同前缀函数和常量的合并补全](c1-function-const
 
 [分组函数与常量导入的实际接受建议](c1-grouped-symbol-import-acceptance-2026-09-27.md)也已在独立 C1 源码宿主验证：子命名空间建议保留大括号，并能继续补全组内函数。普通导入不改变编辑范围；此项仍为未打包的源码增量。
 
+[分组符号导入的 C2 未保存声明反馈](c2-grouped-symbol-import-live-feedback-2026-09-27.md)已通过独立 stdio 与完整 C2 源码宿主：函数和常量改名后候选更新，关闭未保存声明后函数候选恢复磁盘事实。普通 C2 测试入口也改为隔离用户数据目录，避免继承设置影响结果。
+
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 
 [继承与实现语句的候选类型](c1-inheritance-kind-completion-2026-09-27.md)又修复了 `extends`/`implements` 混入错误声明种类的问题，完整语义与 10 项 Pack 的 VS Code C1 源码宿主通过；同属候选冻结后的源码增量。

@@ -1029,4 +1029,45 @@ return array(
   await replaceAttribute(markedAttribute);
   await waitForAttribute(true);
   console.log('C2 onDemand cross-file Attribute marker and target: completion present → withdrawn → restored → wrong target withdrawn → restored');
+
+  const symbolFolder = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'Tools');
+  await vscode.workspace.fs.createDirectory(symbolFolder);
+  const symbolUri = vscode.Uri.joinPath(symbolFolder, 'C2LiveSymbols.php');
+  const symbolConsumerUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2LiveSymbolImports.php');
+  const symbolSource = '<?php namespace App\\Service\\Tools; function c2ImportDraft(): void {} const C2_IMPORT_DRAFT = 1;';
+  const symbolConsumer = '<?php namespace App\\Service; use function App\\Service\\Tools\\{c2Import}; use const App\\Service\\Tools\\{C2_IMPORT};';
+  await vscode.workspace.fs.writeFile(symbolUri, Buffer.from(symbolSource));
+  await vscode.workspace.fs.writeFile(symbolConsumerUri, Buffer.from(symbolConsumer));
+  const symbolDocument = await vscode.workspace.openTextDocument(symbolUri);
+  const symbolConsumerDocument = await vscode.workspace.openTextDocument(symbolConsumerUri);
+  await vscode.window.showTextDocument(symbolDocument);
+  await vscode.window.showTextDocument(symbolConsumerDocument);
+  const symbolLabels = async (marker: string): Promise<string[]> => {
+    const position = symbolConsumerDocument.positionAt(symbolConsumer.indexOf(marker) + marker.length - 1);
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', symbolConsumerUri, position);
+    return result?.items.map((item) => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+  };
+  const waitForSymbol = async (marker: string, present: string, absent: string): Promise<void> => {
+    const deadline = Date.now() + 20_000;
+    let labels = await symbolLabels(marker);
+    while (Date.now() < deadline && (!labels.includes(present) || labels.includes(absent))) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      labels = await symbolLabels(marker);
+    }
+    assert.ok(labels.includes(present) && !labels.includes(absent),
+      `C2 grouped ${marker} completion retained a stale symbol: ${JSON.stringify(labels)}`);
+  };
+  await waitForSymbol('{c2Import}', 'c2ImportDraft', 'c2ImportFinal');
+  await waitForSymbol('{C2_IMPORT}', 'C2_IMPORT_DRAFT', 'C2_IMPORT_FINAL');
+  const liveSymbols = symbolSource.replace('c2ImportDraft', 'c2ImportFinal')
+    .replace('C2_IMPORT_DRAFT', 'C2_IMPORT_FINAL');
+  const symbolEdit = new vscode.WorkspaceEdit();
+  symbolEdit.replace(symbolUri, new vscode.Range(new vscode.Position(0, 0),
+    symbolDocument.positionAt(symbolDocument.getText().length)), liveSymbols);
+  assert.ok(await vscode.workspace.applyEdit(symbolEdit), 'Could not update grouped-import symbols in the unsaved declaration.');
+  assert.ok(symbolDocument.isDirty, 'The grouped-import declaration was unexpectedly saved.');
+  await waitForSymbol('{c2Import}', 'c2ImportFinal', 'c2ImportDraft');
+  await waitForSymbol('{C2_IMPORT}', 'C2_IMPORT_FINAL', 'C2_IMPORT_DRAFT');
+  console.log('C2 grouped function and constant imports follow the unsaved declaration without retaining old candidates');
 }

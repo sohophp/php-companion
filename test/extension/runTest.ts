@@ -231,7 +231,8 @@ async function main(): Promise<void> {
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
           `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
         ] : []),
-        ...((c1Only || c3Only || routeStatusOnly || symfonyContextOnly) && !c1OpenSourceProfile && !c3OpenSourceProfile && !c3PhpunitPairProfile
+        ...((c1Only || c2Only || c3Only || routeStatusOnly || symfonyContextOnly)
+          && !c1OpenSourceProfile && !c2OpenSourceProfile && !c3OpenSourceProfile && !c3PhpunitPairProfile
           ? [`--user-data-dir=${join(fixture, 'profile-user-data')}`] : []),
         ...(c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile ? [
           `--extensions-dir=${resolve(process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR!)}`,
