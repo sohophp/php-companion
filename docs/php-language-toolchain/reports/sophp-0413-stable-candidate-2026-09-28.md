@@ -19,6 +19,8 @@
 
 随后补充独立 Composer `onDemand` 源码回归：新建但尚未落盘的 PHP 类经 `didOpen` 后可供另一文件的补全、签名、Hover 和 Definition 使用；未保存地改动、恢复参数类型时，使用方的参数类型诊断跟随变化；`didClose` 后旧诊断和 Definition 撤销。这是定向真实 LSP 自动化证据，不等同 WSL 编辑器人工验收。
 
+以上增量汇总到本地提交 `8a80a19` 后，集中源码门禁 `pnpm typecheck`、`pnpm lint`、`pnpm test` 均以退出码 0 结束。完整语义包 447 项通过，语言服务器 399 项通过、1 项跳过；`pnpm test` 原始日志为 `/tmp/sophp-head-8a80a19-test.log`。此门禁只证明该提交的源码测试，没有为 `8a80a19` 重打 VSIX、运行完整 Pack 打包宿主或取得跨平台 CI，也没有更新 WSL 扩展目录。
+
 ## 延后的人工验收
 
 在已安装 0.4.13 的 WSL VS Code 窗口执行 `Developer: Reload Window`。然后从该窗口的**集成终端**、在仓库根目录运行：
