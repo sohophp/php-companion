@@ -1172,6 +1172,9 @@ class C1ConstructionPositions {
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));
+  const ordinaryCatchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchExample.php');
+  await vscode.workspace.fs.writeFile(ordinaryCatchTypeUri,
+    Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchExample {}'));
   const catchSource = '<?php namespace App\\C1; function catchTypes(): void { try {} catch (\\LogicException|C1ExternalCatchEx';
   const catchUri = vscode.Uri.joinPath(folder, 'C1MultiCatchConsumer.php');
   await vscode.workspace.fs.writeFile(catchUri, Buffer.from(catchSource));
@@ -1187,6 +1190,8 @@ class C1ConstructionPositions {
   );
   assert.strictEqual(catchCompletion.items.filter((item) => item.label === 'C1ExternalCatchException').length, 1,
     'Multi-catch completion returned the project exception more than once.');
+  assert.ok(!catchCompletion.items.some((item) => item.label === 'C1ExternalCatchExample'),
+    'Multi-catch completion suggested a known ordinary class.');
   const qualifiedTypeSource = '<?php namespace App\\C1; use App\\C1\\External as ExtAlias; '
     + 'function qualified(): void { new \\App; new \\App\\C1\\Ext; new ExtAlias\\C1ExternalTypePro; }';
   const qualifiedTypeUri = vscode.Uri.joinPath(folder, 'C1QualifiedTypeConsumer.php');

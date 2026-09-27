@@ -5349,7 +5349,7 @@ function useNames(): void {
   });
   it('offers types in parameter, return, property and catch positions while requiring a real attribute class', () => {
     workspace.update('file:///RemoteType.php', '<?php namespace Domain; class Invoice {} #[\\Attribute] class InvoiceAttribute {}');
-    for (const fragment of ['function run(Inv', 'function run(): Inv', 'class C { public Inv', 'try {} catch (Inv']) {
+    for (const fragment of ['function run(Inv', 'function run(): Inv', 'class C { public Inv']) {
       const source = `<?php namespace App; ${fragment}`;
       workspace.update(`file:///Context-${fragment.length}.php`, source);
       expect(workspace.completeTypes(`file:///Context-${fragment.length}.php`, source.length).map((item) => item.name)).toContain('Invoice');
@@ -5364,14 +5364,35 @@ function useNames(): void {
     workspace.update('file:///NotAType.php', expression);
     expect(workspace.completeTypes('file:///NotAType.php', expression.length)).toEqual([]);
   });
+  it('keeps catch completion to Throwable types when the hierarchy is known', () => {
+    workspace.update('php-companion-builtin:/catch-types.php', '<?php interface Throwable {} class Exception implements Throwable {} class Error implements Throwable {}');
+    workspace.update('file:///CatchTypes.php', '<?php namespace Domain; class InvoicePlain {} class InvoiceException extends \\Exception {} class InvoiceError extends \\Error {} interface InvoiceContract {} class InvoiceUnknown extends MissingBase {}');
+    for (const fragment of ['try {} catch (Inv', 'try {} catch (\\Exception|Inv', 'try {} catch (\\Exception|\\Domain\\Inv']) {
+      const uri = `file:///Catch-${fragment.length}.php`;
+      const source = `<?php namespace App; ${fragment}`;
+      workspace.update(uri, source);
+      const candidates = workspace.completeTypes(uri, source.length).map((item) => item.fqcn);
+      expect(candidates).toContain('Domain\\InvoiceException');
+      expect(candidates).toContain('Domain\\InvoiceError');
+      expect(candidates).toContain('Domain\\InvoiceUnknown');
+      expect(candidates).not.toContain('Domain\\InvoicePlain');
+      expect(candidates).not.toContain('Domain\\InvoiceContract');
+    }
+    const parameter = '<?php namespace App; function handle(Inv';
+    workspace.update('file:///CatchParameter.php', parameter);
+    expect(workspace.completeTypes('file:///CatchParameter.php', parameter.length).map((item) => item.fqcn)).toContain('Domain\\InvoicePlain');
+    const throwable = '<?php namespace App; try {} catch (Thr';
+    workspace.update('file:///CatchThrowable.php', throwable);
+    expect(workspace.completeTypes('file:///CatchThrowable.php', throwable.length).map((item) => item.fqcn)).toContain('Throwable');
+  });
   it('continues type completion after a multi-catch separator', () => {
-    workspace.update('file:///MultiCatchRemoteType.php', '<?php namespace Domain; class Invoice extends \\Exception {}');
-    for (const [index, fragment] of ['try {} catch (First|Inv', 'try {} catch (First|Second|Inv'].entries()) {
+    workspace.update('file:///MultiCatchRemoteType.php', '<?php namespace Domain; class MultiCatchInvoice extends \\Exception {}');
+    for (const [index, fragment] of ['try {} catch (First|MultiCatchInv', 'try {} catch (First|Second|MultiCatchInv'].entries()) {
       const uri = `file:///MultiCatch-${index}.php`;
       const source = `<?php namespace App; ${fragment}`;
       workspace.update(uri, source);
-      expect(workspace.typeCompletionContext(uri, source.length)?.prefix).toBe('Inv');
-      expect(workspace.completeTypes(uri, source.length).map((item) => item.name)).toContain('Invoice');
+      expect(workspace.typeCompletionContext(uri, source.length)?.prefix).toBe('MultiCatchInv');
+      expect(workspace.completeTypes(uri, source.length).map((item) => item.name)).toContain('MultiCatchInvoice');
     }
     for (const [index, fragment] of ['try {} catch (First&Inv', '$value = First|Inv'].entries()) {
       const uri = `file:///NotMultiCatch-${index}.php`;
@@ -5380,10 +5401,10 @@ function useNames(): void {
       expect(workspace.typeCompletionContext(uri, source.length)).toBeUndefined();
     }
     const qualifiedUri = 'file:///QualifiedMultiCatch.php';
-    const qualified = '<?php namespace App; use Domain as Remote; try {} catch (First|Remote\\Inv';
+    const qualified = '<?php namespace App; use Domain as Remote; try {} catch (First|Remote\\MultiCatchInv';
     workspace.update(qualifiedUri, qualified);
-    expect(workspace.typeCompletionContext(qualifiedUri, qualified.length)).toMatchObject({ prefix: 'Inv', namespace: 'Domain' });
-    expect(workspace.completeTypes(qualifiedUri, qualified.length).map((item) => item.name)).toContain('Invoice');
+    expect(workspace.typeCompletionContext(qualifiedUri, qualified.length)).toMatchObject({ prefix: 'MultiCatchInv', namespace: 'Domain' });
+    expect(workspace.completeTypes(qualifiedUri, qualified.length).map((item) => item.name)).toContain('MultiCatchInvoice');
   });
   it('offers types after union and intersection separators in native declarations', () => {
     workspace.update('file:///CompositeRemoteType.php', '<?php namespace Domain; class Invoice {}');

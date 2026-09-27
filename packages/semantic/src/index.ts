@@ -468,6 +468,12 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
   return { qualifier: segments.join('\\'), prefix };
 }
 
+function isCatchTypeCompletion(source: string, offset: number): boolean {
+  const before = source.slice(0, offset);
+  const token = /(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*|\\)?$/u.exec(before)?.[0] ?? '';
+  return /\bcatch\s*\(\s*(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*\s*\|\s*)*$/u.test(before.slice(0, before.length - token.length));
+}
+
 function typeCompletionPrefix(source: string, offset: number): string | undefined {
   const before = source.slice(0, offset);
   const importContext = qualifiedImportCompletion(source, offset);
@@ -3994,6 +4000,7 @@ export class SemanticWorkspace {
       ?? qualifiedContext?.prefix ?? typeCompletionPrefix(file.source, offset);
     if (contextPrefix === undefined) return [];
     const inheritanceKind = docContext || traitContext || importContext ? undefined : this.inheritanceTypeCompletionKind(file, offset);
+    const catchType = !docContext && !traitContext && !importContext && isCatchTypeCompletion(file.source, offset);
     const constructKind = docContext || traitContext || importContext ? undefined
       : groupedAttribute ? 'attribute' : this.constructTypeCompletionKind(file, offset);
     const attributeTarget = constructKind === 'attribute' ? this.attributeTargetAt(uri, file, offset) : undefined;
@@ -4043,6 +4050,10 @@ export class SemanticWorkspace {
       const visibleName = visibleNames.get(candidateKey) ?? (candidateNamespace === namespace ? candidate.name.toLowerCase() : undefined);
       const name = qualifiedNamespace !== undefined ? candidate.name : visibleName ? importAliases.get(candidateKey) ?? candidate.name : candidate.name;
       if (!name.toLowerCase().startsWith(prefix)) continue;
+      if (catchType && candidateKey !== 'throwable') {
+        if (candidate.kind !== 'class') continue;
+        if (!this.isSubtype(candidate.fqcn, 'Throwable') && this.hasCompleteHierarchy(candidate.fqcn)) continue;
+      }
       if (constructKind === 'attribute' && !this.isAttributeClass(owner, candidate)) continue;
       if (constructKind === 'attribute' && attributeTarget !== undefined) {
         const flags = this.attributeTargetFlags(owner, candidate);

@@ -104,4 +104,6 @@ R4 的目标仍是完整、稳定、接近 PhpStorm 的 PHP 开发体验。成�
 
 [Attribute 构造参数输入](c1-attribute-constructor-arguments-2026-09-27.md)补上未闭合 `#[Config(na` 的命名参数建议与构造函数参数提示，并按需载入未打开的 Composer Attribute 类。语义、真实 LSP 和完整 Pack 源码宿主均通过；现有成员分工维持不变。下一步继续检查高频普通 PHP 编辑中的错误结果、旧结果和明显等待，然后处理 C3 的可复现阻断项。偶发的 VS Code `Canceled` 已有三次同配置完整 C3 复核未复现，仍需在下一次出现时记录命令与文档版本；最终 `createFile` 兜底 Redo 仍开放。
 
+[catch 异常类型补全](c1-catch-type-completion-2026-09-27.md)收紧了 Core 的 C1 候选：已知普通类与接口不再混入 `catch`/多重 `catch`；层级不完整的候选仍保留。完整语义测试与 10 项 Pack 源码宿主通过。Pack 成员不变，源码尚未打包；后续继续按 C1/C2、C3、C4 的验收顺序推进。
+
 [Attribute 参数的跨文件反馈](c2-attribute-constructor-buffer-feedback-2026-09-27.md)又以独立 Composer 项目确认 Completion 和 Signature Help 同步跟随未保存构造函数声明，关闭后立即恢复磁盘参数。此项进入 C2 回归，不改变 Pack 成员或候选冻结节奏。
