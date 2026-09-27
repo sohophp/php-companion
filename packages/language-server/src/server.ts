@@ -3967,6 +3967,7 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
     || token.isCancellationRequested) return [];
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
   if (!root || !sourcePath) return [];
+  if (!await ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested)) return [];
   const sourceIsPhp = /\.php$/i.test(uri);
   const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : 'xml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });

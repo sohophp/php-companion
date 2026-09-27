@@ -1947,6 +1947,42 @@ final class Consumer { public function __construct(#[Autowire(service: 'app.mail
       expect((await output.waitFor((message) => message.id === 9092)).result).toEqual([{ uri: configUri, range: {
         start: lspPosition(configSource, start), end: lspPosition(configSource, start + 'app.mailer'.length),
       } }]);
+
+      const definition = async (id: number): Promise<unknown> => {
+        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/symfonyServiceDefinition', params: {
+          textDocument: { uri: consumerUri, version: 1 }, source,
+          position: lspPosition(source, source.indexOf('app.mailer') + 4),
+        } }));
+        return (await output.waitFor((message) => message.id === id, 15_000)).result;
+      };
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [],
+      } }));
+      expect(await definition(9093)).toEqual([]);
+
+      const diskSource = 'parameters:\n  app.mode: disk\nservices:\n  app.mailer: { class: App\\Mailer }\n';
+      await writeFile(join(root, 'config', 'services.yaml'), diskSource);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: configUri, type: 1 }],
+      } }));
+      const diskStart = diskSource.indexOf('app.mailer:');
+      const diskDefinition = [{ uri: configUri, range: {
+        start: lspPosition(diskSource, diskStart), end: lspPosition(diskSource, diskStart + 'app.mailer'.length),
+      } }];
+      expect(await definition(9094)).toEqual(diskDefinition);
+
+      const reopenedSource = 'parameters:\n  app.mode: buffer\n  app.extra: true\nservices:\n  app.mailer: { class: App\\Mailer }\n';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [{ uri: configUri, languageId: 'yaml', snapshotVersion: '1', source: reopenedSource }],
+      } }));
+      const reopenedStart = reopenedSource.indexOf('app.mailer:');
+      expect(await definition(9095)).toEqual([{ uri: configUri, range: {
+        start: lspPosition(reopenedSource, reopenedStart), end: lspPosition(reopenedSource, reopenedStart + 'app.mailer'.length),
+      } }]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
+        complete: true, documents: [],
+      } }));
+      expect(await definition(9096)).toEqual(diskDefinition);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
