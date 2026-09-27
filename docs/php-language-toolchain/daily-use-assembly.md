@@ -1,6 +1,6 @@
 # SoPHP 日常开发组合方案
 
-2026-09-27 当前可安装的私有候选为 [248ee1f8](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)：Core、Symfony、Open Source Pack 同批三份 VSIX 已通过隔离 Linux 组合宿主，真实 WSL Remote 安装和长时间使用仍待验。[当前 Pack 整理与 SoPHP 开发顺序](reports/open-source-pack-current-priority-2026-09-27.md)是执行入口；下文的旧候选号是历史验证记录。
+2026-09-27 当前公开版本为 [SoPHP 0.4.10](https://github.com/sohophp/php-companion/releases/tag/v0.4.10)：Core、Symfony、Open Source Pack 同批三份 VSIX 已通过发布门禁，并在 Marketplace 显示 0.4.10。真实 WSL Remote 安装和长时间使用仍待验。[当前 Pack 整理与 SoPHP 开发顺序](reports/open-source-pack-current-priority-2026-09-27.md)是执行入口；下文的旧候选号是历史验证记录。
 
 更新：2026-09-25。目标是先用 SoPHP 与成熟扩展组成**可开始使用的 PHP 开发环境**，再根据实际缺口逐项改进；[R4 的 PhpStorm 式最终目标](releases.md)保持不变。本方案的“可使用”只适用于已验证的功能和环境，不等于 P0–P9 或 F01–F14 最终验收完成。
 
@@ -20,9 +20,9 @@
 
 ## 安装入口与能力所有者
 
-[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。当前源码清单为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、Twig、YAML、XML、PHPDoc 生成各有明确所有者，测试默认归项目 CLI。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。当前 Symfony 扩展按私有 Alpha 候选交付，因此试用时应从**同一候选**依次安装 Core、Symfony、Open Source Pack 三份 VSIX，并记录摘要，不把 Marketplace 的旧 Pack 页面当作当前候选。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
+[Open Source Pack](../../packages/php-companion-extension-pack/package.json) 是当前唯一维护的组合安装入口。当前源码清单为 **SoPHP Core、SoPHP Symfony 和 8 个外部扩展**；格式化、调试、Twig、YAML、XML、PHPDoc 生成各有明确所有者，测试默认归项目 CLI。Pack 的 `extensionPack` 只声明扩展 ID，不锁定 Marketplace 上的成员版本；安装成功也不等于运行时组合已验收。0.4.10 可从 Marketplace 安装，或从同一 GitHub Release 下载三份 VSIX，并记录摘要。旧版 Recommended Pack 与当前包曾有相同清单；已有用户可卸载旧 Pack，再安装 Open Source Pack，并核对成员扩展。
 
-公开 Marketplace 的 Open Source Pack 页面仍显示旧版说明。日常试用以同一私有候选的三个 VSIX、`candidate.json` 和 `SHA256SUMS` 为准；[当前候选记录](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)列出了确切源码和外部成员版本。
+当前 0.4.10 三份 VSIX 可从[同一 GitHub Release](https://github.com/sohophp/php-companion/releases/tag/v0.4.10)取得；外部成员的实际版本仍以安装环境为准。[较早私有候选记录](reports/open-source-pack-047-postfreeze-alpha-2026-09-27.md)仅用于复现当时的组合。
 
 当前成员清单可直接在 [Pack manifest](../../packages/php-companion-extension-pack/package.json) 核对：`sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.twig-plus`、`redhat.vscode-yaml`、`redhat.vscode-xml`、`xdebug.php-debug`、`junstyle.php-cs-fixer`、`EditorConfig.EditorConfig`、`eiminsasete.apacheconf-snippets`、`neilbrayfield.php-docblocker`。Apache Conf Snippets 依赖的 Apache 语法扩展由其自身安装。冻结试用版本记录在 [Profile 清单](../../test/extension/open-source-profile.extensions.json)；该文件用于复核，不会锁住 Pack 安装时的 Marketplace 版本。
 
@@ -41,13 +41,13 @@
 
 `recca0120.vscode-phpunit` 不由当前源码 Pack 自动安装；已单独安装原版的工作区若遇到旧路径错误，可单独禁用它，其余 Pack 成员仍可用于 PHP 编辑。该测试扩展的[官方入门步骤](https://marketplace.visualstudio.com/items?itemName=recca0120.vscode-phpunit)以 `phpunit.xml` 或 `phpunit.xml.dist` 为入口；原版 3.9.40 在无配置和已配置项目的完整组合文件事件中均出现过[旧路径读取异常](reports/open-source-pack-phpunit-isolation-2026-09-25.md)。
 
-以上是当前 Pack 已声明的组合，具体来源和限制见[外部工具集成](integrations.md)。Pack 无法固定外部扩展的 Marketplace 版本；当前版本升级后仍要重跑组合门禁。现有 R1 Linux/WSL 候选已有基础闭环证据，但当前开发源码中的新修复不会自动进入已经安装的 0.4.5；新候选须在冻结时重新构建和验证。
+以上是当前 Pack 已声明的组合，具体来源和限制见[外部工具集成](integrations.md)。Pack 无法固定外部扩展的 Marketplace 版本；成员升级后仍要重跑组合门禁。0.4.10 有跨平台自动门禁，真实 WSL Remote 与长期使用仍需单独验收。后续源码修复不会自动进入已经安装的 0.4.10。
 
 ### Open Source Pack 整理结果
 
 | 处理 | 扩展或能力 | 当前依据与使用边界 |
 | --- | --- | --- |
-| 保留在 Pack | SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML/XML | 组成 PHP 与框架/模板/配置的编辑链；Symfony 仍须与 Core 安装同一私有候选，Pack 的 Marketplace 页面不能替代候选验收 |
+| 保留在 Pack | SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML/XML | 组成 PHP 与框架/模板/配置的编辑链；Core 与 Symfony 使用兼容版本，Marketplace 安装后仍需核对实际宿主和操作结果 |
 | 保留在 Pack | PHP Debug | 已有隔离 Linux 组合运行证据；实际项目须提供可用的 PHP、Xdebug 和路径映射 |
 | 默认移出，保留可选评估 | PHPUnit & Pest Test Explorer | 原版 3.9.40 的旧路径错误在已配置项目复现；当前测试由项目 CLI 执行，修复版须重过组合门禁 |
 | 保留在 Pack | PHP CS Fixer、EditorConfig | 格式化与项目编辑约定各有一个所有者；PHP CS Fixer 扩展自带 PHAR 曾在 PHP 8.5 被拒绝，须使用与目标 PHP 兼容的项目级 fixer |
@@ -92,11 +92,12 @@ Pack 的成员和默认设置已与 [manifest 单元检查](../../test/unit/exte
 | 层次 | 当前可核对的结果 | 下一道门槛 |
 | --- | --- | --- |
 | Pack 源码 | 10 项清单；Core、Symfony、8 个外部扩展；manifest 定向检查 4/4 通过 | 保持单一 PHP 语言服务和 formatter 所有权 |
+| 公开 0.4.10 | Core、Symfony、Pack 的标签构建和三平台自动矩阵通过；[发布报告](reports/sophp-0410-release-gate-2026-09-27.md)记录门禁和限制 | 真实 WSL Remote、实际安装宿主及长期使用 |
 | 已冻结 0.4.5 私有候选 `21977ee1` | Core、Symfony、Pack 三份 VSIX 及 8 个外部成员（包括 PHP DocBlocker）完成隔离 Linux 组合门禁 | 尚未进入该候选的 Core 源码改动和真实 WSL Remote 仍需验收 |
 | 当前源码成员组合 | PHP DocBlocker 的 PHP 7.2/8.5 原 11 项 Profile 已单独通过；[原 11 项 Pack 的 C2 编辑链](reports/open-source-pack-c2-local-feedback-2026-09-24.md)在隔离宿主完成 10 轮未保存切换 | 后续 Core 改动进入新候选时重跑组合门禁，并复核实际安装和 Extension Host |
-| 更广的日常使用 | 独立 Composer 项目的编码、格式化、测试和调试有自动宿主证据 | WSL Remote、Windows/macOS、较长真实使用及项目工具路径仍需验收 |
+| 更广的日常使用 | 独立 Composer 项目的编码、格式化、测试和调试有自动宿主证据；Windows/macOS 自动矩阵已通过 | WSL Remote、较长真实使用及项目工具路径仍需验收 |
 
-因此可以按已验的 Linux 隔离宿主范围开始使用 `21977ee1` Alpha 候选，并把发现的问题继续交给 Core 或对应的外部扩展所有者；仓库当前未冻结的 Core 改动和用户机器已安装的 0.4.5 不等同于该候选。WSL Remote 的实际 Extension Host 归属仍待验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
+因此可从 0.4.10 开始在已声明的支持范围内使用，并把发现的问题交给 Core 或对应的外部扩展所有者；自动门禁不能代替 WSL Remote 的实际 Extension Host 归属和长期人工编辑验收。下一次只在组合候选冻结时打包 Core、Symfony、Pack，不因每项 Core 修复重复打包。
 
 Core 当前按 [Pack 整理与 Core 起点](reports/open-source-pack-next-core-2026-09-25.md)复核独立 Composer 项目的 C1/C2 日常编辑链，并收口 C3 高频编辑的可复现缺口。类型生成改用预先准备文件的移动编辑后，已在本机 Linux 源码宿主通过一次 Undo/Redo；移动失败时的创建回退路径、临时文件过期清理、真实 Remote 和跨平台仍开放，见[生成文件验证报告](reports/c3-type-generation-staged-redo-2026-09-25.md)。C1 已有未保存编辑、不同 Composer 根、真实 vendor、10k 文件和六项编辑查询的自动及隔离宿主证据；真实 Remote 和跨平台结果进入 C4 验收，R4 最终目标保持开放。
 

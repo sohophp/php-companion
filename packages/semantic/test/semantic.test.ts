@@ -6213,6 +6213,33 @@ final class Consumer { public const TYPE = MovableService::class; }`;
     expect(updated.match(/use App\\Service\\MovableService;/g)).toHaveLength(1);
     expect(updated).not.toContain('use App\\Contact\\MovableService;');
   });
+  it('reconciles moved imports separately for each namespace and alias', () => {
+    const movedUri = 'file:///src/Service/MovableService.php';
+    const consumerUri = 'file:///src/Consumer/Consumer.php';
+    const consumer = `<?php
+namespace App\\First {
+    use App\\Contact\\MovableService as ContactService;
+    use App\\Service\\MovableService as Service;
+    final class First { public const TYPE = ContactService::class; }
+}
+namespace App\\Second {
+    use App\\Service\\MovableService as ContactService;
+    final class Second { public const TYPE = ContactService::class; }
+}`;
+    workspace.update(movedUri, '<?php namespace App\\Service; final class MovableService {}');
+    workspace.update(consumerUri, consumer);
+    const result = workspace.planTypeMoveReconciliation([{
+      newUri: movedUri, newNamespace: 'App\\Service',
+      declarations: [{ oldFqcn: 'App\\Contact\\MovableService', newFqcn: 'App\\Service\\MovableService' }],
+    }]);
+    expect(result.error).toBeUndefined();
+    const edits = result.plan!.edits.filter((edit) => edit.uri === consumerUri).sort((left, right) => right.start - left.start);
+    const updated = edits.reduce((text, edit) => text.slice(0, edit.start) + edit.newText + text.slice(edit.end), consumer);
+    expect(updated).toContain('use App\\Service\\MovableService as ContactService;');
+    expect(updated).toContain('use App\\Service\\MovableService as Service;');
+    expect(updated.match(/use App\\Service\\MovableService as ContactService;/g)).toHaveLength(2);
+    expect(updated).not.toContain('App\\Contact\\MovableService');
+  });
   it('moves a PSR-4 type between global and named namespaces with exact namespace edits', () => {
     const globalUri = 'file:///GlobalMove/GlobalMoveRunner.php';
     const namedUri = 'file:///GlobalMove/Sub/GlobalMoveRunner.php';

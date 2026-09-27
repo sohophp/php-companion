@@ -4298,15 +4298,24 @@ export class SemanticWorkspace {
           if (!matching.length && !matchingRaw.length && file.uri !== move.newUri) continue;
           if (file.syntaxErrors.length) return { error: `Cannot reconcile ${replacement.oldFqcn}: a related file has PHP syntax errors.` };
           touchedSourceUris.add(file.uri);
-          let kept = matching.find((item) => item.fqcn.toLowerCase() === replacement.newFqcn.toLowerCase());
+          const importGroups = new Map<string, ParsedImport[]>();
           for (const imported of matching) {
-            if (imported === kept) continue;
-            if (!kept && imported.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) {
-              edits.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn }); kept = imported; continue;
+            const key = `${imported.namespace.toLowerCase()}:${imported.alias.toLowerCase()}`;
+            const group = importGroups.get(key) ?? [];
+            group.push(imported);
+            importGroups.set(key, group);
+          }
+          for (const group of importGroups.values()) {
+            let kept = group.find((item) => item.fqcn.toLowerCase() === replacement.newFqcn.toLowerCase());
+            for (const imported of group) {
+              if (imported === kept) continue;
+              if (!kept && imported.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) {
+                edits.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn }); kept = imported; continue;
+              }
+              const removal = removableImport(file, imported);
+              if (removal) edits.push({ uri: file.uri, ...removal, newText: '' });
+              else if (imported.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) edits.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn });
             }
-            const removal = removableImport(file, imported);
-            if (removal) edits.push({ uri: file.uri, ...removal, newText: '' });
-            else if (imported.fqcn.toLowerCase() === replacement.oldFqcn.toLowerCase()) edits.push({ uri: file.uri, start: imported.pathStart, end: imported.pathEnd, newText: replacement.newFqcn });
           }
           for (const raw of matchingRaw) {
             const namespace = this.namespaceAt(file, raw.start);

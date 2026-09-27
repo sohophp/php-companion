@@ -5,8 +5,10 @@
 ## 当前决定
 
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
-- **先使用同批私有候选。** 当前 [0.4.9 候选](open-source-pack-049-private-alpha-2026-09-27.md)是 Core、Symfony、Pack 三份 VSIX，已装入 WSL Alpha Profile；当前窗口需 Reload Window 才会切换旧版 Language Server。公开 Marketplace Pack 仍是旧组合。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；隔离 Linux 宿主已通过，真实 WSL Remote 操作链仍属 C4 验收。
+- **使用同版本组合。** [0.4.10 发布版本](sophp-0410-release-gate-2026-09-27.md)的 Core、Symfony、Pack 三份 VSIX 已公开；标签构建及跨平台自动门禁通过。旧 0.4.9 私有候选仍是历史测试记录，不代表当前窗口已切到 0.4.10。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；真实 WSL Remote 操作链仍属 C4 验收。
 - **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
+
+发布后 C3 审计发现并修复了[Safe Move 在多个 namespace 或别名间误删导入](c3-safe-move-import-scope-2026-09-27.md)的风险。此项目前只有源码与语义回归证据，留到下一次冻结候选时做打包宿主和跨平台门禁。
 
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 
@@ -32,7 +34,7 @@
 
 ## 先用这套组合开始开发
 
-1. 以同一批候选安装 SoPHP Core、SoPHP Symfony 和 Open Source Pack 三份 VSIX；`SHA256SUMS` 与 `candidate.json` 标识这批确切内容。公开 Marketplace 的 Pack 页面仍是旧组合，不能用它安装下表的当前组合。Pack manifest 只固定扩展 ID，外部成员版本以候选记录和实际安装结果为准。
+1. 从 0.4.10 的 Marketplace 页面或 [GitHub Release](https://github.com/sohophp/php-companion/releases/tag/v0.4.10)安装 SoPHP Core、SoPHP Symfony 和 Open Source Pack；同一 Release 的三份 VSIX 属于同批构建。Pack manifest 只固定扩展 ID，外部成员版本以实际安装结果为准。
 2. 在 PHP 项目使用的 VS Code Extension Host 中确认只有 SoPHP 负责通用 PHP 语言能力，PHP CS Fixer 是唯一默认 PHP formatter，TwigPlus 负责 Twig，Red Hat 扩展分别负责 YAML/XML。`php.validate.executablePath`、PHP CS Fixer、Xdebug 和测试 CLI 指向同一个项目运行环境；Pack 不会安装这些项目工具。
 3. 在独立 Composer 项目走一次输入、补全、跳转、PHPDoc、Symfony/Twig、格式化、调试和 PHPUnit/Pest CLI 的链路。任何一步缺失时记录候选摘要、扩展宿主位置、操作输入和结果。真实 WSL Remote 及长期使用仍是 C4 验收项，现有隔离 Linux 宿主结果不能替代它们。
 
@@ -40,12 +42,12 @@
 
 ## 固定组合
 
-[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下面版本来自 [0.4.9 冻结候选记录](open-source-pack-049-private-alpha-2026-09-27.md)中的 `candidate.json`，用于复现已验证组合；`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。
+[Pack manifest](../../../packages/php-companion-extension-pack/package.json) 有 **10 个直接成员**。下表是 [0.4.9 冻结候选记录](open-source-pack-049-private-alpha-2026-09-27.md)中的外部成员版本，用于复现当时验证的组合；Core 与 Symfony 当前公开版本已更新为 0.4.10。`extensionPack` 本身只列扩展 ID，不能锁定 Marketplace 后续安装的版本。
 
 | 成员 | 候选版本 | 唯一负责的能力 |
 | --- | --- | --- |
-| `sohophp.php-companion` | 0.4.9 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
-| `sohophp.php-companion-symfony` | 0.4.9 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
+| `sohophp.php-companion` | 0.4.10 | 通用 PHP 补全、类型、导航、诊断、Composer 索引和受限重构 |
+| `sohophp.php-companion-symfony` | 0.4.10 | 可证明的 Symfony 服务、路由、事件和 Controller 上下文 |
 | `sohophp.twig-plus` | 1.3.8 | Twig 语言服务与格式化 |
 | `redhat.vscode-yaml` | 1.24.0 | YAML 编辑 |
 | `redhat.vscode-xml` | 0.29.3 | XML 编辑 |
@@ -63,7 +65,7 @@ SoPHP Core 消费 PHPDoc 类型，Symfony 补框架事实，TwigPlus 负责 Twig
 
 最新可安装的私有候选冻结于 [`f0ca6ddc`](open-source-pack-049-private-alpha-2026-09-27.md)：同批 Core、Symfony、Pack 三份 VSIX，八个外部成员版本和产物摘要已记录。隔离 Linux 的完整组合与 C3 打包宿主通过，WSL Alpha Profile 的安装文件与摘要也已核对。PHP 7.2–8.5 九个**目标设置**的 C1 宿主，以及 WSL2 自动化规模基准属于先前 0.4.7 候选的通过记录，尚未用 0.4.9 重跑。当前窗口还需 Reload Window；新进程的 Extension Host 归属、实际工具路径、人工编辑、其它平台和长会话仍待验收。
 
-公开 [Marketplace Pack 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)仍展示旧组合和旧说明，不能作为当前 10 项清单的安装入口。私有候选要从同一目录安装三份 VSIX，并以 `SHA256SUMS` 和实际安装成员为准。对已有 PHP 开发环境，先核对唯一通用 PHP 语言服务、唯一 PHP 默认 formatter、项目 PHP CLI 版本和 Remote 运行位置；不为每个 Core 小修复重打 VSIX。
+公开 [Marketplace Pack 页面](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)现提供 0.4.10；三份固定 VSIX 也可从[同一 GitHub Release](https://github.com/sohophp/php-companion/releases/tag/v0.4.10)获取。对已有 PHP 开发环境，先核对唯一通用 PHP 语言服务、唯一 PHP 默认 formatter、项目 PHP CLI 版本和 Remote 运行位置；不为每个 Core 小修复重打 VSIX。
 
 ## SoPHP Core 从哪里开始
 
