@@ -1,6 +1,1377 @@
+import { arrayAccessCases } from './arrayAccessFixture.js';
+import { quotedPrefixCases } from './quotedPrefixFixture.js';
 import * as assert from 'node:assert';
 import { symlink } from 'node:fs/promises';
 import * as vscode from 'vscode';
+import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } from './unfinishedShapeFixture.js';
+import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
+import { wordMiddleShapeCases } from './wordMiddleShapeFixture.js';
+
+async function verifyPropertyAssignmentCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2PropertyRanking.php');
+  const source = `<?php
+function c2PropertyInt(): int { return 1; }
+function c2PropertyText(): string { return 'text'; }
+function c2PropertyUnknown() {}
+class C2PropertyRanking { public string $value;
+  function edit(): void { $this->value = c2Property; }
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const waitForOrder = async (first: string, last: string): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$this->value = c2Property';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      const names = result?.items.filter(item => typeof item.label === 'string' && /^c2Property(?:Int|Text|Unknown)$/.test(item.label))
+        .sort((left, right) => (left.sortText ?? '').localeCompare(right.sortText ?? ''))
+        .map(item => item.label);
+      if (JSON.stringify(names) === JSON.stringify([first, 'c2PropertyUnknown', last])) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Property value completion did not rank ${first} first and keep unknown results.`);
+  };
+  await waitForOrder('c2PropertyText', 'c2PropertyInt');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)), source.replace('public string', 'public int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await waitForOrder('c2PropertyInt', 'c2PropertyText');
+  await vscode.commands.executeCommand('undo'); await waitForOrder('c2PropertyText', 'c2PropertyInt');
+  await vscode.commands.executeCommand('redo'); await waitForOrder('c2PropertyInt', 'c2PropertyText');
+  console.log('C2 property assignment completion: ranking, unknown candidates, unsaved type change and Undo/Redo');
+}
+
+async function verifyElvisCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2Elvis.php');
+  const source = `<?php
+class C2ElvisRepository { public function ready(): void {} }
+class C2ElvisOther { public function other(): void {} }
+/** @return C2ElvisRepository|false|null */ function c2ElvisMaybe() {}
+function runC2Elvis(): void {
+  $value = c2ElvisMaybe() ?: new C2ElvisRepository();
+  $independent = new C2ElvisRepository(); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const items = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (items && items.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Shorthand ternary completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const definition = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', uri,
+    document.positionAt(source.indexOf('$value->rea') + '$value->'.length + 1));
+  assert.ok(definition?.some(item => item.uri.toString() === uri.toString()), 'Shorthand ternary method did not navigate.');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('new C2ElvisRepository()', 'new C2ElvisOther()'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 shorthand ternary: completion, definition, unsaved fallback change and Undo/Redo passed');
+}
+
+async function verifyValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ValueCall.php');
+  const source = `<?php
+class C2ValueCallRepo { public function ready(): void {} }
+function c2ValueCallObserve($value) {}
+function runC2ValueCall(): void {
+  $value = new C2ValueCallRepo(); c2ValueCallObserve($value); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2ValueCallObserve($value)', 'function c2ValueCallObserve(&$value)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 value calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2MethodValueCall.php');
+  const source = `<?php
+class C2MethodValueCallRepo { public function ready(): void {} }
+final class C2MethodValueObserver { public static function c2MethodValueCallObserve($value) {} }
+function runC2MethodValueCall(): void {
+  $value = new C2MethodValueCallRepo(); C2MethodValueObserver::c2MethodValueCallObserve($value); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value)', 'function c2MethodValueCallObserve(&$value)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyExactMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ExactMethodValueCall.php');
+  const source = `<?php
+class C2ExactMethodValueCallRepo { public function ready(): void {} }
+class C2ExactMethodValueObserver { public function c2MethodValueCallObserve($value) {} }
+function runC2ExactMethodValueCall(): void {
+  $observer = new C2ExactMethodValueObserver(); $value = null ?: new C2ExactMethodValueCallRepo(); $observer->c2MethodValueCallObserve($value); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value)', 'function c2MethodValueCallObserve(&$value)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 exact constructed method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyArrayMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ArrayMethodValueCall.php');
+  const source = `<?php
+class C2ArrayMethodValueCallRepo { public function ready(): void {} }
+class C2ArrayMethodValueObserver { public function c2MethodValueCallObserve($value, $options) {} }
+function runC2ArrayMethodValueCall(): void {
+  $observer = new C2ArrayMethodValueObserver(); $value = null ?: new C2ArrayMethodValueCallRepo(); $observer->c2MethodValueCallObserve($value, ["limit" => 10, "options" => ["enabled" => true]]); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value, $options)', 'function c2MethodValueCallObserve(&$value, $options)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 array value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyExpressionMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ExpressionMethodValueCall.php');
+  const source = `<?php
+class C2ExpressionMethodValueFlags { const FAST = 1; const SAFE = 2; }
+class C2ExpressionMethodValueCallRepo { public function ready(): void {} }
+class C2ExpressionMethodValueObserver { public function c2MethodValueCallObserve($value, $options) {} }
+function runC2ExpressionMethodValueCall(): void {
+  $observer = new C2ExpressionMethodValueObserver(); $value = null ?: new C2ExpressionMethodValueCallRepo(); $observer->c2MethodValueCallObserve($value, ["flags" => (C2ExpressionMethodValueFlags::FAST | C2ExpressionMethodValueFlags::SAFE), "limit" => 2 * 5]); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value, $options)', 'function c2MethodValueCallObserve(&$value, $options)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 expression value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyStaticScopeMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2StaticScopeMethodValueCall.php');
+  const source = `<?php
+class C2StaticScopeMethodValueFlags { const FAST = 1; const SAFE = 2; }
+class C2StaticScopeMethodValueCallRepo { public function ready(): void {} }
+class C2StaticScopeMethodValueObserver { public function c2MethodValueCallObserve($value, $options) {} }
+class C2StaticScopeMethodValueRun { public static function run(): void {
+  $observer = new C2StaticScopeMethodValueObserver(); $value = null ?: new C2StaticScopeMethodValueCallRepo(); $observer->c2MethodValueCallObserve($value, ["flags" => (C2StaticScopeMethodValueFlags::FAST | C2StaticScopeMethodValueFlags::SAFE), "limit" => 2 * 5]); $value->ready();
+} }`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value, $options)', 'function c2MethodValueCallObserve(&$value, $options)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 static scope value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyLiteralPrefixMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2LiteralPrefixMethodValueCall.php');
+  const source = `<?php
+class C2LiteralPrefixMethodValueFlags { const FAST = 1; const SAFE = 2; }
+class C2LiteralPrefixMethodValueCallRepo { public function ready(): void {} }
+class C2LiteralPrefixMethodValueObserver { public function c2MethodValueCallObserve($value, $options) {} }
+class C2LiteralPrefixMethodValueRun { public static function run(): void {
+  /* static global eval &$value */ $label = "static"; $observer = new C2LiteralPrefixMethodValueObserver(); $value = null ?: new C2LiteralPrefixMethodValueCallRepo(); $observer->c2MethodValueCallObserve($value, ["flags" => (C2LiteralPrefixMethodValueFlags::FAST | C2LiteralPrefixMethodValueFlags::SAFE), "limit" => 2 * 5]); $value->ready();
+} }`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value, $options)', 'function c2MethodValueCallObserve(&$value, $options)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 literal prefix value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyPostAssignmentLiteralMethodValueCallCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2PostAssignmentLiteralMethodValueCall.php');
+  const source = `<?php
+class C2PostAssignmentLiteralMethodValueFlags { const FAST = 1; const SAFE = 2; }
+class C2PostAssignmentLiteralMethodValueCallRepo { public function ready(): void {} }
+class C2PostAssignmentLiteralMethodValueObserver { public function c2MethodValueCallObserve($value, $options) {} }
+class C2PostAssignmentLiteralMethodValueRun { public static function run(): void {
+  /* static global eval &$value */ $label = "static"; $observer = new C2PostAssignmentLiteralMethodValueObserver(); $value = null ?: new C2PostAssignmentLiteralMethodValueCallRepo(); $label = 'literal $value global eval'; $observer->c2MethodValueCallObserve($value, ["flags" => (C2PostAssignmentLiteralMethodValueFlags::FAST | C2PostAssignmentLiteralMethodValueFlags::SAFE), "limit" => 2 * 5]); $value->ready();
+} }`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Value-call completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const prefix = '/* static global eval &$value */';
+  const prefixOffset = source.indexOf(prefix); assert.ok(prefixOffset >= 0);
+  const prefixEdit = new vscode.WorkspaceEdit();
+  prefixEdit.replace(uri, new vscode.Range(document.positionAt(prefixOffset), document.positionAt(prefixOffset + prefix.length)),
+    'global $value;'.padEnd(prefix.length));
+  assert.ok(await vscode.workspace.applyEdit(prefixEdit)); assert.ok(document.isDirty);
+  assert.strictEqual(document.getText().length, source.length);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  assert.strictEqual(document.getText(), source);
+  console.log('C2 cached prefix syntax: equal-length unsaved edit and Undo/Redo passed');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('function c2MethodValueCallObserve($value, $options)', 'function c2MethodValueCallObserve(&$value, $options)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 post assignment literal value method calls: unsaved reference parameter change and Undo/Redo passed');
+}
+
+async function verifyCrossFileValueSignatureCompletion(root: vscode.Uri): Promise<void> {
+  const definitionsUri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2CrossFileValueSignatures.php');
+  const callerUri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2CrossFileValueCaller.php');
+  const definitions = `<?php class C2CrossFileValueRepo { public function ready(): void {} }
+function c2CrossFileObserve($value): void {}
+class C2CrossFileValueObserver { public function observe($value): void {} }`;
+  const caller = `<?php function c2CrossFileFunction(): void {
+  $value = null ?: new C2CrossFileValueRepo(); c2CrossFileObserve($value); $value->ready();
+} function c2CrossFileMethod(): void {
+  $observer = new C2CrossFileValueObserver(); $value = null ?: new C2CrossFileValueRepo(); $observer->observe($value); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(definitionsUri, Buffer.from(definitions));
+  await vscode.workspace.fs.writeFile(callerUri, Buffer.from(caller));
+  const definitionsDocument = await vscode.workspace.openTextDocument(definitionsUri);
+  const callerDocument = await vscode.workspace.openTextDocument(callerUri);
+  await vscode.window.showTextDocument(callerDocument);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    const positions = [caller.indexOf('$value->rea'), caller.lastIndexOf('$value->rea')];
+    while (Date.now() < deadline) {
+      const results = await Promise.all(positions.map(offset => vscode.commands.executeCommand<vscode.CompletionList>(
+        'vscode.executeCompletionItemProvider', callerUri, callerDocument.positionAt(offset + '$value->rea'.length))));
+      if (results.every(result => result && result.items.some(item => item.label === 'ready') === expected)) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Cross-file function/method signatures did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(definitionsUri, new vscode.Range(definitionsDocument.positionAt(0), definitionsDocument.positionAt(definitions.length)),
+    definitions.replaceAll('($value)', '(&$value)'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(definitionsDocument.isDirty);
+  await completion(false);
+  await vscode.window.showTextDocument(definitionsDocument);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  assert.strictEqual(callerDocument.getText(), caller); assert.strictEqual(callerDocument.isDirty, false);
+  console.log('C2 cross-file value signatures: unchanged caller, unsaved function/method reference edits and Undo/Redo passed');
+}
+
+async function verifyReferenceReturnCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ReferenceReturn.php');
+  const source = `<?php
+class C2ReferenceRepo { public function ready(): void {} }
+class C2ReferenceOther {}
+class C2ReferenceStorage { public static $value; }
+function &c2ReferenceSlot() { return C2ReferenceStorage::$value; }
+function c2ReferenceObserve($value) { C2ReferenceStorage::$value = new C2ReferenceOther(); }
+function runC2Reference(): void {
+  $value = c2ReferenceSlot(); $value = new C2ReferenceRepo(); c2ReferenceObserve($value); $value->ready();
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$value->rea';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      if (result && result.items.some(item => item.label === 'ready') === expected) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Reference-return completion did not refresh ready=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('$value = c2ReferenceSlot()', '$value = /* alias */ &c2ReferenceSlot()'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 reference returns: copy/alias binding, unsaved change and Undo/Redo passed');
+}
+
+async function verifyGenericExpectedCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2GenericExpected.php');
+  const source = `<?php class C2GenericBase {} class C2GenericAlpha extends C2GenericBase {} class C2GenericBeta extends C2GenericBase {}
+/** @template T of C2GenericBase
+ * @param class-string<T> $type
+ * @param T $value */ function c2GenericTake($type, $value, string $tail): void {}
+function runC2Generic(C2GenericBeta $valueBeta, C2GenericAlpha $valueAlpha, $valueUnknown): void { c2GenericTake(C2GenericAlpha::class, $v); }`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const completion = async (alpha: boolean): Promise<void> => {
+    const expected = alpha ? ['$valueAlpha', '$valueUnknown', '$valueBeta'] : ['$valueBeta', '$valueUnknown', '$valueAlpha'];
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+        'vscode.executeCompletionItemProvider', uri, document.positionAt(text.lastIndexOf('$v') + 2));
+      const names = result?.items.filter(item => typeof item.label === 'string' && /^\$value(?:Alpha|Beta|Unknown)$/.test(item.label))
+        .sort((left, right) => (left.sortText ?? '').localeCompare(right.sortText ?? '')).map(item => item.label);
+      if (JSON.stringify(names) === JSON.stringify(expected)) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Generic expected type did not refresh alpha=${alpha}.`);
+  };
+  await completion(true);
+  const unclosed = source.replace('$v);', '$v;');
+  const openingEdit = new vscode.WorkspaceEdit();
+  openingEdit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)), unclosed);
+  assert.ok(await vscode.workspace.applyEdit(openingEdit)); await completion(true);
+  const edit = new vscode.WorkspaceEdit(); edit.replace(uri,
+    new vscode.Range(document.positionAt(0), document.positionAt(unclosed.length)), unclosed.replace('c2GenericTake(C2GenericAlpha::class', 'c2GenericTake(C2GenericBeta::class'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty); await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 generic expected arguments: missing required tail, closed/unclosed ranking, unknown retention, unsaved edit and Undo/Redo passed');
+}
+
+async function verifyOverloadExpectedCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2OverloadExpected.php');
+  const source = `<?php
+/** @method int send(string $value, int $mode = 0)
+ * @method string send(string $value, string $mode = '') */ class C2OverloadClient {}
+function c2OverloadValueInt(): int {}
+function c2OverloadValueText(): string {}
+function c2OverloadValueUnknown() {}
+function runC2Overload(C2OverloadClient $client): void { $client->send(c2OverloadValue); }`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (agreed: boolean): Promise<void> => {
+    const expected = agreed ? ['c2OverloadValueText', 'c2OverloadValueUnknown', 'c2OverloadValueInt']
+      : ['c2OverloadValueInt', 'c2OverloadValueText', 'c2OverloadValueUnknown'];
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const marker = '$client->send(c2OverloadValue';
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(text.indexOf(marker) + marker.length));
+      const names = result?.items.filter(item => typeof item.label === 'string' && /^c2OverloadValue(?:Int|Text|Unknown)$/.test(item.label))
+        .sort((left, right) => (left.sortText ?? '').localeCompare(right.sortText ?? '')).map(item => item.label);
+      if (JSON.stringify(names) === JSON.stringify(expected)) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Overload expected type did not refresh agreed=${agreed}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)),
+    source.replace('@method string send(string', '@method string send(int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  console.log('C2 overload expected types: ranking, unknown preservation, unsaved conflict and Undo/Redo passed');
+}
+
+async function verifyThisBindingDiagnostics(root: vscode.Uri): Promise<void> {
+  const directory = vscode.Uri.joinPath(root, 'src', 'Service');
+  await vscode.workspace.fs.createDirectory(directory);
+  const uri = vscode.Uri.joinPath(directory, 'C2ThisBinding.php');
+  const source = '<?php class C2ThisBinding { public function ready(): void {} public static function run(): void { $this->ready(); $callback = static fn () => $this->ready(); } }';
+  const revised = source.replace('public static function', 'public function').replace('static fn', 'fn');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const diagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(uri)
+    .filter((item) => item.source === 'SoPHP' && item.code === 'php.variable.unbound-this');
+  const waitForCount = async (count: number): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline && diagnostics().length !== count) await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.strictEqual(diagnostics().length, count, `Expected ${count} unbound $this diagnostics in the editor.`);
+  };
+  await waitForCount(2);
+  const completion = (text: string): Thenable<vscode.CompletionList> => vscode.commands.executeCommand(
+    'vscode.executeCompletionItemProvider', uri, document.positionAt(text.indexOf('$this->ready()') + '$this->re'.length));
+  const definition = (text: string): Thenable<vscode.Location[]> => vscode.commands.executeCommand(
+    'vscode.executeDefinitionProvider', uri, document.positionAt(text.indexOf('$this->ready()') + '$this->re'.length));
+  assert.ok(!(await completion(source)).items.some((item) => item.label === 'ready' && item.kind === vscode.CompletionItemKind.Method),
+    'An unbound $this offered instance methods.');
+  assert.deepStrictEqual(await definition(source), [], 'An unbound $this navigated to an instance method.');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(source.length)), revised);
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  assert.ok(document.isDirty, 'The instance edit must remain unsaved.');
+  await waitForCount(0);
+  assert.ok((await completion(revised)).items.some((item) => item.label === 'ready' && item.kind === vscode.CompletionItemKind.Method),
+    'A bound $this lost instance methods.');
+  assert.deepStrictEqual((await definition(revised)).map((location) => location.uri.toString()), [uri.toString()]);
+  await vscode.commands.executeCommand('undo');
+  await waitForCount(2);
+  await vscode.commands.executeCommand('redo');
+  await waitForCount(0);
+}
+
+async function verifyPartialWordVariableDiagnostics(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2PartialWord.php');
+  const source = `<?php
+final class Bootstrap { public function __construct(string $projectDir) {} }
+$app = new Bootstrap(projectDir: $a);`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const diagnostics = (): vscode.Diagnostic[] => vscode.languages.getDiagnostics(uri).filter((item) => item.source === 'SoPHP');
+  const waitFor = async (syntax: boolean, variable: boolean): Promise<void> => {
+    const matches = (): boolean => diagnostics().some((item) => item.code === 'php.syntax') === syntax
+      && diagnostics().some((item) => item.code === 'php.variable.possiblyUndefined') === variable;
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline && !matches()) await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.ok(matches(), `Unexpected partial-word diagnostics: ${JSON.stringify(diagnostics().map((item) => item.code))}`);
+  };
+  await waitFor(false, true);
+  const partial = new vscode.WorkspaceEdit();
+  partial.insert(uri, document.positionAt('<?php\n'.length), 'func\n');
+  assert.ok(await vscode.workspace.applyEdit(partial));
+  assert.ok(document.isDirty, 'The partial-word edit unexpectedly saved the document.');
+  await waitFor(true, true);
+  const assignment = new vscode.WorkspaceEdit();
+  assignment.insert(uri, document.positionAt(document.getText().indexOf('$app =')), "$a = 'root';\n");
+  assert.ok(await vscode.workspace.applyEdit(assignment));
+  await waitFor(true, false);
+  await vscode.commands.executeCommand('undo');
+  await waitFor(true, true);
+  await vscode.commands.executeCommand('undo');
+  await waitFor(false, true);
+  console.log('C2 standalone partial word kept an independent variable diagnostic through unsaved edit and Undo');
+}
+
+async function verifyArrayFilterModeFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ArrayFilterMode.php');
+  const sourceFor = (mode: string, parameters = '$entry'): string => `<?php
+class C2ArrayFilterItem { public function name(): string { return ''; } }
+/** @param array<string, C2ArrayFilterItem> $items */
+function c2FilterItems(array $items, int $mode): void {
+    array_filter($items, fn(${parameters}) => $entry->na${mode});
+}`;
+  const original = sourceFor('');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (): Promise<boolean> => {
+    const source = document.getText(); const offset = source.indexOf('$entry->na') + '$entry->na'.length;
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+    return list.items.some((item) => item.label === 'name' && item.kind === vscode.CompletionItemKind.Method);
+  };
+  const waitFor = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if (await completion() === expected) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`array_filter callback completion did not become ${expected ? 'value' : 'unknown'} mode.`);
+  };
+  const change = async (mode: string, parameters = '$entry'): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor(mode, parameters));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(document.isDirty, 'array_filter mode changes must remain unsaved.');
+  };
+  await waitFor(true);
+  await change(', ARRAY_FILTER_USE_KEY'); await waitFor(false);
+  await vscode.commands.executeCommand('undo'); await waitFor(true);
+  await vscode.commands.executeCommand('redo'); await waitFor(false);
+  await change(', $mode'); await waitFor(false);
+  await change(', 0'); await waitFor(true);
+  await change(', \\ARRAY_FILTER_USE_BOTH', '$entry, $key'); await waitFor(true);
+  await change(', $mode', '$entry, $key'); await waitFor(false);
+  const keySource = `<?php
+class C2ArrayFilterItem { public function name(): string { return ''; } }
+/** @param array<string, C2ArrayFilterItem> $items */
+function c2FilterItems(array $items): void {
+    array_filter($items, fn($entry, $key) => strlen(), \\ARRAY_FILTER_USE_BOTH);
+}`;
+  const keyEdit = new vscode.WorkspaceEdit();
+  keyEdit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), keySource);
+  assert.ok(await vscode.workspace.applyEdit(keyEdit));
+  assert.ok(document.isDirty);
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const offset = document.getText().indexOf('strlen()') + 'strlen('.length;
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+    const key = list.items.find((item) => item.label === '$key');
+    const value = list.items.find((item) => item.label === '$entry');
+    if (key?.sortText?.startsWith('!0') && value?.sortText?.startsWith('2')) break;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const offset = document.getText().indexOf('strlen()') + 'strlen('.length;
+  const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+  assert.ok(list.items.find((item) => item.label === '$key')?.sortText?.startsWith('!0'));
+  assert.ok(list.items.find((item) => item.label === '$entry')?.sortText?.startsWith('2'));
+  const aliasedSource = `<?php namespace App;
+use const ARRAY_FILTER_USE_BOTH as FILTER_BOTH;
+class C2ArrayFilterItem { public function name(): string { return ''; } }
+/** @param array<string, C2ArrayFilterItem> $items */
+function c2FilterItems(array $items): void {
+    array_filter($items, fn($entry, $key) => $entry->na, FILTER_BOTH);
+}`;
+  const aliasEdit = new vscode.WorkspaceEdit();
+  aliasEdit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), aliasedSource);
+  assert.ok(await vscode.workspace.applyEdit(aliasEdit));
+  await waitFor(true);
+  console.log('C2 array_filter callback mode, imported constant and key type: unsaved completion and Undo/Redo passed');
+}
+
+async function verifyArrayReduceCarryFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ArrayReduceCarry.php');
+  const sourceFor = (returned: 'C2ReduceCarry' | 'C2ReduceItem'): string => `<?php
+class C2ReduceItem { public function name(): string { return ''; } }
+class C2ReduceCarry { public function total(): int { return 1; } }
+/** @param list<C2ReduceItem> $items */
+function c2Reduce(array $items): void {
+    array_reduce($items, function ($carry, $item) {
+        $carry->tot;
+        $item->na;
+        return new ${returned}();
+    }, new C2ReduceCarry());
+}`;
+  const original = sourceFor('C2ReduceCarry');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (marker: string, label: string): Promise<boolean> => {
+    const source = document.getText();
+    const offset = source.indexOf(marker) + marker.length;
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+    return list.items.some((item) => item.label === label && item.kind === vscode.CompletionItemKind.Method);
+  };
+  const waitFor = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if (await completion('$carry->tot', 'total') === expected && await completion('$item->na', 'name')) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`array_reduce carry completion did not become ${expected ? 'compatible' : 'unknown'}.`);
+  };
+  const change = async (returned: 'C2ReduceCarry' | 'C2ReduceItem'): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor(returned));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    assert.ok(document.isDirty, 'array_reduce return edits must remain unsaved.');
+  };
+  await waitFor(true);
+  await change('C2ReduceItem'); await waitFor(false);
+  await vscode.commands.executeCommand('undo'); await waitFor(true);
+  await vscode.commands.executeCommand('redo'); await waitFor(false);
+  console.log('C2 array_reduce carry feedback: unsaved callback return and Undo/Redo passed');
+}
+
+async function verifyArrayWalkRecursiveFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ArrayWalkRecursive.php');
+  const sourceFor = (type: 'C2RecursiveItem' | 'C2RecursiveOther'): string => `<?php
+class C2RecursiveItem { public function name(): string { return ''; } }
+class C2RecursiveOther { public function other(): string { return ''; } }
+/** @param array<string, array<string, ${type}>> $items */
+function c2WalkRecursive(array $items): void {
+    array_walk_recursive($items, fn($entry, $key) => $entry->na);
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('C2RecursiveItem')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (): Promise<boolean> => {
+    const source = document.getText();
+    const offset = source.indexOf('$entry->na') + '$entry->na'.length;
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+    return list.items.some((item) => item.label === 'name' && item.kind === vscode.CompletionItemKind.Method);
+  };
+  const waitFor = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if (await completion() === expected) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`array_walk_recursive leaf completion did not become ${expected ? 'Item' : 'Other'}.`);
+  };
+  await waitFor(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)),
+    sourceFor('C2RecursiveOther'));
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  assert.ok(document.isDirty, 'array_walk_recursive type changes must remain unsaved.');
+  await waitFor(false);
+  await vscode.commands.executeCommand('undo'); await waitFor(true);
+  await vscode.commands.executeCommand('redo'); await waitFor(false);
+  console.log('C2 array_walk_recursive leaf completion followed unsaved type edits and Undo/Redo');
+}
+
+async function verifyLocalStringCallbackFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2LocalStringCallback.php');
+  const sourceFor = (valid: boolean): string => `<?php
+class C2StringInput {}
+class C2StringOutput { public function name(): string { return ''; } }
+function c2StringConvert(C2StringInput $input): C2StringOutput { return new C2StringOutput(); }
+function c2StringMap(): void {
+    $callback = 'c2StringConvert'; $copy = $callback;
+    $callback = 'missingFunction';
+    ${valid ? '' : "$copy = 'missingFunction';"}
+    $result = array_map($copy, [new C2StringInput()]);
+    foreach ($result as $item) { $item->na; }
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor(true)));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (): Promise<boolean> => {
+    const source = document.getText();
+    const offset = source.indexOf('$item->na') + '$item->na'.length;
+    const list = await vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', uri, document.positionAt(offset));
+    return list.items.some((item) => item.label === 'name' && item.kind === vscode.CompletionItemKind.Method);
+  };
+  const waitFor = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if (await completion() === expected) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`Local string callback completion did not become ${expected ? 'valid' : 'unknown'}.`);
+  };
+  await waitFor(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)),
+    sourceFor(false));
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  assert.ok(document.isDirty, 'Local string callback changes must remain unsaved.');
+  await waitFor(false);
+  await vscode.commands.executeCommand('undo'); await waitFor(true);
+  await vscode.commands.executeCommand('redo'); await waitFor(false);
+  console.log('C2 local string callback snapshot, unsaved replacement and Undo/Redo passed');
+}
+
+async function verifyOperandCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2OperandCompletion.php');
+  const sourceFor = (type: string): string => `<?php
+function c2OperandTarget(${type} $value): void {}
+function c2OperandInner(string $value): string { return $value; }
+${[
+  'c2OperandTarget(!$val);', 'c2OperandTarget($val === true);', 'c2OperandTarget((int) $val);',
+  'c2OperandTarget($val + 1);', 'c2OperandTarget(!c2OperandInner($val));',
+  `c2OperandTarget($val ?? ${type === 'string' ? "'no'" : '2'});`,
+].map((expression, index) => `function c2OperandRun${index}(): void {
+  $valueText = 'text'; $valueFlag = true; $valueNumber = 123;
+  ${expression}
+}`).join('\n')}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('string')));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const verify = async (type: string): Promise<void> => {
+    for (const [marker, expected] of [['!$val);', '$valueFlag'], ['(int) $val);', '$valueFlag'], ['$val ===', '$valueFlag'], ['$val +', '$valueFlag'], ['$val));', '$valueText'], ['$val ??', type === 'string' ? '$valueText' : '$valueNumber']]) {
+      const deadline = Date.now() + 10_000; let passed = false;
+      while (Date.now() < deadline) {
+        const offset = document.getText().indexOf(marker!) + marker!.indexOf('$val') + '$val'.length;
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        const labels = result?.items.map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+        if (labels[0] === expected && ['$valueFlag', '$valueText', '$valueNumber'].every(label => labels.includes(label))) { passed = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      assert.ok(passed, `Operand completion ${marker} did not rank ${expected} for ${type}.`);
+    }
+  };
+  await verify('string');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); await verify('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await verify('string');
+  await vscode.commands.executeCommand('redo'); await verify('int');
+  console.log('C2 operand/result ranking, unsaved return contract and Undo/Redo passed');
+}
+
+async function verifyCallbackReturnCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2CallbackReturnCompletion.php');
+  const sourceFor = (type: string): string => `<?php
+function c2CallbackOuter(string $value): void {}
+function c2CallbackInner(bool $value): bool { return $value; }
+function c2CallbackRun(): void {
+ c2CallbackOuter(function(): ${type} { $valueText='text'; $valueFlag=true; $valueNumber=123; return $val; });
+}
+function c2CallbackArgument(): void {
+ $callback=function(): ${type} { $valueText='text'; $valueFlag=true; $valueNumber=123; return c2CallbackInner($val); };
+}
+function c2CallbackArrow(): void {
+ $valueText='text'; $valueFlag=true; $valueNumber=123;
+ $callback=fn(): ${type} => $val;
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('string')));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const verify = async (type: string): Promise<void> => {
+    for (const [marker, expected] of [['return $val;', type === 'string' ? '$valueText' : '$valueNumber'], ['c2CallbackInner($val)', '$valueFlag'], ['=> $val;', type === 'string' ? '$valueText' : '$valueNumber']]) {
+      const deadline = Date.now() + 10_000; let passed = false;
+      while (Date.now() < deadline) {
+        const offset = document.getText().indexOf(marker!) + marker!.indexOf('$val') + '$val'.length;
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        const labels = result?.items.map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+        if (labels[0] === expected && ['$valueFlag', '$valueText', '$valueNumber'].every(label => labels.includes(label))) { passed = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      assert.ok(passed, `Callback return completion ${marker} did not rank ${expected} for ${type}.`);
+    }
+  };
+  await verify('string');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); await verify('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await verify('string');
+  await vscode.commands.executeCommand('redo'); await verify('int');
+  console.log('C2 callback return ranking, inner argument contract, unsaved updates and Undo/Redo passed');
+}
+
+async function verifyTrailingCallbackCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2TrailingCallbackCompletion.php');
+  const sourceFor = (type: string): string => `<?php
+function c2CallbackOuter(string $value): void {}
+$valueOutside=1;
+c2CallbackOuter(function(): ${type} { $valueText='text'; $valueFlag=true; $valueNumber=123; return $val`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('string')));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const verify = async (type: string): Promise<void> => {
+    for (const [marker, expected] of [['return $val', type === 'string' ? '$valueText' : '$valueNumber']]) {
+      const deadline = Date.now() + 10_000; let passed = false;
+      while (Date.now() < deadline) {
+        const offset = document.getText().indexOf(marker!) + marker!.indexOf('$val') + '$val'.length;
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        const labels = result?.items.map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+        if (!labels.includes('$valueOutside') && labels[0] === expected && ['$valueFlag', '$valueText', '$valueNumber'].every(label => labels.includes(label))) { passed = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      assert.ok(passed, `Callback return completion ${marker} did not rank ${expected} for ${type}.`);
+    }
+  };
+  await verify('string');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); await verify('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await verify('string');
+  await vscode.commands.executeCommand('redo'); await verify('int');
+  console.log('C2 trailing callback ranking, scope isolation, unsaved updates and Undo/Redo passed');
+}
+
+async function verifyCallbackCompletionDetails(root: vscode.Uri): Promise<void> {
+  const uri=vscode.Uri.joinPath(root,'src','Service','C2CallbackDetails.php');
+  const sourceFor=(type: string, trailing: boolean): string => `<?php
+$valueText=${type==='string' ? "'text'" : '123'};
+$callback=function() use ($valueText): ${type} { return $va${trailing ? '' : '; };'}`;
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('string',false)));
+  const document=await vscode.workspace.openTextDocument(uri);await vscode.window.showTextDocument(document);
+  const verify=async(type: string): Promise<void>=>{
+    const deadline=Date.now()+10_000;let detail: string | undefined;
+    while(Date.now()<deadline){
+      const offset=document.getText().lastIndexOf('$va')+3;
+      const result=await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',uri,document.positionAt(offset),undefined,64);
+      const item=result?.items.find(candidate=>(typeof candidate.label==='string'?candidate.label:candidate.label.label)==='$valueText');
+      detail=item?.detail;
+      if(detail===`$valueText: ${type}`)return;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+    assert.fail(`Callback completion detail should be $valueText: ${type}, got ${detail}`);
+  };
+  const replace=async(type: string,trailing: boolean): Promise<void>=>{
+    const edit=new vscode.WorkspaceEdit();edit.replace(uri,new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor(type,trailing));
+    assert.ok(await vscode.workspace.applyEdit(edit));await verify(type);
+  };
+  await verify('string');await replace('int',false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('string');
+  await vscode.commands.executeCommand('redo');await verify('int');
+  await replace('int',true);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('int');
+  await vscode.commands.executeCommand('redo');await verify('int');
+  console.log('C2 callback variable details, trailing input, unsaved changes and Undo/Redo passed');
+}
+
+async function verifyTrailingCallableMembers(root: vscode.Uri): Promise<void> {
+  const uri=vscode.Uri.joinPath(root,'src','Service','C2TrailingMembers.php');
+  const sourceFor=(type: string): string=>`<?php
+class C2TrailingItem {public function title():string{return 'text';} private function hidden():void{}}
+class C2TrailingOther {public function toggle():bool{return true;}}
+class C2TrailingFactory {public function run(C2Trailing${type} $item):void {$item->`;
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('Item')));
+  const document=await vscode.workspace.openTextDocument(uri);await vscode.window.showTextDocument(document);
+  const verify=async(type: string): Promise<void>=>{
+    const expected=type==='Item'?'title':'toggle',unwanted=type==='Item'?'toggle':'title';
+    const deadline=Date.now()+10_000;
+    while(Date.now()<deadline){
+      const result=await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',uri,document.positionAt(document.getText().length),undefined,64);
+      const labels=result?.items.map(item=>typeof item.label==='string'?item.label:item.label.label)??[];
+      if(labels.includes(expected)&&!labels.includes(unwanted)&&!labels.includes('hidden'))return;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+    assert.fail(`Unclosed method member completion should show ${expected} without ${unwanted} or hidden`);
+  };
+  await verify('Item');
+  const edit=new vscode.WorkspaceEdit();edit.replace(uri,new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor('Other'));
+  assert.ok(await vscode.workspace.applyEdit(edit));await verify('Other');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('Item');
+  await vscode.commands.executeCommand('redo');await verify('Other');
+  console.log('C2 trailing method members, private candidate filtering, unsaved parameter replacement and Undo/Redo passed');
+}
+
+async function verifyBranchShapeCompletion(root: vscode.Uri): Promise<void> {
+  const uri=vscode.Uri.joinPath(root,'src','Service','C2BranchShapes.php');
+  const modes=['ternary','coalesce','left','nested','arm','subject','label'];
+  const sourceFor=(key: string): string=>`<?php
+/** @param array{${key}:string,nested:array{deep:array{${key}:string}}} $config */
+function c2BranchShapeSend(array $config):void{}
+${modes.map(mode=>{
+  const expression=mode==='ternary'?'true?["o"]:[]':mode==='coalesce'?'null??["o"]':mode==='left'?'["o"]??[]'
+    :mode==='nested'?'["nested"=>["deep"=>["o"]]]':mode==='subject'?'match(["o"]){default=>[]}'
+    :mode==='label'?'match(true){["o"]=>[],default=>[]}':'match(true){true=>["o"],default=>[]}';
+  return `function c2BranchShape${mode}():void{c2BranchShapeSend(${expression});}`;
+}).join('\n')}`;
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('owner')));
+  const document=await vscode.workspace.openTextDocument(uri);await vscode.window.showTextDocument(document);
+  const verify=async(key: string): Promise<void>=>{
+    for(const mode of modes){
+      const text=document.getText(),start=text.indexOf(`function c2BranchShape${mode}(`);
+      const offset=text.indexOf('"o"',start)+2;let labels: string[]=[];
+      const deadline=Date.now()+10_000;
+      while(Date.now()<deadline){
+        const result=await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',uri,document.positionAt(offset),undefined,64);
+        // The command aggregates unfiltered built-in PHP snippets; LSP tests
+        // check the exact SoPHP list, and C1 checks actual Workbench filtering.
+        labels=result?.items.filter(item=>item.kind!==vscode.CompletionItemKind.Snippet)
+          .map(item=>typeof item.label==='string'?item.label:item.label.label)??[];
+        if(mode==='subject'||mode==='label'){
+          if(!labels.includes('owner')&&!labels.includes('other'))break;
+        }else if(labels.length===1&&labels[0]===key)break;
+        await new Promise(resolve=>setTimeout(resolve,50));
+      }
+      if(mode==='subject'||mode==='label')assert.ok(!labels.includes('owner')&&!labels.includes('other'),`Shape selector ${mode} borrowed a value contract`);
+      else assert.deepStrictEqual(labels,[key],`Shape branch ${mode} did not refresh ${key}`);
+    }
+  };
+  await verify('owner');
+  const edit=new vscode.WorkspaceEdit();edit.replace(uri,new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor('other'));
+  assert.ok(await vscode.workspace.applyEdit(edit));await verify('other');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('owner');
+  await vscode.commands.executeCommand('redo');await verify('other');
+  console.log('C2 array shape value branches, deep fields, selector isolation, unsaved contract changes and Undo/Redo passed');
+}
+
+async function verifyArrayAccessKeyCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ArrayAccessKeys.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const read = async (offset: number): Promise<string[]> => {
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+    return result?.items.filter(item => item.kind !== vscode.CompletionItemKind.Snippet)
+      .map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+  };
+  for (const item of arrayAccessCases) {
+    const offset = item.marked.indexOf('§'), source = item.marked.replace('§', '');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    let labels: string[] = [];
+    const deadline = Date.now() + 10_000;
+    do {
+      labels = await read(offset);
+      if (JSON.stringify(labels) === JSON.stringify(item.labels)) break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (Date.now() < deadline);
+    assert.deepStrictEqual(labels, item.labels, `Array access keys did not refresh ${item.name}.`);
+  }
+  console.log('C2 array access key candidates, nested/optional guards, unsaved withdrawal and closed/unclosed reads passed');
+}
+
+async function verifyQuotedPrefixCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2QuotedPrefixes.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const read = async (offset: number): Promise<string[]> => {
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+    return result?.items.filter(item => item.kind !== vscode.CompletionItemKind.Snippet)
+      .map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+  };
+  for (const item of quotedPrefixCases) {
+    const offset = item.marked.indexOf('§'), source = item.marked.replace('§', '');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    let labels: string[] = [];
+    const deadline = Date.now() + 10_000;
+    do {
+      labels = await read(offset);
+      if (JSON.stringify(labels) === JSON.stringify([item.label])) break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (Date.now() < deadline);
+    assert.deepStrictEqual(labels, [item.label], `Quoted prefix did not refresh ${item.name}.`);
+  }
+  console.log('C2 punctuation, unicode, escaped keys/values, double quoted dollar and closed/unclosed prefix candidates passed');
+}
+
+async function verifyUnfinishedShapeCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2UnfinishedShapes.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(unfinishedShapeSource('c2Unfinished', 'mode', 'create', 'argument', 'key')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  for (const context of unfinishedShapeContexts) for (const part of ['key', 'value'] as const) for (const middle of [false, true]) {
+    const sourceFor = (key: string, value: string): string => unfinishedShapeSource('c2Unfinished', key, value, context, part)
+      + (middle ? unfinishedShapeTail(context) : '');
+    const verify = async (key: string, value: string): Promise<void> => {
+      const expected = [part === 'key' ? key : `'${value}'`];
+      let labels: string[] = [];
+      const deadline = Date.now() + 10_000;
+      do {
+        const offset = unfinishedShapeSource('c2Unfinished', key, value, context, part).length;
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        labels = result?.items.filter(item => item.kind !== vscode.CompletionItemKind.Snippet)
+          .map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+        if (JSON.stringify(labels) === JSON.stringify(expected)) break;
+        await new Promise(resolve => setTimeout(resolve, 50));
+      } while (Date.now() < deadline);
+      assert.deepStrictEqual(labels, expected, `Unfinished ${middle ? 'middle' : 'EOF'} ${context} ${part} did not refresh ${key}/${value}`);
+      assert.strictEqual(document.getText(), sourceFor(key, value), 'Completion changed the unfinished document.');
+    };
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('mode', 'create'))));
+    await verify('mode', 'create');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('other', 'refresh'))));
+    await verify('other', 'refresh');
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await vscode.commands.executeCommand('undo');
+    await verify('mode', 'create');
+    await vscode.commands.executeCommand('redo');
+    await verify('other', 'refresh');
+  }
+  console.log('C2 EOF and middle unfinished shape keys/values in argument, return, assignment and method; exact candidates, unsaved changes and Undo/Redo passed');
+  for (const item of [...existingShapeArrowCases, ...wordMiddleShapeCases]) {
+    const source = item.marked.replace('§', ''), offset = item.marked.indexOf('§');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    const deadline = Date.now() + 10_000;
+    let labels: string[] = [];
+    do {
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+      // Outside PHP, VS Code may aggregate plain word suggestions from its
+      // HTML provider. The Core protocol negative remains strictly empty.
+      if (item.name.endsWith('HTML')) {
+        assert.ok(result?.items.every(candidate => candidate.kind === vscode.CompletionItemKind.Text
+          || candidate.kind === vscode.CompletionItemKind.Snippet) ?? true,
+        'HTML received a PHP semantic completion instead of plain text suggestions.');
+        console.log(`C2 HTML completion aggregation: ${result?.items.length ?? 0} plain text/snippet items; no PHP semantic items`);
+      }
+      labels = result?.items.filter(candidate => candidate.kind !== vscode.CompletionItemKind.Snippet
+        && !(item.name.endsWith('HTML') && candidate.kind === vscode.CompletionItemKind.Text))
+        .map(candidate => typeof candidate.label === 'string' ? candidate.label : candidate.label.label) ?? [];
+      if (JSON.stringify(labels) === JSON.stringify(item.labels)) break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (Date.now() < deadline);
+    assert.deepStrictEqual(labels, item.labels, `Existing arrow candidates incorrect: ${item.name}`);
+    assert.strictEqual(document.getText(), source, 'Existing arrow query changed the source.');
+  }
+  console.log('C2 existing array arrows and word-middle literals: all 64 complete/incomplete and conservative negative cases passed');
+}
+
+async function verifyUnionShapeCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2UnionShapes.php');
+  const sourceFor = (key: string): string => `<?php
+/** @param (array{${key}:'create',payload:array{trace:string,x:int},id:int}|array{${key}:'update',payload:array{trace:string,y:string},name:string})|null $options */
+function c2UnionSend(?array $options):void{}
+function c2UnionKeys():void{c2UnionSend([""]);}
+function c2UnionValues():void{c2UnionSend(["${key}"=>""]);}
+function c2UnionNested():void{c2UnionSend(["payload"=>[""]]);}
+function c2UnionBranch():void{c2UnionSend(["i"]);}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('mode')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const verify = async (key: string): Promise<void> => {
+    for (const [method, token, expected] of [
+      ['Keys', '""', [key, 'payload']],
+      ['Values', '""', ['"create"', '"update"']],
+      ['Nested', '""', ['trace']],
+      ['Branch', '"i"', []],
+    ] as const) {
+      const text = document.getText(), start = text.indexOf(`function c2Union${method}(`);
+      const offset = text.indexOf(token, start) + (method === 'Branch' ? 2 : 1);
+      let labels: string[] = [];
+      const deadline = Date.now() + 10_000;
+      do {
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        labels = result?.items.filter(item => item.kind !== vscode.CompletionItemKind.Snippet)
+          .map(item => typeof item.label === 'string' ? item.label : item.label.label).sort() ?? [];
+        if (JSON.stringify(labels) === JSON.stringify([...expected].sort())) break;
+        await new Promise(resolve => setTimeout(resolve, 50));
+      } while (Date.now() < deadline);
+      assert.deepStrictEqual(labels, [...expected].sort(), `Union shape ${method} did not refresh ${key}`);
+    }
+  };
+  await verify('mode');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('other'));
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  await verify('other');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');
+  await verify('mode');
+  await vscode.commands.executeCommand('redo');
+  await verify('other');
+  console.log('C2 union shape common keys, literal values, nested keys, branch isolation, nullable contract and Undo/Redo passed');
+}
+
+async function verifyBranchValueCompletion(root: vscode.Uri): Promise<void> {
+  const uri=vscode.Uri.joinPath(root,'src','Service','C2BranchValues.php');
+  const sourceFor=(type: string): string=>{
+    const fallback=type==='string'?"'text'":'123';
+    const expressions=[`return null??$val;`,`return match(true){true=>$val,default=>${fallback}};`,
+      `c2BranchTakesValue(match($val){true=>${fallback},default=>${fallback}});`,
+      `c2BranchTakesValue(match(true){$val=>${fallback},default=>${fallback}});`];
+    return `<?php function c2BranchTakesValue(${type} $v):void{}
+${expressions.map((expression,index)=>`function c2BranchValues${index}():${type}{
+$valueFlag=true;$valueText='text';$valueNumber=123;${expression}}`).join('\n')}
+function c2BranchNullable(?${type} $valueMaybe,${type} $valueText):${type}{return $val??${fallback};}`;
+  };
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('string')));
+  const document=await vscode.workspace.openTextDocument(uri);await vscode.window.showTextDocument(document);
+  const verify=async(type: string): Promise<void>=>{
+    const checks=[['null??$val',type==='string'?'$valueText':'$valueNumber'],
+      ['true=>$val',type==='string'?'$valueText':'$valueNumber'],
+      ['match($val','$valueFlag'],['{$val','$valueFlag'],['return $val??','$valueMaybe']];
+    for(const [marker,expected]of checks){
+      const offset=document.getText().indexOf(marker!)+marker!.indexOf('$val')+'$val'.length;
+      const deadline=Date.now()+10_000;let labels: string[]=[];
+      while(Date.now()<deadline){
+        const result=await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',uri,document.positionAt(offset),undefined,64);
+        labels=result?.items.map(item=>typeof item.label==='string'?item.label:item.label.label)??[];
+        const preserved=expected==='$valueMaybe'?['$valueMaybe','$valueText']:['$valueFlag','$valueText','$valueNumber'];
+        if(labels[0]===expected&&preserved.every(label=>labels.includes(label)))break;
+        await new Promise(resolve=>setTimeout(resolve,50));
+      }
+      assert.strictEqual(labels[0],expected,`Branch completion ${marker} for ${type}: ${labels.slice(0,10).join(',')}`);
+      assert.ok((expected==='$valueMaybe'?['$valueMaybe','$valueText']:['$valueFlag','$valueText','$valueNumber']).every(label=>labels.includes(label)));
+    }
+  };
+  await verify('string');
+  const edit=new vscode.WorkspaceEdit();edit.replace(uri,new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit));await verify('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('string');
+  await vscode.commands.executeCommand('redo');await verify('int');
+  console.log('C2 coalescing and match value sorting, selector isolation, nullable values and unsaved Undo/Redo passed');
+}
+
+async function verifyConditionalCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ConditionalCompletion.php');
+  const sourceFor = (type: string): string => `<?php
+function c2Condition(): ${type} {
+  $valueText = 'text'; $valueFlag = true; $valueNumber = 123;
+  return $val ? ${type === 'string' ? "'yes' : 'no'" : '1 : 2'};
+}
+function c2Branch(): ${type} {
+  $valueText = 'text'; $valueFlag = true; $valueNumber = 123;
+  return $valueFlag ? $val : ${type === 'string' ? "'no'" : '2'};
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('string')));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const verify = async (type: string): Promise<void> => {
+    for (const [marker, expected] of [['$val ?', '$valueFlag'], ['$val :', type === 'string' ? '$valueText' : '$valueNumber']]) {
+      const deadline = Date.now() + 10_000; let passed = false;
+      while (Date.now() < deadline) {
+        const offset = document.getText().indexOf(marker!) + '$val'.length;
+        const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset), undefined, 64);
+        const labels = result?.items.map(item => typeof item.label === 'string' ? item.label : item.label.label) ?? [];
+        if (labels[0] === expected && ['$valueFlag', '$valueText', '$valueNumber'].every(label => labels.includes(label))) { passed = true; break; }
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      assert.ok(passed, `Conditional completion ${marker} did not rank ${expected} for ${type}.`);
+    }
+  };
+  await verify('string');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); await verify('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await verify('string');
+  await vscode.commands.executeCommand('redo'); await verify('int');
+  console.log('C2 conditional condition/value ranking, unsaved return contract and Undo/Redo passed');
+}
+
+async function verifyObjectColumnFeedback(root: vscode.Uri, generic = false): Promise<void> {
+  const prefix = generic ? 'C2GenericColumn' : 'C2Column';
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', `${prefix}.php`);
+  const sourceFor = (type: string): string => `<?php declare(strict_types=1);
+${generic ? '/** @template T */ ' : ''}class ${prefix}Row { /** @var ${generic ? 'T' : type} */ public $entry${generic ? '' : ` = ${type === 'string' ? "'text'" : '123'}`}; }
+function ${prefix}Int(int $value): void {}
+${generic ? `/** @param list<${prefix}Row<${type}>> $rows */` : ''}
+function ${prefix}Run(${generic ? 'array $rows' : ''}): void {
+  ${generic ? '' : `$rows = [new ${prefix}Row()];`} $column = array_column($rows, 'entry');
+  foreach ($column as $value) { ${prefix}Int($value); $value; }
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('string')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const waitFor = async (type: string): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const offset = text.lastIndexOf('$value;');
+      const hover = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', uri, document.positionAt(offset + 2));
+      const content = (hover ?? []).flatMap(result => result.contents.map(item =>
+        typeof item === 'string' ? item : 'value' in item ? item.value : '')).join('\n');
+      const completion = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, document.positionAt(offset + 4), undefined, 64);
+      const variable = completion?.items.find(item => (typeof item.label === 'string' ? item.label : item.label.label) === '$value');
+      const diagnostics = vscode.languages.getDiagnostics(uri).filter(item => item.code === 'php.argument.type-mismatch');
+      if (content.includes(`$value: ${type}`) && variable?.detail === `$value: ${type}`
+        && diagnostics.length === (type === 'string' ? 1 : 0)) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Object column did not refresh Hover, completion detail and diagnostics to ${type}.`);
+  };
+  await waitFor('string');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('int'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await waitFor('int');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await waitFor('string');
+  await vscode.commands.executeCommand('redo'); await waitFor('int');
+  console.log(`C2 object column generic=${generic}: scalar type, Hover, completion detail, diagnostics and Undo/Redo passed`);
+}
+
+async function verifyStringSplitFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2StringSplit.php');
+  const sourceFor = (expression: string): string => `<?php
+function c2Split(string $input): void {
+    $parts = ${expression}; if ($parts === false) { return; }
+    foreach ($parts as $part) { $part; }
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('explode(",", $input)')));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const waitFor = async (expected: string): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText();
+      const results = await vscode.commands.executeCommand<vscode.Hover[]>(
+        'vscode.executeHoverProvider', uri, document.positionAt(text.lastIndexOf('$part;') + 2));
+      const content = (results ?? []).flatMap((result) => result.contents.map((item) =>
+        typeof item === 'string' ? item : 'value' in item ? item.value : '')).join('\n');
+      if (content.includes(`$part: ${expected}`)) {
+        const completion = await vscode.commands.executeCommand<vscode.CompletionList>(
+          'vscode.executeCompletionItemProvider', uri, document.positionAt(text.lastIndexOf('$part;') + 4), undefined, 64);
+        const variable = completion?.items.find((item) => (typeof item.label === 'string' ? item.label : item.label.label) === '$part');
+        if (variable?.detail === `$part: ${expected}`) return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`String split foreach Hover did not show ${expected}.`);
+  };
+  const replace = async (expression: string): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor(expression));
+    assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  };
+  await waitFor('string'); await replace('str_split($input, 2)'); await waitFor('string');
+  await replace('[123]'); await waitFor('int');
+  await vscode.commands.executeCommand('undo'); await waitFor('string');
+  await vscode.commands.executeCommand('redo'); await waitFor('int');
+  await replace('preg_split("/,/", $input)'); await waitFor('string');
+  await replace('preg_split("/,/", $input, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE)');
+  await waitFor('array{0: string, 1: int}');
+  await vscode.commands.executeCommand('undo'); await waitFor('string');
+  await vscode.commands.executeCommand('redo'); await waitFor('array{0: string, 1: int}');
+  console.log('C2 string split foreach, unsaved type replacement and Undo/Redo passed');
+}
+
+async function verifyParseUrlContractFeedback(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2ParseUrlContract.php');
+  const sourceFor = (component: 'PHP_URL_PORT' | 'PHP_URL_HOST'): string => `<?php
+function c2ParseUrl(string $url): void {
+    $parts = parse_url($url); $parts;
+    $value = parse_url($url, ${component});
+    $parts; $value;
+}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('PHP_URL_PORT')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const hover = async (variable: string): Promise<string> => {
+    const text = document.getText();
+    const results = await vscode.commands.executeCommand<vscode.Hover[]>(
+      'vscode.executeHoverProvider', uri, document.positionAt(text.lastIndexOf(variable + ';') + 2));
+    return (results ?? []).flatMap((result) => result.contents.map((content) =>
+      typeof content === 'string' ? content : 'value' in content ? content.value : '')).join('\n');
+  };
+  const waitFor = async (expected: string): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      if ((await hover('$value')).includes(expected) && (await hover('$parts')).includes('port?: int')) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(`parse_url Hover did not preserve shape and ${expected}: value=${await hover('$value')}; parts=${await hover('$parts')}.`);
+  };
+  await waitFor('false|int|null');
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor('PHP_URL_HOST'));
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  assert.ok(document.isDirty, 'parse_url component changes must remain unsaved.');
+  await waitFor('false|null|string');
+  await vscode.commands.executeCommand('undo'); await waitFor('false|int|null');
+  await vscode.commands.executeCommand('redo'); await waitFor('false|null|string');
+  console.log('C2 parse_url shape, unsaved component Hover and Undo/Redo passed');
+}
 
 export async function run(): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.[0];
@@ -46,6 +1417,85 @@ export async function run(): Promise<void> {
   }
   const api = await extension.activate() as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(api.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
+  if (process.env.PHP_COMPANION_TEST_C2_PROPERTY_RANK_ONLY === '1') {
+    await verifyPropertyAssignmentCompletion(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_CALLBACK_ONLY === '1') {
+    await verifyCallbackReturnCompletion(root.uri);
+    await verifyTrailingCallbackCompletion(root.uri);
+    await verifyCallbackCompletionDetails(root.uri);
+    await verifyTrailingCallableMembers(root.uri);
+    await verifyBranchValueCompletion(root.uri);
+    await verifyBranchShapeCompletion(root.uri);
+    await verifyUnionShapeCompletion(root.uri);
+    await verifyUnfinishedShapeCompletion(root.uri);
+    await verifyQuotedPrefixCompletion(root.uri);
+    await verifyArrayAccessKeyCompletion(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_ELVIS_ONLY === '1') {
+    await verifyElvisCompletion(root.uri);
+    await verifyValueCallCompletion(root.uri);
+    await verifyMethodValueCallCompletion(root.uri);
+    await verifyExactMethodValueCallCompletion(root.uri);
+    await verifyArrayMethodValueCallCompletion(root.uri);
+    await verifyExpressionMethodValueCallCompletion(root.uri);
+    await verifyStaticScopeMethodValueCallCompletion(root.uri);
+    await verifyLiteralPrefixMethodValueCallCompletion(root.uri);
+    await verifyPostAssignmentLiteralMethodValueCallCompletion(root.uri);
+    await verifyCrossFileValueSignatureCompletion(root.uri);
+    await verifyObjectColumnFeedback(root.uri);
+    await verifyObjectColumnFeedback(root.uri, true);
+    await verifyConditionalCompletion(root.uri);
+    await verifyOperandCompletion(root.uri);
+    await verifyCallbackReturnCompletion(root.uri);
+    await verifyTrailingCallbackCompletion(root.uri);
+    await verifyCallbackCompletionDetails(root.uri);
+    await verifyTrailingCallableMembers(root.uri);
+    await verifyBranchValueCompletion(root.uri);
+    await verifyBranchShapeCompletion(root.uri);
+    await verifyUnionShapeCompletion(root.uri);
+    await verifyUnfinishedShapeCompletion(root.uri);
+    await verifyQuotedPrefixCompletion(root.uri);
+    await verifyArrayAccessKeyCompletion(root.uri);
+    await verifyReferenceReturnCompletion(root.uri);
+    await verifyOverloadExpectedCompletion(root.uri);
+    await verifyGenericExpectedCompletion(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_THIS_ONLY === '1') {
+    await verifyThisBindingDiagnostics(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_PARTIAL_WORD_ONLY === '1') {
+    await verifyPartialWordVariableDiagnostics(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_ARRAY_FILTER_ONLY === '1') {
+    await verifyArrayFilterModeFeedback(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_ARRAY_REDUCE_ONLY === '1') {
+    await verifyArrayReduceCarryFeedback(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_ARRAY_WALK_RECURSIVE_ONLY === '1') {
+    await verifyArrayWalkRecursiveFeedback(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_LOCAL_STRING_CALLBACK_ONLY === '1') {
+    await verifyLocalStringCallbackFeedback(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_STRING_SPLIT_ONLY === '1') {
+    await verifyStringSplitFeedback(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_PARSE_URL_ONLY === '1') {
+    await verifyParseUrlContractFeedback(root.uri);
+    return;
+  }
   const missingDelimiterUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2MissingDelimiter.php');
   const validDelimiterSource = '<?php function c2MissingDelimiter(): void {}';
   await vscode.workspace.fs.writeFile(missingDelimiterUri, Buffer.from(validDelimiterSource));
@@ -1070,4 +2520,37 @@ return array(
   await waitForSymbol('{c2Import}', 'c2ImportFinal', 'c2ImportDraft');
   await waitForSymbol('{C2_IMPORT}', 'C2_IMPORT_FINAL', 'C2_IMPORT_DRAFT');
   console.log('C2 grouped function and constant imports follow the unsaved declaration without retaining old candidates');
+  await verifyArrayFilterModeFeedback(root.uri);
+  await verifyArrayWalkRecursiveFeedback(root.uri);
+  await verifyLocalStringCallbackFeedback(root.uri);
+  await verifyPropertyAssignmentCompletion(root.uri);
+  await verifyElvisCompletion(root.uri);
+  await verifyValueCallCompletion(root.uri);
+  await verifyMethodValueCallCompletion(root.uri);
+    await verifyExactMethodValueCallCompletion(root.uri);
+    await verifyArrayMethodValueCallCompletion(root.uri);
+    await verifyExpressionMethodValueCallCompletion(root.uri);
+    await verifyStaticScopeMethodValueCallCompletion(root.uri);
+    await verifyLiteralPrefixMethodValueCallCompletion(root.uri);
+    await verifyPostAssignmentLiteralMethodValueCallCompletion(root.uri);
+    await verifyCrossFileValueSignatureCompletion(root.uri);
+  await verifyReferenceReturnCompletion(root.uri);
+  await verifyOverloadExpectedCompletion(root.uri);
+  await verifyGenericExpectedCompletion(root.uri);
+  await verifyParseUrlContractFeedback(root.uri);
+  await verifyStringSplitFeedback(root.uri);
+  await verifyObjectColumnFeedback(root.uri);
+  await verifyObjectColumnFeedback(root.uri, true);
+  await verifyConditionalCompletion(root.uri);
+  await verifyOperandCompletion(root.uri);
+  await verifyCallbackReturnCompletion(root.uri);
+  await verifyTrailingCallbackCompletion(root.uri);
+  await verifyCallbackCompletionDetails(root.uri);
+  await verifyTrailingCallableMembers(root.uri);
+  await verifyBranchValueCompletion(root.uri);
+  await verifyBranchShapeCompletion(root.uri);
+  await verifyUnionShapeCompletion(root.uri);
+  await verifyUnfinishedShapeCompletion(root.uri);
+  await verifyQuotedPrefixCompletion(root.uri);
+  await verifyArrayAccessKeyCompletion(root.uri);
 }

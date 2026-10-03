@@ -258,7 +258,16 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_C3_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_REDO_PROBE : undefined,
         PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE: c3Only ? process.env.PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE : undefined,
         PHP_COMPANION_TEST_C3_STAGE_ONLY: c3Only ? process.env.PHP_COMPANION_TEST_C3_STAGE_ONLY : undefined,
+        PHP_COMPANION_TEST_C3_LOCAL_EXTRACTION_ONLY: c3Only ? process.env.PHP_COMPANION_TEST_C3_LOCAL_EXTRACTION_ONLY : undefined,
+        PHP_COMPANION_TEST_C3_IMPORT_RACE_ONLY: c3Only ? process.env.PHP_COMPANION_TEST_C3_IMPORT_RACE_ONLY : undefined,
         PHP_COMPANION_TEST_C1_ONLY: c1Only ? '1' : undefined,
+        PHP_COMPANION_TEST_C2_THIS_ONLY: c2Only ? process.env.PHP_COMPANION_TEST_C2_THIS_ONLY : undefined,
+        PHP_COMPANION_TEST_C2_ELVIS_ONLY: c2Only ? process.env.PHP_COMPANION_TEST_C2_ELVIS_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_KEYWORDS_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_KEYWORDS_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_INCLUDE_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_INCLUDE_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_COMPLETION_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COMPLETION_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_SHADOW_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_SHADOW_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_SCOPE_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_SCOPE_ONLY : undefined,
         PHP_COMPANION_TEST_C1_SOURCE_CLASSMAP: c1Only && !c1ProductsDir ? '1' : undefined,
         PHP_COMPANION_TEST_C1_PSR0_DEPENDENCY: c1Psr0Dependency ? '1' : undefined,
         PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE: c1Only ? process.env.PHP_COMPANION_TEST_C1_QUICK_DELAY_PROBE : undefined,
@@ -277,6 +286,19 @@ async function main(): Promise<void> {
         PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION: docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : undefined,
       },
     });
+  } catch (error) {
+    const failureDirectory = process.env.PHP_COMPANION_TEST_FAILURE_LOG_DIR;
+    if (failureDirectory) {
+      try {
+        await mkdir(resolve(failureDirectory), { recursive: true });
+        const destination = await mkdtemp(join(resolve(failureDirectory), 'extension-failure-'));
+        await cp(fixture, join(destination, 'fixture'), { recursive: true });
+        console.error(`Extension Host failure evidence: ${destination}`);
+      } catch (copyError) {
+        console.error('Could not preserve Extension Host failure evidence:', copyError);
+      }
+    }
+    throw error;
   } finally {
     await rm(fixture, { recursive: true, force: true });
     if (secondFixture) await rm(secondFixture, { recursive: true, force: true });

@@ -55,8 +55,11 @@ describe('SoPHP manifests', () => {
     expect(defaults?.['phpCompanion.symfony.environment']?.default).toBeNull();
     expect(defaults?.['phpCompanion.symfony.winstarRoutes.enabled']?.default).toBe(false);
     expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['php.suggest.basic']).toBe(false);
+    expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['emmet.excludeLanguages'])
+      .toEqual(['markdown', 'php']);
     expect((value.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults?.['[php]'])
-      .toEqual({ 'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false });
+      .toEqual({ 'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false,
+        'editor.snippetSuggestions': 'none' });
   });
 
   it('ships the Open Source Pack without another PHP language server', async () => {
@@ -74,9 +77,11 @@ describe('SoPHP manifests', () => {
     const defaults = (openSource.contributes as { configurationDefaults?: Record<string, unknown> }).configurationDefaults;
     expect(defaults?.['phpCompanion.languageServer.enabled']).toBe(true);
     expect(defaults?.['php.suggest.basic']).toBe(false);
+    expect(defaults?.['emmet.excludeLanguages']).toEqual(['markdown', 'php']);
     expect(Object.keys(defaults ?? {}).some((key) => key.startsWith('symfonyLsp.'))).toBe(false);
     expect(defaults?.['[php]']).toEqual({ 'editor.defaultFormatter': 'junstyle.php-cs-fixer',
-      'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false });
+      'editor.wordBasedSuggestions': 'off', 'editor.suggest.showWords': false,
+      'editor.snippetSuggestions': 'none' });
     expect(defaults?.['[xml]']).toEqual({ 'editor.defaultFormatter': 'redhat.vscode-xml' });
   });
 });

@@ -68,6 +68,32 @@ export async function visibleCompletionLabels(port: number): Promise<string[]> {
   } finally { socket.close(); }
 }
 
+async function pressWorkbenchKey(port: number, key: 'Tab' | 'Enter'): Promise<void> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    const virtualKeyCode = key === 'Tab' ? 9 : 13;
+    for (const [id, type] of [[1, 'keyDown'], [2, 'keyUp']] as const) {
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => { socket.removeEventListener('message', onMessage); reject(new Error(`Workbench ${key} input timed out.`)); }, 5_000);
+        const onMessage = (event: MessageEvent): void => {
+          const response = JSON.parse(String(event.data)) as { id?: number; error?: { message: string } };
+          if (response.id !== id) return;
+          clearTimeout(timer); socket.removeEventListener('message', onMessage);
+          if (response.error) reject(new Error(response.error.message)); else resolve();
+        };
+        socket.addEventListener('message', onMessage);
+        socket.send(JSON.stringify({ id, method: 'Input.dispatchKeyEvent', params: {
+          type, key, code: key, windowsVirtualKeyCode: virtualKeyCode, nativeVirtualKeyCode: virtualKeyCode,
+        } }));
+      });
+    }
+  } finally { socket.close(); }
+}
+
+export async function pressWorkbenchTab(port: number): Promise<void> { await pressWorkbenchKey(port, 'Tab'); }
+
+export async function pressWorkbenchEnter(port: number): Promise<void> { await pressWorkbenchKey(port, 'Enter'); }
+
 export async function visibleStatusBarContains(port: number, label: string): Promise<boolean> {
   const socket = await connect(await cdpPage(port));
   try {
@@ -90,6 +116,33 @@ async function insertWorkbenchText(socket: WebSocket, value: string, id: number)
     socket.addEventListener('message', onMessage);
     socket.send(JSON.stringify({ id, method: 'Input.insertText', params: { text: value } }));
   });
+}
+
+export async function typeWorkbenchText(port: number, value: string): Promise<void> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    if (/^[A-Za-z0-9]$/u.test(value)) {
+      const code = /[0-9]/u.test(value) ? `Digit${value}` : `Key${value.toUpperCase()}`;
+      const virtualKeyCode = value.toUpperCase().charCodeAt(0);
+      for (const [id, type] of [[1, 'keyDown'], [2, 'keyUp']] as const) {
+        await new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(() => { socket.removeEventListener('message', onMessage); reject(new Error('Workbench character key timed out.')); }, 5_000);
+          const onMessage = (event: MessageEvent): void => {
+            const response = JSON.parse(String(event.data)) as { id?: number; error?: { message: string } };
+            if (response.id !== id) return;
+            clearTimeout(timer); socket.removeEventListener('message', onMessage);
+            if (response.error) reject(new Error(response.error.message)); else resolve();
+          };
+          socket.addEventListener('message', onMessage);
+          socket.send(JSON.stringify({ id, method: 'Input.dispatchKeyEvent', params: {
+            type, key: value, code, windowsVirtualKeyCode: virtualKeyCode,
+            modifiers: /[A-Z]/u.test(value) ? 8 : 0, ...(type === 'keyDown' ? { text: value, unmodifiedText: value.toLowerCase() } : {}),
+          } }));
+        });
+      }
+    } else await insertWorkbenchText(socket, value, 1);
+  }
+  finally { socket.close(); }
 }
 
 export async function measureVisibleSuggestion(port: number, folder: vscode.Uri, vendor = false, firstIndex = 0,

@@ -3,7 +3,17 @@ import { readFileSync } from 'node:fs';
 import { chmod, cp, mkdtemp, mkdir, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { createServer } from 'node:net';
 import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from '@vscode/test-electron';
+
+async function availableDebugPort(): Promise<number> {
+  const server = createServer();
+  await new Promise<void>((resolveListen) => server.listen(0, '127.0.0.1', resolveListen));
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('Could not reserve a Chromium debugging port.');
+  await new Promise<void>((resolveClose) => server.close(() => resolveClose()));
+  return address.port;
+}
 
 async function testExecutablePath(): Promise<string | undefined> {
   const version = process.env.PHP_COMPANION_TEST_VSCODE_VERSION;
@@ -43,6 +53,13 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const releaseVersion = (JSON.parse(await readFile(join(repository, 'package.json'), 'utf8')) as { version: string }).version;
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
+  const formatterCandidate = process.env.PHP_COMPANION_TEST_FORMATTER_CANDIDATE === '1';
+  if (formatterCandidate && !sourceProfile) throw new Error('Formatter candidate requires an isolated source Profile.');
+  const formatterOnly = process.env.PHP_COMPANION_TEST_FORMATTER_ONLY === '1';
+  if (formatterOnly && !formatterCandidate) throw new Error('Formatter-only gate requires the reviewed candidate.');
+  const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
+  const c1DebugPort = c1Only && process.env.PHP_COMPANION_TEST_C1_COMPLETION_ONLY === '1'
+    ? String(await availableDebugPort()) : undefined;
   const c3OpenSourceProfile = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
   const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
   if (twigPlusDevelopmentPath && !sourceProfile) throw new Error('TwigPlus development path requires the source Profile.');
@@ -79,6 +96,7 @@ async function main(): Promise<void> {
   const packExtracted = join(temporary, 'open-source-pack-vsix');
   const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
+  const formatterCandidatePath = formatterCandidate ? join(temporary, 'formatter-candidate') : undefined;
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   if (sourceProfile && !externalExtensions) throw new Error('Source Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   if (c3OpenSourceProfile && !externalExtensions) throw new Error('Packaged C3 Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
@@ -107,6 +125,15 @@ exit($status);
   if (externalExtensions) await stat(externalExtensions);
   if (externalExtensions && !sourceProfile) await stat(packVsix);
   try {
+    if (formatterCandidatePath) {
+      if (!formatterExecutable) throw new Error('Formatter candidate requires an explicit formatter executable.');
+      const versionOutput = execFileSync(formatterExecutable, ['--version'], { encoding: 'utf8', timeout: 30_000 });
+      if (!/^PHP CS Fixer 3\.95\.27(?:\s|$)/u.test(versionOutput)) throw new Error('Formatter candidate requires the reviewed PHP CS Fixer 3.95.27.');
+      const candidates = (await readdir(extensionsDirectory)).filter(name => /^junstyle\.php-cs-fixer-0\.3\.21(?:-|$)/u.test(name));
+      if (candidates.length !== 1) throw new Error(`Expected one locked formatter extension, found ${candidates.length}.`);
+      execFileSync(process.execPath, [join(repository, 'scripts', 'prepare-formatter-no-change-candidate.mjs'),
+        join(extensionsDirectory, candidates[0]!), formatterCandidatePath], { stdio: 'inherit' });
+    }
     const userSettingsDirectory = join(profile, 'user-data', 'User');
     await mkdir(userSettingsDirectory, { recursive: true });
     await writeFile(join(userSettingsDirectory, 'settings.json'), JSON.stringify({
@@ -139,6 +166,7 @@ exit($status);
     // Packaged tests must exercise the extension manifest default rather than
     // inheriting the explicit development-fixture opt-in.
     delete settings['phpCompanion.languageServer.enabled'];
+    if (c1Only) settings['phpCompanion.indexing.mode'] = 'onDemand';
     if (externalExtensions && !c3OpenSourceProfile) delete settings['phpCompanion.indexing.mode'];
     if (externalExtensions) {
       await writeFile(join(fixture, 'composer.json'), JSON.stringify({
@@ -233,8 +261,9 @@ abstract class AbstractController { public function generateUrl(string $route, a
         sourceProfile ? join(repository, 'packages', 'php-companion-symfony') : join(symfonyExtracted, 'extension'),
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
         ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
-        ...(twigVsix ? [join(twigExtracted, 'extension')] : [])],
-      extensionTestsPath: resolve(__dirname, 'suite', c3OpenSourceProfile ? 'c3' : 'index'),
+        ...(twigVsix ? [join(twigExtracted, 'extension')] : []),
+        ...(formatterCandidatePath ? [formatterCandidatePath] : [])],
+      extensionTestsPath: resolve(__dirname, 'suite', formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
       launchArgs: [
         ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
         fixture,
@@ -245,12 +274,16 @@ abstract class AbstractController { public function generateUrl(string $route, a
         '--skip-release-notes',
         `--user-data-dir=${join(profile, 'user-data')}`,
         `--extensions-dir=${extensionsDirectory}`,
+        ...(c1DebugPort ? [`--remote-debugging-port=${c1DebugPort}`] : []),
       ],
       extensionTestsEnv: {
         ELECTRON_RUN_AS_NODE: undefined,
         VSCODE_ESM_ENTRYPOINT: undefined,
         VSCODE_NLS_CONFIG: process.env.PHP_COMPANION_TEST_LOCALE ? undefined : process.env.VSCODE_NLS_CONFIG,
         PHP_COMPANION_PACKAGED_TEST: '1',
+        PHP_COMPANION_TEST_C1_COMPLETION_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_COMPLETION_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_KEYWORDS_ONLY: c1Only ? process.env.PHP_COMPANION_TEST_C1_KEYWORDS_ONLY : undefined,
+        PHP_COMPANION_TEST_C1_DEBUG_PORT: c1DebugPort,
         PHP_COMPANION_TEST_LOCALE: process.env.PHP_COMPANION_TEST_LOCALE,
         PHP_COMPANION_TEST_LEGACY_PROFILE: process.env.PHP_COMPANION_TEST_LEGACY_PROFILE,
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,

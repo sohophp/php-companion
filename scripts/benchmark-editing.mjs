@@ -12,8 +12,18 @@ import { encodeLspMessage, LspMessageDecoder, R1_PERFORMANCE_BUDGETS, summarizeD
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
 const iterations = Number(arguments_[0] ?? 500);
 const warmupIterations = Number(arguments_[1] ?? 50);
+const serverEntry = arguments_[2] ? resolve(arguments_[2]) : resolve('packages/language-server/dist/server.js');
+const parserCoreWasm = arguments_[3];
+const phpWasm = arguments_[4];
+if (Boolean(parserCoreWasm) !== Boolean(phpWasm) || arguments_.length > 5) {
+  throw new Error('Both parser WASM paths are required when overriding parser assets.');
+}
+const completionNoiseFunctions = Number(process.env.SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS ?? 0);
 if (![iterations, warmupIterations].every(Number.isInteger) || iterations < 100 || warmupIterations < 0) {
-  throw new Error('Usage: benchmark-editing.mjs [iterations >= 100] [warmup iterations >= 0]');
+  throw new Error('Usage: benchmark-editing.mjs [iterations >= 100] [warmup iterations >= 0] [server entry] [parser core WASM] [PHP WASM]');
+}
+if (!Number.isSafeInteger(completionNoiseFunctions) || completionNoiseFunctions < 0 || completionNoiseFunctions > 2_000) {
+  throw new Error('SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS must be an integer from 0 to 2000.');
 }
 
 function positionAt(source, offset) {
@@ -49,7 +59,8 @@ async function rssMb(pid) {
 }
 
 function startLanguageServer() {
-  const child = spawn(process.execPath, [resolve('packages/language-server/dist/server.js'), '--stdio'], {
+  const child = spawn(process.execPath, [serverEntry, '--stdio', ...(parserCoreWasm
+    ? ['--parser-core-wasm', parserCoreWasm, '--php-wasm', phpWasm] : [])], {
     cwd: process.cwd(), stdio: ['pipe', 'pipe', 'pipe'],
   });
   const decoder = new LspMessageDecoder(); const messages = []; const waiters = []; let stderr = '';
@@ -106,7 +117,7 @@ async function initialize(server, rootUri, cacheDirectory, id) {
 function memberFor(type) { return type === 'Beta' ? 'betaOnly' : 'alphaOnly'; }
 
 function sourceFor(type, sequence) {
-  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction edit(${type} $item): void { $item->${memberFor(type)}(); $item->; } // ${String(sequence).padStart(6, '0')}\n`;
+  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction takeName(string $value): void {}\nfunction edit(${type} $item, string $name, int $count): void { $item->${memberFor(type)}(); $item->; takeName($); takeName(value: ); takeName($item->make); takeName(value: hel); } // ${String(sequence).padStart(6, '0')}\n`;
 }
 
 const root = await mkdtemp(join(tmpdir(), 'php-companion-editing-'));
@@ -115,7 +126,7 @@ let server;
 try {
   await mkdir(join(root, 'src'), { recursive: true });
   await writeFile(join(root, 'composer.json'), `${JSON.stringify({ autoload: { 'psr-4': { 'Editing\\': 'src/' } } }, null, 2)}\n`);
-  const typesSource = `<?php\nnamespace Editing;\nclass Alpha { public function alphaOnly(): string {} }\nclass Beta { public function betaOnly(): string {} }\n`;
+  const typesSource = `<?php\nnamespace Editing;\nclass Alpha { public function alphaOnly(): string {} public function makeNumber(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return 'a'; } }\nclass Beta { public function betaOnly(): string {} public function makeNumber(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return 'b'; } }\n${Array.from({ length: completionNoiseFunctions }, (_, index) => `function helper${index}(): string { return 'noise'; }`).join('\n')}\n`;
   const typesPath = join(root, 'src', 'Types.php'); const typesUri = pathToFileURL(typesPath).toString();
   await writeFile(typesPath, typesSource);
   const editPath = join(root, 'src', 'Editing.php'); const uri = pathToFileURL(editPath).toString(); const rootUri = pathToFileURL(root).toString();
@@ -123,7 +134,7 @@ try {
   server = startLanguageServer(); await initialize(server, rootUri, cacheDirectory, 1);
   let version = 1; server.send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text: source } } });
   await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
-  const baselineRssMb = await rssMb(server.child.pid); const rssSamples = [baselineRssMb]; const updates = []; const completions = []; const hovers = []; const definitions = [];
+  const baselineRssMb = await rssMb(server.child.pid); const rssSamples = [baselineRssMb]; const updates = []; const completions = []; const typedArgumentCompletions = []; const bareArgumentCompletions = []; const typedMemberCompletions = []; const hovers = []; const definitions = [];
   let requestId = 10;
   for (let index = 0; index < warmupIterations + iterations; index += 1) {
     const measured = index >= warmupIterations; const type = index % 2 === 0 ? 'Beta' : 'Alpha'; const expected = type === 'Beta' ? 'betaOnly' : 'alphaOnly'; const rejected = type === 'Beta' ? 'alphaOnly' : 'betaOnly';
@@ -136,6 +147,45 @@ try {
     server.send({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position: positionAt(source, source.indexOf('$item->') + '$item->'.length) } });
     const response = await server.waitFor((message) => message.id === id); const completionDuration = performance.now() - completionStarted; const actual = labels(response.result);
     if (!actual.includes(expected) || actual.includes(rejected)) throw new Error(`Iteration ${index + 1} returned stale completion: ${JSON.stringify(actual)}.`);
+    if (index === 0 && completionNoiseFunctions) {
+      const prefixedId = requestId++;
+      server.send({ jsonrpc: '2.0', id: prefixedId, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: positionAt(source, source.indexOf('takeName(value: hel)') + 'takeName(value: hel'.length),
+      } });
+      const prefixed = labels((await server.waitFor((message) => message.id === prefixedId)).result);
+      if (!prefixed.includes('helper0')) throw new Error('The function-noise fixture was not loaded for prefixed completion.');
+    }
+    const argumentId = requestId++; const argumentStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: argumentId, method: 'textDocument/completion', params: {
+      textDocument: { uri }, position: positionAt(source, source.indexOf('takeName($)') + 'takeName($'.length),
+    } });
+    const argumentResponse = await server.waitFor((message) => message.id === argumentId);
+    const argumentDuration = performance.now() - argumentStarted;
+    const argumentLabels = labels(argumentResponse.result);
+    if (argumentLabels[0] !== '$name' || argumentLabels.indexOf('$count') < 0) {
+      throw new Error(`Iteration ${index + 1} returned irrelevant typed argument completion: ${JSON.stringify(argumentLabels)}.`);
+    }
+    const bareId = requestId++; const bareStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: bareId, method: 'textDocument/completion', params: {
+      textDocument: { uri }, position: positionAt(source, source.indexOf('takeName(value: )') + 'takeName(value: '.length),
+    } });
+    const bareResponse = await server.waitFor((message) => message.id === bareId);
+    const bareDuration = performance.now() - bareStarted;
+    const bareLabels = labels(bareResponse.result);
+    if (bareLabels[0] !== '$name' || bareLabels.indexOf('$count') < 0
+      || bareLabels.includes('takeName') || bareLabels.some((label) => label.startsWith('helper'))) {
+      throw new Error(`Iteration ${index + 1} returned irrelevant blank argument completion: ${JSON.stringify(bareLabels)}.`);
+    }
+    const typedMemberId = requestId++; const typedMemberStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: typedMemberId, method: 'textDocument/completion', params: {
+      textDocument: { uri }, position: positionAt(source, source.indexOf('$item->make') + '$item->make'.length),
+    } });
+    const typedMemberResponse = await server.waitFor((message) => message.id === typedMemberId);
+    const typedMemberDuration = performance.now() - typedMemberStarted;
+    const typedMemberLabels = labels(typedMemberResponse.result);
+    if (typedMemberLabels.join(',') !== 'makeText,makeUnknown,makeNumber') {
+      throw new Error(`Iteration ${index + 1} returned irrelevant typed member completion: ${JSON.stringify(typedMemberLabels)}.`);
+    }
     const memberOffset = source.indexOf(`$item->${expected}`) + '$item->'.length + 1;
     const position = positionAt(source, memberOffset);
     const hoverId = requestId++; const hoverStarted = performance.now();
@@ -153,7 +203,7 @@ try {
       || locations[0].range?.start?.line !== expectedStart.line || locations[0].range?.start?.character !== expectedStart.character) {
       throw new Error(`Iteration ${index + 1} returned stale definition: ${JSON.stringify(definition.result)}.`);
     }
-    if (measured) { updates.push(updateDuration); completions.push(completionDuration); hovers.push(hoverDuration); definitions.push(definitionDuration); }
+    if (measured) { updates.push(updateDuration); completions.push(completionDuration); typedArgumentCompletions.push(argumentDuration); bareArgumentCompletions.push(bareDuration); typedMemberCompletions.push(typedMemberDuration); hovers.push(hoverDuration); definitions.push(definitionDuration); }
     if (index % 10 === 0) rssSamples.push(await rssMb(server.child.pid));
   }
   const cancellationId = requestId++; const cancellationStarted = performance.now();
@@ -183,8 +233,12 @@ try {
 
   const peakRssMb = Math.max(...rssSamples); const retainedRssGrowthMb = finalRssMb - baselineRssMb;
   const report = {
-    schema: 1, iterations, warmupIterations, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
+    schema: 1, iterations, warmupIterations, completionNoiseFunctions, runtime: process.version,
+    platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions),
+    hotTypedArgumentCompletionMs: summarizeDurations(typedArgumentCompletions),
+    hotBareArgumentCompletionMs: summarizeDurations(bareArgumentCompletions),
+    hotTypedMemberCompletionMs: summarizeDurations(typedMemberCompletions),
     hotHoverMs: summarizeDurations(hovers), hotDefinitionMs: summarizeDurations(definitions), cancellationMs, cancellationOutcome,
     languageServerRssMb: { baseline: baselineRssMb, peak: peakRssMb, final: finalRssMb, retainedGrowth: retainedRssGrowthMb },
     persistentCache: { files: cacheFiles.length, corruptCacheRecovered: true, completionRecoveredAfterRestart: true },
@@ -194,6 +248,9 @@ try {
       cancellationMs: R1_PERFORMANCE_BUDGETS.cancellationMs, retainedRssGrowthMb: 128 },
   };
   if (report.hotCompletionMs.p95 > report.budgets.hotCompletionP95Ms
+    || report.hotTypedArgumentCompletionMs.p95 > report.budgets.hotCompletionP95Ms
+    || report.hotBareArgumentCompletionMs.p95 > report.budgets.hotCompletionP95Ms
+    || report.hotTypedMemberCompletionMs.p95 > report.budgets.hotCompletionP95Ms
     || report.hotHoverMs.p95 > report.budgets.hotHoverP95Ms || report.hotDefinitionMs.p95 > report.budgets.hotDefinitionP95Ms
     || report.updateToDiagnosticsMs.p95 > report.budgets.updateToDiagnosticsP95Ms
     || report.cancellationMs > report.budgets.cancellationMs

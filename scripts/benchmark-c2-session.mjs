@@ -7,11 +7,18 @@ import process from 'node:process';
 import { clearTimeout, setTimeout } from 'node:timers';
 import { pathToFileURL, URL } from 'node:url';
 import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/index.js';
+import { SUPPORTED_PHP_VERSIONS } from '../packages/language-spec/dist/index.js';
 
 const iterations = Number(process.argv.slice(2).find((value) => value !== '--') ?? 500);
 const profileMemory = process.env.SOPHP_C2_PROFILE_MEMORY === '1';
 const profileGc = process.env.SOPHP_C2_PROFILE_GC === '1';
 const profileEditsOnly = process.env.SOPHP_C2_PROFILE_EDITS_ONLY === '1';
+const phpVersion = process.env.SOPHP_C2_PHP_VERSION ?? '8.5';
+const indexingMode = process.env.SOPHP_C2_INDEXING_MODE ?? 'onDemand';
+if (!SUPPORTED_PHP_VERSIONS.includes(phpVersion)) throw new Error(`Unsupported PHP version: ${phpVersion}`);
+if (!['onDemand', 'experimental', 'progressive'].includes(indexingMode)) {
+  throw new Error(`Unsupported indexing mode: ${indexingMode}`);
+}
 if (!Number.isSafeInteger(iterations) || iterations < 100 || iterations > 10_000) {
   throw new Error('Usage: benchmark-c2-session.mjs [iterations: 100..10000]');
 }
@@ -108,7 +115,7 @@ try {
   const definitionPosition = positionAt(consumer, consumer.indexOf('betaOnly()') + 2);
   server = startServer();
   await server.request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-    initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true, testMode: profileMemory || profileGc } });
+    initializationOptions: { phpVersion, indexingMode, versionedDiagnostics: true, testMode: profileMemory || profileGc } });
   server.send({ method: 'initialized', params: {} });
   let after = server.messages.length;
   server.send({ method: 'textDocument/didOpen', params: { textDocument: { uri: consumerUri, languageId: 'php', version: 1, text: consumer } } });
@@ -191,7 +198,7 @@ try {
   }
   const finalRssMiB = await rssMiB(server.child.pid);
   await server.stop(); server = undefined;
-  process.stdout.write(`${JSON.stringify({ schema: 1, iterations, indexingMode: 'onDemand', profileMemory, profileGc, profileEditsOnly, elapsedMs: performance.now() - started,
+  process.stdout.write(`${JSON.stringify({ schema: 1, iterations, phpVersion, indexingMode, profileMemory, profileGc, profileEditsOnly, elapsedMs: performance.now() - started,
     languageServerRssMiB: { baseline: baselineRssMiB, final: finalRssMiB, samples },
     timingsMs: Object.fromEntries(Object.entries(timings).map(([name, values]) => [name, durations(values)])),
     checkedResults: profileEditsOnly ? 0 : iterations * 5, staleResults: profileEditsOnly ? undefined : 0 }, null, 2)}\n`);

@@ -8,6 +8,127 @@ import * as vscode from 'vscode';
 type QueryState = { paused: boolean; version: number | null };
 type TestApi = { requestLanguageServer<T>(method: string, params: unknown): Promise<T> };
 
+// VS Code canonicalizes drive letters in custom preview URIs on Windows.
+// Keep the remaining path exact so a different directory still fails the test.
+function previewPath(path: string | undefined): string | undefined {
+  return process.platform === 'win32' ? path?.replace(/^\/[a-z]:/i, drive => drive.toLowerCase()) : path;
+}
+
+async function removeMultiRootFixture(path: string): Promise<void> {
+  try {
+    await rm(path, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  } catch (error) {
+    if (process.platform !== 'win32' || !['EBUSY', 'EPERM'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error;
+    // The native harness removes this owned fixture after the editor releases its workspace watchers.
+    console.log(`C3 deferred fixture cleanup: ${JSON.stringify({ path })}`);
+  }
+}
+
+async function verifyLocalExtraction(serviceDirectory: vscode.Uri): Promise<void> {
+  for(const count of [3,4]){
+    const uri=vscode.Uri.joinPath(serviceDirectory,`C3BranchManyOutputs${count}.php`);
+    const names=Array.from({length:count},(_,i)=>`$out${i}`);
+    const source=`<?php namespace App\\Service;
+final class C3BranchManyOutputs${count} {
+    public function run(bool $flag):array {
+        if ($flag) {
+${names.map((name,i)=>`            ${name} = ${i};`).join('\n')}
+        } else {
+${names.map((name,i)=>`            ${name} = ${i+10};`).join('\n')}
+        }
+        return [${names.join(', ')}];
+    }
+}`;
+    await vscode.workspace.fs.writeFile(uri,Buffer.from(source));
+    const document=await vscode.workspace.openTextDocument(uri);await vscode.window.showTextDocument(document);
+    const actions=await vscode.commands.executeCommand<Array<vscode.CodeAction|vscode.Command>>('vscode.executeCodeActionProvider',uri,
+      new vscode.Range(document.positionAt(source.indexOf('if ($flag)')),document.positionAt(source.indexOf('\n        return ['))),vscode.CodeActionKind.RefactorExtract.value);
+    const action=actions.find((item):item is vscode.CodeAction=>'command'in item&&item.title==='Extract method extractedMethod');
+    assert.ok(action?.command,`${count} definite branch outputs omitted Extract Method`);
+    await vscode.commands.executeCommand(action.command.command,...action.command.arguments??[],{testPreviewAction:async()=>'cancel'});
+    assert.strictEqual(document.getText(),source);
+    await vscode.commands.executeCommand(action.command.command,...action.command.arguments??[],{testPreviewAction:async()=>'apply'});
+    const edited=document.getText();
+    assert.ok(edited.includes(`[${names.join(', ')}] = $this->extractedMethod($flag);`));
+    assert.ok(edited.includes(`@return array{${names.map((_,i)=>`${i}: int`).join(', ')}}`));
+    assert.ok(edited.includes(`return [${names.join(', ')}];`));
+    await vscode.window.showTextDocument(document);await vscode.commands.executeCommand('undo');assert.strictEqual(document.getText(),source);
+    await vscode.commands.executeCommand('redo');assert.strictEqual(document.getText(),edited);
+    console.log(`C3 ${count} complete branch outputs: preview, cancel/apply and one Undo/Redo passed`);
+  }
+
+  for (const captured of [false, true]) {
+    const className = `C3LocalChain${captured ? 'Captured' : 'Single'}`;
+    const uri = vscode.Uri.joinPath(serviceDirectory, `${className}.php`);
+    const selected = '$subtotal = $price * $quantity;\n        $total = $subtotal + $tax;';
+    const source = `<?php namespace App\\Service;
+final class ${className} {
+    public function run(int $price, int $quantity, int $tax) {
+        ${selected}
+        ${captured ? '$callback = function () use ($subtotal) { return $subtotal; }; return [$total, $callback()];' : 'return $total;'}
+    }
+}`;
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri,
+      new vscode.Range(document.positionAt(source.indexOf(selected)), document.positionAt(source.indexOf(selected) + selected.length)), vscode.CodeActionKind.RefactorExtract.value);
+    const action = actions.find((item): item is vscode.CodeAction => 'command' in item && item.title === 'Extract method extractedMethod');
+    assert.ok(action?.command, 'A proven local scalar chain omitted Extract Method');
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'cancel' });
+    assert.strictEqual(document.getText(), source);
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'apply' });
+    const edited = document.getText();
+    const names = captured ? ['$subtotal', '$total'] : ['$total'];
+    assert.ok(edited.includes(`[${names.join(', ')}] = $this->extractedMethod($price, $quantity, $tax);`));
+    assert.ok(edited.includes(`@return array{${names.map((_, slot) => `${slot}: int|float`).join(', ')}}`));
+    assert.ok(edited.includes(`return [${names.join(', ')}];`));
+    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(document.getText(), source);
+    await vscode.commands.executeCommand('redo');
+    assert.strictEqual(document.getText(), edited);
+    console.log(`C3 local scalar chain ${captured ? 'with capture' : 'single live output'}: preview, cancel/apply and one Undo/Redo passed`);
+  }
+
+  for (const mode of ['numeric', 'typed', 'string'] as const) {
+    const className = `C3LocalReturn${mode}`;
+    const uri = vscode.Uri.joinPath(serviceDirectory, `${className}.php`);
+    const selected = mode === 'string' ? '$prefix = $name . "-";\n        return $prefix . "tail";'
+      : '$subtotal = $price * $quantity;\n        return $subtotal + $tax;';
+    const source = `<?php namespace App\\Service;
+final class ${className} {
+    public function run(${mode === 'string' ? 'string $name' : 'int $price, int $quantity, int $tax'})${mode === 'typed' ? ': int' : ''} {
+        ${selected}
+    }
+}`;
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri,
+      new vscode.Range(document.positionAt(source.indexOf(selected)), document.positionAt(source.indexOf(selected) + selected.length)), vscode.CodeActionKind.RefactorExtract.value);
+    const action = actions.find((item): item is vscode.CodeAction => 'command' in item && item.title === 'Extract method extractedMethod');
+    assert.ok(action?.command, 'A scalar local chain ending in return omitted Extract Method');
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'cancel' });
+    assert.strictEqual(document.getText(), source);
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'apply' });
+    const edited = document.getText();
+    assert.ok(edited.includes(mode === 'string' ? 'return $this->extractedMethod($name);' : 'return $this->extractedMethod($price, $quantity, $tax);'));
+    assert.ok(edited.includes(selected));
+    if (mode === 'string') assert.ok(edited.includes('private function extractedMethod(string $name): string'));
+    else {
+      assert.ok(edited.includes('@return int|float'));
+      assert.ok(!edited.includes('extractedMethod(int $price, int $quantity, int $tax): int'));
+    }
+    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(document.getText(), source);
+    await vscode.commands.executeCommand('redo');
+    assert.strictEqual(document.getText(), edited);
+    console.log(`C3 local chain ending in return ${mode}: preview, cancel/apply and one Undo/Redo passed`);
+  }
+}
+
 async function waitFor(check: () => boolean, message: string): Promise<void> {
   const deadline = Date.now() + 5_000;
   while (Date.now() < deadline) {
@@ -54,11 +175,20 @@ async function verifyEditDuringRequest(api: TestApi, method: string, document: v
   assert.strictEqual(await command, false, `${method} reported success after the document changed during planning`);
   assert.ok(staleEditAbsent(), `${method} applied an edit calculated from the old document version`);
   assert.ok(document.getText().includes('Edited while the server held'), `${method} discarded the user's concurrent edit`);
+  const edited = document.getText();
   await vscode.window.showTextDocument(document);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  assert.strictEqual(vscode.window.activeTextEditor?.document.uri.toString(), document.uri.toString(),
+    `${method} Undo did not target the edited document`);
   await vscode.commands.executeCommand('undo');
   const deadline = Date.now() + 5_000;
   while (Date.now() < deadline && document.getText() !== original) await new Promise((resolve) => setTimeout(resolve, 25));
   assert.strictEqual(document.getText(), original, `${method} could not undo the concurrent user edit`);
+  await vscode.commands.executeCommand('redo');
+  await waitFor(() => document.getText() === edited, `${method} could not redo the concurrent user edit`);
+  assert.ok(staleEditAbsent(), `${method} Redo restored a rejected stale import`);
+  await vscode.commands.executeCommand('undo');
+  await waitFor(() => document.getText() === original, `${method} final Undo did not restore the original document`);
 }
 
 export async function run(): Promise<void> {
@@ -92,10 +222,22 @@ export async function run(): Promise<void> {
   }
   const f2Rename = (extension.packageJSON.contributes?.keybindings as Array<{ command: string; key: string; when: string }> | undefined)
     ?.find((entry) => entry.command === 'phpCompanion.safeRename' && entry.key === 'f2');
+  assert.ok(f2Rename, 'F2 PHP Rename binding is missing');
   assert.ok(f2Rename?.when.includes('editorLangId == php') && f2Rename.when.includes('phpCompanion.safeRenameAvailable'),
     'F2 must route PHP Rename through the guarded SoPHP command only when its language server owns PHP');
+  const shiftF6Rename = (extension.packageJSON.contributes?.keybindings as Array<{ command: string; key: string; when: string }> | undefined)
+    ?.find((entry) => entry.command === 'phpCompanion.safeRename' && entry.key === 'shift+f6');
+  assert.strictEqual(shiftF6Rename?.when, f2Rename.when,
+    'Shift+F6 must use the same guarded SoPHP Rename path as F2');
+  assert.ok(!(extension.packageJSON.contributes?.keybindings as Array<{ key: string }> | undefined)
+    ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_LOCAL_EXTRACTION_ONLY === '1') {
+    await verifyLocalExtraction(vscode.Uri.joinPath(folder.uri, 'src', 'Service'));
+    console.log('C3 focused local extraction completed; this is not the full C3 suite');
+    return;
+  }
 
   const importUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'ImportConsumer.php');
   const importDocument = await vscode.workspace.openTextDocument(importUri);
@@ -143,9 +285,14 @@ export async function run(): Promise<void> {
   }
   assert.strictEqual(await pendingPaste, undefined, 'Paste returned an import edit planned for an old document version.');
   await vscode.window.showTextDocument(importDocument);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
   await vscode.commands.executeCommand('undo');
   assert.ok(!importDocument.getText().includes('Edited during paste import planning'));
   console.log('C2 paste imports discard plans after destination edits during the language-server request');
+  if (process.env.PHP_COMPANION_TEST_C3_IMPORT_RACE_ONLY === '1') {
+    console.log('C3 concurrent import edit and Undo gate passed');
+    return;
+  }
   for (const commandName of ['importClass', 'resolvePastedImports'] as const) {
     const className = commandName === 'importClass' ? 'C3ExternalImportClass' : 'C3ExternalResolveImports';
     const externalUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', `${className}.php`);
@@ -242,6 +389,37 @@ export async function run(): Promise<void> {
   assert.strictEqual(optimizeDocument.getText(), optimizeOriginal, 'Optimize Imports could not be undone once');
   await vscode.commands.executeCommand('redo');
   assert.strictEqual(optimizeDocument.getText(), optimizedSource, 'Optimize Imports could not be redone once');
+  const blockOptimizeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'OptimizeBlocks.php');
+  const blockOptimizeSource = `<?php
+namespace First {
+    use Vendor\\Zed as Z;
+    use Vendor\\Unused as Shared;
+    use Vendor\\First as FirstType;
+    function first(FirstType $value, Z $other): void {}
+}
+namespace Second {
+    use Vendor\\Second as Shared;
+    use Vendor\\UnusedTwo;
+    function second(Shared $value): void {}
+}`;
+  await vscode.workspace.fs.writeFile(blockOptimizeUri, Buffer.from(blockOptimizeSource));
+  const blockOptimizeDocument = await vscode.workspace.openTextDocument(blockOptimizeUri);
+  await vscode.window.showTextDocument(blockOptimizeDocument);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', blockOptimizeUri,
+    { preview: true, testPreviewAction: async () => 'cancel' }), false);
+  assert.strictEqual(blockOptimizeDocument.getText(), blockOptimizeSource);
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.optimizeImports', blockOptimizeUri,
+    { preview: true, testPreviewAction: async () => 'apply' }), true);
+  const blockOptimizedSource = blockOptimizeDocument.getText();
+  assert.ok(blockOptimizedSource.includes('namespace First {\n    use Vendor\\First as FirstType;\n    use Vendor\\Zed as Z;\n')
+    && blockOptimizedSource.includes('namespace Second {\n    use Vendor\\Second as Shared;\n')
+    && !blockOptimizedSource.includes('Vendor\\Unused'), 'Optimize Imports crossed namespace boundaries or lost indentation.');
+  await vscode.window.showTextDocument(blockOptimizeDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(blockOptimizeDocument.getText(), blockOptimizeSource);
+  await vscode.commands.executeCommand('redo');
+  assert.strictEqual(blockOptimizeDocument.getText(), blockOptimizedSource);
+  console.log('C3 Optimize Imports handled two namespace blocks in one preview, apply and Undo/Redo');
   for (const [commandName, failureMode] of [
     ['importClass', 'false'], ['resolvePastedImports', 'throw'], ['optimizeImports', 'false'], ['optimizeImports', 'throw'],
   ] as const) {
@@ -624,24 +802,25 @@ export async function run(): Promise<void> {
   console.log('C3 nearest-existing-ancestor stage Undo/Redo restored the generated file');
   const rejectedStageDirectory = vscode.Uri.joinPath(serviceDirectory, 'C3MissingRejectedStage');
   let rejectedStagePath: string | undefined;
+  let rejectedCreateCalled = false;
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
     'C3MissingRejectedStage', rejectedStageDirectory, async () => 'apply', undefined, undefined, undefined,
-    async () => false, async () => false, undefined, undefined,
+    async () => false, async () => false, undefined, async () => { rejectedCreateCalled = true; return true; },
     async (_edit: vscode.WorkspaceEdit, stagedPath: string) => {
       rejectedStagePath = stagedPath;
       return false;
-    }), true, 'Type generation lost the createFile fallback after a rejected ancestor move');
+    }), false, 'Type generation reported success when every undoable move was rejected');
   assert.ok(rejectedStagePath && dirname(rejectedStagePath) === serviceDirectory.fsPath,
     'The rejected stage was not placed in the nearest existing ancestor');
   await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(rejectedStagePath!)),
     'A rejected missing-directory move left its stage in the project');
-  assert.ok((await vscode.workspace.openTextDocument(vscode.Uri.joinPath(rejectedStageDirectory,
-    'C3MissingRejectedStage.php'))).getText().includes('class C3MissingRejectedStage'),
-  'The createFile fallback lost its PHP source after the ancestor move was rejected');
-  await vscode.workspace.fs.delete(rejectedStageDirectory, { recursive: true });
+  await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.joinPath(rejectedStageDirectory,
+    'C3MissingRejectedStage.php')), 'A rejected move still created the PHP file');
+  assert.strictEqual(rejectedCreateCalled, false);
   const creationFallbackUri = vscode.Uri.joinPath(serviceDirectory, 'C3CreationFallback.php');
   let siblingWasAttempted = false;
   let rejectedSiblingStagePath: string | undefined;
+  let finalCreateCalled = false;
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType', 'class',
     'C3CreationFallback', serviceDirectory, async () => 'apply', undefined, undefined, undefined,
     async () => false, async (edit: vscode.WorkspaceEdit, stagedPath: string) => {
@@ -649,48 +828,15 @@ export async function run(): Promise<void> {
       rejectedSiblingStagePath = stagedPath;
       assert.ok(edit.size > 0, 'Type generation did not prepare the same-filesystem staged move');
       return false;
-    }, undefined, undefined, async () => false), true, 'Type generation did not use createFile when all staged moves were rejected');
+    }, undefined, async () => { finalCreateCalled = true; return true; }, async () => false), false,
+  'Type generation reported success when all staged moves were rejected');
   assert.ok(siblingWasAttempted && rejectedSiblingStagePath, 'Type generation skipped the same-filesystem staged move');
+  assert.strictEqual(finalCreateCalled, false, 'Type generation used createFile after every undoable move failed');
   await assert.rejects(async () => vscode.workspace.fs.stat(vscode.Uri.file(rejectedSiblingStagePath!)),
     'A rejected same-filesystem move left its staged PHP source beside the workspace');
-  assert.ok((await vscode.workspace.openTextDocument(creationFallbackUri)).getText().includes('class C3CreationFallback'),
-    'The last-resort file creation lost the generated PHP source');
-  if (process.env.PHP_COMPANION_TEST_C3_CREATION_REDO_PROBE === '1') {
-    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(creationFallbackUri));
-    await vscode.commands.executeCommand('undo');
-    await assert.rejects(async () => vscode.workspace.fs.stat(creationFallbackUri),
-      'Undo did not remove the last-resort generated file');
-    await vscode.commands.executeCommand('redo');
-    const restored = await vscode.workspace.fs.stat(creationFallbackUri).then(() => true, () => false);
-    console.log(`C3 createFile fallback Redo: restored=${restored}`);
-    assert.ok(restored, 'Redo did not restore the last-resort generated file');
-  }
-  await vscode.workspace.fs.delete(creationFallbackUri);
-  for (const [suffix, applyBeforeFailure, throwAfterFailure] of [
-    ['AppliedFalse', true, false], ['AppliedThrow', true, true],
-    ['RejectedFalse', false, false], ['RejectedThrow', false, true],
-  ] as const) {
-    const name = `C3CreateOutcome${suffix}`;
-    const targetUri = vscode.Uri.joinPath(serviceDirectory, `${name}.php`);
-    let applyCalled = false;
-    const result = await vscode.commands.executeCommand<boolean>('phpCompanion._testCreatePhpType',
-      'class', name, serviceDirectory, async () => 'apply', undefined, undefined, undefined,
-      async () => false, async () => false, undefined, async (edit: vscode.WorkspaceEdit) => {
-        applyCalled = true;
-        if (applyBeforeFailure) assert.ok(await vscode.workspace.applyEdit(edit), 'Injected create edit did not apply');
-        if (throwAfterFailure) throw new Error('Injected create result failure');
-        return false;
-      }, async () => false);
-    assert.ok(applyCalled, 'The final createFile fallback was not attempted');
-    assert.strictEqual(result, applyBeforeFailure, `Create result did not match the actual file for ${suffix}`);
-    if (applyBeforeFailure) {
-      assert.ok((await vscode.workspace.openTextDocument(targetUri)).getText().includes(`class ${name}`),
-        'The fallback reported success without the complete PHP file');
-      await vscode.workspace.fs.delete(targetUri);
-    } else await assert.rejects(async () => vscode.workspace.fs.stat(targetUri),
-      'A rejected fallback unexpectedly created its PHP file');
-  }
-  console.log('C3 createFile fallback reconciled false and thrown applyEdit results with actual file contents');
+  await assert.rejects(async () => vscode.workspace.fs.stat(creationFallbackUri),
+    'A rejected move still created the PHP file');
+  console.log('C3 rejected all staged moves without creating a file that cannot be redone');
   if (process.env.PHP_COMPANION_TEST_C3_SPLIT_CREATE_REDO_PROBE === '1') {
     const splitUri = vscode.Uri.joinPath(serviceDirectory, 'C3SplitCreateProbe.php');
     const splitSource = '<?php class C3SplitCreateProbe {}\n';
@@ -765,7 +911,8 @@ export async function run(): Promise<void> {
     await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3UnmappedTest', serviceDirectory,
       async () => {
         const preview = vscode.window.activeTextEditor?.document;
-        assert.strictEqual(preview?.uri.path, unmappedTest.path,
+        assert.ok(preview, 'An unmapped PHPUnit test did not open a preview document');
+        assert.strictEqual(previewPath(preview?.uri.path), previewPath(unmappedTest.path),
           'A project without autoload-dev did not preview the selected test directory');
         assert.ok(preview.getText().includes('final class C3UnmappedTest extends \\PHPUnit\\Framework\\TestCase')
           && !preview.getText().includes('namespace App\\'),
@@ -777,7 +924,7 @@ export async function run(): Promise<void> {
     const explicitTest = vscode.Uri.joinPath(unmappedTests, 'C3ExplicitTest.php');
     await vscode.commands.executeCommand('phpCompanion._testCreatePhpType', 'test', 'C3ExplicitTest', unmappedTests,
       async () => {
-        assert.strictEqual(vscode.window.activeTextEditor?.document.uri.path, explicitTest.path,
+        assert.strictEqual(previewPath(vscode.window.activeTextEditor?.document.uri.path), previewPath(explicitTest.path),
           'An explicitly selected test directory was ignored');
         return 'apply';
       }, async () => assert.fail('An explicitly selected test directory opened the folder chooser'));
@@ -1040,6 +1187,50 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok(echoDocument.getText().includes('    echo $extracted;'));
   console.log('C3 Extract Variable from a single echo expression: preview, apply, CRLF and one Undo/Redo');
+  const bindingExtractUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ExtractBindings.php');
+  const bindingExtractSource = (binding: 'plain' | 'shared' | 'capture'): string => `<?php
+namespace App\\Service;
+use function extract as extractBindings;
+function c3ExtractBindingRun(array &$params): int {
+    ${binding === 'shared' ? 'extractBindings($params, EXTR_REFS);' : binding === 'capture' ? '$params["reader"] = function () use (&$extracted) { return $extracted; };' : '// Independent local value.'}
+    return 1 + 2;
+}
+`;
+  await vscode.workspace.fs.writeFile(bindingExtractUri, Buffer.from(bindingExtractSource('plain')));
+  const bindingExtractDocument = await vscode.workspace.openTextDocument(bindingExtractUri);
+  await vscode.window.showTextDocument(bindingExtractDocument);
+  const bindingExtractAction = async (expected: string | undefined): Promise<vscode.CodeAction | undefined> => {
+    const deadline = Date.now() + 10_000;
+    do {
+      const start = bindingExtractDocument.getText().indexOf('1 + 2');
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', bindingExtractUri,
+        new vscode.Range(bindingExtractDocument.positionAt(start), bindingExtractDocument.positionAt(start + 5)), vscode.CodeActionKind.RefactorExtract.value);
+      const found = actions.find((action): action is vscode.CodeAction => 'command' in action && action.title.startsWith('Extract to $'));
+      if (expected === undefined && !found || found?.title === expected) return found;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (Date.now() < deadline);
+    assert.fail(`Extract binding action did not reach ${expected ?? 'absence'}.`);
+  };
+  const editBindingExtract = async (binding: 'plain' | 'shared' | 'capture'): Promise<void> => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(bindingExtractUri, new vscode.Range(bindingExtractDocument.positionAt(0), bindingExtractDocument.positionAt(bindingExtractDocument.getText().length)), bindingExtractSource(binding));
+    assert.ok(await vscode.workspace.applyEdit(edit));
+  };
+  await bindingExtractAction('Extract to $extracted');
+  await editBindingExtract('shared'); await bindingExtractAction(undefined);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await bindingExtractAction('Extract to $extracted');
+  await vscode.commands.executeCommand('redo'); await bindingExtractAction(undefined);
+  await editBindingExtract('capture');
+  const capturedExtractAction = await bindingExtractAction('Extract to $extracted2');
+  assert.ok(capturedExtractAction?.command);
+  await vscode.commands.executeCommand(capturedExtractAction.command.command, ...capturedExtractAction.command.arguments ?? [], { testPreviewAction: async () => 'apply' });
+  assert.ok(bindingExtractDocument.getText().includes('$extracted2 = 1 + 2;'));
+  assert.ok(bindingExtractDocument.getText().includes('use (&$extracted)'));
+  await vscode.commands.executeCommand('undo'); assert.strictEqual(bindingExtractDocument.getText(), bindingExtractSource('capture'));
+  await vscode.commands.executeCommand('redo'); assert.ok(bindingExtractDocument.getText().includes('return $extracted2;'));
+  console.log('C3 Extract Variable shared binding rejection, capture name, preview/apply and Undo/Redo passed');
   const inlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineVariable.php');
   const inlineSource = '<?php\nnamespace App\\Service;\nfunction makeInline(): object\n{\n    $result = new \\stdClass();\n    // Explain why this object is returned.\n    return (($result));\n}\n';
   await vscode.workspace.fs.writeFile(inlineUri, Buffer.from(inlineSource));
@@ -1112,8 +1303,47 @@ export async function run(): Promise<void> {
   await vscode.commands.executeCommand('redo');
   assert.ok(echoInlineDocument.getText().includes('echo strtoupper("hello");'));
   console.log('C3 Inline Variable into a single echo expression: preview, apply, comment and one Undo/Redo');
+  const sharedInlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3InlineSharedBindings.php');
+  const sharedInlineSource = (shared: boolean | 'capture'): string => `<?php
+namespace App\\Service;
+use function extract as inlineBindings;
+function sharedInline(array &$params): int {
+    ${shared === 'capture' ? '$params["reader"] = function () use (&$value) { return $value; };' : shared ? 'inlineBindings($params, EXTR_REFS);' : '// Local value only.'}
+    $value = 1;
+    return $value;
+}
+`;
+  await vscode.workspace.fs.writeFile(sharedInlineUri, Buffer.from(sharedInlineSource(false)));
+  const sharedInlineDocument = await vscode.workspace.openTextDocument(sharedInlineUri);
+  await vscode.window.showTextDocument(sharedInlineDocument);
+  const checkSharedInline = async (allowed: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    do {
+      const position = sharedInlineDocument.positionAt(sharedInlineDocument.getText().indexOf('$value =') + 2);
+      const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+        'vscode.executeCodeActionProvider', sharedInlineUri, new vscode.Range(position, position), vscode.CodeActionKind.RefactorInline.value);
+      if (actions.some(action => action.title === 'Inline $value') === allowed) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (Date.now() < deadline);
+    assert.fail(`Inline action shared-binding protection did not reach allowed=${allowed}.`);
+  };
+  await checkSharedInline(true);
+  const sharedInlineEdit = new vscode.WorkspaceEdit();
+  sharedInlineEdit.replace(sharedInlineUri, new vscode.Range(sharedInlineDocument.positionAt(0), sharedInlineDocument.positionAt(sharedInlineDocument.getText().length)), sharedInlineSource(true));
+  assert.ok(await vscode.workspace.applyEdit(sharedInlineEdit)); await checkSharedInline(false);
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo'); await checkSharedInline(true);
+  await vscode.commands.executeCommand('redo'); await checkSharedInline(false);
+  const capturedInlineEdit = new vscode.WorkspaceEdit();
+  capturedInlineEdit.replace(sharedInlineUri, new vscode.Range(sharedInlineDocument.positionAt(0), sharedInlineDocument.positionAt(sharedInlineDocument.getText().length)), sharedInlineSource('capture'));
+  assert.ok(await vscode.workspace.applyEdit(capturedInlineEdit)); await checkSharedInline(false);
+  await vscode.commands.executeCommand('undo'); await checkSharedInline(false);
+  await vscode.commands.executeCommand('undo'); await checkSharedInline(true);
+  await vscode.commands.executeCommand('redo'); await checkSharedInline(false);
+  await vscode.commands.executeCommand('redo'); await checkSharedInline(false);
+  console.log('C3 Inline shared local references: alias, closure capture, unsaved action withdrawal and Undo/Redo passed');
   const embeddedInlineUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3EmbeddedInlineVariable.php');
-  const embeddedInlineSource = '<?php\nfunction embeddedInline(): int {\n    $sum = 1 + 2;\n    return $sum * 3;\n}\nfunction assignedInline(): int {\n    $assignedSum = 4 + 5;\n    $result = $assignedSum * 2;\n    return $result;\n}\n';
+  const embeddedInlineSource = '<?php\nfunction embeddedInline(): int {\n    $sum = 1 + 2;\n    return $sum * 3;\n}\nfunction assignedInline(): int {\n    $assignedSum = 4 + 5;\n    $result = $assignedSum * 2;\n    return $result;\n}\nfunction rightInline(): int {\n    $right = 6 + 7;\n    return 3 * $right;\n}\nfunction negativeRightInline(): int {\n    $negativeRight = 8 + 9;\n    return (-3) * $negativeRight;\n}\n';
   await vscode.workspace.fs.writeFile(embeddedInlineUri, Buffer.from(embeddedInlineSource));
   const embeddedInlineDocument = await vscode.workspace.openTextDocument(embeddedInlineUri);
   await vscode.window.showTextDocument(embeddedInlineDocument);
@@ -1148,6 +1378,36 @@ export async function run(): Promise<void> {
   assert.ok(embeddedInlineDocument.getText().includes('$assignedSum = 4 + 5;'));
   await vscode.commands.executeCommand('redo');
   assert.ok(embeddedInlineDocument.getText().includes('$result = (4 + 5) * 2;'));
+  const rightInlineStart = embeddedInlineDocument.getText().indexOf('$right =');
+  const rightInlineActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', embeddedInlineUri,
+    new vscode.Range(embeddedInlineDocument.positionAt(rightInlineStart), embeddedInlineDocument.positionAt(rightInlineStart)),
+    vscode.CodeActionKind.RefactorInline.value);
+  const rightInlineAction = rightInlineActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Inline $right');
+  assert.ok(rightInlineAction?.command, 'Pure literal before a right operand did not offer Inline Variable.');
+  await vscode.commands.executeCommand(rightInlineAction.command.command, ...rightInlineAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(embeddedInlineDocument.getText().includes('return 3 * (6 + 7);'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok(embeddedInlineDocument.getText().includes('$right = 6 + 7;'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok(embeddedInlineDocument.getText().includes('return 3 * (6 + 7);'));
+  const negativeRightStart = embeddedInlineDocument.getText().indexOf('$negativeRight =');
+  const negativeRightActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', embeddedInlineUri,
+    new vscode.Range(embeddedInlineDocument.positionAt(negativeRightStart), embeddedInlineDocument.positionAt(negativeRightStart)),
+    vscode.CodeActionKind.RefactorInline.value);
+  const negativeRightAction = negativeRightActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Inline $negativeRight');
+  assert.ok(negativeRightAction?.command, 'Parenthesized negative literal before a right operand did not offer Inline Variable.');
+  await vscode.commands.executeCommand(negativeRightAction.command.command, ...negativeRightAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(embeddedInlineDocument.getText().includes('return (-3) * (8 + 9);'));
+  await vscode.commands.executeCommand('undo');
+  assert.ok(embeddedInlineDocument.getText().includes('$negativeRight = 8 + 9;'));
+  await vscode.commands.executeCommand('redo');
+  assert.ok(embeddedInlineDocument.getText().includes('return (-3) * (8 + 9);'));
   const inlineDiskBefore = await vscode.workspace.fs.readFile(inlineUri);
   const staleDiskSource = Buffer.concat([Buffer.from('// changed externally after Code Action was computed\n'), Buffer.from(inlineDiskBefore)]);
   const staleDiskEdit = new vscode.WorkspaceEdit();
@@ -1309,6 +1569,11 @@ export async function run(): Promise<void> {
     });
   assert.strictEqual(await addParameter(async () => 'cancel'), false);
   assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'Cancelling Add Parameter changed the file');
+  const addParameterEditor = await vscode.window.showTextDocument(addParameterDocument);
+  const unsavedAddParameterSource = `${addParameterSource}// unsaved local buffer must survive\n`;
+  assert.strictEqual(await addParameterEditor.edit(edit => edit.insert(
+    addParameterDocument.positionAt(addParameterSource.length), '// unsaved local buffer must survive\n')), true);
+  assert.strictEqual(addParameterDocument.isDirty, true, 'Disk race fixture needs a genuinely unsaved buffer');
   const externalAddSource = `// external edit after Add Parameter planning\n${addParameterSource}`;
   let staleAddPreviewOpened = false;
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.addMethodParameter', {
@@ -1321,8 +1586,17 @@ export async function run(): Promise<void> {
   assert.strictEqual(staleAddPreviewOpened, false, 'Add Parameter preview opened after an external source edit');
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(addParameterUri)).toString(), externalAddSource,
     'Add Parameter overwrote an external source edit');
-  assert.strictEqual(addParameterDocument.getText(), addParameterSource, 'Add Parameter changed the stale editor');
-  await vscode.workspace.fs.writeFile(addParameterUri, Buffer.from(addParameterSource));
+  assert.strictEqual(addParameterDocument.getText(), unsavedAddParameterSource, 'Add Parameter changed the unsaved editor');
+  assert.strictEqual(addParameterDocument.isDirty, true);
+  // Reset this owned fixture through the editor, acknowledging the newer disk
+  // snapshot before saving; a clean file may auto-reload after a watcher event.
+  const resetAddParameterEditor = await vscode.window.showTextDocument(addParameterDocument);
+  await vscode.commands.executeCommand('workbench.action.files.revert');
+  assert.strictEqual(addParameterDocument.getText(), externalAddSource);
+  assert.strictEqual(await resetAddParameterEditor.edit(edit => edit.replace(new vscode.Range(
+    addParameterDocument.positionAt(0), addParameterDocument.positionAt(addParameterDocument.getText().length)),
+  addParameterSource)), true);
+  assert.strictEqual(await addParameterDocument.save(), true);
   assert.strictEqual(await addParameter(async () => 'apply'), true);
   assert.ok(addParameterDocument.getText().includes('format(string $prefix, string $suffix)'));
   assert.ok(addParameterDocument.getText().includes('* @param string $suffix'));
@@ -1976,7 +2250,11 @@ class C3DocSafetyConsumer {}
   const groupedReferences = await vscode.commands.executeCommand<vscode.Location[]>(
     'vscode.executeReferenceProvider', groupedTypeUri, groupedPosition);
   assert.ok(groupedConsumers.every((consumer) => groupedReferences?.some((reference) => reference.uri.toString() === consumer.toString())),
-    'Grouped Rename fixture was not fully indexed');
+    `Grouped Rename fixture was not fully indexed: ${JSON.stringify({
+      missing: groupedConsumers.filter((consumer) => !groupedReferences?.some((reference) => reference.uri.toString() === consumer.toString()))
+        .map((consumer) => consumer.toString()),
+      actual: groupedReferences?.map((reference) => ({ uri: reference.uri.toString(), range: reference.range })),
+    })}`);
   const groupedRename = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
     vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', {
       uri: groupedTypeUri, position: groupedPosition, newName: 'C3GroupedRenamed', testPreviewAction,
@@ -2807,6 +3085,214 @@ final class C3ReturnExtractMethod {
   await vscode.commands.executeCommand('redo');
   assert.ok(returnMethodDocument.getText().includes('private function extractedMethod2($value)'));
   console.log('C3 Extract Method from untyped return: input, apply and one Undo/Redo');
+  const joinedReturnUri = vscode.Uri.joinPath(serviceDirectory, 'C3JoinedReturnExtract.php');
+  const joinedReturnSource = `<?php namespace App\\Service;
+final class C3JoinedReturnExtract {
+    public function label(string $first, int $second): string {
+        return $first . $second;
+    }
+    public function objectLabel(string $first, object $second): string {
+        return $first . $second;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(joinedReturnUri, Buffer.from(joinedReturnSource));
+  const joinedReturnDocument = await vscode.workspace.openTextDocument(joinedReturnUri);
+  await vscode.window.showTextDocument(joinedReturnDocument);
+  const joinedReturnStart = joinedReturnSource.indexOf('return $first . $second;');
+  const joinedReturnRange = new vscode.Range(joinedReturnDocument.positionAt(joinedReturnStart),
+    joinedReturnDocument.positionAt(joinedReturnStart + 'return $first . $second;'.length));
+  const joinedReturnActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', joinedReturnUri, joinedReturnRange, vscode.CodeActionKind.RefactorExtract.value);
+  const joinedReturnAction = joinedReturnActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(joinedReturnAction?.command, 'Scalar joined return did not offer Extract Method.');
+  await vscode.commands.executeCommand(joinedReturnAction.command.command, ...joinedReturnAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(joinedReturnDocument.getText(), joinedReturnSource,
+    'Cancelling scalar joined return extraction changed the source.');
+  await vscode.commands.executeCommand(joinedReturnAction.command.command, ...joinedReturnAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(joinedReturnDocument.getText().includes('return $this->extractedMethod($first, $second);')
+    && joinedReturnDocument.getText().includes('private function extractedMethod(string $first, int $second): string')
+    && joinedReturnDocument.getText().includes('return $first . $second;'),
+  'Scalar joined return extraction lost its input order or return type.');
+  await vscode.window.showTextDocument(joinedReturnDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(joinedReturnDocument.getText(), joinedReturnSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(joinedReturnDocument.getText().includes('return $this->extractedMethod($first, $second);'));
+  const objectJoinedReturnSource = joinedReturnDocument.getText();
+  const objectJoinedReturnStart = objectJoinedReturnSource.indexOf('return $first . $second;',
+    objectJoinedReturnSource.indexOf('public function objectLabel('));
+  const objectJoinedReturnActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', joinedReturnUri,
+    new vscode.Range(joinedReturnDocument.positionAt(objectJoinedReturnStart),
+      joinedReturnDocument.positionAt(objectJoinedReturnStart + 'return $first . $second;'.length)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(!objectJoinedReturnActions.some((action) => action.title.startsWith('Extract method')),
+    'Object joined return offered an unsafe Extract Method.');
+  console.log('C3 Extract Method from scalar joined return: preview, cancel/apply, one Undo/Redo, object rejection');
+  const numericReturnUri = vscode.Uri.joinPath(serviceDirectory, 'C3NumericReturnExtract.php');
+  const numericReturnSource = `<?php namespace App\\Service;
+final class C3NumericReturnExtract {
+    public function calculate(int $first, float $second): float {
+        return $first + $second;
+    }
+    public function unsafe(object $first, float $second): float {
+        return $first + $second;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(numericReturnUri, Buffer.from(numericReturnSource));
+  const numericReturnDocument = await vscode.workspace.openTextDocument(numericReturnUri);
+  await vscode.window.showTextDocument(numericReturnDocument);
+  const numericReturnStart = numericReturnSource.indexOf('return $first + $second;');
+  const numericReturnRange = new vscode.Range(numericReturnDocument.positionAt(numericReturnStart),
+    numericReturnDocument.positionAt(numericReturnStart + 'return $first + $second;'.length));
+  const numericReturnActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', numericReturnUri, numericReturnRange, vscode.CodeActionKind.RefactorExtract.value);
+  const numericReturnAction = numericReturnActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(numericReturnAction?.command, 'Numeric binary return did not offer Extract Method.');
+  await vscode.commands.executeCommand(numericReturnAction.command.command, ...numericReturnAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(numericReturnDocument.getText(), numericReturnSource,
+    'Cancelling numeric return extraction changed the source.');
+  await vscode.commands.executeCommand(numericReturnAction.command.command, ...numericReturnAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(numericReturnDocument.getText().includes('return $this->extractedMethod($first, $second);')
+    && numericReturnDocument.getText().includes('private function extractedMethod(int $first, float $second): float')
+    && numericReturnDocument.getText().includes('return $first + $second;'),
+  'Numeric return extraction lost the operator, parameter order or native types.');
+  await vscode.window.showTextDocument(numericReturnDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(numericReturnDocument.getText(), numericReturnSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(numericReturnDocument.getText().includes('return $this->extractedMethod($first, $second);'));
+  const numericUnsafeSource = numericReturnDocument.getText();
+  const numericUnsafeStart = numericUnsafeSource.indexOf('return $first + $second;',
+    numericUnsafeSource.indexOf('public function unsafe('));
+  const numericUnsafeActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', numericReturnUri,
+    new vscode.Range(numericReturnDocument.positionAt(numericUnsafeStart),
+      numericReturnDocument.positionAt(numericUnsafeStart + 'return $first + $second;'.length)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(!numericUnsafeActions.some((action) => action.title.startsWith('Extract method')),
+    'Object arithmetic offered an unsafe Extract Method.');
+  console.log('C3 numeric return Extract Method: preview, cancel/apply, one Undo/Redo, object rejection');
+  const scalarChoiceUri = vscode.Uri.joinPath(serviceDirectory, 'C3ScalarChoiceExtract.php');
+  const scalarChoiceSource = `<?php namespace App\\Service;
+final class C3ScalarChoiceExtract {
+    public function label(?string $value, string $fallback): string {
+        return $value ?? $fallback;
+    }
+    public function choose(bool $flag, string $left, string $right): string {
+        return $flag ? $left : $right;
+    }
+    public function labelWithLiteral(?string $value): string {
+        return $value ?? 'fallback';
+    }
+    public function chooseLiteral(bool $flag, string $left): string {
+        return $flag ? $left : 'fallback';
+    }
+    public function unsafe(mixed $flag, string $left, string $right): string {
+        return $flag ? $left : $right;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(scalarChoiceUri, Buffer.from(scalarChoiceSource));
+  const scalarChoiceDocument = await vscode.workspace.openTextDocument(scalarChoiceUri);
+  await vscode.window.showTextDocument(scalarChoiceDocument);
+  for (const [selection, call, signature] of [
+    ['return $value ?? $fallback;', 'return $this->extractedMethod($value, $fallback);',
+      'private function extractedMethod(?string $value, string $fallback): string'],
+    ['return $flag ? $left : $right;', 'return $this->extractedMethod2($flag, $left, $right);',
+      'private function extractedMethod2(bool $flag, string $left, string $right): string'],
+    ["return $value ?? 'fallback';", 'return $this->extractedMethod3($value);',
+      'private function extractedMethod3(?string $value): string'],
+    ["return $flag ? $left : 'fallback';", 'return $this->extractedMethod4($flag, $left);',
+      'private function extractedMethod4(bool $flag, string $left): string'],
+  ]) {
+    const before = scalarChoiceDocument.getText();
+    const start = before.indexOf(selection);
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+      'vscode.executeCodeActionProvider', scalarChoiceUri,
+      new vscode.Range(scalarChoiceDocument.positionAt(start), scalarChoiceDocument.positionAt(start + selection.length)),
+      vscode.CodeActionKind.RefactorExtract.value);
+    const expectedName = /extractedMethod\d*/u.exec(signature)?.[0];
+    assert.ok(expectedName);
+    const action = actions.find((candidate): candidate is vscode.CodeAction =>
+      'command' in candidate && candidate.title === `Extract method ${expectedName}`);
+    assert.ok(action?.command, `${selection} did not offer scalar choice Extract Method.`);
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [],
+      { testPreviewAction: async () => 'cancel' });
+    assert.strictEqual(scalarChoiceDocument.getText(), before, 'Cancelling scalar choice extraction changed the source.');
+    await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [],
+      { testPreviewAction: async () => 'apply' });
+    assert.ok(scalarChoiceDocument.getText().includes(call) && scalarChoiceDocument.getText().includes(signature),
+      `${selection} extraction lost the call or native type.`);
+    await vscode.window.showTextDocument(scalarChoiceDocument);
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(scalarChoiceDocument.getText(), before, `${selection} did not Undo in one step.`);
+    await vscode.commands.executeCommand('redo');
+    assert.ok(scalarChoiceDocument.getText().includes(call), `${selection} did not Redo in one step.`);
+  }
+  const scalarChoiceUnsafe = scalarChoiceDocument.getText();
+  const scalarChoiceUnsafeStart = scalarChoiceUnsafe.indexOf('return $flag ? $left : $right;',
+    scalarChoiceUnsafe.indexOf('public function unsafe('));
+  const scalarChoiceUnsafeActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', scalarChoiceUri,
+    new vscode.Range(scalarChoiceDocument.positionAt(scalarChoiceUnsafeStart),
+      scalarChoiceDocument.positionAt(scalarChoiceUnsafeStart + 'return $flag ? $left : $right;'.length)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(!scalarChoiceUnsafeActions.some((action) => action.title.startsWith('Extract method')),
+    'Mixed condition offered an unsafe scalar choice Extract Method.');
+  console.log('C3 scalar choice return Extract Method: cancel/apply, one Undo/Redo, mixed rejection');
+  const identityReturnUri = vscode.Uri.joinPath(serviceDirectory, 'C3IdentityReturnExtract.php');
+  const identityReturnSource = `<?php namespace App\\Service;
+final class C3IdentityReturnExtract {
+    public function same(string $first, string $second): bool {
+        return $first === $second;
+    }
+    public function unsafe(object $first, string $second): bool {
+        return $first === $second;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(identityReturnUri, Buffer.from(identityReturnSource));
+  const identityReturnDocument = await vscode.workspace.openTextDocument(identityReturnUri);
+  await vscode.window.showTextDocument(identityReturnDocument);
+  const identityStart = identityReturnSource.indexOf('return $first === $second;');
+  const identityRange = new vscode.Range(identityReturnDocument.positionAt(identityStart),
+    identityReturnDocument.positionAt(identityStart + 'return $first === $second;'.length));
+  const identityActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', identityReturnUri, identityRange, vscode.CodeActionKind.RefactorExtract.value);
+  const identityAction = identityActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(identityAction?.command, 'Strict scalar identity return did not offer Extract Method.');
+  await vscode.commands.executeCommand(identityAction.command.command, ...identityAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(identityReturnDocument.getText(), identityReturnSource,
+    'Cancelling strict identity extraction changed the source.');
+  await vscode.commands.executeCommand(identityAction.command.command, ...identityAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(identityReturnDocument.getText().includes('return $this->extractedMethod($first, $second);')
+    && identityReturnDocument.getText().includes('private function extractedMethod(string $first, string $second): bool')
+    && identityReturnDocument.getText().includes('return $first === $second;'),
+  'Strict identity extraction lost the operator, parameter order or native types.');
+  await vscode.window.showTextDocument(identityReturnDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(identityReturnDocument.getText(), identityReturnSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(identityReturnDocument.getText().includes('return $this->extractedMethod($first, $second);'));
+  const identityUnsafeSource = identityReturnDocument.getText();
+  const identityUnsafeStart = identityUnsafeSource.indexOf('return $first === $second;',
+    identityUnsafeSource.indexOf('public function unsafe('));
+  const identityUnsafeActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', identityReturnUri,
+    new vscode.Range(identityReturnDocument.positionAt(identityUnsafeStart),
+      identityReturnDocument.positionAt(identityUnsafeStart + 'return $first === $second;'.length)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(!identityUnsafeActions.some((action) => action.title.startsWith('Extract method')),
+    'Object identity offered an unsafe Extract Method.');
+  console.log('C3 strict identity return Extract Method: preview, cancel/apply, one Undo/Redo, object rejection');
   const multipleOutputUri = vscode.Uri.joinPath(serviceDirectory, 'C3MultipleOutputExtractMethod.php');
   const multipleOutputSource = `<?php namespace App\\Service;
 final class C3MultipleOutputExtractMethod {
@@ -2963,6 +3449,89 @@ final class C3BranchExtract {
   await vscode.commands.executeCommand('redo');
   assert.ok(branchExtractDocument.getText().includes('$result = $this->extractedMethod($flag, $enabled);'));
   console.log('C3 if/elseif/else output Extract Method: preview, cancel/apply, Hover and one Undo/Redo');
+  const branchPairUri = vscode.Uri.joinPath(serviceDirectory, 'C3BranchPairExtract.php');
+  const branchPairSource = `<?php namespace App\\Service;
+final class C3BranchPairExtract {
+    public function run(bool $flag): string {
+        if ($flag) {
+            $name = 'yes';
+            $count = 1;
+        } else {
+            $name = 'no';
+            $count = 2;
+        }
+        return $name . $count;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(branchPairUri, Buffer.from(branchPairSource));
+  const branchPairDocument = await vscode.workspace.openTextDocument(branchPairUri);
+  await vscode.window.showTextDocument(branchPairDocument);
+  const branchPairStart = branchPairSource.indexOf('if ($flag)');
+  const branchPairEnd = branchPairSource.indexOf('\n        return $name', branchPairStart);
+  const branchPairActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', branchPairUri,
+    new vscode.Range(branchPairDocument.positionAt(branchPairStart), branchPairDocument.positionAt(branchPairEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const branchPairAction = branchPairActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(branchPairAction?.command, 'Two definite if/else outputs did not offer Extract Method.');
+  await vscode.commands.executeCommand(branchPairAction.command.command, ...branchPairAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(branchPairDocument.getText(), branchPairSource,
+    'Cancelling two-output branch extraction changed the source.');
+  await vscode.commands.executeCommand(branchPairAction.command.command, ...branchPairAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(branchPairDocument.getText().includes('[$name, $count] = $this->extractedMethod($flag);')
+    && branchPairDocument.getText().includes('/** @return array{0: string, 1: int} */')
+    && branchPairDocument.getText().includes('private function extractedMethod(bool $flag): array')
+    && branchPairDocument.getText().includes('return [$name, $count];'),
+  'Two-output branch extraction lost its values or types.');
+  await vscode.window.showTextDocument(branchPairDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(branchPairDocument.getText(), branchPairSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(branchPairDocument.getText().includes('[$name, $count] = $this->extractedMethod($flag);'));
+  console.log('C3 complete if/else pair outputs: preview, cancel/apply and one Undo/Redo');
+  await verifyLocalExtraction(serviceDirectory);
+
+  const partialBranchUri = vscode.Uri.joinPath(serviceDirectory, 'C3PartialBranchExtract.php');
+  const partialBranchSource = `<?php namespace App\\Service;
+final class C3PartialBranchExtract {
+    public function run(bool $flag): string {
+        $result = 'base';
+        if ($flag) {
+            $result = 'changed';
+        }
+        return $result;
+    }
+}`;
+  await vscode.workspace.fs.writeFile(partialBranchUri, Buffer.from(partialBranchSource));
+  const partialBranchDocument = await vscode.workspace.openTextDocument(partialBranchUri);
+  await vscode.window.showTextDocument(partialBranchDocument);
+  const partialBranchStart = partialBranchSource.indexOf('if ($flag)');
+  const partialBranchEnd = partialBranchSource.indexOf('\n        return $result;', partialBranchStart);
+  const partialBranchActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
+    'vscode.executeCodeActionProvider', partialBranchUri,
+    new vscode.Range(partialBranchDocument.positionAt(partialBranchStart), partialBranchDocument.positionAt(partialBranchEnd)),
+    vscode.CodeActionKind.RefactorExtract.value);
+  const partialBranchAction = partialBranchActions.find((action): action is vscode.CodeAction =>
+    'command' in action && action.title === 'Extract method extractedMethod');
+  assert.ok(partialBranchAction?.command, 'An initialized scalar branch output did not offer Extract Method.');
+  await vscode.commands.executeCommand(partialBranchAction.command.command, ...partialBranchAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' });
+  assert.strictEqual(partialBranchDocument.getText(), partialBranchSource);
+  await vscode.commands.executeCommand(partialBranchAction.command.command, ...partialBranchAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' });
+  assert.ok(partialBranchDocument.getText().includes('$result = $this->extractedMethod($flag, $result);')
+    && partialBranchDocument.getText().includes('private function extractedMethod(bool $flag, string $result): string')
+    && partialBranchDocument.getText().includes('return $result;'),
+  'Partial branch extraction lost the incoming or updated value.');
+  await vscode.window.showTextDocument(partialBranchDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(partialBranchDocument.getText(), partialBranchSource);
+  await vscode.commands.executeCommand('redo');
+  assert.ok(partialBranchDocument.getText().includes('$result = $this->extractedMethod($flag, $result);'));
+  console.log('C3 initialized partial branch output: preview, cancel/apply and one Undo/Redo');
   const branchReturnUri = vscode.Uri.joinPath(serviceDirectory, 'C3BranchReturn.php');
   const branchReturnSource = `<?php namespace App\\Service;
 final class C3BranchReturn {
@@ -3491,6 +4060,9 @@ class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $
   const hasEventDispatch = (references: vscode.Location[]): boolean => references.some((reference) =>
     reference.uri.toString() === eventDispatchUri.toString()
     && eventDispatchDocument.getText(reference.range) === 'app.ready');
+  const eventSnapshotDocuments = vscode.workspace.textDocuments.filter(document => document.uri.toString().startsWith(folder.uri.toString())
+    && ['php', 'yaml', 'xml'].includes(document.languageId));
+  console.log(`C3 event snapshot inputs: documents=${eventSnapshotDocuments.length} characters=${eventSnapshotDocuments.reduce((sum, document) => sum + document.getText().length, 0)}`);
   let currentEventReferences: vscode.Location[] = [];
   const eventDeadline = Date.now() + 30_000;
   while (Date.now() < eventDeadline) {
@@ -3535,13 +4107,16 @@ class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $
         siblingPath = path;
         return vscode.workspace.applyEdit(edit);
       }), true, 'Create PHP Type did not use the active editor in a second workspace');
-    assert.strictEqual(dirname(siblingPath ?? ''), secondContainer,
+    assert.strictEqual(dirname(siblingPath ?? ''), dirname(secondWorkspaceUri.fsPath),
       'The fallback stage used the first workspace instead of the active editor workspace');
     assert.ok((await vscode.workspace.openTextDocument(secondGeneratedUri)).getText()
       .includes('namespace Other\\Service;'), 'The second workspace generated the wrong namespace');
     console.log('C3 Create PHP Type used the active Composer workspace for its fallback stage');
+  } catch (error) {
+    console.error('C3 multi-workspace acceptance failed before fixture cleanup:', error);
+    throw error;
   } finally {
     vscode.workspace.updateWorkspaceFolders(1, 1);
-    await rm(secondContainer, { recursive: true, force: true });
+    await removeMultiRootFixture(secondContainer);
   }
 }
