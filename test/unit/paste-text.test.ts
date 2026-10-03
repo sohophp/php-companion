@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mayNeedPhpImportResolution, potentialPhpTypeNames } from '../../src/paste/pasteText.js';
+import { mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../../src/paste/pasteText.js';
 
 describe('PHP import paste text preflight', () => {
   it('skips version numbers and ordinary scalar values', () => {
@@ -11,5 +11,48 @@ describe('PHP import paste text preflight', () => {
   it('keeps class-like PHP names eligible for import resolution', () => {
     expect(mayNeedPhpImportResolution('new ProductSearchSettings()')).toBe(true);
     expect([...potentialPhpTypeNames('Runner|Service $value')]).toEqual(['Runner', 'Service']);
+  });
+});
+
+describe('paste alias conflict resolution', () => {
+  const symbols = [{ fqcn: 'Vendor\\First', alias: 'First' }, { fqcn: 'Vendor\\Second', alias: 'Second' }];
+  type Symbol = typeof symbols[number] & { selectedAlias?: string };
+  const plan = async (selected: Symbol[]): Promise<{ conflict?: { fqcn: string; sourceAlias: string }; aliases?: string[] }> => {
+    const conflict = selected.find(symbol => !symbol.selectedAlias);
+    return conflict ? { conflict: { fqcn: conflict.fqcn, sourceAlias: conflict.alias } }
+      : { aliases: selected.map(symbol => symbol.selectedAlias!) };
+  };
+
+  it('resolves both conflicts while preserving the original clipboard symbols', async () => {
+    const asked: string[] = [];
+    const result = await resolvePasteAliasConflicts(symbols, plan, async conflict => {
+      asked.push(conflict.sourceAlias); return `${conflict.sourceAlias}External`;
+    }, true, async () => true);
+    expect(asked).toEqual(['First', 'Second']);
+    expect(result).toEqual({ aliases: ['FirstExternal', 'SecondExternal'] });
+    expect(symbols).toEqual([{ fqcn: 'Vendor\\First', alias: 'First' }, { fqcn: 'Vendor\\Second', alias: 'Second' }]);
+  });
+
+  it('cancels the entire result when the second alias is cancelled', async () => {
+    expect(await resolvePasteAliasConflicts(symbols, plan, async conflict =>
+      conflict.sourceAlias === 'First' ? 'FirstExternal' : undefined, true, async () => true)).toBeUndefined();
+  });
+
+  it('does not prompt in automatic mode', async () => {
+    let asked = false;
+    expect(await resolvePasteAliasConflicts(symbols, plan, async () => { asked = true; return 'Alias'; }, false, async () => true)).toBeUndefined();
+    expect(asked).toBe(false);
+  });
+
+  it('withdraws the result when the source changes during alias selection', async () => {
+    let unchanged = true;
+    expect(await resolvePasteAliasConflicts(symbols, plan, async () => { unchanged = false; return 'Alias'; }, true, async () => unchanged)).toBeUndefined();
+  });
+
+  it('stops a repeated unresolved conflict without another prompt', async () => {
+    let asked = 0;
+    expect(await resolvePasteAliasConflicts(symbols, async () => ({ conflict: { fqcn: 'Vendor\\First', sourceAlias: 'First' } }),
+      async () => { asked++; return 'Occupied'; }, true, async () => true)).toBeUndefined();
+    expect(asked).toBe(1);
   });
 });

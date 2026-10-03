@@ -49,3 +49,21 @@ PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_C3_CONSTRUCTOR_IMPORT_ONLY=1 PHP
 ```
 
 语义和语言服务器构建、根 TypeScript noEmit、宿主编译、四份修改源码的 ESLint 及 diff 空白检查通过。本次证明是构造导入的定向接受流程；多符号／用户选择 alias 的 UI 接受以及真实项目等待仍需核对，不能称完整 Import 或 C3 验收。用户 Profile 未更新。
+
+## 后续：多个粘贴类型的 alias 冲突
+
+Core Paste Provider 原来仅接受一次 alias 选择：若第二个符号仍有冲突，就丢弃整组建议。改为逐个处理冲突，只有全部符号得到无冲突规划且原文仍有效才返回 Paste 编辑。用户取消后不返回部分规划；auto 模式不发起选择；同一符号再次冲突或未知符号冲突时拒绝，避免反复提示走不出来。
+
+- 根 `paste-text` 单元 7 项通过，覆盖两个冲突依次选择、原始剪贴板元数据不被改写、第二次取消、auto 无选择、选择期间文档变化和重复冲突终止。
+- 隔离 Linux VS Code 串行运行 onDemand／progressive，两种模式均退出 0。使用实际 Core Paste Provider、真实语言服务器与 VS Code WorkspaceEdit，向 clipboard DataTransfer 放入两份复制类型元数据。测试模式受控选择两个 alias，核对替换后的粘贴文本和两个 use；取消第二个 alias 不返回部分编辑。完整 Paste 编辑一次应用后，单次 Undo 恢复原文，Redo 精确恢复。
+- 受控 alias 输入只在 ExtensionMode.Test 开启；上述证据没有真人输入框选择或真实剪贴板键盘操作，不能当作这些 UI 的验收。
+- 宿主先等待 fixture 源码就绪，启动期首次粘贴仍开放；多名称歧义分支和编辑器回退 Paste Provider 不在本次修复范围。
+
+复用命令：
+
+```sh
+pnpm exec vitest run test/unit/paste-text.test.ts
+PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_C3_MULTI_ALIAS_ONLY=1 PHP_COMPANION_TEST_C3_INDEXING_MODE=onDemand node scripts/run-extension-test.mjs ./dist-test/runTest.js
+```
+
+双模式日志 `/tmp/sophp-multi-alias-onDemand-20261004.log`、`/tmp/sophp-multi-alias-progressive-20261004.log`。既有 onDemand Import／Paste 请求期间编辑与 Undo 子集也退出 0，日志 `/tmp/sophp-multi-alias-import-race-20261004.log`。根 TypeScript noEmit、production bundle、宿主编译、四份修改源码 ESLint 和 diff 空白检查通过。用户 Profile 未更新。

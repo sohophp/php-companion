@@ -11,7 +11,7 @@ import { copyIdentity, CurrentDocumentDiagnostics, NamespaceCodeActions } from '
 import { PhpRenameProvider } from '../refactor/rename.js';
 import { forgetRenamePreviewSnapshots, openRenamePreviewSnapshot, registerRenamePreviewProvider } from '../refactor/renamePreview.js';
 import { PHP_IMPORT_METADATA_MIME, PHP_IMPORT_PASTE_KIND, PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
-import { mayNeedPhpImportResolution, potentialPhpTypeNames } from '../paste/pasteText.js';
+import { mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../paste/pasteText.js';
 import {
   buildMoveEdits,
   buildMoveReconciliationEdits,
@@ -1443,17 +1443,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           if (pasteMode === 'auto' && ambiguity) return undefined;
         }
         const edits: vscode.DocumentPasteEdit[] = [];
-        for (let variant of variants) {
+        for (const variant of variants) {
           if (!variant.length) continue;
-          let plan = await requestImportPlan(document, position, variant); if (!plan) continue;
-          if (plan.conflict) {
-            if (pasteMode === 'auto') continue;
-            const selectedAlias = await vscode.window.showInputBox({ prompt: t('chooseAlias', plan.conflict.fqcn), value: `${plan.conflict.sourceAlias}Alias`,
-              validateInput: (value) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier') });
-            if (!selectedAlias) continue;
-            variant = variant.map((symbol) => symbol.fqcn === plan!.conflict!.fqcn ? { ...symbol, selectedAlias } : symbol);
-            plan = await requestImportPlan(document, position, variant); if (!plan || plan.conflict) continue;
-          }
+          const testAliases = context.extensionMode === vscode.ExtensionMode.Test
+            ? transfer.get('application/vnd.php-companion.test-aliases')?.value as string[] | undefined : undefined;
+          const plan = await resolvePasteAliasConflicts(variant,
+            symbols => requestImportPlan(document, position, symbols), async conflict => {
+              if (testAliases) return testAliases.shift();
+              return vscode.window.showInputBox({ prompt: t('chooseAlias', conflict.fqcn), value: `${conflict.sourceAlias}Alias`,
+                validateInput: value => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(value) ? undefined : t('validIdentifier') });
+            }, pasteMode !== 'auto', sourceUnchanged);
+          if (!plan) continue;
           const paste = new vscode.DocumentPasteEdit(replacePasteAliases(text, plan.replacements), variants.length > 1 ? `Paste with PHP imports: ${variant.at(-1)?.fqcn}` : 'Paste with PHP imports', PHP_IMPORT_PASTE_KIND);
           const additionalEdit = fromProtocolWorkspaceEdit(plan.edit); if (additionalEdit) paste.additionalEdit = additionalEdit;
           if (pasteMode === 'prompt') paste.yieldTo = [vscode.DocumentDropOrPasteEditKind.Text];
@@ -1470,14 +1470,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return await sourceUnchanged() ? edits : undefined;
     },
   };
-  if (context.extensionMode === vscode.ExtensionMode.Test) register('phpCompanion._testPasteImportEdits', async (uri: vscode.Uri, text: string, position: vscode.Position) => {
+  if (context.extensionMode === vscode.ExtensionMode.Test) register('phpCompanion._testPasteImportEdits', async (uri: vscode.Uri, text: string, position: vscode.Position, options?: { symbols?: PasteSymbol[]; aliases?: string[] }) => {
     const document = await vscode.workspace.openTextDocument(uri);
     const transfer = new vscode.DataTransfer();
     transfer.set('text/plain', new vscode.DataTransferItem(text));
+    if (options?.symbols) transfer.set(PHP_IMPORT_METADATA_MIME, new vscode.DataTransferItem(options.symbols));
+    if (options?.aliases) transfer.set('application/vnd.php-companion.test-aliases', new vscode.DataTransferItem([...options.aliases]));
     const edits = await (lazyPaste.provideDocumentPasteEdits as (document: vscode.TextDocument, ranges: readonly vscode.Range[],
       transfer: vscode.DataTransfer) => Promise<vscode.DocumentPasteEdit[] | undefined>)(document,
       [new vscode.Range(position, position)], transfer);
-    return edits?.map((edit) => ({ text: edit.insertText, imports: edit.additionalEdit?.entries().flatMap(([, changes]) =>
+    return edits?.map((edit) => ({ text: edit.insertText, changes: edit.additionalEdit?.entries(), imports: edit.additionalEdit?.entries().flatMap(([, changes]) =>
       changes.map((change) => change.newText)) ?? [] }));
   });
   context.subscriptions.push(

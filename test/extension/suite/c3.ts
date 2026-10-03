@@ -5,6 +5,53 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
 
+async function verifyMultiplePasteAliases(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
+  for (const name of ['C3AliasFirst', 'C3AliasSecond']) {
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${name}.php`),
+      Buffer.from(`<?php namespace App\\Service; final class ${name} {}`));
+  }
+  const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3MultiAliasConsumer.php');
+  const source = '<?php namespace App\\Controller; class First {} class Second {} function consume() { /* paste here */ }';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const position = document.positionAt(source.indexOf('/* paste here */'));
+  const symbols = [{ fqcn: 'App\\Service\\C3AliasFirst', alias: 'First' }, { fqcn: 'App\\Service\\C3AliasSecond', alias: 'Second' }];
+  const deadline = Date.now() + 15_000; let ready = false;
+  while (Date.now() < deadline) {
+    const plan = await api.requestLanguageServer<{ conflict?: unknown } | null>('phpCompanion/planTypeImports', {
+      textDocument: { uri: uri.toString() }, position,
+      symbols: symbols.map(symbol => ({ fqcn: symbol.fqcn, sourceAlias: symbol.alias })),
+    });
+    if (plan?.conflict) { ready = true; break; }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  assert.ok(ready, 'Multiple alias fixture did not reach source readiness');
+  const pasteText = 'new First(); new Second(); ';
+  type Paste = { text: string; imports: string[]; changes?: Array<[vscode.Uri, vscode.TextEdit[]]> };
+  assert.strictEqual(await vscode.commands.executeCommand<Paste[] | undefined>('phpCompanion._testPasteImportEdits',
+    uri, pasteText, position, { symbols, aliases: ['ExternalFirst'] }), undefined,
+  'Cancelling the second alias returned a partial paste');
+  assert.strictEqual(document.getText(), source);
+  const candidates = await vscode.commands.executeCommand<Paste[] | undefined>('phpCompanion._testPasteImportEdits',
+    uri, pasteText, position, { symbols, aliases: ['ExternalFirst', 'ExternalSecond'] });
+  assert.strictEqual(candidates?.length, 1, 'Two alias conflicts did not produce a complete Paste edit');
+  const candidate = candidates![0]!;
+  assert.strictEqual(candidate.text, 'new ExternalFirst(); new ExternalSecond(); ');
+  assert.ok(candidate.imports.some(text => text.includes('use App\\Service\\C3AliasFirst as ExternalFirst;')));
+  assert.ok(candidate.imports.some(text => text.includes('use App\\Service\\C3AliasSecond as ExternalSecond;')));
+  const edit = new vscode.WorkspaceEdit();
+  for (const [target, edits] of candidate.changes ?? []) edit.set(target, edits);
+  edit.insert(uri, position, candidate.text);
+  assert.ok(await vscode.workspace.applyEdit(edit));
+  const accepted = document.getText();
+  assert.ok(accepted.includes(candidate.text));
+  assert.ok(accepted.includes('use App\\Service\\C3AliasFirst as ExternalFirst;'));
+  assert.ok(accepted.includes('use App\\Service\\C3AliasSecond as ExternalSecond;'));
+  await vscode.commands.executeCommand('undo'); assert.strictEqual(document.getText(), source);
+  await vscode.commands.executeCommand('redo'); assert.strictEqual(document.getText(), accepted);
+  console.log('C3 two Paste aliases: controlled choices, cancel without partial edit, atomic acceptance and one Undo/Redo passed');
+}
+
 async function verifyConstructorImportAccept(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
   const typeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ImportConstructor.php');
   const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ConstructorConsumer.php');
@@ -451,6 +498,11 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_MULTI_ALIAS_ONLY === '1') {
+    await verifyMultiplePasteAliases(folder, api);
+    console.log('C3 focused multiple Paste aliases completed; this is not the full C3 suite');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_CONSTRUCTOR_IMPORT_ONLY === '1') {
     await verifyConstructorImportAccept(folder, api);
     console.log('C3 focused constructor import completed; this is not the full C3 suite');
