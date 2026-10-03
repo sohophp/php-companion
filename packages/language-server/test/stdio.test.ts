@@ -7676,8 +7676,8 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         moves: [{ oldUri: sourceUri, newUri: movedUri, source }], includeFileOperations: false,
       } }));
       const safeMove = (await output.waitFor((message) => message.id === 2411)).result;
-      expect(safeMove.error).toBeUndefined();
-      expect(safeMove.edit.changes[movedUri]).toEqual(expect.arrayContaining([expect.objectContaining({ newText: 'App\\Moved' })]));
+      expect(safeMove.error).toBe('Safe Move source scan was incomplete or changed; retry the move.');
+      expect(safeMove.edit).toBeUndefined();
       server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'shutdown', params: null }));
       await output.waitFor((message) => message.id === 242);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
@@ -11601,6 +11601,60 @@ function values(): array { return []; }
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('plans Safe Move with current project and dependency consumers in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-current-move-'));
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'acme', 'consumer', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/consumer', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/consumer', install_path: '../acme/consumer' }] }));
+      const source = '<?php namespace App; class MoveRunner {}';
+      const consumer = '<?php namespace App; function make(): MoveRunner { return new MoveRunner(); }';
+      const external = '<?php namespace Acme; use App\\MoveRunner; function make(): MoveRunner { return new MoveRunner(); }';
+      const files = [[join(root, 'src', 'MoveRunner.php'), source], [join(root, 'src', 'Consumer.php'), consumer],
+        [join(root, 'vendor', 'acme', 'consumer', 'src', 'Consumer.php'), external]] as const;
+      for (const [path, text] of files) await writeFile(path, text);
+      const oldUri = pathToFileURL(files[0][0]).toString(); const newUri = pathToFileURL(join(root, 'src', 'Moved', 'MoveRunner.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true, ...(limited ? { indexLimits: { maxFiles: 2, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 } } : {}) },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: oldUri, languageId: 'php', version: 1, text: source } } }));
+      const lateFiles: Array<[string, string]> = [];
+      for (const id of [102, 103]) {
+        if (id === 103 && !limited) {
+          const path = join(root, 'src', 'Late.php'); const text = '<?php namespace App; function late(MoveRunner $item): void {}';
+          await writeFile(path, text); lateFiles.push([path, text]);
+        }
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'phpCompanion/planSafeMove', params: { moves: [{ oldUri, newUri }], includeFileOperations: true } }));
+        const response = await output.waitFor(message => message.id === id, 20_000);
+        expect(response.error).toBeUndefined();
+        if (limited) {
+          expect(response.result.error).toBe('Safe Move source scan was incomplete or changed; retry the move.');
+          expect(response.result.edit).toBeUndefined(); continue;
+        }
+        expect(response.result.error).toBeUndefined();
+        expect(response.result.edit.documentChanges).toContainEqual(expect.objectContaining({ kind: 'rename', oldUri, newUri, options: { overwrite: false } }));
+        const edits = response.result.edit.documentChanges.filter((change: { textDocument?: unknown }) => change.textDocument);
+        expect(edits.map((change: { textDocument: { uri: string } }) => change.textDocument.uri).sort()).toEqual([
+          newUri, ...[...files.slice(1), ...lateFiles].map(([path]) => pathToFileURL(path).toString()),
+        ].sort());
+        expect(Object.keys(response.result.sources).sort()).toEqual([...files, ...lateFiles].map(([path]) => pathToFileURL(path).toString()).sort());
+        const vendorUri = pathToFileURL(files[2][0]).toString();
+        expect(edits.find((change: { textDocument: { uri: string } }) => change.textDocument.uri === vendorUri).edits)
+          .toContainEqual(expect.objectContaining({ newText: 'App\\Moved\\MoveRunner' }));
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 104, method: 'phpCompanion/testQueryTimings', params: {} }));
+      expect((await output.waitFor(message => message.id === 104)).result.safeMoveDiskRefresh).toHaveLength(2);
+      for (const [path, text] of [...files, ...lateFiles]) expect(await readFile(path, 'utf8')).toBe(text);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
 
   it('plans Safe Move between global and named PSR-4 namespaces', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-global-safe-move-'));

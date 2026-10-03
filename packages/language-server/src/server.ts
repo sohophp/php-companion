@@ -5190,19 +5190,9 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
   const workspace = await semanticForRoot(root);
   const project = await composerProjectForRoot(root); const mappings = project ? allPsr4Mappings(project) : [];
   projectMappingsByRoot.set(root, mappings);
-  if (!projectCompleteRoots.has(root)) {
-    // Moving a type only needs files mentioning its declared short name (an
-    // import alias also contains that name at its import). Scan all project
-    // sources for candidates, but parse only candidates, not unrelated bodies.
-    const names = new Set<string>(); const syntax = await parser();
-    for (const move of capturedMoves) {
-      const parsed = syntax.parse(move.source);
-      try { for (const declaration of parsed.declarations) names.add(declaration.name.toLowerCase()); }
-      finally { parsed.tree.delete(); }
-    }
-    if (!names.size) return { error: 'Safe Move source has no named declaration.' };
-    if (!await scanNamedCandidates(workspace, root, names, () => token.isCancellationRequested)) return { error: 'Safe Move candidate scan was incomplete or changed; retry the move.' };
-  } else await applyPendingFiles();
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'safeMoveDiskRefresh')) {
+    return { error: 'Safe Move source scan was incomplete or changed; retry the move.' };
+  }
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
     workspace.update(document.uri, document.getText(), true);
   }

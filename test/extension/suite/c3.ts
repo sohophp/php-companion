@@ -5,6 +5,46 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
 
+async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> {
+  const oldUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CurrentMove.php');
+  const newUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3CurrentMove.php');
+  const consumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CurrentMoveConsumer.php');
+  const source = '<?php namespace App\\Service; final class C3CurrentMove {}';
+  const consumer = '<?php namespace App\\Service; function currentMove(C3CurrentMove $value): C3CurrentMove { return $value; }';
+  await vscode.workspace.fs.writeFile(oldUri, Buffer.from(source));
+  await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
+  const document = await vscode.workspace.openTextDocument(oldUri);
+  const consumerDocument = await vscode.workspace.openTextDocument(consumerUri);
+  await vscode.window.showTextDocument(document);
+  let sawPreview = false;
+  const move = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', oldUri, newUri, { preview: true, testPreviewAction });
+  assert.strictEqual(await move(async () => {
+    const previews = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputTextDiff);
+    assert.ok(previews.length >= 2, 'Safe Move omitted a source or consumer preview');
+    sawPreview = true; return 'cancel';
+  }), false);
+  assert.ok(sawPreview, 'Safe Move never reached preview');
+  assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+  await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
+  assert.strictEqual(await move(async () => 'apply'), true);
+  const movedDocument = await vscode.workspace.openTextDocument(newUri);
+  const movedSource = movedDocument.getText(); const editedConsumer = consumerDocument.getText();
+  assert.ok(movedSource.includes('namespace App\\Controller;'));
+  assert.ok(editedConsumer.includes('\\App\\Controller\\C3CurrentMove'));
+  await assert.rejects(async () => vscode.workspace.fs.stat(oldUri));
+  await vscode.window.showTextDocument(movedDocument);
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual((await vscode.workspace.openTextDocument(oldUri)).getText(), source);
+  assert.strictEqual(consumerDocument.getText(), consumer);
+  await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
+  await vscode.commands.executeCommand('redo');
+  assert.strictEqual((await vscode.workspace.openTextDocument(newUri)).getText(), movedSource);
+  assert.strictEqual(consumerDocument.getText(), editedConsumer);
+  await assert.rejects(async () => vscode.workspace.fs.stat(oldUri));
+  console.log('C3 default Safe Move: source and consumer preview, cancel/apply and one Undo/Redo passed');
+}
+
 async function verifyDefaultParameters(folder: vscode.WorkspaceFolder): Promise<void> {
   const directory = vscode.Uri.joinPath(folder.uri, 'src', 'C3Parameters');
   await vscode.workspace.fs.createDirectory(directory);
@@ -364,6 +404,11 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_MOVE_ONLY === '1') {
+    await verifyDefaultMove(folder);
+    console.log('C3 focused default Safe Move completed; this is not the full C3 suite');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_PARAMETERS_ONLY === '1') {
     await verifyDefaultParameters(folder);
     console.log('C3 focused default parameter changes completed; this is not the full C3 suite');
