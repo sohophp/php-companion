@@ -22,6 +22,9 @@ export class VersionManager implements vscode.Disposable {
   private readonly disposables: vscode.Disposable[] = [];
   private readonly stateEmitter = new vscode.EventEmitter<FolderState>();
   private readonly runtimeProbes = new Map<string, Promise<PhpRuntime | undefined>>();
+  private readonly folderGenerations = new Map<string, number>();
+  private nextGeneration = 0;
+  private disposed = false;
   private activeFolder?: vscode.WorkspaceFolder;
   readonly onDidChangeState = this.stateEmitter.event;
 
@@ -35,8 +38,14 @@ export class VersionManager implements vscode.Disposable {
   }
 
   async refresh(folder?: vscode.WorkspaceFolder): Promise<void> {
+    if (this.disposed) return;
     const folders = folder ? [folder] : (vscode.workspace.workspaceFolders ?? []);
     const folderUris = new Set(folders.map((item) => item.uri.toString()));
+    if (!folder) this.folderGenerations.clear();
+    const generations = new Map(folders.map(item => {
+      const key = item.uri.toString(), generation = ++this.nextGeneration;
+      this.folderGenerations.set(key, generation); return [key, generation];
+    }));
     this.runtimeProbes.clear();
     if (folder) {
       this.states.delete(folder.uri.toString());
@@ -65,6 +74,7 @@ export class VersionManager implements vscode.Disposable {
       const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
       const resolution = await resolvePhpVersion({ setting, configuredExecutable, composer });
       const runtime = await this.runtimeFor(resolution, configuredExecutable);
+      if (!this.isCurrentFolder(workspaceFolder, generations.get(workspaceFolder.uri.toString())!)) return;
       const state = { folder: workspaceFolder, ...(composerRoot ? { projectRoot: composerRoot } : {}), composer, resolution, ...(runtime ? { runtime } : {}) };
       this.states.set(workspaceFolder.uri.toString(), state);
       if (composerRoot) {
@@ -77,15 +87,19 @@ export class VersionManager implements vscode.Disposable {
       ? vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri)
       : folders[0];
     const openProjectDocuments = vscode.workspace.textDocuments.filter((document) => document.languageId === 'php' && !document.isUntitled
-      && folderUris.has(vscode.workspace.getWorkspaceFolder(document.uri)?.uri.toString() ?? ''));
+      && folders.some(item => vscode.workspace.getWorkspaceFolder(document.uri)?.uri.toString() === item.uri.toString()
+        && this.isCurrentFolder(item, generations.get(item.uri.toString())!)));
     await Promise.all(openProjectDocuments.map((document) => this.ensureForUri(document.uri)));
     this.render();
   }
 
   async ensureForUri(uri: vscode.Uri): Promise<FolderState | undefined> {
     const folder = vscode.workspace.getWorkspaceFolder(uri);
-    if (!folder) return undefined;
+    if (!folder || this.disposed) return undefined;
+    const generation = this.folderGenerations.get(folder.uri.toString()) ?? ++this.nextGeneration;
+    this.folderGenerations.set(folder.uri.toString(), generation);
     const composerRoot = await findComposerRoot(uri.fsPath, folder.uri.fsPath);
+    if (!this.isCurrentFolder(folder, generation)) return this.stateForUri(uri);
     if (!composerRoot) {
       const existing = this.states.get(folder.uri.toString());
       if (existing) return existing;
@@ -103,6 +117,7 @@ export class VersionManager implements vscode.Disposable {
     });
     const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
     const runtime = await this.runtimeFor(resolution, configuredExecutable);
+    if (!this.isCurrentFolder(folder, generation)) return this.stateForUri(uri);
     const state = { folder, projectRoot: composerRoot, composer, resolution, ...(runtime ? { runtime } : {}) };
     this.projectStates.set(composerRoot, state);
     this.watchComposerProject(composerRoot, uri);
@@ -149,6 +164,7 @@ export class VersionManager implements vscode.Disposable {
   }
 
   private render(): void {
+    if (this.disposed) return;
     const folder = this.activeFolder ?? vscode.workspace.workspaceFolders?.[0];
     const activeUri = vscode.window.activeTextEditor?.document.uri;
     const state = activeUri ? this.stateForUri(activeUri) : folder ? this.states.get(folder.uri.toString()) : undefined;
@@ -168,6 +184,11 @@ export class VersionManager implements vscode.Disposable {
     let probe = this.runtimeProbes.get(command);
     if (!probe) { probe = probePhpRuntime(command); this.runtimeProbes.set(command, probe); }
     return probe;
+  }
+
+  private isCurrentFolder(folder: vscode.WorkspaceFolder, generation: number): boolean {
+    return !this.disposed && this.folderGenerations.get(folder.uri.toString()) === generation
+      && (vscode.workspace.workspaceFolders ?? []).some(item => item.uri.toString() === folder.uri.toString());
   }
 
   private async runtimeFor(resolution: PhpVersionResolution, configuredExecutable?: string): Promise<PhpRuntime | undefined> {
@@ -196,6 +217,8 @@ export class VersionManager implements vscode.Disposable {
   }
 
   dispose(): void {
+    this.disposed = true;
+    this.folderGenerations.clear();
     for (const timer of this.refreshTimers.values()) clearTimeout(timer);
     for (const watcher of this.watchedProjects.values()) watcher.disposable.dispose();
     this.disposables.forEach((item) => item.dispose());
