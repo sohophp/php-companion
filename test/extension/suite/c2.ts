@@ -7,6 +7,48 @@ import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } f
 import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
 import { wordMiddleShapeCases } from './wordMiddleShapeFixture.js';
 
+async function verifyVersionedBuiltinConstructors(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2FileinfoConstructor.php');
+  const disk = '<?php class C2Info extends finfo {} new finfo(';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(disk));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const configuration = vscode.workspace.getConfiguration('phpCompanion', root);
+  const initialVersion = configuration.get('phpVersion');
+  const waitForParameters = async (names: string[]): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider',
+        uri, document.positionAt(document.getText().length));
+      const actual = help?.signatures[0]?.parameters.map(parameter => typeof parameter.label === 'string'
+        ? /\$([A-Za-z_]+)/u.exec(parameter.label)?.[1] : undefined);
+      if (help?.signatures.length === 1 && help.activeParameter === 0 && JSON.stringify(actual) === JSON.stringify(names)) return;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Constructor parameters did not become ${names.join(', ')}: ${document.getText()}`);
+  };
+  const replace = async (source: string): Promise<void> => {
+    assert.ok(await editor.edit(builder => builder.replace(new vscode.Range(document.positionAt(0),
+      document.positionAt(document.getText().length)), source), { undoStopBefore: true, undoStopAfter: true }));
+  };
+  try {
+    for (const version of ['7.2', '8.5']) {
+      await configuration.update('phpVersion', version, vscode.ConfigurationTarget.WorkspaceFolder);
+      const parameters = version === '7.2' ? ['options', 'arg'] : ['flags', 'magic_database'];
+      if (document.getText() !== disk) await replace(disk);
+      await waitForParameters(parameters);
+      await replace(disk.replace('new finfo(', 'new C2Info('));
+      assert.ok(document.isDirty); await waitForParameters(parameters);
+      await replace('<?php class C2Info extends finfo { public function __construct(string $label) {} } new C2Info(');
+      await waitForParameters(['label']);
+      await vscode.commands.executeCommand('undo'); await waitForParameters(parameters);
+      await vscode.commands.executeCommand('redo'); await waitForParameters(['label']);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), disk);
+    }
+    console.log('C2 PHP 7.2/8.5 Fileinfo constructor signatures, inherited parameters, unsaved override and Undo/Redo passed');
+  } finally { await configuration.update('phpVersion', initialVersion, vscode.ConfigurationTarget.WorkspaceFolder); }
+}
+
 async function verifyPropertyAssignmentCompletion(root: vscode.Uri): Promise<void> {
   const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2PropertyRanking.php');
   const source = `<?php
@@ -1417,6 +1459,10 @@ export async function run(): Promise<void> {
   }
   const api = await extension.activate() as { requestLanguageServer?: <T>(method: string, params: unknown) => Promise<T> };
   assert.ok(api.requestLanguageServer, 'SoPHP Core did not expose the test timing request bridge.');
+  if (process.env.PHP_COMPANION_TEST_C2_BUILTIN_CONSTRUCTOR_ONLY === '1') {
+    await verifyVersionedBuiltinConstructors(root.uri);
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C2_PROPERTY_RANK_ONLY === '1') {
     await verifyPropertyAssignmentCompletion(root.uri);
     return;
@@ -1496,6 +1542,7 @@ export async function run(): Promise<void> {
     await verifyParseUrlContractFeedback(root.uri);
     return;
   }
+  await verifyVersionedBuiltinConstructors(root.uri);
   const missingDelimiterUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2MissingDelimiter.php');
   const validDelimiterSource = '<?php function c2MissingDelimiter(): void {}';
   await vscode.workspace.fs.writeFile(missingDelimiterUri, Buffer.from(validDelimiterSource));

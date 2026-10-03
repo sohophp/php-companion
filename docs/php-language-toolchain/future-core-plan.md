@@ -8,6 +8,7 @@
 - [内容未变的文件通知](reports/controller-context-noop-watch-2026-10-04.md)已保留准备结果；真实修改、删除、重建和随后立即查询仍刷新。定向协议 28 项通过；实项目 20 次重复通知只有一次初始扫描。
 - [引用缓存恢复优化](reports/reference-cache-compact-workers-2026-10-04.md)已复用压缩格式及现有 Worker；单轮只读规模测量中缓存准备从 14.22 秒降至 10.11 秒。旧缓存、损坏重建、取消及恢复期间未保存修改回归通过；真实 WSL 长期使用仍开放。
 - [Workspace 版本刷新失效保护](reports/workspace-version-refresh-2026-10-04.md)防止旧异步刷新覆盖新版本或恢复已移除的根；受控交错回归与现有 LSP 版本切换回归通过。真实 WSL 多根使用仍需人工验收。
+- [PHP 7 内建旧式构造函数消费](reports/php7-internal-constructor-consumption-2026-10-04.md)补齐已审计 stubs 的构造参数提示，Fileinfo 两版运行时、语义缓存、LSP 与隔离宿主的未保存修改／Undo/Redo 通过；不据此声明所有旧式用户构造语义完成。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序

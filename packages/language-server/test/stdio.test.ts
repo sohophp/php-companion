@@ -9029,6 +9029,41 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['7.2', '8.5'] as const)('uses versioned internal Fileinfo constructors for signature help at PHP %s', async phpVersion => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-fileinfo-constructor-'));
+    try {
+      const rootUri = pathToFileURL(root).toString(), uri = pathToFileURL(join(root, 'Constructor.php')).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['Constructor.php'] } }));
+      const disk = '<?php class DerivedInfo extends finfo {}'; await writeFile(join(root, 'Constructor.php'), disk);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); let requestId = 7300;
+      const request = async (method: string, params: object): Promise<any> => {
+        const id = ++requestId; server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params }));
+        const response = await output.waitFor(message => message.id === id && !message.method);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri, initializationOptions: { phpVersion, indexingMode: 'onDemand' } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      let version = 0;
+      for (const [expression, expected] of [
+        ['new finfo(', phpVersion === '7.2' ? ['options', 'arg'] : ['flags', 'magic_database']],
+        ['new DerivedInfo(', phpVersion === '7.2' ? ['options', 'arg'] : ['flags', 'magic_database']],
+        ['new OwnInfo(', ['label']],
+      ] as const) {
+        const text = disk + ' class OwnInfo extends finfo { public function __construct(string $label) {} } ' + expression;
+        version++;
+        server.stdin.write(encode(version === 1 ? { jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text } } }
+          : { jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri, version }, contentChanges: [{ text }] } }));
+        await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === version);
+        const help = await request('textDocument/signatureHelp', { textDocument: { uri }, position: lspPosition(text, text.length) });
+        expect(help?.signatures).toHaveLength(1);
+        expect(help.signatures[0].parameters.map((parameter: { label: string }) => /\$([A-Za-z_]+)/u.exec(parameter.label)?.[1])).toEqual(expected);
+        expect(help.activeParameter).toBe(0);
+      }
+      expect(await readFile(join(root, 'Constructor.php'), 'utf8')).toBe(disk);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('completes guarded members of a Fileinfo function result with a false branch', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-fileinfo-false-'));
     try {

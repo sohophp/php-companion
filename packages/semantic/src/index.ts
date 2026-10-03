@@ -11251,6 +11251,15 @@ export class SemanticWorkspace {
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const own = owner.file.callables.filter((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === '__construct');
     if (own.length) return own.map((callable) => ({ file: owner.file, callable }));
+    // Some PHP 7 internal APIs expose their legacy, global class-name
+    // constructor in audited stubs. Ordinary user files have no version
+    // authority here, and namespaced/PHP 8 methods are not constructors.
+    if (owner.file.uri.startsWith('php-companion-builtin:') && /[?&]php=7\.[234](?:&|$)/u.test(owner.file.uri)
+      && !owner.declaration.fqcn.includes('\\')) {
+      const legacy = owner.file.callables.filter(item => item.kind === 'method'
+        && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === key && !item.static);
+      if (legacy.length) return legacy.map(callable => ({ file: owner.file, callable }));
+    }
     const parentName = owner.declaration.extendsNames[0]; if (!parentName) return [];
     const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
     const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn);
