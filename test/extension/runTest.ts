@@ -37,6 +37,10 @@ async function main(): Promise<void> {
   const vscodeExecutablePath = process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE;
   const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
   const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
+  const c3IndexingMode = process.env.PHP_COMPANION_TEST_C3_INDEXING_MODE;
+  if (c3IndexingMode && (!c3Only || !['onDemand', 'progressive', 'experimental'].includes(c3IndexingMode))) {
+    throw new Error('C3 indexing mode requires C3-only mode and onDemand, progressive or experimental.');
+  }
   const routeStatusOnly = process.env.PHP_COMPANION_TEST_ROUTE_STATUS_ONLY === '1';
   const symfonyContextOnly = process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ONLY === '1';
   const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
@@ -55,10 +59,10 @@ async function main(): Promise<void> {
   }
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
-  if (process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1') {
+  if (process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1' || c3IndexingMode) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
-    settings['phpCompanion.indexing.mode'] = 'onDemand';
+    settings['phpCompanion.indexing.mode'] = c3IndexingMode ?? 'onDemand';
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
   }
   if (c1Psr0Dependency) {

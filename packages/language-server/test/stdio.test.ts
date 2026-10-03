@@ -11249,6 +11249,93 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['onDemand', 'progressive'])('prepares and plans complete source Rename in %s mode', async indexingMode => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-default-rename-'));
+    try {
+      const src = join(root, 'src'); const vendor = join(root, 'vendor', 'acme', 'consumer', 'src');
+      await mkdir(src, { recursive: true }); await mkdir(vendor, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/consumer', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/consumer', install_path: '../acme/consumer' }] }));
+      const declaration = '<?php namespace App; class OldName { public const FLAG = 1; public string $state = ""; private function normalize(): void {} public function run(): void { $this->normalize(); echo $this->state, self::FLAG; } } function formatValue(): void {} function useFormat(): void { formatValue(); } const VALUE = 1; function readValue(): int { return VALUE; }';
+      const consumer = '<?php namespace App; function make(OldName $value): OldName { return $value; }';
+      const external = '<?php namespace Acme; use App\\OldName; function useType(OldName $value): OldName { return $value; }';
+      const files = [[join(src, 'OldName.php'), declaration], [join(src, 'Consumer.php'), consumer], [join(vendor, 'Consumer.php'), external]] as const;
+      for (const [path, text] of files) await writeFile(path, text);
+      const uri = pathToFileURL(files[0][0]).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: declaration } } }));
+      const position = lspPosition(declaration, declaration.indexOf('OldName') + 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 102, method: 'textDocument/prepareRename', params: { textDocument: { uri }, position } }));
+      expect((await output.waitFor(message => message.id === 102)).result).toMatchObject({ placeholder: 'OldName' });
+      // Add a consumer without a watcher event after preparation: the edit
+      // request must independently establish current source coverage.
+      const latePath = join(src, 'Late.php'); const late = '<?php namespace App; function late(OldName $item): void {}';
+      await writeFile(latePath, late);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 103, method: 'textDocument/rename', params: { textDocument: { uri }, position, newName: 'NewName' } }));
+      const response = await output.waitFor(message => message.id === 103);
+      expect(response.error).toBeUndefined();
+      const result = response.result;
+      expect(result?.documentChanges).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'rename', oldUri: uri, newUri: pathToFileURL(join(src, 'NewName.php')).toString() })]));
+      const edited = result.documentChanges.filter((change: { textDocument?: unknown }) => change.textDocument);
+      expect(edited.map((change: { textDocument: { uri: string } }) => change.textDocument.uri).sort()).toEqual([...files.map(([path]) => pathToFileURL(path).toString()), pathToFileURL(latePath).toString()].sort());
+      for (const change of edited) expect(change.edits).toEqual(expect.arrayContaining([expect.objectContaining({ newText: 'NewName' })]));
+      let id = 104;
+      for (const [name, newName] of [['normalize', 'normalizeInput'], ['state', 'currentState'], ['FLAG', 'MARKER'], ['formatValue', 'formatInput'], ['VALUE', 'COUNT']] as const) {
+        const requestId = id++;
+        server.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/rename', params: {
+          textDocument: { uri }, position: lspPosition(declaration, declaration.indexOf(name) + 2), newName,
+        } }));
+        const renamed = await output.waitFor(message => message.id === requestId);
+        expect(renamed.error).toBeUndefined();
+        expect(renamed.result?.changes?.[uri]).toHaveLength(2);
+        expect(renamed.result.changes[uri].every((edit: { newText: string }) => edit.newText === newName)).toBe(true);
+      }
+      for (const [path, text] of [...files, [latePath, late]]) expect(await readFile(path!, 'utf8')).toBe(text);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it.each(['onDemand', 'progressive'])('rejects Rename when dependency source exceeds the budget in %s mode', async indexingMode => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-default-rename-limit-'));
+    try {
+      const src = join(root, 'src'); const vendor = join(root, 'vendor', 'acme', 'consumer', 'src');
+      await mkdir(src, { recursive: true }); await mkdir(vendor, { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/consumer', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/consumer', install_path: '../acme/consumer' }] }));
+      const source = '<?php namespace App; class OldName {}'; const path = join(src, 'OldName.php'); const uri = pathToFileURL(path).toString();
+      const external = '<?php namespace Acme; function useType(\\App\\OldName $value): void {}'; const externalPath = join(vendor, 'Consumer.php');
+      await writeFile(path, source); await writeFile(externalPath, external);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          phpVersion: '8.5', indexingMode, testMode: true, indexLimits: { maxFiles: 1, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 },
+        },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const position = lspPosition(source, source.indexOf('OldName') + 2);
+      for (const [id, method] of [[102, 'prepareRename'], [103, 'rename']] as const) {
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: `textDocument/${method}`, params: { textDocument: { uri }, position, newName: 'NewName' } }));
+        const response = await output.waitFor(message => message.id === id);
+        expect(response.error).toBeUndefined(); expect(response.result).toBeNull();
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 104, method: 'phpCompanion/testQueryTimings', params: {} }));
+      expect((await output.waitFor(message => message.id === 104)).result.renameDiskRefresh).toHaveLength(2);
+      expect(await readFile(path, 'utf8')).toBe(source); expect(await readFile(externalPath, 'utf8')).toBe(external);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it.skipIf(process.platform === 'win32')('rejects unstatable and dangling symlink Rename destinations', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-rename-link-target-'));
     try {

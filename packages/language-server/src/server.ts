@@ -7768,7 +7768,10 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
     ?? workspace.localVariableRename(document.uri, offset);
-  if (!scopedTarget && !completeRoots.has(root)) return null;
+  // Lazy/source-only startup does not mark the global reference index complete.
+  // Ordinary Rename can establish its own complete, current PHP source scope.
+  if (!scopedTarget && !completeRoots.has(root)
+    && !await refreshRenameDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
   const target = scopedTarget ?? canonicalTypeRename(workspace, root, document.uri, offset)
     ?? workspace.methodRename(document.uri, offset)
     ?? workspace.propertyRename(document.uri, offset)
@@ -7847,7 +7850,6 @@ connection.onRenameRequest(async (params, token) => {
       if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
       scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
         ?? workspace.localVariableRename(document.uri, offset, newName);
-      if (!scopedTarget && !completeRoots.has(root)) return null;
     }
   }
   // Watcher delivery can lag behind a new disk consumer. A completed earlier

@@ -31,3 +31,5 @@
 - Language Server 构建、production bundle、根 noEmit、宿主编译、相关 ESLint 及 diff check 通过；没有重跑完整 C3 或全量协议。
 
 该临时探针最初等待 progressive 的全局 complete=true，但项目准备已结束且该模式报告 complete=false；修正等待后，类型 Rename 仍没有文件改名计划。完整索引模式才用于上述文件系统别名验证，不把模式替换当作默认模式问题已解决。后续优先核对 onDemand／progressive 的类型 Rename 完整性条件及用户反馈；当前不依据此单个探针给两种模式整体下结论。
+
+随后完成[默认模式 Rename 定向修复](default-indexing-rename-2026-10-04.md)：使用独立完整源码扫描替代旧全局标记拒绝，双模式协议及串行宿主通过；预算反例、首次并行失败及真人边界分别保留。

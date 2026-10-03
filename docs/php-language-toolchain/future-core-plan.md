@@ -11,6 +11,7 @@
 - [PHP 7 内建旧式构造函数消费](reports/php7-internal-constructor-consumption-2026-10-04.md)补齐已审计 stubs 的构造参数提示，Fileinfo 两版运行时、语义缓存、LSP 与隔离宿主的未保存修改／Undo/Redo 通过；不据此声明所有旧式用户构造语义完成。
 - [连续编辑与持久缓存恢复](reports/session-persistent-cache-recovery-2026-10-04.md)在独立 10,131 文件项目通过 1,000 次编辑与冷／暖／损坏缓存重启；暖准备命中 9,102 个项目文件，诊断、Hover、跳转 P95 在预算内。离散 RSS 与一次恢复测量不替代峰值、五轮性能或真实长期使用验收。
 - [Rename 目标预检](reports/rename-destination-preflight-2026-10-04.md)不再把文件系统故障当作目标缺失；默认 LSP 同时拒绝链接及独立大小写目标冲突，保留同一文件大小写别名。定向协议、当前隔离宿主的取消／应用／UndoRedo 及挂载 Windows 文件系统的别名协议探针通过；Remote 权限、原生 Windows 与整体 C3 验收单列。
+- [默认索引模式 Rename](reports/default-indexing-rename-2026-10-04.md)改为按请求验证完整当前 PHP 源码及依赖，不再因 onDemand／progressive 的全局索引标记缺失而直接拒绝。十项定向协议及双模式串行宿主通过，超预算继续拒绝；首次并行失败保留，大规模与真实使用单列。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序
@@ -18,7 +19,7 @@
 1. 先收集当前真人候选的使用反馈；有可复现错误时按补全相关性、接受文本、版本一致性及等待时间排序。原有 60 场景与 D01–D42 正反例继续作为固定门槛，见[冻结补全语料](completion-acceptance-corpus.md)。本次整理不减少场景或放宽预算。
 2. C1 继续核对真实 WSL 的引用准备终态、冷启动、未保存编辑与长期使用。两版冷／缓存／取消已有[自动化进度记录](reports/reference-progress-lifecycle-2026-10-03.md)；实项目缓存启动未明显加速，真实 WSL 与 Symfony 组合仍开放。完整 LSP 510 项已由[Core 里程碑](reports/core-source-checkpoint-2026-10-03.md)覆盖，不能替代真人验收。
 3. C2 沿赋值、返回、实参、集合、PHPDoc 及控制流检查同一类型事实驱动各查询。stubs 数据与 Core 接入已提交；[D42 回调累加器](reports/completion-array-callback-carry-2026-10-03.md)当前语义、缓存、LSP、Windows 及性能证据已收口，动态或有副作用路径继续保守。按实际缺口推进，不重复已有证明。
-4. C3 核对 Rename／Import／生成及提取的预览、取消、Undo/Redo 和失效保护。优先核对 onDemand／progressive 类型 Rename 的完整性前置条件；完整索引模式的证明不替代默认模式使用。已有自动化证明继续复用；跨平台、Remote 可见交互与真实规模操作未整体关闭，不能由单个 createFile 修复推导整阶段完成。
+4. C3 核对 Rename／Import／生成及提取的预览、取消、Undo/Redo 和失效保护。onDemand／progressive 的普通 Rename 已有按请求完整扫描及定向宿主证明；继续核对其它重构的默认模式前置条件及真实规模等待。已有自动化证明继续复用；跨平台、Remote 可见交互与真实规模操作未整体关闭，不能由单个 createFile 修复推导整阶段完成。
 5. C4 核对工具所有权、外部扩展组合、PHP 版本及平台矩阵、长期会话与缓存恢复。[格式化修补候选](reports/c4-formatter-source-profile-candidate-2026-10-03.md)仍是可选开发候选，未修改用户默认格式化器。VS Code 批量输入的[getItemsByProvider 异常](reports/completion-suggest-context-reentrancy-2026-10-03.md)仍未解决；保留复现，避免反复采用同一失败方法。
 
 同一开发分支推进；日常增量不打包、推送或发布。必要里程碑先整理文档和可复用验证工具，再做本地提交；真人候选仅按用户要求更新。用户已要求继续开发，goal 当前为 active，开发按本节顺序推进。

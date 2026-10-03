@@ -202,7 +202,10 @@ async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<
   const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
   const position = document.positionAt(source.indexOf(oldName) + 2);
   const rename = (testPreviewAction: () => Promise<'apply' | 'cancel'>, name = newName): Thenable<boolean> =>
-    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', { uri, position, newName: name, testPreviewAction });
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', { uri, position, newName: name, testPreviewAction,
+      testAfterPlan: async () => { console.log(`C3 destination plan ready: ${name}`); },
+      testBeforeApply: async () => { console.log(`C3 destination before apply: ${name}`); },
+    });
   const deadline = Date.now() + 15_000;
   let ready = false;
   do {
@@ -264,6 +267,11 @@ async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<
 export async function run(): Promise<void> {
   const folder = vscode.workspace.workspaceFolders?.[0];
   assert.ok(folder, 'C3 import request test requires the Composer fixture');
+  const c3IndexingMode = process.env.PHP_COMPANION_TEST_C3_INDEXING_MODE;
+  if (c3IndexingMode) {
+    assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', folder.uri).get('indexing.mode'), c3IndexingMode);
+    console.log(`C3 active fixture indexing mode: ${c3IndexingMode}`);
+  }
   const phpunitProfile = process.env.PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE === '1'
     || process.env.PHP_COMPANION_TEST_TEST_PROVIDER_ID !== undefined;
   const testProviderId = process.env.PHP_COMPANION_TEST_TEST_PROVIDER_ID ?? 'recca0120.vscode-phpunit';
