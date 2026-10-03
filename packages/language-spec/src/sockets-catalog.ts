@@ -1,0 +1,1247 @@
+// Names and numeric values generated from JetBrains/phpstorm-stubs at e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681, sockets/sockets.php.
+// Signatures and additional runtime names are checked against local PHP 7.2-8.5 reflection. Apache-2.0; see THIRD_PARTY_NOTICES.md.
+export const SOCKET_FUNCTIONS = ["socket_accept","socket_addrinfo_bind","socket_addrinfo_connect","socket_addrinfo_explain","socket_addrinfo_lookup","socket_atmark","socket_bind","socket_clear_error","socket_close","socket_cmsg_space","socket_connect","socket_create","socket_create_listen","socket_create_pair","socket_export_stream","socket_get_option","socket_getopt","socket_getpeername","socket_getsockname","socket_import_stream","socket_last_error","socket_listen","socket_read","socket_recv","socket_recvfrom","socket_recvmsg","socket_select","socket_send","socket_sendmsg","socket_sendto","socket_set_block","socket_set_nonblock","socket_set_option","socket_setopt","socket_shutdown","socket_strerror","socket_write","socket_wsaprotocol_info_export","socket_wsaprotocol_info_import","socket_wsaprotocol_info_release"] as const;
+export const SOCKET_CONSTANTS = {
+  "AF_INET": 2,
+  "AF_INET6": 10,
+  "AF_PACKET": 17,
+  "AF_UNIX": 1,
+  "AF_UNSPEC": 0,
+  "AI_ADDRCONFIG": 32,
+  "AI_ALL": 16,
+  "AI_CANONNAME": 2,
+  "AI_NUMERICHOST": 4,
+  "AI_NUMERICSERV": 1024,
+  "AI_PASSIVE": 1,
+  "AI_V4MAPPED": 8,
+  "EAI_ADDRFAMILY": -9,
+  "EAI_AGAIN": -3,
+  "EAI_ALLDONE": -103,
+  "EAI_BADFLAGS": -1,
+  "EAI_CANCELED": -101,
+  "EAI_FAIL": -4,
+  "EAI_FAMILY": -6,
+  "EAI_IDN_ENCODE": -105,
+  "EAI_INPROGRESS": -100,
+  "EAI_INTR": -104,
+  "EAI_NODATA": -5,
+  "EAI_NONAME": -2,
+  "EAI_NOTCANCELED": -102,
+  "EAI_OVERFLOW": -12,
+  "EAI_SERVICE": -8,
+  "EAI_SOCKTYPE": -7,
+  "EAI_SYSTEM": -11,
+  "ETH_P_ALL": 3,
+  "ETH_P_IP": 2048,
+  "ETH_P_IPV6": 34525,
+  "ETH_P_LOOP": 96,
+  "IP_BIND_ADDRESS_NO_PORT": 24,
+  "IP_MTU_DISCOVER": 10,
+  "IP_MULTICAST_IF": 32,
+  "IP_MULTICAST_LOOP": 34,
+  "IP_MULTICAST_TTL": 33,
+  "IP_PMTUDISC_DO": 2,
+  "IP_PMTUDISC_DONT": 0,
+  "IP_PMTUDISC_INTERFACE": 4,
+  "IP_PMTUDISC_OMIT": 5,
+  "IP_PMTUDISC_PROBE": 3,
+  "IP_PMTUDISC_WANT": 1,
+  "IPPROTO_ICMP": 1,
+  "IPPROTO_ICMPV6": 58,
+  "IPPROTO_IP": 0,
+  "IPPROTO_IPV6": 41,
+  "IPV6_HOPLIMIT": 52,
+  "IPV6_MULTICAST_HOPS": 18,
+  "IPV6_MULTICAST_IF": 17,
+  "IPV6_MULTICAST_LOOP": 19,
+  "IPV6_PKTINFO": 50,
+  "IPV6_RECVHOPLIMIT": 51,
+  "IPV6_RECVPKTINFO": 49,
+  "IPV6_RECVTCLASS": 66,
+  "IPV6_TCLASS": 67,
+  "IPV6_UNICAST_HOPS": 16,
+  "IPV6_V6ONLY": 26,
+  "MCAST_BLOCK_SOURCE": 43,
+  "MCAST_JOIN_GROUP": 42,
+  "MCAST_JOIN_SOURCE_GROUP": 46,
+  "MCAST_LEAVE_GROUP": 45,
+  "MCAST_LEAVE_SOURCE_GROUP": 47,
+  "MCAST_UNBLOCK_SOURCE": 44,
+  "MSG_CMSG_CLOEXEC": 1073741824,
+  "MSG_CONFIRM": 2048,
+  "MSG_CTRUNC": 8,
+  "MSG_DONTROUTE": 4,
+  "MSG_DONTWAIT": 64,
+  "MSG_EOF": 512,
+  "MSG_EOR": 128,
+  "MSG_ERRQUEUE": 8192,
+  "MSG_MORE": 32768,
+  "MSG_NOSIGNAL": 16384,
+  "MSG_OOB": 1,
+  "MSG_PEEK": 2,
+  "MSG_TRUNC": 32,
+  "MSG_WAITALL": 256,
+  "MSG_WAITFORONE": 65536,
+  "MSG_ZEROCOPY": 67108864,
+  "PHP_BINARY_READ": 2,
+  "PHP_NORMAL_READ": 1,
+  "SCM_CREDENTIALS": 2,
+  "SCM_RIGHTS": 1,
+  "SHUT_RD": 0,
+  "SHUT_RDWR": 2,
+  "SHUT_WR": 1,
+  "SKF_AD_ALU_XOR_X": 40,
+  "SKF_AD_CPU": 36,
+  "SKF_AD_HATYPE": 28,
+  "SKF_AD_IFINDEX": 8,
+  "SKF_AD_MARK": 20,
+  "SKF_AD_MAX": 64,
+  "SKF_AD_NLATTR": 12,
+  "SKF_AD_NLATTR_NEST": 16,
+  "SKF_AD_OFF": -4096,
+  "SKF_AD_PAY_OFFSET": 52,
+  "SKF_AD_PKTTYPE": 4,
+  "SKF_AD_PROTOCOL": 0,
+  "SKF_AD_QUEUE": 24,
+  "SKF_AD_RANDOM": 56,
+  "SKF_AD_RXHASH": 32,
+  "SKF_AD_VLAN_TAG": 44,
+  "SKF_AD_VLAN_TAG_PRESENT": 48,
+  "SKF_AD_VLAN_TPID": 60,
+  "SO_ATTACH_REUSEPORT_CBPF": 51,
+  "SO_BINDTODEVICE": 25,
+  "SO_BINDTOIFINDEX": 62,
+  "SO_BPF_EXTENSIONS": 48,
+  "SO_BROADCAST": 6,
+  "SO_BUSY_POLL": 46,
+  "SO_DEBUG": 1,
+  "SO_DETACH_BPF": 27,
+  "SO_DETACH_FILTER": 27,
+  "SO_DONTROUTE": 5,
+  "SO_ERROR": 4,
+  "SO_INCOMING_CPU": 49,
+  "SO_KEEPALIVE": 9,
+  "SO_LINGER": 13,
+  "SO_MARK": 36,
+  "SO_MEMINFO": 55,
+  "SO_OOBINLINE": 10,
+  "SO_PASSCRED": 16,
+  "SO_RCVBUF": 8,
+  "SO_RCVLOWAT": 18,
+  "SO_RCVTIMEO": 20,
+  "SO_REUSEADDR": 2,
+  "SO_REUSEPORT": 15,
+  "SO_SNDBUF": 7,
+  "SO_SNDLOWAT": 19,
+  "SO_SNDTIMEO": 21,
+  "SO_TYPE": 3,
+  "SO_ZEROCOPY": 60,
+  "SOCK_CLOEXEC": 524288,
+  "SOCK_DCCP": 6,
+  "SOCK_DGRAM": 2,
+  "SOCK_NONBLOCK": 2048,
+  "SOCK_RAW": 3,
+  "SOCK_RDM": 4,
+  "SOCK_SEQPACKET": 5,
+  "SOCK_STREAM": 1,
+  "SOCKET_E2BIG": 7,
+  "SOCKET_EACCES": 13,
+  "SOCKET_EADDRINUSE": 98,
+  "SOCKET_EADDRNOTAVAIL": 99,
+  "SOCKET_EADV": 68,
+  "SOCKET_EAFNOSUPPORT": 97,
+  "SOCKET_EAGAIN": 11,
+  "SOCKET_EALREADY": 114,
+  "SOCKET_EBADE": 52,
+  "SOCKET_EBADF": 9,
+  "SOCKET_EBADFD": 77,
+  "SOCKET_EBADMSG": 74,
+  "SOCKET_EBADR": 53,
+  "SOCKET_EBADRQC": 56,
+  "SOCKET_EBADSLT": 57,
+  "SOCKET_EBUSY": 16,
+  "SOCKET_ECHRNG": 44,
+  "SOCKET_ECOMM": 70,
+  "SOCKET_ECONNABORTED": 103,
+  "SOCKET_ECONNREFUSED": 111,
+  "SOCKET_ECONNRESET": 104,
+  "SOCKET_EDESTADDRREQ": 89,
+  "SOCKET_EDISCON": 10101,
+  "SOCKET_EDQUOT": 122,
+  "SOCKET_EEXIST": 17,
+  "SOCKET_EFAULT": 14,
+  "SOCKET_EHOSTDOWN": 112,
+  "SOCKET_EHOSTUNREACH": 113,
+  "SOCKET_EIDRM": 43,
+  "SOCKET_EINPROGRESS": 115,
+  "SOCKET_EINTR": 4,
+  "SOCKET_EINVAL": 22,
+  "SOCKET_EIO": 5,
+  "SOCKET_EISCONN": 106,
+  "SOCKET_EISDIR": 21,
+  "SOCKET_EISNAM": 120,
+  "SOCKET_EL2HLT": 51,
+  "SOCKET_EL2NSYNC": 45,
+  "SOCKET_EL3HLT": 46,
+  "SOCKET_EL3RST": 47,
+  "SOCKET_ELNRNG": 48,
+  "SOCKET_ELOOP": 40,
+  "SOCKET_EMEDIUMTYPE": 124,
+  "SOCKET_EMFILE": 24,
+  "SOCKET_EMLINK": 31,
+  "SOCKET_EMSGSIZE": 90,
+  "SOCKET_EMULTIHOP": 72,
+  "SOCKET_ENAMETOOLONG": 36,
+  "SOCKET_ENETDOWN": 100,
+  "SOCKET_ENETRESET": 102,
+  "SOCKET_ENETUNREACH": 101,
+  "SOCKET_ENFILE": 23,
+  "SOCKET_ENOANO": 55,
+  "SOCKET_ENOBUFS": 105,
+  "SOCKET_ENOCSI": 50,
+  "SOCKET_ENODATA": 61,
+  "SOCKET_ENODEV": 19,
+  "SOCKET_ENOENT": 2,
+  "SOCKET_ENOLCK": 37,
+  "SOCKET_ENOLINK": 67,
+  "SOCKET_ENOMEDIUM": 123,
+  "SOCKET_ENOMEM": 12,
+  "SOCKET_ENOMSG": 42,
+  "SOCKET_ENONET": 64,
+  "SOCKET_ENOPROTOOPT": 92,
+  "SOCKET_ENOSPC": 28,
+  "SOCKET_ENOSR": 63,
+  "SOCKET_ENOSTR": 60,
+  "SOCKET_ENOSYS": 38,
+  "SOCKET_ENOTBLK": 15,
+  "SOCKET_ENOTCONN": 107,
+  "SOCKET_ENOTDIR": 20,
+  "SOCKET_ENOTEMPTY": 39,
+  "SOCKET_ENOTSOCK": 88,
+  "SOCKET_ENOTTY": 25,
+  "SOCKET_ENOTUNIQ": 76,
+  "SOCKET_ENXIO": 6,
+  "SOCKET_EOPNOTSUPP": 95,
+  "SOCKET_EPERM": 1,
+  "SOCKET_EPFNOSUPPORT": 96,
+  "SOCKET_EPIPE": 32,
+  "SOCKET_EPROCLIM": 10067,
+  "SOCKET_EPROTO": 71,
+  "SOCKET_EPROTONOSUPPORT": 93,
+  "SOCKET_EPROTOTYPE": 91,
+  "SOCKET_EREMCHG": 78,
+  "SOCKET_EREMOTE": 66,
+  "SOCKET_EREMOTEIO": 121,
+  "SOCKET_ERESTART": 85,
+  "SOCKET_EROFS": 30,
+  "SOCKET_ESHUTDOWN": 108,
+  "SOCKET_ESOCKTNOSUPPORT": 94,
+  "SOCKET_ESPIPE": 29,
+  "SOCKET_ESRMNT": 69,
+  "SOCKET_ESTALE": 10070,
+  "SOCKET_ESTRPIPE": 86,
+  "SOCKET_ETIME": 62,
+  "SOCKET_ETIMEDOUT": 110,
+  "SOCKET_ETOOMANYREFS": 109,
+  "SOCKET_EUNATCH": 49,
+  "SOCKET_EUSERS": 87,
+  "SOCKET_EWOULDBLOCK": 11,
+  "SOCKET_EXDEV": 18,
+  "SOCKET_EXFULL": 54,
+  "SOCKET_HOST_NOT_FOUND": 11001,
+  "SOCKET_NO_ADDRESS": 11004,
+  "SOCKET_NO_DATA": 11004,
+  "SOCKET_NO_RECOVERY": 11003,
+  "SOCKET_NOTINITIALISED": 10093,
+  "SOCKET_SYSNOTREADY": 10091,
+  "SOCKET_TRY_AGAIN": 11002,
+  "SOCKET_VERNOTSUPPORTED": 10092,
+  "SOL_SOCKET": 1,
+  "SOL_TCP": 6,
+  "SOL_UDP": 17,
+  "SOL_UDPLITE": 136,
+  "SOMAXCONN": 128,
+  "TCP_CONGESTION": 13,
+  "TCP_DEFER_ACCEPT": 9,
+  "TCP_KEEPCNT": 6,
+  "TCP_KEEPIDLE": 4,
+  "TCP_KEEPINTVL": 5,
+  "TCP_NODELAY": 1,
+  "TCP_NOTSENT_LOWAT": 25,
+  "TCP_QUICKACK": 12,
+  "TCP_REPAIR": 19,
+  "TCP_SYNCNT": 7,
+  "TCP_USER_TIMEOUT": 18,
+  "UDP_SEGMENT": 103
+} as const;
+export const SOCKET_RUNTIME_EXTRA_CONSTANTS = ["AI_CANONIDN","AI_IDN","AI_IDN_ALLOW_UNASSIGNED","AI_IDN_USE_STD3_ASCII_RULES"] as const;
+export const SOCKET_SIGNATURES = {
+  "socket_accept": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_addrinfo_bind": {
+    "parameters": [
+      {
+        "name": "address",
+        "type": "AddressInfo",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_addrinfo_connect": {
+    "parameters": [
+      {
+        "name": "address",
+        "type": "AddressInfo",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_addrinfo_explain": {
+    "parameters": [
+      {
+        "name": "address",
+        "type": "AddressInfo",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "array"
+  },
+  "socket_addrinfo_lookup": {
+    "parameters": [
+      {
+        "name": "host",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "service",
+        "type": "?string",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "hints",
+        "type": "array",
+        "byRef": false,
+        "optional": true,
+        "default": [],
+        "defaultConstant": null
+      }
+    ],
+    "return": "array|false"
+  },
+  "socket_bind": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_clear_error": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "?Socket",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "void"
+  },
+  "socket_close": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "void"
+  },
+  "socket_cmsg_space": {
+    "parameters": [
+      {
+        "name": "level",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "num",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "?int"
+  },
+  "socket_connect": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": "?int",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_create": {
+    "parameters": [
+      {
+        "name": "domain",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "protocol",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_create_listen": {
+    "parameters": [
+      {
+        "name": "port",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "backlog",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 128,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_create_pair": {
+    "parameters": [
+      {
+        "name": "domain",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "type",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "protocol",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "pair",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_export_stream": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": null
+  },
+  "socket_get_option": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "level",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "option",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "array|int|false"
+  },
+  "socket_getopt": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "level",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "option",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "array|int|false"
+  },
+  "socket_getpeername": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": null,
+        "byRef": true,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_getsockname": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": null,
+        "byRef": true,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_import_stream": {
+    "parameters": [
+      {
+        "name": "stream",
+        "type": null,
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_last_error": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "?Socket",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int"
+  },
+  "socket_listen": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "backlog",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_read": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "mode",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 2,
+        "defaultConstant": "PHP_BINARY_READ"
+      }
+    ],
+    "return": "string|false"
+  },
+  "socket_recv": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "data",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_recvfrom": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "data",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": null,
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": null,
+        "byRef": true,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_recvmsg": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "message",
+        "type": "array",
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_select": {
+    "parameters": [
+      {
+        "name": "read",
+        "type": "?array",
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "write",
+        "type": "?array",
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "except",
+        "type": "?array",
+        "byRef": true,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "seconds",
+        "type": "?int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "microseconds",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_send": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "data",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_sendmsg": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "message",
+        "type": "array",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 0,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_sendto": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "data",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "flags",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "address",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "port",
+        "type": "?int",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  },
+  "socket_set_block": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_set_nonblock": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_set_option": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "level",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "option",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "value",
+        "type": null,
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_setopt": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "level",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "option",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "value",
+        "type": null,
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_shutdown": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "mode",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 2,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  },
+  "socket_strerror": {
+    "parameters": [
+      {
+        "name": "error_code",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "string"
+  },
+  "socket_write": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "data",
+        "type": "string",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "length",
+        "type": "?int",
+        "byRef": false,
+        "optional": true,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "int|false"
+  }
+} as const;
+export const SOCKET_SIGNATURES_84_OVERRIDES = {
+  "socket_create_listen": {
+    "parameters": [
+      {
+        "name": "port",
+        "type": "int",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      },
+      {
+        "name": "backlog",
+        "type": "int",
+        "byRef": false,
+        "optional": true,
+        "default": 128,
+        "defaultConstant": "SOMAXCONN"
+      }
+    ],
+    "return": "Socket|false"
+  },
+  "socket_atmark": {
+    "parameters": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "byRef": false,
+        "optional": false,
+        "default": null,
+        "defaultConstant": null
+      }
+    ],
+    "return": "bool"
+  }
+} as const;

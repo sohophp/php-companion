@@ -13,6 +13,8 @@
     "dist",
     "README.md",
     "LICENSE",
+    "LICENSE-phpstorm-stubs.txt",
+    "THIRD_PARTY_NOTICES.md",
     "SOURCES.md",
     "CHANGELOG.md"
   ],

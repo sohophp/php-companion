@@ -1,29 +1,306 @@
+import { auditedGetrusageStub, normalizeGetrusageRuntimeFacts, type GetrusageRuntimeFacts } from './getrusage.js';
+export { normalizeGetrusageRuntimeFacts, type GetrusageRuntimeFacts } from './getrusage.js';
 import semver from 'semver';
+import { auditedCoreAttributeStub } from './core-attributes.js';
+import { auditedCoreRuntimeTypeStub } from './core-runtime-types.js';
+import { auditedDateFunctionsStub } from './date-functions.js';
+import { auditedStandardArrayStub } from './standard-array.js';
+import { auditedStandardTimeStub } from './standard-time.js';
+import { auditedStandardStreamStub } from './standard-stream.js';
+import { auditedStandardStreamIoStub } from './standard-stream-io.js';
+import { auditedStandardStreamSocketStub } from './standard-stream-socket.js';
+import { auditedStandardStreamWrapperStub } from './standard-stream-wrapper.js';
+import { auditedStandardUtilitiesStub } from './standard-utilities.js';
+import { auditedStandardPlatformStub } from './standard-platform.js';
 import { auditedReflectionCoreStub } from './reflection.js';
-import { auditedMbstringStub } from './mbstring.js';
+import { auditedReflectionExtensionStub } from './reflection-extensions.js';
+import { auditedMbstringStub, normalizeMbOnigurumaVersion } from './mbstring.js';
+export { normalizeMbOnigurumaVersion } from './mbstring.js';
 import { auditedLibxmlStub, auditedSimpleXmlStub, auditedXmlParserStub } from './xml.js';
 import { auditedXmlReaderStub, auditedXmlWriterStub } from './xml-io.js';
 import { auditedClassicDomStub } from './dom-classic.js';
 import { auditedModernDomStub } from './dom-modern.js';
+import { auditedCtypeStub } from './ctype.js';
+import { auditedBz2Stub } from './bz2.js';
+import { auditedCalendarStub } from './calendar.js';
+import { auditedReadlineStub, normalizeReadlineLib } from './readline.js';
+import { auditedFtpStub } from './ftp.js';
+import { auditedPgsqlStub, normalizePgsqlRuntimeFacts } from './pgsql.js';
+import type { PgsqlRuntimeFacts } from './pgsql.js';
+export { normalizePgsqlRuntimeFacts } from './pgsql.js';
+export type { PgsqlRuntimeFacts } from './pgsql.js';
+import { auditedXslStub, normalizeXslRuntimeFacts } from './xsl.js';
+import { auditedYamlStub } from './yaml.js';
+import { auditedIgbinaryStub } from './igbinary.js';
+import { auditedMsgpackStub } from './msgpack.js';
+import { auditedMcryptStub } from './mcrypt.js';
+import { auditedPosixStub, normalizePosixRuntimeConstants } from './posix.js';
+import type { PosixRuntimeConstants } from './posix.js';
+export { normalizePosixRuntimeConstants } from './posix.js';
+export type { PosixRuntimeConstants } from './posix.js';
+import { auditedShmopStub } from './shmop.js';
+import { auditedSysvIpcStub, normalizeSysvMsgRuntimeConstants } from './sysv-ipc.js';
+import type { SysvMsgRuntimeConstants } from './sysv-ipc.js';
+export { normalizeSysvMsgRuntimeConstants } from './sysv-ipc.js';
+export type { SysvMsgRuntimeConstants } from './sysv-ipc.js';
+import { auditedRedisStub, normalizeRedisRuntimeFacts } from './redis.js';
+import { auditedImagickStub, normalizeImagickRuntimeFacts } from './imagick.js';
+import type { ImagickRuntimeFacts } from './imagick.js';
+export { normalizeImagickRuntimeFacts } from './imagick.js';
+export type { ImagickRuntimeFacts } from './imagick.js';
+import type { RedisRuntimeFacts } from './redis.js';
+export { normalizeRedisRuntimeFacts } from './redis.js';
+export type { RedisRuntimeFacts } from './redis.js';
+import type { XslRuntimeFacts } from './xsl.js';
+export { normalizeXslRuntimeFacts } from './xsl.js';
+export type { XslRuntimeFacts } from './xsl.js';
+export { normalizeReadlineLib } from './readline.js';
+import { auditedTokenizerStub, normalizeTokenizerRuntimeFacts } from './tokenizer.js';
+import { auditedApcuStub, normalizeApcuRuntimeFacts } from './apcu.js';
+import type { ApcuRuntimeFacts } from './apcu.js';
+export { normalizeApcuRuntimeFacts } from './apcu.js';
+export type { ApcuRuntimeFacts } from './apcu.js';
+export { APCU_KNOWN_CONSTANT_NAMES } from './apcu-catalog.js';
+export { APCU_FUNCTION_NAMES } from './apcu-catalog.js';
+export { TOKENIZER_KNOWN_CONSTANT_NAMES } from './tokenizer-catalog.js';
+import type { TokenizerRuntimeFacts } from './tokenizer.js';
+export { normalizeTokenizerRuntimeFacts } from './tokenizer.js';
+export type { TokenizerRuntimeFacts } from './tokenizer.js';
+import { auditedBcMathStub } from './bcmath.js';
+import { auditedIconvStub } from './iconv.js';
+import { auditedCurlStub, compactCurlRuntimeFacts, expandCurlRuntimeFacts, normalizeCurlRuntimeFacts } from './curl.js';
+import type { CurlRuntimeFacts } from './curl.js';
+export { CURL_KNOWN_CONSTANT_NAMES, normalizeCurlRuntimeFacts } from './curl.js';
+export type { CurlRuntimeFacts } from './curl.js';
+import { auditedGdStub, compactGdRuntimeFacts, expandGdRuntimeFacts, normalizeGdRuntimeFacts } from './gd.js';
+import type { GdRuntimeFacts } from './gd.js';
+export { GD_KNOWN_CONSTANT_NAMES, normalizeGdRuntimeFacts } from './gd.js';
+export type { GdRuntimeFacts } from './gd.js';
+import { auditedExifStub } from './exif.js';
+import { auditedGettextStub } from './gettext.js';
+import { auditedFileinfoStub } from './fileinfo.js';
+import { auditedHashStub } from './hash.js';
+import { MHASH_FUNCTIONS } from './hash-catalog.js';
+import { auditedZipStub, compactZipRuntimeFacts, expandZipRuntimeFacts, normalizeZipRuntimeFacts } from './zip.js';
+import type { ZipRuntimeFacts } from './zip.js';
+export { normalizeZipRuntimeFacts } from './zip.js';
+export type { ZipRuntimeFacts } from './zip.js';
+import { auditedZlibStub, normalizeZlibRuntimeFacts } from './zlib.js';
+import type { ZlibRuntimeFacts } from './zlib.js';
+export { normalizeZlibRuntimeFacts } from './zlib.js';
+export type { ZlibRuntimeFacts } from './zlib.js';
+import { auditedSocketsStub, compactSocketsRuntimeFacts, expandSocketsRuntimeFacts, normalizeSocketsRuntimeFacts } from './sockets.js';
+import { auditedPcntlStub, compactPcntlRuntimeFacts, expandPcntlRuntimeFacts, normalizePcntlRuntimeFacts } from './pcntl.js';
+import type { PcntlRuntimeFacts } from './pcntl.js';
+export { normalizePcntlRuntimeFacts } from './pcntl.js';
+export type { PcntlRuntimeFacts } from './pcntl.js';
+import type { SocketsRuntimeFacts } from './sockets.js';
+export { normalizeSocketsRuntimeFacts } from './sockets.js';
+export type { SocketsRuntimeFacts } from './sockets.js';
+import { auditedOpenSslStub, compactOpenSslRuntimeFacts, expandOpenSslRuntimeFacts, normalizeOpenSslRuntimeFacts } from './openssl.js';
+import type { OpenSslRuntimeFacts } from './openssl.js';
+export { normalizeOpenSslRuntimeFacts } from './openssl.js';
+export type { OpenSslRuntimeFacts } from './openssl.js';
+import { auditedMysqliStub, compactMysqliRuntimeFacts, expandMysqliRuntimeFacts, normalizeMysqliRuntimeFacts } from './mysqli.js';
+import type { MysqliRuntimeFacts } from './mysqli.js';
+export { normalizeMysqliRuntimeFacts } from './mysqli.js';
+export type { MysqliRuntimeFacts } from './mysqli.js';
+import { auditedIntlLocaleStub } from './intl-locale.js';
+import { auditedIntlGraphemeStub } from './intl-grapheme.js';
+import { auditedIntlCollatorStub } from './intl-collator.js';
+import { auditedIntlNumberFormatterStub } from './intl-numberformatter.js';
+import { auditedIntlDateFormatterStub } from './intl-dateformatter.js';
+import { auditedIntlErrorsStub } from './intl-errors.js';
+import { auditedIntlResourceBundleStub } from './intl-resourcebundle.js';
+import { auditedIntlTransliteratorStub } from './intl-transliterator.js';
+import { auditedIntlMessageFormatterStub } from './intl-messageformatter.js';
+import { auditedIntlTimeZoneStub } from './intl-timezone.js';
+import { auditedIntlIteratorStub } from './intl-iterator.js';
+import { auditedIntlCalendarStub } from './intl-calendar.js';
+import { auditedIntlSpoofcheckerStub } from './intl-spoofchecker.js';
+import { auditedIntlFormatClassesStub } from './intl-format-classes.js';
+import { auditedIntlBreakIteratorStub } from './intl-breakiterator.js';
+import { auditedIntlUConverterStub } from './intl-uconverter.js';
+import { auditedIntlCharStub, normalizeIntlCharRuntimeConstants } from './intl-char.js';
+import type { IntlCharRuntimeConstants } from './intl-char.js';
+export { normalizeIntlCharRuntimeConstants } from './intl-char.js';
+export type { IntlCharRuntimeConstants } from './intl-char.js';
+import { GD_FUNCTIONS } from './gd-catalog.js';
+import { PDO_CORE_CONSTANTS } from './pdo-catalog.js';
+import { auditedRandomFunctionStub } from './random.js';
+import { auditedSqlite3Stub } from './sqlite3.js';
+import { auditedPharStub } from './phar.js';
+import { auditedSodiumStub, compactSodiumRuntimeFacts, expandSodiumRuntimeFacts, normalizeSodiumRuntimeFacts } from './sodium.js';
+import { normalizePcreRuntimeConstants, pcreRuntimeConstantStub } from './pcre-runtime.js';
+import type { PcreRuntimeConstants } from './pcre-runtime.js';
+export { normalizePcreRuntimeConstants } from './pcre-runtime.js';
+export type { PcreRuntimeConstants } from './pcre-runtime.js';
+import type { SodiumRuntimeFacts } from './sodium.js';
+export { normalizeSodiumRuntimeFacts } from './sodium.js';
+export type { SodiumRuntimeFacts } from './sodium.js';
+export { randomClassesPhpStub } from './random.js';
+import { normalizePdoRuntimeFacts, pdoLegacyConstantDeclarations } from './pdo-drivers.js';
+import type { PdoRuntimeFacts } from './pdo-drivers.js';
+export { normalizePdoRuntimeFacts, pdoDriverPhpStub } from './pdo-drivers.js';
+export type { PdoRuntimeFacts } from './pdo-drivers.js';
+export { bcmathNumberPhpStub } from './bcmath.js';
+export { filterClassesPhpStub } from './filter-classes.js';
 
 export const SUPPORTED_PHP_VERSIONS = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'] as const;
 export type SupportedPhpVersion = typeof SUPPORTED_PHP_VERSIONS[number];
-export const CONFIGURABLE_PHP_EXTENSIONS = ['dom', 'filter', 'mbstring', 'pdo', 'simplexml', 'xml', 'xmlreader', 'xmlwriter'] as const;
+export const CONFIGURABLE_PHP_EXTENSIONS = ['apcu', 'bcmath', 'bz2', 'calendar', 'ctype', 'curl', 'dom', 'exif', 'fileinfo', 'filter', 'ftp', 'gd', 'gettext', 'iconv', 'igbinary', 'imagick', 'intl', 'mbstring', 'mcrypt', 'msgpack', 'mysqli', 'openssl', 'pcntl', 'pdo', 'pgsql', 'phar', 'posix', 'readline', 'redis', 'session', 'shmop', 'simplexml', 'sockets', 'sodium', 'sqlite3', 'sysvmsg', 'sysvsem', 'sysvshm', 'tokenizer', 'xml', 'xmlreader', 'xmlwriter', 'xsl', 'yaml', 'zip', 'zlib'] as const;
 export type ConfigurablePhpExtension = typeof CONFIGURABLE_PHP_EXTENSIONS[number];
-export interface BuiltinPhpStubOptions { disabledExtensions?: readonly ConfigurablePhpExtension[]; }
+export const CONDITIONAL_PHP_FUNCTIONS = ['curl_upkeep', 'intltz_get_iana_id', 'readline_list_history', 'sys_getloadavg', 'strptime', 'ftok', ...GD_FUNCTIONS, ...MHASH_FUNCTIONS] as const;
+export type ConditionalPhpFunction = typeof CONDITIONAL_PHP_FUNCTIONS[number];
+export interface BuiltinPhpStubOptions {
+  apcuRuntime?: ApcuRuntimeFacts;
+  disabledExtensions?: readonly ConfigurablePhpExtension[];
+  unavailableFunctions?: readonly ConditionalPhpFunction[];
+  readlineLib?: string;
+  intlCharConstants?: IntlCharRuntimeConstants;
+  intlCalendarFieldCount?: number;
+  intlCurrencyAccountingAvailable?: boolean;
+  zipRuntime?: ZipRuntimeFacts;
+  zlibRuntime?: ZlibRuntimeFacts;
+  socketsRuntime?: SocketsRuntimeFacts;
+  pcntlRuntime?: PcntlRuntimeFacts;
+  pgsqlRuntime?: PgsqlRuntimeFacts;
+  xslRuntime?: XslRuntimeFacts;
+  redisRuntime?: RedisRuntimeFacts;
+  imagickRuntime?: ImagickRuntimeFacts;
+  curlRuntime?: CurlRuntimeFacts;
+  gdRuntime?: GdRuntimeFacts;
+  tokenizerRuntime?: TokenizerRuntimeFacts;
+  openSslRuntime?: OpenSslRuntimeFacts;
+  mysqliRuntime?: MysqliRuntimeFacts;
+  pdoRuntime?: PdoRuntimeFacts;
+  sodiumRuntime?: SodiumRuntimeFacts;
+  pcreRuntime?: PcreRuntimeConstants;
+  sysvMsgConstants?: SysvMsgRuntimeConstants;
+  posixConstants?: PosixRuntimeConstants;
+  mbOnigurumaVersion?: string;
+  getrusageRuntime?: GetrusageRuntimeFacts;
+}
 export const BUILTIN_DOCUMENT_URI = 'php-companion-builtin:/common-core.php';
+export const BCMATH_NUMBER_DOCUMENT_URI = 'php-companion-builtin:/bcmath-number.php';
+export const PDO_DRIVER_DOCUMENT_URI = 'php-companion-builtin:/pdo-drivers.php';
+export const RANDOM_CLASSES_DOCUMENT_URI = 'php-companion-builtin:/random-classes.php';
+export const FILTER_CLASSES_DOCUMENT_URI = 'php-companion-builtin:/filter-classes.php';
 
-export function builtinDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+function builtinDocumentUriFor(base: string, version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
   const parameters = new URLSearchParams({ php: version });
   const disabled = [...new Set(options.disabledExtensions ?? [])].sort();
   if (disabled.length) parameters.set('disabled', disabled.join(','));
-  return `${BUILTIN_DOCUMENT_URI}?${parameters}`;
+  const unavailable = [...new Set(options.unavailableFunctions ?? [])].sort();
+  if (unavailable.length) parameters.set('unavailable', unavailable.join(','));
+  const readlineLib = normalizeReadlineLib(options.readlineLib);
+  if (readlineLib) parameters.set('readlineLib', readlineLib);
+  const apcuRuntime = normalizeApcuRuntimeFacts(options.apcuRuntime);
+  if (apcuRuntime) parameters.set('apcu', JSON.stringify(apcuRuntime));
+  const intlCharConstants = normalizeIntlCharRuntimeConstants(options.intlCharConstants);
+  if (intlCharConstants && Object.keys(intlCharConstants).length) parameters.set('intlChar', JSON.stringify(intlCharConstants));
+  if (Number.isSafeInteger(options.intlCalendarFieldCount) && options.intlCalendarFieldCount! >= 0
+    && options.intlCalendarFieldCount! <= 1_000) parameters.set('intlCalendarFields', String(options.intlCalendarFieldCount));
+  if (typeof options.intlCurrencyAccountingAvailable === 'boolean')
+    parameters.set('intlCurrencyAccounting', options.intlCurrencyAccountingAvailable ? '1' : '0');
+  const zipRuntime = normalizeZipRuntimeFacts(options.zipRuntime);
+  if (zipRuntime) parameters.set('zip', JSON.stringify(compactZipRuntimeFacts(zipRuntime)));
+  const zlibRuntime = normalizeZlibRuntimeFacts(options.zlibRuntime);
+  if (zlibRuntime) parameters.set('zlib', JSON.stringify(zlibRuntime));
+  const socketsRuntime = normalizeSocketsRuntimeFacts(options.socketsRuntime);
+  if (socketsRuntime) parameters.set('sockets', JSON.stringify(compactSocketsRuntimeFacts(socketsRuntime)));
+  const pcntlRuntime = normalizePcntlRuntimeFacts(options.pcntlRuntime);
+  if (pcntlRuntime) parameters.set('pcntl', JSON.stringify(compactPcntlRuntimeFacts(pcntlRuntime)));
+  const pgsqlRuntime = normalizePgsqlRuntimeFacts(options.pgsqlRuntime);
+  if (pgsqlRuntime) parameters.set('pgsql', JSON.stringify(pgsqlRuntime));
+  const xslRuntime = normalizeXslRuntimeFacts(options.xslRuntime);
+  if (xslRuntime) parameters.set('xsl', JSON.stringify(xslRuntime));
+  const redisRuntime = normalizeRedisRuntimeFacts(options.redisRuntime);
+  if (redisRuntime) parameters.set('redis', redisRuntime.version);
+  const imagickRuntime = normalizeImagickRuntimeFacts(options.imagickRuntime);
+  if (imagickRuntime) parameters.set('imagick', JSON.stringify(imagickRuntime));
+  const curlRuntime = normalizeCurlRuntimeFacts(options.curlRuntime);
+  if (curlRuntime) parameters.set('curl', JSON.stringify(compactCurlRuntimeFacts(curlRuntime)));
+  const gdRuntime = normalizeGdRuntimeFacts(options.gdRuntime);
+  if (gdRuntime) parameters.set('gd', JSON.stringify(compactGdRuntimeFacts(gdRuntime)));
+  const tokenizerRuntime = normalizeTokenizerRuntimeFacts(options.tokenizerRuntime);
+  if (tokenizerRuntime) parameters.set('tokenizer', JSON.stringify(tokenizerRuntime));
+  const openSslRuntime = normalizeOpenSslRuntimeFacts(options.openSslRuntime);
+  if (openSslRuntime) parameters.set('openssl', JSON.stringify(compactOpenSslRuntimeFacts(openSslRuntime)));
+  const mysqliRuntime = normalizeMysqliRuntimeFacts(options.mysqliRuntime);
+  if (mysqliRuntime) parameters.set('mysqli', JSON.stringify(compactMysqliRuntimeFacts(mysqliRuntime)));
+  const pdoRuntime = normalizePdoRuntimeFacts(options.pdoRuntime);
+  if (pdoRuntime) parameters.set('pdo', JSON.stringify(pdoRuntime));
+  const sodiumRuntime = normalizeSodiumRuntimeFacts(options.sodiumRuntime);
+  if (sodiumRuntime) parameters.set('sodium', JSON.stringify(compactSodiumRuntimeFacts(sodiumRuntime)));
+  const pcreRuntime = normalizePcreRuntimeConstants(options.pcreRuntime);
+  if (pcreRuntime) parameters.set('pcre', JSON.stringify(pcreRuntime));
+  const sysvMsgConstants = normalizeSysvMsgRuntimeConstants(options.sysvMsgConstants);
+  if (sysvMsgConstants) parameters.set('sysvmsg', JSON.stringify(sysvMsgConstants));
+  const posixConstants = normalizePosixRuntimeConstants(options.posixConstants);
+  if (posixConstants) parameters.set('posix', JSON.stringify(posixConstants));
+  const mbOnigurumaVersion = normalizeMbOnigurumaVersion(options.mbOnigurumaVersion);
+  if (mbOnigurumaVersion) parameters.set('mbOniguruma', mbOnigurumaVersion);
+  const getrusageRuntime = normalizeGetrusageRuntimeFacts(options.getrusageRuntime);
+  if (getrusageRuntime) parameters.set('getrusage', JSON.stringify(getrusageRuntime));
+  return `${base}?${parameters}`;
 }
 
-export function parseBuiltinDocumentUri(uri: string): { version: SupportedPhpVersion; disabledExtensions: ConfigurablePhpExtension[] } | undefined {
+export function builtinDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  return builtinDocumentUriFor(BUILTIN_DOCUMENT_URI, version, options);
+}
+
+export function bcmathNumberDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  return builtinDocumentUriFor(BCMATH_NUMBER_DOCUMENT_URI, version, options);
+}
+
+export function pdoDriverDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  return builtinDocumentUriFor(PDO_DRIVER_DOCUMENT_URI, version, options);
+}
+
+export function randomClassesDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  return builtinDocumentUriFor(RANDOM_CLASSES_DOCUMENT_URI, version, options);
+}
+
+export function filterClassesDocumentUri(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
+  return builtinDocumentUriFor(FILTER_CLASSES_DOCUMENT_URI, version, options);
+}
+
+export interface BuiltinDocumentSnapshot {
+  version: SupportedPhpVersion;
+  disabledExtensions: ConfigurablePhpExtension[];
+  apcuRuntime?: ApcuRuntimeFacts;
+  unavailableFunctions?: ConditionalPhpFunction[];
+  readlineLib?: string;
+  intlCharConstants?: IntlCharRuntimeConstants;
+  intlCalendarFieldCount?: number;
+  intlCurrencyAccountingAvailable?: boolean;
+  zipRuntime?: ZipRuntimeFacts;
+  zlibRuntime?: ZlibRuntimeFacts;
+  socketsRuntime?: SocketsRuntimeFacts;
+  pcntlRuntime?: PcntlRuntimeFacts;
+  pgsqlRuntime?: PgsqlRuntimeFacts;
+  xslRuntime?: XslRuntimeFacts;
+  redisRuntime?: RedisRuntimeFacts;
+  imagickRuntime?: ImagickRuntimeFacts;
+  curlRuntime?: CurlRuntimeFacts;
+  gdRuntime?: GdRuntimeFacts;
+  tokenizerRuntime?: TokenizerRuntimeFacts;
+  openSslRuntime?: OpenSslRuntimeFacts;
+  mysqliRuntime?: MysqliRuntimeFacts;
+  pdoRuntime?: PdoRuntimeFacts;
+  sodiumRuntime?: SodiumRuntimeFacts;
+  pcreRuntime?: PcreRuntimeConstants;
+  sysvMsgConstants?: SysvMsgRuntimeConstants;
+  posixConstants?: PosixRuntimeConstants;
+  mbOnigurumaVersion?: string;
+  getrusageRuntime?: GetrusageRuntimeFacts;
+}
+
+function parseBuiltinDocumentUriFor(uri: string, base: string): BuiltinDocumentSnapshot | undefined {
   try {
     const parsed = new URL(uri);
-    if (parsed.protocol !== 'php-companion-builtin:' || parsed.pathname !== '/common-core.php') return undefined;
+    if (parsed.protocol !== 'php-companion-builtin:' || parsed.pathname !== new URL(base).pathname) return undefined;
     const rawQuery = parsed.search.slice(1);
     const parameters = new URLSearchParams(rawQuery.includes('=') ? rawQuery : decodeURIComponent(rawQuery));
     const version = SUPPORTED_PHP_VERSIONS.find((candidate) => candidate === parameters.get('php'));
@@ -31,17 +308,141 @@ export function parseBuiltinDocumentUri(uri: string): { version: SupportedPhpVer
     const disabled = parameters.get('disabled')?.split(',').filter(Boolean) ?? [];
     if (disabled.some((extension) => !CONFIGURABLE_PHP_EXTENSIONS.includes(extension as ConfigurablePhpExtension))) return undefined;
     const disabledExtensions = disabled as ConfigurablePhpExtension[];
-    const canonical = builtinDocumentUri(version, { disabledExtensions });
-    if (uri !== canonical && uri !== `${BUILTIN_DOCUMENT_URI}?${encodeURIComponent(canonical.slice(BUILTIN_DOCUMENT_URI.length + 1))}`) return undefined;
-    return { version, disabledExtensions };
+    const unavailable = parameters.get('unavailable')?.split(',').filter(Boolean) ?? [];
+    if (unavailable.some((name) => !CONDITIONAL_PHP_FUNCTIONS.includes(name as ConditionalPhpFunction))) return undefined;
+    const unavailableFunctions = unavailable as ConditionalPhpFunction[];
+    const rawReadlineLib = parameters.get('readlineLib');
+    const readlineLib = normalizeReadlineLib(rawReadlineLib);
+    if (rawReadlineLib !== null && !readlineLib) return undefined;
+    const rawApcu = parameters.get('apcu');
+    const apcuRuntime = rawApcu === null ? undefined : rawApcu.length <= 4_096 ? normalizeApcuRuntimeFacts(JSON.parse(rawApcu)) : undefined;
+    if (rawApcu !== null && !apcuRuntime) return undefined;
+    const rawIntlChar = parameters.get('intlChar');
+    let intlCharConstants: IntlCharRuntimeConstants | undefined;
+    if (rawIntlChar !== null) {
+      if (rawIntlChar.length > 512) return undefined;
+      intlCharConstants = normalizeIntlCharRuntimeConstants(JSON.parse(rawIntlChar));
+      if (!intlCharConstants || !Object.keys(intlCharConstants).length) return undefined;
+    }
+    const rawFieldCount = parameters.get('intlCalendarFields');
+    const intlCalendarFieldCount = rawFieldCount === null ? undefined : Number(rawFieldCount);
+    if (rawFieldCount !== null && (!/^\d{1,4}$/.test(rawFieldCount) || !Number.isSafeInteger(intlCalendarFieldCount)
+      || intlCalendarFieldCount! > 1_000)) return undefined;
+    const rawIntlCurrencyAccounting = parameters.get('intlCurrencyAccounting');
+    if (rawIntlCurrencyAccounting !== null && rawIntlCurrencyAccounting !== '0' && rawIntlCurrencyAccounting !== '1') return undefined;
+    const intlCurrencyAccountingAvailable = rawIntlCurrencyAccounting === null ? undefined : rawIntlCurrencyAccounting === '1';
+    const rawZip = parameters.get('zip');
+    const zipRuntime = rawZip === null ? undefined : rawZip.length <= 4_096 ? expandZipRuntimeFacts(JSON.parse(rawZip)) : undefined;
+    if (rawZip !== null && !zipRuntime) return undefined;
+    const rawZlib = parameters.get('zlib');
+    const zlibRuntime = rawZlib === null ? undefined : rawZlib.length <= 128 ? normalizeZlibRuntimeFacts(JSON.parse(rawZlib)) : undefined;
+    if (rawZlib !== null && !zlibRuntime) return undefined;
+    const rawSockets = parameters.get('sockets');
+    const socketsRuntime = rawSockets === null ? undefined : rawSockets.length <= 16_384 ? expandSocketsRuntimeFacts(JSON.parse(rawSockets)) : undefined;
+    if (rawSockets !== null && !socketsRuntime) return undefined;
+    const rawPcntl = parameters.get('pcntl');
+    const pcntlRuntime = rawPcntl === null ? undefined : rawPcntl.length <= 16_384 ? expandPcntlRuntimeFacts(JSON.parse(rawPcntl)) : undefined;
+    if (rawPcntl !== null && !pcntlRuntime) return undefined;
+    const rawPgsql = parameters.get('pgsql');
+    const pgsqlRuntime = rawPgsql === null ? undefined : rawPgsql.length <= 8_192 ? normalizePgsqlRuntimeFacts(JSON.parse(rawPgsql)) : undefined;
+    if (rawPgsql !== null && !pgsqlRuntime) return undefined;
+    const rawXsl = parameters.get('xsl');
+    const xslRuntime = rawXsl === null ? undefined : rawXsl.length <= 2_048 ? normalizeXslRuntimeFacts(JSON.parse(rawXsl)) : undefined;
+    if (rawXsl !== null && !xslRuntime) return undefined;
+    const rawRedis = parameters.get('redis');
+    const redisRuntime = rawRedis === null ? undefined : normalizeRedisRuntimeFacts({ version: rawRedis });
+    if (rawRedis !== null && !redisRuntime) return undefined;
+    const rawImagick = parameters.get('imagick');
+    const imagickRuntime = rawImagick === null ? undefined : rawImagick.length <= 256 ? normalizeImagickRuntimeFacts(JSON.parse(rawImagick)) : undefined;
+    if (rawImagick !== null && !imagickRuntime) return undefined;
+    const rawCurl = parameters.get('curl');
+    const curlRuntime = rawCurl === null ? undefined : rawCurl.length <= 16_384 ? expandCurlRuntimeFacts(JSON.parse(rawCurl)) : undefined;
+    if (rawCurl !== null && !curlRuntime) return undefined;
+    const rawGd = parameters.get('gd');
+    const gdRuntime = rawGd === null ? undefined : rawGd.length <= 4_096 ? expandGdRuntimeFacts(JSON.parse(rawGd)) : undefined;
+    if (rawGd !== null && !gdRuntime) return undefined;
+    const rawTokenizer = parameters.get('tokenizer');
+    const tokenizerRuntime = rawTokenizer === null ? undefined : rawTokenizer.length <= 8_192 ? normalizeTokenizerRuntimeFacts(JSON.parse(rawTokenizer)) : undefined;
+    if (rawTokenizer !== null && !tokenizerRuntime) return undefined;
+    const rawOpenSsl = parameters.get('openssl');
+    const openSslRuntime = rawOpenSsl === null ? undefined : rawOpenSsl.length <= 16_384 ? expandOpenSslRuntimeFacts(JSON.parse(rawOpenSsl)) : undefined;
+    if (rawOpenSsl !== null && !openSslRuntime) return undefined;
+    const rawMysqli = parameters.get('mysqli');
+    const mysqliRuntime = rawMysqli === null ? undefined : rawMysqli.length <= 16_384 ? expandMysqliRuntimeFacts(JSON.parse(rawMysqli)) : undefined;
+    if (rawMysqli !== null && !mysqliRuntime) return undefined;
+    const rawPdo = parameters.get('pdo');
+    const pdoRuntime = rawPdo === null ? undefined : rawPdo.length <= 8_192 ? normalizePdoRuntimeFacts(JSON.parse(rawPdo)) : undefined;
+    if (rawPdo !== null && !pdoRuntime) return undefined;
+    const rawSodium = parameters.get('sodium');
+    const sodiumRuntime = rawSodium === null ? undefined : rawSodium.length <= 4_096 ? expandSodiumRuntimeFacts(JSON.parse(rawSodium)) : undefined;
+    if (rawSodium !== null && !sodiumRuntime) return undefined;
+    const rawPcre = parameters.get('pcre');
+    const pcreRuntime = rawPcre === null ? undefined : rawPcre.length <= 256 ? normalizePcreRuntimeConstants(JSON.parse(rawPcre)) : undefined;
+    if (rawPcre !== null && !pcreRuntime) return undefined;
+    const rawSysvMsg = parameters.get('sysvmsg');
+    const sysvMsgConstants = rawSysvMsg === null ? undefined : rawSysvMsg.length <= 128 ? normalizeSysvMsgRuntimeConstants(JSON.parse(rawSysvMsg)) : undefined;
+    if (rawSysvMsg !== null && !sysvMsgConstants) return undefined;
+    const rawPosix = parameters.get('posix');
+    const posixConstants = rawPosix === null ? undefined : rawPosix.length <= 4_096 ? normalizePosixRuntimeConstants(JSON.parse(rawPosix)) : undefined;
+    if (rawPosix !== null && !posixConstants) return undefined;
+    const rawMbOniguruma = parameters.get('mbOniguruma');
+    const mbOnigurumaVersion = normalizeMbOnigurumaVersion(rawMbOniguruma);
+    if (rawMbOniguruma !== null && !mbOnigurumaVersion) return undefined;
+    const rawGetrusage = parameters.get('getrusage');
+    const getrusageRuntime = rawGetrusage === null ? undefined : rawGetrusage.length <= 1024 ? normalizeGetrusageRuntimeFacts(JSON.parse(rawGetrusage)) : undefined;
+    if (rawGetrusage !== null && !getrusageRuntime) return undefined;
+    const canonical = builtinDocumentUriFor(base, version, { disabledExtensions, unavailableFunctions, readlineLib, apcuRuntime,
+      intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime });
+    // VS Code can decode the query once before serializing an LSP URI again.
+    // Compare the parsed, canonical parameters so that the same snapshot survives
+    // that round trip while unknown, duplicate, and noncanonical values are rejected.
+    if (parameters.toString() !== canonical.slice(base.length + 1)) return undefined;
+    return { version, disabledExtensions, ...(unavailableFunctions.length ? { unavailableFunctions } : {}),
+      ...(readlineLib ? { readlineLib } : {}),
+      ...(apcuRuntime ? { apcuRuntime } : {}),
+      ...(intlCharConstants ? { intlCharConstants } : {}),
+      ...(intlCalendarFieldCount !== undefined ? { intlCalendarFieldCount } : {}),
+      ...(intlCurrencyAccountingAvailable !== undefined ? { intlCurrencyAccountingAvailable } : {}),
+      ...(zipRuntime ? { zipRuntime } : {}), ...(zlibRuntime ? { zlibRuntime } : {}),
+      ...(socketsRuntime ? { socketsRuntime } : {}), ...(pcntlRuntime ? { pcntlRuntime } : {}), ...(pgsqlRuntime ? { pgsqlRuntime } : {}), ...(xslRuntime ? { xslRuntime } : {}), ...(redisRuntime ? { redisRuntime } : {}), ...(imagickRuntime ? { imagickRuntime } : {}), ...(curlRuntime ? { curlRuntime } : {}), ...(gdRuntime ? { gdRuntime } : {}), ...(tokenizerRuntime ? { tokenizerRuntime } : {}), ...(openSslRuntime ? { openSslRuntime } : {}),
+      ...(mysqliRuntime ? { mysqliRuntime } : {}), ...(pdoRuntime ? { pdoRuntime } : {}),
+      ...(sodiumRuntime ? { sodiumRuntime } : {}), ...(pcreRuntime ? { pcreRuntime } : {}), ...(sysvMsgConstants ? { sysvMsgConstants } : {}), ...(posixConstants ? { posixConstants } : {}),
+      ...(mbOnigurumaVersion ? { mbOnigurumaVersion } : {}),
+      ...(getrusageRuntime ? { getrusageRuntime } : {}) };
   } catch { return undefined; }
 }
 
-export function isBuiltinDocumentUri(uri: string): boolean {
-  return uri === BUILTIN_DOCUMENT_URI || parseBuiltinDocumentUri(uri) !== undefined;
+export function parseBuiltinDocumentUri(uri: string): BuiltinDocumentSnapshot | undefined {
+  return parseBuiltinDocumentUriFor(uri, BUILTIN_DOCUMENT_URI);
 }
 
-const COMMON_CORE_STUB = `<?php
+export function parseBcmathNumberDocumentUri(uri: string): BuiltinDocumentSnapshot | undefined {
+  return parseBuiltinDocumentUriFor(uri, BCMATH_NUMBER_DOCUMENT_URI);
+}
+
+export function parsePdoDriverDocumentUri(uri: string): BuiltinDocumentSnapshot | undefined {
+  return parseBuiltinDocumentUriFor(uri, PDO_DRIVER_DOCUMENT_URI);
+}
+
+export function parseRandomClassesDocumentUri(uri: string): BuiltinDocumentSnapshot | undefined {
+  return parseBuiltinDocumentUriFor(uri, RANDOM_CLASSES_DOCUMENT_URI);
+}
+
+export function parseFilterClassesDocumentUri(uri: string): BuiltinDocumentSnapshot | undefined {
+  return parseBuiltinDocumentUriFor(uri, FILTER_CLASSES_DOCUMENT_URI);
+}
+
+export function isBuiltinDocumentUri(uri: string): boolean {
+  return uri === BUILTIN_DOCUMENT_URI || uri === BCMATH_NUMBER_DOCUMENT_URI || uri === PDO_DRIVER_DOCUMENT_URI
+    || uri === RANDOM_CLASSES_DOCUMENT_URI || uri === FILTER_CLASSES_DOCUMENT_URI
+    || parseBuiltinDocumentUri(uri) !== undefined || parseBcmathNumberDocumentUri(uri) !== undefined
+    || parsePdoDriverDocumentUri(uri) !== undefined || parseRandomClassesDocumentUri(uri) !== undefined
+    || parseFilterClassesDocumentUri(uri) !== undefined;
+}
+
+function commonCoreStub(version: SupportedPhpVersion): string {
+  const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
+  return `<?php
 interface Throwable {
   public function getMessage(): string;
   public function getCode();
@@ -66,7 +467,8 @@ class Exception implements Throwable {
   final public function getTraceAsString(): string {}
   final public function getPrevious(): ?Throwable {}
   public function __toString(): string {}
-  private function __clone(): void {}
+  /** @return void */ public function __wakeup() {}
+  private function __clone()${php80 ? ': void' : ''} {}
 }
 class Error implements Throwable {
   protected $message = '';
@@ -82,7 +484,8 @@ class Error implements Throwable {
   final public function getTraceAsString(): string {}
   final public function getPrevious(): ?Throwable {}
   public function __toString(): string {}
-  private function __clone(): void {}
+  /** @return void */ public function __wakeup() {}
+  private function __clone()${php80 ? ': void' : ''} {}
 }
 class LogicException extends Exception {}
 class BadFunctionCallException extends LogicException {}
@@ -117,18 +520,20 @@ interface ArrayAccess {
    * @return void */ public function offsetUnset($offset);
 }
 interface JsonSerializable { /** @return mixed */ public function jsonSerialize(); }
-interface Serializable { /** @return string */ public function serialize(); /** @return void */ public function unserialize(string $data); }
+interface Serializable { /** @return string */ public function serialize(); /** @return void */ public function unserialize(string $${php80 ? 'data' : 'serialized'}); }
 class stdClass {}
 final class Closure {
   private function __construct() {}
-  /** @return Closure|null */ public static function bind(Closure $closure, $newThis, $newScope = 'static') {}
-  /** @return Closure|null */ public function bindTo($newThis, $newScope = 'static') {}
-  /** @param mixed ...$args
-   * @return mixed */ public function call(object $newThis, ...$args) {}
-  public static function fromCallable(callable $callback): Closure {}
+  /** @return Closure|null */ public static function bind(Closure $closure, $${php80 ? 'newThis' : 'newthis'}, $${php80 ? 'newScope' : 'newscope'} = 'static') {}
+  /** @return Closure|null */ public function bindTo($${php80 ? 'newThis' : 'newthis'}, $${php80 ? 'newScope' : 'newscope'} = 'static') {}
+  /** @param mixed ...$${php80 ? 'args' : 'parameters'}
+   * @return mixed */ public function call(object $${php80 ? 'newThis' : 'newthis'}, ...$${php80 ? 'args' : 'parameters'}) {}
+  public static function fromCallable(callable $${php80 ? 'callback' : 'callable'}): Closure {}
+  ${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5') ? 'public static function getCurrent(): Closure {}' : ''}
   public function __invoke() {}
 }
 `;
+}
 
 function auditedIteratorInterfaceStub(version: SupportedPhpVersion): string {
   const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
@@ -190,7 +595,7 @@ function auditedDateTimeStub(version: SupportedPhpVersion): string {
     ? 'public function __serialize(): array {} public function __unserialize(array $data): void {}' : '';
   const interfaceSerialized = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4')
     ? 'public function __serialize(): array; public function __unserialize(array $data): void;' : '';
-  return `interface DateTimeInterface {
+  const stub = `interface DateTimeInterface {
   public const ATOM = 'Y-m-d\\\\TH:i:sP'; public const COOKIE = 'l, d-M-Y H:i:s T'; public const ISO8601 = 'Y-m-d\\\\TH:i:sO';
   ${php82 ? "public const ISO8601_EXPANDED = 'X-m-d\\\\TH:i:sP';" : ''}
   public const RFC822 = 'D, d M y H:i:s O'; public const RFC850 = 'l, d-M-y H:i:s T'; public const RFC1036 = 'D, d M y H:i:s O';
@@ -252,6 +657,7 @@ class DateTimeImmutable implements DateTimeInterface {
   ${serialized} public function __wakeup(): void {}
 }
 class DateTimeZone {
+  ${[['AFRICA', 1], ['AMERICA', 2], ['ANTARCTICA', 4], ['ARCTIC', 8], ['ASIA', 16], ['ATLANTIC', 32], ['AUSTRALIA', 64], ['EUROPE', 128], ['INDIAN', 256], ['PACIFIC', 512], ['UTC', 1024], ['ALL', 2047], ['ALL_WITH_BC', 4095], ['PER_COUNTRY', 4096]].map(([name, value]) => `public const ${php84 ? 'int ' : ''}${name} = ${value};`).join('\n  ')}
   public function __construct(string $timezone) {}
   public function getName(): string {} public function getOffset(DateTimeInterface $datetime): int {}
   /** @return array|false */ public function getTransitions(int $timestampBegin = PHP_INT_MIN, int $timestampEnd = 2147483647) {}
@@ -270,7 +676,14 @@ class DateInterval {
 }
 /** @template-implements ${php80 ? 'IteratorAggregate<int, DateTimeInterface>' : 'Traversable<int, DateTimeInterface>'} */
 class DatePeriod implements ${php80 ? 'IteratorAggregate' : 'Traversable'} {
-  public const EXCLUDE_START_DATE = 1; ${php82 ? 'public const INCLUDE_END_DATE = 2;' : ''}
+  public const ${php84 ? 'int ' : ''}EXCLUDE_START_DATE = 1; ${php82 ? `public const ${php84 ? 'int ' : ''}INCLUDE_END_DATE = 2;` : ''}
+  ${php82 ? `public readonly ?DateTimeInterface $start;
+  public readonly ?DateTimeInterface $current;
+  public readonly ?DateTimeInterface $end;
+  public readonly ?DateInterval $interval;
+  public readonly int $recurrences;
+  public readonly bool $include_start_date;
+  public readonly bool $include_end_date;` : ''}
   public function __construct(DateTimeInterface $start, DateInterval $interval, int $recurrences, int $options = 0) {}
   public function __construct(DateTimeInterface $start, DateInterval $interval, DateTimeInterface $end, int $options = 0) {}
   public function __construct(string $isostr, int $options = 0) {}
@@ -282,6 +695,29 @@ class DatePeriod implements ${php80 ? 'IteratorAggregate' : 'Traversable'} {
   ${serialized} public function __wakeup(): void {}
 }
 `;
+  if (php80) return stub;
+  const legacyParameters: ReadonlyArray<readonly [string, string]> = [
+    ['diff(DateTimeInterface $targetObject', 'diff(DateTimeInterface $object'],
+    ["__construct(string $datetime = 'now'", "__construct(string $time = 'now'"],
+    ['createFromFormat(string $format, string $datetime, ?DateTimeZone $timezone',
+      'createFromFormat(string $format, string $time, ?DateTimeZone $object'],
+    ['modify(string $modifier)', 'modify(string $modify)'],
+    ['setTime(int $hour, int $minute, int $second = 0, int $microsecond = 0)',
+      'setTime(int $hour, int $minute, int $second = 0, int $microseconds = 0)'],
+    ['setISODate(int $year, int $week, int $dayOfWeek = 1)',
+      'setISODate(int $year, int $week, int $day = 1)'],
+    ['setTimestamp(int $timestamp)', 'setTimestamp(int $unixtimestamp)'],
+    ['createFromImmutable(DateTimeImmutable $object)', 'createFromImmutable(DateTimeImmutable $DateTimeImmutable)'],
+    ['createFromMutable(DateTime $object)', 'createFromMutable(DateTime $DateTime)'],
+    ['getOffset(DateTimeInterface $datetime)', 'getOffset(DateTimeInterface $object)'],
+    ['getTransitions(int $timestampBegin = PHP_INT_MIN, int $timestampEnd = 2147483647)',
+      'getTransitions(int $timestamp_begin = PHP_INT_MIN, int $timestamp_end = 2147483647)'],
+    ['listIdentifiers(int $timezoneGroup = 2047, ?string $countryCode = null)',
+      'listIdentifiers(int $what = 2047, ?string $country = null)'],
+    ['__construct(string $duration)', '__construct(string $interval_spec)'],
+    ['createFromDateString(string $datetime)', 'createFromDateString(string $time)'],
+  ];
+  return legacyParameters.reduce((source, [current, legacy]) => source.replaceAll(current, legacy), stub);
 }
 
 function auditedVersionedCoreObjectStub(version: SupportedPhpVersion): string {
@@ -289,7 +725,6 @@ function auditedVersionedCoreObjectStub(version: SupportedPhpVersion): string {
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php81 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
   const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
-  const php85 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5');
   return `/** @template-covariant TKey
  * @template-covariant TValue
  * @template TSend
@@ -306,8 +741,10 @@ final class Generator implements Iterator {
    * @return mixed */ public function send($value) {}
   /** @return mixed */ public function throw(Throwable $exception) {}
   public function valid(): bool {}
+  ${!php74 ? '/** @return void */ public function __wakeup() {}' : ''}
+  ${php84 ? 'public function __debugInfo(): array {}' : ''}
 }
-${php74 ? 'final class WeakReference { private function __construct() {} public static function create(object $object): WeakReference {} public function get(): ?object {} }' : ''}
+${php74 ? `final class WeakReference { private function __construct() {} public static function create(object $${php80 ? 'object' : 'referent'}): WeakReference {} public function get(): ?object {} }` : ''}
 ${php80 ? `interface Stringable { public function __toString(): string; }
 /** @template TKey of object
  * @template TValue
@@ -338,17 +775,6 @@ ${php81 ? `final class Fiber {
 }
 interface UnitEnum { public static function cases(): array; }
 interface BackedEnum extends UnitEnum { public static function from(int|string $value): static; public static function tryFrom(int|string $value): ?static; }` : ''}
-${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2') ? `#[\\Attribute(\\Attribute::TARGET_PARAMETER)]
-final class SensitiveParameter { public function __construct() {} }
-final class SensitiveParameterValue {
-  private readonly mixed $value;
-  public function __construct(mixed $value) {}
-  public function getValue(): mixed {}
-  public function __debugInfo(): array {}
-}` : ''}
-${php84 ? 'final class Deprecated { public readonly ?string $message; public readonly ?string $since; public function __construct(?string $message = null, ?string $since = null) {} }' : ''}
-${php85 ? `final class NoDiscard { public readonly ?string $message; public function __construct(?string $message = null) {} }
-final class DelayedTargetValidation {}` : ''}
 ${SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4') ? `enum RoundingMode {
   case HalfAwayFromZero; case HalfTowardsZero; case HalfEven; case HalfOdd;
   case TowardsZero; case AwayFromZero; case NegativeInfinity; case PositiveInfinity;
@@ -364,7 +790,7 @@ function auditedExceptionStub(version: SupportedPhpVersion): string {
   const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
   const errorException = php80
     ? "class ErrorException extends Exception { protected $severity = 1; public function __construct(string $message = '', int $code = 0, int $severity = 1, ?string $filename = null, ?int $line = null, ?Throwable $previous = null) {} final public function getSeverity(): int {} }"
-    : "class ErrorException extends Exception { protected $severity = 1; public function __construct(string $message = '', int $code = 0, int $severity = 1, string $filename = __FILE__, int $line = __LINE__, ?Throwable $previous = null) {} final public function getSeverity(): int {} }";
+    : "class ErrorException extends Exception { protected $severity = 1; public function __construct(string $message = '', int $code = 0, int $severity = 1, string $filename = __FILE__, int $lineno = __LINE__, ?Throwable $previous = null) {} final public function getSeverity(): int {} }";
   return `${errorException}
 ${php73 ? 'class CompileError extends Error {}\nclass ParseError extends CompileError {}\nclass JsonException extends Exception {}' : 'class ParseError extends Error {}'}
 ${php80 ? 'class ValueError extends Error {}\nclass UnhandledMatchError extends Error {}' : ''}
@@ -376,29 +802,39 @@ ${php84 ? 'class RequestParseBodyException extends Exception {}' : ''}
 
 function auditedReferenceFunctionStub(version: SupportedPhpVersion): string {
   const php73 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.3');
+  const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php82 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2');
-  const variadicValues = php80 ? 'mixed ...$values' : '...$values';
+  const variadicValues = php80 ? 'mixed ...$values' : php74 ? '...$vars' : '...$values';
   const stackValues = php73 ? variadicValues : `$value, ${variadicValues}`;
   return `/** @template TValue
- * @param array<array-key, TValue> $array */ function sort(array &$array, int $flags = 0): ${php82 ? 'true' : 'bool'} {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'arg'} */ function sort(array &$${php80 ? 'array' : 'arg'}, int $${php80 ? 'flags' : 'sort_flags'} = 0): ${php82 ? 'true' : 'bool'} {}
 /** @template TValue
- * @param array<array-key, TValue> $array
- * @return TValue|null */ function array_pop(array &$array)${php80 ? ': mixed' : ''} {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'stack'}
+ * @return TValue|null */ function array_pop(array &$${php80 ? 'array' : 'stack'})${php80 ? ': mixed' : ''} {}
 /** @template TValue
- * @param array<array-key, TValue> $array
- * @return TValue|null */ function array_shift(array &$array)${php80 ? ': mixed' : ''} {}
-function array_push(array &$array, ${stackValues}): int {}
-function array_unshift(array &$array, ${stackValues}): int {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'stack'}
+ * @return TValue|null */ function array_shift(array &$${php80 ? 'array' : 'stack'})${php80 ? ': mixed' : ''} {}
+function array_push(array &$${php80 ? 'array' : 'stack'}, ${stackValues}): int {}
+function array_unshift(array &$${php80 ? 'array' : 'stack'}, ${stackValues}): int {}
 /** @template TValue
- * @param array<array-key, TValue> $array
- * @return list<TValue> */ function array_splice(array &$array, int $offset, ${php80 ? '?int' : 'int'} $length = null, ${php80 ? 'mixed ' : ''}$replacement = []): array {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'arg'}
+ * @return list<TValue> */ function array_splice(array &$${php80 ? 'array' : 'arg'}, int $offset, ${php80 ? '?int' : 'int'} $length = null, ${php80 ? 'mixed ' : ''}$replacement = []): array {}
 /** @template TValue
- * @param array<array-key, TValue> $array */ function shuffle(array &$array): ${php82 ? 'true' : 'bool'} {}
-/** @template TValue
- * @param array<array-key, TValue> $array
- * @param callable(TValue, TValue):int $callback */ function usort(array &$array, callable $callback): ${php82 ? 'true' : 'bool'} {}
-function parse_str(string $string, array &$result${php80 ? '' : ' = null'}): void {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'arg'} */ function shuffle(array &$${php80 ? 'array' : 'arg'}): ${php82 ? 'true' : 'bool'} {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @param callable(TValue, TValue):int $${php80 ? 'callback' : 'cmp_function'} */ function usort(array &$${php80 ? 'array' : 'arg'}, callable $${php80 ? 'callback' : 'cmp_function'}): ${php82 ? 'true' : 'bool'} {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @param callable(TValue, TValue):int $${php80 ? 'callback' : 'cmp_function'} */ function uasort(array &$${php80 ? 'array' : 'arg'}, callable $${php80 ? 'callback' : 'cmp_function'}): ${php82 ? 'true' : 'bool'} {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @param callable(TKey, TKey):int $${php80 ? 'callback' : 'cmp_function'} */ function uksort(array &$${php80 ? 'array' : 'arg'}, callable $${php80 ? 'callback' : 'cmp_function'}): ${php82 ? 'true' : 'bool'} {}
+function parse_str(string $${php80 ? 'string' : 'encoded_string'}, array &$result${php80 ? '' : ' = null'}): void {}
 `;
 }
 
@@ -445,50 +881,50 @@ function preg_replace(array|string $pattern, array|string $replacement, string $
 /** @return list<string|array{0:string, 1:int}>|false */ function preg_split(string $pattern, string $subject, int $limit = -1, int $flags = 0): array|false {}
 `;
   return `${constants}
-/** @return int|false */ function preg_match(string $pattern, string $subject, array &$matches = null, int $flags = 0, int $offset = 0) {}
-/** @return int|false */ function preg_match_all(string $pattern, string $subject, array &$matches = null, int $flags = 0, int $offset = 0) {}
-function preg_quote(string $str, string $delimiter = null): string {}
+/** @return int|false */ function preg_match(string $pattern, string $subject, array &$subpatterns = null, int $flags = 0, int $offset = 0) {}
+/** @return int|false */ function preg_match_all(string $pattern, string $subject, array &$subpatterns = null, int $flags = 0, int $offset = 0) {}
+function preg_quote(string $str, string $delim_char = null): string {}
 function preg_last_error(): int {}
 /** @template TKey of array-key
  * @template TValue
- * @param array<TKey, TValue> $array
- * @return array<TKey, TValue>|false */ function preg_grep(string $pattern, array $array, int $flags = 0) {}
-/** @param array|string $pattern
- * @param array|string $replacement
+ * @param array<TKey, TValue> $input
+ * @return array<TKey, TValue>|false */ function preg_grep(string $regex, array $input, int $flags = 0) {}
+/** @param array|string $regex
+ * @param array|string $replace
  * @param array|string $subject
- * @return array|string|null */ function preg_filter($pattern, $replacement, $subject, int $limit = -1, int &$count = null) {}
-/** @param array|string $pattern
- * @param array|string $replacement
- * @return string|null */ function preg_filter($pattern, $replacement, string $subject, int $limit = -1, int &$count = null) {}
+ * @return array|string|null */ function preg_filter($regex, $replace, $subject, int $limit = -1, int &$count = null) {}
+/** @param array|string $regex
+ * @param array|string $replace
+ * @return string|null */ function preg_filter($regex, $replace, string $subject, int $limit = -1, int &$count = null) {}
 /** @template TKey of array-key
- * @param array|string $pattern
- * @param array|string $replacement
+ * @param array|string $regex
+ * @param array|string $replace
  * @param array<TKey, string> $subject
- * @return array<TKey, string> */ function preg_filter($pattern, $replacement, array $subject, int $limit = -1, int &$count = null) {}
-/** @param array|string $pattern
- * @param array|string $replacement
+ * @return array<TKey, string> */ function preg_filter($regex, $replace, array $subject, int $limit = -1, int &$count = null) {}
+/** @param array|string $regex
+ * @param array|string $replace
  * @param array|string $subject
- * @return array|string|null */ function preg_replace($pattern, $replacement, $subject, int $limit = -1, int &$count = null) {}
-/** @param array|string $pattern
- * @param array|string $replacement
- * @return string|null */ function preg_replace($pattern, $replacement, string $subject, int $limit = -1, int &$count = null) {}
+ * @return array|string|null */ function preg_replace($regex, $replace, $subject, int $limit = -1, int &$count = null) {}
+/** @param array|string $regex
+ * @param array|string $replace
+ * @return string|null */ function preg_replace($regex, $replace, string $subject, int $limit = -1, int &$count = null) {}
 /** @template TKey of array-key
- * @param array|string $pattern
- * @param array|string $replacement
+ * @param array|string $regex
+ * @param array|string $replace
  * @param array<TKey, string> $subject
- * @return array<TKey, string>|null */ function preg_replace($pattern, $replacement, array $subject, int $limit = -1, int &$count = null) {}
-/** @param array|string $pattern
+ * @return array<TKey, string>|null */ function preg_replace($regex, $replace, array $subject, int $limit = -1, int &$count = null) {}
+/** @param array|string $regex
  * @param callable(array):string $callback
  * @param array|string $subject
- * @return array|string|null */ function preg_replace_callback($pattern, callable $callback, $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
-/** @param array|string $pattern
+ * @return array|string|null */ function preg_replace_callback($regex, callable $callback, $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
+/** @param array|string $regex
  * @param callable(array):string $callback
- * @return string|null */ function preg_replace_callback($pattern, callable $callback, string $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
+ * @return string|null */ function preg_replace_callback($regex, callable $callback, string $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
 /** @template TKey of array-key
- * @param array|string $pattern
+ * @param array|string $regex
  * @param callable(array):string $callback
  * @param array<TKey, string> $subject
- * @return array<TKey, string>|null */ function preg_replace_callback($pattern, callable $callback, array $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
+ * @return array<TKey, string>|null */ function preg_replace_callback($regex, callable $callback, array $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
 /** @param array<string, callable(array):string> $pattern
  * @param array|string $subject
  * @return array|string|null */ function preg_replace_callback_array(array $pattern, $subject, int $limit = -1, int &$count = null${callbackFlags}) {}
@@ -564,24 +1000,24 @@ ${extrema}
 /** @return float */ function asin(float $number) {} /** @return float */ function asinh(float $number) {}
 /** @return float */ function atan(float $number) {} /** @return float */ function atan2(float $y, float $x) {} /** @return float */ function atanh(float $number) {}
 /** @return string */ function base_convert(string $number, int $frombase, int $tobase) {}
-/** @return int|float */ function bindec(string $binary_string) {} /** @return int|float */ function hexdec(string $hex_string) {} /** @return int|float */ function octdec(string $octal_string) {}
-/** @return string */ function decbin(int $number) {} /** @return string */ function dechex(int $number) {} /** @return string */ function decoct(int $number) {}
-/** @param int|float $value
- * @return float */ function ceil($value) {}
-/** @param int|float $value
- * @return float */ function floor($value) {}
+/** @return int|float */ function bindec(string $binary_number) {} /** @return int|float */ function hexdec(string $hexadecimal_number) {} /** @return int|float */ function octdec(string $octal_number) {}
+/** @return string */ function decbin(int $decimal_number) {} /** @return string */ function dechex(int $decimal_number) {} /** @return string */ function decoct(int $decimal_number) {}
+/** @param int|float $number
+ * @return float */ function ceil($number) {}
+/** @param int|float $number
+ * @return float */ function floor($number) {}
 /** @return float */ function cos(float $number) {} /** @return float */ function cosh(float $number) {}
 /** @return float */ function sin(float $number) {} /** @return float */ function sinh(float $number) {}
 /** @return float */ function tan(float $number) {} /** @return float */ function tanh(float $number) {}
 /** @return float */ function deg2rad(float $number) {} /** @return float */ function rad2deg(float $number) {}
 /** @return float */ function exp(float $number) {} /** @return float */ function expm1(float $number) {}
-/** @return float */ function fmod(float $x, float $y) {} /** @return float */ function hypot(float $x, float $y) {}
+/** @return float */ function fmod(float $x, float $y) {} /** @return float */ function hypot(float $num1, float $num2) {}
 /** @return int */ function intdiv(int $dividend, int $divisor) {}
 /** @return bool */ function is_finite(float $val) {} /** @return bool */ function is_infinite(float $val) {} /** @return bool */ function is_nan(float $val) {}
-/** @return float */ function log(float $arg, float $base = M_E) {} /** @return float */ function log10(float $arg) {} /** @return float */ function log1p(float $number) {}
+/** @return float */ function log(float $number, float $base = M_E) {} /** @return float */ function log10(float $number) {} /** @return float */ function log1p(float $number) {}
 /** @return float */ function pi() {} /** @return int|float */ function pow($base, $exponent) {}
-/** @param int|float $val
- * @return float */ function round($val, int $precision = 0, int $mode = PHP_ROUND_HALF_UP) {} /** @return float */ function sqrt(float $arg) {}
+/** @param int|float $number
+ * @return float */ function round($number, int $precision = 0, int $mode = PHP_ROUND_HALF_UP) {} /** @return float */ function sqrt(float $number) {}
 ${extrema}
 `;
 }
@@ -682,7 +1118,7 @@ ${php74 ? '/** @deprecated PHP 7.4; removed in PHP 8.0.\n * @return void */ ' : 
 `;
 }
 
-function auditedRuntimeEnvironmentFunctionStub(version: SupportedPhpVersion): string {
+function auditedRuntimeEnvironmentFunctionStub(version: SupportedPhpVersion, options: BuiltinPhpStubOptions): string {
   const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php73 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.3');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
@@ -716,7 +1152,7 @@ function get_current_user(): string {}
 function getlastmod(): int|false {} function getmygid(): int|false {} function getmyinode(): int|false {}
 function getmypid(): int|false {} function getmyuid(): int|false {}
 /** @return array<array-key, string|false|list<string|false>>|false */ function getopt(string $short_options, array $long_options = [], &$rest_index = null): array|false {}
-/** @return array<string, int>|false */ function getrusage(int $mode = 0): array|false {}
+${auditedGetrusageStub(version, options.getrusageRuntime)}
 function phpcredits(int $flags = CREDITS_ALL): ${phpInfoReturn} {} function phpinfo(int $flags = INFO_ALL): ${phpInfoReturn} {}
 function putenv(string $assignment): bool {} function set_time_limit(int $seconds): bool {}
 function sys_get_temp_dir(): string {}
@@ -744,7 +1180,7 @@ ${gcStatus}
 ${php74 ? '/** @deprecated PHP 7.4; removed in PHP 8.0.\n * @return false */' : '/** @return false */'} function get_magic_quotes_gpc() {}
 ${php74 ? '/** @deprecated PHP 7.4; removed in PHP 8.0.\n * @return false */' : '/** @return false */'} function get_magic_quotes_runtime() {}
 /** @return array<array-key, string|false|list<string|false>>|false */ function getopt($options, $opts = [], &$optind = null) {}
-/** @return array<string, int>|false */ function getrusage($who = 0) {}
+${auditedGetrusageStub(version, options.getrusageRuntime)}
 /** @return bool */ function phpcredits($flag = CREDITS_ALL) {} /** @return bool */ function phpinfo($what = INFO_ALL) {}
 /** @return bool */ function putenv($setting) {} /** @return bool */ function set_time_limit($seconds) {}
 /** @return string */ function sys_get_temp_dir() {}
@@ -1159,50 +1595,58 @@ function auditedStringFunctionStub(version: SupportedPhpVersion): string {
   const needleDoc = php80 ? '' : '/** @param string|int $needle */ ';
   const encoding = php80 ? '?string $encoding = null' : 'string $encoding = null';
   const htmlFlags = php81 ? 'ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401' : 'ENT_COMPAT';
-  const replace = php80
-    ? 'function str_replace(array|string $search, array|string $replace, array|string $subject, ?int &$count = null): array|string {}\nfunction str_ireplace(array|string $search, array|string $replace, array|string $subject, ?int &$count = null): array|string {}'
-    : `/** @param array|string $search
+  const textName = php80 ? 'string' : 'str';
+  const quoteFlags = php80 ? 'flags' : 'quote_style';
+  const replacedValue = php80 ? 'string' : 'mixed';
+  const replaceArgs = php80
+    ? 'array|string $search, array|string $replace, array|string $subject, ?int &$count = null'
+    : '$search, $replace, $subject, int &$replace_count = null';
+  const arrayReplaceArgs = php80
+    ? 'array|string $search, array|string $replace, array $subject, ?int &$count = null'
+    : '$search, $replace, array $subject, int &$replace_count = null';
+  const replace = ['str_replace', 'str_ireplace'].map(name => `/** @param array|string $search
  * @param array|string $replace
  * @param array|string $subject
- * @return array|string */ function str_replace($search, $replace, $subject, int &$count = null) {}
-/** @param array|string $search
+ * @return ($subject is array ? array<array-key, ${replacedValue}> : string) */ function ${name}(${replaceArgs})${php80 ? ': array|string' : ''} {}
+/** @template TKey of array-key
+ * @param array|string $search
  * @param array|string $replace
- * @param array|string $subject
- * @return array|string */ function str_ireplace($search, $replace, $subject, int &$count = null) {}`;
-  return `function strlen(string $string): int {}
-${php80 ? 'function substr(string $string, int $offset, ?int $length = null): string {}' : '/** @return string|false */ function substr(string $string, int $offset, int $length = null) {}'}
+ * @param array<TKey, mixed> $subject
+ * @return array<TKey, ${replacedValue}> */ function ${name}(${arrayReplaceArgs})${php80 ? ': array' : ''} {}`).join('\n');
+  return `function strlen(string $${php80 ? 'string' : 'str'}): int {}
+${php80 ? 'function substr(string $string, int $offset, ?int $length = null): string {}' : '/** @return string|false */ function substr(string $str, int $start, int $length = null) {}'}
 ${needleDoc}function strpos(string $haystack, ${needle}, int $offset = 0)${php80 ? ': int|false' : ''} {}
 ${needleDoc}function stripos(string $haystack, ${needle}, int $offset = 0)${php80 ? ': int|false' : ''} {}
 ${needleDoc}function strrpos(string $haystack, ${needle}, int $offset = 0)${php80 ? ': int|false' : ''} {}
 ${needleDoc}function strripos(string $haystack, ${needle}, int $offset = 0)${php80 ? ': int|false' : ''} {}
 ${php80 ? 'function str_contains(string $haystack, string $needle): bool {}\nfunction str_starts_with(string $haystack, string $needle): bool {}\nfunction str_ends_with(string $haystack, string $needle): bool {}' : ''}
-function trim(string $string, string $characters = " \\n\\r\\t\\v\\0"): string {}
-function ltrim(string $string, string $characters = " \\n\\r\\t\\v\\0"): string {}
-function rtrim(string $string, string $characters = " \\n\\r\\t\\v\\0"): string {}
-function strtolower(string $string): string {} function strtoupper(string $string): string {}
+function trim(string $${textName}, string $${php80 ? 'characters' : 'character_mask'} = " \\n\\r\\t\\v\\0"): string {}
+function ltrim(string $${textName}, string $${php80 ? 'characters' : 'character_mask'} = " \\n\\r\\t\\v\\0"): string {}
+function rtrim(string $${textName}, string $${php80 ? 'characters' : 'character_mask'} = " \\n\\r\\t\\v\\0"): string {}
+function strtolower(string $${textName}): string {} function strtoupper(string $${textName}): string {}
 ${replace}
-${php80 ? 'function explode(string $separator, string $string, int $limit = PHP_INT_MAX): array {}' : '/** @return array|false */ function explode(string $separator, string $string, int $limit = PHP_INT_MAX) {}'}
+${php80 ? '/** @return list<string> */ function explode(string $separator, string $string, int $limit = PHP_INT_MAX): array {}' : '/** @return list<string>|false */ function explode(string $separator, string $str, int $limit = PHP_INT_MAX) {}'}
 function implode(array $separator): string {}
 function implode(string $separator, array $array): string {}
 ${php80 ? '' : 'function implode(array $array, string $separator): string {}'}
 function join(array $separator): string {}
 function join(string $separator, array $array): string {}
 ${php80 ? '' : 'function join(array $array, string $separator): string {}'}
-${php80 ? 'function sprintf(string $format, mixed ...$values): string {}\nfunction vsprintf(string $format, array $values): string {}' : '/** @return string|false */ function sprintf(string $format, ...$values) {}\n/** @return string|false */ function vsprintf(string $format, array $values) {}'}
-function htmlspecialchars(string $string, int $flags = ${htmlFlags}, ${encoding}, bool $double_encode = true): string {}
-function htmlentities(string $string, int $flags = ${htmlFlags}, ${encoding}, bool $double_encode = true): string {}
-function htmlspecialchars_decode(string $string, int $flags = ${htmlFlags}): string {}
-function html_entity_decode(string $string, int $flags = ${htmlFlags}, ${encoding}): string {}
-function nl2br(string $string, bool $use_xhtml = true): string {}
-function wordwrap(string $string, int $width = 75, string $break = "\\n", bool $cut_long_words = false): string {}
-function ucfirst(string $string): string {} function lcfirst(string $string): string {}
-function ucwords(string $string, string $separators = " \\t\\r\\n\\f\\v"): string {}
-${php80 ? 'function str_split(string $string, int $length = 1): array {}' : '/** @return array|false */ function str_split(string $string, int $length = 1) {}'}
-function str_pad(string $string, int $length, string $pad_string = ' ', int $pad_type = STR_PAD_RIGHT): string {}
-function strrev(string $string): string {}
-function strcmp(string $string1, string $string2): int {} function strcasecmp(string $string1, string $string2): int {}
-function strncmp(string $string1, string $string2, int $length): int {} function strncasecmp(string $string1, string $string2, int $length): int {}
-function strnatcmp(string $string1, string $string2): int {} function strnatcasecmp(string $string1, string $string2): int {}
+${php80 ? 'function sprintf(string $format, mixed ...$values): string {}\nfunction vsprintf(string $format, array $values): string {}' : '/** @return string|false */ function sprintf(string $format, ...$args) {}\n/** @return string|false */ function vsprintf(string $format, array $args) {}'}
+function htmlspecialchars(string $string, int $${quoteFlags} = ${htmlFlags}, ${encoding}, bool $double_encode = true): string {}
+function htmlentities(string $string, int $${quoteFlags} = ${htmlFlags}, ${encoding}, bool $double_encode = true): string {}
+function htmlspecialchars_decode(string $string, int $${quoteFlags} = ${htmlFlags}): string {}
+function html_entity_decode(string $string, int $${quoteFlags} = ${htmlFlags}, ${encoding}): string {}
+function nl2br(string $${textName}, bool $${php80 ? 'use_xhtml' : 'is_xhtml'} = true): string {}
+function wordwrap(string $${textName}, int $width = 75, string $break = "\\n", bool $${php80 ? 'cut_long_words' : 'cut'} = false): string {}
+function ucfirst(string $${textName}): string {} function lcfirst(string $${textName}): string {}
+function ucwords(string $${textName}, string $${php80 ? 'separators' : 'delimiters'} = " \\t\\r\\n\\f\\v"): string {}
+${php80 ? '/** @return list<string> */ function str_split(string $string, int $length = 1): array {}' : '/** @return list<string>|false */ function str_split(string $str, int $split_length = 1) {}'}
+function str_pad(string $${php80 ? 'string' : 'input'}, int $${php80 ? 'length' : 'pad_length'}, string $pad_string = ' ', int $pad_type = STR_PAD_RIGHT): string {}
+function strrev(string $${textName}): string {}
+function strcmp(string $${php80 ? 'string1' : 'str1'}, string $${php80 ? 'string2' : 'str2'}): int {} function strcasecmp(string $${php80 ? 'string1' : 'str1'}, string $${php80 ? 'string2' : 'str2'}): int {}
+function strncmp(string $${php80 ? 'string1' : 'str1'}, string $${php80 ? 'string2' : 'str2'}, int $${php80 ? 'length' : 'len'}): int {} function strncasecmp(string $${php80 ? 'string1' : 'str1'}, string $${php80 ? 'string2' : 'str2'}, int $${php80 ? 'length' : 'len'}): int {}
+function strnatcmp(string $${php80 ? 'string1' : 's1'}, string $${php80 ? 'string2' : 's2'}): int {} function strnatcasecmp(string $${php80 ? 'string1' : 's1'}, string $${php80 ? 'string2' : 's2'}): int {}
 function strtr(string $string, array $from): string {}
 function strtr(string $string, string $from, string $to): string {}
 `;
@@ -1325,7 +1769,8 @@ function vprintf(string $format, array $values): int {}
 /** @return string */ function quoted_printable_encode($str) {}
 /** @return string */ function quotemeta($str) {}
 /** @param array<int, string>|string $locales
- * @return string|false */ function setlocale($category, ...$locales) {}
+ * @param string ...$rest
+ * @return string|false */ function setlocale($category, $locales, ...$rest) {}
 /** @return string */ function sha1($str, $raw_output = false) {}
 /** @return string|false */ function sha1_file($filename, $raw_output = false) {}
 /** @param float $percent
@@ -1384,19 +1829,24 @@ function auditedArrayFunctionStub(version: SupportedPhpVersion): string {
   const php85 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.5');
   const mixed = php80 ? 'mixed ' : '';
   const nullableCallable = php80 ? '?callable' : 'callable';
-  return `/** @param array<array-key, mixed>|Countable $value */ function count($value, int $mode = COUNT_NORMAL): int {}
-/** @param array<array-key, mixed>|Countable $value */ function sizeof($value, int $mode = COUNT_NORMAL): int {}
+  return `${php80 ? '' : `/** @deprecated PHP 7.2; removed in PHP 8.0.
+ * @param array<array-key, mixed>|object $arr
+ * @return array{0:int|string, 1:mixed, key:int|string, value:mixed}|false */ function each(&$arr) {}
+`}/** @param array<array-key, mixed>|Countable $${php80 ? 'value' : 'var'}
+ * @return int */ function count(${php80 ? 'Countable|array ' : ''}$${php80 ? 'value' : 'var'}, int $mode = COUNT_NORMAL): int {}
+/** @param array<array-key, mixed>|Countable $${php80 ? 'value' : 'var'}
+ * @return int */ function sizeof(${php80 ? 'Countable|array ' : ''}$${php80 ? 'value' : 'var'}, int $mode = COUNT_NORMAL): int {}
 function in_array(${mixed}$needle, array $haystack, bool $strict = false): bool {}
 ${php80 ? '' : '/** @param int|string $key */ '}function array_key_exists($key, array $array): bool {}
 ${php80 ? '' : '/** @param int|string $key */ function array_key_exists($key, object $array): bool {}'}
 ${php80 ? '' : '/** @param int|string $key */ '}function key_exists($key, array $array): bool {}
 ${php80 ? '' : '/** @param int|string $key */ function key_exists($key, object $array): bool {}'}
 ${php73 ? `/** @template TKey of array-key
- * @param array<TKey, mixed> $array
- * @return TKey|null */ function array_key_first(array $array)${php80 ? ': int|string|null' : ''} {}
+ * @param array<TKey, mixed> $${php74 && !php80 ? 'arg' : 'array'}
+ * @return TKey|null */ function array_key_first(array $${php74 && !php80 ? 'arg' : 'array'})${php80 ? ': int|string|null' : ''} {}
 /** @template TKey of array-key
- * @param array<TKey, mixed> $array
- * @return TKey|null */ function array_key_last(array $array)${php80 ? ': int|string|null' : ''} {}` : ''}
+ * @param array<TKey, mixed> $${php74 && !php80 ? 'arg' : 'array'}
+ * @return TKey|null */ function array_key_last(array $${php74 && !php80 ? 'arg' : 'array'})${php80 ? ': int|string|null' : ''} {}` : ''}
 ${php84 ? `/** @template TKey of array-key
  * @template TValue
  * @param array<TKey, TValue> $array
@@ -1423,28 +1873,28 @@ ${php85 ? `/** @template TValue
  * @return TValue|null */ function array_last(array $array): mixed {}` : ''}
 /** @template TKey of array-key
  * @template TValue
- * @param array<TKey, TValue> $array
- * @return list<TKey> */ function array_keys(array $array, ${mixed}$filter_value = null, bool $strict = false): array {}
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @return list<TKey> */ function array_keys(array $${php80 ? 'array' : 'arg'}, ${mixed}$${php80 ? 'filter_value' : 'search_value'} = null, bool $strict = false): array {}
 /** @template TValue
- * @param array<array-key, TValue> $array
- * @return list<TValue> */ function array_values(array $array): array {}
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'arg'}
+ * @return list<TValue> */ function array_values(array $${php80 ? 'array' : 'arg'}): array {}
 /** @template TValue
- * @param array<array-key, TValue> ...$arrays
- * @return array<array-key, TValue> */ function array_merge(${php74 ? '' : 'array $array, '}array ...$arrays): array {}
+ * ${php74 ? '' : '@param array<array-key, TValue> $arr1\n * '}@param array<array-key, TValue> ...$arrays
+ * @return array<array-key, TValue> */ function array_merge(${php74 ? '' : 'array $arr1, '}array ...$arrays): array {}
 /** @template TKey of array-key
  * @template TValue
- * @param array<TKey, TValue> $array
- * @param array<TKey, TValue> ...$replacements
- * @return array<TKey, TValue> */ function array_replace(array $array, array ...$replacements): array {}
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arr1'}
+ * @param array<TKey, TValue> ...$${php80 ? 'replacements' : 'arrays'}
+ * @return array<TKey, TValue> */ function array_replace(array $${php80 ? 'array' : 'arr1'}, array ...$${php80 ? 'replacements' : 'arrays'}): array {}
 /** @template TValue
- * @param list<array-key> $keys
- * @param list<TValue> $values
+ * @param array<array-key, mixed> $keys
+ * @param array<array-key, TValue> $values
  * @return ${php80 ? 'array<array-key, TValue>' : 'array<array-key, TValue>|false'} */ ${php80 ? 'function array_combine(array $keys, array $values): array {}' : 'function array_combine(array $keys, array $values) {}'}
 /** @template TKey of array-key
  * @template TValue
- * @param array<TKey, TValue> $array
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
  * @param callable(TValue):bool|null $callback
- * @return array<TKey, TValue> */ function array_filter(array $array, ${nullableCallable} $callback = null, int $mode = 0): array {}
+ * @return array<TKey, TValue> */ function array_filter(array $${php80 ? 'array' : 'arg'}, ${nullableCallable} $callback = null, int $${php80 ? 'mode' : 'use_keys'} = 0): array {}
 /** @template TKey of array-key
  * @template TValue
  * @template TResult
@@ -1458,43 +1908,82 @@ ${php85 ? `/** @template TValue
  * @param array<array-key, TValue1> $array
  * @param array<array-key, TValue2> $arrays
  * @return list<TResult> */ function array_map(callable $callback, array $array, array $arrays): array {}
-${php80 ? `/** @template TKey of array-key
+/** @return list<mixed> */ function array_map(callable $callback, array $array, array $arrays, array ...$more_arrays): array {}
+/** @template TKey of array-key
  * @template TValue
  * @param null $callback
  * @param array<TKey, TValue> $array
  * @return array<TKey, TValue> */ function array_map(?callable $callback, array $array): array {}
 /** @param null $callback
- * @return list<list<mixed>> */ function array_map(?callable $callback, array $array, array $arrays, array ...$more_arrays): array {}` : ''}
+ * @return list<list<mixed>> */ function array_map(?callable $callback, array $array, array $arrays, array ...$more_arrays): array {}
 /** @template TValue
  * @template TCarry
- * @param array<array-key, TValue> $array
+ * @param array<array-key, TValue> $${php80 ? 'array' : 'arg'}
  * @param callable(TCarry, TValue):TCarry $callback
  * @param TCarry $initial
- * @return TCarry */ function array_reduce(array $array, callable $callback, ${mixed}$initial = null)${php80 ? ': mixed' : ''} {}
-/** @return list<mixed> */ function array_column(array $array, $column_key, $index_key = null): array {}
+ * @return TCarry */ function array_reduce(array $${php80 ? 'array' : 'arg'}, callable $callback, ${mixed}$initial = null)${php80 ? ': mixed' : ''} {}
+/** @param int|string|null $column_key
+ * @param int|string|null $index_key
+ * @return ($index_key is null ? list<mixed> : array<array-key, mixed>) */ function array_column(array $${php80 ? 'array' : 'arg'}, ${php80 ? 'int|string|null ' : ''}$column_key, ${php80 ? 'int|string|null ' : ''}$index_key = null): array {}
 /** @template TKey of array-key
  * @template TValue
  * @param TValue $needle
  * @param array<TKey, TValue> $haystack
  * @return TKey|false */ function array_search(${mixed}$needle, array $haystack, bool $strict = false) {}
+/** @return array<array-key, array-key> */ function array_flip(array $${php80 ? 'array' : 'arg'}): array {}
+/** @template TInputKey of array-key
+ * @param array<TInputKey, mixed> $${php80 ? 'array' : 'arg'}
+ * @return ($${php80 ? 'array' : 'arg'} is array<array-key, int> ? array<int, TInputKey> : array<array-key, TInputKey>) */ function array_flip(array $${php80 ? 'array' : 'arg'}): array {}
 /** @template TKey of array-key
- * @param array<array-key, TKey> $array
- * @return array<TKey, array-key> */ function array_flip(array $array): array {}
-/** @template TValue @param array<array-key, TValue> $array @return array<array-key, TValue> */ function array_reverse(array $array, bool $preserve_keys = false): array {}
-/** @template TKey of array-key @template TValue @param array<TKey, TValue> $array @return array<TKey, TValue> */ function array_unique(array $array, int $flags = SORT_STRING): array {}
-/** @template TValue @param array<array-key, TValue> $array @return array<array-key, TValue> */ function array_slice(array $array, int $offset, ${php80 ? '?int' : 'int'} $length = null, bool $preserve_keys = false): array {}
-/** @template TValue @param array<array-key, TValue> $array @return ${php80 ? 'list<array<array-key, TValue>>' : 'list<array<array-key, TValue>>|null'} */ function array_chunk(array $array, int $length, bool $preserve_keys = false)${php80 ? ': array' : ''} {}
-/** @return int|float */ function array_sum(array $array)${php80 ? ': int|float' : ''} {} /** @return int|float */ function array_product(array $array)${php80 ? ': int|float' : ''} {}
-/** @template TValue @param TValue $value @return ${php80 ? 'array<int, TValue>' : 'array<int, TValue>|false'} */ ${php80 ? 'function array_fill(int $start_index, int $count, mixed $value): array {}' : 'function array_fill(int $start_index, int $count, $value) {}'}
-/** @template TKey of array-key @template TValue @param list<TKey> $keys @param TValue $value @return array<TKey, TValue> */ function array_fill_keys(array $keys, ${mixed}$value): array {}
-/** @template TKey of array-key @param non-empty-array<TKey, mixed> $array @return ${php80 ? '($num is 1 ? TKey : list<TKey>)' : 'TKey|list<TKey>|null'} */ function array_rand(array $array, int $num = 1) {}
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'input'}
+ * @return array<TKey, TValue> */ function array_reverse(array $${php80 ? 'array' : 'input'}, bool $preserve_keys = false): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @return array<TKey, TValue> */ function array_unique(array $${php80 ? 'array' : 'arg'}, int $flags = SORT_STRING): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @return array<TKey, TValue> */ function array_slice(array $${php80 ? 'array' : 'arg'}, int $offset, ?int $length = null, bool $preserve_keys = false): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arg'}
+ * @return ($preserve_keys is true ? list<array<TKey, TValue>>${php80 ? '' : '|null'} : list<array<int, TValue>>${php80 ? '' : '|null'}) */ function array_chunk(array $${php80 ? 'array' : 'arg'}, int $${php80 ? 'length' : 'size'}, bool $preserve_keys = false)${php80 ? ': array' : ''} {}
+/** @return int|float */ function array_sum(array $${php80 ? 'array' : 'arg'})${php80 ? ': int|float' : ''} {} /** @return int|float */ function array_product(array $${php80 ? 'array' : 'arg'})${php80 ? ': int|float' : ''} {}
+/** @template TValue
+ * @param TValue $${php80 ? 'value' : 'val'}
+ * @return ${php80 ? 'array<int, TValue>' : 'array<int, TValue>|false'} */ ${php80 ? 'function array_fill(int $start_index, int $count, mixed $value): array {}' : 'function array_fill(int $start_key, int $num, $val) {}'}
+/** @template TValue
+ * @param array<array-key, mixed> $keys
+ * @param TValue $${php80 ? 'value' : 'val'}
+ * @return array<array-key, TValue> */ function array_fill_keys(array $keys, ${mixed}$${php80 ? 'value' : 'val'}): array {}
+/** @template TKey of array-key
+ * @param non-empty-array<TKey, mixed> $${php80 ? 'array' : 'arg'}
+ * @return ${php80 ? '($num is 1 ? TKey : list<TKey>)' : 'TKey|list<TKey>|null'} */ function array_rand(array $${php80 ? 'array' : 'arg'}, int $${php80 ? 'num' : 'num_req'} = 1) {}
 ${php81 ? 'function array_is_list(array $array): bool {}' : ''}
-/** @param array|object $array */ function array_walk(&$array, callable $callback, ${mixed}$arg = null): ${php82 ? 'true' : 'bool'} {}
-/** @param array|object $array */ function array_walk_recursive(&$array, callable $callback, ${mixed}$arg = null): ${php82 ? 'true' : 'bool'} {}
-/** @template TKey of array-key @template TValue @param array<TKey, TValue> $array @return array<TKey, TValue> */ function array_intersect(array $array, array ...$arrays): array {}
-/** @template TKey of array-key @template TValue @param array<TKey, TValue> $array @return array<TKey, TValue> */ function array_diff(array $array, array ...$arrays): array {}
-/** @template TKey of array-key @template TValue @param array<TKey, TValue> $array @return array<TKey, TValue> */ function array_intersect_key(array $array, array ...$arrays): array {}
-/** @template TKey of array-key @template TValue @param array<TKey, TValue> $array @return array<TKey, TValue> */ function array_diff_key(array $array, array ...$arrays): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue>|object $${php80 ? 'array' : 'input'}
+ * @return ${php82 ? 'true' : 'bool'} */ function array_walk(${php80 ? 'array|object ' : ''}&$${php80 ? 'array' : 'input'}, callable $${php80 ? 'callback' : 'funcname'}, ${mixed}$${php80 ? 'arg' : 'userdata'} = null): ${php82 ? 'true' : 'bool'} {}
+/** @param array|object $${php80 ? 'array' : 'input'}
+ * @return ${php82 ? 'true' : 'bool'} */ function array_walk_recursive(${php80 ? 'array|object ' : ''}&$${php80 ? 'array' : 'input'}, callable $${php80 ? 'callback' : 'funcname'}, ${mixed}$${php80 ? 'arg' : 'userdata'} = null): ${php82 ? 'true' : 'bool'} {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arr1'}
+ * @return array<TKey, TValue> */ function array_intersect(array $${php80 ? 'array' : 'arr1'}, ${php80 ? '' : 'array $array2, '}array ...$arrays): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arr1'}
+ * @return array<TKey, TValue> */ function array_diff(array $${php80 ? 'array' : 'arr1'}, ${php80 ? '' : 'array $array2, '}array ...$arrays): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arr1'}
+ * @return array<TKey, TValue> */ function array_intersect_key(array $${php80 ? 'array' : 'arr1'}, ${php80 ? '' : 'array $array2, '}array ...$arrays): array {}
+/** @template TKey of array-key
+ * @template TValue
+ * @param array<TKey, TValue> $${php80 ? 'array' : 'arr1'}
+ * @return array<TKey, TValue> */ function array_diff_key(array $${php80 ? 'array' : 'arr1'}, ${php80 ? '' : 'array $array2, '}array ...$arrays): array {}
 `;
 }
 
@@ -1503,11 +1992,11 @@ function auditedIteratorFunctionStub(version: SupportedPhpVersion): string {
   const php82 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2');
   const iterable = php82 ? 'Traversable|array' : 'Traversable';
   const documentedIterable = php82 ? 'Traversable<TKey, TValue>|array<TKey, TValue>' : 'Traversable<TKey, TValue>';
-  return `function is_iterable(${php80 ? 'mixed ' : ''}$value): bool {}
+  return `function is_iterable(${php80 ? 'mixed ' : ''}$${php80 ? 'value' : 'var'}): bool {}
 /** @template TKey of array-key
  * @template TValue
  * @param ${documentedIterable} $iterator
- * @return ($preserve_keys is false ? list<TValue> : array<TKey, TValue>) */ function iterator_to_array(${iterable} $iterator, bool $preserve_keys = true): array {}
+ * @return ($${php80 ? 'preserve_keys' : 'use_keys'} is false ? list<TValue> : array<TKey, TValue>) */ function iterator_to_array(${iterable} $iterator, bool $${php80 ? 'preserve_keys' : 'use_keys'} = true): array {}
 function iterator_count(${iterable} $iterator): int {}
 `;
 }
@@ -1518,7 +2007,7 @@ function auditedSplFunctionStub(version: SupportedPhpVersion): string {
   if (php80) return `/** @return ${classMap}|false */ function class_implements(object|string $object_or_class, bool $autoload = true): array|false {}
 /** @return ${classMap}|false */ function class_parents(object|string $object_or_class, bool $autoload = true): array|false {}
 /** @return ${classMap}|false */ function class_uses(object|string $object_or_class, bool $autoload = true): array|false {}
-/** @param list<mixed>|null $args */ function iterator_apply(Traversable $iterator, callable $callback, ?array $args = null): int {}
+/** @param array<array-key, mixed>|null $args */ function iterator_apply(Traversable $iterator, callable $callback, ?array $args = null): int {}
 function spl_autoload(string $class, ?string $file_extensions = null): void {}
 function spl_autoload_call(string $class): void {}
 function spl_autoload_extensions(?string $file_extensions = null): string {}
@@ -1535,8 +2024,8 @@ function spl_object_id(object $object): int {}
  * @return ${classMap}|false */ function class_parents($instance, $autoload = true) {}
 /** @param object|class-string $what
  * @return ${classMap}|false */ function class_uses($what, $autoload = true) {}
-/** @param list<mixed>|null $args
- * @return int */ function iterator_apply(Traversable $iterator, $function, array $args = null) {}
+/** @param array<array-key, mixed>|null $args
+ * @return int */ function iterator_apply(Traversable $iterator, $function, ?array $args = null) {}
 /** @return void */ function spl_autoload($class_name, $file_extensions = null) {}
 /** @return void */ function spl_autoload_call($class_name) {}
 /** @return string */ function spl_autoload_extensions($file_extensions = null) {}
@@ -1608,6 +2097,8 @@ function auditedSplFileStub(version: SupportedPhpVersion): string {
   /** @param class-string<SplFileObject> $${php80 ? 'class' : 'class_name'} */ public function setFileClass(${fileClassParameter}): void {}
   /** @param class-string<SplFileInfo> $${php80 ? 'class' : 'class_name'} */ public function setInfoClass(${infoClassParameter}): void {}
   public function __toString(): string {}
+  /** @return void */ final public function _bad_state_ex()${php85 ? ': void' : ''} {}
+  ${php74 ? '/** @return array */ public function __debugInfo() {}' : ''}
 }
 /** @template-implements RecursiveIterator<int, string|list<string|null>|false>
  * @template-implements SeekableIterator<int, string|list<string|null>|false> */
@@ -1623,7 +2114,7 @@ class SplFileObject extends SplFileInfo implements RecursiveIterator, SeekableIt
   ${deprecatedFgetss}
   public function flock(${php80 ? 'int ' : ''}$operation, &$${php80 ? 'wouldBlock' : 'wouldblock'} = null): bool {}
   public function fpassthru(): int {}
-  /** @param list<string> $fields
+  /** @param array<array-key, mixed> $fields
    * @return int|false */ public function fputcsv(${php80 ? 'array ' : ''}$fields, ${csvParameters}${php81 ? ', string $eol = "\\n"' : ''}) {}
   /** @return string|false */ public function fread(${php80 ? 'int ' : ''}$length) {}
   /** @return array<int, float|int|string|null>|int|null */ public function fscanf(${php80 ? 'string ' : ''}$format, &...$vars) {}
@@ -1752,6 +2243,15 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
    * @return ${sortReturn} */ public function uksort(${callback}) {}
   /** @return void */ public function unserialize(${php80 ? 'string $data' : '$serialized'}) {}
   /** @return bool */ public function valid() {}
+}
+/** @template TKey of array-key
+ * @template TValue
+ * @template-extends ArrayIterator<TKey, TValue>
+ * @template-implements RecursiveIterator<TKey, TValue> */
+class RecursiveArrayIterator extends ArrayIterator implements RecursiveIterator {
+  public const ${constantType}CHILD_ARRAYS_ONLY = 4;
+  /** @return bool */ public function hasChildren() {}
+  /** @return ?RecursiveArrayIterator */ public function getChildren() {}
 }
 `;
 }
@@ -2338,7 +2838,7 @@ class RecursiveCachingIterator extends CachingIterator implements RecursiveItera
  * @template-extends FilterIterator<TKey, ${regexValue}> */
 class RegexIterator extends FilterIterator {
   public const ${constantType}USE_KEY = 1; public const ${constantType}INVERT_MATCH = 2;
-  public const ${constantType}MATCH = 0; public const ${constantType}GET_MATCH = 1;
+  /** @var int */ public const MATCH = 0; public const ${constantType}GET_MATCH = 1;
   public const ${constantType}ALL_MATCHES = 2; public const ${constantType}SPLIT = 3; public const ${constantType}REPLACE = 4;
   public ${php81 ? '?string ' : ''}$replacement = null;
   /** @param Iterator<TKey, TValue> $iterator */ ${regexConstructor}
@@ -2383,6 +2883,7 @@ class RecursiveTreeIterator extends RecursiveIteratorIterator {
 }
 
 function auditedClassObjectFunctionStub(version: SupportedPhpVersion): string {
+  const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php81 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
   const mixed = php80 ? 'mixed ' : '';
@@ -2399,19 +2900,26 @@ function auditedClassObjectFunctionStub(version: SupportedPhpVersion): string {
 /** @param object|class-string $object_or_class
  * @return class-string|false */ function get_parent_class(${objectOrClass}$object_or_class)${php80 ? ': string|false' : ''} {}
 /** @return class-string|false */ function get_parent_class()${php80 ? ': string|false' : ''} {}
-function class_exists(${string}$class, ${bool}$autoload = true)${boolReturn} {}
-function interface_exists(${string}$interface, ${bool}$autoload = true)${boolReturn} {}
-function trait_exists(${string}$trait, ${bool}$autoload = true)${boolReturn} {}
+function class_exists(${string}$${php80 ? 'class' : 'classname'}, ${bool}$autoload = true)${boolReturn} {}
+/** @param class-string $${php80 ? 'class' : 'user_class_name'}
+ * @param string $${php80 ? 'alias' : 'alias_name'}
+ * @return bool */ function class_alias(${php80 ? 'string $class, string $alias, bool $autoload = true' : '$user_class_name, $alias_name, $autoload = true'})${boolReturn} {}
+/** @return class-string */ function get_called_class()${php80 ? ': string' : ''} {}
+function interface_exists(${string}$${php80 ? 'interface' : 'classname'}, ${bool}$autoload = true)${boolReturn} {}
+function trait_exists(${string}$${php80 ? 'trait' : 'traitname'}, ${bool}$autoload = true)${boolReturn} {}
 ${php81 ? 'function enum_exists(string $enum, bool $autoload = true): bool {}' : ''}
-/** @param object|string $object_or_class */ function method_exists($object_or_class, ${string}$method)${boolReturn} {}
-/** @param object|string $object_or_class */ function property_exists($object_or_class, ${string}$property)${boolReturn} {}
-function is_a(${mixed}$object_or_class, ${string}$class, ${bool}$allow_string = false)${boolReturn} {}
-function is_subclass_of(${mixed}$object_or_class, ${string}$class, ${bool}$allow_string = true)${boolReturn} {}
-/** @param object|class-string $object_or_class
- * @return ${php80 ? 'list<string>' : 'list<string>|null'} */ function get_class_methods(${objectOrClass}$object_or_class)${arrayReturn} {}
-/** @param class-string $class
- * @return ${php80 ? 'array<string, mixed>' : 'array<string, mixed>|false'} */ function get_class_vars(${string}$class)${arrayReturn} {}
-/** @return array<string, mixed> */ function get_object_vars(${object}$object)${arrayReturn} {}
+/** @param object|string $${php80 ? 'object_or_class' : 'object'} */ function method_exists($${php80 ? 'object_or_class' : 'object'}, ${string}$method)${boolReturn} {}
+/** @param object|string $object_or_class */ function property_exists($object_or_class, ${string}$${php80 ? 'property' : 'property_name'})${boolReturn} {}
+function is_a(${mixed}$${php80 ? 'object_or_class' : 'object'}, ${string}$${php80 ? 'class' : 'class_name'}, ${bool}$allow_string = false)${boolReturn} {}
+function is_subclass_of(${mixed}$${php80 ? 'object_or_class' : 'object'}, ${string}$${php80 ? 'class' : 'class_name'}, ${bool}$allow_string = true)${boolReturn} {}
+/** @param object|class-string $${php80 ? 'object_or_class' : 'class'}
+ * @return ${php80 ? 'list<string>' : 'list<string>|null'} */ function get_class_methods(${objectOrClass}$${php80 ? 'object_or_class' : 'class'})${arrayReturn} {}
+/** @param class-string $${php80 ? 'class' : 'class_name'}
+ * @return ${php80 ? 'array<string, mixed>' : 'array<string, mixed>|false'} */ function get_class_vars(${string}$${php80 ? 'class' : 'class_name'})${arrayReturn} {}
+/** @return array<string, mixed> */ function get_object_vars(${object}$${php80 ? 'object' : 'obj'})${arrayReturn} {}
+${php74 ? `/** @param object $${php80 ? 'object' : 'obj'}
+ * @return array<array-key, mixed> */ function get_mangled_object_vars(${php80 ? 'object $object): array' : '$obj)'} {}
+` : ''}
 /** @return list<class-string> */ function get_declared_classes()${arrayReturn} {}
 /** @return list<class-string> */ function get_declared_interfaces()${arrayReturn} {}
 /** @return list<class-string> */ function get_declared_traits()${arrayReturn} {}
@@ -2420,14 +2928,15 @@ function is_subclass_of(${mixed}$object_or_class, ${string}$class, ${bool}$allow
 
 function auditedTypePredicateFunctionStub(version: SupportedPhpVersion): string {
   const php73 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.3');
+  const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const mixed = php80 ? 'mixed ' : '';
   const boolReturn = php80 ? ': bool' : '';
   const boolDoc = php80 ? '' : '/** @return bool */ ';
-  const unary = (name: string): string => `${boolDoc}function ${name}(${mixed}$value)${boolReturn} {}`;
+  const unary = (name: string): string => `${boolDoc}function ${name}(${mixed}$${php80 || ['is_scalar', 'is_numeric'].includes(name) || name === 'is_countable' && !php74 ? 'value' : 'var'})${boolReturn} {}`;
   return `${['is_null', 'is_bool', 'is_int', 'is_integer', 'is_long', 'is_float', 'is_double', 'is_string', 'is_array', 'is_object', 'is_resource', 'is_scalar', 'is_numeric']
     .map(unary).join('\n')}
-${php80 ? '' : `${unary('is_real')}\n`}${php73 ? `${unary('is_countable')}\n` : ''}${boolDoc}function is_callable(${mixed}$value, ${php80 ? 'bool ' : ''}$syntax_only = false, ${php80 ? '?string ' : ''}&$callable_name = null)${boolReturn} {}
+${php80 ? '' : `${unary('is_real')}\n`}${php73 ? `${unary('is_countable')}\n` : ''}${boolDoc}function is_callable(${mixed}$${php80 ? 'value' : 'var'}, ${php80 ? 'bool ' : ''}$syntax_only = false, ${php80 ? '?string ' : ''}&$callable_name = null)${boolReturn} {}
 `;
 }
 
@@ -2468,10 +2977,14 @@ ${php73 ? 'const JSON_THROW_ON_ERROR = 4194304;' : ''}
 
 function auditedFilesystemFunctionStub(version: SupportedPhpVersion): string {
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
+  const pathinfoParameter = php80 ? 'flags' : 'options';
+  // Empty paths omit dirname; paths without a suffix omit extension.
+  const pathinfoShape = 'array{dirname?:string, basename:string, extension?:string, filename:string}';
+  const pathinfoReturn = `($${pathinfoParameter} is 15 ? ${pathinfoShape} : string)`;
   const returnType = (type: string): string => php80 ? `: ${type}` : '';
   const returnDoc = (type: string): string => php80 ? '' : `/** @return ${type} */ `;
   const contextDoc = '/** @param resource|null $context';
-  const streamDoc = (returnValue: string): string => `/** @param resource $stream\n * @return ${returnValue} */ `;
+  const streamDoc = (returnValue: string, parameter = 'stream'): string => `/** @param resource $${parameter}\n * @return ${returnValue} */ `;
   const fileGetContents = php80
     ? `/** @param resource|null $context */ function file_get_contents(string $filename, bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string|false {}`
     : `/** @param resource|null $context
@@ -2489,15 +3002,15 @@ ${streamDoc('int|false')}function fputs($stream, string $data, int $length) {}`;
 const LOCK_SH = 1; const LOCK_EX = 2; const LOCK_UN = 3; const LOCK_NB = 4;
 const SEEK_SET = 0; const SEEK_CUR = 1; const SEEK_END = 2;
 const INI_SCANNER_NORMAL = 0; const INI_SCANNER_RAW = 1; const INI_SCANNER_TYPED = 2;
-const PATHINFO_DIRNAME = 1; const PATHINFO_BASENAME = 2; const PATHINFO_EXTENSION = 4; const PATHINFO_FILENAME = 8; const PATHINFO_ALL = 15;
+const PATHINFO_DIRNAME = 1; const PATHINFO_BASENAME = 2; const PATHINFO_EXTENSION = 4; const PATHINFO_FILENAME = 8; ${php80 ? 'const PATHINFO_ALL = 15;' : ''}
 ${fileGetContents}
 ${contextDoc}
  * @param mixed $data
  * @return int|false */ function file_put_contents(string $filename, ${php80 ? 'mixed ' : ''}$data, int $flags = 0, $context = null)${returnType('int|false')} {}
 ${contextDoc}
  * @return resource|false */ function fopen(string $filename, string $mode, bool $use_include_path = false, $context = null) {}
-${streamDoc('bool')}function fclose($stream)${returnType('bool')} {}
-${streamDoc('string|false')}function fread($stream, int $length)${returnType('string|false')} {}
+${streamDoc('bool', php80 ? 'stream' : 'fp')}function fclose($${php80 ? 'stream' : 'fp'})${returnType('bool')} {}
+${streamDoc('string|false', php80 ? 'stream' : 'fp')}function fread($${php80 ? 'stream' : 'fp'}, int $length)${returnType('string|false')} {}
 ${fwrite}
 ${returnDoc('bool')}function file_exists(string $filename)${returnType('bool')} {}
 ${returnDoc('bool')}function is_file(string $filename)${returnType('bool')} {}
@@ -2508,17 +3021,17 @@ ${returnDoc('bool')}function is_writeable(string $filename)${returnType('bool')}
 ${returnDoc('int|false')}function filesize(string $filename)${returnType('int|false')} {}
 ${returnDoc('string')}function basename(string $path, string $suffix = '')${returnType('string')} {}
 ${returnDoc('string')}function dirname(string $path, int $levels = 1)${returnType('string')} {}
-${returnDoc('array|string')}function pathinfo(string $path, int $flags = PATHINFO_ALL)${returnType('array|string')} {}
+/** @return ${pathinfoReturn} */ function pathinfo(string $path, int $${pathinfoParameter} = 15)${returnType('array|string')} {}
 ${returnDoc('string|false')}function realpath(string $path)${returnType('string|false')} {}
 /** @return list<string>|false */ function glob(string $pattern, int $flags = 0)${returnType('array|false')} {}
 ${contextDoc}
- * @return bool */ function mkdir(string $directory, int $permissions = 0777, bool $recursive = false, $context = null)${returnType('bool')} {}
+ * @return bool */ function mkdir(string $${php80 ? 'directory' : 'pathname'}, int $${php80 ? 'permissions' : 'mode'} = 0777, bool $recursive = false, $context = null)${returnType('bool')} {}
 ${contextDoc}
  * @return bool */ function unlink(string $filename, $context = null)${returnType('bool')} {}
 ${contextDoc}
- * @return bool */ function rename(string $from, string $to, $context = null)${returnType('bool')} {}
+ * @return bool */ function rename(string $${php80 ? 'from' : 'old_name'}, string $${php80 ? 'to' : 'new_name'}, $context = null)${returnType('bool')} {}
 ${contextDoc}
- * @return bool */ function copy(string $from, string $to, $context = null)${returnType('bool')} {}
+ * @return bool */ function copy(string $${php80 ? 'from' : 'source_file'}, string $${php80 ? 'to' : 'destination_file'}, $context = null)${returnType('bool')} {}
 `;
 }
 
@@ -2541,7 +3054,7 @@ function auditedFilesystemStreamStub(version: SupportedPhpVersion): string {
 function fnmatch(string $pattern, string $filename, int $flags = 0): bool {}
 /** @param resource $stream */ function fpassthru($stream): int {}
 /** @param resource $stream
- * @param array<int, string|int|float|null> $fields */ function fputcsv($stream, array $fields, string $separator = ',', string $enclosure = '"', string $escape = "\\\\"${php81 ? ', string $eol = "\\n"' : ''}): int|false {}
+ * @param array<array-key, mixed> $fields */ function fputcsv($stream, array $fields, string $separator = ',', string $enclosure = '"', string $escape = "\\\\"${php81 ? ', string $eol = "\\n"' : ''}): int|false {}
 /** @param resource $stream
  * @return array<int, string|int|float|null>|false|null */ function fscanf($stream, string $format): array|false|null {}
 /** @param resource $stream
@@ -2589,7 +3102,7 @@ ${php81 ? `/** @param resource $stream */ function fsync($stream): bool {}
 /** @param resource $fp
  * @return int */ function fpassthru($fp) {}
 /** @param resource $fp
- * @param array<int, string|int|float|null> $fields
+ * @param array<array-key, mixed> $fields
  * @return int|false */ function fputcsv($fp, array $fields, $delimiter = ',', $enclosure = '"', $escape_char = "\\\\") {}
 /** @param resource $stream
  * @return array<int, string|int|float|null>|false|null */ function fscanf($stream, $format) {}
@@ -2630,8 +3143,8 @@ function filetype(string $filename): string|false {}
 ${booleanChecks.map((name) => `function ${name}(string $filename): bool {}`).join('\n')}
 function is_uploaded_file(string $filename): bool {}
 function move_uploaded_file(string $from, string $to): bool {}
-/** @return ${statShape} */ function stat(string $filename): array|false {}
-/** @return ${statShape} */ function lstat(string $filename): array|false {}
+/** @return ${statShape}|false */ function stat(string $filename): array|false {}
+/** @return ${statShape}|false */ function lstat(string $filename): array|false {}
 function chown(string $filename, string|int $user): bool {}
 function chgrp(string $filename, string|int $group): bool {}
 function lchown(string $filename, string|int $user): bool {}
@@ -2806,36 +3319,38 @@ function shell_exec(string $command): string|false|null {}
 
 function auditedEncodingFunctionStub(version: SupportedPhpVersion): string {
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
-  const parseUrl = php80
-    ? `function parse_url(string $url): array|false {}
-function parse_url(string $url, int $component): array|string|int|false|null {}`
-    : `/** @return array|false */ function parse_url(string $url) {}
-/** @return array|string|int|false|null */ function parse_url(string $url, int $component) {}`;
+  const urlShape = 'array{scheme?:string, host?:string, port?:int, user?:string, pass?:string, path?:string, query?:string, fragment?:string}';
+  const parseUrl = `/** @return ($component is -1 ? (${urlShape}|false) : ($component is 2 ? int|false|null : string|false|null)) */
+function parse_url(string $url, int $component = -1)${php80 ? ': array|string|int|false|null' : ''} {}`;
   const getHeaders = php80
-    ? '/** @param resource|null $context */ function get_headers(string $url, bool $associative = false, $context = null): array|false {}'
-    : '/** @param resource|null $context\n * @return array|false */ function get_headers(string $url, int $format = 0, $context = null) {}';
+    ? '/** @param resource|null $context\n * @return ($associative is false ? list<string>|false : array<array-key, string|list<string>>|false) */ function get_headers(string $url, bool $associative = false, $context = null): array|false {}'
+    : '/** @param resource|null $context\n * @return ($format is 0 ? list<string>|false : array<array-key, string|list<string>>|false) */ function get_headers(string $url, int $format = 0, $context = null) {}';
   return `const PHP_URL_SCHEME = 0; const PHP_URL_HOST = 1; const PHP_URL_PORT = 2; const PHP_URL_USER = 3;
 const PHP_URL_PASS = 4; const PHP_URL_PATH = 5; const PHP_URL_QUERY = 6; const PHP_URL_FRAGMENT = 7;
 const PHP_QUERY_RFC1738 = 1; const PHP_QUERY_RFC3986 = 2;
-/** @param mixed $value */ function serialize(${php80 ? 'mixed ' : ''}$value): string {}
-/** @return mixed */ function unserialize(string $data, array $options = [])${php80 ? ': mixed' : ''} {}
-function base64_encode(string $string): string {}
-/** @return string|false */ function base64_decode(string $string, bool $strict = false)${php80 ? ': string|false' : ''} {}
-function bin2hex(string $string): string {}
-/** @return string|false */ function hex2bin(string $string)${php80 ? ': string|false' : ''} {}
-function urlencode(string $string): string {}
-function urldecode(string $string): string {}
-function rawurlencode(string $string): string {}
-function rawurldecode(string $string): string {}
+/** @param mixed $${php80 ? 'value' : 'var'} */ function serialize(${php80 ? 'mixed ' : ''}$${php80 ? 'value' : 'var'}): string {}
+/** @return mixed */ function unserialize(string $${php80 ? 'data' : 'variable_representation'}, array $${php80 ? 'options' : 'allowed_classes'} = [])${php80 ? ': mixed' : ''} {}
+function base64_encode(string $${php80 ? 'string' : 'str'}): string {}
+/** @return string|false */ function base64_decode(string $${php80 ? 'string' : 'str'}, bool $strict = false)${php80 ? ': string|false' : ''} {}
+function bin2hex(string $${php80 ? 'string' : 'data'}): string {}
+/** @return string|false */ function hex2bin(string $${php80 ? 'string' : 'data'})${php80 ? ': string|false' : ''} {}
+function urlencode(string $${php80 ? 'string' : 'str'}): string {}
+function urldecode(string $${php80 ? 'string' : 'str'}): string {}
+function rawurlencode(string $${php80 ? 'string' : 'str'}): string {}
+function rawurldecode(string $${php80 ? 'string' : 'str'}): string {}
 ${parseUrl}
-/** @param array|object $data */ function http_build_query(${php80 ? 'array|object ' : ''}$data, string $numeric_prefix = '', ${php80 ? '?string' : 'string'} $arg_separator = null, int $encoding_type = PHP_QUERY_RFC1738): string {}
+/** @param array|object $${php80 ? 'data' : 'formdata'} */ function http_build_query(${php80 ? 'array|object ' : ''}$${php80 ? 'data' : 'formdata'}, string $${php80 ? 'numeric_prefix' : 'prefix'} = '', ${php80 ? '?string' : 'string'} $arg_separator = null, int $${php80 ? 'encoding_type' : 'enc_type'} = PHP_QUERY_RFC1738): string {}
 ${getHeaders}
 `;
 }
 
-function auditedPdoStub(version: SupportedPhpVersion): string {
+function auditedPdoStub(version: SupportedPhpVersion, runtime?: PdoRuntimeFacts): string {
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
+  const target = Number(version.replace('.', ''));
+  const snapshot = PDO_CORE_CONSTANTS[target >= 85 ? '85' : target >= 84 ? '84'
+    : target >= 82 ? '82' : php80 ? '81' : target >= 74 ? '74' : '72'] as Record<string, number | string>;
+  const constants = Object.entries(snapshot).map(([name, value]) => `  public const ${name} = ${typeof value === 'string' ? `'${value}'` : value};`).join('\n');
   const pdoMethods = php80
     ? `public function __construct(string $dsn, ?string $username = null, ?string $password = null, ?array $options = null) {}
   ${php84 ? 'public static function connect(string $dsn, ?string $username = null, ?string $password = null, ?array $options = null): static {}\n  ' : ''}public function beginTransaction(): bool {}
@@ -2852,21 +3367,22 @@ function auditedPdoStub(version: SupportedPhpVersion): string {
   public function quote(string $string, int $type = self::PARAM_STR): string|false {}
   public function rollBack(): bool {}
   public function setAttribute(int $attribute, mixed $value): bool {}`
-    : `public function __construct(string $dsn, string $username = null, string $password = null, array $options = null) {}
+    : `public function __construct(string $dsn, string $username = null, string $passwd = null, array $options = null) {}
   public function beginTransaction(): bool {}
   public function commit(): bool {}
   /** @return string|null */ public function errorCode() {}
   /** @return array<int, mixed> */ public function errorInfo(): array {}
-  /** @return int|false */ public function exec(string $statement) {}
+  /** @return int|false */ public function exec(string $query) {}
   /** @return mixed */ public function getAttribute(int $attribute) {}
   /** @return list<string> */ public static function getAvailableDrivers(): array {}
   public function inTransaction(): bool {}
-  /** @return string|false */ public function lastInsertId(string $name = null) {}
+  /** @return string|false */ public function lastInsertId(string $seqname = null) {}
   /** @return PDOStatement|false */ public function prepare(string $statement, array $options = []) {}
   /** @return PDOStatement|false */ public function query(string $statement, int $fetch_mode = null, ...$fetch_mode_args) {}
-  /** @return string|false */ public function quote(string $string, int $parameter_type = self::PARAM_STR) {}
+  /** @return string|false */ public function quote(string $string, int $paramtype = self::PARAM_STR) {}
   public function rollBack(): bool {}
-  public function setAttribute(int $attribute, $value): bool {}`;
+  public function setAttribute(int $attribute, $value): bool {}
+  ${version === '7.2' ? 'final public function __sleep() {}\n  final public function __wakeup() {}' : ''}`;
   const statementMethods = php80
     ? `public string $queryString;
   public function bindColumn(string|int $column, mixed &$var, int $type = PDO::PARAM_STR, int $maxLength = 0, mixed $driverOptions = null): bool {}
@@ -2899,8 +3415,8 @@ function auditedPdoStub(version: SupportedPhpVersion): string {
   /** @return string|null */ public function errorCode() {}
   /** @return array<int, mixed> */ public function errorInfo(): array {}
   public function execute(array $bound_input_params = null): bool {}
-  /** @return mixed */ public function fetch(int $how = PDO::FETCH_DEFAULT, int $orientation = PDO::FETCH_ORI_NEXT, int $offset = 0) {}
-  /** @return array<int, mixed> */ public function fetchAll(int $how = PDO::FETCH_DEFAULT, $class_name = null, array $ctor_args = null): array {}
+  /** @return mixed */ public function fetch(int $how = 0, int $orientation = PDO::FETCH_ORI_NEXT, int $offset = 0) {}
+  /** @return array<int, mixed> */ public function fetchAll(int $how = 0, $class_name = null, array $ctor_args = null): array {}
   /** @return mixed */ public function fetchColumn(int $column_number = 0) {}
   /** @return object|false */ public function fetchObject(string $class_name = 'stdClass', array $ctor_args = []) {}
   /** @return mixed */ public function getAttribute(int $attribute) {}
@@ -2908,38 +3424,29 @@ function auditedPdoStub(version: SupportedPhpVersion): string {
   public function nextRowset(): bool {}
   public function rowCount(): int {}
   public function setAttribute(int $attribute, $value): bool {}
-  public function setFetchMode(int $mode, ...$params): bool {}`;
+  public function setFetchMode(int $mode, ...$params): bool {}
+  ${version === '7.2' ? 'final public function __sleep() {}\n  final public function __wakeup() {}' : ''}`;
   return `class PDO {
-  public const PARAM_NULL = 0; public const PARAM_INT = 1; public const PARAM_STR = 2; public const PARAM_LOB = 3; public const PARAM_STMT = 4; public const PARAM_BOOL = 5;
-  public const FETCH_DEFAULT = 0; public const FETCH_LAZY = 1; public const FETCH_ASSOC = 2; public const FETCH_NUM = 3; public const FETCH_BOTH = 4;
-  public const FETCH_OBJ = 5; public const FETCH_BOUND = 6; public const FETCH_COLUMN = 7; public const FETCH_CLASS = 8; public const FETCH_INTO = 9;
-  public const FETCH_FUNC = 10; public const FETCH_NAMED = 11; public const FETCH_KEY_PAIR = 12; public const FETCH_GROUP = 32; public const FETCH_UNIQUE = 64;
-  public const FETCH_CLASSTYPE = 128; public const FETCH_PROPS_LATE = 256; public const FETCH_SERIALIZE = 512;
-  public const ATTR_AUTOCOMMIT = 0; public const ATTR_PREFETCH = 1; public const ATTR_TIMEOUT = 2; public const ATTR_ERRMODE = 3;
-  public const ATTR_SERVER_VERSION = 4; public const ATTR_CLIENT_VERSION = 5; public const ATTR_SERVER_INFO = 6; public const ATTR_CONNECTION_STATUS = 7;
-  public const ATTR_CASE = 8; public const ATTR_CURSOR_NAME = 9; public const ATTR_CURSOR = 10; public const ATTR_ORACLE_NULLS = 11;
-  public const ATTR_PERSISTENT = 12; public const ATTR_STATEMENT_CLASS = 13; public const ATTR_FETCH_TABLE_NAMES = 14; public const ATTR_FETCH_CATALOG_NAMES = 15;
-  public const ATTR_DRIVER_NAME = 16; public const ATTR_STRINGIFY_FETCHES = 17; public const ATTR_MAX_COLUMN_LEN = 18; public const ATTR_DEFAULT_FETCH_MODE = 19;
-  public const ATTR_EMULATE_PREPARES = 20; public const ATTR_DEFAULT_STR_PARAM = 21;
-  public const ERRMODE_SILENT = 0; public const ERRMODE_WARNING = 1; public const ERRMODE_EXCEPTION = 2;
-  public const CASE_NATURAL = 0; public const CASE_UPPER = 1; public const CASE_LOWER = 2;
-  public const NULL_NATURAL = 0; public const NULL_EMPTY_STRING = 1; public const NULL_TO_STRING = 2; public const ERR_NONE = '00000';
-  public const FETCH_ORI_NEXT = 0; public const FETCH_ORI_PRIOR = 1; public const FETCH_ORI_FIRST = 2; public const FETCH_ORI_LAST = 3;
-  public const FETCH_ORI_ABS = 4; public const FETCH_ORI_REL = 5; public const CURSOR_FWDONLY = 0; public const CURSOR_SCROLL = 1;
+${constants}
+${pdoLegacyConstantDeclarations(version, runtime)}
   ${pdoMethods}
 }
 /** @implements ${php80 ? 'IteratorAggregate<array-key, mixed>' : 'Traversable<array-key, mixed>'} */
 class PDOStatement implements ${php80 ? 'IteratorAggregate' : 'Traversable'} {
   ${statementMethods}
 }
-class PDOException extends RuntimeException { public ${php80 ? '?array ' : ''}$errorInfo; }
+class PDOException extends RuntimeException {
+  public ${target >= 81 ? '?array ' : ''}$errorInfo;
+  ${target >= 81 ? '/** @var int|string */ protected $code = 0;' : ''}
+}
+final class PDORow {${target >= 81 ? ' public string $queryString; ' : ''}}
+/** @return list<string> */ function pdo_drivers(): array {}
 `;
 }
 
 function auditedSecurityFunctionStub(version: SupportedPhpVersion): string {
   const php74 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
   const php80 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
-  const php81 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
   const php84 = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('8.4');
   const passwordAlgorithm = php74 ? "'2y'" : '1';
   const passwordFunctions = php80
@@ -2953,25 +3460,9 @@ function password_verify(string $password, string $hash): bool {}
 /** ${php74 ? '@param string|int $algo\n * ' : ''}@return bool */ function password_needs_rehash(string $hash, ${php74 ? '' : 'int '}$algo, array $options = []) {}
 /** @return array{algo:${php74 ? 'string|null' : 'int'}, algoName:string, options:array<string, mixed>} */ function password_get_info(string $hash): array {}
 ${php74 ? '/** @return list<string> */ function password_algos(): array {}' : ''}`;
-  const hashFunctions = php80
-    ? `function hash(string $algo, string $data, bool $binary = false${php81 ? ', array $options = []' : ''}): string {}
-function hash_file(string $algo, string $filename, bool $binary = false${php81 ? ', array $options = []' : ''}): string|false {}
-function hash_hmac(string $algo, string $data, string $key, bool $binary = false): string {}
-function hash_hmac_file(string $algo, string $filename, string $key, bool $binary = false): string|false {}
-function hash_equals(string $known_string, string $user_string): bool {}
-/** @return list<string> */ function hash_algos(): array {}
-/** @return list<string> */ function hash_hmac_algos(): array {}`
-    : `/** @return string|false */ function hash(string $algo, string $data, bool $raw_output = false) {}
-/** @return string|false */ function hash_file(string $algo, string $filename, bool $raw_output = false) {}
-/** @return string|false */ function hash_hmac(string $algo, string $data, string $key, bool $raw_output = false) {}
-/** @return string|false */ function hash_hmac_file(string $algo, string $filename, string $key, bool $raw_output = false) {}
-function hash_equals(string $known_string, string $user_string): bool {}
-/** @return list<string> */ function hash_algos(): array {}
-/** @return list<string> */ function hash_hmac_algos(): array {}`;
   return `const PASSWORD_DEFAULT = ${passwordAlgorithm}; const PASSWORD_BCRYPT = ${passwordAlgorithm};
 const PASSWORD_BCRYPT_DEFAULT_COST = ${php84 ? '12' : '10'};
 ${passwordFunctions}
-${hashFunctions}
 function random_bytes(int $length): string {}
 function random_int(int $min, int $max): int {}
 `;
@@ -3043,25 +3534,63 @@ ${filterVar}
 `;
 }
 
-export function builtinPhpExtensionStub(version: SupportedPhpVersion, extension: ConfigurablePhpExtension): string {
+export function builtinPhpExtensionStub(version: SupportedPhpVersion, extension: ConfigurablePhpExtension, options: BuiltinPhpStubOptions = {}): string {
   if (!SUPPORTED_PHP_VERSIONS.includes(version)) throw new Error(`Unsupported PHP version: ${version as string}`);
   switch (extension) {
+    case 'apcu': return auditedApcuStub(version, options.apcuRuntime);
+    case 'bcmath': return auditedBcMathStub(version);
+    case 'bz2': return auditedBz2Stub(version);
+    case 'calendar': return auditedCalendarStub(version);
+    case 'ftp': return auditedFtpStub(version);
+    case 'pgsql': return auditedPgsqlStub(version, options.pgsqlRuntime);
+    case 'xsl': return auditedXslStub(version, options.xslRuntime);
+    case 'yaml': return auditedYamlStub();
+    case 'igbinary': return auditedIgbinaryStub();
+    case 'msgpack': return auditedMsgpackStub();
+    case 'mcrypt': return auditedMcryptStub();
+    case 'posix': return auditedPosixStub(version, options.posixConstants);
+    case 'shmop': return auditedShmopStub(version);
+    case 'sysvmsg':
+    case 'sysvsem':
+    case 'sysvshm': return auditedSysvIpcStub(version, extension, options.sysvMsgConstants);
+    case 'redis': return auditedRedisStub(version, options.redisRuntime);
+    case 'imagick': return auditedImagickStub(version, options.imagickRuntime);
+    case 'readline': return auditedReadlineStub(version, options.unavailableFunctions, options.readlineLib);
+    case 'session': return auditedSessionStub(version);
+    case 'ctype': return auditedCtypeStub(version);
+    case 'curl': return auditedCurlStub(version, options);
     case 'dom': return auditedClassicDomStub(version) + auditedModernDomStub(version);
+    case 'exif': return auditedExifStub(version);
+    case 'fileinfo': return auditedFileinfoStub(version);
     case 'filter': return auditedFilterFunctionStub(version);
-    case 'mbstring': return auditedMbstringStub(version);
-    case 'pdo': return auditedPdoStub(version);
+    case 'gd': return auditedGdStub(version, options);
+    case 'gettext': return auditedGettextStub(version);
+    case 'iconv': return auditedIconvStub(version);
+    case 'intl': return auditedIntlLocaleStub(version) + auditedIntlGraphemeStub(version) + auditedIntlCollatorStub(version) + auditedIntlNumberFormatterStub(version, options.intlCurrencyAccountingAvailable) + auditedIntlDateFormatterStub(version) + auditedIntlErrorsStub(version) + auditedIntlResourceBundleStub(version) + auditedIntlTransliteratorStub(version) + auditedIntlMessageFormatterStub(version) + auditedIntlTimeZoneStub(version, options) + auditedIntlIteratorStub() + auditedIntlCalendarStub(version, options.intlCalendarFieldCount) + auditedIntlSpoofcheckerStub(version) + auditedIntlFormatClassesStub(version) + auditedIntlBreakIteratorStub(version) + auditedIntlUConverterStub(version) + auditedIntlCharStub(version, options.intlCharConstants);
+    case 'mbstring': return auditedMbstringStub(version, options.mbOnigurumaVersion);
+    case 'pdo': return auditedPdoStub(version, options.pdoRuntime);
+    case 'phar': return auditedPharStub(version);
+    case 'sodium': return auditedSodiumStub(version, options.sodiumRuntime);
+    case 'tokenizer': return auditedTokenizerStub(version, options.tokenizerRuntime);
     case 'simplexml': return auditedSimpleXmlStub(version);
+    case 'sqlite3': return auditedSqlite3Stub(version);
     case 'xml': return auditedXmlParserStub(version);
     case 'xmlreader': return auditedXmlReaderStub(version);
     case 'xmlwriter': return auditedXmlWriterStub(version);
+    case 'zip': return auditedZipStub(version, options.zipRuntime);
+    case 'zlib': return auditedZlibStub(version, options.zlibRuntime);
+    case 'sockets': return auditedSocketsStub(version, options.socketsRuntime);
+    case 'pcntl': return auditedPcntlStub(version, options.pcntlRuntime);
+    case 'openssl': return auditedOpenSslStub(version, options.openSslRuntime);
+    case 'mysqli': return auditedMysqliStub(version, options.mysqliRuntime);
   }
 }
 
 export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhpStubOptions = {}): string {
   if (!SUPPORTED_PHP_VERSIONS.includes(version)) throw new Error(`Unsupported PHP version: ${version as string}`);
   const disabled = new Set(options.disabledExtensions ?? []);
-  return COMMON_CORE_STUB + auditedIteratorInterfaceStub(version) + auditedExceptionStub(version) + auditedDateTimeStub(version) + auditedVersionedCoreObjectStub(version)
-    + auditedReferenceFunctionStub(version) + auditedStringFunctionStub(version) + auditedStringCatalogStub(version) + auditedArrayFunctionStub(version)
+  return commonCoreStub(version) + auditedIteratorInterfaceStub(version) + auditedExceptionStub(version) + auditedDateTimeStub(version) + auditedDateFunctionsStub(version) + auditedCoreAttributeStub(version) + auditedCoreRuntimeTypeStub(version) + auditedVersionedCoreObjectStub(version)
+    + auditedReferenceFunctionStub(version) + auditedStringFunctionStub(version) + auditedStringCatalogStub(version) + auditedArrayFunctionStub(version) + auditedStandardArrayStub(version) + auditedStandardTimeStub(version) + auditedStandardStreamStub(version) + auditedStandardStreamIoStub(version) + auditedStandardStreamSocketStub(version) + auditedStandardStreamWrapperStub(version) + auditedStandardUtilitiesStub(version) + auditedStandardPlatformStub(version, options.unavailableFunctions)
     + auditedIteratorFunctionStub(version) + auditedSplFunctionStub(version) + auditedSplFileStub(version) + auditedSplDirectoryIteratorStub(version)
     + auditedSplArrayCollectionStub(version) + auditedSplObjectCollectionStub(version) + auditedSplLinearCollectionStub(version)
     + auditedSplHeapStub(version) + auditedSplObserverStub(version) + auditedMultipleIteratorStub(version) + auditedIteratorAdapterStub(version)
@@ -3070,15 +3599,53 @@ export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhp
     + auditedJsonFunctionStub(version) + auditedFilesystemFunctionStub(version) + auditedFilesystemStreamStub(version)
     + auditedFilesystemMetadataStub(version) + auditedDirectoryStub(version)
     + auditedProgramExecutionStub(version) + auditedEncodingFunctionStub(version)
-    + (disabled.has('pdo') ? '' : builtinPhpExtensionStub(version, 'pdo')) + auditedReflectionCoreStub(version) + (disabled.has('mbstring') ? '' : builtinPhpExtensionStub(version, 'mbstring'))
+    + (disabled.has('phar') ? '' : builtinPhpExtensionStub(version, 'phar'))
+    + (disabled.has('sodium') ? '' : builtinPhpExtensionStub(version, 'sodium', options))
+    + (disabled.has('pdo') ? '' : builtinPhpExtensionStub(version, 'pdo', options)) + auditedReflectionCoreStub(version) + auditedReflectionExtensionStub(version) + (disabled.has('mbstring') ? '' : builtinPhpExtensionStub(version, 'mbstring', options))
+    + (disabled.has('ctype') ? '' : builtinPhpExtensionStub(version, 'ctype'))
+    + (disabled.has('bcmath') ? '' : builtinPhpExtensionStub(version, 'bcmath'))
+    + (disabled.has('apcu') ? '' : builtinPhpExtensionStub(version, 'apcu', options))
+    + (disabled.has('bz2') ? '' : builtinPhpExtensionStub(version, 'bz2'))
+    + (disabled.has('calendar') ? '' : builtinPhpExtensionStub(version, 'calendar'))
+    + (disabled.has('readline') ? '' : builtinPhpExtensionStub(version, 'readline', options))
+    + (disabled.has('session') ? '' : builtinPhpExtensionStub(version, 'session'))
+    + (disabled.has('curl') ? '' : builtinPhpExtensionStub(version, 'curl', options))
+    + (disabled.has('exif') ? '' : builtinPhpExtensionStub(version, 'exif'))
+    + (disabled.has('fileinfo') ? '' : builtinPhpExtensionStub(version, 'fileinfo'))
+    + (disabled.has('ftp') ? '' : builtinPhpExtensionStub(version, 'ftp'))
+    + (disabled.has('gd') ? '' : builtinPhpExtensionStub(version, 'gd', options))
+    + (disabled.has('gettext') ? '' : builtinPhpExtensionStub(version, 'gettext'))
+    + (disabled.has('iconv') ? '' : builtinPhpExtensionStub(version, 'iconv'))
+    + (disabled.has('intl') ? '' : builtinPhpExtensionStub(version, 'intl', options))
     + `\n${auditedLibxmlStub(version)}` + (disabled.has('simplexml') ? '' : builtinPhpExtensionStub(version, 'simplexml')) + (disabled.has('xml') ? '' : builtinPhpExtensionStub(version, 'xml'))
+    + (disabled.has('sqlite3') ? '' : builtinPhpExtensionStub(version, 'sqlite3'))
     + (disabled.has('xmlreader') ? '' : builtinPhpExtensionStub(version, 'xmlreader')) + (disabled.has('xmlwriter') ? '' : builtinPhpExtensionStub(version, 'xmlwriter'))
-    + (disabled.has('dom') ? '' : builtinPhpExtensionStub(version, 'dom')) + auditedSecurityFunctionStub(version) + (disabled.has('filter') ? '' : builtinPhpExtensionStub(version, 'filter'))
-    + auditedPcreFunctionStub(version) + auditedMathFunctionStub(version) + auditedVariableHandlingFunctionStub(version)
+    + (disabled.has('dom') ? '' : builtinPhpExtensionStub(version, 'dom')) + auditedSecurityFunctionStub(version) + auditedHashStub(version, options) + (disabled.has('filter') ? '' : builtinPhpExtensionStub(version, 'filter'))
+    + auditedPcreFunctionStub(version) + pcreRuntimeConstantStub(options.pcreRuntime)
+    + auditedMathFunctionStub(version) + auditedRandomFunctionStub(version) + auditedVariableHandlingFunctionStub(version)
     + auditedRuntimeIntrospectionFunctionStub(version) + auditedRuntimeConfigurationFunctionStub(version)
-    + auditedRuntimeEnvironmentFunctionStub(version) + auditedErrorHandlingFunctionStub(version)
-    + auditedOutputControlFunctionStub(version) + auditedFunctionHandlingStub(version) + auditedSessionStub(version)
-    + auditedNetworkStub(version);
+    + auditedRuntimeEnvironmentFunctionStub(version, options) + auditedErrorHandlingFunctionStub(version)
+    + auditedOutputControlFunctionStub(version) + auditedFunctionHandlingStub(version)
+    + auditedNetworkStub(version) + (disabled.has('openssl') ? '' : builtinPhpExtensionStub(version, 'openssl', options))
+    + (disabled.has('mysqli') ? '' : builtinPhpExtensionStub(version, 'mysqli', options))
+    + (disabled.has('sockets') ? '' : builtinPhpExtensionStub(version, 'sockets', options))
+    + (disabled.has('pcntl') ? '' : builtinPhpExtensionStub(version, 'pcntl', options))
+    + (disabled.has('pgsql') ? '' : builtinPhpExtensionStub(version, 'pgsql', options))
+    + (disabled.has('xsl') ? '' : builtinPhpExtensionStub(version, 'xsl', options))
+    + (disabled.has('yaml') ? '' : builtinPhpExtensionStub(version, 'yaml'))
+    + (disabled.has('igbinary') ? '' : builtinPhpExtensionStub(version, 'igbinary'))
+    + (disabled.has('msgpack') ? '' : builtinPhpExtensionStub(version, 'msgpack'))
+    + (disabled.has('mcrypt') ? '' : builtinPhpExtensionStub(version, 'mcrypt'))
+    + (disabled.has('posix') ? '' : builtinPhpExtensionStub(version, 'posix', options))
+    + (disabled.has('shmop') ? '' : builtinPhpExtensionStub(version, 'shmop'))
+    + (disabled.has('sysvmsg') ? '' : builtinPhpExtensionStub(version, 'sysvmsg', options))
+    + (disabled.has('sysvsem') ? '' : builtinPhpExtensionStub(version, 'sysvsem'))
+    + (disabled.has('sysvshm') ? '' : builtinPhpExtensionStub(version, 'sysvshm'))
+    + (disabled.has('redis') ? '' : builtinPhpExtensionStub(version, 'redis', options))
+    + (disabled.has('imagick') ? '' : builtinPhpExtensionStub(version, 'imagick', options))
+    + (disabled.has('zip') ? '' : builtinPhpExtensionStub(version, 'zip', options))
+    + (disabled.has('zlib') ? '' : builtinPhpExtensionStub(version, 'zlib', options))
+    + (disabled.has('tokenizer') ? '' : builtinPhpExtensionStub(version, 'tokenizer', options));
 }
 
 export interface SyntaxNodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: readonly SyntaxNodeLike[]; children?: readonly SyntaxNodeLike[]; parent?: SyntaxNodeLike | null; }
@@ -3263,7 +3830,9 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
     }
     if (node.type === 'object_creation_expression' && node.parent && ['member_call_expression', 'member_access_expression', 'nullsafe_member_call_expression', 'nullsafe_member_access_expression'].includes(node.parent.type)
       && node.parent.namedChildren[0] === node) rule = { feature: 'new expression dereference without parentheses', version: '8.4' };
-    if (node.type === 'readonly_modifier') rule = { feature: node.parent?.type === 'class_declaration' ? 'readonly class' : 'readonly property', version: node.parent?.type === 'class_declaration' ? '8.2' : '8.1' };
+    if (node.type === 'readonly_modifier') rule = node.parent?.type === 'anonymous_class'
+      ? { feature: 'readonly anonymous class', version: '8.3' }
+      : { feature: node.parent?.type === 'class_declaration' ? 'readonly class' : 'readonly property', version: node.parent?.type === 'class_declaration' ? '8.2' : '8.1' };
     if (node.type === 'const_declaration' && fieldNode('type')) rule = { feature: 'typed class constant', version: '8.3' };
     if (rule && versionNumber(target) < versionNumber(rule.version)) output.push({ feature: rule.feature, minimumVersion: rule.version, start: range.startIndex, end: range.endIndex });
     for (const child of node.namedChildren) visit(child);
