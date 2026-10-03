@@ -16,3 +16,7 @@ Core 0.4.13 已直接更新到现有 WSL 安装目录，19 项文件逐字核对
 外部格式化器的可选补丁未纳入更新；VS Code 批量输入 getItemsByProvider 异常仍未解决。自动化通过不代替真人验收。
 
 此候选交付后按用户要求暂停 goal，不启动新功能。
+
+## 真人反馈修正：Symfony Finding
+
+2026-10-03 已修正上次 Core 单独更新遗漏的 Symfony Provider 快照兼容性，见[交付记录](symfony-snapshot-delivery-compatibility-2026-10-03.md)。Symfony dist 8 项文件已备份同步；实际项目三次请求仅扫描一次。请重载窗口后继续观察，goal 仍暂停；本次没有打包或更新 Pack。
