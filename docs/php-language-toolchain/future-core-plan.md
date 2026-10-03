@@ -14,7 +14,7 @@
 - [默认索引模式 Rename](reports/default-indexing-rename-2026-10-04.md)改为按请求验证完整当前 PHP 源码及依赖，不再因 onDemand／progressive 的全局索引标记缺失而直接拒绝。十项定向协议及双模式串行宿主通过，超预算继续拒绝；首次并行失败保留，大规模与真实使用单列。
 - [默认模式参数修改](reports/default-indexing-parameters-2026-10-04.md)：新增、删除、重排参数按请求核对完整当前源码及 Composer 依赖；双模式隔离宿主通过三文件预览、取消、应用及单次 Undo/Redo。大项目等待和真实 WSL 验收继续开放。
 - [Safe Move 当前源码覆盖](reports/safe-move-source-coverage-2026-10-04.md)：修复默认模式漏掉依赖调用者、已完成索引漏掉无 watcher 新文件的问题；十项定向协议通过，扫描不完整拒绝规划。真实规模与其它重构入口继续核对。
-- [默认模式复制／粘贴导入](reports/default-indexing-imports-2026-10-04.md)：五个 Import 入口已改为按请求核对当前相关类型源码；三模式成功／预算矩阵及双模式粘贴竞态宿主通过。真实规模等待、完整接受／Redo 和构造表达式名称发现继续核对。
+- [默认模式复制／粘贴导入](reports/default-indexing-imports-2026-10-04.md)：五个 Import 入口已改为按请求核对当前相关类型源码；三模式成功／预算矩阵及双模式粘贴竞态宿主通过。构造表达式发现与双模式单次 Undo/Redo 也有定向证明；多符号／alias 的 UI 接受、启动期首次粘贴和真实规模等待继续核对。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序
@@ -22,7 +22,7 @@
 1. 先收集当前真人候选的使用反馈；有可复现错误时按补全相关性、接受文本、版本一致性及等待时间排序。原有 60 场景与 D01–D42 正反例继续作为固定门槛，见[冻结补全语料](completion-acceptance-corpus.md)。本次整理不减少场景或放宽预算。
 2. C1 继续核对真实 WSL 的引用准备终态、冷启动、未保存编辑与长期使用。两版冷／缓存／取消已有[自动化进度记录](reports/reference-progress-lifecycle-2026-10-03.md)；实项目缓存启动未明显加速，真实 WSL 与 Symfony 组合仍开放。完整 LSP 510 项已由[Core 里程碑](reports/core-source-checkpoint-2026-10-03.md)覆盖，不能替代真人验收。
 3. C2 沿赋值、返回、实参、集合、PHPDoc 及控制流检查同一类型事实驱动各查询。stubs 数据与 Core 接入已提交；[D42 回调累加器](reports/completion-array-callback-carry-2026-10-03.md)当前语义、缓存、LSP、Windows 及性能证据已收口，动态或有副作用路径继续保守。按实际缺口推进，不重复已有证明。
-4. C3 核对 Rename／Import／生成及提取的预览、取消、Undo/Redo 和失效保护。onDemand／progressive 的普通 Rename 已有按请求完整扫描及定向宿主证明；新增、删除、重排参数也已有完整源码扫描及双模式宿主证明；Safe Move 已按请求核对当前项目与依赖调用者；复制／粘贴导入的五个入口已有默认模式及竞态证明；继续核对 Import 完整接受／Redo、构造表达式自动发现和真实规模等待；Move 已复用 Rename 的严格目标检查，POSIX 链接与大小写独立目标的定向协议、onDemand 链接拒绝宿主证明见[目标预检](reports/rename-destination-preflight-2026-10-04.md)。已有自动化证明继续复用；跨平台、Remote 可见交互与真实规模操作未整体关闭，不能由单个 createFile 修复推导整阶段完成。
+4. C3 核对 Rename／Import／生成及提取的预览、取消、Undo/Redo 和失效保护。onDemand／progressive 的普通 Rename 已有按请求完整扫描及定向宿主证明；新增、删除、重排参数也已有完整源码扫描及双模式宿主证明；Safe Move 已按请求核对当前项目与依赖调用者；复制／粘贴导入的五个入口已有默认模式及竞态证明；构造表达式导入已补齐并有双模式接受／Undo/Redo 证明；继续核对多符号及 alias 的 UI 接受、启动期首次粘贴和真实规模等待；Move 已复用 Rename 的严格目标检查，POSIX 链接与大小写独立目标的定向协议、onDemand 链接拒绝宿主证明见[目标预检](reports/rename-destination-preflight-2026-10-04.md)。已有自动化证明继续复用；跨平台、Remote 可见交互与真实规模操作未整体关闭，不能由单个 createFile 修复推导整阶段完成。
 5. C4 核对工具所有权、外部扩展组合、PHP 版本及平台矩阵、长期会话与缓存恢复。[格式化修补候选](reports/c4-formatter-source-profile-candidate-2026-10-03.md)仍是可选开发候选，未修改用户默认格式化器。VS Code 批量输入的[getItemsByProvider 异常](reports/completion-suggest-context-reentrancy-2026-10-03.md)仍未解决；保留复现，避免反复采用同一失败方法。
 
 同一开发分支推进；日常增量不打包、推送或发布。必要里程碑先整理文档和可复用验证工具，再做本地提交；真人候选仅按用户要求更新。用户已要求继续开发，goal 当前为 active，开发按本节顺序推进。

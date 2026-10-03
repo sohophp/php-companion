@@ -7644,6 +7644,23 @@ use Attribute as Marker;
       .toContain('use ImportCommand\\One\\Service as ExternalService;');
     expect(workspace.importInsertion('file:///ImportCommandUse.php', source.indexOf('new Service'), candidate.fqcn, 'class', 'Service')).toBeUndefined();
   });
+  it('finds unresolved constructor names without suggesting imports for other expressions', () => {
+    workspace.update('file:///ImportKnown.php', '<?php namespace ConstructorImports; class Known {}');
+    const source = `<?php namespace ConstructorImports;
+use Vendor\\Existing as Imported;
+function run($dynamic): void {
+  new Missing(); new /* a long intervening comment */ Commented(); new Bare;
+  new Known(); new Imported(); new \\Vendor\\Qualified(); new class {};
+  new $dynamic(); MissingFunction(); ExistingClass::method();
+  $text = "new StringType()"; // new CommentType()
+}`;
+    const uri = 'file:///ConstructorImports.php';
+    workspace.update(uri, source);
+    expect(workspace.unresolvedTypeNames(uri).map(item => item.name)).toEqual(['Missing', 'Commented', 'Bare', 'ExistingClass']);
+    workspace.update(uri, source.replace('new Missing()', 'new Known()'));
+    expect(workspace.unresolvedTypeNames(uri).map(item => item.name)).toEqual(['Commented', 'Bare', 'ExistingClass']);
+  });
+
   it('captures copied type identities and plans batched imports without partial conflicts', () => {
     workspace.update('file:///CopyType.php', '<?php namespace CopyType; class Model {}');
     const copied = '<?php namespace CopyConsumer; use CopyType\\Model as Stable; function copy(Stable $value): Stable { return $value; }';

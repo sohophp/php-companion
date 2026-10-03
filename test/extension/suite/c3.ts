@@ -5,6 +5,40 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
 
+async function verifyConstructorImportAccept(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
+  const typeUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3ImportConstructor.php');
+  const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3ConstructorConsumer.php');
+  await vscode.workspace.fs.writeFile(typeUri, Buffer.from('<?php namespace App\\Service; final class C3ImportConstructor {}'));
+  const source = '<?php namespace App\\Controller; function createConstructor() { return new /* retained */ C3ImportConstructor(); }';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const position = document.positionAt(source.indexOf('C3ImportConstructor') + 1);
+  const deadline = Date.now() + 15_000;
+  let ready = false;
+  while (Date.now() < deadline) {
+    const candidates = await api.requestLanguageServer<Array<{ fqcn: string }>>('phpCompanion/importCandidates', {
+      textDocument: { uri: uri.toString() }, position, name: 'C3ImportConstructor', context: 'paste',
+    });
+    if (candidates.some(candidate => candidate.fqcn === 'App\\Service\\C3ImportConstructor')) { ready = true; break; }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  assert.ok(ready, 'Constructor fixture did not reach source readiness');
+  console.log('C3 constructor fixture source candidates are ready');
+  const paste = await vscode.commands.executeCommand<Array<{ text: string; imports: string[] }> | undefined>(
+    'phpCompanion._testPasteImportEdits', uri, 'new C3ImportConstructor()', position);
+  assert.ok(paste?.some(item => item.imports.some(text => text.includes('use App\\Service\\C3ImportConstructor;'))),
+    'Actual Paste Provider omitted the constructor import');
+  assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports'), true,
+    'Constructor-only document did not accept its imports');
+  const edited = document.getText();
+  assert.ok(edited.includes('use App\\Service\\C3ImportConstructor;'));
+  assert.ok(edited.includes('new /* retained */ C3ImportConstructor()'));
+  await vscode.commands.executeCommand('undo'); assert.strictEqual(document.getText(), source);
+  await vscode.commands.executeCommand('redo'); assert.strictEqual(document.getText(), edited);
+  console.log('C3 constructor Import: actual Paste Provider, resolve/apply and one Undo/Redo passed');
+}
+
 async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> {
   const oldUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CurrentMove.php');
   const newUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3CurrentMove.php');
@@ -417,6 +451,11 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_CONSTRUCTOR_IMPORT_ONLY === '1') {
+    await verifyConstructorImportAccept(folder, api);
+    console.log('C3 focused constructor import completed; this is not the full C3 suite');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_MOVE_ONLY === '1') {
     await verifyDefaultMove(folder);
     console.log('C3 focused default Safe Move completed; this is not the full C3 suite');

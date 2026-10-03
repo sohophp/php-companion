@@ -5834,14 +5834,25 @@ export class SemanticWorkspace {
 
   unresolvedTypeNames(uri: string): Array<SemanticLocation & { name: string }> {
     const file = this.files.get(uri); if (!file) return [];
-    const unresolved = file.rawNames.flatMap((raw): Array<SemanticLocation & { name: string }> => {
-      const name = raw.text.slice(raw.text.lastIndexOf('\\') + 1);
-      const typeContext = raw.context === 'phpdoc' || file.typeReferences.some((type) => raw.start >= type.start && raw.end <= type.end);
-      if (!typeContext || !this.isSemanticTypeRawName(file, raw) || raw.text.includes('\\')
-        || !/^[A-Z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name) || this.typeCandidatesAt(uri, raw.start).length) return [];
-      return [{ uri, start: raw.start, end: raw.end, name }];
-    });
-    return [...new Map(unresolved.map((item) => [item.name.toLowerCase(), item])).values()];
+    const retainedTree = this.trees.get(uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    const tree = retainedTree ?? temporaryTree!;
+    try {
+      const unresolved = file.rawNames.flatMap((raw): Array<SemanticLocation & { name: string }> => {
+        const name = raw.text.slice(raw.text.lastIndexOf('\\') + 1);
+        const syntax = tree.rootNode.namedDescendantForIndex(raw.start, raw.end);
+        const constructor = syntax?.type === 'name' && syntax.parent?.type === 'object_creation_expression';
+        const typeContext = constructor || raw.context === 'phpdoc'
+          || file.typeReferences.some((type) => raw.start >= type.start && raw.end <= type.end);
+        if (!typeContext || !this.isSemanticTypeRawName(file, raw) || raw.text.includes('\\')
+          || !/^[A-Z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(name) || this.typeCandidatesAt(uri, raw.start).length) return [];
+        const scope = this.importScope(file, raw.start);
+        if (scope && file.imports.some(item => item.kind === 'class' && item.alias.toLowerCase() === name.toLowerCase()
+          && item.statementStart >= scope.start && item.statementEnd <= scope.end)) return [];
+        return [{ uri, start: raw.start, end: raw.end, name }];
+      });
+      return [...new Map(unresolved.map((item) => [item.name.toLowerCase(), item])).values()];
+    } finally { temporaryTree?.delete(); }
   }
 
   typeCopySymbols(uri: string, ranges: readonly SourceRange[]): TypeCopySymbol[] {

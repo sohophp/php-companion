@@ -11258,7 +11258,7 @@ function values(): array { return []; }
       await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
       await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
       const source = '<?php namespace App; use Acme\\Receipt as VendorReceipt; function make(VendorReceipt $value): VendorReceipt { return $value; }';
-      const target = '<?php namespace Destination; function make(Receipt $item): void { new Receipt(); }';
+      const target = '<?php namespace Destination; function make(): void { new Receipt(); }';
       const sourcePath = join(root, 'src', 'Source.php'); const targetPath = join(root, 'src', 'Target.php');
       const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Receipt.php');
       await writeFile(sourcePath, source); await writeFile(targetPath, target); await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
