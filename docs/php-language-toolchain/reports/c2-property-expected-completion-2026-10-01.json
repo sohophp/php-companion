@@ -1,0 +1,31 @@
+{
+  "root": "/tmp/sophp-property-ranking-benchmark",
+  "file": "/tmp/sophp-property-ranking-benchmark/Rank.php",
+  "rounds": 100,
+  "expectFirst": true,
+  "expectEmptyForDash": false,
+  "resolveDetails": false,
+  "firstMs": 61.22,
+  "all": {
+    "p50Ms": 10.53,
+    "p95Ms": 23.35,
+    "maxMs": 61.22
+  },
+  "a": {
+    "fragment": "function candidateAInt(): int { return 1; } function candidateAText(): string { return \"s\"; } function candidateAUnknown() {} class Rank { public string $value; function edit(): void { $this->value = candidateA{{cursor}}; } }",
+    "expected": "candidateAText",
+    "p50Ms": 10.37,
+    "p95Ms": 23.35,
+    "maxMs": 61.22,
+    "incomplete": 0
+  },
+  "b": {
+    "fragment": "function candidateBInt(): int { return 1; } function candidateBText(): string { return \"s\"; } function candidateBUnknown() {} class Rank { public int $value; function edit(): void { $this->value = candidateB{{cursor}}; } }",
+    "expected": "candidateBInt",
+    "p50Ms": 10.69,
+    "p95Ms": 24.1,
+    "maxMs": 28.63,
+    "incomplete": 0
+  },
+  "readOnly": true
+}

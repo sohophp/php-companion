@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "iterations": 1000,
+  "warmupIterations": 100,
+  "completionNoiseFunctions": 500,
+  "runtime": "v22.14.0",
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+  "updateToDiagnosticsMs": {
+    "samples": 1000,
+    "p50": 30.591828000000532,
+    "p95": 33.72856899999897,
+    "maximum": 38.41256599999906
+  },
+  "hotCompletionMs": {
+    "samples": 1000,
+    "p50": 1.2753969999976107,
+    "p95": 2.170436000000336,
+    "maximum": 3.0856779999994615
+  },
+  "hotTypedArgumentCompletionMs": {
+    "samples": 1000,
+    "p50": 2.237411999998585,
+    "p95": 3.9853210000001127,
+    "maximum": 5.232364000003145
+  },
+  "hotBareArgumentCompletionMs": {
+    "samples": 1000,
+    "p50": 1.6815590000005614,
+    "p95": 3.0571579999996175,
+    "maximum": 5.207728000001225
+  },
+  "hotTypedMemberCompletionMs": {
+    "samples": 1000,
+    "p50": 2.878304999998363,
+    "p95": 5.221671999999671,
+    "maximum": 6.955602000001818
+  },
+  "hotHoverMs": {
+    "samples": 1000,
+    "p50": 0.8922139999995125,
+    "p95": 1.5515919999998005,
+    "maximum": 3.4399709999997867
+  },
+  "hotDefinitionMs": {
+    "samples": 1000,
+    "p50": 1.1774939999959315,
+    "p95": 2.156409999999596,
+    "maximum": 4.014904000001479
+  },
+  "cancellationMs": 0.9502940000020317,
+  "cancellationOutcome": "cancelled",
+  "languageServerRssMb": {
+    "baseline": 198.78515625,
+    "peak": 233.50390625,
+    "final": 230.52734375,
+    "retainedGrowth": 31.7421875
+  },
+  "persistentCache": {
+    "files": 1,
+    "corruptCacheRecovered": true,
+    "completionRecoveredAfterRestart": true
+  },
+  "staleCompletionFailures": 0,
+  "staleHoverFailures": 0,
+  "staleDefinitionFailures": 0,
+  "budgets": {
+    "hotCompletionP95Ms": 150,
+    "hotHoverP95Ms": 150,
+    "hotDefinitionP95Ms": 150,
+    "updateToDiagnosticsP95Ms": 500,
+    "cancellationMs": 100,
+    "retainedRssGrowthMb": 128
+  }
+}

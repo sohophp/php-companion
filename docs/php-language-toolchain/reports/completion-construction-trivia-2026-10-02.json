@@ -1,0 +1,68 @@
+{
+  "status": "scoped_gates_passed",
+  "source_sha256": {
+    "packages/semantic/src/index.ts": "ae149ca83b1a9199573914a6a200a4f951ff46a3207f3bdc647d5eb22c46a696",
+    "packages/language-server/src/server.ts": "291cec27bb64cc66f5f586e66093c8a81d8914cafb15efbeca1e25dcccb4a829",
+    "packages/semantic/test/construction-trivia-completion.test.ts": "81ec6dc07b730f92de3bd729c6284cfcda19fe12aa3c14abdbe51b5e3655f442",
+    "packages/language-server/test/construction-trivia-stdio.test.ts": "a83953e9bf49148ca23e1f16802c64ee7b4c60b20b5d450f229d080f0e539127",
+    "test/extension/suite/constructionTriviaAcceptance.ts": "2ccb60153e037336b65d994fe9f4ca43db74c660f80cf70271fd145e06685dc0"
+  },
+  "semantic_full": {
+    "passed": 1140,
+    "files": 48,
+    "seconds": 48.04,
+    "before_two_test_only_additions": true
+  },
+  "semantic_focused": 8,
+  "stdio": {
+    "passed": 4,
+    "construction_insertion_checks": 48,
+    "seconds": 6.16
+  },
+  "visible_host": {
+    "platform": "linux",
+    "vscode": "1.140.0",
+    "accepted": 6,
+    "exit_code": 0,
+    "log": "/tmp/sophp-construction-trivia-host-homogeneous.log"
+  },
+  "performance": {
+    "root": "/tmp/sophp-construction-trivia-latency-mg2h8ax_",
+    "file": "/tmp/sophp-construction-trivia-latency-mg2h8ax_/Build.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 93.94,
+    "all": {
+      "p50Ms": 3.09,
+      "p95Ms": 6.54,
+      "maxMs": 93.94
+    },
+    "a": {
+      "fragment": "function build(): void { $r = new /* note */ BuildOne{{cursor}}; }",
+      "expected": "BuildOneConcrete",
+      "p50Ms": 3.12,
+      "p95Ms": 6.83,
+      "maxMs": 93.94,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "function build(): void { $r = new /** note */ BuildTwo{{cursor}}; }",
+      "expected": "BuildTwoConcrete",
+      "p50Ms": 3.05,
+      "p95Ms": 5.69,
+      "maxMs": 20.11,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "limitations": [
+    "No current full 449 stdio rerun",
+    "No Windows host",
+    "No real WSL user acceptance"
+  ],
+  "packaged": false,
+  "profile_updated": false
+}

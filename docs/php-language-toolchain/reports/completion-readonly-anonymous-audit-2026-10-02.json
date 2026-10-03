@@ -1,0 +1,448 @@
+{
+  "status": "isolated_parser_spec_semantic_analysis_candidates_passed_not_integrated",
+  "audit": {
+    "results": [
+      {
+        "modifier": "",
+        "anonymous": [
+          {
+            "readonly": false,
+            "start": 73
+          }
+        ],
+        "candidates": [
+          "BuildMutable"
+        ],
+        "nodes": [
+          {
+            "tree": "(anonymous_class (base_clause (name)) body: (declaration_list))",
+            "parent": "object_creation_expression",
+            "children": [
+              {
+                "type": "base_clause",
+                "text": "extends Build"
+              },
+              {
+                "type": "declaration_list",
+                "text": "{}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "modifier": "readonly ",
+        "anonymous": [
+          {
+            "readonly": false,
+            "start": 73
+          }
+        ],
+        "candidates": [
+          "BuildMutable"
+        ],
+        "nodes": [
+          {
+            "tree": "(anonymous_class (readonly_modifier) (base_clause (name)) body: (declaration_list))",
+            "parent": "object_creation_expression",
+            "children": [
+              {
+                "type": "readonly_modifier",
+                "text": "readonly"
+              },
+              {
+                "type": "base_clause",
+                "text": "extends Build"
+              },
+              {
+                "type": "declaration_list",
+                "text": "{}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "runtime": [
+      {
+        "code": "readonly class Base {} $a = new readonly class extends Base {}; echo \"ok\";",
+        "exit": 0,
+        "output": "ok"
+      },
+      {
+        "code": "class Base {} $a = new readonly class extends Base {};",
+        "exit": 255,
+        "output": "PHP Fatal error:  Readonly class Base@anonymous cannot extend non-readonly class Base in Command line code on line 1\nStack trace:\n#0 {main}\n"
+      }
+    ]
+  },
+  "candidate": {
+    "status": "isolated_candidate_passed",
+    "results": [
+      {
+        "modifier": "",
+        "candidates": [
+          "BuildMutable"
+        ],
+        "readonly": false,
+        "properties": [
+          {
+            "name": "id",
+            "readonly": false
+          },
+          {
+            "name": "version",
+            "readonly": false
+          }
+        ]
+      },
+      {
+        "modifier": "readonly ",
+        "candidates": [
+          "BuildReadonly"
+        ],
+        "readonly": true,
+        "properties": [
+          {
+            "name": "id",
+            "readonly": true
+          },
+          {
+            "name": "version",
+            "readonly": true
+          }
+        ]
+      },
+      {
+        "modifier": "readonly /* note */ ",
+        "candidates": [
+          "BuildReadonly"
+        ],
+        "readonly": true,
+        "properties": [
+          {
+            "name": "id",
+            "readonly": true
+          },
+          {
+            "name": "version",
+            "readonly": true
+          }
+        ]
+      }
+    ]
+  },
+  "candidate_source": "/tmp/sophp-readonly-anonymous-candidate.ts",
+  "product_modified": false,
+  "pending_stdio_session": 9902,
+  "version_audit": {
+    "source": "<?php $value = new readonly class { public int $id; };",
+    "current": [
+      {
+        "version": "8.1",
+        "unsupported": []
+      },
+      {
+        "version": "8.2",
+        "unsupported": []
+      },
+      {
+        "version": "8.3",
+        "unsupported": []
+      },
+      {
+        "version": "8.5",
+        "unsupported": []
+      }
+    ],
+    "runtime": [
+      {
+        "binary": "/usr/bin/php82",
+        "code": "$value = new readonly class { public int $id; }; echo \"ok\";",
+        "exit": 255,
+        "output": "PHP Parse error:  syntax error, unexpected token \"readonly\" in Command line code on line 1\n"
+      },
+      {
+        "binary": "/usr/bin/php84",
+        "code": "$value = new readonly class { public int $id; }; echo \"ok\";",
+        "exit": 0,
+        "output": "ok"
+      },
+      {
+        "binary": "/usr/bin/php85",
+        "code": "$value = new readonly class { public int $id; }; echo \"ok\";",
+        "exit": 0,
+        "output": "ok"
+      }
+    ]
+  },
+  "prepared_parser_patch": "/tmp/sophp-readonly-anonymous-parser.patch",
+  "next_requirements": [
+    "Parser full and declaration snapshots preserve anonymous readonly flag and property facts",
+    "Unsupported syntax uses PHP 8.3 minimum for anonymous readonly modifiers",
+    "Implicit readonly assignment and declaration diagnostics use owner-specific minimum",
+    "Unsaved LSP and visible acceptance retain mutable alternatives and withdraw incompatible parents"
+  ],
+  "spec_candidate": {
+    "status": "isolated_spec_candidate_passed",
+    "checks": 18,
+    "results": [
+      {
+        "feature": "readonly anonymous class",
+        "version": "7.2",
+        "found": [
+          {
+            "feature": "readonly anonymous class",
+            "minimumVersion": "8.3",
+            "start": 15,
+            "end": 23
+          }
+        ]
+      },
+      {
+        "feature": "readonly anonymous class",
+        "version": "8.0",
+        "found": [
+          {
+            "feature": "readonly anonymous class",
+            "minimumVersion": "8.3",
+            "start": 15,
+            "end": 23
+          }
+        ]
+      },
+      {
+        "feature": "readonly anonymous class",
+        "version": "8.1",
+        "found": [
+          {
+            "feature": "readonly anonymous class",
+            "minimumVersion": "8.3",
+            "start": 15,
+            "end": 23
+          }
+        ]
+      },
+      {
+        "feature": "readonly anonymous class",
+        "version": "8.2",
+        "found": [
+          {
+            "feature": "readonly anonymous class",
+            "minimumVersion": "8.3",
+            "start": 15,
+            "end": 23
+          }
+        ]
+      },
+      {
+        "feature": "readonly anonymous class",
+        "version": "8.3",
+        "found": []
+      },
+      {
+        "feature": "readonly anonymous class",
+        "version": "8.5",
+        "found": []
+      },
+      {
+        "feature": "readonly class",
+        "version": "7.2",
+        "found": [
+          {
+            "feature": "readonly class",
+            "minimumVersion": "8.2",
+            "start": 6,
+            "end": 14
+          }
+        ]
+      },
+      {
+        "feature": "readonly class",
+        "version": "8.0",
+        "found": [
+          {
+            "feature": "readonly class",
+            "minimumVersion": "8.2",
+            "start": 6,
+            "end": 14
+          }
+        ]
+      },
+      {
+        "feature": "readonly class",
+        "version": "8.1",
+        "found": [
+          {
+            "feature": "readonly class",
+            "minimumVersion": "8.2",
+            "start": 6,
+            "end": 14
+          }
+        ]
+      },
+      {
+        "feature": "readonly class",
+        "version": "8.2",
+        "found": []
+      },
+      {
+        "feature": "readonly class",
+        "version": "8.3",
+        "found": []
+      },
+      {
+        "feature": "readonly class",
+        "version": "8.5",
+        "found": []
+      },
+      {
+        "feature": "readonly property",
+        "version": "7.2",
+        "found": [
+          {
+            "feature": "readonly property",
+            "minimumVersion": "8.1",
+            "start": 27,
+            "end": 35
+          }
+        ]
+      },
+      {
+        "feature": "readonly property",
+        "version": "8.0",
+        "found": [
+          {
+            "feature": "readonly property",
+            "minimumVersion": "8.1",
+            "start": 27,
+            "end": 35
+          }
+        ]
+      },
+      {
+        "feature": "readonly property",
+        "version": "8.1",
+        "found": []
+      },
+      {
+        "feature": "readonly property",
+        "version": "8.2",
+        "found": []
+      },
+      {
+        "feature": "readonly property",
+        "version": "8.3",
+        "found": []
+      },
+      {
+        "feature": "readonly property",
+        "version": "8.5",
+        "found": []
+      }
+    ]
+  },
+  "semantic_candidate": {
+    "status": "isolated_semantic_candidate_passed",
+    "results": [
+      {
+        "source": "<?php $value = new readonly class { public int $id; }; $value->id = 1;",
+        "minimum": "8.3"
+      },
+      {
+        "source": "<?php readonly class State { public int $id; } $value = new State(); $value->id = 1;",
+        "minimum": "8.2"
+      },
+      {
+        "source": "<?php class State { public readonly int $id; } $value = new State(); $value->id = 1;",
+        "minimum": "8.1"
+      }
+    ]
+  },
+  "analysis_candidate": {
+    "status": "isolated_analysis_candidate_passed",
+    "results": [
+      {
+        "version": "8.1",
+        "diagnostics": [
+          {
+            "code": "php.version.unsupported",
+            "message": "readonly anonymous class requires PHP 8.3 or newer; the target is PHP 8.1."
+          }
+        ]
+      },
+      {
+        "version": "8.2",
+        "diagnostics": [
+          {
+            "code": "php.version.unsupported",
+            "message": "readonly anonymous class requires PHP 8.3 or newer; the target is PHP 8.2."
+          }
+        ]
+      },
+      {
+        "version": "8.3",
+        "diagnostics": [
+          {
+            "code": "php.property.invalid-readonly-declaration",
+            "message": "Readonly property @anonymous:document:19::$id must have a type."
+          }
+        ]
+      },
+      {
+        "version": "8.5",
+        "diagnostics": [
+          {
+            "code": "php.property.invalid-readonly-declaration",
+            "message": "Readonly property @anonymous:document:19::$id must have a type."
+          }
+        ]
+      }
+    ]
+  },
+  "prepared_patches": [
+    "/tmp/sophp-readonly-anonymous-parser.patch",
+    "/tmp/sophp-readonly-anonymous-spec.patch",
+    "/tmp/sophp-readonly-anonymous-semantic.patch",
+    "/tmp/sophp-readonly-anonymous-analysis.patch"
+  ],
+  "snapshot_candidate": {
+    "status": "isolated_snapshots_and_inherited_owner_passed",
+    "results": [
+      {
+        "modifier": "",
+        "readonly": false,
+        "snapshotsEqual": true,
+        "properties": 2
+      },
+      {
+        "modifier": "readonly ",
+        "readonly": true,
+        "snapshotsEqual": true,
+        "properties": 2
+      },
+      {
+        "modifier": "readonly /* trivia */ ",
+        "readonly": true,
+        "snapshotsEqual": true,
+        "properties": 2
+      },
+      {
+        "modifier": "/* readonly */ ",
+        "readonly": false,
+        "snapshotsEqual": true,
+        "properties": 2
+      },
+      {
+        "inheritedPropertyMinimum": "8.2",
+        "declaringOwner": "State"
+      }
+    ]
+  },
+  "prepared_tests": [
+    "/tmp/sophp-readonly-anonymous-tests/analysis.test.ts",
+    "/tmp/sophp-readonly-anonymous-tests/parser.test.ts",
+    "/tmp/sophp-readonly-anonymous-tests/semantic.test.ts",
+    "/tmp/sophp-readonly-anonymous-tests/stdio.test.ts"
+  ]
+}

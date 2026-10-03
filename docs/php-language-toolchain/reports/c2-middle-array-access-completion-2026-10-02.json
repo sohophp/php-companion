@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-02",
+  "scope": "unfinished array access with following source",
+  "semantic": {
+    "new": 25,
+    "arrayAccessRegression": 79,
+    "total": 1014,
+    "durationSeconds": 52.83,
+    "exitCode": 0
+  },
+  "stdio": {
+    "passed": 6,
+    "skipped": 423,
+    "total": 429,
+    "durationSeconds": 20.6,
+    "statesPerPhpVersion": 42,
+    "newStatesPerPhpVersion": 14,
+    "exitCode": 0
+  },
+  "visible85": {
+    "samples": 38,
+    "newSamples": 14,
+    "minimumMs": 111,
+    "maximumMs": 156,
+    "tabUndoRedo": true,
+    "exitCode": 0
+  },
+  "visible72": {
+    "samples": 38,
+    "newSamples": 14,
+    "minimumMs": 116,
+    "maximumMs": 195,
+    "newMinimumMs": 116,
+    "newMaximumMs": 151,
+    "tabUndoRedo": true,
+    "exitCode": 0
+  },
+  "fullC2": {
+    "status": "passed",
+    "sessionId": 36144,
+    "exitCode": 0
+  },
+  "performance": {
+    "queries": 800,
+    "scenarios": 8,
+    "p95Ms": 32.376190999999835,
+    "wrongCandidates": 0,
+    "revisionChanged": false
+  },
+  "frozenInputFiles": 38,
+  "fullStdioRerun": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "finalInputFilesMatched": 38,
+  "largeProjectPerformance": {
+    "status": "failed",
+    "backgroundFiles": 10000,
+    "queries": 400,
+    "scenarios": 4,
+    "p95Ms": 220.073123999995,
+    "maximumMs": 306.21244699999806,
+    "budgetMs": 150,
+    "wrongCandidates": 0,
+    "revisionChanged": false,
+    "exitCode": 0
+  }
+}

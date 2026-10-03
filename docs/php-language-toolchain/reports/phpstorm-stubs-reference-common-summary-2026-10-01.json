@@ -1,0 +1,151 @@
+[
+  {
+    "version": "7.2",
+    "kind": "method",
+    "module": "Reflection",
+    "count": 189,
+    "missing": [],
+    "mismatches": [
+      "reflectionclass::newinstance",
+      "reflectionmethod::getclosure",
+      "reflectionmethod::invoke"
+    ],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "7.2",
+    "kind": "method",
+    "module": "SPL",
+    "count": 374,
+    "missing": [],
+    "mismatches": [
+      "multipleiterator::__construct"
+    ],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "7.2",
+    "kind": "method",
+    "module": "PDO",
+    "count": 38,
+    "missing": [],
+    "mismatches": [
+      "pdo::query",
+      "pdostatement::setfetchmode"
+    ],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "7.2",
+    "kind": "method",
+    "module": "mysqli",
+    "count": 78,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "8.5",
+    "kind": "method",
+    "module": "Reflection",
+    "count": 268,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "8.5",
+    "kind": "method",
+    "module": "SPL",
+    "count": 369,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "8.5",
+    "kind": "method",
+    "module": "PDO",
+    "count": 36,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "8.5",
+    "kind": "method",
+    "module": "mysqli",
+    "count": 82,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "7.2",
+    "kind": "function",
+    "module": "mysqli",
+    "count": 104,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  },
+  {
+    "version": "8.5",
+    "kind": "function",
+    "module": "mysqli",
+    "count": 106,
+    "missing": [],
+    "mismatches": [],
+    "overloads": [],
+    "introducedByReferenceComparison": {
+      "missing": [],
+      "mismatches": [],
+      "overloads": []
+    }
+  }
+]

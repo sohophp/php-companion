@@ -20,7 +20,7 @@
 
 - [ ] 保存当前功能回归基线，审计现有 parser/index 的可复用范围；[Core/Symfony 公开 manifest 基线](reports/p0-f14-public-manifest-baseline-2026-09-23.md)已固定 23 个命令和 30 个设置，[简体中文命令标题](reports/f14-command-localization-2026-09-23.md)、[设置说明](reports/f14-setting-localization-2026-09-23.md)和[扩展侧运行时界面](reports/f14-runtime-localization-2026-09-23.md)已推进，运行行为与 parser/index 审计仍待补齐。
 - [x] 建立 PHP 7.2–8.5 按次版本划分的语法、推断、诊断、重构支持矩阵；未实现项保持显式标注。
-- [ ] 将验收文档中的场景落实为编号 fixtures，包含合法反例和未完成输入；首组 [F04-REF、F08-EI、F08-RP、F09-SVC、F09-ROUTE、F09-DOC](acceptance-fixtures.md) 已覆盖 References、Extract Interface、private 参数删除、Symfony 服务/路由与 Doctrine Entity 的正例、合法反例和未完成输入，其余场景仍待映射。
+- [ ] 将验收文档中的场景落实为编号 fixtures，包含合法反例和未完成输入；首组 [F02-VERSION、F03-BUILTIN、F04-REF、F08-EI、F08-RP、F09-SVC、F09-ROUTE、F09-DOC](acceptance-fixtures.md) 已覆盖版本边界、内置函数合同、References、Extract Interface、private 参数删除、Symfony 服务/路由与 Doctrine Entity 的正例、合法反例和未完成输入，其余场景仍待映射。
 - [ ] 固定数据契约、包依赖检查、缓存版本、ADR 和模式迁移方案。
 - [ ] 固定基准机器、公开合成项目、真实项目脱敏副本和测量脚本；确定性生成器、脚本和 Linux x64 1k/10k/50k 报告已完成，其他平台及脱敏真实项目待测。
 
@@ -93,7 +93,9 @@ Generator、抽象声明、未知调用和未支持路径保持静默。
 
 空合并表达式 `left ?? right` 已按精确 CST 节点进入类型主链，只删除左侧 `null`，并把可达回退合并到局部别名、补全、Definition 与参数诊断。确定非空的左侧跳过未知回退；可能为空且回退未知时保持 unknown，其他 falsy 类型不丢失。
 
-完整普通三元表达式已合并两个可证明 arm 的类型，并支持字面量布尔条件只求值可达 arm。结果进入局部补全、Definition 与参数诊断；可达 unknown 和 Elvis 简写保持 unknown。
+完整普通三元表达式已合并两个可证明 arm 的类型，并支持字面量布尔条件只求值可达 arm。[Elvis 简写结果类型](reports/c2-shorthand-ternary-values-2026-10-01.md)现按可证明的真假分支进入局部补全、Definition 与参数诊断，保留 PHP 的零、空字符串与数组及特殊内置对象边界；可达 unknown 仍保持 unknown，一般控制流与副作用证明范围没有因此扩大。
+
+[按值调用局部证明](reports/c2-value-call-local-types-2026-10-01.md)补齐独立构造赋值及唯一具名函数的简单按值调用后类型保留，引用逃逸与动态作用域保持抑制；全局变量、方法与复杂实参仍待完善。当前语义 544 项、四项 PHP 7.2／8.5 定向 LSP 与源码宿主通过，十调用 100 轮 P95 7.69 ms；真实 WSL 使用单列。
 
 带唯一 default 的 PHP 8 `match` 已在 64 arm 预算内合并全部可证明结果，并进入相同局部查询链；缺少 default、unknown arm 和超预算保持 unknown。
 
@@ -111,11 +113,13 @@ Generator、抽象声明、未知调用和未支持路径保持静默。
 - [ ] 第一批：类型、函数、常量、局部变量/参数、方法、属性 Rename；继承链和命名参数调用。类型、唯一具名函数/命名空间常量、类与 Trait 常量、大小写敏感 Enum case、非魔术 private 方法、局部变量/参数和属性已在保守支持域内完成；类型、函数、常量、Enum case、方法与属性支持从唯一解析使用点发起，类型使用点复用 PSR-4 文件同步并保留显式 alias，public/protected 方法名与参数同步完整接口/父类/重写族，普通属性同步完整类层级，提升属性把构造参数作用域、PHPDoc、直接/继承构造命名实参及属性访问作为同一身份；Trait 方法/属性同步已证明消费层级，源方法 Rename 保留具名 alias，alias 也可独立 Rename，完整 `insteadof` precedence 会按唯一 winner 自动改写。两元素数组 callable 在接收者变量类型完整、非 nullable，且每个 Union/Intersection 分支都解析到同一方法族时会同步方法名字符串；未知接收者、复杂 callable 与 `"Class::method"` 保持拒绝。其余动态/字符串引用和跨工作区引用仍待完成。
 - [ ] 第一批：迁移 PSR-4 Move、文件 Rename、PHPDoc 与 import 编辑。
 - [ ] 第二批：提取变量/方法、修改签名及调用点、内联局部变量；块级完整赋值 RHS/return 表达式的 Extract Variable、支持已证明输入与末条简单赋值单一输出的连续实例语句 Extract Method、声明后紧邻一次完整值使用的 Inline Variable，以及 private 未使用普通参数连同 PHPDoc/位置和命名实参删除的精准子集已完成，并通过真实应用与 Undo/Redo。删除实参仅接受完整、无插值的标量字面量；变量读取、类常量访问及复合表达式保持拒绝，以免删除可观察的求值行为。方法家族参数重排已支持标量字面量、所在函数参数及同函数体调用前直接赋值的裸变量位置实参，函数调用等复合表达式仍拒绝。嵌套词法作用域引用参数或方法体调用 `func_get_args()` / `func_get_arg()` / `func_num_args()` 时也拒绝自动删除。多输出/控制流提取及通用修改签名仍待实现。
-- [ ] 第二批：限定可证明场景的提取接口、移动成员。首个 Extract Interface 子集现可从 Composer PSR-4 路径下的具名类声明提取所有直接声明的公开非魔术方法原生签名，包括抽象类中的公开抽象方法，创建同 namespace 的独立接口文件，并在原类添加 `implements`；沿用已有接口列表时追加新接口。同一词法 namespace 内的 `use` 语句会原样复制到接口文件，保留别名和分组 import，跨 namespace 的 import 不复制；与新接口名冲突的别名会拒绝。签名中的已解析 `self` 类型或类常量接收者会改成原类的绝对 FQCN，`parent` 会通过同一词法范围的唯一 `extends` 及 import 改成父类绝对 FQCN，字符串字面量保留原样。目标文件或符号已存在、源码有语法错误、签名含无法解析的 `parent`、`static` 或属性、路径不唯一及项目源码索引不完整时拒绝。打包编辑器已验证一次应用、Undo 和 Redo；其余上下文类型的通用提取与移动成员仍待实现。
+- [ ] 第二批：限定可证明场景的提取接口、移动成员。首个 Extract Interface 子集现可从 Composer PSR-4 路径下的具名类声明提取所有直接声明的公开非魔术方法原生签名，包括抽象类中的公开抽象方法，创建同 namespace 的独立接口文件，并在原类添加 `implements`；沿用已有接口列表时追加新接口。同一词法 namespace 内的 `use` 语句会原样复制到接口文件，保留别名和分组 import，跨 namespace 的 import 不复制；与新接口名冲突的别名会拒绝。签名中的已解析 `self` 类型或类常量接收者会改成原类的绝对 FQCN，`parent` 会通过同一词法范围的唯一 `extends` 及 import 改成父类绝对 FQCN，字符串字面量保留原样。目标文件或符号已存在、源码有语法错误、签名含无法解析的 `parent`、非法位置的 `static` 或属性、路径不唯一及项目源码索引不完整时拒绝。打包编辑器已验证一次应用、Undo 和 Redo；其余上下文类型的通用提取与移动成员仍待实现。
 - [x] 统一 EditPlan、范围/文件操作冲突和文档版本/内容前置条件；接口/抽象方法、构造函数、访问器、Override、类型及 private/public/protected 方法 Rename 与 PSR-4 Safe Move 已迁移。动态引用完整性说明仍随各重构能力单独验收。
 - [x] 公开 API 的工作区外引用明确列为无法验证范围；[产品支持说明](README.md)与[Alpha 实际试用步骤](alpha-candidate.md)均提示 F2 预览只覆盖已索引且语义证明的文件，下游仓库与客户端调用须另行核查。
 
 产物：重构候选版与操作证据。退出条件：支持场景在预览/应用/取消/Undo/Redo 下正确；不支持的控制流或动态引用明确拒绝或说明不完整性；不静默漏改。
+
+[PHP 8 static 返回契约接口提取](reports/c3-extract-interface-static-return-2026-10-02.md)已补齐：保留晚期绑定的普通／nullable／union／abstract 方法和静态工厂返回，目标 PHP 7、未知版本和非法上下文拒绝；当前定向 LSP、实际 PHP 与隔离宿主 Apply／Undo／Redo 通过。整体 P7 尚未完成。
 
 ## P8：Symfony / Doctrine / Twig 协作
 

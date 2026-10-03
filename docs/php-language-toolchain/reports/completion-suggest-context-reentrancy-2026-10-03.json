@@ -1,0 +1,40 @@
+{
+  "status": "external_reproducer_confirmed_not_product_fixed",
+  "cases": {
+    "coreBulk": {
+      "proof": {
+        "checked": 6,
+        "platform": "linux"
+      },
+      "rendererExceptions": 6,
+      "log": "/tmp/sophp-suggest-context-core-enum.log"
+    },
+    "controlBulk": {
+      "proof": {
+        "checked": 6,
+        "platform": "linux",
+        "provider": {
+          "version": "0.0.0",
+          "uri": "file:///var/www/node/php-companion/.vscode-test/suggest-context-HRzWit/control"
+        }
+      },
+      "rendererExceptions": 6,
+      "log": "/tmp/sophp-suggest-context-control-enum-v4.log"
+    },
+    "coreIndividual": {
+      "proof": {
+        "checked": 6,
+        "platform": "linux",
+        "separateKeys": true,
+        "provider": {
+          "version": "0.4.13",
+          "uri": "file:///var/www/node/php-companion"
+        }
+      },
+      "rendererExceptions": 0,
+      "log": "/tmp/sophp-suggest-context-formal-keys.log"
+    }
+  },
+  "ordinaryC1InputAdjusted": true,
+  "productRuntimeChanged": false
+}

@@ -1,0 +1,49 @@
+{
+  "status": "passed_isolated_source_pack_formatter_gate",
+  "proof": {
+    "platform": "linux",
+    "node": "v24.21.0",
+    "formatterVersion": "0.3.21",
+    "candidateHash": "f962949143810f554d9c71e104a7fadd1b3bf819faa8cee25a350c4a2d705ea6",
+    "formatDocument": true,
+    "undo": true,
+    "redo": true,
+    "formatOnSave": true,
+    "diskMatches": true,
+    "idempotent": true,
+    "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+    "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n"
+  },
+  "guards": {
+    "proofs": [
+      {
+        "case": "reviewed candidate",
+        "accepted": true,
+        "licenseExact": true,
+        "patchedHash": "f962949143810f554d9c71e104a7fadd1b3bf819faa8cee25a350c4a2d705ea6"
+      },
+      {
+        "case": "existing destination",
+        "rejected": true
+      },
+      {
+        "case": "nested destination",
+        "rejected": true
+      },
+      {
+        "case": "symlink nested destination",
+        "rejected": true
+      },
+      {
+        "case": "unknown CLI version",
+        "rejectedBeforeHost": true
+      }
+    ],
+    "sourceUnchanged": true
+  },
+  "sourcePackOptIn": true,
+  "defaultProfileChanged": false,
+  "packaged": false,
+  "humanWslAcceptance": false,
+  "note": "Host ran before final stricter version suffix guard; reviewed real CLI output matches both patterns. Product patch bytes are unchanged."
+}

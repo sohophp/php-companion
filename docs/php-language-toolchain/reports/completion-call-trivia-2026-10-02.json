@@ -1,0 +1,112 @@
+{
+  "status": "comment_aware_call_insertion_and_visible_acceptance_passed",
+  "inputs": {
+    "packages/language-server/src/completionCallTrivia.ts": "5bb6b48ce93491d6efb11a7164a8d8a93171b61a33a730806862c4e2a0bede49",
+    "packages/language-server/src/server.ts": "454d9758dc8694a22d4e69a187e60bd19cb964ef410b736894ed68eec1d6a298",
+    "packages/language-server/test/completion-call-trivia.test.ts": "7297f83ec95ad1b2f2f17969c85307d30d96c12f3ea5397805f8dc96fa5d040b",
+    "packages/language-server/test/call-trivia-stdio.test.ts": "59dfee6235e6a3367ef5b341010168216ad3e7dda2f5eb651a2e3adb1fa8ff09",
+    "test/extension/suite/callTriviaAcceptance.ts": "4a59d91a22701bc49312b1eeddec10f23a04f3079ab9ab23d75b7379ae7f157b",
+    "dist/language-server.js": "37bd3f03aea2b21b3ecd5bc97018b316bec492f8aaa266958d0916a76fefca20",
+    "dist/extension.js": "5cc7b0ee3b9b5eb31eb70e7bf58530f1754b484922073233f6689e6c6debb800",
+    "dist-test/suite/callTriviaAcceptance.js": "6fdf68a40d02db78a9089767e3846e54e9e48f7dca7ccba152119f7d7373181e",
+    "dist-test/runCallTrivia.js": "5372ac80fb27aa2c100eca1bbf8b79250e3b9d858947b22f5932d619e4ef99b9"
+  },
+  "red": {
+    "protocolFailed": 2,
+    "log": "/tmp/sophp-call-trivia-before.log"
+  },
+  "green": {
+    "unitPassed": 18,
+    "protocolPassed": 2,
+    "candidateAssertions": 50,
+    "seconds": 6.29,
+    "hostExitCode": 0,
+    "host": {
+      "platform": "linux",
+      "results": [
+        {
+          "label": "formatValue",
+          "key": "Enter",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "formatValue",
+          "key": "Tab",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "renderValue",
+          "key": "Enter",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "renderValue",
+          "key": "Tab",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Renderer",
+          "key": "Enter",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Renderer",
+          "key": "Tab",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "renderStatic",
+          "key": "Enter",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "renderStatic",
+          "key": "Tab",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Enter",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Tab",
+          "exactText": true,
+          "caretAfterName": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "typescript": "passed_after_PromiseLike_annotation_fix",
+  "fullCurrentProtocolRun": false
+}

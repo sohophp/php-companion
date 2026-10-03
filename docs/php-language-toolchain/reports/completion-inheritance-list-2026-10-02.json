@@ -1,0 +1,65 @@
+{
+  "status": "focused_semantic_full_stdio_and_full_c2_passed",
+  "source_sha256": {
+    "packages/semantic/src/index.ts": "33164ca179e8a790a13aeae044ad65f355c718d52901c258ce8fc75b5d0cc898",
+    "packages/semantic/test/inheritance-list-completion.test.ts": "2d901c179750438999cdd0b155cb765033b42e28d5f56deb6d3089d82d373b56",
+    "packages/language-server/test/inheritance-list-stdio.test.ts": "7ac9f97568b8aff4ca748aa041db65e6b1eea61fac0f946d68d542f4159b7305",
+    "test/extension/suite/inheritanceListAcceptance.ts": "e3c308b197da932c4151ceeb32d2af2791bcfbf65c88f14caa72ef1e294b1529"
+  },
+  "semantic_full": {
+    "passed": 1179,
+    "files": 51,
+    "seconds": 54.04,
+    "exit_code": 0,
+    "log": "/tmp/sophp-inheritance-list-full-semantic-final.log"
+  },
+  "stdio_focused": {
+    "passed": 6,
+    "seconds": 5.82,
+    "new_queries": 36,
+    "log": "/tmp/sophp-inheritance-list-lsp.log"
+  },
+  "visible_host": {
+    "accepted": 6,
+    "platform": "linux",
+    "exit_code": 0,
+    "log": "/tmp/sophp-inheritance-list-host.log"
+  },
+  "runtime": [
+    {
+      "code": "interface A {} class C implements A,A {}",
+      "exit_code": 255,
+      "output": "PHP Fatal error:  Class C cannot implement previously implemented interface A in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "code": "interface A {} interface C extends A,A {}",
+      "exit_code": 255,
+      "output": "PHP Fatal error:  Interface C cannot implement previously implemented interface A in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    }
+  ],
+  "frozen_inputs": {
+    "count": 913,
+    "changed": [],
+    "path": "/tmp/sophp-inheritance-list-integration-inputs.json",
+    "terminal_changed": []
+  },
+  "full_stdio": {
+    "status": "passed",
+    "session_id": 9902,
+    "log": "/tmp/sophp-inheritance-list-full-stdio.log",
+    "exit_code": 0,
+    "passed": 459,
+    "files": 9,
+    "skipped": 0,
+    "seconds": 1404.55
+  },
+  "full_c2": {
+    "status": "passed",
+    "session_id": 92872,
+    "log": "/tmp/sophp-inheritance-list-full-c2-host.log",
+    "exit_code": 0,
+    "proof_lines": 65
+  },
+  "packaged": false,
+  "profile_updated": false
+}

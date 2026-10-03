@@ -1,0 +1,128 @@
+[
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "name",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "parameter",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  }
+]

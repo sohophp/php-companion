@@ -1,0 +1,74 @@
+[
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 3.308762999999999
+  },
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 40.99735800000008
+  },
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 16.394341999999597
+  },
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 3.239639999999781
+  },
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 47.48786099999961
+  },
+  {
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1,
+    "cancellationThroughReleaseMs": 16.18877000000066
+  }
+]

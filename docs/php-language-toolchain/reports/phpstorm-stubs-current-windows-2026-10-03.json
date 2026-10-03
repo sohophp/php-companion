@@ -1,0 +1,318 @@
+{
+  "status": "targeted_and_full_core_c2_passed",
+  "platform": "win32",
+  "scratch": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-stubs-current-le42gkg4",
+  "core_assets": {
+    "dist/candidateWorker.js.map": "05365aca709c6e71f470c47f2bed3961f8ace36296559685452cdf877d9a01f0",
+    "dist/sourceStatWorker.js.map": "be1bbfb31fe22ebb2c819e5b633a8f9ec344f92d0dc67ee384630997f53a4316",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "dist/extension.js": "7e70e6a9fc5dc2fbb977c907e18c33b6fef9d2b6b6e95755716cddfa07f6c277",
+    "dist/candidateWorker.js": "3dd6277277400a9b5b54fecc0bc6a4e145cb099688bb324c6f99c7c6c9ab403c",
+    "dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "dist/language-server.js": "c5a3890bfc39592bceeb051ffc9c7b657edd0b681a76f7dc944e0a9cf5c5b8cc",
+    "dist/sourceStatWorker.js": "dce2db643593c774b864ee8779178235e6ba9467529f0129ab989716646b09ec",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/extension.js.map": "053c88900b3cce5a4527aca0c0a58ac07afd78c67e470a46de0cc1724184e1fe",
+    "dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "dist/language-server.js.map": "9941ff2b42c1619bf34f6a3fcb9469920d6f74de476d7838d08652f659c347ae",
+    "dist/node_modules/web-tree-sitter/index.js": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979",
+    "resources/icon.png": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+    "package.json": "419171cd1037fdef41f128b2f2e0e52a2bee314fde853d44ffce4740a5165556",
+    "package.nls.json": "0b5940ea30a9e349222f24668e8edc26c277305d6e34ff37a3ec231ecb1d2ad4",
+    "package.nls.zh-cn.json": "bd49214298181204d5c9ca30e27d76d71e2bf15dbf0cbbe3af7a19cd09ddefbe",
+    "LICENSE": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+    "LICENSE-phpstorm-stubs.txt": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408",
+    "THIRD_PARTY_NOTICES.md": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9"
+  },
+  "core_asset_count": 20,
+  "targeted": [
+    {
+      "suite": "arrayKeyPreservation",
+      "kind": "arrayKeys",
+      "exit_code": 0,
+      "log": "/tmp/sophp-stubs-current-windows-arrayKeys.log",
+      "proof": {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "proof": {
+          "platform": "win32",
+          "results": [
+            {
+              "variant": "array<int, string>",
+              "expression": "array_reverse($input)",
+              "expected": "array<int, string>",
+              "matched": true
+            },
+            {
+              "variant": "array<string, string>",
+              "expression": "array_reverse($input, true)",
+              "expected": "array<string, string>",
+              "matched": true
+            },
+            {
+              "variant": "array<int, string>",
+              "expression": "array_slice($input, 0, null)",
+              "expected": "array<int, string>",
+              "matched": true
+            },
+            {
+              "variant": "array<string, string>",
+              "expression": "array_slice($input, 0, null, true)",
+              "expected": "array<string, string>",
+              "matched": true
+            },
+            {
+              "variant": "array<string, string>",
+              "expression": "array_chunk($input, 2)",
+              "expected": "list<array<int, string>>",
+              "matched": true
+            },
+            {
+              "variant": "array<string, string>",
+              "expression": "array_chunk($input, 2, true)",
+              "expected": "list<array<string, string>>",
+              "matched": true
+            },
+            {
+              "variant": "array",
+              "expression": "array_reverse($input)",
+              "expected": "array<int|string, mixed>",
+              "matched": true
+            },
+            {
+              "variant": "array<int, string>",
+              "expression": "array_reverse($input)",
+              "expected": "array<int, string>",
+              "matched": true
+            }
+          ],
+          "diskUnchanged": true
+        }
+      },
+      "log_sha256": "ac04ad5aa872f45a383b02205a1953ca635559d1f27a8bf6b10e96801d520aa9"
+    },
+    {
+      "suite": "stubsFlowCompletion",
+      "kind": "stubsFlow",
+      "exit_code": 0,
+      "log": "/tmp/sophp-stubs-current-windows-stubsFlow.log",
+      "proof": {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "proof": {
+          "platform": "win32",
+          "results": [
+            {
+              "name": "date",
+              "expected": "getErrorCode",
+              "matched": true
+            },
+            {
+              "name": "dom",
+              "expected": "createProcessingInstruction",
+              "matched": true
+            },
+            {
+              "name": "xml",
+              "expected": "getName",
+              "matched": true
+            },
+            {
+              "name": "reference-control",
+              "expected": "itemOnly",
+              "matched": true
+            },
+            {
+              "name": "actual-reference",
+              "expected": "",
+              "matched": true
+            },
+            {
+              "name": "date",
+              "expected": "getErrorCode",
+              "matched": true
+            },
+            {
+              "name": "dom",
+              "expected": "createProcessingInstruction",
+              "matched": true
+            },
+            {
+              "name": "xml",
+              "expected": "getName",
+              "matched": true
+            },
+            {
+              "name": "reference-control",
+              "expected": "itemOnly",
+              "matched": true
+            },
+            {
+              "name": "actual-reference",
+              "expected": "",
+              "matched": true
+            }
+          ],
+          "diskUnchanged": true
+        }
+      },
+      "log_sha256": "92a5f87027805c20412b6e17f3d6cc28ed79a2111eddf732491c3bcd85f143da"
+    },
+    {
+      "suite": "traitFinalRestart",
+      "kind": "traitFinal",
+      "exit_code": 0,
+      "log": "/tmp/sophp-stubs-current-windows-traitFinal.log",
+      "proof": {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "proof": {
+          "beforePid": 6708,
+          "afterPid": 20744,
+          "unsavedFinalPreserved": true,
+          "postRestartRemoval": true,
+          "disksPreserved": true,
+          "platform": "win32"
+        }
+      },
+      "log_sha256": "e0229f90c1ca0fc77f269caa381eff46a3af4c617e1b2bb645671e27c9e107e6"
+    }
+  ],
+  "full_c2": {
+    "status": "passed",
+    "session": 94037,
+    "log": "/tmp/sophp-stubs-current-windows-c2.log",
+    "exit_file": "/tmp/sophp-stubs-current-windows-c2.exit",
+    "subset_switches": false,
+    "exit_code": 0,
+    "proof_lines": 65,
+    "proof": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "proof": {
+        "suite": "fullC2",
+        "platform": "win32",
+        "node": "v24.21.0",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      }
+    },
+    "log_sha256": "ca9e9f130dde80d4a59977c28082f456195ac3c9ee237ccb51e6227e96781d13",
+    "source_fixture_inputs": {
+      "test/extension/suite/c2.ts": "e28b13bf0078b1fc29c83e4e30f848957c2c1727849a44b196784d488d7f4a24",
+      "test/extension/suite/nativeWindowsC2.ts": "5419e4b08b14145498fff67ed875010d0ee29f91db71ee7c1caae8c2f9f3ed7b",
+      "scripts/check-native-windows-host.mjs": "d271548a8b8857ababaa654ea38061b24b817c932a0c234b34a3dc84dde61d94",
+      "test/extension/baseline/composer.json": "69f52738052b71c8c6f47fd868da5cc3f42531b166ecf6ec00a14a8418efeba1",
+      "test/extension/baseline/config/services.yaml": "ac475be4a131988c3cdbb2af17122a932eefc254b454aa742a564c401b92ecfc",
+      "test/extension/baseline/config/services.xml": "2ae9a18db909bb7effc969e6b4f0f91de9b7e1ded69ab03cba597d20c25c8967",
+      "test/extension/baseline/config/routes.yaml": "bfa20ecd51a89c4e44374a412e74be3d1b99e45fb7be9b91ec3711aa311a5f1b",
+      "test/extension/baseline/config/services.php": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24",
+      "test/extension/baseline/.vscode/settings.json": "8d509458f40ca832333e7056f54ccf2b931e657bd1a58bde53cf63a11f7cf9a8",
+      "test/extension/baseline/src/WrongNamespace.php": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51",
+      "test/extension/baseline/src/Broken.php": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8",
+      "test/extension/baseline/src/Service/DeliveryState.php": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd",
+      "test/extension/baseline/src/Service/OverrideTarget.php": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4",
+      "test/extension/baseline/src/Service/ContainerConsumer.php": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452",
+      "test/extension/baseline/src/Service/DuplicateDeclarations.php": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5",
+      "test/extension/baseline/src/Service/Mailer.php": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7",
+      "test/extension/baseline/src/Service/DiagnosticUnknowns.php": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23",
+      "test/extension/baseline/src/Service/TraitFeatureChild.php": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71",
+      "test/extension/baseline/src/Service/ControlFlowDiagnostics.php": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802",
+      "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069",
+      "test/extension/baseline/src/Service/ConstructedReadonlyState.php": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330",
+      "test/extension/baseline/src/Service/AlternateFeature.php": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420",
+      "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b",
+      "test/extension/baseline/src/Service/ExportService.php": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8",
+      "test/extension/baseline/src/Service/MessageHandler.php": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4",
+      "test/extension/baseline/src/Service/AssertionConsumer.php": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46",
+      "test/extension/baseline/src/Service/StrictScalarDiagnostics.php": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6",
+      "test/extension/baseline/src/Service/ActivityService.php": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2",
+      "test/extension/baseline/src/Service/UserService.php": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84",
+      "test/extension/baseline/src/Service/AutowiredConsumer.php": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf",
+      "test/extension/baseline/src/Service/BaseService.php": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617",
+      "test/extension/baseline/src/Service/UnusedImport.php": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570",
+      "test/extension/baseline/src/Service/MissingRunner.php": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6",
+      "test/extension/baseline/src/Service/ConstantChild.php": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece",
+      "test/extension/baseline/src/Service/ConstructorTarget.php": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7",
+      "test/extension/baseline/src/Service/AttributeConsumer.php": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec",
+      "test/extension/baseline/src/Service/PublicPropertyChild.php": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00",
+      "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd",
+      "test/extension/baseline/src/Service/SharedFeature.php": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4",
+      "test/extension/baseline/src/Service/PromotedPropertyBase.php": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce",
+      "test/extension/baseline/src/Service/ConstantBase.php": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0",
+      "test/extension/baseline/src/Service/PhpDocTypeConflicts.php": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263",
+      "test/extension/baseline/src/Service/AliasConsumer.php": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c",
+      "test/extension/baseline/src/Service/TraitFeatureHost.php": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f",
+      "test/extension/baseline/src/Service/PublicPropertyBase.php": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3",
+      "test/extension/baseline/src/Service/MovableService.php": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9",
+      "test/extension/baseline/src/Service/RunnerImplementation.php": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9",
+      "test/extension/baseline/src/Service/PromotedPropertyChild.php": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee",
+      "test/extension/baseline/src/Service/ImplicitNullable.php": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0",
+      "test/extension/baseline/src/Service/CompletionService.php": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19",
+      "test/extension/baseline/src/Service/DynamicProperties.php": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa",
+      "test/extension/baseline/src/Support/Constants.php": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126",
+      "test/extension/baseline/src/Support/LogsActivity.php": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b",
+      "test/extension/baseline/src/Controller/OptimizeConsumer.php": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97",
+      "test/extension/baseline/src/Controller/MoveConsumer.php": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005",
+      "test/extension/baseline/src/Controller/NativeAssertConsumer.php": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48",
+      "test/extension/baseline/src/Controller/LocalVarDocConsumer.php": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e",
+      "test/extension/baseline/src/Controller/ConstantConsumer.php": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0",
+      "test/extension/baseline/src/Controller/TraitConstantConsumer.php": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688",
+      "test/extension/baseline/src/Controller/CompletionConsumer.php": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f",
+      "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42",
+      "test/extension/baseline/src/Controller/UserController.php": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db",
+      "test/extension/baseline/src/Controller/MatchExpressionConsumer.php": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214",
+      "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1",
+      "test/extension/baseline/src/Controller/TypePredicateConsumer.php": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a",
+      "test/extension/baseline/src/Controller/EnumCaseConsumer.php": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5",
+      "test/extension/baseline/src/Controller/ImportConsumer.php": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f",
+      "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0",
+      "test/extension/baseline/src/Controller/MessageHandlerConsumer.php": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073",
+      "test/extension/baseline/src/Controller/NullCoalescingConsumer.php": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547",
+      "test/extension/baseline/src/Controller/RunnerConsumer.php": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841",
+      "test/extension/baseline/src/Controller/ClassConstantConsumer.php": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400",
+      "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1",
+      "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb",
+      "test/extension/baseline/src/Controller/RouteConsumer.php": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892",
+      "test/extension/baseline/src/Controller/OptimizeImports.php": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb",
+      "test/extension/baseline/src/Controller/BuiltinConsumer.php": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d",
+      "test/extension/baseline/src/Controller/PublicPropertyConsumer.php": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447",
+      "test/extension/baseline/src/Controller/ContextualCallableConsumer.php": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840",
+      "test/extension/baseline/src/Contact/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "test/extension/baseline/src/Legacy/Duplicate.php": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3",
+      "test/extension/baseline/src/Contract/Runner.php": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929",
+      "test/extension/baseline/src/Contract/Mailer.php": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c",
+      "test/extension/baseline/src/Contract/ExportContract.php": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f",
+      "test/extension/baseline/src/Contract/Traceable.php": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171",
+      "test/extension/baseline/src/Contract/MessageHandler.php": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+    }
+  },
+  "profile_updated": false,
+  "packaged": false,
+  "manual_wsl": "pending",
+  "terminal_core_assets_match": true,
+  "terminal_c2_inputs_match": true,
+  "compiled_test_assets": {
+    "arrayKeyPreservation.cjs": {
+      "sha256": "45726135210d98d35c1cd468971025f5a8baaecaa24a69c7d58bfd404b0e2a86",
+      "archived": "/tmp/sophp-stubs-current-windows-arrayKeyPreservation.cjs"
+    },
+    "stubsFlowCompletion.cjs": {
+      "sha256": "07a077b8d9cc65cae5c50069fdde6945c43c35a285dcd3a8205e683739de3c88",
+      "archived": "/tmp/sophp-stubs-current-windows-stubsFlowCompletion.cjs"
+    },
+    "traitFinalRestart.cjs": {
+      "sha256": "4b0409bde4d90cd85957c02911a3c9d62ee2cdcf4df3ae5a8e0d551acfe441d3",
+      "archived": "/tmp/sophp-stubs-current-windows-traitFinalRestart.cjs"
+    },
+    "nativeWindowsC2.cjs": {
+      "sha256": "ee18e0091d89a2b682b13a9afe791a90d4ae8eaf320c2c990134ae73905923b5",
+      "archived": "/tmp/sophp-stubs-current-windows-nativeWindowsC2.cjs"
+    },
+    "runner.mjs": {
+      "sha256": "d271548a8b8857ababaa654ea38061b24b817c932a0c234b34a3dc84dde61d94",
+      "archived": "/tmp/sophp-stubs-current-windows-runner.mjs"
+    }
+  },
+  "scratch_cleaned": true
+}

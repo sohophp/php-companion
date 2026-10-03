@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "scope": [
+    "inherited final magic methods",
+    "trait as final parser recovery and version diagnostics",
+    "cold PSR-4 parent refresh",
+    "enum magic declaration completion"
+  ],
+  "frozen_inputs": {
+    "count": 2958,
+    "manifest": "/tmp/sophp-declaration-integration-inputs.json",
+    "terminal_changes": 0,
+    "interim_changes": 0,
+    "released": true
+  },
+  "semantic": {
+    "files": 68,
+    "passed": 1268,
+    "exit_code": 0
+  },
+  "full_stdio": {
+    "session_id": 50605,
+    "status": "terminal",
+    "selected_files": 25,
+    "log": "/tmp/sophp-declaration-integration-stdio.log",
+    "reference_bundle": "/var/www/node/php-companion/dist/language-server.js",
+    "exit_code": 0,
+    "passed": 494,
+    "files": 25,
+    "skipped": 0,
+    "duration_seconds": 1394.68
+  },
+  "full_c2": {
+    "session_id": 47726,
+    "status": "terminal",
+    "log": "/tmp/sophp-declaration-integration-c2.log",
+    "subset": false,
+    "vscode": "1.140.0",
+    "php": "8.5",
+    "exit_code": 0,
+    "proof_lines": 65
+  },
+  "real_wsl_acceptance": "not_run",
+  "profile_updated": false,
+  "packaged": false
+}

@@ -1,0 +1,114 @@
+{
+  "profile": {
+    "profile": "/tmp/sophp-first-reference-cpu/CPU.20261001.165951.128384.0.001.cpuprofile",
+    "samples": 38622,
+    "inclusiveCounts": {
+      "(root)": 38622,
+      "": 33118,
+      "importScope": 28720,
+      "parse": 27914,
+      "parseTree": 27204,
+      "wasm-function[265]": 27005,
+      "references": 26831,
+      "referencesUncached": 26815,
+      "resolveSourceType": 26726,
+      "classImportAt": 26662,
+      "wasm-function[76]": 10335,
+      "js-to-wasm:iiiii:i": 5901,
+      "wasm-function[20]": 5505,
+      "Bo": 4818,
+      "N": 4781,
+      "onSource": 4577,
+      "updateSource": 4268,
+      "wasm-function[25]": 3578,
+      "wasm-function[113]": 3047,
+      "updatePrepared": 3019,
+      "wasm-function[147]": 2897,
+      "wasm-function[21]": 2338,
+      "wasm-function[65]": 2154,
+      "replaceTypeDependencies": 2142
+    },
+    "notes": "Inclusive counts overlap; startup, background indexing and References are sampled together."
+  },
+  "onDemandComparison": {
+    "order": "baseline-first",
+    "baseline": {
+      "bundle": "/tmp/sophp-reference-before-scopes/language-server.js",
+      "elapsedMs": 36972,
+      "initializeMs": 1910,
+      "results": 1071,
+      "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+      "namedCandidateScans": 1,
+      "candidateScan": {
+        "files": 2514,
+        "cached": 0,
+        "parsed": 905,
+        "restored": 0,
+        "declarations": 0,
+        "restoredDeclarations": 0,
+        "prepared": 904,
+        "preparedRestores": 0
+      },
+      "phasesMs": {
+        "candidates": 6695,
+        "container": 1,
+        "routes": 2,
+        "events": 0,
+        "semantic": 29705
+      }
+    },
+    "candidate": {
+      "bundle": "dist/language-server.js",
+      "elapsedMs": 7086,
+      "initializeMs": 1951,
+      "results": 1071,
+      "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+      "namedCandidateScans": 1,
+      "candidateScan": {
+        "files": 2514,
+        "cached": 0,
+        "parsed": 905,
+        "restored": 0,
+        "declarations": 0,
+        "restoredDeclarations": 0,
+        "prepared": 904,
+        "preparedRestores": 0
+      },
+      "phasesMs": {
+        "candidates": 6264,
+        "container": 1,
+        "routes": 3,
+        "events": 0,
+        "semantic": 171
+      }
+    },
+    "changeMs": -29886
+  },
+  "progressive": {
+    "candidate": {
+      "bundle": "dist/language-server.js",
+      "elapsedMs": 7919,
+      "initializeMs": 1808,
+      "results": 1071,
+      "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+      "namedCandidateScans": 1,
+      "candidateScan": {
+        "files": 2514,
+        "cached": 0,
+        "parsed": 905,
+        "restored": 0,
+        "declarations": 0,
+        "restoredDeclarations": 0,
+        "prepared": 904,
+        "preparedRestores": 0
+      },
+      "phasesMs": {
+        "candidates": 6979,
+        "container": 0,
+        "routes": 1,
+        "events": 0,
+        "semantic": 135
+      }
+    }
+  }
+}

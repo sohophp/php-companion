@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-02",
+  "applied": true,
+  "semantic": {
+    "passed": 852,
+    "failed": 0,
+    "durationSeconds": 50.4
+  },
+  "targetedStdio": {
+    "passed": 6,
+    "skipped": 417,
+    "total": 423,
+    "durationSeconds": 18.4
+  },
+  "fullC2": {
+    "sessionId": 42309,
+    "exitCode": 0
+  },
+  "visible": [
+    {
+      "phpVersion": "8.5",
+      "sessionId": 14944,
+      "exitCode": 0,
+      "samplesMs": [
+        156,
+        146,
+        119,
+        145,
+        119,
+        116,
+        150,
+        120,
+        118,
+        116,
+        148,
+        131,
+        128,
+        154,
+        119,
+        122
+      ],
+      "tabText": true,
+      "undoRedo": true,
+      "syntheticDelimitersInserted": false
+    },
+    {
+      "phpVersion": "7.2",
+      "sessionId": 69483,
+      "exitCode": 0,
+      "samplesMs": [
+        140,
+        117,
+        111,
+        124,
+        113,
+        144,
+        111,
+        113,
+        122,
+        114,
+        137,
+        111,
+        128,
+        113,
+        120,
+        117
+      ],
+      "tabText": true,
+      "undoRedo": true,
+      "syntheticDelimitersInserted": false
+    }
+  ],
+  "performance": [
+    {
+      "backgroundFiles": 0,
+      "name": "two",
+      "branches": 2,
+      "fieldsPerBranch": 2,
+      "samples": 100,
+      "p95Ms": 1.5059529999999768,
+      "maxMs": 3.7331550000000107,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "backgroundFiles": 0,
+      "name": "bounded",
+      "branches": 32,
+      "fieldsPerBranch": 6,
+      "samples": 100,
+      "p95Ms": 3.9328610000000026,
+      "maxMs": 4.697347000000036,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "backgroundFiles": 0,
+      "name": "existing PHPDoc budget",
+      "branches": 32,
+      "fieldsPerBranch": 65,
+      "samples": 100,
+      "p95Ms": 11.110037000000034,
+      "maxMs": 18.394587,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "backgroundFiles": 2300,
+      "name": "two",
+      "branches": 2,
+      "fieldsPerBranch": 2,
+      "samples": 100,
+      "p95Ms": 0.43368099999997867,
+      "maxMs": 4.74322200000006,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "backgroundFiles": 2300,
+      "name": "bounded",
+      "branches": 32,
+      "fieldsPerBranch": 6,
+      "samples": 100,
+      "p95Ms": 2.9816789999999855,
+      "maxMs": 5.051543999999922,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "backgroundFiles": 2300,
+      "name": "existing PHPDoc budget",
+      "branches": 32,
+      "fieldsPerBranch": 65,
+      "samples": 100,
+      "p95Ms": 11.333278999999948,
+      "maxMs": 18.502997999999934,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    }
+  ],
+  "fullStdio": {
+    "sessionId": 40247,
+    "status": "passed",
+    "passed": 423,
+    "skipped": 0,
+    "durationSeconds": 1325.31,
+    "exitCode": 0,
+    "finalInputsMatched": 19,
+    "log": "/tmp/sophp-unfinished-shape-product-full-stdio.log",
+    "inputCheck": "/tmp/sophp-unfinished-shape-product-final-inputs.log"
+  },
+  "frozenInputs": 19,
+  "hostFinalInputsMatched": true,
+  "realWslAcceptance": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "open": [
+    "punctuation and escaped quoted prefixes",
+    "full C3 Symfony snapshot integration"
+  ]
+}

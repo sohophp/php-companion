@@ -1,0 +1,273 @@
+{
+  "status": "passed_automated_with_known_renderer_exception",
+  "fullStdioSession": 36905,
+  "fullStdioLog": "/tmp/sophp-d40-d41-full-stdio.log",
+  "inputManifest": "/tmp/sophp-d40-d41-integration-inputs.json",
+  "inputCount": 2986,
+  "freezeReleased": true,
+  "windows": {
+    "declarationVariables": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "proof": {
+        "platform": "win32",
+        "results": [
+          {
+            "label": "$this",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$this",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$other",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$other",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$value",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$value",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$incoming",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$incoming",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ],
+        "suppressedNames": 3
+      }
+    },
+    "hookKeywords": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "proof": {
+        "platform": "win32",
+        "results": [
+          {
+            "label": "return",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "return",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "return",
+            "key": "Enter",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "return",
+            "key": "Tab",
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    },
+    "assetsVerified": 20,
+    "scratchCleaned": true
+  },
+  "projectCompletionPerformance": {
+    "return": {
+      "root": "/var/www/php/8.5/winstar2024",
+      "file": "/var/www/php/8.5/winstar2024/src/Config/app.php",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": true,
+      "resolveDetails": false,
+      "firstMs": 63.61,
+      "all": {
+        "p50Ms": 13.58,
+        "p95Ms": 20.51,
+        "maxMs": 63.61
+      },
+      "a": {
+        "fragment": "class SoPHPHookProbe { public mixed $name { get { r{{cursor}}; } } }",
+        "expected": "return",
+        "p50Ms": 13.68,
+        "p95Ms": 19.98,
+        "maxMs": 63.61,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "class SoPHPHookProbe { public mixed $name { set { r{{cursor}}; } } }",
+        "expected": "return",
+        "p50Ms": 13.39,
+        "p95Ms": 20.51,
+        "maxMs": 42.95,
+        "incomplete": 0
+      },
+      "readOnly": true
+    },
+    "yield": {
+      "root": "/var/www/php/8.5/winstar2024",
+      "file": "/var/www/php/8.5/winstar2024/src/Config/app.php",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": true,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 60.35,
+      "all": {
+        "p50Ms": 11.76,
+        "p95Ms": 15.8,
+        "maxMs": 60.35
+      },
+      "a": {
+        "fragment": "class SoPHPHookProbe { public mixed $name { get { yie{{cursor}}; } } }",
+        "expected": "yield",
+        "p50Ms": 11.73,
+        "p95Ms": 19.54,
+        "maxMs": 60.35,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "class SoPHPHookProbe { public mixed $name { set { yie{{cursor}}; } } }",
+        "expected": "-",
+        "p50Ms": 11.79,
+        "p95Ms": 14.98,
+        "maxMs": 33.45,
+        "incomplete": 0
+      },
+      "readOnly": true
+    }
+  },
+  "editingRecovery": {
+    "status": "passed",
+    "iterations": 1000,
+    "noiseFunctions": 500,
+    "warmupIterations": 100,
+    "report": "completion-d40-d41-editing-1000-2026-10-03.json"
+  },
+  "cancellationMatrix": {
+    "status": "passed",
+    "scenarios": 6,
+    "report": "completion-d40-d41-cancellation-2026-10-03.json"
+  },
+  "coreC2": {
+    "status": "passed",
+    "session": 45011,
+    "exit": 0,
+    "proofLines": 65,
+    "log": "/tmp/sophp-d40-d41-core-c2.log",
+    "inputsUnchanged": 2986
+  },
+  "c1Completion": {
+    "72": {
+      "status": "passed_assertions",
+      "session": 39222,
+      "exit": 0,
+      "visibleListWait": {
+        "samplesMs": [
+          247,
+          233,
+          239,
+          246,
+          251,
+          253
+        ],
+        "medianMs": 247,
+        "maxMs": 253
+      },
+      "rendererGetItemsByProviderErrors": 0,
+      "log": "/tmp/sophp-d40-d41-c1-72.log"
+    },
+    "85": {
+      "status": "passed_assertions",
+      "session": 25118,
+      "exit": 0,
+      "visibleListWait": {
+        "samplesMs": [
+          227,
+          256,
+          223,
+          273,
+          254,
+          251
+        ],
+        "medianMs": 253,
+        "maxMs": 273
+      },
+      "rendererGetItemsByProviderErrors": 1,
+      "log": "/tmp/sophp-d40-d41-c1-85.log"
+    }
+  },
+  "dataCheckpoint": {
+    "commit": "2187f0f86c258f65280bee3c51efe99387d98375",
+    "scope": "language-spec metadata and licenses only",
+    "standaloneTests": 249,
+    "files": 151,
+    "coreChangesCommitted": false
+  },
+  "fullStdio": {
+    "session": 36905,
+    "exit": 0,
+    "files": 31,
+    "tests": 506,
+    "skipped": 0,
+    "seconds": 1438.88
+  },
+  "terminalInputsUnchanged": 2986,
+  "remaining": [
+    "Workbench getItemsByProvider exception",
+    "human WSL acceptance"
+  ]
+}

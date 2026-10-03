@@ -1,0 +1,135 @@
+{
+  "status": "source_and_targeted_protocol_visible_host_passed",
+  "date": "2026-10-03",
+  "scope": [
+    "inherited final magic method filtering",
+    "PHP 8.3 trait final aliases and version diagnostics",
+    "cold PSR-4 inheritance hydration and unsaved parent refresh"
+  ],
+  "gates": {
+    "parser": {
+      "files": 3,
+      "tests": 100,
+      "exit_code": 0
+    },
+    "semantic": {
+      "files": 68,
+      "tests": 1264,
+      "exit_code": 0
+    },
+    "stdio": {
+      "files": 2,
+      "tests": 5,
+      "exit_code": 0,
+      "magic_queries": 22,
+      "cold_cross_file_queries": 5,
+      "warm_queries": 30
+    },
+    "visible_host": {
+      "platform": "linux",
+      "results": [
+        {
+          "label": "__destruct",
+          "key": "Enter",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__destruct",
+          "key": "Tab",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Enter",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Tab",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__destruct",
+          "key": "Enter",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__destruct",
+          "key": "Tab",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Enter",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "__construct",
+          "key": "Tab",
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "root_typecheck": {
+      "exit_code": 0,
+      "noEmit": true
+    },
+    "lint": {
+      "exit_code": 0
+    },
+    "core_build": {
+      "exit_code": 0
+    },
+    "cross_file_timing": {
+      "coldMs": 22.391678999999385,
+      "warmSamples": 30,
+      "p95Ms": 3.2012400000003254,
+      "scope": "three-file isolated stdio fixture"
+    }
+  },
+  "prior_array_integration": {
+    "stdio_tests": 488,
+    "host_proofs": 65,
+    "applies_to_current_declaration_source": false
+  },
+  "limits": [
+    "current complete stdio and C2 not rerun",
+    "no Windows or real WSL user acceptance for this increment",
+    "timing is a three-file isolated fixture, not a large Composer project or visible popup wait"
+  ],
+  "profile_updated": false,
+  "packaged": false,
+  "committed": false
+}

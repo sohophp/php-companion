@@ -2,6 +2,18 @@
 
 日期：2026-09-28。当前公开版本仍是 0.4.12；最新本地 0.4.13 候选的三份 VSIX 对应源码提交 `91d5a952df5cdf9cc41dfc5f61ab4f08975acb5f`。它只交付[第一阶段声明的范围](../stability-first-delivery.md)，不代表 R4 全部完成。候选尚未推送；此前安装到 WSL 扩展目录的是旧候选 `77761b4c`，并非本节新产物。
 
+## 候选之后的未打包源码
+
+当前 `work/sophp-next` 的 HEAD 为 `32e7e6a`，另有未提交的 Core 源码与测试改动。它们补齐匿名闭包参数、捕获变量后的返回类型及 DNF 类型位置的类名补全。未保存的 PSR-4 类型声明改名后，Hover 与 Definition 撤回旧结果；Composer classmap 声明改名后，成员补全、参数提示、Hover 与 Definition 也从当前缓冲区撤回旧结果。语义、真实 stdio LSP 及隔离 C1 源码宿主包含相应正反例。
+
+这批最新未提交源码的完整质量门禁已通过：`pnpm typecheck`、`pnpm lint`、`pnpm test` 均退出 0；语义包 449 项通过，语言服务器 21 个文件共 400 项通过、1 项跳过，Symfony 包 13 项、根包 69 项也通过。日志依次为 `/tmp/sophp-current-source-typecheck-final-20260928.log`、`/tmp/sophp-current-source-lint-final-20260928.log`、`/tmp/sophp-current-source-test-final-20260928.log`。此前还单独验证了 classmap、原生类型、命名参数和 Attribute 共五条 stdio 用例。现有用例检查即时查询结果，但没有强制锁定最窄的通知与查询交错时序。
+
+同一源码的 C1、C2、C3 隔离 VS Code **源码宿主**均退出 0。C1 由 `pnpm test:extension:c1` 构建并运行，日志 `/tmp/sophp-current-source-c1-host-final-20260928.log`；C2、C3 复用该次构建的产物，分别以 `PHP_COMPANION_TEST_C2_ONLY=1`、`PHP_COMPANION_TEST_C3_ONLY=1` 运行 `node scripts/run-extension-test.mjs ./dist-test/runTest.js`，日志 `/tmp/sophp-current-source-c2-host-final-20260928.log`、`/tmp/sophp-current-source-c3-host-final-20260928.log`。C3 已支持的安全编辑路径含预览、取消、应用及多项一次 Undo/Redo；已知失败的最终 `createFile` 兜底 Redo 探针没有启用。这些源码宿主结果不证明当前 WSL 已安装扩展的行为。
+
+当前 Core、Symfony、Pack 源码加冻结的外部扩展也通过完整 10 项 Open Source Pack **源码宿主**，日志 `/tmp/sophp-current-source-pack-host-final-20260928.log`、退出码 0。它使用独立 PHP 8.5.9 与临时工具项目的 fixer/PHPUnit，测试断言 Pack 清单、所需成员、Provider 排他设置和 C1/C2 组合反馈；没有生成 VSIX，也没有更新用户 WSL 扩展目录。Symfony 源码构建日志为 `/tmp/sophp-current-symfony-source-build-20260928.log`。
+
+这批工作树源码没有对应的新 VSIX、24 包验证、跨平台 CI 或真实 WSL 编辑器验收；下文 `91d5a952` 的打包与宿主证据不能转记给它。按当前开发安排，暂不为日常增量重新打包、安装、提交或推送。
+
 ## 最新本地候选 `91d5a952`
 
 - `pnpm candidate:alpha`、`pnpm verify:vsix` 和候选目录内 `sha256sum -c SHA256SUMS` 均通过。目录 `artifacts/php-companion-alpha-0.4.13-91d5a952/` 的 Core、Symfony、Pack 摘要依次为 `ddae33dab89ed83d4c66110949829160737af81dcaa71123dfa43d2d852dc2ea`、`a5d91eb98c0f80fc14ee69f3c3e565ae386830c56a092b20ef01a903abc88043`、`3f994247f1b96820352449f6d0f2ca5926a675fbaec534e68b8029a7cfa748b5`；生成时源码干净且三份版本均为 0.4.13。原始日志 `/tmp/sophp-0413-91d5a95-candidate.log`。
@@ -32,7 +44,7 @@
 
 ## 延后的人工验收
 
-用户准备验收时，再按最新候选目录的 `README.zh-CN.md` 安装三份 `91d5a952` VSIX，并在 WSL VS Code 窗口执行 `Developer: Reload Window`。然后从该窗口的**集成终端**、在仓库根目录运行：
+用户准备验收时，先确定验收 `91d5a952` 已打包候选，还是届时更新的源码。若验收前者，再按该候选目录的 `README.zh-CN.md` 安装三份 VSIX，并在 WSL VS Code 窗口执行 `Developer: Reload Window`；若验收后者，须先另行冻结、打包与验证同源候选，不能沿用以下目录和命令。验收 `91d5a952` 时，从该窗口的**集成终端**、在仓库根目录运行：
 
 ```bash
 pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-91d5a952 --workspace test/extension/fixture --php /usr/bin/php --expected-php 7.2 --require-wsl --check-editor --extensions-dir /home/jason/.vscode-server/extensions --output /tmp/sophp-0413-91d5a952-wsl-integrated-preflight.json
@@ -40,7 +52,7 @@ pnpm alpha:preflight -- --candidate artifacts/php-companion-alpha-0.4.13-91d5a95
 
 记录 `gates.deterministicPassed`、WSL 扩展宿主中的 Core/Symfony 激活、唯一通用 PHP Provider，以及项目 PHP、fixer、Xdebug、测试 CLI 的实际路径。再在独立 Composer 项目进行至少两小时连续编辑，记录起止时间和 PHP 补全/参数提示/Hover/Definition/References、未保存修改、确定性 Import、受支持 Rename/Safe Move/类型生成预览与一次 Undo/Redo、Twig/YAML/XML、格式化、调试和 CLI 测试的结果。自动宿主结果不能代替这份记录。
 
-`WorkspaceEdit.createFile` 最终兜底在一次 Undo 后无法可靠 Redo，仍是公开限制；可暂存移动的已支持路径有独立通过证据。没有新的可验证线索时，不重复调查该兜底。
+2026-09-28 后续源码增量：本地 `file` 工作区已取消 `WorkspaceEdit.createFile` 最终兜底。三次暂存移动都失败时，命令现在报告失败且不创建目标文件；此前成功路径的一次 Undo/Redo 仍通过定向源码宿主。VS Code 的 `createFile` Redo 本身没有修复，其它文件系统的创建与真实 WSL Remote 仍需独立验收。详情见[收口记录](c3-createfile-redo-resolution-2026-09-28.md)。本段增量没有重新打包或安装，不属于上文 0.4.13 候选产物。
 
 ## 安装与回退
 

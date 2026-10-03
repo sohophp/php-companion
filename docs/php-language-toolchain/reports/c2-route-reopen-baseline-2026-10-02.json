@@ -1,0 +1,356 @@
+[
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "name",
+    "oldResult": [
+      {
+        "label": "demo",
+        "kind": 18,
+        "detail": "/demo/{id} (source declaration)",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 252
+            },
+            "end": {
+              "line": 0,
+              "character": 254
+            }
+          },
+          "newText": "demo"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "parameter",
+    "oldResult": [
+      {
+        "label": "id",
+        "kind": 5,
+        "detail": "demo path parameter",
+        "textEdit": {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 261
+            },
+            "end": {
+              "line": 0,
+              "character": 262
+            }
+          },
+          "newText": "id"
+        }
+      }
+    ],
+    "freshResult": []
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "kind": "definition",
+    "oldResult": [],
+    "freshResult": []
+  }
+]

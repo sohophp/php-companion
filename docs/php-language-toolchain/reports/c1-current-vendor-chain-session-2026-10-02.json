@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "phpVersion": "8.5",
+  "noiseFiles": 9100,
+  "lockedPackages": 30,
+  "exitCode": 0,
+  "result": {
+    "rounds": 1000,
+    "summary": {
+      "completion": {
+        "count": 1000,
+        "median": 15,
+        "p95": 27,
+        "max": 45
+      },
+      "hover": {
+        "count": 1000,
+        "median": 5,
+        "p95": 18,
+        "max": 33
+      },
+      "signature": {
+        "count": 1000,
+        "median": 4,
+        "p95": 16,
+        "max": 33
+      },
+      "definition": {
+        "count": 1000,
+        "median": 5,
+        "p95": 16,
+        "max": 32
+      },
+      "implementation": {
+        "count": 1000,
+        "median": 6,
+        "p95": 14,
+        "max": 368
+      },
+      "references": {
+        "count": 1000,
+        "median": 136,
+        "p95": 178,
+        "max": 266
+      }
+    },
+    "memorySamples": [
+      {
+        "round": 0,
+        "rssMiB": 493,
+        "heapUsedMiB": 163,
+        "externalMiB": 8
+      },
+      {
+        "round": 25,
+        "rssMiB": 506,
+        "heapUsedMiB": 189,
+        "externalMiB": 3
+      },
+      {
+        "round": 50,
+        "rssMiB": 499,
+        "heapUsedMiB": 201,
+        "externalMiB": 3
+      },
+      {
+        "round": 75,
+        "rssMiB": 499,
+        "heapUsedMiB": 192,
+        "externalMiB": 3
+      },
+      {
+        "round": 100,
+        "rssMiB": 499,
+        "heapUsedMiB": 204,
+        "externalMiB": 4
+      },
+      {
+        "round": 125,
+        "rssMiB": 499,
+        "heapUsedMiB": 195,
+        "externalMiB": 4
+      },
+      {
+        "round": 150,
+        "rssMiB": 500,
+        "heapUsedMiB": 206,
+        "externalMiB": 4
+      },
+      {
+        "round": 175,
+        "rssMiB": 500,
+        "heapUsedMiB": 223,
+        "externalMiB": 4
+      },
+      {
+        "round": 200,
+        "rssMiB": 506,
+        "heapUsedMiB": 235,
+        "externalMiB": 4
+      },
+      {
+        "round": 225,
+        "rssMiB": 511,
+        "heapUsedMiB": 227,
+        "externalMiB": 4
+      },
+      {
+        "round": 250,
+        "rssMiB": 517,
+        "heapUsedMiB": 238,
+        "externalMiB": 4
+      },
+      {
+        "round": 275,
+        "rssMiB": 523,
+        "heapUsedMiB": 229,
+        "externalMiB": 4
+      },
+      {
+        "round": 300,
+        "rssMiB": 529,
+        "heapUsedMiB": 241,
+        "externalMiB": 4
+      },
+      {
+        "round": 325,
+        "rssMiB": 535,
+        "heapUsedMiB": 258,
+        "externalMiB": 4
+      },
+      {
+        "round": 350,
+        "rssMiB": 541,
+        "heapUsedMiB": 270,
+        "externalMiB": 4
+      },
+      {
+        "round": 375,
+        "rssMiB": 547,
+        "heapUsedMiB": 261,
+        "externalMiB": 4
+      },
+      {
+        "round": 400,
+        "rssMiB": 553,
+        "heapUsedMiB": 273,
+        "externalMiB": 5
+      },
+      {
+        "round": 425,
+        "rssMiB": 559,
+        "heapUsedMiB": 263,
+        "externalMiB": 5
+      },
+      {
+        "round": 450,
+        "rssMiB": 564,
+        "heapUsedMiB": 275,
+        "externalMiB": 5
+      },
+      {
+        "round": 475,
+        "rssMiB": 571,
+        "heapUsedMiB": 292,
+        "externalMiB": 5
+      },
+      {
+        "round": 500,
+        "rssMiB": 577,
+        "heapUsedMiB": 304,
+        "externalMiB": 5
+      },
+      {
+        "round": 525,
+        "rssMiB": 583,
+        "heapUsedMiB": 296,
+        "externalMiB": 5
+      },
+      {
+        "round": 550,
+        "rssMiB": 590,
+        "heapUsedMiB": 308,
+        "externalMiB": 5
+      },
+      {
+        "round": 575,
+        "rssMiB": 586,
+        "heapUsedMiB": 97,
+        "externalMiB": 2
+      },
+      {
+        "round": 600,
+        "rssMiB": 571,
+        "heapUsedMiB": 109,
+        "externalMiB": 3
+      },
+      {
+        "round": 625,
+        "rssMiB": 564,
+        "heapUsedMiB": 87,
+        "externalMiB": 2
+      },
+      {
+        "round": 650,
+        "rssMiB": 564,
+        "heapUsedMiB": 98,
+        "externalMiB": 3
+      },
+      {
+        "round": 675,
+        "rssMiB": 410,
+        "heapUsedMiB": 78,
+        "externalMiB": 2
+      },
+      {
+        "round": 700,
+        "rssMiB": 410,
+        "heapUsedMiB": 90,
+        "externalMiB": 3
+      },
+      {
+        "round": 725,
+        "rssMiB": 410,
+        "heapUsedMiB": 107,
+        "externalMiB": 3
+      },
+      {
+        "round": 750,
+        "rssMiB": 404,
+        "heapUsedMiB": 79,
+        "externalMiB": 2
+      },
+      {
+        "round": 775,
+        "rssMiB": 404,
+        "heapUsedMiB": 96,
+        "externalMiB": 3
+      },
+      {
+        "round": 800,
+        "rssMiB": 403,
+        "heapUsedMiB": 77,
+        "externalMiB": 2
+      },
+      {
+        "round": 825,
+        "rssMiB": 403,
+        "heapUsedMiB": 95,
+        "externalMiB": 3
+      },
+      {
+        "round": 850,
+        "rssMiB": 403,
+        "heapUsedMiB": 107,
+        "externalMiB": 3
+      },
+      {
+        "round": 875,
+        "rssMiB": 406,
+        "heapUsedMiB": 98,
+        "externalMiB": 3
+      },
+      {
+        "round": 900,
+        "rssMiB": 403,
+        "heapUsedMiB": 84,
+        "externalMiB": 3
+      },
+      {
+        "round": 925,
+        "rssMiB": 403,
+        "heapUsedMiB": 103,
+        "externalMiB": 3
+      },
+      {
+        "round": 950,
+        "rssMiB": 404,
+        "heapUsedMiB": 98,
+        "externalMiB": 3
+      },
+      {
+        "round": 975,
+        "rssMiB": 404,
+        "heapUsedMiB": 86,
+        "externalMiB": 3
+      },
+      {
+        "round": 1000,
+        "rssMiB": 404,
+        "heapUsedMiB": 89,
+        "externalMiB": 3
+      }
+    ],
+    "freshnessTimings": {
+      "methodReferenceFreshnessSearch": {
+        "count": 256,
+        "median": 38.303633000003174,
+        "p95": 46.87468500001705,
+        "max": 51.11354500000016
+      },
+      "methodReferenceFreshnessHash": {
+        "count": 256,
+        "median": 0.058003999991342425,
+        "p95": 1.1485999999858905,
+        "max": 5.8712499999965075
+      },
+      "methodReferenceFreshnessTotal": {
+        "count": 256,
+        "median": 39.01394000000437,
+        "p95": 47.37541000000783,
+        "max": 52.027788000006694
+      }
+    }
+  }
+}

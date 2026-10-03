@@ -1,0 +1,116 @@
+{
+  "status": "passed_targeted_automated",
+  "semanticFull": {
+    "files": 75,
+    "tests": 1337,
+    "seconds": 50.93
+  },
+  "stdioHookQueries": 32,
+  "stdioVariableQueries": 36,
+  "visibleAcceptance": {
+    "platform": "linux",
+    "results": [
+      {
+        "label": "return",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "return",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "return",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "return",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "phpRuntime": [
+    {
+      "php": "84",
+      "case": "getter-generator",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "84",
+      "case": "setter-generator",
+      "exit": 255,
+      "stderr": "PHP Fatal error:  Generator return type must be a supertype of Generator, void given in Command line code on line 1"
+    },
+    {
+      "php": "84",
+      "case": "getter-return",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "84",
+      "case": "setter-bare-return",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "84",
+      "case": "closure-generator",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "85",
+      "case": "getter-generator",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "85",
+      "case": "setter-generator",
+      "exit": 255,
+      "stderr": "PHP Fatal error:  Generator return type must be a supertype of Generator, void given in Command line code on line 1\nStack trace:\n#0 {main}"
+    },
+    {
+      "php": "85",
+      "case": "getter-return",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "85",
+      "case": "setter-bare-return",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "php": "85",
+      "case": "closure-generator",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "notPerformed": [
+    "current full stdio",
+    "current Windows",
+    "human WSL",
+    "packaging",
+    "profile update"
+  ]
+}

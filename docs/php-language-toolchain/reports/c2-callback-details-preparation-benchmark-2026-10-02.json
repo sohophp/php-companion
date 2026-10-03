@@ -1,0 +1,27 @@
+{
+  "kind": "temporary source in-process semantic completion plus detail, generated workspaces, not LSP or real WSL",
+  "results": [
+    {
+      "supportingFiles": 0,
+      "rounds": 100,
+      "p50Ms": 1.8489549999999895,
+      "p95Ms": 4.675308999999999,
+      "maxMs": 36.448655,
+      "staleRanks": 0,
+      "staleDetails": 0,
+      "scopeLeaks": 0,
+      "projectMutations": 0
+    },
+    {
+      "supportingFiles": 2300,
+      "rounds": 100,
+      "p50Ms": 43.893058999999994,
+      "p95Ms": 64.66613099999995,
+      "maxMs": 78.742569,
+      "staleRanks": 0,
+      "staleDetails": 0,
+      "scopeLeaks": 0,
+      "projectMutations": 0
+    }
+  ]
+}

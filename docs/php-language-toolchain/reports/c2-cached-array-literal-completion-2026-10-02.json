@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-02",
+  "sourceChanged": false,
+  "cases": [
+    {
+      "mode": "parsed",
+      "context": "argument",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 17,
+      "offset": 17,
+      "passed": true
+    },
+    {
+      "mode": "parsed",
+      "context": "argument",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 25,
+      "offset": 25,
+      "passed": true
+    },
+    {
+      "mode": "parsed",
+      "context": "method",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 48,
+      "offset": 48,
+      "passed": true
+    },
+    {
+      "mode": "parsed",
+      "context": "method",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 56,
+      "offset": 56,
+      "passed": true
+    },
+    {
+      "mode": "snapshot",
+      "context": "argument",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 17,
+      "offset": 17,
+      "passed": true
+    },
+    {
+      "mode": "snapshot",
+      "context": "argument",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 25,
+      "offset": 25,
+      "passed": true
+    },
+    {
+      "mode": "snapshot",
+      "context": "method",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 48,
+      "offset": 48,
+      "passed": true
+    },
+    {
+      "mode": "snapshot",
+      "context": "method",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 56,
+      "offset": 56,
+      "passed": true
+    },
+    {
+      "mode": "declaration snapshot",
+      "context": "argument",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 17,
+      "offset": 17,
+      "passed": true
+    },
+    {
+      "mode": "declaration snapshot",
+      "context": "argument",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 25,
+      "offset": 25,
+      "passed": true
+    },
+    {
+      "mode": "declaration snapshot",
+      "context": "method",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 48,
+      "offset": 48,
+      "passed": true
+    },
+    {
+      "mode": "declaration snapshot",
+      "context": "method",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 56,
+      "offset": 56,
+      "passed": true
+    },
+    {
+      "mode": "source declaration",
+      "context": "argument",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 17,
+      "offset": 17,
+      "passed": true
+    },
+    {
+      "mode": "source declaration",
+      "context": "argument",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 25,
+      "offset": 25,
+      "passed": true
+    },
+    {
+      "mode": "source declaration",
+      "context": "method",
+      "part": "key",
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 48,
+      "offset": 48,
+      "passed": true
+    },
+    {
+      "mode": "source declaration",
+      "context": "method",
+      "part": "value",
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 56,
+      "offset": 56,
+      "passed": true
+    }
+  ],
+  "passed": 16,
+  "stdioIntegration": {
+    "status": "passed",
+    "exitCode": 0,
+    "passed": 429,
+    "skipped": 0,
+    "durationSeconds": 1348.45,
+    "log": "/tmp/sophp-r48-full-stdio.log",
+    "productInputsFinalMatch": true,
+    "toolInputFinalMatch": true,
+    "scope": "R47 product state before R49 application"
+  },
+  "packaged": false,
+  "profileUpdated": false,
+  "lintExitCode": 0,
+  "inputsCurrentMatch": true
+}

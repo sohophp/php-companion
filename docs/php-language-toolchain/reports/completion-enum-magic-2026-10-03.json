@@ -1,0 +1,310 @@
+{
+  "status": "source_targeted_protocol_and_visible_host_passed",
+  "scope": "enum magic declaration completion",
+  "runtime": [
+    {
+      "php": "php81",
+      "method": "__construct",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__destruct",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__call",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__callStatic",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__get",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__set",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__isset",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__unset",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__sleep",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__wakeup",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__serialize",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__unserialize",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__toString",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__invoke",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__set_state",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__clone",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php81",
+      "method": "__debugInfo",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__construct",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__destruct",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__call",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__callStatic",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__get",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__set",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__isset",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__unset",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__sleep",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__wakeup",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__serialize",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__unserialize",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__toString",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__invoke",
+      "exit_code": 0,
+      "expected_valid": true,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__set_state",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__clone",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    },
+    {
+      "php": "php85",
+      "method": "__debugInfo",
+      "exit_code": 255,
+      "expected_valid": false,
+      "stderr": ""
+    }
+  ],
+  "semantic": {
+    "files": 68,
+    "passed": 1268,
+    "exit_code": 0,
+    "maxWorkers": 4,
+    "duration_seconds": 52.29,
+    "initial_run": "one unrelated large array_map test exceeded unchanged 10-second timeout under concurrent builds; bounded-worker full rerun passed"
+  },
+  "stdio": {
+    "files": 3,
+    "passed": 8,
+    "enum_queries": 24,
+    "php_versions": [
+      "7.2",
+      "8.1",
+      "8.5"
+    ],
+    "exit_code": 0
+  },
+  "visible_host": {
+    "platform": "linux",
+    "results": [
+      {
+        "label": "__call",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__call",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__invoke",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__invoke",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "build_lint": {
+    "exit_code": 0
+  },
+  "full_current_integration": "pending; see completion-declaration-integration-2026-10-03.json",
+  "profile_updated": false,
+  "packaged": false
+}

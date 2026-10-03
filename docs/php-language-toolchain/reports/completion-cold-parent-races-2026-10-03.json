@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "scope": "Cold PSR-4 parent read in current Core completion, PHP 7.2 and 8.5, onDemand only",
+  "cases": [
+    {
+      "phpVersion": "7.2",
+      "scenario": "cancel",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [],
+      "resumedLabels": [
+        "__destruct",
+        "__call",
+        "__callStatic",
+        "__get",
+        "__set",
+        "__isset",
+        "__unset",
+        "__sleep",
+        "__wakeup",
+        "__toString",
+        "__invoke",
+        "__set_state",
+        "__clone",
+        "__debugInfo"
+      ],
+      "childVersion": 1,
+      "disksUnchanged": true
+    },
+    {
+      "phpVersion": "7.2",
+      "scenario": "child-edit",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [
+        "__invoke"
+      ],
+      "childVersion": 2,
+      "disksUnchanged": true
+    },
+    {
+      "phpVersion": "7.2",
+      "scenario": "parent-open",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [
+        "__construct"
+      ],
+      "childVersion": 1,
+      "disksUnchanged": true
+    },
+    {
+      "phpVersion": "8.5",
+      "scenario": "cancel",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [],
+      "resumedLabels": [
+        "__destruct",
+        "__call",
+        "__callStatic",
+        "__get",
+        "__set",
+        "__isset",
+        "__unset",
+        "__sleep",
+        "__wakeup",
+        "__serialize",
+        "__unserialize",
+        "__toString",
+        "__invoke",
+        "__set_state",
+        "__clone",
+        "__debugInfo"
+      ],
+      "childVersion": 1,
+      "disksUnchanged": true
+    },
+    {
+      "phpVersion": "8.5",
+      "scenario": "child-edit",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [
+        "__invoke"
+      ],
+      "childVersion": 2,
+      "disksUnchanged": true
+    },
+    {
+      "phpVersion": "8.5",
+      "scenario": "parent-open",
+      "heldAt": "cold parent readFile",
+      "oldLabels": [],
+      "freshLabels": [
+        "__construct"
+      ],
+      "childVersion": 1,
+      "disksUnchanged": true
+    }
+  ],
+  "formal_session": 32977,
+  "exit_code": 0,
+  "lint_session": 76602,
+  "lint_exit_code": 0,
+  "frozen_product_inputs": {
+    "count": 2962,
+    "changed": []
+  },
+  "full_stdio_session": 25202,
+  "counted_in_full_stdio": false,
+  "scripts": [
+    "scripts/check-cold-parent-completion-races.mjs",
+    "scripts/fixtures/cold-parent-read-gate.mjs"
+  ],
+  "product_source_modified": false,
+  "manual_wsl_acceptance": false,
+  "profile_updated": false
+}

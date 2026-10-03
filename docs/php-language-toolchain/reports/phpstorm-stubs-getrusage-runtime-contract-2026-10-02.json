@@ -1,0 +1,931 @@
+{
+  "date": "2026-10-02",
+  "status": "root_product_integration_and_targeted_gates_passed",
+  "inputs": {
+    "packages/language-spec/src/getrusage.ts": "acb7739278a16ed0e83d80d0cbc136329e6fd8ef50a2348a72141322c4360675",
+    "packages/runtime-probe/src/index.ts": "79dfbab5542eb995a1e2982549fda6ea9dcdfebb68b3e0f7e37648f47d85b744",
+    "packages/runtime-probe/src/getrusage.ts": "97202583dc5cd7e0eb06c2342c00c9b0adea1a96475e1d70eecf9c00752cd896",
+    "packages/runtime-probe/dist/index.js": "07ca961d7a85bc338b0452e65d60fba8572ad9811c2510d6b5c4129aeee3d6fd",
+    "packages/semantic/test/getrusage-contract.test.ts": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+    "packages/runtime-probe/test/getrusage-runtime.test.ts": "858f6a0e1ff013af87a2617ab37266dbef628e3e51874bc794b548ba772d752f",
+    "packages/language-spec/src/index.ts": "56886ba68e17fbc1c4360afe10869d4c7e018f703e699caec87fa1bdf3104933",
+    "packages/language-spec/dist/index.js": "03cc05bcbcab20719fd00b5b078de939fb7ad14b8557e4a450dd0cb8d985fd15",
+    "packages/language-spec/dist/getrusage.js": "decd0cf4dd502c983b13b16645f7116899b8640914c2a7875d9e3963d7e252f4",
+    "packages/language-server/src/server.ts": "478163aa7cc00665d8271219ca3059115610eb111eb7676d77aea5b0126a73e0",
+    "packages/language-server/dist/server.js": "6870e1b1c20fa118ab05a19a786ff3b9de1afef82fd0186abbe3743e6acda808",
+    "dist/extension.js": "285e9cd8932da48e174c24a180a13773bf609d38a2d8e448dd03367cb08a92ea",
+    "dist/language-server.js": "e7a3e40bb07a352155eb4d0019e7b729f08f520b3cf3e12c9a85f96b1905aff0",
+    "packages/language-spec/test/getrusage-runtime.test.ts": "490946df253ec769f6c072064553dbf244b740b7d35fe28a4339894291e439eb",
+    "packages/language-server/test/getrusage-stdio.test.ts": "c4ef67b452ee4dcae9bdbdd8704c3369a8edf5fd0fa209b98966033b7fe7c24f",
+    "test/extension/suite/getrusageCompletion.ts": "f837a9e174a77d34ec6ccde40afc37c91789339ee0d4cb64796e28a8c1065293",
+    "scripts/check-native-windows-getrusage-host.mjs": "865945f8f3e0dc63f12c078469684b2a22e8238af8abaac1cd217ccd12b7a6ba"
+  },
+  "semanticTests": {
+    "passed": 5,
+    "skipped": 0,
+    "durationSeconds": 2.37,
+    "log": "/tmp/sophp-stubs-getrusage-helper-semantic.log"
+  },
+  "runtimeProbeTests": {
+    "passed": 30,
+    "skipped": 0,
+    "durationSeconds": 0.513,
+    "log": "/tmp/sophp-stubs-getrusage-probe-tests.log"
+  },
+  "actualRuntimeProbes": [
+    {
+      "version": "7.2.34",
+      "path": "/usr/bin/php72",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "7.4.33",
+      "path": "/usr/bin/php74",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "8.1.34",
+      "path": "/usr/bin/php81",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "8.2.32",
+      "path": "/usr/bin/php82",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "8.4.23",
+      "path": "/usr/bin/php84",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "8.5.9",
+      "path": "/usr/bin/php85",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_idrss",
+          "ru_inblock",
+          "ru_ixrss",
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_minflt",
+          "ru_msgrcv",
+          "ru_msgsnd",
+          "ru_nivcsw",
+          "ru_nsignals",
+          "ru_nswap",
+          "ru_nvcsw",
+          "ru_oublock",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    },
+    {
+      "version": "8.5.11",
+      "path": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-windows-php-_bvaznna/php with spaces/php.exe",
+      "getrusageRuntime": {
+        "selfKeys": [
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ],
+        "childrenKeys": [
+          "ru_majflt",
+          "ru_maxrss",
+          "ru_stime.tv_sec",
+          "ru_stime.tv_usec",
+          "ru_utime.tv_sec",
+          "ru_utime.tv_usec"
+        ]
+      }
+    }
+  ],
+  "checks": [
+    "language-spec noEmit passed",
+    "runtime-probe build passed",
+    "targeted ESLint passed",
+    "443 original integration 80 inputs unchanged"
+  ],
+  "limits": [
+    "Previous full 443 passed before getrusage integration; current full stdio not rerun",
+    "No visible WSL manual UI acceptance",
+    "Windows host uses actual PHP 8.5.11; no all-version Windows claim",
+    "No VSIX or Profile update"
+  ],
+  "isolatedIntegration": {
+    "candidate": {
+      "root": "/tmp/sophp-getrusage-integration-sh2lmdhg",
+      "sources": {
+        "packages/language-spec/src/index.ts": {
+          "baseHash": "7ae180fc3c64438d4d70d8b7c16deed50c9a73e0857dda93c3248f2e4a4470ef",
+          "candidate": "/tmp/sophp-getrusage-integration-sh2lmdhg/spec/index.ts"
+        },
+        "packages/language-server/src/server.ts": {
+          "baseHash": "70427d4e138f3f635d15955ba445e82f6a33bcf8b0758afa85fcd2998a60b0ff",
+          "candidate": "/tmp/sophp-getrusage-integration-sh2lmdhg/server.ts"
+        }
+      }
+    },
+    "specTypecheck": "passed",
+    "actualRuntimeUrisRoundTrip": 7,
+    "lsp": {
+      "passed": 2,
+      "skipped": 0,
+      "durationSeconds": 5.71,
+      "log": "/tmp/sophp-stubs-getrusage-isolated-lsp.log"
+    },
+    "linuxHost": {
+      "platform": "linux",
+      "results": [
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        }
+      ],
+      "diskUnchanged": true
+    },
+    "windowsHost": {
+      "platform": "win32",
+      "results": [
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        }
+      ],
+      "diskUnchanged": true
+    }
+  },
+  "rootIntegration": {
+    "semantic": {
+      "passed": 1128,
+      "skipped": 0,
+      "files": 45,
+      "durationSeconds": 47.49,
+      "log": "/tmp/sophp-stubs-getrusage-root-semantic.log"
+    },
+    "languageSpec": {
+      "passed": 135,
+      "skipped": 0,
+      "durationSeconds": 13.49,
+      "log": "/tmp/sophp-stubs-getrusage-root-spec.log"
+    },
+    "lsp": {
+      "passed": 2,
+      "skipped": 0,
+      "durationSeconds": 5.73,
+      "log": "/tmp/sophp-stubs-getrusage-root-lsp.log"
+    },
+    "linuxHost": {
+      "platform": "linux",
+      "results": [
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_idrss",
+            "ru_inblock",
+            "ru_ixrss",
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_minflt",
+            "ru_msgrcv",
+            "ru_msgsnd",
+            "ru_nivcsw",
+            "ru_nsignals",
+            "ru_nswap",
+            "ru_nvcsw",
+            "ru_oublock",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        }
+      ],
+      "builtinDocumentMatchesRuntime": true,
+      "diskUnchanged": true
+    },
+    "windowsHost": {
+      "platform": "win32",
+      "results": [
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "1",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": false,
+          "keys": [],
+          "matched": true
+        },
+        {
+          "mode": "$mode",
+          "guard": true,
+          "keys": [
+            "ru_majflt",
+            "ru_maxrss",
+            "ru_stime.tv_sec",
+            "ru_stime.tv_usec",
+            "ru_utime.tv_sec",
+            "ru_utime.tv_usec"
+          ],
+          "matched": true
+        }
+      ],
+      "builtinDocumentMatchesRuntime": true,
+      "diskUnchanged": true
+    },
+    "performance": {
+      "samples": 100,
+      "warmup": 10,
+      "p95Ms": 2.6956529999997656,
+      "maxMs": 5.003777999999784,
+      "scope": "Warmed semantic array-key queries in a tiny owned fixture; not UI or project-scale wait"
+    },
+    "build": "passed",
+    "typescript": "passed",
+    "eslint": "passed"
+  }
+}

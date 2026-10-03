@@ -1,0 +1,81 @@
+{
+  "status": "product_scoped_gates_passed",
+  "source_sha256": {
+    "packages/parser/src/index.ts": "3a7e768469411cab2cd68d162ab101234488ec6d315502cc12e566e4163885cc",
+    "packages/language-spec/src/index.ts": "62c80d09fe4f3ae11cd3bb3d167cbdf4acfed9c322cbd77c8c9e84ae39258449",
+    "packages/semantic/src/index.ts": "0c7f47290ab6d4293f98d6ab96e81aad361a27f48d4a09014ddcf5554820baf4",
+    "packages/language-server/src/analysis.ts": "0d0cd2ee7aff35962e1970abc2bdf965eb1052bc5353709a91bc1bc88f56951f",
+    "packages/parser/test/readonly-anonymous.test.ts": "5055f2ba8465b2b2c675f597a0a2dc3f42d6fff67ab92bd9eb266c6ff275a012",
+    "packages/language-spec/test/readonly-anonymous.test.ts": "19c0a6181551d5bd4314dc8c5b6228d68a186055cc9a5c95002800ece2e6e6c1",
+    "packages/semantic/test/readonly-anonymous.test.ts": "3867b18b6c91a2696243c32006929ad12cab99ba613284f3135b0c0173c6ed7b",
+    "packages/language-server/test/readonly-anonymous.test.ts": "a81a5961e56be100f3079a948a2cc8631769e9c62eab419be9108286cd813348",
+    "packages/language-server/test/readonly-anonymous-stdio.test.ts": "440e878799e5626c405fa8177149c9a6f6cf1ccea1e066980753709406aa6d58",
+    "test/extension/suite/readonlyAnonymousAcceptance.ts": "62a3a1c578d3445b417422bd338a6d51193349dd6240dbddb78f7ad83d4584a7"
+  },
+  "parser_full": 93,
+  "language_spec_full": 159,
+  "semantic_full": {
+    "passed": 1184,
+    "files": 52,
+    "seconds": 55.36,
+    "log": "/tmp/sophp-readonly-anonymous-semantic-full.log"
+  },
+  "server_focused": {
+    "passed": 56,
+    "files": 4,
+    "seconds": 17.69,
+    "log": "/tmp/sophp-readonly-anonymous-server-focused.log"
+  },
+  "visible_host": {
+    "accepted": 6,
+    "platform": "linux",
+    "exit_code": 0,
+    "log": "/tmp/sophp-readonly-anonymous-host.log"
+  },
+  "latency": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 270.06,
+    "all": {
+      "p50Ms": 41.74,
+      "p95Ms": 62.1,
+      "maxMs": 270.06
+    },
+    "a": {
+      "fragment": "$value = new class extends /* parent */ Base{{cursor}} {};",
+      "expected": "BaseMutable",
+      "p50Ms": 42.86,
+      "p95Ms": 63.07,
+      "maxMs": 270.06,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "$value = new readonly class extends /* parent */ Base{{cursor}} {};",
+      "expected": "BaseReadonly",
+      "p50Ms": 41.18,
+      "p95Ms": 59.25,
+      "maxMs": 76.77,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "previous_integration": {
+    "stdio": 459,
+    "zero_skipped": true,
+    "before_current_changes": true,
+    "report": "completion-inheritance-list-2026-10-02.json"
+  },
+  "packaged": false,
+  "profile_updated": false,
+  "limitations": [
+    "No current full stdio rerun",
+    "No current full C2 rerun",
+    "No Windows host",
+    "No real WSL acceptance"
+  ]
+}

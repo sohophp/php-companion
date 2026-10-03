@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-02",
+  "status": "full_stdio_and_full_c2_passed",
+  "frozen_inputs": {
+    "count": 2905,
+    "changes": 0,
+    "manifest": "/tmp/sophp-array-contracts-integration-inputs.json"
+  },
+  "semantic_full": {
+    "passed": 1213
+  },
+  "full_stdio": {
+    "session_id": 37089,
+    "status": "terminal",
+    "selected_files": 15,
+    "log": "/tmp/sophp-array-contracts-full-stdio.log",
+    "reference_bundle": "/var/www/node/php-companion/dist/language-server.js",
+    "exit_code": 0,
+    "passed": 472,
+    "files": 15,
+    "skipped": 0,
+    "duration_seconds": 1388.33
+  },
+  "full_c2": {
+    "session_id": 2217,
+    "exit_code": 0,
+    "proof_lines": 65,
+    "php_version": "8.5",
+    "indexing_mode": "onDemand",
+    "subset": false,
+    "log": "/tmp/sophp-array-contracts-full-c2.log"
+  },
+  "packaged": false,
+  "profile_updated": false
+}

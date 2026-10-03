@@ -1,0 +1,429 @@
+{
+  "root": "/var/www/php/8.5/winstar2024",
+  "cacheIsTemporary": true,
+  "readOnly": true,
+  "proofs": [
+    {
+      "phase": "cold",
+      "title": "Preparing PHP references",
+      "beginMs": 2073.2400350000003,
+      "endMs": 15329.129697999999,
+      "activeMs": 13255.889662999998,
+      "lastReport": {
+        "kind": "report",
+        "percentage": 100,
+        "message": "PHP references ready"
+      },
+      "reports": [
+        {
+          "atMs": 3448.807719,
+          "kind": "report",
+          "percentage": 10,
+          "message": "Indexing /var/www/php/8.5/winstar2024"
+        },
+        {
+          "atMs": 4443.415851,
+          "kind": "report",
+          "percentage": 10,
+          "message": "project: 1/2536 files, 0 cached"
+        },
+        {
+          "atMs": 4727.832082999999,
+          "kind": "report",
+          "percentage": 11,
+          "message": "project: 54/2536 files, 0 cached"
+        },
+        {
+          "atMs": 4961.532996,
+          "kind": "report",
+          "percentage": 12,
+          "message": "project: 101/2536 files, 0 cached"
+        },
+        {
+          "atMs": 5222.353639,
+          "kind": "report",
+          "percentage": 13,
+          "message": "project: 171/2536 files, 0 cached"
+        },
+        {
+          "atMs": 5495.921106999999,
+          "kind": "report",
+          "percentage": 15,
+          "message": "project: 231/2536 files, 0 cached"
+        },
+        {
+          "atMs": 5748.426866999999,
+          "kind": "report",
+          "percentage": 17,
+          "message": "project: 333/2536 files, 0 cached"
+        },
+        {
+          "atMs": 6051.038272,
+          "kind": "report",
+          "percentage": 18,
+          "message": "project: 429/2536 files, 0 cached"
+        },
+        {
+          "atMs": 6351.852347,
+          "kind": "report",
+          "percentage": 19,
+          "message": "project: 460/2536 files, 0 cached"
+        },
+        {
+          "atMs": 6630.889467,
+          "kind": "report",
+          "percentage": 21,
+          "message": "project: 548/2536 files, 0 cached"
+        },
+        {
+          "atMs": 6878.301313,
+          "kind": "report",
+          "percentage": 22,
+          "message": "project: 621/2536 files, 0 cached"
+        },
+        {
+          "atMs": 7130.208664,
+          "kind": "report",
+          "percentage": 25,
+          "message": "project: 743/2536 files, 0 cached"
+        },
+        {
+          "atMs": 7397.164905,
+          "kind": "report",
+          "percentage": 27,
+          "message": "project: 841/2536 files, 0 cached"
+        },
+        {
+          "atMs": 7624.7813719999995,
+          "kind": "report",
+          "percentage": 28,
+          "message": "project: 919/2536 files, 0 cached"
+        },
+        {
+          "atMs": 7865.8629679999995,
+          "kind": "report",
+          "percentage": 30,
+          "message": "project: 997/2536 files, 0 cached"
+        },
+        {
+          "atMs": 8204.207096,
+          "kind": "report",
+          "percentage": 31,
+          "message": "project: 1074/2536 files, 0 cached"
+        },
+        {
+          "atMs": 8481.495953,
+          "kind": "report",
+          "percentage": 33,
+          "message": "project: 1181/2536 files, 0 cached"
+        },
+        {
+          "atMs": 8721.214687,
+          "kind": "report",
+          "percentage": 35,
+          "message": "project: 1274/2536 files, 0 cached"
+        },
+        {
+          "atMs": 8975.470917999999,
+          "kind": "report",
+          "percentage": 36,
+          "message": "project: 1329/2536 files, 0 cached"
+        },
+        {
+          "atMs": 9226.172583,
+          "kind": "report",
+          "percentage": 38,
+          "message": "project: 1410/2536 files, 0 cached"
+        },
+        {
+          "atMs": 9468.543179999999,
+          "kind": "report",
+          "percentage": 39,
+          "message": "project: 1488/2536 files, 0 cached"
+        },
+        {
+          "atMs": 9742.425718,
+          "kind": "report",
+          "percentage": 41,
+          "message": "project: 1572/2536 files, 0 cached"
+        },
+        {
+          "atMs": 9971.214345,
+          "kind": "report",
+          "percentage": 42,
+          "message": "project: 1647/2536 files, 0 cached"
+        },
+        {
+          "atMs": 10253.109038,
+          "kind": "report",
+          "percentage": 44,
+          "message": "project: 1721/2536 files, 0 cached"
+        },
+        {
+          "atMs": 10495.057853999999,
+          "kind": "report",
+          "percentage": 46,
+          "message": "project: 1836/2536 files, 0 cached"
+        },
+        {
+          "atMs": 10744.418013,
+          "kind": "report",
+          "percentage": 48,
+          "message": "project: 1921/2536 files, 0 cached"
+        },
+        {
+          "atMs": 11323.551791,
+          "kind": "report",
+          "percentage": 49,
+          "message": "project: 1963/2536 files, 0 cached"
+        },
+        {
+          "atMs": 11590.988148999999,
+          "kind": "report",
+          "percentage": 50,
+          "message": "project: 2041/2536 files, 0 cached"
+        },
+        {
+          "atMs": 11808.901716,
+          "kind": "report",
+          "percentage": 51,
+          "message": "project: 2094/2536 files, 0 cached"
+        },
+        {
+          "atMs": 12131.320596,
+          "kind": "report",
+          "percentage": 52,
+          "message": "project: 2110/2536 files, 0 cached"
+        },
+        {
+          "atMs": 12376.270244,
+          "kind": "report",
+          "percentage": 52,
+          "message": "project: 2130/2536 files, 0 cached"
+        },
+        {
+          "atMs": 12649.762837,
+          "kind": "report",
+          "percentage": 54,
+          "message": "project: 2231/2536 files, 0 cached"
+        },
+        {
+          "atMs": 12889.213735,
+          "kind": "report",
+          "percentage": 56,
+          "message": "project: 2350/2536 files, 0 cached"
+        },
+        {
+          "atMs": 13148.466487,
+          "kind": "report",
+          "percentage": 59,
+          "message": "project: 2468/2536 files, 0 cached"
+        },
+        {
+          "atMs": 13301.129844,
+          "kind": "report",
+          "percentage": 60,
+          "message": "project: 2536/2536 files, 0 cached"
+        },
+        {
+          "atMs": 13301.218644999999,
+          "kind": "report",
+          "percentage": 96,
+          "message": "Finishing PHP reference facts"
+        },
+        {
+          "atMs": 15329.127166,
+          "kind": "report",
+          "percentage": 100,
+          "message": "PHP references ready"
+        }
+      ],
+      "endCount": 1,
+      "completionMs": 20.58470800000032,
+      "firstLabel": "function",
+      "diskUnchanged": true
+    },
+    {
+      "phase": "cached",
+      "title": "Preparing PHP references",
+      "beginMs": 1671.5602529999996,
+      "endMs": 15250.117375000002,
+      "activeMs": 13578.557122000002,
+      "lastReport": {
+        "kind": "report",
+        "percentage": 100,
+        "message": "PHP references ready"
+      },
+      "reports": [
+        {
+          "atMs": 2629.091651999999,
+          "kind": "report",
+          "percentage": 10,
+          "message": "Indexing /var/www/php/8.5/winstar2024"
+        },
+        {
+          "atMs": 5823.3930230000005,
+          "kind": "report",
+          "percentage": 10,
+          "message": "project: 1/2536 files, 1 cached"
+        },
+        {
+          "atMs": 6071.312479,
+          "kind": "report",
+          "percentage": 13,
+          "message": "project: 151/2536 files, 151 cached"
+        },
+        {
+          "atMs": 6332.728897000001,
+          "kind": "report",
+          "percentage": 15,
+          "message": "project: 261/2536 files, 261 cached"
+        },
+        {
+          "atMs": 6586.065104000001,
+          "kind": "report",
+          "percentage": 18,
+          "message": "project: 404/2536 files, 404 cached"
+        },
+        {
+          "atMs": 6828.046296,
+          "kind": "report",
+          "percentage": 20,
+          "message": "project: 527/2536 files, 527 cached"
+        },
+        {
+          "atMs": 7090.43017,
+          "kind": "report",
+          "percentage": 24,
+          "message": "project: 721/2536 files, 721 cached"
+        },
+        {
+          "atMs": 7331.375807,
+          "kind": "report",
+          "percentage": 27,
+          "message": "project: 879/2536 files, 879 cached"
+        },
+        {
+          "atMs": 7589.927539,
+          "kind": "report",
+          "percentage": 30,
+          "message": "project: 998/2536 files, 998 cached"
+        },
+        {
+          "atMs": 7835.761859000002,
+          "kind": "report",
+          "percentage": 32,
+          "message": "project: 1128/2536 files, 1128 cached"
+        },
+        {
+          "atMs": 8089.713787000001,
+          "kind": "report",
+          "percentage": 35,
+          "message": "project: 1264/2536 files, 1264 cached"
+        },
+        {
+          "atMs": 8357.946621,
+          "kind": "report",
+          "percentage": 37,
+          "message": "project: 1391/2536 files, 1391 cached"
+        },
+        {
+          "atMs": 8598.030848000002,
+          "kind": "report",
+          "percentage": 40,
+          "message": "project: 1516/2536 files, 1516 cached"
+        },
+        {
+          "atMs": 8858.514382000001,
+          "kind": "report",
+          "percentage": 42,
+          "message": "project: 1641/2536 files, 1641 cached"
+        },
+        {
+          "atMs": 9099.513879000002,
+          "kind": "report",
+          "percentage": 45,
+          "message": "project: 1756/2536 files, 1755 cached"
+        },
+        {
+          "atMs": 9355.948001,
+          "kind": "report",
+          "percentage": 47,
+          "message": "project: 1892/2536 files, 1891 cached"
+        },
+        {
+          "atMs": 9618.881646000002,
+          "kind": "report",
+          "percentage": 49,
+          "message": "project: 1963/2536 files, 1962 cached"
+        },
+        {
+          "atMs": 9870.126025000001,
+          "kind": "report",
+          "percentage": 51,
+          "message": "project: 2065/2536 files, 2064 cached"
+        },
+        {
+          "atMs": 10128.349229,
+          "kind": "report",
+          "percentage": 52,
+          "message": "project: 2141/2536 files, 2140 cached"
+        },
+        {
+          "atMs": 10371.390901000002,
+          "kind": "report",
+          "percentage": 55,
+          "message": "project: 2304/2536 files, 2303 cached"
+        },
+        {
+          "atMs": 10623.261050000001,
+          "kind": "report",
+          "percentage": 59,
+          "message": "project: 2492/2536 files, 2491 cached"
+        },
+        {
+          "atMs": 13169.726492000002,
+          "kind": "report",
+          "percentage": 60,
+          "message": "project: 2536/2536 files, 2535 cached"
+        },
+        {
+          "atMs": 13169.941217,
+          "kind": "report",
+          "percentage": 96,
+          "message": "Finishing PHP reference facts"
+        },
+        {
+          "atMs": 15250.03818,
+          "kind": "report",
+          "percentage": 100,
+          "message": "PHP references ready"
+        }
+      ],
+      "endCount": 1,
+      "completionMs": 23.951224000000366,
+      "firstLabel": "function",
+      "diskUnchanged": true
+    }
+  ],
+  "status": "passed_protocol_lifecycle",
+  "testMatrix": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "phases": [
+      "cold",
+      "cached",
+      "cancelled"
+    ],
+    "processes": 6,
+    "tests": 2,
+    "seconds": 12.49,
+    "fixtureFiles": 41
+  },
+  "productSourceChanged": false,
+  "humanWslAcceptance": false,
+  "packaged": false,
+  "profileUpdated": false
+}

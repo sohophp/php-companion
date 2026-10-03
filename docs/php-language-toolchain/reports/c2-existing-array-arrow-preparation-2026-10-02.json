@@ -1,0 +1,534 @@
+{
+  "date": "2026-10-02",
+  "baseline": [
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 145,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 140
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 122,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 117
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 145,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 140
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 208,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 203
+    }
+  ],
+  "isolated": [
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 140,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 140,
+      "offset": 140
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 117,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 117,
+      "offset": 117
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 140,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 140,
+      "offset": 140
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 203,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 203,
+      "offset": 203
+    }
+  ],
+  "appliedToProduct": false,
+  "pendingGateSession": 16325,
+  "frozenProductInputsMatch": true,
+  "isolatedWithNegatives": [
+    {
+      "name": "argument ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "unknown call",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "unknown nested call",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "unknown shape",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "mixed shape",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "comment",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "HTML",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "remaining syntax error",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "nonarray contract",
+      "labels": [],
+      "passed": true
+    }
+  ],
+  "isolatedPassed": 24,
+  "guardRefinement": "A failed full-source repair returns invalid instead of falling back to unsafe original quoted ranges"
+}

@@ -1,0 +1,551 @@
+{
+  "status": "runtime_and_isolated_prototype_passed_not_applied",
+  "runtime": [
+    {
+      "command": "php72",
+      "case": "public_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "private_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "public_final_invoke",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "private_final_invoke",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Warning:  The magic method __invoke() must have public visibility and cannot be static in Command line code on line 1\nWarning: The magic method __invoke() must have public visibility and cannot be static in Command line code on line 1\nPHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "public_nonfinal_constructor",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php72",
+      "case": "trait_own_final_constructor",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php72",
+      "case": "trait_parent_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "trait_own_final_invoke",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php72",
+      "case": "trait_parent_final_invoke",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\n"
+    },
+    {
+      "command": "php72",
+      "case": "grandparent_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\n"
+    },
+    {
+      "command": "php85",
+      "case": "public_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "command": "php85",
+      "case": "private_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "command": "php85",
+      "case": "public_final_invoke",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "command": "php85",
+      "case": "private_final_invoke",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": "PHP Warning:  Private methods cannot be final as they are never overridden by other classes in Command line code on line 1\nWarning: Private methods cannot be final as they are never overridden by other classes in Command line code on line 1\nPHP Warning:  The magic method Base::__invoke() must have public visibility in Command line code on line 1\nWarning: The magic method Base::__invoke() must have public visibility in Command line code on line 1\n"
+    },
+    {
+      "command": "php85",
+      "case": "public_nonfinal_constructor",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php85",
+      "case": "trait_own_final_constructor",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php85",
+      "case": "trait_parent_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "command": "php85",
+      "case": "trait_own_final_invoke",
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "command": "php85",
+      "case": "trait_parent_final_invoke",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "command": "php85",
+      "case": "grandparent_final_constructor",
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    }
+  ],
+  "prototype": [
+    {
+      "name": "public constructor",
+      "actual": [
+        {
+          "name": "__construct",
+          "visibility": "public"
+        }
+      ]
+    },
+    {
+      "name": "private constructor",
+      "actual": [
+        {
+          "name": "__construct",
+          "visibility": "private"
+        }
+      ]
+    },
+    {
+      "name": "private invoke",
+      "actual": [
+        {
+          "name": "__invoke",
+          "visibility": "private"
+        }
+      ]
+    },
+    {
+      "name": "nonfinal constructor",
+      "actual": []
+    },
+    {
+      "name": "own trait final",
+      "actual": []
+    },
+    {
+      "name": "parent trait final",
+      "actual": [
+        {
+          "name": "__construct",
+          "visibility": "public"
+        }
+      ]
+    },
+    {
+      "name": "parent override trait",
+      "actual": []
+    },
+    {
+      "name": "grandparent",
+      "actual": [
+        {
+          "name": "__construct",
+          "visibility": "public"
+        }
+      ]
+    },
+    {
+      "name": "mixin",
+      "actual": []
+    },
+    {
+      "name": "unknown parent",
+      "actual": []
+    },
+    {
+      "name": "duplicate parent",
+      "actual": []
+    },
+    {
+      "name": "namespace alias",
+      "actual": [
+        {
+          "name": "__construct",
+          "visibility": "public"
+        }
+      ]
+    }
+  ],
+  "source_modified": false,
+  "next_gate_session": 35082,
+  "frozen_inputs": 2950,
+  "changes": 0,
+  "pending_trait_final_alias": false,
+  "trait_final_runtime_and_baseline": [
+    {
+      "clause": "seed as final __construct",
+      "parsed": [],
+      "clauses": [
+        {
+          "text": "seed as final __construct",
+          "children": [
+            {
+              "type": "name",
+              "text": "seed",
+              "named": true
+            },
+            {
+              "type": "as",
+              "text": "as",
+              "named": false
+            },
+            {
+              "type": "ERROR",
+              "text": "final",
+              "named": true
+            },
+            {
+              "type": "name",
+              "text": "__construct",
+              "named": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "clause": "__construct as final",
+      "parsed": [],
+      "clauses": []
+    },
+    {
+      "clause": "seed as protected final __construct",
+      "parsed": [],
+      "clauses": [
+        {
+          "text": "seed as protected final __construct",
+          "children": [
+            {
+              "type": "name",
+              "text": "seed",
+              "named": true
+            },
+            {
+              "type": "as",
+              "text": "as",
+              "named": false
+            },
+            {
+              "type": "visibility_modifier",
+              "text": "protected",
+              "named": true
+            },
+            {
+              "type": "ERROR",
+              "text": "final",
+              "named": true
+            },
+            {
+              "type": "name",
+              "text": "__construct",
+              "named": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "clause": "seed as final protected __construct",
+      "parsed": [],
+      "clauses": [
+        {
+          "text": "seed as final protected __construct",
+          "children": [
+            {
+              "type": "name",
+              "text": "seed",
+              "named": true
+            },
+            {
+              "type": "as",
+              "text": "as",
+              "named": false
+            },
+            {
+              "type": "ERROR",
+              "text": "final",
+              "named": true
+            },
+            {
+              "type": "visibility_modifier",
+              "text": "protected",
+              "named": true
+            },
+            {
+              "type": "name",
+              "text": "__construct",
+              "named": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "clause": "seed as final __invoke",
+      "parsed": [],
+      "clauses": [
+        {
+          "text": "seed as final __invoke",
+          "children": [
+            {
+              "type": "name",
+              "text": "seed",
+              "named": true
+            },
+            {
+              "type": "as",
+              "text": "as",
+              "named": false
+            },
+            {
+              "type": "ERROR",
+              "text": "final",
+              "named": true
+            },
+            {
+              "type": "name",
+              "text": "__invoke",
+              "named": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "clause": "seed as final __construct",
+      "inherited": false,
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "clause": "seed as final __construct",
+      "inherited": true,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "clause": "__construct as final",
+      "inherited": false,
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "clause": "__construct as final",
+      "inherited": true,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__construct() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "clause": "seed as protected final __construct",
+      "inherited": false,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Parse error:  syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\nParse error: syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\n"
+    },
+    {
+      "clause": "seed as protected final __construct",
+      "inherited": true,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Parse error:  syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\nParse error: syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\n"
+    },
+    {
+      "clause": "seed as final protected __construct",
+      "inherited": false,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Parse error:  syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\nParse error: syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\n"
+    },
+    {
+      "clause": "seed as final protected __construct",
+      "inherited": true,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Parse error:  syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\nParse error: syntax error, unexpected identifier \"__construct\", expecting \";\" in Command line code on line 1\n"
+    },
+    {
+      "clause": "seed as final __invoke",
+      "inherited": false,
+      "exit_code": 0,
+      "stdout": "ok",
+      "stderr": ""
+    },
+    {
+      "clause": "seed as final __invoke",
+      "inherited": true,
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\nFatal error: Cannot override final method Base::__invoke() in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    }
+  ],
+  "trait_final_parser_prototype": [
+    {
+      "clause": "seed as final __construct",
+      "hasError": false,
+      "adaptation": [
+        {
+          "kind": "alias",
+          "method": "seed",
+          "final": true,
+          "alias": "__construct",
+          "start": 108,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "clause": "__construct as final",
+      "hasError": false,
+      "adaptation": [
+        {
+          "kind": "alias",
+          "method": "__construct",
+          "final": true,
+          "start": 108,
+          "end": 128
+        }
+      ]
+    },
+    {
+      "clause": "seed as final __invoke",
+      "hasError": false,
+      "adaptation": [
+        {
+          "kind": "alias",
+          "method": "seed",
+          "final": true,
+          "alias": "__invoke",
+          "start": 108,
+          "end": 130
+        }
+      ]
+    },
+    {
+      "clause": "seed /* a */ as /* b */ final /* c */ __construct",
+      "hasError": false,
+      "adaptation": [
+        {
+          "kind": "alias",
+          "method": "seed",
+          "final": true,
+          "alias": "__construct",
+          "start": 108,
+          "end": 157
+        }
+      ]
+    },
+    {
+      "clause": "seed as protected renamed",
+      "hasError": false,
+      "adaptation": [
+        {
+          "kind": "alias",
+          "method": "seed",
+          "visibility": "protected",
+          "alias": "renamed",
+          "start": 108,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "clause": "seed as protected final __construct",
+      "hasError": true,
+      "adaptation": []
+    }
+  ],
+  "trait_final_semantic_prototype": [
+    {
+      "name": "final alias",
+      "actual": [
+        "__construct"
+      ]
+    },
+    {
+      "name": "final no alias",
+      "actual": [
+        "__construct"
+      ]
+    },
+    {
+      "name": "final invoke alias",
+      "actual": [
+        "__invoke"
+      ]
+    },
+    {
+      "name": "own final alias",
+      "actual": []
+    },
+    {
+      "name": "own overrides final trait alias",
+      "actual": []
+    },
+    {
+      "name": "nonfinal alias",
+      "actual": []
+    }
+  ],
+  "pending_formal_parser_and_version_diagnostics": true,
+  "followup": "completion-inherited-final-magic-2026-10-03.json"
+}

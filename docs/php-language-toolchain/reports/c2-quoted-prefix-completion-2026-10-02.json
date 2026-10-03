@@ -1,0 +1,184 @@
+{
+  "date": "2026-10-02",
+  "applied": true,
+  "semantic": {
+    "passed": 910,
+    "files": 35,
+    "seconds": 50.8,
+    "newTests": 58
+  },
+  "phpdoc": {
+    "passed": 21,
+    "newTests": 6
+  },
+  "targetedStdio": {
+    "passed": 6,
+    "skipped": 419,
+    "total": 425,
+    "seconds": 17.86,
+    "newVersionedCases": 32
+  },
+  "visible": [
+    {
+      "phpVersion": "8.5",
+      "sessionId": 43812,
+      "exitCode": 0,
+      "samplesMs": [
+        182,
+        118,
+        140,
+        177,
+        164,
+        182,
+        121,
+        143,
+        133,
+        151,
+        125,
+        133,
+        148,
+        127,
+        116,
+        116
+      ],
+      "maxMs": 182
+    },
+    {
+      "phpVersion": "7.2",
+      "sessionId": 46184,
+      "exitCode": 0,
+      "samplesMs": [
+        164,
+        118,
+        131,
+        121,
+        129,
+        114,
+        116,
+        139,
+        114,
+        124,
+        145,
+        145,
+        145,
+        144,
+        122,
+        121
+      ],
+      "maxMs": 164
+    }
+  ],
+  "fullC2": {
+    "sessionId": 80049,
+    "status": "passed",
+    "exitCode": 0,
+    "hostFinalInputsMatched": 27,
+    "log": "/tmp/sophp-quoted-prefix-product-full-c2-final.log"
+  },
+  "fullStdio": {
+    "sessionId": 26446,
+    "status": "passed",
+    "passed": 425,
+    "skipped": 0,
+    "exitCode": 0,
+    "seconds": 1323.76,
+    "finalInputsMatched": 27
+  },
+  "frozenInputs": 27,
+  "manifest": "/tmp/sophp-quoted-prefix-product-inputs.sha256",
+  "performance": [
+    {
+      "name": "punctuation key unclosed",
+      "backgroundFiles": 0,
+      "queries": 100,
+      "p95Ms": 1.8365070000000117,
+      "maxMs": 3.1885669999999777,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "escaped key closed",
+      "backgroundFiles": 0,
+      "queries": 100,
+      "p95Ms": 0.27239799999995284,
+      "maxMs": 0.6517680000000041,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "unicode value unclosed",
+      "backgroundFiles": 0,
+      "queries": 100,
+      "p95Ms": 1.3971349999999916,
+      "maxMs": 1.8814560000000142,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "double quoted dollar unclosed",
+      "backgroundFiles": 0,
+      "queries": 100,
+      "p95Ms": 1.188658999999916,
+      "maxMs": 1.6458840000000237,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "punctuation key unclosed",
+      "backgroundFiles": 2300,
+      "queries": 100,
+      "p95Ms": 0.4095190000000457,
+      "maxMs": 0.526002999999946,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "escaped key closed",
+      "backgroundFiles": 2300,
+      "queries": 100,
+      "p95Ms": 0.1979310000001533,
+      "maxMs": 0.5796159999999873,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "unicode value unclosed",
+      "backgroundFiles": 2300,
+      "queries": 100,
+      "p95Ms": 1.6233680000000277,
+      "maxMs": 10.08846299999982,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "double quoted dollar unclosed",
+      "backgroundFiles": 2300,
+      "queries": 100,
+      "p95Ms": 0.9923429999998916,
+      "maxMs": 2.27265999999986,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    }
+  ],
+  "literalRuntime": [
+    {
+      "php": "php72",
+      "checked": 20,
+      "exactValues": true
+    },
+    {
+      "php": "php85",
+      "checked": 20,
+      "exactValues": true
+    }
+  ],
+  "realWsl": "not-accepted",
+  "knownRendererError": "getItemsByProvider seen on PHP 8.5; not fixed",
+  "remaining": [
+    "numeric hexadecimal Unicode escapes",
+    "multiline and interpolated prefixes",
+    "current full LSP and C2 terminal results",
+    "full C3 Symfony snapshot combination",
+    "real WSL acceptance"
+  ]
+}

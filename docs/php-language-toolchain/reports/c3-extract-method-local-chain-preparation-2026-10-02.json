@@ -1,0 +1,86 @@
+[
+  {
+    "php": "php72",
+    "after": "return $total;",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php81",
+    "after": "return $total;",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php85",
+    "after": "return $total;",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php72",
+    "after": "return [$subtotal, $total];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php81",
+    "after": "return [$subtotal, $total];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php85",
+    "after": "return [$subtotal, $total];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php72",
+    "after": "$callback = function () use ($subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php81",
+    "after": "$callback = function () use ($subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php85",
+    "after": "$callback = function () use ($subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php72",
+    "after": "$callback = function () use (&$subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php81",
+    "after": "$callback = function () use (&$subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  },
+  {
+    "php": "php85",
+    "after": "$callback = function () use (&$subtotal) { return $subtotal; }; return [$total, $callback()];",
+    "paths": 4,
+    "equal": true,
+    "callText": "        [$subtotal, $total] = $this->extractedMethod($price, $quantity, $tax);\n"
+  }
+]

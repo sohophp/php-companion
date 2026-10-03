@@ -1,0 +1,48 @@
+{
+  "status": "source_fix_and_targeted_integration_passed",
+  "scope": "native array facts at array template binding",
+  "semantic": {
+    "passed": 1242,
+    "files": 66,
+    "duration_seconds": 53.4,
+    "log": "/tmp/sophp-native-array-semantic-full.log"
+  },
+  "targeted_stdio": {
+    "passed": 4,
+    "files": 2,
+    "duration_seconds": 6.47,
+    "own_unsaved_queries": 40,
+    "log": "/tmp/sophp-native-array-stdio.log"
+  },
+  "linux_host": {
+    "exit_code": 0,
+    "own_unsaved_queries": 20,
+    "disk_unchanged": true,
+    "log": "/tmp/sophp-native-array-host.log"
+  },
+  "performance": [
+    {
+      "version": "7.2",
+      "queries": 200,
+      "p95_ms": 4.1604379999998855,
+      "max_ms": 6.541797999999744,
+      "scope": "single-file semantic expression queries, warmed"
+    },
+    {
+      "version": "8.5",
+      "queries": 200,
+      "p95_ms": 3.6430179999997563,
+      "max_ms": 4.830692999999883,
+      "scope": "single-file semantic expression queries, warmed"
+    }
+  ],
+  "semantic_build_exit_code": 0,
+  "core_build_exit_code": 0,
+  "host_test_bundle_exit_code": 0,
+  "lint_exit_code": 0,
+  "full_stdio_for_this_source": "not_run",
+  "full_core_c2_for_this_source": "not_run",
+  "real_wsl_ui": "not_run",
+  "profile_updated": false,
+  "packaged": false
+}

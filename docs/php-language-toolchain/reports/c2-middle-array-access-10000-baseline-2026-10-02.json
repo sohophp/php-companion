@@ -1,0 +1,38 @@
+[
+  {
+    "name": "middle bracket single",
+    "backgroundFiles": 10000,
+    "queries": 100,
+    "p95Ms": 219.2679390000003,
+    "maxMs": 241.0782620000009,
+    "wrongCandidates": 0,
+    "revisionChanged": false
+  },
+  {
+    "name": "middle statement single",
+    "backgroundFiles": 10000,
+    "queries": 100,
+    "p95Ms": 220.073123999995,
+    "maxMs": 238.30556799999977,
+    "wrongCandidates": 0,
+    "revisionChanged": false
+  },
+  {
+    "name": "middle argument single",
+    "backgroundFiles": 10000,
+    "queries": 100,
+    "p95Ms": 209.2373630000002,
+    "maxMs": 306.21244699999806,
+    "wrongCandidates": 0,
+    "revisionChanged": false
+  },
+  {
+    "name": "middle nested double",
+    "backgroundFiles": 10000,
+    "queries": 100,
+    "p95Ms": 214.19049300000188,
+    "maxMs": 272.7949879999942,
+    "wrongCandidates": 0,
+    "revisionChanged": false
+  }
+]

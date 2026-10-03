@@ -1,0 +1,849 @@
+{
+  "date": "2026-10-02",
+  "status": "source_and_focused_host_passed",
+  "upstreamRevision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "runtimeChecks": [
+    {
+      "command": "php72",
+      "version": "7.2.34",
+      "hasPathinfoAll": false,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "command": "php74",
+      "version": "7.4.33",
+      "hasPathinfoAll": false,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "command": "php81",
+      "version": "8.1.34",
+      "hasPathinfoAll": true,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "command": "php82",
+      "version": "8.2.32",
+      "hasPathinfoAll": true,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "command": "php84",
+      "version": "8.4.23",
+      "hasPathinfoAll": true,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "command": "php85",
+      "version": "8.5.9",
+      "hasPathinfoAll": true,
+      "results": [
+        {
+          "path": "",
+          "all": {
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "path": "file",
+          "all": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": ".",
+            "basename": "file",
+            "filename": "file"
+          },
+          "values": [
+            ".",
+            "file",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.php",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.php",
+            "extension": "php",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.php",
+            "php",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/file.",
+          "all": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": "file.",
+            "extension": "",
+            "filename": "file"
+          },
+          "values": [
+            "/dir",
+            "file.",
+            "",
+            "file"
+          ]
+        },
+        {
+          "path": "/dir/.env",
+          "all": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/dir",
+            "basename": ".env",
+            "extension": "env",
+            "filename": ""
+          },
+          "values": [
+            "/dir",
+            ".env",
+            "env",
+            ""
+          ]
+        },
+        {
+          "path": "/",
+          "all": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "explicitAll": {
+            "dirname": "/",
+            "basename": "",
+            "filename": ""
+          },
+          "values": [
+            "/",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "targetPhpVersion": "8.5",
+    "results": [
+      {
+        "module": "standard",
+        "upstreamFunctions": 585,
+        "absentAtPhp85": 43,
+        "auditedSpecial": 34,
+        "auditedLegacy": 9,
+        "auditedBuildDependent": 0,
+        "buildDependentNames": [],
+        "unreviewedAbsences": 0,
+        "examples": [
+          "apache_request_headers",
+          "call_user_method",
+          "call_user_method_array",
+          "clamp",
+          "convert_cyr_string",
+          "define_syslog_variables",
+          "ezmlm_hash",
+          "fgetss",
+          "get_magic_quotes_gpc",
+          "get_magic_quotes_runtime",
+          "getallheaders",
+          "getdir"
+        ],
+        "unreviewedExamples": [],
+        "unreviewedNames": [],
+        "runtimeAvailable": true,
+        "runtimeFunctions": 545,
+        "runtimeOutsideUpstream": [
+          "str_contains",
+          "str_decrement",
+          "str_ends_with",
+          "str_increment",
+          "str_starts_with"
+        ],
+        "runtimeUncovered": []
+      }
+    ]
+  },
+  "verification": {
+    "languageSpec": {
+      "passed": 130,
+      "skipped": 0,
+      "durationSeconds": 13.63
+    },
+    "semanticFull": {
+      "files": 42,
+      "passed": 1118,
+      "skipped": 0,
+      "durationSeconds": 49.28
+    },
+    "stdioFocused": {
+      "passed": 2,
+      "skipped": 437,
+      "total": 439,
+      "durationSeconds": 7.16
+    },
+    "host": {
+      "platform": "linux",
+      "keys": true,
+      "unsavedScalarWithdrawsKeys": true,
+      "unsavedAllRestoresKeys": true,
+      "diskUnchanged": true
+    }
+  },
+  "hashes": {
+    "packages/language-spec/src/index.ts": "c01332fee153c97d9427c7d424118e24413884a1ce31d00a7a35afdb6cf61dcc",
+    "packages/language-spec/dist/index.js": "3427599486d393755deeacbb36b93bb2da89b3917daaf94d13c99b7c1bd05c7d",
+    "packages/language-spec/test/language-spec.test.ts": "021a1770a314bced442bddaabfdf24ab05a3067a010e6a89d5f141751eccf55b",
+    "packages/semantic/test/pathinfo-contract.test.ts": "09ffe7d65e6d5e9a51df8ea114d4045883d122d6fcd5b9cb44af5b6d156950cd",
+    "packages/language-server/test/stdio.test.ts": "7e8a35a80a1ac780518197abb3c605935a1b3022d73f8390198cba17b287e71e",
+    "packages/language-server/dist/server.js": "e11901e04dbaa45b18f9c072abdd818ccc82a19cef7ee7ac70209abe0ea0cec1",
+    "dist/language-server.js": "b34d84224cb4d3c8fb6ad5af090d6850d6abeb2580408e5687a3f1f398659714",
+    "dist/extension.js": "f2429003d5254976901de315257da6cb9c9c06060ba5e541ea9951a5617efac9",
+    "test/extension/suite/pathinfoCompletion.ts": "d9cb8f0e0d46dc43b0a711c55eb9193a464b28f3bae6ce0b564036df3faba7c9",
+    "scripts/check-pathinfo-runtime.mjs": "08cc6f0f4ef4e9466ccb2d6feb36d5b80f6b2ef3c3a5c2334e0ba71e575a822f"
+  },
+  "logs": [
+    "/tmp/sophp-stubs-pathinfo-runtime.jsonl",
+    "/tmp/sophp-stubs-pathinfo-spec.log",
+    "/tmp/sophp-stubs-pathinfo-semantic-full.log",
+    "/tmp/sophp-stubs-pathinfo-lsp.log",
+    "/tmp/sophp-stubs-pathinfo-host.log"
+  ],
+  "limits": [
+    "Focused Extension Host provider evidence, not real WSL popup acceptance",
+    "The previous complete 437 stdio gate predates pathinfo changes; current 439 suite was not rerun fully",
+    "No packaging, git commit, push, publishing or Profile update"
+  ]
+}

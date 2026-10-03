@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-03",
+  "status": "source_applied_semantic_stdio_and_linux_host_passed",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "source_file": "standard/standard_9.php",
+  "baseline_and_prototype": [
+    {
+      "version": "7.2",
+      "prototype": false,
+      "index": "",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "index": ", null",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "index": ", 'id'",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "index": ", $index",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "index": "",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "index": ", null",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "index": ", 'id'",
+      "result": "array<int|string, mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "index": ", $index",
+      "result": "array<int|string, mixed>|list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "index": "",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "index": ", null",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "index": ", 'id'",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "index": ", $index",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "index": "",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "index": ", null",
+      "result": "list<mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "index": ", 'id'",
+      "result": "array<int|string, mixed>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "index": ", $index",
+      "result": "array<int|string, mixed>|list<mixed>"
+    }
+  ],
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    },
+    {
+      "version": "7.4.33",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    },
+    {
+      "version": "8.1.34",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    },
+    {
+      "version": "8.2.32",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    },
+    {
+      "version": "8.4.23",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    },
+    {
+      "version": "8.5.9",
+      "list": [
+        "one",
+        "two"
+      ],
+      "indexed": {
+        "first": "one",
+        "second": "two"
+      },
+      "wholeKeys": [
+        "first",
+        "second"
+      ],
+      "wholeMatches": true,
+      "missing": [
+        "value"
+      ],
+      "duplicate": {
+        "a": "new"
+      }
+    }
+  ],
+  "spec_full": {
+    "passed": 222,
+    "files": 12,
+    "duration_seconds": 20.43,
+    "exit_code": 0,
+    "log": "/tmp/sophp-array-column-return-spec-full.log"
+  },
+  "semantic_full": {
+    "passed": 1225,
+    "files": 62,
+    "duration_seconds": 54.08,
+    "exit_code": 0,
+    "log": "/tmp/sophp-array-column-return-semantic-full.log"
+  },
+  "targeted_stdio": {
+    "passed": 6,
+    "files": 3,
+    "duration_seconds": 5.88,
+    "exit_code": 0,
+    "log": "/tmp/sophp-array-column-return-stdio.log"
+  },
+  "array_column_lsp_queries": 12,
+  "linux_host": {
+    "exit_code": 0,
+    "php_version": "8.5",
+    "vscode_version": "1.140.0",
+    "unsaved_updates": 6,
+    "proof": {
+      "platform": "linux",
+      "results": [
+        {
+          "variant": "omitted",
+          "expected": "list<mixed>",
+          "matched": true
+        },
+        {
+          "variant": "indexed",
+          "expected": "array<int|string, mixed>",
+          "matched": true
+        },
+        {
+          "variant": "null",
+          "expected": "list<mixed>",
+          "matched": true
+        },
+        {
+          "variant": "unknown",
+          "expected": "array<int|string, mixed>|list<mixed>",
+          "matched": true
+        },
+        {
+          "variant": "indexed",
+          "expected": "array<int|string, mixed>",
+          "matched": true
+        },
+        {
+          "variant": "omitted",
+          "expected": "list<mixed>",
+          "matched": true
+        }
+      ],
+      "diskUnchanged": true
+    },
+    "log": "/tmp/sophp-array-column-return-host.log"
+  },
+  "build_exit_code": 0,
+  "lint_exit_code": 0,
+  "real_wsl_ui_verified": false,
+  "profile_updated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false
+}

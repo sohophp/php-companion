@@ -1,0 +1,72 @@
+{
+  "status": "scoped_product_gates_passed",
+  "source_sha256": {
+    "packages/semantic/src/index.ts": "06ea0dfec042ba57456bd4b9cb554b134834230d66010802fc6f262ee965a010",
+    "packages/language-server/src/server.ts": "d53138328f20b1d16939ee7c84f764714c949cf6b07ed366b3aaae1e2c70783f",
+    "packages/semantic/test/magic-declaration-completion.test.ts": "ec79ac95521b85365dd9459c2458ec774bb937f9dc14525a6bd1c542f62b9077",
+    "packages/language-server/test/magic-declaration-stdio.test.ts": "0fdcd590cffc4d4f65a2126ace2a76757e0f0b85602c22f5438b2a1d923c5b26",
+    "test/extension/suite/magicDeclarationAcceptance.ts": "15fb646c23a9ce2989b13a2ade99640ddda0daaae28934298a16ec5802a2fdf0"
+  },
+  "baseline": {
+    "failed": 4,
+    "passed": 1
+  },
+  "semantic_full": {
+    "passed": 1189,
+    "files": 53,
+    "seconds": 54.08,
+    "log": "/tmp/sophp-magic-declaration-semantic-full.log"
+  },
+  "stdio": {
+    "passed": 4,
+    "seconds": 6.18,
+    "new_query_updates": 12,
+    "log": "/tmp/sophp-magic-declaration-lsp.log"
+  },
+  "visible_host": {
+    "platform": "linux",
+    "accepted": 6,
+    "exit_code": 0,
+    "log": "/tmp/sophp-magic-declaration-host.log"
+  },
+  "latency": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 59.95,
+    "all": {
+      "p50Ms": 35.12,
+      "p95Ms": 55.12,
+      "maxMs": 75.93
+    },
+    "a": {
+      "fragment": "class Current { public function __construct() {} public function __{{cursor}}() {} }",
+      "expected": "__destruct",
+      "p50Ms": 36.07,
+      "p95Ms": 55.1,
+      "maxMs": 69.84,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class Current { public function __destruct() {} public function __{{cursor}}() {} }",
+      "expected": "__construct",
+      "p50Ms": 34.55,
+      "p95Ms": 55.12,
+      "maxMs": 75.93,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "limitations": [
+    "No current complete stdio collection",
+    "No Windows host",
+    "No real WSL acceptance",
+    "No magic signature template expansion"
+  ],
+  "packaged": false,
+  "profile_updated": false
+}

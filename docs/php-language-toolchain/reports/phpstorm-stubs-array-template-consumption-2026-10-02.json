@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-02",
+  "status": "correctness_passed_targeted_performance_followup_passed",
+  "scope": [
+    "array_fill_keys",
+    "array_reverse",
+    "array_unique",
+    "array_slice",
+    "array_chunk",
+    "array_fill",
+    "array_rand",
+    "array_intersect",
+    "array_diff",
+    "array_intersect_key",
+    "array_diff_key"
+  ],
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "verification": {
+    "language_spec": {
+      "passed": 195,
+      "files": 9,
+      "duration_seconds": 16.13
+    },
+    "semantic_full": {
+      "passed": 1211,
+      "files": 58,
+      "duration_seconds": 48.86,
+      "exit_code": 0
+    },
+    "stdio": {
+      "passed": 4,
+      "files": 2,
+      "versions": [
+        "7.2",
+        "8.5"
+      ],
+      "completion_updates": 8,
+      "adjacent_hover_queries": 20,
+      "disk_unchanged": true
+    },
+    "extension_host": {
+      "os": "linux",
+      "vscode": "1.140.0",
+      "unsaved_updates": 8,
+      "hover_and_completion": true,
+      "disk_unchanged": true,
+      "exit_code": 0
+    },
+    "runtime": [
+      {
+        "version": "7.2.34",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      },
+      {
+        "version": "7.4.33",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      },
+      {
+        "version": "8.1.34",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      },
+      {
+        "version": "8.2.32",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      },
+      {
+        "version": "8.4.23",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      },
+      {
+        "version": "8.5.9",
+        "filledKeys": [
+          "1.5",
+          1,
+          "",
+          2
+        ],
+        "sameObjects": true,
+        "empty": [],
+        "adjacentValues": {
+          "array_reverse": "Item",
+          "array_unique": "Item",
+          "array_intersect": "Item",
+          "array_diff_key": "Item",
+          "array_diff": "Item",
+          "array_intersect_key": "Item",
+          "array_slice": "Item",
+          "array_fill": "Item",
+          "array_chunk": "Item"
+        },
+        "randomKey": "label"
+      }
+    ],
+    "build": true,
+    "lint": true,
+    "extension_test_typecheck": true
+  },
+  "latency": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 156.45,
+    "all": {
+      "p50Ms": 153.47,
+      "p95Ms": 197.12,
+      "maxMs": 212.47
+    },
+    "a": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentItem()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberItem",
+      "p50Ms": 155.49,
+      "p95Ms": 196.09,
+      "maxMs": 207.93,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentOther()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberOther",
+      "p50Ms": 151.42,
+      "p95Ms": 197.12,
+      "maxMs": 212.47,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "performance_budget": {
+    "p95_ms": 150,
+    "passed": false,
+    "next": "profile actual completion query"
+  },
+  "withdrawn_attempt": "additional array_fill_keys fallback overload did not preserve unknown value Hover; removed",
+  "not_verified": [
+    "full_stdio_current_build",
+    "windows_host",
+    "visible_popup",
+    "real_wsl_ui"
+  ],
+  "packaged": false,
+  "profile_updated": false,
+  "performance_followup": {
+    "report": "completion-local-range-performance-2026-10-02.json",
+    "p95_ms": 81.17,
+    "budget_ms": 150,
+    "passed": true,
+    "scope": "same single-file fixture, 200 unsaved completion queries"
+  }
+}

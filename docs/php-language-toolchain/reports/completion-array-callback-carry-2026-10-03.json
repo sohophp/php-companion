@@ -1,0 +1,228 @@
+{
+  "platform": "linux",
+  "results": [
+    {
+      "label": "onlyCarry",
+      "key": "Enter",
+      "popupMs": 273,
+      "exactText": true,
+      "caretMatched": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "onlyCarry",
+      "key": "Tab",
+      "popupMs": 167,
+      "exactText": true,
+      "caretMatched": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "onlyCarry",
+      "key": "Enter",
+      "popupMs": 153,
+      "exactText": true,
+      "caretMatched": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "onlyCarry",
+      "key": "Tab",
+      "popupMs": 152,
+      "exactText": true,
+      "caretMatched": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "status": "passed_focused_automation",
+  "semanticFull": {
+    "files": 76,
+    "passed": 1342,
+    "seconds": 53.19,
+    "note": "After local-scope mutator guard; extraction fixture later strengthened to variable argument and rerun focused."
+  },
+  "semanticFocused": {
+    "passed": 5,
+    "casesPerVersionAndTree": 24,
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "retainedTrees": [
+      false,
+      true
+    ],
+    "cacheModes": [
+      "restore",
+      "restoreDeclaration",
+      "restoreSourceDeclaration"
+    ],
+    "cacheQueries": 42
+  },
+  "stdio": {
+    "passed": 2,
+    "queries": 36,
+    "seconds": 6.68
+  },
+  "humanWslAcceptance": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "runtime": [
+    {
+      "version": "72",
+      "case": "stable_receiver",
+      "exit": 0,
+      "stdout": "{\"version\":\"7.2.34\",\"kind\":\"object\",\"class\":\"ArrayObject\",\"value\":null}",
+      "stderr": ""
+    },
+    {
+      "version": "72",
+      "case": "extract_replaces_carry",
+      "exit": 0,
+      "stdout": "{\"version\":\"7.2.34\",\"kind\":\"NULL\",\"class\":null,\"value\":null}",
+      "stderr": ""
+    },
+    {
+      "version": "72",
+      "case": "parse_str_replaces_carry",
+      "exit": 0,
+      "stdout": "{\"version\":\"7.2.34\",\"kind\":\"string\",\"class\":null,\"value\":\"changed\"}",
+      "stderr": ""
+    },
+    {
+      "version": "85",
+      "case": "stable_receiver",
+      "exit": 0,
+      "stdout": "{\"version\":\"8.5.9\",\"kind\":\"object\",\"class\":\"ArrayObject\",\"value\":null}",
+      "stderr": ""
+    },
+    {
+      "version": "85",
+      "case": "extract_replaces_carry",
+      "exit": 0,
+      "stdout": "{\"version\":\"8.5.9\",\"kind\":\"NULL\",\"class\":null,\"value\":null}",
+      "stderr": ""
+    },
+    {
+      "version": "85",
+      "case": "parse_str_replaces_carry",
+      "exit": 255,
+      "stdout": "",
+      "stderr": "PHP Fatal error:  Uncaught ArgumentCountError: parse_str() expects exactly 2 arguments, 1 given in Command line code:1\nStack trace:\n#0 Command line code(1): parse_str()\n#1 [internal function]: {closure:{closure:Command line code:1}:1}()\n#2 Command line code(1): array_reduce()\n#3 Command line code(1): {closure:Command line code:1}()\n#4 {main}\n  thrown in Command line code on line 1\nFatal error: Uncaught ArgumentCountError: parse_str() expects exactly 2 arguments, 1 given in Command line code:1\nStack trace:\n#0 Command line code(1): parse_str()\n#1 [internal function]: {closure:{closure:Command line code:1}:1}()\n#2 Command line code(1): array_reduce()\n#3 Command line code(1): {closure:Command line code:1}()\n#4 {main}\n  thrown in Command line code on line 1\n"
+    }
+  ],
+  "projectBenchmark": {
+    "root": "/var/www/php/8.5/winstar2024",
+    "file": "/var/www/php/8.5/winstar2024/src/Config/app.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 65.16,
+    "all": {
+      "p50Ms": 8.47,
+      "p95Ms": 18.07,
+      "maxMs": 65.16
+    },
+    "a": {
+      "fragment": "class SoPhpCarryA { public function onlyCarryA(): void {} } array_reduce([1], function ($carry, $item) { $carry->onlyCarryA(); $carry->onlyCarry{{cursor}}; return $carry; }, new SoPhpCarryA());",
+      "expected": "onlyCarryA",
+      "p50Ms": 8.8,
+      "p95Ms": 17.64,
+      "maxMs": 65.16,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class SoPhpCarryB { public function onlyCarryB(): void {} } array_reduce([1], function ($carry, $item) { $carry->onlyCarryB(); $carry->onlyCarry{{cursor}}; return $carry; }, new SoPhpCarryB());",
+      "expected": "onlyCarryB",
+      "p50Ms": 8.23,
+      "p95Ms": 18.5,
+      "maxMs": 22.67,
+      "incomplete": 0
+    },
+    "memory": {
+      "collectedGc": false,
+      "metric": "process RSS; not retained heap",
+      "samples": [
+        {
+          "round": 1,
+          "rssMiB": 220.64
+        },
+        {
+          "round": 50,
+          "rssMiB": 228.68
+        },
+        {
+          "round": 100,
+          "rssMiB": 233.35
+        },
+        {
+          "round": 150,
+          "rssMiB": 234.64
+        },
+        {
+          "round": 200,
+          "rssMiB": 236.23
+        }
+      ]
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "visibleHostNote": "Four acceptances verified before local-scope mutator guard; not repeated after that guard.",
+  "windowsHost": {
+    "platform": "win32",
+    "node": "v24.16.0",
+    "proof": {
+      "platform": "win32",
+      "results": [
+        {
+          "label": "onlyCarry",
+          "key": "Enter",
+          "popupMs": 277,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "onlyCarry",
+          "key": "Tab",
+          "popupMs": 142,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "onlyCarry",
+          "key": "Enter",
+          "popupMs": 156,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "onlyCarry",
+          "key": "Tab",
+          "popupMs": 191,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "terminalAssetsMatched": 20,
+    "profileUpdated": false,
+    "packaged": false,
+    "temporaryCoreRemoved": true
+  }
+}

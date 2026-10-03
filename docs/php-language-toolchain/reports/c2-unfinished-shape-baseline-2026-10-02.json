@@ -1,0 +1,334 @@
+[
+  {
+    "contract": "single",
+    "context": "argument",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "argument",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "argument",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "argument",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "return",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "return",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "return",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "return",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "assignment",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "assignment",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "assignment",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "assignment",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "method",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "method",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "method",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "single",
+    "context": "method",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "argument",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "argument",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "argument",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "argument",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "return",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "return",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "return",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "return",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "assignment",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "assignment",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "assignment",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "assignment",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "method",
+    "part": "key",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "method",
+    "part": "key",
+    "style": "spaced",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "method",
+    "part": "value",
+    "style": "tight",
+    "keys": [],
+    "values": [],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  },
+  {
+    "contract": "union",
+    "context": "method",
+    "part": "value",
+    "style": "spaced",
+    "keys": [],
+    "values": [
+      "'create'"
+    ],
+    "revisionChanged": false,
+    "snapshotChanged": false
+  }
+]
