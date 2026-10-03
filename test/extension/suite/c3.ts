@@ -261,6 +261,28 @@ async function verifyDefaultGeneration(serviceDirectory: vscode.Uri): Promise<vo
         await configuration.update('phpVersion', previous, vscode.ConfigurationTarget.WorkspaceFolder);
         await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
       }
+      const previousExecutable = configuration.inspect<string | null>('phpExecutablePath')?.workspaceFolderValue;
+      const unavailableExecutable = vscode.Uri.joinPath(serviceDirectory, 'unavailable-php-runtime').fsPath;
+      assert.strictEqual(configuration.get<string>('phpVersion'), '8.5');
+      for (const phase of ['before-preview', 'before-apply'] as const) {
+        try {
+          if (phase === 'before-preview') {
+            await configuration.update('phpExecutablePath', unavailableExecutable, vscode.ConfigurationTarget.WorkspaceFolder);
+            await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+          }
+          assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+            testPreviewAction: async () => 'apply',
+            ...(phase === 'before-apply' ? { testBeforeApply: async (): Promise<void> => {
+              await configuration.update('phpExecutablePath', unavailableExecutable, vscode.ConfigurationTarget.WorkspaceFolder);
+            } } : {}),
+          }), false, `A generation action accepted a changed PHP executable (${phase})`);
+          assert.strictEqual(configuration.get<string>('phpVersion'), '8.5');
+          assert.strictEqual(document.getText(), source);
+        } finally {
+          await configuration.update('phpExecutablePath', previousExecutable, vscode.ConfigurationTarget.WorkspaceFolder);
+          await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+        }
+      }
     }
 
     if (item.relation) {

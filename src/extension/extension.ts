@@ -525,7 +525,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   };
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
-      sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string },
+      sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string; sourceExecutableSetting?: string | null },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeApply?: () => Promise<void>;
       testBeforeOpen?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> },
   ): Promise<boolean> => {
@@ -571,18 +571,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           diskHash: createHash('sha256').update(bytes).digest('hex') });
       }
     }
-    const versionUnchanged = (): boolean => {
-      const setting = vscode.workspace.getConfiguration('phpCompanion', sourceUri).get<string>('phpVersion', 'auto');
+    const environmentUnchanged = (): boolean => {
+      const configuration = vscode.workspace.getConfiguration('phpCompanion', sourceUri);
+      const setting = configuration.get<string>('phpVersion', 'auto');
+      const executableSetting = configuration.get<string | null>('phpExecutablePath') ?? null;
       const firstFolder = vscode.workspace.workspaceFolders?.[0]?.uri;
       const fallbackSetting = vscode.workspace.getConfiguration('phpCompanion', firstFolder).get<string>('phpVersion', 'auto');
       const effective = versions.stateForUri(sourceUri)?.resolution.target ?? (fallbackSetting === 'auto'
         ? (firstFolder ? versions.stateForUri(firstFolder)?.resolution.target : undefined) ?? '7.2' : fallbackSetting);
-      return (request.sourceVersionSetting === undefined || setting === request.sourceVersionSetting)
+      return (request.sourceExecutableSetting === undefined || executableSetting === request.sourceExecutableSetting)
+        && (request.sourceVersionSetting === undefined || setting === request.sourceVersionSetting)
         && (request.sourcePhpVersion === undefined || ((setting === 'auto' || setting === request.sourcePhpVersion)
           && effective === request.sourcePhpVersion));
     };
     const unchanged = async (): Promise<boolean> => {
-      if (!versionUnchanged()) return false;
+      if (!environmentUnchanged()) return false;
       if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
       if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
       for (const [uriText, existing] of existingTargets) {
@@ -600,9 +603,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
         }
       }
-      return versionUnchanged();
+      return environmentUnchanged();
     };
-    if (!await unchanged()) { void vscode.window.showWarningMessage(t(versionUnchanged() ? 'extractCancelled' : 'refactorVersionChanged')); return false; }
+    if (!await unchanged()) { void vscode.window.showWarningMessage(t(environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
     const previewUris = new Set<string>();
     try {
       const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
@@ -620,7 +623,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return false;
       if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
-      if (!await unchanged()) { void vscode.window.showWarningMessage(t(versionUnchanged() ? 'extractCancelled' : 'refactorVersionChanged')); return false; }
+      if (!await unchanged()) { void vscode.window.showWarningMessage(t(environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
       if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
       const expectedSource = applyTextEdits(sourceText, edit.get(sourceUri));
       const expectedTargets = targets.map(([uri, edits]) => ({ uri,

@@ -40,6 +40,8 @@ try {
   await writeFile(sourcePath, source); await writeFile(targetPath, target);
   await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
   const uri = pathToFileURL(sourcePath).toString(); const targetUri = pathToFileURL(targetPath).toString();
+  const benchmarkStarted = performance.now();
+  const requestTimings = []; const backgroundMessages = [];
   const profileDirectory = process.env.SOPHP_IMPORT_CPU_PROFILE;
   if (profileDirectory) await mkdir(profileDirectory, { recursive: true });
   child = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${profileDirectory}`] : []),
@@ -50,6 +52,11 @@ try {
   child.stderr.on('data', chunk => { stderr = `${stderr}${chunk}`.slice(-4096); });
   child.stdout.on('data', chunk => {
     for (const message of decoder.push(chunk)) {
+      if (message.method === 'window/logMessage') {
+        backgroundMessages.push({ atMs: performance.now() - benchmarkStarted,
+          message: String(message.params?.message ?? '').slice(0, 1024) });
+        if (backgroundMessages.length > 256) backgroundMessages.shift();
+      }
       if (message.method && message.id !== undefined) send({ id: message.id, result: null });
       const pending = waiters.get(message.id);
       if (pending) { clearTimeout(pending.timer); waiters.delete(message.id); pending.resolve(message); }
@@ -61,13 +68,16 @@ try {
   });
   const request = async (method, params) => {
     const requestId = id++; const started = performance.now();
+    const startedMicros = Number(process.hrtime.bigint() / 1000n);
     const promise = new Promise((resolve, reject) => {
       const timer = setTimeout(() => { waiters.delete(requestId); reject(new Error(`${method} timed out: ${stderr}`)); }, 60_000);
       waiters.set(requestId, { resolve, reject, timer });
     });
     send({ id: requestId, method, params }); const reply = await promise;
     assert.ok(!reply.error, JSON.stringify(reply.error));
-    return { result: reply.result, ms: performance.now() - started };
+    const ms = performance.now() - started;
+    requestTimings.push({ id: requestId, method, atMs: started - benchmarkStarted, startedMicros, ms });
+    return { result: reply.result, ms };
   };
   await request('initialize', { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: {},
     initializationOptions: { phpVersion: '8.5', indexingMode: mode, testMode: true } });
@@ -100,7 +110,9 @@ try {
   const scanTimings = (await request('phpCompanion/testQueryTimings', {})).result.importDiskRefresh;
   console.log(JSON.stringify({ mode, noiseFiles: files, totalFilesBeforeDeletion: files + 3, rounds, cold,
     hot: Object.fromEntries(Object.entries(samples).map(([name, values]) => [name, summarize(values)])),
-    sourceScan: summarize(scanTimings), deletionWithoutWatcherVerified: true, planningDidNotWriteFiles: true }, null, 2));
+    sourceScan: summarize(scanTimings), warmSamples: samples, sourceScanSamples: scanTimings,
+    trace: { requests: requestTimings, backgroundMessages },
+    deletionWithoutWatcherVerified: true, planningDidNotWriteFiles: true }, null, 2));
   await request('shutdown', null); send({ method: 'exit', params: null });
   await stopped;
 } finally { if (child?.exitCode === null) child.kill(); await rm(root, { recursive: true, force: true }); }

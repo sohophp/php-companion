@@ -3070,7 +3070,7 @@ interface ControllerContextScanTask {
   promise: Promise<boolean>;
 }
 const controllerContextScanTasks = new Map<string, ControllerContextScanTask>();
-function invalidateCandidates(uri: string, preservePreparedSource = false): void {
+function invalidateCandidates(uri: string, preservePreparedSource = false, changedUris: Iterable<string> = [uri]): void {
   if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', performance.now());
   invalidateContainerFacts();
   const root = rootForUri(uri); if (root) {
@@ -3086,7 +3086,9 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
       const light = referenceLightSummaries.get(root);
       if (light?.epoch === previousEpoch) {
         light.epoch = epoch;
-        const path = pathForUri(uri); if (path) light.entries.delete(resolve(path));
+        for (const changed of changedUris) {
+          const path = pathForUri(changed); if (path) light.entries.delete(resolve(path));
+        }
       }
     } else if (activePreparation?.epoch === previousEpoch) {
       // The active scan reads open buffers. Keep it alive while a user types;
@@ -7842,20 +7844,35 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
   await applyPendingFiles();
   const epoch = projectEpochs.get(root) ?? 0;
   const current = new Set<string>();
+  const changedUris = new Set<string>();
+  let changedUri: string | undefined;
+  const project = await composerProjectForRoot(root);
+  const preparedProject = indexingMode === 'progressive' && project !== undefined
+    && referenceSourceReadyRoots.get(root) === epoch;
+  const projectPaths = preparedProject ? projectAutoloadPaths(project!) : [];
+  const currentProject = new Set<string>();
+  let projectSourcesCovered = preparedProject;
+  const rememberProjectSource = (uri: string, path: string, source?: string): void => {
+    if (!preparedProject || !projectPaths.some(sourceRoot => pathWithin(sourceRoot, path))) return;
+    currentProject.add(uri);
+    if (source !== undefined && workspace.source(uri) !== source) {
+      projectSourcesCovered = false; changedUri = uri; changedUris.add(uri);
+    }
+  };
   const selectedNames = typeNames ? [...typeNames] : undefined;
   const reuseChecks = Boolean(selectedNames || captureVerifiedSource);
   const previousChecks = reuseChecks ? verifiedDiskSources.get(workspace) : undefined;
   const nextChecks = reuseChecks ? new Map<string, VerifiedDiskSource>() : undefined;
   const verifiedSources = reuseChecks ? new Map<string, string | undefined>() : undefined;
   const inspected = new Map<string, Omit<VerifiedDiskSource, 'source' | 'hash'> & { matchesHash?: boolean }>();
-  let changedUri: string | undefined;
   const refreshStarted = testMode ? performance.now() : 0;
   const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
     undefined, reuseChecks ? { expectedHash: (path: string): string | undefined => previousChecks?.get(path)?.hash,
       maxSourceBytes: indexLimits.maxFileSizeBytes } : undefined);
   const scan = await indexComposerSources(root, {
-    project: await composerProjectForRoot(root), includeDependencies: true, limits: indexLimits,
-    readConcurrency: 32, yieldEvery: 100, inspectSource: async path => {
+    project, includeDependencies: true, limits: indexLimits,
+    // Match the existing bounded worker batch; source and scan budgets remain enforced.
+    readConcurrency: 128, yieldEvery: 100, inspectSource: async path => {
       const stamp = await statBatches.inspect(path); inspected.set(path, stamp); return stamp;
     },
     skipSource: reuseChecks ? (path, info): boolean => {
@@ -7868,6 +7885,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
       if (workspace.source(uri) !== known.source || open && open.getText() !== known.source) return false;
       if (!selectedNames && workspace.implementationState(uri) !== 'loaded') return false;
+      rememberProjectSource(uri, path, known.source);
       current.add(uri); nextChecks!.set(path, known); verifiedSources!.set(uri, known.source);
       return true;
     } : undefined,
@@ -7884,8 +7902,9 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       // of unrelated new vendor files. Refresh changed indexed files as well
       // so removed declarations cannot survive under their old names.
       if ((previous !== effective || !selectedNames && workspace.implementationState(uri) !== 'loaded') && (relevant || previous !== undefined)) {
-        workspace.update(uri, effective, Boolean(open)); changedUri = uri;
+        workspace.update(uri, effective, Boolean(open)); changedUri = uri; changedUris.add(uri);
       }
+      rememberProjectSource(uri, path, effective);
       verifiedSources?.set(uri, workspace.source(uri));
       const stamp = inspected.get(path);
       if (nextChecks && stamp && effective === source && workspace.source(uri) === source) nextChecks.set(path, { size: stamp.size, mtimeMs: stamp.mtimeMs, ctimeMs: stamp.ctimeMs, source,
@@ -7912,11 +7931,17 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
     return false;
   }
   for (const uri of indexedUrisByRoot.get(root) ?? []) {
-    if (!current.has(uri) && !documents.get(uri)) { workspace.remove(uri); changedUri = uri; }
+    if (!current.has(uri) && !documents.get(uri)) { workspace.remove(uri); changedUri = uri; changedUris.add(uri); }
   }
   indexedUrisByRoot.set(root, current);
   if (nextChecks) verifiedDiskSources.set(workspace, nextChecks);
-  if (changedUri) invalidateCandidates(changedUri);
+  if (changedUri) {
+    // Only a complete, current scan may reuse project-source preparation.
+    // Unknown unrelated project files still require the ordinary preparation.
+    const preserveProject = projectSourcesCovered && referenceSourceReadyRoots.get(root) === epoch;
+    if (preserveProject) projectIndexedUrisByRoot.set(root, currentProject);
+    invalidateCandidates(changedUri, preserveProject, changedUris);
+  }
   if (cancelled()) return false;
   // Consume the verified facts before yielding to background source updates.
   captureVerifiedSource?.();

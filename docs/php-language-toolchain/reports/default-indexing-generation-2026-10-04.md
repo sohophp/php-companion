@@ -95,3 +95,14 @@ Language Server／扩展构建、宿主编译、根 typecheck、修改文件 ESL
 - 本批最近 Language Server／扩展构建、根 typecheck、宿主编译和修改源文件 ESLint 均通过，分别见 `sophp-generation-version-*` 与 `sophp-worker-reuse-*` 日志；源代码核对与 `git diff --check` 通过。双默认模式五类生成及局部提取七条隔离宿主证据沿用上节，不重复打包或运行无关宿主。
 
 这是有明确剩余性能门槛的源码检查点，不是完整 C3 或真实 WSL 验收。1,003／2,503 文件的上一批有效性能数据仍以 Import 报告为准；下一批扫描窗口实验在临时副本中进行，不纳入本检查点，也不把与全量回归并行的测量作为独立性能验收。实验副本已经清理，日志保留。未更新 Profile、打包、推送或发布；goal 继续 active，按原路线图推进。
+
+
+## 公共预览的 PHP 运行程序设置保护
+
+与已有新建类型流程核对后发现：公共成员生成预览只绑定 PHP 版本，没有绑定 `phpExecutablePath`。隔离 onDemand 先复现：目标设置仍是 PHP 8.5，在执行旧建议前更换运行程序设置并完成检测，旧构造函数编辑仍被应用；日志 `/tmp/sophp-generation-executable-host-red.log`，断言 true 与期望 false 不符。不是借版本变化复现同一已有保护。
+
+现有 Code Action middleware 在请求前同时记录资源作用域的版本与运行程序设置，作为内部公共预览参数传递；`null` 明确表示当时未配置运行程序，与不携带字段的旧手工请求区分。预览开始和确认应用前的现有检查均比较该设置，异步磁盘核验后再比较；拒绝提示说明 PHP 版本或运行程序设置变化。没有新增用户设置、LSP 协议字段或必须配置的值。历史不携带字段的手工请求保持原契约。本增量针对设置变化，不宣称同一路径的运行程序内容、扩展事实及所有 runtime 输入都已绑定。
+
+onDemand／progressive 串行隔离宿主各通过原有五类生成：纯当前文件构造、接口方法、抽象方法、访问器、覆盖方法。新构造场景固定版本设置 8.5，分别在预览之前及应用之前更换运行程序设置，旧编辑均被拒绝；恢复后同一建议正常应用、一次 Undo/Redo 和旧文档版本拒绝继续通过。每次只改宿主自己的临时工作区设置，并在 finally 恢复；日志 `/tmp/sophp-generation-executable-host-{onDemand,progressive}.log` 均退出 0。七条既有局部提取流程的预览／取消／应用和一次 Undo/Redo 也通过（`/tmp/sophp-generation-executable-local-extraction.log`）。
+
+根 TypeScript、扩展构建、宿主编译、修改的扩展／宿主源文件 ESLint 与 diff 检查通过。初次 lint 的测试回调缺少返回类型已补注解，最终日志 `/tmp/sophp-generation-executable-lint-final.log` 无错误；宿主重新编译后 JS SHA-256 与完成上述验证时逐字一致（`/tmp/sophp-generation-executable-host-emitted-before.sha256`）。本批保留同一分支未提交，没有打包、更新用户 Profile、推送或发布，不是用户真人 WSL 验收。

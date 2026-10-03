@@ -186,7 +186,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         const sourceVersion = document.version;
         const sourceText = document.getText();
         const sourcePhpVersion = versions.stateForUri(document.uri)?.resolution.target;
-        const sourceVersionSetting = vscode.workspace.getConfiguration('phpCompanion', document.uri).get<string>('phpVersion', 'auto');
+        const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
+        const sourceVersionSetting = configuration.get<string>('phpVersion', 'auto');
+        const sourceExecutableSetting = configuration.get<string | null>('phpExecutablePath') ?? null;
         const actions = await next(document, range, context, token);
         if (!actions || token.isCancellationRequested) return actions;
         let sourceDiskHash: string | undefined;
@@ -207,7 +209,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
           action.edit = undefined;
           action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',
             arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText,
-              sourceDiskHash, targetHashes: rewriteSnapshots, sourceVersionSetting,
+              sourceDiskHash, targetHashes: rewriteSnapshots, sourceVersionSetting, sourceExecutableSetting,
               sourcePhpVersion: typeof protocolVersion === 'string' ? protocolVersion : sourcePhpVersion }] };
         }
         return actions;

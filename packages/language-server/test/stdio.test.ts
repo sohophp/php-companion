@@ -11303,6 +11303,67 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
+  it('keeps prepared progressive project sources after verified imports without retaining stale reference candidates', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-import-prepared-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const source = '<?php namespace App; use Acme\\Receipt as VendorReceipt; function copied(VendorReceipt $value) {}';
+      const sourcePath = join(root, 'src', 'Source.php'); const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Receipt.php');
+      const consumers = ['One', 'Two'].map(name => ({ path: join(root, 'src', `${name}.php`),
+        source: `<?php namespace App; use Acme\\Removed; function ${name.toLowerCase()}(Removed $value) {}` }));
+      await writeFile(sourcePath, source); await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
+      for (const consumer of consumers) await writeFile(consumer.path, consumer.source);
+      const uri = pathToFileURL(sourcePath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      let id = 101;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'progressive', testMode: true } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      await output.waitFor(message => message.method === 'window/logMessage' && /\[index:1\] end/.test(message.params?.message ?? ''), 20_000);
+      const starts = (): number => output.messages.filter(message => message.method === 'window/logMessage'
+        && /\[index:\d+\] start/.test(message.params?.message ?? '')).length;
+      const copy = (): Promise<any> => request('phpCompanion/copyTypeSymbols', { textDocument: { uri }, ranges: [{
+        start: lspPosition(source, source.indexOf('VendorReceipt $')), end: lspPosition(source, source.indexOf('VendorReceipt $') + 13),
+      }] });
+      expect(await copy()).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      await new Promise(resolve => setTimeout(resolve, 2300)); // Observe the existing two-second debounce, not a query performance budget.
+      expect(starts()).toBe(1);
+      const references = (): Promise<Array<{ uri: string }>> => request('textDocument/references', { textDocument: { uri },
+        position: lspPosition(source, source.indexOf('VendorReceipt $') + 2), context: { includeDeclaration: false } });
+      expect((await references()).some(item => item.uri === uri)).toBe(true);
+      for (const consumer of consumers) await writeFile(consumer.path, consumer.source.replaceAll('Removed', 'Receipt'));
+      expect(await copy()).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      const changed = await references();
+      for (const consumer of consumers) expect(changed.some(item => item.uri === pathToFileURL(consumer.path).toString())).toBe(true);
+      await rm(consumers[0]!.path);
+      expect(await copy()).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      expect((await references()).some(item => item.uri === pathToFileURL(consumers[0]!.path).toString())).toBe(false);
+      await writeFile(vendorPath, '<?php namespace Acme; class Removed {}');
+      expect(await copy()).toEqual([]);
+      await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
+      expect(await copy()).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      const unrelatedPath = join(root, 'src', 'Unrelated.php');
+      await writeFile(unrelatedPath, '<?php namespace App; class Unrelated {}');
+      const previousStarts = starts();
+      expect(await copy()).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      await output.waitFor(message => message.method === 'window/logMessage'
+        && new RegExp(`\\[index:${previousStarts + 1}\\] end`).test(message.params?.message ?? ''), 20_000);
+      expect(starts()).toBe(previousStarts + 1); // A selected-type scan cannot prove an unindexed unrelated project file.
+      const symbols = await request('workspace/symbol', { query: 'Unrelated' });
+      expect(symbols.some((item: { location: { uri: string } }) => item.location.uri === pathToFileURL(unrelatedPath).toString())).toBe(true);
+      expect(await readFile(sourcePath, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('resolves copied and pasted imports in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-imports-'));
     try {

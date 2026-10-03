@@ -193,3 +193,81 @@ PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_C3_FIRST_IMPORT_ONLY=1 PHP_COMPA
 当前定向组合 `/tmp/sophp-worker-reuse-regression.log`：25 项通过（4 个 Worker 生命周期／内容核验，6 个 Import／预算，2 个后台交错，6 个参数修改／预算，6 个成员生成／预算，1 个复杂成员生成）；References 编辑后取消另行 1 项通过（`/tmp/sophp-worker-reuse-reference-cancel.log`）。Worker 生命周期含已 dispatch 的两个扫描独立取消、释放后再次复用、终止后新建恢复及模拟 30 秒空闲终止；不把计时器模拟当作长期会话测试。
 
 最新 progressive 隔离宿主的四类生成仍通过真实预览／取消／应用、磁盘和未保存依赖变化拒绝、一次 Undo/Redo（`/tmp/sophp-worker-reuse-generation-host.log`）。源码／扩展构建、根 typecheck、变更文件 ESLint 与 diff 检查通过。没有打包、更新用户 Profile、推送或发布，C3 和跨规模性能门槛保持未完成。
+
+
+## 扫描窗口调整（源码检查点之后）
+
+前述 Import／生成／预览保护已随 `88ebffb` 本地提交，完整门槛的 810 通过／2 性能失败／1 条件跳过见[生成报告](default-indexing-generation-2026-10-04.md#c3-源码阶段检查点)。本增量只把共同受检扫描的并发窗口从 32 调到索引器已支持、且与 Worker 批大小一致的 128；逐文件内容哈希、读取／文件数／总字节预算、顺序语义回调、取消和单次重新核验保持原约束。没有并入临时路径缓存方案。
+
+调整前在临时副本中比较了路径缓存、路径缓存＋128 窗口及仅 128 窗口；收益主要来自窗口。实验期间全量回归仍运行，`/tmp/sophp-c3-{path,window-only}*-experiment-perf.json` 只用于选择方案，不作为验收数字；副本已清理。
+
+源码调整并构建后，四组标准 benchmark 串行执行，各 10 次热查询，仍验证无 watcher 删除及规划不写文件。下面每格为该组 P95，单位 ms：
+
+| 默认模式／总文件 | Copy | 候选 | Plan | 三步合计 | 首次 Copy |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| onDemand／1,003 | 57.55 | 46.36 | 47.13 | 137.90 | 1724.85 |
+| onDemand／2,503 | 108.53 | 110.26 | 107.26 | 311.32 | 4265.45 |
+| progressive／1,003 | 64.51 | 48.33 | 45.50 | 147.44 | 1842.80 |
+| progressive／2,503 | 102.32 | 165.25 | 2062.72 | 2314.87 | 3732.13 |
+
+日志 `/tmp/sophp-c3-scan-window-perf-{onDemand,progressive}-{1000,2500}.{json,log}`。onDemand 2,503 文件从此前约 155–159 ms 降到约 107–110 ms，但 progressive 2,503 文件仍有 165 ms 候选及约 2 秒 Plan 尖峰；其受检扫描计时最大约 896 ms，尖峰不能仅用扫描窗口解释。整体 150 ms 门槛未通过，不靠重复运行抹掉这组失败；下一步定位请求前后等待与后台任务交错。单组 10 样本也不能替代五轮、10k／50k、峰值内存及实际弹窗等待验收。冷启动没有明显改善。
+
+36 项定向协议／Worker 回归通过，444 项未运行，83.97 秒：三模式 Import 成功／预算／失效、生成及 PHP 版本撤回、参数修改、Rename／Safe Move 的当前源码覆盖与预算拒绝、后台 Import 快照覆盖、Worker 取消／复用／空闲释放。日志 `/tmp/sophp-c3-scan-window-regression.log`。Language Server／扩展构建、修改源文件 ESLint 通过。
+
+progressive 隔离宿主的首次实际构造表达式 Paste Provider、resolve／应用及一次 Undo/Redo 通过，Provider 等待 544 ms；日志 `/tmp/sophp-c3-scan-window-first-import-host.log`，退出 0。小 fixture 的单次首次等待不是 2,503 文件热查询验收，也不是用户 WSL 使用验证。本增量暂留同一分支，待下一次必要里程碑一起整理提交；没有打包、推送、更新 Profile 或发布。
+
+
+## progressive Import 再次准备尖峰
+
+扩充既有 benchmark，保留原有汇总并增加逐请求时间、单调时钟、热样本／扫描样本和最多 256 条后台消息；可与既有 `SOPHP_IMPORT_CPU_PROFILE` 对齐，没有新增用户设置。独立 2,503 文件 profile 再次复现 Plan 约 2.30 秒：后台在约 8,705 ms 记录 `index:2 start reason=progressive-source-change`，Plan 在约 8,875 ms 发出，项目来源到约 11,063 ms 才再次 ready。日志及各 Worker profile 位于 `/tmp/sophp-progressive-import-profile{.json,.log,/}`。首次选中类型扫描读入 vendor 声明后，候选失效会撤回整项目来源准备，触发两秒 debounce；后续请求在重新准备期间等待，并不是同一次 Import 磁盘扫描突然需要两秒。
+
+受控协议先复现无磁盘变化仍启动第二次索引（`/tmp/sophp-progressive-import-prepared-red.log`）。修补仅在完整扫描、未取消、来源／epoch 未被覆盖，以及既有 project source ready 仍成立时，复用已核验项目来源；项目 URI 集合同步当前覆盖，候选 epoch 及 container facts 仍失效，所有变化文件的旧 light 摘要移除，不只移除最后一个。无关新 vendor 源码仍按既有选择规则处理；尚未加载的无关**项目**文件不提供完整项目证明，继续撤回 ready 并触发原准备。扫描超预算、失效或取消不获得这条复用路径，没有延后到空闲时才保障来源完整性。
+
+首次修补的边界回归还抓到未知项目文件没有造成实际语义更新时未触发失效，等待重扫超时；日志 `/tmp/sophp-progressive-import-prepared-green.log` 保留。增加未覆盖来源的显式失效后，单项回归通过（`/tmp/sophp-progressive-import-prepared-green-final.log`）：vendor 发现后没有重复整项目准备；两个项目消费者同时改变后引用都更新，删除消费者及 vendor 声明变化即时反映；新无关项目文件仍重新准备并进入 workspace symbol。不是只断言索引次数的实现镜像测试。
+
+最新完整组合选中 37 项通过、444 项未运行，93.10 秒；包括前节 36 项及上述新回归，日志 `/tmp/sophp-progressive-import-prepared-regression.log`。Language Server／扩展构建、根 TypeScript、修改的 server／stdio／benchmark ESLint 与 diff 检查通过。隔离 progressive 首次实际构造表达式 Paste Provider、resolve／应用和一次 Undo/Redo 退出 0，Provider 等待 496 ms（`/tmp/sophp-progressive-import-prepared-first-host.log`）；不等同真实 WSL 或大项目可见等待。
+
+修补后标准 benchmark 串行单组各 10 热样本，2,503 文件最新 P95，单位 ms：
+
+| 默认模式 | Copy | 候选 | Plan | 三步合计 | 首次 Copy |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| onDemand | 105.59 | 118.31 | 113.15 | 318.88 | 3723.51 |
+| progressive | 115.53 | 117.26 | 110.65 | 322.95 | 3733.05 |
+
+日志 `/tmp/sophp-progressive-import-prepared-perf{-onDemand-2500,-2500}.{json,log}`；两组都验证无 watcher 删除、规划不写文件，progressive 的热查询时间窗只有 `index:1`，没有再次整项目准备。上一节约 2 秒失败继续保留。此两组单次查询在 150 ms 内，但仍不关闭整体性能验收：五轮、10k／50k、峰值内存、后台外部 Provider 组合及真人等待继续开放；完整套件中两条魔术方法的组合负载性能失败也没有改记为通过。源码留在原分支，未打包、更新 Profile、推送或发布。
+
+## 2,503 文件五轮热查询验收
+
+在上述源码上串行运行两默认模式，每种模式五个独立进程／临时 Composer 项目，每轮每类查询 100 次热采样；首次请求单独计时。命令为 `node scripts/benchmark-paste-imports.mjs 2500 100 onDemand` 或 `progressive`。保留全部十轮，没有择优删除或因超预算而重跑。总计 3,000 次热请求，协议／结果断言失败 0；取消未在本轮测量。
+
+下表为每轮 P95（ms），各单轮均满足 150 ms 预算：
+
+| 模式 | 轮次 | Copy | 候选 | Plan | 首次 Copy |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| onDemand | 1 | 111.20 | 118.61 | 117.46 | 4183.13 |
+| onDemand | 2 | 111.62 | 111.75 | 109.60 | 3889.90 |
+| onDemand | 3 | 102.03 | 103.55 | 107.19 | 3725.44 |
+| onDemand | 4 | 109.12 | 109.96 | 109.16 | 3800.55 |
+| onDemand | 5 | 105.82 | 105.74 | 105.51 | 3913.79 |
+| progressive | 1 | 110.11 | 111.23 | 112.87 | 3663.28 |
+| progressive | 2 | 114.32 | 113.82 | 117.96 | 3876.76 |
+| progressive | 3 | 116.91 | 111.27 | 114.14 | 3752.92 |
+| progressive | 4 | 110.45 | 110.68 | 113.71 | 3784.39 |
+| progressive | 5 | 115.96 | 116.16 | 115.01 | 3752.14 |
+
+每种模式每类查询合并 500 个热样本；P95 按排序后 `ceil(n × 0.95)` 位置计算，不取单轮 P95 的平均值：
+
+| 模式 | 查询 | P50 | P95 | 最大值 |
+| --- | --- | ---: | ---: | ---: |
+| onDemand | Copy | 93.95 | 110.13 | 122.99 |
+| onDemand | 候选 | 93.96 | 111.06 | 130.10 |
+| onDemand | Plan | 94.47 | 111.13 | 135.76 |
+| progressive | Copy | 98.54 | 113.46 | 137.61 |
+| progressive | 候选 | 98.60 | 113.22 | 133.98 |
+| progressive | Plan | 97.71 | 115.01 | 143.27 |
+
+三步串行合计 P95 分别为 322.91／334.88 ms；它是工作流等待数据，不将三个请求相加后的数值套用单次查询 150 ms 门槛。十轮均验证无 watcher 删除后的撤回和规划不写文件；后台消息各仅出现 `index:1`，未重现重复准备。首次 Copy 约 3.66–4.18 秒，冷启动仍需单独改进。
+
+可复核的逐轮热样本、冷／热统计、源码哈希、Node／平台和后台消息保存在[五轮原始数据](default-indexing-imports-2503-five-runs-2026-10-04.json)。完整请求 trace／stderr 留于 `/tmp/sophp-import-qualification-2500/`。本轮只关闭本机 2,503 文件两默认模式的 Import 热查询子门槛；10k／50k、峰值 RSS、取消／长期会话、外部 Provider 组合及真人 WSL 可见等待仍开放，完整套件的两条魔术方法组合负载失败保留。没有打包或更新用户 Profile。
+
+扫描窗口、prepared source 复用和公共预览运行程序设置保护合并为同一源码里程碑，提交标题 `fix(refactor): reuse verified project preparation and bind PHP runtime settings`。上述“尚未提交”记录描述各增量完成时的状态，以本里程碑为后续源码基线；C3 整体仍未完成，用户已安装的旧 Profile 未包含此批修改。
