@@ -1,0 +1,264 @@
+{
+  "date": "2026-10-02",
+  "status": "source_focused_protocol_and_host_passed",
+  "upstreamRevision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "before": {
+    "log": "/tmp/sophp-stubs-simplexml-before.log",
+    "php72And85SubclassTypesMissing": true
+  },
+  "verification": {
+    "spec": {
+      "passed": 132,
+      "skipped": 0
+    },
+    "semantic": {
+      "files": 44,
+      "passed": 1123,
+      "skipped": 0,
+      "durationSeconds": 48.24
+    },
+    "stdioFocused": {
+      "passed": 2,
+      "skipped": 441,
+      "total": 443,
+      "durationSeconds": 11.31
+    },
+    "host": {
+      "platform": "linux",
+      "functions": [
+        "simplexml_load_string",
+        "simplexml_load_file",
+        "simplexml_import_dom"
+      ],
+      "subclassMembers": true,
+      "unsavedReplacement": true,
+      "nullWithdrawsSubclass": true,
+      "diskUnchanged": true
+    },
+    "typecheckAndLint": true
+  },
+  "runtimeChecks": [
+    {
+      "version": "7.2.34",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    },
+    {
+      "version": "7.4.33",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    },
+    {
+      "version": "8.1.34",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    },
+    {
+      "version": "8.2.32",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    },
+    {
+      "version": "8.4.23",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    },
+    {
+      "version": "8.5.9",
+      "results": {
+        "simplexml_load_string": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_load_file": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "simplexml_import_dom": {
+          "customClass": "CustomXml",
+          "customMethod": "custom",
+          "baseClass": "SimpleXMLElement",
+          "nullClass": "SimpleXMLElement"
+        },
+        "failures": {
+          "string": false,
+          "file": false,
+          "dom": null
+        }
+      }
+    }
+  ],
+  "performance": {
+    "scope": "Small isolated warmed semantic fixture, not visible popup timing",
+    "queries": 100,
+    "p95Milliseconds": 8.373320000000149,
+    "maxMilliseconds": 16.686913000000004
+  },
+  "coverage": {
+    "revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "targetPhpVersion": "8.5",
+    "results": [
+      {
+        "module": "SimpleXML",
+        "upstreamFunctions": 3,
+        "absentAtPhp85": 0,
+        "auditedSpecial": 0,
+        "auditedLegacy": 0,
+        "auditedBuildDependent": 0,
+        "buildDependentNames": [],
+        "unreviewedAbsences": 0,
+        "examples": [],
+        "unreviewedExamples": [],
+        "unreviewedNames": [],
+        "runtimeAvailable": true,
+        "runtimeFunctions": 3,
+        "runtimeOutsideUpstream": [],
+        "runtimeUncovered": []
+      }
+    ]
+  },
+  "hashes": {
+    "packages/language-spec/src/xml.ts": "3673ada36b3e2782abfcbdaa72032e99ccab417f82e10e4d49df04af6c3c8658",
+    "packages/language-spec/dist/xml.js": "f58cd7de7a7053fe202b28c8407a5ac360f10a9b66393339e9b7d61b073a443b",
+    "packages/language-spec/test/language-spec.test.ts": "4323ed11f96ab91a702906d0014107db572231ee7ca5d14e8ce79dac314278e2",
+    "packages/semantic/src/index.ts": "18eacd0b2bb0bfe15c55264ab8510bde95c61c83156f759da8876041662d6099",
+    "packages/semantic/dist/index.js": "4acdec81b3cd437be56ad4a6d7c40a46b7a26434e7f6ece2b505906a2cac45fd",
+    "packages/semantic/test/simplexml-factory-contract.test.ts": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+    "packages/language-server/test/stdio.test.ts": "3a96f33f9e526b94e7542cadb3be7c781d94b360c3f3666ffbb1e8d5cb72be1e",
+    "test/extension/suite/simplexmlFactoryCompletion.ts": "7a2902ee11a505da1bf804e82eeaa7f2c0405da3a632116154ace6a63520966b",
+    "scripts/check-simplexml-factory-runtime.mjs": "271d24be979adbeb6c88658f78e7c23be12ebabd5b6908e7cd0e7ae47cd4f1cf",
+    "dist/language-server.js": "392d955bbca3765da6c6de5139b5d99a254f48ec2893eb0fdc36f0cde229828c",
+    "dist/extension.js": "168fcec1ab5d588e6fdfdfeffed0cf31dc96f65c977c10982d9bd2c86bb19973"
+  },
+  "logs": [
+    "/tmp/sophp-stubs-simplexml-after.log",
+    "/tmp/sophp-stubs-simplexml-spec.log",
+    "/tmp/sophp-stubs-simplexml-semantic-full-final.log",
+    "/tmp/sophp-stubs-simplexml-lsp.log",
+    "/tmp/sophp-stubs-simplexml-host.log"
+  ],
+  "limits": [
+    "No complete 443 stdio suite run",
+    "No manual WSL visible popup acceptance",
+    "No packaging, Git commit/push, release or Profile update"
+  ]
+}

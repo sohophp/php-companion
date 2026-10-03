@@ -1,0 +1,475 @@
+{
+  "date": "2026-10-02",
+  "appliedToProduct": true,
+  "baseline": [
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 145,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "argument",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 140
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 122,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 118,
+      "offset": 117
+    },
+    {
+      "context": "return",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 117
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 145,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 141,
+      "offset": 140
+    },
+    {
+      "context": "assignment",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 140
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "'",
+      "closed": false,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": false,
+      "end": 208,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": true,
+      "kind": "shape-key",
+      "keys": [
+        "mode"
+      ],
+      "hasArrow": true,
+      "end": 204,
+      "offset": 203
+    },
+    {
+      "context": "method",
+      "quote": "\"",
+      "closed": false,
+      "kind": "general",
+      "keys": [],
+      "offset": 203
+    }
+  ],
+  "isolatedWithNegatives": [
+    {
+      "name": "argument ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "argument \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "return \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "assignment \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method ' closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method ' unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method \" closed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "method \" unclosed existing arrow",
+      "labels": [
+        "mode"
+      ],
+      "passed": true
+    },
+    {
+      "name": "unknown call",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "unknown nested call",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "unknown shape",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "mixed shape",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "comment",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "HTML",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "remaining syntax error",
+      "labels": [],
+      "passed": true
+    },
+    {
+      "name": "nonarray contract",
+      "labels": [],
+      "passed": true
+    }
+  ],
+  "semantic": {
+    "passed": 1075,
+    "files": 40,
+    "durationSeconds": 51.55,
+    "exitCode": 0
+  },
+  "stdio": {
+    "passed": 4,
+    "filteredSkipped": 427,
+    "total": 431,
+    "durationSeconds": 14.98,
+    "exitCode": 0
+  },
+  "hosts": {
+    "c2Initial": {
+      "exitCode": 1,
+      "cause": "HTML aggregate plain text items were compared with Core-only empty expectation"
+    },
+    "c2Final": {
+      "exitCode": 0,
+      "cases": 24,
+      "htmlPlainTextOrSnippetCount": 381,
+      "htmlSemanticItems": 0
+    },
+    "c1Php85": {
+      "exitCode": 0,
+      "samplesMs": [
+        117,
+        147,
+        122,
+        123,
+        115,
+        118,
+        127,
+        112,
+        116,
+        118,
+        123,
+        118,
+        122,
+        137,
+        122,
+        117
+      ],
+      "maxMs": 147
+    },
+    "c1Php72": {
+      "exitCode": 0,
+      "samplesMs": [
+        160,
+        118,
+        119,
+        136,
+        113,
+        116,
+        125,
+        117,
+        132,
+        141,
+        123,
+        114,
+        115,
+        122,
+        121,
+        147
+      ],
+      "maxMs": 160
+    }
+  },
+  "performance": [
+    {
+      "name": "argument ' unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 22.31618199999957,
+      "maxMs": 30.80148399999962,
+      "sourcePreserved": true
+    },
+    {
+      "name": "argument \" unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 23.036049000000276,
+      "maxMs": 69.4877889999998,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return ' unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.561807000000044,
+      "maxMs": 17.599973999999747,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return \" unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.582974999999351,
+      "maxMs": 12.035960999999588,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment ' unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 15.658575000001292,
+      "maxMs": 17.09606100000019,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment \" unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.879236000000674,
+      "maxMs": 14.096741999999722,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method ' unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 17.77430699999968,
+      "maxMs": 19.98193700000047,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method \" unclosed existing arrow",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 18.91859099999965,
+      "maxMs": 25.202423999999155,
+      "sourcePreserved": true
+    }
+  ],
+  "frozenInputCount": 45,
+  "packaged": false,
+  "profileUpdated": false,
+  "inputsFinalMatch": true
+}

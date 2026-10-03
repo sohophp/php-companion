@@ -1,6 +1,65 @@
 # @php-companion/language-spec
 
-`CONFIGURABLE_PHP_EXTENSIONS` 导出当前可独立选择的审计扩展组；`builtinPhpStub(version, { disabledExtensions })` 可移除 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 或 XMLWriter。`builtinPhpExtensionStub(version, extension)` 从同一生成器返回单个扩展组，供符号所有权、诊断和独立组件消费；省略选项保持完整默认规格，libxml 作为 XML 共享基础保留。
+固定上游覆盖复查使用 `scripts/audit-phpstorm-stubs.mjs --source PATH --php php85 --check MODULE...`；脚本拒绝不同上游修订，未归类名称或实际运行时函数缺席会返回失败。条件构建的待验证 API 单列，不豁免运行时覆盖检查。命令与范围见 [审计门禁记录](../../docs/php-language-toolchain/reports/phpstorm-stubs-audit-gate-2026-10-01.md)。
+
+`explode` 与 `str_split` 保留字符串列表的元素信息；PHP 7 输出 `list<string>|false`，PHP 8 输出 `list<string>`。负 limit 和 PHP 8.2 起空字符串拆分可能返回空列表，故不声明非空。
+
+`parse_url` 提供可选 URL 数组字段，并按省略／-1、PORT 及其它组件选择条件返回类型；未知组件保留联合类型。结构来源及版本记录见 `SOURCES.md`，弱标量转换由语义层保守处理。
+
+`CONFIGURABLE_PHP_EXTENSIONS` 导出当前可独立选择的审计扩展组；`builtinPhpStub(version, { disabledExtensions })` 可移除其中任一扩展。`builtinPhpExtensionStub(version, extension)` 从同一生成器返回单个扩展组，供符号所有权、诊断和独立组件消费；省略选项保持完整默认规格，libxml 作为 XML 共享基础保留。内置声明包含从固定版本 `phpstorm-stubs` 核对的名称，来源及许可见 `THIRD_PARTY_NOTICES.md`。
+
+Date 扩展覆盖固定上游的 48 个过程式函数和本机运行时的 17 个全局常量；PHP 7 与 PHP 8 的参数名、原生类型及 PHP 8.2 新增常量按版本区分，`strftime`、`gmstrftime`、`date_sunrise`、`date_sunset` 自 PHP 8.1 起标记弃用。
+
+标准数组函数新增 35 项排序、指针、递归数组工具与比较器函数，以及 22 个 `SORT_*`、`EXTR_*` 等选项常量。PHP 7/8 参数名和 PHP 8.2/8.5 排序返回值按版本区分；PHP 8 比较器函数的末尾回调仍显示为可变参数，数组指针函数的元素类型传播仍待语义层完善。
+
+标准库时间与等待函数另补 8 项，包括 `microtime`、`gettimeofday`、`uniqid`、`sleep` 与 PHP 7.3 起的 `hrtime`。参数名及原生返回类型按 PHP 7/8 区分。
+
+Stream Context 与过滤器补齐 13 个函数及三个 `STREAM_FILTER_*` 常量。`stream_context_set_options()` 从 PHP 8.3 起出现，Context 设置函数的 `true` 返回从 PHP 8.4 起提供；旧 `stream_context_set_option()` 两参数形式的弃用暂未单独标注到调用级诊断。
+
+流 I/O、缓冲和状态查询另补 16 个函数，包含 `stream_select`、`stream_get_contents`、`stream_copy_to_stream` 与 `stream_set_timeout`；PHP 7／8 参数名和原生返回类型按运行时区分。
+
+Stream Socket 再补 9 个函数及 13 个稳定标志常量，包含客户端／服务端连接、接收发送、加密、关闭与 socket pair。PHP 7／8 参数名和引用输出参数按运行时区分；仅适用于 PHP 8.6 的新增 context 参数不进入当前 8.5 规格。
+
+Stream Wrapper 与 Bucket 再补 8 个函数及 `STREAM_IS_URL`。`stream_bucket_new()` 在 PHP 8.4 前返回普通对象，从 8.4 起返回 `StreamBucket`；append／prepend 的 bucket 参数也按该边界切换。
+
+标准库工具函数另补 19 项：源码高亮、连接状态、浏览器和 meta 信息、图像类型／尺寸、IPTC、`mail`、二进制 `pack`／`unpack`，以及仅 PHP 7.x 可用的 `ezmlm_hash`。十个连接和图像常量按版本提供，`IMAGETYPE_AVIF` 从 PHP 8.1 起、`IMAGETYPE_HEIF` 从 PHP 8.5 起出现。`strptime`、`sys_getloadavg`、`ftok` 另按目标 PHP 运行时的实际导出过滤；`strptime` 从 PHP 8.1 起标记弃用。
+
+Fileinfo 覆盖 6 个过程式函数、`finfo` 类和版本化常量；PHP 8.1 起过程式句柄改为对象，PHP 8.2 起包含 `FILEINFO_APPLE`。`FILEINFO_EXTENSION` 采用五个本机运行时共同验证的值。
+
+Hash 覆盖固定上游的 20 个函数与 40 个常量名，包含增量哈希的 `HashContext`、HKDF/PBKDF2 和已弃用的 `mhash*` 兼容 API。`mhash*` 可按项目运行时导出函数过滤；PHP 7/8 的失败返回、PHP 8.1 新参数和算法常量、PHP 8.4 的 `hash_update(): true` 均按版本生成。
+
+Zlib 覆盖固定上游的 31 个函数名与 25 个固定常量；PHP 8 移除 `gzgetss` 并以 `InflateContext`/`DeflateContext` 对象表示增量上下文。`ZLIB_VERSION` 与 `ZLIB_VERNUM` 仅在探测项目运行时后加入内建文档。
+
+Sockets 覆盖固定上游的 40 个函数名和 271 个平台相关常量名，按 PHP 7 资源与 PHP 8 `Socket`/`AddressInfo` 对象区分类型。运行时可用时使用实际导出的函数及常量值；否则只显示当前版本的跨平台函数和少量通用常量。
+
+OpenSSL 覆盖固定上游的 64 个函数名和 70 个数字常量名，按 PHP 7 资源与 PHP 8 证书、CSR 和密钥对象区分类型。运行时可用时使用实际导出的函数和常量值；否则仅给版本范围内的函数及少量基本常量。
+
+MySQLi 覆盖固定上游的 117 个函数名、116 个常量名和 6 个类；实际生成 PHP 7.2–8.5 运行时可用的声明。项目运行时可过滤客户端相关函数、常量和方法，并校正 `mysqli_stmt::execute()` 的可选数组实参及 `MYSQLI_IS_MARIADB` 布尔值。无运行时事实时使用本机版本快照，省略随客户端变化的值。
+
+SQLite3 覆盖 4 个类、12 个全局常量和版本化的方法/类常量。PHP 8.3 起包含 `SQLite3Exception`，8.5 起包含本机确实导出的 `SQLite3Stmt::busy()`、`SQLite3Result::fetchAll()`；项目运行时未加载扩展时隐藏整组。
+
+Phar 覆盖 4 个类、127 个运行时自有方法和版本化的类常量，保留 SPL 继承与迭代/数组访问接口。PHP 8.1 起显示两个 OpenSSL 签名常量；项目运行时未加载扩展时隐藏整组。
+
+Sodium 覆盖本机 PHP 8.1–8.5 当前导出的 103/104 个函数、常量和 `SodiumException`；7.2–8.0 按上游可用性标注提供保守子集。排除已移除别名和 PHP 8.6 API；项目运行时事实过滤可用函数与常量，并提供实际 `SODIUM_LIBRARY_*` 值。未加载扩展时隐藏整组。
+
+Zip 覆盖 `ZipArchive` 当前 52 个方法、6 个属性、固定上游的常量目录和 10 个过程式函数。运行时反射事实可精确过滤 libzip 条件方法与常量，并提供实际 `LIBZIP_VERSION` 和 `ER_TRUNCATED_ZIP`；PHP 8.6 方法在当前支持版本中不生成。没有运行时事实时使用固定目录，可能含目标编译未提供的可选项。
+
+Intl 当前覆盖 `Locale` 与 `Normalizer` 两个类及其 24 对过程式函数/静态方法，包含版本化类常量。`Normalizer::NONE` 与 FORM 常量值按 PHP 7/8 分开，原始分解函数从 PHP 7.3、新增的三个 Locale 函数从 PHP 8.5 起生成。Intl 其余类和函数待逐组审计。
+另覆盖 13 个 grapheme/IDN 函数和 24/25 个版本化常量。`grapheme_str_split` 从 PHP 8.4、`grapheme_levenshtein` 从 PHP 8.5 起生成；`IDNA_DEFAULT` 使用经运行时验证的值 0。Intl 其余类和函数待逐组审计。
+`Collator` 覆盖 13 对过程式函数与类方法、24 个类常量；PHP 8.4 起 `setStrength` 的返回值为 `true`。方法返回使用 PHPDoc 表达运行时的暂定类型，过程式函数在 PHP 8 保留原生返回类型。
+`NumberFormatter` 覆盖 16 对过程式函数与类方法、73–83 个版本化类常量。解析输出参数保留引用，失败结果保留 `false`；PHP 8.4/8.5 新舍入与货币常量按版本生成。`CURRENCY_ACCOUNTING` 在 PHP 7.4 目标中保守隐藏，因为其可用性始于 PHP 7.4.1 且依赖 ICU 53。
+`IntlDateFormatter` 覆盖 20 对过程式函数与类方法、7–12 个版本化类常量；PHP 8.4 起包含 `parseToCalendar()`。保留解析偏移引用参数，并排除 PHP 7.0 已移除的 `datefmt_set_timezone_id`。
+Intl 全局错误 API 包含 `intl_error_name`、`intl_get_error_code`、`intl_get_error_message` 与 `intl_is_failure`。
+`ResourceBundle` 覆盖 6 对过程式函数与类方法，并按 PHP 7.4/8.0 切换集合接口、按 PHP 8.4 收窄 `get()` 签名。`getIterator()` 仅在 PHP 8.0 起生成。
+`Transliterator` 覆盖 7 对过程式函数与类方法、两个常量，以及版本化 `id` 属性。其静态工厂可返回 `null`；实例访问时的安全导航在补全和跳转用例中验证。
+`MessageFormatter` 覆盖 10 对过程式函数与类方法，保留工厂返回 `null`、格式化返回 `false`、解析返回 `false` 的分支，并按 PHP 7/8 生成参数名与原生返回类型。
+`IntlTimeZone` 覆盖 25 对过程式函数与类方法及 11 个常量；按版本处理 Windows ID 函数与 ICU 74 的 IANA ID 能力，并保留偏移输出引用参数。`IntlIterator`/`IntlException` 为时区枚举与 Intl 异常提供可导航的类型。
+`IntlCalendar`/`IntlGregorianCalendar` 覆盖 49 个实际过程式函数与 39 个常量名，签名由固定上游名称及五个本机 PHP 运行时反射核对；PHP 8.3 日期工厂和 PHP 8.4 常量类型按版本生成。`FIELD_FIELD_COUNT` 只在探测到实际 ICU 值后生成。
+`Spoofchecker` 覆盖 7 个类方法与最多 19 个常量，按 PHP 7.3/8.4 边界生成限制级别与允许字符设置。
+`IntlBreakIterator` 及规则、片段、代码点三个相关类覆盖 30 个自身方法与 22 个常量；PHP 7/8 的迭代接口、PHP 8 快照中的片段规则状态方法和 PHP 8.4 常量类型按版本生成。
+`UConverter` 覆盖 19 个方法与 41 个常量，保留回调错误输出引用、PHP 7 历史参数及 PHP 8.4 常量类型。
+`IntlChar` 覆盖 59 个静态方法与按 PHP 版本分段的 663/666 个常量名；其中 7 个 ICU 相关常量只在取得运行时值后生成，其余固定数值经过本机五个 PHP 运行时核对。
+`IntlDatePatternGenerator` 从 PHP 8.1 起生成；`IntlListFormatter` 从 PHP 8.5 起生成四个方法及六个常量，并注明构造可能因 ICU/locale 抛异常。
 
 PHP 8.3 动态类常量访问具有独立的语法可用性规则；低于 8.3 的目标版本会在动态名称范围报告版本边界。
 
@@ -56,11 +115,13 @@ Filter 目录覆盖单值/输入/数组过滤、过滤器枚举和 PHP 7.2–8.5
 
 安全函数目录覆盖 Password Hashing、Hash/HMAC 与密码学安全随机数。PHP 7 的 `password_hash`、`hash` 和 `hash_hmac` 失败返回不会被抹除；`password_algos` 从 PHP 7.4 起生成，Hash options 从 PHP 8.1 起生成，bcrypt 默认成本在 PHP 8.4 从 10 切换为 12。依赖编译能力的 Argon 常量不进入仅按版本选择的基础目录。
 
-PDO 目录覆盖 `PDO`、`PDOStatement`、`PDOException`、高频连接/事务/预处理/抓取方法与跨驱动稳定常量。失败返回保持 `false`，PDOStatement 的绑定参数保留引用语义和 PHP 8 `string|int` 参数身份；`PDO::connect(): static` 仅在 PHP 8.4+ 生成，`setFetchMode()` 的 PHP 8.4 `true` 契约同样按版本切换。
+PDO 目录覆盖 `PDO`、`PDOStatement`、`PDOException`、`PDORow`、连接/事务/预处理/抓取方法和按 PHP 版本校准的核心常量。失败返回保持 `false`，PDOStatement 的绑定参数保留引用语义和 PHP 8 `string|int` 参数身份；`PDO::connect(): static` 仅在 PHP 8.4+ 生成。项目 PHP 运行时探测提供驱动专有常量，并为 PHP 8.4+ 的 `Pdo\Mysql`、`Pdo\Pgsql`、`Pdo\Sqlite` 建立独立命名空间声明；没有驱动运行时证据时不生成这些候选。
+
+Random 目录补齐 `rand`、`mt_rand`、`srand`、`mt_srand`、`getrandmax`、`mt_getrandmax`、`lcg_value` 与 Mersenne Twister 常量；`Random\Randomizer`、引擎、接口及异常使用独立命名空间声明。浮点随机方法与 `IntervalBoundary` 仅在 PHP 8.3+ 提供。
 
 Reflection 核心目录覆盖类、函数、方法、属性、参数、类型、Attribute、类常量与 Enum 反射。`ReflectionClass<T>` 的三个实例工厂保留已证明的具体类，参数/方法/属性/Attribute/Enum case 集合保留元素类型；PHP 7.4 属性类型检查、PHP 8.0 export 移除与 Attribute/Union、PHP 8.1 tentative returns/Intersection/Enum、PHP 8.2 readonly/prototype、PHP 8.4 lazy object/property hook/typed constants 及 PHP 8.5 mangled name 按目标版本生成。
 
-mbstring 覆盖 PHP 7.2–8.5 完整可调用目录。PHP 7 保留历史参数名与 14 个无下划线 mbregex 别名，PHP 8 使用原生联合类型；编码列表、字符分割、正则位置 pair 与匹配集合保留结构化返回。`MB_CASE_*`、`MB_OVERLOAD_*` 和 `MB_ONIGURUMA_VERSION` 按版本生成，并覆盖 7.4、8.0、8.2、8.3、8.4 的新增、移除和返回边界。
+mbstring 覆盖 PHP 7.2–8.5 完整可调用目录。PHP 7 保留历史参数名与 14 个无下划线 mbregex 别名，PHP 8 使用原生联合类型；编码列表、字符分割、正则位置 pair 与匹配集合保留结构化返回。`MB_CASE_*`、`MB_OVERLOAD_*` 按版本生成；`MB_ONIGURUMA_VERSION` 从 PHP 7.4 起仅使用项目 PHP 运行时的实际值。覆盖 7.4、8.0、8.2、8.3、8.4 的新增、移除和返回边界。
 
 编码目录覆盖 serialize/unserialize、Base64、十六进制、URL 编解码、URL 分解、查询字符串和响应头签名。`parse_url` 区分省略 component 的 `array|false` 与指定 component 的完整多形返回，`base64_decode` 保留失败 false；`get_headers` 按 PHP 8.0 切换第二参数的 int/bool 类型与 format/associative 名称。
 

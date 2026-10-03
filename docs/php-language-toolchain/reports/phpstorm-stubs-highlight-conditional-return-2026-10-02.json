@@ -1,0 +1,514 @@
+{
+  "status": "conditional_returns_and_targeted_host_passed",
+  "inputs": {
+    "packages/language-spec/src/standard-utilities.ts": "137c223a459f984a0101dc5a05228528adcddfd0355a47f604acd2395348595b",
+    "packages/language-spec/test/highlight-contract.test.ts": "b77f98aa0f5d54c8ed5a3c390eaf91b60ff5278befb599c5fa1d65a143e5adef",
+    "packages/semantic/test/highlight-contract.test.ts": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+    "scripts/check-highlight-runtime.mjs": "90e7389a43e0f7ba2f5fc31bc12b901ac8cdfd038104403f1b7cf3c254b19006",
+    "test/extension/suite/highlightReturn.ts": "415bf4ac5d91abc4a0fd7ea8415a159ac2e3bd2e5c8253eca57e217514cecb42",
+    "dist/language-server.js": "aa17c83809abc169b76a2ba6c5d1ea66e48d19919bd00a203c1e22c6601c655d",
+    "dist/extension.js": "5cc7b0ee3b9b5eb31eb70e7bf58530f1754b484922073233f6689e6c6debb800"
+  },
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "7.4.33",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "8.1.34",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "8.2.32",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 222
+          },
+          "true": {
+            "type": "string",
+            "value": 222,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "8.4.23",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "8.5.9",
+      "os": "Linux",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    },
+    {
+      "version": "8.5.11",
+      "os": "WINNT",
+      "results": {
+        "highlight_string": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          }
+        },
+        "highlight_file": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        },
+        "show_source": {
+          "omitted": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "false": {
+            "type": "boolean",
+            "value": true,
+            "outputLength": 207
+          },
+          "true": {
+            "type": "string",
+            "value": 207,
+            "outputLength": 0
+          },
+          "missing": false
+        }
+      }
+    }
+  ],
+  "host": {
+    "platform": "linux",
+    "results": [
+      {
+        "name": "highlight_string",
+        "suffix": ", true",
+        "expected": "string",
+        "matched": true
+      },
+      {
+        "name": "highlight_string",
+        "suffix": ", false",
+        "expected": "true",
+        "matched": true
+      },
+      {
+        "name": "highlight_string",
+        "suffix": ", $capture",
+        "expected": "true|string",
+        "matched": true
+      },
+      {
+        "name": "highlight_string",
+        "suffix": ", true",
+        "expected": "string",
+        "matched": true
+      },
+      {
+        "name": "highlight_file",
+        "suffix": ", true",
+        "expected": "false|string",
+        "matched": true
+      },
+      {
+        "name": "highlight_file",
+        "suffix": ", false",
+        "expected": "bool",
+        "matched": true
+      },
+      {
+        "name": "highlight_file",
+        "suffix": ", $capture",
+        "expected": "bool|false|string",
+        "matched": true
+      },
+      {
+        "name": "highlight_file",
+        "suffix": ", true",
+        "expected": "false|string",
+        "matched": true
+      },
+      {
+        "name": "show_source",
+        "suffix": ", true",
+        "expected": "false|string",
+        "matched": true
+      },
+      {
+        "name": "show_source",
+        "suffix": ", false",
+        "expected": "bool",
+        "matched": true
+      },
+      {
+        "name": "show_source",
+        "suffix": ", $capture",
+        "expected": "bool|false|string",
+        "matched": true
+      },
+      {
+        "name": "show_source",
+        "suffix": ", true",
+        "expected": "false|string",
+        "matched": true
+      }
+    ],
+    "diskUnchanged": true
+  },
+  "languageSpec": {
+    "passed": 153,
+    "skipped": 0
+  },
+  "relatedSemantic": {
+    "passed": 6,
+    "skipped": 0
+  },
+  "fullStdioRun": false
+}

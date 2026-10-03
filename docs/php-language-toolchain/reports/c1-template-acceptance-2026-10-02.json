@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "template": "if",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "if",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        }
+      ]
+    },
+    {
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "template": "if",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "if",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        }
+      ]
+    }
+  ]
+}

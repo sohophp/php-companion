@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-02",
+  "status": "targeted_p95_budget_passed",
+  "scope": "nonempty local expression range queries",
+  "baseline": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 156.45,
+    "all": {
+      "p50Ms": 153.47,
+      "p95Ms": 197.12,
+      "maxMs": 212.47
+    },
+    "a": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentItem()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberItem",
+      "p50Ms": 155.49,
+      "p95Ms": 196.09,
+      "maxMs": 207.93,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentOther()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberOther",
+      "p50Ms": 151.42,
+      "p95Ms": 197.12,
+      "maxMs": 212.47,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "latency": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 110.32,
+    "all": {
+      "p50Ms": 46.41,
+      "p95Ms": 81.17,
+      "maxMs": 200.99
+    },
+    "a": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentItem()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberItem",
+      "p50Ms": 46.64,
+      "p95Ms": 71.59,
+      "maxMs": 183.15,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class CurrentItem { public function memberItem(): void {} } class CurrentOther { public function memberOther(): void {} } $items = array_fill_keys([\"source\" => \"label\"], new CurrentOther()); foreach ($items as $item) { $item->member{{cursor}}; }",
+      "expected": "memberOther",
+      "p50Ms": 46.3,
+      "p95Ms": 81.17,
+      "maxMs": 200.99,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "budget": {
+    "p95_ms": 150,
+    "passed": true
+  },
+  "profile": {
+    "path": "/tmp/sophp-array-fill-keys-cpu-p_rbrpq3/CPU.20261002.231521.1854406.0.001.cpuprofile",
+    "sha256": "288987f2147f23eb25e9b46bc2e6f0933e02acad0a885ec3e5310ea38738ccca",
+    "samples": 16830,
+    "rounds": 100,
+    "timing_used_for_budget": false
+  },
+  "verification": {
+    "semantic_full": {
+      "passed": 1213,
+      "files": 59,
+      "duration_seconds": 48.18,
+      "exit_code": 0
+    },
+    "stdio": {
+      "passed": 6,
+      "files": 3,
+      "duration_seconds": 5.53
+    },
+    "extension_host": {
+      "os": "linux",
+      "vscode": "1.140.0",
+      "unsaved_updates": 8,
+      "disk_unchanged": true,
+      "exit_code": 0
+    },
+    "semantic_build": true,
+    "root_build": true,
+    "lint": true
+  },
+  "not_verified": [
+    "visible_popup",
+    "multi_file_vendor_performance",
+    "windows_host",
+    "real_wsl_ui",
+    "full_stdio_current_build"
+  ],
+  "packaged": false,
+  "profile_updated": false
+}

@@ -13,3 +13,5 @@ if (result.ok) semanticWorkspace.replaceExternalFacts(result.contribution);
 ```
 
 宿主使用 `spawn` 且关闭 shell，每次请求后进程退出。默认超时 5 秒、stdout 上限 4 MiB、stderr 诊断最多保留 8 KiB。调用方只应在 `ok: true` 时提交；失败时保留旧快照。成功的空完整快照会清空该 Provider 的旧事实。
+
+对于 schema、请求 ID、Provider 身份和 generation 均匹配、但 `complete: false` 的容器响应，失败结果可携带 `containerInputEvidence`（读取 URI、配置 URI、输入证据完整性）。它只供缓存输入校验使用，不包含可提交的语义贡献。`complete` 在此描述输入证据，不代表服务事实完整；身份不匹配、无效协议、超时或崩溃均不提供该证据。调用方还须检查请求是否仍为当前请求，并保留证据中的缺失文件路径。

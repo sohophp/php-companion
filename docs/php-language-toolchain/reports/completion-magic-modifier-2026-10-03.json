@@ -1,0 +1,181 @@
+{
+  "status": "source_semantic_targeted_protocol_visible_host_passed",
+  "scope": [
+    "static and visibility aware magic declarations",
+    "required static modifier as standard additionalTextEdits",
+    "comment and newline declaration boundaries",
+    "linear comment masking"
+  ],
+  "semantic": {
+    "files": 69,
+    "passed": 1299,
+    "exit_code": 0,
+    "duration_seconds": 47.31,
+    "maxWorkers": 4
+  },
+  "stdio": {
+    "files": 4,
+    "passed": 10,
+    "exit_code": 0,
+    "duration_seconds": 10.59,
+    "new_modifier_cases_per_php_version": 9,
+    "php_versions": [
+      "7.2",
+      "8.5"
+    ],
+    "dense_document_queries_per_php_version": 25
+  },
+  "visible_host": {
+    "platform": "linux",
+    "results": [
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 217.5140710000005,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 195.44386699999995,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": false,
+        "popupMs": 163.77478799999972,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": false,
+        "popupMs": 151.79702200000065,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 179.25045599999976,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 176.2221300000001,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__set_state",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 181.97616300000118,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__set_state",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "popupMs": 144.94303200000104,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "visible_wait": {
+    "samples": 8,
+    "min_ms": 144.94303200000104,
+    "max_ms": 217.5140710000005,
+    "scope": "explicit trigger to first observed visible list; prequeried provider, CDP polling; not keystroke-to-popup measurement"
+  },
+  "dense_document_protocol_timings": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 108.27716999999984,
+      "p95Ms": 106.14688999999998,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 102.63829400000031,
+      "p95Ms": 101.42725400000018,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  ],
+  "dense_document_semantic_timing": {
+    "sourceBytes": 242721,
+    "commentCount": 1500,
+    "warmSamples": 20,
+    "p95Ms": 50.60901599999988,
+    "maxMs": 54.00113599999986,
+    "scope": "current semantic build; declaration context only"
+  },
+  "prototype_before_linear_mask": {
+    "sourceBytes": 242721,
+    "commentCount": 1500,
+    "warmSamples": 20,
+    "p95Ms": 379.293407000001,
+    "maxMs": 383.45791199999985,
+    "scope": "isolated semantic prototype; declaration context only"
+  },
+  "build_typecheck_lint": {
+    "exit_code": 0,
+    "extension_test_typecheck_noEmit": true
+  },
+  "prior_complete_integration": {
+    "report": "completion-declaration-integration-2026-10-03.json",
+    "stdio_passed": 494,
+    "c2_proofs": 65,
+    "applies_to_current_modifier_source": false
+  },
+  "limits": [
+    "current complete stdio and C2 not rerun for this modifier increment",
+    "Windows and real WSL user acceptance not run",
+    "isolated document timings are not large Composer project performance"
+  ],
+  "profile_updated": false,
+  "packaged": false,
+  "committed": false
+}

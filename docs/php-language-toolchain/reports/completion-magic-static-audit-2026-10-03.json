@@ -1,0 +1,1131 @@
+{
+  "status": "historical_audit_with_completed_source_followup",
+  "checks": [
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__construct",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__destruct",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__call",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__callStatic",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __callStatic() must have public visibility and be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__get",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__set",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__isset",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__unset",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__sleep",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__wakeup",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__serialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__unserialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__toString",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__invoke",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__set_state",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__clone",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": false,
+      "method": "__debugInfo",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__construct",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Constructor Current::__construct() cannot be static in Command line code on line 1\n"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__destruct",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Destructor Current::__destruct() cannot be static in Command line code on line 1\n"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__call",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __call() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__callStatic",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__get",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __get() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__set",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __set() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__isset",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __isset() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__unset",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __unset() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__sleep",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__wakeup",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__serialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__unserialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__toString",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __toString() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__invoke",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __invoke() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__set_state",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__clone",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Clone method Current::__clone() cannot be static in Command line code on line 1\n"
+    },
+    {
+      "php": "php72",
+      "static": true,
+      "method": "__debugInfo",
+      "exit_code": 0,
+      "warnings": true,
+      "stderr": "",
+      "stdout": "\nWarning: The magic method __debugInfo() must have public visibility and cannot be static in Command line code on line 1\nOK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__construct",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__destruct",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__call",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__callStatic",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__callStatic() must be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__get",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__set",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__isset",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__unset",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__sleep",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__wakeup",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__serialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__unserialize",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__toString",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__invoke",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__set_state",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__set_state() must be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__clone",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": false,
+      "method": "__debugInfo",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__construct",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__construct() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__destruct",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__destruct() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__call",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__call() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__callStatic",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__get",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__get() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__set",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__set() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__isset",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__isset() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__unset",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__unset() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__sleep",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__sleep() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__wakeup",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__wakeup() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__serialize",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__serialize() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__unserialize",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__unserialize() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__toString",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__toString() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__invoke",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__invoke() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__set_state",
+      "exit_code": 0,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "OK"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__clone",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__clone() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    },
+    {
+      "php": "php85",
+      "static": true,
+      "method": "__debugInfo",
+      "exit_code": 255,
+      "warnings": false,
+      "stderr": "",
+      "stdout": "\nFatal error: Method Current::__debugInfo() cannot be static in Command line code on line 1\nStack trace:\n#0 {main}\n"
+    }
+  ],
+  "source_gap": "magic declaration suggestions currently ignore an explicit static modifier",
+  "pending": [
+    "formal semantic/server source integration",
+    "candidate policy and PHP-version behavior",
+    "real LSP and visible Enter/Tab Undo/Redo proof"
+  ],
+  "frozen_current_stdio_session": 50605,
+  "isolated_context_prototype": [
+    {
+      "label": "explicit-static",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 39,
+        "end": 41,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 30
+        }
+      }
+    },
+    {
+      "label": "unfinished",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 39,
+        "end": 41,
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 30
+        }
+      }
+    },
+    {
+      "label": "reordered",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 39,
+        "end": 41,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 30
+        }
+      }
+    },
+    {
+      "label": "block-comment",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 45,
+        "end": 47,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": false,
+          "visibility": "public",
+          "functionStart": 36
+        }
+      }
+    },
+    {
+      "label": "keyword-comment",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 49,
+        "end": 51,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 30
+        }
+      }
+    },
+    {
+      "label": "between-modifiers",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 58,
+        "end": 60,
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 49
+        }
+      }
+    },
+    {
+      "label": "private",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 33,
+        "end": 35,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": false,
+          "visibility": "private",
+          "functionStart": 24
+        }
+      }
+    },
+    {
+      "label": "protected",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 42,
+        "end": 44,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "protected",
+          "functionStart": 33
+        }
+      }
+    },
+    {
+      "label": "attribute",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 49,
+        "end": 51,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": false,
+          "visibility": "public",
+          "functionStart": 40
+        }
+      }
+    },
+    {
+      "label": "reference",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 40,
+        "end": 42,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 30
+        }
+      }
+    },
+    {
+      "label": "trait",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 25,
+        "end": 27,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": false,
+          "visibility": "public",
+          "functionStart": 16
+        }
+      }
+    },
+    {
+      "label": "interface",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 43,
+        "end": 45,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 34
+        }
+      }
+    },
+    {
+      "label": "enum",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 38,
+        "end": 40,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 29
+        }
+      }
+    },
+    {
+      "label": "anonymous",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 44,
+        "end": 46,
+        "ownerFqcn": "@anonymous:file%3A%2F%2F%2Fx.php:13",
+        "methodModifiers": {
+          "static": true,
+          "visibility": "public",
+          "functionStart": 35
+        }
+      }
+    },
+    {
+      "label": "global",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 15,
+        "end": 17,
+        "methodModifiers": {
+          "static": false,
+          "visibility": "public",
+          "functionStart": 6
+        }
+      }
+    },
+    {
+      "label": "comment-before-function",
+      "context": {
+        "kind": "function",
+        "declaration": "function",
+        "prefix": "__",
+        "start": 46,
+        "end": 48,
+        "ownerFqcn": "C",
+        "methodModifiers": {
+          "static": false,
+          "visibility": "public",
+          "functionStart": 37
+        }
+      }
+    }
+  ],
+  "isolated_text_edit_prototype": [
+    {
+      "label": "plain-class",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 32,
+          "end": 34,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 23,
+          "end": 23,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php class C { public static function __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "plain-set-state",
+      "name": "__set_state",
+      "edits": [
+        {
+          "start": 32,
+          "end": 34,
+          "newText": "__set_state"
+        },
+        {
+          "start": 23,
+          "end": 23,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php class C { public static function __set_state($properties){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "already-static",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 39,
+          "end": 41,
+          "newText": "__callStatic"
+        }
+      ],
+      "accepted": "<?php class C { public static function __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "comments",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 56,
+          "end": 58,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 36,
+          "end": 36,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php class C { public /* static */ static function /* name */ __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "attribute",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 49,
+          "end": 51,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 40,
+          "end": 40,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php class C { #[Tag(\"static\")] public static function __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "trait",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 32,
+          "end": 34,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 23,
+          "end": 23,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php trait C { public static function __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "interface",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 36,
+          "end": 38,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 27,
+          "end": 27,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php interface C { public static function __callStatic($name,$args); }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "enum",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 41,
+          "end": 43,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 32,
+          "end": 32,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php enum C { case One; public static function __callStatic($name,$args){} }",
+      "runtimeExitCode": 0
+    },
+    {
+      "label": "anonymous",
+      "name": "__callStatic",
+      "edits": [
+        {
+          "start": 37,
+          "end": 39,
+          "newText": "__callStatic"
+        },
+        {
+          "start": 28,
+          "end": 28,
+          "newText": "static "
+        }
+      ],
+      "accepted": "<?php $c=new class { public static function __callStatic($name,$args){} };",
+      "runtimeExitCode": 0
+    }
+  ],
+  "followup": "completion-magic-modifier-2026-10-03.json",
+  "prototype_context_count": 19,
+  "prototype_protocol": {
+    "files": 1,
+    "passed": 2,
+    "queries": 18,
+    "exit_code": 0
+  },
+  "prototype_visible_host": {
+    "platform": "linux",
+    "results": [
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__callStatic",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__set_state",
+        "key": "Enter",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "__set_state",
+        "key": "Tab",
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "addStatic": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  }
+}

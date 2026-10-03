@@ -2,7 +2,7 @@ export interface SourceRange { start: number; end: number; }
 
 export type PhpDocType =
   | ({ kind: 'name'; name: string } & SourceRange)
-  | ({ kind: 'literal'; value: number; raw: string } & SourceRange)
+  | ({ kind: 'literal'; value: number | string; raw: string } & SourceRange)
   | ({ kind: 'negated'; type: PhpDocType } & SourceRange)
   | ({ kind: 'nullable'; type: PhpDocType } & SourceRange)
   | ({ kind: 'conditional'; subject: PhpDocType; target: PhpDocType; negated: boolean; ifTrue: PhpDocType; ifFalse: PhpDocType } & SourceRange)
@@ -75,6 +75,23 @@ class TypeParser {
     }
     if (this.text[this.position] === '?') { this.position += 1; const type = this.primary(); if (!type) { this.error('Expected a type after ?.'); return undefined; } return { kind: 'nullable', type, start: this.base + start, end: type.end }; }
     if (this.text[this.position] === '(') { this.position += 1; const type = this.conditional(); this.skip(); if (this.text[this.position] !== ')') this.error('Expected ).'); else this.position += 1; return type && { ...type, start: this.base + start, end: this.base + this.position }; }
+    const quote = this.text[this.position];
+    if (quote === "'" || quote === '"') {
+      this.position += 1;
+      let value = '';
+      while (this.position < this.text.length) {
+        const character = this.text[this.position++]!;
+        if (character === quote) return { kind: 'literal', value, raw: this.text.slice(start, this.position),
+          start: this.base + start, end: this.base + this.position };
+        if (character === '\\') {
+          const escaped = this.text[this.position];
+          if (escaped === quote || escaped === '\\') { value += escaped; this.position += 1; continue; }
+        }
+        value += character;
+      }
+      this.error('Expected a closing quote in a string literal type.');
+      return undefined;
+    }
     const integerMatch = /^-?(?:0|[1-9](?:_?[0-9])*)(?![A-Za-z0-9_\x80-\xff])/.exec(this.text.slice(this.position));
     if (integerMatch) {
       this.position += integerMatch[0].length;
@@ -129,7 +146,7 @@ class TypeParser {
     this.position += 1; const fields: PhpDocShapeField[] = []; this.skip();
     while (this.position < this.text.length && this.text[this.position] !== '}') {
       const fieldStart = this.position;
-      const keyMatch = /^(?:[A-Za-z_][A-Za-z0-9_-]*|-?\d+|'[^']*'|"[^"]*")/.exec(this.text.slice(this.position));
+      const keyMatch = /^(?:[A-Za-z_][A-Za-z0-9_-]*|-?\d+|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/.exec(this.text.slice(this.position));
       let key: string | undefined; let optional = false;
       if (keyMatch) { const afterKey = this.position + keyMatch[0].length; let probe = afterKey; while (/\s/.test(this.text[probe] ?? '')) probe += 1; if (this.text[probe] === '?') { optional = true; probe += 1; } if (this.text[probe] === ':') { key = keyMatch[0]; this.position = probe + 1; } }
       const type = this.union();

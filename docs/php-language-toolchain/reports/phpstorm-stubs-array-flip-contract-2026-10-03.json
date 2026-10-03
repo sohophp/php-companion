@@ -1,0 +1,233 @@
+{
+  "status": "source_fix_and_targeted_integration_passed",
+  "date": "2026-10-03",
+  "scope": "array_flip return keys and original input key value types",
+  "upstream_revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "spec": {
+    "passed": 240,
+    "files": 14,
+    "duration_seconds": 24.72,
+    "log": "/tmp/sophp-array-flip-spec-full.log"
+  },
+  "semantic": {
+    "passed": 1237,
+    "files": 65,
+    "duration_seconds": 59.76,
+    "log": "/tmp/sophp-array-flip-semantic-full.log"
+  },
+  "targeted_stdio": {
+    "passed": 4,
+    "files": 2,
+    "duration_seconds": 5.44,
+    "own_unsaved_queries": 16,
+    "log": "/tmp/sophp-array-flip-stdio.log"
+  },
+  "linux_host": {
+    "exit_code": 0,
+    "unsaved_hovers": 8,
+    "disk_unchanged": true,
+    "log": "/tmp/sophp-array-flip-host.log"
+  },
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    },
+    {
+      "version": "7.4.33",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    },
+    {
+      "version": "8.1.34",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    },
+    {
+      "version": "8.2.32",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    },
+    {
+      "version": "8.4.23",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    },
+    {
+      "version": "8.5.9",
+      "keys": [
+        12,
+        "name",
+        8
+      ],
+      "values": [
+        "numeric",
+        "normal",
+        "integer"
+      ],
+      "warnings": 5,
+      "collisionKeys": [
+        12
+      ],
+      "collisionValues": [
+        "second"
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ]
+    }
+  ],
+  "build_exit_code": 0,
+  "extension_test_build_exit_code": 0,
+  "lint_exit_code": 0,
+  "full_stdio_for_this_source": "not_run",
+  "full_core_c2_for_this_source": "not_run",
+  "real_wsl_ui": "not_run",
+  "profile_updated": false,
+  "packaged": false
+}

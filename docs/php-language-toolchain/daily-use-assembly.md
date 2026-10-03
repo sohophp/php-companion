@@ -60,6 +60,8 @@
 
 SoPHP Core 与 Open Source Pack 现在都把 VS Code 内建 `php.suggest.basic` 默认设为 `false`。VS Code 内建 PHP Language Features 原本也提供 Completion、Hover 和参数提示；关闭基础提示后，这三项默认由 SoPHP 负责，隔离 Core 宿主中的 `abs` 函数补全只出现一次。PHP 的 `editor.wordBasedSuggestions` 默认设为 `off`，由 SoPHP 按当前作用域补全参数、已赋值和解构绑定的局部变量、函数内 `global` / `static` 名字、`foreach` 键和值、闭包显式捕获和箭头函数自动捕获的变量、可用的 `$this` 以及常见超全局变量；这样同一文件其它函数里的局部变量不会作为普通单词混入建议。[变量作用域记录](reports/c1-scoped-variable-completion-2026-09-26.md)、[闭包和循环补充范围](reports/c1-scoped-foreach-and-this-completion-2026-09-26.md)、[解构补充范围](reports/c1-destructured-variable-completion-2026-09-26.md)及[声明补充范围](reports/c1-global-static-local-completion-2026-09-26.md)包含复现与源码宿主结果。若明确关闭 SoPHP 语言服务器、又希望改用 VS Code 内建 PHP 提示，可在用户或工作区设置显式指定 `"php.suggest.basic": true` 及适合自己的 PHP 单词建议范围。这些默认设置可被用户配置覆盖；同版本完整 Pack 的实际安装仍须在候选门禁复核。
 
+SoPHP Core 与 Pack 还默认把 PHP 加入 `emmet.excludeLanguages`，避免在 PHP 语句中混入 `nav`、`noframes` 等 HTML 缩写；SoPHP 按顶层、类成员、语句、表达式和目标 PHP 版本提供匹配的关键字补全，覆盖真实输入中的 `n → new`、`func → function`、`retu → return`。代价是 `.php` 文件内的 HTML 区域也不再自动提供 Emmet 建议；需要此功能时可在个人设置中显式恢复 `"emmet.excludeLanguages": ["markdown"]`。独立 HTML/Twig 文件不在该排除范围。[真实输入复现与宿主验证](reports/c1-new-keyword-php-emmet-2026-09-28.md)、[上下文关键字补全范围](reports/c1-contextual-keyword-completion-2026-09-28.md)。
+
 ## 可选增强：先隔离验证，再决定是否纳入 Pack
 
 | 候选 | 可提供的增益 | 准入检查 |

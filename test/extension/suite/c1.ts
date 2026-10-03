@@ -1,7 +1,12 @@
+import { arrayAccessCases } from './arrayAccessFixture.js';
+import { quotedPrefixCases } from './quotedPrefixFixture.js';
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
+import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } from './unfinishedShapeFixture.js';
+import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
+import { wordMiddleShapeCases } from './wordMiddleShapeFixture.js';
 import { measureRapidReceiverSuggestion, measureRealVendorSuggestion, measureUnsavedReceiverSuggestion, measureVisibleInstalledPsr0Type, measureVisibleSuggestion,
-  measureVisibleTypeSuggestion, visibleCompletionLabels } from './c1Ui.js';
+  measureVisibleTypeSuggestion, pressWorkbenchEnter, pressWorkbenchTab, typeWorkbenchText, visibleCompletionLabels } from './c1Ui.js';
 
 async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, message: string): Promise<T> {
   const deadline = Date.now() + 30_000;
@@ -18,6 +23,278 @@ async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) =>
   assert.fail(`${message} Last result: ${JSON.stringify(lastResult)}; last error: ${String(lastError)}`);
 }
 
+async function verifyVisibleArrayAccessKeys(folder: vscode.Uri, port: number): Promise<void> {
+  const uri = vscode.Uri.joinPath(folder, 'C1VisibleArrayAccessKeys.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const samples: number[] = [];
+  for (const item of arrayAccessCases.filter(item => item.labels.length > 0)) {
+    const offset = item.marked.indexOf('§'), source = item.marked.replace('§', '');
+    await vscode.commands.executeCommand('hideSuggestWidget');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    const position = document.positionAt(offset);
+    await waitForResult(() => boundedCompletion(uri, position), result => result?.items[0]?.label === item.labels[0]!, `Array access key provider omitted ${item.name}.`);
+    editor.selection = new vscode.Selection(position, position);
+    const started = performance.now();
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const labels = await waitForResult(() => visibleCompletionLabels(port), labels => labels[0]?.startsWith(item.labels[0]!) === true, `Visible array access key omitted ${item.name}.`);
+    samples.push(Math.round(performance.now() - started));
+    assert.strictEqual(labels.length, item.labels.length, `Array access key mixed unrelated suggestions: ${JSON.stringify(labels)}`);
+    const accepted = source.slice(0, item.start) + item.insertion + source.slice(item.end);
+    await pressWorkbenchTab(port);
+    await waitForResult(async () => document.getText(), text => text === accepted, `Array access key ${item.name} Tab inserted incorrect escaping, suffix or delimiters.`);
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(async () => document.getText(), text => text === source, `Array access key ${item.name} Undo did not restore source.`);
+    await vscode.commands.executeCommand('redo');
+    await waitForResult(async () => document.getText(), text => text === accepted, `Array access key ${item.name} Redo did not restore accepted text.`);
+  }
+  console.log(`C1 array access key visible list, exact Tab text and Undo/Redo passed: ${JSON.stringify({samplesMs: samples, maxMs: Math.max(...samples)})}`);
+}
+
+async function verifyVisibleQuotedPrefixes(folder: vscode.Uri, port: number): Promise<void> {
+  const uri = vscode.Uri.joinPath(folder, 'C1VisibleQuotedPrefixes.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php'));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const samples: number[] = [];
+  for (const item of quotedPrefixCases) {
+    const offset = item.marked.indexOf('§'), source = item.marked.replace('§', '');
+    await vscode.commands.executeCommand('hideSuggestWidget');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    const position = document.positionAt(offset);
+    await waitForResult(() => boundedCompletion(uri, position), result => result?.items[0]?.label === item.label, `Quoted prefix provider omitted ${item.name}.`);
+    editor.selection = new vscode.Selection(position, position);
+    const started = performance.now();
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const labels = await waitForResult(() => visibleCompletionLabels(port), labels => labels[0]?.startsWith(item.label) === true, `Visible quoted prefix omitted ${item.name}.`);
+    samples.push(Math.round(performance.now() - started));
+    assert.strictEqual(labels.length, 1, `Quoted prefix mixed unrelated suggestions: ${JSON.stringify(labels)}`);
+    const accepted = source.slice(0, item.start) + item.insertion + source.slice(item.end);
+    await pressWorkbenchTab(port);
+    await waitForResult(async () => document.getText(), text => text === accepted, `Quoted prefix ${item.name} Tab inserted incorrect escaping, suffix or delimiters.`);
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(async () => document.getText(), text => text === source, `Quoted prefix ${item.name} Undo did not restore source.`);
+    await vscode.commands.executeCommand('redo');
+    await waitForResult(async () => document.getText(), text => text === accepted, `Quoted prefix ${item.name} Redo did not restore accepted text.`);
+  }
+  console.log(`C1 quoted prefix visible list, exact Tab text and Undo/Redo passed: ${JSON.stringify({samplesMs: samples, maxMs: Math.max(...samples)})}`);
+}
+
+async function verifyVisibleUnfinishedShapes(folder: vscode.Uri, port: number): Promise<void> {
+  const uri = vscode.Uri.joinPath(folder, 'C1VisibleUnfinishedShapes.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(unfinishedShapeSource('c1Unfinished', 'mode', 'create', 'argument', 'key')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const samples: number[] = [];
+  for (const context of unfinishedShapeContexts) for (const part of ['key', 'value'] as const) for (const middle of [false, true]) {
+    const sourceFor = (key: string, value: string): string => unfinishedShapeSource('c1Unfinished', key, value, context, part)
+      + (middle ? unfinishedShapeTail(context) : '');
+    const replace = async (key: string, value: string): Promise<void> => {
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor(key, value))));
+    };
+    const verify = async (key: string, value: string): Promise<void> => {
+      const expected = part === 'key' ? key : `'${value}'`;
+      const position = document.positionAt(unfinishedShapeSource('c1Unfinished', key, value, context, part).length);
+      await waitForResult(() => boundedCompletion(uri, position), result => result?.items[0]?.label === expected, `Unfinished ${context}/${part} provider omitted ${expected}.`);
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      editor.selection = new vscode.Selection(position, position);
+      const started = performance.now();
+      await vscode.commands.executeCommand('editor.action.triggerSuggest');
+      const labels = await waitForResult(() => visibleCompletionLabels(port), labels => labels[0]?.startsWith(expected) === true, `Visible unfinished ${context}/${part} omitted ${expected}.`);
+      samples.push(Math.round(performance.now() - started));
+      assert.strictEqual(labels.length, 1, `Unfinished string mixed unrelated candidates: ${JSON.stringify(labels)}`);
+    };
+    await replace('mode', 'create');
+    await verify('mode', 'create');
+    const baseline = document.getText();
+    const offset = unfinishedShapeSource('c1Unfinished', 'mode', 'create', context, part).length;
+    const accepted = baseline.slice(0, baseline.slice(0, offset).lastIndexOf("'"))
+      + (part === 'key' ? "'mode' => " : "'create'") + baseline.slice(offset);
+    await pressWorkbenchTab(port);
+    await waitForResult(async () => document.getText(), text => text === accepted, `Unfinished ${context}/${part} Tab inserted incorrect text or synthetic delimiters.`);
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(async () => document.getText(), text => text === baseline, 'Unfinished acceptance Undo did not restore input.');
+    await vscode.commands.executeCommand('redo');
+    await waitForResult(async () => document.getText(), text => text === accepted, 'Unfinished acceptance Redo did not restore text.');
+    await vscode.commands.executeCommand('undo');
+    await replace('other', 'refresh');
+    await verify('other', 'refresh');
+    await vscode.commands.executeCommand('hideSuggestWidget');
+  }
+  console.log(`C1 EOF and middle unfinished shape visible list, exact Tab text, tail preservation and Undo/Redo passed: ${JSON.stringify({ samplesMs: samples, maxMs: Math.max(...samples) })}`);
+  const arrowSamples: number[] = [];
+  for (const item of [...existingShapeArrowCases, ...wordMiddleShapeCases].filter(item => item.insertion)) {
+    await vscode.commands.executeCommand('hideSuggestWidget');
+    const source = item.marked.replace('§', ''), offset = item.marked.indexOf('§');
+    assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)));
+    const position = document.positionAt(offset);
+    const expected = item.labels[0]!;
+    await waitForResult(() => boundedCompletion(uri, position), result => result?.items[0]?.label === expected, `Existing arrow provider failed: ${item.name}`);
+    editor.selection = new vscode.Selection(position, position);
+    const started = performance.now();
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const labels = await waitForResult(() => visibleCompletionLabels(port), labels => labels[0]?.startsWith(expected) === true, `Existing arrow visible list failed: ${item.name}`);
+    arrowSamples.push(Math.round(performance.now() - started));
+    assert.strictEqual(labels.length, 1, `Existing arrow mixed unrelated candidates: ${item.name}`);
+    const start = source.slice(0, offset).lastIndexOf(item.insertion![0]!);
+    const accepted = source.slice(0, start) + item.insertion + source.slice(item.end);
+    await pressWorkbenchTab(port);
+    await waitForResult(async () => document.getText(), text => text === accepted, `Existing arrow Tab overwrote source: ${item.name}`);
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(async () => document.getText(), text => text === source, `Existing arrow Undo failed: ${item.name}`);
+    await vscode.commands.executeCommand('redo');
+    await waitForResult(async () => document.getText(), text => text === accepted, `Existing arrow Redo failed: ${item.name}`);
+    await vscode.commands.executeCommand('hideSuggestWidget');
+  }
+  console.log(`C1 existing array arrows and word-middle literals: visible list, exact Tab text and Undo/Redo passed: ${JSON.stringify({ samplesMs: arrowSamples, maxMs: Math.max(...arrowSamples) })}`);
+}
+
+async function verifyVisibleUnionShapes(folder: vscode.Uri, port: number): Promise<void> {
+  const uri = vscode.Uri.joinPath(folder, 'C1VisibleUnionShapes.php');
+  const sourceFor = (key: string, mode: string): string => {
+    const expression = mode === 'key' ? `['${key.slice(0, 2)}']`
+      : mode === 'nested' ? "['payload'=>['tr']]" : `['${key}'=>'cr']`;
+    return `<?php /** @param (array{${key}:'create',payload:array{trace:string,x:int},id:int}|array{${key}:'update',payload:array{trace:string,y:string},name:string})|null $options */ function c1UnionSend(?array $options):void{} c1UnionSend(${expression});`;
+  };
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(sourceFor('mode', 'key')));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const samples: number[] = [];
+  for (const mode of ['key', 'nested', 'value']) {
+    const replace = async (key: string): Promise<void> => {
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      assert.ok(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), sourceFor(key, mode))));
+    };
+    const verify = async (key: string): Promise<void> => {
+      const expected = mode === 'key' ? key : mode === 'nested' ? 'trace' : "'create'";
+      const token = mode === 'key' ? `'${key.slice(0, 2)}'` : mode === 'nested' ? "'tr'" : "'cr'";
+      const position = document.positionAt(document.getText().lastIndexOf(token) + token.length - 1);
+      await waitForResult(() => boundedCompletion(uri, position), result => result?.items[0]?.label === expected, `Union shape provider omitted ${expected}.`);
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      editor.selection = new vscode.Selection(position, position);
+      const started = performance.now();
+      await vscode.commands.executeCommand('editor.action.triggerSuggest');
+      const labels = await waitForResult(() => visibleCompletionLabels(port), value => value[0]?.startsWith(expected) === true, `Visible union shape omitted ${expected}.`);
+      samples.push(Math.round(performance.now() - started));
+      assert.strictEqual(labels.length, 1, `Visible union shape mixed unrelated candidates: ${JSON.stringify(labels)}`);
+    };
+    await replace('mode');
+    await verify('mode');
+    const baseline = document.getText();
+    const accepted = mode === 'key' ? baseline.replace("['mo']", "['mode' => ]")
+      : mode === 'nested' ? baseline.replace("['tr']", "['trace' => ]") : baseline.replace("=>'cr'", "=>'create'");
+    await pressWorkbenchTab(port);
+    await waitForResult(async () => document.getText(), text => text === accepted, `Tab did not accept the union shape ${mode} edit.`);
+    await vscode.commands.executeCommand('undo');
+    await waitForResult(async () => document.getText(), text => text === baseline, `Union shape ${mode} Undo changed the wrong text.`);
+    await vscode.commands.executeCommand('redo');
+    await waitForResult(async () => document.getText(), text => text === accepted, `Union shape ${mode} Redo did not restore acceptance.`);
+    await vscode.commands.executeCommand('undo');
+    await replace('other');
+    await verify('other');
+    await vscode.commands.executeCommand('hideSuggestWidget');
+  }
+  console.log(`C1 union shape visible lists, exact Tab text, Undo/Redo and unsaved contracts passed: ${JSON.stringify({ samplesMs: samples, maxMs: Math.max(...samples) })}`);
+}
+
+async function verifyVisibleBranchShapes(folder: vscode.Uri, port: number): Promise<void> {
+  const uri=vscode.Uri.joinPath(folder,'C1VisibleBranchShapes.php');
+  const phpVersion=vscode.workspace.getConfiguration('phpCompanion',folder).get<string>('phpVersion');
+  const modes=['ternary','coalesce','left','nested',...(phpVersion==='7.2'?[]:['arm'])];
+  const sourceFor=(key: string,mode: string): string=>{
+    const expression=mode==='ternary'?'true?["o"]:[]':mode==='coalesce'?'null??["o"]':mode==='left'?'["o"]??[]'
+      :mode==='nested'?'["nested"=>["deep"=>["o"]]]':'match(true){true=>["o"],default=>[]}';
+    return `<?php /** @param array{${key}:string,nested:array{deep:array{${key}:string}}} $config */ function c1BranchShapeSend(array $config):void{} c1BranchShapeSend(${expression});`;
+  };
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('owner',modes[0]!)));
+  const document=await vscode.workspace.openTextDocument(uri);const editor=await vscode.window.showTextDocument(document);
+  const samples: number[]=[];
+  for(const mode of modes){
+    const replace=async(key: string): Promise<void>=>{
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      assert.ok(await editor.edit(edit=>edit.replace(new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor(key,mode))));
+    };
+    const verify=async(key: string): Promise<void>=>{
+      const position=document.positionAt(document.getText().lastIndexOf('"o"')+2);
+      await waitForResult(()=>boundedCompletion(uri,position),result=>result?.items[0]?.label===key,`Shape provider did not refresh ${key} in ${mode}.`);
+      await vscode.commands.executeCommand('hideSuggestWidget');editor.selection=new vscode.Selection(position,position);
+      const started=performance.now();await vscode.commands.executeCommand('editor.action.triggerSuggest');
+      const labels=await waitForResult(()=>visibleCompletionLabels(port),value=>value[0]?.startsWith(key)===true,`Visible ${mode} shape omitted ${key}.`);
+      samples.push(Math.round(performance.now()-started));
+      assert.strictEqual(labels.length,1,`Visible ${mode} shape mixed unrelated suggestions: ${JSON.stringify(labels)}`);
+      assert.ok(!labels.some(label=>label.startsWith(key==='owner'?'other':'owner')),`Visible ${mode} shape retained a stale key`);
+    };
+    await replace('owner');await verify('owner');
+    await pressWorkbenchTab(port);
+    await waitForResult(async()=>document.getText(),text=>text===sourceFor('owner',mode).replace('"o"','"owner" => '),`Tab did not accept the shape key in ${mode}.`);
+    await vscode.commands.executeCommand('undo');assert.strictEqual(document.getText(),sourceFor('owner',mode));
+    await replace('other');await verify('other');await vscode.commands.executeCommand('hideSuggestWidget');
+    await vscode.commands.executeCommand('undo');await verify('owner');
+    await vscode.commands.executeCommand('hideSuggestWidget');await vscode.commands.executeCommand('redo');await verify('other');
+  }
+  await vscode.commands.executeCommand('hideSuggestWidget');
+  console.log(`C1 visible shape branches PHP ${phpVersion}: ${JSON.stringify({samplesMs:samples,modes})}; Tab, unsaved keys and Undo/Redo passed`);
+}
+
+async function verifyVisibleBranchValues(folder: vscode.Uri, port: number): Promise<void> {
+  const uri=vscode.Uri.joinPath(folder,'C1VisibleBranchValues.php');
+  const phpVersion=vscode.workspace.getConfiguration('phpCompanion',folder).get<string>('phpVersion');
+  const modes=['coalesce','nullable',...(phpVersion==='7.2'?[]:['arm','subject','label'])];
+  const sourceFor=(type: string): string=>{
+    const fallback=type==='string'?"'text'":'123';
+    return `<?php function c1BranchTakes(${type} $v):void{}
+${modes.map(mode=>`function c1Branch${mode}(${mode==='nullable'?`?${type} $valueMaybe,${type} $valueText`:''}):${type}{
+${mode==='nullable'?'':"$valueFlag=true;$valueText='text';$valueNumber=123;"}
+${mode==='coalesce'?'return null??$val;':mode==='nullable'?`return $val??${fallback};`
+:mode==='subject'?`c1BranchTakes(match($val){true=>${fallback},default=>${fallback}});`
+:mode==='label'?`c1BranchTakes(match(true){$val=>${fallback},default=>${fallback}});`
+:`return match(true){true=>$val,default=>${fallback}};`}}`).join('\n')}`;
+  };
+  await vscode.workspace.fs.writeFile(uri,Buffer.from(sourceFor('string')));
+  const document=await vscode.workspace.openTextDocument(uri);const editor=await vscode.window.showTextDocument(document);
+  const samples: number[]=[];
+  const verify=async(type: string): Promise<void>=>{
+    for(const mode of modes){
+      const text=document.getText();const start=text.indexOf(`function c1Branch${mode}(`);
+      const next=text.indexOf('function c1Branch',start+1);
+      const end=next<0?text.length:next;
+      const offset=text.lastIndexOf('$val',end-1)+4;
+      const expected=mode==='nullable'?'$valueMaybe':mode==='subject'||mode==='label'?'$valueFlag':type==='string'?'$valueText':'$valueNumber';
+      const position=document.positionAt(offset);
+      await waitForResult(()=>boundedCompletion(uri,position),result=>result?.items[0]?.label===expected,
+        `Provider did not rank ${expected} in ${mode} for ${type}.`);
+      await vscode.commands.executeCommand('hideSuggestWidget');
+      editor.selection=new vscode.Selection(position,position);
+      const started=performance.now();await vscode.commands.executeCommand('editor.action.triggerSuggest');
+      const labels=await waitForResult(()=>visibleCompletionLabels(port),value=>value[0]?.startsWith(expected)===true,
+        `Visible list did not rank ${expected} in ${mode} for ${type}.`);
+      samples.push(Math.round(performance.now()-started));
+      const preserved=mode==='nullable'?['$valueMaybe','$valueText']:['$valueFlag','$valueText','$valueNumber'];
+      assert.ok(preserved.every(name=>labels.some(label=>label.startsWith(name))),`Visible ${mode} list lost variables: ${JSON.stringify(labels)}`);
+    }
+  };
+  await verify('string');await vscode.commands.executeCommand('hideSuggestWidget');
+  assert.ok(await editor.edit(edit=>edit.replace(new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),sourceFor('int'))));
+  await verify('int');await vscode.commands.executeCommand('hideSuggestWidget');
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('undo');await verify('string');
+  await vscode.commands.executeCommand('hideSuggestWidget');await vscode.commands.executeCommand('redo');await verify('int');
+  await vscode.commands.executeCommand('hideSuggestWidget');
+  console.log(`C1 visible value branches PHP ${phpVersion}: ${JSON.stringify({samplesMs:samples,modes})}; unsaved sorting and Undo/Redo passed`);
+}
+
+async function boundedCompletion(uri: vscode.Uri, position: vscode.Position): Promise<vscode.CompletionList | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('Completion provider exceeded 5 seconds.')), 5_000); }),
+    ]);
+  } finally { if (timer) clearTimeout(timer); }
+}
+
 async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => boolean, name: string): Promise<{ median: number; max: number }> {
   const samples: number[] = [];
   for (let index = 0; index < 12; index += 1) {
@@ -28,6 +305,911 @@ async function warmLatency<T>(read: () => PromiseLike<T>, ready: (value: T) => b
   }
   samples.sort((left, right) => left - right);
   return { median: Math.round((samples[5]! + samples[6]!) / 2), max: Math.round(samples[11]!) };
+}
+
+async function verifyStaticIncludeDefinition(folder: vscode.Uri): Promise<void> {
+  const vendor = vscode.Uri.joinPath(folder, 'vendor');
+  await vscode.workspace.fs.createDirectory(vendor);
+  const target = vscode.Uri.joinPath(vendor, 'autoload.php');
+  await vscode.workspace.fs.writeFile(target, Buffer.from('<?php return true;'));
+  const source = `<?php
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname($base) . '/vendor/autoload.php';`;
+  const config = vscode.Uri.joinPath(folder, 'config');
+  await vscode.workspace.fs.createDirectory(config);
+  const uri = vscode.Uri.joinPath(config, 'bootstrap.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const definition = (offset: number): Thenable<vscode.Location[]> => vscode.commands.executeCommand(
+    'vscode.executeDefinitionProvider', uri, document.positionAt(offset));
+  const first = source.indexOf('autoload.php') + 4;
+  const found = await waitForResult(() => definition(first), (locations) =>
+    locations?.some((location) => location.uri.toString() === target.toString()) === true,
+  'SoPHP did not navigate from dirname(__DIR__) to the included file.');
+  assert.deepStrictEqual(found.map((location) => location.uri.toString()), [target.toString()]);
+  const second = source.lastIndexOf('autoload.php') + 4;
+  assert.deepStrictEqual(await definition(second), [], 'A dynamic include path must not point to the static file.');
+}
+
+async function verifyShadowedGlobalCompletion(folder: vscode.Uri): Promise<void> {
+  const globalUri = vscode.Uri.joinPath(folder, 'C1ShadowGlobal.php');
+  const localUri = vscode.Uri.joinPath(folder, 'C1ShadowLocal.php');
+  const uri = vscode.Uri.joinPath(folder, 'C1ShadowConsumer.php');
+  await vscode.workspace.fs.writeFile(globalUri, Buffer.from('<?php function c1ShadowHelper(): void {} const C1_SHADOW_KEY = 1;'));
+  await vscode.workspace.fs.writeFile(localUri, Buffer.from('<?php namespace C1\\Shadow; function c1ShadowHelper(): void {} const C1_SHADOW_KEY = 2;'));
+  const source = '<?php namespace C1\\Shadow; $function = c1ShadowH; $constant = C1_SHADOW_K;';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  await vscode.workspace.openTextDocument(globalUri);
+  await vscode.workspace.openTextDocument(localUri);
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  for (const [prefix, label, owner] of [
+    ['c1ShadowH', 'c1ShadowHelper', 'C1\\Shadow\\c1ShadowHelper'],
+    ['C1_SHADOW_K', 'C1_SHADOW_KEY', 'C1\\Shadow\\C1_SHADOW_KEY'],
+  ]) {
+    const position = document.positionAt(source.indexOf(`${prefix};`) + prefix.length);
+    const completion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position),
+      (result) => result?.items.some((item) => item.label === label && item.detail?.includes(owner)) === true,
+      `SoPHP did not offer the local ${label} in the isolated editor.`,
+    );
+    const matches = completion.items.filter((item) => item.label === label);
+    assert.strictEqual(matches.length, 1, `The shadowed global ${label} appeared beside the local declaration.`);
+    assert.ok(matches[0]?.detail?.includes(owner));
+  }
+}
+
+async function verifyScopedSymbolDefinition(folder: vscode.Uri): Promise<void> {
+  const globalUri = vscode.Uri.joinPath(folder, 'C1ScopedGlobal.php');
+  const vendorUri = vscode.Uri.joinPath(folder, 'C1ScopedVendor.php');
+  const uri = vscode.Uri.joinPath(folder, 'C1ScopedConsumer.php');
+  await vscode.workspace.fs.writeFile(globalUri, Buffer.from(
+    '<?php function c1ScopedTarget(): void {} const C1_SCOPED_FLAG = 1;'));
+  await vscode.workspace.fs.writeFile(vendorUri, Buffer.from(
+    '<?php namespace C1\\Vendor; function c1ScopedTarget(): void {} const C1_SCOPED_FLAG = 2;'));
+  const source = '<?php namespace C1\\Scoped { use function C1\\Vendor\\c1ScopedTarget; '
+    + 'use const C1\\Vendor\\C1_SCOPED_FLAG; c1ScopedTarget(); echo C1_SCOPED_FLAG; } '
+    + 'namespace C1\\Scoped { c1ScopedTarget(); echo C1_SCOPED_FLAG; }';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  await vscode.workspace.openTextDocument(globalUri);
+  await vscode.workspace.openTextDocument(vendorUri);
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  for (const [marker, last, target] of [
+    ['c1ScopedTarget();', false, vendorUri],
+    ['c1ScopedTarget();', true, globalUri],
+    ['echo C1_SCOPED_FLAG;', false, vendorUri],
+    ['echo C1_SCOPED_FLAG;', true, globalUri],
+  ] as const) {
+    const start = last ? source.lastIndexOf(marker) : source.indexOf(marker);
+    const position = document.positionAt(start + (marker.startsWith('echo ') ? 'echo '.length : 0) + 2);
+    const definitions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', uri, position),
+      (items) => items?.some((item) => item.uri.toString() === target.toString()) === true,
+      'SoPHP did not resolve ' + marker + ' in its own namespace block.',
+    );
+    assert.deepStrictEqual(definitions.map((item) => item.uri.toString()), [target.toString()]);
+  }
+  const localTypeUri = vscode.Uri.joinPath(folder, 'C1ScopedLocalType.php');
+  const vendorTypeUri = vscode.Uri.joinPath(folder, 'C1ScopedVendorType.php');
+  const typeUri = vscode.Uri.joinPath(folder, 'C1ScopedTypeConsumer.php');
+  await vscode.workspace.fs.writeFile(localTypeUri, Buffer.from(
+    '<?php namespace C1\\Scoped; class Item { public function localOnly(): void {} }'));
+  await vscode.workspace.fs.writeFile(vendorTypeUri, Buffer.from(
+    '<?php namespace C1\\Vendor; class Item { public function vendorOnly(): void {} }'));
+  const typeSource = '<?php namespace C1\\Scoped { use C1\\Vendor\\Item; new Item(); } '
+    + 'namespace C1\\Scoped { new Item(); }';
+  await vscode.workspace.fs.writeFile(typeUri, Buffer.from(typeSource));
+  await vscode.workspace.openTextDocument(localTypeUri);
+  await vscode.workspace.openTextDocument(vendorTypeUri);
+  const typeDocument = await vscode.workspace.openTextDocument(typeUri);
+  await vscode.window.showTextDocument(typeDocument);
+  for (const [last, target] of [[false, vendorTypeUri], [true, localTypeUri]] as const) {
+    const start = last ? typeSource.lastIndexOf('new Item();') : typeSource.indexOf('new Item();');
+    const position = typeDocument.positionAt(start + 'new '.length + 2);
+    const definitions = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.Location[]>('vscode.executeDefinitionProvider', typeUri, position),
+      (items) => items?.some((item) => item.uri.toString() === target.toString()) === true,
+      'SoPHP did not resolve Item in its own namespace block.',
+    );
+    assert.deepStrictEqual(definitions.map((item) => item.uri.toString()), [target.toString()]);
+  }
+  const memberUri = vscode.Uri.joinPath(folder, 'C1ScopedMembers.php');
+  const memberSource = '<?php namespace C1\\Scoped { use C1\\Vendor\\Item; '
+    + 'function first(): void { $a = new Item(); $a->ven; } } '
+    + 'namespace C1\\Scoped { function second(): void { $b = new Item(); $b->loc; } }';
+  await vscode.workspace.fs.writeFile(memberUri, Buffer.from(memberSource));
+  const memberDocument = await vscode.workspace.openTextDocument(memberUri);
+  await vscode.window.showTextDocument(memberDocument);
+  for (const [marker, expected, excluded] of [
+    ['ven;', 'vendorOnly', 'localOnly'],
+    ['loc;', 'localOnly', 'vendorOnly'],
+  ] as const) {
+    const position = memberDocument.positionAt(memberSource.indexOf(marker) + 3);
+    const result = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>(
+        'vscode.executeCompletionItemProvider', memberUri, position),
+      (items) => items?.items.some((item) => item.label === expected) === true,
+      'SoPHP did not complete the ' + expected + ' member in its own namespace block.',
+    );
+    assert.ok(!result.items.some((item) => item.label === excluded),
+      'SoPHP suggested a member from the other namespace block.');
+  }
+  const parameterUri = vscode.Uri.joinPath(folder, 'C1ScopedParameters.php');
+  const parameterSource = '<?php namespace C1\\Scoped { use C1\\Vendor\\Item; '
+    + 'function first(Item $a): void { $a->ven; } } '
+    + 'namespace C1\\Scoped { function second(Item $b): void { $b->loc; } }';
+  await vscode.workspace.fs.writeFile(parameterUri, Buffer.from(parameterSource));
+  const parameterDocument = await vscode.workspace.openTextDocument(parameterUri);
+  await vscode.window.showTextDocument(parameterDocument);
+  for (const [marker, expected, excluded] of [
+    ['ven;', 'vendorOnly', 'localOnly'],
+    ['loc;', 'localOnly', 'vendorOnly'],
+  ] as const) {
+    const position = parameterDocument.positionAt(parameterSource.indexOf(marker) + 3);
+    const result = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>(
+        'vscode.executeCompletionItemProvider', parameterUri, position),
+      (items) => items?.items.some((item) => item.label === expected) === true,
+      'SoPHP did not complete the ' + expected + ' parameter member in its own namespace block.',
+    );
+    assert.ok(!result.items.some((item) => item.label === excluded),
+      'SoPHP suggested a parameter member from the other namespace block.');
+  }
+}
+
+async function verifyKeywordCompletionSmoke(folder: vscode.Uri, phpVersion: string): Promise<void> {
+  const cases = [
+    { name: 'Return', source: '<?php\nfunction asdf() {\n    retu\n}', prefix: 'retu', expected: 'return' },
+    { name: 'UnclosedReturn', source: '<?php\nfunction asdf() {\n    retu', prefix: 'retu', expected: 'return' },
+    { name: 'Function', source: '<?php\nfunc', prefix: 'func', expected: 'function' },
+    { name: 'FullFunction', source: '<?php\n$app = 1;\n// bootstrap complete\nfunction', prefix: 'function', expected: 'function' },
+    { name: 'Method', source: '<?php\nclass Example { public func\n}', prefix: 'func', expected: 'function' },
+    { name: 'FullMethod', source: '<?php class Functionality {} class Example { public function', prefix: 'function', expected: 'function' },
+    { name: 'UnclosedMethod', source: '<?php\nclass Example { public func', prefix: 'func', expected: 'function' },
+    { name: 'Foreach', source: '<?php\nfunction asdf() {\n    fore\n}', prefix: 'fore', expected: 'foreach' },
+    { name: 'Throw', source: '<?php\nfunction asdf() {\n    thro\n}', prefix: 'thro', expected: 'throw' },
+    { name: 'New', source: '<?php\n$app = n', prefix: 'n', expected: 'new' },
+  ];
+  for (const item of cases) {
+    const uri = vscode.Uri.joinPath(folder, `C1Keyword${item.name}.php`);
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(item.source));
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document);
+    const offset = item.source.lastIndexOf(item.prefix) + item.prefix.length;
+    const completion = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri,
+        document.positionAt(offset)),
+      (result) => result?.items.some((candidate) => candidate.label === item.expected
+        && candidate.kind === vscode.CompletionItemKind.Keyword) === true,
+      `SoPHP did not suggest ${item.expected} after ${item.prefix}.`,
+    );
+    const keyword = completion.items.find((candidate) => candidate.label === item.expected
+      && candidate.kind === vscode.CompletionItemKind.Keyword);
+    assert.strictEqual(keyword?.preselect, true, `${item.expected} was not selected ahead of symbols.`);
+    assert.strictEqual(keyword?.textEdit?.newText, `${item.expected} `);
+    if (item.name === 'Function' || item.name === 'FullFunction') {
+      assert.ok(!completion.items.some((candidate) => ['func_get_arg', 'function_exists'].includes(String(candidate.label))),
+        'A declaration keyword was mixed with unrelated callable names.');
+    }
+    if (item.name === 'FullMethod') {
+      assert.ok(!completion.items.some((candidate) => candidate.label === 'Functionality'),
+        'A complete method declaration keyword was mixed with a class name.');
+    }
+    console.log(`C1 ${item.name} completion: ${completion.items.slice(0, 8).map((candidate) => String(candidate.label)).join(', ')}`);
+  }
+  const namedSource = '<?php function fillValue(string $first): void {} function fillFromDefault(): string { return "ok"; } fillValue(fi);';
+  const namedUri = vscode.Uri.joinPath(folder, 'C1NamedArgumentVersion.php');
+  await vscode.workspace.fs.writeFile(namedUri, Buffer.from(namedSource));
+  const namedDocument = await vscode.workspace.openTextDocument(namedUri);
+  await vscode.window.showTextDocument(namedDocument);
+  const namedOffset = namedSource.lastIndexOf('fillValue(fi') + 'fillValue(fi'.length;
+  const namedCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', namedUri,
+      namedDocument.positionAt(namedOffset)),
+    (result) => result?.items.some((candidate) => candidate.label === (Number.parseFloat(phpVersion) < 8 ? 'fillFromDefault' : 'first:')) === true,
+    `SoPHP did not return the expected argument completion for PHP ${phpVersion}.`,
+  );
+  const namedLabels = namedCompletion.items.map((candidate) => String(candidate.label));
+  assert.strictEqual(namedLabels.includes('first:'), Number.parseFloat(phpVersion) >= 8,
+    `Named argument completion used the wrong PHP syntax version: ${namedLabels.slice(0, 10).join(', ')}`);
+  console.log(`C1 PHP ${phpVersion} argument completion: ${namedLabels.slice(0, 8).join(', ')}`);
+  const enumSource = '<?php enum CompletionColor { case Red; public static function resolve(): self { return self::Red; } }'
+    + ' class CompletionContainer { public static function resolve(): self { return new self(); } }'
+    + ' function paint(CompletionC $color): void {} CompletionColor::res; CompletionContainer::res;';
+  const enumUri = vscode.Uri.joinPath(folder, 'C1EnumVersion.php');
+  await vscode.workspace.fs.writeFile(enumUri, Buffer.from(enumSource));
+  const enumDocument = await vscode.workspace.openTextDocument(enumUri);
+  await vscode.window.showTextDocument(enumDocument);
+  const typeCandidates = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', enumUri,
+      enumDocument.positionAt(enumSource.indexOf('CompletionC $color') + 'CompletionC'.length)),
+    (result) => result?.items.some((candidate) => candidate.label === 'CompletionContainer') === true,
+    'SoPHP did not preserve a normal class while checking the enum syntax version.',
+  );
+  const supportsEnums = Number.parseFloat(phpVersion) >= 8.1;
+  assert.strictEqual(typeCandidates.items.some((candidate) => candidate.label === 'CompletionColor'), supportsEnums,
+    `Enum type completion used the wrong PHP syntax version: ${phpVersion}`);
+  const enumMethodCandidates = await vscode.commands.executeCommand<vscode.CompletionList>(
+    'vscode.executeCompletionItemProvider', enumUri,
+    enumDocument.positionAt(enumSource.indexOf('CompletionColor::res') + 'CompletionColor::res'.length));
+  assert.strictEqual(enumMethodCandidates.items.some((candidate) => candidate.label === 'resolve'), supportsEnums,
+    `Enum method completion used the wrong PHP syntax version: ${phpVersion}`);
+  console.log(`C1 PHP ${phpVersion} enum completion: type=${supportsEnums}, method=${supportsEnums}`);
+  const nullsafeSource = '<?php class CompletionWorker { public function run(): void {} }'
+    + ' function useWorker(CompletionWorker $worker): void { $worker?->ru; $worker->ru; }';
+  const nullsafeUri = vscode.Uri.joinPath(folder, 'C1NullsafeVersion.php');
+  await vscode.workspace.fs.writeFile(nullsafeUri, Buffer.from(nullsafeSource));
+  const nullsafeDocument = await vscode.workspace.openTextDocument(nullsafeUri);
+  await vscode.window.showTextDocument(nullsafeDocument);
+  for (const [marker, expected] of [
+    ['$worker?->ru', Number.parseFloat(phpVersion) >= 8],
+    ['$worker->ru', true],
+  ] as const) {
+    const candidates = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', nullsafeUri,
+        nullsafeDocument.positionAt(nullsafeSource.indexOf(marker) + marker.length)),
+      (result) => result !== undefined && (expected
+        ? result.items.some((candidate) => candidate.label === 'run') : !result.isIncomplete),
+      `SoPHP did not return a member completion list at ${marker}.`,
+    );
+    assert.strictEqual(candidates.items.some((candidate) => candidate.label === 'run'), expected,
+      `Nullsafe member completion used the wrong PHP syntax version at ${marker}: ${phpVersion}`);
+  }
+  console.log(`C1 PHP ${phpVersion} nullsafe completion: ${Number.parseFloat(phpVersion) >= 8}`);
+  const shapeSource = '<?php /** @return array{owner: string} */ function config(): array { return ["ow"]; }';
+  const shapeUri = vscode.Uri.joinPath(folder, 'C1ReturnShapeCompletion.php');
+  await vscode.workspace.fs.writeFile(shapeUri, Buffer.from(shapeSource));
+  const shapeDocument = await vscode.workspace.openTextDocument(shapeUri);
+  await vscode.window.showTextDocument(shapeDocument);
+  const shapeCandidates = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', shapeUri,
+      shapeDocument.positionAt(shapeSource.lastIndexOf('"ow"') + 3)),
+    (result) => result?.items.some((candidate) => candidate.label === 'owner') === true,
+    'SoPHP did not suggest the proven return array-shape key.',
+  );
+  const shapeKey = shapeCandidates.items.find((candidate) => candidate.label === 'owner');
+  assert.strictEqual(shapeKey?.textEdit?.newText, '"owner" => ');
+  console.log(`C1 PHP ${phpVersion} return shape completion: ${String(shapeKey?.label)}`);
+}
+
+async function verifyCompletionExperience(folder: vscode.Uri, debugPort?: number, phpVersion = '8.5'): Promise<void> {
+  if (debugPort) {
+    const bootstrapSource = "<?php\n\nif (!defined('ROOT_PATH')) {\n    throw new LogicException('missing');\n}\nuse App\\Components\\Configuration\\Config;\n";
+    const bootstrapUri = vscode.Uri.joinPath(folder, 'C1IncrementalFunctionKeyword.php');
+    await vscode.workspace.fs.writeFile(bootstrapUri, Buffer.from(bootstrapSource));
+    const bootstrapDocument = await vscode.workspace.openTextDocument(bootstrapUri);
+    const bootstrapEditor = await vscode.window.showTextDocument(bootstrapDocument);
+    const insertion = bootstrapDocument.positionAt('<?php\n'.length);
+    bootstrapEditor.selection = new vscode.Selection(insertion, insertion);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'f');
+    await waitForResult(async () => bootstrapDocument.getText(), (value) => value.startsWith('<?php\nf\n'),
+      'Workbench did not insert the first function keyword character.');
+    await visibleCompletionLabels(debugPort);
+    for (const [index, letter] of ['u', 'n', 'c'].entries()) {
+      await typeWorkbenchText(debugPort, letter);
+      const prefix = `<?php\n${'func'.slice(0, index + 2)}\n`;
+      await waitForResult(async () => bootstrapDocument.getText(), (value) => value.startsWith(prefix),
+        `Workbench did not insert the function keyword prefix ${prefix}.`);
+    }
+    const incrementalStarted = Date.now();
+    const incrementalLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels.length > 0 && labels.every((label) => /^function(?:\s|$)/u.test(label)),
+      'Typing func after <?php did not withdraw stale prefix suggestions.');
+    console.log(`C1 incremental func list after final character: ${Date.now() - incrementalStarted} ms`);
+    console.log(`C1 incremental func visible: ${JSON.stringify(incrementalLabels.slice(0, 8))}`);
+    assert.ok(incrementalLabels[0]?.startsWith('function'),
+      `Typing func after <?php did not rank function first: ${JSON.stringify(incrementalLabels)}`);
+    assert.ok(!incrementalLabels.some((label) => label.includes('func_get_arg') || label.includes('function_exists')),
+      `Typing func after <?php kept unrelated function calls: ${JSON.stringify(incrementalLabels)}`);
+    for (const letter of 'tion') await typeWorkbenchText(debugPort, letter);
+    await waitForResult(async () => bootstrapDocument.getText(), (value) => value.startsWith('<?php\nfunction\n'),
+      'Workbench did not insert the complete function keyword.');
+    const fullKeywordLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels.length > 0 && labels.every((label) => /^function(?:\s|$)/u.test(label)),
+      'The complete function keyword did not refresh its visible list.');
+    console.log(`C1 incremental function visible: ${JSON.stringify(fullKeywordLabels.slice(0, 8))}`);
+    assert.ok(fullKeywordLabels[0]?.startsWith('function'),
+      `Typing function after <?php lost the keyword suggestion: ${JSON.stringify(fullKeywordLabels)}`);
+    assert.ok(!fullKeywordLabels.some((label) => label.includes('function_exists')),
+      `Typing function after <?php kept an unrelated function call: ${JSON.stringify(fullKeywordLabels)}`);
+    const classSource = '<?php\nfunction prior(): array { return []; }\n\n';
+    const classUri = vscode.Uri.joinPath(folder, 'C1IncrementalClassKeyword.php');
+    await vscode.workspace.fs.writeFile(classUri, Buffer.from(classSource));
+    const classDocument = await vscode.workspace.openTextDocument(classUri);
+    const classEditor = await vscode.window.showTextDocument(classDocument);
+    const classPosition = classDocument.positionAt(classSource.length);
+    classEditor.selection = new vscode.Selection(classPosition, classPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'c');
+    await waitForResult(async () => classDocument.getText(), (value) => value.endsWith('\nc'),
+      'Workbench did not insert the first class keyword character.');
+    await waitForResult(() => visibleCompletionLabels(debugPort), (labels) => labels[0]?.startsWith('class') === true,
+      'Typing c at top level did not offer the class keyword first.').catch(async (error: unknown) => {
+        const actual = await boundedCompletion(classUri, classEditor.selection.active);
+        console.log(`C1 class prefix Provider diagnostics: ${JSON.stringify({ text: classDocument.getText(),
+          labels: actual?.items.slice(0, 10).map((item) => item.label), language: classDocument.languageId })}`);
+        throw error;
+      });
+    for (const letter of 'las') await typeWorkbenchText(debugPort, letter);
+    await waitForResult(async () => classDocument.getText(), (value) => value.endsWith('\nclas'),
+      'Workbench did not insert the partial class keyword.');
+    const partialClassLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels[0]?.startsWith('class') === true && !labels.some((label) => label.includes('class_exists')),
+      'The partial class keyword did not refresh its visible list.');
+    assert.ok(partialClassLabels[0]?.startsWith('class'),
+      `Typing clas did not rank class first: ${JSON.stringify(partialClassLabels)}`);
+    assert.ok(!partialClassLabels.some((label) => label.includes('class_exists')),
+      `Typing clas retained function completions from c: ${JSON.stringify(partialClassLabels)}`);
+    const classNameSource = '<?php\nclass \n';
+    const classNameUri = vscode.Uri.joinPath(folder, 'C1ClassDeclarationName.php');
+    await vscode.workspace.fs.writeFile(classNameUri, Buffer.from(classNameSource));
+    const classNameDocument = await vscode.workspace.openTextDocument(classNameUri);
+    const classNameEditor = await vscode.window.showTextDocument(classNameDocument);
+    const classNamePosition = classNameDocument.positionAt('<?php\nclass '.length);
+    classNameEditor.selection = new vscode.Selection(classNamePosition, classNamePosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'C');
+    await waitForResult(async () => classNameDocument.getText(), (value) => value.startsWith('<?php\nclass C\n'),
+      'Workbench did not insert the class declaration name.');
+    const classNameLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels[0]?.startsWith('C1ClassDeclarationName') === true
+        && !labels.some((label) => /call_user_func|CREDITS_ALL/u.test(label)),
+      'The class name did not refresh its filename-only visible list.');
+    assert.ok(classNameLabels[0]?.startsWith('C1ClassDeclarationName')
+      && !classNameLabels.some((label) => /call_user_func|CREDITS_ALL/u.test(label)),
+    `Typing class C did not show only the current filename suggestion: ${JSON.stringify(classNameLabels)}`);
+    const memberKeywordSource = '<?php\nclass C {\n    \n}\n';
+    const memberKeywordUri = vscode.Uri.joinPath(folder, 'C1ClassMemberKeyword.php');
+    await vscode.workspace.fs.writeFile(memberKeywordUri, Buffer.from(memberKeywordSource));
+    const memberKeywordDocument = await vscode.workspace.openTextDocument(memberKeywordUri);
+    const memberKeywordEditor = await vscode.window.showTextDocument(memberKeywordDocument);
+    const memberKeywordPosition = memberKeywordDocument.positionAt(memberKeywordSource.indexOf('    \n') + 4);
+    memberKeywordEditor.selection = new vscode.Selection(memberKeywordPosition, memberKeywordPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'pu');
+    await waitForResult(async () => memberKeywordDocument.getText(), (value) => value.includes('    pu\n'),
+      'Workbench did not insert the class member keyword prefix.');
+    const memberKeywordLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels[0]?.startsWith('public') === true && !labels.some((label) => /putenv|PHP_URL_/u.test(label)),
+      'The class member prefix did not refresh its public-first visible list.');
+    assert.ok(memberKeywordLabels[0]?.startsWith('public')
+      && !memberKeywordLabels.some((label) => /putenv|PHP_URL_/u.test(label)),
+    `Typing pu inside a class displayed global symbols: ${JSON.stringify(memberKeywordLabels)}`);
+    const magicSource = '<?php\nclass Magic {\n    public function __co\n}\n';
+    const magicUri = vscode.Uri.joinPath(folder, 'C1MagicMethodName.php');
+    await vscode.workspace.fs.writeFile(magicUri, Buffer.from(magicSource));
+    const magicDocument = await vscode.workspace.openTextDocument(magicUri);
+    const magicEditor = await vscode.window.showTextDocument(magicDocument);
+    const magicPosition = magicDocument.positionAt(magicSource.indexOf('__co') + '__co'.length);
+    magicEditor.selection = new vscode.Selection(magicPosition, magicPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'n');
+    await waitForResult(async () => magicDocument.getText(), (value) => value.includes('function __con\n'),
+      'Workbench did not insert the magic method prefix.');
+    const magicLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels[0]?.startsWith('__construct') === true,
+      'Typing __con after function did not suggest __construct.');
+    assert.ok(!magicLabels.some((label) => /func_get_arg|PHP_URL_/u.test(label)),
+      `Magic method completion displayed unrelated symbols: ${JSON.stringify(magicLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => magicDocument.getText(), (value) => value.includes('function __construct()'),
+      'Accepting __construct did not insert method parentheses.');
+    const enumSource = '<?php\nclass C {\n}\n';
+    const enumUri = vscode.Uri.joinPath(folder, 'C1EnumDeclaration.php');
+    await vscode.workspace.fs.writeFile(enumUri, Buffer.from(enumSource));
+    const enumDocument = await vscode.workspace.openTextDocument(enumUri);
+    const enumEditor = await vscode.window.showTextDocument(enumDocument);
+    const enumPosition = enumDocument.positionAt(enumSource.length);
+    enumEditor.selection = new vscode.Selection(enumPosition, enumPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    for (const letter of 'enu') await typeWorkbenchText(debugPort, letter);
+    await waitForResult(async () => enumDocument.getText(), (value) => value.endsWith('enu'),
+      'Workbench did not insert the enum keyword prefix.');
+    const enumKeywordLabels = await visibleCompletionLabels(debugPort);
+    if (Number.parseFloat(phpVersion) >= 8.1) {
+      assert.ok(enumKeywordLabels[0]?.startsWith('enum')
+        && !enumKeywordLabels.some((label) => label.includes('enum_exists')),
+      `Typing enu did not isolate the enum keyword: ${JSON.stringify(enumKeywordLabels)}`);
+      await typeWorkbenchText(debugPort, 'm');
+      await waitForResult(async () => enumDocument.getText(), (value) => value.endsWith('enum'),
+        'Workbench did not insert the complete enum keyword.');
+      const fullEnumKeywordLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+        (labels) => labels[0]?.startsWith('enum') === true && !labels.some((label) => label.includes('enum_exists')),
+        'The complete enum keyword did not refresh its visible list.');
+      assert.ok(fullEnumKeywordLabels[0]?.startsWith('enum')
+        && !fullEnumKeywordLabels.some((label) => label.includes('enum_exists')),
+      `Typing enum after a class displayed unrelated functions: ${JSON.stringify(fullEnumKeywordLabels)}`);
+      // This scenario checks ordinary typing. Keep bulk insertion across the
+      // word boundary in the separate SuggestModel reentrancy probe.
+      for (const character of ' e') await typeWorkbenchText(debugPort, character);
+      await waitForResult(async () => enumDocument.getText(), (value) => value.endsWith('enum e'),
+        'Workbench did not insert the enum declaration name prefix.');
+      const enumNameVersion = enumDocument.version;
+      const enumNameCandidates = await boundedCompletion(enumUri, enumEditor.selection.active);
+      assert.strictEqual(enumDocument.version, enumNameVersion, 'Enum name changed while checking its candidates.');
+      // This API also returns VS Code's static snippets, which the PHP UI hides
+      // through editor.snippetSuggestions=none. Check semantic candidates here;
+      // the visible-list assertion below still checks the complete actual UI.
+      assert.deepStrictEqual(enumNameCandidates?.items.filter(item => item.kind !== vscode.CompletionItemKind.Snippet) ?? [], [],
+        'The current enum name request returned unrelated semantic candidates.');
+      const enumNameLabels = await waitForResult(() => visibleCompletionLabels(debugPort), (labels) => labels.length === 0,
+        'The previous enum keyword list was not withdrawn at the declaration name.');
+      assert.deepStrictEqual(enumNameLabels, [],
+        `Typing enum e displayed unrelated symbols: ${JSON.stringify(enumNameLabels)}`);
+    } else {
+      for (const label of enumKeywordLabels) assert.ok(!/^enum(?:$| block|_exists)/u.test(label),
+        `PHP ${phpVersion} displayed an unavailable enum candidate: ${label}`);
+      const unavailable = await boundedCompletion(enumUri, enumEditor.selection.active);
+      assert.ok(!unavailable?.items.some(item => item.label === 'enum' || item.label === 'enum block' || item.label === 'enum_exists'),
+        `PHP ${phpVersion} Provider exposed an unavailable enum candidate.`);
+      await typeWorkbenchText(debugPort, 'm');
+      await waitForResult(async () => enumDocument.getText(), value => value.endsWith('enum'),
+        'Workbench did not insert the complete unsupported enum word.');
+      const fullUnavailable = await boundedCompletion(enumUri, enumEditor.selection.active);
+      assert.ok(!fullUnavailable?.items.some(item => item.label === 'enum' || item.label === 'enum block' || item.label === 'enum_exists'),
+        `PHP ${phpVersion} Provider exposed an unavailable complete enum candidate.`);
+      console.log(`C1 PHP ${phpVersion} enum keyword and builtin absence passed`);
+    }
+    const returnSource = '<?php\nfunction example(): void {\n    \n}\n';
+    const returnUri = vscode.Uri.joinPath(folder, 'C1IncrementalReturnKeyword.php');
+    await vscode.workspace.fs.writeFile(returnUri, Buffer.from(returnSource));
+    const returnDocument = await vscode.workspace.openTextDocument(returnUri);
+    const returnEditor = await vscode.window.showTextDocument(returnDocument);
+    const returnPosition = returnDocument.positionAt(returnSource.indexOf('    \n') + 4);
+    returnEditor.selection = new vscode.Selection(returnPosition, returnPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'r');
+    await waitForResult(async () => returnDocument.getText(), (value) => value.includes('    r\n'),
+      'Workbench did not insert the first return keyword character.');
+    const returnLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels[0]?.startsWith('return') === true,
+      'Typing r in a function body did not rank return first.');
+    console.log(`C1 incremental r visible: ${JSON.stringify(returnLabels.slice(0, 8))}`);
+    await typeWorkbenchText(debugPort, 'etu');
+    await waitForResult(async () => returnDocument.getText(), (value) => value.includes('    retu\n'),
+      'Workbench did not insert the return keyword prefix.');
+    await waitForResult(() => visibleCompletionLabels(debugPort), (labels) => labels[0]?.startsWith('return') === true,
+      'Return completion disappeared before acceptance.');
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => returnDocument.getText(), (value) => value.includes('    return \n'),
+      'Accepting return before a newline did not leave a space for the expression.');
+    const declarationSource = '<?php\nfunction \nif (!defined("ROOT_PATH")) {}\n';
+    const declarationUri = vscode.Uri.joinPath(folder, 'C1FunctionNameSnippets.php');
+    await vscode.workspace.fs.writeFile(declarationUri, Buffer.from(declarationSource));
+    const declarationDocument = await vscode.workspace.openTextDocument(declarationUri);
+    const declarationEditor = await vscode.window.showTextDocument(declarationDocument);
+    const declarationPosition = declarationDocument.positionAt('<?php\nfunction '.length);
+    declarationEditor.selection = new vscode.Selection(declarationPosition, declarationPosition);
+    await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+    await typeWorkbenchText(debugPort, 'a');
+    await waitForResult(async () => declarationDocument.getText(), (value) => value.startsWith('<?php\nfunction a\n'),
+      'Workbench did not insert the declaration name character.');
+    assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: declarationUri, languageId: 'php' })
+      .get('snippetSuggestions'), 'none',
+      'PHP snippets must be hidden from automatic suggestions under SoPHP ownership.');
+    const declarationLabels = await visibleCompletionLabels(debugPort);
+    assert.deepStrictEqual(declarationLabels, [],
+      `Typing a function declaration name displayed unrelated PHP snippets: ${JSON.stringify(declarationLabels)}`);
+    const templateSource = '<?php\nfunc';
+    const templateUri = vscode.Uri.joinPath(folder, 'C1TemplateAfterSnippetSetting.php');
+    await vscode.workspace.fs.writeFile(templateUri, Buffer.from(templateSource));
+    const templateDocument = await vscode.workspace.openTextDocument(templateUri);
+    const templateEditor = await vscode.window.showTextDocument(templateDocument);
+    const templatePosition = templateDocument.positionAt(templateSource.length);
+    templateEditor.selection = new vscode.Selection(templatePosition, templatePosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const templateLabels = await visibleCompletionLabels(debugPort);
+    assert.ok(templateLabels.some((label) => label.startsWith('function block')),
+      `Hiding built-in PHP snippets also hid the contextual SoPHP declaration template: ${JSON.stringify(templateLabels)}`);
+    const constructorSource = '<?php\n$value = new ArrayOb;\n';
+    const constructorUri = vscode.Uri.joinPath(folder, 'C1ConstructorAcceptance.php');
+    await vscode.workspace.fs.writeFile(constructorUri, Buffer.from(constructorSource));
+    const constructorDocument = await vscode.workspace.openTextDocument(constructorUri);
+    const constructorEditor = await vscode.window.showTextDocument(constructorDocument);
+    const constructorPosition = constructorDocument.positionAt(constructorSource.indexOf('ArrayOb;') + 'ArrayOb'.length);
+    const constructorItems = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructorUri, constructorPosition),
+      (result) => result?.items.some((item) => item.label === 'ArrayObject') === true,
+      'SoPHP did not offer ArrayObject in a new expression.',
+    );
+    const constructorItem = constructorItems.items.find((item) => item.label === 'ArrayObject');
+    assert.ok(constructorItem?.insertText instanceof vscode.SnippetString);
+    assert.strictEqual(constructorItem.insertText.value, 'ArrayObject($0)');
+    constructorEditor.selection = new vscode.Selection(constructorPosition, constructorPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.startsWith('ArrayObject')));
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => constructorDocument.getText(), (value) => value.includes('new ArrayObject();'),
+      'Accepting ArrayObject did not insert constructor parentheses.');
+    assert.strictEqual(constructorDocument.getText()[constructorDocument.offsetAt(constructorEditor.selection.active)], ')',
+      'Constructor completion did not leave the cursor inside parentheses.');
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const argumentLabels = await visibleCompletionLabels(debugPort);
+    if (Number.parseFloat(phpVersion) >= 8) {
+      assert.ok(argumentLabels[0]?.startsWith('array:'),
+        `ArrayObject constructor lost its named argument suggestions: ${JSON.stringify(argumentLabels)}`);
+    } else {
+      assert.ok(!argumentLabels.some(label => /^(?:array|input|flags|iteratorClass|iterator_class):/u.test(label)),
+        `PHP ${phpVersion} displayed unsupported named constructor arguments: ${JSON.stringify(argumentLabels)}`);
+      const signature = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider',
+        constructorUri, constructorEditor.selection.active);
+      assert.ok(signature?.signatures.some(item => item.label.includes('ArrayObject(')),
+        `PHP ${phpVersion} lost the positional ArrayObject constructor signature.`);
+    }
+  }
+  const source = '<?php function sendInvoice(string $message): void {} function run(): void { sendInv }';
+  const uri = vscode.Uri.joinPath(folder, 'C1CompletionExperience.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
+  const offset = source.indexOf('sendInv }') + 'sendInv'.length;
+  const position = document.positionAt(offset);
+  const completions = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position),
+    (result) => result?.items.some((item) => item.label === 'sendInvoice') === true,
+    'SoPHP did not provide the callable completion in the isolated editor.',
+  );
+  const callable = completions.items.find((item) => item.label === 'sendInvoice');
+  assert.ok(callable?.insertText instanceof vscode.SnippetString);
+  assert.strictEqual(callable.insertText.value, 'sendInvoice(${1:message})$0');
+  editor.selection = new vscode.Selection(position, position);
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  if (debugPort) {
+    const labels = await visibleCompletionLabels(debugPort);
+    assert.ok(labels.some((label) => label.includes('sendInvoice')), 'The visible Workbench list omitted sendInvoice.');
+  } else await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  if (debugPort) await pressWorkbenchEnter(debugPort);
+  else await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.ok(document.getText().includes('sendInvoice(message)'), 'Accepting the visible function suggestion left incorrect call text.');
+  assert.strictEqual(document.getText(editor.selection), 'message', 'The callable snippet did not select its first argument.');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(document.getText(), source, 'Undo did not restore the text after accepting a callable suggestion.');
+  if (debugPort) {
+    const keywordSource = '<?php\nfunction';
+    const keywordUri = vscode.Uri.joinPath(folder, 'C1KeywordMiddleAcceptance.php');
+    await vscode.workspace.fs.writeFile(keywordUri, Buffer.from(keywordSource));
+    const keywordDocument = await vscode.workspace.openTextDocument(keywordUri);
+    const keywordEditor = await vscode.window.showTextDocument(keywordDocument);
+    const keywordPosition = keywordDocument.positionAt(keywordSource.indexOf('function') + 'funct'.length);
+    keywordEditor.selection = new vscode.Selection(keywordPosition, keywordPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes('function')),
+      'The visible list omitted function inside its complete word.');
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => keywordDocument.getText(), (text) => text === '<?php\nfunction ',
+      'Accepting function inside its word duplicated the suffix or omitted the trailing space.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(keywordDocument.getText(), keywordSource);
+  }
+  const memberSource = '<?php class CompletionCounter { public function getUserCount(): int { return 1; } } function completionRead(CompletionCounter $counter): void { $counter->getUserCount; }';
+  const memberUri = vscode.Uri.joinPath(folder, 'C1MemberWordAcceptance.php');
+  await vscode.workspace.fs.writeFile(memberUri, Buffer.from(memberSource));
+  const memberDocument = await vscode.workspace.openTextDocument(memberUri);
+  const memberEditor = await vscode.window.showTextDocument(memberDocument);
+  const memberPosition = memberDocument.positionAt(memberSource.lastIndexOf('getUserCount;') + 'getUs'.length);
+  const memberItems = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', memberUri, memberPosition),
+    (result) => result?.items.some((item) => item.label === 'getUserCount') === true,
+    'SoPHP did not offer getUserCount inside an existing member word.',
+  );
+  const member = memberItems.items.find((item) => item.label === 'getUserCount');
+  const memberRange = member?.range instanceof vscode.Range ? member.range : member?.range?.replacing;
+  assert.ok(memberRange, 'VS Code did not preserve the full member replacement range.');
+  assert.strictEqual(memberDocument.getText(memberRange), 'getUserCount');
+  memberEditor.selection = new vscode.Selection(memberPosition, memberPosition);
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  if (debugPort) assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes('getUserCount')));
+  else await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  await waitForResult(async () => memberDocument.getText(), (text) => text.includes('$counter->getUserCount();'),
+    'Accepting getUserCount duplicated or damaged the existing suffix.');
+  await vscode.commands.executeCommand('undo');
+  assert.strictEqual(memberDocument.getText(), memberSource);
+  const acronymOffset = memberSource.lastIndexOf('getUserCount;');
+  assert.ok(await memberEditor.edit((edit) => edit.replace(new vscode.Range(
+    memberDocument.positionAt(acronymOffset), memberDocument.positionAt(acronymOffset + 'getUserCount'.length)), 'guc')));
+  const acronymPosition = memberDocument.positionAt(acronymOffset + 'guc'.length);
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', memberUri, acronymPosition),
+    (result) => result?.items.some((item) => item.label === 'getUserCount') === true,
+    'SoPHP did not show getUserCount for the guc abbreviation after an unsaved edit.',
+  );
+  memberEditor.selection = new vscode.Selection(acronymPosition, acronymPosition);
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  if (debugPort) assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes('getUserCount')),
+    'The visible Workbench list omitted getUserCount for guc.');
+  if (debugPort) {
+    assert.ok(await memberEditor.edit((edit) => edit.replace(new vscode.Range(
+      memberDocument.positionAt(acronymOffset), memberDocument.positionAt(acronymOffset + 'guc'.length)), 'user')));
+    const interiorPosition = memberDocument.positionAt(acronymOffset + 'user'.length);
+    memberEditor.selection = new vscode.Selection(interiorPosition, interiorPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes('getUserCount')),
+      'The visible Workbench list omitted getUserCount for an interior word.');
+    const snakeSource = '<?php function get_user_count(): int { return 1; } function completionSnake(): int { return guc; }';
+    const snakeUri = vscode.Uri.joinPath(folder, 'C1SnakeAcronym.php');
+    await vscode.workspace.fs.writeFile(snakeUri, Buffer.from(snakeSource));
+    const snakeDocument = await vscode.workspace.openTextDocument(snakeUri);
+    const snakeEditor = await vscode.window.showTextDocument(snakeDocument);
+    const snakePosition = snakeDocument.positionAt(snakeSource.lastIndexOf('guc;') + 'guc'.length);
+    snakeEditor.selection = new vscode.Selection(snakePosition, snakePosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes('get_user_count')),
+      'The visible Workbench list omitted get_user_count for guc.');
+    const rankingSource = "<?php function completionOptionNumber(): int { return 1; } const completionOptionText = 'ready'; function completionTakeText(string $value): void {} completionTakeText(completionOption);";
+    const rankingUri = vscode.Uri.joinPath(folder, 'C1CrossKindRanking.php');
+    await vscode.workspace.fs.writeFile(rankingUri, Buffer.from(rankingSource));
+    const rankingDocument = await vscode.workspace.openTextDocument(rankingUri);
+    const rankingEditor = await vscode.window.showTextDocument(rankingDocument);
+    const rankingPosition = rankingDocument.positionAt(rankingSource.lastIndexOf('completionOption') + 'completionOption'.length);
+    rankingEditor.selection = new vscode.Selection(rankingPosition, rankingPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const rankedLabels = await visibleCompletionLabels(debugPort);
+    const compatible = rankedLabels.findIndex((label) => label.includes('completionOptionText'));
+    const incompatible = rankedLabels.findIndex((label) => label.includes('completionOptionNumber'));
+    assert.ok(compatible >= 0 && incompatible >= 0 && compatible < incompatible,
+      `The visible Workbench list did not rank the compatible constant first: ${JSON.stringify(rankedLabels)}`);
+    const memberRankingSource = '<?php class CompletionBuilder { public function makeInt(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return "a"; } } function completionTakeString(string $value): void {} function completionRun(CompletionBuilder $builder): void { completionTakeString($builder->make); }';
+    const memberRankingUri = vscode.Uri.joinPath(folder, 'C1MemberTypeRanking.php');
+    await vscode.workspace.fs.writeFile(memberRankingUri, Buffer.from(memberRankingSource));
+    const memberRankingDocument = await vscode.workspace.openTextDocument(memberRankingUri);
+    const memberRankingEditor = await vscode.window.showTextDocument(memberRankingDocument);
+    const memberRankingPosition = memberRankingDocument.positionAt(memberRankingSource.lastIndexOf('$builder->make') + '$builder->make'.length);
+    memberRankingEditor.selection = new vscode.Selection(memberRankingPosition, memberRankingPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const memberRankedLabels = await visibleCompletionLabels(debugPort);
+    const memberRanks = ['makeText', 'makeUnknown', 'makeInt'].map((name) => memberRankedLabels.findIndex((label) => label.includes(name)));
+    assert.ok(memberRanks.every((index) => index >= 0) && memberRanks[0]! < memberRanks[1]! && memberRanks[1]! < memberRanks[2]!,
+      `The visible Workbench list did not rank compatible member results first: ${JSON.stringify(memberRankedLabels)}`);
+    const argumentLead = Number.parseFloat(phpVersion) >= 8 ? 'value: ' : '';
+    const bareArgumentSource = `<?php function completionTake(string $value): void {} function completionRun(string $name, int $number): void { completionTake(${argumentLead}); }`;
+    const bareArgumentUri = vscode.Uri.joinPath(folder, 'C1BareArgumentAcceptance.php');
+    await vscode.workspace.fs.writeFile(bareArgumentUri, Buffer.from(bareArgumentSource));
+    const bareArgumentDocument = await vscode.workspace.openTextDocument(bareArgumentUri);
+    const bareArgumentEditor = await vscode.window.showTextDocument(bareArgumentDocument);
+    const bareArgumentPosition = bareArgumentDocument.positionAt(bareArgumentSource.lastIndexOf('completionTake(')
+      + 'completionTake('.length + argumentLead.length);
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', bareArgumentUri, bareArgumentPosition),
+      (result) => result?.items.some((item) => item.label === '$name') === true,
+      'SoPHP did not offer a compatible local variable at a blank argument.',
+    );
+    bareArgumentEditor.selection = new vscode.Selection(bareArgumentPosition, bareArgumentPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const bareArgumentLabels = await visibleCompletionLabels(debugPort);
+    const localName = bareArgumentLabels.findIndex((label) => label.includes('$name'));
+    const wrongType = bareArgumentLabels.findIndex((label) => label.includes('$number'));
+    assert.ok(localName >= 0 && (wrongType < 0 || localName < wrongType),
+      `The visible Workbench list did not prioritize the compatible local: ${JSON.stringify(bareArgumentLabels)}`);
+    assert.ok(!bareArgumentLabels.some((label) => label.includes('completionTake')),
+      `The blank typed argument mixed in unprefixed function names: ${JSON.stringify(bareArgumentLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => bareArgumentDocument.getText(),
+      (text) => text.includes(`completionTake(${argumentLead}$name);`),
+      'Accepting a compatible local variable did not fill the blank argument.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(bareArgumentDocument.getText(), bareArgumentSource);
+    const literalSource = "<?php /** @param 'draft'|'final' $state */ function completionSetState(string $state): void {} completionSetState(dra);";
+    const literalUri = vscode.Uri.joinPath(folder, 'C1LiteralValueAcceptance.php');
+    await vscode.workspace.fs.writeFile(literalUri, Buffer.from(literalSource));
+    const literalDocument = await vscode.workspace.openTextDocument(literalUri);
+    const literalEditor = await vscode.window.showTextDocument(literalDocument);
+    const literalPosition = literalDocument.positionAt(literalSource.lastIndexOf('dra') + 3);
+    literalEditor.selection = new vscode.Selection(literalPosition, literalPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const literalLabels = await visibleCompletionLabels(debugPort);
+    assert.ok(literalLabels.some((label) => label.includes("'draft'")) && !literalLabels.some((label) => label.includes("'final'")),
+      `The visible Workbench list did not filter PHPDoc literal values: ${JSON.stringify(literalLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => literalDocument.getText(),
+      (text) => text.includes("completionSetState('draft');"),
+      'Accepting a PHPDoc literal value did not insert the quoted expression.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(literalDocument.getText(), literalSource);
+    const quotedLiteralSource = literalSource.replaceAll('completionSetState', 'completionSetQuotedState')
+      .replace('completionSetQuotedState(dra);', "completionSetQuotedState('dra');");
+    const quotedLiteralUri = vscode.Uri.joinPath(folder, 'C1QuotedLiteralValueAcceptance.php');
+    await vscode.workspace.fs.writeFile(quotedLiteralUri, Buffer.from(quotedLiteralSource));
+    const quotedLiteralDocument = await vscode.workspace.openTextDocument(quotedLiteralUri);
+    const quotedLiteralEditor = await vscode.window.showTextDocument(quotedLiteralDocument);
+    const quotedLiteralPosition = quotedLiteralDocument.positionAt(quotedLiteralSource.lastIndexOf('dra') + 3);
+    quotedLiteralEditor.selection = new vscode.Selection(quotedLiteralPosition, quotedLiteralPosition);
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        quotedLiteralUri, quotedLiteralPosition),
+      (result) => result?.items.some((item) => item.label === "'draft'") === true,
+      'The VS Code completion provider did not return the quoted PHPDoc literal value.',
+    );
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const quotedLiteralLabels = await waitForResult(
+      () => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes("'draft'")),
+      'The visible Workbench list did not show the quoted PHPDoc literal value.',
+    );
+    assert.ok(quotedLiteralLabels.some((label) => label.includes("'draft'"))
+      && !quotedLiteralLabels.some((label) => label.includes("'final'")),
+    `The visible Workbench list did not filter quoted PHPDoc literal values: ${JSON.stringify(quotedLiteralLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => quotedLiteralDocument.getText(),
+      (text) => text.includes("completionSetQuotedState('draft');"),
+      'Accepting a quoted PHPDoc literal value duplicated the existing quotes.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(quotedLiteralDocument.getText(), quotedLiteralSource);
+    const unclosedLiteralSource = literalSource.replaceAll('completionSetState', 'completionSetUnclosedState')
+      .replace('completionSetUnclosedState(dra);', "completionSetUnclosedState('dra");
+    const unclosedLiteralUri = vscode.Uri.joinPath(folder, 'C1UnclosedLiteralValueAcceptance.php');
+    await vscode.workspace.fs.writeFile(unclosedLiteralUri, Buffer.from(unclosedLiteralSource));
+    const unclosedLiteralDocument = await vscode.workspace.openTextDocument(unclosedLiteralUri);
+    const unclosedLiteralEditor = await vscode.window.showTextDocument(unclosedLiteralDocument);
+    const unclosedLiteralPosition = unclosedLiteralDocument.positionAt(unclosedLiteralSource.length);
+    unclosedLiteralEditor.selection = new vscode.Selection(unclosedLiteralPosition, unclosedLiteralPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    assert.ok((await visibleCompletionLabels(debugPort)).some((label) => label.includes("'draft'")),
+      'The visible Workbench list omitted a proven value in an unclosed string.');
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => unclosedLiteralDocument.getText(),
+      (text) => text.endsWith("completionSetUnclosedState('draft'"),
+      'Accepting an unclosed PHPDoc literal did not add the closing quote.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(unclosedLiteralDocument.getText(), unclosedLiteralSource);
+    const shapeLiteralSource = "<?php /** @param array{status: 'draft'|'final'} $input */ function completionSendShape(array $input): void {} completionSendShape(['status' => 'dra']);";
+    const shapeLiteralUri = vscode.Uri.joinPath(folder, 'C1ShapeLiteralValueAcceptance.php');
+    await vscode.workspace.fs.writeFile(shapeLiteralUri, Buffer.from(shapeLiteralSource));
+    const shapeLiteralDocument = await vscode.workspace.openTextDocument(shapeLiteralUri);
+    const shapeLiteralEditor = await vscode.window.showTextDocument(shapeLiteralDocument);
+    const shapeLiteralPosition = shapeLiteralDocument.positionAt(shapeLiteralSource.lastIndexOf('dra') + 3);
+    shapeLiteralEditor.selection = new vscode.Selection(shapeLiteralPosition, shapeLiteralPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const shapeLiteralLabels = await waitForResult(
+      () => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes("'draft'")),
+      'The visible Workbench list did not show the array-shape literal value.',
+    );
+    assert.ok(shapeLiteralLabels.some((label) => label.includes("'draft'"))
+      && !shapeLiteralLabels.some((label) => label.includes("'final'")),
+    `The visible Workbench list did not filter array-shape literal values: ${JSON.stringify(shapeLiteralLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => shapeLiteralDocument.getText(),
+      (text) => text.endsWith("completionSendShape(['status' => 'draft']);"),
+      'Accepting an array-shape literal value duplicated the existing quotes.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(shapeLiteralDocument.getText(), shapeLiteralSource);
+    const openShapeSource = "<?php /** @param array{status: 'draft'|'final'} $config */ function completionUpdateOpenShape(array $config): void { $config = ['status' => 'dra";
+    const openShapeUri = vscode.Uri.joinPath(folder, 'C1OpenShapeLiteralValueAcceptance.php');
+    await vscode.workspace.fs.writeFile(openShapeUri, Buffer.from(openShapeSource));
+    const openShapeDocument = await vscode.workspace.openTextDocument(openShapeUri);
+    const openShapeEditor = await vscode.window.showTextDocument(openShapeDocument);
+    const openShapePosition = openShapeDocument.positionAt(openShapeSource.length);
+    openShapeEditor.selection = new vscode.Selection(openShapePosition, openShapePosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const openShapeLabels = await waitForResult(
+      () => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes("'draft'")),
+      'The visible Workbench list did not show the unclosed assignment shape value.',
+    );
+    assert.ok(!openShapeLabels.some((label) => label.includes("'final'")),
+      `The visible Workbench list included a mismatched shape value: ${JSON.stringify(openShapeLabels)}`);
+    await pressWorkbenchEnter(debugPort);
+    await waitForResult(async () => openShapeDocument.getText(),
+      (text) => text.endsWith("$config = ['status' => 'draft'"),
+      'Accepting an unclosed assignment shape value did not close the quote.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(openShapeDocument.getText(), openShapeSource);
+    const templateSource = '<?php function completionTemplateRun(): void { if }';
+    const templateUri = vscode.Uri.joinPath(folder, 'C1TemplateAcceptance.php');
+    await vscode.workspace.fs.writeFile(templateUri, Buffer.from(templateSource));
+    const templateDocument = await vscode.workspace.openTextDocument(templateUri);
+    const templateEditor = await vscode.window.showTextDocument(templateDocument);
+    const templatePosition = templateDocument.positionAt(templateSource.indexOf('if }') + 2);
+    const templateItems = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', templateUri, templatePosition),
+      (result) => result?.items.some((item) => item.label === 'if block') === true,
+      'SoPHP did not offer the if block template.',
+    );
+    assert.ok(templateItems.items.some((item) => item.label === 'if' && item.preselect));
+    templateEditor.selection = new vscode.Selection(templatePosition, templatePosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const templateLabels = await visibleCompletionLabels(debugPort);
+    assert.ok(templateLabels.some((label) => label.includes('if block')), 'The visible list omitted the if block template.');
+    await vscode.commands.executeCommand('selectNextSuggestion');
+    await pressWorkbenchTab(debugPort);
+    await waitForResult(async () => templateDocument.getText(), (text) => text.includes('if (condition) {'),
+      'Pressing Tab did not accept the if block template.');
+    assert.strictEqual(templateDocument.getText(templateEditor.selection), 'condition',
+      'The if block template did not select its condition placeholder.');
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual(templateDocument.getText(), templateSource, 'Undo did not restore the source after accepting the if block template.');
+    const shortTypeUri = vscode.Uri.joinPath(folder, 'ShortProjectType.php');
+    await vscode.workspace.fs.writeFile(shortTypeUri, Buffer.from('<?php namespace App\\C1; class ShortProjectType {}'));
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'ShallowType.php'),
+      Buffer.from('<?php namespace App\\C1; class ShallowType {}'));
+    await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(folder, 'OtherProjectType.php'),
+      Buffer.from('<?php namespace App\\C1; class OtherProjectType {}'));
+    const shortConsumerFolder = vscode.Uri.joinPath(folder, 'Other');
+    await vscode.workspace.fs.createDirectory(shortConsumerFolder);
+    const shortSource = '<?php namespace App\\C1\\Other; function make(): void { new Sh }';
+    const shortUri = vscode.Uri.joinPath(shortConsumerFolder, 'ShortConsumer.php');
+    await vscode.workspace.fs.writeFile(shortUri, Buffer.from(shortSource));
+    const shortDocument = await vscode.workspace.openTextDocument(shortUri);
+    const shortEditor = await vscode.window.showTextDocument(shortDocument);
+    const shortPosition = shortDocument.positionAt(shortSource.indexOf('new Sh') + 'new Sh'.length);
+    const shortCandidates = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', shortUri, shortPosition),
+      (result) => result?.items.some((item) => item.label === 'ShortProjectType') === true,
+      'SoPHP did not show a project class for a two-character type prefix.',
+    );
+    assert.ok(shortCandidates.isIncomplete, 'The two-character project prefix incorrectly claimed all vendor types were searched.');
+    shortEditor.selection = new vscode.Selection(shortPosition, shortPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const shortLabels = await visibleCompletionLabels(debugPort);
+    assert.ok(shortLabels.some((label) => label.includes('ShortProjectType')),
+      'The visible Workbench list omitted the short-prefix project class.');
+    assert.ok(shortLabels.some((label) => label.includes('ShallowType')),
+      'The two-character list omitted the competing project class.');
+    const shortRange = new vscode.Range(shortPosition.translate(0, -2), shortPosition);
+    shortEditor.selection = new vscode.Selection(shortRange.start, shortRange.end);
+    await typeWorkbenchText(debugPort, 'Ot');
+    await waitForResult(async () => shortDocument.getText(), (text) => text === shortSource.replace('new Sh', 'new Ot'),
+      'Workbench typing did not replace the first two-character type prefix.');
+    const otherCandidates = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', shortUri, shortPosition),
+      (result) => result?.items.some((item) => item.label === 'OtherProjectType') === true,
+      'SoPHP did not show the second two-character project type after an unsaved edit.',
+    );
+    assert.ok(otherCandidates.isIncomplete);
+    shortEditor.selection = new vscode.Selection(shortPosition, shortPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const otherLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes('OtherProjectType'))
+        && !labels.some((label) => label.includes('ShortProjectType')),
+      'The visible Workbench list did not switch to the second two-character project type.');
+    assert.ok(otherLabels.length > 0);
+    shortEditor.selection = new vscode.Selection(shortRange.start, shortRange.end);
+    await typeWorkbenchText(debugPort, 'Sh');
+    await waitForResult(async () => shortDocument.getText(), (text) => text === shortSource,
+      'Workbench typing did not restore the first two-character type prefix.');
+    const restoredCandidates = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', shortUri, shortPosition),
+      (result) => result?.items.some((item) => item.label === 'ShortProjectType') === true,
+      'SoPHP did not restore the first two-character project type after another unsaved edit.',
+    );
+    assert.ok(restoredCandidates.isIncomplete);
+    shortEditor.selection = new vscode.Selection(shortPosition, shortPosition);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes('ShortProjectType'))
+        && !labels.some((label) => label.includes('OtherProjectType')),
+      'The visible Workbench list retained the stale second two-character project type.');
+    await typeWorkbenchText(debugPort, 'o');
+    await waitForResult(async () => shortDocument.getText(), (text) => text.includes('new Sho }'),
+      'Typing the third character did not update the open PHP document.');
+    const longerPosition = shortDocument.positionAt(shortSource.indexOf('new Sh') + 'new Sho'.length);
+    const longerCandidates = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', shortUri, longerPosition),
+      (result) => result?.isIncomplete === false && result.items.some((item) => item.label === 'ShortProjectType'),
+      'SoPHP did not complete the project type after the short-prefix retrigger.',
+    );
+    assert.ok(!longerCandidates.items.some((item) => item.label === 'ShallowType'),
+      'The longer prefix retained an unrelated project type.');
+    const longerLabels = await waitForResult(() => visibleCompletionLabels(debugPort),
+      (labels) => labels.some((label) => label.includes('ShortProjectType'))
+        && !labels.some((label) => label.includes('ShallowType')),
+      'The visible Workbench list did not narrow after typing the third character.');
+    assert.ok(longerLabels.length > 0);
+    await verifyVisibleBranchValues(folder, debugPort);
+    await verifyVisibleBranchShapes(folder, debugPort);
+    await verifyVisibleUnionShapes(folder, debugPort);
+    await verifyVisibleUnfinishedShapes(folder, debugPort);
+    await verifyVisibleQuotedPrefixes(folder, debugPort);
+    await verifyVisibleArrayAccessKeys(folder, debugPort);
+    const visible = await measureVisibleSuggestion(debugPort, folder);
+    console.log(`C1 completion visible list: ${JSON.stringify({ samplesMs: visible.samplesMs,
+      medianMs: visible.medianMs, maxMs: visible.maxMs })}`);
+  }
+  console.log('C1 completion experience: visible call, alternating short project types, third-character retrigger, word-middle member replacement, Tab template, placeholders, and Undo passed.');
 }
 
 async function verifyColdRealVendorQuery(kind: 'references' | 'implementation',
@@ -343,6 +1525,10 @@ export async function run(): Promise<void> {
   }
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
+  const syntaxVersion = targetPhpVersion ?? runtimeVersion ?? '8.5';
+  const supportsAttributes = Number.parseFloat(syntaxVersion) >= 8;
+  const supportsEnums = Number.parseFloat(syntaxVersion) >= 8.1;
+  const supportsDnf = Number.parseFloat(syntaxVersion) >= 8.2;
   const runtimeDiscover = process.env.PHP_COMPANION_TEST_C1_RUNTIME_DISCOVER === '1';
   const c1DebugPort = process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT;
   if (targetPhpVersion) assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', workspace.uri).get('phpVersion'), targetPhpVersion);
@@ -350,6 +1536,27 @@ export async function run(): Promise<void> {
     'VS Code built-in PHP suggestions must stay disabled while SoPHP owns PHP completion, Hover and Signature Help.');
   const folder = vscode.Uri.joinPath(workspace.uri, 'src', 'C1');
   await vscode.workspace.fs.createDirectory(folder);
+  if (process.env.PHP_COMPANION_TEST_C1_INCLUDE_ONLY === '1') {
+    await verifyStaticIncludeDefinition(folder);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_KEYWORDS_ONLY === '1') {
+    await verifyKeywordCompletionSmoke(folder, syntaxVersion);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_SHADOW_ONLY === '1') {
+    await verifyShadowedGlobalCompletion(folder);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_SCOPE_ONLY === '1') {
+    await verifyScopedSymbolDefinition(folder);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C1_COMPLETION_ONLY === '1') {
+    await verifyCompletionExperience(folder, c1DebugPort ? Number(c1DebugPort) : undefined, syntaxVersion);
+    await verifyShadowedGlobalCompletion(folder);
+    return;
+  }
   const mixedSymbolsUri = vscode.Uri.joinPath(folder, 'C1MixedSymbols.php');
   await vscode.workspace.fs.writeFile(mixedSymbolsUri, Buffer.from(
     '<?php namespace App\\C1; function c1_mix_function(): void {} const C1_MIX_CONSTANT = 1;',
@@ -397,10 +1604,54 @@ export async function run(): Promise<void> {
     if (kind.startsWith('group') || kind.startsWith('mixed')) {
       const selected = result.items.find((item) => item.label === expected)!;
       const range = selected.range instanceof vscode.Range ? selected.range : selected.range?.replacing;
-      assert.ok(range && document.getText(range) === 'c1_mix',
-        `SoPHP would replace more than the current member in the ${kind} import.`);
+      const groupStart = source.indexOf('{');
+      const expectedRange = source.slice(groupStart, offset + (source[offset] === '}' ? 1 : 0));
+      const expectedText = `${source.slice(groupStart, offset - 'c1_mix'.length)}${expected}${source[offset] === '}' ? '}' : ''}`;
+      assert.ok(range && document.getText(range) === expectedRange && selected.insertText === expectedText,
+        `SoPHP would damage a member or brace in the ${kind} import.`);
     }
   }
+  const nestedSymbolsFolder = vscode.Uri.joinPath(folder, 'Nested');
+  await vscode.workspace.fs.createDirectory(nestedSymbolsFolder);
+  const nestedSymbolsUri = vscode.Uri.joinPath(nestedSymbolsFolder, 'C1NestedSymbols.php');
+  await vscode.workspace.fs.writeFile(nestedSymbolsUri, Buffer.from(
+    '<?php namespace App\\C1\\Nested; function c1_nested_function(): void {} const C1_NESTED_CONSTANT = 1;',
+  ));
+  await vscode.workspace.openTextDocument(nestedSymbolsUri);
+  const groupedFunctionSource = '<?php namespace App\\C1; use function App\\C1\\{Nes}; class GroupedFunctionConsumer {}';
+  const groupedFunctionUri = vscode.Uri.joinPath(folder, 'C1GroupedFunctionConsumer.php');
+  await vscode.workspace.fs.writeFile(groupedFunctionUri, Buffer.from(groupedFunctionSource));
+  const groupedFunctionDocument = await vscode.workspace.openTextDocument(groupedFunctionUri);
+  const groupedFunctionEditor = await vscode.window.showTextDocument(groupedFunctionDocument);
+  const groupedFunctionOffset = groupedFunctionSource.indexOf('Nes}') + 'Nes'.length;
+  const groupedFunctionCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupedFunctionUri,
+      groupedFunctionDocument.positionAt(groupedFunctionOffset)),
+    (result) => result?.items.some((item) => item.label === 'Nested\\'
+      && item.detail === 'App\\C1\\Nested\\' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not suggest a namespace inside a function group use.',
+  );
+  const groupedFunctionItem = groupedFunctionCompletion.items.find((item) => item.label === 'Nested\\')!;
+  const groupedFunctionRange = groupedFunctionItem.range instanceof vscode.Range
+    ? groupedFunctionItem.range : groupedFunctionItem.range?.replacing;
+  assert.ok(groupedFunctionRange && groupedFunctionDocument.getText(groupedFunctionRange) === '{Nes}'
+    && groupedFunctionItem.insertText === '{Nested\\}',
+  'The function group namespace suggestion would change the braces.');
+  groupedFunctionEditor.selection = new vscode.Selection(groupedFunctionDocument.positionAt(groupedFunctionOffset),
+    groupedFunctionDocument.positionAt(groupedFunctionOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(groupedFunctionDocument.getText(), groupedFunctionSource.replace('{Nes}', '{Nested\\}'),
+    'Accepting the function group namespace suggestion changed the braces or other source text.');
+  const groupedFunctionText = groupedFunctionDocument.getText();
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupedFunctionUri,
+      groupedFunctionDocument.positionAt(groupedFunctionText.indexOf('Nested\\}') + 'Nested\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'c1_nested_function') === true,
+    'SoPHP did not continue with function completion after accepting the group namespace.',
+  );
   assert.strictEqual(vscode.workspace.getConfiguration('editor', { uri: vscode.Uri.joinPath(folder, 'Consumer.php'),
     languageId: 'php' }).get('wordBasedSuggestions'), 'off',
     'PHP variable suggestions should come from SoPHP with PHP scope ownership.');
@@ -416,6 +1667,83 @@ export async function run(): Promise<void> {
     localWordUri, localWordDocument.positionAt(localWordSource.indexOf('$cust }') + '$cust'.length));
   assert.ok(localWordSuggestions?.items.some((item) => item.label === 'customerName' || item.label === '$customerName'),
     'PHP no longer suggests a variable word from the current file.');
+  const unsetSource = '<?php function c1Unset(): void { $state = 1; unset($state); echo $sta; }';
+  const unsetUri = vscode.Uri.joinPath(folder, 'C1Unset.php');
+  await vscode.workspace.fs.writeFile(unsetUri, Buffer.from(unsetSource));
+  const unsetDocument = await vscode.workspace.openTextDocument(unsetUri);
+  await vscode.window.showTextDocument(unsetDocument);
+  const unsetOffset = unsetSource.indexOf('$sta;') + '$sta'.length;
+  const unsetSuggestions = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+    unsetUri, unsetDocument.positionAt(unsetOffset));
+  assert.ok(!unsetSuggestions?.items.some((item) => item.label === '$state'),
+    'PHP suggested a local variable after its direct unset.');
+  const restoreEdit = new vscode.WorkspaceEdit();
+  restoreEdit.insert(unsetUri, unsetDocument.positionAt(unsetSource.indexOf('echo $sta;')), '$state = 2; ');
+  assert.ok(await vscode.workspace.applyEdit(restoreEdit));
+  const restoredText = unsetDocument.getText();
+  const restoredSuggestions = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', unsetUri,
+      unsetDocument.positionAt(restoredText.indexOf('$sta;') + '$sta'.length)),
+    (result) => result?.items.some((item) => item.label === '$state') === true,
+    'PHP did not restore the local variable suggestion after an unsaved reassignment.',
+  );
+  assert.ok(restoredSuggestions.items.some((item) => item.label === '$state'));
+  const byReferenceSource = '<?php function c1Fill(string &$value): void {} function c1Consume(string $value): void {} function c1ByRef(): void { c1Fill($output); echo $out; }';
+  const byReferenceUri = vscode.Uri.joinPath(folder, 'C1ByReferenceOutput.php');
+  await vscode.workspace.fs.writeFile(byReferenceUri, Buffer.from(byReferenceSource));
+  const byReferenceDocument = await vscode.workspace.openTextDocument(byReferenceUri);
+  await vscode.window.showTextDocument(byReferenceDocument);
+  const byReferenceOffset = byReferenceSource.indexOf('$out;') + '$out'.length;
+  const byReferenceSuggestions = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', byReferenceUri,
+      byReferenceDocument.positionAt(byReferenceOffset)),
+    (result) => result?.items.some((item) => item.label === '$output') === true,
+    'PHP did not suggest a local initialized through a known reference parameter.',
+  );
+  assert.ok(byReferenceSuggestions.items.some((item) => item.label === '$output'));
+  const byReferenceEdit = new vscode.WorkspaceEdit();
+  byReferenceEdit.replace(byReferenceUri, new vscode.Range(
+    byReferenceDocument.positionAt(byReferenceSource.indexOf('c1Fill($output)')),
+    byReferenceDocument.positionAt(byReferenceSource.indexOf('c1Fill($output)') + 'c1Fill'.length)), 'c1Consume');
+  assert.ok(await vscode.workspace.applyEdit(byReferenceEdit));
+  const byReferenceChanged = byReferenceDocument.getText();
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', byReferenceUri,
+      byReferenceDocument.positionAt(byReferenceChanged.indexOf('$out;') + '$out'.length)),
+    (result) => result?.items.some((item) => item.label === '$output') === false,
+    'PHP kept a reference-output suggestion after an unsaved change to an ordinary parameter.',
+  );
+  const unfinishedByReference = byReferenceSource.replace('echo $out; }', 'echo $out');
+  const unfinishedEdit = new vscode.WorkspaceEdit();
+  unfinishedEdit.replace(byReferenceUri, new vscode.Range(byReferenceDocument.positionAt(0),
+    byReferenceDocument.positionAt(byReferenceDocument.getText().length)), unfinishedByReference);
+  assert.ok(await vscode.workspace.applyEdit(unfinishedEdit));
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', byReferenceUri,
+      byReferenceDocument.positionAt(unfinishedByReference.length)),
+    (result) => result?.items.some((item) => item.label === '$output') === true,
+    'PHP lost the reference-output suggestion while the function body was unfinished.',
+  );
+  const methodReferenceSource = `<?php final class C1ReferenceSink {
+  public function fill(string &$value): void {}
+  public static function fillStatic(string &$value): void {}
+}
+function c1MethodReference(C1ReferenceSink $sink): void {
+  $sink->fill($instanceResult); echo $inst;
+  C1ReferenceSink::fillStatic($staticResult); echo $sta;
+}`;
+  const methodReferenceUri = vscode.Uri.joinPath(folder, 'C1MethodReferenceOutput.php');
+  await vscode.workspace.fs.writeFile(methodReferenceUri, Buffer.from(methodReferenceSource));
+  const methodReferenceDocument = await vscode.workspace.openTextDocument(methodReferenceUri);
+  await vscode.window.showTextDocument(methodReferenceDocument);
+  for (const [marker, label] of [['$inst;', '$instanceResult'], ['$sta;', '$staticResult']] as const) {
+    await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', methodReferenceUri,
+        methodReferenceDocument.positionAt(methodReferenceSource.indexOf(marker) + marker.length - 1)),
+      (result) => result?.items.some((item) => item.label === label) === true,
+      `PHP did not suggest ${label} after a resolved reference-parameter method call.`,
+    );
+  }
   const middleWordSource = '<?php function c1MiddleWord(): void { $customerName = "Ada"; $custOldTail; }';
   const middleWordUri = vscode.Uri.joinPath(folder, 'C1MiddleWord.php');
   await vscode.workspace.fs.writeFile(middleWordUri, Buffer.from(middleWordSource));
@@ -612,9 +1940,24 @@ function documented(): void {}
   for (const marker of ['@template T of C1DocTa', '@template-covariant TView as C1DocTa',
     '@phpstan-template TKey of C1DocTa', '@psalm-template TItem as C1DocTa',
     '@template TNext of\n * C1DocTa', '@phpstan-template TAfter as\n * C1DocTa']) {
-    assert.ok((await phpDocSuggestions(marker)).some((item) =>
-      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'),
-    `SoPHP did not suggest the project class in PHPDoc template bound ${marker}.`);
+    const position = phpDocDocument.positionAt(phpDocSource.indexOf(marker) + marker.length);
+    const query = (): Thenable<vscode.CompletionList> => vscode.commands.executeCommand<vscode.CompletionList>(
+      'vscode.executeCompletionItemProvider', phpDocUri, position);
+    const matches = (result: vscode.CompletionList | undefined): boolean => result?.items.some((item) =>
+      item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget') === true;
+    let result = await query();
+    if (!matches(result) && result?.isIncomplete) {
+      const started = performance.now();
+      const deadline = Date.now() + 5_000;
+      do {
+        await new Promise<void>((resolve) => setTimeout(resolve, 100));
+        result = await query();
+      } while (!matches(result) && result?.isIncomplete && Date.now() < deadline);
+      if (matches(result)) console.log(`C1 PHPDoc template candidate recovered after ${Math.round(performance.now() - started)}ms: ${marker}`);
+    }
+    assert.ok(matches(result),
+    `SoPHP did not suggest the project class in PHPDoc template bound ${marker}; incomplete=${String(result?.isIncomplete)}; received ${JSON.stringify(
+      result?.items.map((item) => ({ label: item.label, detail: item.detail, kind: item.kind })).slice(0, 20))}.`);
   }
   for (const marker of ['@template T', '@template-covariant TView', '@phpstan-template TKey',
     '@psalm-template TItem', '@template TDescription of C1DocTarget description']) {
@@ -647,6 +1990,24 @@ function documented(): void {}
     assert.ok(!(await phpDocSuggestions(marker)).some((item) =>
       item.label === 'C1DocTarget' && item.kind === vscode.CompletionItemKind.Class),
     `SoPHP suggested the project class outside a PHPDoc type position ${marker}.`);
+  }
+  const nativeTypeCases = [
+    ['C1ClosureType.php', '<?php namespace App\\C1; $callback = function (C1DocTa'],
+    ['C1ClosureCapturedReturn.php', '<?php namespace App\\C1; $captured = 1; $callback = function () use (&$captured): C1DocTa'],
+    ...(supportsDnf ? [['C1DnfReturnType.php', '<?php namespace App\\C1; function make(): (Countable&Throwable)|C1DocTa']] : []),
+    ...(supportsDnf ? [['C1DnfCapturedReturn.php', '<?php namespace App\\C1; $captured = 1; $callback = function () use ($captured): (Countable&Throwable)|C1DocTa']] : []),
+  ];
+  for (const [name, source] of nativeTypeCases) {
+    const typeUri = vscode.Uri.joinPath(folder, name);
+    await vscode.workspace.fs.writeFile(typeUri, Buffer.from(source));
+    const typeDocument = await vscode.workspace.openTextDocument(typeUri);
+    await vscode.window.showTextDocument(typeDocument);
+    const items = await waitForResult(
+      () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        typeUri, typeDocument.positionAt(source.length)),
+      (result) => result?.items.some((item) => item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget') === true,
+      `SoPHP did not suggest the project class in ${name}.`);
+    assert.ok(items.items.some((item) => item.label === 'C1DocTarget' && item.detail === 'App\\C1\\C1DocTarget'));
   }
   const navigationTargetUri = vscode.Uri.joinPath(folder, 'C1DocNavigationTarget.php');
   await vscode.workspace.fs.writeFile(navigationTargetUri,
@@ -1038,6 +2399,55 @@ function useCommented(mixed $value): never { return new never(); }`;
   );
   assert.strictEqual(builtinCompletion.items.filter((item) => item.label === 'abs').length, 1,
     'PHP built-in completion was returned by more than one provider.');
+  const keywordSource = '<?php\n$app = n';
+  const keywordUri = vscode.Uri.joinPath(folder, 'C1NewKeywordConsumer.php');
+  await vscode.workspace.fs.writeFile(keywordUri, Buffer.from(keywordSource));
+  const keywordDocument = await vscode.workspace.openTextDocument(keywordUri);
+  await vscode.window.showTextDocument(keywordDocument);
+  const keywordCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', keywordUri,
+      keywordDocument.positionAt(keywordSource.length)),
+    (result) => result?.items.some((item) => item.label === 'new' && item.kind === vscode.CompletionItemKind.Keyword) === true,
+    'SoPHP did not suggest the new keyword after an assignment.',
+  );
+  const newKeyword = keywordCompletion.items.find((item) => item.label === 'new');
+  assert.strictEqual(newKeyword?.textEdit?.newText, 'new ');
+  assert.strictEqual(newKeyword?.preselect, true);
+  assert.ok(!keywordCompletion.items.some((item) => ['nav', 'noframes', 'noscript'].includes(String(item.label))),
+    'PHP expression completion included HTML Emmet abbreviations.');
+  assert.ok(keywordCompletion.items.some((item) => item.label === 'number_format'),
+    'Suppressing HTML suggestions also removed a valid PHP function.');
+  const functionSource = '<?php\n$app = 1;\nfunc';
+  const functionUri = vscode.Uri.joinPath(folder, 'C1FunctionKeywordConsumer.php');
+  await vscode.workspace.fs.writeFile(functionUri, Buffer.from(functionSource));
+  const functionDocument = await vscode.workspace.openTextDocument(functionUri);
+  await vscode.window.showTextDocument(functionDocument);
+  const functionCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', functionUri,
+      functionDocument.positionAt(functionSource.length)),
+    (result) => result?.items.some((item) => item.label === 'function' && item.kind === vscode.CompletionItemKind.Keyword) === true,
+    'SoPHP did not suggest the function keyword after func.',
+  );
+  const functionKeyword = functionCompletion.items.find((item) => item.label === 'function');
+  assert.strictEqual(functionKeyword?.textEdit?.newText, 'function ');
+  assert.strictEqual(functionKeyword?.preselect, true);
+  assert.ok(!functionCompletion.items.some((item) => item.label === 'func_get_arg'),
+    'A declaration keyword was mixed with unrelated callable names.');
+  const returnSource = '<?php\nfunction asdf() {\n    retu\n}';
+  const returnUri = vscode.Uri.joinPath(folder, 'C1ReturnKeywordConsumer.php');
+  await vscode.workspace.fs.writeFile(returnUri, Buffer.from(returnSource));
+  const returnDocument = await vscode.workspace.openTextDocument(returnUri);
+  await vscode.window.showTextDocument(returnDocument);
+  const returnCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', returnUri,
+      returnDocument.positionAt(returnSource.indexOf('retu') + 4)),
+    (result) => result?.items.some((item) => item.label === 'return' && item.kind === vscode.CompletionItemKind.Keyword) === true,
+    'SoPHP did not suggest return inside a PHP function.',
+  );
+  const returnKeyword = returnCompletion.items.find((item) => item.label === 'return');
+  assert.strictEqual(returnKeyword?.textEdit?.newText, 'return ');
+  assert.strictEqual(returnKeyword?.preselect, true);
+  console.log('C1 return completion candidates:', returnCompletion.items.slice(0, 10).map((item) => String(item.label)).join(', '));
   const typeSource = '<?php namespace App\\C1; function instantiate(): void { new C1TypeCompletionPro; }';
   const typeUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionConsumer.php');
   const typeDeclarationUri = vscode.Uri.joinPath(folder, 'C1TypeCompletionProbe.php');
@@ -1181,10 +2591,14 @@ class C1ConstructionPositions {
   await vscode.window.showTextDocument(constructionDocument);
   for (const [marker, allowed, rejected] of [
     ['new C1Inheritance', ['C1InheritanceClass'], ['C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
-    ['instanceof C1Inheritance', ['C1InheritanceClass', 'C1InheritanceInterface', 'C1InheritanceEnum'], ['C1InheritanceTrait']],
+    ['instanceof C1Inheritance', supportsEnums
+      ? ['C1InheritanceClass', 'C1InheritanceInterface', 'C1InheritanceEnum']
+      : ['C1InheritanceClass', 'C1InheritanceInterface'],
+    supportsEnums ? ['C1InheritanceTrait'] : ['C1InheritanceTrait', 'C1InheritanceEnum']],
     ['#[C1Inheritance', ['C1InheritanceClass', 'C1InheritanceAlias'],
       ['C1InheritancePlain', 'C1InheritanceInterface', 'C1InheritanceTrait', 'C1InheritanceEnum']],
   ] as const) {
+    if (marker.startsWith('#[') && !supportsAttributes) continue;
     const suggestions = await waitForResult(
       () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', constructionUri,
         constructionDocument.positionAt(constructionSource.indexOf(marker) + marker.length)),
@@ -1194,6 +2608,7 @@ class C1ConstructionPositions {
     for (const name of rejected) assert.ok(!suggestions.items.some((item) => item.label === name),
       `SoPHP suggested invalid ${name} in ${marker}.`);
   }
+  if (supportsAttributes) {
   for (const [name, flags] of [
     ['C1TargetClass', '\\Attribute::TARGET_CLASS'],
     ['C1TargetMethod', '\\Attribute::TARGET_METHOD'],
@@ -1268,6 +2683,7 @@ class C1ConstructionPositions {
     'vscode.executeSignatureHelpProvider', attributeArgumentsUri, attributeArgumentsPosition);
   assert.ok(attributeSignature?.signatures.some((item) => item.label.includes('name')),
     'SoPHP did not show the PHP Attribute constructor signature.');
+  }
   const catchTypeUri = vscode.Uri.joinPath(externalFolder, 'C1ExternalCatchException.php');
   await vscode.workspace.fs.writeFile(catchTypeUri,
     Buffer.from('<?php namespace App\\C1\\External; class C1ExternalCatchException extends \\RuntimeException {}'));
@@ -1477,6 +2893,41 @@ class C1ConstructionPositions {
   await vscode.commands.executeCommand('acceptSelectedSuggestion');
   assert.strictEqual(nestedGroupDocument.getText(), nestedGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
     'Accepting the nested group use member changed its prefix or braces.');
+  const groupNamespaceSource = '<?php namespace App\\C1; use App\\C1\\{Exte}; class GroupNamespaceImportConsumer {}';
+  const groupNamespaceUri = vscode.Uri.joinPath(folder, 'C1GroupNamespaceImportConsumer.php');
+  await vscode.workspace.fs.writeFile(groupNamespaceUri, Buffer.from(groupNamespaceSource));
+  const groupNamespaceDocument = await vscode.workspace.openTextDocument(groupNamespaceUri);
+  const groupNamespaceEditor = await vscode.window.showTextDocument(groupNamespaceDocument);
+  const groupNamespaceOffset = groupNamespaceSource.indexOf('Exte}') + 'Exte'.length;
+  const groupNamespaceCompletion = await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupNamespaceUri,
+      groupNamespaceDocument.positionAt(groupNamespaceOffset)),
+    (result) => result?.items.some((item) => item.label === 'External\\'
+      && item.detail === 'App\\C1\\External\\' && !item.additionalTextEdits?.length) === true,
+    'SoPHP did not suggest a namespace inside a class group use.',
+  );
+  const groupNamespaceItem = groupNamespaceCompletion.items.find((item) => item.label === 'External\\')!;
+  const groupNamespaceRange = groupNamespaceItem.range instanceof vscode.Range
+    ? groupNamespaceItem.range : groupNamespaceItem.range?.replacing;
+  assert.ok(groupNamespaceRange && groupNamespaceDocument.getText(groupNamespaceRange) === '{Exte}'
+    && groupNamespaceItem.insertText === '{External\\}',
+  'The group namespace suggestion would alter an existing group member or brace.');
+  groupNamespaceEditor.selection = new vscode.Selection(groupNamespaceDocument.positionAt(groupNamespaceOffset),
+    groupNamespaceDocument.positionAt(groupNamespaceOffset));
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
+  await vscode.commands.executeCommand('editor.action.triggerSuggest');
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  await vscode.commands.executeCommand('acceptSelectedSuggestion');
+  assert.strictEqual(groupNamespaceDocument.getText(), groupNamespaceSource.replace('{Exte}', '{External\\}'),
+    'Accepting the group namespace suggestion changed the braces or other source text.');
+  const groupNamespaceText = groupNamespaceDocument.getText();
+  await waitForResult(
+    () => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', groupNamespaceUri,
+      groupNamespaceDocument.positionAt(groupNamespaceText.indexOf('External\\}') + 'External\\'.length)),
+    (result) => result?.items.some((item) => item.label === 'C1ExternalTypeProbe'
+      && item.detail === 'App\\C1\\External\\C1ExternalTypeProbe') === true,
+    'SoPHP did not continue with class completion after accepting the group namespace.',
+  );
   const alternateFolder = vscode.Uri.joinPath(folder, 'Alternative');
   await vscode.workspace.fs.createDirectory(alternateFolder);
   await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(alternateFolder, 'C1ExternalTypeProbe.php'),

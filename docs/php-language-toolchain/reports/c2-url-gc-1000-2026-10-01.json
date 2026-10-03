@@ -1,0 +1,184 @@
+{
+  "root": "/tmp/sophp-url-completion-pressure",
+  "file": "/tmp/sophp-url-completion-pressure/Pressure.php",
+  "rounds": 1000,
+  "expectFirst": false,
+  "expectEmptyForDash": false,
+  "resolveDetails": true,
+  "firstMs": 78.4,
+  "all": {
+    "p50Ms": 15.73,
+    "p95Ms": 23.85,
+    "maxMs": 129.26
+  },
+  "a": {
+    "fragment": "$candidatePort = parse_url($url, PHP_URL_PORT); $candidateP{{cursor}}; }",
+    "expected": "$candidatePort",
+    "p50Ms": 15.8,
+    "p95Ms": 23.44,
+    "maxMs": 129.26,
+    "incomplete": 0
+  },
+  "b": {
+    "fragment": "$candidateHost = parse_url($url, PHP_URL_HOST); $candidateH{{cursor}}; }",
+    "expected": "$candidateHost",
+    "p50Ms": 15.68,
+    "p95Ms": 23.85,
+    "maxMs": 119.88,
+    "incomplete": 0
+  },
+  "memory": {
+    "collectedGc": true,
+    "metric": "Node memory after explicit GC",
+    "samples": [
+      {
+        "round": 1,
+        "rssMiB": 187.99,
+        "heapUsedMiB": 39.51,
+        "externalMiB": 34.52,
+        "arrayBuffersMiB": 0.08
+      },
+      {
+        "round": 50,
+        "rssMiB": 185.79,
+        "heapUsedMiB": 40.97,
+        "externalMiB": 34.18,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 100,
+        "rssMiB": 186.79,
+        "heapUsedMiB": 41.13,
+        "externalMiB": 34.19,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 150,
+        "rssMiB": 186.8,
+        "heapUsedMiB": 41.32,
+        "externalMiB": 34.19,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 200,
+        "rssMiB": 184.92,
+        "heapUsedMiB": 41.56,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 250,
+        "rssMiB": 186.82,
+        "heapUsedMiB": 41.63,
+        "externalMiB": 34.19,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 300,
+        "rssMiB": 187.71,
+        "heapUsedMiB": 41.6,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 350,
+        "rssMiB": 186.17,
+        "heapUsedMiB": 41.72,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 400,
+        "rssMiB": 188.75,
+        "heapUsedMiB": 41.87,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 450,
+        "rssMiB": 186.21,
+        "heapUsedMiB": 41.93,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 500,
+        "rssMiB": 186.14,
+        "heapUsedMiB": 41.98,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 550,
+        "rssMiB": 188.29,
+        "heapUsedMiB": 42.08,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 600,
+        "rssMiB": 188.85,
+        "heapUsedMiB": 41.96,
+        "externalMiB": 34.19,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 650,
+        "rssMiB": 187.02,
+        "heapUsedMiB": 42.08,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 700,
+        "rssMiB": 187.68,
+        "heapUsedMiB": 41.98,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 750,
+        "rssMiB": 188.09,
+        "heapUsedMiB": 42.11,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 800,
+        "rssMiB": 187.01,
+        "heapUsedMiB": 42.1,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 850,
+        "rssMiB": 185.52,
+        "heapUsedMiB": 42.14,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 900,
+        "rssMiB": 187.44,
+        "heapUsedMiB": 42.07,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 950,
+        "rssMiB": 187.13,
+        "heapUsedMiB": 42.25,
+        "externalMiB": 34.2,
+        "arrayBuffersMiB": 0.09
+      },
+      {
+        "round": 1000,
+        "rssMiB": 188.14,
+        "heapUsedMiB": 42.3,
+        "externalMiB": 34.19,
+        "arrayBuffersMiB": 0.09
+      }
+    ]
+  },
+  "readOnly": true
+}

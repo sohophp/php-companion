@@ -52,7 +52,10 @@ export function auditedReflectionCoreStub(version: SupportedPhpVersion): string 
   ].filter(Boolean).join('\n  ');
 
   return `class ReflectionException extends Exception {}
-class Reflection { ${method('getModifierNames', 'int $modifiers', 'int $modifiers', 'array', 'public static')} }
+class Reflection {
+  ${method('getModifierNames', 'int $modifiers', 'int $modifiers', 'array', 'public static')}
+  ${exportMethod('Reflector $reflector, $return = false')}
+}
 interface Reflector${php80 ? ' extends Stringable' : ''} { ${php80 ? '' : 'public static function export(); public function __toString();'} }
 abstract class ReflectionFunctionAbstract implements Reflector {
   public ${php81 ? 'string ' : ''}$name;
@@ -74,6 +77,7 @@ class ReflectionMethod extends ReflectionFunctionAbstract {
   ${method('__toString', '', '', 'string')}
   ${method('isPublic', '', '', 'bool')} ${method('isPrivate', '', '', 'bool')} ${method('isProtected', '', '', 'bool')}
   ${method('isAbstract', '', '', 'bool')} ${method('isFinal', '', '', 'bool')} ${method('isConstructor', '', '', 'bool')} ${method('isDestructor', '', '', 'bool')}
+  ${!php81 ? method('isStatic', '', '', 'bool') : ''}
   ${method('getClosure', '$object = null', '?object $object = null', 'Closure')} ${method('getModifiers', '', '', 'int')}
   ${method('invoke', '$object, ...$args', '?object $object, mixed ...$args', 'mixed')}
   ${method('invokeArgs', '$object, array $args', '?object $object, array $args', 'mixed')}

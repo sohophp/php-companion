@@ -1,0 +1,284 @@
+{
+  "date": "2026-10-02",
+  "status": "source_applied_semantic_stdio_and_linux_host_passed",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "semantic_queries": [
+    {
+      "version": "7.2",
+      "prototype": false,
+      "args": "list<mixed>",
+      "result": "int"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "args": "array<string, mixed>",
+      "result": "int"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "args": "array<int, mixed>",
+      "result": "int"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "args": "list<mixed>",
+      "result": "int"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "args": "array<string, mixed>",
+      "result": "int"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "args": "array<int, mixed>",
+      "result": "int"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "args": "list<mixed>",
+      "result": "int"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "args": "array<string, mixed>",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "args": "array<int, mixed>",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "args": "list<mixed>",
+      "result": "int"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "args": "array<string, mixed>",
+      "result": "int"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "args": "array<int, mixed>",
+      "result": "int"
+    }
+  ],
+  "prototype_lsp": {
+    "queries": [
+      {
+        "phpVersion": "7.2",
+        "argType": "array<string, mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "7.2",
+        "argType": "list<mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "7.2",
+        "argType": "array<int, mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "7.2",
+        "argType": "array<string, mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "8.5",
+        "argType": "array<string, mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "8.5",
+        "argType": "list<mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "8.5",
+        "argType": "array<int, mixed>",
+        "hoverInt": true
+      },
+      {
+        "phpVersion": "8.5",
+        "argType": "array<string, mixed>",
+        "hoverInt": true
+      }
+    ],
+    "diskUnchanged": true,
+    "productUpdated": false
+  },
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "count": 1,
+      "received": [
+        2,
+        1
+      ]
+    },
+    {
+      "version": "7.4.33",
+      "count": 1,
+      "received": [
+        2,
+        1
+      ]
+    },
+    {
+      "version": "8.1.34",
+      "count": 1,
+      "received": [
+        2,
+        1
+      ]
+    },
+    {
+      "version": "8.2.32",
+      "count": 1,
+      "received": [
+        2,
+        1
+      ]
+    },
+    {
+      "version": "8.4.23",
+      "count": 1,
+      "received": [
+        1,
+        2
+      ]
+    },
+    {
+      "version": "8.5.9",
+      "count": 1,
+      "received": [
+        1,
+        2
+      ]
+    }
+  ],
+  "unverified_runtime_boundary": [
+    "8.0",
+    "8.3"
+  ],
+  "product_updated": true,
+  "profile_updated": false,
+  "nullable_runtime": [
+    {
+      "version": "7.2.34",
+      "type": "array",
+      "nullable": true,
+      "result": 1
+    },
+    {
+      "version": "7.4.33",
+      "type": "array",
+      "nullable": true,
+      "result": 1
+    },
+    {
+      "version": "8.1.34",
+      "type": "?array",
+      "nullable": true,
+      "result": 1
+    },
+    {
+      "version": "8.2.32",
+      "type": "?array",
+      "nullable": true,
+      "result": 1
+    },
+    {
+      "version": "8.4.23",
+      "type": "?array",
+      "nullable": true,
+      "result": 1
+    },
+    {
+      "version": "8.5.9",
+      "type": "?array",
+      "nullable": true,
+      "result": 1
+    }
+  ],
+  "isolated_formal": {
+    "files": 2,
+    "passed": 13,
+    "duration_seconds": 11.6,
+    "log": "/tmp/sophp-iterator-apply-formal.log",
+    "php_versions": [
+      "7.2",
+      "7.4",
+      "8.1",
+      "8.5"
+    ],
+    "native_php7_nullable_representation": "?array",
+    "product_updated": false
+  },
+  "verification": {
+    "spec_full": {
+      "passed": 204,
+      "files": 10,
+      "duration_seconds": 13.38,
+      "exit_code": 0,
+      "log": "/tmp/sophp-iterator-apply-spec-full-final.log"
+    },
+    "semantic_full": {
+      "passed": 1217,
+      "files": 60,
+      "duration_seconds": 53.43,
+      "exit_code": 0,
+      "log": "/tmp/sophp-iterator-apply-semantic-full.log"
+    },
+    "targeted_stdio": {
+      "passed": 8,
+      "files": 4,
+      "duration_seconds": 4.78,
+      "exit_code": 0,
+      "iterator_apply_queries": 12,
+      "php_versions": [
+        "7.2",
+        "8.5"
+      ],
+      "log": "/tmp/sophp-iterator-apply-stdio.log"
+    },
+    "linux_host": {
+      "exit_code": 0,
+      "php_version": "8.5",
+      "vscode_version": "1.140.0",
+      "unsaved_updates": 6,
+      "disk_unchanged": true,
+      "log": "/tmp/sophp-iterator-apply-host.log"
+    },
+    "runtime": {
+      "versions": 6,
+      "log": "/tmp/sophp-iterator-apply-runtime-final.jsonl"
+    },
+    "build_exit_code": 0,
+    "lint_exit_code": 0
+  },
+  "prior_full_integration": {
+    "report": "phpstorm-stubs-array-contracts-integration-2026-10-02.md",
+    "passed": 472,
+    "includes_this_change": false
+  },
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "real_wsl_ui_verified": false
+}

@@ -5,14 +5,12 @@ import { createRestartBudget, resolveLanguageServerActivation, type LanguageServ
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
+import { phpRuntimePayload, type PhpExtensionRuntimePayload } from './phpRuntimePayload.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
   disabledExtensions: string[];
-  runtime?: {
-    executable: string; version: string; versionId: number; sapi: string; loadedExtensions: string[];
-    loadedConfigurationFile?: string; scannedConfigurationFiles: string[];
-  };
+  runtime?: PhpExtensionRuntimePayload;
 }
 
 interface FrameworkDocumentSnapshot { uri: string; languageId: 'yaml' | 'xml'; source: string; snapshotVersion: string; }
@@ -121,12 +119,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       entries.set(uri.toString(), {
         uri: uri.toString(),
         disabledExtensions: vscode.workspace.getConfiguration('phpCompanion', uri).get<string[]>('disabledExtensions', []),
-        ...(runtime ? { runtime: {
-          executable: runtime.path, version: runtime.version, versionId: runtime.versionId, sapi: runtime.sapi,
-          loadedExtensions: runtime.loadedExtensions,
-          ...(runtime.loadedConfigurationFile ? { loadedConfigurationFile: runtime.loadedConfigurationFile } : {}),
-          scannedConfigurationFiles: runtime.scannedConfigurationFiles,
-        } } : {}),
+        ...(runtime ? { runtime: phpRuntimePayload(runtime) } : {}),
       });
     }
     return [...entries.values()];

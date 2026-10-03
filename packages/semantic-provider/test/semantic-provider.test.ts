@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { isSemanticFactsContribution, isSemanticProviderDescriptor, isSemanticProviderRequest, isSemanticProviderResponse, semanticFacts, SEMANTIC_FACTS_SCHEMA, SEMANTIC_PROVIDER_PROTOCOL_VERSION } from '../src/index.js';
 
 describe('semantic provider contract', () => {
+  it.each([128, 129, 512])('accepts %i small document snapshots without discarding the project', (count) => {
+    const documents = Array.from({ length: count }, (_, index) => ({ uri: `file:///project/${index}.php`,
+      languageId: 'php', source: '<?php', snapshotVersion: '1' }));
+    expect(isSemanticProviderRequest({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts',
+      params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5', documents } })).toBe(true);
+  });
+
+  it.each([
+    ['count', Array.from({ length: 513 }, (_, index) => ({ uri: `file:///project/${index}.php`, languageId: 'php', source: '', snapshotVersion: '1' }))],
+    ['single document', [{ uri: 'file:///project/large.php', languageId: 'php', source: ' '.repeat(1_000_001), snapshotVersion: '1' }]],
+    ['total characters', Array.from({ length: 9 }, (_, index) => ({ uri: `file:///project/${index}.php`, languageId: 'php', source: ' '.repeat(1_000_000), snapshotVersion: '1' }))],
+  ])('rejects snapshot overflow for %s', (_reason, documents) => {
+    expect(isSemanticProviderRequest({ protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION, id: 'vendor:1', method: 'facts',
+      params: { rootUri: 'file:///project', rootPath: '/project', generation: '1', phpVersion: '8.5', documents } })).toBe(false);
+  });
+
   it('constructs a complete versioned snapshot with empty fact groups', () => {
     expect(semanticFacts('vendor.framework', '42')).toEqual({ schema: SEMANTIC_FACTS_SCHEMA, providerId: 'vendor.framework', generation: '42', complete: true, methods: [], properties: [], literalMethodReturns: [] });
   });

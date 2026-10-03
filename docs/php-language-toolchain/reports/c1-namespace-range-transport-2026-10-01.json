@@ -1,0 +1,203 @@
+{
+  "profileBeforeTransport": {
+    "mainSamples": 9818,
+    "inclusive": {
+      "(root)": 9818,
+      "": 5088,
+      "Bo": 3383,
+      "N": 3366,
+      "updateSource": 3295,
+      "onSource": 3187,
+      "parse": 2115,
+      "updatePrepared": 2094,
+      "js-to-wasm": 1486,
+      "parseTree": 1433,
+      "update": 1424,
+      "wasm-function[265]": 1412,
+      "replaceTypeDependencies": 1368,
+      "resolveSourceType": 1368,
+      "typeDependencyNodes": 1354,
+      "importScope": 1335,
+      "classImportAt": 1334,
+      "importScopes": 1329,
+      "OC": 1237,
+      "(garbage collector)": 1130,
+      "parseDocument": 763,
+      "emit": 712,
+      "O": 632,
+      "wasm-function[76]": 515,
+      "(idle)": 429,
+      "postMessage": 398,
+      "(program)": 395,
+      "readFileHandle": 374,
+      "readFile": 360,
+      "Pe": 351
+    }
+  },
+  "reuseAttemptReverted": {
+    "order": "baseline-first",
+    "baseline": {
+      "bundle": "/tmp/sophp-reference-before-reuse/language-server.js",
+      "elapsedMs": 9097,
+      "initializeMs": 1793,
+      "results": 1071,
+      "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+      "namedCandidateScans": 1,
+      "candidateScan": {
+        "files": 2514,
+        "cached": 0,
+        "parsed": 905,
+        "restored": 0,
+        "declarations": 0,
+        "restoredDeclarations": 0,
+        "prepared": 904,
+        "preparedRestores": 0
+      },
+      "phasesMs": {
+        "candidates": 8420,
+        "container": 0,
+        "routes": 2,
+        "events": 0,
+        "semantic": 127
+      }
+    },
+    "candidate": {
+      "bundle": "dist/language-server.js",
+      "elapsedMs": 8647,
+      "initializeMs": 1668,
+      "results": 1071,
+      "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+      "namedCandidateScans": 1,
+      "candidateScan": {
+        "files": 2514,
+        "cached": 0,
+        "parsed": 905,
+        "restored": 0,
+        "declarations": 0,
+        "restoredDeclarations": 0,
+        "prepared": 903,
+        "preparedRestores": 0
+      },
+      "phasesMs": {
+        "candidates": 7521,
+        "container": 1,
+        "routes": 2,
+        "events": 0,
+        "semantic": 126
+      }
+    },
+    "changeMs": -450
+  },
+  "rangeTransportCrossover": {
+    "comparisons": [
+      {
+        "order": "baseline-first",
+        "baseline": {
+          "bundle": "/tmp/sophp-reference-before-reuse/language-server.js",
+          "elapsedMs": 9957,
+          "initializeMs": 1785,
+          "results": 1071,
+          "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+          "namedCandidateScans": 1,
+          "candidateScan": {
+            "files": 2514,
+            "cached": 0,
+            "parsed": 905,
+            "restored": 0,
+            "declarations": 0,
+            "restoredDeclarations": 0,
+            "prepared": 904,
+            "preparedRestores": 0
+          },
+          "phasesMs": {
+            "candidates": 9296,
+            "container": 0,
+            "routes": 1,
+            "events": 0,
+            "semantic": 112
+          }
+        },
+        "candidate": {
+          "bundle": "dist/language-server.js",
+          "elapsedMs": 8591,
+          "initializeMs": 1644,
+          "results": 1071,
+          "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+          "namedCandidateScans": 1,
+          "candidateScan": {
+            "files": 2514,
+            "cached": 0,
+            "parsed": 905,
+            "restored": 0,
+            "declarations": 0,
+            "restoredDeclarations": 0,
+            "prepared": 904,
+            "preparedRestores": 0
+          },
+          "phasesMs": {
+            "candidates": 7987,
+            "container": 0,
+            "routes": 1,
+            "events": 0,
+            "semantic": 97
+          }
+        },
+        "changeMs": -1366
+      },
+      {
+        "order": "candidate-first",
+        "baseline": {
+          "bundle": "/tmp/sophp-reference-before-reuse/language-server.js",
+          "elapsedMs": 7077,
+          "initializeMs": 1746,
+          "results": 1071,
+          "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+          "namedCandidateScans": 1,
+          "candidateScan": {
+            "files": 2514,
+            "cached": 0,
+            "parsed": 905,
+            "restored": 0,
+            "declarations": 0,
+            "restoredDeclarations": 0,
+            "prepared": 904,
+            "preparedRestores": 0
+          },
+          "phasesMs": {
+            "candidates": 6122,
+            "container": 1,
+            "routes": 2,
+            "events": 0,
+            "semantic": 125
+          }
+        },
+        "candidate": {
+          "bundle": "dist/language-server.js",
+          "elapsedMs": 8260,
+          "initializeMs": 1736,
+          "results": 1071,
+          "locationSha256": "535ed7e2efd140d82677784ee0938574efd71524b373fd3cbd0187dd046db6d6",
+          "namedCandidateScans": 1,
+          "candidateScan": {
+            "files": 2514,
+            "cached": 0,
+            "parsed": 905,
+            "restored": 0,
+            "declarations": 0,
+            "restoredDeclarations": 0,
+            "prepared": 904,
+            "preparedRestores": 0
+          },
+          "phasesMs": {
+            "candidates": 7604,
+            "container": 1,
+            "routes": 2,
+            "events": 0,
+            "semantic": 119
+          }
+        },
+        "changeMs": 1183
+      }
+    ]
+  }
+}

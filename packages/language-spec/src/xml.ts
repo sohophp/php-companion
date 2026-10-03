@@ -67,12 +67,15 @@ export function auditedSimpleXmlStub(version: SupportedPhpVersion): string {
   const php84 = VERSIONS.indexOf(version) >= VERSIONS.indexOf('8.4');
   const native = (type: string): string => php80 ? type : '';
   return `
-/** @param class-string<SimpleXMLElement>|null $class_name
- * @return SimpleXMLElement|false */ function simplexml_load_file(${native('string ')}$filename, ${native('?string ')}$class_name = SimpleXMLElement::class, ${native('int ')}$options = 0, ${native('string ')}$${php80 ? 'namespace_or_prefix' : 'ns'} = '', ${native('bool ')}$is_prefix = false)${php80 ? ': SimpleXMLElement|false' : ''} {}
-/** @param class-string<SimpleXMLElement>|null $class_name
- * @return SimpleXMLElement|false */ function simplexml_load_string(${native('string ')}$data, ${native('?string ')}$class_name = SimpleXMLElement::class, ${native('int ')}$options = 0, ${native('string ')}$${php80 ? 'namespace_or_prefix' : 'ns'} = '', ${native('bool ')}$is_prefix = false)${php80 ? ': SimpleXMLElement|false' : ''} {}
-/** @param class-string<SimpleXMLElement>|null $class_name
- * @return SimpleXMLElement|null */ function simplexml_import_dom(${php84 ? 'object ' : php80 ? 'SimpleXMLElement|DOMNode ' : ''}$node, ${native('?string ')}$class_name = SimpleXMLElement::class)${php80 ? ': ?SimpleXMLElement' : ''} {}
+/** @template T of SimpleXMLElement
+ * @param class-string<T>|null $class_name
+ * @return ($class_name is null ? SimpleXMLElement|false : T|false) */ function simplexml_load_file(${native('string ')}$filename, ${native('?string ')}$class_name = SimpleXMLElement::class, ${native('int ')}$options = 0, ${native('string ')}$${php80 ? 'namespace_or_prefix' : 'ns'} = '', ${native('bool ')}$is_prefix = false)${php80 ? ': SimpleXMLElement|false' : ''} {}
+/** @template T of SimpleXMLElement
+ * @param class-string<T>|null $class_name
+ * @return ($class_name is null ? SimpleXMLElement|false : T|false) */ function simplexml_load_string(${native('string ')}$data, ${native('?string ')}$class_name = SimpleXMLElement::class, ${native('int ')}$options = 0, ${native('string ')}$${php80 ? 'namespace_or_prefix' : 'ns'} = '', ${native('bool ')}$is_prefix = false)${php80 ? ': SimpleXMLElement|false' : ''} {}
+/** @template T of SimpleXMLElement
+ * @param class-string<T>|null $class_name
+ * @return ($class_name is null ? SimpleXMLElement|null : T|null) */ function simplexml_import_dom(${php84 ? 'object ' : php80 ? 'SimpleXMLElement|DOMNode ' : ''}$node, ${native('?string ')}$class_name = SimpleXMLElement::class)${php80 ? ': ?SimpleXMLElement' : ''} {}
 /** @template-implements ${php80 ? 'RecursiveIterator' : 'Traversable'}<string, SimpleXMLElement> */
 class SimpleXMLElement${php80 ? ' implements Stringable, Countable, RecursiveIterator' : php73 ? ' implements Traversable, Countable' : ' implements Traversable'} {${simpleXmlMethods(version)}
 }

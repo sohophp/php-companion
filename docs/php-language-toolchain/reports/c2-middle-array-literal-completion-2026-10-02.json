@@ -1,0 +1,357 @@
+{
+  "date": "2026-10-02",
+  "scope": "Middle array creation keys and literal values; argument, return, assignment and method",
+  "baseline": [
+    {
+      "context": "argument",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "general",
+      "actual": []
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": []
+    }
+  ],
+  "fixed": [
+    {
+      "context": "argument",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "shape-key",
+      "actual": [
+        "mode"
+      ]
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": [
+        "'create'"
+      ]
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "shape-key",
+      "actual": [
+        "mode"
+      ]
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": [
+        "'create'"
+      ]
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "shape-key",
+      "actual": [
+        "mode"
+      ]
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": [
+        "'create'"
+      ]
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "eofKind": "shape-key",
+      "expected": [
+        "mode"
+      ],
+      "kind": "shape-key",
+      "actual": [
+        "mode"
+      ]
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "eofKind": "general",
+      "expected": [
+        "'create'"
+      ],
+      "kind": "general",
+      "actual": [
+        "'create'"
+      ]
+    }
+  ],
+  "semantic": {
+    "passed": 1051,
+    "files": 39,
+    "durationSeconds": 52.68
+  },
+  "stdio": {
+    "passed": 2,
+    "filteredSkipped": 427,
+    "total": 429,
+    "durationSeconds": 8.53,
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "middleStatesPerVersion": 24
+  },
+  "performance": [
+    {
+      "context": "argument",
+      "part": "key",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 32.11265099999946,
+      "maxMs": 44.11199399999987,
+      "sourcePreserved": true
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 45.536723000001075,
+      "maxMs": 56.64367400000083,
+      "sourcePreserved": true
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 18.51390899999933,
+      "maxMs": 21.48204900000019,
+      "sourcePreserved": true
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 18.79015800000161,
+      "maxMs": 20.887747999999192,
+      "sourcePreserved": true
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 20.524661000001288,
+      "maxMs": 42.62224400000014,
+      "sourcePreserved": true
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 21.33178400000179,
+      "maxMs": 57.11430400000245,
+      "sourcePreserved": true
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 26.56712300000072,
+      "maxMs": 37.315755999999965,
+      "sourcePreserved": true
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 35.49303199999849,
+      "maxMs": 47.95125000000189,
+      "sourcePreserved": true
+    }
+  ],
+  "hosts": {
+    "c2": "passed",
+    "c1Php85": {
+      "exitCode": 0,
+      "samplesMs": [
+        173,
+        113,
+        145,
+        118,
+        144,
+        123,
+        145,
+        148,
+        118,
+        114,
+        113,
+        131,
+        133,
+        119,
+        129,
+        146,
+        137,
+        114,
+        121,
+        155,
+        125,
+        111,
+        128,
+        113,
+        118,
+        114,
+        117,
+        123,
+        132,
+        151,
+        117,
+        128
+      ],
+      "maxMs": 173
+    },
+    "c1Php72": {
+      "exitCode": 0,
+      "samplesMs": [
+        157,
+        117,
+        125,
+        125,
+        158,
+        112,
+        148,
+        145,
+        111,
+        116,
+        123,
+        146,
+        145,
+        121,
+        156,
+        129,
+        133,
+        115,
+        148,
+        145,
+        150,
+        117,
+        131,
+        128,
+        127,
+        116,
+        156,
+        120,
+        146,
+        119,
+        121,
+        149
+      ],
+      "maxMs": 158
+    }
+  },
+  "inputCount": 42,
+  "packaged": false,
+  "profileUpdated": false,
+  "inputsFinalMatch": true
+}

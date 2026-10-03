@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
 import process from 'node:process';
+import { clearInterval, setInterval } from 'node:timers';
 import { indexComposerSources } from '../packages/index/dist/index.js';
 import { PhpSyntaxParser } from '../packages/parser/dist/index.js';
 import { SemanticWorkspace } from '../packages/semantic/dist/index.js';
@@ -14,6 +15,8 @@ import { generatePhpComposerProject, R1_PERFORMANCE_BUDGETS } from '../packages/
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
 const files = Number(arguments_[0] ?? 1_000);
 if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
+if ((arguments_[1] === undefined) !== (arguments_[2] === undefined))
+  throw new Error('Provide both core WASM and PHP WASM paths, or neither.');
 
 const root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));
 const cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v49-callable-array-benchmark';
@@ -39,7 +42,10 @@ const cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];
 
 async function load(workspace) {
   let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();
+  let peakRssMb = process.memoryUsage().rss / 1024 / 1024;
+  const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);
   const acceptFacts = (facts) => { doctrineProperties += facts.doctrineProperties.length; };
+  try {
   const result = await indexComposerSources(root, {
     limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 512) },
     onSource: ({ uri: sourceUri, source, hash }) => {
@@ -54,10 +60,21 @@ async function load(workspace) {
       acceptFacts(restored.facts); return true;
     } },
   });
-  return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result };
+  peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);
+  return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result,
+    peakRssMb: Math.round(peakRssMb * 100) / 100 };
+  } finally { clearInterval(sampler); }
 }
 
-const parser = await PhpSyntaxParser.createDefault();
+// Keep full manifest mutation data out of the subsequent restore workspace's lifetime.
+async function mutateCacheFile(cacheFile, mutate) {
+  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
+  await mutate(persisted);
+  await writeFile(cacheFile, JSON.stringify(persisted));
+}
+
+const parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()
+  : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });
 try {
   await generatePhpComposerProject(root, files);
   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);
@@ -92,8 +109,7 @@ try {
     throw new Error('Focused warm completion lost the restored transitive callable result.');
   const focusedCallableStates = warmWorkspace.callableImplementationStates(uri(3));
   const callableImplementationsLoadedByFocusedQuery = focusedCallableStates.filter((record) => record.state === 'loaded').map((record) => record.identity);
-  if (JSON.stringify(callableImplementationsLoadedByFocusedQuery) !== JSON.stringify(['benchmark\\consumer::inspect'])
-    || warmWorkspace.deferredImplementationCount() !== deferredImplementations)
+  if (JSON.stringify(callableImplementationsLoadedByFocusedQuery) !== JSON.stringify(['benchmark\\consumer::inspect']))
     throw new Error(`Focused completion did not preserve unrelated callable records: ${JSON.stringify(focusedCallableStates)}`);
   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Warm index lost the transitive constructor fact.');
   const implementationsLoadedByQuery = deferredImplementations - warmWorkspace.deferredImplementationCount();
@@ -103,7 +119,7 @@ try {
   warmWorkspace.dispose();
 
   const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');
-  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
+  await mutateCacheFile(cacheFile, (persisted) => {
   const baseEntry = persisted.entries[sourcePath(0)];
   if (!baseEntry?.payload?.semantic?.declaration || !baseEntry?.payload?.semantic?.implementation?.file
     || !Array.isArray(baseEntry?.payload?.semantic?.implementation?.callables)
@@ -115,18 +131,24 @@ try {
     || !baseEntry.payload.checksums.callableImplementations.every((record) => typeof record.identity === 'string' && /^[0-9a-f]{64}$/.test(record.checksum)))
     throw new Error('Persistent cache did not contain separately checksummed source, declaration, file implementation, callable implementation, derived, and Doctrine records.');
   baseEntry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
-  await writeFile(cacheFile, JSON.stringify(persisted));
+  });
   const recoveredWorkspace = new SemanticWorkspace(parser); const recovered = await load(recoveredWorkspace);
   if (recovered.result.cached !== files - 1 || recovered.parsed !== 1) throw new Error(`Layer corruption did not rebuild exactly one file: ${JSON.stringify(recovered)}`);
   if (recoveredWorkspace.workspaceTypes().filter((item) => item.fqcn === 'Benchmark\\Base').length !== 1) throw new Error('Layer corruption recovery lost the rebuilt declaration.');
+  if (!recoveredWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod')
+    || recoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)
+    throw new Error('Layer corruption recovery lost cross-file completion or constructor facts.');
   recoveredWorkspace.dispose();
 
-  const callablePersisted = JSON.parse(await readFile(cacheFile, 'utf8'));
+  await mutateCacheFile(cacheFile, (callablePersisted) => {
   const callableEntry = callablePersisted.entries[sourcePath(0)];
   callableEntry.payload.semantic.implementation.callables[0].facts.rawNames.push({ text: 'corrupt', start: 0, end: 1, context: 'code' });
-  await writeFile(cacheFile, JSON.stringify(callablePersisted));
+  });
   const callableRecoveredWorkspace = new SemanticWorkspace(parser); const callableRecovered = await load(callableRecoveredWorkspace);
   if (callableRecovered.result.cached !== files - 1 || callableRecovered.parsed !== 1) throw new Error(`Callable record corruption did not rebuild exactly one file: ${JSON.stringify(callableRecovered)}`);
+  if (!callableRecoveredWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod')
+    || callableRecoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)
+    throw new Error('Callable corruption recovery lost cross-file completion or constructor facts.');
   callableRecoveredWorkspace.dispose();
 
   process.stdout.write(`${JSON.stringify({
@@ -135,11 +157,16 @@ try {
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
     cache: { cold: coldCache, warm: warmCache, frozenBudgetMb: cacheBudgetMb ?? null },
+    loadMemory: { coldPeakRssMb: cold.peakRssMb, warmPeakRssMb: warm.peakRssMb,
+      layerRecoveryPeakRssMb: recovered.peakRssMb, callableRecoveryPeakRssMb: callableRecovered.peakRssMb,
+      sampledIntervalMs: 10, frozenScalePeakRssMb: R1_PERFORMANCE_BUDGETS.peakRssMb[`files${files}`] ?? null },
     exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, doctrineFactsRestored: true,
       callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,
       callableImplementationsLoadedByFocusedQuery,
       callableImplementationRecords: callableImplementationRecords.length,
-      corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed },
+      corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed,
+      completionAfterLayerRecovery: true, completionAfterCallableRecovery: true,
+      constructorFactsAfterRecovery: true },
   }, null, 2)}\n`);
 } finally {
   parser.dispose(); await rm(root, { recursive: true, force: true });

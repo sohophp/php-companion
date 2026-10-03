@@ -2,7 +2,7 @@
 
 面向希望直接使用自研 PHP Language Server 和开源 PHP 工具的开发者。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
-0.4.12 组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。Pack 声明扩展 ID，但外部成员版本仍随 Marketplace 更新；需要复现验证组合时，请使用对应候选的 `candidate.json` 和 `SHA256SUMS`。
+0.4.13 组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。Pack 声明扩展 ID，但外部成员版本仍随 Marketplace 更新；需要复现验证组合时，请使用对应候选的 `candidate.json` 和 `SHA256SUMS`。
 
 成员职责、现有验证范围和 Core 下一步见[Open Source Pack 当前执行清单](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-current-priority-2026-09-27.md)。[Marketplace 与源码清单核对](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-marketplace-audit-2026-09-25.md)记录了公开旧包的实际成员与外部工具的稳定版本快照。
 
@@ -21,11 +21,11 @@
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 | PHP DocBlocker | 输入 `/**` 生成 PHPDoc，补全 `@param` 等标签；SoPHP 负责解析生成的类型 |
 
-以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新版本生成。安装时核对 Core、Symfony 和 Pack 都为 0.4.12；实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 Open Source Pack，旧 Recommended Pack 不再随新版本生成。安装时核对 Core、Symfony 和 Pack 都为 0.4.13；实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
 
 **测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。需要 PHPUnit 测试视图时，可单独试用 `aossoftware.aos-phpunit` 0.2.0：它已在隔离 Linux 的完整组合中通过实际 PHPUnit 运行和测试文件 Rename/Undo/Redo，但 Pest 与真实 WSL Remote 尚未验收，因此不随 Pack 自动安装。`recca0120.vscode-phpunit` 原版 3.9.40 在完整组合的文件 Rename 后有旧路径错误；若已单独安装并遇到此错误，应在该工作区禁用。见[测试提供者评估](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-test-provider-candidates-2026-09-25.md)。
 
-**新文件生成：**类、接口、Trait、Enum 和测试文件先预览再创建。本机 Linux 的主移动路径、工作区同级移动及目标目录最近已存在父目录中的隐藏 `.tmp` 备用移动均已通过一次 Undo/Redo，包括目标子目录尚不存在的情况。若所有移动失败并转为 `createFile`，一次 Undo 可删除文件，但隔离宿主的一次 Redo 未恢复；该情况下可重新执行生成命令。备用移动被 Undo 后，隐藏 `.tmp` 会保留给 Redo。真实 WSL Remote 和其它平台仍需验收。
+**新文件生成：**类、接口、Trait、Enum 和测试文件先预览再创建。本机 Linux 的主移动路径、工作区同级移动及目标目录最近已存在父目录中的隐藏 `.tmp` 备用移动均已通过一次 Undo/Redo，包括目标子目录尚不存在的情况。对本地 `file` 工作区，若三条移动路径都失败，命令会提示失败且不创建 PHP 文件，避免生成一个 Undo 后无法可靠 Redo 的文件；请检查目标目录的写入和重命名权限后重试。备用移动被 Undo 后，隐藏 `.tmp` 会保留给 Redo。其它文件系统仍使用 VS Code 的 `createFile`，其 Redo 尚未验收；真实 WSL Remote 和其它平台也仍需验收。
 
 在项目根目录运行已安装的测试工具：
 

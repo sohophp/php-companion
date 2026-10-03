@@ -12,12 +12,16 @@ import { generatePhpComposerProject, R1_PERFORMANCE_BUDGETS, summarizeDurations 
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
 const files = Number(arguments_[0] ?? 1000); const repeats = Number(arguments_[1] ?? 5);
 if (![files, repeats].every(Number.isInteger) || files < 1 || repeats < 1) throw new Error('Usage: benchmark-index.mjs [positive file count] [positive repeats]');
+if ((arguments_[2] === undefined) !== (arguments_[3] === undefined))
+  throw new Error('Provide both core WASM and PHP WASM paths, or neither.');
 const root = await mkdtemp(join(tmpdir(), `php-companion-benchmark-${files}-`));
 try {
   await generatePhpComposerProject(root, files);
   const durations = []; const firstAvailable = []; let peakRssMb = 0;
   for (let run = 0; run < repeats; run += 1) {
-    const parser = await PhpSyntaxParser.createDefault(); const workspace = new SemanticWorkspace(parser); const started = performance.now(); let first;
+    const parser = arguments_[2] === undefined ? await PhpSyntaxParser.createDefault()
+      : await PhpSyntaxParser.create({ coreWasmPath: arguments_[2], phpWasmPath: arguments_[3] });
+    const workspace = new SemanticWorkspace(parser); const started = performance.now(); let first;
     const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);
     const result = await indexComposerSources(root, { limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 256) }, onSource: ({ uri, source }) => { first ??= performance.now() - started; workspace.update(uri, source); } });
     clearInterval(sampler); peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);

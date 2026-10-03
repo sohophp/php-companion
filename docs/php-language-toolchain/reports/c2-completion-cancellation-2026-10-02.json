@@ -1,0 +1,56 @@
+[
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "onDemand",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "experimental",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  },
+  {
+    "phpVersion": "7.2",
+    "indexingMode": "progressive",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  },
+  {
+    "phpVersion": "8.5",
+    "indexingMode": "progressive",
+    "cancelledResult": [],
+    "freshLabels": [
+      "render"
+    ],
+    "documentVersion": 1
+  }
+]

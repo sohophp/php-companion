@@ -1,0 +1,257 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "phpVersion": "7.2",
+      "packProfile": true,
+      "extensions": [
+        {
+          "id": "EditorConfig.EditorConfig",
+          "version": "0.18.2"
+        },
+        {
+          "id": "eiminsasete.apacheconf-snippets",
+          "version": "1.4.0"
+        },
+        {
+          "id": "junstyle.php-cs-fixer",
+          "version": "0.3.21"
+        },
+        {
+          "id": "mrmlnc.vscode-apache",
+          "version": "1.2.0"
+        },
+        {
+          "id": "neilbrayfield.php-docblocker",
+          "version": "2.7.0"
+        },
+        {
+          "id": "redhat.vscode-xml",
+          "version": "0.29.3"
+        },
+        {
+          "id": "redhat.vscode-yaml",
+          "version": "1.24.0"
+        },
+        {
+          "id": "sohophp.twig-plus",
+          "version": "1.3.8"
+        },
+        {
+          "id": "xdebug.php-debug",
+          "version": "1.40.1"
+        },
+        {
+          "id": "sohophp.php-companion",
+          "version": "0.4.13"
+        },
+        {
+          "id": "sohophp.php-companion-open-source-pack",
+          "version": "0.4.13"
+        },
+        {
+          "id": "sohophp.php-companion-symfony",
+          "version": "0.4.13"
+        }
+      ],
+      "results": [
+        {
+          "template": "if",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "if",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        }
+      ]
+    },
+    {
+      "phpVersion": "8.5",
+      "packProfile": true,
+      "extensions": [
+        {
+          "id": "EditorConfig.EditorConfig",
+          "version": "0.18.2"
+        },
+        {
+          "id": "eiminsasete.apacheconf-snippets",
+          "version": "1.4.0"
+        },
+        {
+          "id": "junstyle.php-cs-fixer",
+          "version": "0.3.21"
+        },
+        {
+          "id": "mrmlnc.vscode-apache",
+          "version": "1.2.0"
+        },
+        {
+          "id": "neilbrayfield.php-docblocker",
+          "version": "2.7.0"
+        },
+        {
+          "id": "redhat.vscode-xml",
+          "version": "0.29.3"
+        },
+        {
+          "id": "redhat.vscode-yaml",
+          "version": "1.24.0"
+        },
+        {
+          "id": "sohophp.twig-plus",
+          "version": "1.3.8"
+        },
+        {
+          "id": "xdebug.php-debug",
+          "version": "1.40.1"
+        },
+        {
+          "id": "sohophp.php-companion",
+          "version": "0.4.13"
+        },
+        {
+          "id": "sohophp.php-companion-open-source-pack",
+          "version": "0.4.13"
+        },
+        {
+          "id": "sohophp.php-companion-symfony",
+          "version": "0.4.13"
+        }
+      ],
+      "results": [
+        {
+          "template": "if",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "if",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "foreach",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "try",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "function",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Enter",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        },
+        {
+          "template": "method",
+          "key": "Tab",
+          "exactText": true,
+          "placeholders": true,
+          "undoRedo": true
+        }
+      ]
+    }
+  ]
+}

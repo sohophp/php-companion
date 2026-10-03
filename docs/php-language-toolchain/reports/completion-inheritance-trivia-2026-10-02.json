@@ -1,0 +1,71 @@
+{
+  "status": "scoped_gates_passed",
+  "source_sha256": {
+    "packages/semantic/src/index.ts": "4547e9582ee3c55fa16c5661913d0e38240b814d5254ee703f439858994e8c07",
+    "packages/semantic/test/inheritance-trivia-completion.test.ts": "ca882a718374846f75cba31814755eda32ddbcb83d14fa5643b9f1ea6726e846",
+    "packages/language-server/test/inheritance-trivia-stdio.test.ts": "495f3edd3602f2b4a2f8f20107ef3e3fd5acdbd4de0f639ad4b70916dabc56d7",
+    "test/extension/suite/inheritanceTriviaAcceptance.ts": "dbdce7ed986a30dd282c1c603409c89ae93d8c056378ce63f7f7c22dcf814166"
+  },
+  "semantic_baseline": {
+    "failed": 18,
+    "passed": 4
+  },
+  "semantic_full": {
+    "passed": 1164,
+    "files": 49,
+    "seconds": 48.63,
+    "log": "/tmp/sophp-inheritance-trivia-full-semantic.log"
+  },
+  "stdio": {
+    "passed": 6,
+    "seconds": 6.15,
+    "new_queries": 24,
+    "log": "/tmp/sophp-inheritance-trivia-lsp-final.log"
+  },
+  "visible_host": {
+    "platform": "linux",
+    "vscode": "1.140.0",
+    "accepted": 8,
+    "exit_code": 0,
+    "log": "/tmp/sophp-inheritance-trivia-host-final.log"
+  },
+  "latency": {
+    "root": "/tmp/sophp-inheritance-trivia-latency-90_oshpd",
+    "file": "/tmp/sophp-inheritance-trivia-latency-90_oshpd/Build.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 61.71,
+    "all": {
+      "p50Ms": 2.49,
+      "p95Ms": 4.28,
+      "maxMs": 61.71
+    },
+    "a": {
+      "fragment": "class Child extends /* } implements */ Build{{cursor}} {}",
+      "expected": "BuildBase",
+      "p50Ms": 2.61,
+      "p95Ms": 4.91,
+      "maxMs": 61.71,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "class Child implements /* } extends */ Build{{cursor}} {}",
+      "expected": "BuildContract",
+      "p50Ms": 2.21,
+      "p95Ms": 3.87,
+      "maxMs": 13.66,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "packaged": false,
+  "profile_updated": false,
+  "limitations": [
+    "No full current stdio collection",
+    "No Windows host",
+    "No real WSL user acceptance"
+  ]
+}

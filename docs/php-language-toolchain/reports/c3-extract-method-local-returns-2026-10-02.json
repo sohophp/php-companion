@@ -1,0 +1,128 @@
+[
+  {
+    "php": "php72",
+    "returnType": "untyped",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "untyped",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "untyped",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php72",
+    "returnType": "untyped",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "untyped",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "untyped",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php72",
+    "returnType": "int",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "int",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "int",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php72",
+    "returnType": "int",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "int",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "int",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php72",
+    "returnType": "float",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "float",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "float",
+    "strict": false,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php72",
+    "returnType": "float",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php81",
+    "returnType": "float",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  },
+  {
+    "php": "php85",
+    "returnType": "float",
+    "strict": true,
+    "paths": 4,
+    "equal": true
+  }
+]

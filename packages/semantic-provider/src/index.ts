@@ -2,6 +2,7 @@ import { isControllerTemplateContext, type ControllerTemplateContext } from '@ph
 
 export const SEMANTIC_FACTS_SCHEMA = 1 as const;
 export const SEMANTIC_PROVIDER_PROTOCOL_VERSION = 1 as const;
+export const SEMANTIC_PROVIDER_DOCUMENT_LIMITS = { count: 512, perDocumentCharacters: 1_000_000, totalCharacters: 8 * 1024 * 1024 } as const;
 
 export interface SemanticProviderDescriptor {
   providerId: string;
@@ -313,10 +314,10 @@ export function isSemanticProviderRequest(value: unknown): value is SemanticProv
   const item = value as Partial<SemanticProviderRequest> | null;
   const params = item?.params as Partial<SemanticProviderRequest['params']> | null;
   const documents = params?.documents;
-  const validDocuments = documents === undefined || (Array.isArray(documents) && documents.length <= 128
-    && documents.reduce((characters, document) => characters + (typeof document?.source === 'string' ? document.source.length : 0), 0) <= 8 * 1024 * 1024
+  const validDocuments = documents === undefined || (Array.isArray(documents) && documents.length <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.count
+    && documents.reduce((characters, document) => characters + (typeof document?.source === 'string' ? document.source.length : 0), 0) <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.totalCharacters
     && documents.every((document) => boundedString(document?.uri, 32_768) && ['php', 'yaml', 'xml'].includes(document?.languageId)
-      && typeof document?.source === 'string' && document.source.length <= 1_000_000 && boundedString(document?.snapshotVersion, 128)));
+      && typeof document?.source === 'string' && document.source.length <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.perDocumentCharacters && boundedString(document?.snapshotVersion, 128)));
   const projectTypes = params?.projectTypes;
   const validProjectTypes = projectTypes === undefined || (Array.isArray(projectTypes) && projectTypes.length <= factLimit
     && projectTypes.reduce((characters, type) => characters + (typeof type?.fqcn === 'string' ? type.fqcn.length : 0)

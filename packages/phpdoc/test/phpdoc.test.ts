@@ -2,6 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType } from '../src/index.js';
 
 describe('PHPDoc parser', () => {
+  it.each([String.raw`'can\'t'`, String.raw`"say\"hello"`, String.raw`'path\\file'`, "'标题'", "'a=>b'", "''"])(
+    'preserves quoted shape key %s, optional marker and nested type ranges', key => {
+      const source = `array{${key}?: array{value: string}, last: int}`;
+      const result = parsePhpDocType(source, 20);
+      expect(result.errors).toEqual([]);
+      expect(result.consumed).toBe(source.length);
+      expect(result.type).toMatchObject({ kind: 'shape', start: 20, end: 20 + source.length,
+        fields: [{ key, optional: true, type: { kind: 'shape' } }, { key: 'last', optional: false }] });
+      const invalid = parsePhpDocType(`array{${key.slice(0, -1)}: string}`);
+      expect(invalid.errors.length).toBeGreaterThan(0);
+    });
   it('preserves deprecated descriptions without treating them as types', () => {
     expect(parsePhpDoc('/** @deprecated 2.1 use replacement() */').tags).toMatchObject([
       { name: 'deprecated', description: '2.1 use replacement()' },
@@ -21,6 +32,21 @@ describe('PHPDoc parser', () => {
     const constant = parsePhpDocType('key-of<App\\Config::MAP>');
     expect(constant.errors).toEqual([]);
     expect(constant.type && displayPhpDocType(constant.type)).toBe('key-of<App\\Config::MAP>');
+  });
+
+  it('preserves quoted literal unions and their values in parameter tags', () => {
+    const doc = parsePhpDoc(String.raw`/** @param 'draft'|"final"|'can\'t'|"a\\b" $state */`);
+    expect(doc.errors).toEqual([]);
+    expect(doc.tags[0]).toMatchObject({ variable: '$state', type: { kind: 'union', types: [
+      { kind: 'literal', value: 'draft', raw: "'draft'" },
+      { kind: 'literal', value: 'final', raw: '"final"' },
+      { kind: 'literal', value: "can't", raw: String.raw`'can\'t'` },
+      { kind: 'literal', value: 'a\\b', raw: String.raw`"a\\b"` },
+    ] } });
+    expect(doc.tags[0]?.type && displayPhpDocType(doc.tags[0].type))
+      .toBe(String.raw`'draft'|"final"|'can\'t'|"a\\b"`);
+    expect(parsePhpDocType("'unfinished").errors.map((error) => error.message))
+      .toContain('Expected a closing quote in a string literal type.');
   });
 
   it('rejects malformed integer literal type prefixes', () => {

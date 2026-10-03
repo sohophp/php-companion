@@ -2,7 +2,7 @@
   "name": "php-companion-open-source-pack",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "publisher": "sohophp",
   "license": "MIT",
   "repository": {
@@ -46,6 +46,7 @@
   "contributes": {
     "configurationDefaults": {
       "php.suggest.basic": false,
+      "emmet.excludeLanguages": ["markdown", "php"],
       "phpCompanion.languageServer.enabled": true,
       "phpCompanion.indexing.mode": "onDemand",
       "phpCompanion.imports.onPaste": "prompt",
@@ -54,7 +55,8 @@
       "[php]": {
         "editor.defaultFormatter": "junstyle.php-cs-fixer",
         "editor.wordBasedSuggestions": "off",
-        "editor.suggest.showWords": false
+        "editor.suggest.showWords": false,
+        "editor.snippetSuggestions": "none"
       },
       "[xml]": {
         "editor.defaultFormatter": "redhat.vscode-xml"

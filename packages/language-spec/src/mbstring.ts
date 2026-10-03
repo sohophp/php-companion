@@ -8,7 +8,7 @@ const PHP7_FUNCTIONS = `
 /** @return list<string>|true */ function mb_detect_order($encoding = null) {}
 /** @return string|int|bool */ function mb_substitute_character($substchar = null) {}
 /** @return string|false */ function mb_preferred_mime_name($encoding) {}
-/** @param array<string, mixed> $result @return bool */ function mb_parse_str($encoded_string, &$result) {}
+/** @param array<string, mixed> $result @return bool */ function mb_parse_str($encoded_string, &$result = null) {}
 /** @return string */ function mb_output_handler($contents, $status) {}
 /** @return int */ function mb_strlen($str, $encoding = null) {}
 /** @return int|false */ function mb_strpos($haystack, $needle, $offset = 0, $encoding = null) {}
@@ -137,16 +137,23 @@ function mb_ereg_search_setpos(int $offset): bool {}
 function mb_regex_set_options(?string $options = null): string {}
 `;
 
-function constants(version: SupportedPhpVersion): string {
+export function normalizeMbOnigurumaVersion(value: unknown): string | undefined {
+  return typeof value === 'string' && value.length > 0 && value.length <= 80 && /^[\x20-\x7e]+$/.test(value)
+    ? value : undefined;
+}
+
+function constants(version: SupportedPhpVersion, onigurumaVersion?: string): string {
   const php73 = Number(version.replace('.', '')) >= 73;
   const php74 = Number(version.replace('.', '')) >= 74;
   const php80 = Number(version.replace('.', '')) >= 80;
-  return `${php80 ? '' : 'const MB_OVERLOAD_MAIL = 1; const MB_OVERLOAD_STRING = 2; const MB_OVERLOAD_REGEX = 4;\n'}const MB_CASE_UPPER = 0; const MB_CASE_LOWER = 1; const MB_CASE_TITLE = 2;\n${php73 ? 'const MB_CASE_FOLD = 3; const MB_CASE_UPPER_SIMPLE = 4; const MB_CASE_LOWER_SIMPLE = 5; const MB_CASE_TITLE_SIMPLE = 6; const MB_CASE_FOLD_SIMPLE = 7;\n' : ''}${php74 ? "const MB_ONIGURUMA_VERSION = '';\n" : ''}`;
+  const runtimeVersion = normalizeMbOnigurumaVersion(onigurumaVersion);
+  const escapedVersion = runtimeVersion?.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+  return `${php80 ? '' : 'const MB_OVERLOAD_MAIL = 1; const MB_OVERLOAD_STRING = 2; const MB_OVERLOAD_REGEX = 4;\n'}const MB_CASE_UPPER = 0; const MB_CASE_LOWER = 1; const MB_CASE_TITLE = 2;\n${php73 ? 'const MB_CASE_FOLD = 3; const MB_CASE_UPPER_SIMPLE = 4; const MB_CASE_LOWER_SIMPLE = 5; const MB_CASE_TITLE_SIMPLE = 6; const MB_CASE_FOLD_SIMPLE = 7;\n' : ''}${php74 && escapedVersion !== undefined ? `const MB_ONIGURUMA_VERSION = '${escapedVersion}';\n` : ''}`;
 }
 
-export function auditedMbstringStub(version: SupportedPhpVersion): string {
+export function auditedMbstringStub(version: SupportedPhpVersion, onigurumaVersion?: string): string {
   const numeric = Number(version.replace('.', ''));
-  let stub = `\n${constants(version)}${numeric >= 80 ? PHP8_FUNCTIONS : PHP7_FUNCTIONS + PHP7_LEGACY_ALIASES}`;
+  let stub = `\n${constants(version, onigurumaVersion)}${numeric >= 80 ? PHP8_FUNCTIONS : PHP7_FUNCTIONS + PHP7_LEGACY_ALIASES}`;
   if (numeric >= 74) stub += '/** @return list<string> */ function mb_str_split(' + (numeric >= 80 ? 'string $string, int $length = 1, ?string $encoding = null): array {}\n' : '$str, $split_length = 1, $encoding = null) {}\n');
   stub += `/** @return array<array-key, mixed>|string|int|false${numeric >= 82 ? '|null' : ''} */ function mb_get_info(${numeric >= 80 ? "string $type = 'all'): array|string|int|false" + (numeric >= 82 ? '|null' : '') : "$type = 'all')"} {}\n`;
   if (numeric >= 83) stub += 'function mb_str_pad(string $string, int $length, string $pad_string = \' \', int $pad_type = STR_PAD_RIGHT, ?string $encoding = null): string {}\n';

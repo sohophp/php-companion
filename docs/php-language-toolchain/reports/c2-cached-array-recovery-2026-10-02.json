@@ -1,0 +1,134 @@
+[
+  {
+    "mode": "parsed",
+    "name": "property",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "parsed",
+    "name": "function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "parsed",
+    "name": "nested function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "snapshot",
+    "name": "property",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "snapshot",
+    "name": "function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "snapshot",
+    "name": "nested function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "loaded",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "declaration snapshot",
+    "name": "property",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "deferred",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "declaration snapshot",
+    "name": "function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "declaration snapshot",
+    "name": "nested function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "loaded",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "source declaration",
+    "name": "property",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "deferred",
+    "revisionChanged": false,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "source declaration",
+    "name": "function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "loaded",
+    "revisionChanged": true,
+    "targetUnchanged": true
+  },
+  {
+    "mode": "source declaration",
+    "name": "nested function",
+    "labels": [
+      "mode"
+    ],
+    "beforeState": "deferred",
+    "afterState": "loaded",
+    "revisionChanged": true,
+    "targetUnchanged": true
+  }
+]

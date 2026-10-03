@@ -1,0 +1,82 @@
+[
+  {
+    "context": "argument",
+    "part": "key",
+    "eofKind": "shape-key",
+    "expected": [
+      "mode"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "argument",
+    "part": "value",
+    "eofKind": "general",
+    "expected": [
+      "'create'"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "return",
+    "part": "key",
+    "eofKind": "shape-key",
+    "expected": [
+      "mode"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "return",
+    "part": "value",
+    "eofKind": "general",
+    "expected": [
+      "'create'"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "assignment",
+    "part": "key",
+    "eofKind": "shape-key",
+    "expected": [
+      "mode"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "assignment",
+    "part": "value",
+    "eofKind": "general",
+    "expected": [
+      "'create'"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "method",
+    "part": "key",
+    "eofKind": "shape-key",
+    "expected": [
+      "mode"
+    ],
+    "kind": "general",
+    "actual": []
+  },
+  {
+    "context": "method",
+    "part": "value",
+    "eofKind": "general",
+    "expected": [
+      "'create'"
+    ],
+    "kind": "general",
+    "actual": []
+  }
+]

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+import { hasFollowingCallParenthesis } from './completionCallTrivia.js';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
-import { SemanticWorkspace, type TypeInfo, type TypeRename } from '@php-companion/semantic';
+import { SemanticWorkspace, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readFile, readdir, realpath, stat } from 'node:fs/promises';
+import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import type { Dirent } from 'node:fs';
@@ -10,6 +11,8 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
 import {
   CompletionItemKind,
+  CompletionItemTag,
+  InsertTextFormat,
   ResponseError,
   LSPErrorCodes,
   CodeActionKind,
@@ -28,6 +31,7 @@ import {
   type Diagnostic,
   type InitializeResult,
   type InitializeParams,
+  type TextEdit,
   type TypeHierarchyItem,
 } from 'vscode-languageserver/node.js';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -38,7 +42,10 @@ import { protocolMessage } from './protocolMessages.js';
 import { progressMessage } from './progressMessages.js';
 import { outputMessage, outputProviderSource } from './outputMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
-import { builtinDocumentUri, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isBuiltinDocumentUri, isSyntaxAvailable, SUPPORTED_PHP_VERSIONS, type ConfigurablePhpExtension, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { bcmathNumberDocumentUri, bcmathNumberPhpStub, filterClassesDocumentUri, filterClassesPhpStub, builtinDocumentUri, builtinPhpExtensionStub, builtinPhpStub, CONDITIONAL_PHP_FUNCTIONS, CONFIGURABLE_PHP_EXTENSIONS, APCU_FUNCTION_NAMES, APCU_KNOWN_CONSTANT_NAMES, CURL_KNOWN_CONSTANT_NAMES, GD_KNOWN_CONSTANT_NAMES, TOKENIZER_KNOWN_CONSTANT_NAMES, isBuiltinDocumentUri, isSyntaxAvailable, normalizeApcuRuntimeFacts, normalizeCurlRuntimeFacts, normalizeGdRuntimeFacts, normalizeTokenizerRuntimeFacts, normalizeIntlCharRuntimeConstants, normalizeMbOnigurumaVersion, normalizeMysqliRuntimeFacts, normalizeOpenSslRuntimeFacts, normalizePcreRuntimeConstants, normalizeSysvMsgRuntimeConstants, normalizePosixRuntimeConstants, normalizePdoRuntimeFacts, normalizePgsqlRuntimeFacts, normalizeRedisRuntimeFacts, normalizeImagickRuntimeFacts, normalizeSocketsRuntimeFacts, normalizeSodiumRuntimeFacts, normalizeXslRuntimeFacts, normalizeZipRuntimeFacts, normalizeZlibRuntimeFacts, parseBuiltinDocumentUri, pdoDriverDocumentUri, pdoDriverPhpStub, randomClassesDocumentUri, randomClassesPhpStub, SUPPORTED_PHP_VERSIONS, type ApcuRuntimeFacts, type ConditionalPhpFunction, type ConfigurablePhpExtension, type CurlRuntimeFacts, type GdRuntimeFacts, type TokenizerRuntimeFacts, type IntlCharRuntimeConstants, type MysqliRuntimeFacts, type OpenSslRuntimeFacts, type PcreRuntimeConstants, type SysvMsgRuntimeConstants, type PosixRuntimeConstants, type PdoRuntimeFacts, type PgsqlRuntimeFacts, type RedisRuntimeFacts, type ImagickRuntimeFacts, type SocketsRuntimeFacts, type SodiumRuntimeFacts, type SupportedPhpVersion, type XslRuntimeFacts, type ZipRuntimeFacts, type ZlibRuntimeFacts } from '@php-companion/language-spec';
+import { normalizeGetrusageRuntimeFacts, type GetrusageRuntimeFacts } from '@php-companion/language-spec';
+import { normalizeReadlineLib } from '@php-companion/language-spec';
+import { normalizePcntlRuntimeFacts, type PcntlRuntimeFacts } from '@php-companion/language-spec';
 import { DEFAULT_INDEX_LIMITS, PendingChanges, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision,
   type ProjectIndexLimits, type IndexProgress } from '@php-companion/index';
 import { createEditPlan, isValidPhpIdentifier } from '@php-companion/refactor';
@@ -48,7 +55,7 @@ import { symfonyPhpParameterReferenceAt, symfonyPhpParameterReferencePrefixAt, s
 import { symfonyPhpParameterDeclarations, symfonyXmlParameterDeclarations, symfonyYamlParameterDeclarations } from '@php-companion/framework-symfony';
 import { doctrineQueryMethodFacts, type DoctrineAssociationPropertyFact, type DoctrineMethodFact, type DoctrineRepositoryLookupFact } from '@php-companion/framework-doctrine';
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
-import { isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
+import { SEMANTIC_PROVIDER_DOCUMENT_LIMITS, isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
   type ExternalContainerParameterFact, type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
 import { runSemanticProvider } from '@php-companion/semantic-provider-host';
 import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
@@ -69,6 +76,8 @@ declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
+const completionDocumentIdentities = new WeakMap<TextDocument, number>();
+let nextCompletionDocumentIdentity = 0;
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
 let workspaceRoots: string[] = [];
 const composerRootChecks = new Map<string, Promise<void>>();
@@ -86,7 +95,8 @@ const projectMappingsByRoot = new Map<string, Psr4Mapping[]>();
 const composerProjectsByRoot = new Map<string, Promise<ComposerProject | undefined>>();
 type TypeNameCatalog = { names: Map<string, string[]>; sortedNames: string[]; complete: boolean };
 const typeNameCatalogsByRoot = new Map<string, Promise<TypeNameCatalog>>();
-const typeNameSearchesByRoot = new Map<string, { prefix: string; fqcns: string[] }>();
+const typeNameSearchesByRoot = new Map<string, Map<string, string[]>>();
+const projectShortTypeSearchesByRoot = new Map<string, Map<string, string[]>>();
 const nonPsr4TypeSearchesByRoot = new Map<string, Map<string, { paths: string[]; complete: boolean }>>();
 const classmapNamespacePathsByRoot = new Map<string, Map<string, { epoch: number; paths: string[]; complete: boolean }>>();
 const classmapNamespaceResultsByRoot = new Map<string, Map<string, { epoch: number; workspace: SemanticWorkspace;
@@ -302,7 +312,8 @@ function invalidateComposerProject(root: string): void {
 }
 
 function invalidateTypeNameSearch(root: string): void {
-  typeNameCatalogsByRoot.delete(root); typeNameSearchesByRoot.delete(root); nonPsr4TypeSearchesByRoot.delete(root);
+  typeNameCatalogsByRoot.delete(root); typeNameCatalogsByRoot.delete(`${root}\0project`);
+  typeNameSearchesByRoot.delete(root); projectShortTypeSearchesByRoot.delete(root); nonPsr4TypeSearchesByRoot.delete(root);
   classmapNamespacePathsByRoot.delete(root);
   classmapNamespaceResultsByRoot.delete(root);
   typeNameSearchEpochsByRoot.set(root, (typeNameSearchEpochsByRoot.get(root) ?? 0) + 1);
@@ -313,6 +324,32 @@ interface DetectedPhpRuntime {
   versionId: number;
   sapi: string;
   loadedExtensions: string[];
+  availableFunctions?: string[];
+  readlineLib?: string;
+  intlCharConstants?: IntlCharRuntimeConstants;
+  intlCalendarFieldCount?: number;
+  intlCurrencyAccountingAvailable?: boolean;
+  zipRuntime?: ZipRuntimeFacts;
+  zlibRuntime?: ZlibRuntimeFacts;
+  socketsRuntime?: SocketsRuntimeFacts;
+  pcntlRuntime?: PcntlRuntimeFacts;
+  pgsqlRuntime?: PgsqlRuntimeFacts;
+  xslRuntime?: XslRuntimeFacts;
+  redisRuntime?: RedisRuntimeFacts;
+  imagickRuntime?: ImagickRuntimeFacts;
+  curlRuntime?: CurlRuntimeFacts;
+  gdRuntime?: GdRuntimeFacts;
+  tokenizerRuntime?: TokenizerRuntimeFacts;
+  apcuRuntime?: ApcuRuntimeFacts;
+  openSslRuntime?: OpenSslRuntimeFacts;
+  mysqliRuntime?: MysqliRuntimeFacts;
+  pdoRuntime?: PdoRuntimeFacts;
+  sodiumRuntime?: SodiumRuntimeFacts;
+  pcreRuntime?: PcreRuntimeConstants;
+  sysvMsgConstants?: SysvMsgRuntimeConstants;
+  posixConstants?: PosixRuntimeConstants;
+  mbOnigurumaVersion?: string;
+  getrusageRuntime?: GetrusageRuntimeFacts;
   loadedConfigurationFile?: string;
   scannedConfigurationFiles: string[];
 }
@@ -341,6 +378,35 @@ function detectedPhpRuntime(value: unknown, root: string): DetectedPhpRuntime | 
   const candidate = value as Record<string, unknown>;
   const loadedExtensions = Array.isArray(candidate.loadedExtensions) && candidate.loadedExtensions.every((item) => typeof item === 'string')
     ? [...new Set(candidate.loadedExtensions.map((item) => item.toLowerCase()))].sort() : undefined;
+  const availableFunctions = candidate.availableFunctions === undefined ? undefined
+    : Array.isArray(candidate.availableFunctions) && candidate.availableFunctions.every((item) => typeof item === 'string')
+      ? [...new Set(candidate.availableFunctions.map((item) => item.toLowerCase()))].sort() : undefined;
+  const readlineLib = candidate.readlineLib === undefined ? undefined : normalizeReadlineLib(candidate.readlineLib);
+  const intlCharConstants = candidate.intlCharConstants === undefined ? undefined
+    : normalizeIntlCharRuntimeConstants(candidate.intlCharConstants);
+  const intlCalendarFieldCount = candidate.intlCalendarFieldCount;
+  const intlCurrencyAccountingAvailable = candidate.intlCurrencyAccountingAvailable;
+  const zipRuntime = candidate.zipRuntime === undefined ? undefined : normalizeZipRuntimeFacts(candidate.zipRuntime);
+  const zlibRuntime = candidate.zlibRuntime === undefined ? undefined : normalizeZlibRuntimeFacts(candidate.zlibRuntime);
+  const socketsRuntime = candidate.socketsRuntime === undefined ? undefined : normalizeSocketsRuntimeFacts(candidate.socketsRuntime);
+  const pcntlRuntime = candidate.pcntlRuntime === undefined ? undefined : normalizePcntlRuntimeFacts(candidate.pcntlRuntime);
+  const pgsqlRuntime = candidate.pgsqlRuntime === undefined ? undefined : normalizePgsqlRuntimeFacts(candidate.pgsqlRuntime);
+  const xslRuntime = candidate.xslRuntime === undefined ? undefined : normalizeXslRuntimeFacts(candidate.xslRuntime);
+  const redisRuntime = candidate.redisRuntime === undefined ? undefined : normalizeRedisRuntimeFacts(candidate.redisRuntime);
+  const imagickRuntime = candidate.imagickRuntime === undefined ? undefined : normalizeImagickRuntimeFacts(candidate.imagickRuntime);
+  const curlRuntime = candidate.curlRuntime === undefined ? undefined : normalizeCurlRuntimeFacts(candidate.curlRuntime);
+  const gdRuntime = candidate.gdRuntime === undefined ? undefined : normalizeGdRuntimeFacts(candidate.gdRuntime);
+  const tokenizerRuntime = candidate.tokenizerRuntime === undefined ? undefined : normalizeTokenizerRuntimeFacts(candidate.tokenizerRuntime);
+  const apcuRuntime = candidate.apcuRuntime === undefined ? undefined : normalizeApcuRuntimeFacts(candidate.apcuRuntime);
+  const openSslRuntime = candidate.openSslRuntime === undefined ? undefined : normalizeOpenSslRuntimeFacts(candidate.openSslRuntime);
+  const mysqliRuntime = candidate.mysqliRuntime === undefined ? undefined : normalizeMysqliRuntimeFacts(candidate.mysqliRuntime);
+  const pdoRuntime = candidate.pdoRuntime === undefined ? undefined : normalizePdoRuntimeFacts(candidate.pdoRuntime);
+  const sodiumRuntime = candidate.sodiumRuntime === undefined ? undefined : normalizeSodiumRuntimeFacts(candidate.sodiumRuntime);
+  const posixConstants = candidate.posixConstants === undefined ? undefined : normalizePosixRuntimeConstants(candidate.posixConstants);
+  const sysvMsgConstants = candidate.sysvMsgConstants === undefined ? undefined : normalizeSysvMsgRuntimeConstants(candidate.sysvMsgConstants);
+  const pcreRuntime = candidate.pcreRuntime === undefined ? undefined : normalizePcreRuntimeConstants(candidate.pcreRuntime);
+  const mbOnigurumaVersion = normalizeMbOnigurumaVersion(candidate.mbOnigurumaVersion);
+  const getrusageRuntime = candidate.getrusageRuntime === undefined ? undefined : normalizeGetrusageRuntimeFacts(candidate.getrusageRuntime);
   const scannedConfigurationFiles = Array.isArray(candidate.scannedConfigurationFiles) && candidate.scannedConfigurationFiles.every((item) => typeof item === 'string')
     ? [...new Set(candidate.scannedConfigurationFiles)] : undefined;
   const version = typeof candidate.version === 'string' ? candidate.version : undefined;
@@ -355,6 +421,37 @@ function detectedPhpRuntime(value: unknown, root: string): DetectedPhpRuntime | 
     || typeof candidate.sapi !== 'string' || candidate.sapi === '' || candidate.sapi.length > 128
     || !loadedExtensions || loadedExtensions.length > 4_096 || !loadedExtensions.includes('core')
     || loadedExtensions.some((extension) => extension === '' || extension.length > 256)
+    || (candidate.availableFunctions !== undefined && (!availableFunctions || availableFunctions.length > 256
+      || availableFunctions.some((name) => name === '' || name.length > 128)))
+    || (candidate.readlineLib !== undefined && (!readlineLib || !loadedExtensions.includes('readline')))
+    || (candidate.intlCharConstants !== undefined && (!intlCharConstants || !loadedExtensions.includes('intl')))
+    || (intlCalendarFieldCount !== undefined && (!Number.isSafeInteger(intlCalendarFieldCount)
+      || (intlCalendarFieldCount as number) < 1 || (intlCalendarFieldCount as number) > 1_000
+      || !loadedExtensions.includes('intl')))
+    || (intlCurrencyAccountingAvailable !== undefined && (typeof intlCurrencyAccountingAvailable !== 'boolean'
+      || !loadedExtensions.includes('intl')))
+    || (candidate.zipRuntime !== undefined && (!zipRuntime || !loadedExtensions.includes('zip')))
+    || (candidate.zlibRuntime !== undefined && (!zlibRuntime || !loadedExtensions.includes('zlib')))
+    || (candidate.socketsRuntime !== undefined && (!socketsRuntime || !loadedExtensions.includes('sockets')))
+    || (candidate.pcntlRuntime !== undefined && (!pcntlRuntime || !loadedExtensions.includes('pcntl')))
+    || (candidate.pgsqlRuntime !== undefined && (!pgsqlRuntime || !loadedExtensions.includes('pgsql')))
+    || (candidate.xslRuntime !== undefined && (!xslRuntime || !loadedExtensions.includes('xsl')))
+    || (candidate.redisRuntime !== undefined && (!redisRuntime || !loadedExtensions.includes('redis')))
+    || (candidate.imagickRuntime !== undefined && (!imagickRuntime || !loadedExtensions.includes('imagick')))
+    || (candidate.curlRuntime !== undefined && (!curlRuntime || !loadedExtensions.includes('curl')))
+    || (candidate.gdRuntime !== undefined && (!gdRuntime || !loadedExtensions.includes('gd')))
+    || (candidate.tokenizerRuntime !== undefined && (!tokenizerRuntime || !loadedExtensions.includes('tokenizer')))
+    || (candidate.apcuRuntime !== undefined && (!apcuRuntime || !loadedExtensions.includes('apcu')))
+    || (candidate.openSslRuntime !== undefined && (!openSslRuntime || !loadedExtensions.includes('openssl')))
+    || (candidate.mysqliRuntime !== undefined && (!mysqliRuntime || !loadedExtensions.includes('mysqli')))
+    || (candidate.pdoRuntime !== undefined && (!pdoRuntime || !loadedExtensions.includes('pdo')
+      || Object.keys(pdoRuntime.classes).some((name) => !loadedExtensions.includes(`pdo_${name.slice('Pdo\\'.length).toLowerCase()}`))))
+    || (candidate.sodiumRuntime !== undefined && (!sodiumRuntime || !loadedExtensions.includes('sodium')))
+    || (candidate.posixConstants !== undefined && (!posixConstants || !loadedExtensions.includes('posix')))
+    || (candidate.sysvMsgConstants !== undefined && (!sysvMsgConstants || !loadedExtensions.includes('sysvmsg')))
+    || (candidate.pcreRuntime !== undefined && (!pcreRuntime || !loadedExtensions.includes('pcre')))
+    || (candidate.getrusageRuntime !== undefined && !getrusageRuntime)
+    || (candidate.mbOnigurumaVersion !== undefined && (!mbOnigurumaVersion || !loadedExtensions.includes('mbstring')))
     || !scannedConfigurationFiles || scannedConfigurationFiles.length > 4_096
     || scannedConfigurationFiles.some((file) => file.length > 32_768)
     || !(candidate.loadedConfigurationFile === undefined || typeof candidate.loadedConfigurationFile === 'string')
@@ -362,6 +459,32 @@ function detectedPhpRuntime(value: unknown, root: string): DetectedPhpRuntime | 
   return {
     executable: candidate.executable, version, versionId, sapi: candidate.sapi,
     loadedExtensions, scannedConfigurationFiles,
+    ...(availableFunctions ? { availableFunctions } : {}),
+    ...(readlineLib ? { readlineLib } : {}),
+    ...(intlCharConstants && Object.keys(intlCharConstants).length ? { intlCharConstants } : {}),
+    ...(intlCalendarFieldCount !== undefined ? { intlCalendarFieldCount: intlCalendarFieldCount as number } : {}),
+    ...(intlCurrencyAccountingAvailable !== undefined ? { intlCurrencyAccountingAvailable: intlCurrencyAccountingAvailable as boolean } : {}),
+    ...(zipRuntime ? { zipRuntime } : {}),
+    ...(zlibRuntime ? { zlibRuntime } : {}),
+    ...(socketsRuntime ? { socketsRuntime } : {}),
+    ...(pcntlRuntime ? { pcntlRuntime } : {}),
+    ...(pgsqlRuntime ? { pgsqlRuntime } : {}),
+    ...(xslRuntime ? { xslRuntime } : {}),
+    ...(redisRuntime ? { redisRuntime } : {}),
+    ...(imagickRuntime ? { imagickRuntime } : {}),
+    ...(curlRuntime ? { curlRuntime } : {}),
+    ...(gdRuntime ? { gdRuntime } : {}),
+    ...(tokenizerRuntime ? { tokenizerRuntime } : {}),
+    ...(apcuRuntime ? { apcuRuntime } : {}),
+    ...(openSslRuntime ? { openSslRuntime } : {}),
+    ...(mysqliRuntime ? { mysqliRuntime } : {}),
+    ...(pdoRuntime ? { pdoRuntime } : {}),
+    ...(sodiumRuntime ? { sodiumRuntime } : {}),
+    ...(pcreRuntime ? { pcreRuntime } : {}),
+    ...(sysvMsgConstants ? { sysvMsgConstants } : {}),
+    ...(posixConstants ? { posixConstants } : {}),
+    ...(mbOnigurumaVersion ? { mbOnigurumaVersion } : {}),
+    ...(getrusageRuntime ? { getrusageRuntime } : {}),
     ...(typeof candidate.loadedConfigurationFile === 'string' && candidate.loadedConfigurationFile ? { loadedConfigurationFile: candidate.loadedConfigurationFile } : {}),
   };
 }
@@ -398,6 +521,18 @@ function disabledExtensionsForRoot(root: string): ConfigurablePhpExtension[] {
   return [...new Set([...(configured?.disabledExtensions ?? []), ...(configured?.runtimeMissingExtensions ?? []), ...(composerDisabledExtensionsByRoot.get(root) ?? [])])].sort();
 }
 
+function unavailableFunctionsForRoot(root: string): ConditionalPhpFunction[] {
+  const runtime = configuredExtensionEntryForRoot(root)?.runtime;
+  if (!runtime?.availableFunctions) return [];
+  return CONDITIONAL_PHP_FUNCTIONS.filter((name) => {
+    const extension = name === 'curl_upkeep' ? 'curl' : name === 'intltz_get_iana_id' ? 'intl'
+      : name === 'readline_list_history' ? 'readline'
+      : name === 'sys_getloadavg' || name === 'strptime' || name === 'ftok' ? 'standard'
+        : name.startsWith('mhash') ? 'hash' : 'gd';
+    return runtime.loadedExtensions.includes(extension) && !runtime.availableFunctions?.includes(name);
+  });
+}
+
 function disabledExtensionReason(root: string, extension: ConfigurablePhpExtension): {
   source: string; setting: boolean; composer: boolean; runtime: boolean; detectedRuntime?: DiagnosticPhpRuntime;
 } {
@@ -431,6 +566,18 @@ function phpExtensionSymbolCatalog(version: SupportedPhpVersion): Promise<PhpExt
       extensionByUri.set(uri, extension);
       workspace.update(uri, `<?php\n${builtinPhpExtensionStub(version, extension)}`);
     }
+    const bcmathNumber = bcmathNumberPhpStub(version);
+    if (bcmathNumber) {
+      const uri = 'php-companion-extension:/bcmath-number.php';
+      extensionByUri.set(uri, 'bcmath');
+      workspace.update(uri, bcmathNumber);
+    }
+    const filterClasses = filterClassesPhpStub(version);
+    if (filterClasses) {
+      const uri = 'php-companion-extension:/filter-classes.php';
+      extensionByUri.set(uri, 'filter');
+      workspace.update(uri, filterClasses);
+    }
     const result: PhpExtensionSymbolCatalog = { types: new Map(), functions: new Map(), constants: new Map() };
     const add = (target: Map<string, Set<ConfigurablePhpExtension>>, key: string, uri: string): void => {
       const extension = extensionByUri.get(uri); if (!extension) return;
@@ -439,6 +586,11 @@ function phpExtensionSymbolCatalog(version: SupportedPhpVersion): Promise<PhpExt
     for (const item of workspace.workspaceTypes()) add(result.types, item.fqcn.toLowerCase(), item.uri);
     for (const item of workspace.workspaceFunctions()) add(result.functions, item.fqcn.toLowerCase(), item.uri);
     for (const item of workspace.workspaceConstants()) add(result.constants, item.fqcn, item.uri);
+    for (const name of CURL_KNOWN_CONSTANT_NAMES) add(result.constants, name, 'php-companion-extension:/curl.php');
+    for (const name of GD_KNOWN_CONSTANT_NAMES) add(result.constants, name, 'php-companion-extension:/gd.php');
+    for (const name of TOKENIZER_KNOWN_CONSTANT_NAMES) add(result.constants, name, 'php-companion-extension:/tokenizer.php');
+    for (const name of APCU_KNOWN_CONSTANT_NAMES) add(result.constants, name, 'php-companion-extension:/apcu.php');
+    for (const name of APCU_FUNCTION_NAMES) add(result.functions, name, 'php-companion-extension:/apcu.php');
     workspace.dispose();
     return result;
   });
@@ -453,12 +605,55 @@ async function refreshBuiltinForRoot(root: string): Promise<void> {
 
 function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
   const disabledExtensions = disabledExtensionsForRoot(root);
+  const unavailableFunctions = unavailableFunctionsForRoot(root);
+  const readlineLib = configuredExtensionEntryForRoot(root)?.runtime?.readlineLib;
+  const intlCharConstants = configuredExtensionEntryForRoot(root)?.runtime?.intlCharConstants;
+  const intlCalendarFieldCount = configuredExtensionEntryForRoot(root)?.runtime?.intlCalendarFieldCount;
+  const intlCurrencyAccountingAvailable = configuredExtensionEntryForRoot(root)?.runtime?.intlCurrencyAccountingAvailable;
+  const zipRuntime = configuredExtensionEntryForRoot(root)?.runtime?.zipRuntime;
+  const zlibRuntime = configuredExtensionEntryForRoot(root)?.runtime?.zlibRuntime;
+  const socketsRuntime = configuredExtensionEntryForRoot(root)?.runtime?.socketsRuntime;
+  const pcntlRuntime = configuredExtensionEntryForRoot(root)?.runtime?.pcntlRuntime;
+  const pgsqlRuntime = configuredExtensionEntryForRoot(root)?.runtime?.pgsqlRuntime;
+  const xslRuntime = configuredExtensionEntryForRoot(root)?.runtime?.xslRuntime;
+  const redisRuntime = configuredExtensionEntryForRoot(root)?.runtime?.redisRuntime;
+  const imagickRuntime = configuredExtensionEntryForRoot(root)?.runtime?.imagickRuntime;
+  const curlRuntime = configuredExtensionEntryForRoot(root)?.runtime?.curlRuntime;
+  const gdRuntime = configuredExtensionEntryForRoot(root)?.runtime?.gdRuntime;
+  const tokenizerRuntime = configuredExtensionEntryForRoot(root)?.runtime?.tokenizerRuntime;
+  const apcuRuntime = configuredExtensionEntryForRoot(root)?.runtime?.apcuRuntime;
+  const openSslRuntime = configuredExtensionEntryForRoot(root)?.runtime?.openSslRuntime;
+  const mysqliRuntime = configuredExtensionEntryForRoot(root)?.runtime?.mysqliRuntime;
+  const pdoRuntime = configuredExtensionEntryForRoot(root)?.runtime?.pdoRuntime;
+  const sodiumRuntime = configuredExtensionEntryForRoot(root)?.runtime?.sodiumRuntime;
+  const pcreRuntime = configuredExtensionEntryForRoot(root)?.runtime?.pcreRuntime;
+  const sysvMsgConstants = configuredExtensionEntryForRoot(root)?.runtime?.sysvMsgConstants;
+  const posixConstants = configuredExtensionEntryForRoot(root)?.runtime?.posixConstants;
+  const mbOnigurumaVersion = configuredExtensionEntryForRoot(root)?.runtime?.mbOnigurumaVersion;
+  const getrusageRuntime = configuredExtensionEntryForRoot(root)?.runtime?.getrusageRuntime;
   const version = phpVersionForRoot(root);
-  const uri = builtinDocumentUri(version, { disabledExtensions });
+  const uri = builtinDocumentUri(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime });
   const previous = builtinUriByRoot.get(root);
   if (previous === uri) return;
-  if (previous) workspace.remove(previous);
-  workspace.update(uri, builtinPhpStub(version, { disabledExtensions }));
+  if (previous) {
+    workspace.remove(previous);
+    const snapshot = parseBuiltinDocumentUri(previous);
+    if (snapshot) {
+      workspace.remove(bcmathNumberDocumentUri(snapshot.version, { disabledExtensions: snapshot.disabledExtensions }));
+      workspace.remove(pdoDriverDocumentUri(snapshot.version, { disabledExtensions: snapshot.disabledExtensions, pdoRuntime: snapshot.pdoRuntime }));
+      workspace.remove(randomClassesDocumentUri(snapshot.version));
+      workspace.remove(filterClassesDocumentUri(snapshot.version, { disabledExtensions: snapshot.disabledExtensions }));
+    }
+  }
+  workspace.update(uri, builtinPhpStub(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime }));
+  const bcmathNumber = bcmathNumberPhpStub(version, { disabledExtensions });
+  if (bcmathNumber) workspace.update(bcmathNumberDocumentUri(version, { disabledExtensions }), bcmathNumber);
+  const pdoDrivers = disabledExtensions.includes('pdo') ? '' : pdoDriverPhpStub(version, pdoRuntime);
+  if (pdoDrivers) workspace.update(pdoDriverDocumentUri(version, { disabledExtensions, pdoRuntime }), pdoDrivers);
+  const randomClasses = randomClassesPhpStub(version);
+  if (randomClasses) workspace.update(randomClassesDocumentUri(version), randomClasses);
+  const filterClasses = filterClassesPhpStub(version, { disabledExtensions });
+  if (filterClasses) workspace.update(filterClassesDocumentUri(version, { disabledExtensions }), filterClasses);
   builtinUriByRoot.set(root, uri);
 }
 
@@ -583,10 +778,10 @@ function semanticProviderDocuments(root: string): { complete: boolean; documents
   const snapshots: SemanticProviderDocument[] = [...frameworkDocumentSnapshots.values()].filter((document) => {
     const path = pathForUri(document.uri); return path !== undefined && pathWithin(root, path);
   }); let characters = snapshots.reduce((sum, document) => sum + document.source.length, 0);
-  if (!frameworkDocumentSnapshotsComplete || snapshots.length > 128 || characters > 8 * 1024 * 1024) return { complete: false, documents: [] };
+  if (!frameworkDocumentSnapshotsComplete || snapshots.length > SEMANTIC_PROVIDER_DOCUMENT_LIMITS.count || characters > SEMANTIC_PROVIDER_DOCUMENT_LIMITS.totalCharacters) return { complete: false, documents: [] };
   for (const document of candidates) {
     const source = document.getText();
-    if (source.length > 1_000_000 || snapshots.length >= 128 || characters + source.length > 8 * 1024 * 1024) return { complete: false, documents: [] };
+    if (source.length > SEMANTIC_PROVIDER_DOCUMENT_LIMITS.perDocumentCharacters || snapshots.length >= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.count || characters + source.length > SEMANTIC_PROVIDER_DOCUMENT_LIMITS.totalCharacters) return { complete: false, documents: [] };
     characters += source.length; snapshots.push({ uri: document.uri, languageId: document.languageId as 'php' | 'yaml' | 'xml', source, snapshotVersion: String(document.version) });
   }
   return { complete: true, documents: snapshots };
@@ -610,8 +805,8 @@ function controllerContextScopedDocuments(root: string,
   }
   for (const scope of scopes) snapshots.set(scope.uri, { ...scope, languageId: 'php' });
   const result = [...snapshots.values()];
-  return result.length <= 128 && result.reduce((sum, document) => sum + document.source.length, 0) <= 8 * 1024 * 1024
-    && result.every((document) => document.source.length <= 1_000_000)
+  return result.length <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.count && result.reduce((sum, document) => sum + document.source.length, 0) <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.totalCharacters
+    && result.every((document) => document.source.length <= SEMANTIC_PROVIDER_DOCUMENT_LIMITS.perDocumentCharacters)
     ? { complete: true, documents: result } : { complete: false, documents: [] };
 }
 
@@ -711,6 +906,15 @@ async function runContainerProvider(root: string, generation: number, workspace:
     connection.console.info(outputMessage(clientDiagnosticLanguage, 'containerGenerationCommitted', descriptor.providerId, String(generation))); return true;
   }
   clearContainerFacts(root, workspace, descriptor.providerId);
+  if (!result.ok && result.containerInputEvidence) {
+    const paths = (uris: readonly string[]): string[] => uris.flatMap((uri) => {
+      try { return [resolve(fileURLToPath(uri))]; } catch { return []; }
+    });
+    symfonyServiceInputPathsByRoot.set(root, {
+      paths: new Set(paths([...result.containerInputEvidence.uris, ...result.containerInputEvidence.configurationUris])),
+      complete: result.containerInputEvidence.complete,
+    });
+  }
   connection.console.warn(result.ok ? outputMessage(clientDiagnosticLanguage, 'containerSnapshotIncomplete', descriptor.providerId)
     : outputMessage(clientDiagnosticLanguage, 'containerProviderFailed', descriptor.providerId, result.code, result.message));
   return false;
@@ -904,8 +1108,16 @@ function scheduleSymfonyContainerRefresh(root: string): void {
   const previous = symfonyContainerRefreshTimers.get(root); if (previous) clearTimeout(previous);
   symfonyContainerRefreshTimers.set(root, setTimeout(() => {
     symfonyContainerRefreshTimers.delete(root);
-    if (activeIndexing || !projectCompleteRoots.has(root)) return;
-    void semanticForRoot(root).then((workspace) => refreshSymfonyContainerFacts(root, indexingGeneration, workspace, () => true))
+    // An edit may land while the initial source scan is still preparing
+    // providers. Wait for that scan, then refresh facts invalidated by the
+    // edit instead of discarding the refresh or rescanning every PHP file.
+    void (async (): Promise<void> => {
+      await activeIndexing?.catch(() => undefined);
+      if (!projectCompleteRoots.has(root)) return;
+      if (completeContainerFactsByRoot.get(root)?.revision === containerFactsRevision
+        && completeContainerFactsByRoot.get(root)?.generation === indexingGeneration) return;
+      await refreshSymfonyContainerFacts(root, indexingGeneration, await semanticForRoot(root), () => true);
+    })()
       .catch((error: unknown) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'containerRefreshFailed', String(error))));
   }, 250));
 }
@@ -1018,7 +1230,10 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
     const workspace = await semanticForRoot(root);
     if (containerChanged) clearContainerFacts(root, workspace);
     if (eventsChanged) externalSymfonyEventsByRoot.delete(root);
-    if (contextsChanged) { interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root); }
+    if (contextsChanged) {
+      interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root);
+      controllerContextScanTasks.get(root)?.waiters.clear(); controllerContextScanTasks.delete(root);
+    }
   }
   if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) await startIndexWorkspace('semantic-provider-change');
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
@@ -1079,7 +1294,16 @@ connection.onNotification('phpCompanion/phpVersions', async (params: { versions?
     const loose = await semanticWorkspaces.get('loose');
     if (loose) {
       loose.remove(builtinDocumentUri(previousFallback));
+      loose.remove(bcmathNumberDocumentUri(previousFallback));
+      loose.remove(randomClassesDocumentUri(previousFallback));
+      loose.remove(filterClassesDocumentUri(previousFallback));
       loose.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
+      const bcmathNumber = bcmathNumberPhpStub(targetPhpVersion);
+      if (bcmathNumber) loose.update(bcmathNumberDocumentUri(targetPhpVersion), bcmathNumber);
+      const randomClasses = randomClassesPhpStub(targetPhpVersion);
+      if (randomClasses) loose.update(randomClassesDocumentUri(targetPhpVersion), randomClasses);
+      const filterClasses = filterClassesPhpStub(targetPhpVersion);
+      if (filterClasses) loose.update(filterClassesDocumentUri(targetPhpVersion), filterClasses);
     }
   }
   await Promise.all(changedRoots.map(refreshBuiltinForRoot));
@@ -1116,6 +1340,71 @@ function pathForUri(uri: string): string | undefined {
     }
   } catch { /* Malformed and unsupported URIs stay outside filesystem indexing. */ }
   return undefined;
+}
+
+type PhpSyntaxNode = ReturnType<PhpSyntaxParser['parseTree']>['rootNode'];
+
+function staticIncludePathAt(source: string, offset: number, sourcePath: string, root: PhpSyntaxNode): string | undefined {
+  let current: PhpSyntaxNode | null = root.descendantForIndex(offset);
+  while (current && current.type !== 'string') current = current.parent;
+  if (!current || offset < current.startIndex || offset >= current.endIndex) return undefined;
+  let include: PhpSyntaxNode | null = current.parent;
+  while (include && !['include_expression', 'include_once_expression', 'require_expression', 'require_once_expression'].includes(include.type)) {
+    include = include.parent;
+  }
+  if (!include) return undefined;
+  const directory = dirname(sourcePath);
+  const hasNamespaceOrFunctionImport = root.descendantsOfType(['namespace_definition', 'namespace_use_declaration'])
+    .some((node) => node.type === 'namespace_definition' || /\buse\s+function\b/iu.test(source.slice(node.startIndex, node.endIndex)));
+  const value = (node: PhpSyntaxNode): string | undefined => {
+    if (node.type === 'name' && source.slice(node.startIndex, node.endIndex).toUpperCase() === '__DIR__') return directory;
+    if (node.type === 'name' && source.slice(node.startIndex, node.endIndex).toUpperCase() === '__FILE__') return sourcePath;
+    if (node.type === 'string') {
+      const literal = source.slice(node.startIndex, node.endIndex);
+      const match = /^(['"])([^\\\r\n$]*)\1$/u.exec(literal);
+      return match?.[2];
+    }
+    if (node.type === 'parenthesized_expression') return node.namedChildren.length === 1 ? value(node.namedChildren[0]!) : undefined;
+    if (node.type === 'function_call_expression') {
+      const functionName = node.childForFieldName('function');
+      const name = functionName && source.slice(functionName.startIndex, functionName.endIndex);
+      if (name !== '\\dirname' && (name !== 'dirname' || hasNamespaceOrFunctionImport)) return undefined;
+      const argumentsNode = node.childForFieldName('arguments');
+      const args = argumentsNode?.namedChildren ?? [];
+      if (args.length < 1 || args.length > 2 || args.some((argument) => argument.type !== 'argument' || argument.namedChildren.length !== 1)) return undefined;
+      const path = value(args[0]!.namedChildren[0]!);
+      const levelSource = args[1]?.namedChildren[0];
+      const levels = levelSource && levelSource.type === 'integer'
+        ? Number(source.slice(levelSource.startIndex, levelSource.endIndex)) : args.length === 1 ? 1 : NaN;
+      if (!path || !Number.isInteger(levels) || levels < 1 || levels > 32) return undefined;
+      let parent = path;
+      for (let level = 0; level < levels; level += 1) parent = dirname(parent);
+      return parent;
+    }
+    if (node.type === 'binary_expression' && node.namedChildren.length === 2) {
+      const [left, right] = node.namedChildren;
+      if (source.slice(left!.endIndex, right!.startIndex).trim() !== '.') return undefined;
+      const prefix = value(left!); const suffix = value(right!);
+      return prefix === undefined || suffix === undefined ? undefined : prefix + suffix;
+    }
+    return undefined;
+  };
+  const expression = include.namedChildren[0];
+  const target = expression && value(expression);
+  return target && isAbsolute(target) ? resolve(target) : undefined;
+}
+
+async function staticIncludeDefinition(document: TextDocument, offset: number): Promise<string | undefined> {
+  const sourcePath = pathForUri(document.uri);
+  if (!sourcePath || document.languageId !== 'php') return undefined;
+  const source = document.getText();
+  if (!/\b(?:include|require)(?:_once)?\b/iu.test(source)) return undefined;
+  const tree = (await parser()).parseTree(source);
+  try {
+    const target = staticIncludePathAt(source, offset, sourcePath, tree.rootNode);
+    if (target && (await stat(target).catch(() => undefined))?.isFile()) return pathToFileURL(target).toString();
+    return undefined;
+  } finally { tree.delete(); }
 }
 
 function sameFilesystemPath(left: string | undefined, right: string): boolean {
@@ -1184,7 +1473,15 @@ function semanticForKey(key: string): Promise<SemanticWorkspace> {
     const workspace = new SemanticWorkspace(value);
     const root = key.startsWith('root:') ? key.slice('root:'.length) : undefined;
     if (root) updateBuiltinForRoot(workspace, root);
-    else workspace.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
+    else {
+      workspace.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
+      const bcmathNumber = bcmathNumberPhpStub(targetPhpVersion);
+      if (bcmathNumber) workspace.update(bcmathNumberDocumentUri(targetPhpVersion), bcmathNumber);
+      const randomClasses = randomClassesPhpStub(targetPhpVersion);
+      if (randomClasses) workspace.update(randomClassesDocumentUri(targetPhpVersion), randomClasses);
+      const filterClasses = filterClassesPhpStub(targetPhpVersion);
+      if (filterClasses) workspace.update(filterClassesDocumentUri(targetPhpVersion), filterClasses);
+    }
     return workspace;
   });
   semanticWorkspaces.set(key, workspace);
@@ -1364,7 +1661,8 @@ async function loadCallableFacts(root: string, workspace: SemanticWorkspace): Pr
   connection.console.info(outputMessage(clientDiagnosticLanguage, 'callableFactsRestored', String(restored), root));
 }
 
-async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration, onProgress?: (progress: IndexProgress) => void): Promise<void> {
+async function indexRoot(workspace: SemanticWorkspace, root: string, generation: number, shouldContinue: () => boolean = () => generation === indexingGeneration,
+  onProgress?: (progress: IndexProgress) => void, onPreparingReferenceFacts?: () => void): Promise<void> {
   if (indexingMode === 'experimental' && experimentalReferenceSourceOnly && querySequence > 0) return;
   if (indexingMode === 'progressive' && process.memoryUsage().rss > referenceMemoryBudgetMiB * 1024 * 1024) {
     connection.console.info(`[reference-progressive] paused root=${root} rssMiB=${Math.ceil(process.memoryUsage().rss / 1048576)} budgetMiB=${referenceMemoryBudgetMiB}`);
@@ -1408,6 +1706,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   updateBuiltinForRoot(workspace, root);
   const lightEntries = indexingMode === 'progressive'
     ? new Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }>() : undefined;
+  const restoreTiming = { validateMs: 0, summaryMs: 0, semanticMs: 0, factsMs: 0, count: 0 };
   const current = new Set<string>(); scanFilesByRoot.set(root, current);
   const doctrineFiles = new Map<string, DoctrineMethodFact[]>();
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
@@ -1453,18 +1752,39 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     cache: cacheDirectory ? {
       directory: cacheDirectory,
       version: semanticIndexCacheVersion(phpVersionForRoot(root)),
-      restore: (payload, { uri, path, hash }): boolean => {
+      finalizePayload: sourceOnly ? (payload): unknown => {
+        // Compact the existing validated format; oversized entries retain the
+        // ordinary representation rather than losing cache coverage.
+        try { return compressCachedProjectPhpFile(payload as ReturnType<typeof createCachedProjectPhpFile>); }
+        catch { return payload; }
+      } : undefined,
+      prepareRestore: sourceOnly ? (payload, { uri, hash }): Promise<PreparedCandidateRestore | undefined> =>
+        sourceWorkers!.restore({ uri, hash, payload: { semantic: payload }, deferBodies: false }) : undefined,
+      restore: (payload, { uri, path, hash }, prepared): boolean => {
+        const started = testMode ? performance.now() : 0;
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-        const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
+        const candidate = prepared && typeof prepared === 'object' && (prepared as PreparedCandidateRestore).kind === 'restored'
+          && (prepared as PreparedCandidateRestore).uri === uri && (prepared as PreparedCandidateRestore).hash === hash
+          ? prepared as PreparedCandidateRestore : undefined;
+        const restored = !open && candidate?.semantic
+          ? candidate.semantic : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload) ?? payload, uri, open?.getText());
         if (!restored) return false;
+        if (testMode) restoreTiming.validateMs += performance.now() - started;
+        const summaryStarted = testMode ? performance.now() : 0;
         lightEntries?.set(resolve(path), { hash, summary: createSourceCandidateSummary(restored.semantic.implementation.source, false) });
+        if (testMode) restoreTiming.summaryMs += performance.now() - summaryStarted;
+        const semanticStarted = testMode ? performance.now() : 0;
         if (open) {
           if (workspace.source(uri) !== open.getText() || workspace.implementationState(uri) !== 'loaded')
             workspace.update(uri, open.getText(), true);
         } else if (workspace.source(uri) !== restored.semantic.implementation.source || workspace.implementationState(uri) !== 'loaded') {
           if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;
         }
-        current.add(uri); acceptFacts(uri, restored.facts); return true;
+        if (testMode) restoreTiming.semanticMs += performance.now() - semanticStarted;
+        const factsStarted = testMode ? performance.now() : 0;
+        current.add(uri); acceptFacts(uri, restored.facts);
+        if (testMode) { restoreTiming.factsMs += performance.now() - factsStarted; restoreTiming.count += 1; }
+        return true;
       },
     } : undefined,
     onProjectComplete: async (): Promise<void> => {
@@ -1479,6 +1799,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       projectIndexedUrisByRoot.set(root, projectCurrent);
       projectCompleteRoots.add(root);
       if (sourceOnly) {
+        onPreparingReferenceFacts?.();
         indexedUrisByRoot.set(root, projectCurrent);
         doctrineMethodsByRoot.set(root, doctrineFiles);
         doctrinePropertiesByRoot.set(root, doctrinePropertyFiles);
@@ -1541,6 +1862,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map((document) => publishDocumentDiagnostics(document)));
   }
   connection.console.info(outputMessage(clientDiagnosticLanguage, 'phpFilesIndexed', String(result.files), String(result.bytes), String(result.cached), root, String(result.complete), String(workspace.deferredImplementationCount())));
+  if (testMode) connection.console.info(`[index:restore-timing] ${JSON.stringify(restoreTiming)}`);
   for (const warning of result.warnings) connection.console.warn(warning);
   } finally {
     preparation?.finish(false);
@@ -1785,12 +2107,15 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       diagnosticMessage(clientDiagnosticLanguage, item.kind === 'class' ? 'importClass' : item.kind === 'function' ? 'importFunction' : 'importConst'), item.name),
     data: { statementStart: item.statementStart, statementEnd: item.statementEnd },
   })));
-  if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) result.diagnostics.push(...workspace.undefinedVariables(document.uri).map((variable) => ({
+  result.diagnostics.push(...workspace.undefinedVariables(document.uri).map((variable) => ({
     range: { start: document.positionAt(variable.start), end: document.positionAt(variable.end) },
-    severity: DiagnosticSeverity.Warning,
-    code: 'php.variable.undefined',
+    severity: variable.reason === 'unbound-this' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+    code: variable.reason === 'unbound-this' ? 'php.variable.unbound-this'
+      : variable.scopeId === '@global' ? 'php.variable.possiblyUndefined' : 'php.variable.undefined',
     source: 'SoPHP',
-    message: diagnosticMessage(clientDiagnosticLanguage, 'undefinedVariable', variable.name),
+    message: variable.reason === 'unbound-this'
+      ? diagnosticMessage(clientDiagnosticLanguage, 'unboundThis')
+      : diagnosticMessage(clientDiagnosticLanguage, variable.scopeId === '@global' ? 'possiblyUndefinedVariable' : 'undefinedVariable', variable.name),
   })));
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')
     && SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.argumentOrderProblems(document.uri)
@@ -2372,12 +2697,14 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
       if (!key.startsWith('root:') || activeKeys.has(key)) continue;
       (await candidate).dispose(); semanticWorkspaces.delete(key);
       typeNameCatalogsByRoot.delete(key.slice('root:'.length));
+      typeNameCatalogsByRoot.delete(`${key.slice('root:'.length)}\0project`);
       typeNameSearchesByRoot.delete(key.slice('root:'.length));
+      projectShortTypeSearchesByRoot.delete(key.slice('root:'.length));
       nonPsr4TypeSearchesByRoot.delete(key.slice('root:'.length));
       classmapNamespacePathsByRoot.delete(key.slice('root:'.length));
       classmapNamespaceResultsByRoot.delete(key.slice('root:'.length));
       typeNameSearchEpochsByRoot.delete(key.slice('root:'.length));
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); retainedClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); retainedClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); controllerContextScanTasks.get(oldRoot)?.waiters.clear(); controllerContextScanTasks.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
@@ -2399,6 +2726,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
     }
     const rootsToIndex = scanAllRoots ? workspaceRoots : workspaceRoots.filter((root) =>
       affectedFolders!.some((folder) => pathWithin(folder, root)));
+    let allReferencesReady = true;
     for (const [index, root] of rootsToIndex.entries()) {
       if (!shouldContinue()) return;
       progress?.report(Math.round(10 + (index / Math.max(1, rootsToIndex.length)) * 85),
@@ -2412,9 +2740,12 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
         progress?.report(Math.min(95, Math.round(percentage)), progressMessage(clientDiagnosticLanguage, 'indexState',
           progressMessage(clientDiagnosticLanguage, state.phase === 'project' ? 'projectPhase' : 'dependenciesPhase'),
           String(state.files), String(state.total), String(state.cached)));
-      });
+      }, () => progress?.report(96, progressMessage(clientDiagnosticLanguage, 'prepareReferenceFacts')));
+      if (indexingMode === 'progressive' && referenceSourceReadyRoots.get(root) !== (projectEpochs.get(root) ?? 0))
+        allReferencesReady = false;
     }
-    if (shouldContinue()) progress?.report(100, progressMessage(clientDiagnosticLanguage, 'indexReady'));
+    if (shouldContinue()) progress?.report(100, progressMessage(clientDiagnosticLanguage,
+      indexingMode === 'progressive' ? allReferencesReady ? 'referencesReady' : 'referencesIncomplete' : 'indexReady'));
   } finally {
     try { await applyPendingFiles(); pendingRoots.clear(); } finally { scanFilesByRoot.clear(); progress?.done(); }
   }
@@ -2730,6 +3061,13 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 }
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
+interface ControllerContextScanTask {
+  epoch: number;
+  generation: number;
+  waiters: Set<() => boolean>;
+  promise: Promise<boolean>;
+}
+const controllerContextScanTasks = new Map<string, ControllerContextScanTask>();
 function invalidateCandidates(uri: string, preservePreparedSource = false): void {
   if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', performance.now());
   invalidateContainerFacts();
@@ -2739,6 +3077,8 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
     projectEpochs.set(root, epoch);
     const sourceStillReady = indexingMode === 'progressive' && preservePreparedSource
       && referenceSourceReadyRoots.get(root) === previousEpoch;
+    const activePreparation = indexingMode === 'progressive' && preservePreparedSource
+      ? referenceSourcePreparations.get(root) : undefined;
     if (sourceStillReady) {
       referenceSourceReadyRoots.set(root, epoch);
       const light = referenceLightSummaries.get(root);
@@ -2746,6 +3086,10 @@ function invalidateCandidates(uri: string, preservePreparedSource = false): void
         light.epoch = epoch;
         const path = pathForUri(uri); if (path) light.entries.delete(resolve(path));
       }
+    } else if (activePreparation?.epoch === previousEpoch) {
+      // The active scan reads open buffers. Keep it alive while a user types;
+      // restarting thousands of cached files for each edit starves References.
+      activePreparation.epoch = epoch;
     } else {
       referenceSourceReadyRoots.delete(root);
       referenceLightSummaries.delete(root);
@@ -3046,7 +3390,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     },
     cache: cacheDirectory ? {
       directory: cacheDirectory, key: `${exactSymbols ? 'source-candidates-exact-test' : 'source-candidates'}${includeDependencies ? '-dependencies' : ''}`,
-      version: 'source-candidates-v6',
+      version: 'source-candidates-v7',
       finalizePayload: async (payload): Promise<unknown> => {
         const entry = payload as { summary: ReturnType<typeof createSourceCandidateSummary>; receiverMethods?: AssignedReceiverMethod[]; pending?: Promise<{
           semantic?: ReturnType<typeof compressCachedProjectPhpFile>; declarations?: ReturnType<typeof compressCachedSourceDeclaration> }> };
@@ -3467,6 +3811,31 @@ async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, 
 const CONTROLLER_CONTEXT_CANDIDATE_NAMES = new Set(['render', 'template']);
 
 async function ensureOnDemandControllerContexts(root: string, cancelled: () => boolean, retries = 2): Promise<boolean> {
+  if (cancelled()) return false;
+  const epoch = projectEpochs.get(root) ?? 0;
+  let task = controllerContextScanTasks.get(root);
+  if (!task || task.epoch !== epoch || task.generation !== indexingGeneration
+    || [...task.waiters].every((isCancelled) => isCancelled())) {
+    const waiters = new Set<() => boolean>([cancelled]);
+    task = { epoch, generation: indexingGeneration, waiters, promise: Promise.resolve(false) };
+    const running = task;
+    task.promise = performOnDemandControllerContextScan(root, () => [...waiters].every((isCancelled) => isCancelled()))
+      .finally(() => { if (controllerContextScanTasks.get(root) === running) controllerContextScanTasks.delete(root); });
+    controllerContextScanTasks.set(root, task);
+  } else task.waiters.add(cancelled);
+  try {
+    const ready = await new Promise<boolean>((done, fail) => {
+      const timer = setInterval(() => { if (cancelled()) { clearInterval(timer); done(false); } }, 50);
+      void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
+    });
+    if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
+      return ensureOnDemandControllerContexts(root, cancelled, retries - 1);
+    }
+    return ready && !cancelled();
+  } finally { task.waiters.delete(cancelled); }
+}
+
+async function performOnDemandControllerContextScan(root: string, cancelled: () => boolean): Promise<boolean> {
   const providers = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (providers.length !== 1) { interopContextsByRoot.delete(root); return providers.length === 0; }
   const epoch = projectEpochs.get(root) ?? 0;
@@ -3512,10 +3881,11 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
     }
     if ((projectEpochs.get(root) ?? 0) !== epoch) {
       await applyPendingFiles();
-      return retries > 0 ? ensureOnDemandControllerContexts(root, cancelled, retries - 1) : false;
+      return false;
     }
     const candidates = [...scopes.values()].sort((left, right) => left.uri.localeCompare(right.uri));
     if (candidates.length && !await runControllerContextProvider(root, indexingGeneration, workspace, () => !cancelled(), candidates)) return false;
+    if (cancelled() || (projectEpochs.get(root) ?? 0) !== epoch) return false;
     const candidateUris = new Set(candidates.map((candidate) => candidate.uri));
     const current = interopContextsByRoot.get(root);
     for (const uri of current?.keys() ?? []) if (!candidateUris.has(uri)) current!.delete(uri);
@@ -3526,6 +3896,13 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
   } finally { progress?.done(); }
 }
 
+function hasNewerOpenTypeSource(workspace: SemanticWorkspace, fqcn: string): boolean {
+  const indexed = workspace.typeByFqcn(fqcn);
+  if (!indexed) return false;
+  const opened = documents.get(indexed.uri);
+  return Boolean(opened && workspace.source(indexed.uri) !== opened.getText());
+}
+
 async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[], declarationsOnly = false,
   completeCandidateLimit = 16): Promise<boolean> {
   let evidence = referenceDependencyEvidence.get(workspace);
@@ -3534,7 +3911,12 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
   if (!projectMappingsByRoot.has(root)) projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   const psr0Mappings = project ? [...project.psr0, ...project.dependencies.flatMap((dependency) => dependency.psr0)] : [];
   const names = [...new Set(typeNames.map((fqcn) => fqcn.replace(/^\\/, ''))
-    .filter((fqcn) => fqcn && !workspace.typeByFqcn(fqcn)))];
+    .filter((fqcn) => {
+      if (!fqcn) return false;
+      // A didOpen/didChange notification can precede its asynchronous semantic update.
+      // Hydrate from the current buffer even when the old declaration is already indexed.
+      return !workspace.typeByFqcn(fqcn) || hasNewerOpenTypeSource(workspace, fqcn);
+    }))];
   const candidates = [...new Set(names.flatMap((fqcn) => [
     ...resolvePsr4Class(fqcn, projectMappingsByRoot.get(root) ?? []), ...resolvePsr0Class(fqcn, psr0Mappings),
   ]))];
@@ -3564,6 +3946,24 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
     }
   }
   return loaded;
+}
+
+function refreshStaleOpenTypeSourceAt(workspace: SemanticWorkspace, uri: string, offset: number,
+  additionalTypeNames: readonly string[] = []): void {
+  const typeNames = new Set([
+    workspace.resolvedTypeNameAt(uri, offset),
+    ...workspace.memberOwnerTypeNamesAt(uri, offset),
+    ...additionalTypeNames,
+  ]);
+  // The indexed declaration already identifies the file. Refresh its live buffer
+  // directly, including Composer classmap files without a PSR lookup path.
+  for (const typeName of typeNames) {
+    if (!typeName) continue;
+    const indexed = workspace.typeByFqcn(typeName);
+    if (!indexed) continue;
+    const opened = documents.get(indexed.uri);
+    if (opened && workspace.source(indexed.uri) !== opened.getText()) workspace.update(indexed.uri, opened.getText(), true);
+  }
 }
 
 async function hydrateMemberOwnerChain(workspace: SemanticWorkspace, root: string, ownerNames: () => readonly string[],
@@ -3720,7 +4120,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
     textDocumentSync: TextDocumentSyncKind.Incremental,
     documentSymbolProvider: true,
     workspaceSymbolProvider: true,
-    completionProvider: { triggerCharacters: ['>', ':', '(', ',', '$'] },
+    completionProvider: { triggerCharacters: ['>', ':', '(', ',', '$'], resolveProvider: true },
     hoverProvider: true,
     definitionProvider: true,
     typeDefinitionProvider: true,
@@ -3965,7 +4365,10 @@ connection.onRequest('phpCompanion/symfonyRouteControllerDefinition', async (par
   const offset = open.offsetAt({ line: Number(position.line), character: Number(position.character) });
   const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
   if (token.isCancellationRequested || documents.get(uri)?.version !== open.version) return [];
-  const controller = routes.flatMap((route) => route.controller && route.controller.uri === uri ? [route.controller] : [])
+  const sourcePath = pathForUri(uri);
+  if (!sourcePath) return [];
+  const controller = routes.flatMap((route) => route.controller
+    && sameFilesystemPath(pathForUri(route.controller.uri), sourcePath) ? [route.controller] : [])
     .find((item) => offset >= item.classStart && offset < item.classEnd
       || item.methodStart !== undefined && item.methodEnd !== undefined && offset >= item.methodStart && offset < item.methodEnd);
   if (!controller || params.source.slice(controller.classStart, controller.classEnd) !== (controller.classSourceName ?? controller.className)
@@ -4537,6 +4940,9 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
 
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }, token): Promise<ControllerContextPayload | null> => {
   if (typeof params?.rootUri !== 'string') return null;
+  // Watcher I/O may still be proving a no-op or applying a real change.
+  await watchedFileChanges;
+  if (token.isCancellationRequested) return null;
   const requestedPath = pathForUri(params.rootUri);
   const root = requestedPath && workspaceRoots.find((candidate) => sameFilesystemPath(candidate, requestedPath));
   if (!root) return null;
@@ -4559,9 +4965,12 @@ connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?:
 connection.onRequest('phpCompanion/importCandidates', async (params: { textDocument?: { uri?: unknown }; position?: unknown; name?: unknown; context?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || typeof params.name !== 'string' || !params.position || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const position = params.position as { line: number; character: number };
-  return canonicalTypeImportCandidates(await semanticForUri(uri as string), root, uri as string, document.offsetAt(position), params.name, params.context !== 'paste');
+  const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([params.name.toLowerCase()]))
+    || documents.get(uri as string)?.version !== document.version) return [];
+  return canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), params.name, params.context !== 'paste');
 });
 
 connection.onRequest('phpCompanion/addImport', async (params: {
@@ -4570,12 +4979,15 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || typeof params.name !== 'string' || typeof params.fqcn !== 'string' || !params.position || !params.range?.start || !params.range.end
     || (params.alias !== undefined && typeof params.alias !== 'string') || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const name = params.name; const fqcn = params.fqcn; const alias = params.alias as string | undefined;
   const position = params.position as { line: number; character: number }; const start = params.range.start as { line: number; character: number }; const end = params.range.end as { line: number; character: number };
   const startOffset = document.offsetAt(start); const endOffset = document.offsetAt(end); const source = document.getText();
   if (source.slice(startOffset, endOffset) !== name || alias !== undefined && !isValidPhpIdentifier(alias)) return null;
-  const workspace = await semanticForUri(uri as string); const candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name);
+  const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([name.toLowerCase()]))
+    || documents.get(uri as string)?.version !== document.version) return null;
+  const candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name);
   const candidate = candidates.find((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()); if (!candidate) return null;
   if (candidate.aliasRequired && !alias) return null;
   const insertion = workspace.importInsertion(uri as string, document.offsetAt(position), candidate.fqcn, 'class', alias); if (!insertion) return null;
@@ -4595,8 +5007,10 @@ connection.onRequest('phpCompanion/addMethodParameter', async (params: {
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || typeof params.name !== 'string' || typeof params.type !== 'string'
     || typeof params.value !== 'string' || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.addMethodParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }),
     params.name, params.type, params.value);
   if (!plan || token.isCancellationRequested) return null;
@@ -4627,8 +5041,10 @@ connection.onRequest('phpCompanion/removeMethodParameter', async (params: {
   const document = typeof uri === 'string' ? documents.get(uri) : undefined;
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.removeMethodParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }));
   if (!plan || token.isCancellationRequested) return null;
   const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
@@ -4665,8 +5081,10 @@ connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
   const document = typeof uri === 'string' ? documents.get(uri) : undefined;
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || !Number.isInteger(params.targetIndex) || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.reorderMethodParameters(uri as string, document.offsetAt(params.position as { line: number; character: number }), params.targetIndex as number);
   if (!plan || token.isCancellationRequested) return null;
   const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
@@ -4692,19 +5110,24 @@ connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !Array.isArray(params.ranges) || params.ranges.length > 128 || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const ranges = params.ranges.flatMap((range): Array<{ start: number; end: number }> => {
     if (!range || typeof range !== 'object' || !('start' in range) || !('end' in range)) return [];
     return [{ start: document.offsetAt(range.start as { line: number; character: number }), end: document.offsetAt(range.end as { line: number; character: number }) }];
   });
   const workspace = await semanticForUri(uri as string);
+  const symbols = workspace.typeCopySymbols(uri as string, ranges);
+  if (!symbols.length) return [];
+  const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return [];
   return workspace.typeCopySymbols(uri as string, ranges).filter((symbol) => canonicalTypeDeclaration(workspace, root, symbol.fqcn));
 });
 
 connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocument?: { uri?: unknown }; position?: unknown; symbols?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || !Array.isArray(params.symbols) || !params.symbols.length || params.symbols.length > 128
-    || token.isCancellationRequested || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const symbols = params.symbols.flatMap((symbol): Array<{ fqcn: string; sourceAlias: string; alias?: string }> => {
     if (!symbol || typeof symbol !== 'object' || !('fqcn' in symbol) || typeof symbol.fqcn !== 'string'
       || !('sourceAlias' in symbol) || typeof symbol.sourceAlias !== 'string'
@@ -4713,6 +5136,9 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
   });
   if (symbols.length !== params.symbols.length) return null;
   const workspace = await semanticForUri(uri as string);
+  const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return null;
   if (symbols.some((symbol) => !canonicalTypeDeclaration(workspace, root, symbol.fqcn))) return null;
   const plan = workspace.planTypeImports(uri as string, document.offsetAt(params.position as { line: number; character: number }), symbols); if (!plan) return null;
   const edit = plan.text ? createEditPlan('Add pasted type imports', [{ uri: uri as string, version: document.version, length: document.getText().length }], [
@@ -4726,10 +5152,24 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
 
 connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDocument?: { uri?: unknown } }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
-  if (!document || !root || token.isCancellationRequested || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+  if (!document || !root || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const workspace = await semanticForUri(uri as string);
+  const names = new Set(workspace.typeCopySymbols(uri as string, [{ start: 0, end: document.getText().length }])
+    .map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return [];
   return workspace.unresolvedTypeNames(uri as string).map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
 });
+
+async function fileOperationDestinationAvailable(oldPath: string, newPath: string): Promise<boolean> {
+  try { await lstat(newPath); }
+  catch (error) { return (error as NodeJS.ErrnoException).code === 'ENOENT'; }
+  if (resolve(oldPath).toLowerCase() !== resolve(newPath).toLowerCase()) return false;
+  // A lookup under another spelling may resolve to the source on an
+  // insensitive filesystem. An independent exact destination is occupied.
+  const entries = await readdir(dirname(oldPath)).catch(() => undefined);
+  return Boolean(entries?.includes(basename(oldPath)) && !entries.includes(basename(newPath)));
+}
 
 connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unknown; includeFileOperations?: unknown; requireCompleteIndex?: unknown }, token) => {
   if (!Array.isArray(params.moves) || !params.moves.length || params.moves.length > 128 || token.isCancellationRequested) return { error: 'Safe Move requires between 1 and 128 PHP files.' };
@@ -4763,9 +5203,8 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     if (diskSource !== undefined && source !== diskSource && document?.getText() !== source) {
       return { error: `Cannot move PHP types: source snapshot for ${oldPath} is stale.` };
     }
-    if (params.includeFileOperations !== false && resolve(oldPath).toLowerCase() !== resolve(newPath).toLowerCase()) {
-      try { await stat(newPath); return { error: `Cannot move ${oldPath}: destination file already exists.` }; }
-      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return { error: `Cannot inspect Safe Move destination ${newPath}.` }; }
+    if (params.includeFileOperations !== false && !await fileOperationDestinationAvailable(oldPath, newPath)) {
+      return { error: `Cannot move ${oldPath}: destination is occupied or unavailable.` };
     }
     capturedMoves.push({ oldUri: move.oldUri, newUri: move.newUri, oldPath, newPath, source, open: Boolean(document) });
   }
@@ -4778,19 +5217,9 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
   const workspace = await semanticForRoot(root);
   const project = await composerProjectForRoot(root); const mappings = project ? allPsr4Mappings(project) : [];
   projectMappingsByRoot.set(root, mappings);
-  if (!projectCompleteRoots.has(root)) {
-    // Moving a type only needs files mentioning its declared short name (an
-    // import alias also contains that name at its import). Scan all project
-    // sources for candidates, but parse only candidates, not unrelated bodies.
-    const names = new Set<string>(); const syntax = await parser();
-    for (const move of capturedMoves) {
-      const parsed = syntax.parse(move.source);
-      try { for (const declaration of parsed.declarations) names.add(declaration.name.toLowerCase()); }
-      finally { parsed.tree.delete(); }
-    }
-    if (!names.size) return { error: 'Safe Move source has no named declaration.' };
-    if (!await scanNamedCandidates(workspace, root, names, () => token.isCancellationRequested)) return { error: 'Safe Move candidate scan was incomplete or changed; retry the move.' };
-  } else await applyPendingFiles();
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'safeMoveDiskRefresh')) {
+    return { error: 'Safe Move source scan was incomplete or changed; retry the move.' };
+  }
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
     workspace.update(document.uri, document.getText(), true);
   }
@@ -5026,12 +5455,41 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
   }
   for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
+async function isUnchangedKnownClosedPhpFile(root: string, uri: string, path: string): Promise<boolean> {
+  if (activeIndexing) return false;
+  const hasPossibleOpenAlias = (): boolean => documents.all().some((document) => {
+    const openedPath = pathForUri(document.uri);
+    return Boolean(openedPath && basename(openedPath).toLowerCase() === basename(path).toLowerCase());
+  });
+  if (hasPossibleOpenAlias()) return false;
+  const workspacePromise = semanticWorkspaces.get(`root:${root}`);
+  const workspace = await workspacePromise;
+  const targetUri = workspace?.source(uri) !== undefined ? uri : indexedUriForPath(root, path);
+  const previous = workspace?.source(targetUri);
+  if (!workspace || previous === undefined) return false;
+  try {
+    const metadata = await stat(path);
+    if (!metadata.isFile() || metadata.size > indexLimits.maxFileSizeBytes) return false;
+    const physicalPath = await physicalFilesystemPath(path);
+    if (!physicalPath || !sameFilesystemPath(physicalPath, path)) return false;
+    const current = await readFile(path);
+    return current.equals(Buffer.from(previous, 'utf8')) && workspace.source(targetUri) === previous
+      && semanticWorkspaces.get(`root:${root}`) === workspacePromise
+      && rootForUri(uri) === root && !activeIndexing && !hasPossibleOpenAlias();
+  } catch { return false; }
+}
+
 async function processWatchedFileChanges(changes: readonly { uri: string; type: number }[]): Promise<void> {
   const changedComposerPaths: string[] = [];
   const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
     const root = rootForUri(change.uri);
+    if (root && change.type === 2 && path.toLowerCase().endsWith('.php') && !isPlannedSafeMovePath(path)
+      && !affectsSymfonyContainerProvider(root, path) && !isSymfonyServiceConfig(root, path)
+      && await isUnchangedKnownClosedPhpFile(root, change.uri, path)) {
+      connection.console.info(`[index:delta] unchanged uri=${change.uri}`); continue;
+    }
     if (root) {
       if (path.toLowerCase().endsWith('.php')) invalidateTypeNameSearch(root);
       invalidateContainerFacts();
@@ -5213,9 +5671,9 @@ documents.onDidOpen(async ({ document }) => {
   // indexed, or when the active source scan has not reached this file yet.
   const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
     && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
-  if (diskSource !== document.getText()
-    || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
-    invalidateCandidates(document.uri, update.kind !== 'declaration');
+    if (diskSource !== document.getText()
+      || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
+    invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
   }
   if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
@@ -5266,9 +5724,9 @@ documents.onDidChangeContent(async ({ document }) => {
       && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
     if (diskSource !== document.getText()
       || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
-      invalidateCandidates(document.uri, update.kind !== 'declaration');
+      invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
     }
-  } else if (sourceChanged && (root !== initialRoot || indexingMode === 'progressive' && update.kind === 'declaration')) {
+  } else if (sourceChanged && root !== initialRoot) {
     invalidateCandidates(document.uri);
   }
   if (!opening && sourceChanged && root && root === initialRoot && candidateEpochBeforeEdit !== undefined
@@ -5318,7 +5776,7 @@ async function closeDocument(document: TextDocument): Promise<void> {
   documentSourcesByUri.delete(document.uri);
   cancelReferencePrewarm(document.uri);
   pendingReferenceSelections.delete(document.uri);
-  invalidateCandidates(document.uri);
+  invalidateCandidates(document.uri, indexingMode === 'progressive');
   const root = rootForUri(document.uri);
   const closingClassmapPath = pathForUri(document.uri);
   const project = root && closingClassmapPath ? await composerProjectForRoot(root) : undefined;
@@ -5448,9 +5906,14 @@ connection.onWorkspaceSymbol(async ({ query }, token) => {
   if (token.isCancellationRequested) return [];
   const entries = workspaces.flatMap((workspace) => workspace.workspaceSymbols(query).map((symbol) => ({ workspace, symbol })));
   const unique = [...new Map(entries.map((entry) => [`${entry.symbol.uri}:${entry.symbol.start}:${entry.symbol.kind}`, entry])).values()];
+  const symbolDocuments = new Map<string, TextDocument>();
   return unique.flatMap(({ workspace, symbol }) => {
     const source = documents.get(symbol.uri)?.getText() ?? workspace.source(symbol.uri); if (source === undefined) return [];
-    const document = documents.get(symbol.uri) ?? TextDocument.create(symbol.uri, 'php', 0, source);
+    let document = documents.get(symbol.uri) ?? symbolDocuments.get(symbol.uri);
+    if (!document) {
+      document = TextDocument.create(symbol.uri, 'php', 0, source);
+      symbolDocuments.set(symbol.uri, document);
+    }
     return [{ name: symbol.name, kind: kinds[symbol.kind], containerName: symbol.container, location: { uri: symbol.uri, range: { start: document.positionAt(symbol.start), end: document.positionAt(symbol.end) } } }];
   });
 });
@@ -5686,28 +6149,41 @@ async function typeNameCatalogForRoot(root: string, project: ComposerProject, ma
   return pending;
 }
 
-function catalogTypesWithPrefix(catalog: TypeNameCatalog, prefix: string): { fqcns: string[]; complete: boolean } {
+function catalogTypesWithPrefix(catalog: TypeNameCatalog, prefix: string, limit = 64): { fqcns: string[]; complete: boolean } {
   const normalized = prefix.toLowerCase(); const names = catalog.sortedNames;
   let left = 0; let right = names.length;
   while (left < right) { const middle = (left + right) >>> 1; if (names[middle]! < normalized) left = middle + 1; else right = middle; }
   const fqcns: string[] = []; let complete = catalog.complete;
   for (let index = left; index < names.length && names[index]!.startsWith(normalized); index += 1) {
     for (const fqcn of catalog.names.get(names[index]!) ?? []) {
-      if (fqcns.length >= 64) { complete = false; break; }
+      if (fqcns.length >= limit) { complete = false; break; }
       fqcns.push(fqcn);
     }
-    if (!complete && fqcns.length >= 64) break;
+    if (!complete && fqcns.length >= limit) break;
   }
   return { fqcns, complete };
 }
 
-async function ripgrepPsr4Types(project: ComposerProject, mappings: Psr4Mapping[], prefix: string): Promise<{ fqcns: string[]; complete: boolean } | undefined> {
+async function ripgrepPsr4Types(project: ComposerProject, mappings: Psr4Mapping[], prefix: string,
+  limit = 64): Promise<{ fqcns: string[]; complete: boolean } | undefined> {
   const roots = [...new Set(mappings.flatMap((mapping) => mapping.directories).map((directory) => resolve(directory)))];
   if (!roots.length) return { fqcns: [], complete: true };
+  // Composer metadata can point at directories that are absent in the
+  // installed package. Passing one to rg yields exit code 2 even when every
+  // existing directory was searched, forcing an expensive catalog fallback.
+  const available = await Promise.all(roots.map(async (directory): Promise<string | null | undefined> => {
+    try { return (await stat(directory)).isDirectory() ? directory : null; }
+    catch (error) {
+      return ['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code ?? '') ? null : undefined;
+    }
+  }));
+  if (available.includes(undefined)) return undefined;
+  const existingRoots = available.filter((directory): directory is string => typeof directory === 'string');
+  if (!existingRoots.length) return { fqcns: [], complete: true };
   return new Promise((done) => {
     const child = spawn(process.platform === 'linux' ? '/usr/bin/rg' : 'rg', [
       '--no-config', '--no-ignore', '--hidden', '--follow', '--files', '--null', '--glob-case-insensitive',
-      '--glob', `${prefix}*.php`, '--', ...roots,
+      '--glob', `${prefix}*.php`, '--', ...existingRoots,
     ], { stdio: ['ignore', 'pipe', 'ignore'] });
     const chunks: Buffer[] = []; let bytes = 0; let truncated = false; let failed = false;
     const timer = setTimeout(() => { truncated = true; child.kill(); }, 500);
@@ -5726,10 +6202,10 @@ async function ripgrepPsr4Types(project: ComposerProject, mappings: Psr4Mapping[
         if (!name.toLowerCase().startsWith(prefix.toLowerCase()) || !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(name)
           || isAutoloadPathExcluded(project, path)) continue;
         for (const namespace of resolvePsr4Namespaces(path, mappings)) {
-          if (fqcns.size >= 64) { complete = false; break; }
+          if (fqcns.size >= limit) { complete = false; break; }
           fqcns.add(namespace ? `${namespace}\\${name}` : name);
         }
-        if (fqcns.size >= 64 && !complete) break;
+        if (fqcns.size >= limit && !complete) break;
       }
       done({ fqcns: [...fqcns].sort(), complete });
     });
@@ -5803,7 +6279,8 @@ async function hydrateOnDemandSymbolImports(workspace: SemanticWorkspace, root: 
 }
 
 async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspace, root: string,
-  context: { prefix: string; namespace: string; importedTypes: string[] }, cancelled: () => boolean): Promise<boolean | 'stale'> {
+  context: { prefix: string; namespace: string; importedTypes: string[] }, qualified: boolean,
+  cancelled: () => boolean): Promise<boolean | 'stale'> {
   const epoch = typeNameSearchEpochsByRoot.get(root) ?? 0;
   const stale = (): boolean => (typeNameSearchEpochsByRoot.get(root) ?? 0) !== epoch;
   const project = await composerProjectForRoot(root);
@@ -5842,21 +6319,55 @@ async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspa
     await hydrateCanonicalTypes(workspace, root, [fqcn], true);
     if (stale()) return 'stale';
   }
-  if (context.prefix.length < 3) return false;
+  if (context.prefix.length < 2) return false;
   const normalizedPrefix = context.prefix.toLowerCase();
-  const cached = typeNameSearchesByRoot.get(root);
-  const global = cached && normalizedPrefix.startsWith(cached.prefix)
-    ? { fqcns: cached.fqcns.filter((fqcn) => fqcn.slice(fqcn.lastIndexOf('\\') + 1).toLowerCase().startsWith(normalizedPrefix)), complete: true }
+  const cachedSearches = typeNameSearchesByRoot.get(root);
+  // With two characters, show project classes before a broad vendor search
+  // becomes useful. Keep the result incomplete so a longer prefix retries
+  // against all Composer mappings, including dependencies and classmaps.
+  const projectOnly = context.prefix.length === 2 && !qualified;
+  const cachedProjectShort = projectShortTypeSearchesByRoot.get(root)?.get(normalizedPrefix);
+  const cachedPrefix = !qualified && !projectOnly
+    ? [...(cachedSearches?.keys() ?? [])].filter((prefix) => normalizedPrefix.startsWith(prefix))
+      .sort((left, right) => right.length - left.length)[0]
+    : undefined;
+  const cachedFqcns = cachedPrefix ? cachedSearches?.get(cachedPrefix) : undefined;
+  // A qualified name can only resolve inside its explicit namespace. The
+  // directory probe above covers PSR-4; classmap, files and PSR-0 are below.
+  // Scanning every vendor PSR-4 tree here delays the popup without adding a
+  // candidate that can be used at this position.
+  const global = qualified ? { fqcns: [], complete: true }
+    : projectOnly && cachedProjectShort
+    ? { fqcns: cachedProjectShort, complete: true }
+    : projectOnly
+    ? await (testPortableTypeSearch ? undefined : ripgrepPsr4Types(project, project.psr4, context.prefix, 256))
+      ?? catalogTypesWithPrefix(await typeNameCatalogForRoot(`${root}\0project`, project, project.psr4), context.prefix, 256)
+    : cachedFqcns
+    ? { fqcns: cachedFqcns.filter((fqcn) => fqcn.slice(fqcn.lastIndexOf('\\') + 1).toLowerCase().startsWith(normalizedPrefix)), complete: true }
     : await (testPortableTypeSearch ? undefined : ripgrepPsr4Types(project, mappings, context.prefix))
       ?? catalogTypesWithPrefix(await typeNameCatalogForRoot(root, project, mappings), context.prefix);
   if (testPauseNextQueries.has('typeCompletionCandidates')) await pauseTestQuery('typeCompletionCandidates');
   if (stale()) return 'stale';
-  if (global.complete) typeNameSearchesByRoot.set(root, { prefix: normalizedPrefix, fqcns: global.fqcns });
-  for (const fqcn of global.fqcns) {
+  if (projectOnly && global.complete) {
+    const searches = projectShortTypeSearchesByRoot.get(root) ?? new Map<string, string[]>();
+    searches.delete(normalizedPrefix);
+    searches.set(normalizedPrefix, global.fqcns);
+    if (searches.size > 16) searches.delete(searches.keys().next().value!);
+    projectShortTypeSearchesByRoot.set(root, searches);
+  }
+  else if (!qualified && global.complete) {
+    const searches = cachedSearches ?? new Map<string, string[]>();
+    searches.delete(normalizedPrefix);
+    searches.set(normalizedPrefix, global.fqcns);
+    if (searches.size > 16) searches.delete(searches.keys().next().value!);
+    typeNameSearchesByRoot.set(root, searches);
+  }
+  for (const fqcn of (projectOnly ? [...global.fqcns].sort().slice(0, 32) : global.fqcns)) {
     if (cancelled()) return false;
     await hydrateCanonicalTypes(workspace, root, [fqcn], true);
     if (stale()) return 'stale';
   }
+  if (projectOnly) return false;
   const previousNonPsr4 = nonPsr4TypeSearchesByRoot.get(root)?.get(normalizedPrefix);
   const nonPsr4 = previousNonPsr4 ?? await nonPsr4TypeSourcePaths(project, context.prefix, cancelled);
   if (stale()) return 'stale';
@@ -6042,6 +6553,143 @@ function currentQueryDocument(document: TextDocument, token: { isCancellationReq
   return !token.isCancellationRequested && documents.get(document.uri) === document && document.version === version;
 }
 
+function completionFilterText(name: string, prefix: string): string | undefined {
+  const rank = completionMatchRank(name, prefix);
+  return rank !== undefined && rank >= 3 ? `${prefix}${name}` : undefined;
+}
+
+function completionCallSnippet(name: string, parameters: readonly { name: string; defaultValue?: string; variadic: boolean }[]): string {
+  const required = parameters.filter((parameter) => parameter.defaultValue === undefined && !parameter.variadic);
+  if (!required.length) return parameters.length ? `${name}($0)` : `${name}()$0`;
+  const argumentsText = required.map((parameter, index) => `\${${index + 1}:${parameter.name}}`).join(', ');
+  return `${name}(${argumentsText})$0`;
+}
+
+const PHP_TOP_LEVEL_KEYWORDS = [
+  'function', 'class', 'interface', 'trait', 'enum', 'namespace', 'use', 'const', 'declare',
+  'final', 'abstract', 'readonly',
+] as const;
+const PHP_CLASS_MEMBER_KEYWORDS = [
+  'function', 'public', 'protected', 'private', 'static', 'final', 'abstract', 'readonly', 'const', 'use', 'var',
+] as const;
+const PHP_DECLARATION_KEYWORDS = new Set([
+  'function', 'class', 'interface', 'trait', 'enum', 'namespace', 'use', 'const', 'declare',
+  'final', 'abstract', 'readonly', 'public', 'protected', 'private', 'static', 'global', 'var', 'case',
+]);
+const PHP_STATEMENT_KEYWORDS = [
+  'return', 'if', 'foreach', 'for', 'while', 'do', 'switch', 'try', 'throw', 'echo', 'print',
+  'unset', 'include', 'include_once', 'require', 'require_once', 'exit', 'die', 'new',
+  'function', 'global', 'static', 'yield', 'yield from', 'break', 'continue',
+] as const;
+const PHP_EXPRESSION_KEYWORDS = [
+  'new', 'clone', 'match', 'fn', 'function', 'array', 'isset', 'empty', 'include', 'include_once',
+  'require', 'require_once', 'throw', 'true', 'false', 'null', 'yield', 'yield from',
+] as const;
+const PHP_MAGIC_METHOD_NAMES = [
+  '__construct', '__destruct', '__call', '__callStatic', '__get', '__set', '__isset', '__unset',
+  '__sleep', '__wakeup', '__serialize', '__unserialize', '__toString', '__invoke',
+  '__set_state', '__clone', '__debugInfo',
+] as const;
+
+function phpMagicMethodNameCompletions(document: TextDocument, offset: number,
+  workspace: SemanticWorkspace, declaration: PhpDeclarationNameCompletionContext): CompletionItem[] {
+  if (declaration.kind !== 'function' || !declaration.prefix.startsWith('__')) return [];
+  const context = workspace.phpKeywordCompletionContext(document.uri, offset);
+  if (context?.kind !== 'class-member') return [];
+  const modifiers = declaration.methodModifiers;
+  if (!modifiers) return [];
+  const staticMethods = ['__callStatic', '__set_state'];
+  const nonPublicMethods = ['__construct', '__destruct', '__clone'];
+  const version = phpVersionForUri(document.uri);
+  const supportsSerialization = SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf('7.4');
+  const hasParameters = hasFollowingCallParenthesis(document.getText(), declaration.end, Number(phpVersionForUri(document.uri)) >= 8);
+  if (context.inEnum && !isSyntaxAvailable(version, '8.1')) return [];
+  return PHP_MAGIC_METHOD_NAMES.filter((name) => (!context.inEnum || ['__call', '__callStatic', '__invoke'].includes(name))
+    && (!modifiers.static || staticMethods.includes(name))
+    && (modifiers.visibility === 'public' || nonPublicMethods.includes(name))
+    && name.toLowerCase().startsWith(declaration.prefix.toLowerCase())
+    && !declaration.declaredMethods?.includes(name.toLowerCase())
+    && !declaration.inheritedFinalMethods?.some(method => method.name === name.toLowerCase()
+      && (method.visibility !== 'private' || method.name === '__construct' || !isSyntaxAvailable(version, '8.0')))
+    && (supportsSerialization || !['__serialize', '__unserialize'].includes(name)))
+    .map((name, index) => ({
+      label: name, kind: CompletionItemKind.Method, sortText: `!${String(index).padStart(3, '0')}${name}`,
+      preselect: index === 0,
+      insertTextFormat: hasParameters ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
+      ...(!modifiers.static && staticMethods.includes(name) ? { additionalTextEdits: [{
+        range: { start: document.positionAt(modifiers.functionStart), end: document.positionAt(modifiers.functionStart) }, newText: 'static ',
+      }] } : {}),
+      textEdit: { range: { start: document.positionAt(declaration.start), end: document.positionAt(declaration.end) },
+        newText: hasParameters ? name : `${name}($0)` },
+    }));
+}
+
+function phpKeywordCompletions(document: TextDocument, offset: number, typeContext: boolean,
+  context: PhpKeywordCompletionContext | undefined): CompletionItem[] {
+  if (document.languageId !== 'php') return [];
+  if (!context || typeContext && context.kind !== 'class-member') return [];
+  const before = document.getText().slice(0, context.start);
+  const statementStart = context.kind === 'statement' || context.kind === 'top-level';
+  const candidates = context.kind === 'class-member' ? PHP_CLASS_MEMBER_KEYWORDS
+    : context.kind === 'expression' ? PHP_EXPRESSION_KEYWORDS
+      : context.kind === 'statement' ? PHP_STATEMENT_KEYWORDS
+        : [...PHP_TOP_LEVEL_KEYWORDS, ...PHP_STATEMENT_KEYWORDS];
+  const version = phpVersionForUri(document.uri);
+  const supported = (minimum: SupportedPhpVersion): boolean => SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf(minimum);
+  const prefix = context.prefix.toLowerCase();
+  const names: string[] = [...new Set<string>(candidates)].filter((keyword) => keyword.startsWith(prefix)
+    && (prefix.length > 1 || PHP_DECLARATION_KEYWORDS.has(keyword)
+      && ['top-level', 'class-member'].includes(context.kind)
+      || keyword === 'new' && context.kind !== 'class-member'
+      || keyword === 'function' && ['top-level', 'class-member'].includes(context.kind)
+      || keyword === 'class' && ['top-level', 'statement'].includes(context.kind)
+      || keyword === 'return' && context.kind === 'statement' && context.inCallable)
+    && (keyword !== 'fn' || supported('7.4'))
+    && (keyword !== 'match' || supported('8.0'))
+    && (keyword !== 'enum' || supported('8.1'))
+    && (keyword !== 'readonly' || supported(context.kind === 'top-level' ? '8.2' : '8.1'))
+    && (!['yield', 'yield from', 'global'].includes(keyword) || context.inCallable)
+    && (!['yield', 'yield from'].includes(keyword) || context.propertyHookKind !== 'set')
+    && (!['break', 'continue'].includes(keyword) || context.inLoop || keyword === 'break' && context.inSwitch)
+    && (keyword !== 'throw' || statementStart || supported('8.0'))
+    && (keyword !== 'static' || context.kind !== 'statement' || context.inCallable)
+    && (keyword !== 'function' || context.kind !== 'expression' || /(?:=|\(|,|\breturn|\bthrow)\s*$/iu.test(before)));
+  if (context.inSwitch && statementStart) for (const keyword of ['case', 'default']) {
+    if (keyword.startsWith(prefix)) names.push(keyword);
+  }
+  if (context.inEnum && context.kind === 'class-member' && supported('8.1') && 'case'.startsWith(prefix)) names.push('case');
+  const wordEnd = offset + (/^[A-Za-z0-9_]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
+  return names.map((keyword, index) => ({
+    label: keyword, kind: CompletionItemKind.Keyword,
+    sortText: `!${String(index).padStart(3, '0')}${keyword}`, preselect: index === 0,
+    textEdit: { range: { start: document.positionAt(context.start), end: document.positionAt(wordEnd) },
+      newText: ['true', 'false', 'null'].includes(keyword) || /^[ \t]/u.test(document.getText()[wordEnd] ?? '')
+        ? keyword : `${keyword} ` },
+  }));
+}
+
+function phpCompletionTemplates(document: TextDocument, context: PhpKeywordCompletionContext | undefined,
+  keywords: readonly CompletionItem[]): CompletionItem[] {
+  if (!context) return [];
+  const templates: Record<string, string> = context.kind === 'statement' || context.kind === 'top-level'
+    ? {
+      if: 'if (${1:condition}) {\n\t$0\n}',
+      foreach: 'foreach (${1:iterable} as ${2:\\$item}) {\n\t$0\n}',
+      try: 'try {\n\t$1\n} catch (\\\\Throwable ${2:\\$error}) {\n\t$0\n}',
+      function: 'function ${1:name}(${2:parameters}): ${3:void} {\n\t$0\n}',
+    } : context.kind === 'class-member'
+      ? { function: 'function ${1:name}(${2:parameters}): ${3:void} {\n\t$0\n}' } : {};
+  return keywords.flatMap((keyword) => {
+    const name = String(keyword.label);
+    const snippet = templates[name];
+    return snippet && keyword.textEdit && 'range' in keyword.textEdit
+      ? [{ label: `${name} block`, kind: CompletionItemKind.Keyword,
+        filterText: name, sortText: `3${name}`, detail: 'PHP declaration or block',
+        insertTextFormat: InsertTextFormat.Snippet,
+        textEdit: { range: keyword.textEdit.range, newText: snippet } }] : [];
+  });
+}
+
 connection.onCompletion(async ({ textDocument, position }, token) => {
   const timingStarted = testMode ? performance.now() : 0;
   try {
@@ -6053,6 +6701,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
+  const deprecation = (location: SemanticLocation): Pick<CompletionItem, 'tags' | 'deprecated'> =>
+    workspace.symbolDeprecation(location, phpVersionForUri(document.uri))
+      ? { tags: [CompletionItemTag.Deprecated], deprecated: true } : {};
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return [];
   if (document.languageId === 'php' && !workspace.isPhpCodeContext(document.uri, offset)) return [];
@@ -6062,7 +6713,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const root = rootForUri(document.uri);
     if (root) {
       const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== queryVersion) return [];
+      if (!currentQueryDocument(document, token, queryVersion) || externalSymfonyRoutes(document.uri)) return [];
       const route = routes.find((candidate) => candidate.name === routeParameterCall.routeName); if (!route) return [];
       const existing = new Set(routeParameterCall.existingKeys);
       const parameters = [...new Set([...route.path.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((match) => match[1]!))];
@@ -6078,7 +6729,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const root = rootForUri(document.uri);
     if (root) {
       const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
-      if (token.isCancellationRequested || externalSymfonyRoutes(document.uri) || documents.get(document.uri)?.version !== queryVersion) return [];
+      if (!currentQueryDocument(document, token, queryVersion) || externalSymfonyRoutes(document.uri)) return [];
       return routes.filter((route) => route.name.startsWith(routeCall.prefix)).map((route) => ({
         label: route.name, kind: CompletionItemKind.Reference,
         detail: `${route.path} (${route.uri !== undefined ? 'source declaration' : 'runtime route'})`,
@@ -6097,26 +6748,129 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     textEdit: { range: { start: document.positionAt(serviceReference.start), end: document.positionAt(serviceReference.end) }, newText: service.id },
   }));
   const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
+  if (serviceRoot && document.languageId === 'php') {
+    const callOwners = workspace.memberCallOwnerTypeNamesAt(document.uri, offset);
+    if (attributeConstructorType || callOwners.length || workspace.isMemberCompletionContext(document.uri, offset)) {
+      refreshStaleOpenTypeSourceAt(workspace, document.uri, offset,
+        [...callOwners, ...(attributeConstructorType ? [attributeConstructorType] : [])]);
+    }
+  }
   if (attributeConstructorType && serviceRoot && !workspace.typeByFqcn(attributeConstructorType))
     await hydrateCanonicalTypes(workspace, serviceRoot, [attributeConstructorType]);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
-  const namedArguments = workspace.completeNamedArguments(document.uri, offset).map((parameter) => ({
+  const supportsPhp80 = SUPPORTED_PHP_VERSIONS.indexOf(phpVersionForUri(document.uri))
+    >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
+  const supportsEnums = SUPPORTED_PHP_VERSIONS.indexOf(phpVersionForUri(document.uri))
+    >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
+  let completionContext = workspace.completionContext(document.uri, offset, supportsPhp80);
+  if (serviceRoot && completionContext.kind === 'declaration-name'
+    && completionContext.declaration.kind === 'function'
+    && completionContext.declaration.prefix.startsWith('__') && completionContext.declaration.ownerFqcn) {
+    const ownerFqcn = completionContext.declaration.ownerFqcn;
+    await hydrateMemberOwnerChain(workspace, serviceRoot,
+      () => workspace.directDeclarationDependencies(ownerFqcn), () => false,
+      () => !currentQueryDocument(document, token, queryVersion));
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+    completionContext = workspace.completionContext(document.uri, offset, supportsPhp80);
+  }
+  if (completionContext.kind === 'declaration-name') {
+    const declaration = completionContext.declaration;
+    if (declaration.kind === 'function')
+      return phpMagicMethodNameCompletions(document, offset, workspace, declaration);
+    if (declaration.kind !== 'type' || declaration.declaration === 'enum' && !supportsEnums) return [];
+    const sourcePath = pathForUri(document.uri);
+    const fileName = sourcePath && basename(sourcePath).replace(/\.php$/iu, '');
+    if (!fileName || !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(fileName)
+      || !fileName.toLowerCase().startsWith(declaration.prefix.toLowerCase())
+      || fileName.toLowerCase() === declaration.prefix.toLowerCase()
+      || !workspace.declarationTypeNameAvailable(document.uri, offset, fileName)) return [];
+    return [{ label: fileName,
+      kind: declaration.declaration === 'interface' ? CompletionItemKind.Interface
+        : declaration.declaration === 'enum' ? CompletionItemKind.Enum : CompletionItemKind.Class,
+      detail: 'Current file name', sortText: '!000', preselect: true,
+      textEdit: { range: { start: document.positionAt(declaration.start), end: document.positionAt(declaration.end) },
+        newText: fileName } }];
+  }
+  if (!supportsPhp80 && completionContext.kind === 'member'
+    && /\?->\s*\$?[A-Za-z0-9_\x80-\xff]*$/u.test(document.getText().slice(0, offset))) return [];
+  if (completionContext.kind === 'array-access-key') return completionContext.arrayKeys.keys.map((key, index) => {
+    const quotedKey = quoteCompletionLiteral(key.name, completionContext.arrayKeys.quote);
+    return {
+      label: key.name,
+      filterText: document.getText().slice(completionContext.arrayKeys.start, offset).startsWith(completionContext.arrayKeys.quote)
+        ? quotedKey : key.name,
+      kind: CompletionItemKind.Field,
+      sortText: `0${String(index).padStart(6, '0')}`,
+      detail: key.optional ? 'Optional array key' : 'Array key',
+      textEdit: {
+        range: {start: document.positionAt(completionContext.arrayKeys.start), end: document.positionAt(completionContext.arrayKeys.end)},
+        newText: quotedKey,
+      },
+    };
+  });
+  if (completionContext.kind === 'shape-key') return completionContext.shapeKeys.keys.map((key, index) => {
+    const quotedKey = quoteCompletionLiteral(key.name, completionContext.shapeKeys.quote);
+    return ({
+    label: key.name,
+    filterText: document.getText().slice(completionContext.shapeKeys.start, offset).startsWith(completionContext.shapeKeys.quote)
+      ? quotedKey : key.name,
+    kind: CompletionItemKind.Field,
+    sortText: `0${String(index).padStart(6, '0')}`,
+    detail: key.optional ? 'Optional array key' : 'Required array key',
+    textEdit: {
+      range: { start: document.positionAt(completionContext.shapeKeys.start), end: document.positionAt(completionContext.shapeKeys.end) },
+      newText: `${quotedKey}${completionContext.shapeKeys.hasArrow ? '' : ' => '}`,
+    },
+  }); });
+  const expectedValues = (completionContext.kind === 'named-argument' || completionContext.kind === 'general'
+    ? completionContext.expectedValues : []).filter((value) =>
+    !value.label.includes('::') || supportsEnums).map((value, index) => {
+    const prefix = document.getText().slice(value.start, offset);
+    const literalContent = /^(['"])(.*)\1$/su.exec(value.label)?.[2];
+    const filterLabel = literalContent !== undefined && !/^['"]/u.test(prefix) ? literalContent : value.label;
+    return {
+      label: value.label,
+      kind: value.label.includes('::') ? CompletionItemKind.EnumMember : CompletionItemKind.Value,
+      sortText: `0${String(index).padStart(6, '0')}`,
+      filterText: completionMatchRank(filterLabel, prefix) === undefined ? `${prefix}${filterLabel}`
+        : literalContent !== undefined ? filterLabel : undefined,
+      detail: 'Compatible value',
+      textEdit: { range: { start: document.positionAt(value.start), end: document.positionAt(value.end) },
+        newText: value.insertText },
+    };
+  });
+  if (completionContext.kind === 'general' && completionContext.quotedValue) return expectedValues;
+  const blankTypedExpression = (completionContext.kind === 'named-argument' || completionContext.kind === 'general')
+    && completionContext.bareVariables !== undefined;
+  const bareVariables = ((completionContext.kind === 'named-argument' || completionContext.kind === 'general'
+    ? completionContext.bareVariables : undefined) ?? []).map((variable, index) => ({
+    label: variable.name,
+    kind: CompletionItemKind.Variable,
+    sortText: variable.compatibilityRank === 2
+      ? `2${String(index).padStart(6, '0')}`
+      : `!${variable.compatibilityRank}${String(index).padStart(6, '0')}`,
+    textEdit: { range: { start: position, end: position }, newText: variable.name },
+  }));
+  const namedArguments = (completionContext.kind === 'named-argument'
+    ? completionContext.namedArguments : []).map((parameter, index) => ({
     label: `${parameter.name}:`,
     insertText: `${parameter.name}: `,
     kind: CompletionItemKind.Field,
+    sortText: `1${String(index).padStart(6, '0')}`,
     detail: parameter.type ? `${parameter.name}: ${parameter.type}` : parameter.name,
   }));
-  if (namedArguments.length) return namedArguments;
+  if (completionContext.kind === 'named-argument') return /(?:\(|,)\s*$/u.test(document.getText().slice(0, offset))
+    ? [...expectedValues, ...bareVariables, ...namedArguments] : namedArguments;
   const memberRoot = rootForUri(document.uri);
-  if (memberRoot && workspace.isMemberCompletionContext(document.uri, offset)) {
+  if (memberRoot && completionContext.kind === 'member') {
     const source = document.getText();
     if (/\bcreateQueryBuilder\s*\(/.test(source) && /\bgetQuery\s*\(/.test(source))
       await hydrateCanonicalTypes(workspace, memberRoot, ['Doctrine\\ORM\\EntityManagerInterface', 'Doctrine\\ORM\\EntityRepository']);
     await ensureDoctrineQueryFacts(memberRoot, workspace);
     if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
-  let resolvedMembers = workspace.completeMembers(document.uri, offset);
-  if (!resolvedMembers.length && workspace.isMemberCompletionContext(document.uri, offset)) {
+  let resolvedMembers = completionContext.kind === 'member' ? workspace.completeMembers(document.uri, offset) : [];
+  if (!resolvedMembers.length && completionContext.kind === 'member') {
     const root = rootForUri(document.uri);
     let frontier = workspace.memberOwnerTypeNamesAt(document.uri, offset);
     if (!frontier.length) frontier = workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn);
@@ -6134,26 +6888,46 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     }
     if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
-  const members = resolvedMembers.map((member) => ({
+  const memberPrefix = /(?:\?->|->|::)\s*\$?([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u
+    .exec(document.getText().slice(0, offset))?.[1] ?? '';
+  const memberStart = offset - memberPrefix.length - (document.getText()[offset - memberPrefix.length - 1] === '$' ? 1 : 0);
+  const memberEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
+  const memberHasCall = hasFollowingCallParenthesis(document.getText(), memberEnd, Number(phpVersionForUri(document.uri)) >= 8);
+  const members = resolvedMembers.filter((member) => supportsEnums
+    || member.constantKind !== 'enum-case' && workspace.typeByFqcn(member.calledOnFqcn)?.kind !== 'enum')
+    .map((member, index) => ({
+    ...deprecation(member),
     label: member.kind === 'property' && member.static ? `$${member.name}` : member.name,
     kind: member.kind === 'method' ? CompletionItemKind.Method : member.kind === 'property' ? CompletionItemKind.Property
       : member.constantKind === 'enum-case' ? CompletionItemKind.EnumMember : CompletionItemKind.Constant,
+    sortText: `0${String(index).padStart(6, '0')}`,
+    filterText: completionFilterText(member.name, memberPrefix),
+    insertTextFormat: member.kind === 'method' && !memberHasCall ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
+    textEdit: { range: { start: document.positionAt(memberStart), end: document.positionAt(memberEnd) },
+      newText: member.kind === 'method' && !memberHasCall
+        ? completionCallSnippet(member.name, member.parameters)
+        : member.kind === 'property' && member.static ? `$${member.name}` : member.name },
     detail: member.kind === 'method'
       ? `${member.fqcn}(${member.parameters.map(displayPhpParameter).join(', ')})${member.returnType ? `: ${member.returnType}` : ''}`
       : `${member.fqcn}${member.returnType ? `: ${member.returnType}` : ''}${member.value ? ` = ${member.value}` : ''}`,
   }));
-  if (members.length) return members;
-  if (workspace.isMemberCompletionContext(document.uri, offset)) return [];
-  const variables = workspace.completeVariables(document.uri, offset);
-  if (variables) return variables.names.map((name, index) => ({
+  if (completionContext.kind === 'member') return members;
+  if (completionContext.kind === 'variable') {
+    let documentIdentity = completionDocumentIdentities.get(document);
+    if (documentIdentity === undefined) {
+      documentIdentity = ++nextCompletionDocumentIdentity; completionDocumentIdentities.set(document, documentIdentity);
+    }
+    return completionContext.variables.names.map((name, index) => ({
     label: name,
     kind: CompletionItemKind.Variable,
     sortText: `0${String(index).padStart(6, '0')}`,
-    textEdit: { range: { start: document.positionAt(variables.start), end: document.positionAt(variables.end) }, newText: name },
-  }));
+    data: { kind: 'variable-detail', uri: document.uri, version: queryVersion, documentIdentity, offset, variable: name },
+    textEdit: { range: { start: document.positionAt(completionContext.variables.start), end: document.positionAt(completionContext.variables.end) }, newText: name },
+    }));
+  }
   const root = rootForUri(document.uri);
-  const symbolImport = workspace.symbolImportContext(document.uri, offset);
-  if (symbolImport) {
+  if (completionContext.kind === 'symbol-import') {
+    const symbolImport = completionContext.symbolImport;
     const complete = indexingMode === 'onDemand' && root
       ? await hydrateOnDemandSymbolImports(workspace, root, symbolImport, () => token.isCancellationRequested)
       : true;
@@ -6161,6 +6935,15 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const allSymbols = symbolImport.kind === 'function' ? workspace.workspaceFunctions() : workspace.workspaceConstants();
     const qualifier = symbolImport.qualifier.toLowerCase();
     const prefix = symbolImport.prefix.toLowerCase();
+    const source = document.getText();
+    const groupedFilterText = symbolImport.replacementStart === undefined ? undefined
+      : source.slice(symbolImport.replacementStart, symbolImport.replacementEnd ?? offset);
+    const importCompletionEdit = (name: string): TextEdit => symbolImport.replacementStart === undefined
+      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
+        newText: name }
+      : { range: { start: document.positionAt(symbolImport.replacementStart),
+        end: document.positionAt(symbolImport.replacementEnd ?? offset) },
+        newText: `${source.slice(symbolImport.replacementStart, offset - symbolImport.prefix.length)}${name}${symbolImport.replacementEnd === offset + 1 ? '}' : ''}` };
     const names = new Map<string, string>();
     const symbols = allSymbols.flatMap((symbol) => {
       const parts = symbol.fqcn.split('\\'); const name = parts.pop()!;
@@ -6176,65 +6959,128 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       label: `${name}\\`, kind: CompletionItemKind.Module,
       detail: `${symbolImport.qualifier ? `${symbolImport.qualifier}\\` : ''}${name}\\`,
       sortText: `0${String(index).padStart(6, '0')}`,
-      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
-        newText: `${name}\\` },
+      filterText: groupedFilterText,
+      textEdit: importCompletionEdit(`${name}\\`),
     }));
     const candidates = symbols.map((symbol, index) => ({
+      ...deprecation(symbol),
       label: symbol.name,
       kind: symbolImport.kind === 'function' ? CompletionItemKind.Function : CompletionItemKind.Constant,
       detail: symbol.fqcn,
       sortText: `1${String(index).padStart(6, '0')}`,
-      textEdit: { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
-        newText: symbol.name },
+      filterText: groupedFilterText,
+      textEdit: importCompletionEdit(symbol.name),
     }));
     const items = [...modules, ...candidates].slice(0, 64);
     return complete && modules.length + candidates.length <= 64 ? items : { isIncomplete: true, items };
   }
-  const typeContext = workspace.typeCompletionContext(document.uri, offset);
-  const functions = (typeContext ? [] : workspace.completeFunctions(document.uri, offset)).map((callable, index) => {
+  let typeContext = completionContext.typeContext;
+  // At top level `readonly` can only start a class declaration. In a class
+  // body it can also start a typed property, so keep type candidates there.
+  const readonlyClassKeyword = completionContext.keywordContext?.kind === 'top-level'
+    && /\breadonly\s+$/u.test(document.getText().slice(0, completionContext.keywordContext.start));
+  if (readonlyClassKeyword) typeContext = undefined;
+  const keywords = phpKeywordCompletions(document, offset, Boolean(typeContext), completionContext.keywordContext);
+  const templates = phpCompletionTemplates(document, completionContext.keywordContext, keywords);
+  // Declaration keyword intent is shared by every named declaration and
+  // modifier. A partial keyword can otherwise prefix hundreds of builtins.
+  const functionWord = /([A-Za-z_]+)$/u.exec(document.getText().slice(0, offset))?.[1];
+  const declarationKeywordIntent = Boolean(completionContext.keywordContext
+    && completionContext.keywordContext.kind !== 'expression'
+    && (functionWord?.length ?? 0) >= 2
+    && keywords.some((item) => PHP_DECLARATION_KEYWORDS.has(String(item.label))));
+  const completeDeclarationKeyword = declarationKeywordIntent && PHP_DECLARATION_KEYWORDS.has(functionWord?.toLowerCase() ?? '');
+  // `public func` can still be a property type. Once the full declaration
+  // keyword is present, matching class names are no longer useful here.
+  if (completeDeclarationKeyword) typeContext = undefined;
+  // A proven blank value already has scoped values. Enumerating every function
+  // without a prefix floods large Composer projects; typing a prefix restores them.
+  const functions = (typeContext || declarationKeywordIntent || blankTypedExpression ? []
+    : workspace.completeFunctions(document.uri, offset)).map((callable, index) => {
     const insertion = callable.importFqfn ? workspace.importInsertion(document.uri, offset, callable.importFqfn, 'function') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
+    const wordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
+    const hasCall = hasFollowingCallParenthesis(document.getText(), wordEnd, Number(phpVersionForUri(document.uri)) >= 8);
     return {
+      ...deprecation(callable),
       label: callable.name,
       kind: CompletionItemKind.Function,
+      filterText: completionFilterText(callable.name, functionWord ?? ''),
+      insertTextFormat: hasCall ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
+      textEdit: { range: { start: document.positionAt(offset - (functionWord?.length ?? 0)), end: document.positionAt(wordEnd) },
+        newText: hasCall ? callable.name : completionCallSnippet(callable.name, callable.parameters) },
       detail: `${callable.fqcn}(${callable.parameters.map(displayPhpParameter).join(', ')})${callable.returnType ? `: ${callable.returnType}` : ''}`,
-      sortText: `0${String(index).padStart(6, '0')}`,
+      sortText: callable.compatibilityRank === undefined
+        ? `0${String(index).padStart(6, '0')}`
+        : `0${completionMatchRank(callable.name, functionWord ?? '') ?? 5}${callable.compatibilityRank}0${String(index).padStart(6, '0')}`,
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  const constants = (typeContext ? [] : workspace.completeConstants(document.uri, offset)).map((constant, index) => {
+  const constants = (typeContext || declarationKeywordIntent || blankTypedExpression ? []
+    : workspace.completeConstants(document.uri, offset)).map((constant, index) => {
     const insertion = constant.importFqcn ? workspace.importInsertion(document.uri, offset, constant.importFqcn, 'const') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
     return {
+      ...deprecation(constant),
       label: constant.name,
       kind: CompletionItemKind.Constant,
+      filterText: completionFilterText(constant.name, functionWord ?? ''),
       detail: `${constant.fqcn}${constant.type ? `: ${constant.type}` : ''}${constant.value ? ` = ${constant.value}` : ''}`,
-      sortText: `1${String(index).padStart(6, '0')}`,
+      sortText: constant.compatibilityRank === undefined
+        ? `1${String(index).padStart(6, '0')}`
+        : `0${completionMatchRank(constant.name, functionWord ?? '') ?? 5}${constant.compatibilityRank}1${String(index).padStart(6, '0')}`,
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  if (functions.length || constants.length) return [...functions, ...constants];
-  const namespaceContext = workspace.namespaceImportContext(document.uri, offset)
+  const namespaceContext = completeDeclarationKeyword ? undefined : workspace.namespaceImportContext(document.uri, offset)
+    ?? (typeContext?.replacementStart !== undefined
+      ? { qualifier: typeContext.namespace, prefix: typeContext.prefix } : undefined)
     ?? workspace.namespaceTypeContext(document.uri, offset);
-  const [segments, typeOutcome] = await Promise.all([
+  const qualifiedTypeContext = Boolean(typeContext && (typeContext.replacementStart !== undefined
+    || document.getText()[offset - typeContext.prefix.length - 1] === '\\'));
+  let [segments, typeOutcome] = await Promise.all([
     namespaceContext && root ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
       : Promise.resolve(undefined),
     indexingMode === 'onDemand' && typeContext && root
-      ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, () => token.isCancellationRequested)
+      ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, qualifiedTypeContext,
+        () => token.isCancellationRequested)
       : Promise.resolve(undefined),
   ]);
-  if (segments === 'stale' || typeOutcome === 'stale' || !currentQueryDocument(document, token, queryVersion)) return [];
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
+  // A file event can invalidate the candidate search while the document itself
+  // remains current. Retry once against the new index epoch so the first popup
+  // can contain the newly discovered type. A second change stays retryable.
+  if (segments === 'stale' || typeOutcome === 'stale') {
+    [segments, typeOutcome] = await Promise.all([
+      segments === 'stale' && namespaceContext && root
+        ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
+        : Promise.resolve(segments),
+      typeOutcome === 'stale' && indexingMode === 'onDemand' && typeContext && root
+        ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, qualifiedTypeContext,
+          () => token.isCancellationRequested)
+        : Promise.resolve(typeOutcome),
+    ]);
+  }
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
+  if (segments === 'stale' || typeOutcome === 'stale') return { isIncomplete: true, items: [] };
   const namespaceCandidatesComplete = segments?.complete ?? true;
   let namespaceItems: CompletionItem[] = [];
   if (segments && namespaceContext) namespaceItems = segments.names.map((name, index) => ({
     label: `${name}\\`, kind: CompletionItemKind.Module,
     detail: `${namespaceContext.qualifier ? `${namespaceContext.qualifier}\\` : ''}${name}\\`,
     sortText: `0${String(index).padStart(6, '0')}`, preselect: index === 0,
-    textEdit: { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
-      end: document.positionAt(offset) }, newText: `${name}\\` },
+    filterText: typeContext?.replacementStart === undefined ? undefined
+      : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
+    textEdit: typeContext?.replacementStart === undefined
+      ? { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
+        end: document.positionAt(offset) }, newText: `${name}\\` }
+      : { range: { start: document.positionAt(typeContext.replacementStart),
+        end: document.positionAt(typeContext.replacementEnd ?? offset) },
+      newText: `${document.getText().slice(typeContext.replacementStart, offset - namespaceContext.prefix.length)}${name}\\${typeContext.replacementEnd === offset + 1 ? '}' : ''}` },
   }));
   let typeCandidatesComplete = typeOutcome ?? true;
-  const allTypes = workspace.completeTypes(document.uri, offset);
+  const allTypes = completeDeclarationKeyword ? [] : workspace.completeTypes(document.uri, offset)
+    .filter((type) => type.kind !== 'enum' || supportsEnums);
   const project = root && allTypes.length ? await composerProjectForRoot(root) : undefined;
   const psr4Mappings = root && project ? projectMappingsByRoot.get(root) ?? allPsr4Mappings(project) : [];
   const psr0Mappings = project ? [...project.psr0, ...project.dependencies.flatMap((dependency) => dependency.psr0)] : [];
@@ -6244,28 +7090,65 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     psr0Mappings, psr4Mappings, explicitPaths)) : allTypes;
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (types.length > 64) typeCandidatesComplete = false;
+  const typeSource = document.getText();
+  const constructing = typeContext?.constructKind === 'class';
+  const wordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(typeSource.slice(offset))?.[0].length ?? 0);
+  const addConstructorCall = constructing && !hasFollowingCallParenthesis(typeSource, wordEnd, Number(phpVersionForUri(document.uri)) >= 8);
   const typeItems = types.slice(0, 64).map((type, index) => {
     const insertion = type.importFqcn ? workspace.importInsertion(document.uri, offset, type.importFqcn) : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
+    const addCall = type.kind === 'class' && addConstructorCall;
+    const name = `${typeContext?.replacementStart === undefined ? ''
+      : typeSource.slice(typeContext.replacementStart, offset - typeContext.prefix.length)}${type.name}${typeContext?.replacementEnd === offset + 1 ? '}' : ''}`;
     return {
+      ...deprecation(type),
       label: type.name,
       kind: type.kind === 'interface' ? CompletionItemKind.Interface : type.kind === 'enum' ? CompletionItemKind.Enum : CompletionItemKind.Class,
       detail: type.fqcn,
+      insertTextFormat: addCall ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
+      insertText: typeContext?.replacementStart === undefined ? `${name}${addCall ? '($0)' : ''}` : undefined,
       sortText: `${typeContext?.replacementStart === undefined ? '2' : '0'}${String(index).padStart(6, '0')}`,
       preselect: typeContext?.replacementStart !== undefined,
-      filterText: typeContext?.replacementStart === undefined ? undefined
+      filterText: typeContext?.replacementStart === undefined
+        ? typeContext ? completionFilterText(type.name, typeContext.prefix) : undefined
         : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
       textEdit: typeContext?.replacementStart === undefined ? undefined : {
         range: { start: document.positionAt(typeContext.replacementStart),
           end: document.positionAt(typeContext.replacementEnd ?? offset) },
-        newText: `${document.getText().slice(typeContext.replacementStart, offset - typeContext.prefix.length)}${type.name}${typeContext.replacementEnd === offset + 1 ? '}' : ''}`,
+        newText: `${name}${addCall ? '($0)' : ''}`,
       },
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  const items = [...namespaceItems, ...typeItems];
-  return namespaceCandidatesComplete && typeCandidatesComplete ? items : { isIncomplete: true, items };
+  const items = [...keywords, ...expectedValues.filter((value) =>
+    !keywords.some((keyword) => keyword.label === value.label)),
+  ...bareVariables, ...functions, ...constants, ...namespaceItems, ...typeItems, ...templates];
+  // VS Code filters a complete list locally as the user types. Keep the
+  // initial declaration prefix incomplete so `func` gets a fresh context and
+  // drops callable names that only matched the first letter.
+  const declarationPrefix = completionContext.keywordContext?.prefix.toLowerCase();
+  const refreshingDeclaration = Boolean(declarationPrefix && keywords.some((item) =>
+    PHP_DECLARATION_KEYWORDS.has(String(item.label)) && String(item.label).startsWith(declarationPrefix)
+      && String(item.label) !== declarationPrefix));
+  return namespaceCandidatesComplete && typeCandidatesComplete && !refreshingDeclaration
+    ? items : { isIncomplete: true, items };
   } finally { recordTestQueryDuration('completion', timingStarted); }
+});
+
+connection.onCompletionResolve(async (item, token) => {
+  const data = item.data;
+  if (!data || data.kind !== 'variable-detail') return item;
+  const unresolved = { ...item }; delete unresolved.detail;
+  if (typeof data.uri !== 'string' || !Number.isSafeInteger(data.offset) || data.offset < 0
+    || typeof data.variable !== 'string' || data.variable !== item.label) return unresolved;
+  const document = documents.get(data.uri);
+  if (!document || document.version !== data.version || completionDocumentIdentities.get(document) !== data.documentIdentity
+    || token.isCancellationRequested || data.offset > document.getText().length) return unresolved;
+  await semanticProviderReconciliation;
+  const workspace = await semanticForOpenQuery(document);
+  if (!currentQueryDocument(document, token, data.version) || documents.get(data.uri) !== document) return unresolved;
+  const detail = workspace.completionVariableDetail(data.uri, data.offset, data.variable);
+  return detail ? { ...unresolved, detail } : unresolved;
 });
 
 connection.onHover(async ({ textDocument, position }, token) => {
@@ -6288,6 +7171,10 @@ connection.onHover(async ({ textDocument, position }, token) => {
   const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
   recordTestQueryDuration('hoverFrameworkContext', frameworkStarted);
+  if (serviceRoot && document.languageId === 'php') {
+    refreshStaleOpenTypeSourceAt(workspace, document.uri, offset);
+    if (!currentQueryDocument(document, token, queryVersion)) return null;
+  }
   const memberStarted = testMode ? performance.now() : 0;
   let member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);
   if (!member && serviceRoot && document.languageId === 'php') {
@@ -6320,9 +7207,12 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
   if (testPauseNextQueries.has('definition')) await pauseTestQuery('definition');
+  const offset = document.offsetAt(position);
+  const includedUri = await staticIncludeDefinition(document, offset);
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
+  if (includedUri) return [{ uri: includedUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } } }];
   const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
-  const offset = document.offsetAt(position);
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeCall) {
@@ -6394,6 +7284,10 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     }
   }
   if (!currentQueryDocument(document, token, queryVersion)) return [];
+  if (root && document.languageId === 'php') {
+    refreshStaleOpenTypeSourceAt(workspace, document.uri, offset);
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+  }
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
     const owners = (): string[] => {
@@ -6517,9 +7411,10 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
   const workspace = await semanticForUri(document.uri);
   const offset = document.offsetAt(position);
   const referenceRoot = rootForUri(document.uri);
-  const methodAtRequest = workspace.referenceMemberAt(document.uri, offset)?.kind === 'method';
-  if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project'
-    && !methodAtRequest) {
+  // Selection prewarm can hydrate the method before the click. Its presence
+  // must not bypass the fully validated persistent proof and trigger another
+  // candidate scan. restoreReferenceResult retains its input and mode guards.
+  if (referenceRoot && document.languageId === 'php' && workspace.referenceScope(document.uri, offset) === 'project') {
     const restored = await restoreReferenceResult(referenceRoot, workspace, document.uri, offset, context.includeDeclaration,
       id, () => token.isCancellationRequested);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
@@ -6837,10 +7732,13 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   const queryVersion = document.version;
   if (testPauseNextQueries.has('signatureHelp')) await pauseTestQuery('signatureHelp');
   const workspace = await semanticForOpenQuery(document); const offset = document.offsetAt(position);
+  if (!currentQueryDocument(document, token, queryVersion)) return null;
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return null;
   const root = rootForUri(document.uri);
   const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
+  if (root && document.languageId === 'php') refreshStaleOpenTypeSourceAt(workspace, document.uri, offset,
+    [...workspace.memberCallOwnerTypeNamesAt(document.uri, offset), ...(attributeConstructorType ? [attributeConstructorType] : [])]);
   if (root && attributeConstructorType && !workspace.typeByFqcn(attributeConstructorType))
     await hydrateCanonicalTypes(workspace, root, [attributeConstructorType]);
   if (token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion) return null;
@@ -6893,7 +7791,10 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset)
     ?? workspace.localVariableRename(document.uri, offset);
-  if (!scopedTarget && !completeRoots.has(root)) return null;
+  // Lazy/source-only startup does not mark the global reference index complete.
+  // Ordinary Rename can establish its own complete, current PHP source scope.
+  if (!scopedTarget && !completeRoots.has(root)
+    && !await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
   const target = scopedTarget ?? canonicalTypeRename(workspace, root, document.uri, offset)
     ?? workspace.methodRename(document.uri, offset)
     ?? workspace.propertyRename(document.uri, offset)
@@ -6902,6 +7803,51 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   if (!target || token.isCancellationRequested) return null;
   return { range: { start: document.positionAt(target.start), end: document.positionAt(target.end) }, placeholder: target.name };
 });
+
+// Establish current PHP source coverage for a refactor request without marking
+// framework providers or the global reference index ready.
+async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>): Promise<boolean> {
+  await watchedFileChanges;
+  await applyPendingFiles();
+  const epoch = projectEpochs.get(root) ?? 0;
+  const current = new Set<string>();
+  const selectedNames = typeNames ? [...typeNames] : undefined;
+  let changedUri: string | undefined;
+  const refreshStarted = testMode ? performance.now() : 0;
+  const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch);
+  const scan = await indexComposerSources(root, {
+    project: await composerProjectForRoot(root), includeDependencies: true, limits: indexLimits,
+    readConcurrency: 32, yieldEvery: 100, inspectSource: statBatches.inspect,
+    shouldContinue: () => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
+    uriForPath: path => indexedUriForPath(root, path),
+    onSource: ({ uri, path, source }) => {
+      current.add(uri);
+      const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
+      const effective = open?.getText() ?? source;
+      const previous = workspace.source(uri);
+      const normalizedSource = selectedNames ? effective.toLowerCase() : undefined;
+      const relevant = !selectedNames || selectedNames.some(name => normalizedSource!.includes(name));
+      // Imports need complete discovery of selected type names, not the bodies
+      // of unrelated new vendor files. Refresh changed indexed files as well
+      // so removed declarations cannot survive under their old names.
+      if (previous !== effective && (relevant || previous !== undefined)) {
+        workspace.update(uri, effective, Boolean(open)); changedUri = uri;
+      }
+      return undefined;
+    },
+  }).finally(() => statBatches.close());
+  recordTestQueryDuration(timing, refreshStarted);
+  if (!scan.complete || cancelled() || (projectEpochs.get(root) ?? 0) !== epoch) {
+    if (changedUri) invalidateCandidates(changedUri);
+    return false;
+  }
+  for (const uri of indexedUrisByRoot.get(root) ?? []) {
+    if (!current.has(uri) && !documents.get(uri)) { workspace.remove(uri); changedUri = uri; }
+  }
+  indexedUrisByRoot.set(root, current);
+  if (changedUri) invalidateCandidates(changedUri);
+  return !cancelled();
+}
 
 connection.onRenameRequest(async (params, token) => {
   const { textDocument, position, newName } = params;
@@ -6936,25 +7882,27 @@ connection.onRenameRequest(async (params, token) => {
       if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
       scopedTarget = workspace.closedPromotedPropertyRename(document.uri, offset, newName)
         ?? workspace.localVariableRename(document.uri, offset, newName);
-      if (!scopedTarget && !completeRoots.has(root)) return null;
     }
   }
+  // Watcher delivery can lag behind a new disk consumer. A completed earlier
+  // index alone does not prove that a cross-file edit plan covers current files.
+  if (!scopedTarget && !await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
+  const symbolPlanStarted = testMode ? performance.now() : 0;
   const typeTarget = scopedTarget ? undefined : canonicalTypeRename(workspace, root, document.uri, offset, newName, includePhpDoc);
   const target = scopedTarget ?? typeTarget
     ?? workspace.methodRename(document.uri, offset, newName)
     ?? workspace.propertyRename(document.uri, offset, newName)
     ?? workspace.functionRename(document.uri, offset, newName)
-    ?? workspace.constantRename(document.uri, offset, newName); if (!target) return null;
+    ?? workspace.constantRename(document.uri, offset, newName);
+  recordTestQueryDuration('renameSymbolPlan', symbolPlanStarted);
+  if (!target) return null;
   let fileRename: { oldUri: string; newUri: string } | undefined;
   if (typeTarget && renameFile) {
     const declarationPath = pathForUri(typeTarget.declarationUri); const mappings = projectMappingsByRoot.get(root) ?? [];
     const canonical = declarationPath && new Set(resolvePsr4Class(typeTarget.fqcn, mappings).map((candidate) => resolve(candidate))).has(resolve(declarationPath));
     if (canonical && declarationPath && basename(declarationPath) === `${typeTarget.name}.php`) {
       const targetPath = resolve(dirname(declarationPath), `${newName}.php`);
-      const caseOnly = targetPath.toLowerCase() === declarationPath.toLowerCase();
-      if (!caseOnly) {
-        try { await stat(targetPath); return null; } catch { /* A missing target is required for the rename. */ }
-      }
+      if (!await fileOperationDestinationAvailable(declarationPath, targetPath)) return null;
       fileRename = { oldUri: typeTarget.declarationUri, newUri: indexedUriForPath(root, targetPath) };
     }
   }
@@ -7107,7 +8055,7 @@ connection.onCodeAction(async (params, token) => {
       actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractMethod', method.methodName), kind: CodeActionKind.RefactorExtract,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
-    const extractedInterface = localWorkspace.extractInterface(document.uri, document.offsetAt(range.start));
+    const extractedInterface = localWorkspace.extractInterface(document.uri, document.offsetAt(range.start), targetPhpVersion);
     const interfaceRoot = extractedInterface && rootForUri(document.uri);
     if (extractedInterface && interfaceRoot && await ensureProjectCompleteRoot(interfaceRoot, () => token.isCancellationRequested)) {
       const mappings = projectMappingsByRoot.get(interfaceRoot) ?? [];
@@ -7181,7 +8129,7 @@ connection.onCodeAction(async (params, token) => {
   if (!context.only || context.only.includes(CodeActionKind.SourceOrganizeImports)) {
     const organization = workspace.organizeImports(document.uri, importSort);
     if (organization) {
-      const plan = createEditPlan('Organize imports', [{ uri: document.uri, version: document.version, length: source.length }], [organization]);
+      const plan = createEditPlan('Organize imports', [{ uri: document.uri, version: document.version, length: source.length }], organization);
       actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'organizeImports'), kind: CodeActionKind.SourceOrganizeImports,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
@@ -7306,6 +8254,8 @@ connection.onShutdown(async () => {
   projectIndexedUrisByRoot.clear();
   symfonyAutowireReferenceQueries.clear();
   controllerContextScanEpochs.clear();
+  for (const task of controllerContextScanTasks.values()) task.waiters.clear();
+  controllerContextScanTasks.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
   composerRootChecks.clear();

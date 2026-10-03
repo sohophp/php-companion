@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-02",
+  "scope": "semantic provider document snapshot capacity",
+  "baseline": {
+    "hostExitCode": 1,
+    "documents": 133,
+    "characters": 32605,
+    "inputFilesMatched": 6,
+    "stdio": {
+      "passed": 1,
+      "failed": 2,
+      "skipped": 426,
+      "total": 429
+    }
+  },
+  "limits": {
+    "documents": 512,
+    "perDocumentCharacters": 1000000,
+    "totalCharacters": 8388608
+  },
+  "verification": {
+    "contract": {
+      "passed": 14,
+      "exitCode": 0
+    },
+    "providers": {
+      "processHost": 10,
+      "services": 14,
+      "events": 5,
+      "controllerContexts": 12,
+      "exitCode": 0
+    },
+    "stdio": {
+      "passed": 8,
+      "skipped": 421,
+      "total": 429,
+      "durationSeconds": 29.61,
+      "exitCode": 0
+    },
+    "fullC3": {
+      "status": "passed",
+      "sessionId": 5946,
+      "exitCode": 0,
+      "documents": 133,
+      "characters": 32605,
+      "unsavedDispatchAndUndo": true
+    },
+    "buildAndLintExitCode": 0,
+    "frozenInputs": 37,
+    "bundledCliCapacity": {
+      "cases": 9,
+      "passed": 9,
+      "scope": "request validation only"
+    },
+    "finalInputsMatched": 37,
+    "correctedSymfonyBuildExitCode": 0
+  },
+  "notVerified": [
+    "complete 429 stdio",
+    "real WSL manual acceptance",
+    "other platforms",
+    "long-session use"
+  ],
+  "packaged": false,
+  "profileUpdated": false,
+  "failedHostVerification": {
+    "firstSession": 20246,
+    "evidenceSession": 63742,
+    "exitCode": 1,
+    "cause": "incorrect pnpm filter matched no project; Symfony bundle retained old 128 limit",
+    "evidence": "/tmp/extension-failure-EoNL6I"
+  }
+}

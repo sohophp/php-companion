@@ -1,0 +1,959 @@
+{
+  "date": "2026-10-02",
+  "baseline": {
+    "summary": "Passed 16 of 32",
+    "failedCases": [
+      {
+        "context": "argument",
+        "part": "key",
+        "quote": "'",
+        "closed": false,
+        "labels": [
+          "mode"
+        ],
+        "expected": [
+          "mode"
+        ],
+        "end": 147,
+        "expectedEnd": 142,
+        "passed": false
+      },
+      {
+        "context": "argument",
+        "part": "key",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "mode"
+        ],
+        "expectedEnd": 142,
+        "passed": false
+      },
+      {
+        "context": "argument",
+        "part": "value",
+        "quote": "'",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "'create'"
+        ],
+        "expectedEnd": 152,
+        "passed": false
+      },
+      {
+        "context": "argument",
+        "part": "value",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "\"create\""
+        ],
+        "expectedEnd": 152,
+        "passed": false
+      },
+      {
+        "context": "return",
+        "part": "key",
+        "quote": "'",
+        "closed": false,
+        "labels": [
+          "mode"
+        ],
+        "expected": [
+          "mode"
+        ],
+        "end": 124,
+        "expectedEnd": 119,
+        "passed": false
+      },
+      {
+        "context": "return",
+        "part": "key",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "mode"
+        ],
+        "expectedEnd": 119,
+        "passed": false
+      },
+      {
+        "context": "return",
+        "part": "value",
+        "quote": "'",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "'create'"
+        ],
+        "expectedEnd": 129,
+        "passed": false
+      },
+      {
+        "context": "return",
+        "part": "value",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "\"create\""
+        ],
+        "expectedEnd": 129,
+        "passed": false
+      },
+      {
+        "context": "assignment",
+        "part": "key",
+        "quote": "'",
+        "closed": false,
+        "labels": [
+          "mode"
+        ],
+        "expected": [
+          "mode"
+        ],
+        "end": 147,
+        "expectedEnd": 142,
+        "passed": false
+      },
+      {
+        "context": "assignment",
+        "part": "key",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "mode"
+        ],
+        "expectedEnd": 142,
+        "passed": false
+      },
+      {
+        "context": "assignment",
+        "part": "value",
+        "quote": "'",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "'create'"
+        ],
+        "expectedEnd": 152,
+        "passed": false
+      },
+      {
+        "context": "assignment",
+        "part": "value",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "\"create\""
+        ],
+        "expectedEnd": 152,
+        "passed": false
+      },
+      {
+        "context": "method",
+        "part": "key",
+        "quote": "'",
+        "closed": false,
+        "labels": [
+          "mode"
+        ],
+        "expected": [
+          "mode"
+        ],
+        "end": 210,
+        "expectedEnd": 205,
+        "passed": false
+      },
+      {
+        "context": "method",
+        "part": "key",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "mode"
+        ],
+        "expectedEnd": 205,
+        "passed": false
+      },
+      {
+        "context": "method",
+        "part": "value",
+        "quote": "'",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "'create'"
+        ],
+        "expectedEnd": 215,
+        "passed": false
+      },
+      {
+        "context": "method",
+        "part": "value",
+        "quote": "\"",
+        "closed": false,
+        "labels": [],
+        "expected": [
+          "\"create\""
+        ],
+        "expectedEnd": 215,
+        "passed": false
+      }
+    ]
+  },
+  "fixedProbe": [
+    {
+      "context": "argument",
+      "part": "key",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 143,
+      "expectedEnd": 143,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "key",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 142,
+      "expectedEnd": 142,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "key",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 143,
+      "expectedEnd": 143,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "key",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 142,
+      "expectedEnd": 142,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 153,
+      "expectedEnd": 153,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 152,
+      "expectedEnd": 152,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 153,
+      "expectedEnd": 153,
+      "passed": true
+    },
+    {
+      "context": "argument",
+      "part": "value",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 152,
+      "expectedEnd": 152,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 120,
+      "expectedEnd": 120,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 119,
+      "expectedEnd": 119,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 120,
+      "expectedEnd": 120,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "key",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 119,
+      "expectedEnd": 119,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 130,
+      "expectedEnd": 130,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 129,
+      "expectedEnd": 129,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 130,
+      "expectedEnd": 130,
+      "passed": true
+    },
+    {
+      "context": "return",
+      "part": "value",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 129,
+      "expectedEnd": 129,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 143,
+      "expectedEnd": 143,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 142,
+      "expectedEnd": 142,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 143,
+      "expectedEnd": 143,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "key",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 142,
+      "expectedEnd": 142,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 153,
+      "expectedEnd": 153,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 152,
+      "expectedEnd": 152,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 153,
+      "expectedEnd": 153,
+      "passed": true
+    },
+    {
+      "context": "assignment",
+      "part": "value",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 152,
+      "expectedEnd": 152,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 206,
+      "expectedEnd": 206,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 205,
+      "expectedEnd": 205,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 206,
+      "expectedEnd": 206,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "key",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "mode"
+      ],
+      "expected": [
+        "mode"
+      ],
+      "end": 205,
+      "expectedEnd": 205,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "quote": "'",
+      "closed": true,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 216,
+      "expectedEnd": 216,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "quote": "'",
+      "closed": false,
+      "labels": [
+        "'create'"
+      ],
+      "expected": [
+        "'create'"
+      ],
+      "end": 215,
+      "expectedEnd": 215,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "quote": "\"",
+      "closed": true,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 216,
+      "expectedEnd": 216,
+      "passed": true
+    },
+    {
+      "context": "method",
+      "part": "value",
+      "quote": "\"",
+      "closed": false,
+      "labels": [
+        "\"create\""
+      ],
+      "expected": [
+        "\"create\""
+      ],
+      "end": 215,
+      "expectedEnd": 215,
+      "passed": true
+    }
+  ],
+  "semantic": {
+    "passed": 1115,
+    "files": 41,
+    "durationSeconds": 52.92
+  },
+  "targetSemantic": {
+    "passed": 88,
+    "files": 3,
+    "durationSeconds": 2.29
+  },
+  "stdio": {
+    "passed": 4,
+    "filteredSkipped": 427,
+    "total": 431,
+    "durationSeconds": 17.71,
+    "casesPerVersion": 64
+  },
+  "hosts": {
+    "c2": {
+      "exitCode": 0,
+      "cases": 64
+    },
+    "c1Php85": {
+      "exitCode": 0,
+      "samplesMs": [
+        146,
+        173,
+        119,
+        133,
+        120,
+        147,
+        114,
+        114,
+        125,
+        128,
+        130,
+        128,
+        117,
+        126,
+        121,
+        151,
+        118,
+        156,
+        129,
+        121,
+        125,
+        148,
+        122,
+        146,
+        124,
+        115,
+        148,
+        113,
+        118,
+        144,
+        127,
+        125,
+        123,
+        114,
+        121,
+        164,
+        122,
+        126,
+        135,
+        117,
+        114,
+        118,
+        117,
+        117,
+        114,
+        126,
+        115,
+        121
+      ],
+      "maxMs": 173
+    },
+    "c1Php72": {
+      "exitCode": 0,
+      "samplesMs": [
+        125,
+        113,
+        120,
+        164,
+        161,
+        120,
+        126,
+        117,
+        120,
+        142,
+        135,
+        118,
+        114,
+        151,
+        115,
+        115,
+        116,
+        145,
+        127,
+        149,
+        123,
+        117,
+        121,
+        117,
+        133,
+        123,
+        120,
+        126,
+        134,
+        129,
+        121,
+        120,
+        129,
+        121,
+        132,
+        149,
+        123,
+        147,
+        125,
+        127,
+        118,
+        156,
+        126,
+        119,
+        135,
+        129,
+        145,
+        125
+      ],
+      "maxMs": 164
+    }
+  },
+  "performance": [
+    {
+      "name": "argument key ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 23.454098999999587,
+      "maxMs": 28.124941000000035,
+      "sourcePreserved": true
+    },
+    {
+      "name": "argument key \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 22.52274099999977,
+      "maxMs": 67.37346700000035,
+      "sourcePreserved": true
+    },
+    {
+      "name": "argument value ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 44.25172500000008,
+      "maxMs": 54.61797899999874,
+      "sourcePreserved": true
+    },
+    {
+      "name": "argument value \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 44.43975000000137,
+      "maxMs": 56.58878999999979,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return key ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.13568099999975,
+      "maxMs": 14.143387000000075,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return key \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.341879999999946,
+      "maxMs": 12.30651299999954,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return value ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 19.975147000001016,
+      "maxMs": 54.831921999997576,
+      "sourcePreserved": true
+    },
+    {
+      "name": "return value \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 21.243466000003536,
+      "maxMs": 29.292234999997163,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment key ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 12.125439000003098,
+      "maxMs": 14.479880999999295,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment key \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.742738999997528,
+      "maxMs": 12.713401000000886,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment value ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 21.442595000000438,
+      "maxMs": 29.55832400000145,
+      "sourcePreserved": true
+    },
+    {
+      "name": "assignment value \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 21.080315999999584,
+      "maxMs": 29.12079900000026,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method key ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 20.15011500000037,
+      "maxMs": 27.404770000001008,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method key \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 19.996879999998782,
+      "maxMs": 25.918519999999262,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method value ' unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 31.79852100000062,
+      "maxMs": 35.08604000000196,
+      "sourcePreserved": true
+    },
+    {
+      "name": "method value \" unclosed word middle",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 37.26101799999742,
+      "maxMs": 42.910498000004736,
+      "sourcePreserved": true
+    }
+  ],
+  "inputCount": 48,
+  "packaged": false,
+  "profileUpdated": false,
+  "inputsFinalMatch": true
+}

@@ -1,0 +1,59 @@
+{
+  "status": "targeted_passed",
+  "hostProof": {
+    "platform": "linux",
+    "extracted": true,
+    "staticReturnsPreserved": true,
+    "undoRestoresSourceAndDeletesFile": true,
+    "redoRestoresSourceAndFile": true
+  },
+  "runtime81": {
+    "php": "8.1.34",
+    "implements": true,
+    "with": "Contract\\ChildBuilder",
+    "factory": "Contract\\ChildBuilder",
+    "optional": "Contract\\ChildBuilder",
+    "maybe": "Contract\\ChildBuilder",
+    "interfaceReturn": "static",
+    "interfaceSource": "<?php\n\nnamespace Contract;\n\ninterface BuilderInterface\n{\n    public function with(\\Contract\\Builder $other, string $label = 'static'): static;\n    public function optional(): ?static;\n    public static function create(): static;\n    public function maybe(): static|false;\n}\n",
+    "scope": "Generated interface and altered class compiled and executed by real PHP; child late-static binding preserved"
+  },
+  "runtime85": {
+    "php": "8.5.9",
+    "implements": true,
+    "with": "Contract\\ChildBuilder",
+    "factory": "Contract\\ChildBuilder",
+    "optional": "Contract\\ChildBuilder",
+    "maybe": "Contract\\ChildBuilder",
+    "interfaceReturn": "static",
+    "interfaceSource": "<?php\n\nnamespace Contract;\n\ninterface BuilderInterface\n{\n    public function with(\\Contract\\Builder $other, string $label = 'static'): static;\n    public function optional(): ?static;\n    public static function create(): static;\n    public function maybe(): static|false;\n}\n",
+    "scope": "Generated interface and altered class compiled and executed by real PHP; child late-static binding preserved"
+  },
+  "semantic": {
+    "passed": 2,
+    "skipped": 493,
+    "log": "/tmp/sophp-extract-static-semantic.log"
+  },
+  "stdio": {
+    "passed": 3,
+    "skipped": 434,
+    "log": "/tmp/sophp-extract-static-stdio.log"
+  },
+  "hostLog": "/tmp/sophp-extract-static-host.log",
+  "exitCodes": [
+    0,
+    0,
+    0
+  ],
+  "finalHashes": {
+    "packages/semantic/src/index.ts": "3b79556e1b7dfd7efd20f68d8b4aee591557e081da2bda063826d8fc8d323707",
+    "packages/semantic/test/semantic.test.ts": "a3079375019933d39e2d9a9b1b86398755c23fa837e53c46e23e2980b7abc2b4",
+    "packages/language-server/src/server.ts": "70427d4e138f3f635d15955ba445e82f6a33bcf8b0758afa85fcd2998a60b0ff",
+    "packages/language-server/test/stdio.test.ts": "a17d38e4434ccbd8336a0d0f43ffffa5c5dbdae880f993db3e5286072b4114a6",
+    "scripts/check-extracted-static-runtime.mjs": "955147779a7d5c42201d037ec3a83fbff83d9e8df74ded4780f326fb6fe0e2c2",
+    "scripts/check-xdebug-host.mjs": "d881b70e0750427b8aab67761be3d7fb6d693c258e0c38494203ee3ea0238aa5",
+    "test/extension/suite/extractStaticInterface.ts": "578df64f3abf7b8ac6f1c0f348875ecc5736a8ea3bc61b72c4280d4928795fd1",
+    "dist/extension.js": "9b5a617d8695a4c8615753a7d3409679c287bba26313fdcb8cb2460b25552582",
+    "dist/language-server.js": "2e16bceeed7438497a70917265cd9ad91e67c38080b7a3cb378e067d23c70fe7"
+  }
+}

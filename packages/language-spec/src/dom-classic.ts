@@ -1,5 +1,28 @@
 import type { SupportedPhpVersion } from './index.js';
 
+// PHP 7.x DOM classes removed in PHP 8. Names checked against pinned phpstorm-stubs;
+// parameters and availability checked against local PHP 7.2/7.4 reflection.
+const DOM_LEGACY_PHP_7 = String.raw`
+class DOMStringList { public function item($index) {} }
+class DOMNameList { public function getName($index) {} public function getNamespaceURI($index) {} }
+class DOMImplementationList { public function item($index) {} }
+class DOMImplementationSource {
+  public function getDomimplementation($features) {}
+  public function getDomimplementations($features) {}
+}
+class DOMUserDataHandler { public function handle() {} }
+class DOMDomError {}
+class DOMErrorHandler { public function handleError(DOMDomError $error) {} }
+class DOMLocator {}
+class DOMConfiguration {
+  public function setParameter($name, $value) {}
+  public function getParameter($name = null) {}
+  public function canSetParameter($name = null, $value = null) {}
+}
+class DOMStringExtend { public function findOffset16($offset32) {} public function findOffset32($offset16) {} }
+class DOMTypeinfo {}
+`;
+
 const DOM_CLASSIC_PHP_72 = String.raw`const XML_ELEMENT_NODE = 1;
 const XML_ATTRIBUTE_NODE = 2;
 const XML_TEXT_NODE = 3;
@@ -5228,8 +5251,8 @@ function dom_import_simplexml(object $node): DOMAttr|DOMElement {}
 `;
 
 export function auditedClassicDomStub(version: SupportedPhpVersion): string {
-  if (version === '7.2' || version === '7.3') return DOM_CLASSIC_PHP_72;
-  if (version === '7.4') return DOM_CLASSIC_PHP_74;
+  if (version === '7.2' || version === '7.3') return DOM_CLASSIC_PHP_72 + DOM_LEGACY_PHP_7;
+  if (version === '7.4') return DOM_CLASSIC_PHP_74 + DOM_LEGACY_PHP_7;
   if (version === '8.0') return DOM_CLASSIC_PHP_80;
   if (version === '8.1') return DOM_CLASSIC_PHP_81;
   if (version === '8.2') return DOM_CLASSIC_PHP_82;

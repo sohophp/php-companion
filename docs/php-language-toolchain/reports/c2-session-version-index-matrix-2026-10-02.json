@@ -1,0 +1,455 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 5145.580903,
+      "languageServerRssMiB": {
+        "baseline": 194.3203125,
+        "final": 203.16796875,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 195.69140625
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 199.73046875
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 200.9375
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 201.95703125
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 203.16796875
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 28.402137999999923,
+          "p95": 30.13104800000019,
+          "max": 33.762235000000146
+        },
+        "betaCompletion": {
+          "p50": 2.0453440000001137,
+          "p95": 3.5743929999998727,
+          "max": 31.669107000000167
+        },
+        "betaHover": {
+          "p50": 1.7087810000002719,
+          "p95": 2.922136000000137,
+          "max": 5.221549999999752
+        },
+        "betaDefinition": {
+          "p50": 2.29047300000002,
+          "p95": 3.964372999999796,
+          "max": 6.515107000000171
+        },
+        "close": {
+          "p50": 3.708020000000033,
+          "p95": 5.226416999999856,
+          "max": 11.870898000000125
+        },
+        "alphaCompletion": {
+          "p50": 1.9243279999996048,
+          "p95": 3.6514680000000226,
+          "max": 6.950176000000283
+        },
+        "alphaDefinition": {
+          "p50": 4.4821210000000065,
+          "p95": 8.166973999999755,
+          "max": 9.99189799999931
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    },
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "7.2",
+      "indexingMode": "experimental",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 5692.064753000001,
+      "languageServerRssMiB": {
+        "baseline": 177.0390625,
+        "final": 186.59765625,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 178.86328125
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 184.140625
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 183.91015625
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 184.5390625
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 186.59765625
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 30.58882999999969,
+          "p95": 33.80117100000007,
+          "max": 44.41344799999979
+        },
+        "betaCompletion": {
+          "p50": 2.061670000000049,
+          "p95": 4.0315230000001065,
+          "max": 27.371045000000322
+        },
+        "betaHover": {
+          "p50": 1.655467999999928,
+          "p95": 3.0837940000001254,
+          "max": 6.08754799999997
+        },
+        "betaDefinition": {
+          "p50": 2.241602999999941,
+          "p95": 4.29065700000001,
+          "max": 6.57075500000019
+        },
+        "close": {
+          "p50": 3.638400000000729,
+          "p95": 5.164512999999715,
+          "max": 7.742639000000054
+        },
+        "alphaCompletion": {
+          "p50": 1.9359670000003462,
+          "p95": 3.5755159999998796,
+          "max": 6.157162999999855
+        },
+        "alphaDefinition": {
+          "p50": 4.4224850000000515,
+          "p95": 8.359937999999602,
+          "max": 10.431195000000116
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    },
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 5255.084768999999,
+      "languageServerRssMiB": {
+        "baseline": 177.546875,
+        "final": 190.53125,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 239.16015625
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 190.453125
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 207.7578125
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 190.53125
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 190.53125
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 28.716077999999925,
+          "p95": 30.50765599999977,
+          "max": 49.639214999999695
+        },
+        "betaCompletion": {
+          "p50": 2.1898299999998017,
+          "p95": 3.965643,
+          "max": 40.11179099999981
+        },
+        "betaHover": {
+          "p50": 1.7009280000002036,
+          "p95": 3.111750000000029,
+          "max": 4.89683500000001
+        },
+        "betaDefinition": {
+          "p50": 2.245810999999776,
+          "p95": 3.8752089999998134,
+          "max": 6.425359000000299
+        },
+        "close": {
+          "p50": 3.5544300000001385,
+          "p95": 5.232882999999674,
+          "max": 8.393380999999863
+        },
+        "alphaCompletion": {
+          "p50": 1.9656089999998585,
+          "p95": 3.4858809999996083,
+          "max": 8.792599999999766
+        },
+        "alphaDefinition": {
+          "p50": 4.3195379999997385,
+          "p95": 8.04620899999918,
+          "max": 11.098163999999997
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    },
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 5453.883454999999,
+      "languageServerRssMiB": {
+        "baseline": 196.3203125,
+        "final": 218.37109375,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 197.72265625
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 212.171875
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 219.72265625
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 219.49609375
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 218.37109375
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 29.03288699999939,
+          "p95": 31.614929000000302,
+          "max": 40.991665999999896
+        },
+        "betaCompletion": {
+          "p50": 2.1719700000003286,
+          "p95": 4.189495999999963,
+          "max": 16.92485799999986
+        },
+        "betaHover": {
+          "p50": 1.7369630000002871,
+          "p95": 3.2502830000003087,
+          "max": 5.172838000000411
+        },
+        "betaDefinition": {
+          "p50": 2.344463999999789,
+          "p95": 4.187797000000501,
+          "max": 6.228923000000123
+        },
+        "close": {
+          "p50": 3.747326000000612,
+          "p95": 5.468563000000358,
+          "max": 6.378139999999803
+        },
+        "alphaCompletion": {
+          "p50": 2.0553590000008626,
+          "p95": 3.9568789999998444,
+          "max": 5.528381999999965
+        },
+        "alphaDefinition": {
+          "p50": 4.694711000000098,
+          "p95": 8.931346999999732,
+          "max": 11.335000000000036
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    },
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "8.5",
+      "indexingMode": "experimental",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 6068.906545999999,
+      "languageServerRssMiB": {
+        "baseline": 190.171875,
+        "final": 194.625,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 191.29296875
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 192.28125
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 193.11328125
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 193.23046875
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 194.625
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 31.67324899999994,
+          "p95": 35.98565099999996,
+          "max": 39.69599100000005
+        },
+        "betaCompletion": {
+          "p50": 2.301513000000341,
+          "p95": 4.610985000000255,
+          "max": 16.553026000000045
+        },
+        "betaHover": {
+          "p50": 1.8068419999999605,
+          "p95": 3.0890360000003056,
+          "max": 5.563953000000311
+        },
+        "betaDefinition": {
+          "p50": 2.4717639999998937,
+          "p95": 4.451305999999931,
+          "max": 5.948633999999856
+        },
+        "close": {
+          "p50": 3.807520000000295,
+          "p95": 5.580415000000357,
+          "max": 8.610231000000113
+        },
+        "alphaCompletion": {
+          "p50": 2.13341599999967,
+          "p95": 3.6222069999998894,
+          "max": 4.868432000000212
+        },
+        "alphaDefinition": {
+          "p50": 4.933864000000085,
+          "p95": 8.405174999999872,
+          "max": 14.574012999999468
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    },
+    {
+      "schema": 1,
+      "iterations": 100,
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "profileMemory": false,
+      "profileGc": false,
+      "profileEditsOnly": false,
+      "elapsedMs": 5634.755469999999,
+      "languageServerRssMiB": {
+        "baseline": 196.8828125,
+        "final": 213.296875,
+        "samples": [
+          {
+            "cycle": 1,
+            "rssMiB": 251.609375
+          },
+          {
+            "cycle": 26,
+            "rssMiB": 211.015625
+          },
+          {
+            "cycle": 51,
+            "rssMiB": 211.75
+          },
+          {
+            "cycle": 76,
+            "rssMiB": 212.515625
+          },
+          {
+            "cycle": 100,
+            "rssMiB": 213.296875
+          }
+        ]
+      },
+      "timingsMs": {
+        "change": {
+          "p50": 29.393224000000373,
+          "p95": 32.57651699999951,
+          "max": 47.477248000000145
+        },
+        "betaCompletion": {
+          "p50": 2.38914399999976,
+          "p95": 3.891779999999926,
+          "max": 18.712396999999783
+        },
+        "betaHover": {
+          "p50": 1.83958900000016,
+          "p95": 3.173700000000281,
+          "max": 5.147774000000027
+        },
+        "betaDefinition": {
+          "p50": 2.5006289999992077,
+          "p95": 4.502789000000121,
+          "max": 6.48662000000013
+        },
+        "close": {
+          "p50": 4.059390999999778,
+          "p95": 5.698467000000164,
+          "max": 6.364533999999367
+        },
+        "alphaCompletion": {
+          "p50": 2.137395000000197,
+          "p95": 3.7446200000003955,
+          "max": 5.558792000000267
+        },
+        "alphaDefinition": {
+          "p50": 4.973148000000037,
+          "p95": 8.636460000000625,
+          "max": 10.52766100000008
+        }
+      },
+      "checkedResults": 500,
+      "staleResults": 0
+    }
+  ]
+}

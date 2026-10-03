@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-02",
+  "status": "implemented_and_verified",
+  "scope": "get_headers return contract",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "baseline": {
+    "semantic_failed": 4,
+    "actual": "array|false"
+  },
+  "verification": {
+    "language_spec": {
+      "passed": 168,
+      "files": 6
+    },
+    "semantic_focused": {
+      "passed": 4,
+      "versions": [
+        "7.2",
+        "7.4",
+        "8.1",
+        "8.5"
+      ]
+    },
+    "semantic_full": {
+      "passed": 1193,
+      "files": 54,
+      "duration_seconds": 50.9,
+      "exit_code": 0
+    },
+    "stdio": {
+      "passed": 2,
+      "versions": [
+        "7.2",
+        "8.5"
+      ],
+      "unsaved_updates": 8,
+      "disk_unchanged": true
+    },
+    "extension_host": {
+      "os": "linux",
+      "vscode": "1.140.0",
+      "unsaved_hover_updates": 4,
+      "disk_unchanged": true,
+      "exit_code": 0
+    },
+    "build": true,
+    "lint": true,
+    "extension_test_typecheck": true,
+    "runtime": [
+      {
+        "version": "7.2.34",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      },
+      {
+        "version": "7.4.33",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      },
+      {
+        "version": "8.1.34",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      },
+      {
+        "version": "8.2.32",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      },
+      {
+        "version": "8.4.23",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      },
+      {
+        "version": "8.5.9",
+        "indexed": [
+          "HTTP/1.1 200 OK",
+          "X-Repeat: one",
+          "X-Repeat: two",
+          "X-Single: value",
+          "Content-Length: 0",
+          "Connection: close",
+          "Date: Fri, 02 Oct 2026 14:46:48 GMT"
+        ],
+        "associative": {
+          "0": "HTTP/1.1 200 OK",
+          "X-Repeat": [
+            "one",
+            "two"
+          ],
+          "X-Single": "value",
+          "Content-Length": "0",
+          "Connection": "close",
+          "Date": "Fri, 02 Oct 2026 14:46:48 GMT"
+        },
+        "failure": false
+      }
+    ]
+  },
+  "not_verified": [
+    "full_stdio_current_build",
+    "windows_host",
+    "visible_hover_popup",
+    "real_wsl_ui"
+  ],
+  "packaged": false,
+  "profile_updated": false
+}

@@ -1,0 +1,83 @@
+{
+  "backgroundFiles": 10000,
+  "warmupQueriesPerCase": 8,
+  "measuredQueriesPerCase": 100,
+  "budgetP95Ms": 150,
+  "before": [
+    {
+      "name": "middle bracket single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 219.2679390000003,
+      "maxMs": 241.0782620000009,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle statement single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 220.073123999995,
+      "maxMs": 238.30556799999977,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle argument single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 209.2373630000002,
+      "maxMs": 306.21244699999806,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle nested double",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 214.19049300000188,
+      "maxMs": 272.7949879999942,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    }
+  ],
+  "after": [
+    {
+      "name": "middle bracket single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 13.610969000000296,
+      "maxMs": 53.4592990000001,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle statement single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 11.772092000000157,
+      "maxMs": 17.295522999999775,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle argument single",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 15.618281000000025,
+      "maxMs": 18.216631999999663,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    },
+    {
+      "name": "middle nested double",
+      "backgroundFiles": 10000,
+      "queries": 100,
+      "p95Ms": 12.62786000000051,
+      "maxMs": 17.73198400000001,
+      "wrongCandidates": 0,
+      "revisionChanged": false
+    }
+  ],
+  "scope": "semantic completion query, not visible popup latency"
+}

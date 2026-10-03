@@ -1,0 +1,187 @@
+{
+  "status": "passed",
+  "scope": [
+    "magic method modifiers",
+    "declaration comment masking",
+    "current completion regression"
+  ],
+  "frozen_inputs": {
+    "count": 2962,
+    "manifest": "/tmp/sophp-modifier-integration-inputs.json",
+    "released": true,
+    "interim_changes": 0,
+    "protocol_manifest": "/tmp/sophp-modifier-protocol-inputs.json",
+    "protocol_count": 2961,
+    "expected_nonprotocol_change": [
+      "test/extension/suite/c3.ts"
+    ],
+    "reason": "Independent host fixture correction; stdio does not import C3; server/build/shared fixtures unchanged",
+    "protocol_interim_changes": 0,
+    "protocol_terminal_changes": 0,
+    "original_manifest_terminal_known_changes": [
+      "test/extension/suite/c3.ts"
+    ]
+  },
+  "full_stdio": {
+    "original_session": 25202,
+    "status": "interrupted",
+    "selected_files": 26,
+    "log": "/tmp/sophp-modifier-integration-stdio.log",
+    "reference_bundle": "/var/www/node/php-companion/dist/language-server.js",
+    "exit_code": null,
+    "reason": "Original tool handle and kernel process absent; log has no terminal test summary",
+    "recovered_run": {
+      "original_session": 56745,
+      "status": "terminal",
+      "log": "/tmp/sophp-modifier-recovered-stdio.log",
+      "pid_path": "/tmp/sophp-modifier-recovered-stdio.pid",
+      "exit_path": "/tmp/sophp-modifier-recovered-stdio.exit",
+      "shell_pid": 6222,
+      "exit_code": 0,
+      "passed": 496,
+      "files": 26,
+      "skipped": 0,
+      "duration_seconds": 1417.83
+    }
+  },
+  "c1_php81": {
+    "original_session": 61692,
+    "status": "terminal",
+    "log": "/tmp/sophp-current-c1-strict-prefix-8.1.log",
+    "exit_code": 0,
+    "func_refresh_ms": 133,
+    "visible_call_wait_ms": {
+      "samples": [
+        225,
+        217,
+        244,
+        236,
+        242,
+        244
+      ],
+      "median": 239,
+      "max": 244
+    }
+  },
+  "full_c2": {
+    "original_session": 59600,
+    "status": "terminal",
+    "subset": false,
+    "log": "/tmp/sophp-modifier-integration-c2.log",
+    "vscode": "1.140.0",
+    "php": "8.5",
+    "exit_code": 0,
+    "proof_lines": 65
+  },
+  "real_wsl_acceptance": "not_run",
+  "profile_updated": false,
+  "packaged": false,
+  "project_modifier_benchmark": {
+    "status": "passed",
+    "original_session": 82979,
+    "exit_code": 0,
+    "log": "/tmp/sophp-modifier-project-completion.json",
+    "result": {
+      "root": "/var/www/php/8.5/winstar2024",
+      "file": "/var/www/php/8.5/winstar2024/src/Config/app.php",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": true,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 41.98,
+      "all": {
+        "p50Ms": 2.94,
+        "p95Ms": 5.09,
+        "maxMs": 41.98
+      },
+      "a": {
+        "fragment": "class ModifierBenchmark { public function __con",
+        "expected": "__construct",
+        "p50Ms": 2.98,
+        "p95Ms": 5.41,
+        "maxMs": 41.98,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "class ModifierBenchmark { public static function __con",
+        "expected": "-",
+        "p50Ms": 2.9,
+        "p95Ms": 5.07,
+        "maxMs": 12.05,
+        "incomplete": 0
+      },
+      "readOnly": true
+    }
+  },
+  "c3": {
+    "original_session": 15950,
+    "status": "interrupted",
+    "mode": "standard Core/Symfony source development host; not ten-extension installed Profile",
+    "log": "/tmp/sophp-modifier-integration-c3.log",
+    "exit_code": null,
+    "reason": "Original tool handle and kernel process absent; log has no terminal test summary",
+    "recovered_run": {
+      "original_session": 86784,
+      "status": "terminal_failed",
+      "log": "/tmp/sophp-modifier-recovered-c3.log",
+      "pid_path": "/tmp/sophp-modifier-recovered-c3.pid",
+      "exit_path": "/tmp/sophp-modifier-recovered-c3.exit",
+      "shell_pid": 6221,
+      "exit_code": 1,
+      "failure": "Add Parameter changed the stale editor; actual buffer only contains injected external disk comment"
+    },
+    "followup_probe": {
+      "original_session": 57712,
+      "status": "terminal_failed_during_fixture_reset",
+      "log": "/tmp/sophp-add-parameter-reload-proof.log",
+      "scope": "Clean and dirty buffers after external disk changes, normal apply and Undo/Redo",
+      "exit_code": 1,
+      "reason": "File Modified Since while restoring temporary test file"
+    },
+    "followup_revert_probe": {
+      "original_session": 22798,
+      "status": "terminal",
+      "exit_code": 0,
+      "report": "docs/php-language-toolchain/reports/c3-add-parameter-disk-reload-2026-10-03.md",
+      "formal_fixture_fix_pending": true
+    },
+    "formal_fixture_verification": {
+      "original_session": 54741,
+      "status": "terminal_failed",
+      "log": "/tmp/sophp-c3-dirty-buffer-verification.log",
+      "exit_code": 1,
+      "reason": "Closed TextEditor test handle after cancelling preview"
+    },
+    "current_formal_verification": {
+      "original_session": 58493,
+      "status": "terminal",
+      "log": "/tmp/sophp-c3-dirty-buffer-current.log",
+      "exit_code": 0,
+      "proof_lines": 68,
+      "terminal_c3_input_changes": 0
+    }
+  },
+  "current_restart": {
+    "original_session": 7269,
+    "status": "terminal",
+    "log": "/tmp/sophp-current-completion-restart.log",
+    "proof": "/tmp/sophp-current-completion-restart.json",
+    "exit_path": "/tmp/sophp-current-completion-restart.exit",
+    "scope": "Linux Core-only owned Language Server crash/restart with unsaved buffer",
+    "exit_code": 0,
+    "result": {
+      "beforePid": 43830,
+      "afterPid": 43983,
+      "platform": "linux",
+      "node": "v24.21.0",
+      "unsavedPreserved": true,
+      "diskPreserved": true,
+      "betaDefinitionCount": 1,
+      "postRestartEditing": true
+    },
+    "protocol_input_changes": 0
+  },
+  "full_current_core_c3_passed": true,
+  "scope_note": "Current product integration passed; known independent C3 fixture source correction separated from protocol source/build inputs; manual WSL and overall roadmap not complete"
+}

@@ -1,0 +1,453 @@
+{
+  "date": "2026-10-02",
+  "status": "targeted_product_gates_passed",
+  "upstreamRevision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "inputs": {
+    "packages/language-spec/src/standard-utilities.ts": "134a5ace0ab8699d8b8b3422d81e4cedd547d5ba18a296300e77c770eaf68555",
+    "packages/language-spec/dist/standard-utilities.js": "c65a394a048148ef0742441878b78afd05f5ff4466f79b116c310dd8a116e1b8",
+    "packages/language-spec/test/image-size-contract.test.ts": "ce306e594a4395c9da32c1320325d60a2f9203de0e388c1473d2c330c57d7826",
+    "packages/semantic/test/image-size-contract.test.ts": "ffd47a804c255b42e50a85544757a65d7b00aacc5aee104f6773e52b2ab2472a",
+    "packages/language-server/test/image-size-stdio.test.ts": "e877b7ff04044a9ba14570bd7fa5f8fca7fa591bf4cd2d40a99c5853a1192e42",
+    "test/extension/suite/imageSizeCompletion.ts": "26596b30883a43020219179767fbef734a26a2968855a104f5c050f6611f784c",
+    "scripts/check-image-size-runtime.mjs": "869f997c12500b23d0c9039f578587df67ba58554d0d14b3b824d7f56a502efc",
+    "dist/extension.js": "4eb67bcf77c973509b80ea3b1ba9df5dff7b47bd8d7a2633f3d85a844c9c8bd0",
+    "dist/language-server.js": "d625be623f09ab745865249ea748e04e60d0aa18b58bbbc7b816a4a6a51b3133"
+  },
+  "officialSources": {
+    "8.5.0": {
+      "url": "https://raw.githubusercontent.com/php/php-src/php-8.5.0/ext/standard/image.c",
+      "sha256": "7c888846de6467f3594bb502c11a6dc81c8c6faf65c17bb22475022fb71b7022",
+      "unitFields": true,
+      "conditionalAttribute": true
+    },
+    "8.4.0": {
+      "url": "https://raw.githubusercontent.com/php/php-src/php-8.4.0/ext/standard/image.c",
+      "sha256": "8ccfa85c9af7d2e58d01c58c3e57732bbf1693a494de047ad7e397614051b179",
+      "unitFields": false,
+      "conditionalAttribute": false
+    }
+  },
+  "runtimes": [
+    {
+      "version": "7.2.34",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "7.4.33",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "8.1.34",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "8.2.32",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "8.4.23",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "8.5.9",
+      "os": "Linux",
+      "gdLoaded": true,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png",
+            "width_unit": "px",
+            "height_unit": "px"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png",
+            "width_unit": "px",
+            "height_unit": "px"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif",
+            "width_unit": "px",
+            "height_unit": "px"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif",
+            "width_unit": "px",
+            "height_unit": "px"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    },
+    {
+      "version": "8.5.11",
+      "os": "WINNT",
+      "gdLoaded": false,
+      "results": {
+        "png": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png",
+            "width_unit": "px",
+            "height_unit": "px"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 3,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 8,
+            "mime": "image/png",
+            "width_unit": "px",
+            "height_unit": "px"
+          }
+        },
+        "gif": {
+          "file": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif",
+            "width_unit": "px",
+            "height_unit": "px"
+          },
+          "string": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": "width=\"1\" height=\"1\"",
+            "bits": 1,
+            "channels": 3,
+            "mime": "image/gif",
+            "width_unit": "px",
+            "height_unit": "px"
+          }
+        },
+        "invalid": {
+          "file": false,
+          "string": false
+        }
+      }
+    }
+  ],
+  "tests": {
+    "before": {
+      "failed": 2,
+      "log": "/tmp/sophp-stubs-image-size-before.log"
+    },
+    "spec": {
+      "passed": 144,
+      "skipped": 0,
+      "durationSeconds": 14.2,
+      "log": "/tmp/sophp-stubs-image-size-spec.log"
+    },
+    "relatedSemantic": {
+      "passed": 11,
+      "files": 4,
+      "skipped": 0,
+      "durationSeconds": 8.18,
+      "log": "/tmp/sophp-stubs-image-size-related-semantic-final.log"
+    },
+    "lsp": {
+      "passed": 2,
+      "skipped": 0,
+      "durationSeconds": 6.02,
+      "log": "/tmp/sophp-stubs-image-size-lsp-final.log"
+    },
+    "host": {
+      "exitCode": 0,
+      "proof": {
+        "platform": "linux",
+        "results": [
+          {
+            "name": "getimagesize",
+            "guardedKeys": true,
+            "unguardedWithdrawsKeys": true,
+            "arrayGuardRestoresKeys": true,
+            "diskUnchanged": true
+          },
+          {
+            "name": "getimagesizefromstring",
+            "guardedKeys": true,
+            "unguardedWithdrawsKeys": true,
+            "arrayGuardRestoresKeys": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      "log": "/tmp/sophp-stubs-image-size-host.log"
+    },
+    "lint": "passed",
+    "extensionTypecheck": "passed",
+    "specBuild": "passed",
+    "coreBuild": "passed"
+  },
+  "fixtureCorrections": [
+    "Explicit node:buffer import for ESLint",
+    "Initial root-bundle protocol harness omitted parser WASM flags; corrected to actual client invocation"
+  ],
+  "limits": [
+    "Current full semantic and complete stdio were not rerun",
+    "Linux isolated editor host only; Windows runtime is CLI evidence",
+    "No visible WSL manual UI acceptance",
+    "No package, git commit, push, or Profile update"
+  ]
+}

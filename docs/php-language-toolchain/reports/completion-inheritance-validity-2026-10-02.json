@@ -1,0 +1,70 @@
+{
+  "status": "scoped_gates_passed",
+  "source_sha256": {
+    "packages/semantic/src/index.ts": "140181153c583bb26d0f42feb808b969d3be8b3c27b528c7dfe6bc0df59ae56b",
+    "packages/semantic/test/inheritance-validity-completion.test.ts": "0bf5d174c6bcb57e8191563b5f2f2304e2a653292e76bcc658e62ee7877fcbe4",
+    "packages/language-server/test/inheritance-validity-stdio.test.ts": "78f4ab48fc1238c9ccf3dff9ef613de0797cd0f0c6dafaac03e47ee4a0c66744",
+    "test/extension/suite/inheritanceValidityAcceptance.ts": "d0e392491a857572d043cece7f6e667ca1525b7e2ece7cef595d88bb980b071d"
+  },
+  "semantic_baseline": {
+    "passed": 1,
+    "failed": 6
+  },
+  "semantic_full": {
+    "passed": 1171,
+    "files": 50,
+    "log": "/tmp/sophp-inheritance-validity-full-semantic-final.log"
+  },
+  "focused": 29,
+  "stdio": {
+    "passed": 6,
+    "seconds": 5.83,
+    "log": "/tmp/sophp-inheritance-validity-lsp-final.log"
+  },
+  "visible_host": {
+    "accepted": 8,
+    "exit_code": 0,
+    "platform": "linux",
+    "log": "/tmp/sophp-inheritance-validity-host-final.log"
+  },
+  "performance": {
+    "root": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz",
+    "file": "/tmp/sophp-inheritance-validity-latency-dsyg_vhz/Base.php",
+    "rounds": 200,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 258.61,
+    "all": {
+      "p50Ms": 39.55,
+      "p95Ms": 57.34,
+      "maxMs": 258.61
+    },
+    "a": {
+      "fragment": "class Child extends /* parent */ Base{{cursor}} {}",
+      "expected": "BaseMutable",
+      "p50Ms": 40.14,
+      "p95Ms": 66.68,
+      "maxMs": 258.61,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "readonly class Child extends /* parent */ Base{{cursor}} {}",
+      "expected": "BaseReadonly",
+      "p50Ms": 38.53,
+      "p95Ms": 54.47,
+      "maxMs": 68.41,
+      "incomplete": 0
+    },
+    "readOnly": true
+  },
+  "packaged": false,
+  "profile_updated": false,
+  "limitations": [
+    "No current complete stdio collection",
+    "No Windows host",
+    "No real WSL user acceptance",
+    "Initial query 258.61 ms"
+  ]
+}

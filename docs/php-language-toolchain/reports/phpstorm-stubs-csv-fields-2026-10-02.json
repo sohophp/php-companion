@@ -1,0 +1,273 @@
+{
+  "date": "2026-10-02",
+  "status": "source_applied_semantic_stdio_and_linux_host_passed",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "upstream_files": [
+    "standard/standard_6.php",
+    "SPL/SPL_c1.php"
+  ],
+  "baseline": [
+    {
+      "version": "7.2",
+      "type": "list<string>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": "false|int"
+    },
+    {
+      "version": "7.2",
+      "type": "list<string>",
+      "expression": "$file->fputcsv($fields)",
+      "result": "false|int"
+    },
+    {
+      "version": "7.2",
+      "type": "list<int|bool>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "7.2",
+      "type": "list<int|bool>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    },
+    {
+      "version": "7.2",
+      "type": "array<string, string>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "7.2",
+      "type": "array<string, string>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    },
+    {
+      "version": "7.2",
+      "type": "array<string, mixed>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "7.2",
+      "type": "array<string, mixed>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "list<string>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": "false|int"
+    },
+    {
+      "version": "8.5",
+      "type": "list<string>",
+      "expression": "$file->fputcsv($fields)",
+      "result": "false|int"
+    },
+    {
+      "version": "8.5",
+      "type": "list<int|bool>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "list<int|bool>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "array<string, string>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "array<string, string>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "array<string, mixed>",
+      "expression": "fputcsv($stream, $fields)",
+      "result": null
+    },
+    {
+      "version": "8.5",
+      "type": "array<string, mixed>",
+      "expression": "$file->fputcsv($fields)",
+      "result": null
+    }
+  ],
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    },
+    {
+      "version": "7.4.33",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    },
+    {
+      "version": "8.1.34",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    },
+    {
+      "version": "8.2.32",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    },
+    {
+      "version": "8.4.23",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    },
+    {
+      "version": "8.5.9",
+      "global": 23,
+      "method": 23,
+      "globalText": "alpha,12,1.5,1,,object\n",
+      "methodText": "alpha,12,1.5,1,,object\n"
+    }
+  ],
+  "semantic_full": {
+    "passed": 1221,
+    "files": 61,
+    "duration_seconds": 54.39,
+    "exit_code": 0,
+    "log": "/tmp/sophp-csv-fields-semantic-full.log"
+  },
+  "spec_full": {
+    "passed": 213,
+    "files": 11,
+    "exit_code": 0,
+    "log": "/tmp/sophp-csv-fields-spec-full-final.log",
+    "duration_seconds": 13.84
+  },
+  "targeted_stdio": {
+    "passed": 4,
+    "files": 2,
+    "duration_seconds": 5.91,
+    "csv_queries": 24,
+    "php_versions": [
+      "7.2",
+      "8.5"
+    ],
+    "exit_code": 0,
+    "log": "/tmp/sophp-csv-fields-stdio.log"
+  },
+  "linux_host": {
+    "status": "terminal",
+    "session_id": 64245,
+    "exit_code": 0,
+    "php_version": "8.5",
+    "vscode_version": "1.140.0",
+    "unsaved_updates": 12,
+    "scalar_retractions": 2,
+    "disk_unchanged": true,
+    "proof": {
+      "platform": "linux",
+      "results": [
+        {
+          "method": false,
+          "variant": "list",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": false,
+          "variant": "associated",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": false,
+          "variant": "boolean",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": false,
+          "variant": "mixed",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": false,
+          "variant": "scalar",
+          "typed": false,
+          "matched": true
+        },
+        {
+          "method": false,
+          "variant": "list",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "list",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "associated",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "boolean",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "mixed",
+          "typed": true,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "scalar",
+          "typed": false,
+          "matched": true
+        },
+        {
+          "method": true,
+          "variant": "list",
+          "typed": true,
+          "matched": true
+        }
+      ],
+      "diskUnchanged": true
+    },
+    "log": "/tmp/sophp-csv-fields-host.log"
+  },
+  "build_exit_code": 0,
+  "lint_exit_code": 0,
+  "real_wsl_ui_verified": false,
+  "profile_updated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false
+}

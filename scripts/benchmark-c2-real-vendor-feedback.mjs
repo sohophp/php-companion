@@ -12,11 +12,13 @@ const parameters = process.argv.slice(2).filter((value) => value !== '--');
 const rounds = Number(parameters[0] ?? 100);
 const noiseFiles = Number(parameters[1] ?? 9100);
 const scenario = parameters[2] ?? 'scalar';
+const persistentCache = process.env.SOPHP_C2_PERSISTENT_CACHE === '1';
 if (!Number.isSafeInteger(rounds) || rounds < 1 || rounds > 1000
   || !Number.isSafeInteger(noiseFiles) || noiseFiles < 0 || noiseFiles > 20_000
   || !['scalar', 'shape'].includes(scenario)) {
   throw new Error('Usage: benchmark-c2-real-vendor-feedback.mjs [rounds: 1..1000] [noise PHP files: 0..20000] [scalar|shape]');
 }
+if (persistentCache && scenario !== 'shape') throw new Error('Persistent cache recovery currently requires the shape scenario.');
 
 const positionAt = (source, offset) => {
   const lines = source.slice(0, offset).split('\n');
@@ -100,6 +102,7 @@ function acceptShapeInt(int $value): void {}
 function inspectShape(): void { $row = chooseShape(); $item = $row['item']; $item->common(); acceptShapeInt($item); }
 `;
 const root = await mkdtemp(join(tmpdir(), 'sophp-c2-real-vendor-'));
+const cacheDirectory = persistentCache ? join(root, '.session-cache') : undefined;
 let server;
 try {
   const fixture = resolve('test/extension/real-vendor');
@@ -124,7 +127,7 @@ try {
   await writeFile(join(root, 'src', 'Consumer.php'), consumerText);
   server = startServer();
   await server.request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-    initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true,
+    initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand', versionedDiagnostics: true, cacheDirectory,
       testMode: true, testPauseNextQueries: scenario === 'shape' ? ['hover', 'completion'] : ['hover'] } });
   server.send({ method: 'initialized', params: {} });
   for (const [uri, text] of [[serviceUri, initialSource], [consumerUri, consumerText]]) {
@@ -264,8 +267,59 @@ try {
     await feedback(true);
     await completion(true);
     await server.stop(); server = undefined;
+    const persistentRecovery = [];
+    if (persistentCache) {
+      let cacheFiles = [];
+      // The edited declaration stayed open during the loop, so its facts may
+      // never have entered the persistent cache. Seed it from disk in a
+      // separate cold process rather than calling an in-memory result a hit.
+      for (const phase of ['cold', 'warm', 'corrupt']) {
+        if (phase === 'corrupt') {
+          // These are owned temporary cache files. Never mutate fixture/vendor
+          // sources or an installed user's cache during failure injection.
+          for (const name of cacheFiles) await writeFile(join(cacheDirectory, name), '{broken-cache');
+        }
+        server = startServer(); const restartAt = performance.now();
+        await server.request('initialize', { processId: null, capabilities: { window: { workDoneProgress: true } }, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { phpVersion: '8.5', indexingMode: 'progressive', versionedDiagnostics: true, cacheDirectory } });
+        server.send({ method: 'initialized', params: {} });
+        await server.waitFor(message => message.method === '$/progress' && message.params.value.kind === 'end', 0, 100_000);
+        server.send({ method: 'textDocument/didOpen', params: { textDocument: {
+          uri: consumerUri, languageId: 'php', version: 1, text: consumerText,
+        } } });
+        // Resolve the declaration from disk without opening it in this process.
+        const declaration = await server.request('textDocument/definition', { textDocument: { uri: consumerUri },
+          position: positionAt(consumerText, consumerText.indexOf('chooseShape()') + 2) });
+        if (!Array.isArray(declaration.result) || declaration.result.length !== 1 || declaration.result[0].uri !== serviceUri) {
+          throw new Error(`Restart did not resolve chooseShape: ${JSON.stringify(declaration.result)}`);
+        }
+        await server.waitFor(message => mismatch(message, true));
+        const result = await feedback(true); await completion(true);
+        const logMessages = server.messages.filter(message => message.method === 'window/logMessage').map(message => message.params.message);
+        const hits = logMessages.flatMap(message => /\[named-candidates\].*cached=(\d+)/u.exec(message)?.[1] ?? [])
+          .reduce((sum, count) => sum + Number(count), 0);
+        const indexHits = logMessages.flatMap(message => /Indexed \d+ PHP files \(\d+ bytes, (\d+) cached\)/u.exec(message)?.[1] ?? [])
+          .reduce((sum, count) => sum + Number(count), 0);
+        if (phase === 'warm' && indexHits < 1) throw new Error('Warm restart did not reuse any persistent cache entries.');
+        if (phase === 'corrupt' && !logMessages.some(message => /cache was unreadable/u.test(message))) {
+          throw new Error('Corrupt cache recovery did not report the rejected cache.');
+        }
+        persistentRecovery.push({ phase, cacheFilesAtStart: cacheFiles.length, indexingMode: 'progressive', cachedCandidates: hits, indexHits,
+          elapsedMs: performance.now() - restartAt, ...result });
+        await server.stop(); server = undefined;
+        if (phase === 'cold') {
+          cacheFiles = (await readdir(cacheDirectory)).filter(name => name.endsWith('.json'));
+          if (!cacheFiles.length) throw new Error('The cold process did not persist cache files.');
+        }
+      }
+      if (await readFile(join(root, 'src', 'Service.php'), 'utf8') !== shapeSource(true)
+        || await readFile(join(root, 'src', 'Consumer.php'), 'utf8') !== consumerText) {
+        throw new Error('Persistent recovery changed fixture source bytes.');
+      }
+    }
     process.stdout.write(`${JSON.stringify({ schema: 1, scenario, rounds, noiseFiles, vendorPhpFiles,
       projectPhpFiles: vendorPhpFiles + noiseFiles + 2, indexingMode: 'onDemand', cancelledHoverReturnedNull: true,
+      persistentCache, persistentRecovery,
       elapsedMs: performance.now() - started, timingsMs: Object.fromEntries(Object.entries(timings)
         .map(([name, values]) => [name, summary(values)])), rssSamples,
       recovery: { closeRestoredDisk: true, watcherRoundTrip: true, sameVersionReopen: true,

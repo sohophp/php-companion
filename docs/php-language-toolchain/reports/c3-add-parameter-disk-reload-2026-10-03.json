@@ -1,0 +1,56 @@
+{
+  "status": "formal_fixture_fixed_full_host_passed",
+  "original_full_c3_session": 86784,
+  "original_full_c3_exit": 1,
+  "focused_session": 22798,
+  "focused_exit": 0,
+  "proof": {
+    "clean": {
+      "dirtyBefore": false,
+      "result": false,
+      "preview": false,
+      "cleanBufferAutoReloaded": true
+    },
+    "dirty": {
+      "dirtyBefore": true,
+      "result": false,
+      "preview": false,
+      "cleanBufferAutoReloaded": false
+    },
+    "normalApply": true,
+    "undoRedo": true
+  },
+  "patch": "/tmp/sophp-c3-dirty-buffer-fixture.patch",
+  "patch_applied": true,
+  "product_inputs_changed": [],
+  "product_source_changed": false,
+  "full_c3_passed": true,
+  "formal_c3": {
+    "original_session": 54741,
+    "status": "terminal_failed",
+    "log": "/tmp/sophp-c3-dirty-buffer-verification.log",
+    "exit_path": "/tmp/sophp-c3-dirty-buffer-verification.exit",
+    "input_manifest": "/tmp/sophp-c3-dirty-buffer-verification-inputs.json",
+    "compile": "isolated esbuild; original dist-test unchanged",
+    "exit_code": 1,
+    "reason": "Fixture retained TextEditor handle that closed when cancel preview changed the editor"
+  },
+  "current_formal_c3": {
+    "original_session": 58493,
+    "status": "terminal",
+    "log": "/tmp/sophp-c3-dirty-buffer-current.log",
+    "exit_path": "/tmp/sophp-c3-dirty-buffer-current.exit",
+    "input_manifest": "/tmp/sophp-c3-dirty-buffer-current-inputs.json",
+    "exit_code": 0,
+    "proof_lines": 68,
+    "terminal_input_changes": 0
+  },
+  "typecheck": {
+    "original_session": 20830,
+    "exit_code": 0
+  },
+  "lint": {
+    "original_session": 1986,
+    "exit_code": 0
+  }
+}

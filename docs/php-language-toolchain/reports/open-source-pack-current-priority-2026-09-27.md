@@ -1,12 +1,100 @@
 # Open Source Pack 整理与 SoPHP Core 起点
 
+2026-10-02 默认组合复验：[当前源码 Pack 工作流](open-source-pack-current-workflow-2026-10-02.md)实际导航、格式化与 Undo、EditorConfig、调试启动退出和 PHPUnit CLI 均通过，八项输入前后一致，固定外部版本已核对。实际组合含额外 Apache 依赖；本机源码默认工作流复验缺口关闭，真实 WSL／跨平台／数小时实际使用仍开放。未打包或更新 Profile。
+
+2026-10-02 当前补全集成：[完整 stdio 431/431](completion-current-integration-2026-10-02.md)已通过、零跳过、48 项终态输入一致，关闭下文 R49／R50 当时未全跑的集成缺口。独立 vendor 宿主 1,000 轮／6,000 次查询，以及两版本 Core 和 Pack 模板 Enter／Tab 接受也已通过。真实 WSL、数小时使用和完整冻结组合仍单列；未打包或更新 Profile，不继续扩展已通过的数组输入排列。
+
+2026-10-02 词中数组字面量：[R50](c2-word-middle-array-literals-2026-10-02.md)关闭引号缺失时，恢复范围现包含光标右侧同一字面量的有界后缀，接受建议不留下重复文字或覆盖原箭头。32 个同输入对照全部正确，新共享 40 项、定向语义 88 项、本轮完整语义 1115 项、最终四项两版定向协议、完整 C2 及两版 C1 共 96 次相关可见列表／精确 Tab／Undo/Redo 通过；10k 文件 1600 查询 P95 11.14–44.44 ms，48 项终态一致。完整语义后仅有等价正则转义清理，最终协议及宿主已单列证明；未重跑完整 431 协议，未打包或更新 Profile。
+
+2026-10-02 数组键接受文本：[R49](c2-existing-array-arrow-completion-2026-10-02.md)已修复未闭合键引号时覆盖原 `=>` 的问题，并阻止非法恢复回落到不安全范围。共享 24 项、全量语义 1075/1075、四项两版定向 LSP、完整 C2 及两版 C1 共 32 次目标可见列表／精确 Tab／Undo/Redo 通过；10k 文件 800 查询 P95 11.56–23.04 ms，45 项终态一致。修复前 [R48](c2-cached-array-literal-completion-2026-10-02.md)完整 429/429、零跳过及 42 项终态一致已通过，另有跨文件缓存契约 16 项；本批当前协议只报告四项定向，不冒充完整 431 项。未打包或更新 Profile。
+
+2026-10-02 中间数组创建补全：[R47](c2-middle-array-literal-completion-2026-10-02.md)关闭已复现的八个缺口。新语义 24 项及当前完整 1051/1051、两版定向 LSP、完整 Core C2、两版 C1 可见列表与精确 Tab／Undo/Redo 通过；64 次目标弹窗等待 111–173 ms。10k 文件 800 查询 P95 18.51–45.54 ms，42 项终态一致。本轮未重跑完整 429 协议，R44 是修复前的历史结果；真实 WSL 与候选安装单列，未打包或更新 Profile。
+
+2026-10-02 缓存与完整集成：[R46 缓存数组读取恢复](c2-cached-array-recovery-2026-10-02.md)四种加载模式 × 三种跨文件来源共 12 项语义与 Lint 通过，原消费快照和源码不变，后台完整事实与 eager 相等；声明源码的正常按需体加载可推进 revision，已单列。R44 正式完整 stdio 429/429、零跳过、1345.15 秒通过，40 项产品和 R45 工具终态一致。下一项已固定八个中间创建数组键／值缺口：EOF 正例正确，有后续源码时为空；按原专项补齐，不新增功能范围。未打包或更新 Profile。
+
+2026-10-02 补全重启验证：[R45 未保存缓冲区恢复](c4-unsaved-completion-restart-2026-10-02.md)在真实 Linux Core-only Extension Host 中注入一次服务器崩溃，核对不同 PID 后取得未保存 Beta 补全及准确 Definition，缓冲区保持 dirty、磁盘仍为 Alpha，继续编辑可恢复 Alpha。正式独立宿主、Lint、宿主类型检查和原 40 项输入一致通过。默认 Core-only 宿主的提前返回已单列，未冒充重启测试。产品不变，R44 完整 429 项仍运行，真实 WSL／其它平台／长会话仍单列；未打包或更新 Profile。
+
+2026-10-02 C2 异步补全修复：[R44 路由同版本重开](c2-route-reopen-completion-2026-10-02.md)已应用两个身份守卫；12 个名称／路径参数失败已修复，六个原本正确的 Definition 保留。正式 18 项协议、十项既有 stdio、可见 Route Status 宿主和 40 项终态一致通过。修复前 R42 完整 428 项加 bundle 条件补跑 1 项覆盖原 429 集合；新守卫的完整集成另行核对，不冒充已跑。未打包或更新 Profile。
+
+2026-10-02 C2 取消验证：[R43 正在执行的补全请求](c2-completion-cancellation-2026-10-02.md)在 PHP 7.2／8.5 与三种索引模式下，实际标准取消通知使已暂停请求返回空，后续请求仍返回正确成员；六个独立真实 LSP 场景和脚本 ESLint 通过。产品输入 38 项不变，本批不计入正在运行的完整 429 项 stdio。没有新增生产设置或修改产品实现，未打包或更新 Profile。
+
+2026-10-02 C2 性能修复：[R42 补全恢复查询索引成本](c2-recovery-index-performance-2026-10-02.md)已应用；公开查询副本保留完整索引，私有恢复副本保留项目事实且不重建无关背景索引。相同 10,000 文件、400 次正式测量，P95 从 209–220 ms 降至 11.77–15.62 ms，150 ms 预算通过，候选和 revision 保持。全量语义 1015/1015、六项定向真实 stdio、完整 Core C2、两 PHP 版本 76 次可见数组读取／精确 Tab／Undo/Redo 与 38 项终态一致通过。R41 的规模性能缺口已由本批关闭；完整 429 项协议集成与真实 WSL 人工验收仍单列。未打包或更新 Profile。
+
+2026-10-02 C2 最新增量：[R41 文件中间的未闭合数组读取](c2-middle-array-access-completion-2026-10-02.md)已应用，25 项新增语义、全量 1014/1014、六项真实 stdio、完整 Core C2 与 PHP 7.2／8.5 共 76 次可见列表／精确 Tab 全文／Undo/Redo 通过；后续语句和括号不被覆盖，38 项终态输入一致。2,300 文件热查询最差 P95 32.38 ms；10,000 文件正式基线 400 次、P95 209–220 ms，规模预算未通过，下一步优先优化查询副本的索引复制，不放宽 150 ms。未重跑全部 429 stdio，未打包或更新 Profile。
+
+2026-10-02 C3 原快照阻塞已修复：[有界文档数量](c3-document-snapshot-capacity-2026-10-02.md)用实际 133 份／32,605 字符输入确认 128 份上限导致事件引用撤回；语义 Provider 的数量合同统一为 512，字符容量不变。契约 14 项、Provider／宿主 41 项、八项真实 stdio 与实际新 Core／Symfony 完整 C3 组合通过，未保存 dispatch 与 Undo 撤回正确，37 项终态输入一致。两次旧 Symfony 构建失败及包名错误证据保留；当前完整 429 stdio 未重跑，真实 WSL 与路线图其它范围仍开放。未打包或更新 Profile。
+
+2026-10-02 最新 C2 增量：[R39 已知数组读取键](c2-array-access-completion-2026-10-02.md)已应用，产品语义 989/989、四项定向 LSP、完整 Core C2 与 PHP 7.2／8.5 共 48 次可见列表、精确 Tab 全文及 Undo/Redo 通过；支持已知局部／参数／返回／嵌套形状，动态绑定和未知调用撤回，读取键不插入 `=>`。热查询最差 P95 32.61 ms，三十项终态输入一致。本批没有重跑全部 427 项 stdio；前批 R38 完整 425/425 是其自身源码证据。未打包或更新 Profile。
+
+2026-10-02 最新 C2 增量：[R38 字符串键和值前缀](c2-quoted-prefix-completion-2026-10-02.md)已应用，产品语义 910/910、PHPDoc 21/21、六项定向 LSP 与 PHP 7.2／8.5 共 32 次可见列表、精确 Tab 全文及 Undo/Redo 通过；转义键名、标点／中文和美元符号不改变接受文本含义。热查询最差 P95 1.84 ms；完整 Core C2 已通过，二十七项宿主终态输入一致；完整 425/425 stdio 已通过、零跳过、1323.76 秒，二十七项终态一致。未打包或更新 Profile。
+
+2026-10-02 最新 C2 增量：[R37 未闭合数组键和值补全](c2-unfinished-shape-completion-2026-10-02.md)已应用，主产品语义 852/852、六项定向 LSP、完整 Core C2 与 PHP 7.2／8.5 共 32 次可见列表、精确 Tab 文本及 Undo/Redo 通过；临时括号不进入文件。完整 423/423 stdio 已通过、零跳过、1325.31 秒，十九项终态输入一致；前批 R36 完整 421/421、零跳过、十六项终态一致已确认，不能替代本批。标点与转义前缀、真实 WSL 与完整 C3 Symfony 快照问题仍开放；未打包或更新 Profile。
+
+2026-10-02 最新 C2 增量：[R36 联合数组形状共有键和值](c2-union-shape-completion-2026-10-02.md)已应用，产品语义 794/794、四项定向 LSP、完整 Core C2 与 PHP 8.5 可见列表／Tab／Undo/Redo 通过。PHP 7.2 可见列表／Tab／Undo/Redo 也已通过，完整 421 stdio 已通过、零跳过，十六项终态输入一致，十六项输入冻结。前批 [局部提取集中集成](c3-local-extraction-batch-integration-2026-10-02.md)完整 stdio 419/419、零跳过、十三项终态一致已确认；该结果不替代 R36。本批仍保留未闭合引号恢复与完整 C3 Symfony 快照问题，未打包或更新 Profile。
+
+2026-10-02 前批 C3 增量：[连续赋值加末尾 return](c3-extract-method-local-returns-2026-10-02.md)已应用，当时产品语义 767/767、四项定向 LSP、编译与静态检查通过，独立编辑器七场景预览／Undo/Redo 全通过、十项输入终态一致。后续完整 stdio 419/419 与十三项输入终态一致已确认。完整组合的 Symfony 快照边界仍开放，停止重复清理尝试；未打包或更新 Profile。
+
+2026-10-02 当前 C3 增量：[连续赋值与临时变量](c3-extract-method-local-chains-2026-10-02.md)已在完整协议 415/415 终态之后应用；产品语义 749/749、两项定向 LSP、编译与静态检查通过。单输出／捕获输出预览和一次 Undo/Redo 通过；完整组合因 Symfony 未保存 dispatch References 漏项失败；两种资源清理均失败并停止重试，七个独立提取场景通过；当前完整 stdio 417 未再全跑，未打包或更新 Profile。
+
 日期：2026-09-27。本文是当前执行入口；历史报告保留当时的候选与测试结果。只核对 SoPHP 仓库和独立 Composer 夹具，不修改业务项目。
+
+交付顺序已收紧为[稳定版优先的执行计划](../stability-first-delivery.md)：先冻结可用范围并完成真实安装验收，再改善高频体验，最后关闭 R4 全部范围。[最新候选门禁](stability-first-candidate-gate-2026-09-27.md)已通过源码、24 个组件包、完整 10 项 Pack 与 C3 打包宿主；真实 WSL 编辑器和新源码的跨平台 CI 仍待验收。
+
+## 2026-10-02 当前源码状态
+
+当前 [C3 分支输出列表](c3-extract-method-branch-output-lists-2026-10-02.md)：完整语义 722/722、两项定向 LSP 和 PHP 7.2／8.1／8.5 共 48 个实际路径通过；支持每分支 2–32 个必有独立输出，保留所有拒绝边界。标准组合 C3 宿主通过，新增三／四输出预览与一次 Undo/Redo 通过，八项输入终态一致；完整 415 项后续已通过（零跳过），未打包或更新 Profile。
+
+当前 [R35 分支数组形状](c2-branch-shape-completion-2026-10-02.md)：709/709 语义、五项定向 LSP、Core C2 和 8.5 真实弹窗／Tab／Undo/Redo 通过；7.2 新弹窗 16 次、Tab／Undo/Redo 与 12 项终态输入一致通过，完整 413 项未再全跑。它在前批 [411/411 集成](c2-value-batch-integration-2026-10-02.md)与输入终态匹配后才应用，未打包或更新 Profile。
+
+当前 [R34 取值分支补全](c2-branch-value-completion-2026-10-02.md)：语义 675/675、13 项定向 LSP、完整 Core C2 及未保存编辑／Undo/Redo 通过；合并取值左侧允许 null，match 条件隔离外层结果合同。[R32–R34 集成](c2-value-batch-integration-2026-10-02.md)完整 stdio 411/411、零跳过，完整 C2/C3、三版本可见列表及 12 项输入终态一致，未打包或更新 Profile。
+
+当前 [R33 未完成声明成员补全](c2-trailing-callable-members-2026-10-02.md)：语义 658/658、八项定向 LSP、隔离 Core C2 与 Undo/Redo 通过；统一普通函数／方法和回调的末尾恢复，私有及静态 this 边界保持。当前完整 stdio 409 未全跑，R32/R33 下一批集中集成，未打包或更新 Profile。
+
+当前 [R32 回调候选说明](c2-callback-completion-details-2026-10-02.md)：语义 645/645、六项定向 LSP 与隔离 Core C2／Undo/Redo 通过；当前完整 stdio 407 未全跑。前批 [R30/R31 集成](c2-callback-batch-integration-2026-10-02.md)已完成，405 个独立 stdio 用例分完整运行及缓存补跑全部验证，C2/C3、Lint、三版本可见列表及终态输入一致。未打包或更新 Profile。
+
+最新 [R31 连续输入恢复](c2-trailing-callback-completion-2026-10-02.md)：语义 633/633、R30/R31 四项定向 LSP、隔离 Core C2 与 Undo/Redo 通过。完整 Core C2、标准组合 C3、Lint 和三版本可见列表通过；完整 stdio 404 通过／1 跳过后补跑缓存项通过，八项冻结输入终态一致；下方 403／624 及更早数字对应旧源码范围。未打包或更新 Profile。
+
+当前新增 [R30 回调返回值补全](c2-callback-return-completion-2026-10-02.md)：语义 624/624、两项定向 LSP、隔离 Core C2 与 Undo/Redo 通过；当前 stdio 403 项尚未全跑。前一项 Extract Variable 增量语义 607/607、四项定向 LSP 与标准组合 C3 通过。下方集成数量保留原批源码范围，未打包或更新 Profile。
+
+当前批次为 [操作数排序与两项内联保护集成](c2-c3-operand-inline-integration-2026-10-02.md)：全量语义 598/598、完整 Core C2、标准组合 C3、Lint 和三版本可见补全／接受文本通过；17 项输入终态一致，完整 stdio 399/399 已通过（零跳过、1244.27 秒）。下文旧数量保留历史范围，真实 WSL 与 renderer 异常单列，未打包或更新 Profile。
+
+本批补全源码起点为 [R29 操作数排序](c2-operand-completion-context-2026-10-02.md)：当前全量语义 587/587、四项定向 LSP 与 100 轮连续编辑通过，P95 4.81 ms；定向 Core C2 宿主及 Undo/Redo 通过，完整 stdio 当前 397 项尚未全跑。它在 R26–R28 [完整集成](c2-column-context-integration-gate-2026-10-02.md)的 395/395 终态及 17 项输入一致后才应用；前一批完整 Core C2、标准组合 C3、Lint 及三版本可见列表通过，不能算作 R29 再次全量验收。未打包或更新 Profile。
+
+当前最新批次为 R23–R25 [字符串与局部证明缓存集成](c2-proof-cache-integration-gate-2026-10-02.md)：语义 558/558、完整 stdio 389/389（零跳过、1191.05 秒）、完整 Core C2、标准组合 C3、全仓 Lint 和当前测试输入的 PHP 7.2／8.1／8.5 可见列表／接受文本通过；1,000 轮连续编辑无过期补全、Hover 或 Definition，缓存损坏后重启恢复。16 项冻结输入与 C3 两项输入在终态后全部匹配；没有把下面历史 383 项或 R23 的 387 项数量当作本批次结果。现有支持范围保留，未打包或更新 Profile。
+
+R21–R22 [完整阶段集成](c2-local-syntax-integration-gate-2026-10-02.md)已通过：stdio 383/383、零跳过，完整 C2、全仓 Lint 和 PHP 7.2／8.1／8.5 可见补全，终态冻结输入一致。随后才应用 R23 [赋值后字符串误判修复](c2-post-assignment-literal-types-2026-10-02.md)：相同源码全量语义 555/555、当前矩阵、八项定向 LSP 与定向宿主通过，十调用 100 轮 P95 79.67 ms；当前完整 387 项尚未再跑。没有打包或更新 Profile，真实 WSL 使用与 renderer 异常继续单列。以下保留历史批次记录，不能把当时待运行数量当作当前状态。
+
+## 2026-10-01 源码收口状态
+
+R19–R20 已通过[完整阶段集成](c2-value-expression-integration-gate-2026-10-01.md)：stdio 375/375、零跳过，完整 C2 与 Lint 通过，终态输入哈希一致。随后才应用 R21 [static 声明头修复](c2-static-scope-value-types-2026-10-01.md)，相同源码临时全量语义 554/554、当前分支矩阵、八项定向 LSP 及宿主通过；新的 379 项完整 stdio 未再跑，不能把前批 375 项记作 R21 再次全量通过。
+
+最新追加 R20 [常量与常见值表达式](c2-expression-value-call-types-2026-10-01.md)：语义最终 553 项、十六项定向 LSP 和定向宿主通过，十调用 100 轮 P95 19.95 ms。R19–R20 当前完整 stdio 共 375 项尚未重新执行，前述阶段 367 项仍仅对应其冻结的 R17–R18 源码；下一批集中集成验证，不例行打包或升级 Profile。
+
+阶段集成之后新增 R19 [按值调用数组实参](c2-array-value-call-types-2026-10-01.md)：语义 552 项、十二项定向 LSP 与定向 C2 宿主通过，十调用 100 轮 P95 22.74 ms；当前 371 项完整 stdio 尚未再跑。下面完整 367 项与完整 C2 结果属于 R17–R18，不能把它们算作 R19 修改后的全量复验。
+
+最新批次为[方法调用增量集成](c2-method-integration-gate-2026-10-01.md)：R17–R18 的完整 Core C2 宿主、全仓 Lint 与完整 stdio 367/367 已通过；0 跳过、1179.11 s，跨进程缓存用例启用，八项输入哈希最终一致。独立签名审计脚本的随后增量另经定向 Lint。前一批[泛型增量集成](c2-generic-integration-gate-2026-10-01.md)359/359 和下文 357 项均属历史批次，最新终态以方法增量集成报告为准；这不是全部 language-server 测试文件或全仓包测试再次通过，也不替代真人验收。
+
+最新集成证据：[当前源码完整回归](c2-current-source-integration-gate-2026-10-01.md)。完整 stdio 357 项、0 跳过，启用跨进程引用缓存；完整 C1/C2/C3 源码宿主、C1 可见列表和全仓 Lint 通过。R07–R13 的近期类型排序、传播和引用失效增量已进入该回归。可见等待中位 238 ms／最大 254 ms（与协议回归并行）；VS Code renderer 异常仍记录。后文保留历史计数和当时未执行项，当前全量 stdio 状态以此记录为准。没有打包、发布或更新 Profile，真实 WSL 使用仍单列。
+
+下表说明当前源码增量，历史安装候选和发布记录仍保留各自当时的范围。人工验收按用户决定暂缓；源码工作继续。
+
+| 范围 | 已有证据 | 尚未关闭 |
+| --- | --- | --- |
+| C1 输入与导航 | [首次引用命名空间重复解析修复](c1-import-scope-reference-cost-2026-10-01.md)：同一项目 1,071 个位置哈希一致，37 秒降至 7.1 秒；[范围传递](c1-namespace-range-transport-2026-10-01.md)避免主线程再次解析 | 首次候选扫描仍约 6–7 秒，交叉顺序结果有波动；本轮两条定向路径后转其它项；真实 WSL 可见等待单列 |
+| C2 补全类型与编辑一致性 | [属性赋值排序](c2-property-expected-completion-2026-10-01.md)：语义 538 项、PHP 7.2／8.5 协议与隔离宿主 Undo/Redo；[连续编辑](c2-url-long-edit-memory-2026-10-01.md)：1,000 轮结果正确、P95 25 ms | 大型项目与真实长会话、可见列表；普通 RSS 增长及 GC 后堆测量分别保留，不作全局无泄漏结论 |
+| C3 已支持重构 | [源码集成](c2-completion-integration-2026-10-01.md)包含 Safe Move 对只读内置声明的过滤，C3 源码宿主通过 | 新源码整体复验与真实编辑器操作继续单列，不扩大重构支持域 |
+| C4 缓存与版本 | [缓存损坏恢复](c4-cache-entry-recovery-2026-10-01.md)：42 项索引与真实 stdio 五次重启；[phpstorm-stubs 覆盖](phpstorm-stubs-audit-gate-2026-10-01.md)重新复核 49 个目录 | 其它平台、真实 WSL Remote、全部 PHP 版本与候选安装验收 |
+
+缓存修复前的完整 `stdio.test.ts` 协议回归为 346 项通过、1 项跳过，共 347 项。C1 可见补全宿主退出码 0；C3 明确恢复编辑器焦点并补充 Redo 后完整宿主退出码 0，见[对应回归记录](c3-import-race-focus-regression-2026-10-01.md)。跳过的跨进程引用缓存用例另行启用后发现配置输入证据丢失和方法预热后的重复扫描，两项已修复：[当前缓存验证](c4-reference-provider-input-evidence-2026-10-01.md)包含 Provider 宿主 10 项、32 次跨进程场景与 4 项标准入口 LSP 回归通过。本轮没有重新执行完整 stdio 或将进程测试记作真实 WSL 验收。固定语料的原 60 项及声明 D01–D30 保留，类型回归追加 R07 属性赋值和 R08 简写三元表达式。接下来按现有剩余范围推进，不新增默认扩展或无界功能。
+
+当前 C2 新增[简写三元类型](c2-shorthand-ternary-values-2026-10-01.md)：语义 540 项、PHP 7.2／8.5 两项协议及隔离宿主通过，100 轮热补全 P95 11.96 ms；一般控制流和真实 WSL 显示仍单列。没有重新执行本轮全部 349 项 stdio。
 
 ## 当前决定
 
 - **Pack 保持 10 项，暂不增删。** Core 与 Symfony 负责 PHP 和可证明的框架事实；TwigPlus、Red Hat YAML/XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets 和 PHP DocBlocker 各负责一项独立能力。测试默认走项目 PHPUnit/Pest CLI。旧 Recommended Pack 不再维护。外部成员升级须复核组合，Pack 的 `extensionPack` 无法锁定 Marketplace 版本。
 - **使用同版本组合。** [0.4.12 发布版本](sophp-0412-release-gate-2026-09-27.md)的 Core、Symfony、Pack 三份 VSIX 已公开；标签构建及跨平台自动门禁通过。旧 0.4.9 私有候选仍是历史测试记录，不代表当前窗口已切到 0.4.12。项目 PHP、Composer、fixer、Xdebug 与测试命令需要在实际 Extension Host 环境中配置；真实 WSL Remote 操作链仍属 C4 验收。
-- **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。若没有新的 C1/C2 错误，转向 C3 已知的文件创建 `createFile` 回退 Redo；交付时统一冻结候选并做 C4。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
+- **Core 起点是普通 PHP 的 C1/C2 连续输入链。** 在独立 Composer 项目核对未打开 vendor 类、未保存声明的补全、定义、实现、引用、参数提示、Hover 和诊断，先复现首个用户可见错误或明显等待，再做定向修复。没有新的高影响 C1/C2 回归时，推进已支持 C3 操作的稳定性和 C4 候选验收。`createFile` 兜底 Redo 保留失败记录，只有新的可验证线索才重新调查。人工反馈随时并入，不阻塞独立源码工作。R4 的完整 PhpStorm 式体验目标不变。
+- **日常增量不打包发布。** 源码改动用定向语义、LSP 和隔离宿主验证收口，不例行提交、推送或创建 PR。打包、更新 Profile 与发布按用户明确通知执行，不因阶段自动化通过而自动生成三份 VSIX。
 
 发布后 C3 审计发现并修复了[Safe Move 在多个 namespace 或别名间误删导入](c3-safe-move-import-scope-2026-09-27.md)的风险。此项已进入 0.4.11，同次打包宿主和跨平台门禁均通过。
 
@@ -15,6 +103,12 @@ C1 普通表达式中[同前缀函数和常量的合并补全](c1-function-const
 随后补上[顶层 `use function` / `use const` 导入补全](c1-function-constant-import-completion-2026-09-27.md)：未打开的 Composer `autoload.files` 函数与常量也能按需建议，独立 C1 源码宿主已核对实际结果；组合和跨平台门禁已随 0.4.11 执行并通过。
 
 0.4.11 发布后的[分组函数与常量导入补全](c1-grouped-symbol-import-completion-2026-09-27.md)已覆盖同类与混合 `use`、逗号后当前成员、子命名空间以及已有闭合大括号的编辑范围，并抑制别名输入时的表达式建议。完整语义、独立 Composer 真实 LSP 和 C1 源码宿主通过；这一增量及[分组类导入子命名空间补全](c1-nested-class-group-import-completion-2026-09-27.md)已进入公开的 0.4.12。
+
+0.4.12 发布后的[分组类导入子命名空间建议](c1-grouped-namespace-completion-2026-09-27.md)补齐 `{Ope}` → `{Operations\}` → 类名的连续输入链。独立 Composer 真实 LSP、逗号后成员编辑范围和 C1 源码宿主实际接受建议均通过；这是尚未打包的源码增量。
+
+[分组函数与常量导入的实际接受建议](c1-grouped-symbol-import-acceptance-2026-09-27.md)也已在独立 C1 源码宿主验证：子命名空间建议保留大括号，并能继续补全组内函数。普通导入不改变编辑范围；此项仍为未打包的源码增量。
+
+[分组符号导入的 C2 未保存声明反馈](c2-grouped-symbol-import-live-feedback-2026-09-27.md)已通过独立 stdio 与完整 C2 源码宿主：函数和常量改名后候选更新，关闭未保存声明后函数候选恢复磁盘事实。普通 C2 测试入口也改为隔离用户数据目录，避免继承设置影响结果。
 
 最新 C1 增量：[类体 trait `use` 补全](c1-trait-use-completion-2026-09-27.md)已从可复现缺口修复到语义、按需 stdio、独立 C1 与 10 项 Pack 源码宿主通过。它已进入 0.4.9 私有候选；日常增量继续不重复打包。
 

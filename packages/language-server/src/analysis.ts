@@ -744,6 +744,11 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       }
     }
     const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion);
+    if (!isSyntaxAvailable(targetVersion, '8.3')) for (const declaration of parsed.declarations) {
+      for (const adaptation of declaration.traitAdaptations) if (adaptation.kind === 'alias' && adaptation.final) {
+        versionFeatures.push({ feature: 'final trait method', minimumVersion: '8.3', start: adaptation.start, end: adaptation.end });
+      }
+    }
     if (!isSyntaxAvailable(targetVersion, '8.5')) for (const call of grammarGaps.cloneCalls) {
       if (!versionFeatures.some((feature) => feature.feature === 'clone with properties'
         && feature.start <= call.start && feature.end >= call.end)) {
@@ -858,7 +863,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
       diagnostics.push(...parsed.properties.flatMap((property): Diagnostic[] => {
         const owner = declarations.get(property.containerFqcn); if (!owner) return [];
         const explicitlyReadonly = /\breadonly\b/iu.test(source.slice(property.declarationStart, property.start));
-        const readonlyClassProperty = owner.readonlyClass && isSyntaxAvailable(targetVersion, '8.2');
+        const readonlyClassProperty = owner.readonlyClass && isSyntaxAvailable(targetVersion, owner.anonymous ? '8.3' : '8.2');
         if (!explicitlyReadonly && !readonlyClassProperty) return [];
         const violations = [
           property.type === undefined ? diagnosticMessage(language, 'readonlyTypeRequired') : undefined,

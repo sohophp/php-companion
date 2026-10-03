@@ -1,0 +1,120 @@
+{
+  "root": "/tmp/sophp-url-completion-pressure",
+  "file": "/tmp/sophp-url-completion-pressure/Pressure.php",
+  "rounds": 1000,
+  "expectFirst": false,
+  "expectEmptyForDash": false,
+  "resolveDetails": true,
+  "firstMs": 96.57,
+  "all": {
+    "p50Ms": 13.64,
+    "p95Ms": 24.89,
+    "maxMs": 185.28
+  },
+  "a": {
+    "fragment": "$candidatePort = parse_url($url, PHP_URL_PORT); $candidateP{{cursor}}; }",
+    "expected": "$candidatePort",
+    "p50Ms": 13.66,
+    "p95Ms": 25.41,
+    "maxMs": 120.74,
+    "incomplete": 0
+  },
+  "b": {
+    "fragment": "$candidateHost = parse_url($url, PHP_URL_HOST); $candidateH{{cursor}}; }",
+    "expected": "$candidateHost",
+    "p50Ms": 13.62,
+    "p95Ms": 23.56,
+    "maxMs": 185.28,
+    "incomplete": 0
+  },
+  "memory": {
+    "metric": "process RSS; not retained heap",
+    "samples": [
+      {
+        "round": 1,
+        "rssMiB": 176.49
+      },
+      {
+        "round": 50,
+        "rssMiB": 178.88
+      },
+      {
+        "round": 100,
+        "rssMiB": 187.95
+      },
+      {
+        "round": 150,
+        "rssMiB": 193.86
+      },
+      {
+        "round": 200,
+        "rssMiB": 194.11
+      },
+      {
+        "round": 250,
+        "rssMiB": 193.89
+      },
+      {
+        "round": 300,
+        "rssMiB": 194.66
+      },
+      {
+        "round": 350,
+        "rssMiB": 195.33
+      },
+      {
+        "round": 400,
+        "rssMiB": 197.13
+      },
+      {
+        "round": 450,
+        "rssMiB": 198.21
+      },
+      {
+        "round": 500,
+        "rssMiB": 198.53
+      },
+      {
+        "round": 550,
+        "rssMiB": 199.3
+      },
+      {
+        "round": 600,
+        "rssMiB": 199.87
+      },
+      {
+        "round": 650,
+        "rssMiB": 201.1
+      },
+      {
+        "round": 700,
+        "rssMiB": 202.13
+      },
+      {
+        "round": 750,
+        "rssMiB": 203.93
+      },
+      {
+        "round": 800,
+        "rssMiB": 205.48
+      },
+      {
+        "round": 850,
+        "rssMiB": 211.66
+      },
+      {
+        "round": 900,
+        "rssMiB": 212.95
+      },
+      {
+        "round": 950,
+        "rssMiB": 215.27
+      },
+      {
+        "round": 1000,
+        "rssMiB": 216.05
+      }
+    ]
+  },
+  "readOnly": true
+}

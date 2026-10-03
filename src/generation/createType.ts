@@ -261,7 +261,6 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
   }
   if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
   let created = false;
-  let usedFileCreationFallback = false;
   if (uri.scheme === 'file') {
     const moveStagedFile = async (stagedPath: string, apply: (edit: vscode.WorkspaceEdit) => PromiseLike<boolean>): Promise<boolean> => {
       let moved = false;
@@ -327,6 +326,10 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
           ? (edit): Promise<boolean> => applyDestinationEdit(edit, destinationStage) : vscode.workspace.applyEdit);
       }
     }
+    if (!created) {
+      void vscode.window.showErrorMessage(t('createUndoableFailed'));
+      return false;
+    }
   }
   if (!created) {
     if (await exists()) { void vscode.window.showErrorMessage(t('fileExists', uri.fsPath)); return false; }
@@ -343,7 +346,6 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
       void vscode.window.showErrorMessage(reason ? `${t('createApplyFailed')} ${reason}` : t('createApplyFailed'));
       return false;
     }
-    usedFileCreationFallback = uri.scheme === 'file';
   }
   try {
     if (options?.testOpenCreatedFile) await options.testOpenCreatedFile(uri);
@@ -353,6 +355,5 @@ export async function createPhpType(kind: PhpTypeKind, versions: VersionManager,
     const reason = error instanceof Error ? error.message : String(error);
     void vscode.window.showWarningMessage(t('createOpenFailed', reason));
   }
-  if (usedFileCreationFallback) void vscode.window.showWarningMessage(t('createRedoMayNotRestore'));
   return true;
 }

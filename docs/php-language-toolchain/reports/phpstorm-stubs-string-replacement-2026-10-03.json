@@ -1,0 +1,634 @@
+{
+  "date": "2026-10-03",
+  "status": "source_applied_semantic_stdio_and_linux_host_passed",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "source_file": "standard/standard_1.php",
+  "native_boundary_sources": [
+    "https://raw.githubusercontent.com/php/php-src/php-8.0.0/ext/standard/string.c",
+    "https://raw.githubusercontent.com/php/php-src/php-7.4.0/ext/standard/string.c"
+  ],
+  "baseline_and_prototype": [
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "string",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "string",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "list<mixed>",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "list<mixed>",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "array<string, mixed>",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "array<string, mixed>",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "array|string",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": false,
+      "type": "array|string",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "string",
+      "name": "str_replace",
+      "result": "string"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "string",
+      "name": "str_ireplace",
+      "result": "string"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "list<mixed>",
+      "name": "str_replace",
+      "result": "array<int, mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "list<mixed>",
+      "name": "str_ireplace",
+      "result": "array<int, mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "array<string, mixed>",
+      "name": "str_replace",
+      "result": "array<string, mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "array<string, mixed>",
+      "name": "str_ireplace",
+      "result": "array<string, mixed>"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "array|string",
+      "name": "str_replace",
+      "result": "array<int|string, mixed>|string"
+    },
+    {
+      "version": "7.2",
+      "prototype": true,
+      "type": "array|string",
+      "name": "str_ireplace",
+      "result": "array<int|string, mixed>|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "string",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "string",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "list<mixed>",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "list<mixed>",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "array<string, mixed>",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "array<string, mixed>",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "array|string",
+      "name": "str_replace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": false,
+      "type": "array|string",
+      "name": "str_ireplace",
+      "result": "array|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "string",
+      "name": "str_replace",
+      "result": "string"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "string",
+      "name": "str_ireplace",
+      "result": "string"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "list<mixed>",
+      "name": "str_replace",
+      "result": "array<int, string>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "list<mixed>",
+      "name": "str_ireplace",
+      "result": "array<int, string>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "array<string, mixed>",
+      "name": "str_replace",
+      "result": "array<string, string>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "array<string, mixed>",
+      "name": "str_ireplace",
+      "result": "array<string, string>"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "array|string",
+      "name": "str_replace",
+      "result": "array<int|string, string>|string"
+    },
+    {
+      "version": "8.5",
+      "prototype": true,
+      "type": "array|string",
+      "name": "str_ireplace",
+      "result": "array<int|string, string>|string"
+    }
+  ],
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": true,
+          "objectType": "object",
+          "nestedPreserved": true,
+          "nestedType": "array",
+          "count": 1
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": true,
+          "objectType": "object",
+          "nestedPreserved": true,
+          "nestedType": "array",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "version": "7.4.33",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": true,
+          "objectType": "object",
+          "nestedPreserved": true,
+          "nestedType": "array",
+          "count": 1
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": true,
+          "objectType": "object",
+          "nestedPreserved": true,
+          "nestedType": "array",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "version": "8.1.34",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 3
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "version": "8.2.32",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 3
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "version": "8.4.23",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 3
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "version": "8.5.9",
+      "rows": [
+        {
+          "function": "str_replace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 3
+        },
+        {
+          "function": "str_ireplace",
+          "text": "Zb",
+          "textCount": 1,
+          "keys": [
+            "text",
+            "number",
+            "flag",
+            "empty",
+            "object",
+            "nested"
+          ],
+          "textValue": "Zb",
+          "number": "12",
+          "flag": "1",
+          "empty": "",
+          "objectPreserved": false,
+          "objectType": "string",
+          "nestedPreserved": false,
+          "nestedType": "string",
+          "count": 4
+        }
+      ]
+    }
+  ],
+  "spec_full": {
+    "passed": 231,
+    "files": 13,
+    "duration_seconds": 20.82,
+    "exit_code": 0,
+    "log": "/tmp/sophp-string-replacement-spec-full.log"
+  },
+  "semantic_full": {
+    "passed": 1229,
+    "files": 63,
+    "duration_seconds": 53.2,
+    "exit_code": 0,
+    "log": "/tmp/sophp-string-replacement-semantic-full.log"
+  },
+  "targeted_stdio": {
+    "passed": 4,
+    "files": 2,
+    "duration_seconds": 5.09,
+    "exit_code": 0,
+    "log": "/tmp/sophp-string-replacement-stdio.log"
+  },
+  "string_replacement_lsp_queries": 20,
+  "linux_host": {
+    "exit_code": 0,
+    "php_version": "8.5",
+    "vscode_version": "1.140.0",
+    "unsaved_updates": 10,
+    "proof": {
+      "platform": "linux",
+      "results": [
+        {
+          "name": "str_replace",
+          "variant": "string",
+          "expected": "string",
+          "matched": true
+        },
+        {
+          "name": "str_replace",
+          "variant": "list<mixed>",
+          "expected": "array<int, string>",
+          "matched": true
+        },
+        {
+          "name": "str_replace",
+          "variant": "array<string, mixed>",
+          "expected": "array<string, string>",
+          "matched": true
+        },
+        {
+          "name": "str_replace",
+          "variant": "array|string",
+          "expected": "array<int|string, string>|string",
+          "matched": true
+        },
+        {
+          "name": "str_replace",
+          "variant": "string",
+          "expected": "string",
+          "matched": true
+        },
+        {
+          "name": "str_ireplace",
+          "variant": "string",
+          "expected": "string",
+          "matched": true
+        },
+        {
+          "name": "str_ireplace",
+          "variant": "list<mixed>",
+          "expected": "array<int, string>",
+          "matched": true
+        },
+        {
+          "name": "str_ireplace",
+          "variant": "array<string, mixed>",
+          "expected": "array<string, string>",
+          "matched": true
+        },
+        {
+          "name": "str_ireplace",
+          "variant": "array|string",
+          "expected": "array<int|string, string>|string",
+          "matched": true
+        },
+        {
+          "name": "str_ireplace",
+          "variant": "string",
+          "expected": "string",
+          "matched": true
+        }
+      ],
+      "diskUnchanged": true
+    },
+    "log": "/tmp/sophp-string-replacement-host.log"
+  },
+  "build_exit_code": 0,
+  "lint_exit_code": 0,
+  "real_wsl_ui_verified": false,
+  "profile_updated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false
+}

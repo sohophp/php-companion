@@ -30,7 +30,7 @@ export interface ParsedDeclaration extends SourceRange {
 
 export type ParsedTraitAdaptation =
   | { kind: 'precedence'; trait: string; method: string; insteadOf: string[]; start: number; end: number }
-  | { kind: 'alias'; trait?: string; method: string; alias?: string; visibility?: 'public' | 'protected' | 'private'; start: number; end: number };
+  | { kind: 'alias'; trait?: string; method: string; alias?: string; visibility?: 'public' | 'protected' | 'private'; final?: boolean; start: number; end: number };
 
 export interface ParsedParameter extends SourceRange {
   name: string;
@@ -101,7 +101,7 @@ export interface ParsedVariableReference extends SourceRange { variable: string;
 export interface ParsedReturnStatement extends SourceRange { scopeId: string; expressionStart?: number; expressionEnd?: number; }
 export type ParsedTypeNarrowing = SourceRange & { variable: string; scopeId: string; propertyPath?: string[]; arrayPath?: string[]; assertion?: true; inspectionStart?: number; inspectionEnd?: number } & (
   { kind: 'instanceof' | 'not-instanceof'; typeName: string }
-  | { kind: 'non-null' }
+  | { kind: 'non-null'; truthy?: true }
   | { kind: 'boolean-literal'; value: boolean; negated: boolean }
   | { kind: 'array-key-exists'; functionName: string }
   | { kind: 'subclass-predicate'; typeName: string; functionName: string; negated?: boolean }
@@ -235,9 +235,37 @@ export type ParsedPhpDeclarationDocument = Pick<ParsedPhpDocument,
   'namespace' | 'declarations' | 'callables' | 'properties' | 'constants' | 'imports' | 'commentRanges' | 'tree'>;
 
 /** Tree-free facts that can cross a worker boundary. The consumer owns source identity. */
-export type PreparedPhpDocument =
+export interface ParsedNamespaceScope {
+  namespace: string;
+  start: number;
+  end: number;
+  insertionOffset: number;
+}
+
+export type PreparedPhpDocument = (
   | { kind: 'full'; facts: Omit<ParsedPhpDocument, 'tree'>; controlFlowAssignments: number[] }
-  | { kind: 'declarations'; facts: Omit<ParsedPhpDeclarationDocument, 'tree'>; controlFlowAssignments: [] };
+  | { kind: 'declarations'; facts: Omit<ParsedPhpDeclarationDocument, 'tree'>; controlFlowAssignments: [] }
+) & { namespaceScopes?: ParsedNamespaceScope[] };
+
+/** Plain namespace ranges; no syntax nodes escape the tree owner. */
+export function phpNamespaceScopes(source: string, root: SyntaxNode): ParsedNamespaceScope[] {
+  const definitions = (root.hasError ? root.descendantsOfType('namespace_definition')
+    : root.namedChildren.filter(node => node.type === 'namespace_definition'))
+    .sort((left, right) => left.startIndex - right.startIndex);
+  const scopes = definitions.map((definition, index) => {
+    const body = definition.childForFieldName('body');
+    const start = body ? body.startIndex + 1 : definition.endIndex;
+    const end = body ? body.endIndex - Number(source[body.endIndex - 1] === '}')
+      : definitions[index + 1]?.startIndex ?? source.length;
+    return { namespace: definition.childForFieldName('name')?.text.replace(/^\\+|\\+$/g, '') ?? '',
+      start, end, insertionOffset: start };
+  });
+  if (!definitions.length) {
+    const opening = /^<\?php(?:\s+declare\s*\([^;]+;)?/.exec(source);
+    if (opening) scopes.push({ namespace: '', start: 0, end: source.length, insertionOffset: opening[0].length });
+  }
+  return scopes;
+}
 
 export function controlFlowAssignmentStarts(tree: Tree, assignments: ParsedAssignment[]): number[] {
   const controlNodes = new Set(['if_statement', 'switch_statement', 'try_statement', 'while_statement', 'do_statement', 'for_statement', 'foreach_statement']);
@@ -306,17 +334,38 @@ const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES,
   'while_statement', 'for_statement', 'do_statement', 'if_statement'];
 const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
 
-function traitAdaptations(node: SyntaxNode): ParsedTraitAdaptation[] {
+function traitSourceText(node: SyntaxNode, source: string): string {
+  let text = source.slice(node.startIndex, node.endIndex);
+  for (const comment of node.descendantsOfType('comment').sort((left, right) => right.startIndex - left.startIndex)) {
+    const start = comment.startIndex - node.startIndex; const end = comment.endIndex - node.startIndex;
+    text = text.slice(0, start) + text.slice(start, end).replace(/[^\r\n]/gu, ' ') + text.slice(end);
+  }
+  return text;
+}
+
+function traitFinalAdaptationMasks(node: SyntaxNode, source: string): Array<{ start: number; end: number; value: string }> {
+  const body = traitSourceText(node, source).slice(1, -1);
+  const pattern = /(?:^|;)\s*(?:(?:\\?[A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\\\x80-\u{10ffff}]*)::)?[A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*\s+as\s+(?<final>final)(?:\s+(?<alias>[A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*))?\s*(?=;|$)/dgiu;
+  return [...body.matchAll(pattern)].flatMap((match) => {
+    if (match.groups?.alias && /^(?:public|protected|private|final)$/iu.test(match.groups.alias)) return [];
+    const range = match.indices?.groups?.final; if (!range) return [];
+    const [start, end] = range;
+    return [{ start: node.startIndex + 1 + start, end: node.startIndex + 1 + end,
+      value: match.groups?.alias ? ' '.repeat(end - start) : '_inal' }];
+  });
+}
+
+function traitAdaptations(node: SyntaxNode, source: string): ParsedTraitAdaptation[] {
   const list = node.namedChildren.find((child) => child.type === 'use_list');
   if (!list) return [];
   return list.namedChildren.flatMap((clause): ParsedTraitAdaptation[] => {
     if (clause.type === 'use_instead_of_clause') {
-      const match = /^(.+?)::([A-Za-z_][A-Za-z0-9_]*)\s+insteadof\s+(.+)$/.exec(clause.text.trim());
+      const match = /^(.+?)::([A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*)\s+insteadof\s+(.+)$/iu.exec(traitSourceText(clause, source).trim());
       return match ? [{ kind: 'precedence', trait: match[1]!, method: match[2]!, insteadOf: match[3]!.split(',').map((item) => item.trim()), start: clause.startIndex, end: clause.endIndex }] : [];
     }
     if (clause.type === 'use_as_clause') {
-      const match = /^(?:(.+?)::)?([A-Za-z_][A-Za-z0-9_]*)\s+as(?:\s+(public|protected|private))?(?:\s+([A-Za-z_][A-Za-z0-9_]*))?$/.exec(clause.text.trim());
-      return match ? [{ kind: 'alias', trait: match[1], method: match[2]!, visibility: match[3] as 'public' | 'protected' | 'private' | undefined, alias: match[4], start: clause.startIndex, end: clause.endIndex }] : [];
+      const match = /^(?:(.+?)::)?([A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*)\s+as(?:\s+(public|protected|private|final))?(?:\s+([A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*))?$/iu.exec(traitSourceText(clause, source).trim());
+      return match ? [{ kind: 'alias', trait: match[1], method: match[2]!, visibility: match[3]?.toLowerCase() === 'final' ? undefined : match[3]?.toLowerCase() as 'public' | 'protected' | 'private' | undefined, final: match[3]?.toLowerCase() === 'final', alias: match[4], start: clause.startIndex, end: clause.endIndex }] : [];
     }
     return [];
   });
@@ -430,7 +479,7 @@ const LEGACY_CLASS_TRIVIA = String.raw`(?:\s|/\*[^]*?\*/|//[^\r\n]*(?:\r?\n|$)|#
 const LEGACY_CLASS_ERROR = new RegExp(`^(?:(?:final|abstract)${LEGACY_CLASS_TRIVIA})?class${LEGACY_CLASS_TRIVIA}(mixed|never)(?=\\s|$)`, 'iu');
 
 export class PhpSyntaxParser {
-  private readonly recoveredLegacyClassTrees = new WeakSet<Tree>();
+  private readonly recoveredSyntaxTrees = new WeakSet<Tree>();
   private constructor(private readonly parser: Parser) {}
 
   static async create(paths: PhpParserPaths): Promise<PhpSyntaxParser> {
@@ -446,9 +495,9 @@ export class PhpSyntaxParser {
     return this.create(defaultPhpParserPaths());
   }
 
-  /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names may be masked in the tree. */
+  /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names and final trait adaptations may be masked in the tree. */
   parseTree(source: string, oldTree?: Tree): Tree {
-    let tree = this.parser.parse(source, oldTree && !this.recoveredLegacyClassTrees.has(oldTree) ? oldTree : undefined);
+    let tree = this.parser.parse(source, oldTree && !this.recoveredSyntaxTrees.has(oldTree) ? oldTree : undefined);
     if (!tree) throw new Error('Tree-sitter returned no parse tree.');
     if (tree.rootNode.hasError) {
       // The current grammar reserves these names, but PHP 7 accepted them as class names.
@@ -466,6 +515,7 @@ export class PhpSyntaxParser {
             replacements.push({ start, end: start + name.length, value: name.toLowerCase() === 'mixed' ? '_ixed' : '_ever' });
           }
         }
+        if (node.type === 'use_list') replacements.push(...traitFinalAdaptationMasks(node, source));
         for (const child of node.namedChildren) inspect(child);
       };
       inspect(tree.rootNode);
@@ -477,7 +527,7 @@ export class PhpSyntaxParser {
         tree.delete();
         tree = this.parser.parse(recovered);
         if (!tree) throw new Error('Tree-sitter returned no recovered parse tree.');
-        this.recoveredLegacyClassTrees.add(tree);
+        this.recoveredSyntaxTrees.add(tree);
       }
     }
     return tree;
@@ -497,10 +547,12 @@ export class PhpSyntaxParser {
   prepare(source: string, documentIdentity: string, declarationsOnly: boolean): PreparedPhpDocument {
     if (declarationsOnly) {
       const { tree, ...facts } = this.parseDeclarations(source, documentIdentity);
-      tree.delete(); return { kind: 'declarations', facts, controlFlowAssignments: [] };
+      try { return { kind: 'declarations', facts, controlFlowAssignments: [], namespaceScopes: phpNamespaceScopes(source, tree.rootNode) }; }
+      finally { tree.delete(); }
     }
     const { tree, ...facts } = this.parse(source, undefined, documentIdentity);
-    try { return { kind: 'full', facts, controlFlowAssignments: controlFlowAssignmentStarts(tree, facts.assignments) }; }
+    try { return { kind: 'full', facts, controlFlowAssignments: controlFlowAssignmentStarts(tree, facts.assignments),
+      namespaceScopes: phpNamespaceScopes(source, tree.rootNode) }; }
     finally { tree.delete(); }
   }
 
@@ -530,7 +582,23 @@ export class PhpSyntaxParser {
     const typeReferenceKeys = new Set<string>();
     const typeDeclarationRanges = tree.rootNode.descendantsOfType([...Object.keys(DECLARATION_TYPES), 'anonymous_class'])
       .map((node) => ({ start: node.startIndex, end: node.endIndex }));
-    const scopeAt = (start: number, end: number, strictStart = false): ParsedScope | undefined => {
+    const scopeByNodeId = new Map<number, ParsedScope>();
+    const addScope = (node: SyntaxNode, scope: ParsedScope): void => {
+      scopes.push(scope); scopeByNodeId.set(node.id, scope);
+    };
+    const scopeAt = (node: SyntaxNode, strictStart = false): ParsedScope | undefined => {
+      const start = node.startIndex; const end = node.endIndex;
+      if (!hasSyntaxErrors) {
+        let current: SyntaxNode | null = strictStart ? node.parent : node;
+        let insideType = false;
+        while (current) {
+          const scope = scopeByNodeId.get(current.id);
+          if (scope && start >= scope.start && end <= scope.end) return scope;
+          if (DECLARATION_TYPES[current.type] || current.type === 'anonymous_class') insideType = true;
+          current = current.parent;
+        }
+        return insideType ? undefined : scopes[0];
+      }
       let best: ParsedScope | undefined;
       for (const candidate of scopes) {
         if ((strictStart ? start <= candidate.start : start < candidate.start) || end > candidate.end) continue;
@@ -697,7 +765,7 @@ export class PhpSyntaxParser {
         }
         if (functionName.toLowerCase() === 'empty' && !effectiveTruthy && arguments_.length === 1) {
           const subject = directPropertySubject(value);
-          return subject ? [{ kind: 'non-null', ...subject, ...factRange }] : [];
+          return subject ? [{ kind: 'non-null', truthy: true, ...subject, ...factRange }] : [];
         }
         const typeName = builtinName === 'is_callable' ? undefined
           : builtinName === 'is_numeric' && !effectiveTruthy ? 'int|float' : predicateTypes[builtinName];
@@ -725,7 +793,7 @@ export class PhpSyntaxParser {
         return [{ kind: 'boolean-literal', ...booleanSubject, value: booleanText === 'true', negated: !equals, ...factRange }];
       }
       const truthySubject = effectiveTruthy ? directPropertySubject(node) : undefined;
-      if (truthySubject) return [{ kind: 'non-null', ...truthySubject, ...factRange }];
+      if (truthySubject) return [{ kind: 'non-null', truthy: true, ...truthySubject, ...factRange }];
       return [];
     };
     const positiveConditionFacts = (input: SyntaxNode, scopeId: string, start: number, end: number): ParsedTypeNarrowing[] => {
@@ -774,7 +842,7 @@ export class PhpSyntaxParser {
       const left = node.childForFieldName('left'); const right = node.childForFieldName('right');
       const operator = binaryOperator(node);
       if (!left || !right || (operator !== '&&' && operator !== '||')) return;
-      const scope = scopeAt(node.startIndex, node.endIndex);
+      const scope = scopeAt(node);
       const impliedPredicateFacts = (candidate: SyntaxNode, truthy: boolean, end: number, inspectionEnd: number): ParsedTypeNarrowing[] => {
         const unwrapped = unwrapCondition(candidate); const nested = unwrapped.node;
         const effectiveTruthy = unwrapped.negated ? !truthy : truthy;
@@ -897,14 +965,14 @@ export class PhpSyntaxParser {
         }
       }
       if (nodeType === 'variable_name' && nodeParent?.type !== 'scoped_property_access_expression') {
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
       }
       if (nodeType === 'conditional_expression') {
         const condition = node.childForFieldName('condition');
         const body = node.childForFieldName('body');
         const alternative = node.childForFieldName('alternative');
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (condition && body && alternative && scope) {
           narrowings.push(...predicateConditionFacts(condition, true, scope.id, body.startIndex, body.endIndex));
           narrowings.push(...positiveConditionFacts(condition, scope.id, body.startIndex, body.endIndex));
@@ -912,7 +980,7 @@ export class PhpSyntaxParser {
         }
       }
       if (nodeType === 'return_statement') {
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         const expression = node.namedChildren[0];
         if (scope) returns.push({ ...nodeRange(source, node), scopeId: scope.id,
           expressionStart: expression ? nodeRange(source, expression).start : undefined,
@@ -1091,7 +1159,7 @@ export class PhpSyntaxParser {
               else validArguments = false;
               positional += 1;
             }
-            const scope = scopeAt(node.startIndex, node.endIndex);
+            const scope = scopeAt(node);
             if (validArguments && assertion && (!description || staticAssertDescription(description)) && scope) {
               const start = statement.endIndex; const end = Math.max(start, block.endIndex - 1);
               const facts = [...predicateConditionFacts(assertion, true, scope.id, start, end),
@@ -1121,7 +1189,7 @@ export class PhpSyntaxParser {
             traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
             attributeNames: attributeMarkers.map((item) => item.name),
             attributeMarkers,
-            traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
+            traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(child => traitAdaptations(child, source)) ?? [],
             readonlyClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'readonly_modifier'),
             abstractClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'abstract_modifier'),
             finalClass: kind === 'class' && node.namedChildren.some((child) => child.type === 'final_modifier'),
@@ -1136,8 +1204,8 @@ export class PhpSyntaxParser {
           extendsNames: node.namedChildren.find((child) => child.type === 'base_clause')?.namedChildren.map((child) => child.text) ?? [],
           implementsNames: node.namedChildren.find((child) => child.type === 'class_interface_clause')?.namedChildren.map((child) => child.text) ?? [],
           traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
-          traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(traitAdaptations) ?? [],
-          readonlyClass: false,
+          traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(child => traitAdaptations(child, source)) ?? [],
+          readonlyClass: node.namedChildren.some((child) => child.type === 'readonly_modifier'),
           abstractClass: false,
           finalClass: false,
         });
@@ -1169,7 +1237,7 @@ export class PhpSyntaxParser {
           static: node.namedChildren.some((child) => child.type === 'static_modifier'),
           finalMethod: owner !== undefined && node.namedChildren.some((child) => child.type === 'final_modifier'),
         });
-        scopes.push({ id: owner ? `${owner.fqcn}::${name}` : [callableNamespace, name].filter(Boolean).join('\\'), kind: owner ? 'method' : 'function', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, captures: [], start: node.startIndex, end: node.endIndex });
+        addScope(node, { id: owner ? `${owner.fqcn}::${name}` : [callableNamespace, name].filter(Boolean).join('\\'), kind: owner ? 'method' : 'function', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, captures: [], start: node.startIndex, end: node.endIndex });
         if (owner) {
           for (const parameter of node.childForFieldName('parameters')?.namedChildren.filter((item) => item.type === 'property_promotion_parameter') ?? []) {
             const nameNode = parameter.childForFieldName('name');
@@ -1197,13 +1265,13 @@ export class PhpSyntaxParser {
       }
       if (nodeType === 'anonymous_function' || nodeType === 'arrow_function') {
         const owner = containingType(node);
-        const parent = scopeAt(node.startIndex, node.endIndex, true);
+        const parent = scopeAt(node, true);
         const useClause = node.namedChildren.find((child) => child.type === 'anonymous_function_use_clause');
         const captures = useClause?.namedChildren.flatMap((capture) => {
           const variable = capture.type === 'variable_name' ? capture : capture.namedChildren.find((child) => child.type === 'variable_name');
           return variable ? [{ variable: variable.text, byReference: capture.type === 'by_ref' }] : [];
         }) ?? [];
-        scopes.push({ id: `${nodeType === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: nodeType === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
+        addScope(node, { id: `${nodeType === 'arrow_function' ? 'arrow' : 'closure'}@${node.startIndex}`, kind: nodeType === 'arrow_function' ? 'arrow' : 'closure', containerFqcn: owner?.fqcn, parameters: parametersOf(node), returnType: node.childForFieldName('return_type')?.text, parentId: parent?.id, captures, start: node.startIndex, end: node.endIndex });
       }
       if (nodeType === 'property_declaration') {
         const owner = containingType(node);
@@ -1236,7 +1304,7 @@ export class PhpSyntaxParser {
               ...nodeRange(source, hookName), name: 'value', type, nativeType: type,
               promoted: false, variadic: false, byReference: false,
             } : undefined;
-            scopes.push({ id: `property-hook@${hook.startIndex}`, kind: 'property-hook', containerFqcn: owner.fqcn,
+            addScope(hook, { id: `property-hook@${hook.startIndex}`, kind: 'property-hook', containerFqcn: owner.fqcn,
               parameters: scopeParameter ? [scopeParameter] : [], captures: [], start: hook.startIndex, end: hook.endIndex });
             return [{ ...nodeRange(source, hookName), kind, declarationStart: hook.startIndex, declarationEnd: hook.endIndex,
               bodyStart: body?.startIndex, bodyEnd: body?.endIndex, parameter,
@@ -1299,7 +1367,7 @@ export class PhpSyntaxParser {
         const right = node.childForFieldName('right');
         if (!left || !right) return;
         if (left.type === 'list_literal') {
-          const scope = scopeAt(node.startIndex, node.endIndex);
+          const scope = scopeAt(node);
           if (!scope) return;
           const boundVariables = (list: SyntaxNode): SyntaxNode[] => list.namedChildren.flatMap((child, index) => {
             const next = list.namedChildren[index + 1];
@@ -1313,7 +1381,7 @@ export class PhpSyntaxParser {
           return;
         }
         if (left.type !== 'variable_name') return;
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (!scope) return;
         const anonymous = right.type === 'object_creation_expression' ? right.namedChildren.find((child) => child.type === 'anonymous_class') : undefined;
         const createdType = anonymous
@@ -1431,7 +1499,7 @@ export class PhpSyntaxParser {
         });
       }
       if (nodeType === 'global_declaration' || nodeType === 'function_static_declaration') {
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (!scope) return;
         const variables = nodeType === 'global_declaration'
           ? node.namedChildren.filter((child) => child.type === 'variable_name')
@@ -1445,7 +1513,7 @@ export class PhpSyntaxParser {
         const [collection, target] = node.namedChildren; if (!collection || !target) return;
         const value = target.type === 'pair' ? target.namedChildren.at(-1) : target;
         const body = node.childForFieldName('body'); if (value?.type !== 'variable_name' || !body) return;
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (!scope) return;
         const key = target.type === 'pair' ? target.namedChildren[0] : undefined;
         if (key?.type === 'variable_name') assignments.push({ ...nodeRange(source, key), variable: key.text,
@@ -1464,7 +1532,7 @@ export class PhpSyntaxParser {
         const namedTypes = type?.namedChildren.filter((child) => child.type === 'named_type') ?? [];
         const typeNames = namedTypes.map((namedType) => namedType.namedChildren.find((child) => child.type === 'qualified_name' || child.type === 'name')?.text).filter((name): name is string => Boolean(name));
         if (variable?.type !== 'variable_name' || !body || typeNames.length !== namedTypes.length || typeNames.length === 0) return;
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (!scope) return;
         assignments.push({ ...nodeRange(source, variable), variable: variable.text, callableFqcn: scope.id, scopeId: scope.id,
           typeName: typeNames.length === 1 ? typeNames[0] : undefined, typeNames: typeNames.length > 1 ? typeNames : undefined, validRange: nodeRange(source, body) });
@@ -1482,7 +1550,7 @@ export class PhpSyntaxParser {
           }
         }
         const body = node.childForFieldName('body');
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (rawCondition && body && scope) {
           const range = body.type === 'compound_statement'
             ? { start: body.startIndex + 1, end: Math.max(body.startIndex + 1, body.endIndex - 1) }
@@ -1508,7 +1576,7 @@ export class PhpSyntaxParser {
       }
       if (nodeType === 'for_statement') {
         const condition = node.childForFieldName('condition'); const body = node.childForFieldName('body');
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         if (condition && body && scope) {
           const range = body.type === 'compound_statement'
             ? { start: body.startIndex + 1, end: Math.max(body.startIndex + 1, body.endIndex - 1) }
@@ -1538,7 +1606,7 @@ export class PhpSyntaxParser {
           }
         }
         const body = node.childForFieldName('body');
-        const scope = scopeAt(node.startIndex, node.endIndex);
+        const scope = scopeAt(node);
         const containsGoto = (candidate: SyntaxNode): boolean => candidate.type === 'goto_statement'
           || candidate.namedChildren.some(containsGoto);
         const containsLoopExit = (candidate: SyntaxNode): boolean => candidate.type === 'break_statement'

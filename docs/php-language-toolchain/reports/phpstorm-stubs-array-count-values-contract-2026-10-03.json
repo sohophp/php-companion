@@ -1,0 +1,228 @@
+{
+  "status": "source_fix_and_targeted_integration_passed",
+  "scope": "array_count_values accepts mixed elements and preserves integer count values",
+  "spec": {
+    "passed": 249,
+    "files": 15,
+    "duration_seconds": 21.02,
+    "log": "/tmp/sophp-count-values-spec-full.log"
+  },
+  "semantic": {
+    "passed": 1246,
+    "files": 67,
+    "duration_seconds": 54.08,
+    "log": "/tmp/sophp-count-values-semantic-full.log"
+  },
+  "stdio": {
+    "passed": 6,
+    "files": 3,
+    "duration_seconds": 5.72,
+    "own_unsaved_queries": 16,
+    "log": "/tmp/sophp-count-values-stdio-final.log"
+  },
+  "linux_host": {
+    "exit_code": 0,
+    "own_unsaved_queries": 8,
+    "disk_unchanged": true,
+    "log": "/tmp/sophp-count-values-host-final.log"
+  },
+  "runtime": [
+    {
+      "version": "7.2.34",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    },
+    {
+      "version": "7.4.33",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    },
+    {
+      "version": "8.1.34",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    },
+    {
+      "version": "8.2.32",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    },
+    {
+      "version": "8.4.23",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    },
+    {
+      "version": "8.5.9",
+      "keys": [
+        12,
+        "name"
+      ],
+      "counts": [
+        2,
+        2
+      ],
+      "warnings": 5,
+      "integerKeys": [
+        -12,
+        0,
+        12
+      ],
+      "integerCounts": [
+        1,
+        1,
+        2
+      ],
+      "stringKeys": [
+        "012",
+        -12,
+        "+12",
+        "1.0",
+        " 12"
+      ],
+      "empty": []
+    }
+  ],
+  "build": {
+    "exit_code": 0,
+    "log": "/tmp/sophp-count-values-build-final.log"
+  },
+  "lint_exit_code": 0,
+  "root_emit_cleanup": {
+    "generated_files_removed": 47,
+    "manifest": "/tmp/sophp-count-values-root-tsc-emitted-files.json",
+    "failed_initial_build": "/tmp/sophp-count-values-build.log",
+    "failed_initial_stdio": "/tmp/sophp-count-values-stdio.log",
+    "initial_results_not_acceptance": true
+  },
+  "full_stdio_for_this_source": "pending",
+  "full_core_c2_for_this_source": "pending",
+  "real_wsl_ui": "not_run",
+  "packaged": false,
+  "profile_updated": false
+}

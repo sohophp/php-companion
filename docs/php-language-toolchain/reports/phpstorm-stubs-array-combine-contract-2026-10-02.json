@@ -1,0 +1,155 @@
+{
+  "date": "2026-10-02",
+  "status": "implemented_and_verified",
+  "scope": "array_combine arbitrary array inputs",
+  "source_commit": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+  "baseline": {
+    "semantic_failed": 4,
+    "actual": null,
+    "valid_multiline_phpdoc": true
+  },
+  "verification": {
+    "language_spec": {
+      "passed": 177,
+      "files": 7,
+      "duration_seconds": 17.0
+    },
+    "semantic_focused": {
+      "passed": 4,
+      "versions": [
+        "7.2",
+        "7.4",
+        "8.1",
+        "8.5"
+      ],
+      "key_value_combinations_per_version": 9
+    },
+    "semantic_full": {
+      "passed": 1197,
+      "files": 55,
+      "duration_seconds": 51.78,
+      "exit_code": 0
+    },
+    "stdio": {
+      "passed": 2,
+      "versions": [
+        "7.2",
+        "8.5"
+      ],
+      "unsaved_updates": 8,
+      "hover_and_completion": true,
+      "disk_unchanged": true
+    },
+    "extension_host": {
+      "os": "linux",
+      "vscode": "1.140.0",
+      "unsaved_updates": 4,
+      "hover_and_completion": true,
+      "disk_unchanged": true,
+      "exit_code": 0
+    },
+    "runtime": [
+      {
+        "version": "7.2.34",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": false,
+        "empty": []
+      },
+      {
+        "version": "7.4.33",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": false,
+        "empty": []
+      },
+      {
+        "version": "8.1.34",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": "ValueError",
+        "empty": []
+      },
+      {
+        "version": "8.2.32",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": "ValueError",
+        "empty": []
+      },
+      {
+        "version": "8.4.23",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": "ValueError",
+        "empty": []
+      },
+      {
+        "version": "8.5.9",
+        "associatedKey": [
+          "label"
+        ],
+        "sameObject": true,
+        "convertedKeys": [
+          "1.5",
+          1,
+          ""
+        ],
+        "convertedValuesAreObjects": true,
+        "mismatch": "ValueError",
+        "empty": []
+      }
+    ],
+    "build": true,
+    "lint": true,
+    "extension_test_typecheck": true
+  },
+  "not_verified": [
+    "full_stdio_current_build",
+    "windows_host",
+    "visible_popup",
+    "real_wsl_ui"
+  ],
+  "packaged": false,
+  "profile_updated": false
+}

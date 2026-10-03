@@ -1,0 +1,261 @@
+{
+  "status": "passed_automated",
+  "scope": [
+    "stubs array key contracts",
+    "trait final cache compatibility",
+    "optional reference outputs",
+    "value constructor arguments",
+    "native fixed generic parent inheritance"
+  ],
+  "frozen_inputs": {
+    "count": 2975,
+    "manifest": "/tmp/sophp-stubs-flow-integration-inputs.json",
+    "changes": [],
+    "released": true,
+    "terminal_changes": [],
+    "manifest_sha256": "938709ea5958e9815871ae2b7bc616374ab62d6f9e3ab9069e0b8bee04ad52df"
+  },
+  "semantic": {
+    "status": "passed",
+    "tests": 1328,
+    "files": 73,
+    "duration_seconds": 52.46
+  },
+  "core_c2": {
+    "status": "passed",
+    "exit_code": 0,
+    "proof_lines": 65,
+    "log": "/tmp/sophp-stubs-flow-core-c2.log"
+  },
+  "stubs_flow_host": {
+    "status": "passed",
+    "queries": 10,
+    "platform": "linux",
+    "disk_unchanged": true,
+    "proof": "/tmp/sophp-stubs-flow-host.json"
+  },
+  "project_index": {
+    "status": "passed",
+    "session": 50568,
+    "log": "/tmp/sophp-stubs-flow-project-index-full.log",
+    "exit_code": 0,
+    "tests": 133,
+    "files": 1,
+    "duration_seconds": 377.96
+  },
+  "full_stdio": {
+    "status": "passed",
+    "session": 58614,
+    "files_selected": 29,
+    "reference_bundle": "/var/www/node/php-companion/dist/language-server.js",
+    "log": "/tmp/sophp-stubs-flow-full-stdio.log",
+    "exit_file": "/tmp/sophp-stubs-flow-full-stdio.exit",
+    "bail": 1,
+    "exit_code": 0,
+    "tests": 501,
+    "files": 29,
+    "skipped": 0,
+    "duration_seconds": 1405.76
+  },
+  "manual_wsl": "pending",
+  "packaged": false,
+  "profile_updated": false,
+  "runtime": {
+    "status": "passed_with_unavailable_extension",
+    "php_versions": [
+      "7.2.34",
+      "7.4.33",
+      "8.1.34",
+      "8.2.32",
+      "8.4.23",
+      "8.5.9"
+    ],
+    "intl_php74": "not_installed_not_tested",
+    "proof": "/tmp/sophp-stubs-flow-runtime.json"
+  },
+  "latency": {
+    "status": "passed",
+    "scope": "isolated single file; concurrent full regression",
+    "proof": "/tmp/sophp-stubs-flow-latency.json",
+    "results": [
+      {
+        "name": "intl",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 102.15500500000007,
+            "queryMs": 14.581150999999863
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 2.6415719999995417,
+          "p95": 4.043954000000667,
+          "maximum": 6.031988999999157
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 47.96539400000074,
+          "p95": 60.58834800000113,
+          "maximum": 69.5782360000012
+        }
+      },
+      {
+        "name": "dom",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 79.77213400000073,
+            "queryMs": 11.315563000000111
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 4.670392999998512,
+          "p95": 6.040703000002395,
+          "maximum": 11.57724700000108
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 52.10792299999957,
+          "p95": 63.96535800000129,
+          "maximum": 76.89963100000023
+        }
+      },
+      {
+        "name": "xml",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 147.10919800000192,
+            "queryMs": 17.187330000000657
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 15.206181999994442,
+          "p95": 18.703613999998197,
+          "maximum": 31.611261999998533
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 105.58735800000068,
+          "p95": 135.37664999999834,
+          "maximum": 146.2096539999984
+        }
+      }
+    ]
+  },
+  "coverage": {
+    "modules": 49,
+    "runtime_functions": 1881,
+    "unreviewed_absences": 0,
+    "runtime_uncovered": 0,
+    "revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "scope": "function names only; PHP 8.5 installed extensions",
+    "proof": "/tmp/sophp-stubs-flow-coverage.json"
+  },
+  "scale": {
+    "status": "passed",
+    "scope": "10000 synthetic small PHP files; default server experimental mode; concurrent full regression",
+    "source_bytes": 787842,
+    "index_complete_ms": 17256.478168,
+    "proof": "/tmp/sophp-stubs-flow-scale.json",
+    "results": [
+      {
+        "name": "intl",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 228.30467700000008,
+            "queryMs": 15.886301999998977
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 3.0901020000019344,
+          "p95": 6.094857000003685,
+          "maximum": 7.117216999999073
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 127.4161230000027,
+          "p95": 151.48795699999755,
+          "maximum": 177.5334870000006
+        }
+      },
+      {
+        "name": "dom",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 135.86998999999923,
+            "queryMs": 5.725667999999132
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 4.87554000000091,
+          "p95": 10.151104000004125,
+          "maximum": 10.745923000002222
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 127.98490400000446,
+          "p95": 157.46937700000126,
+          "maximum": 186.79031199999736
+        }
+      },
+      {
+        "name": "xml",
+        "checks": 220,
+        "measured": 200,
+        "warmup": 20,
+        "first": [
+          {
+            "editToResultMs": 233.84875900000043,
+            "queryMs": 17.733416000002762
+          }
+        ],
+        "query": {
+          "samples": 200,
+          "p50": 15.256975999989663,
+          "p95": 27.170859999998356,
+          "maximum": 33.37423000000126
+        },
+        "editToResult": {
+          "samples": 200,
+          "p50": 182.6857280000113,
+          "p95": 213.34085700000287,
+          "maximum": 233.87610200000927
+        }
+      }
+    ],
+    "earlier_attempts": [
+      {
+        "log": "/tmp/sophp-stubs-flow-scale-first.log",
+        "status": "observation_timeout"
+      },
+      {
+        "log": "/tmp/sophp-stubs-flow-scale-limit.log",
+        "status": "invalid_probe_10001_files_exceeded_default_limit"
+      }
+    ]
+  },
+  "log_hashes": {
+    "/tmp/sophp-stubs-flow-full-stdio.log": "69d96a162484ba4d4505236c5d45f328d285d1d97c303259e300a53f4b9bbe91",
+    "/tmp/sophp-stubs-flow-project-index-full.log": "9f6301914380ef389250d10947b4c1044d0af90c599839015288a7508edf70df",
+    "/tmp/sophp-stubs-flow-semantic-final.log": "19e0b2f942130edae398ce1d0cf32d5b712eb6f1fb3711853d7043b4c0436507",
+    "/tmp/sophp-stubs-flow-core-c2.log": "7c7726c8f6837247831b8f41bef87e836d393757de59b7c71bb27f5bf87af0b7"
+  }
+}
