@@ -67,3 +67,31 @@ PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_C3_MULTI_ALIAS_ONLY=1 PHP_COMPAN
 ```
 
 双模式日志 `/tmp/sophp-multi-alias-onDemand-20261004.log`、`/tmp/sophp-multi-alias-progressive-20261004.log`。既有 onDemand Import／Paste 请求期间编辑与 Undo 子集也退出 0，日志 `/tmp/sophp-multi-alias-import-race-20261004.log`。根 TypeScript noEmit、production bundle、宿主编译、四份修改源码 ESLint 和 diff 空白检查通过。用户 Profile 未更新。
+
+## 性能基线：预算尚未通过
+
+新增可复用 `scripts/benchmark-paste-imports.mjs`。它创建独立临时 Composer 项目（项目噪声文件＋两个活动文档＋一个 vendor 类型），以真实 stdio 执行复制元数据、paste 候选和导入规划，分别报告首轮与稳定输入后的耗时。每个结果都核对正确类型／use，测量后删除 vendor 文件且不发送 watcher 事件，确认旧复制信息与规划撤回，并确认规划没有改写两个活动文件。结束时清理自建 fixture。
+
+当前 onDemand 基线，单位 ms：
+
+| PHP 文件数 | 稳定轮数 | Copy P95 | 候选 P95 | 规划 P95 | 三步总计 P95 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 103 | 5 | 59.60 | 56.53 | 56.05 | 164.02 |
+| 1,003 | 10 | 420.50 | 442.64 | 430.64 | 1,270.53 |
+
+1,003 文件的首轮三步约 2,664.72 ms，Copy 占 1,793.78 ms；首轮从 initialize 已返回、didOpen 已发送后开始，不包含扩展加载或编辑器弹窗时间。热源码扫描 P95 约 448.23 ms，说明这条路径随文件量增长已不能满足热查询 P95 ≤ 150 ms 预算。小样本 P95 使用 nearest-rank；这里不声称长期分布、真实 vendor 复杂度或真人等待。
+
+对照实验仅将该扫描的 metadata inspector 改为普通异步 stat：1,003 文件下 Copy／候选／规划 P95 约 475.96／462.49／475.77 ms，三步总计约 1,350.11 ms，没有改善。实验已撤回，product source 保持原 metadata worker 路径并重新构建，不把性能下降方案留下。
+
+数据：`/tmp/sophp-paste-import-baseline-100-20261004.json`、`/tmp/sophp-paste-import-baseline-1000-20261004.json`、`/tmp/sophp-paste-import-async-stat-1000-20261004.json`。
+
+复用命令：
+
+```sh
+pnpm --filter @php-companion/language-server build
+node scripts/benchmark-paste-imports.mjs 100 5 onDemand
+node scripts/benchmark-paste-imports.mjs 1000 10 onDemand
+# 也支持 progressive；本轮尚未测量该模式的性能。
+```
+
+下一步需要区分库存枚举、metadata／读取与语义回调耗时，再选择优化点。优化须保留依赖、新文件发现及预算检查。源码修改未获得性能证明，此性能项保持未完成；没有更新用户 Profile。
