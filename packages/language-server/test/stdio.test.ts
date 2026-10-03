@@ -11270,13 +11270,13 @@ function values(): array { return []; }
         textDocument: { uri, languageId: 'php', version: 1, text: source },
       } }));
       let id = 200;
-      const requestRename = async (renameFile = true): Promise<{
+      const requestRename = async (renameFile = true, newName = 'NewName'): Promise<{
         documentChanges?: unknown[]; changes?: Record<string, Array<{ newText: string }>>;
       } | null> => {
         const requestId = id++;
         server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/rename', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf('OldName') + 2),
-          newName: 'NewName', phpCompanion: { renameFile },
+          newName, phpCompanion: { renameFile },
         } }));
         const response = await output.waitFor(message => message.id === requestId);
         expect(response.error).toBeUndefined(); return response.result;
@@ -11294,6 +11294,22 @@ function values(): array { return []; }
         await rm(target);
       }
       expect((await requestRename())?.documentChanges).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'rename' })]));
+      if (process.platform === 'linux') {
+        const collisionPath = join(root, 'src', 'oldname.php');
+        // Confirm this owned fixture is case-sensitive before creating the
+        // second entry; never overwrite the source on a case-insensitive FS.
+        await expect(stat(collisionPath)).rejects.toMatchObject({ code: 'ENOENT' });
+        const collisionSource = '<?php namespace App; class OccupiedDestination {}';
+        await writeFile(collisionPath, collisionSource);
+        expect(await requestRename(true, 'oldname')).toBeNull();
+        expect((await requestRename(false, 'oldname'))?.changes?.[uri]).toEqual([expect.objectContaining({ newText: 'oldname' })]);
+        expect(await readFile(path, 'utf8')).toBe(source);
+        expect(await readFile(collisionPath, 'utf8')).toBe(collisionSource);
+        await rm(collisionPath);
+        expect((await requestRename(true, 'oldname'))?.documentChanges).toEqual(expect.arrayContaining([
+          expect.objectContaining({ kind: 'rename', newUri: pathToFileURL(collisionPath).toString() }),
+        ]));
+      }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

@@ -92,7 +92,12 @@ export async function buildRenameEdit(
   if (options.fileMode !== 'off' && basename(declarationUri.fsPath) === `${oldName}.php`) {
     targetUri = vscode.Uri.joinPath(declarationUri, '..', `${newName}.php`);
     const caseOnlyTarget = targetUri.toString().toLowerCase() === declarationUri.toString().toLowerCase();
-    if (!caseOnlyTarget && await exists(targetUri)) throw new RenameError(t('conflict', targetUri.fsPath));
+    if (await exists(targetUri)) {
+      const entries = caseOnlyTarget ? await vscode.workspace.fs.readDirectory(vscode.Uri.joinPath(declarationUri, '..')) : [];
+      const sourceAlias = caseOnlyTarget && entries.some(([name]) => name === `${oldName}.php`)
+        && !entries.some(([name]) => name === `${newName}.php`);
+      if (!sourceAlias) throw new RenameError(t('conflict', targetUri.fsPath));
+    }
   }
 
   const plannedEdits: Array<Omit<PlannedTextEdit, 'expectedVersion' | 'expectedLength' | 'expectedTextHash'>> = [];

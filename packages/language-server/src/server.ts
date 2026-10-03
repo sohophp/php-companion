@@ -7869,11 +7869,15 @@ connection.onRenameRequest(async (params, token) => {
     if (canonical && declarationPath && basename(declarationPath) === `${typeTarget.name}.php`) {
       const targetPath = resolve(dirname(declarationPath), `${newName}.php`);
       const caseOnly = targetPath.toLowerCase() === declarationPath.toLowerCase();
-      if (!caseOnly) {
-        // Any directory entry occupies the destination, including a dangling
-        // symlink. Only a confirmed absent entry permits file renaming.
-        try { await lstat(targetPath); return null; }
-        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return null; }
+      let occupied = false;
+      try { await lstat(targetPath); occupied = true; }
+      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return null; }
+      if (occupied) {
+        if (!caseOnly) return null;
+        // On a case-insensitive filesystem, lookup can find the source entry
+        // under its new spelling. A separate exact destination is a conflict.
+        const entries = await readdir(dirname(declarationPath)).catch(() => undefined);
+        if (!entries || !entries.includes(basename(declarationPath)) || entries.includes(basename(targetPath))) return null;
       }
       fileRename = { oldUri: typeTarget.declarationUri, newUri: indexedUriForPath(root, targetPath) };
     }

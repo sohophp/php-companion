@@ -17,3 +17,17 @@
 最初宿主探针使用了不在公开 API 白名单内的请求，随后在启动未准备好时遇到编辑器 `No result.`；夹具改用标准 Rename Provider 命令并仅等待这个明确启动状态，超时和其它异常继续失败。没有增加产品测试白名单或放宽拒绝／文本／Undo 门槛。
 
 本批没有全量协议、真实 Remote 权限或用户 WSL UI 结论。未安装、打包、更新 Profile 或推送；C3 整体仍按原路线图开放。
+
+## 大小写专用分支补充
+
+随后核对原本跳过目标检查的大小写分支。修复前新增回退用例 4 项失败、8 项通过；真实 stdio 在同时存在 `OldName.php` 与内容不同的 `oldname.php` 时仍生成文件改名计划，回归失败。
+
+现在大小写变化也先检查目标。如果目标查找成功，只有目录实际包含源文件拼写、且没有独立的新拼写目录项时，才视为大小写不敏感文件系统上的源文件别名。独立目标、缺少源目录项和目录读取失败均拒绝；确认缺失的目标直接沿用正常改名。该判断不以操作系统名称推断文件系统大小写行为，文件操作仍保持 overwrite=false。
+
+- 最终根定向 3 文件／23 项通过。新增 6 项检查独立冲突、同一源别名、源项不存在、目录 NoPermissions／FileNotFound 和确认缺失目标；故障在创建编辑前退出。
+- 最终真实 stdio 2 项通过、444 项未选中，7.28 秒。原目标用例追加 Linux 大小写冲突、纯文本修改精确结果、两个文件原文不变及删除冲突后的准确目标 URI；原 PSR-4 回归同时通过。
+- 当前 VS Code 1.140.0 定向宿主退出 0，日志 `/tmp/sophp-rename-case-destination-host-20261004.log`。独立大小写目标在预览前拒绝，保留两个文件；正常与大小写目标各经过取消／应用／一次 Undo/Redo，并额外 Undo 恢复夹具。原循环／悬空链接反例继续通过。
+- 独立 Windows 挂载临时目录协议探针确认大小写不敏感：目录只有 OldName.php，lstat／读取 oldname.php 命中同一源内容，完整索引模式生成准确文本和 OldName.php → oldname.php 操作，原文和目录项未变。原始 JSON `/tmp/sophp-case-insensitive-filesystem-20261004.json`，临时夹具已清理。运行进程为 WSL Node 22.14.0，不能当作原生 Windows 编辑器／Remote UI 证明。
+- Language Server 构建、production bundle、根 noEmit、宿主编译、相关 ESLint 及 diff check 通过；没有重跑完整 C3 或全量协议。
+
+该临时探针最初等待 progressive 的全局 complete=true，但项目准备已结束且该模式报告 complete=false；修正等待后，类型 Rename 仍没有文件改名计划。完整索引模式才用于上述文件系统别名验证，不把模式替换当作默认模式问题已解决。后续优先核对 onDemand／progressive 的类型 Rename 完整性条件及用户反馈；当前不依据此单个探针给两种模式整体下结论。

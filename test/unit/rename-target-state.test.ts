@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const state = vi.hoisted(() => ({ stat: vi.fn(), operations: [] as string[] }));
+const state = vi.hoisted(() => ({ stat: vi.fn(), readDirectory: vi.fn(), operations: [] as string[] }));
 vi.mock('vscode', async () => {
   const { posix } = await import('node:path');
   class Uri {
@@ -16,7 +16,7 @@ vi.mock('vscode', async () => {
   }
   return {
     env: { language: 'en' }, Uri,
-    workspace: { fs: { stat: state.stat } },
+    workspace: { fs: { stat: state.stat, readDirectory: state.readDirectory } },
     FileSystemError: class FileSystemError extends Error {
       constructor(readonly code: string) { super(code); }
     },
@@ -45,13 +45,13 @@ describe('Rename target filesystem preflight', () => {
     });
   });
   afterAll(() => parser.dispose());
-  beforeEach(() => { state.stat.mockReset(); state.operations.length = 0; });
+  beforeEach(() => { state.stat.mockReset(); state.readDirectory.mockReset(); state.operations.length = 0; });
 
-  async function prepare(fileMode: 'always' | 'off' = 'always'): Promise<void> {
+  async function prepare(fileMode: 'always' | 'off' = 'always', newName = 'NewType'): Promise<void> {
     const index = new WorkspaceSymbolIndex(parser);
     index.update('file:///workspace/src/OldType.php', '<?php namespace App; class OldType {}');
     try {
-      await buildRenameEdit(index, index.findDeclarations('App\\OldType')[0]!, 'NewType', {
+      await buildRenameEdit(index, index.findDeclarations('App\\OldType')[0]!, newName, {
         fileMode, includePhpDoc: true, psr4Mappings: [{ prefix: 'App\\', directories: ['/workspace/src'], development: false }],
       });
     } finally { index.clear(); }
@@ -86,5 +86,37 @@ describe('Rename target filesystem preflight', () => {
     await prepare('off');
     expect(state.stat).not.toHaveBeenCalled();
     expect(state.operations).toContain('replace'); expect(state.operations).not.toContain('rename');
+  });
+
+  it('rejects a distinct destination during a case-only rename', async () => {
+    state.stat.mockResolvedValue({});
+    state.readDirectory.mockResolvedValue([['OldType.php', 1], ['oldtype.php', 1]]);
+    await expect(prepare('always', 'oldtype')).rejects.toThrow('The target file already exists');
+    expect(state.operations).toEqual([]);
+  });
+
+  it('allows an existing case-insensitive alias of the source entry', async () => {
+    state.stat.mockResolvedValue({}); state.readDirectory.mockResolvedValue([['OldType.php', 1]]);
+    await prepare('always', 'oldtype');
+    expect(state.operations).toContain('rename');
+  });
+
+  it('does not infer an alias when the source entry is absent', async () => {
+    state.stat.mockResolvedValue({}); state.readDirectory.mockResolvedValue([['OLDTYPE.php', 1]]);
+    await expect(prepare('always', 'oldtype')).rejects.toThrow('The target file already exists');
+    expect(state.operations).toEqual([]);
+  });
+
+  it.each(['NoPermissions', 'FileNotFound'])('preserves directory %s while checking a case-only alias', async code => {
+    const error = new vscode.FileSystemError(code);
+    state.stat.mockResolvedValue({}); state.readDirectory.mockRejectedValue(error);
+    await expect(prepare('always', 'oldtype')).rejects.toBe(error);
+    expect(state.operations).toEqual([]);
+  });
+
+  it('allows a confirmed missing case-only destination without listing the directory', async () => {
+    state.stat.mockRejectedValue(new vscode.FileSystemError('FileNotFound'));
+    await prepare('always', 'oldtype');
+    expect(state.readDirectory).not.toHaveBeenCalled(); expect(state.operations).toContain('rename');
   });
 });

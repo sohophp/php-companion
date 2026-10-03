@@ -196,12 +196,13 @@ async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<
   const oldName = 'C3DestinationOld'; const newName = 'C3DestinationNew';
   const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${oldName}.php`);
   const target = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${newName}.php`);
+  const caseTarget = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${oldName.toLowerCase()}.php`);
   const source = `<?php namespace App\\Service; class ${oldName} {}`;
   await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
   const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
   const position = document.positionAt(source.indexOf(oldName) + 2);
-  const rename = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
-    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', { uri, position, newName, testPreviewAction });
+  const rename = (testPreviewAction: () => Promise<'apply' | 'cancel'>, name = newName): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', { uri, position, newName: name, testPreviewAction });
   const deadline = Date.now() + 15_000;
   let ready = false;
   do {
@@ -224,21 +225,39 @@ async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<
       assert.strictEqual(await readFile(uri.fsPath, 'utf8'), source);
       await rm(target.fsPath);
     }
-    assert.strictEqual(await rename(async () => 'cancel'), false);
-    assert.strictEqual(document.getText(), source);
-    assert.strictEqual(await rename(async () => 'apply'), true);
-    const renamed = await vscode.workspace.openTextDocument(target); await vscode.window.showTextDocument(renamed);
-    assert.strictEqual(renamed.getText(), source.replace(oldName, newName));
-    await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
-    await vscode.commands.executeCommand('undo');
-    assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source);
-    await assert.rejects(stat(target.fsPath), { code: 'ENOENT' });
-    await vscode.commands.executeCommand('redo');
-    assert.strictEqual((await vscode.workspace.openTextDocument(target)).getText(), source.replace(oldName, newName));
-    await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
-    console.log('C3 Rename destinations: loop/dangling links refused before preview; missing target cancel/apply and one Undo/Redo passed');
+    if (process.platform === 'linux') {
+      await assert.rejects(stat(caseTarget.fsPath), { code: 'ENOENT' });
+      const occupied = '<?php namespace App\\Service; class DestinationOccupied {}';
+      await writeFile(caseTarget.fsPath, occupied);
+      let previewed = false;
+      assert.strictEqual(await rename(async () => { previewed = true; return 'apply'; }, oldName.toLowerCase()), false);
+      assert.strictEqual(previewed, false, 'A separate case-only destination reached Rename preview');
+      assert.strictEqual(await readFile(caseTarget.fsPath, 'utf8'), occupied);
+      assert.strictEqual(await readFile(uri.fsPath, 'utf8'), source);
+      await rm(caseTarget.fsPath);
+    }
+    for (const name of process.platform === 'linux' ? [newName, oldName.toLowerCase()] : [newName]) {
+      const destination = name === newName ? target : caseTarget;
+      assert.strictEqual(await rename(async () => 'cancel', name), false);
+      assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source);
+      assert.strictEqual(await rename(async () => 'apply', name), true);
+      const renamed = await vscode.workspace.openTextDocument(destination); await vscode.window.showTextDocument(renamed);
+      assert.strictEqual(renamed.getText(), source.replace(oldName, name));
+      await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source);
+      await assert.rejects(stat(destination.fsPath), { code: 'ENOENT' });
+      await vscode.commands.executeCommand('redo');
+      assert.strictEqual((await vscode.workspace.openTextDocument(destination)).getText(), source.replace(oldName, name));
+      await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
+      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(destination));
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source);
+    }
+    console.log('C3 Rename destinations: link and case collisions refused before preview; missing normal/case-only targets cancel/apply and one Undo/Redo passed');
   } finally {
     await rm(uri.fsPath, { force: true }); await rm(target.fsPath, { force: true });
+    if (process.platform === 'linux') await rm(caseTarget.fsPath, { force: true });
   }
 }
 
