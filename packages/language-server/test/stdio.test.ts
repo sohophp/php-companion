@@ -7,7 +7,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { dirname, join, resolve, sep } from 'node:path';
 import { realpathSync } from 'node:fs';
 import { once } from 'node:events';
-import { copyFile, mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, readFile, readdir, readlink, rename, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir as osTmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11246,6 +11246,54 @@ function values(): array { return []; }
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: consumerUri } } }));
       await rm(consumerPath);
       expect((await query(6)).phpCompanion.sourceHashes[consumerUri]).toBeUndefined();
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(process.platform === 'win32')('rejects unstatable and dangling symlink Rename destinations', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-rename-link-target-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = '<?php namespace App; class OldName {}';
+      const path = join(root, 'src', 'OldName.php'); const uri = pathToFileURL(path).toString();
+      const target = join(root, 'src', 'NewName.php');
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      await output.waitFor(message => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      let id = 200;
+      const requestRename = async (renameFile = true): Promise<{
+        documentChanges?: unknown[]; changes?: Record<string, Array<{ newText: string }>>;
+      } | null> => {
+        const requestId = id++;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/rename', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('OldName') + 2),
+          newName: 'NewName', phpCompanion: { renameFile },
+        } }));
+        const response = await output.waitFor(message => message.id === requestId);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      const missingPlan = await requestRename();
+      expect(missingPlan?.documentChanges).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'rename' })]));
+      for (const [link, code] of [['NewName.php', 'ELOOP'], ['absent.php', 'ENOENT']] as const) {
+        await symlink(link, target);
+        await expect(stat(target)).rejects.toMatchObject({ code });
+        expect(await requestRename()).toBeNull();
+        const textOnly = await requestRename(false);
+        expect(textOnly?.changes?.[uri]).toEqual([expect.objectContaining({ newText: 'NewName' })]);
+        expect(textOnly?.documentChanges).toBeUndefined();
+        expect(await readlink(target)).toBe(link); expect(await readFile(path, 'utf8')).toBe(source);
+        await rm(target);
+      }
+      expect((await requestRename())?.documentChanges).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'rename' })]));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 

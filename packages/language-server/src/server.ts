@@ -3,7 +3,7 @@ import { hasFollowingCallParenthesis } from './completionCallTrivia.js';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readFile, readdir, realpath, stat } from 'node:fs/promises';
+import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import type { Dirent } from 'node:fs';
@@ -7870,7 +7870,10 @@ connection.onRenameRequest(async (params, token) => {
       const targetPath = resolve(dirname(declarationPath), `${newName}.php`);
       const caseOnly = targetPath.toLowerCase() === declarationPath.toLowerCase();
       if (!caseOnly) {
-        try { await stat(targetPath); return null; } catch { /* A missing target is required for the rename. */ }
+        // Any directory entry occupies the destination, including a dangling
+        // symlink. Only a confirmed absent entry permits file renaming.
+        try { await lstat(targetPath); return null; }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return null; }
       }
       fileRename = { oldUri: typeTarget.declarationUri, newUri: indexedUriForPath(root, targetPath) };
     }

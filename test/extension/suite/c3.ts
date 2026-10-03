@@ -1,6 +1,6 @@
 import * as assert from 'node:assert';
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readlink, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
@@ -191,6 +191,57 @@ async function verifyEditDuringRequest(api: TestApi, method: string, document: v
   await waitFor(() => document.getText() === original, `${method} final Undo did not restore the original document`);
 }
 
+async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<void> {
+  if (process.platform === 'win32') throw new Error('The POSIX symlink destination probe requires Linux or macOS.');
+  const oldName = 'C3DestinationOld'; const newName = 'C3DestinationNew';
+  const uri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${oldName}.php`);
+  const target = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `${newName}.php`);
+  const source = `<?php namespace App\\Service; class ${oldName} {}`;
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const position = document.positionAt(source.indexOf(oldName) + 2);
+  const rename = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+    vscode.commands.executeCommand<boolean>('phpCompanion.safeRename', { uri, position, newName, testPreviewAction });
+  const deadline = Date.now() + 15_000;
+  let ready = false;
+  do {
+    try { ready = Boolean(await vscode.commands.executeCommand('vscode.executeDocumentRenameProvider', uri, position, newName)); }
+    catch (error) {
+      if (!(error instanceof Error) || error.message !== 'No result.') throw error;
+    }
+    if (ready) break;
+    await new Promise(resolve => setTimeout(resolve, 50));
+  } while (Date.now() < deadline);
+  assert.ok(ready, 'The missing destination did not produce a baseline Rename plan');
+  try {
+    for (const link of [`${newName}.php`, 'absent.php']) {
+      await symlink(link, target.fsPath);
+      let previewed = false;
+      assert.strictEqual(await rename(async () => { previewed = true; return 'apply'; }), false);
+      assert.strictEqual(previewed, false, 'An occupied link destination reached Rename preview');
+      assert.strictEqual(await readlink(target.fsPath), link);
+      assert.strictEqual(document.getText(), source);
+      assert.strictEqual(await readFile(uri.fsPath, 'utf8'), source);
+      await rm(target.fsPath);
+    }
+    assert.strictEqual(await rename(async () => 'cancel'), false);
+    assert.strictEqual(document.getText(), source);
+    assert.strictEqual(await rename(async () => 'apply'), true);
+    const renamed = await vscode.workspace.openTextDocument(target); await vscode.window.showTextDocument(renamed);
+    assert.strictEqual(renamed.getText(), source.replace(oldName, newName));
+    await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
+    await vscode.commands.executeCommand('undo');
+    assert.strictEqual((await vscode.workspace.openTextDocument(uri)).getText(), source);
+    await assert.rejects(stat(target.fsPath), { code: 'ENOENT' });
+    await vscode.commands.executeCommand('redo');
+    assert.strictEqual((await vscode.workspace.openTextDocument(target)).getText(), source.replace(oldName, newName));
+    await assert.rejects(stat(uri.fsPath), { code: 'ENOENT' });
+    console.log('C3 Rename destinations: loop/dangling links refused before preview; missing target cancel/apply and one Undo/Redo passed');
+  } finally {
+    await rm(uri.fsPath, { force: true }); await rm(target.fsPath, { force: true });
+  }
+}
+
 export async function run(): Promise<void> {
   const folder = vscode.workspace.workspaceFolders?.[0];
   assert.ok(folder, 'C3 import request test requires the Composer fixture');
@@ -233,6 +284,11 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_RENAME_DESTINATION_ONLY === '1') {
+    await verifyRenameDestination(folder);
+    console.log('C3 focused Rename destination completed; this is not the full C3 suite');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_LOCAL_EXTRACTION_ONLY === '1') {
     await verifyLocalExtraction(vscode.Uri.joinPath(folder.uri, 'src', 'Service'));
     console.log('C3 focused local extraction completed; this is not the full C3 suite');
