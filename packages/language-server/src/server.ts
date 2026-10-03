@@ -4965,9 +4965,12 @@ connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?:
 connection.onRequest('phpCompanion/importCandidates', async (params: { textDocument?: { uri?: unknown }; position?: unknown; name?: unknown; context?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || typeof params.name !== 'string' || !params.position || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const position = params.position as { line: number; character: number };
-  return canonicalTypeImportCandidates(await semanticForUri(uri as string), root, uri as string, document.offsetAt(position), params.name, params.context !== 'paste');
+  const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([params.name.toLowerCase()]))
+    || documents.get(uri as string)?.version !== document.version) return [];
+  return canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), params.name, params.context !== 'paste');
 });
 
 connection.onRequest('phpCompanion/addImport', async (params: {
@@ -4976,12 +4979,15 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || typeof params.name !== 'string' || typeof params.fqcn !== 'string' || !params.position || !params.range?.start || !params.range.end
     || (params.alias !== undefined && typeof params.alias !== 'string') || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const name = params.name; const fqcn = params.fqcn; const alias = params.alias as string | undefined;
   const position = params.position as { line: number; character: number }; const start = params.range.start as { line: number; character: number }; const end = params.range.end as { line: number; character: number };
   const startOffset = document.offsetAt(start); const endOffset = document.offsetAt(end); const source = document.getText();
   if (source.slice(startOffset, endOffset) !== name || alias !== undefined && !isValidPhpIdentifier(alias)) return null;
-  const workspace = await semanticForUri(uri as string); const candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name);
+  const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([name.toLowerCase()]))
+    || documents.get(uri as string)?.version !== document.version) return null;
+  const candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name);
   const candidate = candidates.find((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()); if (!candidate) return null;
   if (candidate.aliasRequired && !alias) return null;
   const insertion = workspace.importInsertion(uri as string, document.offsetAt(position), candidate.fqcn, 'class', alias); if (!insertion) return null;
@@ -5104,19 +5110,24 @@ connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !Array.isArray(params.ranges) || params.ranges.length > 128 || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const ranges = params.ranges.flatMap((range): Array<{ start: number; end: number }> => {
     if (!range || typeof range !== 'object' || !('start' in range) || !('end' in range)) return [];
     return [{ start: document.offsetAt(range.start as { line: number; character: number }), end: document.offsetAt(range.end as { line: number; character: number }) }];
   });
   const workspace = await semanticForUri(uri as string);
+  const symbols = workspace.typeCopySymbols(uri as string, ranges);
+  if (!symbols.length) return [];
+  const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return [];
   return workspace.typeCopySymbols(uri as string, ranges).filter((symbol) => canonicalTypeDeclaration(workspace, root, symbol.fqcn));
 });
 
 connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocument?: { uri?: unknown }; position?: unknown; symbols?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || !Array.isArray(params.symbols) || !params.symbols.length || params.symbols.length > 128
-    || token.isCancellationRequested || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const symbols = params.symbols.flatMap((symbol): Array<{ fqcn: string; sourceAlias: string; alias?: string }> => {
     if (!symbol || typeof symbol !== 'object' || !('fqcn' in symbol) || typeof symbol.fqcn !== 'string'
       || !('sourceAlias' in symbol) || typeof symbol.sourceAlias !== 'string'
@@ -5125,6 +5136,9 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
   });
   if (symbols.length !== params.symbols.length) return null;
   const workspace = await semanticForUri(uri as string);
+  const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return null;
   if (symbols.some((symbol) => !canonicalTypeDeclaration(workspace, root, symbol.fqcn))) return null;
   const plan = workspace.planTypeImports(uri as string, document.offsetAt(params.position as { line: number; character: number }), symbols); if (!plan) return null;
   const edit = plan.text ? createEditPlan('Add pasted type imports', [{ uri: uri as string, version: document.version, length: document.getText().length }], [
@@ -5138,8 +5152,12 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
 
 connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDocument?: { uri?: unknown } }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
-  if (!document || !root || token.isCancellationRequested || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return [];
+  if (!document || !root || token.isCancellationRequested || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const workspace = await semanticForUri(uri as string);
+  const names = new Set(workspace.typeCopySymbols(uri as string, [{ start: 0, end: document.getText().length }])
+    .map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+    || documents.get(uri as string)?.version !== document.version) return [];
   return workspace.unresolvedTypeNames(uri as string).map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
 });
 
@@ -7788,11 +7806,12 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
 
 // Establish current PHP source coverage for a refactor request without marking
 // framework providers or the global reference index ready.
-async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh'): Promise<boolean> {
+async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>): Promise<boolean> {
   await watchedFileChanges;
   await applyPendingFiles();
   const epoch = projectEpochs.get(root) ?? 0;
   const current = new Set<string>();
+  const selectedNames = typeNames ? [...typeNames] : undefined;
   let changedUri: string | undefined;
   const refreshStarted = testMode ? performance.now() : 0;
   const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch);
@@ -7805,7 +7824,13 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       current.add(uri);
       const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
       const effective = open?.getText() ?? source;
-      if (workspace.source(uri) !== effective) {
+      const previous = workspace.source(uri);
+      const normalizedSource = selectedNames ? effective.toLowerCase() : undefined;
+      const relevant = !selectedNames || selectedNames.some(name => normalizedSource!.includes(name));
+      // Imports need complete discovery of selected type names, not the bodies
+      // of unrelated new vendor files. Refresh changed indexed files as well
+      // so removed declarations cannot survive under their old names.
+      if (previous !== effective && (relevant || previous !== undefined)) {
         workspace.update(uri, effective, Boolean(open)); changedUri = uri;
       }
       return undefined;

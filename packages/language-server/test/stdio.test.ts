@@ -11249,6 +11249,58 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('resolves copied and pasted imports in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-default-imports-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const source = '<?php namespace App; use Acme\\Receipt as VendorReceipt; function make(VendorReceipt $value): VendorReceipt { return $value; }';
+      const target = '<?php namespace Destination; function make(Receipt $item): void { new Receipt(); }';
+      const sourcePath = join(root, 'src', 'Source.php'); const targetPath = join(root, 'src', 'Target.php');
+      const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Receipt.php');
+      await writeFile(sourcePath, source); await writeFile(targetPath, target); await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
+      const uri = pathToFileURL(sourcePath).toString(); const targetUri = pathToFileURL(targetPath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode,
+          ...(limited ? { indexLimits: { maxFiles: 2, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 } } : {}) },
+      } }));
+      await output.waitFor(message => message.id === 101); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      for (const [documentUri, text] of [[uri, source], [targetUri, target]]) server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: documentUri, languageId: 'php', version: 1, text } } }));
+      let id = 102;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: `phpCompanion/${method}`, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      const copyParams = { textDocument: { uri }, ranges: [{ start: lspPosition(source, source.indexOf('VendorReceipt $')), end: lspPosition(source, source.indexOf('VendorReceipt $') + 'VendorReceipt'.length) }] };
+      const copied = await request('copyTypeSymbols', copyParams);
+      expect(copied).toEqual(limited ? [] : [expect.objectContaining({ fqcn: 'Acme\\Receipt', alias: 'VendorReceipt' })]);
+      const position = lspPosition(target, target.indexOf('Receipt') + 2);
+      const candidates = await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'Receipt', context: 'paste' });
+      expect(candidates).toEqual(limited ? [] : [expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      const planParams = { textDocument: { uri: targetUri }, position, symbols: [{ fqcn: 'Acme\\Receipt', sourceAlias: 'VendorReceipt' }] };
+      const plan = await request('planTypeImports', planParams);
+      if (limited) expect(plan).toBeNull(); else expect(plan.edit.changes[targetUri]).toContainEqual(expect.objectContaining({ newText: expect.stringContaining('use Acme\\Receipt as VendorReceipt;') }));
+      const added = await request('addImport', { textDocument: { uri: targetUri }, position, name: 'Receipt', fqcn: 'Acme\\Receipt',
+        range: { start: lspPosition(target, target.indexOf('Receipt')), end: lspPosition(target, target.indexOf('Receipt') + 7) } });
+      if (limited) expect(added).toBeNull(); else expect(added.changes[targetUri]).toContainEqual(expect.objectContaining({ newText: expect.stringContaining('use Acme\\Receipt;') }));
+      const unresolved = await request('unresolvedTypeNames', { textDocument: { uri: targetUri } });
+      expect(unresolved).toEqual(limited ? [] : expect.arrayContaining([expect.objectContaining({ name: 'Receipt' })]));
+      if (!limited) {
+        const conflict = target.replace('function make', 'class VendorReceipt {} function make');
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: targetUri, version: 2 }, contentChanges: [{ text: conflict }] } }));
+        expect(await request('planTypeImports', { ...planParams, position: lspPosition(conflict, conflict.indexOf('new Receipt') + 5) })).toMatchObject({ conflict: { fqcn: 'Acme\\Receipt', sourceAlias: 'VendorReceipt' } });
+        await rm(vendorPath); // No watcher notification: stale declarations must disappear.
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
+        expect(await request('planTypeImports', planParams)).toBeNull();
+      }
+      expect(await readFile(sourcePath, 'utf8')).toBe(source); expect(await readFile(targetPath, 'utf8')).toBe(target);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('plans method parameter changes with fresh source coverage in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-parameters-'));
     try {
