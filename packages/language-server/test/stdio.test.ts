@@ -11262,11 +11262,12 @@ function values(): array { return []; }
       const sourcePath = join(root, 'src', 'Source.php'); const targetPath = join(root, 'src', 'Target.php');
       const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Receipt.php');
       await writeFile(sourcePath, source); await writeFile(targetPath, target); await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
+      await utimes(vendorPath, 1700000000, 1700000000);
       const uri = pathToFileURL(sourcePath).toString(); const targetUri = pathToFileURL(targetPath).toString();
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode,
-          ...(limited ? { indexLimits: { maxFiles: 2, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 } } : {}) },
+          indexLimits: { maxFiles: limited ? 2 : 4, maxFileSizeBytes: 524288, maxTotalBytes: 4096 } },
       } }));
       await output.waitFor(message => message.id === 101); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       for (const [documentUri, text] of [[uri, source], [targetUri, target]]) server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: documentUri, languageId: 'php', version: 1, text } } }));
@@ -11293,6 +11294,32 @@ function values(): array { return []; }
         const conflict = target.replace('function make', 'class VendorReceipt {} function make');
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: targetUri, version: 2 }, contentChanges: [{ text: conflict }] } }));
         expect(await request('planTypeImports', { ...planParams, position: lspPosition(conflict, conflict.indexOf('new Receipt') + 5) })).toMatchObject({ conflict: { fqcn: 'Acme\\Receipt', sourceAlias: 'VendorReceipt' } });
+        const before = await stat(vendorPath);
+        await writeFile(vendorPath, '<?php namespace Acme; class Removed {}');
+        await utimes(vendorPath, before.atimeMs / 1000, before.mtimeMs / 1000);
+        const changed = await stat(vendorPath);
+        expect(changed.size).toBe(before.size); expect(changed.mtimeMs).toBe(before.mtimeMs);
+        expect(changed.ctimeMs).not.toBe(before.ctimeMs);
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
+        await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
+        await utimes(vendorPath, before.atimeMs / 1000, before.mtimeMs / 1000);
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt', alias: 'VendorReceipt' })]);
+        const freshPath = join(root, 'vendor', 'acme', 'lib', 'src', 'FreshReceipt.php');
+        await writeFile(freshPath, '<?php namespace Acme; class FreshReceipt {}');
+        expect(await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'FreshReceipt', context: 'paste' }))
+          .toEqual([expect.objectContaining({ fqcn: 'Acme\\FreshReceipt' })]);
+        const overflowPath = join(root, 'src', 'Overflow.php');
+        await writeFile(overflowPath, '<?php class Overflow {}');
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([]); // Warm reuse still obeys file count.
+        await rm(overflowPath);
+        await writeFile(freshPath, '<?php namespace Acme; class FreshReceipt {}' + ' '.repeat(4096));
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([]); // Warm reuse still charges source bytes.
+        await writeFile(freshPath, '<?php namespace Acme; class FreshReceipt {}');
+        const vendorUri = pathToFileURL(vendorPath).toString();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: vendorUri, languageId: 'php', version: 1, text: '<?php namespace Acme; class Removed {}' } } }));
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: vendorUri } } }));
+        expect(await request('copyTypeSymbols', copyParams)).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
         await rm(vendorPath); // No watcher notification: stale declarations must disappear.
         expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
         expect(await request('planTypeImports', planParams)).toBeNull();

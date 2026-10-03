@@ -95,3 +95,28 @@ node scripts/benchmark-paste-imports.mjs 1000 10 onDemand
 ```
 
 下一步需要区分库存枚举、metadata／读取与语义回调耗时，再选择优化点。优化须保留依赖、新文件发现及预算检查。源码修改未获得性能证明，此性能项保持未完成；没有更新用户 Profile。
+
+## Import 磁盘源码复用：有效改善，整体预算仍开放
+
+CPU 采样中重复 open/read/fstat/close 占主要开销，源码回调占比较小。新增进程内弱引用缓存，仅在上次完整 Import 扫描的磁盘源码与当前语义源码一致时复用；每次仍枚举文件并检查 size、mtime、ctime，打开文档内容不同就重新读取。未保存内容不写入这份磁盘事实缓存。新文件、删除文件与所有索引预算仍检查；扫描不完整、取消或 epoch 变化不发布新缓存。普通 Rename、Move、参数修改的完整读取路径保持原实现。
+
+真实 stdio 合成样本，单位 ms；每组 10 轮，nearest-rank P95：
+
+| 模式 | PHP 文件数 | Copy P95 | 候选 P95 | 规划 P95 | 三步 P95 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| onDemand | 1,003 | 119.00 | 132.80 | 120.91 | 370.99 |
+| onDemand | 2,503 | 201.56 | 202.01 | 191.30 | 574.74 |
+| progressive | 1,003 | 918.22 | 139.48 | 166.66 | 1,100.38 |
+
+onDemand 1,003 文件三步 P95 相比基线减少约 71%；2,503 文件仍超单次 150 ms。progressive 三步 P50 为 321.73 ms，但 Copy 存在尖峰；脚本从 initialize/didOpen 后开始，未等待全局后台准备完成，因此它记录启动后的连续请求，不保证后台已稳定。尚未定位尖峰原因，不据此声明稳定态或整体性能达标。首轮 Copy 仍约 1.78 秒／3.85 秒／1.71 秒；本改动主要减少重复磁盘读取，不关闭冷启动缺口。部分协议检查与测量同时运行，数据不是独占机器或五轮统计。所有测量确认无 watcher 删除撤回及规划未写文件。
+
+验证：
+
+- 初版复用代码的定向 Import／Rename／Move／预算协议 16 项通过。
+- 扩充后的全组一次 15 通过、1 失败：experimental 在恢复 vendor 声明后返回空列表。随后仅复测三模式 Import 矩阵 6 项通过，包含同大小／保留 mtime 修改、无 watcher 新文件、暖缓存后文件数量／字节超限、未保存 vendor 关闭恢复及删除撤回。前次失败保留，原因未确认，不能把复测通过解释为竞态已消除。
+- onDemand、progressive 隔离 VS Code 宿主串行通过实际 Import Provider 的并发编辑和 Undo 保护。没有替代真实 WSL UI 或启动首次粘贴验收。
+- Language Server／扩展构建、根 typecheck、宿主编译、变更文件 ESLint、diff 检查通过。
+
+数据：`/tmp/sophp-paste-import-stamp-1000-20261004.json`、`/tmp/sophp-paste-import-stamp-2500-20261004.json`、`/tmp/sophp-paste-import-stamp-progressive-1000-20261004.json`。失败及复测分别见 `/tmp/sophp-import-stamp-protocol-final-20261004.log`、`/tmp/sophp-import-stamp-protocol-imports-recheck-20261004.log`；双模式宿主见 `/tmp/sophp-import-stamp-host-{onDemand,progressive}-20261004.log`。
+
+可选 CPU 采样：`SOPHP_IMPORT_CPU_PROFILE=/tmp/sophp-import-profile node scripts/benchmark-paste-imports.mjs 1000 5 onDemand`。采样有额外开销，不混入性能基线；脚本等待服务退出以确保采样文件刷新。本批不更新 Profile、打包、推送或发布。下一步核对后台准备与请求之间的失效交错及首次粘贴；大规模性能项保持未完成。

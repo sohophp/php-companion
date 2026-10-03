@@ -15,7 +15,7 @@
 - [默认模式参数修改](reports/default-indexing-parameters-2026-10-04.md)：新增、删除、重排参数按请求核对完整当前源码及 Composer 依赖；双模式隔离宿主通过三文件预览、取消、应用及单次 Undo/Redo。大项目等待和真实 WSL 验收继续开放。
 - [Safe Move 当前源码覆盖](reports/safe-move-source-coverage-2026-10-04.md)：修复默认模式漏掉依赖调用者、已完成索引漏掉无 watcher 新文件的问题；十项定向协议通过，扫描不完整拒绝规划。真实规模与其它重构入口继续核对。
 - [默认模式复制／粘贴导入](reports/default-indexing-imports-2026-10-04.md)：五个 Import 入口已改为按请求核对当前相关类型源码；三模式成功／预算矩阵及双模式粘贴竞态宿主通过。构造表达式发现与双模式单次 Undo/Redo 也有定向证明；多符号 alias 连续处理已有受控选择及单次 Undo/Redo 证明；真人 alias 输入、启动期首次粘贴和真实规模等待继续核对。
-- [Import 等待基线](reports/default-indexing-imports-2026-10-04.md)：1,003 文件合成 Composer 项目的 Copy／候选／规划热 P95 为约 420–443 ms，三步约 1.27 s，**未通过 150 ms 预算**。异步 stat 对照无收益且已撤回，继续分解扫描耗时再优化。
+- [Import 等待优化](reports/default-indexing-imports-2026-10-04.md)：复用已核验磁盘源码并保留逐文件 metadata／预算检查，onDemand 1,003 文件的三步 P95 从 1.27 s 降至 0.37 s，单次约 119–133 ms；2,503 文件仍约 191–202 ms，progressive 还有尖峰，**整体 150 ms 预算未通过**。双模式竞态宿主通过；experimental 一次恢复声明返回空结果的失败及随后复测通过均保留，原因尚未确认。继续核对后台准备交错与首次粘贴。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序

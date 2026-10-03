@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import console from 'node:console';
+import { clearTimeout, setTimeout } from 'node:timers';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -38,7 +40,11 @@ try {
   await writeFile(sourcePath, source); await writeFile(targetPath, target);
   await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
   const uri = pathToFileURL(sourcePath).toString(); const targetUri = pathToFileURL(targetPath).toString();
-  child = spawn(process.execPath, [resolve('packages/language-server/dist/server.js'), '--stdio'], { stdio: 'pipe' });
+  const profileDirectory = process.env.SOPHP_IMPORT_CPU_PROFILE;
+  if (profileDirectory) await mkdir(profileDirectory, { recursive: true });
+  child = spawn(process.execPath, [...(profileDirectory ? ['--cpu-prof', `--cpu-prof-dir=${profileDirectory}`] : []),
+    resolve('packages/language-server/dist/server.js'), '--stdio'], { stdio: 'pipe' });
+  const stopped = new Promise(done => child.once('exit', done));
   const decoder = new LspMessageDecoder(); const waiters = new Map(); let id = 1; let stderr = '';
   const send = message => child.stdin.write(encodeLspMessage({ jsonrpc: '2.0', ...message }));
   child.stderr.on('data', chunk => { stderr = `${stderr}${chunk}`.slice(-4096); });
@@ -96,4 +102,5 @@ try {
     hot: Object.fromEntries(Object.entries(samples).map(([name, values]) => [name, summarize(values)])),
     sourceScan: summarize(scanTimings), deletionWithoutWatcherVerified: true, planningDidNotWriteFiles: true }, null, 2));
   await request('shutdown', null); send({ method: 'exit', params: null });
-} finally { child?.kill(); await rm(root, { recursive: true, force: true }); }
+  await stopped;
+} finally { if (child?.exitCode === null) child.kill(); await rm(root, { recursive: true, force: true }); }

@@ -7804,6 +7804,10 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   return { range: { start: document.positionAt(target.start), end: document.positionAt(target.end) }, placeholder: target.name };
 });
 
+type ImportSourceCheck = { size: number; mtimeMs: number; ctimeMs: number; source: string };
+// Reuse only disk-backed facts; each request still inventories and stats every file.
+const importSourceChecks = new WeakMap<SemanticWorkspace, Map<string, ImportSourceCheck>>();
+
 // Establish current PHP source coverage for a refactor request without marking
 // framework providers or the global reference index ready.
 async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>): Promise<boolean> {
@@ -7812,12 +7816,25 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
   const epoch = projectEpochs.get(root) ?? 0;
   const current = new Set<string>();
   const selectedNames = typeNames ? [...typeNames] : undefined;
+  const previousChecks = selectedNames ? importSourceChecks.get(workspace) : undefined;
+  const nextChecks = selectedNames ? new Map<string, ImportSourceCheck>() : undefined;
+  const inspected = new Map<string, Omit<ImportSourceCheck, 'source'>>();
   let changedUri: string | undefined;
   const refreshStarted = testMode ? performance.now() : 0;
   const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch);
   const scan = await indexComposerSources(root, {
     project: await composerProjectForRoot(root), includeDependencies: true, limits: indexLimits,
     readConcurrency: 32, yieldEvery: 100, inspectSource: statBatches.inspect,
+    skipSource: selectedNames ? (path, info): boolean => {
+      inspected.set(path, info);
+      const known = previousChecks?.get(path); if (!known) return false;
+      if (known.size !== info.size || known.mtimeMs !== info.mtimeMs || known.ctimeMs !== info.ctimeMs) return false;
+      const uri = indexedUriForPath(root, path);
+      const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
+      if (workspace.source(uri) !== known.source || open && open.getText() !== known.source) return false;
+      current.add(uri); nextChecks!.set(path, known);
+      return true;
+    } : undefined,
     shouldContinue: () => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
     uriForPath: path => indexedUriForPath(root, path),
     onSource: ({ uri, path, source }) => {
@@ -7833,6 +7850,8 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       if (previous !== effective && (relevant || previous !== undefined)) {
         workspace.update(uri, effective, Boolean(open)); changedUri = uri;
       }
+      const stamp = inspected.get(path);
+      if (nextChecks && stamp && effective === source && workspace.source(uri) === source) nextChecks.set(path, { ...stamp, source });
       return undefined;
     },
   }).finally(() => statBatches.close());
@@ -7845,6 +7864,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
     if (!current.has(uri) && !documents.get(uri)) { workspace.remove(uri); changedUri = uri; }
   }
   indexedUrisByRoot.set(root, current);
+  if (nextChecks) importSourceChecks.set(workspace, nextChecks);
   if (changedUri) invalidateCandidates(changedUri);
   return !cancelled();
 }
