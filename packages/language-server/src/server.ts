@@ -4928,6 +4928,9 @@ connection.onRequest('phpCompanion/symfonyServiceCompletions', async (params: {
 
 connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?: unknown }, token): Promise<ControllerContextPayload | null> => {
   if (typeof params?.rootUri !== 'string') return null;
+  // Watcher I/O may still be proving a no-op or applying a real change.
+  await watchedFileChanges;
+  if (token.isCancellationRequested) return null;
   const requestedPath = pathForUri(params.rootUri);
   const root = requestedPath && workspaceRoots.find((candidate) => sameFilesystemPath(candidate, requestedPath));
   if (!root) return null;
@@ -5417,12 +5420,41 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
   }
   for (const uris of completedByRoot.values()) for (const uri of uris) connection.console.info(`[index:delta] complete uri=${uri}`);
 }
+async function isUnchangedKnownClosedPhpFile(root: string, uri: string, path: string): Promise<boolean> {
+  if (activeIndexing) return false;
+  const hasPossibleOpenAlias = (): boolean => documents.all().some((document) => {
+    const openedPath = pathForUri(document.uri);
+    return Boolean(openedPath && basename(openedPath).toLowerCase() === basename(path).toLowerCase());
+  });
+  if (hasPossibleOpenAlias()) return false;
+  const workspacePromise = semanticWorkspaces.get(`root:${root}`);
+  const workspace = await workspacePromise;
+  const targetUri = workspace?.source(uri) !== undefined ? uri : indexedUriForPath(root, path);
+  const previous = workspace?.source(targetUri);
+  if (!workspace || previous === undefined) return false;
+  try {
+    const metadata = await stat(path);
+    if (!metadata.isFile() || metadata.size > indexLimits.maxFileSizeBytes) return false;
+    const physicalPath = await physicalFilesystemPath(path);
+    if (!physicalPath || !sameFilesystemPath(physicalPath, path)) return false;
+    const current = await readFile(path);
+    return current.equals(Buffer.from(previous, 'utf8')) && workspace.source(targetUri) === previous
+      && semanticWorkspaces.get(`root:${root}`) === workspacePromise
+      && rootForUri(uri) === root && !activeIndexing && !hasPossibleOpenAlias();
+  } catch { return false; }
+}
+
 async function processWatchedFileChanges(changes: readonly { uri: string; type: number }[]): Promise<void> {
   const changedComposerPaths: string[] = [];
   const containerRefreshRoots = new Set<string>();
   for (const change of changes) {
     const path = pathForUri(change.uri); if (!path) continue;
     const root = rootForUri(change.uri);
+    if (root && change.type === 2 && path.toLowerCase().endsWith('.php') && !isPlannedSafeMovePath(path)
+      && !affectsSymfonyContainerProvider(root, path) && !isSymfonyServiceConfig(root, path)
+      && await isUnchangedKnownClosedPhpFile(root, change.uri, path)) {
+      connection.console.info(`[index:delta] unchanged uri=${change.uri}`); continue;
+    }
     if (root) {
       if (path.toLowerCase().endsWith('.php')) invalidateTypeNameSearch(root);
       invalidateContainerFacts();

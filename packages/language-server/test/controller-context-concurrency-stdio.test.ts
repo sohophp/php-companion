@@ -78,3 +78,40 @@ it.each([['7.2', 'one'], ['8.5', 'one'], ['7.2', 'all'], ['8.5', 'all']] as cons
     expect(await readFile(controller, 'utf8')).toBe(source);
   } finally { output?.dispose(); server?.kill(); await rm(root, { recursive: true, force: true }); }
 });
+
+it.each(['7.2', '8.5'])('retains Controller preparation for unchanged watcher events at PHP %s', async phpVersion => {
+  const root = await mkdtemp(join(tmpdir(), 'sophp-controller-noop-watch-')); let server: ChildProcessWithoutNullStreams | undefined;
+  let output: ReturnType<typeof outputFor> | undefined;
+  try {
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+    const controller = join(root, 'PageController.php'), uri = pathToFileURL(controller).toString();
+    const source = (template: string) => `<?php namespace App; class PageController { public function show() { return $this->render('${template}'); } }`;
+    await writeFile(controller, source('initial.html.twig'));
+    const calls = join(root, 'calls.txt'), provider = join(root, 'provider.mjs');
+    await writeFile(provider, `import {appendFileSync,readFileSync} from 'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(calls)},request.id+'\\n');const documents=new Map((request.params.documents??[]).map(doc=>[doc.uri,doc.source]));const contexts=request.params.projectTypes.flatMap(type=>{const source=documents.get(type.uri)??readFileSync(type.path,'utf8');const template=/render\\('([^']+)'/.exec(source)?.[1];return template?[{template,complete:true,variables:[],sources:[{symbol:type.fqcn+'::show',location:{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}}]}]:[]});process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.controllers',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:contexts}}));`);
+    server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio', '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' }); output = outputFor(server);
+    output.send({ id: 1, method: 'initialize', params: { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: { window: { workDoneProgress: true } }, initializationOptions: { phpVersion, indexingMode: 'onDemand', bundledSemanticProviders: [{ providerId: 'test.controllers', command: process.execPath, args: [provider], requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }] } } });
+    expect((await output.wait(message => message.id === 1 && !message.method)).error).toBeUndefined(); output.send({ method: 'initialized', params: {} });
+    const query = async (id: number) => { output!.send({ id, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }); const response = await output!.wait(message => message.id === id && !message.method); expect(response.error).toBeUndefined(); return response.result.contexts.map((context: { template: string }) => context.template); };
+    expect(await query(2)).toEqual(['initial.html.twig']); expect(await callsAt(calls)).toHaveLength(1);
+    await writeFile(controller, source('initial.html.twig'));
+    output.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri, type: 2 }, { uri, type: 2 }] } });
+    await output.wait(message => message.method === 'window/logMessage' && /\[index:delta\] (?:complete|unchanged)/.test(message.params.message) && message.params.message.includes(uri));
+    expect(await query(3)).toEqual(['initial.html.twig']); expect(await callsAt(calls)).toHaveLength(1);
+    expect(output.messages.filter(message => message.method === '$/progress' && message.params.value.kind === 'begin' && message.params.value.title === 'Finding Symfony controller contexts')).toHaveLength(1);
+    const afterNoop = output.messages.length;
+    await writeFile(controller, source('changed.html.twig'));
+    output.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri, type: 2 }] } });
+    expect(await query(4)).toEqual(['changed.html.twig']);
+    await until(async () => output!.messages.slice(afterNoop).some(message => message.method === 'window/logMessage' && message.params.message.includes(`[index:delta] complete uri=${uri}`))); expect((await callsAt(calls)).length).toBeGreaterThan(1);
+    const beforeDelete = output.messages.length;
+    await rm(controller); output.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri, type: 3 }] } });
+    expect(await query(5)).toEqual([]);
+    await until(async () => output!.messages.slice(beforeDelete).some(message => message.method === 'window/logMessage' && message.params.message.includes(`[index:delta] complete uri=${uri}`)));
+    const beforeCreate = output.messages.length;
+    await writeFile(controller, source('recreated.html.twig')); output.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri, type: 1 }] } });
+    expect(await query(6)).toEqual(['recreated.html.twig']);
+    await until(async () => output!.messages.slice(beforeCreate).some(message => message.method === 'window/logMessage' && message.params.message.includes(`[index:delta] complete uri=${uri}`)));
+    expect(await readFile(controller, 'utf8')).toBe(source('recreated.html.twig'));
+  } finally { output?.dispose(); server?.kill(); await rm(root, { recursive: true, force: true }); }
+});
